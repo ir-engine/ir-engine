@@ -12,48 +12,29 @@ import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
-import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
+import { useInstanceConnectionState } from '../../reducers/instanceConnection/InstanceConnectionState'
+import { InstanceConnectionService } from '../../reducers/instanceConnection/InstanceConnectionService'
 import { retriveLocationByName } from './LocationLoadHelper'
 import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
-import { provisionChannelServer } from '../../reducers/channelConnection/service'
+import { ChannelConnectionService } from '../../reducers/channelConnection/ChannelConnectionService'
 
 interface Props {
   locationName: string
   history?: any
   engineInitializeOptions?: InitializeOptions
-  instanceConnectionState?: any
   //doLoginAuto?: typeof doLoginAuto
-  provisionChannelServer: typeof provisionChannelServer
-  provisionInstanceServer: typeof provisionInstanceServer
-  resetInstanceServer: typeof resetInstanceServer
+
   showTouchpad?: boolean
   children?: any
   chatState?: any
   sceneId: any
-  setSceneId: any
   reinit: any
   isUserBanned: any
   setIsValidLocation: any
 }
 
-const mapStateToProps = (state: any) => {
-  return {
-    // appState: selectAppState(state),
-
-    instanceConnectionState: selectInstanceConnectionState(state) //
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
-  provisionChannelServer: bindActionCreators(provisionChannelServer, dispatch),
-  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-  resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch)
-})
-
 export const NetworkInstanceProvisioning = (props: Props) => {
-  const { sceneId, setSceneId, reinit, isUserBanned, setIsValidLocation } = props
+  const { sceneId, reinit, isUserBanned, setIsValidLocation } = props
 
   const authState = useAuthState()
   const selfUser = authState.user
@@ -61,7 +42,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const dispatch = useDispatch()
   const chatState = useChatState()
   const locationState = useLocationState()
-
+  const instanceConnectionState = useInstanceConnectionState()
   useEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
       dispatch(UserService.getLayerUsers(true))
@@ -75,7 +56,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       if (!ev.instance) return
 
       await shutdownEngine()
-      props.resetInstanceServer()
+      dispatch(InstanceConnectionService.resetInstanceServer())
 
       if (!isUserBanned) {
         retriveLocationByName(authState, props.locationName, history)
@@ -89,8 +70,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     if (currentLocation.id?.value) {
       if (
         !isUserBanned &&
-        !props.instanceConnectionState.get('instanceProvisioned') &&
-        !props.instanceConnectionState.get('instanceProvisioning')
+        !instanceConnectionState.instanceProvisioned.value &&
+        !instanceConnectionState.instanceProvisioning.value
       ) {
         const search = window.location.search
         let instanceId
@@ -101,11 +82,10 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           instanceId = query.instanceId
         }
 
-        if (sceneId === null) setSceneId(currentLocation.sceneId.value)
-        props.provisionInstanceServer(currentLocation.id.value, instanceId || undefined, sceneId)
+        dispatch(
+          InstanceConnectionService.provisionInstanceServer(currentLocation.id.value, instanceId || undefined, sceneId)
+        )
       }
-
-      if (sceneId === null) setSceneId(currentLocation.sceneId.value)
     } else {
       if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
         setIsValidLocation(false)
@@ -116,26 +96,27 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
   useEffect(() => {
     if (
-      props.instanceConnectionState.get('instanceProvisioned') &&
-      props.instanceConnectionState.get('updateNeeded') &&
-      !props.instanceConnectionState.get('instanceServerConnecting') &&
-      !props.instanceConnectionState.get('connected')
+      instanceConnectionState.instanceProvisioned.value &&
+      instanceConnectionState.updateNeeded.value &&
+      !instanceConnectionState.instanceServerConnecting.value &&
+      !instanceConnectionState.connected.value
     ) {
-      reinit()
+      // TODO: fix up reinitialisation - we need to handle this more gently
+      // reinit()
     }
-  }, [props.instanceConnectionState])
+  }, [instanceConnectionState])
 
   useEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.entries(channels).find((channel) => channel[1].channelType === 'instance')
-      props.provisionChannelServer(null!, instanceChannel[0])
+      dispatch(ChannelConnectionService.provisionChannelServer(null!, instanceChannel[0]))
     }
   }, [chatState.instanceChannelFetched.value])
 
   return <></>
 }
 
-const connector = connect(mapStateToProps, mapDispatchToProps)(NetworkInstanceProvisioning)
+const connector = NetworkInstanceProvisioning
 
 export default connector

@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import Card from '@material-ui/core/Card'
 import CardActionArea from '@material-ui/core/CardActionArea'
@@ -16,25 +16,20 @@ import Typography from '@material-ui/core/Typography'
 import ViewMedia from './ViewMedia'
 import { useARMediaStyles } from './styles'
 import Grid from '@material-ui/core/Grid'
-import { removeArMedia } from '../../../reducers/arMedia/service'
+import { ArMediaService } from '../../../reducers/arMedia/ArMediaService'
 
 interface Props {
   list?: any
-  removeArMedia?: typeof removeArMedia
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  removeArMedia: bindActionCreators(removeArMedia, dispatch)
-})
-
 const MediaTable = (props: Props) => {
-  const { list, removeArMedia } = props
+  const { list } = props
   const classes = useARMediaStyles()
   const [viewModel, setViewModel] = React.useState(false)
   const [mediaAdmin, setMediaAdmin] = React.useState('')
   const [open, setOpen] = React.useState(false)
   const [mediaId, setMediaId] = React.useState('')
-
+  const dispatch = useDispatch()
   const handleClickOpen = (id: string) => {
     setMediaId(id)
     setOpen(true)
@@ -60,7 +55,7 @@ const MediaTable = (props: Props) => {
   }
 
   const handleDelete = () => {
-    removeArMedia(mediaId)
+    dispatch(ArMediaService.removeArMedia(mediaId))
     handleClose()
   }
 
@@ -132,4 +127,4 @@ const MediaTable = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(MediaTable)
+export default MediaTable

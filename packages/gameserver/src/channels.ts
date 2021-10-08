@@ -12,7 +12,7 @@ import { getPortalByEntityId } from '@xrengine/server-core/src/entities/componen
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
+import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { getPacksFromSceneData } from '@xrengine/realitypacks/loader'
 import { initializeServerEngine } from './initializeServerEngine'
 
@@ -30,7 +30,7 @@ const loadScene = async (app: Application, sceneId: string) => {
   const sceneData = (await app.service(service).get(serviceId)) as SceneData
   const packs = await getPacksFromSceneData(sceneData, false)
 
-  await initializeServerEngine(packs.systems)
+  await initializeServerEngine(packs.systems, app.isChannelInstance)
   console.log('Initialized new gameserver instance')
 
   let entitiesLeft = -1

@@ -79,7 +79,7 @@ if (config.analytics.enabled) {
     app.configure(feathersLogger(winston))
     app.configure(services)
 
-    app.use('healthcheck', (req, res) => {
+    app.use('/healthcheck', (req, res) => {
       res.sendStatus(200)
     })
     collectAnalytics()

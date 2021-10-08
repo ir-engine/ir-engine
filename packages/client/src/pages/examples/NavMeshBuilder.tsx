@@ -37,7 +37,7 @@ import { Position, Polygon, MultiPolygon } from 'geojson'
 import pc from 'polygon-clipping'
 import { computeBoundingBox } from '@xrengine/engine/src/map/GeoJSONFns'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { World } from '@xrengine/engine/src'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner

@@ -8,12 +8,6 @@ import { useVideoState } from '../video/VideoState'
 import { VideoService } from '../video/VideoService'
 import { useTranslation } from 'react-i18next'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 interface Props {}
 
 export const VideoList = (props: Props): any => {
@@ -48,4 +42,4 @@ export const VideoList = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VideoList)
+export default VideoList

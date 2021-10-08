@@ -9,7 +9,7 @@ import { ThemeProvider } from 'styled-components'
 import theme from '../../theme'
 import reducers from '../reducers'
 import './styles.scss'
-import { restoreState } from '@xrengine/client-core/src/persisted.store'
+import { AuthAction } from '@xrengine/client-core/src/user/reducers/auth/AuthAction'
 import RouterComp from '../router'
 
 const App = (): any => {
@@ -22,7 +22,7 @@ const App = (): any => {
       ;(window as any).env = ''
     }
 
-    dispatch(restoreState())
+    dispatch(AuthAction.restoreAuth())
 
     // initGA()
 

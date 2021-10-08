@@ -13,33 +13,18 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
+import { useInstanceConnectionState } from '../../reducers/instanceConnection/InstanceConnectionState'
 import styles from './MapInstanceChat.module.scss'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    instanceConnectionState: selectInstanceConnectionState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 interface Props {
-  instanceConnectionState?: any
   newMessageLabel?: string
   isOpen: boolean
   setUnreadMessages: (hasUnreadMessages: boolean) => void
 }
 
 const InstanceChat = (props: Props): any => {
-  const {
-    instanceConnectionState,
-
-    newMessageLabel = 'Say something...',
-    isOpen,
-    setUnreadMessages
-  } = props
+  const { newMessageLabel = 'Say something...', isOpen, setUnreadMessages } = props
 
   let activeChannel
 
@@ -51,12 +36,13 @@ const InstanceChat = (props: Props): any => {
   const channels = channelState.channels.value
   const [composingMessage, setComposingMessage] = useState('')
   const activeChannelMatch = Object.entries(channels).find(([, channel]) => channel.channelType === 'instance')
+  const instanceConnectionState = useInstanceConnectionState()
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
 
   useEffect(() => {
-    if (instanceConnectionState.get('connected') === true && channelState.fetchingInstanceChannel.value !== true) {
+    if (instanceConnectionState.connected.value === true && channelState.fetchingInstanceChannel.value !== true) {
       dispatch(ChatService.getInstanceChannel())
     }
   }, [instanceConnectionState])
@@ -237,4 +223,4 @@ const InstanceChat = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat)
+export default InstanceChat

@@ -17,7 +17,7 @@ import {
 } from './SocketWebRTCClientFunctions'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
-import { triggerUpdateNearbyLayerUsers } from '../reducers/mediastream/service'
+import { MediaStreamService } from '../reducers/mediastream/MediaStreamService'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 // import { encode, decode } from 'msgpackr'
@@ -371,7 +371,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             channelType: 'instance',
             channelId: this.channelId
           })
-          triggerUpdateNearbyLayerUsers()
+          MediaStreamService.triggerUpdateNearbyLayerUsers()
         })
         EngineEvents.instance.addEventListener(MediaStreams.EVENTS.CLOSE_CONSUMER, (consumer) =>
           closeConsumer(consumer.consumer)

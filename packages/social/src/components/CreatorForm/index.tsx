@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 
 import { CardMedia, Typography, Button } from '@material-ui/core'
@@ -22,34 +22,21 @@ import SubjectIcon from '@material-ui/icons/Subject'
 
 import TextField from '@material-ui/core/TextField'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { updateCreator } from '../../reducers/creator/service'
-import { updateCreatorFormState } from '../../reducers/popupsState/service'
+import { useCreatorState } from '../../reducers/creator/CreatorState'
+import { CreatorService } from '../../reducers/creator/CreatorService'
+import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
 import { useTranslation } from 'react-i18next'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreator: bindActionCreators(updateCreator, dispatch),
-  updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch)
-})
 interface Props {
   creatorData?: any
-  creatorsState?: any
-  updateCreator?: typeof updateCreator
-  updateCreatorFormState?: typeof updateCreatorFormState
 }
 
-const CreatorForm = ({ creatorData, creatorsState, updateCreator, updateCreatorFormState }: Props) => {
+const CreatorForm = ({ creatorData }: Props) => {
   const history = useHistory()
   const avatarRef = React.useRef<HTMLInputElement>()
-  const [creator, setCreator] = useState(
-    creatorData ? creatorData : creatorsState && creatorsState.get('currentCreator')
-  )
+  const dispatch = useDispatch()
+  const creatorsState = useCreatorState()
+  const [creator, setCreator] = useState(creatorData ? creatorData : creatorsState.creators.currentCreator.value)
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const callBacksFromUpdateUsername = (str: string) => {
@@ -68,7 +55,7 @@ const CreatorForm = ({ creatorData, creatorsState, updateCreator, updateCreatorF
 
   const handleUpdateUser = (e: any) => {
     e.preventDefault()
-    updateCreator(creator, callBacksFromUpdateUsername)
+    dispatch(CreatorService.updateCreator(creator, callBacksFromUpdateUsername))
   }
   const handlePickAvatar = async (file) => setCreator({ ...creator, newAvatar: file.target.files[0] })
   const { t } = useTranslation()
@@ -81,7 +68,10 @@ const CreatorForm = ({ creatorData, creatorsState, updateCreator, updateCreatorF
     ChainIcon: '/assets/creator-form/url.svg'
   }
 
-  useEffect(() => setCreator(creatorsState.get('currentCreator')), [creatorsState.get('currentCreator')])
+  useEffect(
+    () => setCreator(creatorsState.creators.currentCreator.value),
+    [creatorsState.creators.currentCreator.value]
+  )
 
   return (
     <>
@@ -89,7 +79,13 @@ const CreatorForm = ({ creatorData, creatorsState, updateCreator, updateCreatorF
         <form className={styles.form} noValidate onSubmit={(e) => handleUpdateUser(e)}>
           <nav className={styles.headerContainer}>
             {!creatorData && (
-              <Button variant="text" className={styles.backButton} onClick={() => updateCreatorFormState(false)}>
+              <Button
+                variant="text"
+                className={styles.backButton}
+                onClick={() => {
+                  dispatch(PopupsStateService.updateCreatorFormState(false))
+                }}
+              >
                 <ArrowBackIosIcon />
                 {t('social:creatorForm.back')}
               </Button>
@@ -222,4 +218,4 @@ const CreatorForm = ({ creatorData, creatorsState, updateCreator, updateCreatorF
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreatorForm)
+export default CreatorForm
