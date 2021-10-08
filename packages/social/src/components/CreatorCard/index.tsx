@@ -32,12 +32,14 @@ interface Props {
 
 const CreatorCard = ({ creator }: Props) => {
   const creatorState = useCreatorState()
-  const isMe = creator?.id === creatorState.creators.currentCreator?.id?.value
+  const isMe = creator === creatorState.creators.currentCreator?.id?.value
   const { t } = useTranslation()
   const [openBlock, setOpenBlock] = React.useState(false)
   const [openFiredModal, setOpenFiredModal] = useState(false)
   const [creatorsType, setCreatorsType] = useState('followers')
   const dispatch = useDispatch()
+  const creatorData = isMe ? creatorState.creators.currentCreator : creatorState.creators.creator
+
   // const [anchorEl, setAnchorEl] = useState(null);
   // const handleClick = (event) => {
   //     setAnchorEl(event.currentTarget);
@@ -73,7 +75,6 @@ const CreatorCard = ({ creator }: Props) => {
   const blackList = creatorState.creators.blocked.value
   const checkId = (obj) => obj.id === creator?.id
   const isBlockedByMe = blackList?.some(checkId)
-  console.log(isBlockedByMe)
 
   const handleBlockCreator = (creatorId) => {
     dispatch(CreatorService.blockCreator(creatorId))
@@ -144,22 +145,26 @@ const CreatorCard = ({ creator }: Props) => {
                         <Button variant={'outlined'} color='primary' className={styles.followButton} onClick={()=>handleFollowingByCreator(creator.id)}>Following</Button>
                     </section>
                 </section> */}
-        {creator.avatar ? (
-          <CardMedia className={styles.avatarImage} image={creator.avatar} title={creator.username} />
+        {creatorData.avatar.value ? (
+          <CardMedia
+            className={styles.avatarImage}
+            image={creatorData.avatar.value}
+            title={creatorData.username.value}
+          />
         ) : (
           <section className={styles.avatarImage} />
         )}
         <CardContent className={styles.content}>
-          <Typography className={styles.username}>@{creator.username}</Typography>
-          <Typography className={styles.titleContainer}>{creator.name}</Typography>
-          <Typography className={styles.tags}>{creator.tags}</Typography>
-          <Typography>{creator.bio}</Typography>
+          <Typography className={styles.username}>@{creatorData.username.value}</Typography>
+          <Typography className={styles.titleContainer}>{creatorData.name.value}</Typography>
+          <Typography className={styles.tags}>{creatorData.tags.value}</Typography>
+          <Typography>{creatorData.bio.value}</Typography>
           {isMe ? (
             <Button
               variant={'outlined'}
               color="primary"
               className={styles.followButton}
-              onClick={() => handleBlockedList(creator.id)}
+              onClick={() => handleBlockedList(creatorData.id.value)}
             >
               {t('social:creator.blocked-list')}
             </Button>
@@ -187,7 +192,7 @@ const CreatorCard = ({ creator }: Props) => {
               <Button onClick={closeBlockConfirm} color="primary">
                 {t('social:cancel')}
               </Button>
-              <Button onClick={() => handleBlockCreator(creator.id)} color="primary" autoFocus>
+              <Button onClick={() => handleBlockCreator(creatorData.id.value)} color="primary" autoFocus>
                 {t('social:confirm')}
               </Button>
             </DialogActions>

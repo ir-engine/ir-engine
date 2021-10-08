@@ -133,7 +133,7 @@ const Registration = (props: any): any => {
   }, [selfUser.id.value, continueAsGuest, selfUser.userRole.value, registrationServiceClick])
 
   useEffect(() => {
-    if (auth?.authUser?.accessToken) {
+    if (auth?.authUser?.accessToken && auth?.user?.id.value) {
       dispatch(CreatorService.createCreator())
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
