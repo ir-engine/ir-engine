@@ -69,7 +69,6 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
       const subSceneChildren = []
       for (const key of mapComponent.completeObjects.keys()) {
         const object = mapComponent.completeObjects.get(key)
-        // TODO(perf) use a quad tree? or a good enough distance calc that doesn't use sqrt/hypot?
         if (object.mesh) {
           if (
             isIntersectCircleCircle(

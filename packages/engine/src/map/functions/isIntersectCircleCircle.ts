@@ -1,4 +1,4 @@
-import computeDistanceFromCircle from '../../../src/map/functions/computeDistanceFromCircle'
+import computeSquared from '../../../src/map/functions/computeSquaredDistanceFromCircle'
 
 export default function isIntersectCircleCircle(
   centerPointA: [number, number],
@@ -6,6 +6,6 @@ export default function isIntersectCircleCircle(
   centerPointB: [number, number],
   radiusB: number
 ): boolean {
-  const distance = computeDistanceFromCircle(centerPointA, centerPointB, radiusB)
-  return distance < radiusA
+  const distanceSquared = computeSquared(centerPointA, centerPointB, radiusB)
+  return distanceSquared < radiusA * radiusA
 }

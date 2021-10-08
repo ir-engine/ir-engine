@@ -1,7 +1,10 @@
-export default function computeDistanceFromCircle(
+export default function computeSquaredDistanceFromCircle(
   point: [number, number],
   circleCenter: [number, number],
   circleRadius: number
 ) {
-  return Math.hypot(point[0] - circleCenter[0], point[1] - circleCenter[1]) - circleRadius
+  const xDiff = point[0] - circleCenter[0]
+  const yDiff = point[1] - circleCenter[1]
+
+  return xDiff * xDiff + yDiff * yDiff - circleRadius * circleRadius
 }
