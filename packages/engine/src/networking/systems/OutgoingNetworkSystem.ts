@@ -77,15 +77,18 @@ function ikPoseIsTheSame(previousNetworkState, netId, hp, hr, lp, lr, rp, rr): b
   return false
 }
 
-export const queueUnchangedPoses = (world) => {
+export const queueUnchangedPoses = (world: World) => {
   const { currentNetworkState, previousNetworkState } = world
 
   const ents = networkTransformsQuery(world)
   for (let i = 0; i < ents.length; i++) {
     const entity = ents[i]
+    const networkObject = getComponent(entity, NetworkObjectComponent)
+
+    // only send poses if we are hosting (for now synonymous with server) or if we are the owner
+    if (!world.isHosting || networkObject.userId !== Engine.userId) continue
 
     const transformComponent = getComponent(entity, TransformComponent)
-    const networkObject = getComponent(entity, NetworkObjectComponent)
 
     let vel = undefined! as number[]
     let angVel = undefined

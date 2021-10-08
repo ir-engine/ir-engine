@@ -12,8 +12,7 @@ import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { REALITY_PACK_PAGE_LIMIT } from '../../reducers/admin/reality-pack/RealityPackState'
 import { LocationService } from '../../reducers/admin/location/LocationService'
@@ -28,21 +27,7 @@ if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
 }
 
-interface Props {
-  locationState?: any
-  fetchAdminRealityPacks?: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminRealityPacks: bindActionCreators(fetchAdminRealityPacks, dispatch)
-})
-
-const RealityPack = (props: Props) => {
-  const { fetchAdminRealityPacks } = props
+const RealityPack = () => {
   const authState = useAuthState()
   const user = authState.user
   const adminRealityPackState = useRealityPackState()
@@ -345,4 +330,4 @@ const RealityPack = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(RealityPack)
+export default RealityPack
