@@ -59,7 +59,6 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
     /* hoist */
     const transport: TestNetworkTransport = new TestNetworkTransport()
     Network.instance.transport = transport
-    console.log('whatup son?!', Network.instance.transport)
 
     /* mock */
 		const world = World[CreateWorld]()
