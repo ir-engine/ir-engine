@@ -32,9 +32,19 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
  import { UserId } from '@xrengine/common/src/interfaces/UserId'
  import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
  
- /**
-  *
-  */
+ interface statePlayer {
+  userId: string
+  teamParameters: any[]
+  anyData: any[]
+ }
+
+ interface stateAll {
+  tournamentStage: 'waitingPlayers'|'gameStart'|'teamsPlaying'|'gameResults'|'finalResults'
+    players: statePlayer[],
+    game: any[],
+    gamesHistory: any[]
+ }
+
  const id =  {
   userId: 'test',
   teamParameters: [],
@@ -42,11 +52,11 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 };
 
  export const TournamentState = createState({
-    tournamentStage: 'loading', // |waitingPlayers|gameStart|teamsPlaying|gameResults|finalResults
+    tournamentStage: 'waitingPlayers', // waitingPlayers|gameStart|teamsPlaying|gameResults|finalResults
     players: [],
     game: [],
     gamesHistory: []
- })
+ } as stateAll)
  /*
  tournamentStage: 'loading', // |waitingPlayers|gameStart|teamsPlaying|gameResults|finalResults
     players: [ id, id, id, id],
@@ -101,24 +111,24 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
         * On PLAYER_JOINED
         * - Add a player to player list
         */
-       .when(NetworkWorldAction.spawnAvatar.matches, ({ userId }) => {
+       .when(NetworkWorldAction.createClient.matches, ({ userId }) => {
          const playerAlreadyExists = s.players.find((p) => p.userId.value === userId)
+
          if (!playerAlreadyExists) {
            s.players.merge([
              {
                userId: userId,
-               scores: [],
-               stroke: 0,
-               viewingScorecard: false
+               teamParameters: [],
+               anyData: [0]
              }
            ])
-           console.log(`player ${userId} joined`)
+           console.warn(`player ${userId} JOINED`)
            nextStep(s)
          } else {
            console.log(`player ${userId} rejoined`)
          }
         // dispatchFrom(world.hostId, () => TournamentAction.sendState({ state: s.attach(Downgraded).value })).to(userId)
-         const entity = world.getUserAvatarEntity(userId)
+         //const entity = world.getUserAvatarEntity(userId)
          //setupPlayerAvatar(entity)
          //setupPlayerInput(entity)
        })
@@ -131,9 +141,9 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
  //let ballTimer = 0
  
  export default async function TournamentSystem(world: World) {
-   console.log('-6-6-6-6-6-6-6-6-6-6-6-')
+   
    world.receptors.add(tournamentReceptor)
- 
+   console.log('Receptor -6-6-6-6-6-6-6-6-6-6-6-')
    const namedComponentQuery = defineQuery([NameComponent])
   // const golfClubQuery = defineQuery([GolfClubComponent])
  

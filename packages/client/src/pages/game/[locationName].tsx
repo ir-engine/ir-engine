@@ -47,8 +47,8 @@ const LocationPage = (props) => {
        // engineCallbacks={engineCallbacks}
         engineInitializeOptions={engineInitializeOptions}
       >
-        <UserMenu />
-        <MediaIconsBox />
+        {/* <UserMenu />
+        <MediaIconsBox /> */}
       </World>
     </Layout>
   )
