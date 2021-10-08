@@ -1,0 +1,92 @@
+.App {
+  text-align: center;
+}
+
+.pageBackground {
+  /*background-image: linear-gradient(to top, rgba(51, 50, 50, 1), rgba(99, 99, 99, 1)),  url('/static/full_screen_background.svg');*/
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: white;
+
+  /* Full height */
+  height: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.cardBackgroundBig {
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.cardBackgroundBig:hover {
+  cursor: pointer;
+}
+
+.cardBackgroundSmall {
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.cardBackgroundSmall:hover {
+  cursor: pointer;
+}
+
+.cardBackgroundGreenTop {
+  background: linear-gradient(0deg, rgba(90, 159, 81, 1), rgba(130, 200, 120, 1));
+}
+
+.cardBackgroundGreenBottom {
+  background: linear-gradient(0deg, rgba(90, 159, 80, 0.92), rgba(100, 169, 90, 0));
+}
+
+.cardBackgroundBlueTop {
+  background: linear-gradient(0deg, rgba(46, 131, 228, 1), rgba(133, 177, 234, 1));
+}
+
+.cardBackgroundBlueBottom {
+  background: linear-gradient(0deg, rgba(46, 130, 227, 1), rgba(128, 174, 234, 0));
+}
+
+.cardBackgroundPurpleTop {
+  background: linear-gradient(0deg, rgba(145, 55, 204, 1), rgba(253, 111, 221, 1));
+}
+
+.cardBackgroundPurpleBottom {
+  background: linear-gradient(0deg, rgba(146, 55, 204, 1), rgba(248, 109, 221, 0));
+}
+
+.cardBackgroundOrangeTop {
+  background: linear-gradient(0deg, rgba(254, 172, 28, 1), rgba(235, 152, 24, 1));
+}
+
+.cardBackgroundOrangeBottom {
+  background: linear-gradient(0deg, rgba(253, 172, 27, 1), rgba(235, 152, 24, 0));
+}
+
+.cardTitleText {
+  font-size: calc(1.1rem + 0.6vw) !important;
+}
+
+.cardSubtitleText {
+  font-size: 0.9rem !important;
+}
+
+.overlay {
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  text-align: start;
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+}
