@@ -4,15 +4,17 @@ import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { VolumetricComponent } from '../components/VolumetricComponent'
+import { UpdatableComponent } from '../components/UpdatableComponent'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import Video from '../classes/Video'
+import UpdateableObject3D from '../classes/UpdateableObject3D'
 import AudioSource from '../classes/AudioSource'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { isClient } from '../../common/functions/isClient'
 
-var DracosisPlayer = null as any
-var DracosisPlayerWorker = null as any
-var DracosisSequence = null as any
+let DracosisPlayer = null as any
+let DracosisPlayerWorker = null as any
+let DracosisSequence = null as any
 
 if (isClient) {
   Promise.all([
@@ -81,50 +83,39 @@ interface VolumetricProps {
   interactable: boolean
 }
 
-// This is the temporary code for testing the DracosisPlayer
-// We should replace it on the next push with an ECS pattern.
-const render = () => {
-  requestAnimationFrame(render)
-  if (DracosisSequence.hasPlayed) {
-    DracosisSequence?.handleRender(() => {
-      console.log('loop')
-    })
-  }
-}
-
 export const createVolumetric = (entity, props: VolumetricProps) => {
-  debugger
-  if (!DracosisPlayer && DracosisPlayerWorker) return
-  const container = new Object3D()
+  const container = new UpdateableObject3D()
   const worker = new DracosisPlayerWorker()
-  // const srcUrl = "https://172.160.10.156:3000/static/volumetric/liam.drcs";
+  // const resourceUrl = "https://172.160.10.156:3000/static/volumetric/liam.drcs";
+  const resourceUrl = props.src
   DracosisSequence = new DracosisPlayer({
     scene: container,
     renderer: Engine.renderer,
     worker: worker,
-    manifestFilePath: props.src.replace('.drcs', '.manifest'),
-    meshFilePath: props.src,
-    videoFilePath: props.src.replace('.drcs', '.mp4'),
-    // loop: props.loop,
+    manifestFilePath: resourceUrl.replace('.drcs', '.manifest'),
+    meshFilePath: resourceUrl,
+    videoFilePath: resourceUrl.replace('.drcs', '.mp4'),
+    loop: props.loop,
     autoplay: props.autoPlay,
     scale: 1,
-    frameRate: 25,
-    onMeshBuffering: (progress) => {
-      console.warn('BUFFERING!!', progress)
-    },
-    onFrameShow: () => {
-      console.log('onFrameShow')
-    }
+    frameRate: 25
   })
+
+  container.update = () => {
+    if (DracosisSequence.hasPlayed) {
+      DracosisSequence?.handleRender(() => {})
+    }
+  }
 
   addComponent(entity, VolumetricComponent, {
     player: DracosisSequence
   })
 
+  addComponent(entity, UpdatableComponent, {})
+
   //temporary code
   DracosisSequence.play()
-  render()
 
   addObject3DComponent(entity, container, props)
-  if (true) addComponent(entity, InteractableComponent, { data: props })
+  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
