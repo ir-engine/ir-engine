@@ -85,9 +85,6 @@ export const queueUnchangedPoses = (world: World) => {
     const entity = ents[i]
     const networkObject = getComponent(entity, NetworkObjectComponent)
 
-    // only send poses if we are hosting (for now synonymous with server) or if we are the owner
-    if (!world.isHosting || networkObject.userId !== Engine.userId) continue
-
     const transformComponent = getComponent(entity, TransformComponent)
 
     let vel = undefined! as number[]
