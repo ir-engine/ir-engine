@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer, useRef } from 'react'
-import { connect } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
 import styles from './AddFilesForm.module.scss'
@@ -61,16 +61,14 @@ const getTitleAndDescription = (str) => {
 }
 
 const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) => {
-  const [descrText, setDescrText] = useState('')
-  const [descriptions, dispatch] = useReducer(descriptionReducer, descriptionState)
+  const dispatch = useDispatch()
+  const [descriptions, dispatchDescriptions] = useReducer(descriptionReducer, descriptionState)
   const [titleFile, setTitleFile] = useState('')
-  const [preview, setPreview] = useState(null)
-  const [video, setVideo] = useState(null)
   const inputFileRef = useRef(null)
 
   // const handleDescrTextChange = (event: any): void => setDescrText(event.target.value)
   const handleDescrTextChange = (event: any, name: any) => {
-    dispatch({
+    dispatchDescriptions({
       type: 'CHANGE_TEXT',
       payload: {
         name,
@@ -82,7 +80,7 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
   useEffect(() => {
     filesTarget?.forEach((file) => {
       if (!descriptions.has(file)) {
-        dispatch({
+        dispatchDescriptions({
           type: 'CHANGE_TEXT',
           payload: {
             name: file,
@@ -95,7 +93,7 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
 
   const handleAddPosts = () => {
     ;[...filesTarget].forEach((file, index) => {
-      const { title, description } = getTitleAndDescription(descriptions.get(file) || titleFile)
+      const { title, description } = getTitleAndDescription(descriptions.get(file))
       console.group('Title and description')
       console.groupEnd()
       const newPost = {
@@ -109,13 +107,18 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
     setAddFilesView(false)
   }
   const handleDeleteMedia = (index) => {
+    const file = filesTarget.find((item, itemIndex) => {
+      return itemIndex === index
+    })
     const entries = filesTarget.filter((item, itemIndex) => {
       return itemIndex !== index
     })
-    dispatch({
-      type: 'DELETE_ITEM',
-      payload: `description-${index}`
-    })
+    if (!!file) {
+      dispatchDescriptions({
+        type: 'DELETE_ITEM',
+        payload: { name: file }
+      })
+    }
     setFilesTarget([...entries])
   }
   const handleAddFiles = () => {
@@ -124,6 +127,7 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
   const handleFilesTarget = (files: Array<any>) => {
     setFilesTarget([...filesTarget, ...files])
   }
+
   return (
     <section className={styles.viewport}>
       <AppHeader title="CREATOR" hideAddButtons inputFileRef={inputFileRef} setFilesTarget={handleFilesTarget} />
