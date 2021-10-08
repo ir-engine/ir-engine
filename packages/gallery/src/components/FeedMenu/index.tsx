@@ -6,6 +6,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import { useMediaQuery } from '@mui/material'
+import { useFeedState } from '../../reducers/post/FeedState'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'
@@ -15,20 +16,24 @@ const FeedMenu = () => {
   const featuredRef = useRef<HTMLInputElement>()
   const creatorsRef = useRef<HTMLInputElement>()
   const { t } = useTranslation()
-  const [view, setView] = useState('all')
+  const [view, setView] = useState(null)
   const [viewType, setViewType] = useState('grid')
   const [isFeatured, setIsFeatured] = useState(false)
   const match = useMediaQuery('(max-width:1279px)')
+  const feedsState = useFeedState()
 
-  useEffect(() => {
-    if (view !== 'all' && !isFeatured) {
-      setView('all')
-    }
-  }, [view, isFeatured])
+  useEffect(() => {}, [view, isFeatured])
 
   useEffect(() => {
     match && setViewType('list')
   }, [match])
+
+  useEffect(() => {
+    if (!!!feedsState.feeds.feedsFiredFetching.value && !!feedsState.feeds.feedsFired.value.length && view === null) {
+      console.log('set view')
+      setView('featured')
+    }
+  }, [feedsState.feeds.feedsFiredFetching.value])
 
   const padding = 40
   const handleMenuClick = (view) => {

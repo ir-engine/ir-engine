@@ -147,11 +147,13 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
     setFeedIds(new Set([...feedIds]))
   }
 
+  console.log([...feedsList.values()])
   return (
     <section className={styles.feedContainer}>
       <Grid container spacing={3} style={{ marginTop: 30 }}>
         {feedsList && feedsList.length > 0
-          ? feedsList.map((item, itemIndex) => {
+          ? Array.from(feedsList.values()).map((item, itemIndex) => {
+              console.log(item)
               return (
                 <Grid
                   item
