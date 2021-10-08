@@ -12,7 +12,7 @@ import {
 } from '../layout/MediaGrid'
 import { unique } from '../../functions/utils'
 import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu'
-import { useDrag } from 'react-dnd'
+import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import AssetTooltip from './AssetTooltip'
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -70,6 +70,16 @@ function FileBrowserItem({ contextMenuId, item, onClick, ...rest }) {
     multiple: false
   }))
 
+  const [{ isOver, canDrop, moni }, drop] = useDrop({
+    accept: [ItemTypes.File, 'png'],
+    drop: () => console.log('Moving the Folder/File'),
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: !!monitor.canDrop(),
+      moni: monitor.getItemType()
+    })
+  })
+
   //showing the object in viewport once it drag and droped
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true })
@@ -77,10 +87,12 @@ function FileBrowserItem({ contextMenuId, item, onClick, ...rest }) {
 
   //creating view for AssetGrid using ContextMenuTrigger and tooltip component
   return (
-    <div ref={drag}>
-      <ContextMenuTrigger id={contextMenuId} collect={collectMenuProps} holdToDisplay={-1}>
-        {content}
-      </ContextMenuTrigger>
+    <div ref={drop}>
+      <div ref={drag}>
+        <ContextMenuTrigger id={contextMenuId} collect={collectMenuProps} holdToDisplay={-1}>
+          {content}
+        </ContextMenuTrigger>
+      </div>
     </div>
   )
 }
