@@ -139,28 +139,12 @@ export const rerouteActions = pipe(
   rerouteOutgoingActionsBoundForSelf,
 )
 
-/******************
- * ACTION SENDING *
- *****************/
-
-export const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) => {
-  const { outgoingActions } = world
-
-  transport.sendActions(outgoingActions)
-
-  outgoingActions.clear()
-
-  return world
-}
-
-export const sendActions = sendActionsOnTransport(Network.instance.transport)
-
 /***************
  * DATA QUEING *
  **************/
 
 export const queueUnchangedPoses = (world: World) => {
-  const { currentNetworkState, previousNetworkState } = world
+  const { outgoingNetworkState, previousNetworkState } = world
 
   const ents = networkTransformsQuery(world)
   for (let i = 0; i < ents.length; i++) {
@@ -184,6 +168,9 @@ export const queueUnchangedPoses = (world: World) => {
     // networkObjectOwnerComponent && console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position)
     // console.log('outgoing', getComponent(entity, NameComponent).name, transformComponent.position.toArray().concat(transformComponent.rotation.toArray()))
     if (
+      // if there is no previous state (first frame)
+      previousNetworkState === undefined ||
+      // or if the transform is not the same as last frame
       !transformIsTheSame(
         previousNetworkState,
         networkObject.networkId,
@@ -192,7 +179,7 @@ export const queueUnchangedPoses = (world: World) => {
         vel
       )
     )
-      currentNetworkState.pose.push({
+      outgoingNetworkState.pose.push({
         networkId: networkObject.networkId,
         position: transformComponent.position.toArray(),
         rotation: transformComponent.rotation.toArray(),
@@ -205,7 +192,7 @@ export const queueUnchangedPoses = (world: World) => {
 
 // todo: move to client-specific system?
 export const queueUnchangedPosesForClient = (world: World) => {
-  const { currentNetworkState, previousNetworkState } = world
+  const { outgoingNetworkState, previousNetworkState } = world
 
   const networkComponent = getComponent(world.localClientEntity, NetworkObjectComponent)
   if (isClient && networkComponent) {
@@ -220,6 +207,9 @@ export const queueUnchangedPosesForClient = (world: World) => {
     }
 
     if (
+      // if there is no previous state (first frame)
+      previousNetworkState === undefined ||
+      // or if the transform is not the same as last frame
       !transformIsTheSame(
         previousNetworkState,
         networkComponent.networkId,
@@ -228,7 +218,7 @@ export const queueUnchangedPosesForClient = (world: World) => {
         vel
       )
     )
-      currentNetworkState.pose.push({
+      outgoingNetworkState.pose.push({
         networkId: networkComponent.networkId,
         position: transformComponent.position.toArray(),
         rotation: transformComponent.rotation.toArray(),
@@ -240,7 +230,7 @@ export const queueUnchangedPosesForClient = (world: World) => {
 }
 
 export const queueUnchangedIkPoses = (world: World) => {
-  const { currentNetworkState, previousNetworkState } = world
+  const { outgoingNetworkState, previousNetworkState } = world
 
   const ents = ikTransformsQuery(world)
   for (let i = 0; i < ents.length; i++) {
@@ -258,6 +248,9 @@ export const queueUnchangedIkPoses = (world: World) => {
     const rightPoseRotation = xrInputs.controllerRight.quaternion.toArray()
 
     if (
+      // if there is no previous state (first frame)
+      previousNetworkState === undefined ||
+      // or if the transform is not the same as last frame
       !ikPoseIsTheSame(
         previousNetworkState,
         networkId,
@@ -269,7 +262,7 @@ export const queueUnchangedIkPoses = (world: World) => {
         rightPoseRotation
       )
     )
-      currentNetworkState.ikPose.push({
+      outgoingNetworkState.ikPose.push({
         networkId,
         headPosePosition,
         headPoseRotation,
@@ -282,8 +275,20 @@ export const queueUnchangedIkPoses = (world: World) => {
   return world
 }
 
+export const resetNetworkState = (world: World) => {
+  world.previousNetworkState = world.outgoingNetworkState
+  world.outgoingNetworkState = {
+    tick: world.fixedTick,
+    time: Date.now(),
+    pose: [],
+    ikPose: []
+  }
+  return world
+}
+
 // prettier-ignore
 export const queueAllOutgoingPoses = pipe(
+  resetNetworkState,
   queueUnchangedPoses, 
   queueUnchangedPosesForClient, 
   queueUnchangedIkPoses,
@@ -293,21 +298,18 @@ export const queueAllOutgoingPoses = pipe(
  * DATA SENDING *
  ***************/
 
-export const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
-  transport.sendData(data)
+const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) => {
+  const { outgoingActions } = world
+
+  transport.sendActions(outgoingActions)
+
+  outgoingActions.clear()
+
+  return world
 }
 
-export const sendData = sendDataOnTransport(Network.instance.transport)
-
-export const resetNetworkState = (world: World) => {
-  world.previousNetworkState = world.currentNetworkState
-  world.currentNetworkState = {
-    tick: world.fixedTick,
-    time: Date.now(),
-    pose: [],
-    ikPose: []
-  }
-  return world
+const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
+  transport.sendData(data)
 }
 
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
@@ -317,9 +319,10 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
    * For the server, we want to send all objects
    */
 
-  return () => {
-    resetNetworkState(world)
+  const sendActions = sendActionsOnTransport(Network.instance.transport)
+  const sendData = sendDataOnTransport(Network.instance.transport)
 
+  return () => {
     rerouteActions(world)
 
     // side effect - network IO
@@ -335,7 +338,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
 
     // side effect - network IO
     try {
-      const data = WorldStateModel.toBuffer(world.currentNetworkState)
+      const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
       sendData(data)
     } catch (e) {
       console.error(e)
