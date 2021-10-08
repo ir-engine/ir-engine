@@ -36,7 +36,6 @@ const Creators = (props: Props) => {
     dispatch(CreatorService.getBlockedList(currentCreator))
   }, [])
   const blackList = creatorsState?.creators?.blocked.value
-  // console.log(Array.from(new Set(blackList?.map((item: any) => item.id))))
 
   return (
     <section className={styles.creatorContainer}>
