@@ -3,9 +3,9 @@ import React, { useState } from 'react'
 import styles from './TeamManagementView.module.scss'
 import Player from './Player'
 import PercentageCircle from './PercentageCircle'
-import { Grid, LinearProgress, linearProgressClasses, styled, Typography } from '@mui/material'
+import { Grid, LinearProgress, linearProgressClasses, List, styled, Typography } from '@mui/material'
 import FooterNews from '../Common/FooterNews'
-import ButtonWhite from '../Common/ButtonWhite'
+import ManageTeamRightSidePanel from '../Common/ManageTeamRightSidePanel'
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 35,
@@ -115,43 +115,43 @@ const TeamManagementView = (props: any): any => {
                                             </tbody>
                                         </div>*/}
 
-                    <Grid xs={1}>
+                    <Grid item xs={1}>
                       <span className={styles.headerSectionTitle}>Height</span>
                       <br />
                       <span className={styles.headerSectionSubTitle}>6'8"</span>
                     </Grid>
 
-                    <Grid xs={1}>
+                    <Grid item xs={1}>
                       <span className={styles.headerSectionTitle}>Weight</span>
                       <br />
                       <span className={styles.headerSectionSubTitle}>250 Ibl</span>
                     </Grid>
 
-                    <Grid xs={1}>
+                    <Grid item xs={1}>
                       <span className={styles.headerSectionTitle}>Age</span>
                       <br />
                       <span className={styles.headerSectionSubTitle}>35</span>
                     </Grid>
 
-                    <Grid xs={1}>
+                    <Grid item xs={1}>
                       <span className={styles.headerSectionTitle}>Fatigue</span>
                       <br />
                       <span className={styles.headerSectionSubTitle}>Fresh</span>
                     </Grid>
 
-                    <Grid xs={2}>
+                    <Grid item xs={2}>
                       <span className={styles.headerSectionSubTitle}>Ovrl Offense 98</span>
                       <br />
                       <span className={styles.headerSectionSubTitle}>Ovrl Defense 98</span>
                     </Grid>
 
-                    <Grid xs={2}>
+                    <Grid item xs={2}>
                       <span className={styles.headerSectionTitle}>Salary</span>
                       <br />
                       <span className={styles.headerSectionSubTitle}>$39.22M</span>
                     </Grid>
 
-                    <Grid xs={2} alignSelf="center">
+                    <Grid item xs={2} alignSelf="center">
                       <span className={styles.headerSectionSubTitle} style={{ fontSize: '28px' }}>
                         Potential A-
                       </span>
@@ -184,11 +184,16 @@ const TeamManagementView = (props: any): any => {
               </Grid>
             </Grid>
 
-            <Grid container spacing={1} paddingX={1} style={{ display: 'flex', flexFlow: 'nowrap', overflow: 'auto' }}>
+            <List
+              dense={true}
+              style={{ display: 'flex', flexDirection: 'row', flexFlow: 'nowrap', overflow: 'auto', padding: 0 }}
+            >
               {mySquadList.map((ms) => (
-                <Player player={ms} />
+                <Grid container xs={'auto'} marginX={0.5}>
+                  <Player player={ms} />
+                </Grid>
               ))}
-            </Grid>
+            </List>
 
             <Grid container marginTop={1}>
               <Grid item>
@@ -203,81 +208,20 @@ const TeamManagementView = (props: any): any => {
               </Grid>
             </Grid>
 
-            <Grid container spacing={1} paddingX={1} style={{ display: 'flex', flexFlow: 'nowrap', overflow: 'auto' }}>
+            <List
+              dense={true}
+              style={{ display: 'flex', flexDirection: 'row', flexFlow: 'nowrap', overflow: 'auto', padding: 0 }}
+            >
               {inventoryList.map((inventory) => (
-                <Player player={inventory} />
+                <Grid container xs={'auto'} marginX={0.5}>
+                  <Player player={inventory} />
+                </Grid>
               ))}
-            </Grid>
+            </List>
           </Grid>
 
           <Grid item xs={3}>
-            <Grid container direction={'column'} padding={1}>
-              <Grid container padding={2} className={styles.cardBackgroundBlack}>
-                <Grid item>
-                  <img src="/static/msa/la-lakers-logo.png" alt="LA-Lakers" style={{ borderRadius: '14px' }} />
-                </Grid>
-                <Grid item xs color={'white'} marginLeft={2} alignSelf={'center'}>
-                  <span style={{ fontSize: '20px', lineHeight: '24px' }}>SwipeStealBall</span>
-                  <Grid container style={{ marginTop: '2%' }}>
-                    <img src="/static/msa/img-dollar.png" alt="Dollar sign" />
-                    <span style={{ fontSize: '18px', lineHeight: '22px', marginLeft: '1%' }}>100,000,000</span>
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid container direction={'column'} marginY={3} className={styles.cardBackgroundBlack}>
-                <Grid
-                  item
-                  textAlign={'center'}
-                  color={'white'}
-                  margin={1}
-                  className={styles.cardBackgroundRed}
-                  style={{ fontSize: '18px', padding: '0.5%' }}
-                >
-                  <span>You need 10 players to begin.</span>
-                </Grid>
-
-                <Grid item paddingX={3} paddingY={1} color={'white'} style={{ fontSize: '24px', lineHeight: '29px' }}>
-                  Team Overall Rating
-                  <br />
-                  <br />
-                  Tier level/Salary Needed.
-                  <br />
-                  <br />
-                  Team Chemistry
-                </Grid>
-
-                <Grid item className={styles.divider} />
-
-                <Grid item paddingX={3} paddingY={1} color={'white'} style={{ fontSize: '22px', lineHeight: '29px' }}>
-                  Projected offensive rating
-                  <br />
-                  <br />
-                  Projected defensive rating
-                  <br />
-                  <br />
-                  Projected potential rating
-                </Grid>
-
-                <Grid item className={styles.divider} />
-
-                <Grid item margin={5} alignSelf={'center'}>
-                  <ButtonWhite title="Select Coaching Style" onButtonClick={() => {}} />
-                </Grid>
-              </Grid>
-
-              <Grid item>
-                {props.isPlayStaked ? (
-                  <ButtonWhite title="Borrow Players" onButtonClick={() => {}} />
-                ) : (
-                  <ButtonWhite title="Purchase Packs" onButtonClick={() => {}} />
-                )}
-              </Grid>
-
-              <Grid item marginTop={3}>
-                <ButtonWhite title="Enter League" onButtonClick={() => {}} />
-              </Grid>
-            </Grid>
+            <ManageTeamRightSidePanel />
           </Grid>
         </Grid>
 

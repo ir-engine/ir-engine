@@ -16,7 +16,7 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 
 const Player = ({ player }): any => {
   return (
-    <Grid item xs={'auto'}>
+    <Grid item>
       <div
         style={{
           backgroundImage: `url('/static/msa/play-ground-blur.png')`,

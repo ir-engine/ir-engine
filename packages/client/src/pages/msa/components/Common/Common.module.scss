@@ -14,3 +14,20 @@
 
   cursor: pointer;
 }
+
+.cardBackgroundBlack {
+  background: #202020;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+  border-radius: 22px;
+}
+
+.cardBackgroundRed {
+  background: #FF0000;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+  border-radius: 22px;
+}
+
+.divider {
+  border: 1px solid #000000;
+  margin: 8px;
+}
