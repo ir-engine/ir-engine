@@ -3,6 +3,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { SceneActionType } from './SceneActions'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 
 export const SCENE_PAGE_LIMIT = 100
 
@@ -14,7 +15,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   scenes: {
-    scenes: [],
+    scenes: [] as Array<SceneData>,
     skip: 0,
     limit: SCENE_PAGE_LIMIT,
     total: 0,

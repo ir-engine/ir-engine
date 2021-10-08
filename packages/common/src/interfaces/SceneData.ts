@@ -1,4 +1,4 @@
-import { SceneDataEntity } from './SceneDataEntity'
+import { SceneDataEntity } from '@xrengine/engine/src/scene/interfaces/SceneDataEntity'
 
 export interface SceneData {
   id: string
