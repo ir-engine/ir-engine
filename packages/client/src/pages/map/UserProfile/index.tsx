@@ -24,10 +24,6 @@ interface Props {
   showHideProfile?: Function
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
 const UserProfileScreen = (props: Props) => {
   const { isUserProfileShowing, showHideProfile } = props
   const dispatch = useDispatch()
@@ -279,4 +275,4 @@ const UserProfileScreen = (props: Props) => {
     </div>
   )
 }
-export default connect(mapStateToProps)(UserProfileScreen)
+export default UserProfileScreen

@@ -9,7 +9,9 @@ import Dashboard from '@xrengine/social/src/components/Dashboard'
 
 const UsersPage = () => {
   const creatorsState = useCreatorState()
-  useEffect(() => CreatorService.getCreators(), [creatorsState.creators.currentCreator])
+  useEffect(() => {
+    CreatorService.getCreators()
+  }, [creatorsState.creators.currentCreator])
   const creators =
     creatorsState && creatorsState.creators.fetching.value === false && creatorsState.creators.value
       ? creatorsState.creators

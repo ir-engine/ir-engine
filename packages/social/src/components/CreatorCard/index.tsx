@@ -21,37 +21,16 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 import styles from './CreatorCard.module.scss'
 import { useCreatorState } from '../../reducers/creator/CreatorState'
 import { CreatorService } from '../../reducers/creator/CreatorService'
-import { updateCreatorPageState, updateCreatorFormState } from '../../reducers/popupsState/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
+import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
 import { FeedService } from '../../reducers/feed/FeedService'
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core'
 import SimpleModal from '../SimpleModal'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
-  updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch)
-})
-
 interface Props {
   creator: any
-  popupsState?: any
-  updateCreatorPageState?: typeof updateCreatorPageState
-  updateCreatorFormState?: typeof updateCreatorFormState
 }
 
-const CreatorCard = ({
-  creator,
-  updateCreatorPageState,
-
-  popupsState,
-  updateCreatorFormState
-}: Props) => {
+const CreatorCard = ({ creator }: Props) => {
   const creatorState = useCreatorState()
   const isMe = creator?.id === creatorState.creators.currentCreator?.id?.value
   const { t } = useTranslation()
@@ -99,7 +78,7 @@ const CreatorCard = ({
   const handleBlockCreator = (creatorId) => {
     dispatch(CreatorService.blockCreator(creatorId))
     setOpenBlock(false)
-    updateCreatorPageState(false)
+    dispatch(PopupsStateService.updateCreatorPageState(false))
   }
 
   const handleBlockedList = (creatorId) => {
@@ -129,7 +108,7 @@ const CreatorCard = ({
       aria-controls="owner-menu"
       aria-haspopup="true"
       onClick={() => {
-        updateCreatorFormState(true)
+        dispatch(PopupsStateService.updateCreatorFormState(true))
         dispatch(FeedService.clearCreatorFeatured())
       }}
     >
@@ -146,7 +125,13 @@ const CreatorCard = ({
           <section className={styles.bgImage} />
         )}
         <section className={styles.controls}>
-          <Button variant="text" className={styles.backButton} onClick={() => updateCreatorPageState(false)}>
+          <Button
+            variant="text"
+            className={styles.backButton}
+            onClick={() => {
+              dispatch(PopupsStateService.updateCreatorPageState(false))
+            }}
+          >
             <ArrowBackIosIcon />
             {t('social:creator.back')}
           </Button>
@@ -229,4 +214,4 @@ const CreatorCard = ({
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreatorCard)
+export default CreatorCard

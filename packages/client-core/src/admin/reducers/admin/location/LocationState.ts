@@ -1,10 +1,9 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
-import { ADMIN_LOCATION_TYPES_RETRIEVED } from '../../actions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { LocationActionType } from './LocationActions'
-
+import { Location } from '@xrengine/common/src/interfaces/Location'
 export const LOCATION_PAGE_LIMIT = 100
 
 const state = createState({
@@ -15,7 +14,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   locations: {
-    locations: [],
+    locations: [] as Array<Location>,
     skip: 0,
     limit: LOCATION_PAGE_LIMIT,
     total: 0,
@@ -57,9 +56,9 @@ const locationReceptor = (action: LocationActionType): any => {
       case 'ADMIN_LOCATION_PATCHED':
         const locationsList = state.locations.locations.value
         for (let i = 0; i < locationsList.length; i++) {
-          if (locationsList[i].id === (action as any).location.id) {
-            locationsList[i] = (action as any).location
-          } else if ((action as any).location.isLobby && locationsList[i].isLobby) {
+          if (locationsList[i].id === action.location.id) {
+            locationsList[i] = action.location
+          } else if (action.location.isLobby && locationsList[i].isLobby) {
             // if updated location is lobby then remove old lobby.
             locationsList[i].isLobby = false
           }

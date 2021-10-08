@@ -1,7 +1,7 @@
 import type { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 import { SystemModulePromise, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import type { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
+import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 
 interface RealityPackNodeArguments {
   packName: string

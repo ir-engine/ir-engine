@@ -17,16 +17,6 @@ interface Props {
 const unauthorisedMessage = `The page you are looking for is eligible for authorised users only.`
 const loggingInMessage = `Authorising...`
 
-const mapStateToProps = (state: any): any => {
-  return {
-    // authState: selectAuthState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
-})
-
 const EditorProtectedRoutes = (props: Props) => {
   //const { authState, doLoginAuto } = props
 
@@ -73,4 +63,4 @@ const EditorProtectedRoutes = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditorProtectedRoutes)
+export default EditorProtectedRoutes

@@ -16,33 +16,22 @@ import FavoriteIcon from '@material-ui/icons/Favorite'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { useFeedState } from '../../reducers/feed/FeedState'
 import { FeedService } from '../../reducers/feed/FeedService'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { updateFeedPageState } from '../../reducers/popupsState/service'
+import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
+import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
 import styles from './Featured.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch)
-})
 interface Props {
-  popupsState?: any
   type?: string
   creatorId?: string
-
-  updateFeedPageState?: typeof updateFeedPageState
 }
 
-const Featured = ({ type, creatorId, popupsState, updateFeedPageState }: Props) => {
+const Featured = ({ type, creatorId }: Props) => {
   const [feedsList, setFeedList] = useState([])
   const { t } = useTranslation()
   const auth = useAuthState()
   const dispatch = useDispatch()
   const feedsState = useFeedState()
+  const popupsState = usePopupsStateState()
   useEffect(() => {
     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
       dispatch(FeedService.getFeeds(type, creatorId))
@@ -162,14 +151,14 @@ const Featured = ({ type, creatorId, popupsState, updateFeedPageState }: Props) 
                 className={styles.previewImage}
                 image={item.previewUrl}
                 onClick={() => {
-                  if (popupsState.get('creatorPage') === true && popupsState.get('feedPage') === true) {
-                    updateFeedPageState(false)
+                  if (popupsState.popups.creatorPage?.value === true && popupsState.popups.feedPage?.value === true) {
+                    dispatch(PopupsStateService.updateFeedPageState(false))
                     const intervalDelay = setTimeout(() => {
                       clearInterval(intervalDelay)
-                      updateFeedPageState(true, item.id)
+                      dispatch(PopupsStateService.updateFeedPageState(true, item.id))
                     }, 100)
                   } else {
-                    updateFeedPageState(true, item.id)
+                    dispatch(PopupsStateService.updateFeedPageState(true, item.id))
                   }
                 }}
               />
@@ -195,4 +184,4 @@ const Featured = ({ type, creatorId, popupsState, updateFeedPageState }: Props) 
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Featured)
+export default Featured

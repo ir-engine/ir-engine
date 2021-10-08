@@ -12,11 +12,6 @@ import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthS
 import PopupLogin from '../PopupLogin/PopupLogin'
 import { useTranslation } from 'react-i18next'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 interface Props {
   feedId: any
 }
@@ -57,4 +52,4 @@ const NewComment = ({ feedId }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewComment)
+export default NewComment

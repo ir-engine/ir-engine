@@ -87,12 +87,6 @@ import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 interface Props {
   setLeftDrawerOpen: any
   setRightDrawerOpen: any
@@ -1480,4 +1474,4 @@ const Harmony = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Harmony)
+export default Harmony

@@ -16,11 +16,6 @@ import styles from './ArMediaForm.module.scss'
 import { useCreatorState } from '../../reducers/creator/CreatorState'
 import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 interface Props {
   projects?: any[]
   view?: any
@@ -190,4 +185,4 @@ const ArMediaForm = ({ projects, view }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ArMediaForm)
+export default ArMediaForm

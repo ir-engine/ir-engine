@@ -62,12 +62,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 interface Props {}
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 const InvitesConsole = (props: Props) => {
   const classes = inviteStyles()
   const [refetch, setRefetch] = React.useState(false)
@@ -159,4 +153,4 @@ const InvitesConsole = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InvitesConsole)
+export default InvitesConsole

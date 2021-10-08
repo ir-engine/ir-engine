@@ -55,7 +55,7 @@ import { setCameraProperties } from '../functions/setCameraProperties'
 import { setEnvMap } from '../functions/setEnvMap'
 import { setFog } from '../functions/setFog'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
-import { SceneData } from '../interfaces/SceneData'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 
 export enum SCENE_ASSET_TYPES {

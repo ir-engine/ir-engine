@@ -17,12 +17,6 @@ import { useInstanceConnectionState } from '../../reducers/instanceConnection/In
 import styles from './MapInstanceChat.module.scss'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 interface Props {
   newMessageLabel?: string
   isOpen: boolean
@@ -229,4 +223,4 @@ const InstanceChat = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat)
+export default InstanceChat

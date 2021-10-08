@@ -22,8 +22,8 @@ import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPo
 import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
 import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
 import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
-import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { useWebxrNativeState } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeService'
 
 import { useDispatch } from 'react-redux'
 // @ts-ignore
@@ -39,27 +39,10 @@ import Blocked from '@xrengine/social/src/components/Blocked'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Redirect } from 'react-router-dom'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    webxrnativeState: selectWebXrNativeState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
-  getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
-  changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
-})
-
 import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
 import App from './App'
 
-const Home = ({
-  //doLoginAuto,
-  webxrnativeState,
-  changeWebXrNative,
-  getWebXrNative
-}) => {
+const Home = ({}) => {
   const dispatch = useDispatch()
   const auth = useAuthState()
 
@@ -71,7 +54,7 @@ const Home = ({
   useEffect(() => {
     if (accessToken) {
       dispatch(AuthService.doLoginAuto(true))
-      getWebXrNative()
+      dispatch(WebxrNativeService.getWebXrNative())
     }
   }, [accessToken])
 
@@ -99,7 +82,7 @@ const Home = ({
     }
   }, [currentCreator])
 
-  const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+  const webxrRecorderActivity = useWebxrNativeState().webxrnative.value
 
   const changeOnboarding = () => {
     setOnborded(true)
@@ -140,4 +123,4 @@ const Home = ({
   return <App />
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default Home

@@ -55,24 +55,10 @@ type Props = {
 }
 
 /**
- * function to get authState.
- * @mapStateToProps
- */
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-/**
  *function to bind auto login and user.
  *@mapDispatchToProps
  *
  */
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
-  // logoutUser: bindActionCreators(AuthService.logoutUser, dispatch)
-})
 
 /**
  *Component to render the existing projects in grids with a grid to add new project.
@@ -320,4 +306,4 @@ const ProjectsPage = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectsPage)
+export default ProjectsPage

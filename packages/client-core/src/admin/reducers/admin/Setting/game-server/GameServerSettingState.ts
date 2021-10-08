@@ -1,6 +1,5 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { GameServerSettingActionType } from './GameServerSettingActions'
-import { GAME_SERVER_SETTING_DISPLAY } from '../../../actions'
 
 const state = createState({
   gameServer: {
@@ -18,7 +17,7 @@ const gameServerSettingReceptor = (action: GameServerSettingActionType): any => 
   let result
   state.batch((s) => {
     switch (action.type) {
-      case GAME_SERVER_SETTING_DISPLAY:
+      case 'GAME_SERVER_SETTING_DISPLAY':
         result = action.gameServer
 
         return s.gameServer.merge({ gameserver: result.data, updateNeeded: false })

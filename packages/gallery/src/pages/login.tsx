@@ -8,12 +8,6 @@ import AdminLogin from '../components/AdminLogin'
 
 interface Props {}
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 export const IndexPage = (props: Props): any => {
   //const { doLoginAuto } = props
   const dispatch = useDispatch()
@@ -41,4 +35,4 @@ export const IndexPage = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(IndexPage)
+export default IndexPage

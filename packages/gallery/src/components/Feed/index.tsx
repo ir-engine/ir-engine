@@ -3,7 +3,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect, useDispatch } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { Button, Card, Typography, CardContent, CardMedia } from '@material-ui/core'
-import { selectFeedsState } from '../../reducers/post/FeedSelector'
+import { useFeedState } from '../../reducers/post/FeedState'
 import { FeedService } from '../../reducers/post/FeedService'
 import { Document, Page, pdfjs } from 'react-pdf'
 import Pagination from '@mui/material/Pagination'
@@ -12,14 +12,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 import styles from './Feed.module.scss'
 import { Container, Stack } from '@mui/material'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    feedsState: selectFeedsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 export const getComponentTypeForMedia = (mime) => {
   switch (true) {
@@ -37,16 +29,15 @@ export const getComponentTypeForMedia = (mime) => {
 }
 
 interface Props {
-  feedsState?: any
   feedId?: string
 }
-const Feed = ({ feedsState, feedId }: Props) => {
+const Feed = ({ feedId }: Props) => {
   let feed = null as any
   const dispatch = useDispatch()
   const { t } = useTranslation()
   const [numPages, setNumPages] = useState(null)
   const [pageNumber, setPageNumber] = useState(1)
-
+  const feedsState = useFeedState()
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages)
   }
@@ -59,7 +50,7 @@ const Feed = ({ feedsState, feedId }: Props) => {
     dispatch(FeedService.getFeed(feedId))
   }, [])
 
-  feed = feedsState && feedsState.get('fetching') === false && feedsState.get('feed')
+  feed = feedsState.feeds.fetching.value === false && feedsState.feeds.feed.value
 
   const componentType = getComponentTypeForMedia(feed.previewType || 'image')
   return (
@@ -107,4 +98,4 @@ const Feed = ({ feedsState, feedId }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Feed)
+export default Feed
