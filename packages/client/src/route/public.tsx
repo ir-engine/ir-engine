@@ -59,6 +59,12 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
             path="/msa-loggedin"
             component={React.lazy(() => import('../pages/msa/components/LoggedInView/LoggedInView'))}
           />
+          <Route
+            path="/msa-in-game-manage-team"
+            component={React.lazy(
+              () => import('../pages/msa/components/InGameTeamManagementView/InGameTeamManagementView')
+            )}
+          />
 
           {/* Auth Routes */}
           <Route path="/auth/oauth/facebook" component={React.lazy(() => import('../pages/auth/oauth/facebook'))} />
