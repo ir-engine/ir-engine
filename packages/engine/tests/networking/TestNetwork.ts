@@ -25,7 +25,5 @@ export class TestNetwork implements Network {
     this.incomingMessageQueueReliable = new RingBuffer<string>(100)
     this.mediasoupOperationQueue = new RingBuffer<string>(100)
   }
-  dispose(): void {
-    throw new Error('Method not implemented.')
-  }
+  dispose(): void {}
 }
