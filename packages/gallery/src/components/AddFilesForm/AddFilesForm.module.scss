@@ -146,3 +146,9 @@
     font-size: 20pt !important;
     color: #9b9b9b !important;
 }
+
+.textField {
+    :global(.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline) {
+        border-color: rgba(0, 0, 0, 0.87);
+    }
+}

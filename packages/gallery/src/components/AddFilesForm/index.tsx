@@ -155,7 +155,7 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
                         </div>
                         <div style={{ padding: '0 30px 30px', margin: '25px 0' }}>
                           <TextField
-                            autoFocus
+                            className={styles.textField}
                             inputProps={{
                               style: {
                                 fontSize: '17pt',
@@ -168,12 +168,13 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
                             style={{ backgroundColor: '#fff' }}
                             margin="dense"
                             id={`description-${itemIndex}`}
-                            label="Add description"
+                            label={false}
                             variant="outlined"
                             fullWidth
                             multiline
                             value={descriptions.get(item)}
                             onChange={(e) => handleDescrTextChange(e, item)}
+                            onFocus={(e) => e.target.select()}
                           />
                         </div>
                       </Card>
