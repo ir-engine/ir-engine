@@ -1,5 +1,7 @@
+import { Location } from '@xrengine/common/src/interfaces/Location'
+import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
 export const LocationAction = {
-  socialLocationsRetrieved: (locations: any) => {
+  socialLocationsRetrieved: (locations: LocationResult) => {
     return {
       type: 'LOCATIONS_RETRIEVED' as const,
       locations: locations

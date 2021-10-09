@@ -1,8 +1,8 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React from 'react'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+
 import { useDispatch } from 'react-redux'
 import { useFeedCommentsState } from '../../reducers/feedComment/FeedCommentState'
 import { FeedCommentService } from '../../reducers/feedComment/FeedCommentService'

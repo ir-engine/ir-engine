@@ -2,8 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import Typography from '@material-ui/core/Typography'
-import React from 'react'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useCreatorState } from '../../reducers/creator/CreatorState'

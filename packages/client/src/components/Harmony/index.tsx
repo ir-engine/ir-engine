@@ -230,8 +230,8 @@ const Harmony = (props: Props): any => {
   const videoEnabled =
     isHarmonyPage === true
       ? true
-      : currentLocation?.locationSettings?.value
-      ? currentLocation?.locationSettings?.videoEnabled?.value
+      : currentLocation?.location_settings?.value
+      ? currentLocation?.location_settings?.videoEnabled?.value
       : false
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
   const isCamAudioEnabled = mediastream.isCamAudioEnabled

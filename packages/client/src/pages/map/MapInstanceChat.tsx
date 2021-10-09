@@ -45,7 +45,7 @@ const InstanceChat = (props: Props): any => {
     if (instanceConnectionState.connected.value === true && channelState.fetchingInstanceChannel.value !== true) {
       dispatch(ChatService.getInstanceChannel())
     }
-  }, [instanceConnectionState])
+  }, [instanceConnectionState.connected.value])
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
@@ -198,7 +198,7 @@ const InstanceChat = (props: Props): any => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && e.ctrlKey) {
                     e.preventDefault()
-                    const selectionStart = (e.target as HTMLInputElement).selectionStart
+                    const selectionStart = (e.target as HTMLInputElement).selectionStart || 0
                     setCursorPosition(selectionStart)
                     setComposingMessage(
                       composingMessage.substring(0, selectionStart) + '\n' + composingMessage.substring(selectionStart)
