@@ -60,7 +60,9 @@ const Home = ({}) => {
 
   useEffect(() => {
     if (auth?.authUser?.accessToken) {
-      CreatorService.createCreator()
+      if (auth.user.id.value) {
+        dispatch(CreatorService.createCreator())
+      }
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 

@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 // @ts-ignore
 import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
@@ -11,6 +11,7 @@ import { useCreatorState } from '../../reducers/creator/CreatorState'
 import { CreatorService } from '../../reducers/creator/CreatorService'
 import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
 import { useTranslation } from 'react-i18next'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
 interface Props {
   logo?: string
@@ -19,14 +20,20 @@ interface Props {
 const AppHeader = ({ setView, onGoRegistration }: any) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
+  const [creator, setCreator] = useState({})
+  const auth = useAuthState()
   useEffect(() => {
-    dispatch(CreatorService.getLoggedCreator())
+    if (auth.user.id.value) {
+      dispatch(CreatorService.getLoggedCreator())
+    }
   }, [])
   const creatorState = useCreatorState()
-  const creator =
-    creatorState.creators.fetchingCurrentCreator.value === false && creatorState.creators.currentCreator.value
-  /* Hided for now */
-  // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
+
+  useEffect(() => {
+    setCreator(
+      creatorState.creators.fetchingCurrentCreator.value === false && creatorState.creators.currentCreator.value
+    )
+  }, [])
 
   return (
     <nav className={styles.headerContainer}>

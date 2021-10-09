@@ -70,7 +70,7 @@ const CreatorForm = ({ creatorData }: Props) => {
 
   useEffect(
     () => setCreator(creatorsState.creators.currentCreator.value),
-    [creatorsState.creators.currentCreator.value]
+    [JSON.stringify(creatorsState.creators.currentCreator.value)]
   )
 
   return (

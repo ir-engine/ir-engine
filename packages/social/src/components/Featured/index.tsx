@@ -33,13 +33,15 @@ const Featured = ({ type, creatorId }: Props) => {
   const feedsState = useFeedState()
   const popupsState = usePopupsStateState()
   useEffect(() => {
-    if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
-      dispatch(FeedService.getFeeds(type, creatorId))
-    } else {
-      const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
-      userIdentityType !== 'guest'
-        ? dispatch(FeedService.getFeeds('featured'))
-        : dispatch(FeedService.getFeeds('featuredGuest'))
+    if (auth.user.id.value) {
+      if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
+        dispatch(FeedService.getFeeds(type, creatorId))
+      } else {
+        const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
+        userIdentityType !== 'guest'
+          ? dispatch(FeedService.getFeeds('featured'))
+          : dispatch(FeedService.getFeeds('featuredGuest'))
+      }
     }
   }, [type, creatorId])
 
@@ -48,7 +50,7 @@ const Featured = ({ type, creatorId }: Props) => {
       (type === 'featured' || !type) &&
       feedsState.feeds.feedsFeaturedFetching.value === false &&
       setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFeaturedFetching.value, feedsState.feeds.feedsFeatured.value]
+    [feedsState.feeds.feedsFeaturedFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
   )
 
   useEffect(
@@ -56,7 +58,7 @@ const Featured = ({ type, creatorId }: Props) => {
       (type === 'featured' || !type) &&
       feedsState.feeds.feedsFetching.value === false &&
       setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFetching.value, feedsState.feeds.feedsFeatured.value]
+    [feedsState.feeds.feedsFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
   )
 
   useEffect(
@@ -64,7 +66,7 @@ const Featured = ({ type, creatorId }: Props) => {
       type === 'creator' &&
       feedsState.feeds.feedsCreatorFetching.value === false &&
       setFeedList(feedsState.feeds.feedsCreator.value),
-    [feedsState.feeds.feedsCreatorFetching.value, feedsState.feeds.feedsCreator.value]
+    [feedsState.feeds.feedsCreatorFetching.value, JSON.stringify(feedsState.feeds.feedsCreator.value)]
   )
 
   useEffect(
@@ -72,7 +74,7 @@ const Featured = ({ type, creatorId }: Props) => {
       type === 'bookmark' &&
       feedsState.feeds.feedsBookmarkFetching.value === false &&
       setFeedList(feedsState.feeds.feedsBookmark.value),
-    [feedsState.feeds.feedsBookmarkFetching.value, feedsState.feeds.feedsBookmark.value]
+    [feedsState.feeds.feedsBookmarkFetching.value, JSON.stringify(feedsState.feeds.feedsBookmark.value)]
   )
 
   useEffect(
@@ -80,7 +82,7 @@ const Featured = ({ type, creatorId }: Props) => {
       type === 'myFeatured' &&
       feedsState.feeds.myFeaturedFetching.value === false &&
       setFeedList(feedsState.feeds.myFeatured.value),
-    [feedsState.feeds.myFeaturedFetching.value, feedsState.feeds.myFeatured.value]
+    [feedsState.feeds.myFeaturedFetching.value, JSON.stringify(feedsState.feeds.myFeatured.value)]
   )
 
   useEffect(
@@ -88,7 +90,7 @@ const Featured = ({ type, creatorId }: Props) => {
       type === 'fired' &&
       feedsState.feeds.feedsFiredFetching.value === false &&
       setFeedList(feedsState.feeds.feedsFired.value),
-    [feedsState.feeds.feedsFiredFetching.value, feedsState.feeds.feedsFired.value]
+    [feedsState.feeds.feedsFiredFetching.value, JSON.stringify(feedsState.feeds.feedsFired.value)]
   )
 
   // if(type === 'creator'){

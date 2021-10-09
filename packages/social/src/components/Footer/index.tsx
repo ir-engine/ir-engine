@@ -17,6 +17,7 @@ import { CreatorService } from '../../reducers/creator/CreatorService'
 // import IndexPage from "@xrengine/social/pages/login";
 import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
 import ViewMode from '../ViewMode/ViewMode'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
 interface Props {
   setView?: any
@@ -24,8 +25,11 @@ interface Props {
 const AppFooter = ({ setView, onGoRegistration }: any) => {
   const dispatch = useDispatch()
   const creatorState = useCreatorState()
+  const auth = useAuthState()
   useEffect(() => {
-    dispatch(CreatorService.getLoggedCreator())
+    if (auth.user.id.value) {
+      dispatch(CreatorService.getLoggedCreator())
+    }
   }, [])
 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
