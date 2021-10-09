@@ -1,11 +1,11 @@
 import { Vector3 } from 'three'
 import { XREngineBot } from '@xrengine/bot/src/bot'
 //import { setupXR, testWebXR } from '../utils/testWebXR'
-import { BotHooks, XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
+import { BotHooks, XRBotHooks, BasketballHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 //import { teleportToBall } from './actions/teleportToBallTest'
 //import { hitBallTest } from './actions/hitBallTest'
 
-const maxTimeout = 60 * 1000 * 5
+const maxTimeout = 60 * 1000
 const bot = new XREngineBot({ name: 'bot-1', headless: true, verbose: false })
 const bot2 = new XREngineBot({ name: 'bot-2', headless: true, verbose: false })
 
@@ -43,12 +43,12 @@ describe('Tournament tests', () => {
       await bot.delay(1000)
       await bot2.delay(1000)
       // wait for turn, then move to ball position
-     // await bot.awaitHookPromise(GolfBotHooks.GetIsPlayerTurn)
+     // await bot.awaitHookPromise(BasketballHooks.UseTournamentState)
       //await bot.keyPress('KeyK', 200)
       await bot.delay(1000)
 
-     // const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
-
+      const gameState = await bot.runHook(BasketballHooks.UseTournamentState)
+      console.log(gameState)
       // should be at ball position
       expect(0).toBeLessThan(0.1)
     },

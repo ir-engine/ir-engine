@@ -39,7 +39,7 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
  }
 
  interface stateAll {
-  tournamentStage: 'waitingPlayers'|'gameStart'|'teamsPlaying'|'gameResults'|'finalResults'
+  tournamentStage: '--- waiting players ---'|'gameStart'|'teamsPlaying'|'gameResults'|'finalResults'
     players: statePlayer[],
     game: any[],
     gamesHistory: any[]
@@ -52,10 +52,10 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 };
 
  export const TournamentState = createState({
-    tournamentStage: 'waitingPlayers', // waitingPlayers|gameStart|teamsPlaying|gameResults|finalResults
+    tournamentStage: '--- waiting players ---', // waitingPlayers|gameStart|teamsPlaying|gameResults|finalResults
     players: [],
     game: [],
-    gamesHistory: []
+    gamesHistory: [[]]
  } as stateAll)
  /*
  tournamentStage: 'loading', // |waitingPlayers|gameStart|teamsPlaying|gameResults|finalResults
@@ -87,13 +87,14 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
    id: Symbol('Logger'),
    init: () => ({
      onSet() {
-       console.log('TOURNAMENT STATE \n' + JSON.stringify(TournamentState.attach(Downgraded).value, null, 2))
+       console.warn('TOURNAMENT STATE ----------------------------------------------\n' + JSON.stringify(TournamentState.attach(Downgraded).value, null, 2))
      }
    })
  }))
  
  export function useTournamentState() {
-   return useState(TournamentState) as any as typeof TournamentState
+   console.clear()
+   return JSON.stringify(TournamentState.attach(Downgraded).value, null, 2)//useState(TournamentState) as any as typeof TournamentState
  }
 
  // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor
@@ -122,8 +123,8 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
                anyData: [0]
              }
            ])
-           console.warn(`player ${userId} JOINED`)
-           nextStep(s)
+           //console.warn(`player ${userId} JOINED`)
+            nextStep(s)
          } else {
            console.log(`player ${userId} rejoined`)
          }
