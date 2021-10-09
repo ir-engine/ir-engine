@@ -5,7 +5,7 @@ import { AudioListener } from './audio/StereoAudioListener'
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
-import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
+import { SpawnPoints } from './avatar/AvatarSpawnSystem'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
@@ -150,7 +150,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/AfkCheckSystem'))
 
   // Avatar Systems
-  registerSystem(SystemUpdateType.FIXED, import('./avatar/ClientAvatarSpawnSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarControllerSystem'))
   // Avatar IKRig
@@ -230,7 +230,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 
   // Input Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./avatar/ServerAvatarSpawnSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
 

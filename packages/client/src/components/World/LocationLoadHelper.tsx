@@ -88,7 +88,7 @@ const createOfflineUser = () => {
     rotation: new Quaternion()
   }
 
-  // it is needed by ClientAvatarSpawnSystem
+  // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
   const world = useWorld()
