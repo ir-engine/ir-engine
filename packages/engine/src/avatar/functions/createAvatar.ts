@@ -29,6 +29,11 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
+import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
+import { ShadowComponent } from '../../scene/components/ShadowComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -117,7 +122,19 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
 
   addComponent(entity, CollisionComponent, { collisions: [] })
 
-  if (userId !== Engine.userId) {
+  if (userId === Engine.userId) {
+    addComponent(entity, SpawnPoseComponent, {
+      position: new Vector3().copy(spawnAction.parameters.position),
+      rotation: new Quaternion().copy(spawnAction.parameters.rotation)
+    })
+    createAvatarController(entity)
+
+    addComponent(entity, AudioTagComponent, {})
+    addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
+    addComponent(world.localClientEntity, LocalInputTagComponent, {})
+    addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
+    addComponent(world.localClientEntity, PersistTagComponent, {})
+  } else {
     const shape = world.physics.createShape(
       new PhysX.PxCapsuleGeometry(avatarRadius, capsuleHeight / 2),
       world.physics.physics.createMaterial(0, 0, 0),
@@ -142,12 +159,6 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
       }
     })
     addComponent(entity, ColliderComponent, { body })
-  } else {
-    addComponent(entity, SpawnPoseComponent, {
-      position: new Vector3().copy(spawnAction.parameters.position),
-      rotation: new Quaternion().copy(spawnAction.parameters.rotation)
-    })
-    createAvatarController(entity)
   }
 
   return entity
