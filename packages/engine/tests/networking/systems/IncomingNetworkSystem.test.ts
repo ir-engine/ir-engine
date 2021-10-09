@@ -66,7 +66,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		Engine.currentWorld = world
 	})
 
-	it('should apply pose state to an avatar from World.incomingMessageQueueUnreliable', async () => {
+	it('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
 		/* mock */
 
 		// make this engine user the host (world.isHosting === true)

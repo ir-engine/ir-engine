@@ -142,9 +142,6 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
           )
         }
 
-        // console.log(`newWorldState.pose[${i}]`, newWorldState.pose[i])
-        // console.log(`hasComponent(${networkObjectEntity}, TransformComponent)`, hasComponent(networkObjectEntity, TransformComponent))
-        // console.log(`hasComponent(${networkObjectEntity-1}, ${TransformComponent})`, hasComponent(networkObjectEntity-1 as Entity, TransformComponent))
         if (hasComponent(networkObjectEntity, TransformComponent)) {
           const transformComponent = getComponent(networkObjectEntity, TransformComponent)
           transformComponent.position.fromArray(pose.position)
