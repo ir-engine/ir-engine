@@ -90,9 +90,9 @@ function ikPoseIsTheSame(previousNetworkState, netId, hp, hr, lp, lr, rp, rr): b
  ***********************/
 
 export const forwardIncomingActionsFromOthersIfHost = (world: World) => {
-  if (world.isHosting) {
-    const { incomingActions, outgoingActions } = world
+  const { incomingActions, outgoingActions } = world
 
+  if (world.isHosting) {
     for (const incoming of incomingActions) {
       // if incoming action is not from this client
       if (incoming.$from !== Engine.userId) {
@@ -100,9 +100,9 @@ export const forwardIncomingActionsFromOthersIfHost = (world: World) => {
         outgoingActions.add(incoming)
       }
     }
-
-    incomingActions.clear()
   }
+
+  incomingActions.clear()
 
   return world
 }

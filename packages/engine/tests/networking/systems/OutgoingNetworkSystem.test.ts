@@ -21,38 +21,106 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { TestNetwork } from '../TestNetwork'
 
 describe('OutgoingNetworkSystem Unit Tests', () => {
-  it('should forwardIncomingActionsFromOthersIfHost', () => {
-		/* mock */
-		const world = createWorld()
 
-    // make this engine user the host
-    // world.isHosting === true
-    Engine.userId = world.hostId
+  describe('forwardIncomingActionsFromOthersIfHost', () => {
+  
+    it('should forward incoming actions if the action is from a remote userId', () => {
+      /* mock */
+      const world = createWorld()
 
-		const tick = 0
+      // make this engine user the host
+      // world.isHosting === true
+      Engine.userId = world.hostId
 
-		world.fixedTick = tick
+      const action = NetworkWorldAction.spawnObject({
+        userId: '0' as UserId,
+        prefab: '',
+        parameters: {},
+        $tick: 0,
+        // make action come from another user
+        $from: '2' as UserId,
+        // being sent to this server
+        $to: 'server' as ActionRecipients,
+      })
+      
+      world.incomingActions.add(action)
 
-		const action = NetworkWorldAction.spawnObject({
-      userId: '0' as UserId,
-			prefab: '',
-			parameters: {},
-			$tick: tick,
-      // make action come from another user
-			$from: '2' as UserId,
-      // being sent to this server
-			$to: 'server' as ActionRecipients,
-		})
-		
-		world.incomingActions.add(action)
+      /* run */
+      forwardIncomingActionsFromOthersIfHost(world)
 
-		/* run */
-    forwardIncomingActionsFromOthersIfHost(world)
+      /* assert */
+      // verify incoming action was removed from incomingActions
+      strictEqual(world.incomingActions.has(action), false)
+      // and added to outgoingActions
+      strictEqual(world.outgoingActions.has(action), true)
+    })
 
-		/* assert */
-    strictEqual(world.incomingActions.size, 0)
-    strictEqual(world.outgoingActions.size, 1)
+    it('should clear incomingActions if hosting', () => {
+      /* mock */
+      const world = createWorld()
+
+      // make this engine user the host
+      // world.isHosting === true
+      Engine.userId = world.hostId
+
+      const action = NetworkWorldAction.spawnObject({
+        userId: '2' as UserId,
+        prefab: '',
+        parameters: {},
+        $tick: 0,
+        // make action come from another user
+        $from: '2' as UserId,
+        // being sent to this server
+        $to: 'server' as ActionRecipients,
+      })
+      
+      world.incomingActions.add(action)
+
+      /* run */
+      forwardIncomingActionsFromOthersIfHost(world)
+
+      /* assert */
+
+      // verify incomingActions are cleared if we ARE a host
+      strictEqual(world.incomingActions.size, 0)
+    })
+
+    it('should clear incomingActions if not hosting', () => {
+      /* mock */
+      const world = createWorld()
+
+      // this engine user is not the host
+      // world.isHosting === false
+      Engine.userId = '0' as UserId
+
+      const tick = 0
+
+      world.fixedTick = tick
+
+      const action = NetworkWorldAction.spawnObject({
+        userId: '2' as UserId,
+        prefab: '',
+        parameters: {},
+        $tick: tick,
+        // make action come from another user
+        $from: '2' as UserId,
+        // being sent to this server
+        $to: 'server' as ActionRecipients,
+      })
+      
+      world.incomingActions.add(action)
+
+      /* run */
+      forwardIncomingActionsFromOthersIfHost(world)
+
+      /* assert */
+
+      // verify incomingActions are cleared if we are NOT a host
+      strictEqual(world.incomingActions.size, 0)
+    })
+
   })
+
 })
 
 describe('OutgoingNetworkSystem Integration Tests', async () => {
