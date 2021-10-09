@@ -2,8 +2,8 @@ import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-import { ADMIN_SCENES_RETRIEVED } from '../../actions'
 import { SceneActionType } from './SceneActions'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 
 export const SCENE_PAGE_LIMIT = 100
 
@@ -15,7 +15,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   scenes: {
-    scenes: [],
+    scenes: [] as Array<SceneData>,
     skip: 0,
     limit: SCENE_PAGE_LIMIT,
     total: 0,
@@ -35,7 +35,7 @@ const sceneReceptor = (action: SceneActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
-      case ADMIN_SCENES_RETRIEVED:
+      case 'ADMIN_SCENES_RETRIEVED':
         result = action.collections
         return s.scenes.merge({
           scenes: result.data,

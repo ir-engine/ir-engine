@@ -36,12 +36,6 @@ interface Props {
   authState?: any
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
 }
@@ -563,4 +557,4 @@ const ViewLocation = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ViewLocation)
+export default ViewLocation

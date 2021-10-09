@@ -1,8 +1,8 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
-import { VideoActionType } from './VideoActions'
+import { VideoActionType, PublicVideo } from './VideoActions'
 
 const state = createState({
-  videos: [],
+  videos: [] as Array<PublicVideo>,
   error: ''
 })
 

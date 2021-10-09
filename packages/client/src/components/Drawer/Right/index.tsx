@@ -40,22 +40,13 @@ import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { provisionInstanceServer } from '../../../reducers/instanceConnection/service'
+import { InstanceConnectionService } from '../../../reducers/instanceConnection/InstanceConnectionService'
 import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
 import styles from './Right.module.scss'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
-})
 
 interface Props {
   rightDrawerOpen?: any
   setRightDrawerOpen?: any
-  provisionInstanceServer?: any
 }
 
 const identityProviderTabMap = new Map()
@@ -63,7 +54,7 @@ identityProviderTabMap.set(0, 'email')
 identityProviderTabMap.set(1, 'sms')
 
 const Invites = (props: Props): any => {
-  const { provisionInstanceServer, rightDrawerOpen, setRightDrawerOpen } = props
+  const { rightDrawerOpen, setRightDrawerOpen } = props
   const user = useAuthState().user
   const friendSubState = useFriendState().friends
   const friends = friendSubState.friends.value
@@ -247,7 +238,7 @@ const Invites = (props: Props): any => {
   }
 
   const provisionInstance = (location, instance?) => {
-    provisionInstanceServer(location.id, instance?.id)
+    dispatch(InstanceConnectionService.provisionInstanceServer(location.id, instance?.id))
   }
 
   return (
@@ -585,4 +576,4 @@ const Invites = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Invites)
+export default Invites

@@ -30,15 +30,15 @@ export class MediaStreams {
   public audioGainNode: GainNode = null!
 
   /** Local screen container. */
-  public localScreen = null
+  public localScreen = null as any
   /** Producer using camera to get Video. */
   public camVideoProducer = null as any
   /** Producer using camera to get Audio. */
   public camAudioProducer = null as any
   /** Producer using screen to get Video. */
-  public screenVideoProducer = null
+  public screenVideoProducer = null as any
   /** Producer using screen to get Audio. */
-  public screenAudioProducer = null
+  public screenAudioProducer = null as any
   /** List of all producers nodes.. */
   public producers = [] as any[]
   /** List of all consumer nodes. */
@@ -50,9 +50,9 @@ export class MediaStreams {
   /** Whether the component is initialized or not. */
   public initialized = false
   /** Current channel type */
-  public channelType = null
+  public channelType: 'channel' | 'user' | 'group' | 'instance' = null!
   /** Current channel ID */
-  public channelId = null
+  public channelId: string = null!
 
   public nearbyLayerUsers = [] as NearbyUser[]
 

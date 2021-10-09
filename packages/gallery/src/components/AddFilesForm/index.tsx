@@ -8,24 +8,15 @@ import CloseIcon from '@material-ui/icons/Close'
 import AddIcon from '@material-ui/icons/Add'
 import AppHeader from '../Header'
 import { bindActionCreators, Dispatch } from 'redux'
-import { createFeed } from '../../reducers/post/service'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createFeed: bindActionCreators(createFeed, dispatch)
-})
+import { FeedService } from '../../reducers/post/FeedService'
 
 interface Props {
   filesTarget?: any
   setFilesTarget?: any
   setAddFilesView?: any
-  createFeed?: typeof createFeed
 }
 
-const descriptionState = {}
+const descriptionState = new Map()
 
 const descriptionReducer = (state, action) => {
   const { name, value } = action.payload
@@ -69,7 +60,7 @@ const getTitleAndDescription = (str) => {
   return result
 }
 
-const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget }: Props) => {
+const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) => {
   const [descrText, setDescrText] = useState('')
   const [descriptions, dispatch] = useReducer(descriptionReducer, descriptionState)
   const [titleFile, setTitleFile] = useState('')
@@ -87,6 +78,21 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
       }
     })
   }
+  const filesTargetStringify = JSON.stringify(filesTarget)
+  useEffect(() => {
+    filesTarget?.forEach((file) => {
+      if (!descriptions.has(file)) {
+        dispatch({
+          type: 'CHANGE_TEXT',
+          payload: {
+            name: file,
+            value: file.name.substring(0, file.name.lastIndexOf('.'))
+          }
+        })
+      }
+    })
+  }, [filesTargetStringify])
+
   const handleAddPosts = () => {
     ;[...filesTarget].forEach((file, index) => {
       const { title, description } = getTitleAndDescription(descriptions.get(file) || titleFile)
@@ -98,7 +104,7 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
         preview: file,
         video: file
       } as any
-      createFeed(newPost)
+      dispatch(FeedService.createFeed(newPost))
     })
     setAddFilesView(false)
   }
@@ -150,9 +156,12 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
                               style: {
                                 fontSize: '17pt',
                                 fontFamily: 'Jost, sans-serif',
-                                color: '#9b9b9b'
+                                fontStyle: 'italic',
+                                color: '#9b9b9b',
+                                backgroundColor: '#fff'
                               }
                             }}
+                            style={{ backgroundColor: '#fff' }}
                             margin="dense"
                             id={`description-${itemIndex}`}
                             label="Add description"
@@ -181,4 +190,4 @@ const AddFilesForm = ({ filesTarget, createFeed, setAddFilesView, setFilesTarget
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddFilesForm)
+export default AddFilesForm

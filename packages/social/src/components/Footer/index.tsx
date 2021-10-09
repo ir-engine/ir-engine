@@ -1,85 +1,46 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React from 'react'
-
-import HomeIcon from '@material-ui/icons/Home'
+import React, { useEffect } from 'react'
 // import WhatshotIcon from '@material-ui/icons/Whatshot';
 
 // @ts-ignore
 import styles from './Footer.module.scss'
 import Avatar from '@material-ui/core/Avatar'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import { useEffect } from 'react'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getLoggedCreator } from '../../reducers/creator/service'
+import { useDispatch } from 'react-redux'
+import { useCreatorState } from '../../reducers/creator/CreatorState'
+import { CreatorService } from '../../reducers/creator/CreatorService'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 // import IndexPage from "@xrengine/social/pages/login";
-import {
-  updateArMediaState,
-  updateCreatorFormState,
-  updateCreatorPageState,
-  updateFeedPageState,
-  updateNewFeedPageState,
-  updateShareFormState
-} from '../../reducers/popupsState/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
+import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
 import ViewMode from '../ViewMode/ViewMode'
+import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorState: selectCreatorsState(state),
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getLoggedCreator: bindActionCreators(getLoggedCreator, dispatch),
-  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
-  updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
-  updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
-  updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-  updateShareFormState: bindActionCreators(updateShareFormState, dispatch)
-})
 interface Props {
-  creatorState?: any
-  getLoggedCreator?: any
-  updateCreatorPageState?: typeof updateCreatorPageState
-  updateNewFeedPageState?: typeof updateNewFeedPageState
-  popupsState?: any
-  updateCreatorFormState?: typeof updateCreatorFormState
-  updateFeedPageState?: typeof updateFeedPageState
-  updateArMediaState?: typeof updateArMediaState
-  updateShareFormState?: typeof updateShareFormState
   setView?: any
 }
-const AppFooter = ({
-  creatorState,
-  getLoggedCreator,
-  updateCreatorPageState,
-  popupsState,
-  updateCreatorFormState,
-  updateFeedPageState,
-  updateArMediaState,
-  updateShareFormState,
-  setView,
-  onGoRegistration
-}: any) => {
-  useEffect(() => getLoggedCreator(), [])
+const AppFooter = ({ setView, onGoRegistration }: any) => {
+  const dispatch = useDispatch()
+  const creatorState = useCreatorState()
+  const auth = useAuthState()
+  useEffect(() => {
+    if (auth.user.id.value) {
+      dispatch(CreatorService.getLoggedCreator())
+    }
+  }, [])
 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
   const handleOpenCreatorPage = (id) => {
-    updateCreatorPageState(true, id)
+    dispatch(PopupsStateService.updateCreatorPageState(true, id))
   }
 
   const onGoHome = () => {
-    updateCreatorPageState(false)
-    updateCreatorFormState(false)
-    updateFeedPageState(false)
-    updateNewFeedPageState(false)
-    updateArMediaState(false)
-    updateShareFormState(false)
+    dispatch(PopupsStateService.updateCreatorPageState(false))
+    dispatch(PopupsStateService.updateCreatorFormState(false))
+    dispatch(PopupsStateService.updateFeedPageState(false))
+    dispatch(PopupsStateService.updateNewFeedPageState(false))
+    dispatch(PopupsStateService.updateArMediaState(false))
+    dispatch(PopupsStateService.updateShareFormState(false))
     setView('featured')
   }
 
@@ -102,14 +63,14 @@ const AppFooter = ({
       <Avatar
         onClick={() => {
           onGoRegistration(() => {
-            handleOpenCreatorPage(creatorState?.get('currentCreator')?.id)
+            handleOpenCreatorPage(creatorState.creators.currentCreator?.id?.value)
           })
         }}
-        alt={creatorState.get('currentCreator')?.username}
+        alt={creatorState.creators.currentCreator?.username?.value}
         className={styles.footerAvatar}
         src={
-          creatorState.get('currentCreator')?.avatar
-            ? creatorState.get('currentCreator')?.avatar
+          creatorState.creators.currentCreator?.avatar?.value
+            ? creatorState.creators.currentCreator?.avatar?.value
             : '/assets/userpic.png'
         }
       />
@@ -117,4 +78,4 @@ const AppFooter = ({
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppFooter)
+export default AppFooter

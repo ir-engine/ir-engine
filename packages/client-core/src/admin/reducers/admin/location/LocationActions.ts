@@ -1,3 +1,5 @@
+import { Location } from '@xrengine/common/src/interfaces/Location'
+
 export const LocationAction = {
   locationsRetrieved: (locations: any) => {
     return {

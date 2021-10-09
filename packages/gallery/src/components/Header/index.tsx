@@ -15,23 +15,11 @@ import {
   TextField
 } from '@material-ui/core'
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
-import { createFeed } from '../../reducers/post/service'
-import { selectCreatorsState } from '../../reducers/creator/selector'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Filesystem } from '@capacitor/filesystem'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createFeed: bindActionCreators(createFeed, dispatch)
-})
 interface Props {
   title?: string
-  createFeed?: typeof createFeed
   creatorState?: any
   addFilesView?: any
   setAddFilesView?: any
@@ -114,4 +102,4 @@ const AppHeader = ({ title, setAddFilesView, setFilesTarget, hideAddButtons, inp
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppHeader)
+export default AppHeader

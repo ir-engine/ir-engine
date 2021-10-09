@@ -195,4 +195,4 @@ const SentInvite = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SentInvite)
+export default SentInvite

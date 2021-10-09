@@ -27,21 +27,6 @@ interface Props {
 }
 
 /**
- *Function component providing authState on the basis of state.
- */
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-/**
- *Function component providing doAutoLogin on the basis of dispatch.
- */
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch)
-})
-
-/**
  * Function component providing project editor view.
  */
 const Project = (props: Props) => {
@@ -98,4 +83,4 @@ const Project = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Project)
+export default Project

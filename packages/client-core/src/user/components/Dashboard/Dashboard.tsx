@@ -18,10 +18,6 @@ interface Props {
   children?: any
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
 /**
  * Function for admin dashboard
  *
@@ -107,4 +103,4 @@ const Dashboard = ({ children }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, null)(Dashboard)
+export default Dashboard

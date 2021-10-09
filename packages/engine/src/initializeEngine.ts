@@ -5,7 +5,7 @@ import { AudioListener } from './audio/StereoAudioListener'
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
-import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
+import { SpawnPoints } from './avatar/AvatarSpawnSystem'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
@@ -150,7 +150,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/AfkCheckSystem'))
 
   // Avatar Systems
-  registerSystem(SystemUpdateType.FIXED, import('./avatar/ClientAvatarSpawnSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarControllerSystem'))
   // Avatar IKRig
@@ -225,13 +225,12 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   })
   // Network Incoming Systems
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/IncomingNetworkSystem'))
-  registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/MediaStreamSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED_EARLY, options.systems)
 
   // Input Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./avatar/ServerAvatarSpawnSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
 
@@ -252,7 +251,6 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 }
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
-  console.log('\n\n\n\n\n\n\n\n============================register media server systems')
   registerSystem(SystemUpdateType.UPDATE, import('./networking/systems/MediaStreamSystem'))
 }
 
@@ -266,7 +264,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.publicPath = options.publicPath
 
   // Browser state set
-  if (options.type !== EngineSystemPresets.SERVER && navigator && window) {
+  if (options.type !== EngineSystemPresets.SERVER && globalThis.navigator && globalThis.window) {
     const browser = detect()
     const os = detectOS(navigator.userAgent)
 

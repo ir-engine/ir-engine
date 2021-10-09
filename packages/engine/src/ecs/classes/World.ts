@@ -63,7 +63,7 @@ export class World {
   /** Outgoing actions */
   outgoingActions = new Set<Action>()
 
-  currentNetworkState: WorldStateInterface
+  outgoingNetworkState: WorldStateInterface
   previousNetworkState: WorldStateInterface
 
   /**

@@ -20,10 +20,10 @@ import ArMediaPopup from '@xrengine/social/src/components/popups/ArMediaPopup'
 import FeedFormPopup from '@xrengine/social/src/components/popups/FeedFormPopup'
 import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPopup'
 import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
-import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
-import { createCreator } from '@xrengine/social/src/reducers/creator/service'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
-import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
+import { useWebxrNativeState } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeService'
 
 import { useDispatch } from 'react-redux'
 // @ts-ignore
@@ -39,31 +39,10 @@ import Blocked from '@xrengine/social/src/components/Blocked'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { Redirect } from 'react-router-dom'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state),
-    webxrnativeState: selectWebXrNativeState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
-  createCreator: bindActionCreators(createCreator, dispatch),
-  getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
-  changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
-})
-
 import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
 import App from './App'
 
-const Home = ({
-  createCreator,
-  //doLoginAuto,
-  creatorsState,
-  webxrnativeState,
-  changeWebXrNative,
-  getWebXrNative
-}) => {
+const Home = ({}) => {
   const dispatch = useDispatch()
   const auth = useAuthState()
 
@@ -75,13 +54,15 @@ const Home = ({
   useEffect(() => {
     if (accessToken) {
       dispatch(AuthService.doLoginAuto(true))
-      getWebXrNative()
+      dispatch(WebxrNativeService.getWebXrNative())
     }
   }, [accessToken])
 
   useEffect(() => {
     if (auth?.authUser?.accessToken) {
-      createCreator()
+      if (auth.user.id.value) {
+        dispatch(CreatorService.createCreator())
+      }
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 
@@ -92,7 +73,9 @@ const Home = ({
   const [registrationForm, setRegistrationForm] = useState(true)
   const [view, setView] = useState('featured')
 
-  const currentCreator = creatorsState.get('currentCreator')
+  const creatorsState = useCreatorState()
+
+  const currentCreator = creatorsState.creators.currentCreator.value
   const currentTime = new Date(Date.now()).toISOString()
 
   useEffect(() => {
@@ -101,7 +84,7 @@ const Home = ({
     }
   }, [currentCreator])
 
-  const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+  const webxrRecorderActivity = useWebxrNativeState().webxrnative.value
 
   const changeOnboarding = () => {
     setOnborded(true)
@@ -142,4 +125,4 @@ const Home = ({
   return <App />
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default Home

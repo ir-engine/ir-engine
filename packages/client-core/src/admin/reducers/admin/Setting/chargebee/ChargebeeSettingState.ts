@@ -1,6 +1,5 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { ChargebeeSettingActionType } from './ChargebeeSettingActions'
-import { CHARGEBEE_SETTING_DISPLAY } from '../../../actions'
 
 const state = createState({
   Chargebee: {
@@ -18,7 +17,7 @@ const chargebeeSettingReceptor = (action: ChargebeeSettingActionType): any => {
   let result
   state.batch((s) => {
     switch (action.type) {
-      case CHARGEBEE_SETTING_DISPLAY:
+      case 'CHARGEBEE_SETTING_DISPLAY':
         result = action.chargebee
         return s.Chargebee.merge({ chargebee: result.data, updateNeeded: false })
     }

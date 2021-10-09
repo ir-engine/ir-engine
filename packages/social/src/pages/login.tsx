@@ -10,14 +10,6 @@ interface Props {
   //doLoginAuto?: typeof AuthService.doLoginAuto
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch)
-})
-
 export const IndexPage = (props: Props): any => {
   //const { doLoginAuto } = props
   const dispatch = useDispatch()
@@ -45,4 +37,4 @@ export const IndexPage = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(IndexPage)
+export default IndexPage

@@ -2,6 +2,7 @@ import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Gr
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { GLTFRemoveMaterialsExtension } from '../classes/GLTFRemoveMaterialsExtension'
+import { GLTFInstancingExtension } from '../classes/GLTFInstancingExtension'
 import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
@@ -21,6 +22,8 @@ const loader = new GLTFLoader()
 if (!isClient) {
   loader.register((parser) => new GLTFRemoveMaterialsExtension(parser))
 }
+
+loader.register((parser) => new GLTFInstancingExtension(parser))
 
 const dracoLoader: any = isClient ? new DRACOLoader() : new NodeDRACOLoader()
 // const dracoLoader = new DRACOLoader()

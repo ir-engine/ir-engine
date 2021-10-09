@@ -11,12 +11,6 @@ import { useTranslation } from 'react-i18next'
 import styles from './NavUserWidget.module.scss'
 import Button from '@material-ui/core/Button'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 interface Props {
   login?: boolean
 }
@@ -73,4 +67,4 @@ const NavUserBadge = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NavUserBadge)
+export default NavUserBadge

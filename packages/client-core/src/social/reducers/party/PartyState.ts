@@ -64,7 +64,7 @@ const partyReceptor = (action: PartyActionType): any => {
             : [partyUser]
           updateMap.partyUsers = updateMapPartyUsers
         }
-        return state.party.set(updateMap)
+        return s.party.set(updateMap)
 
       case 'REMOVED_PARTY_USER':
         newValues = action

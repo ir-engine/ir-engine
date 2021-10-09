@@ -149,7 +149,7 @@ if (config.server.enabled) {
       })
     }
 
-    app.use('healthcheck', (req, res) => {
+    app.use('/healthcheck', (req, res) => {
       res.sendStatus(200)
     })
   } catch (err) {
