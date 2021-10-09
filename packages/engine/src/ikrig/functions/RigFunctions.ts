@@ -74,10 +74,10 @@ function _addRig(
   // // Known Skeleton Structures.
   switch (arm_type) {
     case ArmatureType.MIXAMO:
-      setupMixamoIKRig(entity, rig)
+      setupMixamoIKRig(rig)
       break
     case ArmatureType.TREX:
-      setupTRexIKRig(entity, rig)
+      setupTRexIKRig(rig)
       break
     default:
       console.error('Unsupported rig type', arm_type)

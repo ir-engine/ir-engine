@@ -2,7 +2,7 @@ import { Chain } from '../classes/Chain'
 import Pose, { PoseBoneTransform } from '../classes/Pose'
 import { Quaternion, Vector3 } from 'three'
 import { Axis } from '../classes/Axis'
-import { lawCosinesSSS } from './IKFunctions'
+import { cosSSS } from './IKFunctions'
 
 ///////////////////////////////////////////////////////////////////
 // Multi Bone Solvers
@@ -46,7 +46,7 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
   const rotAfterAim = rot.clone()
   const acbLen = { aLen, cLen, bLen }
 
-  rad = lawCosinesSSS(aLen, cLen, bLen) // Get the Angle between First Bone and Target.
+  rad = cosSSS(aLen, cLen, bLen) // Get the Angle between First Bone and Target.
 
   const firstRad = rad
 
@@ -86,7 +86,7 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
   // SECOND BONE
   // Need to rotate from Right to Left, So take the angle and subtract it from 180 to rotate from
   // the other direction. Ex. L->R 70 degrees == R->L 110 degrees
-  rad = Math.PI - lawCosinesSSS(aLen, bLen, cLen)
+  rad = Math.PI - cosSSS(aLen, bLen, cLen)
 
   rot
     .copy(pose_a.world.quaternion)
@@ -159,7 +159,7 @@ export function solveThreeBone(
   // Bone A
   _aim_bone2(chain, tpose, axis, p_wt, rot) // Aim the first bone toward the target oriented with the bend direction.
 
-  rad = lawCosinesSSS(a_len, ta_len, bh_len) // Get the Angle between First Bone and Target.
+  rad = cosSSS(a_len, ta_len, bh_len) // Get the Angle between First Bone and Target.
   rot
     .premultiply(new Quaternion().setFromAxisAngle(axis.x, -rad)) // Rotate the the aimed bone by the angle from SSS
     .premultiply(p_wt.quaternion.clone().invert()) // Convert to Bone's Local Space by mul invert of parent bone rotation
@@ -174,7 +174,7 @@ export function solveThreeBone(
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Bone B
-  rad = Math.PI - lawCosinesSSS(a_len, bh_len, ta_len)
+  rad = Math.PI - cosSSS(a_len, bh_len, ta_len)
 
   rot
     .copy(pose_a.world.quaternion)
@@ -192,7 +192,7 @@ export function solveThreeBone(
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Bone C
-  rad = Math.PI - lawCosinesSSS(c_len, bh_len, tb_len)
+  rad = Math.PI - cosSSS(c_len, bh_len, tb_len)
   rot
     .copy(pose_b.world.quaternion)
     .multiply(bind_c.local.quaternion) // Still contains WS from previous bone, Add next bone's local
