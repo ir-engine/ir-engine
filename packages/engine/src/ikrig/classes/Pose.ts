@@ -3,7 +3,7 @@ import { Bone, SkinnedMesh } from 'three'
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
-import { spin_bone_forward, align_chain, align_bone_forward, worldToModel } from '../functions/IKFunctions'
+import { spinBoneForward, alignChain, alignBoneForward, worldToModel } from '../functions/IKFunctions'
 import { Entity } from '../../ecs/classes/Entity'
 import { transformAdd } from '../functions/IKSolvers'
 
@@ -41,30 +41,30 @@ class Pose {
   helper: any
 
   align_leg(b_names: string[]) {
-    align_chain(this, DOWN, b_names)
+    alignChain(this, DOWN, b_names)
     return this
   }
   align_arm_left(b_names: string[]) {
-    align_chain(this, LEFT, b_names)
+    alignChain(this, LEFT, b_names)
     return this
   }
   align_arm_right(b_names: string[]) {
-    align_chain(this, RIGHT, b_names)
+    alignChain(this, RIGHT, b_names)
     return this
   }
 
   align_foot(b_name: string) {
-    spin_bone_forward(this, b_name)
-    align_bone_forward(this, b_name)
+    spinBoneForward(this, b_name)
+    alignBoneForward(this, b_name)
     return this
   }
 
   spin_bone_forward(b_name: string) {
-    spin_bone_forward(this, b_name)
+    spinBoneForward(this, b_name)
     return this
   }
   align_bone_forward(b_name: string) {
-    align_bone_forward(this, b_name)
+    alignBoneForward(this, b_name)
     return this
   }
 
