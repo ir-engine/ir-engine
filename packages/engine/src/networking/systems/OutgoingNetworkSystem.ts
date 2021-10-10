@@ -14,7 +14,9 @@ import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
 import { Action } from '../interfaces/Action'
 import { pipe } from 'bitecs'
+import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
+import { Mesh } from 'three'
 
 /***********
  * QUERIES *
@@ -28,6 +30,10 @@ const networkTransformsQuery =
 const ikTransformsQuery = isClient
   ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
   : defineQuery([XRInputSourceComponent])
+
+const xrHandsQuery = isClient
+  ? defineQuery([AvatarControllerComponent, XRHandsInputComponent])
+  : defineQuery([XRHandsInputComponent])
 
 /*************
  * UTILITIES *
@@ -271,13 +277,56 @@ export const queueUnchangedIkPoses = (world: World) => {
   return world
 }
 
+export const queueXRHandPoses = (world) => {
+  const { currentNetworkState } = world
+
+  for (const entity of xrHandsQuery(world)) {
+    const { networkId } = getComponent(entity, NetworkObjectComponent)
+    const xrHands = getComponent(entity, XRHandsInputComponent)
+    const hands: any = [
+      {
+        joints: [] as any
+      },
+      {
+        joints: [] as any
+      }
+    ]
+
+    for (let xrHand of xrHands.hands) {
+      const joints = (xrHand as any).joints
+      if (!joints) continue
+
+      const hand = hands[xrHand.userData.handedness == 'left' ? 0 : 1]
+
+      for (const [key, value] of Object.entries(joints)) {
+        const position = (value as Mesh).position.toArray()
+        const rotation = (value as Mesh).quaternion.toArray()
+
+        hand.joints.push({
+          key,
+          position,
+          rotation
+        })
+      }
+    }
+
+    currentNetworkState.handsPose.push({
+      networkId,
+      hands
+    })
+  }
+
+  return world
+}
+
 export const resetNetworkState = (world: World) => {
   world.previousNetworkState = world.outgoingNetworkState
   world.outgoingNetworkState = {
     tick: world.fixedTick,
     time: Date.now(),
     pose: [],
-    ikPose: []
+    ikPose: [],
+    handsPose: []
   }
   return world
 }
@@ -287,7 +336,7 @@ export const queueAllOutgoingPoses = pipe(
   resetNetworkState,
   queueUnchangedPoses, 
   queueUnchangedPosesForClient, 
-  queueUnchangedIkPoses,
+  queueXRHandPoses
 )
 
 /****************

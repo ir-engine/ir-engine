@@ -109,8 +109,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   useEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
-      const instanceChannel = Object.entries(channels).find((channel) => channel[1].channelType === 'instance')
-      dispatch(ChannelConnectionService.provisionChannelServer(null!, instanceChannel[0]))
+      const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
+      ChannelConnectionService.provisionChannelServer(null!, instanceChannel?.id)
     }
   }, [chatState.instanceChannelFetched.value])
 
