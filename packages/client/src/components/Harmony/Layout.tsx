@@ -10,11 +10,10 @@ import { Config } from '@xrengine/common/src/config'
 import { Helmet } from 'react-helmet'
 import React, { Fragment, useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-// import Harmony from '.'
+import Harmony from '.'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
-import Harmony from './Harmony'
+// import Harmony from './Harmony'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -93,8 +92,8 @@ const Layout = (props: Props): any => {
             {siteTitle} | {pageTitle}
           </title>
         </Helmet>
-        <Harmony />
-        {/* <Harmony
+        {/* <Harmony /> */}
+        <Harmony
           isHarmonyPage={true}
           setHarmonyOpen={setHarmonyOpen}
           setDetailsType={setDetailsType}
@@ -105,7 +104,7 @@ const Layout = (props: Props): any => {
           setSelectedGroup={setSelectedGroup}
           setLeftDrawerOpen={setLeftDrawerOpen}
           setRightDrawerOpen={setRightDrawerOpen}
-        /> */}
+        />
 
         <Fragment>
           <UIDialog />
@@ -139,11 +138,12 @@ const Layout = (props: Props): any => {
               />
             </Fragment>
           )}
-        {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
-          <Fragment>
-            <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
-          </Fragment>
-        )}
+        {/* {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && ( */}
+        <Fragment>
+          {/* <InviteHarmony /> */}
+          <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
+        </Fragment>
+        {/* )} */}
       </section>
     </ThemeProvider>
   )

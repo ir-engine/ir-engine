@@ -9,6 +9,7 @@ import Send from '@material-ui/icons/Send'
 import Call from '@material-ui/icons/Call'
 import MoreHoriz from '@material-ui/icons/MoreHoriz'
 import { useStyle, useStyles } from './style'
+import InviteHarmony from '../inviteHarmony'
 
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
@@ -18,6 +19,11 @@ import Face from '@material-ui/icons/Face'
 export default function RightHarmony() {
   const classex = useStyle()
   const classes = useStyles()
+  const [openInvite, setOpenInvite] = React.useState(false)
+
+  const openInviteModel = (open: boolean) => {
+    setOpenInvite(open)
+  }
   return (
     <div className={classes.rightRoot}>
       <div className={classes.title}>
@@ -33,7 +39,7 @@ export default function RightHarmony() {
           <IconButton>
             <Call className={classes.whiteIcon} />
           </IconButton>
-          <IconButton>
+          <IconButton onClick={() => openInviteModel(true)}>
             <MoreHoriz className={classes.whiteIcon} />
           </IconButton>
         </div>
@@ -94,6 +100,8 @@ export default function RightHarmony() {
           </IconButton>
         </Paper>
       </div>
+
+      <InviteHarmony open={openInvite} handleClose={openInviteModel} />
     </div>
   )
 }
