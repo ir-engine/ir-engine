@@ -14,8 +14,9 @@ import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { pipe } from 'bitecs'
+import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
+import { Group } from 'three'
 import { Quaternion, Vector3 } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
 
 export const applyDelayedActions = (world: World) => {
   const { delayedActions } = world
@@ -173,6 +174,32 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
         xrInputSourceComponent.controllerLeft.quaternion.fromArray(leftPoseRotation)
         xrInputSourceComponent.controllerRight.position.fromArray(rightPosePosition)
         xrInputSourceComponent.controllerRight.quaternion.fromArray(rightPoseRotation)
+      }
+
+      for (const netHands of newWorldState.handsPose) {
+        const entity = world.getNetworkObject(netHands.networkId)
+        if (isEntityLocalClient(entity) || !hasComponent(entity, XRHandsInputComponent)) continue
+
+        const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
+
+        netHands.hands.forEach((data, i) => {
+          const hand = xrHandsComponent.hands[i] as any
+
+          if (!hand.joints) {
+            hand.joints = {}
+          }
+
+          // Populate joints
+          data.joints.forEach((j) => {
+            if (!hand.joints[j.key]) {
+              hand.joints[j.key] = new Group()
+            }
+
+            const joint = hand.joints[j.key] as Group
+            joint.position.fromArray(j.position)
+            joint.quaternion.fromArray(j.rotation)
+          })
+        })
       }
     } catch (e) {
       console.log('could not process world state buffer, ' + e + ' ' + e.stack)
