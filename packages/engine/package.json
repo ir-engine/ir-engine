@@ -69,7 +69,7 @@
     "socket.io": "4.2.0",
     "styled-components": "5.3.1",
     "three": "^0.133.0",
-    "three-mesh-bvh": "^0.4.3",
+    "three-mesh-bvh": "^0.5.0",
     "troika-three-text": "^0.43.0",
     "ts-matches": "^5.0.0",
     "twitch-m3u8": "^1.1.4",
