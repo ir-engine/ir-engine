@@ -118,7 +118,7 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
         // don't apply state if this client has ownership
         const weHaveOwnership = networkComponent.userId === Engine.userId
         if (weHaveOwnership) {
-          console.warn(`Received network update for entity that this client owns: ${pose.networkId}`)
+          // console.warn(`Received network update for entity that this client owns: ${pose.networkId}`)
           continue
         }
 
