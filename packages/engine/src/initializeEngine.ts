@@ -190,6 +190,11 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   // Animation Systems
   registerSystem(SystemUpdateType.PRE_RENDER, import('./avatar/AvatarLoadingSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./avatar/AnimationSystem'))
+
+  //Rendered Update
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/RendererUpdateSystem'))
+
+  // Animation Systems
   registerSystem(SystemUpdateType.PRE_RENDER, import('./particles/systems/ParticleSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./debug/systems/DebugHelpersSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./renderer/HighlightSystem'))
