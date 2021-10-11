@@ -171,6 +171,7 @@ export class LocalStorage implements StorageProviderInterface {
   /**
    * @author Abhishek Pathak
    * @param contentPath
+   * @param type
    * @returns
    */
   deleteContent = async (contentPath, type): Promise<any> => {

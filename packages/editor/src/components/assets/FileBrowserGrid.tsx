@@ -213,9 +213,9 @@ export function FileBrowserGrid({
     deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
   }
 
-  const moveContentCallback = useCallback((from, to) => {
+  const moveContentCallback = (from, to) => {
     moveContent(from, to)
-  }, [])
+  }
 
   const Copy = useCallback(() => {
     ;() => {
