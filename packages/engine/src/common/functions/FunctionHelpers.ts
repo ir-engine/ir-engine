@@ -4,7 +4,7 @@
 // as much as it can, without ever going more than once per `wait` duration;
 // but if you'd like to disable the execution on the leading edge, pass
 // `{leading: false}`. To disable execution on the trailing edge, ditto.
-export function throttle(func, wait: number, options) {
+export function throttle(func, wait: number, options?) {
   let timeout, context, args, result
   let previous = 0
   if (!options) options = {}

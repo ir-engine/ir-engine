@@ -28,7 +28,7 @@ const analyticsReceptor = (action: AnalyticsActionType): any => {
         return s.merge({
           activeInstances: result.data
             .map((item) => {
-              return { x: new Date(item.createdAt), y: item.count }
+              return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
@@ -37,7 +37,7 @@ const analyticsReceptor = (action: AnalyticsActionType): any => {
         return s.merge({
           activeParties: result.data
             .map((item) => {
-              return { x: new Date(item.createdAt), y: item.count }
+              return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
@@ -46,7 +46,7 @@ const analyticsReceptor = (action: AnalyticsActionType): any => {
         return s.merge({
           activeLocations: result.data
             .map((item) => {
-              return { x: new Date(item.createdAt), y: item.count }
+              return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
@@ -55,7 +55,7 @@ const analyticsReceptor = (action: AnalyticsActionType): any => {
         return s.merge({
           activeScenes: result.data
             .map((item) => {
-              return { x: new Date(item.createdAt), y: item.count }
+              return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
@@ -64,7 +64,7 @@ const analyticsReceptor = (action: AnalyticsActionType): any => {
         return s.merge({
           channelUsers: result.data
             .map((item) => {
-              return { x: new Date(item.createdAt), y: item.count }
+              return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
@@ -73,7 +73,7 @@ const analyticsReceptor = (action: AnalyticsActionType): any => {
         return s.merge({
           instanceUsers: result.data
             .map((item) => {
-              return { x: new Date(item.createdAt), y: item.count }
+              return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
@@ -82,7 +82,7 @@ const analyticsReceptor = (action: AnalyticsActionType): any => {
         return s.merge({
           dailyNewUsers: result.data
             .map((item) => {
-              return { x: new Date(item.createdAt), y: item.count }
+              return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
@@ -91,7 +91,7 @@ const analyticsReceptor = (action: AnalyticsActionType): any => {
         return s.merge({
           dailyUsers: result.data
             .map((item) => {
-              return { x: new Date(item.createdAt), y: item.count }
+              return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })

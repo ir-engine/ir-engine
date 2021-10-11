@@ -1,17 +1,14 @@
-import { Group, Object3D, SkinnedMesh, XRInputSource } from 'three'
+import { Group, Object3D, SkinnedMesh } from 'three'
 
 export class XRHandMeshModel extends Object3D {
   controller: Group
   bones: any[]
-  xrInputSource: XRInputSource
 
-  constructor(controller: Group, model: Object3D, xrInputSource: XRInputSource) {
+  constructor(controller: Group, model: Object3D, handedness: string) {
     super()
 
     this.controller = controller
     this.bones = []
-    this.xrInputSource = xrInputSource
-
     this.add(model)
 
     const mesh = model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
@@ -50,10 +47,10 @@ export class XRHandMeshModel extends Object3D {
     joints.forEach((jointName) => {
       const bone = model.getObjectByName(jointName)
 
-      if (bone !== undefined) {
+      if (bone) {
         ;(bone as any).jointName = jointName
       } else {
-        console.warn(`Couldn't find ${jointName} in ${xrInputSource.handedness} hand mesh`)
+        console.warn(`Couldn't find ${jointName} in ${handedness} hand mesh`)
       }
 
       this.bones.push(bone)
@@ -66,13 +63,15 @@ export class XRHandMeshModel extends Object3D {
     // XR Joints
     const XRJoints = (this.controller as any).joints
 
+    if (!XRJoints) return
+
     for (let i = 0; i < this.bones.length; i++) {
       const bone = this.bones[i]
 
       if (bone) {
         const XRJoint = XRJoints[bone.jointName] as Group
 
-        if (XRJoint.visible) {
+        if (XRJoint?.visible) {
           const position = XRJoint.position
 
           if (bone) {

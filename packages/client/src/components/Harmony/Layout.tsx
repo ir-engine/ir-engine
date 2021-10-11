@@ -11,9 +11,10 @@ import { Helmet } from 'react-helmet'
 import React, { Fragment, useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import Harmony from '.'
+// import Harmony from '.'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
+import Harmony from './Harmony'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -92,7 +93,8 @@ const Layout = (props: Props): any => {
             {siteTitle} | {pageTitle}
           </title>
         </Helmet>
-        <Harmony
+        <Harmony />
+        {/* <Harmony
           isHarmonyPage={true}
           setHarmonyOpen={setHarmonyOpen}
           setDetailsType={setDetailsType}
@@ -103,7 +105,8 @@ const Layout = (props: Props): any => {
           setSelectedGroup={setSelectedGroup}
           setLeftDrawerOpen={setLeftDrawerOpen}
           setRightDrawerOpen={setRightDrawerOpen}
-        />
+        /> */}
+
         <Fragment>
           <UIDialog />
           <Alerts />
