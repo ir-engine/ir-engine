@@ -33,14 +33,15 @@ const (
 
 // Run is this match function's implementation of the gRPC call defined in api/matchfunction.proto.
 func (s *MatchFunctionService) Run(req *pb.RunRequest, stream pb.MatchFunction_RunServer) error {
-	// Fetch tickets for the pools specified in the Match Profile.
-	log.Printf("Generating proposals for function %v", req.GetProfile().GetName())
-
 	poolTickets, err := matchfunction.QueryPools(stream.Context(), s.queryServiceClient, req.GetProfile().GetPools())
 	if err != nil {
 		log.Printf("Failed to query tickets for the given pools, got %s", err.Error())
 		return err
 	}
+	if len(poolTickets) == 0 {
+	    return nil
+	}
+	log.Printf("Processing %v tickets for function %v", len(poolTickets), req.GetProfile().GetName())
 
 	// Generate proposals.
 	proposals, err := makeMatches(req.GetProfile(), poolTickets)

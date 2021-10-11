@@ -67,10 +67,13 @@ func main() {
 					return
 				}
 
-				log.Printf("Generated %v matches for profile %v", len(matches), p.GetName())
-				if err := assign(be, matches); err != nil {
-					log.Printf("Failed to assign servers to matches, got %s", err.Error())
-					return
+                if len(matches) > 0 {
+                    log.Printf("Generated %v matches for profile %v", len(matches), p.GetName())
+                    if err := assign(be, matches); err != nil {
+                        log.Printf("Failed to assign servers to matches, got %s", err.Error())
+                        return
+                    }
+                    log.Printf("Assigned")
 				}
 			}(&wg, p)
 		}
