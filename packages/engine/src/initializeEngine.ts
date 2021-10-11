@@ -195,7 +195,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.PRE_RENDER, import('./renderer/HighlightSystem'))
 
   //Rendered Update
-  registerSystem(SystemUpdateType.UPDATE, import('./scene/systems/RendererUpdateSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/RendererUpdateSystem'))
 
   registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
 
