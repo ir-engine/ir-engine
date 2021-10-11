@@ -148,8 +148,17 @@ export class LocalStorage implements StorageProviderInterface {
     return files
   }
 
-  move = () => {
-    console.log('Moving the Project Files')
+  moveContent = async (current: string, destination: string): Promise<boolean> => {
+    const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
+    const fileName = path.basename(current)
+    current = path.join(contentpath, current)
+    destination = path.join(contentpath, destination, fileName)
+    try {
+      await fs.promises.rename(current, destination)
+    } catch (err) {
+      return false
+    }
+    return true
   }
 }
 export default LocalStorage

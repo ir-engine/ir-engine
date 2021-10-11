@@ -36,7 +36,7 @@ function collectMenuProps({ item }) {
  * @param       {any} rest
  * @constructor
  */
-function FileBrowserItem({ contextMenuId, item, onClick, ...rest }) {
+function FileBrowserItem({ contextMenuId, item, onClick, moveContent, ...rest }) {
   // function to handle callback on click of item
   const onClickItem = useCallback(
     (e) => {
@@ -66,7 +66,9 @@ function FileBrowserItem({ contextMenuId, item, onClick, ...rest }) {
 
   const [{ isOver, canDrop, moni }, drop] = useDrop({
     accept: [...ItemTypes.FileBrowserContent],
-    drop: (item) => console.log('Moving the Folder/File:' + JSON.stringify(item)),
+    drop: (dropItem) => {
+      moveContent((dropItem as any).id, { destination: item.id })
+    },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: !!monitor.canDrop(),
@@ -111,6 +113,7 @@ FileBrowserItem.propTypes = {
   disableTooltip: PropTypes.bool,
   contextMenuId: PropTypes.string,
   onClick: PropTypes.func,
+  moveContent: PropTypes.func,
   item: PropTypes.shape({
     id: PropTypes.any.isRequired,
     type: PropTypes.string.isRequired,
@@ -156,6 +159,7 @@ export function FileBrowserGrid({
   onSelect,
   onLoadMore,
   hasMore,
+  moveContent,
   source
 }) {
   const uniqueId = useRef(`FileGrid${lastId}`)
@@ -216,11 +220,8 @@ export function FileBrowserGrid({
     [source]
   )
 
-  const Move = useCallback(() => {
-    ;() => {
-      //Move the File in Editor.
-      //Send File Service.
-    }
+  const moveContentCallback = useCallback((from, to) => {
+    moveContent(from, to)
   }, [])
 
   const Copy = useCallback(() => {
@@ -245,6 +246,7 @@ export function FileBrowserGrid({
                   item={item}
                   selected={selectedItems.indexOf(item) !== -1}
                   onClick={onSelect}
+                  moveContent={moveContentCallback}
                 />
               ))}
               {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
@@ -273,6 +275,7 @@ FileBrowserGrid.propTypes = {
   tooltip: PropTypes.func,
   isLoading: PropTypes.bool,
   onSelect: PropTypes.func,
+  moveContent: PropTypes.func,
   addNewFolder: PropTypes.func,
   onLoadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool,

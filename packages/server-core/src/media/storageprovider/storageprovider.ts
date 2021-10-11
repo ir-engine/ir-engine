@@ -24,5 +24,7 @@ export class StorageProvider implements StorageProviderInterface {
 
   listFolderContent = (folderName: string): Promise<any> => this.provider.listFolderContent(folderName)
   createDirectory = (dir): Promise<boolean> => this.provider.createDirectory(dir)
+  moveContent = (current: string, destination: string): Promise<boolean> =>
+    this.provider.moveContent(current, destination)
 }
 export default StorageProvider

@@ -55,8 +55,6 @@ export interface StorageProviderInterface {
    * @returns {any} Blob store
    */
   getStorage(): any
-  createDirectory(dir): Promise<boolean>
-  listFolderContent(folderName: string): Promise<any>
 
   /**
    * Get a list of keys under a path
@@ -83,4 +81,23 @@ export interface StorageProviderInterface {
    * @param invalidationItems list of keys
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
+
+  /**
+   * Create a new Folder in Store
+   * @param dir
+   */
+  createDirectory(dir): Promise<boolean>
+
+  /**
+   * List all the files/folders in the directory
+   * @param folderName
+   */
+  listFolderContent(folderName: string): Promise<any>
+
+  /**
+   * Move content to/from a directory
+   * @param current
+   * @param destination
+   */
+  moveContent(current: string, destination: string): Promise<any>
 }

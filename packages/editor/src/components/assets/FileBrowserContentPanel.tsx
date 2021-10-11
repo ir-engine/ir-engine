@@ -82,7 +82,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       const url = Config.publicRuntimeConfig.fileserver + content.key
       const returningObject = {
         description: url,
-        id: content.name + i,
+        id: content.key,
         label: content.name,
         nodeClass: nodeClass,
         url: url,
@@ -130,6 +130,16 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     setSelectedDirectory(newPath)
   }
 
+  const moveContent = (from, to) => {
+    ProjectManager.instance.feathersClient
+      .service('file-browser')
+      .update(from, to)
+      .then((res) => {
+        if (res) renderProjectFiles(selectedDirectory)
+      })
+      .catch(() => console.log('Error on Moving'))
+  }
+
   return (
     <>
       {console.log('Rendering File Browser Panel CHILD')}
@@ -144,6 +154,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
             onSelect={onSelect}
             isLoading={false}
             addNewFolder={addNewFolder}
+            moveContent={moveContent}
           />
         </AssetPanelContentContainer>
       </AssetsPanelContainer>

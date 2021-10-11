@@ -20,7 +20,13 @@ export class FileBrowserService implements ServiceMethods<any> {
     console.log('Data is:' + JSON.stringify(data))
     return this.store.createDirectory('/NewFolderHere')
   }
-  async update(id: NullableId, data, params?: Params) {}
+  async update(id: NullableId, data, params?: Params) {
+    if (id || data.destination) {
+      const result = await this.store.moveContent(id as string, data.destination)
+      return result
+    }
+    return false
+  }
   async patch(id: NullableId, data, params?: Params) {}
   async remove(id: NullableId, params?: Params) {}
 
