@@ -168,7 +168,7 @@ export const createApp = (): Application => {
         console.warn('Did not create gameserver')
       }
 
-      app.use('healthcheck', (req, res) => {
+      app.use('/healthcheck', (req, res) => {
         res.sendStatus(200)
       })
     } catch (err) {

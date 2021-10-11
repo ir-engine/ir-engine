@@ -41,12 +41,6 @@ interface Props {
   children?: any
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 const Layout = (props: Props): any => {
   const { pageTitle, children } = props
 
@@ -152,4 +146,4 @@ const Layout = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Layout)
+export default Layout

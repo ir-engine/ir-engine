@@ -35,12 +35,6 @@ interface Props {
   users: any
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
 }
@@ -490,4 +484,4 @@ const InviteModel = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InviteModel)
+export default InviteModel

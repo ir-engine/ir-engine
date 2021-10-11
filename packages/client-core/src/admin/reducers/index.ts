@@ -9,9 +9,9 @@ import { adminSceneReducer } from './admin/scene/SceneState'
 import { adminBotsReducer } from './admin/bots/BotsState'
 import { AdminAnalyticsReducer } from './admin/analytics/AnalyticsState'
 import { adminRealityPackReducer } from './admin/reality-pack/RealityPackState'
-import arMediaReducer from '@xrengine/social/src/reducers/arMedia/reducers'
-import feedsReducer from '@xrengine/social/src/reducers/feed/reducers'
-import creatorReducer from '@xrengine/social/src/reducers/creator/reducers'
+import { arMediaReducer } from '@xrengine/social/src/reducers/arMedia/ArMediaState'
+import { feedReducer } from '@xrengine/social/src/reducers/feed/FeedState'
+import { creatorReducer } from '@xrengine/social/src/reducers/creator/CreatorState'
 import { adminGroupReducer } from './admin/group/GroupState'
 import { adminScopeReducer } from './admin/scope/ScopeState'
 import { settingAnalyticsReducer } from './admin/Setting/analytics/SettingAnalyticsState'
@@ -42,7 +42,7 @@ export default {
   adminBots: adminBotsReducer,
   adminAnalytics: AdminAnalyticsReducer,
   arMedia: arMediaReducer,
-  feedsAdmin: feedsReducer,
+  feedsAdmin: feedReducer,
   adminCreator: creatorReducer,
   group: adminGroupReducer,
   scope: adminScopeReducer,

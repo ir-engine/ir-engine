@@ -3,13 +3,7 @@ import PropTypes from 'prop-types'
 import InfiniteScroll from 'react-infinite-scroller'
 import styled from 'styled-components'
 import { VerticalScrollContainer } from '../layout/Flex'
-import {
-  MediaGrid,
-  ImageMediaGridItem,
-  VideoMediaGridItem,
-  IconMediaGridItem,
-  FolderGridItem
-} from '../layout/MediaGrid'
+import { MediaGrid, IconMediaGridItem } from '../layout/MediaGrid'
 import { unique } from '../../functions/utils'
 import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { useDrag, useDrop } from 'react-dnd'
@@ -71,8 +65,8 @@ function FileBrowserItem({ contextMenuId, item, onClick, ...rest }) {
   }))
 
   const [{ isOver, canDrop, moni }, drop] = useDrop({
-    accept: [ItemTypes.File, 'png'],
-    drop: () => console.log('Moving the Folder/File'),
+    accept: [...ItemTypes.FileBrowserContent],
+    drop: (item) => console.log('Moving the Folder/File:' + JSON.stringify(item)),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: !!monitor.canDrop(),

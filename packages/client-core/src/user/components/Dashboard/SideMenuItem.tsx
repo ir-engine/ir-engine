@@ -37,12 +37,6 @@ interface Props {
   location: any
 }
 
-const mapStateToProps = (state: any): any => {
-  return {
-    //authState: selectAuthState(state)
-  }
-}
-
 const SideMenuItem = (props: Props) => {
   const { location } = props
   const { pathname } = location
@@ -454,4 +448,4 @@ const SideMenuItem = (props: Props) => {
   )
 }
 
-export default withRouter(connect(mapStateToProps, null)(SideMenuItem))
+export default withRouter(SideMenuItem)

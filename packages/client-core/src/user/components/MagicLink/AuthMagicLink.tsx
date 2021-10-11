@@ -16,13 +16,6 @@ interface Props {
   token: string
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //verifyEmail: bindActionCreators(verifyEmail, dispatch),
-  // resetPassword: bindActionCreators(resetPassword, dispatch),
-  // loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch),
-  // refreshConnections: bindActionCreators(refreshConnections, dispatch)
-})
-
 const AuthMagicLink = (props: Props): any => {
   const { auth, token, type } = props
   const { t } = useTranslation()
@@ -69,4 +62,4 @@ const AuthMagicLinkWrapper = (props: any): any => {
   return <AuthMagicLink {...props} token={token} type={type} />
 }
 
-export default withRouter(connect(null, mapDispatchToProps)(AuthMagicLinkWrapper))
+export default withRouter(AuthMagicLinkWrapper)

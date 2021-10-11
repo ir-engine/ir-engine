@@ -9,12 +9,6 @@ import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthS
 import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
 import styles from './DrawerControls.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 interface Props {
   disableBottom: boolean
   setLeftDrawerOpen: any
@@ -70,4 +64,4 @@ export const DrawerControls = (props: Props): JSX.Element => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DrawerControls)
+export default DrawerControls

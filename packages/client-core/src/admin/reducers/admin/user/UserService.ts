@@ -8,11 +8,10 @@ export const UserService = {
   fetchUsersAsAdmin: (incDec?: 'increment' | 'decrement') => {
     return async (dispatch: Dispatch): Promise<any> => {
       const userState = accessUserState()
-      const user = userState.user
       const skip = userState.users.skip.value
       const limit = userState.users.limit.value
       try {
-        if (user.userRole.value === 'admin') {
+        if (userState.userRole.userRole.findIndex((r) => r.role.value === 'admin') !== -1) {
           const users = await client.service('user').find({
             query: {
               $sort: {

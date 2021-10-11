@@ -5,6 +5,7 @@ import ViewAgendaIcon from '@material-ui/icons/ViewAgenda'
 import React, { useRef, useState, useEffect } from 'react'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
+import { useMediaQuery } from '@mui/material'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'
@@ -17,12 +18,17 @@ const FeedMenu = () => {
   const [view, setView] = useState('all')
   const [viewType, setViewType] = useState('grid')
   const [isFeatured, setIsFeatured] = useState(false)
+  const match = useMediaQuery('(max-width:1279px)')
 
   useEffect(() => {
     if (view !== 'all' && !isFeatured) {
       setView('all')
     }
   }, [view, isFeatured])
+
+  useEffect(() => {
+    match && setViewType('list')
+  }, [match])
 
   const padding = 40
   const handleMenuClick = (view) => {
@@ -99,7 +105,7 @@ const FeedMenu = () => {
               </Button>
             </section>
           </Grid>
-          <section className={styles.viewSwitcher}>
+          <section className={styles.viewSwitcher} style={match ? { display: 'none' } : {}}>
             <Button
               variant={viewType === 'grid' ? 'contained' : 'text'}
               className={styles.viewSwitchButton + (viewType === 'grid' ? ' ' + styles.viewActive : '')}

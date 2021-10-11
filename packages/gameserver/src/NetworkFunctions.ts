@@ -8,13 +8,14 @@ import logger from '@xrengine/server-core/src/logger'
 import config from '@xrengine/server-core/src/appconfig'
 import { closeTransport } from './WebRTCFunctions'
 import { Quaternion, Vector3 } from 'three'
-import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
+import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../../engine/src/networking/functions/NetworkWorldAction'
 import { XRInputSourceComponent } from '../../engine/src/avatar/components/XRInputSourceComponent'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { XRHandsInputComponent } from '@xrengine/engine/src/xr/components/XRHandsInputComponent'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -293,6 +294,13 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
         NetworkWorldAction.setXRMode({
           userId: networkObject.userId,
           enabled: true
+        })
+      ).to(joinedUserId)
+    }
+    if (hasComponent(eid, XRHandsInputComponent)) {
+      dispatchFrom(world.hostId, () =>
+        NetworkWorldAction.xrHandsConnected({
+          userId: networkObject.userId
         })
       ).to(joinedUserId)
     }

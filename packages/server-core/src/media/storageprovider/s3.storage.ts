@@ -2,12 +2,12 @@ import AWS from 'aws-sdk'
 import { PresignedPost } from 'aws-sdk/clients/s3'
 import S3BlobStore from 's3-blob-store'
 import config from '../../appconfig'
-import { StorageProviderInterface } from './storageprovider.interface'
 import {
-  MAX_AVATAR_FILE_SIZE,
-  MIN_AVATAR_FILE_SIZE,
-  PRESIGNED_URL_EXPIRATION_DURATION
-} from '@xrengine/common/src/constants/AvatarConstants'
+  SignedURLResponse,
+  StorageListObjectInterface,
+  StorageObjectInterface,
+  StorageProviderInterface
+} from './storageprovider.interface'
 
 export class S3Provider implements StorageProviderInterface {
   createDirectory(dir: any): Promise<boolean> {
@@ -51,14 +51,14 @@ export class S3Provider implements StorageProviderInterface {
               reject(err)
             }
           } else {
-            reject(new Error('Pack already exists'))
+            reject(new Error(`Object of key ${key} already exists`))
           }
         }
       )
     })
   }
 
-  getObject = async (key: string): Promise<any> => {
+  getObject = async (key: string): Promise<StorageObjectInterface> => {
     return new Promise((resolve, reject) =>
       this.provider.getObject(
         {
@@ -70,7 +70,10 @@ export class S3Provider implements StorageProviderInterface {
             console.error(err)
             reject(err)
           } else {
-            resolve(data)
+            resolve({
+              Body: data.Body as Buffer,
+              ContentType: data.ContentType
+            })
           }
         }
       )
@@ -80,7 +83,8 @@ export class S3Provider implements StorageProviderInterface {
     ////////////////
     return {}
   }
-  listObjects = async (prefix: string): Promise<any> => {
+
+  listObjects = async (prefix: string): Promise<StorageListObjectInterface> => {
     return new Promise((resolve, reject) =>
       this.provider.listObjectsV2(
         {
@@ -92,18 +96,18 @@ export class S3Provider implements StorageProviderInterface {
             console.error(err)
             reject(err)
           } else {
-            resolve(data)
+            resolve(data as StorageListObjectInterface)
           }
         }
       )
     )
   }
 
-  putObject = async (params: any): Promise<any> => {
+  putObject = async (params: StorageObjectInterface): Promise<any> => {
     return new Promise((resolve, reject) =>
       this.provider.putObject(
         {
-          ACL: params.ACL,
+          ACL: 'public-read',
           Body: params.Body,
           Bucket: this.bucket,
           ContentType: params.ContentType,
@@ -148,7 +152,7 @@ export class S3Provider implements StorageProviderInterface {
 
   getStorage = (): typeof S3BlobStore => this.blob
 
-  getSignedUrl = async (key: string, expiresAfter: number, conditions): Promise<any> => {
+  getSignedUrl = async (key: string, expiresAfter: number, conditions): Promise<SignedURLResponse> => {
     const result = await new Promise<PresignedPost>((resolve) => {
       this.provider.createPresignedPost(
         {
@@ -187,8 +191,12 @@ export class S3Provider implements StorageProviderInterface {
         }
       )
     })
-    ;(result as any).cacheDomain = this.cacheDomain
-    return result
+    return {
+      fields: result.fields,
+      cacheDomain: this.cacheDomain,
+      url: result.url,
+      local: false
+    }
   }
 
   deleteResources = (keys: string[]): Promise<any> => {

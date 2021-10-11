@@ -4,10 +4,12 @@ import { NativeTypes } from 'react-dnd-html5-backend'
  * ItemTypes object containing types of items used.
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  * @type {Object}
  */
 export const ItemTypes = {
   File: NativeTypes.FILE,
+  FileBrowserContent: ['png', NativeTypes.FILE, 'folder'],
   Node: 'Node',
   Model: 'Model',
   Image: 'Image',

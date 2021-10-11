@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import VideoRecorder from 'react-video-recorder'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
@@ -19,55 +19,18 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 // @ts-ignore
 import styles from './FeedForm.module.scss'
-import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service'
-import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
-import { changeWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { FeedService } from '../../reducers/feed/FeedService'
+import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
+import { useWebxrNativeState } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeService'
 import Preloader from '@xrengine/social/src/components/Preloader'
-import { selectFeedsState } from '../../reducers/feed/selector'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state),
-    feedsState: selectFeedsState(state),
-    webxrnativeState: selectWebXrNativeState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createFeed: bindActionCreators(createFeed, dispatch),
-  updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch),
-  updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
-  updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
-  updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-  changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
-})
+import { useFeedState } from '../../reducers/feed/FeedState'
 
 interface Props {
   feed?: any
-  popupsState?: any
-  feedsState?: any
-  createFeed?: typeof createFeed
-  updateFeedAsAdmin?: typeof updateFeedAsAdmin
-  updateNewFeedPageState?: typeof updateNewFeedPageState
-  updateShareFormState?: typeof updateShareFormState
-  updateArMediaState?: typeof updateArMediaState
-  changeWebXrNative?: any
-  webxrnativeState?: any
 }
-const FeedForm = ({
-  feed,
-  createFeed,
-  updateFeedAsAdmin,
-  updateNewFeedPageState,
-  updateShareFormState,
-  updateArMediaState,
-  popupsState,
-  feedsState,
-  webxrnativeState,
-  changeWebXrNative
-}: Props) => {
+const FeedForm = ({ feed }: Props) => {
   const [isSended, setIsSended] = useState(false)
   const [isRecordVideo, setRecordVideo] = useState(false)
   const [isVideo, setIsVideo] = useState(false)
@@ -84,15 +47,18 @@ const FeedForm = ({
   const textRef = React.useRef<HTMLInputElement>()
   const videoRef = React.useRef<HTMLInputElement>()
   const { t } = useTranslation()
-  const videoPath = popupsState?.get('videoPath')
-  const videoDir = popupsState?.get('fPath')
-  const nameId = popupsState?.get('nameId')
+  const popupsState = usePopupsStateState()
+  const videoPath = popupsState?.popups?.videoPath?.value
+  const videoDir = popupsState?.popups?.fPath?.value
+  const nameId = popupsState?.popups?.nameId?.value
   const { XRPlugin } = Plugins
-
+  const dispatch = useDispatch()
   const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value)
   const handleComposingTextChange = (event: any): void => setComposingText(event.target.value)
-  const webxrRecorderActivity = webxrnativeState.get('webxrnative')
-  const lastFeedVideoUrl = feedsState.get('lastFeedVideoUrl')
+  const webxrnativeState = useWebxrNativeState()
+  const webxrRecorderActivity = webxrnativeState.webxrnative.value
+  const feedsState = useFeedState()
+  const lastFeedVideoUrl = feedsState.feeds.lastFeedVideoUrl?.value
 
   useEffect(() => {
     console.log('videoUrl', lastFeedVideoUrl)
@@ -115,9 +81,9 @@ const FeedForm = ({
     }
 
     if (feed) {
-      updateFeedAsAdmin(feed.id, newFeed)
+      dispatch(FeedService.updateFeedAsAdmin(feed.id, newFeed))
     } else {
-      const feedMediaLinks = await createFeed(newFeed)
+      const feedMediaLinks = await dispatch(FeedService.createFeed(newFeed))
       // @ts-ignore
       // updateShareFormState(true, feedMediaLinks.video, feedMediaLinks.preview);
     }
@@ -133,10 +99,10 @@ const FeedForm = ({
     // }, 2000);
 
     if (webxrRecorderActivity) {
-      changeWebXrNative()
+      dispatch(WebxrNativeService.changeWebXrNative())
     }
     XRPlugin.deleteVideo({ videoDir: videoDir })
-    updateNewFeedPageState(false, null, null, null)
+    dispatch(PopupsStateService.updateNewFeedPageState(false, null, null, null))
   }
 
   const dataURItoBlob = (dataURI) => {
@@ -284,9 +250,9 @@ const FeedForm = ({
   }, [])
 
   const closePopUp = () => {
-    updateNewFeedPageState(false, null, null, null)
+    dispatch(PopupsStateService.updateNewFeedPageState(false, null, null, null))
     if (webxrRecorderActivity) {
-      changeWebXrNative()
+      dispatch(WebxrNativeService.changeWebXrNative())
     }
     XRPlugin.deleteVideo({ videoDir: videoDir })
   }
@@ -302,7 +268,7 @@ const FeedForm = ({
     }
   })
 
-  const feedsFetching = feedsState.get('feedsFetching')
+  const feedsFetching = feedsState.feeds.feedsFetching.value
 
   return (
     <section className={styles.feedFormContainer}>
@@ -441,4 +407,4 @@ const FeedForm = ({
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedForm)
+export default FeedForm

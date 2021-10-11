@@ -15,10 +15,10 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
+import { InstanceConnectionService } from '../../reducers/instanceConnection/InstanceConnectionService'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { Vector3, Quaternion } from 'three'
-import { SceneData } from '@xrengine/engine/src/scene/interfaces/SceneData'
+import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { getPacksFromSceneData } from '@xrengine/realitypacks/loader'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -88,7 +88,7 @@ const createOfflineUser = () => {
     rotation: new Quaternion()
   }
 
-  // it is needed by ClientAvatarSpawnSystem
+  // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
   const world = useWorld()
@@ -131,7 +131,7 @@ export const initEngine = async (
     const didConnect = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
-    await Promise.all([Store.store.dispatch(connectToInstanceServer('instance')), didConnect])
+    await Promise.all([Store.store.dispatch(InstanceConnectionService.connectToInstanceServer('instance')), didConnect])
   }
 
   if (typeof engineCallbacks?.onConnectedToServer === 'function') {
@@ -199,7 +199,7 @@ export const teleportToLocation = async (
   // }
 
   // shut down connection with existing GS
-  Store.store.dispatch(resetInstanceServer())
+  Store.store.dispatch(InstanceConnectionService.resetInstanceServer())
   Network.instance.transport.close()
 
   await teleportToScene(portalComponent, async () => {

@@ -9,10 +9,11 @@ import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
 import theme from '../../theme'
 import { Config } from '@xrengine/common/src/config'
 import { SnackbarProvider } from 'notistack'
-import { restoreState } from '@xrengine/client-core/src/persisted.store'
+import { AuthAction } from '@xrengine/client-core/src/user/reducers/auth/AuthAction'
 import RouterComp from '../router'
 import reducers from '../reducers'
 import './styles.scss'
+import AppUrlListener from '../components/AppDeepLink'
 
 const App = (): any => {
   const dispatch = useDispatch()
@@ -24,7 +25,7 @@ const App = (): any => {
       ;(window as any).env = ''
     }
 
-    dispatch(restoreState())
+    dispatch(AuthAction.restoreAuth())
 
     initGA()
 
@@ -56,6 +57,7 @@ const StoreProvider = () => {
   return (
     <Provider store={configureStore(reducers)}>
       <BrowserRouter>
+        <AppUrlListener></AppUrlListener>
         <App />
       </BrowserRouter>
     </Provider>

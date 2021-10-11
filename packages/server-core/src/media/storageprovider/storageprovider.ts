@@ -1,6 +1,6 @@
 import S3Storage from './s3.storage'
 import LocalStorage from './local.storage'
-import { StorageProviderInterface } from './storageprovider.interface'
+import { StorageObjectInterface, StorageProviderInterface } from './storageprovider.interface'
 import config from '../../appconfig'
 
 export class StorageProvider implements StorageProviderInterface {
@@ -11,9 +11,9 @@ export class StorageProvider implements StorageProviderInterface {
   }
 
   cacheDomain = ''
-  checkObjectExistence = (key: string): Promise<any> => this.provider.checkObjectExistence(key)
+  checkObjectExistence = (key: string) => this.provider.checkObjectExistence(key)
   getProvider = (): StorageProviderInterface => this.provider
-  getSignedUrl = (key: string, expiresAfter: number, conditions): any =>
+  getSignedUrl = (key: string, expiresAfter: number, conditions) =>
     this.provider.getSignedUrl(key, expiresAfter, conditions)
   getStorage = (): any => this.provider.getStorage()
   getObject = (key: string): Promise<any> => this.provider.getObject(key)

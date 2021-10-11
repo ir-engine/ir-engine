@@ -35,13 +35,12 @@ const locationReceptor = (action: LocationActionType): any => {
         if (s.locations.locations == null || s.updateNeeded.value === true) {
           s.locations.locations.set(newValues.data)
         } else {
-          s.locations.merge(newValues.data)
+          s.locations.locations.set([...s.locations.locations.value, ...newValues.data])
         }
 
         s.locations.skip.set(newValues.skip)
         s.locations.limit.set(newValues.limit)
         s.locations.total.set(newValues.total)
-
         return s.updateNeeded.set(false)
 
       case 'FETCH_CURRENT_LOCATION':
@@ -63,8 +62,6 @@ const locationReceptor = (action: LocationActionType): any => {
         return s.fetchingCurrentLocation.set(false)
 
       case 'LOCATION_NOT_FOUND':
-        updateMap = new Map()
-        updateMap.set()
         s.currentLocation.merge({ location: {}, bannedUsers: [] })
         s.currentLocationUpdateNeeded.set(false)
         s.fetchingCurrentLocation.set(false)
