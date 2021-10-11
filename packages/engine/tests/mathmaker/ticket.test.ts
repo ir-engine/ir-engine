@@ -46,30 +46,48 @@ function post(path, data): Promise<requestResponse> {
   })
 }
 
-function get(path): Promise<requestResponse> {
+function get(path, options = {}, resolveOnFirstData = false): Promise<requestResponse> {
   console.log('get path', path)
-  const options = {
+  const defaultOptions = {
     hostname: 'localhost',
     port: 51504,
     path: path,
     method: 'GET'
   }
+  const _options = Object.assign({}, defaultOptions, options)
 
   return new Promise<requestResponse>((resolve, reject) => {
-    const req = http.request(options, (res) => {
+    const req = http.request(_options, (res) => {
       console.log(`statusCode: ${res.statusCode}`)
 
       const chunks: Uint8Array[] = []
-      res.on('data', (data) => chunks.push(data))
-      res.on('end', () => {
+      const onRequestEnd = () => {
+        console.log('on request end', path)
         let body = Buffer.concat(chunks)
+        console.log('body.type', res.headers['content-type'])
+        console.log('body', body.toString())
         switch (res.headers['content-type']) {
           case 'application/json':
             resolve({ code: res.statusCode, body: JSON.parse(body.toString()) })
             return
         }
-        reject('unexpected')
+        reject(`unexpected content type: ${res.headers['content-type']}, body: ${body.toString()}`)
+      }
+
+      res.on('data', (data) => {
+        console.log('data', data)
+        chunks.push(data)
+        if (resolveOnFirstData) {
+          console.log('destroy')
+          res.destroy()
+        }
       })
+      res.on('close', onRequestEnd)
+      res.on('end', onRequestEnd)
+
+      // setTimeout(() => {
+      //   res.destroy(new Error('timeout!'))
+      // }, 2000)
     })
 
     req.on('error', reject)
@@ -104,24 +122,43 @@ it('creates ticket', () => {
   })
 })
 
-it('sets assignment', () => {
+it('gets ticket info after creation', async () => {
+  const result = await createTicket('mode.battleroyale')
+  console.log('result', result)
+  assert(result.code === 200)
+  assert(result.body?.id)
+
+  const ticketDataResult = await getTicket(result.body.id)
+  console.log('ticketDataResult', ticketDataResult)
+})
+
+it('sets assignment', function (done) {
+  this.timeout(5000)
+
   const ticketsPromises: Promise<requestResponse>[] = []
-  for (let i = 0; i < 6; i++) {
-    const t = createTicket('mode.battleroyale').then((result) => {
-      assert(result.code === 200)
-      assert(result.body?.id)
-      return result
-    })
+  for (let i = 0; i < 5; i++) {
+    const t = createTicket('mode.battleroyale')
     ticketsPromises.push(t)
   }
-  return Promise.all(ticketsPromises).then((tickets) => {
+  Promise.all(ticketsPromises).then((tickets) => {
     console.log('tickets', tickets)
 
-    // @ts-ignore
-    return getTicketsAssignments(tickets[0].body.id).then((result) => {
-      const a = result.body as TicketAssignmentsResponse
-      console.log('assignment', a)
-      assert(a?.result?.assignment?.connection)
+    const assignmentsPromises = tickets.map((ticketResponse) => {
+      return getTicketsAssignments(ticketResponse.body.id).then((result) => {
+        console.log('result', result)
+        const a = result.body as TicketAssignmentsResponse
+        console.log('assignment', a)
+        return a
+      })
+      // .catch((e) => {
+      //   console.log('failed to get for ', ticketResponse.body.id, ' error:', e)
+      // })
+    })
+
+    return Promise.race(assignmentsPromises).then((assignmentResponse) => {
+      console.log('got assignment', assignmentResponse)
+      assert(assignmentResponse?.result?.assignment?.connection)
+      done()
     })
   })
   // TicketAssignmentsResponse
@@ -167,5 +204,9 @@ interface TicketAssignmentsResponse {
 
 // TicketAssignmentsResponse
 function getTicketsAssignments(ticketId: string) {
-  return get(`/v1/frontendservice/tickets/${ticketId}/assignments`)
+  return get(`/v1/frontendservice/tickets/${ticketId}/assignments`, {}, true)
+}
+
+function getTicket(ticketId: string) {
+  return get(`/v1/frontendservice/tickets/${ticketId}`)
 }
