@@ -209,10 +209,9 @@ export function FileBrowserGrid({
     window.open(trigger.item.url)
   }, [])
 
-  const deleteContentCallback = useCallback((_, trigger) => {
-    console.log('The ITem is:' + trigger.item.id)
+  const deleteContentCallback = (_, trigger) => {
     deleteContent(trigger.item.id)
-  }, [])
+  }
 
   const moveContentCallback = useCallback((from, to) => {
     moveContent(from, to)
@@ -252,9 +251,7 @@ export function FileBrowserGrid({
           <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
           {!source.disableUrl && <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>}
           {!source.disableUrl && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
-          <MenuItem onClick={deleteContentCallback} data={{ id: 'Ejhe' }}>
-            {t('editor:layout.assetGrid.deleteAsset')}
-          </MenuItem>
+          <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
         </ContextMenu>
       </ContextMenuTrigger>
 

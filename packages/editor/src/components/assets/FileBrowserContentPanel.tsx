@@ -56,7 +56,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       onSelectionChanged({ resourceUrl: props.description, name: props.label, contentType: props.type })
     else {
       const newPath = `${selectedDirectory}${props.label}/`
-      console.log('The NewPath is:' + newPath)
       setSelectedDirectory(newPath)
     }
   }
