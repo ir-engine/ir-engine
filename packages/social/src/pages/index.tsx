@@ -52,10 +52,10 @@ const Home = ({}) => {
   const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
 
   useEffect(() => {
-    if (accessToken) {
-      dispatch(AuthService.doLoginAuto(true))
-      dispatch(WebxrNativeService.getWebXrNative())
-    }
+    // if (accessToken) {
+    dispatch(AuthService.doLoginAuto(true))
+    dispatch(WebxrNativeService.getWebXrNative())
+    // }
   }, [accessToken])
 
   useEffect(() => {
@@ -118,9 +118,9 @@ const Home = ({}) => {
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
-  if (!accessToken) {
-    return <Redirect to="/registration" />
-  }
+  // if (!accessToken) {
+  //   return <Redirect to="/registration" />
+  // }
 
   return <App />
 }
