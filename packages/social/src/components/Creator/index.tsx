@@ -11,6 +11,9 @@ import CreatorCard from '../CreatorCard'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import AppFooter from '../Footer'
+import { FeedService } from '../../reducers/feed/FeedService'
+import { useFeedState } from '../../reducers/feed/FeedState'
+
 import styles from './Creator.module.scss'
 
 interface Props {
@@ -22,6 +25,7 @@ const Creator = ({ creatorId, creatorData }: Props) => {
   const [isMe, setIsMe] = useState(false)
   const dispatch = useDispatch()
   const creatorState = useCreatorState()
+  const feedsState = useFeedState()
   useEffect(() => {
     if (
       creatorState.creators.fetchingCurrentCreator.value === false &&
@@ -35,8 +39,22 @@ const Creator = ({ creatorId, creatorData }: Props) => {
       }
     }
   }, [])
+
   const { t } = useTranslation()
   const [videoType, setVideoType] = useState('creator')
+
+  useEffect(() => {
+    dispatch(
+      FeedService.getFeeds(
+        videoType,
+        isMe === true
+          ? creatorState?.creators?.currentCreator?.id?.value
+          : creatorData
+          ? creatorData.id
+          : creatorState?.creators?.creator?.id?.value
+      )
+    )
+  }, [])
   return (
     <>
       <section className={styles.creatorContainer}>
@@ -68,16 +86,7 @@ const Creator = ({ creatorId, creatorData }: Props) => {
           </section>
         )}
         <section className={styles.feedsWrapper}>
-          <Featured
-            creatorId={
-              isMe === true
-                ? creatorState?.creators?.currentCreator?.id?.value
-                : creatorData
-                ? creatorData.id
-                : creatorState?.creators?.creator?.id?.value
-            }
-            type={videoType}
-          />
+          <Featured thisData={feedsState.feeds.feedsCreator.value} />
         </section>
       </section>
     </>

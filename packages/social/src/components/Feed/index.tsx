@@ -30,11 +30,18 @@ const Feed = (props: Props) => {
   const popupsState = usePopupsStateState()
   const feedsState = useFeedState()
 
+  const creator = feedsState.feeds.feed.creator.value
+
   useEffect(() => {
     dispatch(FeedService.getFeed(popupsState.popups.feedId?.value))
-    dispatch(FeedService.getFeeds('creator', feed.creator.id))
   }, [popupsState.popups.feedId?.value])
   feed = feedsState.feeds.fetching.value === false && feedsState.feeds.feed
+
+  useEffect(() => {
+    if (creator) {
+      dispatch(FeedService.getFeeds('creator', creator.id))
+    }
+  }, [JSON.stringify(creator)])
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
