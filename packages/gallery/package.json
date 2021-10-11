@@ -37,7 +37,7 @@
     "@capacitor/ios": "3.2.4",
     "@capacitor/share": "1.0.4",
     "@material-ui/core": "4.12.3",
-    "@types/react-redux": "7.1.18",
+    "@types/react-redux": "7.1.19",
     "@xrengine/client-core": "^0.4.8",
     "@xrengine/common": "^0.4.8",
     "@xrengine/editor": "^0.4.8",
@@ -60,9 +60,9 @@
     "@types/react": "17.0.27",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "7.32.0",
+    "eslint": "8.0.0",
     "typescript": "4.4.3",
-    "vite": "2.6.3"
+    "vite": "2.6.5"
   },
   "browser": {
     "fs": false

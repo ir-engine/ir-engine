@@ -10,10 +10,6 @@ interface Props {
   objectsToLoad?: number
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
 const LoadingScreen = (props: Props) => {
   const { objectsToLoad } = props
   const onBoardingStep = useAppState().onBoardingStep
@@ -69,4 +65,4 @@ const LoadingScreen = (props: Props) => {
     </div>
   )
 }
-export default connect(mapStateToProps)(LoadingScreen)
+export default LoadingScreen

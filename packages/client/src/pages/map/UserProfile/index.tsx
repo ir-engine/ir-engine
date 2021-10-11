@@ -13,7 +13,6 @@ import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthS
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import { getAvatarURLForUser, Views } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { SearchIcon } from '../icons/Search'
 import { Close } from '../icons/Close'
 import { LazyImage } from '@xrengine/client-core/src/common/components/LazyImage'
 // import MapView from '../MapLocationSelection'
@@ -22,10 +21,6 @@ interface Props {
   showUserProfile?: any
   isUserProfileShowing?: any
   showHideProfile?: Function
-}
-
-const mapStateToProps = (state: any): any => {
-  return {}
 }
 
 const UserProfileScreen = (props: Props) => {
@@ -279,4 +274,4 @@ const UserProfileScreen = (props: Props) => {
     </div>
   )
 }
-export default connect(mapStateToProps)(UserProfileScreen)
+export default UserProfileScreen

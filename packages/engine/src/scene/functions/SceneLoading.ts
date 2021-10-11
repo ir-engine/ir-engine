@@ -55,8 +55,11 @@ import { setCameraProperties } from '../functions/setCameraProperties'
 import { setEnvMap } from '../functions/setEnvMap'
 import { setFog } from '../functions/setFog'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
-import { SceneData } from '../interfaces/SceneData'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -133,7 +136,7 @@ export class WorldScene {
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
-    const world = Engine.defaultWorld
+    const world = useWorld()
     switch (name) {
       case 'mtdata':
         //if (isClient && Engine.isBot) {
@@ -365,7 +368,13 @@ export class WorldScene {
 
       case 'cameraproperties':
         if (isClient) {
-          setCameraProperties(Engine.defaultWorld.localClientEntity, component.data)
+          matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
+            if (spawnAction.userId === Engine.userId) {
+              setCameraProperties(Engine.defaultWorld.localClientEntity, component.data)
+              return true
+            }
+            return false
+          })
         }
         break
 

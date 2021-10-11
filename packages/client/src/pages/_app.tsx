@@ -1,6 +1,6 @@
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import { Config } from '@xrengine/common/src/config'
-import { restoreState } from '@xrengine/client-core/src/persisted.store'
+import { AuthAction } from '@xrengine/client-core/src/user/reducers/auth/AuthAction'
 import { configureStore } from '@xrengine/client-core/src/store'
 import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
 import theme from '@xrengine/editor/src/components/theme'
@@ -23,7 +23,7 @@ const App = (): any => {
       ;(window as any).env = (window as any).env ?? ''
     }
 
-    dispatch(restoreState())
+    dispatch(AuthAction.restoreAuth())
 
     initGA()
 

@@ -20,12 +20,6 @@ const goHome = () => (window.location.href = window.location.origin)
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
-const mapStateToProps = (state: any) => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({})
-
 interface Props {
   loadingItemCount
   isValidLocation
@@ -92,6 +86,6 @@ const DefaultLayoutView = (props: Props) => {
   )
 }
 
-const connector = connect(mapStateToProps, mapDispatchToProps)(DefaultLayoutView)
+const connector = DefaultLayoutView
 
 export default connector

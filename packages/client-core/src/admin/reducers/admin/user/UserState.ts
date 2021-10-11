@@ -6,6 +6,9 @@ import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 
 export const USER_PAGE_LIMIT = 100
 
+type UserRole = { role: string }
+type UserRoles = UserRole[]
+
 const state = createState({
   isLoggedIn: false,
   isProcessing: false,
@@ -14,7 +17,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   users: {
-    users: [],
+    users: [] as UserRoles,
     skip: 0,
     limit: USER_PAGE_LIMIT,
     total: 0,
@@ -24,7 +27,7 @@ const state = createState({
     lastFetched: new Date()
   },
   userRole: {
-    userRole: [],
+    userRole: [] as UserRoles,
     skip: 0,
     limit: USER_PAGE_LIMIT,
     total: 0,

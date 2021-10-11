@@ -28,14 +28,13 @@ interface Props {
   children?: any
   chatState?: any
   sceneId: any
-  setSceneId: any
   reinit: any
   isUserBanned: any
   setIsValidLocation: any
 }
 
 export const NetworkInstanceProvisioning = (props: Props) => {
-  const { sceneId, setSceneId, reinit, isUserBanned, setIsValidLocation } = props
+  const { sceneId, reinit, isUserBanned, setIsValidLocation } = props
 
   const authState = useAuthState()
   const selfUser = authState.user
@@ -83,13 +82,10 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           instanceId = query.instanceId
         }
 
-        if (sceneId === null) setSceneId(currentLocation.sceneId.value)
         dispatch(
           InstanceConnectionService.provisionInstanceServer(currentLocation.id.value, instanceId || undefined, sceneId)
         )
       }
-
-      if (sceneId === null) setSceneId(currentLocation.sceneId.value)
     } else {
       if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
         setIsValidLocation(false)
@@ -105,15 +101,16 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       !instanceConnectionState.instanceServerConnecting.value &&
       !instanceConnectionState.connected.value
     ) {
-      reinit()
+      // TODO: fix up reinitialisation - we need to handle this more gently
+      // reinit()
     }
   }, [instanceConnectionState])
 
   useEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
-      const instanceChannel = Object.entries(channels).find((channel) => channel[1].channelType === 'instance')
-      dispatch(ChannelConnectionService.provisionChannelServer(null!, instanceChannel[0]))
+      const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
+      ChannelConnectionService.provisionChannelServer(null!, instanceChannel?.id)
     }
   }, [chatState.instanceChannelFetched.value])
 

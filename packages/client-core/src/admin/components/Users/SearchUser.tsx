@@ -11,8 +11,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 
 interface Props {}
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 const SearchUser = (props: Props) => {
   const classes = useUserStyles()
   const [search, setSearch] = React.useState('')
@@ -38,4 +36,4 @@ const SearchUser = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(SearchUser)
+export default SearchUser

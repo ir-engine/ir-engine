@@ -35,12 +35,6 @@ interface Props {
   closeViewModel?: any
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 const CreateLocation = (props: Props) => {
   const { open, handleClose, closeViewModel } = props
   const classesx = useLocationStyle()
@@ -396,4 +390,4 @@ const CreateLocation = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateLocation)
+export default CreateLocation

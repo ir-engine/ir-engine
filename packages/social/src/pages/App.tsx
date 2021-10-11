@@ -9,11 +9,9 @@ import AppFooter from '@xrengine/social/src/components/Footer'
 import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
 // import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
+import { useWebxrNativeState } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeState'
 
-import { User } from '@xrengine/common/src/interfaces/User'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
-import { getWebXrNative, changeWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { WebxrNativeService } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeService'
 
 import CreatorPopup from '@xrengine/social/src/components/popups/CreatorPopup'
 import FeedPopup from '@xrengine/social/src/components/popups/FeedPopup'
@@ -39,18 +37,9 @@ import TemporarySolution from './TemporarySolution'
 
 import { CreatorAction } from '../reducers/creator/CreatorActions'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    webxrnativeState: selectWebXrNativeState(state)
-  }
-}
+interface Props {}
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
-  changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
-})
-
-const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
+const Home = (props: Props) => {
   const history = useHistory()
   const dispatch = useDispatch()
   const auth = useAuthState()
@@ -69,8 +58,8 @@ const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
       currentTime.slice(0, -5) === currentCreator?.createdAt?.value?.slice(0, -5) && setOnborded(false)
     }
   }, [currentCreator])
-
-  const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+  const webxrnativeState = useWebxrNativeState()
+  const webxrRecorderActivity = webxrnativeState.webxrnative.value
 
   const changeOnboarding = () => {
     setOnborded(true)
@@ -111,6 +100,10 @@ const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
     )
   }
 
+  const changeWebXrNative = () => {
+    dispatch(WebxrNativeService.changeWebXrNative())
+  }
+
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
   return (
@@ -148,4 +141,4 @@ const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default Home

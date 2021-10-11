@@ -2,12 +2,12 @@ import { arMediaReducer } from './arMedia/ArMediaState'
 import { creatorReducer } from './creator/CreatorState'
 import { feedReducer } from './feed/FeedState'
 import { feedCommentsReducer } from './feedComment/FeedCommentState'
-import feedFiresReducer from './feedFires/reducers'
-import popupsStateReducer from './popupsState/reducers'
-import thefeedsReducer from './thefeeds/reducers'
-import thefeedsFiresReducer from './thefeedsFires/reducers'
-import webxrnativeReducer from './webxr_native/reducers'
-import registrationReducer from './registration/reducers'
+import { feedFiresReducer } from './feedFires/FeedFiresState'
+import { popupsStateReducer } from './popupsState/PopupsStateState'
+import { theFeedsReducer } from './thefeeds/TheFeedsState'
+import { theFeedsFiresReducer } from './thefeedsFires/TheFeedsFiresState'
+import { webxrnativeReducer } from './webxr_native/WebxrNativeState'
+import { registrationReducer } from './registration/RegistrationState'
 
 export default {
   creators: creatorReducer,
@@ -16,8 +16,8 @@ export default {
   feedComments: feedCommentsReducer,
   arMedia: arMediaReducer,
   popups: popupsStateReducer,
-  thefeeds: thefeedsReducer,
-  thefeedsFires: thefeedsFiresReducer,
+  thefeeds: theFeedsReducer,
+  thefeedsFires: theFeedsFiresReducer,
   webxrnative: webxrnativeReducer,
   registrationReducer: registrationReducer
 }

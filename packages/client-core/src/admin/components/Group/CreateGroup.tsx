@@ -23,12 +23,6 @@ interface Props {
   adminGroupState?: any
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
 const CreateGroup = (props: Props) => {
   const { open, handleClose } = props
   const classes = useGroupStyles()
@@ -181,4 +175,4 @@ const CreateGroup = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateGroup)
+export default CreateGroup

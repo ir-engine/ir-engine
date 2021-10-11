@@ -17,12 +17,6 @@ import { useInstanceConnectionState } from '../../reducers/instanceConnection/In
 import styles from './MapInstanceChat.module.scss'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
 interface Props {
   newMessageLabel?: string
   isOpen: boolean
@@ -51,7 +45,7 @@ const InstanceChat = (props: Props): any => {
     if (instanceConnectionState.connected.value === true && channelState.fetchingInstanceChannel.value !== true) {
       dispatch(ChatService.getInstanceChannel())
     }
-  }, [instanceConnectionState])
+  }, [instanceConnectionState.connected.value])
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
@@ -204,7 +198,7 @@ const InstanceChat = (props: Props): any => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && e.ctrlKey) {
                     e.preventDefault()
-                    const selectionStart = (e.target as HTMLInputElement).selectionStart
+                    const selectionStart = (e.target as HTMLInputElement).selectionStart || 0
                     setCursorPosition(selectionStart)
                     setComposingMessage(
                       composingMessage.substring(0, selectionStart) + '\n' + composingMessage.substring(selectionStart)
@@ -229,4 +223,4 @@ const InstanceChat = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat)
+export default InstanceChat
