@@ -532,11 +532,6 @@ export const createBehaviorMap = () => {
   return map
 }
 
-export const test = () => {
-  // debugger
-  throttle(changeCameraDistanceByDelta, 30, { leading: true, trailing: false })
-}
-
 export const AvatarInputSchema: InputSchema = {
   inputMap: createAvatarInput(),
   behaviorMap: createBehaviorMap()
