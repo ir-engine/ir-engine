@@ -1,7 +1,7 @@
 
 ![xrengine](https://github.com/XRFoundation/XREngine/raw/dev/xrengine%20black.png)
 
-The perfect solution for everything from spatial websites to metaverse meetups to blockchain gaming**
+**The perfect solution for everything from spatial websites to metaverse meetups to blockchain gaming**
 
 - Includes a self-deployable platform, UI, worlds, avatars, and games
 - Fully customizable for any kind of game, social experience, event or spatial web app
