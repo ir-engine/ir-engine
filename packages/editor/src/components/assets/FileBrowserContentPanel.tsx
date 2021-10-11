@@ -111,7 +111,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const addNewFolder = () => {
     ProjectManager.instance.feathersClient
       .service(`file-browser`)
-      .create({ fileName: 'FileName' })
+      .create({ fileName: `${selectedDirectory}FileName` })
       .then((res) => {
         if (res) renderProjectFiles(selectedDirectory)
       })

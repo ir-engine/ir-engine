@@ -109,7 +109,8 @@ export class LocalStorage implements StorageProviderInterface {
     const folderPath = path.join(appRootPath.path, 'packages', 'server', this.path, dir)
     try {
       await fs.promises.mkdir(path.join(folderPath))
-    } catch {
+    } catch (err) {
+      console.log('Error while:' + err)
       return false
     }
     return true
@@ -148,6 +149,12 @@ export class LocalStorage implements StorageProviderInterface {
     return files
   }
 
+  /**
+   * @author Abhishek Pathak
+   * @param current
+   * @param destination
+   * @returns
+   */
   moveContent = async (current: string, destination: string): Promise<boolean> => {
     const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
     const fileName = path.basename(current)
