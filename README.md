@@ -1,14 +1,9 @@
 
 ![xrengine](https://github.com/XRFoundation/XREngine/raw/dev/xrengine%20black.png)
 
-### [Sponsorhip](https://opencollective.com/xrfoundation/tiers/badge.svg)
+### [Sponsorship](https://opencollective.com/xrfoundation/tiers/badge.svg)
 
-### **Build Status  :  Beta -** ![branch-build](https://github.com/xrfoundation/xrengine/actions/workflows/branch-build.yml/badge.svg)  **- Release -** ![prod-deploy](https://github.com/xrfoundation/xrengine/actions/workflows/.github/workflows/prod-deploy.yml/badge.svg)
-### Releases : ![release-packages](https://github.com/xrfoundation/xrengine/actions/workflows/.github/workflows/release-packages.yml/badge.svg) ![publish-container](https://github.com/xrfoundation/xrengine/actions/workflows/publish-gh-container.yml/badge.svg) ![publish-npm-packages](https://github.com/xrfoundation/xrengine/actions/workflows/publish-npm-packages.yml/badge.svg) ![documentation](https://github.com/xrfoundation/xrengine/actions/workflows/documentation.yml/badge.svg)
-
-## [Link to Full Documentation](https://xrfoundation.github.io/xrengine-docs/docs/)
-
-## Popular features
+## Popular Features
 - The perfect solution for everything from spatial websites to metaverse meetups to blockchain gaming
 - Includes a self-deployable platform, UI, worlds, avatars, and games
 - Fully customizable for any kind of game, social experience, event or spatial web app
