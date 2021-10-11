@@ -183,7 +183,10 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
                 })
               : ''}
           </Grid>
-          <Button className={styles.publish} onClick={handleAddPosts}>
+          <Button
+            className={`${styles.publish}${filesTarget.length ? '' : ` ${styles.hidden}`}`}
+            onClick={handleAddPosts}
+          >
             <div>
               <AddIcon className={styles.addIcon} />
             </div>

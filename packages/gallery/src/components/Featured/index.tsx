@@ -147,7 +147,6 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
     setFeedIds(new Set([...feedIds]))
   }
 
-  console.log([...feedsList.values()])
   return (
     <section className={styles.feedContainer}>
       <Grid container spacing={3} style={{ marginTop: 30 }}>
