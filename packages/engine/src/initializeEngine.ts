@@ -128,9 +128,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
     updatesPerSecond: 60
   })
 
-  //Rendered Update
-  registerSystem(SystemUpdateType.UPDATE, import('./scene/systems/RendererUpdateSystem'))
-
   /**
    *
    *  Begin FIXED Systems
@@ -196,6 +193,9 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.PRE_RENDER, import('./particles/systems/ParticleSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./debug/systems/DebugHelpersSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./renderer/HighlightSystem'))
+
+  //Rendered Update
+  registerSystem(SystemUpdateType.UPDATE, import('./scene/systems/RendererUpdateSystem'))
 
   registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
 

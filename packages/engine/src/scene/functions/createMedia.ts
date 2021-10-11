@@ -17,8 +17,11 @@ let DracosisPlayerWorker = null as any
 let DracosisSequence = null as any
 
 if (isClient) {
-  const workerFunctionUrl = './../../../../../node_modules/volumetric/web/decoder/workerFunction.ts?worker'
-  Promise.all([import('volumetric/web/decoder/Player'), import(`${workerFunctionUrl}`)]).then(([module1, module2]) => {
+  Promise.all([
+    import('volumetric/web/decoder/Player'),
+    //@ts-ignore
+    import('volumetric/web/decoder/workerFunction.ts?worker')
+  ]).then(([module1, module2]) => {
     DracosisPlayer = module1.default
     DracosisPlayerWorker = module2.default
   })
