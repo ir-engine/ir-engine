@@ -105,5 +105,5 @@ export interface StorageProviderInterface {
    * Delete content using its path
    * @param contentPath
    */
-  deleteContent(contentPath): Promise<any>
+  deleteContent(contentPath: string, type: string): Promise<any>
 }

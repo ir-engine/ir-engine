@@ -141,13 +141,11 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       .catch(() => console.log('Error on Moving'))
   }
 
-  const deleteContent = (path) => {
-    console.log(':selectedDirectory:' + selectedDirectory)
+  const deleteContent = ({ contentPath, type }) => {
     ProjectManager.instance.feathersClient
       .service('file-browser')
-      .remove(path)
+      .remove(contentPath, { query: { type } })
       .then((res) => {
-        console.log('Response after deletion is:' + res + ':selectedDirectory:' + selectedDirectory)
         if (res) renderProjectFiles(selectedDirectory)
       })
       .catch(() => console.log('Error on Deletion'))

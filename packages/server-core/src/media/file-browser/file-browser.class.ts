@@ -27,9 +27,8 @@ export class FileBrowserService implements ServiceMethods<any> {
     return false
   }
   async patch(id: NullableId, data, params?: Params) {}
-  async remove(id: NullableId, params?: Params) {
-    console.log('The id is:' + JSON.stringify(id))
-    return await this.store.deleteContent(id)
+  async remove(id, params?: Params) {
+    return await this.store.deleteContent(id, params.query.type)
   }
 
   async setup(app: Application, path: string) {}

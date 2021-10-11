@@ -10,9 +10,10 @@ import {
 } from './storageprovider.interface'
 
 export class S3Provider implements StorageProviderInterface {
-  deleteContent(contentPath: any): Promise<any> {
+  deleteContent(contentPath: string, type: string): Promise<any> {
     throw new Error('Method not implemented.')
   }
+
   moveContent(current: string, destination: string): Promise<boolean> {
     throw new Error('Method not implemented.')
   }

@@ -210,7 +210,7 @@ export function FileBrowserGrid({
   }, [])
 
   const deleteContentCallback = (_, trigger) => {
-    deleteContent(trigger.item.id)
+    deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
   }
 
   const moveContentCallback = useCallback((from, to) => {
