@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import { ThemeContext } from './theme'
+import { ThemeContext } from '@xrengine/client-core/src/util/theme'
 import { withTranslation } from 'react-i18next'
 
 /**

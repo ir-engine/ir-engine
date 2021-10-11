@@ -1,6 +1,6 @@
 import { configureStore } from '@xrengine/client-core/src/store'
 import { Config } from '@xrengine/common/src/config'
-import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
+import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import React, { useEffect, useCallback } from 'react'
 import { Helmet } from 'react-helmet'
 import { Provider, useDispatch } from 'react-redux'

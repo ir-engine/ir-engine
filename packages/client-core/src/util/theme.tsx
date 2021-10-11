@@ -1,4 +1,3 @@
-import { ThermometerQuarter } from '@styled-icons/fa-solid'
 import React from 'react'
 
 /**
