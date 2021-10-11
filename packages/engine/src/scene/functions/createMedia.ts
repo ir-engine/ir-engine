@@ -4,7 +4,7 @@ import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { VolumetricComponent } from '../components/VolumetricComponent'
-import { UpdatableComponent } from '../components/UpdatableComponent'
+import { RenderedComponent } from '../components/RenderedComponent'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import Video from '../classes/Video'
 import UpdateableObject3D from '../classes/UpdateableObject3D'
@@ -17,7 +17,7 @@ let DracosisPlayerWorker = null as any
 let DracosisSequence = null as any
 
 if (isClient) {
-  const workerFunctionUrl = 'volumetric/web/decoder/workerFunction.ts?worker'
+  const workerFunctionUrl = './../../../../../node_modules/volumetric/web/decoder/workerFunction.ts?worker'
   Promise.all([import('volumetric/web/decoder/Player'), import(`${workerFunctionUrl}`)]).then(([module1, module2]) => {
     DracosisPlayer = module1.default
     DracosisPlayerWorker = module2.default
@@ -109,7 +109,7 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
     player: DracosisSequence
   })
 
-  addComponent(entity, UpdatableComponent, {})
+  addComponent(entity, RenderedComponent, {})
 
   //temporary code
   DracosisSequence.play()

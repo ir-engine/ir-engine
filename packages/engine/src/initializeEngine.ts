@@ -128,6 +128,9 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
     updatesPerSecond: 60
   })
 
+  //Rendered Update
+  registerSystem(SystemUpdateType.UPDATE, import('./scene/systems/RendererUpdateSystem'))
+
   /**
    *
    *  Begin FIXED Systems
