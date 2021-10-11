@@ -63,6 +63,8 @@ export class Analytics extends Service {
         })
       }
       return returned
-    } else return super.find(params)
+    } else {
+      return await super.find(params)
+    }
   }
 }
