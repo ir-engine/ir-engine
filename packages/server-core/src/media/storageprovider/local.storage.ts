@@ -167,5 +167,21 @@ export class LocalStorage implements StorageProviderInterface {
     }
     return true
   }
+
+  /**
+   * @author Abhishek Pathak
+   * @param contentPath
+   * @returns
+   */
+  deleteContent = async (contentPath: any): Promise<any> => {
+    try {
+      const content = path.join(appRootPath.path, 'packages', 'server', this.path, contentPath)
+      console.log('Content Path is:' + content)
+      await fs.promises.rm(content)
+    } catch {
+      return false
+    }
+    return true
+  }
 }
 export default LocalStorage

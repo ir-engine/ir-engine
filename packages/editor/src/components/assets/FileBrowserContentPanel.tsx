@@ -56,11 +56,12 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       onSelectionChanged({ resourceUrl: props.description, name: props.label, contentType: props.type })
     else {
       const newPath = `${selectedDirectory}${props.label}/`
+      console.log('The NewPath is:' + newPath)
       setSelectedDirectory(newPath)
     }
   }
 
-  const [selectedDirectory, setSelectedDirectory] = useState('/ThisisTheMedia/')
+  const [selectedDirectory, setSelectedDirectory] = useState('/')
 
   const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
 
@@ -141,6 +142,18 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       .catch(() => console.log('Error on Moving'))
   }
 
+  const deleteContent = (path) => {
+    console.log(':selectedDirectory:' + selectedDirectory)
+    ProjectManager.instance.feathersClient
+      .service('file-browser')
+      .remove(path)
+      .then((res) => {
+        console.log('Response after deletion is:' + res + ':selectedDirectory:' + selectedDirectory)
+        if (res) renderProjectFiles(selectedDirectory)
+      })
+      .catch(() => console.log('Error on Deletion'))
+  }
+
   return (
     <>
       {console.log('Rendering File Browser Panel CHILD')}
@@ -156,6 +169,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
             isLoading={false}
             addNewFolder={addNewFolder}
             moveContent={moveContent}
+            deleteContent={deleteContent}
           />
         </AssetPanelContentContainer>
       </AssetsPanelContainer>

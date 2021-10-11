@@ -12,7 +12,7 @@ export default {
     create: [],
     update: [],
     patch: [disallow()],
-    remove: [disallow('external')]
+    remove: []
   },
 
   after: {

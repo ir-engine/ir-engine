@@ -100,4 +100,10 @@ export interface StorageProviderInterface {
    * @param destination
    */
   moveContent(current: string, destination: string): Promise<any>
+
+  /**
+   * Delete content using its path
+   * @param contentPath
+   */
+  deleteContent(contentPath): Promise<any>
 }

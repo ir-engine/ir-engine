@@ -17,11 +17,6 @@ import { SceneManager } from '../../managers/SceneManager'
 import { ProjectManager } from '../../managers/ProjectManager'
 import { Folder } from '@styled-icons/fa-solid/Folder'
 
-/**
- * collectMenuProps returns menu items.
- *
- * @author Robert Long
- */
 function collectMenuProps({ item }) {
   return { item }
 }
@@ -85,7 +80,7 @@ function FileBrowserItem({ contextMenuId, item, onClick, moveContent, ...rest })
   return (
     <div ref={drop}>
       <div ref={drag}>
-        <ContextMenuTrigger id={contextMenuId} collect={collectMenuProps} holdToDisplay={-1}>
+        <ContextMenuTrigger id={contextMenuId} holdToDisplay={-1} item={item} collect={collectMenuProps}>
           {content}
         </ContextMenuTrigger>
       </div>
@@ -160,6 +155,7 @@ export function FileBrowserGrid({
   onLoadMore,
   hasMore,
   moveContent,
+  deleteContent,
   source
 }) {
   const uniqueId = useRef(`FileGrid${lastId}`)
@@ -213,12 +209,10 @@ export function FileBrowserGrid({
     window.open(trigger.item.url)
   }, [])
 
-  const onDelete = useCallback(
-    (_, trigger) => {
-      //source.delete(trigger.item)
-    },
-    [source]
-  )
+  const deleteContentCallback = useCallback((_, trigger) => {
+    console.log('The ITem is:' + trigger.item.id)
+    deleteContent(trigger.item.id)
+  }, [])
 
   const moveContentCallback = useCallback((from, to) => {
     moveContent(from, to)
@@ -258,7 +252,9 @@ export function FileBrowserGrid({
           <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
           {!source.disableUrl && <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>}
           {!source.disableUrl && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
-          {source.delete && <MenuItem onClick={onDelete}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>}
+          <MenuItem onClick={deleteContentCallback} data={{ id: 'Ejhe' }}>
+            {t('editor:layout.assetGrid.deleteAsset')}
+          </MenuItem>
         </ContextMenu>
       </ContextMenuTrigger>
 
@@ -277,6 +273,7 @@ FileBrowserGrid.propTypes = {
   onSelect: PropTypes.func,
   moveContent: PropTypes.func,
   addNewFolder: PropTypes.func,
+  deleteContent: PropTypes.func,
   onLoadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool,
   selectedItems: PropTypes.arrayOf(
