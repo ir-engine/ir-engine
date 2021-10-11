@@ -152,52 +152,57 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
     <section className={styles.feedContainer}>
       <Grid container spacing={3} style={{ marginTop: 30 }}>
         {feedsList && feedsList.length > 0
-          ? Array.from(feedsList.values()).map((item, itemIndex) => {
-              console.log(item)
-              return (
-                <Grid
-                  item
-                  {...gridValues[viewType]}
-                  key={itemIndex}
-                  className={type === 'fired' && removedIds.has(item.id) ? styles.gridItemDelete : styles.gridItem}
-                >
-                  {!type ? (
-                    <AddCircleOutlinedIcon className={styles.addButton} onClick={() => handleAddToFeatured(item.id)} />
-                  ) : (
-                    <RemoveCircleOutlinedIcon
-                      onClick={() => handleRemoveFromFeatured(item.id)}
-                      className={styles.removeButton}
-                    />
-                  )}
-                  <Card
-                    className={styles.creatorItem + ' ' + (viewType === 'list' ? styles.list : '')}
-                    elevation={0}
+          ? Array.from(feedsList.values())
+              .filter((item) => item !== undefined)
+              .map((item, itemIndex) => {
+                console.log(item)
+                return (
+                  <Grid
+                    item
+                    {...gridValues[viewType]}
                     key={itemIndex}
+                    className={type === 'fired' && removedIds.has(item.id) ? styles.gridItemDelete : styles.gridItem}
                   >
-                    <div className={styles.imageWrapper + ' ' + (viewType === 'list' ? styles.imageList : '')}>
-                      {getMediaPreviewIcon(item.previewType, {
-                        className: `${styles.image} ${styles.mediaPreviewIcon}`,
-                        onClick: () => {
-                          history.push('/post?postId=' + item.id)
-                        }
-                      }) || (
-                        <CardMedia
-                          component="img"
-                          className={styles.image}
-                          image={item.previewUrl}
-                          onClick={() => {
+                    {!type ? (
+                      <AddCircleOutlinedIcon
+                        className={styles.addButton}
+                        onClick={() => handleAddToFeatured(item.id)}
+                      />
+                    ) : (
+                      <RemoveCircleOutlinedIcon
+                        onClick={() => handleRemoveFromFeatured(item.id)}
+                        className={styles.removeButton}
+                      />
+                    )}
+                    <Card
+                      className={styles.creatorItem + ' ' + (viewType === 'list' ? styles.list : '')}
+                      elevation={0}
+                      key={itemIndex}
+                    >
+                      <div className={styles.imageWrapper + ' ' + (viewType === 'list' ? styles.imageList : '')}>
+                        {getMediaPreviewIcon(item.previewType, {
+                          className: `${styles.image} ${styles.mediaPreviewIcon}`,
+                          onClick: () => {
                             history.push('/post?postId=' + item.id)
-                          }}
-                        />
-                      )}
-                    </div>
-                    <CardContent style={{ textAlign: 'center' }}>
-                      <span className={styles.descr}>{item.title}</span>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )
-            })
+                          }
+                        }) || (
+                          <CardMedia
+                            component="img"
+                            className={styles.image}
+                            image={item.previewUrl}
+                            onClick={() => {
+                              history.push('/post?postId=' + item.id)
+                            }}
+                          />
+                        )}
+                      </div>
+                      <CardContent style={{ textAlign: 'center' }}>
+                        <span className={styles.descr}>{item.title}</span>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )
+              })
           : ''}
       </Grid>
     </section>
