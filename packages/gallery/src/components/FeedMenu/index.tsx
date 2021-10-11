@@ -7,6 +7,7 @@ import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import { useMediaQuery } from '@mui/material'
 import { useFeedState } from '../../reducers/post/FeedState'
+import { useHistory } from 'react-router'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'
@@ -21,6 +22,7 @@ const FeedMenu = () => {
   const [isFeatured, setIsFeatured] = useState(false)
   const match = useMediaQuery('(max-width:1279px)')
   const feedsState = useFeedState()
+  const history = useHistory()
 
   useEffect(() => {}, [view, isFeatured])
 
@@ -42,8 +44,14 @@ const FeedMenu = () => {
     switch (view) {
       case 'all':
         leftScrollPos = creatorsRef.current.offsetLeft - padding
+        history.push({
+          search: '?tag=all'
+        })
         break
       default:
+        history.push({
+          search: '?tag=featured'
+        })
         leftScrollPos = 0
         break
     }
