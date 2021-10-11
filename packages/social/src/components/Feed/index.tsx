@@ -32,6 +32,7 @@ const Feed = (props: Props) => {
 
   useEffect(() => {
     dispatch(FeedService.getFeed(popupsState.popups.feedId?.value))
+    dispatch(FeedService.getFeeds('creator', feed.creator.id))
   }, [popupsState.popups.feedId?.value])
   feed = feedsState.feeds.fetching.value === false && feedsState.feeds.feed
 
@@ -50,7 +51,6 @@ const Feed = (props: Props) => {
     dispatch(FeedService.removeFeed(feedId, previewUrl, videoUrl))
     dispatch(PopupsStateService.updateFeedPageState(false))
   }
-
   return (
     <section className={styles.feedContainer}>
       <section className={styles.controls}>
@@ -89,11 +89,11 @@ const Feed = (props: Props) => {
           </Popover>
         </div>
       </section>
-      {feed && <FeedCard feed={feed} />}
-      {feed && (
+      {feed.id.value && <FeedCard feed={feed.value} />}
+      {feed.id.value && (
         <>
           <Typography variant="h5">{t('social:feed.related')}</Typography>
-          <Featured type="creator" creatorId={feed.creator.id} />
+          <Featured thisData={feedsState.feeds.feedsCreator.value} />
         </>
       )}
       {/*hided for now*/}

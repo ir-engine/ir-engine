@@ -25,8 +25,8 @@ interface Props {
   creatorId?: string
 }
 
-const Featured = ({ type, creatorId }: Props) => {
-  const [feedsList, setFeedList] = useState([])
+const Featured = ({ type, creatorId, thisData }: any) => {
+  const [feedsList, setFeedList] = useState(thisData || [])
   const { t } = useTranslation()
   const auth = useAuthState()
   const dispatch = useDispatch()
@@ -53,13 +53,13 @@ const Featured = ({ type, creatorId }: Props) => {
     [feedsState.feeds.feedsFeaturedFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
   )
 
-  useEffect(
-    () =>
-      (type === 'featured' || !type) &&
-      feedsState.feeds.feedsFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
-  )
+  // useEffect(
+  //   () =>
+  //     (type === 'featured' || !type) &&
+  //     feedsState.feeds.feedsFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsFeatured.value),
+  //   [feedsState.feeds.feedsFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
+  // )
 
   useEffect(
     () =>
@@ -69,29 +69,29 @@ const Featured = ({ type, creatorId }: Props) => {
     [feedsState.feeds.feedsCreatorFetching.value, JSON.stringify(feedsState.feeds.feedsCreator.value)]
   )
 
-  useEffect(
-    () =>
-      type === 'bookmark' &&
-      feedsState.feeds.feedsBookmarkFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsBookmark.value),
-    [feedsState.feeds.feedsBookmarkFetching.value, JSON.stringify(feedsState.feeds.feedsBookmark.value)]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'bookmark' &&
+  //     feedsState.feeds.feedsBookmarkFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsBookmark.value),
+  //   [feedsState.feeds.feedsBookmarkFetching.value, JSON.stringify(feedsState.feeds.feedsBookmark.value)]
+  // )
 
-  useEffect(
-    () =>
-      type === 'myFeatured' &&
-      feedsState.feeds.myFeaturedFetching.value === false &&
-      setFeedList(feedsState.feeds.myFeatured.value),
-    [feedsState.feeds.myFeaturedFetching.value, JSON.stringify(feedsState.feeds.myFeatured.value)]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'myFeatured' &&
+  //     feedsState.feeds.myFeaturedFetching.value === false &&
+  //     setFeedList(feedsState.feeds.myFeatured.value),
+  //   [feedsState.feeds.myFeaturedFetching.value, JSON.stringify(feedsState.feeds.myFeatured.value)]
+  // )
 
-  useEffect(
-    () =>
-      type === 'fired' &&
-      feedsState.feeds.feedsFiredFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsFired.value),
-    [feedsState.feeds.feedsFiredFetching.value, JSON.stringify(feedsState.feeds.feedsFired.value)]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'fired' &&
+  //     feedsState.feeds.feedsFiredFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsFired.value),
+  //   [feedsState.feeds.feedsFiredFetching.value, JSON.stringify(feedsState.feeds.feedsFired.value)]
+  // )
 
   // if(type === 'creator'){
   //     setFeedList(feedsState.get('feedsCreator'));
