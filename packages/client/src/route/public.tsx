@@ -2,14 +2,21 @@ import React, { Suspense } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import { Config } from '@xrengine/common/src/config'
 import ProtectedRoute from './protected'
-import EditorProtected from './EditorProtected'
 import homePage from '../pages/index'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import { getCustomRoutes } from './getCustomRoutes'
 
 if (typeof globalThis.process === 'undefined') {
   ;(globalThis as any).process = { env: {} }
 }
-class RouterComp extends React.Component<{}, { hasError: boolean }> {
+
+type CustomRoute = {
+  id: string
+  route: string
+  file: string
+}
+
+class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: CustomRoute[] }> {
   static getDerivedStateFromError() {
     return { hasError: true }
   }
@@ -17,7 +24,20 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
   constructor(props) {
     super(props)
 
-    this.state = { hasError: false }
+    this.state = {
+      hasError: false,
+      customRoutes: undefined as any
+    }
+
+    this.getCustomRoutes()
+  }
+
+  getCustomRoutes() {
+    getCustomRoutes().then((routes) => {
+      this.setState({
+        customRoutes: routes
+      })
+    })
   }
 
   componentDidCatch() {
@@ -27,7 +47,8 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
   }
 
   render() {
-    if (this.state.hasError) return <div>Working...</div>
+    console.log(this.state)
+    if (this.state.hasError || this.state.customRoutes === undefined) return <div>Working...</div>
 
     return (
       <Suspense
@@ -72,13 +93,6 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           <Route path="/auth/forgotpassword" component={React.lazy(() => import('../pages/auth/forgotpassword'))} />
           <Route path="/auth/magiclink" component={React.lazy(() => import('../pages/auth/magiclink'))} />
 
-          {/* Location Routes */}
-          <Route
-            path="/location/:locationName"
-            component={React.lazy(() => import('../pages/location/[locationName]'))}
-          />
-          <Redirect path="/location" to={'/location/' + Config.publicRuntimeConfig.lobbyLocationName} />
-
           <Route
             path="/offline/:locationName"
             component={React.lazy(() => import('../pages/offline/[locationName]'))}
@@ -89,8 +103,10 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           {/* Harmony Routes */}
           <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />
 
-          {/* Editor Routes */}
-          <Route path="/editor" component={EditorProtected} />
+          {/* Custom Routes */}
+          {this.state.customRoutes.map(({ id, route, file }) => {
+            return <Route key={id} path={route} component={React.lazy(() => import(`${file}.tsx`))} />
+          })}
 
           <Route path="*" component={React.lazy(() => import('../pages/404'))} />
         </Switch>
