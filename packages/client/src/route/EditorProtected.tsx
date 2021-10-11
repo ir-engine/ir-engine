@@ -39,13 +39,13 @@ const EditorProtectedRoutes = () => {
     <Switch>
       {isSceneAllowed ? (
         <>
-          <Route exact path="/editor/:projectId" component={editorProjID} />
+          <Route exact path="/editor/projects/:projectId" component={editorProjID} />
           <Route exact path="/editor/projects" component={editorProject} />
           <Route exact path="/editor/create" component={editorCreate} />
         </>
       ) : (
         <>
-          <Route exact path="/editor/:projectId" render={() => <UnauthorisedPage message={message} />} />
+          <Route exact path="/editor/projects/:projectId" render={() => <UnauthorisedPage message={message} />} />
           <Route exact path="/editor/projects" render={() => <UnauthorisedPage message={message} />} />
           <Route exact path="/editor/create" render={() => <UnauthorisedPage message={message} />} />
         </>
