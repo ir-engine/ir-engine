@@ -149,9 +149,9 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
                             image={URL.createObjectURL(item)}
                             controls
                           />
-                          <span className={styles.removeItem} onClick={() => handleDeleteMedia(itemIndex)}>
-                            <CloseIcon className={styles.close} />
-                          </span>
+                        </div>
+                        <div className={styles.removeItem} onClick={() => handleDeleteMedia(itemIndex)}>
+                          <CloseIcon className={styles.close} />
                         </div>
                         <div style={{ padding: '0 30px 30px', margin: '25px 0' }}>
                           <TextField
