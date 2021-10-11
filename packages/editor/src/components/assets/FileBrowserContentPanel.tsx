@@ -123,6 +123,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const onBackDirectory = () => {
     const pattern = /([a-z 0-9]+)/gi
     const result = selectedDirectory.match(pattern)
+    if (!result) return
     let newPath = '/'
     for (let i = 0; i < result.length - 1; i++) {
       newPath += result[i] + '/'
