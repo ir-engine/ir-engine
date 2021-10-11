@@ -105,7 +105,6 @@ const Home = (props: Props) => {
   }
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
-
   return (
     <>
       {view === 'terms' || view === 'policy' ? (
@@ -120,7 +119,7 @@ const Home = (props: Props) => {
             <AppFooter setView={setView} onGoRegistration={onGoRegistration} />
             {currentCreator?.value &&
               // Made at the time of the test Aleks951
-              (!!!currentCreator.terms || !!!currentCreator.policy) &&
+              (!!!currentCreator.terms.value || !!!currentCreator.policy.value) &&
               auth.user.userRole.value === 'user' && <TermsAndPolicy view={view} setView={setView} />}
             <ArMediaPopup />
             <WebXRStart
