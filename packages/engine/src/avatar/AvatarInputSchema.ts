@@ -143,6 +143,8 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   inputValue: InputValue,
   delta: number
 ): void => {
+  // debugger
+  // console.log("change cam", inputValue, delta)
   const value = inputValue.value[0]
   const scrollDelta = Math.sign(value - lastScrollValue)
   lastScrollValue = value
@@ -528,6 +530,11 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.PRIMARY, clickNavMesh)
 
   return map
+}
+
+export const test = () => {
+  // debugger
+  throttle(changeCameraDistanceByDelta, 30, { leading: true, trailing: false })
 }
 
 export const AvatarInputSchema: InputSchema = {
