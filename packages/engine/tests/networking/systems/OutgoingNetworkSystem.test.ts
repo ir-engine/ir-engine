@@ -128,18 +128,14 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       /* mock */
       const world = createWorld()
 
-      // make this engine user the host
-      // world.isHosting === true
-      Engine.userId = world.hostId
-
       const action = NetworkWorldAction.spawnObject({
         userId: '0' as UserId,
         prefab: '',
         parameters: {},
         $tick: 0,
-        // make action come from this host user
+        // make action come from this host
         $from: Engine.userId,
-        // being sent to itself
+        // being sent to self
         $to: 'local' as ActionRecipients,
       })
       
@@ -170,10 +166,10 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         prefab: '',
         parameters: {},
         $tick: 0,
-        // make action come from this host user
+        // make action come from this host
         $from: Engine.userId,
-        // being sent to itself
-        $to: 'local' as ActionRecipients,
+        // being sent to other
+        $to: '1' as ActionRecipients,
       })
       
       world.outgoingActions.add(action)
@@ -183,7 +179,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       /* assert */
       // verify incoming action was NOT removed from outgoingActions (applies action to other clients)
-      strictEqual(world.outgoingActions.has(action), false)
+      strictEqual(world.outgoingActions.has(action), true)
       // and added to incomingActions (applies action to self)
       strictEqual(world.incomingActions.has(action), true)
 
