@@ -4,7 +4,7 @@ export interface CreatorShort {
   avatar?: string
   newAvatar?: string
   name: string
-  username: string
+  username?: string
   verified?: boolean
   steps?: boolean
   terms?: boolean
