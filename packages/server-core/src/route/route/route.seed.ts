@@ -3,8 +3,12 @@ export const routeSeedData = {
   randomize: false,
   templates: [
     {
-      route: '/location/:locationName',
-      file: '../pages/location/[locationName]'
+      route: '/location',
+      file: '../pages/location/location'
+    },
+    {
+      route: '/editor',
+      file: '../pages/editor/editor'
     }
   ]
 }
