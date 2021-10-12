@@ -2,6 +2,7 @@ import React, { ChangeEvent, useRef, useState } from 'react'
 import { Modal } from 'react-bootstrap'
 import type { PlayerBioInfo, ThenArg } from '../../../common/types'
 import { confirm, helpers, logEvent, toWorker } from '../../util'
+import { godModeRequiredMessage } from './SettingsForm'
 import { animation } from './Injuries'
 import type { initDefaults } from '../../../worker/util/loadNames'
 import { getFrequencies, mergeCountries } from '../../../common/names'
@@ -495,6 +496,8 @@ const PlayerBioInfo2 = ({
       name: 'countries'
     })
   }
+
+  const title = disabled ? godModeRequiredMessage(null) : undefined
 
   let modal = null
   if (infoState && defaults && defaultsState) {

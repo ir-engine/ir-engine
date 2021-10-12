@@ -14,6 +14,17 @@ import Injuries from './Injuries'
 import type { InjuriesSetting, PlayerBioInfo } from '../../../common/types'
 import PlayerBioInfo2 from './PlayerBioInfo'
 
+const settingNeedsGodMode = (godModeRequired?: 'always' | 'existingLeagueOnly', newLeague?: boolean) => {
+  return !!godModeRequired && (!newLeague || godModeRequired === 'always')
+}
+
+export const godModeRequiredMessage = (godModeRequired?: 'always' | 'existingLeagueOnly') => {
+  if (godModeRequired === 'existingLeagueOnly') {
+    return 'This setting can only be changed in God Mode or when creating a new league.'
+  }
+  return 'This setting can only be changed in God Mode.'
+}
+
 // See play-style-adjustments in bbgm-rosters
 const gameSimPresets = {
   2020: {
@@ -1195,10 +1206,13 @@ const SettingsButton = ({
 }
 
 const SPECIAL_STATE_OTHERS = ['injuries', 'playerBioInfo'] as const
+const SPECIAL_STATE_BOOLEANS = ['godMode', 'godModeInPast'] as const
 const SPECIAL_STATE_ALL = [...SPECIAL_STATE_OTHERS]
+type SpecialStateBoolean = typeof SPECIAL_STATE_BOOLEANS[number]
 type SpecialStateAll = typeof SPECIAL_STATE_ALL[number]
 
 type State = Record<Exclude<Key, SpecialStateAll>, string> &
+  Record<SpecialStateBoolean, boolean> &
   Record<'injuries', InjuriesSetting> &
   Record<'playerBioInfo', PlayerBioInfo | undefined>
 
@@ -1531,6 +1545,7 @@ const SettingsForm = ({
               <div className="row mb-5 mb-md-3">
                 {catOptions.map(
                   ({ customForm, decoration, description, descriptionLong, key, maxWidth, name, type, values }, i) => {
+                    const enabled = true
                     const id = `settings-${category.name}-${name}`
 
                     let customFormNode
