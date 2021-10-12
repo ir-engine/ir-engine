@@ -1,5 +1,5 @@
 # not slim because we need github depedencies
-FROM node:12.22.2
+FROM node:12.22.6
 
 # Create app directory
 WORKDIR /app
