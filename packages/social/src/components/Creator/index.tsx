@@ -34,11 +34,12 @@ const Creator = ({ creatorId, creatorData }: Props) => {
     ) {
       setIsMe(true)
     } else {
+      setIsMe(false)
       if (!creatorData) {
         dispatch(CreatorService.getCreator(creatorId))
       }
     }
-  }, [])
+  }, [creatorId])
 
   const { t } = useTranslation()
   const [videoType, setVideoType] = useState('creator')
