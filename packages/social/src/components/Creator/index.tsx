@@ -43,18 +43,15 @@ const Creator = ({ creatorId, creatorData }: Props) => {
   const { t } = useTranslation()
   const [videoType, setVideoType] = useState('creator')
 
+  const myID =
+    isMe === true
+      ? creatorState?.creators?.currentCreator?.id?.value
+      : creatorData
+      ? creatorData.id
+      : creatorState?.creators?.creator?.id?.value
   useEffect(() => {
-    dispatch(
-      FeedService.getFeeds(
-        videoType,
-        isMe === true
-          ? creatorState?.creators?.currentCreator?.id?.value
-          : creatorData
-          ? creatorData.id
-          : creatorState?.creators?.creator?.id?.value
-      )
-    )
-  }, [])
+    dispatch(FeedService.getFeeds(videoType, myID))
+  }, [videoType, myID])
   return (
     <>
       <section className={styles.creatorContainer}>
