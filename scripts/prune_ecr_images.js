@@ -15,7 +15,7 @@ cli.main(async () => {
         const ecr = options.public === true ? new AWS.ECRPUBLIC({region: 'us-east-1'}) : new AWS.ECR({ region: options.region || 'us-east-1' });
         const result = await ecr.describeImages({repositoryName: options.repoName || 'xrengine'}).promise();
         const images = result.imageDetails;
-        const withoutLatest = images.filter(image => image.imageTags.indexOf('latest_dev') < 0 && image.imageTags.indexOf('latest_prod') < 0);
+        const withoutLatest = images.filter(image => image.imageTags == null || (image.imageTags && image.imageTags.indexOf('latest_dev') < 0 && image.imageTags.indexOf('latest_prod') < 0));
         const sorted = withoutLatest.sort((a, b) => b.imagePushedAt - a.imagePushedAt);
         const toBeDeleted = sorted.slice(5,);
         if (toBeDeleted.length > 0) {
