@@ -212,17 +212,15 @@ export function FileBrowserGrid({
   const deleteContentCallback = (_, trigger) => {
     deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
   }
-
-  const moveContentCallback = (from, to) => {
-    moveContent(from, to)
+  const Copy = (_, trigger) => {
+    deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
   }
-
-  const Copy = useCallback(() => {
-    ;() => {
-      //Copy the File in Editor.
-      //Send File Service
-    }
-  }, [])
+  const Cut = (_, trigger) => {
+    deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
+  }
+  const Paste = (_, trigger) => {
+    deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
+  }
 
   //returning view of AssetGridItems
   return (
@@ -239,7 +237,7 @@ export function FileBrowserGrid({
                   item={item}
                   selected={selectedItems.indexOf(item) !== -1}
                   onClick={onSelect}
-                  moveContent={moveContentCallback}
+                  moveContent={moveContent}
                 />
               ))}
               {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
@@ -247,11 +245,21 @@ export function FileBrowserGrid({
           </InfiniteScroll>
         </VerticalScrollContainer>
         <ContextMenu id={uniqueId.current}>
-          <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
-          <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-          {!source.disableUrl && <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>}
-          {!source.disableUrl && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
-          <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
+          {
+            <>
+              <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
+              <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
+              <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
+              <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>
+              <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
+            </>
+          }
+          {
+            <>
+              <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
+              <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
+            </>
+          }
         </ContextMenu>
       </ContextMenuTrigger>
 

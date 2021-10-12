@@ -126,7 +126,7 @@ export class LocalStorage implements StorageProviderInterface {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, folderName)
     const files = glob.sync(path.join(filePath, '*.*')).map((result) => {
       const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
-      const regexx = /(?<name>[0-9 a-z A-Z]*)\.((?<extension>[0-9 a-z A-Z]*))/g
+      const regexx = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
       const query = regexx.exec(key)
       const res: FileBrowserContentType = {
         key,
@@ -157,11 +157,19 @@ export class LocalStorage implements StorageProviderInterface {
    */
   moveContent = async (current: string, destination: string): Promise<boolean> => {
     const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
-    const fileName = path.basename(current)
+    let fileName = path.basename(current)
+    let fileCount = 1
+    const file = fileName.split('.')
     current = path.join(contentpath, current)
-    destination = path.join(contentpath, destination, fileName)
+    destination = path.join(contentpath, destination)
+    while (fs.existsSync(path.join(destination, fileName))) {
+      fileName = ''
+      for (let i = 0; i < file.length - 1; i++) fileName += file[i]
+      fileName = `${fileName}(${fileCount}).${file[file.length - 1]}`
+      fileCount++
+    }
     try {
-      await fs.promises.rename(current, destination)
+      await fs.promises.rename(current, path.join(destination, fileName))
     } catch (err) {
       return false
     }

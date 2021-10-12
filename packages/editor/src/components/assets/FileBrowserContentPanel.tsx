@@ -151,6 +151,10 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       .catch(() => console.log('Error on Deletion'))
   }
 
+  const copyContent = (to, from, isCut = false) => {}
+
+  const pasteContent = () => {}
+
   return (
     <>
       {console.log('Rendering File Browser Panel CHILD')}
