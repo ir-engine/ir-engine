@@ -9,7 +9,7 @@ sh ./scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
 npm run install-reality-packs
 sh ./scripts/build_docker.sh $RELEASE_NAME $DOCKER_LABEL
 npm install -g cli aws-sdk
-sh ./scripts/publish_ecr.sh $RELEASE_NAME $TAG:$CURRENT_TIME $DOCKER_LABEL $AWS_REGION
-sh ./scripts/deploy.sh $RELEASE_NAME $TAG:$CURRENT_TIME
-sh ./scripts/publish_dockerhub.sh $TAG:$CURRENT_TIME $DOCKER_LABEL
+sh ./scripts/publish_ecr.sh $RELEASE_NAME $TAG~$CURRENT_TIME $DOCKER_LABEL $AWS_REGION
+sh ./scripts/deploy.sh $RELEASE_NAME $TAG~$CURRENT_TIME
+sh ./scripts/publish_dockerhub.sh $TAG~$CURRENT_TIME $DOCKER_LABEL
 sleep infinity
