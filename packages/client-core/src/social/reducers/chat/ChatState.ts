@@ -29,7 +29,7 @@ type MessageType = {
   // updatedAt: "2021-10-07T06:05:23.000Z"
 }
 
-type ChannelType = {
+export type ChannelType = {
   channelType: string
   createdAt: string
   group?: any
@@ -57,7 +57,7 @@ type ChannelType = {
   userId2: any
 }
 
-type ChannelsType = { [id: string]: ChannelType }
+export type ChannelsType = { [id: string]: ChannelType }
 
 const state = createState({
   channels: {
