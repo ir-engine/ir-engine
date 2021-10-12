@@ -3,7 +3,7 @@
 // https://github.com/sketchpunk/FunWithWebGL2/tree/master/lesson_137_ik_rigs
 
 // @ts-nocheck
-import { IKRigComponent, IKRigComponentType } from '../components/IKRigComponent'
+import { IKRigComponentType } from '../components/IKRigComponent'
 import { Bone, Object3D, Quaternion, Vector3, Matrix4 } from 'three'
 import {
   IKPoseComponent,
@@ -47,7 +47,7 @@ export function cosSSS(aLen: number, bLen: number, cLen: number): number {
  * Auto Setup the Points and Chains based on Known Skeleton Structures.
  * @param rig
  */
-export function setupMixamoIKRig(rig: ReturnType<typeof IKRigComponent.get>) {
+export function setupMixamoIKRig(rig: IKRigComponentType): void {
   rig.points = {}
   rig.chains = {}
 
@@ -77,7 +77,7 @@ export function setupMixamoIKRig(rig: ReturnType<typeof IKRigComponent.get>) {
  * Auto Setup the Points and Chains based on Known Skeleton Structures.
  * @param rig
  */
-export function setupTRexIKRig(rig: ReturnType<typeof IKRigComponent.get>) {
+export function setupTRexIKRig(rig: IKRigComponentType): void {
   rig.points = {}
   rig.chains = {}
   // TODO:Fix
@@ -108,7 +108,7 @@ export function setupTRexIKRig(rig: ReturnType<typeof IKRigComponent.get>) {
  * @param rig
  * @param ikPose
  */
-export function computeIKPose(rig: IKRigComponentType, ikPose: IKPoseComponentType) {
+export function computeIKPose(rig: IKRigComponentType, ikPose: IKPoseComponentType): void {
   updatePoseBonesFromSkeleton(rig)
 
   computeHip(rig, ikPose)
@@ -145,7 +145,7 @@ const skeletonTransform = {
  * Update pose bones from animated skeleton bones
  * @param rig
  */
-function updatePoseBonesFromSkeleton(rig: IKRigComponentType) {
+function updatePoseBonesFromSkeleton(rig: IKRigComponentType): void {
   skeletonTransform.reset()
 
   const rootBone = rig.pose.skeleton.bones.find((b) => !(b.parent instanceof Bone))
@@ -174,11 +174,11 @@ function updatePoseBonesFromSkeleton(rig: IKRigComponentType) {
 }
 
 /**
- * Computes Hip IK
+ * Computes Hip IK and stores it in the ikPose
  * @param rig Skeleton rig data
  * @param ikPose Pose to save computed data into
  */
-export function computeHip(rig: ReturnType<typeof IKRigComponent.get>, ikPose) {
+export function computeHip(rig: IKRigComponentType, ikPose: IKPoseComponentType) {
   // First thing we need is the Hip bone from the Animated Pose
   // Plus what the hip's Bind Pose as well.
   // We use these two states to determine what change the animation did to the tpose.
@@ -194,7 +194,7 @@ export function computeHip(rig: ReturnType<typeof IKRigComponent.get>, ikPose) {
   // default direction of the hip, we want to say all hips bones point
   // at the FORWARD axis and the tail of the bone points UP.
 
-  const quatInverse = tempQuat1.copy(bindBoneInfo.world.quaternion).invert() // This part can be pre calculated and Saved into the Rig Hip's Data.
+  const quatInverse = bindBoneInfo.world.invQuaternion
   const altForward = tempVec1.copy(FORWARD).applyQuaternion(quatInverse)
   const altUp = tempVec2.copy(UP).applyQuaternion(quatInverse)
   const poseForward = tempVec3.copy(altForward).applyQuaternion(poseBoneInfo.world.quaternion)
@@ -260,7 +260,7 @@ export function computeLimb(pose: Pose, chain: Chain, ikLimb) {
 }
 
 /**
- *
+ * Computes twist for the feet and head bones
  * @param rig
  * @param boneInfo
  * @param ik
@@ -277,8 +277,7 @@ export function computeLookTwist(rig: IKRigComponentType, boneInfo, ik, lookDire
   // But there are times we need the directions to be different depending
   // on how we view the bone in certain situations.
 
-  const invQuat = tempQuat1.copy(bind.world.quaternion).invert() // TODO: calculate only once
-
+  const invQuat = bind.world.invQuaternion
   const altLookDirection = tempVec1.copy(lookDirection).applyQuaternion(invQuat),
     altTwistDirection = tempVec2.copy(twistDirection).applyQuaternion(invQuat)
 
@@ -287,7 +286,7 @@ export function computeLookTwist(rig: IKRigComponentType, boneInfo, ik, lookDire
 }
 
 /**
- *
+ * Computes spine IK pose
  * @param rig
  * @param chain
  * @param ikPose
@@ -302,7 +301,6 @@ export function computeSpine(
   twistDirection: Vector3
 ): void {
   const idx_ary = [chain.first(), chain.last()],
-    quatInverse = tempQuat1,
     lookDir = tempVec1,
     twistDir = tempVec2
 
@@ -317,7 +315,8 @@ export function computeSpine(
 
     // Create Quat Inverse Direction
     // Transform the Inv Dir by the Animated Pose to get their direction
-    quatInverse.copy(bindBone.world.quaternion).invert()
+
+    const quatInverse = bindBone.world.invQuaternion
     lookDir.copy(lookDirection).applyQuaternion(quatInverse).applyQuaternion(poseBone.world.quaternion)
     twistDir.copy(twistDirection).applyQuaternion(quatInverse).applyQuaternion(poseBone.world.quaternion)
 
@@ -512,9 +511,9 @@ function targetFromPosDir(
 }
 
 /**
- *
+ * Apply look/twist part of the pose to the target rig
  * @param ikPose
- * @param rig
+ * @param rig apply the pose to this rig
  * @param boneName
  * @param lookDirection
  * @param twistDirection
@@ -542,7 +541,7 @@ export function applyLookTwist(
   // Next we need to get the Foot's Quaternion Inverse Direction
   // Which matches up with the same Directions used to calculate the IK
   // information.
-  const quatInverse = tempQuat2.copy(bind.world.quaternion).invert()
+  const quatInverse = bind.world.invQuaternion
 
   const altLookDirection = tempVec1.copy(lookDirection).applyQuaternion(quatInverse),
     altTwistDirection = tempVec2.copy(twistDirection).applyQuaternion(quatInverse)
@@ -569,7 +568,7 @@ export function applyLookTwist(
 }
 
 /**
- *
+ * Keep the feet on the ground
  * @param ikPose
  * @param yLimit
  */
@@ -597,7 +596,7 @@ export function applyGrounding(ikPose: IKPoseComponentType, yLimit: number): voi
 }
 
 /**
- *
+ * Apply the pose to the target rig
  * @param ikPose
  * @param rig
  * @param chain
@@ -661,9 +660,9 @@ export function applySpine(
     ikPose.spineChildQuaternion.copy(ikPose.spineParentQuaternion).multiply(boneBind.local.quaternion)
 
     // Compute our Quat Inverse Direction, using the Defined Look&Twist Direction
-    const quat = tempQuat1.copy(boneBind.world.quaternion).invert()
-    const altLook = tempVec3.copy(lookDirection).applyQuaternion(quat)
-    const altTwist = tempVec4.copy(twistDirection).applyQuaternion(quat)
+    const invQuat = boneBind.world.invQuaternion
+    const altLook = tempVec3.copy(lookDirection).applyQuaternion(invQuat)
+    const altTwist = tempVec4.copy(twistDirection).applyQuaternion(invQuat)
 
     const currentLook = altLook.applyQuaternion(ikPose.spineChildQuaternion) // What direction is the bone point looking now, without any extra rotation
 
@@ -676,7 +675,7 @@ export function applySpine(
       .multiply(ikPose.spineChildQuaternion) // Then Apply to our Bone, so its now swong to match the swing direction.
 
     const currentTwist = altTwist.applyQuaternion(rotation) // Get our Current Twist Direction from Our Swing Rotation
-    quat.setFromUnitVectors(currentTwist, ikTwist) // Create our twist rotation
+    const quat = tempQuat1.setFromUnitVectors(currentTwist, ikTwist) // Create our twist rotation
     rotation.premultiply(quat) // Apply Twist so now it matches our IK Twist direction
 
     const spineParentQuaternionInverse = tempQuat1.copy(ikPose.spineParentQuaternion).invert()
@@ -705,6 +704,12 @@ export function applySpine(
   }
 }
 
+/**
+ *
+ * @param pose
+ * @param dir
+ * @param boneNames
+ */
 export function alignChain(pose: Pose, dir: Vector3, boneNames: string[]) {
   const aEnd = boneNames.length - 1 // End Index
 
@@ -895,7 +900,8 @@ function fromQuat(out: Vector3, q: Quaternion, v: Vector3) {
 }
 
 /**
- *
+ * Create a swing/twist components based on the given input quaternions
+ * Ref: http://allenchou.net/2018/05/game-math-swing-twist-interpolation-sterp/
  * @param source
  * @param target
  * @param forward
@@ -927,7 +933,7 @@ export function computeSwingAndTwist(source: Quaternion, target: Quaternion, for
 }
 
 /**
- *
+ * Applies swing/twist rotation to the target quaternion
  * @param target
  * @param swing
  * @param twist
@@ -943,7 +949,7 @@ export function applySwingAndTwist(target: Quaternion, swing: Quaternion, twist:
 }
 
 /**
- * convert world coordinates to model coordinates with root transform
+ * Convert world coordinates to model coordinates with root transform
  * @param position will be modified
  * @param quaternion will be modified
  * @param scale will be modified

@@ -127,6 +127,7 @@ class Pose {
         world: {
           position: new Vector3(),
           quaternion: new Quaternion(),
+          invQuaternion: new Quaternion(),
           scale: new Vector3()
         } // Model Space Transform
       }
@@ -137,6 +138,8 @@ class Pose {
 
       // convert to model space
       worldToModel(boneData.world.position, boneData.world.quaternion, boneData.world.scale, skeletonTransform)
+      // Calculate this once for tpose
+      boneData.world.invQuaternion.copy(boneData.world.quaternion).invert()
 
       //b['index'] = i
       if (b.children.length > 0) {
