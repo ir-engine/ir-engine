@@ -1,6 +1,7 @@
-import PropTypes from "prop-types";
-import type { CSSProperties } from "react";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import React from 'react'
+import PropTypes from 'prop-types'
+import type { CSSProperties } from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 
 /**
  * Bar plots, both stacked and normal.
@@ -60,244 +61,234 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
  */
 
 const isStacked = (data: number[] | number[][]): data is number[][] => {
-	return data[0].hasOwnProperty("length");
-};
+  return data[0].hasOwnProperty('length')
+}
 
 // Default scale for bar chart. This finds the max and min values in the data, adds 10% in each direction so you don't end up with tiny slivers, and then expands the upper/lower lims to 0 if 0 wasn't already in the range.
 const defaultYlim = (data: number[] | number[][]): [number, number] => {
-	let min = Infinity;
-	let max = -Infinity; // If stacked, add up all the components
+  let min = Infinity
+  let max = -Infinity // If stacked, add up all the components
 
-	let x: number[] = [];
+  let x: number[] = []
 
-	if (isStacked(data)) {
-		for (let i = 0; i < data[0].length; i++) {
-			x[i] = 0;
+  if (isStacked(data)) {
+    for (let i = 0; i < data[0].length; i++) {
+      x[i] = 0
 
-			for (let j = 0; j < data.length; j++) {
-				x[i] += data[j][i];
-			}
-		}
-	} else {
-		x = data;
-	}
+      for (let j = 0; j < data.length; j++) {
+        x[i] += data[j][i]
+      }
+    }
+  } else {
+    x = data
+  }
 
-	for (let i = 0; i < x.length; i++) {
-		if (x[i] < min) {
-			min = x[i];
-		}
+  for (let i = 0; i < x.length; i++) {
+    if (x[i] < min) {
+      min = x[i]
+    }
 
-		if (x[i] > max) {
-			max = x[i];
-		}
-	}
+    if (x[i] > max) {
+      max = x[i]
+    }
+  }
 
-	// Add on some padding
-	min -= 0.1 * (max - min);
-	max += 0.1 * (max - min); // Make sure 0 is in range
+  // Add on some padding
+  min -= 0.1 * (max - min)
+  max += 0.1 * (max - min) // Make sure 0 is in range
 
-	if (min > 0) {
-		min = 0;
-	}
+  if (min > 0) {
+    min = 0
+  }
 
-	if (max < 0) {
-		max = 0;
-	}
+  if (max < 0) {
+    max = 0
+  }
 
-	// For stacked plots, min is always 0
-	if (isStacked(data)) {
-		min = 0;
-	}
+  // For stacked plots, min is always 0
+  if (isStacked(data)) {
+    min = 0
+  }
 
-	return [min, max];
-};
+  return [min, max]
+}
 
 const scale = (val: number, ylim: [number, number]) => {
-	if (val > ylim[1]) {
-		return 100;
-	}
+  if (val > ylim[1]) {
+    return 100
+  }
 
-	if (val < ylim[0]) {
-		return 0;
-	}
+  if (val < ylim[0]) {
+    return 0
+  }
 
-	return ((val - ylim[0]) / (ylim[1] - ylim[0])) * 100;
-};
+  return ((val - ylim[0]) / (ylim[1] - ylim[0])) * 100
+}
 
 const Block = ({
-	className,
-	style,
-	tooltip,
+  className,
+  style,
+  tooltip
 }: {
-	className: string;
-	style: CSSProperties;
-	tooltip: string | undefined;
+  className: string
+  style: CSSProperties
+  tooltip: string | undefined
 }) => {
-	if (tooltip === undefined) {
-		return <div className={className} style={style} />;
-	}
-	return (
-		<OverlayTrigger
-			overlay={<Tooltip id="bar-graph-tooltip">{tooltip}</Tooltip>}
-		>
-			<div className={className} style={style} />
-		</OverlayTrigger>
-	);
-};
+  if (tooltip === undefined) {
+    return <div className={className} style={style} />
+  }
+  return (
+    <OverlayTrigger overlay={<Tooltip id="bar-graph-tooltip">{tooltip}</Tooltip>}>
+      <div className={className} style={style} />
+    </OverlayTrigger>
+  )
+}
 
 type Props = {
-	data: number[] | number[][];
-	// To get rid of this (and other below), would probably have to break up into two separate code paths, one for stacked and one for non-stacked
-	labels: (number | string)[] | (number | string)[][];
-	tooltipCb?: (val: string | number) => string;
-	ylim?: [number, number];
-};
+  data: number[] | number[][]
+  // To get rid of this (and other below), would probably have to break up into two separate code paths, one for stacked and one for non-stacked
+  labels: (number | string)[] | (number | string)[][]
+  tooltipCb?: (val: string | number) => string
+  ylim?: [number, number]
+}
 
 const BarGraph = (props: Props) => {
-	const {
-		data = [],
-		labels,
-		tooltipCb = (val: string | number) => String(val),
-		ylim: ylimArg,
-	} = props;
-	const gap = 2; // Gap between bars, in pixels
+  const { data = [], labels, tooltipCb = (val: string | number) => String(val), ylim: ylimArg } = props
+  const gap = 2 // Gap between bars, in pixels
 
-	if (data.length === 0) {
-		return null;
-	}
+  if (data.length === 0) {
+    return null
+  }
 
-	// Stacked plot or not?
-	const numBars = isStacked(data) ? data[0].length : data.length;
+  // Stacked plot or not?
+  const numBars = isStacked(data) ? data[0].length : data.length
 
-	if (numBars === 0) {
-		return null;
-	}
+  if (numBars === 0) {
+    return null
+  }
 
-	const widthPct = 100 / numBars; // ylim specified or not?
+  const widthPct = 100 / numBars // ylim specified or not?
 
-	const ylim = ylimArg ?? defaultYlim(data); // Convert heights to percentages
+  const ylim = ylimArg ?? defaultYlim(data) // Convert heights to percentages
 
-	const scaled: any = [];
+  const scaled: any = []
 
-	for (let i = 0; i < data.length; i++) {
-		if (!isStacked(data)) {
-			scaled[i] = scale(data[i], ylim);
-		} else {
-			scaled[i] = [];
+  for (let i = 0; i < data.length; i++) {
+    if (!isStacked(data)) {
+      scaled[i] = scale(data[i], ylim)
+    } else {
+      scaled[i] = []
 
-			for (let j = 0; j < data[i].length; j++) {
-				scaled[i][j] = scale(data[i][j], ylim);
-			}
-		}
-	}
+      for (let j = 0; j < data[i].length; j++) {
+        scaled[i][j] = scale(data[i][j], ylim)
+      }
+    }
+  }
 
-	// Draw bars
-	let bars;
+  // Draw bars
+  let bars
 
-	if (!isStacked(data)) {
-		// Not stacked
-		bars = data.map((val, i) => {
-			let titleStart = "";
+  if (!isStacked(data)) {
+    // Not stacked
+    bars = data.map((val, i) => {
+      let titleStart = ''
 
-			if (labels !== undefined) {
-				titleStart = `${labels[i]}: `;
-			}
+      if (labels !== undefined) {
+        titleStart = `${labels[i]}: `
+      }
 
-			// Fix for negative values
-			let bottom;
-			let cssClass;
-			let height;
+      // Fix for negative values
+      let bottom
+      let cssClass
+      let height
 
-			if (val >= 0) {
-				bottom = scale(0, ylim);
-				height = scaled[i] - scale(0, ylim);
-				cssClass = "bar-graph-1";
-			} else {
-				bottom = scaled[i];
-				height = scale(0, ylim) - scaled[i];
-				cssClass = "bar-graph-3";
-			}
+      if (val >= 0) {
+        bottom = scale(0, ylim)
+        height = scaled[i] - scale(0, ylim)
+        cssClass = 'bar-graph-1'
+      } else {
+        bottom = scaled[i]
+        height = scale(0, ylim) - scaled[i]
+        cssClass = 'bar-graph-3'
+      }
 
-			const tooltip =
-				typeof val === "number" && !Number.isNaN(val)
-					? `${titleStart}${tooltipCb(val)}`
-					: undefined;
+      const tooltip = typeof val === 'number' && !Number.isNaN(val) ? `${titleStart}${tooltipCb(val)}` : undefined
 
-			return (
-				<Block
-					key={i}
-					className={cssClass}
-					style={{
-						marginLeft: `${gap}px`,
-						position: "absolute",
-						bottom: `${bottom}%`,
-						height: `${height}%`,
-						left: `${i * widthPct}%`,
-						width: `calc(${widthPct}% - ${gap}px)`,
-					}}
-					tooltip={tooltip}
-				/>
-			);
-		});
-	} else {
-		// Stacked
-		bars = [];
-		const offsets: number[] = [];
+      return (
+        <Block
+          key={i}
+          className={cssClass}
+          style={{
+            marginLeft: `${gap}px`,
+            position: 'absolute',
+            bottom: `${bottom}%`,
+            height: `${height}%`,
+            left: `${i * widthPct}%`,
+            width: `calc(${widthPct}% - ${gap}px)`
+          }}
+          tooltip={tooltip}
+        />
+      )
+    })
+  } else {
+    // Stacked
+    bars = []
+    const offsets: number[] = []
 
-		for (let j = 0; j < data.length; j++) {
-			for (let i = 0; i < data[j].length; i++) {
-				if (j === 0) {
-					offsets[i] = 0;
-				} else {
-					offsets[i] += scaled[j - 1][i];
-				}
+    for (let j = 0; j < data.length; j++) {
+      for (let i = 0; i < data[j].length; i++) {
+        if (j === 0) {
+          offsets[i] = 0
+        } else {
+          offsets[i] += scaled[j - 1][i]
+        }
 
-				if (data[j][i] !== null && data[j][i] !== undefined) {
-					let titleStart = "";
+        if (data[j][i] !== null && data[j][i] !== undefined) {
+          let titleStart = ''
 
-					if (labels !== undefined) {
-						// @ts-ignore
-						titleStart = `${labels[0][i]} ${labels[1][j]}: `;
-					}
+          if (labels !== undefined) {
+            // @ts-ignore
+            titleStart = `${labels[0][i]} ${labels[1][j]}: `
+          }
 
-					bars.push(
-						<Block
-							key={`${i}.${j}`}
-							className={`bar-graph-${j + 1}`}
-							style={{
-								marginLeft: `${gap}px`,
-								position: "absolute",
-								bottom: `${offsets[i]}%`,
-								height: `${scaled[j][i]}%`,
-								left: `${i * widthPct}%`,
-								width: `calc(${widthPct}% - ${gap}px)`,
-							}}
-							tooltip={`${titleStart}${tooltipCb(data[j][i])}`}
-						/>,
-					);
-				}
-			}
-		}
-	}
+          bars.push(
+            <Block
+              key={`${i}.${j}`}
+              className={`bar-graph-${j + 1}`}
+              style={{
+                marginLeft: `${gap}px`,
+                position: 'absolute',
+                bottom: `${offsets[i]}%`,
+                height: `${scaled[j][i]}%`,
+                left: `${i * widthPct}%`,
+                width: `calc(${widthPct}% - ${gap}px)`
+              }}
+              tooltip={`${titleStart}${tooltipCb(data[j][i])}`}
+            />
+          )
+        }
+      }
+    }
+  }
 
-	return (
-		<div
-			style={{
-				height: "100%",
-				marginLeft: `-${gap}px`,
-				position: "relative",
-			}}
-		>
-			{bars}
-		</div>
-	);
-};
+  return (
+    <div
+      style={{
+        height: '100%',
+        marginLeft: `-${gap}px`,
+        position: 'relative'
+      }}
+    >
+      {bars}
+    </div>
+  )
+}
 
 BarGraph.propTypes = {
-	data: PropTypes.array,
-	labels: PropTypes.array,
-	tooltipCb: PropTypes.func,
-	ylim: PropTypes.arrayOf(PropTypes.number),
-};
+  data: PropTypes.array,
+  labels: PropTypes.array,
+  tooltipCb: PropTypes.func,
+  ylim: PropTypes.arrayOf(PropTypes.number)
+}
 
-export default BarGraph;
+export default BarGraph

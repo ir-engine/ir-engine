@@ -3,17 +3,17 @@
 	"name": "Basketball GM",
 	"icons": [
 		{
-			"src": "/src/ui/assets/ico/icon192.png",
+			"src": "/src/pages/game/ui/assets/ico/icon192.png",
 			"type": "image/png",
 			"sizes": "192x192"
 		},
 		{
-			"src": "/src/ui/assets/ico/icon512.png",
+			"src": "/src/pages/game/ui/assets/ico/icon512.png",
 			"type": "image/png",
 			"sizes": "512x512"
 		},
 		{
-			"src": "/src/ui/assets/ico/maskable.png",
+			"src": "/src/pages/game/ui/assets/ico/maskable.png",
 			"type": "image/png",
 			"sizes": "512x512",
 			"purpose": "maskable"
