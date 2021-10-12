@@ -51,12 +51,13 @@ export const ChatService = {
   createMessage: (values: any) => {
     return async (dispatch: Dispatch): Promise<any> => {
       try {
+        await waitForClientAuthenticated()
+        const chatState = accessChatState().value
         const data = {
-          targetObjectId: values.targetObjectId,
-          targetObjectType: values.targetObjectType,
+          targetObjectId: chatState.targetObject.id || null,
+          targetObjectType: chatState.targetObjectType || null,
           text: values.text
         }
-        console.log(data)
         await client.service('message').create(data)
       } catch (err) {
         console.error(err)
