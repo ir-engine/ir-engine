@@ -1,31 +1,24 @@
-const shouldUseAgeAtDeath = (age: number, ageAtDeath: number | null) =>
-	ageAtDeath !== null && age >= ageAtDeath;
+import React from 'react'
 
-const AgeAtDeath = ({
-	age,
-	ageAtDeath,
-}: {
-	age: number;
-	ageAtDeath: number | null;
-}) => {
-	if (shouldUseAgeAtDeath(age, ageAtDeath)) {
-		return <span title={`Died at age ${ageAtDeath}`}>{ageAtDeath}*</span>;
-	}
+const shouldUseAgeAtDeath = (age: number, ageAtDeath: number | null) => ageAtDeath !== null && age >= ageAtDeath
 
-	return age;
-};
+const AgeAtDeath = ({ age, ageAtDeath }: { age: number; ageAtDeath: number | null }) => {
+  if (shouldUseAgeAtDeath(age, ageAtDeath)) {
+    return <span title={`Died at age ${ageAtDeath}`}>{ageAtDeath}*</span>
+  }
 
-export default AgeAtDeath;
+  return age
+}
+
+export default AgeAtDeath
 
 export const wrappedAgeAtDeath = (age: number, ageAtDeath: number | null) => {
-	const searchSortValue = shouldUseAgeAtDeath(age, ageAtDeath)
-		? ageAtDeath
-		: age;
+  const searchSortValue = shouldUseAgeAtDeath(age, ageAtDeath) ? ageAtDeath : age
 
-	return {
-		// @ts-ignore
-		value: <AgeAtDeath age={age} ageAtDeath={ageAtDeath} />,
-		sortValue: searchSortValue,
-		searchValue: searchSortValue,
-	};
-};
+  return {
+    // @ts-ignore
+    value: <AgeAtDeath age={age} ageAtDeath={ageAtDeath} />,
+    sortValue: searchSortValue,
+    searchValue: searchSortValue
+  }
+}
