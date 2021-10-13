@@ -1,12 +1,12 @@
 {
-  "name": "@xrengine/realitypacks",
+  "name": "@xrengine/projects",
   "version": "0.4.8",
   "main": "index.ts",
   "description": "",
   "scripts": {
     "create-pack": "ts-eager scripts/create-reality-pack.ts",
     "update-name-gh-package": "node scripts/update-name-gh-package.js",
-    "postinstall": "shx cp -r templates/theoverlay/ projects/theoverlay/"
+    "postinstall": "shx mkdir projects && shx cp -r templates/theoverlay projects/theoverlay"
   },
   "repository": {
     "type": "git",
@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/XRFoundation/XREngine/issues"
   },
-  "homepage": "https://github.com/XRFoundation/XREngine#readme"
+  "homepage": "https://github.com/XRFoundation/XREngine#readme",
+  "devDependencies": {
+    "shx": "^0.3.3"
+  }
 }

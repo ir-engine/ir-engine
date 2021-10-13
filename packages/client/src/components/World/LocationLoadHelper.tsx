@@ -19,7 +19,7 @@ import { InstanceConnectionService } from '../../reducers/instanceConnection/Ins
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { Vector3, Quaternion } from 'three'
 import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
-import { getPacksFromSceneData } from '@xrengine/realitypacks/loader'
+import { getPacksFromSceneData } from '@xrengine/projects/loader'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'

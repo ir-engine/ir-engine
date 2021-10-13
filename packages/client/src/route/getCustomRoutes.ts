@@ -1,7 +1,7 @@
 import i18n from 'i18next'
 import { Config } from '@xrengine/common/src/config'
 import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
-import { loadRoute } from '@xrengine/realitypacks/loadRoute'
+import { loadRoute } from '@xrengine/projects/loadRoute'
 
 const serverURL = Config.publicRuntimeConfig.apiServer
 

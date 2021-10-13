@@ -12,7 +12,7 @@ The manifest.json of a Reality Pack is how it references it's assets, as well as
 
 ## Local Development Flow
 
-Reality Packs exist in the /packs folder as folders themselves, which are .gitignored such that they are not added to the main repository. Instead, the intended flow is that each reality pack folder is a GitHub repository managed seperately by the developer. The @xrengine/realitypacks package is linked in the monorepo such that it has complete access to every piece of code in the repository.
+Reality Packs exist in the /packs folder as folders themselves, which are .gitignored such that they are not added to the main repository. Instead, the intended flow is that each reality pack folder is a GitHub repository managed seperately by the developer. The @xrengine/projects package is linked in the monorepo such that it has complete access to every piece of code in the repository.
 
 ## Deployed Development Flow (still in progress)
 

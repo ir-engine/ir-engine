@@ -5,7 +5,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @xrengine/realitypacks
+**Note:** Version bump only for package @xrengine/projects
 
 
 
@@ -13,4 +13,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-**Note:** Version bump only for package @xrengine/realitypacks
+**Note:** Version bump only for package @xrengine/projects
