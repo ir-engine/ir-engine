@@ -97,7 +97,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   let geometry
   switch (shapeOptions.type) {
     case 'box':
-      geometry = new PhysX.PxBoxGeometry(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
+      geometry = new PhysX.PxBoxGeometry(Math.abs(scale.x / 2), Math.abs(scale.y / 2), Math.abs(scale.z / 2))
       break
 
     case 'ground':
@@ -200,12 +200,13 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
 }
 
 export const createBody = (entity: Entity, bodyOptions: BodyOptions, shapes: PhysX.PxShape[] = []) => {
-  const { position, rotation } = getComponent(entity, TransformComponent)
+  const { rotation } = getComponent(entity, TransformComponent)
+  debugger
   return useWorld().physics.addBody({
     shapes,
     type: bodyOptions.bodyType ?? BodyType.STATIC,
     transform: {
-      translation: position,
+      translation: new Vector3(0, 0, 0),
       rotation
     },
     userData: {

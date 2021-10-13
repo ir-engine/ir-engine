@@ -30,6 +30,7 @@ export const createTriggerVolume = async function (entity, args): Promise<Mesh> 
 
   boxMesh.userData = {
     type: 'box',
+    isTrigger: true,
     collisionLayer: CollisionGroups.Trigger,
     collisionMask: CollisionGroups.Default
   }
