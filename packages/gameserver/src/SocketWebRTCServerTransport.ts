@@ -15,7 +15,7 @@ import {
   handleJoinWorld,
   handleLeaveWorld,
   validateNetworkObjects
-} from '@xrengine/gameserver/src/NetworkFunctions'
+} from './NetworkFunctions'
 import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 import AWS from 'aws-sdk'

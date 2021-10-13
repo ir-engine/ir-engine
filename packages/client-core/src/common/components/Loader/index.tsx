@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { GeneralStateList } from '../../reducers/app/AppActions'
-import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
+import { useAppState } from '../../reducers/app/AppState'
 import { useSceneState } from '../../../world/reducers/scenes/SceneState'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'

@@ -28,8 +28,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { accessLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { accessPartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
+import { accessLocationState } from '../../../social/reducers/location/LocationState'
+import { accessPartyState } from '../../../social/reducers/party/PartyState'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {

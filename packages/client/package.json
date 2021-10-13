@@ -53,6 +53,11 @@
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.15",
     "@vladmandic/face-api": "1.5.4",
+    "@xrengine/client-core": "^0.4.8",
+    "@xrengine/common": "^0.4.8",
+    "@xrengine/engine": "^0.4.8",
+    "@xrengine/projects": "^0.4.8",
+    "@xrengine/editor": "^0.4.8",
     "axios": "0.23.0",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
@@ -109,7 +114,8 @@
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
     "vite": "2.6.7",
-    "webxr-native": "0.3.0"
+    "webxr-native": "0.3.0",
+    "three": "^0.133.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.5",
