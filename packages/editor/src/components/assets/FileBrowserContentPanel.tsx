@@ -14,6 +14,7 @@ import { ProjectManager } from '../../managers/ProjectManager'
 import FileBrowserGrid from './FileBrowserGrid'
 import { Config } from '@xrengine/common/src/config'
 import { Button } from '../inputs/Button'
+import { File } from '@styled-icons/fa-solid'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -78,7 +79,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         ? nodeEditor.WrappedComponent
           ? nodeEditor.WrappedComponent.iconComponent
           : nodeEditor.iconComponent
-        : null
+        : File
       const url = Config.publicRuntimeConfig.fileserver + content.key
       const returningObject = {
         description: url,
