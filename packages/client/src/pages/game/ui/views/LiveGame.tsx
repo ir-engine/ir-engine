@@ -1,148 +1,135 @@
-import classNames from "classnames";
-import PropTypes from "prop-types";
-import {
-  Component,
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { BoxScoreRow, BoxScoreWrapper, Confetti } from "../components";
-import useTitleBar from "../hooks/useTitleBar";
-import { helpers, processLiveGameEvents, toWorker } from "../util";
-import type { View } from "../../common/types";
-import { Dropdown } from "react-bootstrap";
-import { getPeriodName } from "../../common";
+import classNames from 'classnames'
+import PropTypes from 'prop-types'
+import React, { Component, ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { BoxScoreRow, BoxScoreWrapper, Confetti } from '../components'
+import useTitleBar from '../hooks/useTitleBar'
+import { helpers, processLiveGameEvents, toWorker } from '../util'
+import type { View } from '../../common/types'
+import { Dropdown } from 'react-bootstrap'
+import { getPeriodName } from '../../common'
 
 type PlayerRowProps = {
-  forceUpdate?: boolean;
-  i: number;
-  liveGameInProgress?: boolean;
-  p: any;
-};
+  forceUpdate?: boolean
+  i: number
+  liveGameInProgress?: boolean
+  p: any
+}
 
 class PlayerRow extends Component<PlayerRowProps> {
-  prevInGame: boolean | undefined;
+  prevInGame: boolean | undefined
 
   // Can't just switch to hooks and React.memo because p is mutated, so there is no way to access the previous value of inGame in the memo callback function
   shouldComponentUpdate(nextProps: PlayerRowProps) {
-    return !!(this.prevInGame || nextProps.p.inGame || nextProps.forceUpdate);
+    return !!(this.prevInGame || nextProps.p.inGame || nextProps.forceUpdate)
   }
 
   render() {
-    const { p, ...props } = this.props;
+    const { p, ...props } = this.props
 
     // Needed for shouldComponentUpdate because state is mutated so we need to explicitly store the last value
-    this.prevInGame = p.inGame;
+    this.prevInGame = p.inGame
 
     const classes = classNames({
-        "table-warning": p.inGame,
-      });
+      'table-warning': p.inGame
+    })
 
-    return <BoxScoreRow className={classes} p={p} {...props} />;
+    return <BoxScoreRow className={classes} p={p} {...props} />
   }
 }
 
 // @ts-ignore
 PlayerRow.propTypes = {
-  p: PropTypes.object.isRequired,
-};
+  p: PropTypes.object.isRequired
+}
 
 const updatePhaseAndLeagueTopBar = () => {
   // Send to worker, rather than doing `localActions.update({ liveGameInProgress: false });`, so it works in all tabs
-  toWorker("main", "uiUpdateLocal", { liveGameInProgress: false });
-};
+  toWorker('main', 'uiUpdateLocal', { liveGameInProgress: false })
+}
 
 const getSeconds = (time: string) => {
-  const [min, sec] = time.split(":").map((x) => parseInt(x, 10));
-  return min * 60 + sec;
-};
+  const [min, sec] = time.split(':').map((x) => parseInt(x, 10))
+  return min * 60 + sec
+}
 
-const LiveGame = (props: View<"liveGame">) => {
-  const [paused, setPaused] = useState(false);
-  const pausedRef = useRef(paused);
-  const [speed, setSpeed] = useState(7);
-  const speedRef = useRef(speed);
-  const [playIndex, setPlayIndex] = useState(-1);
-  const [started, setStarted] = useState(!!props.events);
+const LiveGame = (props: View<'liveGame'>) => {
+  const [paused, setPaused] = useState(false)
+  const pausedRef = useRef(paused)
+  const [speed, setSpeed] = useState(7)
+  const speedRef = useRef(speed)
+  const [playIndex, setPlayIndex] = useState(-1)
+  const [started, setStarted] = useState(!!props.events)
   const [confetti, setConfetti] = useState<{
-    colors?: [string, string, string];
-    display: boolean;
+    colors?: [string, string, string]
+    display: boolean
   }>({
-    display: false,
-  });
+    display: false
+  })
 
-  const boxScore = useRef<any>(
-    props.initialBoxScore ? props.initialBoxScore : {}
-  );
+  const boxScore = useRef<any>(props.initialBoxScore ? props.initialBoxScore : {})
 
-  const overtimes = useRef(0);
-  const playByPlayDiv = useRef<HTMLDivElement | null>(null);
-  const quarters = useRef(["Q1"]);
-  const componentIsMounted = useRef(false);
-  const events = useRef<any[] | undefined>();
+  const overtimes = useRef(0)
+  const playByPlayDiv = useRef<HTMLDivElement | null>(null)
+  const quarters = useRef(['Q1'])
+  const componentIsMounted = useRef(false)
+  const events = useRef<any[] | undefined>()
 
   // Make sure to call setPlayIndex after calling this! Can't be done inside because React is not always smart enough to batch renders
   const processToNextPause = useCallback(
     (force?: boolean): number => {
       if (!componentIsMounted.current || (pausedRef.current && !force)) {
-        return 0;
+        return 0
       }
 
-      const startSeconds = getSeconds(boxScore.current.time);
+      const startSeconds = getSeconds(boxScore.current.time)
 
       if (!events.current) {
-        throw new Error("events.current is undefined");
+        throw new Error('events.current is undefined')
       }
 
       const output = processLiveGameEvents({
         boxScore: boxScore.current,
         events: events.current,
         overtimes: overtimes.current,
-        quarters: quarters.current,
-      });
-      const text = output.text;
-      overtimes.current = output.overtimes;
-      quarters.current = output.quarters;
+        quarters: quarters.current
+      })
+      const text = output.text
+      overtimes.current = output.overtimes
+      quarters.current = output.quarters
 
       if (text !== undefined) {
-        const p = document.createElement("p");
-        const node = document.createTextNode(text);
+        const p = document.createElement('p')
+        const node = document.createTextNode(text)
         if (
-          text === "End of game" ||
-          text.startsWith("Start of") ||
-          text.startsWith("Elam Ending activated! First team to")
+          text === 'End of game' ||
+          text.startsWith('Start of') ||
+          text.startsWith('Elam Ending activated! First team to')
         ) {
-          const b = document.createElement("b");
-          b.appendChild(node);
-          p.appendChild(b);
+          const b = document.createElement('b')
+          b.appendChild(node)
+          p.appendChild(b)
         } else {
-          p.appendChild(node);
+          p.appendChild(node)
         }
 
         if (playByPlayDiv.current) {
-          playByPlayDiv.current.insertBefore(
-            p,
-            playByPlayDiv.current.firstChild
-          );
+          playByPlayDiv.current.insertBefore(p, playByPlayDiv.current.firstChild)
         }
       }
 
       if (events.current && events.current.length > 0) {
         if (!pausedRef.current) {
           setTimeout(() => {
-            processToNextPause();
-            setPlayIndex((prev) => prev + 1);
-          }, 4000 / 1.2 ** speedRef.current);
+            processToNextPause()
+            setPlayIndex((prev) => prev + 1)
+          }, 4000 / 1.2 ** speedRef.current)
         }
       } else {
-        boxScore.current.time = "0:00";
-        boxScore.current.gameOver = true;
+        boxScore.current.time = '0:00'
+        boxScore.current.gameOver = true
         if (boxScore.current.scoringSummary) {
           for (const event of boxScore.current.scoringSummary) {
-            event.hide = false;
+            event.hide = false
           }
         }
 
@@ -152,264 +139,243 @@ const LiveGame = (props: View<"liveGame">) => {
           if (boxScore.current.playoffs) {
             if (t.playoffs) {
               if (boxScore.current.won.tid === t.tid) {
-                t.playoffs.won += 1;
+                t.playoffs.won += 1
 
-                if (
-                  props.finals &&
-                  t.playoffs.won >= boxScore.current.numGamesToWinSeries
-                ) {
+                if (props.finals && t.playoffs.won >= boxScore.current.numGamesToWinSeries) {
                   setConfetti({
                     display: true,
-                    colors: t.colors,
-                  });
+                    colors: t.colors
+                  })
                 }
               } else if (boxScore.current.lost.tid === t.tid) {
-                t.playoffs.lost += 1;
+                t.playoffs.lost += 1
               }
             }
           } else {
             if (boxScore.current.won.pts === boxScore.current.lost.pts) {
               // Tied!
               if (t.tied !== undefined) {
-                t.tied += 1;
+                t.tied += 1
               }
             } else if (boxScore.current.won.tid === t.tid) {
-              t.won += 1;
+              t.won += 1
             } else if (boxScore.current.lost.tid === t.tid) {
               if (boxScore.current.overtimes > 0 && props.otl) {
-                t.otl += 1;
+                t.otl += 1
               } else {
-                t.lost += 1;
+                t.lost += 1
               }
             }
           }
         }
 
-        updatePhaseAndLeagueTopBar();
+        updatePhaseAndLeagueTopBar()
       }
 
-      const endSeconds = getSeconds(boxScore.current.time);
+      const endSeconds = getSeconds(boxScore.current.time)
 
       // This is negative when rolling over to a new quarter
-      const elapsedSeconds = startSeconds - endSeconds;
-      return elapsedSeconds;
+      const elapsedSeconds = startSeconds - endSeconds
+      return elapsedSeconds
     },
     [props.finals, props.otl]
-  );
+  )
 
   useEffect(() => {
-    componentIsMounted.current = true;
+    componentIsMounted.current = true
 
     const setPlayByPlayDivHeight = () => {
       if (playByPlayDiv.current) {
         // Keep in sync with .live-game-affix
-        if (window.matchMedia("(min-width:768px)").matches) {
-          playByPlayDiv.current.style.height = `${window.innerHeight - 113}px`;
-        } else if (playByPlayDiv.current.style.height !== "") {
-          playByPlayDiv.current.style.removeProperty("height");
+        if (window.matchMedia('(min-width:768px)').matches) {
+          playByPlayDiv.current.style.height = `${window.innerHeight - 113}px`
+        } else if (playByPlayDiv.current.style.height !== '') {
+          playByPlayDiv.current.style.removeProperty('height')
         }
       }
-    };
+    }
 
     // Keep height of plays list equal to window
-    setPlayByPlayDivHeight();
-    window.addEventListener("optimizedResize", setPlayByPlayDivHeight);
+    setPlayByPlayDivHeight()
+    window.addEventListener('optimizedResize', setPlayByPlayDivHeight)
 
     return () => {
-      componentIsMounted.current = false;
-      window.removeEventListener("optimizedResize", setPlayByPlayDivHeight);
-      updatePhaseAndLeagueTopBar();
-    };
-  }, []);
+      componentIsMounted.current = false
+      window.removeEventListener('optimizedResize', setPlayByPlayDivHeight)
+      updatePhaseAndLeagueTopBar()
+    }
+  }, [])
 
   const startLiveGame = useCallback(
     (events2: any[]) => {
-      events.current = events2;
-      processToNextPause();
-      setPlayIndex((prev) => prev + 1);
+      events.current = events2
+      processToNextPause()
+      setPlayIndex((prev) => prev + 1)
     },
     [processToNextPause]
-  );
+  )
 
   useEffect(() => {
     if (props.events && !started) {
-      boxScore.current = props.initialBoxScore;
-      setStarted(true);
-      startLiveGame(props.events.slice());
+      boxScore.current = props.initialBoxScore
+      setStarted(true)
+      startLiveGame(props.events.slice())
     }
-  }, [props.events, props.initialBoxScore, started, startLiveGame]);
+  }, [props.events, props.initialBoxScore, started, startLiveGame])
 
   const handleSpeedChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const speed = parseInt(event.target.value, 10);
+    const speed = parseInt(event.target.value, 10)
     if (!Number.isNaN(speed)) {
-      setSpeed(speed);
-      speedRef.current = speed;
+      setSpeed(speed)
+      speedRef.current = speed
     }
-  };
+  }
 
   const handlePause = useCallback(() => {
-    setPaused(true);
-    pausedRef.current = true;
-  }, []);
+    setPaused(true)
+    pausedRef.current = true
+  }, [])
 
   const handlePlay = useCallback(() => {
-    setPaused(false);
-    pausedRef.current = false;
-    processToNextPause();
-    setPlayIndex((prev) => prev + 1);
-  }, [processToNextPause]);
+    setPaused(false)
+    pausedRef.current = false
+    processToNextPause()
+    setPlayIndex((prev) => prev + 1)
+  }, [processToNextPause])
 
   const handleNextPlay = useCallback(() => {
-    processToNextPause(true);
-    setPlayIndex((prev) => prev + 1);
-  }, [processToNextPause]);
+    processToNextPause(true)
+    setPlayIndex((prev) => prev + 1)
+  }, [processToNextPause])
 
   const fastForwardMenuItems = useMemo(() => {
     // Plays up to `cutoffs` seconds, or until end of quarter
     const playSeconds = (cutoff: number) => {
-      let seconds = 0;
-      let numPlays = 0;
+      let seconds = 0
+      let numPlays = 0
       while (seconds < cutoff && !boxScore.current.gameOver) {
-        const elapsedSeconds = processToNextPause(true);
-        numPlays += 1;
+        const elapsedSeconds = processToNextPause(true)
+        numPlays += 1
         if (elapsedSeconds > 0) {
-          seconds += elapsedSeconds;
+          seconds += elapsedSeconds
         } else if (elapsedSeconds < 0) {
           // End of quarter, always stop
-          break;
+          break
         }
       }
-      setPlayIndex((prev) => prev + numPlays);
-    };
+      setPlayIndex((prev) => prev + numPlays)
+    }
 
     const playUntilLastTwoMinutes = () => {
       const quartersToPlay =
         quarters.current.length >= boxScore.current.numPeriods
           ? 0
-          : boxScore.current.numPeriods - quarters.current.length;
+          : boxScore.current.numPeriods - quarters.current.length
       for (let i = 0; i < quartersToPlay; i++) {
-        playSeconds(Infinity);
+        playSeconds(Infinity)
       }
 
-      const currentSeconds = getSeconds(boxScore.current.time);
-      const targetSeconds = 125; // 2 minutes plus 5 seconds, cause can't always be exact
-      const secoundsToPlay = currentSeconds - targetSeconds;
+      const currentSeconds = getSeconds(boxScore.current.time)
+      const targetSeconds = 125 // 2 minutes plus 5 seconds, cause can't always be exact
+      const secoundsToPlay = currentSeconds - targetSeconds
       if (secoundsToPlay > 0) {
-        playSeconds(secoundsToPlay);
+        playSeconds(secoundsToPlay)
       }
-    };
+    }
 
     const playUntilElamEnding = () => {
-      let numPlays = 0;
-      while (
-        boxScore.current.elamTarget === undefined &&
-        !boxScore.current.gameOver
-      ) {
-        processToNextPause(true);
-        numPlays += 1;
+      let numPlays = 0
+      while (boxScore.current.elamTarget === undefined && !boxScore.current.gameOver) {
+        processToNextPause(true)
+        numPlays += 1
       }
-      setPlayIndex((prev) => prev + numPlays);
-    };
+      setPlayIndex((prev) => prev + numPlays)
+    }
 
     const playUntilNextScore = () => {
-      const initialPts =
-        boxScore.current.teams[0].pts + boxScore.current.teams[1].pts;
-      let currentPts = initialPts;
-      let numPlays = 0;
+      const initialPts = boxScore.current.teams[0].pts + boxScore.current.teams[1].pts
+      let currentPts = initialPts
+      let numPlays = 0
       while (initialPts === currentPts && !boxScore.current.gameOver) {
-        processToNextPause(true);
-        currentPts =
-          boxScore.current.teams[0].pts + boxScore.current.teams[1].pts;
-        numPlays += 1;
+        processToNextPause(true)
+        currentPts = boxScore.current.teams[0].pts + boxScore.current.teams[1].pts
+        numPlays += 1
       }
-      setPlayIndex((prev) => prev + numPlays);
-    };
+      setPlayIndex((prev) => prev + numPlays)
+    }
 
     let skipMinutes = [
       {
         minutes: 1,
-        key: "O",
+        key: 'O'
       },
       {
-        minutes: helpers.bound(
-          Math.round(props.quarterLength / 4),
-          1,
-          Infinity
-        ),
-        key: "T",
+        minutes: helpers.bound(Math.round(props.quarterLength / 4), 1, Infinity),
+        key: 'T'
       },
       {
-        minutes: helpers.bound(
-          Math.round(props.quarterLength / 2),
-          1,
-          Infinity
-        ),
-        key: "S",
-      },
-    ];
+        minutes: helpers.bound(Math.round(props.quarterLength / 2), 1, Infinity),
+        key: 'S'
+      }
+    ]
 
     // Dedupe
-    const skipMinutesValues = new Set();
+    const skipMinutesValues = new Set()
     skipMinutes = skipMinutes.filter(({ minutes }) => {
       if (skipMinutesValues.has(minutes)) {
-        return false;
+        return false
       }
 
-      skipMinutesValues.add(minutes);
-      return true;
-    });
+      skipMinutesValues.add(minutes)
+      return true
+    })
 
     const menuItems = [
       ...skipMinutes.map(({ minutes, key }) => ({
-        label: `${minutes} minute${minutes === 1 ? "" : "s"}`,
+        label: `${minutes} minute${minutes === 1 ? '' : 's'}`,
         key,
         onClick: () => {
-          playSeconds(60 * minutes);
-        },
+          playSeconds(60 * minutes)
+        }
       })),
       {
         label: `End of ${
           boxScore.current.elamTarget !== undefined
-            ? "game"
+            ? 'game'
             : boxScore.current.overtime
-            ? "period"
+            ? 'period'
             : getPeriodName(boxScore.current.numPeriods)
         }`,
-        key: "Q",
+        key: 'Q',
         onClick: () => {
-          playSeconds(Infinity);
-        },
-      },
-    ];
+          playSeconds(Infinity)
+        }
+      }
+    ]
 
     if (!boxScore.current.elam) {
       menuItems.push({
-        label: "Until last 2 minutes",
-        key: "U",
+        label: 'Until last 2 minutes',
+        key: 'U',
         onClick: () => {
-          playUntilLastTwoMinutes();
-        },
-      });
+          playUntilLastTwoMinutes()
+        }
+      })
     }
 
     if (boxScore.current.elam && boxScore.current.elamTarget === undefined) {
       menuItems.push({
-        label: "Until Elam Ending",
-        key: "U",
+        label: 'Until Elam Ending',
+        key: 'U',
         onClick: () => {
-          playUntilElamEnding();
-        },
-      });
+          playUntilElamEnding()
+        }
+      })
     }
 
-    return menuItems;
+    return menuItems
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    boxScore.current.elam,
-    boxScore.current.elamTarget,
-    boxScore.current.overtime,
-    processToNextPause,
-  ]);
+  }, [boxScore.current.elam, boxScore.current.elamTarget, boxScore.current.overtime, processToNextPause])
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
@@ -423,30 +389,28 @@ const LiveGame = (props: View<"liveGame">) => {
         !event.metaKey
       ) {
         if (pausedRef.current) {
-          const option = fastForwardMenuItems.find(
-            (option2) => `Key${option2.key}` === event.code
-          );
+          const option = fastForwardMenuItems.find((option2) => `Key${option2.key}` === event.code)
 
           if (option) {
-            option.onClick();
-          } else if (event.code === "KeyB") {
-            handlePlay();
-          } else if (event.code === "KeyN") {
-            handleNextPlay();
+            option.onClick()
+          } else if (event.code === 'KeyB') {
+            handlePlay()
+          } else if (event.code === 'KeyN') {
+            handleNextPlay()
           }
         } else {
-          if (event.code === "KeyB") {
-            handlePause();
+          if (event.code === 'KeyB') {
+            handlePause()
           }
         }
       }
-    };
+    }
 
-    document.addEventListener("keydown", handleKeydown);
+    document.addEventListener('keydown', handleKeydown)
     return () => {
-      document.removeEventListener("keydown", handleKeydown);
-    };
-  }, [fastForwardMenuItems, handlePause, handleNextPlay, handlePlay]);
+      document.removeEventListener('keydown', handleKeydown)
+    }
+  }, [fastForwardMenuItems, handlePause, handleNextPlay, handlePlay])
 
   // Needs to return actual div, not fragment, for AutoAffix!!!
   return (
@@ -454,20 +418,14 @@ const LiveGame = (props: View<"liveGame">) => {
       {confetti.display ? <Confetti colors={confetti.colors} /> : null}
 
       <p className="text-danger">
-        If you navigate away from this page, you won't be able to see these
-        play-by-play results again because they are not stored anywhere. The
-        results of this game are already final, though.
+        If you navigate away from this page, you won't be able to see these play-by-play results again because they are
+        not stored anywhere. The results of this game are already final, though.
       </p>
 
       <div className="row">
         <div className="col-md-9">
           {boxScore.current.gid >= 0 ? (
-            <BoxScoreWrapper
-              boxScore={boxScore.current}
-              injuredToBottom
-              Row={PlayerRow}
-              playIndex={playIndex}
-            />
+            <BoxScoreWrapper boxScore={boxScore.current} injuredToBottom Row={PlayerRow} playIndex={playIndex} />
           ) : (
             <h2>Loading...</h2>
           )}
@@ -509,18 +467,14 @@ const LiveGame = (props: View<"liveGame">) => {
                       id="live-game-sim-more"
                       className="btn-light-bordered live-game-sim-more"
                       disabled={!paused || boxScore.current.gameOver}
-                      variant={"no-class" as any}
+                      variant={'no-class' as any}
                       title="Fast Forward"
                     >
                       <span className="glyphicon glyphicon-fast-forward" />
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                       {fastForwardMenuItems.map((item) => (
-                        <Dropdown.Item
-                          key={item.key}
-                          onClick={item.onClick}
-                          className="kbd-parent"
-                        >
+                        <Dropdown.Item key={item.key} onClick={item.onClick} className="kbd-parent">
                           {item.label}
                           <span className="text-muted kbd">Alt+{item.key}</span>
                         </Dropdown.Item>
@@ -547,33 +501,33 @@ const LiveGame = (props: View<"liveGame">) => {
             <div
               className="live-game-playbyplay"
               ref={(c) => {
-                playByPlayDiv.current = c;
+                playByPlayDiv.current = c
               }}
             />
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 // @ts-ignore
 LiveGame.propTypes = {
   events: PropTypes.arrayOf(
     PropTypes.shape({
-      type: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired
     })
   ),
-  initialBoxScore: PropTypes.object,
-};
+  initialBoxScore: PropTypes.object
+}
 
-const LiveGameWrapper = (props: View<"liveGame">) => {
-  useTitleBar({ title: "Live Game Simulation", hideNewWindow: true });
+const LiveGameWrapper = (props: View<'liveGame'>) => {
+  useTitleBar({ title: 'Live Game Simulation', hideNewWindow: true })
 
-  return <LiveGame {...props} />;
-};
+  return <LiveGame {...props} />
+}
 
 // @ts-ignore
-LiveGameWrapper.propTypes = LiveGame.propTypes;
+LiveGameWrapper.propTypes = LiveGame.propTypes
 
-export default LiveGameWrapper;
+export default LiveGameWrapper
