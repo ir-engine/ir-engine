@@ -20,6 +20,7 @@ export const createTriggerVolume = async function (entity, args): Promise<Mesh> 
   const boxMesh = new Mesh(geometry, material)
   boxMesh.position.set(pos.x, pos.y, pos.z)
   boxMesh.scale.set(scale.x, scale.y, scale.z)
+  boxMesh.quaternion.set(rot.x, rot.y, rot.z, rot.w)
 
   if (args.showHelper) {
     // A visual representation for the trigger
