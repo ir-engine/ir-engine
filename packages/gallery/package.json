@@ -20,7 +20,7 @@
   },
   "resolutions": {
     "socket.io": "4.2.0",
-    "@types/react": "17.0.27",
+    "@types/react": "17.0.29",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -43,9 +43,8 @@
     "@xrengine/editor": "^0.4.8",
     "@xrengine/engine": "^0.4.8",
     "app-root-path": "3.0.0",
-    "cross-env": "7.0.3",
     "formik": "2.2.9",
-    "react": "17.0.2",
+    "react": "^17.0.2",
     "react-dom": "17.0.2",
     "react-pdf": "5.4.0",
     "react-redux": "7.2.5",
@@ -57,12 +56,12 @@
   },
   "devDependencies": {
     "@types/node": "14.17.21",
-    "@types/react": "17.0.27",
+    "@types/react": "17.0.29",
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "eslint": "8.0.0",
-    "typescript": "4.4.3",
-    "vite": "2.6.5"
+    "typescript": "4.4.4",
+    "vite": "2.6.7"
   },
   "browser": {
     "fs": false

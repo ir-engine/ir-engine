@@ -62,9 +62,9 @@ const AppFooter = ({ setView, onGoRegistration }: any) => {
         )} */}
       <Avatar
         onClick={() => {
-          onGoRegistration(() => {
-            handleOpenCreatorPage(creatorState.creators.currentCreator?.id?.value)
-          })
+          // onGoRegistration(() => {
+          handleOpenCreatorPage(creatorState.creators.currentCreator?.id?.value)
+          // })
         }}
         alt={creatorState.creators.currentCreator?.username?.value}
         className={styles.footerAvatar}

@@ -2,10 +2,8 @@
 import { Bone, SkinnedMesh } from 'three'
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { IKObj } from '../components/IKObj'
 import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
-import { spin_bone_forward, align_chain, align_bone_forward, worldToModel } from '../functions/IKFunctions'
+import { spinBoneForward, alignChain, alignBoneForward, worldToModel } from '../functions/IKFunctions'
 import { Entity } from '../../ecs/classes/Entity'
 import { transformAdd } from '../functions/IKSolvers'
 
@@ -43,30 +41,30 @@ class Pose {
   helper: any
 
   align_leg(b_names: string[]) {
-    align_chain(this, DOWN, b_names)
+    alignChain(this, DOWN, b_names)
     return this
   }
   align_arm_left(b_names: string[]) {
-    align_chain(this, LEFT, b_names)
+    alignChain(this, LEFT, b_names)
     return this
   }
   align_arm_right(b_names: string[]) {
-    align_chain(this, RIGHT, b_names)
+    alignChain(this, RIGHT, b_names)
     return this
   }
 
   align_foot(b_name: string) {
-    spin_bone_forward(this, b_name)
-    align_bone_forward(this, b_name)
+    spinBoneForward(this, b_name)
+    alignBoneForward(this, b_name)
     return this
   }
 
   spin_bone_forward(b_name: string) {
-    spin_bone_forward(this, b_name)
+    spinBoneForward(this, b_name)
     return this
   }
   align_bone_forward(b_name: string) {
-    align_bone_forward(this, b_name)
+    alignBoneForward(this, b_name)
     return this
   }
 
@@ -80,7 +78,7 @@ class Pose {
     const parent: Object3D = clone ? SkeletonUtils.clone(rootObject) : rootObject
     this.skeleton = this.get_skeleton(parent) // Recreation of Bone Hierarchy
 
-    if (typeof this.skeleton.bones[0] === 'undefined') {
+    if (!this.skeleton.bones[0]) {
       debugger
     }
 
@@ -93,15 +91,16 @@ class Pose {
     const skeletonTransform = {
       position: new Vector3(),
       quaternion: new Quaternion(),
-      quaternionInverted: new Quaternion(),
+      invQuaternion: new Quaternion(),
       scale: new Vector3()
     }
+
     const rootBone = this.skeleton.bones.find((b) => !(b.parent instanceof Bone))
     if (rootBone.parent) {
       rootBone.parent.getWorldPosition(skeletonTransform.position)
       rootBone.parent.getWorldQuaternion(skeletonTransform.quaternion)
       rootBone.parent.getWorldScale(skeletonTransform.scale)
-      skeletonTransform.quaternionInverted = skeletonTransform.quaternion.clone().invert()
+      skeletonTransform.invQuaternion.copy(skeletonTransform.quaternion).invert()
     }
 
     for (let i = 0; i < this.skeleton.bones.length; i++) {
@@ -128,6 +127,7 @@ class Pose {
         world: {
           position: new Vector3(),
           quaternion: new Quaternion(),
+          invQuaternion: new Quaternion(),
           scale: new Vector3()
         } // Model Space Transform
       }
@@ -138,6 +138,8 @@ class Pose {
 
       // convert to model space
       worldToModel(boneData.world.position, boneData.world.quaternion, boneData.world.scale, skeletonTransform)
+      // Calculate this once for tpose
+      boneData.world.invQuaternion.copy(boneData.world.quaternion).invert()
 
       //b['index'] = i
       if (b.children.length > 0) {

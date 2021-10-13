@@ -30,10 +30,18 @@ const Feed = (props: Props) => {
   const popupsState = usePopupsStateState()
   const feedsState = useFeedState()
 
+  const creator = feedsState.feeds.feed.creator.value
+
   useEffect(() => {
     dispatch(FeedService.getFeed(popupsState.popups.feedId?.value))
   }, [popupsState.popups.feedId?.value])
   feed = feedsState.feeds.fetching.value === false && feedsState.feeds.feed
+
+  useEffect(() => {
+    if (creator) {
+      dispatch(FeedService.getFeeds('creator', creator.id))
+    }
+  }, [JSON.stringify(creator)])
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -50,7 +58,6 @@ const Feed = (props: Props) => {
     dispatch(FeedService.removeFeed(feedId, previewUrl, videoUrl))
     dispatch(PopupsStateService.updateFeedPageState(false))
   }
-
   return (
     <section className={styles.feedContainer}>
       <section className={styles.controls}>
@@ -89,11 +96,11 @@ const Feed = (props: Props) => {
           </Popover>
         </div>
       </section>
-      {feed && <FeedCard feed={feed} />}
-      {feed && (
+      {feed.id.value && <FeedCard feed={feed.value} />}
+      {feed.id.value && (
         <>
           <Typography variant="h5">{t('social:feed.related')}</Typography>
-          <Featured type="creator" creatorId={feed.creator.id} />
+          <Featured thisData={feedsState.feeds.feedsCreator.value} />
         </>
       )}
       {/*hided for now*/}
