@@ -84,7 +84,8 @@ const Home = (props: Props) => {
   }
 
   const onGoRegistration = (callBack?) => {
-    if (auth.user.userRole.value === 'guest') {
+    // if (auth.user.userRole.value === 'guest') {
+    if (false) {
       history.push('/registration')
     } else if (callBack) {
       callBack()
@@ -105,7 +106,6 @@ const Home = (props: Props) => {
   }
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
-
   return (
     <>
       {view === 'terms' || view === 'policy' ? (
@@ -118,10 +118,11 @@ const Home = (props: Props) => {
             {/* <Stories stories={stories} /> */}
             <FeedMenu view={view} setView={setView} />
             <AppFooter setView={setView} onGoRegistration={onGoRegistration} />
-            {currentCreator?.value &&
+            {(currentCreator?.value &&
               // Made at the time of the test Aleks951
-              (!!!currentCreator.terms || !!!currentCreator.policy) &&
-              auth.user.userRole.value === 'user' && <TermsAndPolicy view={view} setView={setView} />}
+              (!!!currentCreator.terms.value || !!!currentCreator.policy.value) &&
+              auth.user.userRole.value === 'user') ||
+              (auth.user.userRole.value === 'guest' && <TermsAndPolicy view={view} setView={setView} />)}
             <ArMediaPopup />
             <WebXRStart
               feedHintsOnborded={feedHintsOnborded}
