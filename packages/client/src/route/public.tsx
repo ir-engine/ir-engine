@@ -61,10 +61,10 @@ class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: 
         }
       >
         <Switch>
-          {this.state.customRoutes.map((r) => {
-            console.log(r)
-            return r
-          })}
+          {/* this needs to have the map function */}
+          {this.state.customRoutes.map((r) => r)}
+          {/* if no index page has been provided, indicate this as obviously as possible */}
+          <Route key={'/'} path={'/'} component={React.lazy(() => import('../pages/503'))} exact />
           <Route path="*" component={React.lazy(() => import('../pages/404'))} />
         </Switch>
       </Suspense>

@@ -13,6 +13,7 @@ const groups = React.lazy(() => import('./pages/groups'))
 const instance = React.lazy(() => import('./pages/instance'))
 const invites = React.lazy(() => import('./pages/invites'))
 const locations = React.lazy(() => import('./pages/locations'))
+const routes = React.lazy(() => import('./pages/routes'))
 const scenes = React.lazy(() => import('./pages/scenes'))
 const users = React.lazy(() => import('./pages/users'))
 const party = React.lazy(() => import('./pages/party'))
@@ -114,6 +115,7 @@ const ProtectedRoutes = (props: Props) => {
           <PrivateRoute exact path="/admin/instance" component={instance} />
           <PrivateRoute exact path="/admin/invites" component={invites} />
           <PrivateRoute exact path="/admin/locations" component={locations} />
+          <PrivateRoute exact path="/admin/routes" component={routes} />
           <PrivateRoute exact path="/admin/scenes" component={scenes} />
           <PrivateRoute exact path="/admin/parties" component={party} />
           <PrivateRoute exact path="/admin/bots" component={botSetting} />

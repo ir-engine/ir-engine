@@ -3,7 +3,6 @@ import React from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 
 const LocationPage = (props) => {
-  console.log('LocationPage')
   return (
     <Switch>
       <Route path="/location/:locationName" component={React.lazy(() => import('./[locationName]'))} />
