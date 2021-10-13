@@ -4,7 +4,7 @@ export const routeSeedData = {
   templates: [
     {
       project: 'theoverlay',
-      routes: 'location,admin,auth,editor'
+      routes: '/,/login,/harmony,/location,/admin,/auth,/editor'
     }
   ]
 }

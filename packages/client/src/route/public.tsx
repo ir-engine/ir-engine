@@ -1,6 +1,5 @@
 import React, { Suspense } from 'react'
-import { Route, Switch, Redirect } from 'react-router-dom'
-import homePage from '../pages/index'
+import { Route, Switch } from 'react-router-dom'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCustomRoutes } from './getCustomRoutes'
 
@@ -24,7 +23,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: 
 
     this.state = {
       hasError: false,
-      customRoutes: undefined as any
+      customRoutes: []
     }
 
     this.getCustomRoutes()
@@ -45,9 +44,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: 
   }
 
   render() {
-    console.log(this.state.customRoutes)
-    if (this.state.hasError || this.state.customRoutes === undefined) return <div>Working...</div>
-    let i
+    if (this.state.hasError || !this.state.customRoutes.length) return <div>Working...</div>
     return (
       <Suspense
         fallback={
@@ -64,35 +61,10 @@ class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: 
         }
       >
         <Switch>
-          <Route path="/" component={homePage} exact />
-          <Route path="/login" component={React.lazy(() => import('../pages/login'))} />
-
-          {/* Dev Routes */}
-          <Route path="/test" component={React.lazy(() => import('../pages/examples/test_three'))} />
-          <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
-          <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} />
-          <Route
-            path="/examples/navmeshbuilder"
-            component={React.lazy(() => import('../pages/examples/NavMeshBuilder'))}
-          />
-          <Route path="/asset-test" component={React.lazy(() => import('../pages/examples/asset-test'))} />
-          <Route path="/map-test" component={React.lazy(() => import('../pages/examples/map-test'))} />
-
-          <Route
-            path="/offline/:locationName"
-            component={React.lazy(() => import('../pages/offline/[locationName]'))}
-          />
-          <Route path="/offline" component={React.lazy(() => import('../pages/offline/[locationName]'))} />
-          <Route path="/event/:locationName" component={React.lazy(() => import('../pages/location/[locationName]'))} />
-
-          {/* Harmony Routes */}
-          <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />
-
-          {/* Custom Routes */}
-          {this.state.customRoutes.map(({ route, page }) => {
-            return <Route key={i++} path={'/' + route} component={React.lazy(() => page)} />
+          {this.state.customRoutes.map((r) => {
+            console.log(r)
+            return r
           })}
-
           <Route path="*" component={React.lazy(() => import('../pages/404'))} />
         </Switch>
       </Suspense>

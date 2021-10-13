@@ -14,12 +14,12 @@ export const loadRoute = async (routesToLoad: RoutesInterface) => {
   const pages: RoutePageInterface[] = []
   for (const route of routesToLoad.routes) {
     // TODO: rename packs to project
-    const { default: getPage } = await import(`./packs/${routesToLoad.project}/routes.ts`)
-    const page = {
-      route: route,
-      page: getPage(route)
-    }
-    pages.push(page)
+    const { default: getPage } = await import(`./projects/${routesToLoad.project}/routes.tsx`)
+    // const page = {
+    //   route: route,
+    //   page:
+    // }
+    pages.push(getPage(route))
   }
   return pages
 }

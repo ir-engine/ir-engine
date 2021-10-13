@@ -44,7 +44,7 @@ export const importPack = async (data: RealityPackNodeArguments, isClient: boole
     react: []
   }
   try {
-    const realityPackManifest = (await import(`./packs/${data.packName}/manifest.json`)) as RealityPackInterface
+    const realityPackManifest = (await import(`./projects/${data.packName}/manifest.json`)) as RealityPackInterface
 
     console.info(`Got Reality Pack Manifest`, realityPackManifest)
 
@@ -58,14 +58,14 @@ export const importPack = async (data: RealityPackNodeArguments, isClient: boole
         switch (entryPointExtension) {
           case 'js':
             modules.systems.push({
-              systemModulePromise: await import(`./packs/${data.packName}/${entryPointFileName}.js`),
+              systemModulePromise: await import(`./projects/${data.packName}/${entryPointFileName}.js`),
               type: systemUpdateType,
               args
             })
             break
           case 'ts':
             modules.systems.push({
-              systemModulePromise: await import(`./packs/${data.packName}/${entryPointFileName}.ts`),
+              systemModulePromise: await import(`./projects/${data.packName}/${entryPointFileName}.ts`),
               type: systemUpdateType,
               args
             })
@@ -89,10 +89,10 @@ export const importPack = async (data: RealityPackNodeArguments, isClient: boole
         try {
           switch (entryPointExtension) {
             case 'jsx':
-              modules.react.push(import(`./packs/${data.packName}/${entryPointFileName}.jsx`))
+              modules.react.push(import(`./projects/${data.packName}/${entryPointFileName}.jsx`))
               break
             case 'tsx':
-              modules.react.push(import(`./packs/${data.packName}/${entryPointFileName}.tsx`))
+              modules.react.push(import(`./projects/${data.packName}/${entryPointFileName}.tsx`))
               break
             default:
               console.error(
