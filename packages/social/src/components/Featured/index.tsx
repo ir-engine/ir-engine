@@ -14,10 +14,10 @@ import WhatshotIcon from '@material-ui/icons/Whatshot'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useFeedState } from '../../reducers/feed/FeedState'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
 import styles from './Featured.module.scss'
 
 interface Props {

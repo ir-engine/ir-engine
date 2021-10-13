@@ -2,7 +2,7 @@ export const ContentPackAction = {
   loadedContentPacks: (contentPacks: any[]) => {
     return {
       type: 'LOADED_CONTENT_PACKS' as const,
-      contentPacks
+      contentPacks: contentPacks
     }
   },
   createdContentPack: () => {

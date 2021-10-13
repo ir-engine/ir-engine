@@ -216,5 +216,26 @@
     "scenes": "Scenes",
     "avatars": "Avatars",
     "bots": "Bots"
-  }
+  },
+  "avatar": {
+    "title": "Upload Avatar",
+    "lbl-browse": "Browse",
+    "lbl-thumbnail": "Thumbnail",
+    "lbl-upload": "Upload",
+    "selectAvatar": "Select Avatar...",
+    "selectThumbnail": "Select Thumbnail...",
+    "rotate": "Rotate",
+    "pan": "Pan",
+    "noBone": "Obejct does not contain any bones or skin",
+    "outOfBound": "Object is out of bound.",
+    "emptyObj": "Object is empty.",
+    "maxTriangleError": "Object contains greater than {{allowedTriangles}} faces.",
+    "selectValidFile": "Select valid 3d avatar file.",
+    "selectValidThumbnail": "Selected valid Thumbnail file.",
+    "fileOversized": "Avatar file size must be between {{minSize}} MB and {{maxSize}} MB",
+    "confirmation": "Are you sure?",
+    "canNotBeRemoved": "Active Avatar can not be removed",
+    "remove": "Remove avatar"
+}
+
 }

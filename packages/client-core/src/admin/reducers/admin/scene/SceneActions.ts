@@ -1,8 +1,9 @@
+import { SceneDataResult } from '@xrengine/common/src/interfaces/SceneDataResult'
 export const SceneAction = {
-  collectionsFetched: (collections: any[]) => {
+  collectionsFetched: (sceneDataResult: SceneDataResult) => {
     return {
       type: 'ADMIN_SCENES_RETRIEVED',
-      collections: collections
+      sceneDataResult: sceneDataResult
     }
   }
 }

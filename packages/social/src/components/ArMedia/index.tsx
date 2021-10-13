@@ -7,9 +7,9 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { Button, CardMedia, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
-import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
-import { useArMediaState } from '../../reducers/arMedia/ArMediaState'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { ArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaService'
+import { useArMediaState } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
 // import {  Plugins } from '@capacitor/core';
 import Preloader from '@xrengine/social/src/components/Preloader'
 

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { usePopupsStateState } from '../../../reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '../../../reducers/popupsState/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
 

@@ -16,7 +16,7 @@ import Typography from '@material-ui/core/Typography'
 import ViewMedia from './ViewMedia'
 import { useARMediaStyles } from './styles'
 import Grid from '@material-ui/core/Grid'
-import { ArMediaService } from '../../../reducers/arMedia/ArMediaService'
+import { ArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaService'
 
 interface Props {
   list?: any

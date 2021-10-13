@@ -13,8 +13,8 @@ import BackupIcon from '@material-ui/icons/Backup'
 
 import styles from './ArMediaForm.module.scss'
 
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
+import { ArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaService'
 
 interface Props {
   projects?: any[]

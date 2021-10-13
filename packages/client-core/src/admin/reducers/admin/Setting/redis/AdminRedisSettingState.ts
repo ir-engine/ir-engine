@@ -1,9 +1,9 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { AdminRedisSettingActionType } from './AdminRedisSettingActions'
-
+import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
 const state = createState({
   redisSettings: {
-    redisSettings: [],
+    redisSettings: [] as Array<AdminRedisSetting>,
     skip: 0,
     limit: 100,
     total: 0,
@@ -21,7 +21,7 @@ const adminRedisSettingReceptor = (action: AdminRedisSettingActionType): any => 
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_REDIS_SETTING_FETCHED':
-        result = action.list
+        result = action.adminRedisSettingResult
         return s.redisSettings.merge({ redisSettings: result.data, updateNeeded: false })
     }
   }, action.type)

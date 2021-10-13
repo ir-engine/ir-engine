@@ -51,7 +51,7 @@ const locationReceptor = (action: LocationActionType): any => {
         newValues.locationSettings = newValues.location_setting
 
         let bannedUsers = [] as UserId[]
-        newValues.location_bans?.forEach((ban) => {
+        newValues?.location_bans?.forEach((ban) => {
           bannedUsers.push(ban.userId)
         })
         bannedUsers = [...new Set(bannedUsers)]

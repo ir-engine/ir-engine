@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { usePopupsStateState } from '../../../reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '../../../reducers/popupsState/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
 import FeedForm from '../../FeedForm'
 
 interface Props {
