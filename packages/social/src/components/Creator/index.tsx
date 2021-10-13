@@ -11,8 +11,8 @@ import CreatorCard from '../CreatorCard'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import AppFooter from '../Footer'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { useFeedState } from '../../reducers/feed/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
 
 import styles from './Creator.module.scss'
 
