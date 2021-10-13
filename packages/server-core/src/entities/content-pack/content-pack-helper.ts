@@ -393,7 +393,7 @@ export async function populateRealityPack(
     try {
       console.log('Attempting to reload k8s clients!')
       const restartClientsResponse = await app.k8DefaultClient.patch(
-        `deployment/${config.server.releaseName}-xrengine-client`,
+        `deployment/${config.server.releaseName}-builder-xrengine-builder`,
         {
           spec: {
             template: {
