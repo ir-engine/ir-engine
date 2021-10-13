@@ -27,7 +27,7 @@ import { EnhancedTableHead } from '@xrengine/client-core/src/admin/components/Ad
 import CreatorForm from '@xrengine/social/src/components/CreatorForm'
 import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 import CreatorCard from '@xrengine/social/src/components/CreatorCard'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
 import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/AdminState'
 
 if (!global.setImmediate) {

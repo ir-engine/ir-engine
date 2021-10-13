@@ -46,11 +46,11 @@ const MediaIconsBox = (props) => {
   const channelConnectionState = useChannelConnectionState()
   const dispatch = useDispatch()
   const mediastream = useMediaStreamState()
-  const videoEnabled = currentLocation?.locationSettings?.value
-    ? currentLocation?.locationSettings?.videoEnabled?.value
+  const videoEnabled = currentLocation?.location_settings?.value
+    ? currentLocation?.location_settings?.videoEnabled?.value
     : false
-  const instanceMediaChatEnabled = currentLocation?.locationSettings?.value
-    ? currentLocation?.locationSettings?.instanceMediaChatEnabled?.value
+  const instanceMediaChatEnabled = currentLocation?.location_settings?.value
+    ? currentLocation?.location_settings?.instanceMediaChatEnabled?.value
     : false
 
   const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
@@ -77,7 +77,9 @@ const MediaIconsBox = (props) => {
 
   const handleFaceClick = async () => {
     const partyId =
-      currentLocation?.locationSettings?.instanceMediaChatEnabled?.value === true ? 'instance' : user.partyId.value
+      currentLocation?.location_settings?.instanceMediaChatEnabled?.value === true
+        ? 'instance'
+        : user.partyId?.value || 'instance'
     if (isFaceTrackingEnabled.value) {
       stopFaceTracking()
       stopLipsyncTracking()

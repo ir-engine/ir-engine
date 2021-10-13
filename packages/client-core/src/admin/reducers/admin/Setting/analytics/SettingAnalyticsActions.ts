@@ -1,8 +1,10 @@
+import { SettingAnalyticsResult } from '@xrengine/common/src/interfaces/SettingAnalyticsResult'
+
 export const SettingAnalyticsAction = {
-  fetchedAnalytics: (analytics: any) => {
+  fetchedAnalytics: (settingAnalyticsResult: SettingAnalyticsResult) => {
     return {
       type: 'SETTING_ANALYIS_DISPLAY' as const,
-      analytics: analytics
+      settingAnalyticsResult: settingAnalyticsResult
     }
   }
 }

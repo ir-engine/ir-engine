@@ -1,6 +1,7 @@
 import { AuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { User, UserSetting } from '@xrengine/common/src/interfaces/User'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { Avatar } from '@xrengine/common/src/interfaces/Avatar'
 
 export interface EmailLoginForm {
   email: string
@@ -119,27 +120,28 @@ export const AuthAction = {
       user
     }
   },
-  updatedUserSettingsAction: (data: any) => {
+  updatedUserSettingsAction: (data: UserSetting) => {
     return {
       type: 'UPDATE_USER_SETTINGS' as const,
       data: data
     }
   },
   avatarUpdated: (result: any) => {
+    debugger
     const url = result.url
     return {
       type: 'AVATAR_UPDATED' as const,
       url
     }
   },
-  usernameUpdated: (result: any) => {
+  usernameUpdated: (result: User) => {
     const name = result.name
     return {
       type: 'USERNAME_UPDATED' as const,
       name
     }
   },
-  userAvatarIdUpdated: (result: any) => {
+  userAvatarIdUpdated: (result: User) => {
     const avatarId = result.avatarId
     return {
       type: 'USERAVATARID_UPDATED' as const,
@@ -152,7 +154,7 @@ export const AuthAction = {
       user: user
     }
   },
-  updateAvatarList: (avatarList: []) => {
+  updateAvatarList: (avatarList: Avatar[]) => {
     return {
       type: 'AVATAR_FETCHED' as const,
       avatarList

@@ -4,8 +4,8 @@
 import React, { useEffect, useState } from 'react'
 
 import { useDispatch } from 'react-redux'
-import { useFeedCommentsState } from '../../reducers/feedComment/FeedCommentState'
-import { FeedCommentService } from '../../reducers/feedComment/FeedCommentService'
+import { useFeedCommentsState } from '@xrengine/client-core/src/social/reducers/feedComment/FeedCommentState'
+import { FeedCommentService } from '@xrengine/client-core/src/social/reducers/feedComment/FeedCommentService'
 import TextField from '@material-ui/core/TextField'
 import SendIcon from '@material-ui/icons/Send'
 import Grid from '@material-ui/core/Grid'

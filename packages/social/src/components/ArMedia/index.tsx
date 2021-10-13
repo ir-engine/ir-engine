@@ -7,9 +7,9 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { Button, CardMedia, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
-import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
-import { useArMediaState } from '../../reducers/arMedia/ArMediaState'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { ArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaService'
+import { useArMediaState } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
 // import {  Plugins } from '@capacitor/core';
 import Preloader from '@xrengine/social/src/components/Preloader'
 
@@ -19,7 +19,7 @@ import styles from './ArMedia.module.scss'
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
 import { useHistory } from 'react-router-dom'
-
+import { ArMedia } from '@xrengine/common/src/interfaces/ArMedia'
 interface Props {
   projects?: any[]
   view?: any
@@ -27,7 +27,7 @@ interface Props {
 
 const ArMedia = (props: Props) => {
   const [type, setType] = useState('clip')
-  const [list, setList] = useState(null)
+  const [list, setList] = useState<ArMedia[]>([])
   const [preloading, setPreloading] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
   const arMediaState = useArMediaState()
@@ -39,7 +39,7 @@ const ArMedia = (props: Props) => {
   const dispatch = useDispatch()
   useEffect(() => {
     if (arMediaState.fetching.value === false) {
-      setList(arMediaState?.list?.value?.filter((item) => item.type === type))
+      setList(arMediaState?.list?.value?.filter((item) => item.type === type) || [])
     }
   }, [arMediaState.fetching.value, type])
 
@@ -73,7 +73,7 @@ const ArMedia = (props: Props) => {
         {/*</Button>*/}
       </section>
       <section className={styles.flexContainer}>
-        {list?.map((item, itemIndex) => (
+        {list.map((item, itemIndex) => (
           <section key={item.id} className={styles.previewImageContainer}>
             <CardMedia onClick={() => setSelectedItem(item)} className={styles.previewImage} image={item.previewUrl} />
             <Typography>{item.title}</Typography>

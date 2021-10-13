@@ -16,10 +16,11 @@ import Typography from '@material-ui/core/Typography'
 import ViewMedia from './ViewMedia'
 import { useARMediaStyles } from './styles'
 import Grid from '@material-ui/core/Grid'
-import { ArMediaService } from '../../../reducers/arMedia/ArMediaService'
+import { ArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaService'
+import { ArMedia } from '@xrengine/common/src/interfaces/ArMedia'
 
 interface Props {
-  list?: any
+  list?: Array<ArMedia>
 }
 
 const MediaTable = (props: Props) => {
