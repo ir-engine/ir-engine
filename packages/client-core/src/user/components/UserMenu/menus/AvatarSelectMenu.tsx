@@ -28,7 +28,7 @@ interface Props {
 interface State {
   selectedFile: any
   selectedThumbnail: any
-  avatarName?: string
+  avatarName: string
   // imgFile: any;
   error: string
   obj: any
@@ -41,7 +41,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
     this.state = {
       selectedFile: null,
       selectedThumbnail: null,
-      avatarName: null,
+      avatarName: '',
       // imgFile: null,
       error: '',
       obj: null

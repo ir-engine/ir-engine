@@ -19,7 +19,7 @@ import styles from './ArMedia.module.scss'
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
 import { useHistory } from 'react-router-dom'
-
+import { ArMedia } from '@xrengine/common/src/interfaces/ArMedia'
 interface Props {
   projects?: any[]
   view?: any
@@ -27,7 +27,7 @@ interface Props {
 
 const ArMedia = (props: Props) => {
   const [type, setType] = useState('clip')
-  const [list, setList] = useState(null)
+  const [list, setList] = useState<ArMedia[]>([])
   const [preloading, setPreloading] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
   const arMediaState = useArMediaState()
@@ -39,7 +39,7 @@ const ArMedia = (props: Props) => {
   const dispatch = useDispatch()
   useEffect(() => {
     if (arMediaState.fetching.value === false) {
-      setList(arMediaState?.list?.value?.filter((item) => item.type === type))
+      setList(arMediaState?.list?.value?.filter((item) => item.type === type) || [])
     }
   }, [arMediaState.fetching.value, type])
 
@@ -73,7 +73,7 @@ const ArMedia = (props: Props) => {
         {/*</Button>*/}
       </section>
       <section className={styles.flexContainer}>
-        {list?.map((item, itemIndex) => (
+        {list.map((item, itemIndex) => (
           <section key={item.id} className={styles.previewImageContainer}>
             <CardMedia onClick={() => setSelectedItem(item)} className={styles.previewImage} image={item.previewUrl} />
             <Typography>{item.title}</Typography>

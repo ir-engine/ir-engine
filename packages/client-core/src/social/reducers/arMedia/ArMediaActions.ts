@@ -1,15 +1,18 @@
+import { ArMediaResult } from '@xrengine/common/src/interfaces/ArMediaResult'
+import { ArMedia } from '@xrengine/common/src/interfaces/ArMedia'
+
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 
 export const ArMediaAction = {
-  setAdminArMedia: (list: any[]) => {
+  setAdminArMedia: (list: ArMediaResult[]) => {
     return {
       type: 'ARMEDIA_ADMIN_RETRIEVED' as const,
       list
     }
   },
-  setArMedia: (list: any[]) => {
+  setArMedia: (list: ArMedia[]) => {
     return {
       type: 'ARMEDIA_RETRIEVED' as const,
       list
@@ -20,13 +23,13 @@ export const ArMediaAction = {
       type: 'ARMEDIA_FETCHING' as const
     }
   },
-  addAdminArMedia: (item) => {
+  addAdminArMedia: (item: ArMedia) => {
     return {
       type: 'ADD_ARMEDIA' as const,
       item
     }
   },
-  removeArMediaItem: (id) => {
+  removeArMediaItem: (id: string) => {
     return {
       type: 'REMOVE_ARMEDIA' as const,
       id
@@ -38,13 +41,13 @@ export const ArMediaAction = {
       id
     }
   },
-  retrievedArMediaItem: (item) => {
+  retrievedArMediaItem: (item: ArMedia) => {
     return {
       type: 'ARMEDIA_RETRIEVED_ITEM' as const,
       item
     }
   },
-  updateAdminArMedia: (result) => {
+  updateAdminArMedia: (result: ArMedia) => {
     return {
       type: 'UPDATE_AR_MEDIA' as const,
       item: result

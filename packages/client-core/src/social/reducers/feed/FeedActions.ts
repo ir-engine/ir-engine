@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 
-import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed'
+import { FeedShort, Feed, FeedResult } from '@xrengine/common/src/interfaces/Feed'
 
 export const FeedAction = {
   feedsRetrieved: (feeds: Feed[]) => {
@@ -136,7 +136,7 @@ export const FeedAction = {
       feed: feed
     }
   },
-  feedsAdminRetrieved: (feeds: any) => {
+  feedsAdminRetrieved: (feeds: FeedResult) => {
     return {
       type: 'FEEDS_AS_ADMIN_RETRIEVED' as const,
       feeds: feeds

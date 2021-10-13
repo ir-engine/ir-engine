@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import { createState, useState, none, Downgraded } from '@hookstate/core'
-
+import { ArMedia } from '@xrengine/common/src/interfaces/ArMedia'
 /**
  * Commenting code to compile TSDOC Docusaurus
  * this file contain some issues with
@@ -16,7 +16,7 @@ export const ARMEDIA_PAGE_LIMIT = 100
 
 const state = createState({
   arMedia: {
-    arMedia: [],
+    arMedia: [] as Array<ArMedia>,
     skip: 0,
     limit: ARMEDIA_PAGE_LIMIT,
     total: 0,
@@ -26,9 +26,9 @@ const state = createState({
     lastFetched: new Date()
   },
   adminList: [],
-  list: [],
+  list: [] as Array<ArMedia>,
   fetching: false,
-  item: {},
+  item: {} as ArMedia | {},
   fetchingItem: false
 })
 
@@ -48,6 +48,7 @@ const arMediaReceptor = (action: ArMediaActionType): any => {
         return s.arMedia.merge({
           arMedia: result.data,
           skip: result.skip,
+          total: result.total,
           limit: result.limit,
           retrieving: false,
           fetched: true,

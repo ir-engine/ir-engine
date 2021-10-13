@@ -32,3 +32,10 @@ export interface FeedDatabaseRow {
   updatedAt: string
   authorId: string
 }
+
+export interface FeedResult {
+  data: Feed[]
+  total: number
+  limit: number
+  skip: number
+}

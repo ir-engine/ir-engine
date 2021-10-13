@@ -1,5 +1,5 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
-import { Location } from '@xrengine/common/src/interfaces/Location'
+import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { LocationActionType } from './LocationActions'
 
@@ -11,7 +11,7 @@ const state = createState({
     skip: 0
   },
   currentLocation: {
-    location: {} as Location | {},
+    location: LocationSeed as Location,
     bannedUsers: [] as UserId[]
   },
   updateNeeded: true,
@@ -62,7 +62,7 @@ const locationReceptor = (action: LocationActionType): any => {
         return s.fetchingCurrentLocation.set(false)
 
       case 'LOCATION_NOT_FOUND':
-        s.currentLocation.merge({ location: {}, bannedUsers: [] })
+        s.currentLocation.merge({ location: LocationSeed, bannedUsers: [] })
         s.currentLocationUpdateNeeded.set(false)
         s.fetchingCurrentLocation.set(false)
         return s.invalidLocation.set(true)

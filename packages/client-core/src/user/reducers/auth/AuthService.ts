@@ -978,7 +978,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       // TODO: Decouple and reenable me!
       // endVideoChat({ leftParty: true });
       // leave(true);
-      if (selfPartyUser != undefined && selfPartyUser.id != null) {
+      if (selfPartyUser != undefined && selfPartyUser?.id != null) {
         await client.service('party-user').remove(selfPartyUser.id)
       }
       const user = resolveUser(await client.service('user').get(selfUser.id.value))

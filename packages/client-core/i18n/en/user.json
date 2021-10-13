@@ -132,6 +132,8 @@
       "youAreA": "You are a",
       "logout": "Log out",
       "connectPhone": "Connect your email or phone number",
+      "or": "Or",
+      "lbl-wallet": "Login with Wallet",
       "ph-phoneEmail": "Phone Number / Email",
       "phoneEmailError": "Invalid phone or email address",
       "loginWithReadyPlayerMe": "Login with Ready Player Me",
