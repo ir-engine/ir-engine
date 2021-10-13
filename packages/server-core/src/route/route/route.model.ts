@@ -12,10 +12,10 @@ export default (app: Application): any => {
         allowNull: false,
         primaryKey: true
       },
-      route: {
+      project: {
         type: DataTypes.STRING
       },
-      file: {
+      routes: {
         type: DataTypes.STRING
       }
     },

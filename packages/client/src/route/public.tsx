@@ -1,7 +1,5 @@
 import React, { Suspense } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
-import { Config } from '@xrengine/common/src/config'
-import ProtectedRoute from './protected'
 import homePage from '../pages/index'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCustomRoutes } from './getCustomRoutes'
@@ -13,7 +11,7 @@ if (typeof globalThis.process === 'undefined') {
 type CustomRoute = {
   id: string
   route: string
-  file: string
+  page: any
 }
 
 class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: CustomRoute[] }> {
@@ -47,9 +45,9 @@ class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: 
   }
 
   render() {
-    console.log(this.state)
+    console.log(this.state.customRoutes)
     if (this.state.hasError || this.state.customRoutes === undefined) return <div>Working...</div>
-
+    let i
     return (
       <Suspense
         fallback={
@@ -69,9 +67,6 @@ class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: 
           <Route path="/" component={homePage} exact />
           <Route path="/login" component={React.lazy(() => import('../pages/login'))} />
 
-          {/* Admin Routes*/}
-          <Route path="/admin" component={ProtectedRoute} />
-
           {/* Dev Routes */}
           <Route path="/test" component={React.lazy(() => import('../pages/examples/test_three'))} />
           <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
@@ -82,16 +77,6 @@ class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: 
           />
           <Route path="/asset-test" component={React.lazy(() => import('../pages/examples/asset-test'))} />
           <Route path="/map-test" component={React.lazy(() => import('../pages/examples/map-test'))} />
-
-          {/* Auth Routes */}
-          <Route path="/auth/oauth/facebook" component={React.lazy(() => import('../pages/auth/oauth/facebook'))} />
-          <Route path="/auth/oauth/github" component={React.lazy(() => import('../pages/auth/oauth/github'))} />
-          <Route path="/auth/oauth/google" component={React.lazy(() => import('../pages/auth/oauth/google'))} />
-          <Route path="/auth/oauth/linkedin" component={React.lazy(() => import('../pages/auth/oauth/linkedin'))} />
-          <Route path="/auth/oauth/twitter" component={React.lazy(() => import('../pages/auth/oauth/twitter'))} />
-          <Route path="/auth/confirm" component={React.lazy(() => import('../pages/auth/confirm'))} />
-          <Route path="/auth/forgotpassword" component={React.lazy(() => import('../pages/auth/forgotpassword'))} />
-          <Route path="/auth/magiclink" component={React.lazy(() => import('../pages/auth/magiclink'))} />
 
           <Route
             path="/offline/:locationName"
@@ -104,8 +89,8 @@ class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: 
           <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />
 
           {/* Custom Routes */}
-          {this.state.customRoutes.map(({ id, route, file }) => {
-            return <Route key={id} path={route} component={React.lazy(() => import(`${file}.tsx`))} />
+          {this.state.customRoutes.map(({ route, page }) => {
+            return <Route key={i++} path={'/' + route} component={React.lazy(() => page)} />
           })}
 
           <Route path="*" component={React.lazy(() => import('../pages/404'))} />

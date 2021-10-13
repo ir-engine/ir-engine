@@ -1,12 +1,12 @@
 export default {
   definitions: {
-    route: {
+    project: {
       type: 'string',
-      description: 'URL route'
+      description: 'The project to add routes from'
     },
-    file: {
+    routes: {
       type: 'string',
-      description: 'ESM .tsx import that returns a react component'
+      description: 'The routes to enable for this project'
     }
   }
 }

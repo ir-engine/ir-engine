@@ -1,6 +1,7 @@
 import i18n from 'i18next'
 import { Config } from '@xrengine/common/src/config'
 import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
+import { loadRoute } from '@xrengine/realitypacks/loadRoute'
 
 const serverURL = Config.publicRuntimeConfig.apiServer
 
@@ -24,11 +25,21 @@ export const getCustomRoutes = async (): Promise<any> => {
     console.log(err)
   })
 
+  const components: any[] = []
+
   if (!Array.isArray(json.data) || json.data == null) {
     throw new Error(
       i18n.t('editor:errors.fetchingRouteError', { error: json.error || i18n.t('editor:errors.unknownError') })
     )
+  } else {
+    for (const project of json.data) {
+      const pages = await loadRoute({
+        project: project.project,
+        routes: project.routes.split(',')
+      })
+      components.push(...pages)
+    }
   }
 
-  return json.data
+  return components
 }

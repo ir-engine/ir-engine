@@ -1,28 +1,27 @@
 import React, { Fragment, Suspense, useEffect } from 'react'
 import { Switch, Redirect } from 'react-router-dom'
-import { connect, useDispatch } from 'react-redux'
-import PrivateRoute from './Private'
+import { useDispatch } from 'react-redux'
+import PrivateRoute from '@xrengine/client/src/route/Private'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { bindActionCreators, Dispatch } from 'redux'
 
-const analytic = React.lazy(() => import('../pages/admin/index'))
-const avatars = React.lazy(() => import('../pages/admin/avatars'))
-const contentPacks = React.lazy(() => import('../pages/admin/content-packs'))
-const groups = React.lazy(() => import('../pages/admin/groups'))
-const instance = React.lazy(() => import('../pages/admin/instance'))
-const invites = React.lazy(() => import('../pages/admin/invites'))
-const locations = React.lazy(() => import('../pages/admin/locations'))
-const scenes = React.lazy(() => import('../pages/admin/scenes'))
-const users = React.lazy(() => import('../pages/admin/users'))
-const party = React.lazy(() => import('../pages/admin/party'))
-const botSetting = React.lazy(() => import('../pages/admin/bot'))
-const realityPacks = React.lazy(() => import('../pages/admin/reality-packs'))
-// const arMedia = React.lazy(() => import('../pages/admin/social/armedia'))
-// const feeds = React.lazy(() => import('../pages/admin/social/feeds'))
-// const creator = React.lazy(() => import('../pages/admin/social/creator'))
-const setting = React.lazy(() => import('../pages/admin/Setting'))
+const analytic = React.lazy(() => import('./pages/index'))
+const avatars = React.lazy(() => import('./pages/avatars'))
+const contentPacks = React.lazy(() => import('./pages/content-packs'))
+const groups = React.lazy(() => import('./pages/groups'))
+const instance = React.lazy(() => import('./pages/instance'))
+const invites = React.lazy(() => import('./pages/invites'))
+const locations = React.lazy(() => import('./pages/locations'))
+const scenes = React.lazy(() => import('./pages/scenes'))
+const users = React.lazy(() => import('./pages/users'))
+const party = React.lazy(() => import('./pages/party'))
+const botSetting = React.lazy(() => import('./pages/bot'))
+const realityPacks = React.lazy(() => import('./pages/reality-packs'))
+// const arMedia = React.lazy(() => import('./pages/admin/social/armedia'))
+// const feeds = React.lazy(() => import('./pages/admin/social/feeds'))
+// const creator = React.lazy(() => import('./pages/admin/social/creator'))
+const setting = React.lazy(() => import('./pages/Setting'))
 
 interface Props {}
 
