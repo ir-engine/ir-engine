@@ -13,7 +13,7 @@ import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/cr
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
-import { getPacksFromSceneData } from '@xrengine/realitypacks/loader'
+import { getPacksFromSceneData } from '@xrengine/projects/loader'
 import { initializeServerEngine } from './initializeServerEngine'
 
 const loadScene = async (app: Application, sceneId: string) => {
