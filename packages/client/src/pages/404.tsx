@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 export const Custom404 = (): any => {
+  console.log('404')
   const router = useHistory()
   const { t } = useTranslation()
   useEffect(() => {

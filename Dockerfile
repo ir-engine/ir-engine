@@ -21,7 +21,7 @@ COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/social/package.json ./packages/social/
 COPY packages/gallery/package.json ./packages/gallery/
 COPY packages/bot/package.json ./packages/bot/
-COPY packages/realitypacks/package.json ./packages/realitypacks/
+COPY packages/projects/package.json ./packages/projects/
 
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
 RUN npm install --production=false --loglevel notice --legacy-peer-deps

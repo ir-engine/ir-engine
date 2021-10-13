@@ -1,15 +1,19 @@
 import React, { Suspense } from 'react'
-import { Route, Switch, Redirect } from 'react-router-dom'
-import { Config } from '@xrengine/common/src/config'
-import ProtectedRoute from './protected'
-import EditorProtected from './EditorProtected'
-import homePage from '../pages/index'
+import { Route, Switch } from 'react-router-dom'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import { getCustomRoutes } from './getCustomRoutes'
 
 if (typeof globalThis.process === 'undefined') {
   ;(globalThis as any).process = { env: {} }
 }
-class RouterComp extends React.Component<{}, { hasError: boolean }> {
+
+type CustomRoute = {
+  id: string
+  route: string
+  page: any
+}
+
+class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: CustomRoute[] }> {
   static getDerivedStateFromError() {
     return { hasError: true }
   }
@@ -17,7 +21,20 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
   constructor(props) {
     super(props)
 
-    this.state = { hasError: false }
+    this.state = {
+      hasError: false,
+      customRoutes: []
+    }
+
+    this.getCustomRoutes()
+  }
+
+  getCustomRoutes() {
+    getCustomRoutes().then((routes) => {
+      this.setState({
+        customRoutes: routes
+      })
+    })
   }
 
   componentDidCatch() {
@@ -27,8 +44,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
   }
 
   render() {
-    if (this.state.hasError) return <div>Working...</div>
-
+    if (this.state.hasError || !this.state.customRoutes.length) return <div>Working...</div>
     return (
       <Suspense
         fallback={
@@ -45,53 +61,10 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         }
       >
         <Switch>
-          <Route path="/" component={homePage} exact />
-          <Route path="/login" component={React.lazy(() => import('../pages/login'))} />
-
-          {/* Admin Routes*/}
-          <Route path="/admin" component={ProtectedRoute} />
-
-          {/* Dev Routes */}
-          <Route path="/test" component={React.lazy(() => import('../pages/examples/test_three'))} />
-          <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
-          <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} />
-          <Route
-            path="/examples/navmeshbuilder"
-            component={React.lazy(() => import('../pages/examples/NavMeshBuilder'))}
-          />
-          <Route path="/asset-test" component={React.lazy(() => import('../pages/examples/asset-test'))} />
-          <Route path="/map-test" component={React.lazy(() => import('../pages/examples/map-test'))} />
-
-          {/* Auth Routes */}
-          <Route path="/auth/oauth/facebook" component={React.lazy(() => import('../pages/auth/oauth/facebook'))} />
-          <Route path="/auth/oauth/github" component={React.lazy(() => import('../pages/auth/oauth/github'))} />
-          <Route path="/auth/oauth/google" component={React.lazy(() => import('../pages/auth/oauth/google'))} />
-          <Route path="/auth/oauth/linkedin" component={React.lazy(() => import('../pages/auth/oauth/linkedin'))} />
-          <Route path="/auth/oauth/twitter" component={React.lazy(() => import('../pages/auth/oauth/twitter'))} />
-          <Route path="/auth/confirm" component={React.lazy(() => import('../pages/auth/confirm'))} />
-          <Route path="/auth/forgotpassword" component={React.lazy(() => import('../pages/auth/forgotpassword'))} />
-          <Route path="/auth/magiclink" component={React.lazy(() => import('../pages/auth/magiclink'))} />
-
-          {/* Location Routes */}
-          <Route
-            path="/location/:locationName"
-            component={React.lazy(() => import('../pages/location/[locationName]'))}
-          />
-          <Redirect path="/location" to={'/location/' + Config.publicRuntimeConfig.lobbyLocationName} />
-
-          <Route
-            path="/offline/:locationName"
-            component={React.lazy(() => import('../pages/offline/[locationName]'))}
-          />
-          <Route path="/offline" component={React.lazy(() => import('../pages/offline/[locationName]'))} />
-          <Route path="/event/:locationName" component={React.lazy(() => import('../pages/location/[locationName]'))} />
-
-          {/* Harmony Routes */}
-          <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />
-
-          {/* Editor Routes */}
-          <Route path="/editor" component={EditorProtected} />
-
+          {/* this needs to have the map function */}
+          {this.state.customRoutes.map((r) => r)}
+          {/* if no index page has been provided, indicate this as obviously as possible */}
+          <Route key={'/'} path={'/'} component={React.lazy(() => import('../pages/503'))} exact />
           <Route path="*" component={React.lazy(() => import('../pages/404'))} />
         </Switch>
       </Suspense>
