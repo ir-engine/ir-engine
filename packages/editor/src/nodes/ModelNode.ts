@@ -31,10 +31,18 @@ export default class ModelNode extends EditorNodeMixin(Model) {
 
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
-        if (textureOverride)
-          SceneManager.instance.scene.traverse((obj) => {
-            if (obj.uuid === textureOverride) node.textureOverride = obj.uuid
-          })
+        if (textureOverride) {
+          setTimeout(
+            function (node, textureOverride) {
+              SceneManager.instance.scene.traverse((obj) => {
+                if (obj.uuid === textureOverride) node.textureOverride = obj.uuid
+              })
+            },
+            2000,
+            node,
+            textureOverride
+          )
+        }
 
         node.collidable = !!json.components.find((c) => c.name === 'collidable')
         node.walkable = !!json.components.find((c) => c.name === 'walkable')
