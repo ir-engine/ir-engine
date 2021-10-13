@@ -231,17 +231,18 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerInjectedSystems(SystemUpdateType.FIXED_EARLY, options.systems)
 
   // Input Systems
-  registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./avatar/ServerAvatarSpawnSystem'))
+  // registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
+  // registerSystem(SystemUpdateType.FIXED, import('./avatar/ServerAvatarSpawnSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
 
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
-  registerSystemWithArgs(SystemUpdateType.FIXED_LATE, import('./physics/systems/PhysicsSystem'), {
-    simulationEnabled: options.physics.simulationEnabled
-  })
+
+  // registerSystemWithArgs(SystemUpdateType.FIXED_LATE, import('./physics/systems/PhysicsSystem'), {
+  //   simulationEnabled: options.physics.simulationEnabled
+  // })
 
   registerInjectedSystems(SystemUpdateType.FIXED_LATE, options.systems)
 

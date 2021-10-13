@@ -94,7 +94,7 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
  
  export function useTournamentState() {
    console.clear()
-   return JSON.stringify(TournamentState.attach(Downgraded).value, null, 2)//useState(TournamentState) as any as typeof TournamentState
+   return JSON.parse(JSON.stringify(TournamentState.attach(Downgraded).value, null, 2))//useState(TournamentState) as any as typeof TournamentState
  }
 
  // IMPORTANT : For FLUX pattern, consider state immutable outside a receptor

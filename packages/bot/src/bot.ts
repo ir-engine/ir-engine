@@ -90,7 +90,7 @@ export class XREngineBot {
     this.verbose = args.verbose
     this.headless = args.headless ?? true
     this.ci = typeof process.env.CI === 'string' && process.env.CI === 'true'
-    console.log('headless', this.headless)
+   // console.log('headless', this.headless)
     this.name = args.name ?? 'Bot'
     this.fakeMediaPath = args.fakeMediaPath ?? ''
     this.windowSize = args.windowSize ?? { width: 640, height: 480 }
@@ -172,7 +172,7 @@ export class XREngineBot {
   }
 
   async delay(timeout) {
-    console.log(`Waiting for ${timeout} ms... `)
+    //console.log(`Waiting for ${timeout} ms... `)
     await this.waitForTimeout(timeout)
   }
 
@@ -368,7 +368,7 @@ export class XREngineBot {
 
     this.page = await this.browser.newPage()
     this.page.on('close', () => {
-      console.log('[XRENGINE BOT]: page closed')
+     // console.log('[XRENGINE BOT]: page closed')
       this.page = undefined
     })
 
@@ -399,7 +399,7 @@ export class XREngineBot {
 
     let parsedUrl = new URL(url)
     const context = this.browser.defaultBrowserContext()
-    console.log('permission allow for ', parsedUrl.origin)
+    //console.log('permission allow for ', parsedUrl.origin)
     context.overridePermissions(parsedUrl.origin, ['microphone', 'camera'])
 
     console.log('Going to ' + url)
@@ -409,7 +409,7 @@ export class XREngineBot {
       // @ts-ignore
       return (await navigator.permissions.query({ name: 'camera' })).state
     })
-    console.log('Granted:', granted)
+    //console.log('Granted:', granted)
   }
 
   /** Enters the room specified, enabling the first microphone and speaker found

@@ -1,5 +1,5 @@
-const teamsNeededForStart = 2;
-const timeOut = 5000
+const teamsNeededForStart = 4;
+const timeOut = 1000
 let gameRound = 0
 let historyTemp = []
 
