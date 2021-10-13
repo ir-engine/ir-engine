@@ -16,7 +16,8 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { pipe } from 'bitecs'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { Group } from 'three'
-import { Quaternion, Vector3 } from 'three'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { avatarHalfHeight } from '../../avatar/functions/createAvatar'
 
 export const applyDelayedActions = (world: World) => {
   const { delayedActions } = world
@@ -131,13 +132,18 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
         }
 
         if (hasComponent(networkObjectEntity, ColliderComponent)) {
+          const isAvatar = hasComponent(networkObjectEntity, AvatarComponent)
           const collider = getComponent(networkObjectEntity, ColliderComponent)
-          const pos = new Vector3().fromArray(pose.position)
-          const rot = new Quaternion().fromArray(pose.rotation)
+          const pos = pose.position
+          const rot = pose.rotation
+
+          // TODO: Find a cleaner way to shift the avatar's capsule
+          const yOffset = isAvatar ? avatarHalfHeight : 0
+
           collider.body.setGlobalPose(
             {
-              translation: { x: pos.x, y: pos.y, z: pos.z },
-              rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w }
+              translation: { x: pos[0], y: pos[1] + yOffset, z: pos[2] },
+              rotation: { x: rot[0], y: rot[1], z: rot[2], w: rot[3] }
             },
             true
           )

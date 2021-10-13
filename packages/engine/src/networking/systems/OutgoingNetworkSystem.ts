@@ -4,7 +4,7 @@ import { Network } from '../classes/Network'
 import { World } from '../../ecs/classes/World'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
-import { WorldStateInterface, WorldStateModel } from '../schema/networkSchema'
+import { WorldStateModel } from '../schema/networkSchema'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
@@ -234,10 +234,7 @@ export const queueUnchangedPosesForClient = (world: World) => {
 export const queueUnchangedIkPoses = (world: World) => {
   const { outgoingNetworkState, previousNetworkState } = world
 
-  const ents = ikTransformsQuery(world)
-  for (let i = 0; i < ents.length; i++) {
-    const entity = ents[i]
-
+  for (const entity of ikTransformsQuery(world)) {
     const { networkId } = getComponent(entity, NetworkObjectComponent)
 
     const xrInputs = getComponent(entity, XRInputSourceComponent)
@@ -263,7 +260,7 @@ export const queueUnchangedIkPoses = (world: World) => {
         rightPosePosition,
         rightPoseRotation
       )
-    )
+    ) {
       outgoingNetworkState.ikPose.push({
         networkId,
         headPosePosition,
@@ -273,6 +270,7 @@ export const queueUnchangedIkPoses = (world: World) => {
         rightPosePosition,
         rightPoseRotation
       })
+    }
   }
   return world
 }
@@ -336,7 +334,8 @@ export const queueAllOutgoingPoses = pipe(
   resetNetworkState,
   queueUnchangedPoses, 
   queueUnchangedPosesForClient, 
-  queueXRHandPoses
+  queueXRHandPoses,
+  queueUnchangedIkPoses
 )
 
 /****************

@@ -38,7 +38,7 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 const avatarRadius = 0.25
 const avatarHeight = 1.8
 const capsuleHeight = avatarHeight - avatarRadius * 2
-const avatarHalfHeight = avatarHeight / 2
+export const avatarHalfHeight = avatarHeight / 2
 
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
   const world = useWorld()
@@ -122,6 +122,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
 
   addComponent(entity, CollisionComponent, { collisions: [] })
 
+  // If local player's avatar
   if (userId === Engine.userId) {
     addComponent(entity, SpawnPoseComponent, {
       position: new Vector3().copy(spawnAction.parameters.position),
