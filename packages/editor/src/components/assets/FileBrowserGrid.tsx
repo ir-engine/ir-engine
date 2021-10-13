@@ -16,6 +16,7 @@ import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
 import { ProjectManager } from '../../managers/ProjectManager'
 import { Folder } from '@styled-icons/fa-solid/Folder'
+import { SubMenu } from 'react-contextmenu'
 
 function collectMenuProps({ item }) {
   return { item }
@@ -31,8 +32,9 @@ function collectMenuProps({ item }) {
  * @param       {any} rest
  * @constructor
  */
-function FileBrowserItem({ contextMenuId, item, onClick, moveContent, ...rest }) {
-  // function to handle callback on click of item
+function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, onClick, moveContent, ...rest }) {
+  const { t } = useTranslation()
+
   const onClickItem = useCallback(
     (e) => {
       if (onClick) {
@@ -42,7 +44,60 @@ function FileBrowserItem({ contextMenuId, item, onClick, moveContent, ...rest })
     [item, onClick]
   )
 
-  // declaring variable for grid item content
+  const placeObject = useCallback((_, trigger) => {
+    const item = trigger.item
+
+    const node = new item.nodeClass()
+
+    if (item.initialProps) {
+      Object.assign(node, item.initialProps)
+    }
+
+    SceneManager.instance.getSpawnPosition(node.position)
+
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
+
+    if (item.projectId && globalThis.currentProjectID !== item.projectId) {
+      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
+    }
+  }, [])
+
+  const placeObjectAtOrigin = useCallback((_, trigger) => {
+    const item = trigger.item
+
+    const node = new item.nodeClass()
+
+    if (item.initialProps) {
+      Object.assign(node, item.initialProps)
+    }
+
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
+    if (item.projectId && globalThis.currentProjectID !== item.projectId)
+      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
+  }, [])
+
+  const copyURL = useCallback((_, trigger) => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(trigger.item.url)
+    }
+  }, [])
+
+  const openURL = useCallback((_, trigger) => {
+    window.open(trigger.item.url)
+  }, [])
+
+  const Copy = useCallback((_, trigger) => {
+    currentContent.current = { itemid: trigger.item.id, isCopy: true }
+  }, [])
+
+  const Cut = useCallback((_, trigger) => {
+    currentContent.current = { itemid: trigger.item.id, isCopy: false }
+  }, [])
+
+  const deleteContentCallback = (_, trigger) => {
+    deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
+  }
+
   let content
 
   if (item.type === 'folder') {
@@ -84,6 +139,22 @@ function FileBrowserItem({ contextMenuId, item, onClick, moveContent, ...rest })
           {content}
         </ContextMenuTrigger>
       </div>
+
+      <ContextMenu id={contextMenuId}>
+        <>
+          {item.type !== 'folder' && (
+            <>
+              <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
+              <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
+              <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
+              <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>
+              <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
+            </>
+          )}
+          <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
+          <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
+        </>
+      </ContextMenu>
     </div>
   )
 }
@@ -168,57 +239,6 @@ export function FileBrowserGrid({
   }, [])
 
   // creating callback function used if object get placed on viewport
-  const placeObject = useCallback((_, trigger) => {
-    const item = trigger.item
-
-    const node = new item.nodeClass()
-
-    if (item.initialProps) {
-      Object.assign(node, item.initialProps)
-    }
-
-    SceneManager.instance.getSpawnPosition(node.position)
-
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
-
-    if (item.projectId && globalThis.currentProjectID !== item.projectId) {
-      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
-    }
-  }, [])
-  //creating callback function used when we choose placeObjectAtOrigin option from context menu of AssetGridItem
-  const placeObjectAtOrigin = useCallback((_, trigger) => {
-    const item = trigger.item
-
-    const node = new item.nodeClass()
-
-    if (item.initialProps) {
-      Object.assign(node, item.initialProps)
-    }
-
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
-    if (item.projectId && globalThis.currentProjectID !== item.projectId)
-      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
-  }, [])
-
-  const copyURL = useCallback((_, trigger) => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(trigger.item.url)
-    }
-  }, [])
-
-  const openURL = useCallback((_, trigger) => {
-    window.open(trigger.item.url)
-  }, [])
-
-  const deleteContentCallback = (_, trigger) => {
-    deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
-  }
-  const Copy = (_, trigger) => {
-    currentContent.current = { itemid: trigger.item.id, isCopy: true }
-  }
-  const Cut = (_, trigger) => {
-    currentContent.current = { itemid: trigger.item.id, isCopy: false }
-  }
 
   //returning view of AssetGridItems
   return (
@@ -228,39 +248,23 @@ export function FileBrowserGrid({
         <VerticalScrollContainer flex>
           <InfiniteScroll pageStart={0} loadMore={onLoadMore} hasMore={hasMore} threshold={100} useWindow={false}>
             <MediaGrid>
-              {unique(items, 'id').map((item) => (
+              {unique(items, 'id').map((item, index) => (
                 <MemoFileGridItem
                   key={item.id}
-                  contextMenuId={uniqueId.current}
+                  contextMenuId={uniqueId.current + index}
                   item={item}
                   selected={selectedItems.indexOf(item) !== -1}
                   onClick={onSelect}
                   moveContent={moveContent}
+                  deleteContent={deleteContent}
+                  currentContent={currentContent}
                 />
               ))}
               {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
             </MediaGrid>
           </InfiniteScroll>
         </VerticalScrollContainer>
-        <ContextMenu id={uniqueId.current}>
-          {
-            <>
-              <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
-              <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-              <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
-              <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>
-              <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
-            </>
-          }
-          {
-            <>
-              <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
-              <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
-            </>
-          }
-        </ContextMenu>
       </ContextMenuTrigger>
-
       <ContextMenu id={'uniqueId.current'} hideOnLeave={true}>
         <MenuItem onClick={addNewFolder}>{t('editor:layout.filebrowser.addnewfolder')}</MenuItem>
         <MenuItem onClick={onPaste}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
