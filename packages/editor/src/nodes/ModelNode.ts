@@ -35,9 +35,13 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
         if (textureOverride) {
-          EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, (node, textureOverride) => {
+          // Using this to pass texture override uuid to event callback instead of creating a new variable
+          node.textureOverride = textureOverride
+          CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), () => {
             SceneManager.instance.scene.traverse((obj) => {
-              if (obj.uuid === textureOverride) node.textureOverride = obj.uuid
+              if (obj.uuid === node.textureOverride) {
+                node.textureOverride = obj.uuid
+              }
             })
           })
         }
