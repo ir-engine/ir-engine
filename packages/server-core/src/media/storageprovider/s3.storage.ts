@@ -10,13 +10,14 @@ import {
 } from './storageprovider.interface'
 
 export class S3Provider implements StorageProviderInterface {
+  moveContent(current: string, destination: string, isCopy: boolean): Promise<any> {
+    throw new Error('Method not implemented.')
+  }
+
   deleteContent(contentPath: string, type: string): Promise<any> {
     throw new Error('Method not implemented.')
   }
 
-  moveContent(current: string, destination: string): Promise<boolean> {
-    throw new Error('Method not implemented.')
-  }
   createDirectory(dir: any): Promise<boolean> {
     throw new Error('Method not implemented.')
   }

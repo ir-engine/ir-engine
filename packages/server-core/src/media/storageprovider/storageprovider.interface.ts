@@ -99,7 +99,7 @@ export interface StorageProviderInterface {
    * @param current
    * @param destination
    */
-  moveContent(current: string, destination: string): Promise<any>
+  moveContent(current: string, destination: string, isCopy: boolean): Promise<any>
 
   /**
    * Delete content using its path

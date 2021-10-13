@@ -155,7 +155,7 @@ export class LocalStorage implements StorageProviderInterface {
    * @param destination
    * @returns
    */
-  moveContent = async (current: string, destination: string): Promise<boolean> => {
+  moveContent = async (current: string, destination: string, isCopy: boolean): Promise<boolean> => {
     const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
     let fileName = path.basename(current)
     let fileCount = 1
@@ -169,7 +169,9 @@ export class LocalStorage implements StorageProviderInterface {
       fileCount++
     }
     try {
-      await fs.promises.rename(current, path.join(destination, fileName))
+      isCopy
+        ? await fs.promises.copyFile(current, path.join(destination, fileName))
+        : await fs.promises.rename(current, path.join(destination, fileName))
     } catch (err) {
       return false
     }

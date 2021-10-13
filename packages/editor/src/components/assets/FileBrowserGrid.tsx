@@ -62,7 +62,7 @@ function FileBrowserItem({ contextMenuId, item, onClick, moveContent, ...rest })
   const [{ isOver, canDrop, moni }, drop] = useDrop({
     accept: [...ItemTypes.FileBrowserContent],
     drop: (dropItem) => {
-      moveContent((dropItem as any).id, { destination: item.id })
+      moveContent((dropItem as any).id, item.id)
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -156,7 +156,8 @@ export function FileBrowserGrid({
   hasMore,
   moveContent,
   deleteContent,
-  source
+  currentContent,
+  onPaste
 }) {
   const uniqueId = useRef(`FileGrid${lastId}`)
   const { t } = useTranslation()
@@ -213,13 +214,10 @@ export function FileBrowserGrid({
     deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
   }
   const Copy = (_, trigger) => {
-    deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
+    currentContent.current = { itemid: trigger.item.id, isCopy: true }
   }
   const Cut = (_, trigger) => {
-    deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
-  }
-  const Paste = (_, trigger) => {
-    deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
+    currentContent.current = { itemid: trigger.item.id, isCopy: false }
   }
 
   //returning view of AssetGridItems
@@ -265,6 +263,7 @@ export function FileBrowserGrid({
 
       <ContextMenu id={'uniqueId.current'} hideOnLeave={true}>
         <MenuItem onClick={addNewFolder}>{t('editor:layout.filebrowser.addnewfolder')}</MenuItem>
+        <MenuItem onClick={onPaste}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>
     </>
   )
@@ -281,6 +280,8 @@ FileBrowserGrid.propTypes = {
   deleteContent: PropTypes.func,
   onLoadMore: PropTypes.func.isRequired,
   hasMore: PropTypes.bool,
+  currentContent: PropTypes.any,
+  onPaste: PropTypes.func,
   selectedItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.any.isRequired,

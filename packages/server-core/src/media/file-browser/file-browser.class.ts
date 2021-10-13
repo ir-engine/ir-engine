@@ -21,7 +21,7 @@ export class FileBrowserService implements ServiceMethods<any> {
   }
   async update(id: NullableId, data, params?: Params) {
     if (id || data.destination) {
-      const result = await this.store.moveContent(id as string, data.destination)
+      const result = await this.store.moveContent(id as string, data.destination, data.isCopy)
       return result
     }
     return false

@@ -131,10 +131,10 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     setSelectedDirectory(newPath)
   }
 
-  const moveContent = (from, to) => {
+  const moveContent = (from, to, isCopy = false) => {
     ProjectManager.instance.feathersClient
       .service('file-browser')
-      .update(from, to)
+      .update(from, { destination: to, isCopy })
       .then((res) => {
         if (res) renderProjectFiles(selectedDirectory)
       })
@@ -151,9 +151,12 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       .catch(() => console.log('Error on Deletion'))
   }
 
-  const copyContent = (to, from, isCut = false) => {}
+  const pasteContent = () => {
+    moveContent(currentContentRef.current.itemid, selectedDirectory, currentContentRef.current.isCopy)
+  }
 
-  const pasteContent = () => {}
+  let currentContent = null
+  const currentContentRef = useRef(currentContent)
 
   return (
     <>
@@ -171,6 +174,8 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
             addNewFolder={addNewFolder}
             moveContent={moveContent}
             deleteContent={deleteContent}
+            currentContent={currentContentRef}
+            onPaste={pasteContent}
           />
         </AssetPanelContentContainer>
       </AssetsPanelContainer>
