@@ -60,4 +60,8 @@ export default class MapCache<Key extends any[], Value> implements IArrayKeyedMa
   values() {
     return this.map.values()
   }
+
+  clear() {
+    this.map.clear()
+  }
 }

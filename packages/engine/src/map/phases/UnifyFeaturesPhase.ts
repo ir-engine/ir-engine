@@ -1,4 +1,4 @@
-import { Store } from '../functions/createStore'
+import { MapStateUnwrapped } from '../types'
 import unifyCachedFeatures from '../functions/unifyCachedFeatures'
 
 export const name = 'unify features'
@@ -9,8 +9,10 @@ export function* getTaskKeys() {
   yield null
 }
 
-export function execTask(store: Store) {
-  unifyCachedFeatures(store.featureCache)
+export function execTask(state: MapStateUnwrapped) {
+  unifyCachedFeatures(state.featureCache)
 }
 
 export function cleanup() {}
+
+export function reset() {}

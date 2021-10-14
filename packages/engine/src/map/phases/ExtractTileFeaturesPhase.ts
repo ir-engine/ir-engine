@@ -1,26 +1,26 @@
-import { FeatureKey, SupportedFeature, TaskStatus, TileKey, VectorTile } from '../types'
+import { MapStateUnwrapped, FeatureKey, SupportedFeature, TaskStatus, TileKey, VectorTile } from '../types'
 import { SUPPORTED_LAYERS, SUPPORTED_GEOMETRIES, TILE_ZOOM } from '../constants'
 import zipIndexes from '../zipIndexes'
 import getFeaturesFromVectorTileLayer from '../functions/getFeaturesFromVectorTileLayer'
-import { Store } from '../functions/createStore'
 
 export const name = 'extract tile features'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 
-export function getTaskKeys(store: Store) {
-  return store.tileCache.keys()
+export function getTaskKeys(state: MapStateUnwrapped) {
+  console.log('tileCache size', state.tileCache.map.map.size)
+  return state.tileCache.keys()
 }
 
-export function getTaskStatus(store: Store, key: TileKey) {
-  return store.extractTilesTasks.get(key)
+export function getTaskStatus(state: MapStateUnwrapped, key: TileKey) {
+  return state.extractTilesTasks.get(key)
 }
-export function setTaskStatus(store: Store, key: TileKey, status: TaskStatus) {
-  return store.extractTilesTasks.set(key, status)
+export function setTaskStatus(state: MapStateUnwrapped, key: TileKey, status: TaskStatus) {
+  return state.extractTilesTasks.set(key, status)
 }
 
-export function execTask(store: Store, key: TileKey) {
-  const vectorTile = store.tileCache.get(key)
+export function execTask(state: MapStateUnwrapped, key: TileKey) {
+  const vectorTile = state.tileCache.get(key)
   const [x, y] = key
   if (vectorTile) {
     for (const layerName of SUPPORTED_LAYERS) {
@@ -33,24 +33,31 @@ export function execTask(store: Store, key: TileKey) {
       )) {
         if (SUPPORTED_GEOMETRIES.includes(feature.geometry.type)) {
           const featureKey = [layerName, x, y, `${index}`] as FeatureKey
-          store.featureCache.set(featureKey, feature as SupportedFeature)
-          store.featureMeta.set(featureKey, { tileKey: key })
-          store.tileMeta.get(key).cachedFeatureKeys.add(featureKey)
+          state.featureCache.set(featureKey, feature as SupportedFeature)
+          state.featureMeta.set(featureKey, { tileKey: key })
+          state.tileMeta.get(key).cachedFeatureKeys.add(featureKey)
         }
       }
     }
   }
 }
 
-export function cleanup(store: Store) {
-  for (const [featureKey] of store.featureCache.evictLeastRecentlyUsedItems()) {
-    const { tileKey } = store.featureMeta.get(featureKey)
-    const { cachedFeatureKeys } = store.tileMeta.get(tileKey)
+export function cleanup(state: MapStateUnwrapped) {
+  for (const [featureKey] of state.featureCache.evictLeastRecentlyUsedItems()) {
+    const { tileKey } = state.featureMeta.get(featureKey)
+    const { cachedFeatureKeys } = state.tileMeta.get(tileKey)
     cachedFeatureKeys.delete(featureKey)
     if (cachedFeatureKeys.size === 0) {
-      store.extractTilesTasks.delete(tileKey)
-      store.tileCache.delete(tileKey)
-      store.tileMeta.delete(tileKey)
+      state.extractTilesTasks.delete(tileKey)
+      state.tileCache.delete(tileKey)
+      state.tileMeta.delete(tileKey)
     }
   }
+}
+
+export function reset(state: MapStateUnwrapped) {
+  state.extractTilesTasks.clear()
+  state.tileMeta.clear()
+  state.featureCache.clear()
+  state.featureMeta.clear()
 }

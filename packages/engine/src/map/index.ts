@@ -7,7 +7,6 @@ export function getStartCoords(props: MapProps): Promise<LongLat> {
       navigator.geolocation.getCurrentPosition(({ coords }) => resolve([coords.longitude, coords.latitude]), reject)
     )
   }
-
   // Default to downtown ATL
   return Promise.resolve([
     props.startLongitude ? parseFloat(props.startLongitude) : -84.388,

@@ -61,4 +61,9 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
   values() {
     return this.map.values()
   }
+
+  clear() {
+    this.map.clear()
+    this.keySources.clear()
+  }
 }

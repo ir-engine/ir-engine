@@ -16,3 +16,6 @@ export const SUPPORTED_GEOMETRIES: readonly Geometry['type'][] = Object.freeze([
   'MultiLineString'
 ])
 export const TILE_ZOOM = 16
+
+export const MAX_CACHED_TILES = 32
+export const MAX_CACHED_FEATURES = 1024 * MAX_CACHED_TILES

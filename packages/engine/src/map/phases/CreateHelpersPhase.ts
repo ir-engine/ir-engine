@@ -1,40 +1,44 @@
-import { Store } from '../functions/createStore'
 import createUsingCache from '../functions/createUsingCache'
 import { createConvexMultiPolygonHelper } from '../helpers/PolygonHelpers'
-import { TaskStatus, TileKey } from '../types'
+import { TaskStatus, TileKey, MapStateUnwrapped } from '../types'
 
 export const name = 'create helpers'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 
-const createHelpersUsingCache = createUsingCache((store: Store, ...key: TileKey) => {
-  const polygons = store.tileNavMeshCache.get(key)
+const createHelpersUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: TileKey) => {
+  const polygons = state.tileNavMeshCache.get(key)
   // const tileNavMesh = createPolygonHelper(polygons[0])
   const tileNavMesh = createConvexMultiPolygonHelper(polygons)
-  tileNavMesh.scale.setScalar(1 / store.scale)
+  tileNavMesh.scale.setScalar(1 / state.scale)
   return {
     tileNavMesh
   }
 })
 
-export function getTaskKeys(store: Store) {
-  return store.tileNavMeshCache.keys()
+export function getTaskKeys(state: MapStateUnwrapped) {
+  return state.tileNavMeshCache.keys()
 }
 
-export function getTaskStatus(store: Store, key: TileKey) {
-  return store.helpersTasks.get(key)
+export function getTaskStatus(state: MapStateUnwrapped, key: TileKey) {
+  return state.helpersTasks.get(key)
 }
-export function setTaskStatus(store: Store, key: TileKey, status: TaskStatus) {
-  return store.tileNavMeshTasks.set(key, status)
-}
-
-export function execTask(store: Store, key: TileKey) {
-  return createHelpersUsingCache(store.helpersCache, key, store)
+export function setTaskStatus(state: MapStateUnwrapped, key: TileKey, status: TaskStatus) {
+  return state.tileNavMeshTasks.set(key, status)
 }
 
-export function cleanup(store: Store) {
-  for (const [key, value] of store.helpersCache.evictLeastRecentlyUsedItems()) {
-    store.helpersTasks.delete(key)
+export function execTask(state: MapStateUnwrapped, key: TileKey) {
+  return createHelpersUsingCache(state.helpersCache, key, state)
+}
+
+export function cleanup(state: MapStateUnwrapped) {
+  for (const [key, value] of state.helpersCache.evictLeastRecentlyUsedItems()) {
+    state.helpersTasks.delete(key)
     value.tileNavMesh.geometry.dispose()
   }
+}
+
+export function reset(state: MapStateUnwrapped) {
+  state.helpersTasks.clear()
+  state.helpersCache.clear()
 }

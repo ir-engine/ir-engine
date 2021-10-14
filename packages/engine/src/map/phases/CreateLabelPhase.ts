@@ -1,17 +1,16 @@
 import { Feature, LineString, MultiLineString } from 'geojson'
-import { FeatureKey, TaskStatus } from '../types'
+import { FeatureKey, TaskStatus, MapStateUnwrapped } from '../types'
 import createUsingCache from '../functions/createUsingCache'
 import createFeatureLabel from '../functions/createFeatureLabel'
-import { Store } from '../functions/createStore'
 
 export const name = 'create label'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 
-export function* getTaskKeys(store: Store) {
-  for (const key of store.completeObjects.keys()) {
-    const feature = store.featureCache.get(key)
-    const transformed = store.transformedFeatureCache.get(key)
+export function* getTaskKeys(state: MapStateUnwrapped) {
+  for (const key of state.completeObjects.keys()) {
+    const feature = state.featureCache.get(key)
+    const transformed = state.transformedFeatureCache.get(key)
     if (
       key[0] === 'road' &&
       transformed &&
@@ -24,27 +23,32 @@ export function* getTaskKeys(store: Store) {
   }
 }
 
-export function getTaskStatus(store: Store, key: FeatureKey) {
-  return store.labelTasks.get(key)
+export function getTaskStatus(state: MapStateUnwrapped, key: FeatureKey) {
+  return state.labelTasks.get(key)
 }
-export function setTaskStatus(store: Store, key: FeatureKey, status: TaskStatus) {
-  return store.labelTasks.set(key, status)
+export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status: TaskStatus) {
+  return state.labelTasks.set(key, status)
 }
 
-const createLabelUsingCache = createUsingCache((store: Store, ...key: FeatureKey) => {
-  const feature = store.featureCache.get(key)
-  const label = createFeatureLabel(feature.properties.name, feature as Feature<LineString>, store.originalCenter)
+const createLabelUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: FeatureKey) => {
+  const feature = state.featureCache.get(key)
+  const label = createFeatureLabel(feature.properties.name, feature as Feature<LineString>, state.originalCenter)
   label.mesh.update()
   return label
 })
 
-export function execTask(store: Store, key: FeatureKey) {
-  return createLabelUsingCache(store.labelCache, key, store)
+export function execTask(state: MapStateUnwrapped, key: FeatureKey) {
+  return createLabelUsingCache(state.labelCache, key, state)
 }
 
-export function cleanup(store: Store) {
-  for (const [key, value] of store.labelCache.evictLeastRecentlyUsedItems()) {
-    store.labelCache.delete(key)
+export function cleanup(state: MapStateUnwrapped) {
+  for (const [key, value] of state.labelCache.evictLeastRecentlyUsedItems()) {
+    state.labelCache.delete(key)
     value.mesh.dispose()
   }
+}
+
+export function reset(state: MapStateUnwrapped) {
+  state.labelTasks.clear()
+  state.labelCache.clear()
 }
