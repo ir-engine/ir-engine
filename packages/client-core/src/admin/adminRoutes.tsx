@@ -1,7 +1,7 @@
 import React, { Fragment, Suspense, useEffect } from 'react'
 import { Switch, Redirect } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import PrivateRoute from '@xrengine/client/src/route/Private'
+import PrivateRoute from '../Private'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { useAuthState } from '../user/reducers/auth/AuthState'
 import { AuthService } from '../user/reducers/auth/AuthService'
