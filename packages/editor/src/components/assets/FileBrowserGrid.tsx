@@ -99,12 +99,38 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
   }
 
   let content
+  const onNameChanged = (event) => {
+    if (event.key !== 'Enter') return
+
+    const fileName = event.currentTarget.value
+    console.log('newName is:' + item.id)
+    const re = /(?<dir>.*\/)(?:.*)(?<ext>\..*)/
+    const matchgroups = (item.id as string).match(re).groups
+    const newName = `${fileName}${matchgroups.ext}`
+    moveContent(item.id, matchgroups.dir, false, newName)
+  }
 
   if (item.type === 'folder') {
-    content = <IconMediaGridItem iconComponent={Folder} onDoubleClick={onClickItem} label={item.label} {...rest} />
+    content = (
+      <IconMediaGridItem
+        iconComponent={Folder}
+        onDoubleClick={onClickItem}
+        label={item.label}
+        isRenaming={true}
+        onNameChanged={onNameChanged}
+        {...rest}
+      />
+    )
   } else {
     content = (
-      <IconMediaGridItem iconComponent={item.iconComponent} onClick={onClickItem} label={item.label} {...rest} />
+      <IconMediaGridItem
+        iconComponent={item.iconComponent}
+        onClick={onClickItem}
+        label={item.label}
+        isRenaming={true}
+        onNameChanged={onNameChanged}
+        {...rest}
+      />
     )
   }
 

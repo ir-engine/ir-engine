@@ -10,7 +10,7 @@ import {
 } from './storageprovider.interface'
 
 export class S3Provider implements StorageProviderInterface {
-  moveContent(current: string, destination: string, isCopy: boolean): Promise<any> {
+  moveContent(current: string, destination: string, isCopy: boolean, renameTo: string): Promise<any> {
     throw new Error('Method not implemented.')
   }
 

@@ -1,6 +1,7 @@
 import { Folder } from '@styled-icons/fa-solid'
 import React from 'react'
 import styled from 'styled-components'
+import Input from '../inputs/Input'
 
 /**
  *
@@ -124,6 +125,24 @@ const MediaGridItemLabel = (styled as any).div`
 
 /**
  *
+ * @author Abhishek Pathak
+ */
+const MediaGridInputLabel = (styled as any).input`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  :disabled{
+    background: red;
+    border-color:#dddddd;
+  }
+  text-align:center;
+  :hover{
+    background:blue;
+  }
+`
+
+/**
+ *
  * @author Robert Long
  * @param {any} label
  * @param {any} src
@@ -177,12 +196,13 @@ export function ImageMediaGridItem({ label, src, ...rest }: ImageMediaGridItemPr
 /**
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  * @param {any} label
  * @param {IconComponent} IconComponent
  * @param {any} rest
  * @returns
  */
-export function IconMediaGridItem({ label, iconComponent: IconComponent, ...rest }) {
+export function IconMediaGridItem({ label, iconComponent: IconComponent, onNameChanged, isRenaming = false, ...rest }) {
   return (
     <>
       <MediaGridItemContainer {...rest}>
@@ -193,31 +213,7 @@ export function IconMediaGridItem({ label, iconComponent: IconComponent, ...rest
         </MediaGridItemContent>
       </MediaGridItemContainer>
       <MediaGridItemLabelContainer>
-        <MediaGridItemLabel>{label}</MediaGridItemLabel>
-      </MediaGridItemLabelContainer>
-    </>
-  )
-}
-
-/**
- *
- * @author Abhishek Pathak
- * @param {any} label
- * @param {any} rest
- * @returns
- */
-export function FolderGridItem({ label, ...rest }) {
-  return (
-    <>
-      <MediaGridItemContainer {...rest}>
-        <MediaGridItemContent>
-          <MediaGridItemIconContainer>
-            <Folder size={48} />
-          </MediaGridItemIconContainer>
-        </MediaGridItemContent>
-      </MediaGridItemContainer>
-      <MediaGridItemLabelContainer>
-        <MediaGridItemLabel>{label}</MediaGridItemLabel>
+        <MediaGridInputLabel placeholder={label} disabled={!isRenaming} onKeyDown={onNameChanged} />
       </MediaGridItemLabelContainer>
     </>
   )

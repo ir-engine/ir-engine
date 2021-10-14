@@ -98,8 +98,10 @@ export interface StorageProviderInterface {
    * Move content to/from a directory
    * @param current
    * @param destination
+   * @param isCopy
+   * @param isRename
    */
-  moveContent(current: string, destination: string, isCopy: boolean): Promise<any>
+  moveContent(current: string, destination: string, isCopy: boolean, isRename: string): Promise<any>
 
   /**
    * Delete content using its path

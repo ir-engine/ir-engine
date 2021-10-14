@@ -153,11 +153,13 @@ export class LocalStorage implements StorageProviderInterface {
    * @author Abhishek Pathak
    * @param current
    * @param destination
+   * @param isCopy
+   * @param renameTo
    * @returns
    */
-  moveContent = async (current: string, destination: string, isCopy: boolean): Promise<boolean> => {
+  moveContent = async (current: string, destination: string, isCopy: boolean, renameTo: string): Promise<boolean> => {
     const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
-    let fileName = path.basename(current)
+    let fileName = renameTo != null ? renameTo : path.basename(current)
     let fileCount = 1
     const file = fileName.split('.')
     current = path.join(contentpath, current)
