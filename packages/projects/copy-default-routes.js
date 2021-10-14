@@ -40,5 +40,7 @@ function copyFolderRecursiveSync( source, target ) {
 
 if ( !fs.existsSync( path.join(__dirname, '/projects') ) ) {
   fs.mkdirSync(path.join(__dirname, '/projects'))
+  if ( !fs.existsSync( path.join(__dirname, '/projects/theoverlay') ) ) {
+    copyFolderRecursiveSync(path.join(__dirname, '/templates/theoverlay'), path.join(__dirname, '/projects'))
+  }
 }
-copyFolderRecursiveSync(path.join(__dirname, '/templates/theoverlay'), path.join(__dirname, '/projects'))

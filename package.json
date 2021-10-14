@@ -74,7 +74,8 @@
     "precommit": "no-master-commits -b master",
     "make-user-admin": "ts-eager scripts/make-user-admin.js",
     "install-reality-packs": "ts-eager scripts/install-reality-packs.js",
-    "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json"
+    "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
+    "postinstall": "cd packages/projects && node copy-default-routes.js"
   },
   "types": "lib/",
   "pre-commit": [
