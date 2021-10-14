@@ -1,5 +1,5 @@
-import RealityPacks from '@xrengine/client-core/src/admin/components/RealityPack/RealityPack'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import RealityPacks from '../components/RealityPack/RealityPack'
+import { AuthService } from '../../user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 

@@ -3,8 +3,8 @@ import { Switch, Redirect } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import PrivateRoute from '@xrengine/client/src/route/Private'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { useAuthState } from '../user/reducers/auth/AuthState'
+import { AuthService } from '../user/reducers/auth/AuthService'
 
 const analytic = React.lazy(() => import('./pages/index'))
 const avatars = React.lazy(() => import('./pages/avatars'))

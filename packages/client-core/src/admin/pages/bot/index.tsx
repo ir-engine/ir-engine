@@ -1,6 +1,6 @@
 import React from 'react'
-import BotsCore from '@xrengine/client-core/src/admin/components/Bots'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import BotsCore from '../../components/Bots'
+import { AuthService } from '../../../user/reducers/auth/AuthService'
 import { useDispatch } from 'react-redux'
 
 interface Props {}
