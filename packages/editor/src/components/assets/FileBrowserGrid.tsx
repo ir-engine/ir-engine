@@ -103,11 +103,17 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
     if (event.key !== 'Enter') return
 
     const fileName = event.currentTarget.value
-    console.log('newName is:' + item.id)
-    const re = /(?<dir>.*\/)(?:.*)(?<ext>\..*)/
-    const matchgroups = (item.id as string).match(re).groups
-    const newName = `${fileName}${matchgroups.ext}`
-    moveContent(item.id, matchgroups.dir, false, newName)
+
+    if (item.type !== 'folder') {
+      const re = /(?<dir>.*\/)(?:.*)(?<ext>\..*)/
+      const matchgroups = (item.id as string).match(re).groups
+      const newName = `${fileName}${matchgroups.ext}`
+      moveContent(item.id, matchgroups.dir, false, newName)
+    } else {
+      const re2 = /(?<dir>.*\/)(.*)\//
+      const grou = (item.id as string).match(re2).groups
+      moveContent(item.id, grou.dir, false, fileName)
+    }
   }
 
   if (item.type === 'folder') {
