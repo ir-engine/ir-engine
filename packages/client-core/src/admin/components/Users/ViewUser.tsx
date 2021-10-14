@@ -110,16 +110,17 @@ const ViewUser = (props: Props) => {
   }, [
     adminUserState.users.updateNeeded.value,
     adminUserState.staticResource.updateNeeded.value,
-    user,
+    user.id.value,
     refetch,
-    singleUser.updateNeeded.value
+    singleUser.updateNeeded.value,
+    adminScopeState.scopeType.updateNeeded.value
   ])
 
   React.useEffect(() => {
     if (!refetch) {
       setRefetch(true)
     }
-  }, [userAdmin.id])
+  }, [userAdmin.id, refetch])
 
   React.useEffect(() => {
     if (singleUserData) {
@@ -130,7 +131,7 @@ const ViewUser = (props: Props) => {
         scopeType: userAdmin.scopes || []
       })
     }
-  }, [singleUserData])
+  }, [singleUserData.value])
   const defaultProps = {
     options: userRoleData,
     getOptionLabel: (option: any) => option.role
