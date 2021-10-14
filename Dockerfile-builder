@@ -21,7 +21,7 @@ COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/social/package.json ./packages/social/
 COPY packages/gallery/package.json ./packages/gallery/
 COPY packages/bot/package.json ./packages/bot/
-COPY packages/projects/package.json ./packages/projects/
+COPY packages/projects/ ./packages/projects/
 
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
 
