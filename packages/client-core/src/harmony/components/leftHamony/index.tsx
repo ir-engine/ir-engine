@@ -10,7 +10,7 @@ import UserList from './UserList'
 const LeftHarmony = () => {
   const classes = useUserStyles()
   const classx = useStyle()
-  const [chatType, setChatType] = React.useState('Instance')
+  const [chatType, setChatType] = React.useState('Party')
 
   const handleChangeType = (event) => {
     setChatType(event.target.value)

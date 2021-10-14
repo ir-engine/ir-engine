@@ -28,14 +28,14 @@ export default function RightHarmony() {
   const messageEl = messageRef.current
   const selfUser = useAuthState().user
   const chatState = useChatState()
+  const targetObject = chatState.targetObject
+  const targetObjectType = chatState.targetObjectType
   const channelState = chatState.channels
   const channels = channelState.channels.value
   const channelEntries = Object.values(channels).filter((channel) => !!channel)!
   const targetChannelId = chatState.targetChannelId.value
-  const instanceChannel = channelEntries.find((entry) => entry.instanceId != null)!
   const activeChannel = channels[targetChannelId]
   const channelRef = useRef(channels)
-
   const openInviteModel = (open: boolean) => {
     setOpenInvite(open)
   }
@@ -71,14 +71,18 @@ export default function RightHarmony() {
   return (
     <div className={classes.rightRoot}>
       <div className={classes.title}>
-        <ListItemAvatar>
-          <Person />
-        </ListItemAvatar>
-        <ListItemText
-          className={classes.listText}
-          primary={activeChannel?.instance?.instanceUsers[0].name}
-          secondary={<React.Fragment>{'online'}</React.Fragment>}
-        />
+        {activeChannel?.instance && (
+          <ListItemAvatar>
+            <Person />
+          </ListItemAvatar>
+        )}
+        {activeChannel?.instance && (
+          <ListItemText
+            className={classes.listText}
+            primary={activeChannel?.instance?.instanceUsers[0].name}
+            secondary={<React.Fragment>{'online'}</React.Fragment>}
+          />
+        )}
         <div style={{ marginRight: '1.5rem' }}>
           <IconButton>
             <Call className={classes.whiteIcon} />
@@ -88,7 +92,27 @@ export default function RightHarmony() {
           </IconButton>
         </div>
       </div>
-      {activeChannel && <MessageList activeChannel={activeChannel} selfUser={selfUser} />}
+      {activeChannel?.messages?.length > 0 && (
+        <MessageList
+          targetObjectType={targetObjectType}
+          targetObject={targetObject}
+          activeChannel={activeChannel}
+          selfUser={selfUser}
+          targetChannelId={targetChannelId}
+        />
+      )}
+      {!(activeChannel?.messages?.length > 0) && (
+        <div style={{ display: 'flex', alignItems: 'center', height: '70%' }}>
+          <div className={classes.firstMessagePlaceholder}>
+            {targetObjectType.value === 'group' ? 'Create a group to start a chat within  ' : 'Start a chat with  '}
+            {targetObjectType.value === 'user' || targetObjectType.value === 'group'
+              ? targetObjectType.value
+              : targetObjectType.value === 'instance'
+              ? 'your current layer'
+              : 'your current party'}
+          </div>
+        </div>
+      )}
       <div style={{ position: 'fixed', bottom: '0' }}>
         <CreateMessage />
       </div>
