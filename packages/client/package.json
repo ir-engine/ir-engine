@@ -105,7 +105,7 @@
     "redux-immutable": "4.0.0",
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
-    "sass": "1.42.1",
+    "sass": "1.43.2",
     "semantic-ui-react": "2.0.4",
     "shaka-player": "3.2.1",
     "socket.io-client": "4.2.0",
