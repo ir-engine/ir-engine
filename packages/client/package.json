@@ -115,7 +115,7 @@
     "uuid": "8.3.2",
     "vite": "2.6.7",
     "webxr-native": "0.3.0",
-    "three": "^0.133.0"
+    "three": "0.133.1"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.5",
