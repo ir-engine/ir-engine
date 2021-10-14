@@ -1,9 +1,7 @@
 import { Clouds } from '@xrengine/engine/src/scene/classes/Clouds'
 import EditorNodeMixin from './EditorNodeMixin'
 import DirectionalPlaneHelper from '@xrengine/engine/src/scene/classes/DirectionalPlaneHelper'
-import { Vector3 } from 'three/src/math/Vector3'
-import { Vector2 } from 'three'
-import { Color } from 'three'
+import { Vector3, Vector2, Color } from 'three'
 
 const defaultCloudTextureUrl = '/clouds/cloud.png'
 

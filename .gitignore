@@ -8,11 +8,12 @@ node_modules/
 #vscode
 .vscode/
 
-# npm / yarn
+# npm / yarn / pnpm
 package-lock.json
 yarn.lock
 yarn-error.log
 .yarn/
+pnpm-lock.yaml
 
 #IDEA project
 *.iml

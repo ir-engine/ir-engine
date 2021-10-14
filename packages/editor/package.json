@@ -31,6 +31,8 @@
     "react": "^17.0.0"
   },
   "dependencies": {
+    "@feathersjs/feathers": "5.0.0-pre.10",
+    "@feathersjs/rest-client": "5.0.0-pre.10",
     "@feathersjs/client": "5.0.0-pre.14",
     "@google/model-viewer": "1.8.0",
     "@hookstate/core": "3.0.13",
@@ -110,7 +112,8 @@
     "uuid": "8.3.2",
     "video-react": "0.14.1",
     "volumetric": "0.2.28",
-    "yup": "0.32.11"
+    "yup": "0.32.11",
+    "mousetrap": "^1.6.5"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "21.0.0",
