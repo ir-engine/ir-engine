@@ -12,8 +12,8 @@ import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthS
 import Grid from '@material-ui/core/Grid'
 import CardData from './CardData'
 import ViewFeed from './ViewFeed'
-import { FeedService } from '../../../reducers/feed/FeedService'
-import { useFeedState } from '../../../reducers/feed/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
 
 interface Props {
   feedState?: any

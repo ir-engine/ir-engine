@@ -6,12 +6,12 @@ import { SnackbarProvider } from 'notistack'
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import AppFooter from '@xrengine/social/src/components/Footer'
-import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
 // import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useWebxrNativeState } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeState'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/reducers/webxr_native/WebxrNativeState'
 
-import { WebxrNativeService } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeService'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/reducers/webxr_native/WebxrNativeService'
 
 import CreatorPopup from '@xrengine/social/src/components/popups/CreatorPopup'
 import FeedPopup from '@xrengine/social/src/components/popups/FeedPopup'
@@ -35,7 +35,7 @@ import WebXRStart from '../components/popups/WebXR'
 import { useHistory } from 'react-router-dom'
 import TemporarySolution from './TemporarySolution'
 
-import { CreatorAction } from '../reducers/creator/CreatorActions'
+import { CreatorAction } from '@xrengine/client-core/src/social/reducers/creator/CreatorActions'
 
 interface Props {}
 
@@ -73,7 +73,7 @@ const Home = (props: Props) => {
   if (
     !currentCreator?.value ||
     currentCreator?.value === null ||
-    (splashTimeout && currentCreator?.isBlocked?.value == false)
+    (splashTimeout && !currentCreator?.isBlocked?.value)
   ) {
     //add additional duration Splash after initialized user
     const splash = setTimeout(() => {

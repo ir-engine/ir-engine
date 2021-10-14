@@ -10,9 +10,9 @@ import DialogContent from '@material-ui/core/DialogContent/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText/DialogContentText'
 import { Button, Typography } from '@material-ui/core'
 import { bindActionCreators, Dispatch } from 'redux'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
 import { connect, useDispatch } from 'react-redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
 import { Link } from 'react-router-dom'
 
 const Transition = React.forwardRef(

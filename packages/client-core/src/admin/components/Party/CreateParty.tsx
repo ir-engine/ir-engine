@@ -19,6 +19,7 @@ import { PartyProps } from './variables'
 import { usePartyStyle } from './style'
 import { useLocationState } from '../../reducers/admin/location/LocationState'
 import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 const CreateParty = (props: PartyProps) => {
   const classes = usePartyStyle()
@@ -55,7 +56,7 @@ const CreateParty = (props: PartyProps) => {
     getOptionLabel: (option: any) => option.name
   }
 
-  const data = []
+  const data: Instance[] = []
   instanceData.value.forEach((element) => {
     data.push(element)
   })

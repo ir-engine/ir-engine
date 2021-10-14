@@ -27,7 +27,7 @@ export const ChannelConnectionService = {
         }
       })
       if (instance.total === 0) {
-        instanceId = null
+        instanceId = undefined
       }
     }
     const provisionResult = await client.service('instance-provision').find({
@@ -84,9 +84,9 @@ export const ChannelConnectionService = {
           channelType: instanceChannel && channelId === instanceChannel[0] ? 'instance' : 'channel',
           channelId: channelId,
           videoEnabled:
-            currentLocation?.locationSettings?.videoEnabled?.value === true ||
+            currentLocation?.location_settings?.videoEnabled?.value === true ||
             !(
-              currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+              currentLocation?.location_settings?.locationType?.value === 'showroom' &&
               user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
                 null
             ),
