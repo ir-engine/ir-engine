@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/projects",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "main": "index.ts",
   "description": "",
   "scripts": {
@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
-  "publishConfig": {  
+  "publishConfig": {
     "access": "public"
   },
   "author": "",
