@@ -1,7 +1,7 @@
-import InvitesConsole from '@xrengine/client-core/src/admin/components/Invite/index'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import InvitesConsole from '../components/Invite/index'
+import { AuthService } from '../../user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 interface Props {}
 

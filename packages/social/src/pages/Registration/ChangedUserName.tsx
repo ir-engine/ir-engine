@@ -11,7 +11,7 @@ const ChangedUserName = ({ defaultValue, updateUserName }) => {
     <TextField
       margin="none"
       size="small"
-      label={t('social:profile.lbl-username')}
+      label={t('user:usermenu.profile.lbl-username')}
       variant="outlined"
       value={myValue}
       onChange={(e) => {

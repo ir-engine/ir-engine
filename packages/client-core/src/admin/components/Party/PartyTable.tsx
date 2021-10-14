@@ -27,7 +27,7 @@ const PartyTable = (props: PartyPropsTable) => {
   const user = authState.user
   const adminPartyState = usePartyState()
   const adminParty = adminPartyState.parties
-  const adminPartyData = adminParty.parties?.data?.value ? adminParty.parties?.data?.value : []
+  const adminPartyData = adminParty.parties?.value || []
   const adminPartyCount = adminParty.total
 
   const handlePageChange = (event: unknown, newPage: number) => {

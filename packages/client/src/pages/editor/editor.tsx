@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux'
 const editorProject = React.lazy(() => import('@xrengine/editor/src/pages/projects'))
 const editorProjID = React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))
 const editorCreate = React.lazy(() => import('@xrengine/editor/src/pages/create'))
-const UnauthorisedPage = React.lazy(() => import('@xrengine/client/src/pages/403/403'))
+const UnauthorisedPage = React.lazy(() => import('../403/403'))
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 

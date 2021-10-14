@@ -8,7 +8,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import AddIcon from '@material-ui/icons/Add'
 import AppHeader from '../Header'
 import { bindActionCreators, Dispatch } from 'redux'
-import { FeedService } from '../../reducers/post/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
 
 interface Props {
   filesTarget?: any

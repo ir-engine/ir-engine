@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux'
 import { client } from '@xrengine/client-core/src/feathers'
 import { FeedLikesAction } from './FeedLikesActions'
-import { FeedAction } from '../feed/FeedActions'
+import { FeedAction } from '@xrengine/client-core/src/social/reducers/feed/FeedActions'
 import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 
 export const FeedLikesService = {
