@@ -14,10 +14,10 @@ import WhatshotIcon from '@material-ui/icons/Whatshot'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useFeedState } from '../../reducers/feed/FeedState'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
 import styles from './Featured.module.scss'
 
 interface Props {
@@ -25,73 +25,72 @@ interface Props {
   creatorId?: string
 }
 
-const Featured = ({ type, creatorId }: Props) => {
-  const [feedsList, setFeedList] = useState([])
+const Featured = ({ type, creatorId, thisData }: any) => {
   const { t } = useTranslation()
   const auth = useAuthState()
   const dispatch = useDispatch()
   const feedsState = useFeedState()
   const popupsState = usePopupsStateState()
-  useEffect(() => {
-    if (auth.user.id.value) {
-      if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
-        dispatch(FeedService.getFeeds(type, creatorId))
-      } else {
-        const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
-        userIdentityType !== 'guest'
-          ? dispatch(FeedService.getFeeds('featured'))
-          : dispatch(FeedService.getFeeds('featuredGuest'))
-      }
-    }
-  }, [type, creatorId])
+  // useEffect(() => {
+  //   if (auth.user.id.value) {
+  //     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
+  //       dispatch(FeedService.getFeeds(type, creatorId))
+  //     } else {
+  //       const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
+  //       userIdentityType !== 'guest'
+  //         ? dispatch(FeedService.getFeeds('featured'))
+  //         : dispatch(FeedService.getFeeds('featuredGuest'))
+  //     }
+  //   }
+  // }, [type, creatorId])
 
-  useEffect(
-    () =>
-      (type === 'featured' || !type) &&
-      feedsState.feeds.feedsFeaturedFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFeaturedFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
-  )
+  // useEffect(
+  //   () =>
+  //     (type === 'featured' || !type) &&
+  //     feedsState.feeds.feedsFeaturedFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsFeatured.value),
+  //   [feedsState.feeds.feedsFeaturedFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
+  // )
 
-  useEffect(
-    () =>
-      (type === 'featured' || !type) &&
-      feedsState.feeds.feedsFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
-  )
+  // useEffect(
+  //   () =>
+  //     (type === 'featured' || !type) &&
+  //     feedsState.feeds.feedsFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsFeatured.value),
+  //   [feedsState.feeds.feedsFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
+  // )
 
-  useEffect(
-    () =>
-      type === 'creator' &&
-      feedsState.feeds.feedsCreatorFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsCreator.value),
-    [feedsState.feeds.feedsCreatorFetching.value, JSON.stringify(feedsState.feeds.feedsCreator.value)]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'creator' &&
+  //     feedsState.feeds.feedsCreatorFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsCreator.value),
+  //   [feedsState.feeds.feedsCreatorFetching.value, JSON.stringify(feedsState.feeds.feedsCreator.value)]
+  // )
 
-  useEffect(
-    () =>
-      type === 'bookmark' &&
-      feedsState.feeds.feedsBookmarkFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsBookmark.value),
-    [feedsState.feeds.feedsBookmarkFetching.value, JSON.stringify(feedsState.feeds.feedsBookmark.value)]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'bookmark' &&
+  //     feedsState.feeds.feedsBookmarkFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsBookmark.value),
+  //   [feedsState.feeds.feedsBookmarkFetching.value, JSON.stringify(feedsState.feeds.feedsBookmark.value)]
+  // )
 
-  useEffect(
-    () =>
-      type === 'myFeatured' &&
-      feedsState.feeds.myFeaturedFetching.value === false &&
-      setFeedList(feedsState.feeds.myFeatured.value),
-    [feedsState.feeds.myFeaturedFetching.value, JSON.stringify(feedsState.feeds.myFeatured.value)]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'myFeatured' &&
+  //     feedsState.feeds.myFeaturedFetching.value === false &&
+  //     setFeedList(feedsState.feeds.myFeatured.value),
+  //   [feedsState.feeds.myFeaturedFetching.value, JSON.stringify(feedsState.feeds.myFeatured.value)]
+  // )
 
-  useEffect(
-    () =>
-      type === 'fired' &&
-      feedsState.feeds.feedsFiredFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsFired.value),
-    [feedsState.feeds.feedsFiredFetching.value, JSON.stringify(feedsState.feeds.feedsFired.value)]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'fired' &&
+  //     feedsState.feeds.feedsFiredFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsFired.value),
+  //   [feedsState.feeds.feedsFiredFetching.value, JSON.stringify(feedsState.feeds.feedsFired.value)]
+  // )
 
   // if(type === 'creator'){
   //     setFeedList(feedsState.get('feedsCreator'));
@@ -124,8 +123,8 @@ const Featured = ({ type, creatorId }: Props) => {
 
   return (
     <section className={styles.feedContainer}>
-      {feedsList && feedsList.length > 0 ? (
-        feedsList.map((item, itemIndex) => {
+      {thisData && thisData.length > 0 ? (
+        thisData.map((item, itemIndex) => {
           const sizeIndex =
             itemIndex === 0 || itemIndex % 8 === 0 || itemIndex % 8 === 2 || itemIndex % 8 === 5
               ? 'listItem_width2'

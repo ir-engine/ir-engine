@@ -20,7 +20,8 @@ import {
   Settings,
   SupervisorAccount,
   Toys,
-  Casino
+  Casino,
+  Shuffle
 } from '@material-ui/icons'
 import { Link, withRouter } from 'react-router-dom'
 import { useStylesForDashboard } from './styles'
@@ -43,6 +44,7 @@ const SideMenuItem = (props: Props) => {
   const scopes = useAuthState().user?.scopes?.value || []
 
   let allowedRoutes = {
+    routes: true,
     location: false,
     user: false,
     bot: false,
@@ -118,6 +120,21 @@ const SideMenuItem = (props: Props) => {
           </ListItem>
         </Link>
 
+        {allowedRoutes.routes && (
+          <Link to="/admin/routes" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              selected={'/admin/routes' === pathname}
+              style={{ color: 'white' }}
+              button
+            >
+              <Shuffle>
+                <CalendarViewDay style={{ color: 'white' }} />
+              </Shuffle>
+              <ListItemText primary={t('user:dashboard.routes')} />
+            </ListItem>
+          </Link>
+        )}
         {allowedRoutes.location || allowedRoutes.instance ? (
           <ListItem style={{ color: 'white' }} button onClick={() => setOpenLocation(!openLocation)}>
             <ListItemIcon>

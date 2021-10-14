@@ -5,7 +5,7 @@ import { Dispatch } from 'redux'
 import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { FeedFiresAction } from './FeedFiresActions'
-import { FeedAction } from '../post/FeedActions'
+import { FeedAction } from '@xrengine/client-core/src/social/reducers/feed/FeedActions'
 
 export const FeedFiresService = {
   getFeedFires: (feedId: string) => {

@@ -18,7 +18,7 @@ import { connect, useDispatch } from 'react-redux'
 import TablePagination from '@material-ui/core/TablePagination'
 import ViewCreator from './ViewCreator'
 import { CreatorService } from '@xrengine/gallery/src/reducers/creator/CreatorService'
-import { useCreatorState } from '../../../reducers/creator/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
 interface Props {}

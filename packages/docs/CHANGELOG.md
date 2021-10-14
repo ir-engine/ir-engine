@@ -59,6 +59,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+
+
+**Note:** Version bump only for package @xrengine/docs
+
+
+
+
+
 ## [0.2.27](https://github.com/barankyle/xrengine/compare/v0.2.26...v0.2.27) (2021-05-13)
 
 **Note:** Version bump only for package @xrengine/docs

@@ -1,11 +1,7 @@
 # not slim because we need github depedencies
 FROM node:16-buster
 
-RUN echo "deb [arch=amd64] http://nginx.org/packages/mainline/ubuntu/ eoan nginx\ndeb-src http://nginx.org/packages/mainline/ubuntu/ eoan nginx" >> /etc/apt/sources.list.d/nginx.list
-RUN wget http://nginx.org/keys/nginx_signing.key
-RUN apt-key add nginx_signing.key
-# ffmpeg 4+ is required
-RUN apt update && apt install -y ffmpeg=*:4.** nginx
+RUN apt update
 # Create app directory
 WORKDIR /app
 
@@ -25,7 +21,7 @@ COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/social/package.json ./packages/social/
 COPY packages/gallery/package.json ./packages/gallery/
 COPY packages/bot/package.json ./packages/bot/
-COPY packages/realitypacks/package.json ./packages/realitypacks/
+COPY packages/projects/package.json ./packages/projects/
 
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
@@ -37,7 +33,5 @@ COPY . .
 RUN npm run build-docker
 
 ENV APP_ENV=production
-ENV PORT=3030
 
-EXPOSE 3030
 CMD ["scripts/start-server.sh"]

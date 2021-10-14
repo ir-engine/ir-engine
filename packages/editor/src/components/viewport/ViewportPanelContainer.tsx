@@ -5,7 +5,7 @@ import { TransformMode } from '@xrengine/engine/src/scene/constants/transformCon
 import AssetDropZone from '../assets/AssetDropZone'
 import { addAssetAtCursorPositionOnDrop } from '../dnd'
 import * as styles from './Viewport.module.scss'
-import editorTheme from '../theme'
+import editorTheme from '@xrengine/client-core/src/util/theme'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'

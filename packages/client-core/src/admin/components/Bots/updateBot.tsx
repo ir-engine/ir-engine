@@ -24,6 +24,8 @@ import IconButton from '@material-ui/core/IconButton'
 import { InstanceService } from '../../reducers/admin/instance/InstanceService'
 import { LocationService } from '../../reducers/admin/location/LocationService'
 
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+
 interface Props {
   open: boolean
   handleClose: () => void
@@ -51,7 +53,7 @@ const UpdateBot = (props: Props) => {
     description: '',
     location: ''
   })
-  const [currentInstance, setCurrentIntance] = React.useState([])
+  const [currentInstance, setCurrentIntance] = React.useState<Instance[]>([])
   const [openAlter, setOpenAlter] = React.useState(false)
   const [error, setError] = React.useState('')
   const adminLocation = useLocationState().locations
@@ -92,14 +94,14 @@ const UpdateBot = (props: Props) => {
     setState({ ...state, [names]: value })
   }
 
-  const data = []
+  const data: Instance[] = []
   instanceData.value.forEach((element) => {
     data.push(element)
   })
 
   React.useEffect(() => {
     if (bot) {
-      const instanceFilter = data.filter((el) => el.location?.id === state.location)
+      const instanceFilter = data.filter((el) => el.locationId === state.location)
       if (instanceFilter.length > 0) {
         setState({ ...state, instance: state.instance || '' })
         setCurrentIntance(instanceFilter)

@@ -35,14 +35,14 @@ export const getInstalledRealityPacks = (realityPackClass: RealityPack) => {
   if (isDev) {
     return async (params: Params) => {
       const packs = fs
-        .readdirSync(path.resolve(__dirname, '../../../../realitypacks/packs/'), { withFileTypes: true })
+        .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
         .filter((dirent) => dirent.isDirectory())
         .map((dirent) => dirent.name)
         .map((dir) => {
           try {
             const json: RealityPackInterface = JSON.parse(
               fs.readFileSync(
-                path.resolve(__dirname, '../../../../realitypacks/packs/' + dir + '/manifest.json'),
+                path.resolve(__dirname, '../../../../projects/projects/' + dir + '/manifest.json'),
                 'utf8'
               )
             )

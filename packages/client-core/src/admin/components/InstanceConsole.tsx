@@ -27,6 +27,7 @@ import { ADMIN_PAGE_LIMIT } from '../reducers/admin/AdminState'
 import { useInstanceState } from '../reducers/admin/instance/InstanceState'
 import { InstanceService } from '../reducers/admin/instance/InstanceService'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { InstanceSeed } from '@xrengine/common/src/interfaces/Instance'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -60,15 +61,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function InstanceConsole(props: Props) {
   const classes = useStyles()
-  const initialInstance = {
-    id: '',
-    ipAddress: '',
-    currentUsers: 0,
-    locationId: ''
-  }
+
   const adminInstanceState = useInstanceState()
   const user = useAuthState().user
-  const [selectedInstance, setSelectedInstance] = useState(initialInstance)
+  const [selectedInstance, setSelectedInstance] = useState(InstanceSeed)
   const [instanceCreateOpen, setInstanceCreateOpen] = useState(false)
   const [instanceModalOpen, setInstanceModalOpen] = useState(false)
   const adminInstances = adminInstanceState.instances.instances
@@ -165,7 +161,7 @@ function InstanceConsole(props: Props) {
   const [dense, setDense] = React.useState(false)
   const [rowsPerPage, setRowsPerPage] = React.useState(ADMIN_PAGE_LIMIT)
   const [refetch, setRefetch] = React.useState(false)
-  const [instanceEdit, setInstanceEdit] = React.useState(initialInstance)
+  const [instanceEdit, setInstanceEdit] = React.useState(InstanceSeed)
   const [instanceEditing, setInstanceEditing] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [instanceId, setInstanceId] = React.useState('')
@@ -205,7 +201,7 @@ function InstanceConsole(props: Props) {
   const handleInstanceClose = (e: any): void => {
     console.log('handleInstanceClosed')
     setInstanceModalOpen(false)
-    setSelectedInstance(initialInstance)
+    setSelectedInstance(InstanceSeed)
   }
 
   const handleCreateInstanceClose = (e: any): void => {

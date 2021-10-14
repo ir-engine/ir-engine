@@ -366,10 +366,10 @@ const CreateLocation = (props: Props) => {
             </Grid>
           </Grid>
           <DialogActions>
-            <Button className={classesx.saveBtn} onClick={handleSubmit}>
+            <Button className={classes.saveBtn} onClick={handleSubmit}>
               Submit
             </Button>
-            <Button onClick={handleClose(false)} className={classesx.saveBtn}>
+            <Button onClick={handleClose(false)} className={classes.saveBtn}>
               Cancel
             </Button>
           </DialogActions>
