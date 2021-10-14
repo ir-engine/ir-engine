@@ -155,3 +155,4 @@ certs/
 *.ts.bak
 
 /packages/projects/projects/*
+!/packages/projects/projects/theoverlay/
