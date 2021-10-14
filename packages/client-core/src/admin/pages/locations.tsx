@@ -1,5 +1,5 @@
-import AdminConsole from '@xrengine/client-core/src/admin/components/Location'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import AdminConsole from '../components/Location'
+import { AuthService } from '../../user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 

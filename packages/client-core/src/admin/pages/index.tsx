@@ -1,5 +1,5 @@
-import Analytics from '@xrengine/client-core/src/admin/components/Analytics/index'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import Analytics from '../components/Analytics/index'
+import { AuthService } from '../../user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 
