@@ -1,6 +1,6 @@
 import { Feature, LineString, MultiLineString, MultiPolygon, Polygon } from 'geojson'
 import { BufferGeometry, InstancedBufferGeometry, Mesh } from 'three'
-import { _MapStateUnwrapped } from './functions/receptor'
+import { _MapStateUnwrapped } from './MapReceptor'
 
 export type MapStateUnwrapped = _MapStateUnwrapped
 
