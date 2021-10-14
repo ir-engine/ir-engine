@@ -5,7 +5,8 @@
   "description": "",
   "scripts": {
     "create-pack": "ts-eager scripts/create-reality-pack.ts",
-    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+    "update-name-gh-package": "node scripts/update-name-gh-package.js",
+    "copy-default-routes": "node scripts/copy-default-routes.js"
   },
   "repository": {
     "type": "git",
