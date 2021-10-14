@@ -6,7 +6,7 @@
   "scripts": {
     "create-pack": "ts-eager scripts/create-reality-pack.ts",
     "update-name-gh-package": "node scripts/update-name-gh-package.js",
-    "postinstall": "shx mkdir -p projects && shx cp -r templates/theoverlay/ projects/theoverlay/"
+    "postinstall": "node copy-default-routes.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/XRFoundation/XREngine#readme",
   "devDependencies": {
-    "shx": "^0.3.3"
+    "copyfiles": "^2.4.1"
   }
 }
