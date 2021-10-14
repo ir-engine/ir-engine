@@ -18,7 +18,7 @@ import { useAuthState } from '../../reducers/auth/AuthState'
 interface Props {
   auth?: any
   classes?: any
-  connectionType?: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password' | 'linkedin'
+  connectionType: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password' | 'linkedin'
 }
 
 const SingleConnection = (props: Props): any => {
@@ -39,7 +39,7 @@ const SingleConnection = (props: Props): any => {
 
     setState({
       ...state,
-      identityProvider: user.identityProviders.find((v) => v.type === connectionType)
+      identityProvider: user.identityProviders.find((v) => v.type === connectionType) || IdentityProviderSeed
     })
   }, [])
 

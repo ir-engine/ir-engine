@@ -1,8 +1,9 @@
+import { ClientSettingResult } from '@xrengine/common/src/interfaces/ClientSettingResult'
 export const ClientSettingAction = {
-  fetchedClient: (client: any) => {
+  fetchedClient: (clientSettingResult: ClientSettingResult) => {
     return {
       type: 'CLIENT_SETTING_DISPLAY' as const,
-      client: client
+      clientSettingResult: clientSettingResult
     }
   }
 }

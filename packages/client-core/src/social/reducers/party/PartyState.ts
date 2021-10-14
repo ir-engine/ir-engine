@@ -3,9 +3,10 @@ import { PartyActionType } from './PartyActions'
 
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 import _ from 'lodash'
+import { Party } from '@xrengine/common/src/interfaces/Party'
 
 const state = createState({
-  party: {},
+  party: {} as Party,
   updateNeeded: true
 })
 

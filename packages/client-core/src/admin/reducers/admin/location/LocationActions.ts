@@ -1,13 +1,14 @@
 import { Location } from '@xrengine/common/src/interfaces/Location'
-
+import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
+import { LocationTypesResult } from '@xrengine/common/src/interfaces/LocationTypesResult'
 export const LocationAction = {
-  locationsRetrieved: (locations: any) => {
+  locationsRetrieved: (locations: LocationResult) => {
     return {
       type: 'ADMIN_LOCATIONS_RETRIEVED' as const,
       locations: locations
     }
   },
-  locationRetrieved: (location: any) => {
+  locationRetrieved: (location: Location) => {
     return {
       type: 'ADMIN_LOCATION_RETRIEVED' as const,
       location: location
@@ -46,10 +47,10 @@ export const LocationAction = {
       type: 'ADMIN_LOCATION_NOT_FOUND' as const
     }
   },
-  locationTypesRetrieved: (data: any) => {
+  locationTypesRetrieved: (locationTypesResult: LocationTypesResult) => {
     return {
       type: 'ADMIN_LOCATION_TYPES_RETRIEVED' as const,
-      types: data
+      locationTypesResult: locationTypesResult
     }
   }
 }

@@ -4,6 +4,7 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { LocationActionType } from './LocationActions'
 import { Location } from '@xrengine/common/src/interfaces/Location'
+import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
 export const LOCATION_PAGE_LIMIT = 100
 
 const state = createState({
@@ -25,7 +26,7 @@ const state = createState({
     lastFetched: new Date()
   },
   locationTypes: {
-    locationTypes: [],
+    locationTypes: [] as Array<LocationType>,
     updateNeeded: true
   }
 })
@@ -69,7 +70,7 @@ const locationReceptor = (action: LocationActionType): any => {
         return s.locations.merge({ updateNeeded: true })
 
       case 'ADMIN_LOCATION_TYPES_RETRIEVED':
-        result = action.types
+        result = action.locationTypesResult
         return s.locationTypes.set({ locationTypes: result.data, updateNeeded: false })
     }
   }, action.type)
