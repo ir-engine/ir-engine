@@ -12,9 +12,12 @@ import Avatar from '@material-ui/core/Avatar'
 import { useGroupState } from '@xrengine/client-core/src/social/reducers/group/GroupState'
 import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
 import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
+import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
+import { connect, useDispatch } from 'react-redux'
 import { useUserStyles } from './style'
 
 const UserList = ({ chatType }) => {
+  const dispatch = useDispatch()
   const classes = useUserStyles()
   const userState = useUserState()
   const groupState = useGroupState()
@@ -40,10 +43,14 @@ const UserList = ({ chatType }) => {
     case 'Layer':
       data = instanceLayerUsers
       break
+    case 'Instance':
+      data = { id: selfUser.instanceId.value }
+      break
     default:
       data = []
       break
   }
+  dispatch(ChatService.updateChatTarget(chatType.toLowerCase(), data))
 
   return (
     <div>
