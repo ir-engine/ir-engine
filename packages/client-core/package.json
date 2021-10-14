@@ -109,7 +109,7 @@
     "video-react": "0.14.1",
     "volumetric": "0.2.28",
     "yup": "0.32.11",
-    "react-ga4": "1.1.1",
+    "react-ga4": "1.1.2",
     "react-lottie": "1.2.3"
   },
   "devDependencies": {
