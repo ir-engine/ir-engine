@@ -63,10 +63,14 @@ export class Creator extends Service {
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')
     )
-    const dataQuery = `SELECT * FROM creator
-       WHERE id NOT IN (select blockedId from block_creator where 
+
+    const dataQuery = `
+    SELECT creator.*, sr.url as avatar 
+   FROM creator
+    LEFT JOIN static_resource as sr ON sr.id=creator.avatarId
+       WHERE creator.id NOT IN (select blockedId from block_creator where 
          creatorId = '${creatorId}')
-         AND id NOT IN (select creatorId from block_creator where blockedId = '${creatorId}')`
+         AND creator.id NOT IN (select creatorId from block_creator where blockedId = '${creatorId}')`
 
     const creators = await this.app.get('sequelizeClient').query(dataQuery, {
       type: QueryTypes.SELECT,
