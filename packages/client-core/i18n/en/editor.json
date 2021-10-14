@@ -471,7 +471,8 @@
             "addnewfolder":"Add New Folder",
             "cutAsset":"Cut",
             "copyAsset":"Copy",
-            "pasteAsset":"Paste"
+            "pasteAsset":"Paste",
+            "renameAsset":"Rename"
         }
         
     },

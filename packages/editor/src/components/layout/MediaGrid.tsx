@@ -1,5 +1,5 @@
 import { Folder } from '@styled-icons/fa-solid'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Input from '../inputs/Input'
 
@@ -203,6 +203,14 @@ export function ImageMediaGridItem({ label, src, ...rest }: ImageMediaGridItemPr
  * @returns
  */
 export function IconMediaGridItem({ label, iconComponent: IconComponent, onNameChanged, isRenaming = false, ...rest }) {
+  const inputref = useRef(null)
+  const inputLabel = (
+    <MediaGridInputLabel placeholder={label} disabled={!isRenaming} onKeyDown={onNameChanged} ref={inputref} />
+  )
+
+  useEffect(() => {
+    if (isRenaming) inputref.current.focus()
+  }, [isRenaming])
   return (
     <>
       <MediaGridItemContainer {...rest}>
@@ -212,9 +220,7 @@ export function IconMediaGridItem({ label, iconComponent: IconComponent, onNameC
           </MediaGridItemIconContainer>
         </MediaGridItemContent>
       </MediaGridItemContainer>
-      <MediaGridItemLabelContainer>
-        <MediaGridInputLabel placeholder={label} disabled={!isRenaming} onKeyDown={onNameChanged} />
-      </MediaGridItemLabelContainer>
+      <MediaGridItemLabelContainer>{inputLabel}</MediaGridItemLabelContainer>
     </>
   )
 }

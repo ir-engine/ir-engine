@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect, memo } from 'react'
+import React, { useCallback, useRef, useEffect, memo, useState } from 'react'
 import PropTypes from 'prop-types'
 import InfiniteScroll from 'react-infinite-scroller'
 import styled from 'styled-components'
@@ -98,12 +98,11 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
     deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
   }
 
-  let content
   const onNameChanged = (event) => {
     if (event.key !== 'Enter') return
 
     const fileName = event.currentTarget.value
-
+    setRenamingAsset(false)
     if (item.type !== 'folder') {
       const re = /(?<dir>.*\/)(?:.*)(?<ext>\..*)/
       const matchgroups = (item.id as string).match(re).groups
@@ -116,13 +115,19 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
     }
   }
 
+  const rename = () => {
+    setRenamingAsset(true)
+  }
+
+  const [renamingAsset, setRenamingAsset] = useState(false)
+  let content: JSX.Element
   if (item.type === 'folder') {
     content = (
       <IconMediaGridItem
         iconComponent={Folder}
         onDoubleClick={onClickItem}
         label={item.label}
-        isRenaming={true}
+        isRenaming={renamingAsset}
         onNameChanged={onNameChanged}
         {...rest}
       />
@@ -133,7 +138,7 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
         iconComponent={item.iconComponent}
         onClick={onClickItem}
         label={item.label}
-        isRenaming={true}
+        isRenaming={renamingAsset}
         onNameChanged={onNameChanged}
         {...rest}
       />
@@ -185,6 +190,7 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
           )}
           <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
           <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
+          <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
         </>
       </ContextMenu>
     </div>

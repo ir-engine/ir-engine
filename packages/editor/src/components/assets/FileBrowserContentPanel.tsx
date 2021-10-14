@@ -152,10 +152,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       .catch(() => console.log('Error on Deletion'))
   }
 
-  // const renameContent=(fileName:string)=>{
-  //   moveContent()
-  // }
-
   const pasteContent = () => {
     moveContent(currentContentRef.current.itemid, selectedDirectory, currentContentRef.current.isCopy)
   }
