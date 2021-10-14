@@ -52,19 +52,19 @@ describe('Tournament tests', () => {
     'JoinGame',
     async () => {
       await bot.delay(3000)
-      await bot2.delay(3000)
-      await bot3.delay(3000)
-      await bot4.delay(3000)
+  //    await bot2.delay(3000)
+   //   await bot3.delay(3000)
+     // await bot4.delay(3000)
 
       const gameStateBot = await bot.runHook(BasketballHooks.UseTournamentState)
-      const gameStateBot2 = await bot2.runHook(BasketballHooks.UseTournamentState)
-      const gameStateBot3 = await bot3.runHook(BasketballHooks.UseTournamentState)
-      const gameStateBot4 = await bot4.runHook(BasketballHooks.UseTournamentState)
+  //    const gameStateBot2 = await bot2.runHook(BasketballHooks.UseTournamentState)
+   //   const gameStateBot3 = await bot3.runHook(BasketballHooks.UseTournamentState)
+   //   const gameStateBot4 = await bot4.runHook(BasketballHooks.UseTournamentState)
 
       console.log(gameStateBot.players.length)
-      console.log(gameStateBot2.players.length)
-      console.log(gameStateBot3.players.length)
-      console.log(gameStateBot4.players.length)
+    //  console.log(gameStateBot2.players.length)
+   //   console.log(gameStateBot3.players.length)
+   //   console.log(gameStateBot4.players.length)
 
       expect(gameStateBot.players.length).toBe(4)
     //  expect(gameStateBot2.players.length).toBe(4)
@@ -106,15 +106,15 @@ describe('Tournament tests', () => {
 test(
   'FinalResult',
   async () => {
-    await bot.delay(5000)
-    await bot2.delay(5000)
-    await bot3.delay(5000)
-    await bot4.delay(5000)
+    await bot.delay(10000)
+  //  await bot2.delay(10000)
+  //  await bot3.delay(10000)
+  //  await bot4.delay(10000)
     
     const gameStateBot = await bot.runHook(BasketballHooks.UseTournamentState)
     console.log(gameStateBot)
     
-      expect(gameStateBot.tournamentStage).toBe('--- Final Results ---')
+      expect(gameStateBot.tournamentStage).toBe('finalResults')
     },
     maxTimeout
   )

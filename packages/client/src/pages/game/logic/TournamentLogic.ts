@@ -10,33 +10,36 @@ export function nextStep(state) {
 }
 
 function nextStepTimeout(state) {
-    // TO DO: use matches stuff
-    console.log('state.tournamentStage', state.tournamentStage.value)
-    if (state.tournamentStage.value === '--- waiting players ---' &&
+    console.log('state.tournamentStage', '--- '+state.tournamentStage.value+' ---')
+
+    if (state.tournamentStage.value === 'waitingPlayers' &&
         state.players.length != 0 &&
         state.players.length % teamsNeededForStart === 0) {
-      state.tournamentStage.set('--- Game Start ---')
+      state.tournamentStage.set('gameStart')
       drawTeams(state)
 
-    } else if (state.tournamentStage.value === '--- Game Start ---' && state.players.length/2 === state.game.length ) {
-      state.tournamentStage.set('--- Playing ---')
+    } else if (state.tournamentStage.value === 'nextRound' && state.players.length > 1) {
+      state.tournamentStage.set('gameStart')
+      drawTeams(state)
+
+    } else if (state.tournamentStage.value === 'gameStart' && state.players.length/2 === state.game.length ) {
+      state.tournamentStage.set('teamsPlaying')
       chooseWinners(state)
 
-    } else if (state.tournamentStage.value === '--- Results ---') {// if one player left, its final winner
+    } else if (state.tournamentStage.value === 'gameResults') {
       //To DO: add action on all Players ready // 5 min timeout to change players in team
-      // ROUND TWO
       addToHistory(state);
       state.game.set([])
       removeLosersFromPlayersList(state)
-      if (state.tournamentStage.value === '--- Results ---' &&
-        state.gamesHistory.value[state.gamesHistory.length - 1].length === 1) {
-        state.tournamentStage.set('--- Final Results ---')
+      if (state.gamesHistory.value[state.gamesHistory.length - 1].length === 1) {
+        state.tournamentStage.set('finalResults')
       } else {
+        // ROUND TWO
         gameRound++
-        state.tournamentStage.set('--- waiting players ---')
+        state.tournamentStage.set('nextRound')
+        nextStep(state)
       }
     }
-    
 }
 
 function removeLosersFromPlayersList(state) {
@@ -66,14 +69,14 @@ function drawTeams(state) {
 
 function chooseWinners(state) {
   state.game.forEach(teams => {
-    const winner = winnerChooseAlgorithm(teams.players[0],teams.players[1])
+    const winner = winnerChooseAlgorithm(teams.players.value[0],teams.players.value[1])
     teams.state.set('ended')
     historyTemp.push({
-      players: [state.players.value[0], state.players.value[1]],
-      winner: state.players.value[winner]
+      players: [teams.players.value[0], teams.players.value[1]],
+      winner: teams.players.value[winner]
     })
   });
-  state.tournamentStage.set('--- Results ---')
+  state.tournamentStage.set('gameResults')
   nextStep(state)
 }
 

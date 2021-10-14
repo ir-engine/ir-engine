@@ -39,7 +39,7 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
  }
 
  interface stateAll {
-  tournamentStage: '--- waiting players ---'|'gameStart'|'teamsPlaying'|'gameResults'|'finalResults'
+  tournamentStage: 'waitingPlayers'|'gameStart'|'nextRound'|'teamsPlaying'|'gameResults'|'finalResults'
     players: statePlayer[],
     game: any[],
     gamesHistory: any[]
@@ -52,13 +52,13 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 };
 
  export const TournamentState = createState({
-    tournamentStage: '--- waiting players ---', // waitingPlayers|gameStart|teamsPlaying|gameResults|finalResults
+    tournamentStage: 'waitingPlayers', 
     players: [],
     game: [],
     gamesHistory: [[]]
  } as stateAll)
  /*
- tournamentStage: 'loading', // |waitingPlayers|gameStart|teamsPlaying|gameResults|finalResults
+ tournamentStage: 'loading', 
     players: [ id, id, id, id],
     game: [
       {
@@ -87,7 +87,7 @@ import { isClient } from '@xrengine/engine/src/common/functions/isClient'
    id: Symbol('Logger'),
    init: () => ({
      onSet() {
-       console.warn('TOURNAMENT STATE ----------------------------------------------\n' + JSON.stringify(TournamentState.attach(Downgraded).value, null, 2))
+       console.warn('TOURNAMENT STATE:\n' + JSON.stringify(TournamentState.attach(Downgraded).value, null, 2))
      }
    })
  }))
