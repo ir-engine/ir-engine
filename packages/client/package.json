@@ -107,7 +107,7 @@
     "reselect": "4.0.0",
     "sass": "1.42.1",
     "semantic-ui-react": "2.0.4",
-    "shaka-player": "3.2.0",
+    "shaka-player": "3.2.1",
     "socket.io-client": "4.2.0",
     "styled-components": "5.3.1",
     "url-toolkit": "2.2.3",
