@@ -25,55 +25,55 @@ export class NetworkWorldAction {
     userId: matchesUserId
   })
 
-  static setXRMode = defineActionCreator(
-    {
-      type: 'network.SET_XR_MODE',
-      userId: matchesUserId,
-      enabled: matches.boolean
-    },
-    { allowDispatchFromAny: true }
-  )
+  // static setXRMode = defineActionCreator(
+  //   {
+  //     type: 'network.SET_XR_MODE',
+  //     userId: matchesUserId,
+  //     enabled: matches.boolean
+  //   },
+  //   { allowDispatchFromAny: true }
+  // )
 
-  static spawnObject = defineActionCreator({
-    type: 'network.SPAWN_OBJECT',
-    userId: matchesUserId,
-    prefab: matches.string,
-    networkId: matchesWithInitializer(matchesNetworkId, () => Network.getNetworkId()),
-    parameters: matches.any.optional()
-  })
+  // static spawnObject = defineActionCreator({
+  //   type: 'network.SPAWN_OBJECT',
+  //   userId: matchesUserId,
+  //   prefab: matches.string,
+  //   networkId: matchesWithInitializer(matchesNetworkId, () => Network.getNetworkId()),
+  //   parameters: matches.any.optional()
+  // })
 
-  static spawnAvatar = defineActionCreator({
-    ...NetworkWorldAction.spawnObject.actionShape,
-    prefab: 'avatar',
-    parameters: matches.shape({
-      position: matchesVector3,
-      rotation: matchesQuaternion
-    })
-  })
+  // static spawnAvatar = defineActionCreator({
+  //   ...NetworkWorldAction.spawnObject.actionShape,
+  //   prefab: 'avatar',
+  //   parameters: matches.shape({
+  //     position: matchesVector3,
+  //     rotation: matchesQuaternion
+  //   })
+  // })
 
-  static destroyObject = defineActionCreator({
-    type: 'network.DESTROY_OBJECT',
-    networkId: matchesNetworkId
-  })
+  // static destroyObject = defineActionCreator({
+  //   type: 'network.DESTROY_OBJECT',
+  //   networkId: matchesNetworkId
+  // })
 
-  static setEquippedObject = defineActionCreator({
-    type: 'network.SET_EQUIPPED_OBJECT',
-    networkId: matchesNetworkId,
-    equip: matches.boolean
-  })
+  // static setEquippedObject = defineActionCreator({
+  //   type: 'network.SET_EQUIPPED_OBJECT',
+  //   networkId: matchesNetworkId,
+  //   equip: matches.boolean
+  // })
 
-  static avatarAnimation = defineActionCreator(
-    {
-      type: 'network.AVATAR_ANIMATION',
-      newStateName: matches.string,
-      params: matchesWeightsParameters
-    },
-    { allowDispatchFromAny: true }
-  )
+  // static avatarAnimation = defineActionCreator(
+  //   {
+  //     type: 'network.AVATAR_ANIMATION',
+  //     newStateName: matches.string,
+  //     params: matchesWeightsParameters
+  //   },
+  //   { allowDispatchFromAny: true }
+  // )
 
-  static teleportObject = defineActionCreator({
-    type: 'network.TELEPORT_OBJECT',
-    networkId: matchesNetworkId,
-    pose: matchPose
-  })
+  // static teleportObject = defineActionCreator({
+  //   type: 'network.TELEPORT_OBJECT',
+  //   networkId: matchesNetworkId,
+  //   pose: matchPose
+  // })
 }

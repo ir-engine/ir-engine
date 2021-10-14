@@ -6,6 +6,10 @@ export enum BotHooks {
   GetClients = 'BotHooks_GetClients'
 }
 
+export enum BasketballHooks {
+  UseTournamentState = 'BasketballHooks_UseTournamentState'
+}
+
 export enum XRBotHooks {
   OverrideXR = 'XRBotHooks_OverrideXR',
   XRSupported = 'XRBotHooks_XRSupported',
