@@ -16,10 +16,9 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import LastPageIcon from '@material-ui/icons/LastPage'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
-import { INVITE_PAGE_LIMIT } from '../../../social/reducers/invite/InviteState'
+import { INVITE_PAGE_LIMIT, useInviteState } from '../../../social/reducers/invite/InviteState'
 
 interface Props {
-  inviteState?: any
   invites: any
 }
 
@@ -102,11 +101,12 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 
 const ReceivedInvite = (props: Props) => {
   const classes = useStyles()
-  const { invites, inviteState } = props
+  const { invites } = props
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(INVITE_PAGE_LIMIT)
   const dispatch = useDispatch()
-  const receivedInviteCount = inviteState.get('receivedInvites').get('total')
+  const inviteState = useInviteState()
+  const receivedInviteCount = inviteState.receivedInvites.total.value
   const rows = invites.map((el, index) => createData(el.id, el.user.name, el.passcode, el.inviteType))
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
