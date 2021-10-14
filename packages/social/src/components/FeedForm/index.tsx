@@ -19,13 +19,13 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 // @ts-ignore
 import styles from './FeedForm.module.scss'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
-import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
-import { useWebxrNativeState } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeState'
-import { WebxrNativeService } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeService'
+import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/reducers/webxr_native/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/reducers/webxr_native/WebxrNativeService'
 import Preloader from '@xrengine/social/src/components/Preloader'
-import { useFeedState } from '../../reducers/feed/FeedState'
+import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
 
 interface Props {
   feed?: any

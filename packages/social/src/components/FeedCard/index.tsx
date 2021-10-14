@@ -29,14 +29,14 @@ import CreatorAsTitle from '../CreatorAsTitle'
 // @ts-ignore
 import styles from './FeedCard.module.scss'
 import SimpleModal from '../SimpleModal'
-import { FeedService } from '../../reducers/feed/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
 
-import { FeedFiresService } from '../../reducers/feedFires/FeedFiresService'
+import { FeedFiresService } from '@xrengine/client-core/src/social/reducers/feedFires/FeedFiresService'
 import { FeedLikesService } from '../../reducers/feedLikes/FeedLikesService'
 
 import { useTranslation } from 'react-i18next'
 
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
 import { FeedReportsService } from '../../reducers/feedReport/FeedReportsService'
 import { Share } from '@capacitor/share'
 import Snackbar from '@material-ui/core/Snackbar'

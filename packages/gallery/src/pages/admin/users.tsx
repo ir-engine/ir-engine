@@ -3,8 +3,8 @@
  */
 import React, { useEffect } from 'react'
 import CreatorConsole from '@xrengine/social/src/components/admin/CreatorConsole'
-import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 import { connect, useDispatch } from 'react-redux'
 

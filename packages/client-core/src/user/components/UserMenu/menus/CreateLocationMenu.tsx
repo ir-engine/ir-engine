@@ -22,7 +22,7 @@ import { Views } from '../util'
 const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
-  const [scenes, setScenes] = useState([])
+  const [scenes, setScenes] = useState<{ sid: string; name: string }[]>([])
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [locationTypes, setLocationTypes] = useState([])
   const [error, setError] = useState({

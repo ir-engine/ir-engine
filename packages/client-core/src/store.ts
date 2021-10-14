@@ -3,7 +3,7 @@ import { saveAuthState } from './persisted.store'
 import thunkMiddleware from 'redux-thunk'
 import Immutable from 'immutable'
 import { composeWithDevTools } from 'redux-devtools-extension'
-import { accessAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { accessAuthState } from './user/reducers/auth/AuthState'
 const initialState: any = Immutable.Map()
 const middleware = applyMiddleware(thunkMiddleware)
 
