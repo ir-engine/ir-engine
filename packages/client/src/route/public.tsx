@@ -1,7 +1,8 @@
-import React, { Suspense } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import { getCustomRoutes } from './getCustomRoutes'
+import ErrorBoundary from '../components/ErrorBoundary'
 
 if (typeof globalThis.process === 'undefined') {
   ;(globalThis as any).process = { env: {} }
@@ -13,63 +14,48 @@ type CustomRoute = {
   page: any
 }
 
-class RouterComp extends React.Component<{}, { hasError: boolean; customRoutes: CustomRoute[] }> {
-  static getDerivedStateFromError() {
-    return { hasError: true }
-  }
+function RouterComp(props) {
+  const [customRoutes, setCustomRoutes] = useState([] as CustomRoute[])
 
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      hasError: false,
-      customRoutes: []
-    }
-
-    this.getCustomRoutes()
-  }
-
-  getCustomRoutes() {
+  useEffect(() => {
+    if (customRoutes.length) return
     getCustomRoutes().then((routes) => {
-      this.setState({
-        customRoutes: routes
-      })
+      setCustomRoutes(routes)
     })
+  }, [])
+
+  if (!customRoutes.length) {
+    return <div>Loading...</div>
   }
 
-  componentDidCatch() {
-    setTimeout(() => {
-      this.setState({ hasError: false })
-    }, 2000)
-  }
-
-  render() {
-    if (this.state.hasError || !this.state.customRoutes.length) return <div>Working...</div>
-    return (
-      <Suspense
-        fallback={
-          <div
-            style={{
-              height: '100vh',
-              width: '100%',
-              textAlign: 'center',
-              paddingTop: 'calc(50vh - 7px)'
-            }}
-          >
-            <CircularProgress />
-          </div>
-        }
-      >
-        <Switch>
-          {/* this needs to have the map function */}
-          {this.state.customRoutes.map((r) => r)}
-          {/* if no index page has been provided, indicate this as obviously as possible */}
-          <Route key={'/'} path={'/'} component={React.lazy(() => import('../pages/503'))} exact />
-          <Route path="*" component={React.lazy(() => import('../pages/404'))} />
-        </Switch>
-      </Suspense>
-    )
-  }
+  return (
+    <ErrorBoundary>
+      <React.Fragment>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                height: '100vh',
+                width: '100%',
+                textAlign: 'center',
+                paddingTop: 'calc(50vh - 7px)'
+              }}
+            >
+              <CircularProgress />
+            </div>
+          }
+        >
+          <Switch>
+            {/* this needs to have the map function */}
+            {customRoutes.map((r) => r)}
+            {/* if no index page has been provided, indicate this as obviously as possible */}
+            <Route key={'/'} path={'/'} component={React.lazy(() => import('../pages/503'))} exact />
+            <Route path="*" component={React.lazy(() => import('../pages/404'))} />
+          </Switch>
+        </Suspense>
+      </React.Fragment>
+    </ErrorBoundary>
+  )
 }
 
 export default RouterComp
