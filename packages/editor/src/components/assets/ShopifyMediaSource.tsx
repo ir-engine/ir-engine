@@ -1,23 +1,24 @@
 import { BaseSource } from './sources'
 import { ItemTypes } from '../../constants/AssetTypes'
-import ModelSourcePanel from './ModelSourcePanel'
-import ModelNode from '../../nodes/ModelNode'
+import ShopifySourcePanel from './ShopifySourcePanel'
+import ShopifyNode from '../../nodes/ShopifyNode'
 import { searchMedia } from '../../functions/searchMedia'
 
 /**
- * ModelMediaSource used to provide model media by calling api.
+ * ShopifyMediaSource used to provide Shopify media by calling api.
  *
  * @author Robert Long
  * @type {class component}
  */
-export class ModelMediaSource extends BaseSource {
-  //declaring component type of ModelSourcePanel
-  component: typeof ModelSourcePanel
+export class ShopifyMediaSource extends BaseSource {
+  //declaring component type of ShopifySourcePanel
+  component: typeof ShopifySourcePanel
 
   //initializing component properties
   constructor() {
     super()
-    this.component = ModelSourcePanel
+    this.component = ShopifySourcePanel
+    debugger
   }
 
   // used to call api for searching media
@@ -63,9 +64,9 @@ export class ModelMediaSource extends BaseSource {
         id: result.id,
         thumbnailUrl: result && result.images && result.images.preview && result.images.preview.url,
         label: result.name,
-        type: ItemTypes.Model,
+        type: ItemTypes.Shopify,
         url: result.url,
-        nodeClass: ModelNode,
+        nodeClass: ShopifyNode,
         initialProps: {
           name: result.name,
           ...additionalNodeProps,
@@ -80,4 +81,4 @@ export class ModelMediaSource extends BaseSource {
   }
 }
 
-export default ModelMediaSource
+export default ShopifyMediaSource

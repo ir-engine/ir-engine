@@ -197,6 +197,10 @@ export class WorldScene {
         loadGLTFModel(this, entity, component, sceneProperty)
         break
 
+      case 'gltf-shopify':
+        loadGLTFModel(this, entity, component, sceneProperty)
+        break
+
       case 'loop-animation':
         loadModelAnimation(entity, component)
         break
