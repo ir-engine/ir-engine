@@ -114,7 +114,7 @@ export class LocalStorage implements StorageProviderInterface {
       dirCount++
     }
     try {
-      await fs.promises.mkdir(path.join(folderPath, dirName))
+      await fs.promises.mkdir(path.join(folderPath, dirName), { recursive: true })
     } catch (err) {
       console.log('Error while:' + err)
       return false

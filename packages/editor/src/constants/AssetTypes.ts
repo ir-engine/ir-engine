@@ -9,7 +9,20 @@ import { NativeTypes } from 'react-dnd-html5-backend'
  */
 export const ItemTypes = {
   File: NativeTypes.FILE,
-  FileBrowserContent: ['png', NativeTypes.FILE, 'folder'],
+  FileBrowserContent: [
+    'png',
+    'jpeg',
+    'gltf',
+    'mp4',
+    'mpeg',
+    NativeTypes.FILE,
+    'folder',
+    'image/png',
+    'image/jpeg',
+    'video/mp4',
+    'audio/mpeg',
+    'model/gltf'
+  ],
   Node: 'Node',
   Model: 'Model',
   Image: 'Image',

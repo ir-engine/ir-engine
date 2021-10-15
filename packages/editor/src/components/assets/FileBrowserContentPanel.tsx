@@ -100,7 +100,9 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     renderProjectFiles(selectedDirectory)
   }, [selectedDirectory])
 
-  const onFileUploaded = (index) => {}
+  const onFileUploaded = () => {
+    selectedDirectory === '/' ? renderProjectFiles('/') : setSelectedDirectory('/')
+  }
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.FILE_UPLOADED.toString(), onFileUploaded)
@@ -122,7 +124,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }
 
   const onBackDirectory = () => {
-    const pattern = /([a-z 0-9]+)/gi
+    const pattern = /([^\/]+)/g
     const result = selectedDirectory.match(pattern)
     if (!result) return
     let newPath = '/'
