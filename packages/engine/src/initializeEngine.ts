@@ -103,7 +103,7 @@ const configureServer = async (options: Required<InitializeOptions>, isMediaServ
 
     await registerServerSystems(options)
   } else {
-    //await registerMediaServerSystems(options)
+    await registerMediaServerSystems(options)
   }
 }
 
@@ -117,10 +117,10 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   }
 
   // Input
-  //registerSystem(SystemUpdateType.UPDATE, import('./xr/systems/XRSystem'))
-  //registerSystem(SystemUpdateType.UPDATE, import('./input/systems/ClientInputSystem'))
-  //registerSystem(SystemUpdateType.UPDATE, import('./camera/systems/CameraSystem'))
-  //registerSystem(SystemUpdateType.UPDATE, import('./navigation/systems/AutopilotSystem'))
+  registerSystem(SystemUpdateType.UPDATE, import('./xr/systems/XRSystem'))
+  registerSystem(SystemUpdateType.UPDATE, import('./input/systems/ClientInputSystem'))
+  registerSystem(SystemUpdateType.UPDATE, import('./camera/systems/CameraSystem'))
+  registerSystem(SystemUpdateType.UPDATE, import('./navigation/systems/AutopilotSystem'))
 
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
 
@@ -143,31 +143,30 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.FIXED, import('./bot/systems/BotHookSystem'))
 
   // Maps
-  //registerSystem(SystemUpdateType.FIXED, import('./map/MapUpdateSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./map/MapUpdateSystem'))
 
   // Navigation
- // registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/FollowSystem'))
-  //registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/AfkCheckSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/FollowSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/AfkCheckSystem'))
 
   // Avatar Systems
-  // registerSystem(SystemUpdateType.FIXED, import('./avatar/ClientAvatarSpawnSystem'))
-  // registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
-  // registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarControllerSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/ClientAvatarSpawnSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarControllerSystem'))
   // Avatar IKRig
-  //registerSystem(SystemUpdateType.FIXED, import('./ikrig/systems/IKRigSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./ikrig/systems/IKRigSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
 
   // Scene Systems
-  // registerSystem(SystemUpdateType.FIXED_LATE, import('./interaction/systems/EquippableSystem'))
-  // registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
-  // registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
-  // registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
-  /*
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./interaction/systems/EquippableSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
   registerSystemWithArgs(SystemUpdateType.FIXED_LATE, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
   })
-*/
+
   registerInjectedSystems(SystemUpdateType.FIXED_LATE, options.systems)
 
   // Network (Outgoing)
@@ -180,20 +179,20 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
    */
 
   // Camera & UI systems
- // registerSystem(SystemUpdateType.PRE_RENDER, import('./networking/systems/MediaStreamSystem'))
-  //registerSystem(SystemUpdateType.PRE_RENDER, import('./xrui/systems/XRUISystem'))
-  //registerSystem(SystemUpdateType.PRE_RENDER, import('./interaction/systems/InteractiveSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./networking/systems/MediaStreamSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./xrui/systems/XRUISystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./interaction/systems/InteractiveSystem'))
 
   // Audio Systems
-  //registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/AudioSystem'))
-  //registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/PositionalAudioSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/AudioSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/PositionalAudioSystem'))
 
   // Animation Systems
-  // registerSystem(SystemUpdateType.PRE_RENDER, import('./avatar/AvatarLoadingSystem'))
-  // registerSystem(SystemUpdateType.PRE_RENDER, import('./avatar/AnimationSystem'))
-  // registerSystem(SystemUpdateType.PRE_RENDER, import('./particles/systems/ParticleSystem'))
-  // registerSystem(SystemUpdateType.PRE_RENDER, import('./debug/systems/DebugHelpersSystem'))
-  // registerSystem(SystemUpdateType.PRE_RENDER, import('./renderer/HighlightSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./avatar/AvatarLoadingSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./avatar/AnimationSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./particles/systems/ParticleSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./debug/systems/DebugHelpersSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./renderer/HighlightSystem'))
 
   registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
 
@@ -226,23 +225,22 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   })
   // Network Incoming Systems
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/IncomingNetworkSystem'))
-  //registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/MediaStreamSystem'))
+  registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/MediaStreamSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED_EARLY, options.systems)
 
   // Input Systems
-  // registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
-  // registerSystem(SystemUpdateType.FIXED, import('./avatar/ServerAvatarSpawnSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/ServerAvatarSpawnSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
 
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
-
-  // registerSystemWithArgs(SystemUpdateType.FIXED_LATE, import('./physics/systems/PhysicsSystem'), {
-  //   simulationEnabled: options.physics.simulationEnabled
-  // })
+  registerSystemWithArgs(SystemUpdateType.FIXED_LATE, import('./physics/systems/PhysicsSystem'), {
+    simulationEnabled: options.physics.simulationEnabled
+  })
 
   registerInjectedSystems(SystemUpdateType.FIXED_LATE, options.systems)
 
@@ -251,7 +249,6 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 
   registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
   registerInjectedSystems(SystemUpdateType.POST_RENDER, options.systems)
-  registerSystem(SystemUpdateType.FIXED, import('../../client/src/pages/game/logic/TournamentSystem'))
 }
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {

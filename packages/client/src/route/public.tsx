@@ -53,7 +53,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
 
           <Route path="/app" component={React.lazy(() => import('../pages/app'))} />
           <Route path="/marketplace" component={React.lazy(() => import('../pages/marketplace'))} />
-          <Route path="/game/:locationName" component={React.lazy(() => import('../pages/game/[locationName]'))} />
+          <Route path="/game" component={React.lazy(() => import('../pages/game'))} />
           <Route path="/msa" component={React.lazy(() => import('../pages/msa'))} />
           <Route
             path="/msa-loggedin"

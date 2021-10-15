@@ -57,7 +57,6 @@
     "test:e2e": "mocha",
     "test:packages": "lerna run test",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
-    "test:tournament": "cross-env TEST_LOCATION_NAME=test jest --testPathPattern=tests/tournament --detectOpenHandles",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",
     "format-staged": "lint-staged",
