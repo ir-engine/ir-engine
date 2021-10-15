@@ -175,24 +175,24 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
         <ContextMenuTrigger id={contextMenuId} holdToDisplay={-1} item={item} collect={collectMenuProps}>
           {content}
         </ContextMenuTrigger>
-      </div>
 
-      <ContextMenu id={contextMenuId}>
-        <>
-          {item.type !== 'folder' && (
-            <>
-              <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
-              <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-              <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
-              <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>
-              <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
-            </>
-          )}
-          <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
-          <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
-          <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
-        </>
-      </ContextMenu>
+        <ContextMenu id={contextMenuId}>
+          <>
+            {item.type !== 'folder' && (
+              <>
+                <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
+                <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
+                <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
+                <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>
+              </>
+            )}
+            <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
+            <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
+            <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
+            <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
+          </>
+        </ContextMenu>
+      </div>
     </div>
   )
 }

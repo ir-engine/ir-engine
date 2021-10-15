@@ -106,9 +106,15 @@ export class LocalStorage implements StorageProviderInterface {
    * @returns
    */
   createDirectory = async (dir: string) => {
-    const folderPath = path.join(appRootPath.path, 'packages', 'server', this.path, dir)
+    let dirName = dir
+    const folderPath = path.join(appRootPath.path, 'packages', 'server', this.path)
+    let dirCount = 1
+    while (fs.existsSync(path.join(folderPath, dirName))) {
+      dirName = dir + dirCount
+      dirCount++
+    }
     try {
-      await fs.promises.mkdir(path.join(folderPath))
+      await fs.promises.mkdir(path.join(folderPath, dirName))
     } catch (err) {
       console.log('Error while:' + err)
       return false
