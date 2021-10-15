@@ -2,6 +2,8 @@
 import { defineConfig, loadEnv } from 'vite';
 import config from "config";
 import inject from '@rollup/plugin-inject'
+import OptimizationPersist from 'vite-plugin-optimize-persist'
+import PkgConfig from 'vite-plugin-package-config'
 
 const replaceEnvs = (obj, env) => {
   let result = {};
@@ -42,7 +44,10 @@ export default defineConfig((command) => {
     optimizeDeps: {
       include: ['@xrengine/projects']
     },
-    plugins: [],
+    plugins: [
+      PkgConfig(),
+      OptimizationPersist()
+    ],
     server: {
       host: true,
     },
