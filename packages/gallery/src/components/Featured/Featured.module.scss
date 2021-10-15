@@ -1,44 +1,36 @@
 .feedContainer {
     margin: 30px 30px 0;
+    .squareCard {
+        width: 26vw;
+        height: 26vw;
+        margin: auto;
+        position: relative;
+        &:hover > .featuredButton {
+            display: block;
+        }
+    }
     .gridItem {
         position: relative;
+        padding: 0 0 30px !important;
+        width: 28vw;
 
-        &:hover > .addButton {
-            display: block;
-        }
-        &:hover > .removeButton {
-            display: block;
-        }
     }
     .gridItemDelete {
         display: none;
     }
     .creatorItem {
         background-color: #F8F8F8;
-        min-height: 476px;
-        height: 100%;
+        height: 26vw;
     }
-
+    
     .list {
-        height: fit-content;
+        // height: fit-content;
     }
-    .addButton {
+    .featuredButton {
         display: none;
         position: absolute;
-        bottom: -10px;
-        right: -10px;
-        padding: 0;
-        margin: 0;
-        cursor: pointer !important;
-        color: #cfcfcf;
-        font-size: 60px;
-        z-index: 999999999 !important;
-    }
-    .removeButton {
-        display: none;
-        position: absolute;
-        bottom: -10px;
-        right: -10px;
+        bottom: -19px;
+        right: -19px;
         padding: 0;
         margin: 0;
         cursor: pointer !important;
@@ -48,16 +40,18 @@
     }
     .imageWrapper {
         width: 100%;
-        height: 390px;
         padding: 30px 20px 0;
         align-items: center;
         display: flex;
+        height: 18vw;
     }
     .image {
-        width: auto;
         margin: auto;
         max-width: 100%;
         max-height: 100%;
+        height: auto;
+        width: auto;
+
     }
     .imageList {
         height: auto;
@@ -71,5 +65,6 @@
     }
     .mediaPreviewIcon {
         font-size: 120pt;
+        display: flex;
     }
 }

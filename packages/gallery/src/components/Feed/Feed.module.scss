@@ -5,6 +5,25 @@
         box-shadow: none;
         background-color: #f8f8f8;
         border-color: #f8f8f8;
+        margin: auto;
+        height: 87vh;
+        width: 87vh;
+    }
+    .squareCard {
+        width: 26vw;
+        height: 26vw;
+        margin: auto;
+        position: relative;
+        &:hover > .featuredButton {
+            display: block;
+        }
+    }
+    .imageWrapper {
+        width: 100%;
+        padding: 30px 20px 0;
+        align-items: center;
+        display: flex;
+        height: 18vw;
     }
     .cartText {
         color: #515151;
@@ -17,8 +36,8 @@
         font-size: 18pt;
         font-family: Jost, sans-serif;
         line-height: 72.25px;
+        white-space: pre-wrap;
     }
-    overflow-y: scroll;
     h5{
         padding: 0px 19pt 10pt 19pt;
         font-size: 17pt;
@@ -51,5 +70,99 @@
             line-height: 15pt;
             margin: 9.7pt auto 20.3pt 0;
         }
+    }
+
+    .deleteIcon {
+        color: #9b9b9b;
+        font-size: 28pt;
+        cursor: pointer;
+    }
+
+    .cardHeader {
+        padding: 0;
+        margin: 15px 15px 0 auto;
+        position: absolute;
+        right: 15px;
+    }
+
+    .hashtag {
+        font-style: italic;
+        text-decoration: none;
+        font-size: 0.9em;
+        cursor: pointer;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+.feedContainer {
+    margin: 30px 30px 0;
+    .squareCard {
+        width: 86vh;
+        height: 86vh;
+        margin: auto;
+        position: relative;
+        &:hover > .featuredButton {
+            display: block;
+        }
+    }
+    .gridItem {
+        position: relative;
+        padding: 0 0 30px !important;
+        width: 86vh;
+        margin: auto
+
+    }
+    .gridItemDelete {
+        display: none;
+    }
+    .creatorItem {
+        background-color: #F8F8F8;
+        height: 86vh;
+    }
+    
+    .list {
+        // height: fit-content;
+    }
+    .featuredButton {
+        display: none;
+        position: absolute;
+        bottom: -19px;
+        right: -19px;
+        padding: 0;
+        margin: 0;
+        cursor: pointer !important;
+        color: #cfcfcf;
+        font-size: 60px;
+        z-index: 999999999 !important;
+    }
+    .imageWrapper {
+        width: 100%;
+        padding: 50px 20px 0;
+        align-items: center;
+        display: flex;
+        height: 60vh;
+    }
+    .image {
+        margin: auto;
+        max-width: 100%;
+        max-height: 100%;
+        height: auto;
+        width: auto;
+
+    }
+    .imageList {
+        height: auto;
+    }
+    .descr {
+        font-size: 32px;
+        font-weight: 500;
+        text-align: center;
+        font-family: Jost, sans-serif;
+        line-height: 46.24px;
+    }
+    .mediaPreviewIcon {
+        font-size: 120pt;
+        display: flex;
     }
 }

@@ -25,7 +25,7 @@ const Home = () => {
     const user = auth.user
     const userId = user ? user.id.value : null
     if (userId) {
-      CreatorService.createCreator()
+      dispatch(CreatorService.createCreator())
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 
