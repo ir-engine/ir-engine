@@ -158,8 +158,8 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
       }
       // }
 
-      for (let i = 0; i < newWorldState.ikPose.length; i++) {
-        const ikPose = newWorldState.ikPose[i]
+      for (let i = 0; i < newWorldState.controllerPose.length; i++) {
+        const ikPose = newWorldState.controllerPose[i]
 
         const entity = world.getNetworkObject(ikPose.networkId)
 
@@ -169,17 +169,25 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
         const {
           headPosePosition,
           headPoseRotation,
-          leftPosePosition,
-          leftPoseRotation,
-          rightPosePosition,
-          rightPoseRotation
+          leftRayPosition,
+          leftRayRotation,
+          rightRayPosition,
+          rightRayRotation,
+          leftGripPosition,
+          leftGripRotation,
+          rightGripPosition,
+          rightGripRotation
         } = ikPose
         xrInputSourceComponent.head.position.fromArray(headPosePosition)
         xrInputSourceComponent.head.quaternion.fromArray(headPoseRotation)
-        xrInputSourceComponent.controllerLeft.position.fromArray(leftPosePosition)
-        xrInputSourceComponent.controllerLeft.quaternion.fromArray(leftPoseRotation)
-        xrInputSourceComponent.controllerRight.position.fromArray(rightPosePosition)
-        xrInputSourceComponent.controllerRight.quaternion.fromArray(rightPoseRotation)
+        xrInputSourceComponent.controllerLeft.position.fromArray(leftRayPosition)
+        xrInputSourceComponent.controllerLeft.quaternion.fromArray(leftRayRotation)
+        xrInputSourceComponent.controllerRight.position.fromArray(rightRayPosition)
+        xrInputSourceComponent.controllerRight.quaternion.fromArray(rightRayRotation)
+        xrInputSourceComponent.controllerGripLeft.position.fromArray(leftGripPosition)
+        xrInputSourceComponent.controllerGripLeft.quaternion.fromArray(leftGripRotation)
+        xrInputSourceComponent.controllerGripRight.position.fromArray(rightGripPosition)
+        xrInputSourceComponent.controllerGripRight.quaternion.fromArray(rightGripRotation)
       }
 
       for (const netHands of newWorldState.handsPose) {

@@ -42,11 +42,7 @@ const xrHandsQuery = isClient
 function velocityIsTheSame(previousNetworkState, netId, vel): boolean {
   for (let i = 0; i < previousNetworkState.pose.length; i++) {
     if (previousNetworkState.pose[i].networkId === netId) {
-      if (arraysAreEqual(previousNetworkState.pose[i].angularVelocity, vel)) {
-        return true
-      } else {
-        return false
-      }
+      return arraysAreEqual(previousNetworkState.pose[i].angularVelocity, vel)
     }
   }
 
@@ -56,35 +52,27 @@ function transformIsTheSame(previousNetworkState, netId, pos, rot, vel): boolean
   if (vel === undefined) vel = [0]
   for (let i = 0; i < previousNetworkState.pose.length; i++) {
     if (previousNetworkState.pose[i].networkId === netId) {
-      if (
+      return (
         arraysAreEqual(previousNetworkState.pose[i].position, pos) &&
         arraysAreEqual(previousNetworkState.pose[i].rotation, rot) &&
         arraysAreEqual(previousNetworkState.pose[i].linearVelocity, vel)
-      ) {
-        return true
-      } else {
-        return false
-      }
+      )
     }
   }
 
   return false
 }
-function ikPoseIsTheSame(previousNetworkState, netId, hp, hr, lp, lr, rp, rr): boolean {
-  for (let i = 0; i < previousNetworkState.ikPose.length; i++) {
-    if (previousNetworkState.ikPose[i].networkId === netId) {
-      if (
-        arraysAreEqual(previousNetworkState.ikPose[i].headPosePosition, hp) &&
-        arraysAreEqual(previousNetworkState.ikPose[i].headPoseRotation, hr) &&
-        arraysAreEqual(previousNetworkState.ikPose[i].leftPosePosition, lp) &&
-        arraysAreEqual(previousNetworkState.ikPose[i].leftPoseRotation, lr) &&
-        arraysAreEqual(previousNetworkState.ikPose[i].rightPosePosition, rp) &&
-        arraysAreEqual(previousNetworkState.ikPose[i].rightPoseRotation, rr)
-      ) {
-        return true
-      } else {
-        return false
-      }
+function isControllerPoseTheSame(previousNetworkState, netId, hp, hr, lp, lr, rp, rr): boolean {
+  for (let i = 0; i < previousNetworkState.controllerPose.length; i++) {
+    if (previousNetworkState.controllerPose[i].networkId === netId) {
+      return (
+        arraysAreEqual(previousNetworkState.controllerPose[i].headPosePosition, hp) &&
+        arraysAreEqual(previousNetworkState.controllerPose[i].headPoseRotation, hr) &&
+        arraysAreEqual(previousNetworkState.controllerPose[i].leftRayPosition, lp) &&
+        arraysAreEqual(previousNetworkState.controllerPose[i].leftRayRotation, lr) &&
+        arraysAreEqual(previousNetworkState.controllerPose[i].rightRayPosition, rp) &&
+        arraysAreEqual(previousNetworkState.controllerPose[i].rightRayRotation, rr)
+      )
     }
   }
 
@@ -231,7 +219,7 @@ export const queueUnchangedPosesForClient = (world: World) => {
   return world
 }
 
-export const queueUnchangedIkPoses = (world: World) => {
+export const queueUnchangedControllerPoses = (world: World) => {
   const { outgoingNetworkState, previousNetworkState } = world
 
   for (const entity of ikTransformsQuery(world)) {
@@ -241,34 +229,42 @@ export const queueUnchangedIkPoses = (world: World) => {
 
     const headPosePosition = xrInputs.head.position.toArray()
     const headPoseRotation = xrInputs.head.quaternion.toArray()
-    const leftPosePosition = xrInputs.controllerLeft.position.toArray()
-    const leftPoseRotation = xrInputs.controllerLeft.quaternion.toArray()
-    const rightPosePosition = xrInputs.controllerRight.position.toArray()
-    const rightPoseRotation = xrInputs.controllerRight.quaternion.toArray()
+    const leftRayPosition = xrInputs.controllerLeft.position.toArray()
+    const leftRayRotation = xrInputs.controllerLeft.quaternion.toArray()
+    const rightRayPosition = xrInputs.controllerRight.position.toArray()
+    const rightRayRotation = xrInputs.controllerRight.quaternion.toArray()
+    const leftGripPosition = xrInputs.controllerGripLeft.position.toArray()
+    const leftGripRotation = xrInputs.controllerGripLeft.quaternion.toArray()
+    const rightGripPosition = xrInputs.controllerGripRight.position.toArray()
+    const rightGripRotation = xrInputs.controllerGripRight.quaternion.toArray()
 
     if (
       // if there is no previous state (first frame)
       previousNetworkState === undefined ||
       // or if the transform is not the same as last frame
-      !ikPoseIsTheSame(
+      !isControllerPoseTheSame(
         previousNetworkState,
         networkId,
         headPosePosition,
         headPoseRotation,
-        leftPosePosition,
-        leftPoseRotation,
-        rightPosePosition,
-        rightPoseRotation
+        leftRayPosition,
+        leftRayRotation,
+        rightRayPosition,
+        rightRayRotation
       )
     ) {
-      outgoingNetworkState.ikPose.push({
+      outgoingNetworkState.controllerPose.push({
         networkId,
         headPosePosition,
         headPoseRotation,
-        leftPosePosition,
-        leftPoseRotation,
-        rightPosePosition,
-        rightPoseRotation
+        leftRayPosition,
+        leftRayRotation,
+        rightRayPosition,
+        rightRayRotation,
+        leftGripPosition,
+        leftGripRotation,
+        rightGripPosition,
+        rightGripRotation
       })
     }
   }
@@ -323,7 +319,7 @@ export const resetNetworkState = (world: World) => {
     tick: world.fixedTick,
     time: Date.now(),
     pose: [],
-    ikPose: [],
+    controllerPose: [],
     handsPose: []
   }
   return world
@@ -335,7 +331,7 @@ export const queueAllOutgoingPoses = pipe(
   queueUnchangedPoses, 
   queueUnchangedPosesForClient, 
   queueXRHandPoses,
-  queueUnchangedIkPoses
+  queueUnchangedControllerPoses
 )
 
 /****************

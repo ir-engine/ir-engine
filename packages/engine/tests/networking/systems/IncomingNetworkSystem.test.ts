@@ -105,7 +105,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 					angularVelocity: [],
 				}
 			],
-			ikPose: [],
+			controllerPose: [],
       handsPose: []
 		}
 
