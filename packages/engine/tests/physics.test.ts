@@ -70,7 +70,7 @@ describe('Physics', () => {
   })
 
 
-  it.skip('Can load physics trimesh', async () => {
+  it('Can load physics trimesh', async () => {
     await initializeEngine(engineTestSetup)
     const world = useWorld()
 
