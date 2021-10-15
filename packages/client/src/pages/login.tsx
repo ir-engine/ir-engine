@@ -1,8 +1,7 @@
 import { EmptyLayout } from '@xrengine/client-core/src/common/components/Layout/EmptyLayout'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from 'react-redux'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { useTranslation } from 'react-i18next'
 

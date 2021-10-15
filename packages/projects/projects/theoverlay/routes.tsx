@@ -1,8 +1,6 @@
 import React from 'react'
 import { Route, Redirect } from 'react-router-dom'
 
-export const routes = ['/', '/login', '/harmony', '/admin', '/location', '/auth', '/editor']
-
 export default function (route: string) {
   switch (route) {
     case '/':
@@ -46,7 +44,7 @@ export default function (route: string) {
         <Route
           key={'/auth'}
           path={'/auth'}
-          component={React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))}
+          component={React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))}
         />
       )
     case '/editor':

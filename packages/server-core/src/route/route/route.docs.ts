@@ -4,9 +4,9 @@ export default {
       type: 'string',
       description: 'The project to add routes from'
     },
-    routes: {
+    route: {
       type: 'string',
-      description: 'The routes to enable for this project'
+      description: 'The route to enable for this project'
     }
   }
 }

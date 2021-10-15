@@ -15,7 +15,7 @@ export default (app: Application): any => {
       project: {
         type: DataTypes.STRING
       },
-      routes: {
+      route: {
         type: DataTypes.STRING
       }
     },

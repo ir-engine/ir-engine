@@ -5,6 +5,7 @@ import { adminAvatarReducer } from './admin/avatar/AvatarState'
 import { adminInstanceReducer } from './admin/instance/InstanceState'
 import { adminLocationReducer } from './admin/location/LocationState'
 import { adminPartyReducer } from './admin/party/PartyState'
+import { adminRouteReducer } from './admin/routes/RouteState'
 import { adminSceneReducer } from './admin/scene/SceneState'
 import { adminBotsReducer } from './admin/bots/BotsState'
 import { AdminAnalyticsReducer } from './admin/analytics/AnalyticsState'
@@ -37,6 +38,7 @@ export default {
   adminInstance: adminInstanceReducer,
   adminLocation: adminLocationReducer,
   adminParty: adminPartyReducer,
+  admiRoutes: adminRouteReducer,
   adminRealityPack: adminRealityPackReducer,
   adminScene: adminSceneReducer,
   adminBots: adminBotsReducer,

@@ -7,6 +7,7 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 // TODO: Decouple this
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import querystring from 'querystring'
 import { Dispatch } from 'redux'
@@ -88,6 +89,7 @@ export const AuthService = {
           }
           const authUser = resolveAuthUser(res)
           dispatch(AuthAction.loginUserSuccess(authUser))
+          if (isDev) globalThis.userId = authUser.identityProvider.userId
           await AuthService.loadUserData(dispatch, authUser.identityProvider.userId)
         } else {
           console.log('****************')

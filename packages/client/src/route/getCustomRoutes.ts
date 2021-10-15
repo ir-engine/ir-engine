@@ -18,11 +18,7 @@ export const getCustomRoutes = async (): Promise<any> => {
     )
   } else {
     for (const project of routes.data) {
-      const pages = await loadRoute({
-        project: project.project,
-        routes: project.routes.split(',')
-      })
-      components.push(...pages)
+      components.push(await loadRoute(project.project, project.route))
     }
   }
 
