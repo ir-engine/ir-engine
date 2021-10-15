@@ -9,7 +9,6 @@ import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import AssetTooltip from './AssetTooltip'
-import { ItemTypes } from '../../constants/AssetTypes'
 import Tooltip, { TooltipContainer } from '../layout/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
