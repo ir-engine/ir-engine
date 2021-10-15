@@ -47,7 +47,7 @@ export default defineConfig((command) => {
         "@feathersjs/client",
         "@feathersjs/feathers",
         "@feathersjs/rest-client",
-        "@google/model-viewer",
+        "@google/model-viewer/dist/model-viewer",
         "@hookstate/core",
         "@hookstate/devtools",
         "@mapbox/geojson-rewind",
