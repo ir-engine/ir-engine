@@ -1,7 +1,7 @@
-import SettingConsole from '@xrengine/client-core/src/admin/components/Setting'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import SettingConsole from '../components/Setting'
+import { AuthService } from '../../user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 interface Props {
   //doLoginAuto?: any

@@ -1,7 +1,6 @@
-import PartyCore from '@xrengine/client-core/src/admin/components/Party'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import PartyCore from '../components/Party'
+import { AuthService } from '../../user/reducers/auth/AuthService'
 import React from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
 import { useDispatch } from 'react-redux'
 
 interface Props {}

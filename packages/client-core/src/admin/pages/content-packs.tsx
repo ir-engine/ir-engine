@@ -1,8 +1,7 @@
-import ContentPackConsole from '@xrengine/client-core/src/admin/components/ContentPack/ContentPackConsole'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import ContentPackConsole from '../components/ContentPack/ContentPackConsole'
+import { AuthService } from '../../user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from 'react-redux'
 
 interface Props {}
 

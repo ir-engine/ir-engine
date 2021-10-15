@@ -164,7 +164,7 @@ export default async function PhysicsSystem(
         const bodyB = world.physics.bodies.get(bodyBID)
         if (!bodyA || !bodyB) continue
         const entityA = (bodyA as any).userData?.entity
-        const entityB = (bodyA as any).userData?.entity
+        const entityB = (bodyB as any).userData?.entity
         getComponent(entityA, CollisionComponent).collisions.push({
           type: collisionEvent.type,
           bodySelf: bodyA,
