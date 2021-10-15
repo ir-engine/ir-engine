@@ -10,7 +10,7 @@ import { validateCreatorForm } from './validation'
 import { useCreatorStyle, useCreatorStyles } from './styles'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { CreatorService } from '../../../reducers/creator/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
 
 interface Props {
   open: boolean

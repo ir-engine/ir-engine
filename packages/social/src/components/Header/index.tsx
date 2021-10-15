@@ -7,9 +7,9 @@ import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { useDispatch } from 'react-redux'
 
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
 import { useTranslation } from 'react-i18next'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
@@ -50,20 +50,17 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
           })
         }}
       />
-      {creator &&
-        {
-          /*!checkGuest*/
-        } && (
-          <Avatar
-            onClick={() => {
-              onGoRegistration(() => {
-                dispatch(PopupsStateService.updateCreatorFormState(true))
-              })
-            }}
-            alt={creator?.username}
-            src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
-          />
-        )}
+      {creator && (
+        <Avatar
+          onClick={() => {
+            onGoRegistration(() => {
+              dispatch(PopupsStateService.updateCreatorFormState(true))
+            })
+          }}
+          alt={creator?.username}
+          src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
+        />
+      )}
     </nav>
   )
 }

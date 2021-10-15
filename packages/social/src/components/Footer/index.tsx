@@ -8,11 +8,11 @@ import React, { useEffect } from 'react'
 import styles from './Footer.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { useDispatch } from 'react-redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 // import IndexPage from "@xrengine/social/pages/login";
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
 import ViewMode from '../ViewMode/ViewMode'
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 
@@ -62,9 +62,9 @@ const AppFooter = ({ setView, onGoRegistration }: any) => {
         )} */}
       <Avatar
         onClick={() => {
-          onGoRegistration(() => {
-            handleOpenCreatorPage(creatorState.creators.currentCreator?.id?.value)
-          })
+          // onGoRegistration(() => {
+          handleOpenCreatorPage(creatorState.creators.currentCreator?.id?.value)
+          // })
         }}
         alt={creatorState.creators.currentCreator?.username?.value}
         className={styles.footerAvatar}

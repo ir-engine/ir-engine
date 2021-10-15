@@ -7,7 +7,7 @@ export const ChannelConnectionAction = {
       type: 'CHANNEL_SERVER_PROVISIONING' as const
     }
   },
-  channelServerProvisioned: (provisionResult: InstanceServerProvisionResult, channelId: string | null) => {
+  channelServerProvisioned: (provisionResult: InstanceServerProvisionResult, channelId?: string | null) => {
     return {
       type: 'CHANNEL_SERVER_PROVISIONED' as const,
       ipAddress: provisionResult.ipAddress,

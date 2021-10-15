@@ -5,10 +5,10 @@ import React, { useEffect } from 'react'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect, useDispatch } from 'react-redux'
-import { TheFeedsService } from '@xrengine/social/src/reducers/thefeeds/TheFeedsService'
+import { TheFeedsService } from '@xrengine/client-core/src/social/reducers/thefeeds/TheFeedsService'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 import TheFeedsConsole from '@xrengine/social/src/components/admin/Feeds'
-import { useTheFeedsState } from '@xrengine/social/src/reducers/thefeeds/TheFeedsState'
+import { useTheFeedsState } from '@xrengine/client-core/src/social/reducers/thefeeds/TheFeedsState'
 
 // const thefeeds = '';
 // conts Feeds = '';

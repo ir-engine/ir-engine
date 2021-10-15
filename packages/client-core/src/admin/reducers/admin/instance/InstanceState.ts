@@ -3,6 +3,7 @@ import { InstanceActionType } from './InstanceActions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 export const INSTNCE_PAGE_LIMIT = 100
 
@@ -14,7 +15,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   instances: {
-    instances: [],
+    instances: [] as Array<Instance>,
     skip: 0,
     limit: INSTNCE_PAGE_LIMIT,
     total: 0,
@@ -35,7 +36,7 @@ const instanceReceptor = (action: InstanceActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'INSTANCES_RETRIEVED':
-        result = action.instances
+        result = action.instanceResult
         return s.instances.merge({
           instances: result.data,
           skip: result.skip,

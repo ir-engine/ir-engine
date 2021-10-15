@@ -44,13 +44,6 @@ export const moveAvatar = (entity: Entity, deltaTime: number): void => {
   // apply gravity
   velocity.velocity.y -= 0.15 * deltaTime
 
-  /*******
-  * NOTE:
-  * Commenting because this interferes with autopilot system which needs to reliably send avatar along a straight path.
-  * With this code, if camera angle is not zero, the avatar's path will be curved.
-  *
-  * Patrick Canfield, 2021-10-07
-  * ******
   // threejs camera is weird, when in VR we must use the head direction
   if (hasComponent(entity, XRInputSourceComponent))
     getComponent(entity, XRInputSourceComponent).head.getWorldDirection(vec3)
@@ -60,7 +53,6 @@ export const moveAvatar = (entity: Entity, deltaTime: number): void => {
   quat.setFromUnitVectors(forward, vec3)
 
   velocity.velocity.applyQuaternion(quat)
-  */
 
   if (onGround) {
     const raycast = getComponent(entity, RaycastComponent)

@@ -28,8 +28,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { accessLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { accessPartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
+import { accessLocationState } from '../../../social/reducers/location/LocationState'
+import { accessPartyState } from '../../../social/reducers/party/PartyState'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -831,7 +831,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       return
     }
 
-    if (networkUser.avatarDetail.avatarId === user.avatarId) {
+    if (networkUser?.avatarDetail?.avatarId === user.avatarId) {
       resolve(true)
       return
     }
@@ -916,8 +916,9 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       if (user.instanceId !== selfUser.instanceId.value) {
         const parsed = new URL(window.location.href)
         let query = parsed.searchParams
-        query.set('instanceId', user.instanceId)
+        query.set('instanceId', user?.instanceId || '')
         parsed.search = query.toString()
+
         if (history.pushState) {
           window.history.replaceState({}, '', parsed.toString())
         }
@@ -970,14 +971,14 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const selfUser = accessAuthState().user
     const party = accessPartyState().party.value
     const selfPartyUser =
-      party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id.value) : {}
+      party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value) : {}
     const currentLocation = accessLocationState().currentLocation.location
     const locationBan = params.locationBan
     if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
       // TODO: Decouple and reenable me!
       // endVideoChat({ leftParty: true });
       // leave(true);
-      if (selfPartyUser.id != null) {
+      if (selfPartyUser != undefined && selfPartyUser?.id != null) {
         await client.service('party-user').remove(selfPartyUser.id)
       }
       const user = resolveUser(await client.service('user').get(selfUser.id.value))

@@ -1,6 +1,5 @@
 aws/
 .git/
-*Dockerfile*
 *docker-compose*
 node_modules
 lib/
@@ -12,6 +11,8 @@ readme/
 tests/
 vendor/
 packages/**/node_modules
+package-lock.json
+packages/**/package-lock.json
 
 
 kubernetes/**

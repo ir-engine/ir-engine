@@ -2,13 +2,16 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import Button from '@material-ui/core/Button'
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 
 import Creators from '../Creators'
 import Featured from '../Featured'
 import TheFeed from '../TheFeed'
 // import TipsAndTricks from '../TipsAndTricks'
 import { useTranslation } from 'react-i18next'
+import { useDispatch } from 'react-redux'
+import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'
@@ -20,6 +23,12 @@ const FeedMenu = ({ view, setView }) => {
   const thefeedRef = useRef<HTMLInputElement>()
   const tipsandtricksRef = useRef<HTMLInputElement>()
   const { t } = useTranslation()
+  const dispatch = useDispatch()
+  const feedsState = useFeedState()
+
+  useEffect(() => {
+    dispatch(FeedService.getFeeds('featured'))
+  }, [])
 
   const padding = 40
   const handleMenuClick = (view) => {
@@ -54,7 +63,7 @@ const FeedMenu = ({ view, setView }) => {
     //   content = <TipsAndTricks />
     //   break
     default:
-      content = <Featured />
+      content = <Featured thisData={feedsState.feeds.feedsFeatured.value} />
       break
   }
   const classes = {

@@ -1,28 +1,30 @@
+import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
+import { Group } from '@xrengine/common/src/interfaces/Group'
 export const GroupAction = {
   fetchingGroup: () => {
     return {
       type: 'GROUP_FETCHING' as const
     }
   },
-  setAdminGroup: (list: any[]) => {
+  setAdminGroup: (list: GroupResult) => {
     return {
       type: 'GROUP_ADMIN_RETRIEVED' as const,
       list
     }
   },
-  addAdminGroup: (item: any) => {
+  addAdminGroup: (item: Group) => {
     return {
       type: 'ADD_GROUP' as const,
       item
     }
   },
-  updateGroup: (item: any) => {
+  updateGroup: (item: Group) => {
     return {
       type: 'GROUP_ADMIN_UPDATE' as const,
       item
     }
   },
-  removeGroupAction: (item: any) => {
+  removeGroupAction: (item: Group) => {
     return {
       type: 'GROUP_ADMIN_DELETE' as const,
       item

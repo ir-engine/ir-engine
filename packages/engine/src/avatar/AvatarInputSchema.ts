@@ -144,6 +144,8 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   inputValue: InputValue,
   delta: number
 ): void => {
+  // debugger
+  // console.log("change cam", inputValue, delta)
   const value = inputValue.value[0]
   const scrollDelta = Math.sign(value - lastScrollValue)
   lastScrollValue = value

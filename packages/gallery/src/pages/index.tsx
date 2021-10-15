@@ -2,8 +2,8 @@ import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthSe
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import FeedMenu from '../components/FeedMenu'
-import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -25,7 +25,7 @@ const Home = () => {
     const user = auth.user
     const userId = user ? user.id.value : null
     if (userId) {
-      CreatorService.createCreator()
+      dispatch(CreatorService.createCreator())
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 

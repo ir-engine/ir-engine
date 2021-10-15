@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 
-import { Creator, CreatorShort } from '@xrengine/common/src/interfaces/Creator'
+import { Creator, CreatorShort, CreatorNotification } from '@xrengine/common/src/interfaces/Creator'
 
 export const CreatorAction = {
   creatorLoggedRetrieved: (creator: Creator) => {
@@ -38,7 +38,7 @@ export const CreatorAction = {
       creators
     }
   },
-  creatorNotificationList: (notifications: any[]) => {
+  creatorNotificationList: (notifications: CreatorNotification[]) => {
     return {
       type: 'CREATOR_NOTIFICATION_LIST_RETRIEVED' as const,
       notifications

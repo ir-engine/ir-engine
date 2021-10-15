@@ -382,7 +382,7 @@ export async function populateRealityPack(
     {
       storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${manifestData.name}/manifest.json`,
       sourceManifest: realityPack.manifest,
-      localManifest: `/reality-packs/packs/${manifestData.name}/manifest.json`,
+      localManifest: `/reality-packs/projects/${manifestData.name}/manifest.json`,
       global: false,
       name: manifestData.name
     },
@@ -393,7 +393,7 @@ export async function populateRealityPack(
     try {
       console.log('Attempting to reload k8s clients!')
       const restartClientsResponse = await app.k8DefaultClient.patch(
-        `deployment/${config.server.releaseName}-xrengine-client`,
+        `deployment/${config.server.releaseName}-builder-xrengine-builder`,
         {
           spec: {
             template: {

@@ -3,11 +3,10 @@ import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-
+import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
+import { User } from '@xrengine/common/src/interfaces/User'
+import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
 export const USER_PAGE_LIMIT = 100
-
-type UserRole = { role: string }
-type UserRoles = UserRole[]
 
 const state = createState({
   isLoggedIn: false,
@@ -17,7 +16,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   users: {
-    users: [] as UserRoles,
+    users: [] as Array<User>,
     skip: 0,
     limit: USER_PAGE_LIMIT,
     total: 0,
@@ -27,7 +26,7 @@ const state = createState({
     lastFetched: new Date()
   },
   userRole: {
-    userRole: [] as UserRoles,
+    userRole: [] as Array<UserRole>,
     skip: 0,
     limit: USER_PAGE_LIMIT,
     total: 0,
@@ -45,7 +44,7 @@ const state = createState({
     updateNeeded: true
   },
   staticResource: {
-    staticResource: [],
+    staticResource: [] as Array<StaticResource>,
     retrieving: false,
     fetched: false,
     updateNeeded: true
@@ -62,7 +61,7 @@ const userReceptor = (action: UserActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_LOADED_USERS':
-        result = action.users
+        result = action.userResult
         return s.users.merge({
           users: result.data,
           skip: result.skip,
@@ -80,7 +79,7 @@ const userReceptor = (action: UserActionType): any => {
         return s.userRole.merge({ updateNeeded: true })
       case 'USER_ADMIN_REMOVED':
         result = action.data
-        let userRemove = state.users.users.value
+        let userRemove = [...s.users.users.value]
         userRemove = userRemove.filter((user) => user.id !== result.id)
         return s.users.merge({ users: userRemove, updateNeeded: true })
       case 'USER_ADMIN_CREATED':
@@ -92,7 +91,7 @@ const userReceptor = (action: UserActionType): any => {
       case 'USER_ROLE_UPDATED':
         return s.users.merge({ updateNeeded: true })
       case 'USER_SEARCH_ADMIN':
-        result = action.data
+        result = action.userResult
         return s.users.merge({
           users: result.data,
           skip: result.skip,

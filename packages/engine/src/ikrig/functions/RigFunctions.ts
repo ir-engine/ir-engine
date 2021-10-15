@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three'
+import { Object3D, SkinnedMesh } from 'three'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Chain } from '../classes/Chain'
 import { IKObj } from '../components/IKObj'
@@ -9,8 +9,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import Pose from '../classes/Pose'
 import { setupMixamoIKRig, setupTRexIKRig } from './IKFunctions'
 import { IKSolverFunction, solveLimb } from './IKSolvers'
-import { defaultIKPoseComponentValues, IKPoseComponent } from '../components/IKPoseComponent'
-import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
 
 export function addRig(
   entity: Entity,
@@ -74,10 +72,10 @@ function _addRig(
   // // Known Skeleton Structures.
   switch (arm_type) {
     case ArmatureType.MIXAMO:
-      setupMixamoIKRig(entity, rig)
+      setupMixamoIKRig(rig)
       break
     case ArmatureType.TREX:
-      setupTRexIKRig(entity, rig)
+      setupTRexIKRig(rig)
       break
     default:
       console.error('Unsupported rig type', arm_type)
@@ -97,13 +95,12 @@ function initMixamoRig(armature, rig) {
 }
 
 export function addPoint(rig: IKRigComponentType, name: string, boneName: string): void {
-  // const armature = getComponent(entity, IKObj).ref
-  // const rig = getComponent(entity, IKRigComponent)
   const bones = rig.tpose.bones
   rig.points[name] = {
     index: bones.findIndex((bone) => bone.name.includes(boneName))
   }
 }
+
 export function addChain(
   rig: IKRigComponentType,
   name: string,

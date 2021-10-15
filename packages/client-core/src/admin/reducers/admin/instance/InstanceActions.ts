@@ -1,11 +1,14 @@
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { InstanceResult } from '@xrengine/common/src/interfaces/InstanceResult'
+
 export const InstanceAction = {
-  instancesRetrievedAction: (instances: any) => {
+  instancesRetrievedAction: (instanceResult: InstanceResult) => {
     return {
       type: 'INSTANCES_RETRIEVED' as const,
-      instances: instances
+      instanceResult: instanceResult
     }
   },
-  instanceRemovedAction: (instance: any) => {
+  instanceRemovedAction: (instance: Instance) => {
     return {
       type: 'INSTANCE_REMOVED_ROW' as const,
       instance: instance

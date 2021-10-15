@@ -277,8 +277,8 @@ export const queueUnchangedIkPoses = (world: World) => {
   return world
 }
 
-export const queueXRHandPoses = (world) => {
-  const { currentNetworkState } = world
+export const queueXRHandPoses = (world: World) => {
+  const { outgoingNetworkState } = world
 
   for (const entity of xrHandsQuery(world)) {
     const { networkId } = getComponent(entity, NetworkObjectComponent)
@@ -310,7 +310,7 @@ export const queueXRHandPoses = (world) => {
       }
     }
 
-    currentNetworkState.handsPose.push({
+    outgoingNetworkState.handsPose.push({
       networkId,
       hands
     })

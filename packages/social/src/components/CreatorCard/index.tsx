@@ -19,10 +19,10 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 // import SimpleModal from '../SimpleModal';
 // @ts-ignore
 import styles from './CreatorCard.module.scss'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
-import { FeedService } from '../../reducers/feed/FeedService'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
+import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core'
 import SimpleModal from '../SimpleModal'
 

@@ -1,9 +1,10 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { GameServerSettingActionType } from './GameServerSettingActions'
+import { GameServerSetting } from '@xrengine/common/src/interfaces/GameServerSetting'
 
 const state = createState({
   gameServer: {
-    gameserver: [],
+    gameserver: [] as Array<GameServerSetting>,
     updateNeeded: true
   }
 })
@@ -18,8 +19,7 @@ const gameServerSettingReceptor = (action: GameServerSettingActionType): any => 
   state.batch((s) => {
     switch (action.type) {
       case 'GAME_SERVER_SETTING_DISPLAY':
-        result = action.gameServer
-
+        result = action.gameServerSettingResult
         return s.gameServer.merge({ gameserver: result.data, updateNeeded: false })
     }
   }, action.type)

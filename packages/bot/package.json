@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/bot",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -23,26 +23,26 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {
-    "@google-cloud/agones-sdk": "1.17.0",
+    "@google-cloud/agones-sdk": "1.18.0",
     "cross-env": "7.0.3",
     "puppeteer": "10.4.0"
   },
   "devDependencies": {
     "@types/expect-puppeteer": "4.4.7",
     "@types/mocha": "9.0.0",
-    "@types/node": "14.17.21",
+    "@types/node": "14.17.27",
     "@types/puppeteer": "5.4.4",
-    "@types/react": "17.0.27",
+    "@types/react": "17.0.30",
     "@types/react-dom": "17.0.9",
-    "@types/three": "0.133.0",
+    "@types/three": "0.133.1",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "8.0.0",
+    "eslint": "8.0.1",
     "eslint-plugin-react": "7.26.1",
     "mocha": "9.1.2",
     "semantic-release": "18.0.0",
     "semantic-release-monorepo": "7.0.5",
-    "typescript": "4.4.3",
+    "typescript": "4.4.4",
     "uuid": "8.3.2"
   },
   "license": "ISC"

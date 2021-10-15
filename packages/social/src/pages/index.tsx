@@ -20,10 +20,10 @@ import ArMediaPopup from '@xrengine/social/src/components/popups/ArMediaPopup'
 import FeedFormPopup from '@xrengine/social/src/components/popups/FeedFormPopup'
 import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPopup'
 import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
-import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
-import { useWebxrNativeState } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeState'
-import { WebxrNativeService } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeService'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/reducers/webxr_native/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/reducers/webxr_native/WebxrNativeService'
 
 import { useDispatch } from 'react-redux'
 // @ts-ignore
@@ -52,10 +52,10 @@ const Home = ({}) => {
   const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
 
   useEffect(() => {
-    if (accessToken) {
-      dispatch(AuthService.doLoginAuto(true))
-      dispatch(WebxrNativeService.getWebXrNative())
-    }
+    // if (accessToken) {
+    dispatch(AuthService.doLoginAuto(true))
+    dispatch(WebxrNativeService.getWebXrNative())
+    // }
   }, [accessToken])
 
   useEffect(() => {
@@ -118,9 +118,9 @@ const Home = ({}) => {
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
-  if (!accessToken) {
-    return <Redirect to="/registration" />
-  }
+  // if (!accessToken) {
+  //   return <Redirect to="/registration" />
+  // }
 
   return <App />
 }

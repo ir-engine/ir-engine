@@ -70,7 +70,7 @@ export const PartyService = {
       console.log('Your socket id is: ', socketId)
     }
   },
-  createParty: (values: any) => {
+  createParty: () => {
     return async (dispatch: Dispatch): Promise<any> => {
       console.log('CREATING PARTY')
       try {

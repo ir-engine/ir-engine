@@ -13,7 +13,7 @@ import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
 import { defaultIKPoseComponentValues, IKPoseComponent } from '@xrengine/engine/src/ikrig/components/IKPoseComponent'
 import { IKRigComponent, IKRigComponentType } from '@xrengine/engine/src/ikrig/components/IKRigComponent'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
-import IKRigSystem from '@xrengine/engine/src/ikrig/systems/IKRigSystem'
+import SkeletonRigSystem from '@xrengine/engine/src/ikrig/systems/SkeletonRigSystem'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import React, { useEffect, useRef, useState } from 'react'
 import {
@@ -142,7 +142,7 @@ const Page = () => {
       await initializeEngine({ scene: { disabled: true } })
       // Register our systems to do stuff
       registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: AnimationSystem }))
-      registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: IKRigSystem }))
+      registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: SkeletonRigSystem }))
       registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: RenderSystem }))
       await Engine.defaultWorld.initSystems()
 

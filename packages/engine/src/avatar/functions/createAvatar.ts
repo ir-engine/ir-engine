@@ -134,32 +134,32 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     addComponent(world.localClientEntity, LocalInputTagComponent, {})
     addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
     addComponent(world.localClientEntity, PersistTagComponent, {})
-  } else {
-    const shape = world.physics.createShape(
-      new PhysX.PxCapsuleGeometry(avatarRadius, capsuleHeight / 2),
-      world.physics.physics.createMaterial(0, 0, 0),
-      {
-        collisionLayer: CollisionGroups.Avatars,
-        collisionMask: CollisionGroups.Default | CollisionGroups.Ground
-      }
-    )
-    const body = world.physics.addBody({
-      shapes: [shape],
-      type: BodyType.STATIC,
-      transform: {
-        translation: {
-          x: transform.position.x,
-          y: transform.position.y + avatarHalfHeight,
-          z: transform.position.z
-        },
-        rotation: new Quaternion()
-      },
-      userData: {
-        entity
-      }
-    })
-    addComponent(entity, ColliderComponent, { body })
   }
+  const shape = world.physics.createShape(
+    new PhysX.PxCapsuleGeometry(avatarRadius, capsuleHeight / 2),
+    world.physics.physics.createMaterial(0, 0, 0),
+    {
+      collisionLayer: CollisionGroups.Avatars,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+    }
+  )
+  const body = world.physics.addBody({
+    shapes: [shape],
+    type: BodyType.DYNAMIC,
+    transform: {
+      translation: {
+        x: transform.position.x,
+        y: transform.position.y + avatarHalfHeight,
+        z: transform.position.z
+      },
+      rotation: new Quaternion()
+    },
+    userData: {
+      entity
+    }
+  })
+  body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, true)
+  addComponent(entity, ColliderComponent, { body })
 
   return entity
 }

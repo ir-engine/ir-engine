@@ -22,10 +22,12 @@ import { useTranslation } from 'react-i18next'
 import { useSceneState } from '../reducers/admin/scene/SceneState'
 import { useLocationState } from '../reducers/admin/location/LocationState'
 
+import { Location } from '@xrengine/common/src/interfaces/Location'
+
 interface Props {
   open: boolean
   handleClose: any
-  location: any
+  location: Location
   editing: boolean
 }
 
@@ -80,12 +82,12 @@ const LocationModal = (props: Props): any => {
       setName(location.name)
       setSceneId(location.sceneId || '')
       setMaxUsers(location.maxUsersPerInstance)
-      setVideoEnabled(location.location_setting.videoEnabled)
-      setInstanceMediaChatEnabled(location.location_setting.instanceMediaChatEnabled)
-      setLocationType(location.location_setting.locationType)
+      setVideoEnabled(location.location_settings.videoEnabled)
+      setInstanceMediaChatEnabled(location.location_settings.instanceMediaChatEnabled)
+      setLocationType(location.location_settings.locationType)
       setState({
         lobby: location.isLobby,
-        feature: location.isFeature
+        feature: location.isFeatured
       })
     } else {
       setName('')

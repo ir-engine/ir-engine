@@ -105,7 +105,8 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 					angularVelocity: [],
 				}
 			],
-			ikPose: []
+			ikPose: [],
+      handsPose: []
 		}
 
 		const buffer = WorldStateModel.toBuffer(newWorldState)

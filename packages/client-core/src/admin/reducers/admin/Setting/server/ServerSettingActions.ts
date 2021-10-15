@@ -1,8 +1,10 @@
+import { ServerSettingResult } from '@xrengine/common/src/interfaces/ServerSettingResult'
+
 export const ServerSettingAction = {
-  fetchedSeverInfo: (serverInfo: any) => {
+  fetchedSeverInfo: (serverSettingResult: ServerSettingResult) => {
     return {
       type: 'SETTING_SERVER_DISPLAY' as const,
-      serverInfo: serverInfo
+      serverSettingResult: serverSettingResult
     }
   }
 }
