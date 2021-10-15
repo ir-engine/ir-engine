@@ -241,7 +241,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerSystemWithArgs(SystemUpdateType.FIXED_LATE, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
   })
-
+  registerSystem(SystemUpdateType.FIXED, import('../../client/src/pages/tournament/logic/TournamentSystem'))
   registerInjectedSystems(SystemUpdateType.FIXED_LATE, options.systems)
 
   // Network Outgoing Systems
