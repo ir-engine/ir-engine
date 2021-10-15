@@ -57,6 +57,15 @@ export default async function AutopilotSystem(world: World): Promise<System> {
   const ongoingQuery = defineQuery([AutoPilotComponent])
   const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
 
+  const vec3 = new Vector3()
+  function getCameraDirection() {
+    Engine.camera.getWorldDirection(vec3)
+
+    vec3.setY(0).normalize()
+    quat.setFromUnitVectors(forward, vec3)
+    return quat
+  }
+
   return () => {
     for (const entity of navClickQuery.enter()) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
@@ -178,7 +187,11 @@ export default async function AutopilotSystem(world: World): Promise<System> {
         )
         direction.copy(targetFlatPosition).sub(avatarPositionFlat).normalize()
         const targetAngle = Math.atan2(direction.x, direction.z)
-        stickValue.copy(direction).multiplyScalar(speedModifier) // speed
+        stickValue
+          .copy(direction)
+          .multiplyScalar(speedModifier)
+          // Avatar controller system assumes all movement is relative to camera, so cancel that out
+          .applyQuaternion(getCameraDirection().invert())
 
         const stickPosition: NumericalType = [stickValue.z, stickValue.x, targetAngle]
         // If position not set, set it with lifecycle started
