@@ -4,60 +4,58 @@ import { Route, Redirect } from 'react-router-dom'
 export default function (route: string) {
   switch (route) {
     case '/':
-      return (
+      return [
         <Route key={'/'} path={'/'} component={React.lazy(() => import('@xrengine/client/src/pages/index'))} exact />
-      )
+      ]
     case '/login':
-      return (
+      return [
         <Route
           key={'/login'}
           path={'/login'}
           component={React.lazy(() => import('@xrengine/client/src/pages/login'))}
         />
-      )
+      ]
     case '/harmony':
-      return (
+      return [
         <Route
           key={'/harmony'}
           path={'/harmony'}
           component={React.lazy(() => import('@xrengine/client/src/pages/harmony/index'))}
         />
-      )
+      ]
     case '/admin':
-      return (
+      return [
         <Route
           key={'/admin'}
           path={'/admin'}
           component={React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))}
         />
-      )
+      ]
     case '/location':
-      return (
+      return [
         <Route
           key={'/location'}
           path={'/location'}
           component={React.lazy(() => import('@xrengine/client/src/pages/location/location'))}
         />
-      )
+      ]
     case '/auth':
-      return (
+      return [
         <Route
           key={'/auth'}
           path={'/auth'}
           component={React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))}
         />
-      )
+      ]
     case '/editor':
-      return (
-        <>
-          <Route
-            key={'/editor'}
-            path={'/editor'}
-            component={React.lazy(() => import('@xrengine/client/src/pages/editor/editor'))}
-          />
-          <Redirect key={'/editor redirect'} path="/editor" to="/editor/projects" />
-        </>
-      )
+      return [
+        <Route
+          key={'/editor'}
+          path={'/editor'}
+          component={React.lazy(() => import('@xrengine/client/src/pages/editor/editor'))}
+        />,
+        <Redirect key={'/editor redirect'} path="/editor" to="/editor/projects" />
+      ]
   }
 
   // TODO: add test routes
