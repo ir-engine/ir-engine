@@ -35,7 +35,7 @@ export function incomingNetworkReceptor(action) {
       if (!isClient || userId === Engine.userId) return
       world.clients.delete(userId)
     })
-
+/*
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
       const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
       const isOwnedByMe = a.userId === Engine.userId
@@ -52,4 +52,5 @@ export function incomingNetworkReceptor(action) {
       if (entity === world.localClientEntity) return
       if (entity) removeEntity(entity)
     })
+*/
 }
