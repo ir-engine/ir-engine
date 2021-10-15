@@ -273,7 +273,7 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
       })
     ).to(userId === joinedUserId ? 'all' : joinedUserId)
   }
-/*
+
   dispatchFrom(world.hostId, () =>
     NetworkWorldAction.spawnAvatar({
       userId: joinedUserId,
@@ -297,7 +297,7 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
       ).to(joinedUserId)
     }
   }
-*/
+
   callback({
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })

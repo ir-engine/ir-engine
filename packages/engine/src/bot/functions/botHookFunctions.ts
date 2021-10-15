@@ -1,11 +1,9 @@
 import { MathUtils, Quaternion, Vector3 } from 'three'
-import { useTournamentState } from '../../../../client/src/pages/game/logic/TournamentSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BotHooks, XRBotHooks, BasketballHooks } from '../enums/BotHooks'
-
+import { BotHooks, XRBotHooks } from '../enums/BotHooks'
 import {
   getXRInputPosition,
   moveControllerStick,
@@ -25,7 +23,6 @@ export const BotHookFunctions = {
   [BotHooks.GetPlayerPosition]: getPlayerPosition,
   [BotHooks.RotatePlayer]: rotatePlayer,
   [BotHooks.GetClients]: getClients,
-  [BasketballHooks.UseTournamentState]: useTournamentState,
   [XRBotHooks.OverrideXR]: overrideXR,
   [XRBotHooks.XRSupported]: xrSupported,
   [XRBotHooks.XRInitialized]: xrInitialized,
