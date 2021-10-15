@@ -1,0 +1,19 @@
+{ 
+  "routes": [
+    "/", 
+    "/login",
+    "/admin",
+    "/auth",
+    "/:id",
+    "/post",
+    "/activity",
+    "/creator",
+    "/creatorEdit",
+    "/explore",
+    "/feed",
+    "/login",
+    "/messages",
+    "/newfeed",
+    "/notifications"
+  ]
+}
