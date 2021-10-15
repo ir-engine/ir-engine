@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route } from 'react-router-dom'
+import { Route, Redirect } from 'react-router-dom'
 
 export const routes = ['/', '/login', '/harmony', '/admin', '/location', '/auth', '/editor']
 
@@ -51,11 +51,14 @@ export default function (route: string) {
       )
     case '/editor':
       return (
-        <Route
-          key={'/editor'}
-          path={'/editor'}
-          component={React.lazy(() => import('@xrengine/client/src/pages/editor/editor'))}
-        />
+        <>
+          <Route
+            key={'/editor'}
+            path={'/editor'}
+            component={React.lazy(() => import('@xrengine/client/src/pages/editor/editor'))}
+          />
+          <Redirect key={'/editor redirect'} path="/editor" to="/editor/projects" />
+        </>
       )
   }
 

@@ -18,8 +18,8 @@
     "vr"
   ],
   "author": {
-    "name": "XREngine Collective",
-    "email": "shawmakesmagic@gmail.com"
+    "name": "XRFoundation Collective",
+    "email": "hello@xrfoundation.io"
   },
   "contributors": [],
   "bugs": {},
@@ -48,19 +48,19 @@
     "socket.io": "4.2.0"
   },
   "dependencies": {
-    "@feathersjs/authentication": "5.0.0-pre.14",
-    "@feathersjs/authentication-local": "5.0.0-pre.14",
-    "@feathersjs/authentication-oauth": "5.0.0-pre.14",
+    "@feathersjs/authentication": "5.0.0-pre.9",
+    "@feathersjs/authentication-local": "5.0.0-pre.9",
+    "@feathersjs/authentication-oauth": "5.0.0-pre.9",
     "@feathersjs/cli": "4.5.0",
-    "@feathersjs/commons": "5.0.0-pre.14",
-    "@feathersjs/configuration": "5.0.0-pre.14",
-    "@feathersjs/errors": "5.0.0-pre.14",
-    "@feathersjs/express": "5.0.0-pre.14",
-    "@feathersjs/feathers": "5.0.0-pre.14",
-    "@feathersjs/rest-client": "5.0.0-pre.14",
-    "@feathersjs/socketio": "5.0.0-pre.14",
-    "@feathersjs/socketio-client": "5.0.0-pre.14",
-    "@feathersjs/transport-commons": "5.0.0-pre.14",
+    "@feathersjs/commons": "5.0.0-pre.9",
+    "@feathersjs/configuration": "5.0.0-pre.9",
+    "@feathersjs/errors": "5.0.0-pre.9",
+    "@feathersjs/express": "5.0.0-pre.9",
+    "@feathersjs/feathers": "5.0.0-pre.9",
+    "@feathersjs/rest-client": "5.0.0-pre.9",
+    "@feathersjs/socketio": "5.0.0-pre.9",
+    "@feathersjs/socketio-client": "5.0.0-pre.9",
+    "@feathersjs/transport-commons": "5.0.0-pre.9",
     "@google-cloud/agones-sdk": "1.18.0",
     "@xrengine/engine": "^0.4.9",
     "@xrengine/projects": "^0.4.9",

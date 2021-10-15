@@ -34,7 +34,7 @@ const App = (): any => {
   return (
     <>
       <Helmet>
-        <title>{Config.publicRuntimeConfig.title}</title>
+        <title>CREATOR</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"

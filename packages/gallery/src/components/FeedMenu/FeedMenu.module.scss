@@ -7,7 +7,7 @@
     .switcher{
         background-color: #FFFFFF;
         padding: 5px 5px;
-        display: flex;
+        display: none;
         margin: 10px 20px;
         border-radius: 35px;
         border-color: #E4E4E4;
@@ -28,6 +28,10 @@
         }
     }
 
+    .switcherActive {
+        display: flex;
+    }
+
     @media (min-width:768px) {
     //    .switcher {
     //        width: 40%;
@@ -42,6 +46,7 @@
 
     .viewSwitcher{
         @extend .switcher;
+        display: flex;
         width: fit-content;
         .viewSwitchButton{
             @extend .switchButton;
@@ -49,12 +54,6 @@
                 @extend .active;
             }
         }
-    }
-
-    @media (max-width: 1024px) {
-       .viewSwitcher {
-           display: none
-       } 
     }
 
     .subWrapper{
@@ -122,6 +121,4 @@
     padding: 5px 0px 95px 0px;
     margin-top: 40px;
     box-sizing: border-box;
-    overflow-y: scroll;
-    height: 100vh;
 }
