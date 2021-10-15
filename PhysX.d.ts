@@ -346,7 +346,7 @@ declare namespace PhysX {
   }
 
   class PxActor extends Base {
-    // setActorFlag(flag: number, value: boolean): void;
+    setActorFlag(flag: PxActorFlag, value: boolean): void
     setActorFlags(flags: PxActorFlag): void
     getActorFlags(): number
   }
