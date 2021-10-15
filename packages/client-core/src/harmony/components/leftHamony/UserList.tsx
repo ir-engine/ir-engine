@@ -50,12 +50,14 @@ const UserList = ({ chatType }) => {
       data = []
       break
   }
-  dispatch(ChatService.updateChatTarget(chatType.toLowerCase(), data))
+  if (data) {
+    dispatch(ChatService.updateChatTarget(chatType.toLowerCase(), data))
+  }
 
   return (
     <div>
       <List className={classes.root}>
-        {data.length > 0 ? (
+        {data && data.length > 0 ? (
           data.map((el) => {
             return (
               <div key={el.id}>
