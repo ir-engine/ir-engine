@@ -2,7 +2,7 @@
   "name": "@xrengine/engine",
   "author": {
     "name": "XRFoundation Collective",
-    "email": "hello@xrfoundation.io"
+    "email": "hello@xrfoundation.io",
     "url": "http://github.com/XRFoundation"
   },
   "bugs": {
