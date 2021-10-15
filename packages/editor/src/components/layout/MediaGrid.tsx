@@ -202,7 +202,13 @@ export function ImageMediaGridItem({ label, src, ...rest }: ImageMediaGridItemPr
  * @param {any} rest
  * @returns
  */
-export function IconMediaGridItem({ label, iconComponent: IconComponent, onNameChanged, isRenaming = false, ...rest }) {
+export function IconMediaGridItem({
+  label,
+  iconComponent: IconComponent,
+  onNameChanged = null,
+  isRenaming = false,
+  ...rest
+}) {
   const inputref = useRef(null)
   const inputLabel = (
     <MediaGridInputLabel placeholder={label} disabled={!isRenaming} onKeyDown={onNameChanged} ref={inputref} />

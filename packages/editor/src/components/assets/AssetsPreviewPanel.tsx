@@ -72,6 +72,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
         break
       case 'audio/mpeg':
       case 'mpeg':
+      case 'mp3':
         const audioPreviewPanel = {
           PreviewSource: AudioPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }

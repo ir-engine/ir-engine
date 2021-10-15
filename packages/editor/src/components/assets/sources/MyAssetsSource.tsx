@@ -31,7 +31,9 @@ export const UploadFileType = {
   'image/jpeg': ImageNode,
   'application/pdf': null,
   'video/mp4': VideoNode,
-  'audio/mpeg': AudioNode
+  'audio/mpeg': AudioNode,
+  'audio/mp3': AudioNode,
+  mp3: AudioNode
 }
 
 export class MyAssetsSource extends BaseSource {
