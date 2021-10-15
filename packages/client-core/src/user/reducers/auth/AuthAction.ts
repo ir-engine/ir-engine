@@ -127,7 +127,6 @@ export const AuthAction = {
     }
   },
   avatarUpdated: (result: any) => {
-    debugger
     const url = result.url
     return {
       type: 'AVATAR_UPDATED' as const,

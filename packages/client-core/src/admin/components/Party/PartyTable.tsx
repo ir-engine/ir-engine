@@ -7,8 +7,7 @@ import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import { PartyService } from '../../reducers/admin/party/PartyService'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
 import { PartyPropsTable, partyColumns, PartyData } from './variables'
 import { usePartyStyles, usePartyStyle } from './style'
@@ -66,13 +65,13 @@ const PartyTable = (props: PartyPropsTable) => {
     setPage(0)
   }
 
-  const rows = adminPartyData.map((el) =>
-    createData(
+  const rows = adminPartyData?.map((el) => {
+    return createData(
       el.id,
-      el.instance?.ipAddress || <span className={classes.spanNone}>None</span>,
-      el.location?.name || <span className={classes.spanNone}>None</span>
+      el?.instance?.ipAddress || `<span className={classes.spanNone}>None</span>`,
+      el.location?.name || `<span className={classes.spanNone}>None</span>`
     )
-  )
+  })
 
   return (
     <div className={classes.root}>

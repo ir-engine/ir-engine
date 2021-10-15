@@ -1,38 +1,41 @@
+import { AdminBotResult } from '@xrengine/common/src/interfaces/AdminBotResult'
+import { AdminBot, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
 export const BotsAction = {
-  fetchedBot: (bots: any) => {
+  fetchedBot: (bots: AdminBotResult) => {
     return {
       type: 'BOT_ADMIN_DISPLAY' as const,
       bots: bots
     }
   },
-  botCreated: (bot: any) => {
+  botCreated: (bot: AdminBot) => {
     return {
       type: 'BOT_ADMIN_CREATE' as const,
       bot: bot
     }
   },
-  botCammandCreated: (botCommand: any) => {
+  botCammandCreated: (botCommand: BotCommands) => {
     return {
       type: 'BOT_COMMAND_ADMIN_CREATE' as const,
       botCommand: botCommand
     }
   },
-  botRemoved: (bot: any) => {
+  botRemoved: (bot: AdminBot) => {
+    debugger
     return {
       type: 'BOT_ADMIN_REMOVE' as const,
       bot: bot
     }
   },
-  botCommandRemoved: (botCommand: any) => {
+  botCommandRemoved: (botCommand: BotCommands) => {
     return {
       type: 'BOT_COMMAND_ADMIN_REMOVE' as const,
       botCommand: botCommand
     }
   },
-  botPatched: (result: any) => {
+  botPatched: (bot: AdminBot) => {
     return {
       type: 'BOT_ADMIN_UPDATE' as const,
-      bot: result
+      bot: bot
     }
   }
 }

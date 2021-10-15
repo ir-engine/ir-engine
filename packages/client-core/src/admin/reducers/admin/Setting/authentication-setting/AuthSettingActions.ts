@@ -1,11 +1,13 @@
+import { AdminRedisSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
+
 export const AuthSettingAction = {
-  authSettingRetrieved: (data: any) => {
+  authSettingRetrieved: (adminRedisSettingResult: AdminRedisSettingResult) => {
     return {
       type: 'ADMIN_AUTH_SETTING_FETCHED' as const,
-      list: data
+      adminRedisSettingResult: adminRedisSettingResult
     }
   },
-  authSettingPatched: (data: any) => {
+  authSettingPatched: (data: AdminRedisSettingResult) => {
     return {
       type: 'ADMIN_AUTH_SETTING_PATCHED' as const
     }

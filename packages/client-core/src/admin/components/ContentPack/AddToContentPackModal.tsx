@@ -1,7 +1,6 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 import { useContentPackState } from '../../reducers/contentPack/ContentPackState'
 import styles from './ContentPack.module.scss'
 import { ContentPackService } from '../../reducers/contentPack/ContentPackService'

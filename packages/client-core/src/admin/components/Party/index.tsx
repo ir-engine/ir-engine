@@ -41,7 +41,12 @@ const Party = () => {
           <Search />
         </Grid>
         <Grid item xs={3}>
-          <Button className={`${classx.typoFont} ${classes.createBtn}`} type="submit" variant="contained">
+          <Button
+            className={`${classx.typoFont} ${classes.createBtn}`}
+            type="submit"
+            variant="contained"
+            onClick={() => openModalCreate()}
+          >
             Create New Party
           </Button>
         </Grid>

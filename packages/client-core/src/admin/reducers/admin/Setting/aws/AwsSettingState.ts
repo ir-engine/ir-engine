@@ -2,9 +2,11 @@ import { createState, useState, none, Downgraded } from '@hookstate/core'
 
 import { AwsSettingActionType } from './AwsSettingActions'
 
+import { AdminAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
+
 const state = createState({
   awsSettings: {
-    awsSettings: [],
+    awsSettings: [] as Array<AdminAwsSetting>,
     skip: 0,
     limit: 100,
     total: 0,
@@ -22,7 +24,7 @@ const adminAwsSettingReceptor = (action: AwsSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_AWS_SETTING_FETCHED':
-        result = action.list
+        result = action.adminRedisSettingResult
         return s.awsSettings.merge({ awsSettings: result.data, updateNeeded: false })
     }
   }, action.type)

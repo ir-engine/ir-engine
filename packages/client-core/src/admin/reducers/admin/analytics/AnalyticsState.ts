@@ -1,6 +1,5 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { AnalyticsActionType } from './AnalyticsActions'
-
 export const ANALYTICS_PAGE_LIMIT = 100
 
 const state = createState({
@@ -20,7 +19,7 @@ export const AdminAnalyticsReducer = (_, action: AnalyticsActionType) => {
 }
 
 const analyticsReceptor = (action: AnalyticsActionType): any => {
-  let result: any, updateMap: any, date: Date
+  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'ACTIVE_INSTANCES_FETCHED':

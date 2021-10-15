@@ -24,6 +24,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import { ScopeService } from '../../reducers/admin/scope/ScopeService'
 import { useScopeState } from '../../reducers/admin/scope/ScopeState'
+import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -46,7 +47,7 @@ const CreateUser = (props: Props) => {
     name: '',
     avatar: '',
     userRole: '',
-    scopeType: [],
+    scopeType: [] as Array<AdminScopeType>,
     formErrors: {
       name: '',
       avatar: '',
@@ -222,8 +223,8 @@ const CreateUser = (props: Props) => {
                   <em>Select user role</em>
                 </MenuItem>
                 {userRoleData.map((el) => (
-                  <MenuItem value={el.role} key={el.role}>
-                    {el.role}
+                  <MenuItem value={el?.userRole || ''} key={el?.userRole || ''}>
+                    {el?.userRole || ''}
                   </MenuItem>
                 ))}
               </Select>

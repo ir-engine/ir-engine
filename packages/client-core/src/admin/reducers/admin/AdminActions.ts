@@ -1,5 +1,3 @@
-import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
-
 export interface VideoCreationForm {
   name: string
   description: string

@@ -50,8 +50,10 @@ const GroupTable = (props: Props) => {
 
   const handleViewGroup = (id: string) => {
     const group = adminGroups.value.find((group) => group.id === id)
-    setSingleGroup(group)
-    setViewModel(true)
+    if (group !== null) {
+      setSingleGroup(group)
+      setViewModel(true)
+    }
   }
 
   const handleCloseWarning = () => {

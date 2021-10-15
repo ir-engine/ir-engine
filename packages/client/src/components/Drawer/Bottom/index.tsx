@@ -38,7 +38,7 @@ const BottomDrawer = (props: Props): any => {
   const channels = channelState.channels
   const targetObject = chatState.targetObject
   const targetObjectType = chatState.targetObjectType
-  const targetChannelId = chatState.targetChannelId
+  const targetChannelId = chatState.targetChannelId.value
   const messageScrollInit = chatState.messageScrollInit
   const [messageScrollUpdate, setMessageScrollUpdate] = useState(false)
   const [topMessage, setTopMessage] = useState({})
@@ -47,7 +47,7 @@ const BottomDrawer = (props: Props): any => {
   const [messageUpdatePending, setMessageUpdatePending] = useState('')
   const [editingMessage, setEditingMessage] = useState('')
   const [composingMessage, setComposingMessage] = useState('')
-  const activeChannel = channels[targetChannelId.value]
+  const activeChannel = channels[targetChannelId]
 
   useEffect(() => {
     if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
@@ -110,7 +110,7 @@ const BottomDrawer = (props: Props): any => {
       dispatch(
         ChatService.createMessage({
           targetObjectId: targetObject.id.value,
-          targetObjectType: targetObjectType,
+          targetObjectType: targetObjectType.value,
           text: composingMessage
         })
       )
@@ -151,7 +151,7 @@ const BottomDrawer = (props: Props): any => {
       e.target.scrollTop === 0 &&
       e.target.scrollHeight > e.target.clientHeight &&
       messageScrollInit.value !== true &&
-      activeChannel.skip + activeChannel.limit < activeChannel.total
+      activeChannel.skip.value + activeChannel.limit.value < activeChannel.total.value
     ) {
       setMessageScrollUpdate(true)
       setTopMessage((messageEl as any).firstElementChild)
@@ -166,8 +166,8 @@ const BottomDrawer = (props: Props): any => {
   }
 
   const nextMessagePage = (): void => {
-    if (activeChannel.skip + activeChannel.limit < activeChannel.total) {
-      dispatch(ChatService.getChannelMessages(targetChannelId.value, activeChannel.skip + activeChannel.limit))
+    if (activeChannel.skip.value + activeChannel.limit.value < activeChannel.total.value) {
+      dispatch(ChatService.getChannelMessages(targetChannelId, activeChannel.skip.value + activeChannel.limit.value))
     } else {
       setMessageScrollUpdate(false)
     }
@@ -295,7 +295,7 @@ const BottomDrawer = (props: Props): any => {
             <List ref={messageRef as any} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
               {activeChannel != null &&
                 activeChannel.messages &&
-                activeChannel.messages
+                [...activeChannel.messages]
                   .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                   .map((message) => {
                     return (
@@ -394,9 +394,9 @@ const BottomDrawer = (props: Props): any => {
                       </ListItem>
                     )
                   })}
-              {targetChannelId.value.length === 0 && targetObject.value.id != null && (
+              {targetChannelId.length === 0 && targetObject.value.id != null && (
                 <div className={styles['first-message-placeholder']}>
-                  <div>{targetChannelId.value}</div>
+                  <div>{targetChannelId}</div>
                   Start a chat with{' '}
                   {targetObjectType.value === 'user' || targetObjectType.value === 'group'
                     ? targetObject.name.value

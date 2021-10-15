@@ -168,9 +168,11 @@ const InstanceChat = (props: Props): any => {
                     let chatMessage = message.text
 
                     if (system !== 'none') {
-                      if ((isClient && isBot(window)) || system === '[jl_system]')
+                      if ((isClient && isBot(window)) || system === 'jl_system') {
                         chatMessage = removeMessageSystem(message.text)
-                      else return undefined
+                      } else {
+                        return undefined
+                      }
                     }
                     return (
                       <ListItem
@@ -230,9 +232,11 @@ const InstanceChat = (props: Props): any => {
                   if (e.key === 'Enter' && e.ctrlKey) {
                     e.preventDefault()
                     const selectionStart = (e.target as HTMLInputElement).selectionStart
-                    setCursorPosition(selectionStart)
+                    setCursorPosition(selectionStart || 0)
                     setComposingMessage(
-                      composingMessage.substring(0, selectionStart) + '\n' + composingMessage.substring(selectionStart)
+                      composingMessage.substring(0, selectionStart || 0) +
+                        '\n' +
+                        composingMessage.substring(selectionStart || 0)
                     )
                     !isMultiline && setIsMultiline(true)
                   } else if (e.key === 'Enter' && !e.ctrlKey) {

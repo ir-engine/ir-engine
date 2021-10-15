@@ -463,8 +463,8 @@ const Harmony = (props: Props): any => {
     if (composingMessage.length > 0) {
       dispatch(
         ChatService.createMessage({
-          targetObjectId: targetObject.id,
-          targetObjectType: targetObjectType,
+          targetObjectId: targetObject.id.value,
+          targetObjectType: targetObjectType.value,
           text: composingMessage
         })
       )

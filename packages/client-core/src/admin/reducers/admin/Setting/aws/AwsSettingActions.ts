@@ -1,8 +1,10 @@
+import { AdminRedisSettingResult } from '@xrengine/common/src/interfaces/AdminRedisSettingResult'
+
 export const AwsSettingAction = {
-  awsSettingRetrieved: (data: any) => {
+  awsSettingRetrieved: (adminRedisSettingResult: AdminRedisSettingResult) => {
     return {
       type: 'ADMIN_AWS_SETTING_FETCHED' as const,
-      list: data
+      adminRedisSettingResult: adminRedisSettingResult
     }
   }
 }

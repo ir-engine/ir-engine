@@ -1,11 +1,12 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { ScopeActionType } from './ScopeActions'
-
+import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
 export const SCOPE_PAGE_LIMIT = 100
 
 const state = createState({
   scope: {
-    scope: [],
+    scope: [] as Array<AdminScope>,
     skip: 0,
     limit: SCOPE_PAGE_LIMIT,
     total: 0,
@@ -15,7 +16,7 @@ const state = createState({
     lastFetched: new Date()
   },
   scopeType: {
-    scopeType: [],
+    scopeType: [] as Array<AdminScopeType>,
     skip: 0,
     limit: SCOPE_PAGE_LIMIT,
     total: 0,
@@ -39,12 +40,12 @@ const scopeReceptor = (action: ScopeActionType): any => {
       case 'SCOPE_FETCHING':
         return s.merge({ fetching: true })
       case 'SCOPE_ADMIN_RETRIEVED':
-        result = action.list
-
+        result = action.adminScopeResult
         return s.scope.merge({
           scope: result.data,
           skip: result.skip,
           limit: result.limit,
+          total: result.total,
           retrieving: false,
           fetched: true,
           updateNeeded: false,
@@ -58,11 +59,12 @@ const scopeReceptor = (action: ScopeActionType): any => {
       case 'REMOVE_SCOPE':
         return s.scope.merge({ updateNeeded: true })
       case 'SCOPE_TYPE_RETRIEVED':
-        result = action.list
+        result = action.adminScopTypeResult
         return s.scopeType.merge({
           scopeType: result.data,
           skip: result.skip,
           limit: result.limit,
+          total: result.total,
           retrieving: false,
           fetched: true,
           updateNeeded: false,

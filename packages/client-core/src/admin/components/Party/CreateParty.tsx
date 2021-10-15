@@ -23,7 +23,7 @@ import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 const CreateParty = (props: PartyProps) => {
   const classes = usePartyStyle()
-
+  CreateParty
   const { open, handleClose } = props
 
   const [location, setLocation] = useState('')

@@ -46,7 +46,7 @@ const GameServer = (props: gameServerProps) => {
           GAME SERVER
         </Typography>
         {gameServerSettings.map((el) => (
-          <div className={classes.root} key={el.id}>
+          <div className={classes.root} key={el?.id || ''}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
                 <label> Client Host</label>
@@ -56,7 +56,7 @@ const GameServer = (props: gameServerProps) => {
                     className={classes.input}
                     disabled
                     style={{ color: '#fff' }}
-                    value={el.clientHost}
+                    value={el?.clientHost || ''}
                   />
                 </Paper>
                 <label>Enabled</label>
@@ -77,7 +77,7 @@ const GameServer = (props: gameServerProps) => {
                     className={classes.input}
                     disabled
                     style={{ color: '#fff' }}
-                    value={el.rtc_start_port}
+                    value={el?.rtc_start_port || ''}
                   />
                 </Paper>
                 <label>rtc_end_port</label>
@@ -87,7 +87,7 @@ const GameServer = (props: gameServerProps) => {
                     className={classes.input}
                     disabled
                     style={{ color: '#fff' }}
-                    value={el.rtc_end_port}
+                    value={el?.rtc_end_port || ''}
                   />
                 </Paper>
                 <label>rtc_port_block_size</label>
@@ -97,7 +97,7 @@ const GameServer = (props: gameServerProps) => {
                     className={classes.input}
                     disabled
                     style={{ color: '#fff' }}
-                    value={el.rtc_port_block_size}
+                    value={el?.rtc_port_block_size || ''}
                   />
                 </Paper>
                 <label>Identifier Digits </label>
@@ -107,7 +107,7 @@ const GameServer = (props: gameServerProps) => {
                     name="identifierDigits"
                     className={classes.input}
                     style={{ color: '#fff' }}
-                    value={el.identifierDigits}
+                    value={el?.identifierDigits || ''}
                   />
                 </Paper>
               </Grid>
@@ -131,7 +131,7 @@ const GameServer = (props: gameServerProps) => {
                     className={classes.input}
                     disabled
                     style={{ color: '#fff' }}
-                    value={el.domain}
+                    value={el?.domain || ''}
                   />
                 </Paper>
                 <label> Release Name </label>
@@ -141,16 +141,28 @@ const GameServer = (props: gameServerProps) => {
                     className={classes.input}
                     disabled
                     style={{ color: '#fff' }}
-                    value={el.releaseName}
+                    value={el?.releaseName || ''}
                   />
                 </Paper>
                 <label> Port </label>
                 <Paper component="div" className={classes.createInput}>
-                  <InputBase name="port" className={classes.input} disabled style={{ color: '#fff' }} value={el.port} />
+                  <InputBase
+                    name="port"
+                    className={classes.input}
+                    disabled
+                    style={{ color: '#fff' }}
+                    value={el?.port || ''}
+                  />
                 </Paper>
                 <label> Mode </label>
                 <Paper component="div" className={classes.createInput}>
-                  <InputBase name="mode" className={classes.input} disabled style={{ color: '#fff' }} value={el.mode} />
+                  <InputBase
+                    name="mode"
+                    className={classes.input}
+                    disabled
+                    style={{ color: '#fff' }}
+                    value={el?.mode || ''}
+                  />
                 </Paper>
                 <label> Location Name </label>
                 <Paper component="div" className={classes.createInput}>
@@ -159,7 +171,7 @@ const GameServer = (props: gameServerProps) => {
                     className={classes.input}
                     disabled
                     style={{ color: '#fff' }}
-                    value={el.locationName}
+                    value={el?.locationName || ''}
                   />
                 </Paper>
               </Grid>

@@ -8,26 +8,6 @@ import { string } from 'yup/lib/locale'
 // TODO: find existing interfaces for these or move these to @xrengine/common/src/interfaces
 
 // TODO - add proper types to this
-type MessageType = {
-  // channelId: "8f655c10-2734-11ec-85d8-434c13ffcb4a"
-  // createdAt: "2021-10-07T06:05:23.000Z"
-  // id: "8f65d140-2734-11ec-85d8-434c13ffcb4a"
-  // isNotification: null
-  // sender:
-  // avatarId: "Jamie"
-  // channelInstanceId: "5e27b4f0-265c-11ec-a37a-95f327da77ae"
-  // createdAt: "2021-09-18T22:39:39.000Z"
-  // id: "4ee2f150-18d1-11ec-a725-f113d4ffe18d"
-  // instanceId: "8f4db560-2734-11ec-85d8-434c13ffcb4a"
-  // inviteCode: "b3701fba"
-  // name: "Guest #409"
-  // partyId: null
-  // updatedAt: "2021-10-07T06:05:23.000Z"
-  // userRole: "admin"
-  // senderId: "4ee2f150-18d1-11ec-a725-f113d4ffe18d"
-  // text: "[jl_system]Guest #409 joined the layer"
-  // updatedAt: "2021-10-07T06:05:23.000Z"
-}
 
 export type ChannelType = {
   channelType: string
@@ -56,7 +36,6 @@ export type ChannelType = {
   userId1: any
   userId2: any
 }
-
 export type ChannelsType = { [id: string]: ChannelType }
 
 const state = createState({
@@ -86,7 +65,7 @@ export const chatReducer = (_, action: ChatActionType) => {
 }
 
 const chatReceptor = (action: ChatActionType): any => {
-  let updateMap, localAction, updateMapChannels: ChannelsType, updateMapChannelsChild, returned
+  let updateMap, localAction, updateMapChannels: ChannelsType, updateMapChannelsChild
   state.batch((s) => {
     switch (action!.type) {
       case 'LOADED_CHANNELS':
@@ -129,13 +108,13 @@ const chatReceptor = (action: ChatActionType): any => {
           updateMapChannels[newChannel.id] = newChannel
         }
         updateMap.channels = updateMapChannels
-        returned = s.merge({ channels: updateMap })
+        s.merge({ channels: updateMap })
         if (channelType === 'instance') {
           const channels = s.channels.value
           channels.fetchingInstanceChannel = false
-          returned = s.merge({ instanceChannelFetched: true, channels: channels })
+          s.merge({ instanceChannelFetched: true, channels: channels })
         }
-        return returned
+        return s
       case 'CREATED_MESSAGE':
         localAction = action
         const channelId = localAction.message.channelId
@@ -157,7 +136,7 @@ const chatReceptor = (action: ChatActionType): any => {
           updateMapChannels[channelId] = updateMapChannelsChild
           updateMap.channels = updateMapChannels
         }
-        returned = s.merge({ channels: updateMap, updateMessageScroll: true })
+        s.merge({ channels: updateMap, updateMessageScroll: true })
 
         if (s.targetChannelId.value.length === 0 && updateMapChannelsChild != null) {
           const channelType = updateMapChannelsChild.channelType
@@ -171,9 +150,9 @@ const chatReceptor = (action: ChatActionType): any => {
               : channelType === 'instance'
               ? updateMapChannelsChild.instance
               : updateMapChannelsChild.party
-          returned = s.merge({ targetChannelId: channelId, targetObjectType: channelType, targetObject: targetObject })
+          s.merge({ targetChannelId: channelId, targetObjectType: channelType, targetObject: targetObject })
         }
-        return returned
+        return s
       case 'LOADED_MESSAGES':
         localAction = action
         updateMap = s.channels.value
@@ -254,7 +233,6 @@ const chatReceptor = (action: ChatActionType): any => {
       case 'REMOVED_CHANNEL':
         localAction = action
         return s.channels.channels[localAction.channel.id].set(none)
-
       case 'CHAT_TARGET_SET':
         const { targetObjectType, targetObject, targetChannelId } = action
         return s.merge({
@@ -270,9 +248,8 @@ const chatReceptor = (action: ChatActionType): any => {
         return s.merge({ messageScrollInit: value })
       case 'FETCHING_INSTANCE_CHANNEL':
         return s.channels.merge({ fetchingInstanceChannel: true })
-      case 'SET_UPDATE_MESSAGE_SCROLL': {
+      case 'SET_UPDATE_MESSAGE_SCROLL':
         return s.merge({ updateMessageScroll: action.value })
-      }
     }
   }, action.type)
 }
