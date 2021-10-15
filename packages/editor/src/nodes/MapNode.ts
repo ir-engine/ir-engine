@@ -1,16 +1,11 @@
-import { Object3D, BoxBufferGeometry, Material, DefaultLoadingManager } from 'three'
+import { Object3D, BoxBufferGeometry, Material } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
 import { getStartCoords } from '@xrengine/engine/src/map'
 import { MapProps } from '@xrengine/engine/src/map/MapProps'
-import actuateEager from '@xrengine/engine/src/map/functions/actuateEager'
-import getPhases from '@xrengine/engine/src/map/functions/getPhases'
+import { getPhases, startPhases } from '@xrengine/engine/src/map/functions/PhaseFunctions'
 import { addChildFast, setPosition } from '@xrengine/engine/src/map/util'
-import { accessMapState, MapAction, mapReceptor, mapReducer } from '@xrengine/engine/src/map/functions/receptor'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { Downgraded } from '@hookstate/core'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { MapAction, mapReducer } from '@xrengine/engine/src/map/MapReceptor'
 
 const PROPS_THAT_REFRESH_MAP_ON_CHANGE = ['startLatitude', 'startLongitude', 'useDeviceGeolocation']
 
@@ -64,7 +59,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
 
     const state = mapReducer(null, MapAction.initialize(center, args.scale?.x))
 
-    await actuateEager(state, getPhases({ exclude: ['navigation'] }))
+    await startPhases(state, getPhases({ exclude: ['navigation'] }))
 
     for (const object of state.completeObjects.values()) {
       if (object.mesh) {
