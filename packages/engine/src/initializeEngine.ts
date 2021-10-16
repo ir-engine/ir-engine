@@ -125,7 +125,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
 
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
-    updatesPerSecond: 120
+    tickRate: 60
   })
 
   /**
@@ -226,7 +226,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
 
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
-    updatesPerSecond: 120
+    tickRate: 60
   })
   // Network Incoming Systems
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/IncomingNetworkSystem'))
