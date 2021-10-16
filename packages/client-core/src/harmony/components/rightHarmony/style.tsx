@@ -97,6 +97,13 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginLeft: theme.spacing(1),
       flex: 1
     },
+    inputEdit: {
+      borderRadius: '5px',
+      background: '#43484F',
+      margin: '5px 0px 10px 40px',
+      width: '95%',
+      outline: 'none'
+    },
     iconButton: {
       padding: 10
     },
@@ -122,6 +129,9 @@ export const useStyles = makeStyles((theme: Theme) =>
       '&:hover': {
         background: 'rgba(0,0,0,0.9)'
       }
+    },
+    noBorder: {
+      border: 'none'
     }
   })
 )

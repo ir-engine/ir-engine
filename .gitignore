@@ -158,3 +158,4 @@ certs/
 /packages/projects/projects/*
 !/packages/projects/projects/theoverlay/
 !/packages/projects/projects/standard-creative-gallery/
+/packages/client/optimizeDeps.json
