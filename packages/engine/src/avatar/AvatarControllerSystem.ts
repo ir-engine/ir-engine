@@ -31,8 +31,6 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
 
   return () => {
-    const { delta } = world
-
     for (const entity of controllerQuery.exit(world)) {
       const controller = getComponent(entity, AvatarControllerComponent)
 
@@ -94,7 +92,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
 
       detectUserInPortal(entity)
 
-      moveAvatar(entity, delta)
+      moveAvatar(world, entity, Engine.camera)
 
       // TODO: implement scene lower bounds parameter
       if (transform.position.y < -10) {
