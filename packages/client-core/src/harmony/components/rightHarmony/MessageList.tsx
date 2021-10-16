@@ -21,6 +21,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import moment from 'moment'
 
@@ -40,37 +41,62 @@ export default function MessageList(props: Props) {
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
-  const [messageDeletePending, setMessageDeletePending] = useState('')
   const [messageUpdatePending, setMessageUpdatePending] = useState('')
+  const [editingMessage, setEditingMessage] = useState({})
+  const [editingMessageText, setEditingMessageText] = useState('')
   const [messageTodelete, setMessageToDelete] = useState('')
-  const [editingMessage, setEditingMessage] = useState('')
   const [showWarning, setShowWarning] = React.useState(false)
+
   const handleClick = (event: React.MouseEvent<HTMLElement>, message: Message) => {
     setAnchorEl(event.currentTarget)
     setMessageToDelete(message.id)
+    setEditingMessage({ ...message })
   }
 
   const handleClose = () => {
     setAnchorEl(null)
   }
 
-  const showMessageDeleteConfirm = (e: any, message: Message) => {
-    e.preventDefault()
+  const showMessageDeleteConfirm = () => {
     setAnchorEl(null)
     setShowWarning(true)
+    setMessageUpdatePending('')
+    setEditingMessage('')
   }
 
   const cancelMessageDelete = (e: any) => {
     e.preventDefault()
     setShowWarning(false)
-    setMessageDeletePending('')
+    setMessageToDelete('')
+    setMessageUpdatePending('')
+    setEditingMessage('')
   }
 
   const confirmMessageDelete = (e: any) => {
     e.preventDefault()
     setShowWarning(false)
     dispatch(ChatService.removeMessage(messageTodelete)) //, message.channelId))
-    setMessageDeletePending('')
+    setMessageToDelete('')
+  }
+
+  const handleEditingMessageChange = (event: any): void => {
+    const message = event.target.value
+    setEditingMessageText(message)
+  }
+
+  const loadMessageEdit = (e: any, message: Message) => {
+    e.preventDefault()
+    setAnchorEl(null)
+    setMessageUpdatePending(editingMessage.id)
+    setEditingMessageText(editingMessage.text)
+    setMessageToDelete('')
+  }
+
+  const confirmMessageUpdate = (e: any) => {
+    e.preventDefault()
+    dispatch(ChatService.patchMessage(messageUpdatePending, editingMessageText))
+    setMessageUpdatePending('')
+    setEditingMessage('')
   }
 
   const generateMessageSecondary = (message: Message): string => {
@@ -118,23 +144,49 @@ export default function MessageList(props: Props) {
                         )}
                       </ListItemAvatar>
                     )}
-                    <ListItemText
-                      primary={activeChannel?.instance?.instanceUsers[0].name}
-                      secondary={
-                        <React.Fragment>
-                          {message.text}
-                          <Typography
-                            sx={{ display: 'inline', marginLeft: '20px', fontSize: '9px' }}
-                            component="span"
-                            variant="body2"
-                            color="#c2c2c2"
-                          >
-                            {generateMessageSecondary(message)}
-                          </Typography>
-                        </React.Fragment>
-                      }
-                    />
+                    {messageUpdatePending !== message.id && (
+                      <ListItemText
+                        primary={message?.sender?.name}
+                        secondary={
+                          <React.Fragment>
+                            {message.text}
+                            <Typography
+                              sx={{ display: 'inline', marginLeft: '20px', fontSize: '9px' }}
+                              component="span"
+                              variant="body2"
+                              color="#c2c2c2"
+                            >
+                              {generateMessageSecondary(message)}
+                            </Typography>
+                          </React.Fragment>
+                        }
+                      />
+                    )}
                   </ListItem>
+                  {messageUpdatePending === message.id && (
+                    <TextField
+                      className={classes.inputEdit}
+                      InputProps={{
+                        classes: { notchedOutline: classes.noBorder }
+                      }}
+                      id="editingMessageText"
+                      placeholder="Abc"
+                      autoFocus
+                      variant="outlined"
+                      multiline
+                      name="editingMessageText"
+                      value={editingMessageText}
+                      inputProps={{ 'aria-label': 'search google maps' }}
+                      onChange={handleEditingMessageChange}
+                      onKeyPress={(e) => {
+                        if (e.charCode === 13 && e.shiftKey) {
+                        } else if (e.charCode === 13) {
+                          e.preventDefault()
+                          confirmMessageUpdate(e)
+                        }
+                      }}
+                    />
+                  )}
                   {message.senderId === selfUser.id.value ? (
                     <div>
                       <StyledMenu
@@ -146,7 +198,7 @@ export default function MessageList(props: Props) {
                         open={open}
                         onClose={handleClose}
                       >
-                        <MenuItem onClick={handleClose} disableRipple>
+                        <MenuItem onClick={(e) => loadMessageEdit(e, message)} disableRipple>
                           <EditIcon />
                           Edit Message
                         </MenuItem>
@@ -158,11 +210,7 @@ export default function MessageList(props: Props) {
                           <StarIcon />
                           Star
                         </MenuItem>
-                        <MenuItem
-                          onClick={(e) => showMessageDeleteConfirm(e, message)}
-                          style={{ color: '#ff2626' }}
-                          disableRipple
-                        >
+                        <MenuItem onClick={showMessageDeleteConfirm} style={{ color: '#ff2626' }} disableRipple>
                           <DeleteIcon style={{ color: '#ff2626' }} />
                           Delete Message
                         </MenuItem>
