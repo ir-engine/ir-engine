@@ -2,7 +2,8 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 
 export const useRouteStyle = makeStyles({
   root: {
-    width: '100%'
+    width: '100%',
+    position: 'relative'
     //background: "#fff"
   },
   container: {
@@ -32,6 +33,21 @@ export const useRouteStyle = makeStyles({
   },
   spanWhite: {
     color: '#f1f1f1'
+  },
+  progress: {
+    textAlign: 'center',
+    position: 'absolute',
+    top: '50%',
+    left: 0,
+    right: 0,
+    margin: 'auto'
+  },
+  progressBackground: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(32, 32, 32, 0.5)',
+    top: '0px'
   }
 })
 

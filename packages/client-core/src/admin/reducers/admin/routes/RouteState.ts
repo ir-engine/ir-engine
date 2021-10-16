@@ -15,6 +15,7 @@ const state = createState({
   identityProvider: IdentityProviderSeed,
   routes: {
     routes: [] as {
+      id: string
       project: string
       routes: string[]
     }[],
@@ -46,6 +47,7 @@ const routeReceptor = (action: RouteActionType): any => {
         return s.routes.merge({ routes: result, updateNeeded: false })
       case 'ADMIN_ROUTE_ACTIVE_RECEIVED':
         result = action.data.data
+        console.log('ADMIN_ROUTE_ACTIVE_RECEIVED')
         return s.routes.merge({ activeRoutes: result, updateNeeded: false })
     }
   }, action.type)
@@ -53,3 +55,5 @@ const routeReceptor = (action: RouteActionType): any => {
 
 export const accessRouteState = () => state
 export const useRouteState = () => useState(state) as any as typeof state
+
+globalThis.routestate = state

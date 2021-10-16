@@ -131,5 +131,34 @@
     "eslint": "8.0.1",
     "mocha": "9.1.2"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "vite": {
+    "optimizeDeps": {
+      "include": [
+        "@capacitor/core",
+        "@capacitor/filesystem",
+        "@capacitor/share",
+        "@material-ui/core/Slide",
+        "@material-ui/icons/AddCircleOutlined",
+        "@material-ui/icons/Apps",
+        "@material-ui/icons/ArrowBackIos",
+        "@material-ui/icons/Audiotrack",
+        "@material-ui/icons/Favorite",
+        "@material-ui/icons/HighlightOff",
+        "@material-ui/icons/MoreHoriz",
+        "@material-ui/icons/PictureAsPdf",
+        "@material-ui/icons/RemoveCircleOutlined",
+        "@material-ui/icons/VerifiedUser",
+        "@material-ui/icons/ViewAgenda",
+        "@material-ui/icons/Visibility",
+        "@material-ui/icons/Whatshot",
+        "@mui/material",
+        "emailjs-com",
+        "react-pdf",
+        "react-step-wizard",
+        "react-video-recorder",
+        "webxr-native"
+      ]
+    }
+  }
 }

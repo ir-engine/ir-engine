@@ -1,5 +1,10 @@
-export interface Route {
+export interface ActiveRoutesInterface {
   id: string
   project: string
-  routes: string
+  route: string
+}
+
+export interface InstalledRoutesInterface {
+  routes: string[]
+  project: string
 }

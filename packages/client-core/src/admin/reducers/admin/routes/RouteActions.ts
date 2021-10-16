@@ -1,5 +1,3 @@
-import { Route } from '@xrengine/common/src/interfaces/Route'
-
 export const RouteActions = {
   installedRoutesRetrievedAction: (data: any) => {
     return {
