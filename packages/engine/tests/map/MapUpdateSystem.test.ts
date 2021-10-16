@@ -10,20 +10,21 @@ import { Entity } from '../../src/ecs/classes/Entity'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
 import { lineString } from '@turf/helpers'
 import { System } from '../../src/ecs/classes/System'
-import {AvatarComponent} from '../../src/avatar/components/AvatarComponent'
-import {NavMeshComponent} from '../../src/navigation/component/NavMeshComponent'
-import {MapAction, mapReducer} from '../../src/map/MapReceptor'
-import {MapStateUnwrapped} from '../../src/map/types'
-import {MapComponent} from '../../src/map/MapComponent'
+import { AvatarComponent } from '../../src/avatar/components/AvatarComponent'
+import { NavMeshComponent } from '../../src/navigation/component/NavMeshComponent'
+import { MapAction, mapReducer } from '../../src/map/MapReceptor'
+import { MapStateUnwrapped } from '../../src/map/types'
+import { MapComponent } from '../../src/map/MapComponent'
 
 describe('MapUpdateSystem', () => {
+  const triggerRefreshRadius = 20 // meters
   const mapCenter = [0, 0]
-  let world: World,
-    execute: System,
-    viewerEntity: Entity,
-    mapEntity: Entity,
+  let execute: System,
+    world: World,
     state: MapStateUnwrapped,
     subScene: Object3D,
+    viewerEntity: Entity,
+    mapEntity: Entity,
     getPhases: SinonSpy,
     startPhases: SinonSpy,
     resetPhases: SinonSpy,
@@ -64,6 +65,8 @@ describe('MapUpdateSystem', () => {
     subScene = new Object3D()
 
     state = mapReducer(null, MapAction.initialize(mapCenter))
+
+    subScene = new Object3D()
 
     addComponent(
       viewerEntity,
@@ -116,8 +119,18 @@ describe('MapUpdateSystem', () => {
     assert.equal(startPhases.callCount, 1)
   })
 
+  it('does nothing while player moves within refresh boundary', () => {
+    const viewerTransform = getComponent(viewerEntity, TransformComponent)
+
+    execute()
+    viewerTransform.position.set((triggerRefreshRadius / 2) * state.scale, 0, 0)
+    execute()
+
+    assert.equal(startPhases.callCount, 0)
+  })
+
   // I don't know why this test fails when run with the rest of this suite but passes when run by itself.
-  it.skip('starts the flow when player crosses boundary', () => {
+  it.skip('lazily starts working when player crosses boundary', () => {
     const viewerTransform = getComponent(viewerEntity, TransformComponent)
 
     execute()
@@ -149,7 +162,7 @@ describe('MapUpdateSystem', () => {
     state.completeObjects.set(['road', 0, 0, '0'], {
       centerPoint: [0, 0],
       boundingCircleRadius: 5,
-      mesh,
+      mesh
     })
 
     execute()
@@ -182,12 +195,12 @@ describe('MapUpdateSystem', () => {
       [2, 1],
       [4, 2]
     ])
-    const label = createFeatureLabel("123 sesame st", feature, [0, 0])
+    const label = createFeatureLabel('123 sesame st', feature, [0, 0])
 
     state.labelCache.set(['road', 0, 0, '0'], label)
     state.needsUpdate = true
 
-    world.fixedDelta = .16
+    world.fixedDelta = 0.16
     world.fixedElapsedTime = world.fixedDelta * 20
     execute()
 
@@ -200,14 +213,13 @@ describe('MapUpdateSystem', () => {
   it('adds meshes to the navigation plane as they become available', () => {
     const mesh = new Mesh()
     const navTarget = getComponent(mapEntity, NavMeshComponent).navTarget
-    state.completeObjects.set(['landuse_fallback', 0, 0, '0'], {mesh, centerPoint: [0, 0], boundingCircleRadius: 1})
+    state.completeObjects.set(['landuse_fallback', 0, 0, '0'], { mesh, centerPoint: [0, 0], boundingCircleRadius: 1 })
     state.needsUpdate = true
 
-    world.fixedDelta = .16
+    world.fixedDelta = 0.16
     world.fixedElapsedTime = world.fixedDelta * 20
     execute()
 
     assert(navTarget.children.includes(mesh))
   })
-
 })

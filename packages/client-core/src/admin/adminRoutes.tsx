@@ -29,9 +29,6 @@ interface Props {}
 const ProtectedRoutes = (props: Props) => {
   const admin = useAuthState().user
   const dispatch = useDispatch()
-  if (admin?.id?.value?.length > 0 && admin?.userRole?.value !== 'admin') {
-    return <Redirect to="/login" />
-  }
 
   let allowedRoutes = {
     location: false,
@@ -62,34 +59,9 @@ const ProtectedRoutes = (props: Props) => {
     }
   })
 
-  // let allowedRoutes = {
-  //   location: false,
-  //   user: false,
-  //   bot: false,
-  //   scene: false,
-  //   party: false,
-  //   contentPacks: false,
-  //   groups: false,
-  //   instance: false,
-  //   invite: false,
-  //   globalAvatars: false
-  // }
-  // const scopes = admin.scopes || []
-
-  // useEffect(() => {
-  //   doLoginAuto(false)
-  // }, [])
-
-  scopes.forEach((scope) => {
-    if (Object.keys(allowedRoutes).includes(scope.type.split(':')[0])) {
-      if (scope.type.split(':')[1] === 'read') {
-        allowedRoutes = {
-          ...allowedRoutes,
-          [scope.type.split(':')[0]]: true
-        }
-      }
-    }
-  })
+  if (admin?.id?.value?.length > 0 && admin?.userRole?.value !== 'admin') {
+    return <Redirect to="/login" />
+  }
 
   return (
     <Fragment>

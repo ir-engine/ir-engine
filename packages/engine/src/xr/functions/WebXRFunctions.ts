@@ -172,7 +172,6 @@ export const getHandTransform = (
   entity: Entity,
   hand: ParityValue = ParityValue.NONE
 ): { position: Vector3; rotation: Quaternion } => {
-  const avatar = getComponent(entity, AvatarComponent)
   const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
