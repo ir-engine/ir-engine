@@ -32,8 +32,6 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
 
   return () => {
-    const { delta } = world
-
     for (const entity of controllerQuery.exit(world)) {
       const controller = getComponent(entity, AvatarControllerComponent)
 
@@ -88,7 +86,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
       // todo: replace this with trigger detection
       detectUserInPortal(entity)
 
-      moveAvatar(entity, delta)
+      moveAvatar(world, entity, Engine.camera)
 
       const controller = getComponent(entity, AvatarControllerComponent)
       const collider = getComponent(entity, ColliderComponent)
@@ -98,6 +96,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
 
       const pose = controller.controller.getPosition()
       transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
+
       collider.body.setGlobalPose(
         {
           translation: pose,
