@@ -157,3 +157,4 @@ certs/
 
 /packages/projects/projects/*
 !/packages/projects/projects/theoverlay/
+/packages/client/optimizeDeps.json
