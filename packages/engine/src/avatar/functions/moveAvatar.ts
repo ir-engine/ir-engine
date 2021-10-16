@@ -52,7 +52,7 @@ export const moveAvatar = (entity: Entity, deltaTime: number): void => {
   vec3.setY(0).normalize()
   quat.setFromUnitVectors(forward, vec3)
 
-  newVelocity.applyQuaternion(quat)
+  velocity.velocity.applyQuaternion(quat)
 
   if (onGround) {
     const raycast = getComponent(entity, RaycastComponent)
@@ -88,14 +88,15 @@ export const moveAvatar = (entity: Entity, deltaTime: number): void => {
     // 	newVelocity.add(threeFromCannonVector(pointVelocity));
     // }
   }
+
   const world = useWorld()
 
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
   const collisionFlags = controller.controller.move(
     {
-      x: newVelocity.x,
+      x: velocity.velocity.x,
       y: velocity.velocity.y,
-      z: newVelocity.z
+      z: velocity.velocity.z
     },
     0.001,
     world.fixedDelta,

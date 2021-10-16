@@ -1,0 +1,40 @@
+import createIntersectTestTileCircle from './createIntersectionTestTileCircle'
+import {
+  fromMetersFromCenter,
+  LongLat,
+  latToTileYFraction,
+  longToTileXFraction
+} from '../functions/UnitConversionFunctions'
+
+export default function* createSurroundingTileIterator(
+  center: LongLat,
+  minimumSceneRadius: number,
+  zoomLevel: number
+): Generator<[number, number]> {
+  const [startLong, startLat] = fromMetersFromCenter([-minimumSceneRadius, -minimumSceneRadius], center)
+  const [endLong, endLat] = fromMetersFromCenter([minimumSceneRadius, minimumSceneRadius], center)
+
+  const centerX = longToTileXFraction(center[0], zoomLevel)
+  const centerY = latToTileYFraction(center[1], zoomLevel)
+
+  const startTileFractionX = longToTileXFraction(startLong, zoomLevel)
+  const endTileFractionX = longToTileXFraction(endLong, zoomLevel)
+  const startTileFractionY = latToTileYFraction(startLat, zoomLevel)
+  const endTileFractionY = latToTileYFraction(endLat, zoomLevel)
+
+  const startTileX = Math.floor(startTileFractionX)
+  const endTileX = Math.floor(endTileFractionX)
+  const startTileY = Math.floor(startTileFractionY)
+  const endTileY = Math.floor(endTileFractionY)
+
+  const radiusTiles = (endTileFractionX - startTileFractionX) / 2
+  const isIntersectTileCircle = createIntersectTestTileCircle(centerX, centerY, radiusTiles)
+
+  for (let tileY = startTileY; tileY <= endTileY; tileY++) {
+    for (let tileX = startTileX; tileX <= endTileX; tileX++) {
+      if (isIntersectTileCircle(tileX, tileY)) {
+        yield [tileX, tileY]
+      }
+    }
+  }
+}

@@ -10,7 +10,7 @@ import { applyTransformToMesh, applyTransformToMeshWorld } from '../../physics/f
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-import { parseGeometry } from '../../map/parseGeometry'
+import { parseGeometry } from '../../common/functions/parseGeometry'
 import * as YUKA from 'yuka'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { delay } from '../../common/functions/delay'
