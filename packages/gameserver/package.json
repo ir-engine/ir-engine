@@ -83,7 +83,7 @@
     "feathers-sync": "https://github.com/xrfoundation/feathers-sync.git",
     "fs-blob-store": "6.0.0",
     "helmet": "4.6.0",
-    "internal-ip": "6.2.0",
+    "internal-ip": "7.0.0",
     "js-yaml": "4.1.0",
     "lodash": "4.17.21",
     "mediasoup": "3.8.4",

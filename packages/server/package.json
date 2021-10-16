@@ -90,7 +90,7 @@
     "fs-blob-store": "6.0.0",
     "helmet": "4.6.0",
     "http-server": "13.0.2",
-    "internal-ip": "6.2.0",
+    "internal-ip": "7.0.0",
     "js-yaml": "4.1.0",
     "lodash": "4.17.21",
     "mime-types": "2.1.33",
