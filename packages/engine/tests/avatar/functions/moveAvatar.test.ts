@@ -11,6 +11,7 @@ import { Group, PerspectiveCamera, Vector3 } from 'three'
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
 import { VectorSpringSimulator } from '../../../src/physics/classes/springs/VectorSpringSimulator'
 import { CollisionGroups } from '../../../src/physics/enums/CollisionGroups'
+import { Engine } from '../../../src/ecs/classes/Engine'
 
 
 // all components depended on by the moveAvatar function
@@ -74,13 +75,18 @@ const createMovingAvatar = (world) => {
 
 describe('moveAvatar function tests', async () => {
   
-  it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', async () => {
-    /* mock */
-    const world = createWorld()
-    
+	let world
+
+	beforeEach(async () => {
+    /* hoist */
+		world = createWorld()
+		Engine.currentWorld = world
     // instantiate physics scene (depended on by world.physics.createMaterial())
     await world.physics.createScene()
+	})
 
+  it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', async () => {
+    /* mock */
     world.physics.timeScale = 1
     world.fixedDelta = 1000 / 60
 
@@ -102,16 +108,10 @@ describe('moveAvatar function tests', async () => {
     // velocity should increase on horizontal plane
     strictEqual(velocity.velocity.x, 83.33333331994835)
     strictEqual(velocity.velocity.z, 83.33333331994835)
-
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', async () => {
     /* mock */
-    const world = createWorld()
-    
-    // instantiate physics scene (depended on by world.physics.createMaterial())
-    await world.physics.createScene()
-
     world.physics.timeScale = 1
     world.fixedDelta = 1000 / 120
 
@@ -133,16 +133,10 @@ describe('moveAvatar function tests', async () => {
     // velocity should increase on horizontal plane
     strictEqual(velocity.velocity.x, 41.66552651991949)
     strictEqual(velocity.velocity.z, 41.66552651991949)
-
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', async () => {
     /* mock */
-    const world = createWorld()
-    
-    // instantiate physics scene (depended on by world.physics.createMaterial())
-    await world.physics.createScene()
-
     world.physics.timeScale = 1 / 2
     world.fixedDelta = 1000 / 60
 
@@ -164,7 +158,6 @@ describe('moveAvatar function tests', async () => {
     // velocity should increase on horizontal plane
     strictEqual(velocity.velocity.x, 41.66552651991949)
     strictEqual(velocity.velocity.z, 41.66552651991949)
-
   })
 
 })
