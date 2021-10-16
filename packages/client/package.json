@@ -130,32 +130,5 @@
     "eslint": "8.0.1",
     "mocha": "9.1.3"
   },
-  "license": "ISC",
-  "vite": {
-    "optimizeDeps": {
-      "include": [
-        "@feathersjs/client",
-        "@hookstate/core",
-        "@material-ui/core/CircularProgress",
-        "i18next",
-        "i18next-browser-languagedetector",
-        "immutable",
-        "lodash",
-        "moment",
-        "react",
-        "react-dom",
-        "react-ga4",
-        "react-helmet",
-        "react-i18next",
-        "react-redux",
-        "react-router-dom",
-        "redux",
-        "redux-devtools-extension",
-        "redux-immutable",
-        "redux-thunk",
-        "socket.io-client",
-        "styled-components"
-      ]
-    }
-  }
+  "license": "ISC"
 }

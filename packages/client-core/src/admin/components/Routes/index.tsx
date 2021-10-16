@@ -1,13 +1,13 @@
 import React from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
-import Search from './SearchLocation'
-import { useLocationStyles } from './styles'
-import LocationTable from './LocationTable'
-import CreateLocation from './createLocation'
+// import Search from './SearchLocation'
+import { useRouteStyles } from './styles'
+import RouteTable from './RouteTable'
+// import CreateLocation from './createLocation'
 
 const Routes = () => {
-  const classes = useLocationStyles()
+  const classes = useRouteStyles()
   const [locationModelOpen, setLocationModelOpen] = React.useState(false)
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -36,7 +36,7 @@ const Routes = () => {
         </Grid>
       </Grid> */}
       <div className={classes.rootTable}>
-        <LocationTable />
+        <RouteTable />
       </div>
       {/* <CreateLocation open={locationModelOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} /> */}
     </div>
