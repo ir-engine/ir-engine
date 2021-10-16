@@ -12,6 +12,9 @@ import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from '../managers/CacheManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { delay } from '@xrengine/engine/src/common/functions/delay'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -31,10 +34,17 @@ export default class ModelNode extends EditorNodeMixin(Model) {
 
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
-        if (textureOverride)
-          SceneManager.instance.scene.traverse((obj) => {
-            if (obj.uuid === textureOverride) node.textureOverride = obj.uuid
+        if (textureOverride) {
+          // Using this to pass texture override uuid to event callback instead of creating a new variable
+          node.textureOverride = textureOverride
+          CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), () => {
+            SceneManager.instance.scene.traverse((obj) => {
+              if (obj.uuid === node.textureOverride) {
+                node.textureOverride = obj.uuid
+              }
+            })
           })
+        }
 
         node.collidable = !!json.components.find((c) => c.name === 'collidable')
         node.walkable = !!json.components.find((c) => c.name === 'walkable')

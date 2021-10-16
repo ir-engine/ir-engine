@@ -1,5 +1,7 @@
+import { Dialog } from '@xrengine/common/src/interfaces/Dialog'
+
 export const DialogAction = {
-  dialogShow: (content: any) => {
+  dialogShow: (content: Dialog) => {
     return {
       type: 'SHOW_DIALOG' as const,
       content

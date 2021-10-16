@@ -5,13 +5,14 @@ import { adminAvatarReducer } from './admin/avatar/AvatarState'
 import { adminInstanceReducer } from './admin/instance/InstanceState'
 import { adminLocationReducer } from './admin/location/LocationState'
 import { adminPartyReducer } from './admin/party/PartyState'
+import { adminRouteReducer } from './admin/routes/RouteState'
 import { adminSceneReducer } from './admin/scene/SceneState'
 import { adminBotsReducer } from './admin/bots/BotsState'
 import { AdminAnalyticsReducer } from './admin/analytics/AnalyticsState'
 import { adminRealityPackReducer } from './admin/reality-pack/RealityPackState'
-import { arMediaReducer } from '@xrengine/social/src/reducers/arMedia/ArMediaState'
-import { feedReducer } from '@xrengine/social/src/reducers/feed/FeedState'
-import { creatorReducer } from '@xrengine/social/src/reducers/creator/CreatorState'
+import { arMediaReducer } from '../../social/reducers/arMedia/ArMediaState'
+import { feedReducer } from '../../social/reducers/feed/FeedState'
+import { creatorReducer } from '../../social/reducers/creator/CreatorState'
 import { adminGroupReducer } from './admin/group/GroupState'
 import { adminScopeReducer } from './admin/scope/ScopeState'
 import { settingAnalyticsReducer } from './admin/Setting/analytics/SettingAnalyticsState'
@@ -37,6 +38,7 @@ export default {
   adminInstance: adminInstanceReducer,
   adminLocation: adminLocationReducer,
   adminParty: adminPartyReducer,
+  admiRoutes: adminRouteReducer,
   adminRealityPack: adminRealityPackReducer,
   adminScene: adminSceneReducer,
   adminBots: adminBotsReducer,

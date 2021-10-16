@@ -14,8 +14,8 @@ import OutlinedInput from '@material-ui/core/OutlinedInput'
 import { useAuthState } from '../../reducers/auth/AuthState'
 import { AuthService } from '../../reducers/auth/AuthService'
 import styles from './Auth.module.scss'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
-import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
+import { CreatorService } from '../../../social/reducers/creator/CreatorService'
+import { useCreatorState } from '../../../social/reducers/creator/CreatorState'
 import { useTranslation } from 'react-i18next'
 
 const initialState = { email: '', password: '' }

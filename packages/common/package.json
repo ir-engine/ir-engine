@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/common",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "main": "lib/common.umd.js",
   "module": "lib/common.es.js",
   "types": "lib/index.d.ts",

@@ -236,7 +236,12 @@ const Server = (props: serverProps) => {
               <List component="div" disablePadding>
                 <ListItem button className={classes.nested}>
                   <Paper component="div" className={classes.createInput}>
-                    <InputBase name="hub" className={classes.input} style={{ color: '#fff' }} value={el.hubEndpoint} />
+                    <InputBase
+                      name="hub"
+                      className={classes.input}
+                      style={{ color: '#fff' }}
+                      value={el.hub?.endpoint}
+                    />
                   </Paper>
                 </ListItem>
               </List>

@@ -1,7 +1,7 @@
-import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
+import { InviteTypeResult } from '@xrengine/common/src/interfaces/InviteTypeResult'
 
 export const InviteTypeAction = {
-  retrievedInvitesTypes: (inviteType: InviteResult) => {
+  retrievedInvitesTypes: (inviteType: InviteTypeResult) => {
     return {
       type: 'LOAD_INVITE_TYPE' as const,
       total: inviteType.total,

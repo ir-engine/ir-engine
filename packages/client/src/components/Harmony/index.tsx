@@ -189,7 +189,6 @@ const Harmony = (props: Props): any => {
   const groups = groupSubState.groups.value
   const party = usePartyState().party.value
   const currentLocation = useLocationState().currentLocation.location
-
   const setProducerStarting = (value) => {
     producerStartingRef.current = value
     _setProducerStarting(value)
@@ -463,8 +462,6 @@ const Harmony = (props: Props): any => {
     if (composingMessage.length > 0) {
       dispatch(
         ChatService.createMessage({
-          targetObjectId: targetObject.id,
-          targetObjectType: targetObjectType,
           text: composingMessage
         })
       )
@@ -1375,7 +1372,6 @@ const Harmony = (props: Props): any => {
                                 maxLength: 1000
                               }}
                               onChange={handleEditingMessageChange}
-                              ListItemIcon
                             />
                             <div className={styles['editing-controls']}>
                               <Clear

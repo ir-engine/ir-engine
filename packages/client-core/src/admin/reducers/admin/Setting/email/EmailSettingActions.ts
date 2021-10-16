@@ -1,8 +1,10 @@
+import { EmailSettingResult } from '@xrengine/common/src/interfaces/EmailSettingResult'
+
 export const EmailSettingAction = {
-  fetchedEmail: (email: any) => {
+  fetchedEmail: (emailSettingResult: EmailSettingResult) => {
     return {
       type: 'EMAIL_SETTING_DISPLAY' as const,
-      email: email
+      emailSettingResult: emailSettingResult
     }
   }
 }

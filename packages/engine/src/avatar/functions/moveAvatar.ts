@@ -74,8 +74,8 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   // quat = forward w/(controller input * timeStep)
   quat.setFromUnitVectors(forward, vec3)
 
-  // apply quat to newVelocity (= velocity sim position * moveSpeed)
-  newVelocity.applyQuaternion(quat)
+  // apply quat to avatar velocity (= velocity sim position * moveSpeed)
+  velocity.velocity.applyQuaternion(quat)
 
   if (onGround) {
     // if we are falling
@@ -128,13 +128,14 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   }
 
   const target = {
-    x: newVelocity.x,
+    x: velocity.velocity.x,
     y: velocity.velocity.y,
-    z: newVelocity.z
+    z: velocity.velocity.z
   }
 
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
   const collisionFlags = controller.controller.move(target, 0.001, timeStep, filters, world.physics.obstacleContext)
+
   controller.collisions = [
     collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN),
     collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),

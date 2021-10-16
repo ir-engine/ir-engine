@@ -7,7 +7,7 @@ export const LocationAction = {
       locations: locations
     }
   },
-  socialLocationRetrieved: (location: any) => {
+  socialLocationRetrieved: (location: Location) => {
     return {
       type: 'LOCATION_RETRIEVED' as const,
       location: location

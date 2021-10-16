@@ -7,7 +7,7 @@ import { DialogActions } from '@material-ui/core'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect, useDispatch } from 'react-redux'
 import { validateCreatorForm } from './validation'
-import { CreatorService } from '../../../reducers/creator/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
 
 interface Props {
   adminCreator: any

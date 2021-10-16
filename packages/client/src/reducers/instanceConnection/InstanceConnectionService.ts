@@ -40,7 +40,9 @@ export const InstanceConnectionService = {
         }
       })
       if (provisionResult.ipAddress != null && provisionResult.port != null) {
-        dispatch(InstanceConnectionAction.instanceServerProvisioned(provisionResult, locationId, sceneId))
+        dispatch(
+          InstanceConnectionAction.instanceServerProvisioned(provisionResult, locationId || null, sceneId || null)
+        )
       } else {
         EngineEvents.instance.dispatchEvent({
           type: SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE
@@ -83,9 +85,9 @@ export const InstanceConnectionService = {
             channelType: channelType,
             channelId: channelId,
             videoEnabled:
-              currentLocation?.locationSettings?.videoEnabled?.value === true ||
+              currentLocation?.location_settings?.videoEnabled?.value === true ||
               !(
-                currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+                currentLocation?.location_settings?.locationType?.value === 'showroom' &&
                 user.locationAdmins?.value?.find(
                   (locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value
                 ) == null

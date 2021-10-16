@@ -1,20 +1,12 @@
-import { Object3D, BoxBufferGeometry, Material } from 'three'
-import {
-  createBuildings,
-  createRoads,
-  createGroundMesh,
-  createWater,
-  createLandUse,
-  createLabels,
-  safelySetGroundScaleAndPosition
-} from '@xrengine/engine/src/map/MeshBuilder'
-import { fetchVectorTiles, fetchRasterTiles } from '@xrengine/engine/src/map/MapBoxClient'
+import { Object3D, BoxBufferGeometry, Material, DefaultLoadingManager } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
 import { getStartCoords } from '@xrengine/engine/src/map'
 import { MapProps } from '@xrengine/engine/src/map/MapProps'
-import { GeoLabelNode } from '@xrengine/engine/src/map/GeoLabelNode'
-import { SceneManager } from '../managers/SceneManager'
+import actuateEager from '@xrengine/engine/src/map/functions/actuateEager'
+import getPhases from '@xrengine/engine/src/map/functions/getPhases'
+import createStore from '@xrengine/engine/src/map/functions/createStore'
+import { addChildFast, setPosition } from '@xrengine/engine/src/map/util'
 
 const PROPS_THAT_REFRESH_MAP_ON_CHANGE = ['startLatitude', 'startLongitude', 'useDeviceGeolocation']
 
@@ -25,8 +17,6 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   static _material = new Material()
 
   mapLayers: { [name: string]: Object3D | undefined }
-
-  labels: GeoLabelNode[]
 
   static async deserialize(json) {
     const node = await super.deserialize(json)
@@ -55,6 +45,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   }
   constructor() {
     super()
+    this.addMap()
   }
   applyScale(object3d: Object3D) {
     object3d.position.multiplyScalar(this.scale.x)
@@ -62,51 +53,30 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   }
   async addMap() {
     console.log('creating map')
+    const args = this.getProps()
     const center = await getStartCoords(this.getProps())
-    const vectorTiles = await fetchVectorTiles(center)
-    const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
-
-    this.mapLayers = {
-      building: createBuildings(vectorTiles, center),
-
-      road: createRoads(vectorTiles, center),
-
-      ground: createGroundMesh(rasterTiles, center[1]),
-
-      water: createWater(vectorTiles, center),
-
-      landUse: createLandUse(vectorTiles, center)
-    }
-
-    Object.values(this.mapLayers).forEach((layer) => {
-      if (layer) {
-        this.add(layer)
+    const store = createStore(center, [0, 0], Infinity, 1200, args.scale.x, args)
+    const subSceneChildren = []
+    const subScene = this as unknown as Object3D
+    await actuateEager(store, getPhases({ exclude: ['navigation'] }))
+    for (const object of store.completeObjects.values()) {
+      if (object.mesh) {
+        setPosition(object.mesh, object.centerPoint)
+        addChildFast(subScene, object.mesh, subSceneChildren)
       }
-    })
-    safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
-
-    this.labels = createLabels(vectorTiles, center)
-
-    this.labels.forEach((label) => {
-      this.add(label.object3d)
-    })
+    }
+    for (const object of store.labelCache.values()) {
+      if (object.mesh) {
+        setPosition(object.mesh, object.centerPoint)
+        addChildFast(subScene, object.mesh, subSceneChildren)
+        object.mesh.update()
+      }
+    }
+    subScene.children = subSceneChildren
   }
-  async refreshGroundLayer() {
-    const center = await getStartCoords(this.getProps())
-    const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
-    this.mapLayers.ground.removeFromParent()
-    this.mapLayers.ground = createGroundMesh(rasterTiles, center[1])
-    this.applyScale(this.mapLayers.ground)
-    safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
-    this.add(this.mapLayers.ground)
-  }
-
-  debounceAndRefreshAllLayers = debounce(() => {
-    Object.values(this.mapLayers).forEach((layer) => {
-      layer?.removeFromParent()
-    })
+  debounceRefresh = debounce(() => {
     this.addMap()
-  }, 3000)
+  }, 500)
 
   copy(source: MapNode, recursive = true) {
     super.copy(source, recursive)
@@ -120,22 +90,9 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     return this
   }
   onChange(prop?: string) {
-    if (prop) {
-      if (prop === 'showRasterTiles') {
-        this.refreshGroundLayer()
-      } else if (PROPS_THAT_REFRESH_MAP_ON_CHANGE.indexOf(prop) >= 0) {
-        this.debounceAndRefreshAllLayers()
-      }
-    } else {
-      this.addMap()
+    if (PROPS_THAT_REFRESH_MAP_ON_CHANGE.includes(prop)) {
+      this.debounceRefresh()
     }
-  }
-  onUpdate(delta: number, time?: number) {
-    void delta
-    void time
-    this.labels?.forEach((label) => {
-      label.onUpdate(SceneManager.instance.camera)
-    })
   }
   getProps(): MapProps {
     return {

@@ -7,11 +7,11 @@ import PersonPinIcon from '@material-ui/icons/PersonPin'
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
 // @ts-ignore
 import styles from './Creators.module.scss'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
 
 interface Props {}
 

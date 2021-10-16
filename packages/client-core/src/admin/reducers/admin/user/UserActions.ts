@@ -1,10 +1,14 @@
 import { User } from '@xrengine/common/src/interfaces/User'
+import { UserResult } from '@xrengine/common/src/interfaces/UserResult'
+import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
+import { UserRoleResult } from '@xrengine/common/src/interfaces/UserRoleResult'
+import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
 
 export const UserAction = {
-  loadedUsers: (users: User[]) => {
+  loadedUsers: (userResult: UserResult) => {
     return {
       type: 'ADMIN_LOADED_USERS' as const,
-      users
+      userResult: userResult
     }
   },
   userCreated: (user: User) => {
@@ -19,19 +23,19 @@ export const UserAction = {
       user: user
     }
   },
-  userRoleRetrieved: (data: any) => {
+  userRoleRetrieved: (data: UserRoleResult) => {
     return {
       type: 'USER_ROLE_RETRIEVED' as const,
       types: data
     }
   },
-  userRoleCreated: (data: any) => {
+  userRoleCreated: (data: UserRole) => {
     return {
       type: 'USER_ROLE_CREATED' as const,
       types: data
     }
   },
-  userAdminRemoved: (data) => {
+  userAdminRemoved: (data: User) => {
     return {
       type: 'USER_ADMIN_REMOVED' as const,
       data: data
@@ -43,10 +47,10 @@ export const UserAction = {
       data: data
     }
   },
-  searchedUser: (data: any) => {
+  searchedUser: (userResult: UserResult) => {
     return {
       type: 'USER_SEARCH_ADMIN' as const,
-      data: data
+      userResult: userResult
     }
   },
   fetchedSingleUser: (data: any) => {
@@ -55,7 +59,7 @@ export const UserAction = {
       data: data
     }
   },
-  fetchedStaticResource: (data: any) => {
+  fetchedStaticResource: (data: StaticResourceResult) => {
     return {
       type: 'STATIC_RESOURCE_RETRIEVED' as const,
       staticResource: data

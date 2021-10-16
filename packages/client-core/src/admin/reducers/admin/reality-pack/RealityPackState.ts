@@ -3,6 +3,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { RealityPackActionType } from './RealityPackActions'
+import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
 
 export const REALITY_PACK_PAGE_LIMIT = 100
 
@@ -14,7 +15,7 @@ export const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   realityPacks: {
-    realityPacks: [],
+    realityPacks: [] as Array<RealityPackInterface>,
     skip: 0,
     limit: REALITY_PACK_PAGE_LIMIT,
     total: 0,
@@ -35,8 +36,7 @@ const realityPackReceptor = (action: RealityPackActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'REALITY_PACKS_RETRIEVED':
-        result = action.realityPacks
-
+        result = action.realityPackResult
         return s.realityPacks.merge({
           realityPacks: result.data,
           skip: result.skip,

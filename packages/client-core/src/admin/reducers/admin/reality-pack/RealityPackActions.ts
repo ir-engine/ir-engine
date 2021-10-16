@@ -1,8 +1,10 @@
+import { RealityPackResult } from '@xrengine/common/src/interfaces/RealityPackResult'
+
 export const RealityPackAction = {
-  realityPacksFetched: (realityPacks: any[]) => {
+  realityPacksFetched: (realityPackResult: RealityPackResult) => {
     return {
       type: 'REALITY_PACKS_RETRIEVED' as const,
-      realityPacks: realityPacks
+      realityPackResult: realityPackResult
     }
   }
 }

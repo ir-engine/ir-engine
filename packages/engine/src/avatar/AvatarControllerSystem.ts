@@ -14,6 +14,7 @@ import { NetworkObjectComponent } from '../networking/components/NetworkObjectCo
 import { dispatchFrom } from '../networking/functions/dispatchFrom'
 import { SpawnPoseComponent } from './components/SpawnPoseComponent'
 import { respawnAvatar } from './functions/respawnAvatar'
+import { ColliderComponent } from '../physics/components/ColliderComponent'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -82,17 +83,27 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
     }
 
     for (const entity of controllerQuery(world)) {
-      const controller = getComponent(entity, AvatarControllerComponent)
-
-      const avatar = getComponent(entity, AvatarComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const pose = controller.controller.getPosition()
-
-      transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
-
+      // todo: replace this with trigger detection
       detectUserInPortal(entity)
 
       moveAvatar(world, entity, Engine.camera)
+
+      const controller = getComponent(entity, AvatarControllerComponent)
+      const collider = getComponent(entity, ColliderComponent)
+
+      const avatar = getComponent(entity, AvatarComponent)
+      const transform = getComponent(entity, TransformComponent)
+
+      const pose = controller.controller.getPosition()
+      transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
+
+      collider.body.setGlobalPose(
+        {
+          translation: pose,
+          rotation: transform.rotation
+        },
+        true
+      )
 
       // TODO: implement scene lower bounds parameter
       if (transform.position.y < -10) {

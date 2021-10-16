@@ -1,9 +1,9 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { InviteTypeActionType } from './InviteTypeActions'
-import { Invite } from '@xrengine/common/src/interfaces/Invite'
+import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
 const state = createState({
   inviteTypeData: {
-    invitesType: [] as Array<Invite>,
+    invitesType: [] as Array<InviteType>,
     skip: 0,
     limit: 5,
     total: 0

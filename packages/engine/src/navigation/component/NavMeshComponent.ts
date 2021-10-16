@@ -7,7 +7,7 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
  */
 
 export type NavMeshComponentType = {
-  yukaNavMesh: NavMesh
+  yukaNavMesh?: NavMesh
   navTarget: Object3D
 }
 
