@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
@@ -16,7 +16,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { validateARMediaForm } from './validation'
-import { ArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaService'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
 interface Props {
   open: boolean
@@ -100,7 +100,7 @@ const CreateVideo = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateARMediaForm(state, state.formErrors)) {
-      dispatch(ArMediaService.createArMedia({ type, title }, { manifest, audio, dracosis, preview }))
+      ArMediaService.createArMedia({ type, title }, { manifest, audio, dracosis, preview })
       closeViewModel(false)
       setState({
         ...state,

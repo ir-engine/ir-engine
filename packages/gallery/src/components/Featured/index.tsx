@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import Grid from '@material-ui/core/Grid'
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
 import RemoveCircleOutlinedIcon from '@material-ui/icons/RemoveCircleOutlined'
-import MovieCreationIcon from '@material-ui/icons/MovieCreation'
 import AudiotrackIcon from '@material-ui/icons/Audiotrack'
 import PictureAsPdfIcon from '@material-ui/icons/PictureAsPdf'
 
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
-import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 import styles from './Featured.module.scss'
 import { useHistory } from 'react-router'
-import { FeedFiresService } from '../../reducers/feedFires/FeedFiresService'
+import { FeedFiresService } from '../../state/FeedFiresService'
 import { getComponentTypeForMedia } from '../Feed'
 import { MediaContent } from './MediaContent'
 
@@ -105,17 +103,17 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
   useEffect(() => {
     if (auth.user.id.value) {
       if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
-        dispatch(FeedService.getFeeds(type, creatorId))
+        FeedService.getFeeds(type, creatorId)
       } else {
         const getFeaturedFeeds = async () => {
-          await dispatch(FeedService.getFeeds('featured'))
+          await FeedService.getFeeds('featured')
           if (type !== 'fired') {
-            dispatch(FeedService.getFeeds('fired', creatorId))
+            FeedService.getFeeds('fired', creatorId)
           }
         }
 
         const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
-        userIdentityType !== 'guest' ? getFeaturedFeeds() : dispatch(FeedService.getFeeds('featuredGuest'))
+        userIdentityType !== 'guest' ? getFeaturedFeeds() : FeedService.getFeeds('featuredGuest')
       }
 
       if (type !== 'fired') {
@@ -165,13 +163,13 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
       setFeedIds(new Set([...feedIds, item]))
       removedIds.delete(item)
       setRemovedIds(new Set([...removedIds]))
-      dispatch(FeedFiresService.addFireToFeed(item))
+      FeedFiresService.addFireToFeed(item)
       setIsFeatured(true)
     }
   }
 
   const handleRemoveFromFeatured = (item) => {
-    dispatch(FeedFiresService.removeFireToFeed(item))
+    FeedFiresService.removeFireToFeed(item)
     let ids = new Set([...removedIds, item])
     setRemovedIds(ids)
     feedIds.delete(item)

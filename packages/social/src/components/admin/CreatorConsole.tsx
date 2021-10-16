@@ -27,8 +27,8 @@ import { EnhancedTableHead } from '@xrengine/client-core/src/admin/components/Ad
 import CreatorForm from '@xrengine/social/src/components/CreatorForm'
 import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 import CreatorCard from '@xrengine/social/src/components/CreatorCard'
-import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
-import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/AdminState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/state/AdminState'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

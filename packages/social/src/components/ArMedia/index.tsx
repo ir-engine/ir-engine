@@ -2,14 +2,14 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import { Button, CardMedia, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
-import { ArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaService'
-import { useArMediaState } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaState'
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 // import {  Plugins } from '@capacitor/core';
 import Preloader from '@xrengine/social/src/components/Preloader'
 
@@ -32,7 +32,7 @@ const ArMedia = (props: Props) => {
   const [selectedItem, setSelectedItem] = useState(null)
   const arMediaState = useArMediaState()
   useEffect(() => {
-    dispatch(ArMediaService.getArMedia())
+    ArMediaService.getArMedia()
   }, [])
   const { t } = useTranslation()
   const history = useHistory()
@@ -50,7 +50,7 @@ const ArMedia = (props: Props) => {
         variant="text"
         className={styles.backButton}
         onClick={() => {
-          dispatch(PopupsStateService.updateArMediaState(false))
+          PopupsStateService.updateArMediaState(false)
         }}
       >
         <ArrowBackIosIcon />
@@ -93,8 +93,8 @@ const ArMedia = (props: Props) => {
               })
             }
             setPreloading(false)
-            dispatch(PopupsStateService.updateArMediaState(false))
-            dispatch(PopupsStateService.updateWebXRState(true, selectedItem.id))
+            PopupsStateService.updateArMediaState(false)
+            PopupsStateService.updateWebXRState(true, selectedItem.id)
           }}
           variant="contained"
         >

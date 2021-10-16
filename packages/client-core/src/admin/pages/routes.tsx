@@ -1,7 +1,7 @@
 import RoutesConsole from '../components/Routes'
-import { AuthService } from '../../user/reducers/auth/AuthService'
+import { AuthService } from '../../user/state/AuthService'
 import React, { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 interface Props {}
 
@@ -9,7 +9,7 @@ function locations(props: Props) {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }, [])
 
   return <RoutesConsole />

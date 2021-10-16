@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import FeedForm from '../../FeedForm'
 
 interface Props {
@@ -12,7 +12,7 @@ export const FeedFormPopup = ({ setView }: Props) => {
   const popupsState = usePopupsStateState()
   //common for new feed page
   const handleNewFeedClose = () => {
-    dispatch(PopupsStateService.updateNewFeedPageState(false))
+    PopupsStateService.updateNewFeedPageState(false)
   }
 
   const renderNewFeedModal = () =>

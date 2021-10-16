@@ -7,13 +7,12 @@ import { useStyle, useStyles } from './style'
 import InviteHarmony from '../inviteHarmony'
 import Person from '@material-ui/icons/Person'
 import ListItemText from '@material-ui/core/ListItemText'
-import { connect, useDispatch } from 'react-redux'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import { ChannelType, useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
-import { useChannelConnectionState } from '../../../../../client/src/reducers/channelConnection/ChannelConnectionState'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { ChatAction } from '@xrengine/client-core/src/social/reducers/chat/ChatActions'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { ChatService } from '../../../social/state/ChatService'
+import { ChannelType, useChatState } from '../../../social/state/ChatState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useUserState } from '@xrengine/client-core/src/user/state/UserState'
+import { ChatAction } from '../../../social/state/ChatActions'
 
 import CreateMessage from './CreateMessage'
 import MessageList from './MessageList'
@@ -42,7 +41,7 @@ export default function RightHarmony() {
 
   useEffect(() => {
     if (channelState.updateNeeded.value === true) {
-      dispatch(ChatService.getChannels())
+      ChatService.getChannels()
     }
   }, [channelState.updateNeeded.value])
 
@@ -63,7 +62,7 @@ export default function RightHarmony() {
         }
       }
       if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
-        dispatch(ChatService.getChannelMessages(channel.id))
+        ChatService.getChannelMessages(channel.id)
       }
     })
   }, [channels])

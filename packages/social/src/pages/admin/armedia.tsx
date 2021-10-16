@@ -8,8 +8,8 @@ import ArMediaDashboard from '@xrengine/social/src/components/admin/Armedia'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
-import { useArMediaState } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaState'
-import { ArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaService'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
 const ArMediaPage = () => {
   const arMediaState = useArMediaState()

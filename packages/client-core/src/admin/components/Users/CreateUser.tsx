@@ -1,20 +1,20 @@
 import React from 'react'
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
-import { UserService } from '../../reducers/admin/user/UserService'
+import { UserService } from '../../state/UserService'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import CreateUserRole from './CreateUserRole'
 import DialogActions from '@material-ui/core/DialogActions'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { validateUserForm } from './validation'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useAuthState } from '../../../user/state/AuthState'
 import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert'
 import { useUserStyles, useUserStyle } from './styles'
-import { useUserState } from '../../reducers/admin/user/UserState'
+import { useUserState } from '../../state/UserState'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -22,8 +22,8 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
-import { ScopeService } from '../../reducers/admin/scope/ScopeService'
-import { useScopeState } from '../../reducers/admin/scope/ScopeState'
+import { ScopeService } from '../../state/ScopeService'
+import { useScopeState } from '../../state/ScopeState'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -70,15 +70,15 @@ const CreateUser = (props: Props) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      await dispatch(UserService.fetchUserRole())
+      await UserService.fetchUserRole()
     }
     const role = userRole ? userRole.updateNeeded.value : false
     if (role === true && user.id.value) fetchData()
     if (user.id.value && staticResource.updateNeeded.value) {
-      dispatch(UserService.fetchStaticResource())
+      UserService.fetchStaticResource()
     }
     if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      dispatch(ScopeService.getScopeTypeService())
+      ScopeService.getScopeTypeService()
     }
   }, [adminScopeState.scopeType.updateNeeded.value, user])
 
@@ -139,7 +139,7 @@ const CreateUser = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      dispatch(UserService.createUser(data))
+      UserService.createUser(data)
       closeViewModel(false)
       setState({
         ...state,

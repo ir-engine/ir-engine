@@ -2,11 +2,11 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 
-import { TheFeedsService } from '@xrengine/client-core/src/social/reducers/thefeeds/TheFeedsService'
-import { useTheFeedsState } from '@xrengine/client-core/src/social/reducers/thefeeds/TheFeedsState'
+import { TheFeedsService } from '@xrengine/client-core/src/social/state/TheFeedsService'
+import { useTheFeedsState } from '@xrengine/client-core/src/social/state/TheFeedsState'
 
 import TheFeedsCard from '../TheFeedsCard'
 
@@ -19,7 +19,7 @@ const TheFeed = (props: Props) => {
   const dispatch = useDispatch()
   let feedsList = null
   useEffect(() => {
-    dispatch(TheFeedsService.getTheFeedsNew())
+    TheFeedsService.getTheFeedsNew()
   }, [])
   const theFeedsState = useTheFeedsState()
 

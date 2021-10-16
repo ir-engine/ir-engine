@@ -6,9 +6,9 @@ import TextField from '@material-ui/core/TextField'
 import { Done } from '@material-ui/icons'
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import styles from './ContentPack.module.scss'
-import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
+import { ContentPackService } from '../../state/ContentPackService'
 
 interface Props {
   open: boolean
@@ -40,7 +40,7 @@ const DownloadModal = (props: Props): any => {
 
   const getContentPack = async () => {
     try {
-      const res = await dispatch(ContentPackService.downloadContentPack(contentPackUrl))
+      const res = await ContentPackService.downloadContentPack(contentPackUrl)
       showSuccess()
     } catch (err) {
       showError('Invalid URL')

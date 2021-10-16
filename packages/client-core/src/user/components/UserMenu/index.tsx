@@ -3,16 +3,15 @@ import LinkIcon from '@material-ui/icons/Link'
 import PersonIcon from '@material-ui/icons/Person'
 import SettingsIcon from '@material-ui/icons/Settings'
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
-// import { provisionInstanceServer } from "@xrengine/client-networking/src/reducers/instanceConnection/service";
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import React, { useState, useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { AlertService } from '../../../common/reducers/alert/AlertService'
-import { useAuthState } from '../../reducers/auth/AuthState'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AlertService } from '../../../common/state/AlertService'
+import { useAuthState } from '../../state/AuthState'
+import { AuthService } from '../../state/AuthService'
 import AvatarMenu from './menus/AvatarMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
@@ -87,26 +86,26 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (selfUser?.value) {
-      dispatch(AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL))
+      AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL)
     }
   }
 
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSetting, ...newSetting }
     setUserSetting(setting)
-    dispatch(AuthService.updateUserSettings(selfUser.user_setting.id.value, setting))
+    AuthService.updateUserSettings(selfUser.user_setting.id.value, setting)
   }
 
   const handleFetchAvatarList = (): any => {
-    return dispatch(AuthService.fetchAvatarList())
+    return AuthService.fetchAvatarList()
   }
 
   const handleUploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
-    return dispatch(AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar))
+    return AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar)
   }
 
   const handleRemoveAvatar = (keys: [string]): any => {
-    return dispatch(AuthService.removeAvatar(keys))
+    return AuthService.removeAvatar(keys)
   }
 
   const updateGraphicsSettings = (newSetting: any): void => {
@@ -147,7 +146,7 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   const alertSuccess = (message) => {
-    dispatch(AlertService.alertSuccess(message))
+    AlertService.alertSuccess(message)
   }
 
   const renderMenuPanel = () => {

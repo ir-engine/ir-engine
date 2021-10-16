@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 import Card from '@material-ui/core/Card'
 import CardMedia from '@material-ui/core/CardMedia'
@@ -19,10 +19,10 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 // import SimpleModal from '../SimpleModal';
 // @ts-ignore
 import styles from './CreatorCard.module.scss'
-import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
-import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
-import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core'
 import SimpleModal from '../SimpleModal'
 
@@ -69,7 +69,7 @@ const CreatorCard = ({ creator }: Props) => {
 
   const currentCreator = creatorState.creators.currentCreator?.id?.value
   useEffect(() => {
-    dispatch(CreatorService.getBlockedList(currentCreator))
+    CreatorService.getBlockedList(currentCreator)
   }, [])
 
   const blackList = creatorState.creators.blocked.value
@@ -77,13 +77,13 @@ const CreatorCard = ({ creator }: Props) => {
   const isBlockedByMe = blackList?.some(checkId)
 
   const handleBlockCreator = (creatorId) => {
-    dispatch(CreatorService.blockCreator(creatorId))
+    CreatorService.blockCreator(creatorId)
     setOpenBlock(false)
-    dispatch(PopupsStateService.updateCreatorPageState(false))
+    PopupsStateService.updateCreatorPageState(false)
   }
 
   const handleBlockedList = (creatorId) => {
-    dispatch(CreatorService.getBlockedList(creatorId))
+    CreatorService.getBlockedList(creatorId)
     setOpenFiredModal(true)
     setCreatorsType('blocked')
   }
@@ -109,8 +109,8 @@ const CreatorCard = ({ creator }: Props) => {
       aria-controls="owner-menu"
       aria-haspopup="true"
       onClick={() => {
-        dispatch(PopupsStateService.updateCreatorFormState(true))
-        dispatch(FeedService.clearCreatorFeatured())
+        PopupsStateService.updateCreatorFormState(true)
+        FeedService.clearCreatorFeatured()
       }}
     >
       <MoreHorizIcon />
@@ -130,7 +130,7 @@ const CreatorCard = ({ creator }: Props) => {
             variant="text"
             className={styles.backButton}
             onClick={() => {
-              dispatch(PopupsStateService.updateCreatorPageState(false))
+              PopupsStateService.updateCreatorPageState(false)
             }}
           >
             <ArrowBackIosIcon />
