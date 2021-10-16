@@ -58,6 +58,12 @@ function RouterComp(props) {
         >
           <Switch>
             {customRoutes}
+            {/* default to allowing admin access regardless */}
+            <Route
+              key={'/admin'}
+              path={'/admin'}
+              component={React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))}
+            />
             {/* if no index page has been provided, indicate this as obviously as possible */}
             <Route key={'/503'} path={'/'} component={React.lazy(() => import('../pages/503'))} exact />
             <Route key={'*504'} path="*" component={React.lazy(() => import('../pages/404'))} />

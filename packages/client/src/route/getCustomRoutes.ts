@@ -1,5 +1,5 @@
 import i18n from 'i18next'
-import { loadRoute, RoutePageInterface } from '@xrengine/projects/loadRoute'
+import { loadRoute } from '@xrengine/projects/loadRoute'
 import { client } from '@xrengine/client-core/src/feathers'
 
 /**
@@ -10,7 +10,7 @@ import { client } from '@xrengine/client-core/src/feathers'
 export const getCustomRoutes = async (): Promise<any> => {
   const routes = await client.service('route').find()
 
-  const components: RoutePageInterface[] = []
+  const components: any[] = []
 
   if (!Array.isArray(routes.data) || routes.data == null) {
     throw new Error(
@@ -18,11 +18,7 @@ export const getCustomRoutes = async (): Promise<any> => {
     )
   } else {
     for (const project of routes.data) {
-      const pages = await loadRoute({
-        project: project.project,
-        routes: project.routes.split(',')
-      })
-      components.push(...pages)
+      components.push(...(await loadRoute(project.project, project.route)))
     }
   }
 

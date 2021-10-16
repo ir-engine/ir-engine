@@ -39,7 +39,7 @@
     "cross-env": "7.0.3",
     "eslint": "8.0.1",
     "eslint-plugin-react": "7.26.1",
-    "mocha": "9.1.2",
+    "mocha": "9.1.3",
     "semantic-release": "18.0.0",
     "semantic-release-monorepo": "7.0.5",
     "typescript": "4.4.4",
