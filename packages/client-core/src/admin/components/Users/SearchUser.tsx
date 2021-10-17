@@ -1,13 +1,11 @@
-import React from 'react'
 import IconButton from '@material-ui/core/IconButton'
 import InputBase from '@material-ui/core/InputBase'
 import Paper from '@material-ui/core/Paper'
-import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
-import { useUserStyles } from './styles'
+import React from 'react'
+import { useDispatch } from '../../../store'
 import { UserService } from '../../state/UserService'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useUserStyles } from './styles'
 
 interface Props {}
 

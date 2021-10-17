@@ -1,5 +1,5 @@
 import React from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../store'
 import Alert from '@material-ui/lab/Alert'
 import AlertTitle from '@material-ui/lab/AlertTitle'
 import { useAlertState } from '../state/AlertState'

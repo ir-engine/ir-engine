@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import Button from '@material-ui/core/Button'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import styles from './Profile.module.scss'
 import TextField from '@material-ui/core/TextField'
 import classNames from 'classnames'

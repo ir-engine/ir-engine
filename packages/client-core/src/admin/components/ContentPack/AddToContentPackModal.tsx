@@ -1,6 +1,6 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import { useContentPackState } from '../../state/ContentPackState'
 import styles from './ContentPack.module.scss'
 import { ContentPackService } from '../../state/ContentPackService'

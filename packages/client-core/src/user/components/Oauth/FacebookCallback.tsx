@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { AuthService } from '../../state/AuthService'
 import Container from '@material-ui/core/Container'
 import { useAuthState } from '../../state/AuthState'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {

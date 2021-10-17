@@ -6,7 +6,7 @@ import TextField from '@material-ui/core/TextField'
 import { Done } from '@material-ui/icons'
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import styles from './ContentPack.module.scss'
 import { ContentPackService } from '../../state/ContentPackService'
 

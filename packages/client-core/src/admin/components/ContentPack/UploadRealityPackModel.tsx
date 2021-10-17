@@ -1,6 +1,6 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import styles from './ContentPack.module.scss'
 import { ContentPackService } from '../../state/ContentPackService'
 import Backdrop from '@material-ui/core/Backdrop'

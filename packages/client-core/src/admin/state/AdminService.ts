@@ -5,7 +5,7 @@ import { Config } from '@xrengine/common/src/config'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/state/AlertService'
 import { PublicVideo, VideoAction } from '../../media/state/VideoActions'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '../../user/state/AuthState'
 import { useDispatch } from '../../store'
 
 export const AdminService = {

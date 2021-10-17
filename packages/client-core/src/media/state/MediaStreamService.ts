@@ -1,6 +1,6 @@
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { MediaStreamAction } from './MediaStreamActions'
-import { store } from '@xrengine/client-core/src/store'
+import { store } from '../../store'
 
 export const MediaStreamService = {
   updateCamVideoState: () => {
