@@ -46,6 +46,7 @@
     "@xrengine/bot": "^0.4.9",
     "@xrengine/common": "^0.4.9",
     "@xrengine/projects": "^0.4.9",
+    "@xrengine/editor": "^0.4.9",
     "bitecs": "^0.3.21-13",
     "browserfs": "^1.4.3",
     "comlink": "4.3.1",
