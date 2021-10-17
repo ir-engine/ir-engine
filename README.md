@@ -26,9 +26,6 @@ Installation instructions are here:
 https://github.com/XRFoundation/XREngine/wiki/Installation
 
 ## Let's build it together
-We believe that projects like this are extremely complex and difficult, and can only be built when large groups of people work together, out in the open. If you believe that your calling is to build a free, open network that everyone, everywhere can get value from, then you are welcome in our community, and we'll do our best to get you set up.
-
-We are always hiring talented people who want to be leaders in what is to come. Inquire with anyone who seems like they know what's going on and they'll help you find who you need to talk to.
 
 ### [Join our Discord](https://discord.gg/Tb4MT4TTjH)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/Tb4MT4TTjH) 
 

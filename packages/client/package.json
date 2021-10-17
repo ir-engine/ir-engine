@@ -68,7 +68,7 @@
     "faker": "5.5.3",
     "file-regex": "3.1.0",
     "fuse.js": "6.4.6",
-    "i18next": "21.3.1",
+    "i18next": "21.3.2",
     "i18next-browser-languagedetector": "6.1.2",
     "immutable": "4.0.0",
     "jwt-decode": "3.1.2",
@@ -114,7 +114,7 @@
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
     "vite": "2.6.7",
-    "vite-plugin-optimize-persist": "^0.0.5",
+    "vite-plugin-optimize-persist": "0.1.0",
     "vite-plugin-package-config": "^0.0.3",
     "webxr-native": "0.3.0"
   },
