@@ -32,7 +32,7 @@ import {
 const ProjectsPage = () => {
   const classes = useStyles()
 
-  const [value, setValue] = React.useState(1)
+  const [value, setValue] = React.useState(0)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
 
   const authState = useAuthState()
@@ -86,14 +86,14 @@ const ProjectsPage = () => {
             className={classes.tabs}
             classes={{ indicator: classes.indicator }}
           >
-            <Tab label={t('editor.projects.sceneHeader')} {...tapId(0)} />
-            <Tab label={t('editor.projects.projectHeader')} {...tapId(1)} />
+            <Tab label={t('editor.projects.projectHeader')} {...tapId(0)} />
+            <Tab label={t('editor.projects.sceneHeader')} {...tapId(1)} />
           </Tabs>
           <TabPanel value={value} index={0}>
-            <Projects showingScenes={true} />
+            <Projects showingScenes={false} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <Projects showingScenes={false} />
+            <Projects showingScenes={true} />
           </TabPanel>
         </div>
       )}
