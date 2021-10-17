@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from '../../pages/projectUtility'
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { getProjects } from '../../functions/projectFunctions'
 
 type Props = {
   showingScenes: boolean
@@ -34,15 +35,18 @@ const ProjectsPage = (props: Props) => {
   const user = authState.user // user initialized by getting value from authState object.
 
   const { t } = useTranslation()
+  const idKey = showingScenes ? 'scene_id' : 'project_id'
 
   useEffect(() => {
     if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
-      getScenes()
+      const data = showingScenes ? getScenes() : getProjects()
+      data
         .then((p) => {
+          console.log(p)
           setProjects(
             p.map((project) => ({
               ...project,
-              url: `/editor/${project.project_id}`
+              url: `/editor/${project[idKey]}`
             }))
           )
           setLoading(false)
@@ -58,7 +62,7 @@ const ProjectsPage = (props: Props) => {
           setLoading(false)
         })
     }
-  }, [authUser, user])
+  }, [authUser.accessToken.value])
 
   /**
    *function to delete project
@@ -66,10 +70,10 @@ const ProjectsPage = (props: Props) => {
   const onDeleteProject = async (project) => {
     try {
       // calling api to delete project on the basis of project_id.
-      await deleteScene(project.project_id)
+      await deleteScene(project[idKey])
 
       // setting projects after removing deleted project.
-      setProjects(projects.filter((p) => p.project_id !== project.project_id))
+      setProjects(projects.filter((p) => p[idKey] !== project[idKey]))
     } catch (error) {
       console.log('Delete project error')
     }

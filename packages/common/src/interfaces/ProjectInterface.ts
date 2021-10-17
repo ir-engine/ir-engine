@@ -1,7 +1,7 @@
 export interface ProjectInterface {
   name: string
   version: string
-  thumbnail: string
+  thumbnailUrl: string
   assets: string[]
   scenes: string[]
   scripts: string[]

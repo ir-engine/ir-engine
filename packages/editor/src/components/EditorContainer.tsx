@@ -89,7 +89,7 @@ export const publishProject = async (project, showDialog, hideDialog?): Promise<
         }
       })
       // saving project.
-      project = await saveScene(project.project_id, signal)
+      project = await saveScene(project.scene_id, signal)
 
       if (signal.aborted) {
         const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
@@ -188,7 +188,7 @@ export const publishProject = async (project, showDialog, hideDialog?): Promise<
     }
 
     // Serialize Editor scene
-    const serializedScene = await SceneManager.instance.scene.serialize(project.project_id)
+    const serializedScene = await SceneManager.instance.scene.serialize(project.scene_id)
     const sceneBlob = new Blob([JSON.stringify(serializedScene)], { type: 'application/json' })
 
     showDialog(ProgressDialog, {
@@ -272,7 +272,7 @@ export const publishProject = async (project, showDialog, hideDialog?): Promise<
     }
 
     try {
-      project = await client.service(`/publish-scene/${project.project_id}`).create({ scene: sceneParams })
+      project = await client.service(`/publish-scene/${project.scene_id}`).create({ scene: sceneParams })
     } catch (error) {
       throw new Error(error)
     }
@@ -621,7 +621,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     try {
       project = await getScene(projectId)
       ProjectManager.instance.ownedFileIds = JSON.parse(project.ownedFileIds)
-      globalThis.currentProjectID = project.project_id
+      globalThis.currentProjectID = project.scene_id
 
       const projectIndex = project.project_url.split('collection/')[1]
       const projectFile = await client.service(`collection`).get(projectIndex, {
@@ -826,13 +826,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     )
 
     SceneManager.instance.sceneModified = false
-    globalThis.currentProjectID = project.project_id
+    globalThis.currentProjectID = project.scene_id
 
     const pathParams = this.state.pathParams
-    pathParams.set('projectId', project.project_id)
+    pathParams.set('projectId', project.scene_id)
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project, pathParams }, () => {
-        this.props.history.replace(`/editor/${project.project_id}`)
+        this.props.history.replace(`/editor/${project.scene_id}`)
         this.setState({ creatingProject: false })
       })
     })
@@ -867,7 +867,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
       this.hideDialog()
       const pathParams = this.state.pathParams
-      pathParams.set('projectId', newProject.project_id)
+      pathParams.set('projectId', newProject.scene_id)
       this.setState({ pathParams: pathParams })
     } catch (error) {
       console.error(error)
@@ -968,7 +968,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
   onExportLegacyProject = async () => {
     const { project } = this.state
-    const projectFile = await SceneManager.instance.scene.serialize(project.project_id)
+    const projectFile = await SceneManager.instance.scene.serialize(project.scene_id)
 
     if (projectFile.metadata) {
       delete projectFile.metadata.sceneUrl
@@ -1005,11 +1005,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     try {
       const { project } = this.state
       if (project) {
-        const newProject = await saveScene(project.project_id, abortController.signal)
+        const newProject = await saveScene(project.scene_id, abortController.signal)
 
         this.setState({ project: newProject })
         const pathParams = this.state.pathParams
-        pathParams.set('projectId', newProject.project_id)
+        pathParams.set('projectId', newProject.scene_id)
         this.setState({ pathParams: pathParams })
       } else {
         await this.createProject()
