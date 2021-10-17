@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 const editorProject = React.lazy(() => import('@xrengine/editor/src/pages/projects'))
+//@ts-ignore
 const editorProjID = React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))
 const editorCreate = React.lazy(() => import('@xrengine/editor/src/pages/create'))
 const UnauthorisedPage = React.lazy(() => import('../403/403'))
 import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
 import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
 
 const unauthorisedMessage = `The page you are looking for is eligible for authorised users only.`
@@ -14,7 +16,8 @@ const loggingInMessage = `Authorising...`
 const EditorProtectedRoutes = () => {
   const dispatch = useDispatch()
   const scopes = useAuthState().user?.scopes?.value || []
-  let isSceneAllowed = false
+  const isSceneAllowed = userHasAccess('editor:write')
+  console.log(isSceneAllowed)
   const authState = useAuthState()
   const [pendingAuth, setPendingAuth] = useState(true)
 
@@ -27,13 +30,6 @@ const EditorProtectedRoutes = () => {
   useEffect(() => {
     setPendingAuth(authState.isLoggedIn.value)
   }, [authState.isLoggedIn.value])
-
-  for (const scope of scopes) {
-    if (scope.type.split(':')[0] === 'editor' && scope.type.split(':')[1] === 'write') {
-      isSceneAllowed = true
-      break
-    }
-  }
 
   return (
     <Switch>
