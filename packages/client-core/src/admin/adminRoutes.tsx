@@ -59,7 +59,7 @@ const ProtectedRoutes = (props: Props) => {
     }
   })
 
-  if (admin?.id?.value?.length > 0 && admin?.userRole?.value !== 'admin') {
+  if (admin?.id?.value?.length! > 0 && admin?.userRole?.value !== 'admin') {
     return <Redirect to="/login" />
   }
 
