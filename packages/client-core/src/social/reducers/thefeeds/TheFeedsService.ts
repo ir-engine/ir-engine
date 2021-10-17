@@ -5,7 +5,7 @@
 import { Dispatch } from 'redux'
 import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { upload } from '../../../util/upload'
 import { TheFeedsAction } from './TheFeedsActions'
 
 export const TheFeedsService = {

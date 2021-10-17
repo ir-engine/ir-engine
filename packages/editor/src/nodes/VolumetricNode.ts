@@ -1,6 +1,6 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import Volumetric from '@xrengine/engine/src/scene/classes/Volumetric'
-import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
+import { RethrownError } from '../functions/errors'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'

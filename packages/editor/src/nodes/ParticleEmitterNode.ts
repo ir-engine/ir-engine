@@ -2,7 +2,7 @@ import { ParticleEmitterMesh as ParticleEmitter } from '@xrengine/engine/src/par
 import EditorNodeMixin from './EditorNodeMixin'
 import DirectionalPlaneHelper from '@xrengine/engine/src/scene/classes/DirectionalPlaneHelper'
 import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
-import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
+import { resolveMedia } from '@xrengine/editor/src/functions/resolveMedia'
 
 let defaultParticleSprite = null
 const defaultParticleUrl = '/editor/dot.png'
