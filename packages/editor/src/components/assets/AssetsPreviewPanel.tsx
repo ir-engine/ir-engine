@@ -43,6 +43,8 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
     switch (props.contentType) {
       case 'model/gltf':
       case 'model/gltf-binary':
+      case 'model/glb':
+      case 'glb':
       case 'gltf':
       case 'gltf-binary':
         const modelPreviewPanel = {

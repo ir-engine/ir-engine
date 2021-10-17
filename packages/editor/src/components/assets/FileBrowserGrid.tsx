@@ -35,14 +35,7 @@ function collectMenuProps({ item }) {
 function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, onClick, moveContent, ...rest }) {
   const { t } = useTranslation()
 
-  const onClickItem = useCallback(
-    (e) => {
-      if (onClick) {
-        onClick(item, e)
-      }
-    },
-    [item, onClick]
-  )
+  const onClickItem = (e) => onClick(item)
 
   const placeObject = useCallback((_, trigger) => {
     const item = trigger.item
@@ -239,7 +232,7 @@ FileBrowserItem.defaultProps = {
 //variable used to create uniqueId
 let lastId = 0
 
-const MemoFileGridItem = memo(FileBrowserItem)
+const MemoFileGridItem = FileBrowserItem
 
 /**
  * FileBrowserGrid component used to render FileBrowser.
@@ -261,8 +254,6 @@ export function FileBrowserGrid({
   addNewFolder,
   items,
   onSelect,
-  onLoadMore,
-  hasMore,
   moveContent,
   deleteContent,
   currentContent,
@@ -284,7 +275,7 @@ export function FileBrowserGrid({
       {console.log('Rendering File Browser GRID')}
       <ContextMenuTrigger id={'uniqueId.current'}>
         <VerticalScrollContainer flex>
-          <InfiniteScroll pageStart={0} loadMore={onLoadMore} hasMore={hasMore} threshold={100} useWindow={false}>
+          <InfiniteScroll pageStart={0} loadMore={() => {}} hasMore={false} threshold={100} useWindow={false}>
             <MediaGrid>
               {unique(items, 'id').map((item, index) => (
                 <MemoFileGridItem
@@ -313,15 +304,12 @@ export function FileBrowserGrid({
 
 //creating propTypes for asset grid
 FileBrowserGrid.propTypes = {
-  source: PropTypes.object,
   tooltip: PropTypes.func,
   isLoading: PropTypes.bool,
   onSelect: PropTypes.func,
   moveContent: PropTypes.func,
   addNewFolder: PropTypes.func,
   deleteContent: PropTypes.func,
-  onLoadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool,
   currentContent: PropTypes.any,
   onPaste: PropTypes.func,
   selectedItems: PropTypes.arrayOf(

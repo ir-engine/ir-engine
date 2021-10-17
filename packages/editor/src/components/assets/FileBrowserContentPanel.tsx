@@ -1,15 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useReducer, createRef } from 'react'
 import { AssetsPanelContainer } from '../layout/Flex'
 // @ts-ignore
 import styles from './styles.module.scss'
-import { useAssetSearch } from './useAssetSearch'
 import { AssetPanelContentContainer } from './AssetsPanel'
 import { UploadFileType } from './sources/MyAssetsSource'
 import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
 import { NodeManager } from '../../managers/NodeManager'
-import EditorEvents from '../../constants/EditorEvents'
-import { SourceManager } from '../../managers/SourceManager'
-import { CommandManager } from '../../managers/CommandManager'
 import { ProjectManager } from '../../managers/ProjectManager'
 import FileBrowserGrid from './FileBrowserGrid'
 import { Config } from '@xrengine/common/src/config'
@@ -23,49 +19,21 @@ import { File } from '@styled-icons/fa-solid'
  */
 
 export default function FileBrowserContentPanel({ onSelectionChanged }) {
-  //initializing sources
-  const [sources, setSources] = useState(SourceManager.instance.sources)
-
-  //initializing selectedSource as the first element of sources array
-  const [selectedSource, setSelectedSource] = useState(sources.length > 0 ? sources[1] : null)
-
-  useEffect(() => {
-    // function to set selected sources
-    const onSetSource = (sourceId) => {
-      setSelectedSource(sources.find((s) => s.id === sourceId))
-    }
-
-    // function to handle changes in authentication
-    const onSettingsChanged = () => {
-      const nextSources = SourceManager.instance.sources
-      setSources(nextSources)
-    }
-
-    CommandManager.instance.addListener(EditorEvents.SETTINGS_CHANGED.toString(), onSettingsChanged)
-    CommandManager.instance.addListener(EditorEvents.SOURCE_CHANGED.toString(), onSetSource)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.SOURCE_CHANGED.toString(), onSetSource)
-      CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), onSettingsChanged)
-    }
-  }, [setSelectedSource, sources, setSources, selectedSource])
-
-  const { loadMore, hasMore, results } = useAssetSearch(selectedSource)
-
   const onSelect = (props) => {
     if (props.type !== 'folder')
       onSelectionChanged({ resourceUrl: props.description, name: props.label, contentType: props.type })
     else {
       const newPath = `${selectedDirectory}${props.label}/`
+      console.log('New Path for the DIrectory is:' + newPath)
       setSelectedDirectory(newPath)
     }
   }
 
   const [selectedDirectory, setSelectedDirectory] = useState('/')
-
   const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
 
   const renderProjectFiles = async (directory) => {
+    console.log('Current selected directory is:' + selectedDirectory)
     const returningObjects = []
     const resultFromThis = directory
       ? ((await ProjectManager.instance.feathersClient.service(`file-browser`).get(directory)) as any[])
@@ -100,17 +68,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     renderProjectFiles(selectedDirectory)
   }, [selectedDirectory])
 
-  const onFileUploaded = () => {
-    selectedDirectory === '/' ? renderProjectFiles('/') : setSelectedDirectory('/')
-  }
-
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.FILE_UPLOADED.toString(), onFileUploaded)
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.FILE_UPLOADED.toString(), onFileUploaded)
-    }
-  }, [])
-
   const addNewFolder = () => {
     ProjectManager.instance.feathersClient
       .service(`file-browser`)
@@ -121,6 +78,10 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       .catch(() => {
         console.log("Can't Create new Folder")
       })
+  }
+
+  const onRefreshDirectory = () => {
+    renderProjectFiles(selectedDirectory)
   }
 
   const onBackDirectory = () => {
@@ -165,13 +126,11 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     <>
       {console.log('Rendering File Browser Panel CHILD')}
       <Button onClick={onBackDirectory}>Back</Button>
+      <Button onClick={onRefreshDirectory}>Refresh View</Button>
       <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
         <AssetPanelContentContainer>
           <FileBrowserGrid
-            source={selectedSource}
             items={selectedProjectFiles}
-            onLoadMore={loadMore}
-            hasMore={hasMore}
             onSelect={onSelect}
             isLoading={false}
             addNewFolder={addNewFolder}
