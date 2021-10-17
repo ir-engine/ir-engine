@@ -1,5 +1,5 @@
 {
-  "name": "template",
+  "name": "theoverlay",
   "version": "0.0.0",
   "thumbnailUrl": "https://assets.website-files.com/61126286640de0ea19c550ab/614458939bc78c9cc5059b4c_Overlay%20logo.png",
   "routes": ["/", "/login", "/harmony", "/admin", "/location", "/auth", "/editor"],

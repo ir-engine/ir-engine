@@ -5,9 +5,7 @@ export interface ProjectInterface {
   assets: string[]
   scenes: string[]
   scripts: string[]
-  routes: {
-    [route: string]: string
-  }
+  routes: string[]
   // TODO: remove this when github is in
   files: string[]
   clientReactEntryPoint: string

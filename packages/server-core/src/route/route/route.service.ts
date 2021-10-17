@@ -42,13 +42,9 @@ export const getInstalledRoutes = () => {
 export const activateRoute = (routeService: Route): any => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
     const activatedRoutes = ((await routeService.find()) as any).data as ActiveRoutesInterface[]
-    console.log(activatedRoutes)
     const installedRoutes = getInstalledRoutes().data
-    console.log(installedRoutes)
     if (data.activate) {
-      console.log('activating', data, '\n')
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))
-      console.log('routeToActivate', routeToActivate)
       if (routeToActivate) {
         // if any projects already have this route, deactivate them
         for (const route of activatedRoutes) {
@@ -61,9 +57,7 @@ export const activateRoute = (routeService: Route): any => {
         return true
       }
     } else {
-      console.log('deactivating', data, '\n')
       const routeToDeactivate = activatedRoutes.find((r) => r.project === data.project && r.route === data.route)
-      console.log('routeToDeactivate', routeToDeactivate)
       if (routeToDeactivate) {
         await routeService.remove(routeToDeactivate.id)
         return true
