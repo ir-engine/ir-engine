@@ -25,11 +25,11 @@ interface Props {
   handleClose: any
   scenes?: any
   avatars?: any
-  realityPacks?: any
+  projects?: any
 }
 
 const AddToContentPackModal = (props: Props): any => {
-  const { open, handleClose, avatars, scenes, realityPacks } = props
+  const { open, handleClose, avatars, scenes, projects } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
@@ -97,13 +97,13 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
-  const addCurrentRealityPacksToContentPack = async () => {
+  const addCurrentProjectToContentPack = async () => {
     try {
       setProcessing(true)
       if (contentPackName !== '') {
         await dispatch(
-          ContentPackService.addRealityPacksToContentPack({
-            realityPacks: realityPacks,
+          ContentPackService.addProjectToContentPack({
+            projects,
             contentPack: contentPackName
           })
         )
@@ -128,17 +128,17 @@ const AddToContentPackModal = (props: Props): any => {
               contentPack: newContentPackName
             })
           )
-        else if (avatars != null)
+        if (avatars != null)
           await dispatch(
             ContentPackService.createContentPack({
               avatars: avatars,
               contentPack: newContentPackName
             })
           )
-        else if (realityPacks != null)
+        if (projects != null)
           await dispatch(
             ContentPackService.createContentPack({
-              realityPacks: realityPacks,
+              projects: projects,
               contentPack: newContentPackName
             })
           )
@@ -197,9 +197,9 @@ const AddToContentPackModal = (props: Props): any => {
                   Adding {avatars.length} {avatars.length === 1 ? 'Avatar' : 'Avatars'}
                 </div>
               )}
-              {realityPacks && (
+              {projects && (
                 <div className={styles['title']}>
-                  Adding {realityPacks.length} {realityPacks.length === 1 ? 'Reality Pack' : 'Reality Packs'}
+                  Adding {projects.length} {projects.length === 1 ? 'Project' : 'Projects'}
                 </div>
               )}
               <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
@@ -245,8 +245,8 @@ const AddToContentPackModal = (props: Props): any => {
                     onClick={
                       scenes != null
                         ? addCurrentScenesToContentPack
-                        : realityPacks != null
-                        ? addCurrentRealityPacksToContentPack
+                        : projects != null
+                        ? addCurrentProjectToContentPack
                         : addCurrentAvatarsToContentPack
                     }
                   >

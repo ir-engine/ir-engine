@@ -3,7 +3,7 @@ import Paginated from '../../types/PageObject'
 import { Forbidden } from '@feathersjs/errors'
 import { Transaction } from 'sequelize/types'
 import { Application } from '../../../declarations'
-import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper'
+import { mapProjectDetailData, defaultProjectImport } from '../scene/project-helper'
 import StorageProvider from '../../media/storageprovider/storageprovider'
 import { collectionType } from '../../entities/collection-type/collectionType'
 
@@ -68,7 +68,7 @@ export class PublishProject implements ServiceMethods<Data> {
     const provider = new StorageProvider()
     const storage = provider.getStorage()
     const project = await CollectionModel.findOne({
-      where: { sid: projectId, type: 'project' }
+      where: { sid: projectId, type: 'scene' }
     }) /* , creatorUserId: loggedInUser.userId */
 
     if (!project) {
@@ -116,7 +116,7 @@ export class PublishProject implements ServiceMethods<Data> {
     const projectData = await CollectionModel.findOne({
       where: {
         sid: project.sid,
-        type: collectionType.project
+        type: collectionType.scene
       },
       attributes: ['name', 'id', 'sid'],
       include: defaultProjectImport(this.app.get('sequelizeClient').models)

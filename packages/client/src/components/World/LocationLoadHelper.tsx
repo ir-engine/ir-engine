@@ -60,7 +60,7 @@ export const getSceneData = async (sceneId: string, isOffline: boolean): Promise
     return testScenes[sceneId] || testScenes.test
   }
 
-  const projectResult = await client.service('project').get(sceneId)
+  const projectResult = await client.service('scene').get(sceneId)
   Store.store.dispatch(SceneAction.setCurrentScene(projectResult))
 
   const projectUrl = projectResult.project_url

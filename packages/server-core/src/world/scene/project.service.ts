@@ -3,6 +3,7 @@ import { Project } from './project.class'
 import projectDocs from './project.docs'
 import createModel from './project.model'
 import hooks from './project.hooks'
+import createAssetModel from './project-asset.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -11,6 +12,7 @@ declare module '../../../declarations' {
 }
 
 export default (app: Application): any => {
+  createAssetModel(app)
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -25,14 +27,14 @@ export default (app: Application): any => {
   const event = new Project(options, app)
   event.docs = projectDocs
 
-  app.use('project', event)
+  app.use('scene', event)
 
   /**
    * Get our initialized service so that we can register hooks
    *
    * @author Vyacheslav Solovjov
    */
-  const service = app.service('project')
+  const service = app.service('scene')
 
   service.hooks(hooks)
 }

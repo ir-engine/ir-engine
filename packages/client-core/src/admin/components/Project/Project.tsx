@@ -14,25 +14,24 @@ import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
 import { useDispatch } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { REALITY_PACK_PAGE_LIMIT } from '../../reducers/admin/reality-pack/RealityPackState'
-import { LocationService } from '../../reducers/admin/location/LocationService'
-import { fetchAdminRealityPacks } from '../../reducers/admin/reality-pack/RealityPackService'
-import styles from './RealityPack.module.scss'
+import { REALITY_PACK_PAGE_LIMIT } from '../../reducers/admin/project/ProjectState'
+import { fetchAdminProjects } from '../../reducers/admin/project/ProjectService'
+import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
-import UploadRealityPackModel from '../ContentPack/UploadRealityPackModel'
-import { useRealityPackState } from '../../reducers/admin/reality-pack/RealityPackState'
+import UploadProjectModal from './UploadProjectModal'
+import { useProjectState } from '../../reducers/admin/project/ProjectState'
 import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
 }
 
-const RealityPack = () => {
+const Projects = () => {
   const authState = useAuthState()
   const user = authState.user
-  const adminRealityPackState = useRealityPackState()
-  const adminRealityPacks = adminRealityPackState.realityPacks.realityPacks
-  const adminRealityPackCount = adminRealityPackState.realityPacks.total
+  const adminProjectState = useProjectState()
+  const adminProject = adminProjectState.projects.projects
+  const adminProjectCount = adminProjectState.projects.total
   const dispatch = useDispatch()
 
   const headCell = [
@@ -122,8 +121,8 @@ const RealityPack = () => {
   const [rowsPerPage, setRowsPerPage] = useState(REALITY_PACK_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
-  const [uploadRealityPackModalOpen, setUploadRealityPackModalOpen] = useState(false)
-  const [selectedRealityPacks, setSelectedRealityPacks] = useState([])
+  const [uploadProjectsModalOpen, setUploadProjectsModalOpen] = useState(false)
+  const [selectedProjects, setSelectedProjects] = useState([])
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
     width: window.innerWidth
@@ -137,7 +136,7 @@ const RealityPack = () => {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = adminRealityPacks.value.map((n) => n.name)
+      const newSelecteds = adminProject.value.map((n) => n.name)
       setSelected(newSelecteds)
       return
     }
@@ -146,7 +145,7 @@ const RealityPack = () => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchAdminRealityPacks(incDec)
+    fetchAdminProjects(incDec)
     setPage(newPage)
   }
 
@@ -156,12 +155,11 @@ const RealityPack = () => {
   }
 
   const handleCheck = (e: any, row: any) => {
-    const existingRealityPackIndex = selectedRealityPacks.findIndex((realityPack) => realityPack.id === row.id)
+    const existingProjectsIndex = selectedProjects.findIndex((project) => project.id === row.id)
     if (e.target.checked === true) {
-      if (existingRealityPackIndex >= 0)
-        setSelectedRealityPacks(selectedRealityPacks.splice(existingRealityPackIndex, 1, row))
-      else setSelectedRealityPacks(selectedRealityPacks.concat(row))
-    } else setSelectedRealityPacks(selectedRealityPacks.splice(existingRealityPackIndex, 1))
+      if (existingProjectsIndex >= 0) setSelectedProjects(selectedProjects.splice(existingProjectsIndex, 1, row))
+      else setSelectedProjects(selectedProjects.concat(row))
+    } else setSelectedProjects(selectedProjects.splice(existingProjectsIndex, 1))
   }
 
   const fetchTick = () => {
@@ -171,12 +169,12 @@ const RealityPack = () => {
     }, 5000)
   }
 
-  const tryReuploadRealityPack = async (row) => {
+  const tryReuploadProjects = async (row) => {
     try {
-      const existingRealityPack = adminRealityPacks.value.find((realityPack) => realityPack.id === row.id)
+      const existingProjects = adminProject.value.find((projects) => projects.id === row.id)!
       await dispatch(
-        ContentPackService.uploadRealityPack({
-          uploadURL: existingRealityPack.sourceManifest
+        ContentPackService.uploadProject({
+          uploadURL: existingProjects.sourceManifest
         })
       )
     } catch (err) {
@@ -189,14 +187,11 @@ const RealityPack = () => {
   // }, [])
 
   useEffect(() => {
-    if (
-      user?.id.value != null &&
-      (adminRealityPackState.realityPacks.updateNeeded.value === true || refetch === true)
-    ) {
-      fetchAdminRealityPacks()
+    if (user?.id.value != null && (adminProjectState.projects.updateNeeded.value === true || refetch === true)) {
+      fetchAdminProjects()
     }
     setRefetch(false)
-  }, [authState, adminRealityPackState.realityPacks.updateNeeded.value, refetch])
+  }, [authState, adminProjectState.projects.updateNeeded.value, refetch])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -223,7 +218,7 @@ const RealityPack = () => {
               type="button"
               variant="contained"
               color="primary"
-              onClick={() => setUploadRealityPackModalOpen(true)}
+              onClick={() => setUploadProjectsModalOpen(true)}
             >
               {'Add Reality Pack'}
             </Button>
@@ -243,16 +238,16 @@ const RealityPack = () => {
         <TableContainer className={styles.tableContainer}>
           <Table stickyHeader aria-labelledby="tableTitle" size={'medium'} aria-label="enhanced table">
             <EnhancedTableHead
-              object={'realityPacks'}
+              object={'projects'}
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={adminRealityPackCount?.value || 0}
+              rowCount={adminProjectCount?.value || 0}
             />
             <TableBody>
-              {stableSort(adminRealityPacks?.value ?? [], getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(adminProject?.value ?? [], getComparator(order, orderBy)).map((row, index) => {
                 return (
                   <TableRow
                     hover
@@ -289,7 +284,7 @@ const RealityPack = () => {
                       {user.userRole.value === 'admin' && (
                         <Button
                           className={styles.checkbox}
-                          onClick={(e) => tryReuploadRealityPack(row)}
+                          onClick={(e) => tryReuploadProjects(row)}
                           name="stereoscopic"
                           color="primary"
                         >
@@ -308,7 +303,7 @@ const RealityPack = () => {
           <TablePagination
             rowsPerPageOptions={[REALITY_PACK_PAGE_LIMIT]}
             component="div"
-            count={adminRealityPackCount?.value || 0}
+            count={adminProjectCount?.value || 0}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handlePageChange}
@@ -318,16 +313,13 @@ const RealityPack = () => {
         </div>
         <AddToContentPackModal
           open={addToContentPackModalOpen}
-          realityPacks={selectedRealityPacks}
+          projects={selectedProjects}
           handleClose={() => setAddToContentPackModalOpen(false)}
         />
-        <UploadRealityPackModel
-          open={uploadRealityPackModalOpen}
-          handleClose={() => setUploadRealityPackModalOpen(false)}
-        />
+        <UploadProjectModal open={uploadProjectsModalOpen} handleClose={() => setUploadProjectsModalOpen(false)} />
       </Paper>
     </div>
   )
 }
 
-export default RealityPack
+export default Projects

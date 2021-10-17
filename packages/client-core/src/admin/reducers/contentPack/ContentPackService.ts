@@ -70,18 +70,18 @@ export const ContentPackService = {
       dispatch(ContentPackAction.patchedContentPack())
     }
   },
-  addRealityPacksToContentPack: (data: any) => {
+  addProjectToContentPack: (data: any) => {
     return async (dispatch: Dispatch) => {
       const result = await client.service('content-pack').patch(null, data)
-      console.log('Patch content-pack with reality-pack(s) result', result)
+      console.log('Patch content-pack with project(s) result', result)
       dispatch(ContentPackAction.patchedContentPack())
     }
   },
-  uploadRealityPack: (data: any) => {
+  uploadProject: (data: any) => {
     return async (dispatch: Dispatch) => {
-      const result = await client.service('upload-reality-pack').create(data)
-      console.log('Upload reality-pack result', result)
-      dispatch(ContentPackAction.postRealityPack())
+      const result = await client.service('upload-project').create(data)
+      console.log('Upload project result', result)
+      dispatch(ContentPackAction.postProject())
     }
   },
   downloadContentPack: (url: string) => {

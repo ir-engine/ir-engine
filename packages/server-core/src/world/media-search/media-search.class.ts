@@ -2,7 +2,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
 import { indexes } from '@xrengine/common/src/scenes-templates'
-import { defaultProjectImport } from '../project/project-helper'
+import { defaultProjectImport } from '../scene/project-helper'
 import { Op } from 'sequelize'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 

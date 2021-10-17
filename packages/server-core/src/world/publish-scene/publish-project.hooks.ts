@@ -4,7 +4,7 @@ import { HookContext } from '@feathersjs/feathers'
 import attachOwnerIdInSavingContact from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
 import setResponseStatusCode from '@xrengine/server-core/src/hooks/set-response-status-code'
 import mapProjectIdToQuery from '@xrengine/server-core/src/hooks/set-project-id-in-query'
-import generateSceneCollection from '../project/generate-collection.hook'
+import generateSceneCollection from '../scene/generate-collection.hook'
 
 const { authenticate } = authentication.hooks
 const mapProjectSceneDataForSaving = () => {

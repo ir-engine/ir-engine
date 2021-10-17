@@ -1,4 +1,4 @@
-import RealityPacks from '../components/RealityPack/RealityPack'
+import Projects from '../components/Project/Project'
 import { AuthService } from '../../user/reducers/auth/AuthService'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
@@ -10,7 +10,7 @@ function avatars(props: Props) {
   useEffect(() => {
     dispatch(AuthService.doLoginAuto(true))
   }, [])
-  return <RealityPacks />
+  return <Projects />
 }
 
 export default avatars

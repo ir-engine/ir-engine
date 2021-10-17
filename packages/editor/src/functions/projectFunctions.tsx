@@ -44,7 +44,7 @@ export const getProjects = async (): Promise<any> => {
  */
 export const getProject = async (projectId): Promise<JSON> => {
   try {
-    const json = await ProjectManager.instance.feathersClient.service('project').get(projectId)
+    const json = await ProjectManager.instance.feathersClient.service('scene').get(projectId)
     return json
   } catch (error) {
     console.log('Error in Getting Project:' + error)
@@ -122,7 +122,7 @@ export const createProject = async (
 
   let json = {}
   try {
-    json = await ProjectManager.instance.feathersClient.service('project').create({ project })
+    json = await ProjectManager.instance.feathersClient.service('scene').create({ project })
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)
@@ -230,7 +230,7 @@ export const saveProject = async (projectId, signal): Promise<any> => {
 
   let json = {}
   try {
-    json = await ProjectManager.instance.feathersClient.service('project').patch(projectId, { project })
+    json = await ProjectManager.instance.feathersClient.service('scene').patch(projectId, { project })
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)

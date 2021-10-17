@@ -2,8 +2,8 @@ import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-import { RealityPackActionType } from './RealityPackActions'
-import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
+import { ProjectActionType } from './ProjectActions'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 export const REALITY_PACK_PAGE_LIMIT = 100
 
@@ -14,8 +14,8 @@ export const state = createState({
   authUser: AuthUserSeed,
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
-  realityPacks: {
-    realityPacks: [] as Array<RealityPackInterface>,
+  projects: {
+    projects: [] as Array<ProjectInterface>,
     skip: 0,
     limit: REALITY_PACK_PAGE_LIMIT,
     total: 0,
@@ -26,19 +26,19 @@ export const state = createState({
   }
 })
 
-export const adminRealityPackReducer = (_, action: RealityPackActionType) => {
-  Promise.resolve().then(() => realityPackReceptor(action))
+export const adminProjectReducer = (_, action: ProjectActionType) => {
+  Promise.resolve().then(() => projectReceptor(action))
   return state.attach(Downgraded).value
 }
 
-const realityPackReceptor = (action: RealityPackActionType): any => {
+const projectReceptor = (action: ProjectActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
-      case 'REALITY_PACKS_RETRIEVED':
-        result = action.realityPackResult
-        return s.realityPacks.merge({
-          realityPacks: result.data,
+      case 'PROJECTS_RETRIEVED':
+        result = action.projectResult
+        return s.projects.merge({
+          projects: result.data,
           skip: result.skip,
           limit: result.limit,
           total: result.total,
@@ -51,5 +51,5 @@ const realityPackReceptor = (action: RealityPackActionType): any => {
   }, action.type)
 }
 
-export const accessRealityPackState = () => state
-export const useRealityPackState = () => useState(state) as any as typeof state
+export const accessProjectState = () => state
+export const useProjectState = () => useState(state) as any as typeof state

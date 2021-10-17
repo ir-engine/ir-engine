@@ -19,7 +19,7 @@ import { initializeServerEngine } from './initializeServerEngine'
 const loadScene = async (app: Application, sceneId: string) => {
   let service, serviceId
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
-  const projectResult = await app.service('project').get(sceneId)
+  const projectResult = await app.service('scene').get(sceneId)
   // console.log("Project result is: ", projectResult);
   const projectUrl = projectResult.project_url
   const regexResult = projectUrl.match(projectRegex)

@@ -179,7 +179,7 @@ export async function populateScene(
     metadata: scene.metadata,
     version: scene.version,
     isPublic: true,
-    type: 'project'
+    type: 'scene'
   })
   if (thumbnailUrl != null) {
     const thumbnailResult = await axios.get(thumbnailUrl, getAxiosConfig())

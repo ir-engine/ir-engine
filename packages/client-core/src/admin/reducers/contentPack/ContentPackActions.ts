@@ -15,9 +15,9 @@ export const ContentPackAction = {
       type: 'CONTENT_PACK_PATCHED' as const
     }
   },
-  postRealityPack: () => {
+  postProject: () => {
     return {
-      type: 'REALITY_PACK_POSTED' as const
+      type: 'PROJECT_POSTED' as const
     }
   }
 }

@@ -9,7 +9,7 @@ import { ProjectManager } from '../managers/ProjectManager'
 export const getScene = async (sceneId): Promise<JSON> => {
   let json
   try {
-    json = await ProjectManager.instance.feathersClient.service('project').get(sceneId)
+    json = await ProjectManager.instance.feathersClient.service('scene').get(sceneId)
   } catch (error) {
     console.log("Can't get URL from id" + error)
     throw new Error(error)

@@ -11,7 +11,7 @@ import { ProjectManager } from '../managers/ProjectManager'
  */
 export const deleteProjectAsset = async (projectId, assetId): Promise<any> => {
   try {
-    const response = await (ProjectManager.instance.feathersClient.service('project') as any).remove({
+    const response = await (ProjectManager.instance.feathersClient.service('scene') as any).remove({
       projectId,
       assetId
     })

@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 
 const state = createState({
-  contentPacks: [],
+  contentPacks: [] as any[],
   updateNeeded: true
 })
 
