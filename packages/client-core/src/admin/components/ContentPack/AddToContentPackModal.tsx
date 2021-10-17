@@ -1,10 +1,9 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useContentPackState } from '../../reducers/contentPack/ContentPackState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useContentPackState } from '../../state/ContentPackState'
 import styles from './ContentPack.module.scss'
-import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
+import { ContentPackService } from '../../state/ContentPackService'
 import { Add, Edit } from '@material-ui/icons'
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
 import Backdrop from '@material-ui/core/Backdrop'
@@ -160,7 +159,7 @@ const AddToContentPackModal = (props: Props): any => {
 
   useEffect(() => {
     if (contentPackState.updateNeeded.value === true) {
-      dispatch(ContentPackService.fetchContentPacks())
+      ContentPackService.fetchContentPacks()
     }
   }, [contentPackState.updateNeeded.value])
 

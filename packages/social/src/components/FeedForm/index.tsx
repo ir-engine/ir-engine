@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import VideoRecorder from 'react-video-recorder'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
@@ -19,13 +19,13 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 // @ts-ignore
 import styles from './FeedForm.module.scss'
-import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
-import { useWebxrNativeState } from '@xrengine/client-core/src/social/reducers/webxr_native/WebxrNativeState'
-import { WebxrNativeService } from '@xrengine/client-core/src/social/reducers/webxr_native/WebxrNativeService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 import Preloader from '@xrengine/social/src/components/Preloader'
-import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
 
 interface Props {
   feed?: any
@@ -81,9 +81,9 @@ const FeedForm = ({ feed }: Props) => {
     }
 
     if (feed) {
-      dispatch(FeedService.updateFeedAsAdmin(feed.id, newFeed))
+      FeedService.updateFeedAsAdmin(feed.id, newFeed)
     } else {
-      const feedMediaLinks = await dispatch(FeedService.createFeed(newFeed))
+      const feedMediaLinks = await FeedService.createFeed(newFeed)
       // @ts-ignore
       // updateShareFormState(true, feedMediaLinks.video, feedMediaLinks.preview);
     }
@@ -99,10 +99,10 @@ const FeedForm = ({ feed }: Props) => {
     // }, 2000);
 
     if (webxrRecorderActivity) {
-      dispatch(WebxrNativeService.changeWebXrNative())
+      WebxrNativeService.changeWebXrNative()
     }
     XRPlugin.deleteVideo({ videoDir: videoDir })
-    dispatch(PopupsStateService.updateNewFeedPageState(false, null, null, null))
+    PopupsStateService.updateNewFeedPageState(false, null, null, null)
   }
 
   const dataURItoBlob = (dataURI) => {
@@ -250,9 +250,9 @@ const FeedForm = ({ feed }: Props) => {
   }, [])
 
   const closePopUp = () => {
-    dispatch(PopupsStateService.updateNewFeedPageState(false, null, null, null))
+    PopupsStateService.updateNewFeedPageState(false, null, null, null)
     if (webxrRecorderActivity) {
-      dispatch(WebxrNativeService.changeWebXrNative())
+      WebxrNativeService.changeWebXrNative()
     }
     XRPlugin.deleteVideo({ videoDir: videoDir })
   }

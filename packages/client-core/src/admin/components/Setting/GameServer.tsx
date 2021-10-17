@@ -3,10 +3,10 @@ import { useStyles } from './styles'
 import Switch from '@material-ui/core/Switch'
 import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
-import { useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { GameServerSettingService } from '../../reducers/admin/Setting/game-server/GameServerSettingServices'
-import { useGameServerSettingState } from '../../reducers/admin/Setting/game-server/GameServerSettingState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { GameServerSettingService } from '../../state/Setting/GameServerSettingServices'
+import { useGameServerSettingState } from '../../state/Setting/GameServerSettingState'
 
 interface gameServerProps {}
 
@@ -35,7 +35,7 @@ const GameServer = (props: gameServerProps) => {
 
   useEffect(() => {
     if (user?.id?.value != null && gameServerSettingState?.gameServer?.updateNeeded?.value === true) {
-      dispatch(GameServerSettingService.fetchedGameServerSettings())
+      GameServerSettingService.fetchedGameServerSettings()
     }
   }, [authState])
 

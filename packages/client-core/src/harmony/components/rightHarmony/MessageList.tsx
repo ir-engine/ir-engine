@@ -10,8 +10,8 @@ import Face from '@material-ui/icons/Face'
 import Typography from '@mui/material/Typography'
 import MenuItem from '@mui/material/MenuItem'
 import EditIcon from '@mui/icons-material/Edit'
-import { connect, useDispatch } from 'react-redux'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { ChatService } from '../../../social/state/ChatService'
 import StarIcon from '@mui/icons-material/Star'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ReplyIcon from '@mui/icons-material/Reply'
@@ -75,7 +75,7 @@ export default function MessageList(props: Props) {
   const confirmMessageDelete = (e: any) => {
     e.preventDefault()
     setShowWarning(false)
-    dispatch(ChatService.removeMessage(messageTodelete)) //, message.channelId))
+    ChatService.removeMessage(messageTodelete)
     setMessageToDelete('')
   }
 
@@ -94,7 +94,7 @@ export default function MessageList(props: Props) {
 
   const confirmMessageUpdate = (e: any) => {
     e.preventDefault()
-    dispatch(ChatService.patchMessage(messageUpdatePending, editingMessageText))
+    ChatService.patchMessage(messageUpdatePending, editingMessageText)
     setMessageUpdatePending('')
     setEditingMessage('')
   }

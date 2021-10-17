@@ -130,5 +130,33 @@
     "eslint": "8.0.1",
     "mocha": "9.1.3"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "vite": {
+    "optimizeDeps": {
+      "include": [
+        "@capacitor/core",
+        "@iconify/react",
+        "@material-ui/icons/Call",
+        "@material-ui/icons/GroupAdd",
+        "@material-ui/icons/Lock",
+        "@material-ui/icons/MailOutline",
+        "@material-ui/icons/Menu",
+        "@material-ui/icons/MoreHoriz",
+        "@material-ui/icons/Send",
+        "@material-ui/icons/SportsEsports",
+        "@material-ui/icons/ViewCompact",
+        "@material-ui/lab/Skeleton",
+        "@mui/icons-material/Delete",
+        "@mui/icons-material/Edit",
+        "@mui/icons-material/Reply",
+        "@mui/icons-material/Star",
+        "@mui/material/Grid",
+        "@mui/material/Menu",
+        "@mui/material/MenuItem",
+        "@mui/material/Typography",
+        "@mui/material/styles",
+        "emailjs-com"
+      ]
+    }
+  }
 }

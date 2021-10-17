@@ -1,7 +1,5 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
 import styles from './AlertModals.module.scss'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'

@@ -3,10 +3,10 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import styles from './Auth.module.scss'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../state/AuthService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {

@@ -12,8 +12,8 @@ import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import { useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '../../../user/state/AuthState'
 import { PROJECT_PAGE_LIMIT } from '../../reducers/admin/project/ProjectState'
 import { fetchAdminProjects } from '../../reducers/admin/project/ProjectService'
 import styles from './Projects.module.scss'
@@ -172,11 +172,9 @@ const Projects = () => {
   const tryReuploadProjects = async (row) => {
     try {
       const existingProjects = adminProject.value.find((projects) => projects.id === row.id)!
-      await dispatch(
-        ContentPackService.uploadProject({
-          uploadURL: existingProjects.sourceManifest
-        })
-      )
+      await ContentPackService.uploadProject({
+        uploadURL: existingProjects.sourceManifest
+      })
     } catch (err) {
       console.log(err)
     }

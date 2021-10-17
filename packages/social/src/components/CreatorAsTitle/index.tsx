@@ -2,16 +2,16 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 
 import { Typography, CardHeader, Avatar, IconButton } from '@material-ui/core'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
-import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {
   creator?: any
@@ -21,7 +21,7 @@ const CreatorAsTitle = ({ creator }: any) => {
   const dispatch = useDispatch()
   const popupsState = usePopupsStateState()
   const removeBlockedUser = (blokedCreatorId) => {
-    dispatch(CreatorService.unBlockCreator(blokedCreatorId))
+    CreatorService.unBlockCreator(blokedCreatorId)
   }
 
   return creator ? (
@@ -32,13 +32,13 @@ const CreatorAsTitle = ({ creator }: any) => {
           alt={creator.username}
           onClick={() => {
             if (popupsState.popups.creatorPage?.value === true) {
-              dispatch(PopupsStateService.updateCreatorPageState(false))
+              PopupsStateService.updateCreatorPageState(false)
               const intervalDelay = setTimeout(() => {
                 clearInterval(intervalDelay)
-                dispatch(PopupsStateService.updateCreatorPageState(true, creator.id))
+                PopupsStateService.updateCreatorPageState(true, creator.id)
               }, 100)
             } else {
-              dispatch(PopupsStateService.updateCreatorPageState(true, creator.id))
+              PopupsStateService.updateCreatorPageState(true, creator.id)
             }
           }}
         />

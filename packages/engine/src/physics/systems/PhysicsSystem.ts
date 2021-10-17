@@ -63,7 +63,7 @@ export default async function PhysicsSystem(
     }
   })
 
-  world.receptors.add(physicsActionReceptor)
+  world.receptors.push(physicsActionReceptor)
 
   return () => {
     // for (const entity of spawnRigidbodyQuery.enter()) {

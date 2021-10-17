@@ -1,6 +1,5 @@
 import { Button, MediumButton } from '../inputs/Button'
 import { connectMenu, ContextMenu, MenuItem } from '../layout/ContextMenu'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
 import {
   ErrorMessage,
   ProjectGrid,
@@ -15,6 +14,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from '../../pages/projectUtility'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 
 type Props = {
   showingScenes: boolean

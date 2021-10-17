@@ -3,11 +3,10 @@ import { useStyles } from './styles'
 import { Paper, Button, Typography } from '@material-ui/core'
 import Switch from '@material-ui/core/Switch'
 import InputBase from '@material-ui/core/InputBase'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useClientSettingState } from '../../reducers/admin/Setting/client/ClientSettingState'
-import { ClientSettingService } from '../../reducers/admin/Setting/client/ClientSettingServices'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useClientSettingState } from '../../state/Setting/ClientSettingState'
+import { ClientSettingService } from '../../state/Setting/ClientSettingServices'
+import { useAuthState } from '../../../user/state/AuthState'
 
 interface clientProps {}
 
@@ -34,7 +33,7 @@ const Client = (props: clientProps) => {
 
   useEffect(() => {
     if (user?.id?.value != null && clientSettingState?.Client?.updateNeeded?.value === true) {
-      dispatch(ClientSettingService.fetchedClientSettings())
+      ClientSettingService.fetchedClientSettings()
     }
   }, [authState])
 

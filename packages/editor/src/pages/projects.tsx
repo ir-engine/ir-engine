@@ -3,9 +3,9 @@ import Tab from '@material-ui/core/Tab'
 import Tabs from '@material-ui/core/Tabs'
 import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import React, { useState } from 'react'
 import {
   ProfileButton,
   StyledProjectsContainer,

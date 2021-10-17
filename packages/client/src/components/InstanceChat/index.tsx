@@ -1,6 +1,5 @@
 import Avatar from '@material-ui/core/Avatar'
 import Badge from '@material-ui/core/Badge'
-import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import Fab from '@material-ui/core/Fab'
@@ -9,21 +8,19 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
 import { Message as MessageIcon, Send } from '@material-ui/icons'
-import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useInstanceConnectionState } from '../../reducers/instanceConnection/InstanceConnectionState'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 import defaultStyles from './InstanceChat.module.scss'
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/state/InstanceConnectionState'
 
 interface Props {
   styles?: any
@@ -64,7 +61,7 @@ const InstanceChat = (props: Props): any => {
       instanceConnectionState.connected.value === true &&
       channelState.fetchingInstanceChannel.value !== true
     ) {
-      dispatch(ChatService.getInstanceChannel())
+      ChatService.getInstanceChannel()
     }
   }, [user?.instanceId?.value])
 

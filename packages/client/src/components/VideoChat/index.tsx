@@ -1,12 +1,13 @@
 import Fab from '@material-ui/core/Fab'
 import { CallEnd, VideoCall } from '@material-ui/icons'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { configureMediaTransports, endVideoChat } from '../../transports/SocketWebRTCClientFunctions'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
+import {
+  configureMediaTransports,
+  endVideoChat
+} from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import * as React from 'react'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
 
 interface Props {}
 

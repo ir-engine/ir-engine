@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react'
-import { LocationService } from '../../reducers/admin/location/LocationService'
+import { LocationService } from '../../state/LocationService'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -8,16 +8,16 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import { useLocationStyles, useLocationStyle } from './styles'
 import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { useLocationState } from '../../reducers/admin/location/LocationState'
-import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
-import { useUserState } from '../../reducers/admin/user/UserState'
-import { SceneService } from '../../reducers/admin/scene/SceneService'
-import { useSceneState } from '../../reducers/admin/scene/SceneState'
-import { UserService } from '../../reducers/admin/user/UserService'
-import { InstanceService } from '../../reducers/admin/instance/InstanceService'
-import { useErrorState } from '../../../common/reducers/error/ErrorState'
-import { connect, useDispatch } from 'react-redux'
+import { useAuthState } from '../../../user/state/AuthState'
+import { useLocationState } from '../../state/LocationState'
+import { useInstanceState } from '../../state/InstanceState'
+import { useUserState } from '../../state/UserState'
+import { SceneService } from '../../state/SceneService'
+import { useSceneState } from '../../state/SceneState'
+import { UserService } from '../../state/UserService'
+import { InstanceService } from '../../state/InstanceService'
+import { useErrorState } from '../../../common/state/ErrorState'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useTranslation } from 'react-i18next'
 import { locationColumns, LocationProps } from './variable'
 import Chip from '@material-ui/core/Chip'
@@ -28,7 +28,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import ViewLocation from './ViewLocation'
-import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/LocationState'
+import { LOCATION_PAGE_LIMIT } from '../../state/LocationState'
 
 const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
@@ -53,7 +53,7 @@ const LocationTable = (props: LocationProps) => {
   const adminUserState = useUserState()
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(LocationService.fetchAdminLocations(incDec))
+    LocationService.fetchAdminLocations(incDec)
     setPage(newPage)
   }
 
@@ -64,19 +64,19 @@ const LocationTable = (props: LocationProps) => {
 
   useEffect(() => {
     if (user?.id?.value !== null && adminLocationState.locations.updateNeeded.value && !adminScopeReadErrMsg?.value) {
-      dispatch(LocationService.fetchAdminLocations())
+      LocationService.fetchAdminLocations()
     }
     if (user?.id.value != null && adminSceneState.scenes.updateNeeded.value === true) {
-      dispatch(SceneService.fetchAdminScenes('all'))
+      SceneService.fetchAdminScenes('all')
     }
     if (user?.id.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
-      dispatch(LocationService.fetchLocationTypes())
+      LocationService.fetchLocationTypes()
     }
     if (user?.id.value != null && adminUserState.users.updateNeeded.value === true) {
-      dispatch(UserService.fetchUsersAsAdmin())
+      UserService.fetchUsersAsAdmin()
     }
     if (user?.id.value != null && adminInstanceState.instances.updateNeeded.value === true) {
-      dispatch(InstanceService.fetchAdminInstances())
+      InstanceService.fetchAdminInstances()
     }
   }, [
     authState.user?.id?.value,
@@ -240,7 +240,7 @@ const LocationTable = (props: LocationProps) => {
           <Button
             className={classes.spanDange}
             onClick={async () => {
-              await dispatch(LocationService.removeLocation(locationId))
+              await LocationService.removeLocation(locationId)
               setPopConfirmOpen(false)
             }}
             autoFocus

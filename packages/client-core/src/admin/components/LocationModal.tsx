@@ -13,14 +13,14 @@ import TextField from '@material-ui/core/TextField'
 import Checkbox from '@material-ui/core/Checkbox'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { LocationService } from '../reducers/admin/location/LocationService'
+import { LocationService } from '../state/LocationService'
 import styles from './Admin.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { useSceneState } from '../reducers/admin/scene/SceneState'
-import { useLocationState } from '../reducers/admin/location/LocationState'
+import { useSceneState } from '../state/SceneState'
+import { useLocationState } from '../state/LocationState'
 
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
@@ -64,16 +64,16 @@ const LocationModal = (props: Props): any => {
     }
 
     if (editing === true) {
-      dispatch(LocationService.patchLocation(location.id, submission))
+      LocationService.patchLocation(location.id, submission)
     } else {
-      dispatch(LocationService.createLocation(submission))
+      LocationService.createLocation(submission)
     }
 
     handleClose()
   }
 
   const deleteLocation = () => {
-    dispatch(LocationService.removeLocation(location.id))
+    LocationService.removeLocation(location.id)
     handleClose()
   }
 

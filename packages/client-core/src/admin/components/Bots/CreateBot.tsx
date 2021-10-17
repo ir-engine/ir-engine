@@ -19,15 +19,15 @@ import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 
-import { InstanceService } from '../../reducers/admin/instance/InstanceService'
-import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
-import { LocationService } from '../../reducers/admin/location/LocationService'
-import { connect, useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { InstanceService } from '../../state/InstanceService'
+import { useInstanceState } from '../../state/InstanceState'
+import { LocationService } from '../../state/LocationService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '../../../user/state/AuthState'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
-import { BotService } from '../../reducers/admin/bots/BotsService'
-import { useLocationState } from '../../reducers/admin/location/LocationState'
+import { BotService } from '../../state/BotsService'
+import { useLocationState } from '../../state/LocationState'
 import { validateForm } from './validation'
 
 import { Location } from '@xrengine/common/src/interfaces/Location'
@@ -74,10 +74,10 @@ const CreateBot = (props: Props) => {
   const locationData = adminLocation.locations
   React.useEffect(() => {
     if (user.id.value && adminInstances.updateNeeded.value) {
-      dispatch(InstanceService.fetchAdminInstances())
+      InstanceService.fetchAdminInstances()
     }
     if (user?.id.value != null && adminLocation.updateNeeded.value === true) {
-      dispatch(LocationService.fetchAdminLocations())
+      LocationService.fetchAdminLocations()
     }
   }, [user, adminInstanceState.instances.updateNeeded.value])
 
@@ -128,7 +128,7 @@ const CreateBot = (props: Props) => {
 
     setFormErrors(temp)
     if (validateForm(state, formErrors)) {
-      dispatch(BotService.createBotAsAdmin(data))
+      BotService.createBotAsAdmin(data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCommandData([])
       setCurrentIntance([])
@@ -139,11 +139,11 @@ const CreateBot = (props: Props) => {
   }
 
   const fetchAdminInstances = () => {
-    dispatch(InstanceService.fetchAdminInstances())
+    InstanceService.fetchAdminInstances()
   }
 
   const fetchAdminLocations = () => {
-    dispatch(LocationService.fetchAdminLocations())
+    LocationService.fetchAdminLocations()
   }
 
   const handleInputChange = (e) => {

@@ -2,10 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>, Gleb Ordinsky
  */
 import React, { useState, useEffect } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
-
-import { useHistory } from 'react-router-dom'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 import CardMedia from '@material-ui/core/CardMedia'
 import Typography from '@material-ui/core/Typography'
@@ -29,15 +26,15 @@ import CreatorAsTitle from '../CreatorAsTitle'
 // @ts-ignore
 import styles from './FeedCard.module.scss'
 import SimpleModal from '../SimpleModal'
-import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
-import { FeedFiresService } from '@xrengine/client-core/src/social/reducers/feedFires/FeedFiresService'
-import { FeedLikesService } from '../../reducers/feedLikes/FeedLikesService'
+import { FeedFiresService } from '@xrengine/client-core/src/social/state/FeedFiresService'
+import { FeedLikesService } from '../../state/FeedLikesService'
 
 import { useTranslation } from 'react-i18next'
 
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
-import { FeedReportsService } from '../../reducers/feedReport/FeedReportsService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { FeedReportsService } from '../../state/FeedReportsService'
 import { Share } from '@capacitor/share'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
@@ -65,7 +62,7 @@ const FeedCard = (props: Props): any => {
   const [feedLikesCreators, setFeedLikesCreators] = useState(null)
 
   const handleAddFireClick = (feedId) => {
-    dispatch(FeedFiresService.addFireToFeed(feedId))
+    FeedFiresService.addFireToFeed(feedId)
     setFiredCount(firedCount + 1)
     setFired(true)
     if (liked) {
@@ -74,13 +71,13 @@ const FeedCard = (props: Props): any => {
   }
 
   const handleRemoveFireClick = (feedId) => {
-    dispatch(FeedFiresService.removeFireToFeed(feedId))
+    FeedFiresService.removeFireToFeed(feedId)
     setFiredCount(firedCount - 1)
     setFired(false)
   }
 
   const handleAddLikeClick = (feedId) => {
-    dispatch(FeedLikesService.addLikeToFeed(feedId))
+    FeedLikesService.addLikeToFeed(feedId)
     setLikedCount(likedCount + 1)
     setLiked(true)
     if (fired) {
@@ -89,13 +86,13 @@ const FeedCard = (props: Props): any => {
   }
 
   const handleRemoveLikeClick = (feedId) => {
-    dispatch(FeedLikesService.removeLikeToFeed(feedId))
+    FeedLikesService.removeLikeToFeed(feedId)
     setLikedCount(likedCount - 1)
     setLiked(false)
   }
 
   const handleReportFeed = (feedId) => {
-    dispatch(FeedReportsService.addReportToFeed(feedId))
+    FeedReportsService.addReportToFeed(feedId)
     setReported(true)
   }
 
@@ -113,7 +110,7 @@ const FeedCard = (props: Props): any => {
   //         }
   //     };
   useEffect(() => {
-    dispatch(FeedFiresService.getFeedFires(feed.id))
+    FeedFiresService.getFeedFires(feed.id)
   }, [])
 
   const { t } = useTranslation()
@@ -145,7 +142,7 @@ const FeedCard = (props: Props): any => {
 
   const previewImageClick = () => {
     setVideoDisplay(true)
-    dispatch(FeedService.addViewToFeed(feed.id))
+    FeedService.addViewToFeed(feed.id)
   }
 
   useEffect(() => {
@@ -231,7 +228,7 @@ const FeedCard = (props: Props): any => {
                 <Avatar
                   src={feed.creator.avatar ? feed.creator.avatar : '/assets/userpic.png'}
                   alt={feed.creator.username}
-                  onClick={() => dispatch(PopupsStateService.updateCreatorPageState(true, feed.creator.id))}
+                  onClick={() => PopupsStateService.updateCreatorPageState(true, feed.creator.id)}
                   className={styles.avatar}
                 />
               }

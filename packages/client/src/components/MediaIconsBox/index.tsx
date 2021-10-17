@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Mic, MicOff, Videocam, VideocamOff } from '@material-ui/icons'
 import FaceIcon from '@material-ui/icons/Face'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import styles from './MediaIconsBox.module.scss'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -14,11 +11,8 @@ import {
   leave,
   pauseProducer,
   resumeProducer
-} from '../../transports/SocketWebRTCClientFunctions'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { MediaStreamService } from '../../reducers/mediastream/MediaStreamService'
-import { useMediaStreamState } from '../../reducers/mediastream/MediaStreamState'
+} from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import {
   startFaceTracking,
   startLipsyncTracking,
@@ -29,7 +23,11 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { useChannelConnectionState } from '../../reducers/channelConnection/ChannelConnectionState'
+import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
+import { useChannelConnectionState } from '@xrengine/client-core/src/common/state/ChannelConnectionState'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/state/MediaStreamState'
+import { MediaStreamService } from '@xrengine/client-core/src/media/state/MediaStreamService'
 
 const MediaIconsBox = (props) => {
   const [xrSupported, setXRSupported] = useState(false)
@@ -44,7 +42,6 @@ const MediaIconsBox = (props) => {
   const instanceChannel = channelEntries.find((entry) => entry.instanceId != null)
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useChannelConnectionState()
-  const dispatch = useDispatch()
   const mediastream = useMediaStreamState()
   const videoEnabled = currentLocation?.location_settings?.value
     ? currentLocation?.location_settings?.videoEnabled?.value

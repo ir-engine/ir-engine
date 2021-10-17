@@ -6,15 +6,15 @@ import GridListTileBar from '@material-ui/core/GridListTileBar'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import IconButton from '@material-ui/core/IconButton'
 import InfoIcon from '@material-ui/icons/Info'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Container from '@material-ui/core/Container'
 import { bindActionCreators, Dispatch } from 'redux'
 import styles from './Admin.module.scss'
 import VideoModal from './VideoModal'
 import { useHistory } from 'react-router-dom'
 import { useVideoState } from '../../media/components/video/VideoState'
-import { useAuthState } from '../../user/reducers/auth/AuthState'
-import { AdminService } from '../reducers/admin/AdminService'
+import { useAuthState } from '../../user/state/AuthState'
+import { AdminService } from '../state/AdminService'
 
 interface Props {}
 
@@ -41,7 +41,7 @@ const AdminConsole = (props: Props): any => {
   const [state, setState] = useState(initialState)
   const videos = useVideoState()
   useEffect(() => {
-    dispatch(AdminService.fetchAdminVideos())
+    AdminService.fetchAdminVideos()
   }, [])
 
   const handleCreateModal = (): void => {

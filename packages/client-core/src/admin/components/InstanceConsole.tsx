@@ -11,7 +11,7 @@ import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
@@ -22,10 +22,10 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
-import { useAuthState } from '../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../reducers/admin/AdminState'
-import { useInstanceState } from '../reducers/admin/instance/InstanceState'
-import { InstanceService } from '../reducers/admin/instance/InstanceService'
+import { useAuthState } from '../../user/state/AuthState'
+import { ADMIN_PAGE_LIMIT } from '../state/AdminState'
+import { useInstanceState } from '../state/InstanceState'
+import { InstanceService } from '../state/InstanceService'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { InstanceSeed } from '@xrengine/common/src/interfaces/Instance'
 
@@ -211,7 +211,7 @@ function InstanceConsole(props: Props) {
 
   useEffect(() => {
     if (user?.id.value != null && (adminInstanceState.instances.updateNeeded.value === true || refetch === true)) {
-      dispatch(InstanceService.fetchAdminInstances())
+      InstanceService.fetchAdminInstances()
     }
     setRefetch(false)
   }, [useAuthState(), adminInstanceState.instances.updateNeeded.value, refetch])
