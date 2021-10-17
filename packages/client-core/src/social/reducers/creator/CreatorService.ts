@@ -4,7 +4,7 @@
 import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { client } from '../../../feathers'
 import { Creator } from '@xrengine/common/src/interfaces/Creator'
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { upload } from '../../../util/upload'
 import { Dispatch, bindActionCreators } from 'redux'
 
 import { CreatorAction } from './CreatorActions'
