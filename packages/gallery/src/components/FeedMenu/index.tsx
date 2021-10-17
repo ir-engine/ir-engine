@@ -6,7 +6,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import { useMediaQuery } from '@mui/material'
-import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
 import { useHistory, useLocation } from 'react-router'
 
 // @ts-ignore

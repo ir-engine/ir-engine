@@ -1,5 +1,5 @@
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
@@ -11,8 +11,8 @@ import NetworkInstanceProvisioning from './NetworkInstanceProvisioning'
 import Layout from '../Layout/Layout'
 import { useTranslation } from 'react-i18next'
 import { RealityPackReactProps } from './RealityPackReactProps'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { useDispatch } from 'react-redux'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -99,7 +99,7 @@ export const EnginePage = (props: Props) => {
    */
   useEffect(() => {
     addUIEvents()
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
     return (): void => {
       shutdownEngine()
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useHistory } from 'react-router-dom'
 
@@ -11,11 +11,11 @@ import IconButton from '@material-ui/core/IconButton'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 
-import { useAuthState } from '../../reducers/auth/AuthState'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { useAuthState } from '../../state/AuthState'
+import { AuthService } from '../../state/AuthService'
 import styles from './Auth.module.scss'
-import { CreatorService } from '../../../social/reducers/creator/CreatorService'
-import { useCreatorState } from '../../../social/reducers/creator/CreatorState'
+import { CreatorService } from '../../../social/state/CreatorService'
+import { useCreatorState } from '../../../social/state/CreatorState'
 import { useTranslation } from 'react-i18next'
 
 const initialState = { email: '', password: '' }
@@ -35,7 +35,7 @@ export const PasswordLoginApp = (props: Props): any => {
       const userId = user ? user.id.value : null
 
       if (userId) {
-        dispatch(CreatorService.createCreator())
+        CreatorService.createCreator()
       }
     }
   }, [auth])
@@ -50,7 +50,7 @@ export const PasswordLoginApp = (props: Props): any => {
 
   const handleEmailLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }
 
   const [showPassword, showHidePassword] = useState(false)

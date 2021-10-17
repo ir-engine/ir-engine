@@ -11,10 +11,10 @@ import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import IconButton from '@material-ui/core/IconButton'
 import { Icon } from '@iconify/react'
-import { connect, useDispatch } from 'react-redux'
-import { useServerSettingState } from '../../reducers/admin/Setting/server/ServerSettingState'
-import { ServerSettingService } from '../../reducers/admin/Setting/server/ServerSettingService'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useServerSettingState } from '../../state/Setting/ServerSettingState'
+import { ServerSettingService } from '../../state/Setting/ServerSettingService'
+import { useAuthState } from '../../../user/state/AuthState'
 
 interface serverProps {
   fetchServerSettings?: any
@@ -95,7 +95,7 @@ const Server = (props: serverProps) => {
 
   useEffect(() => {
     if (user?.id?.value != null && serverSettingState?.Server?.updateNeeded?.value === true) {
-      dispatch(ServerSettingService.fetchServerSettings())
+      ServerSettingService.fetchServerSettings()
     }
   }, [authState])
 

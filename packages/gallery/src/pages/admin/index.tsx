@@ -1,13 +1,13 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useTranslation } from 'react-i18next'
 import AdminLogin from '../../components/AdminLogin'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 
 const AdminPage = () => {
   const authState = useAuthState()
@@ -24,7 +24,7 @@ const AdminPage = () => {
   }, [authState.user.value])
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }, [])
 
   return (

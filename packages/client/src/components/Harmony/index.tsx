@@ -37,26 +37,23 @@ import {
   ThreeDRotation,
   Videocam
 } from '@material-ui/icons'
-import { ChannelType, useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import { ChatAction } from '@xrengine/client-core/src/social/reducers/chat/ChatActions'
-import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
-import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/FriendService'
-import { useGroupState } from '@xrengine/client-core/src/social/reducers/group/GroupState'
-import { GroupService } from '@xrengine/client-core/src/social/reducers/group/GroupService'
-import { InviteService } from '@xrengine/client-core/src/social/reducers/invite/InviteService'
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
+import { ChannelType, useChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
+import { ChatAction } from '@xrengine/client-core/src/social/state/ChatActions'
+import { useFriendState } from '@xrengine/client-core/src/social/state/FriendState'
+import { FriendService } from '@xrengine/client-core/src/social/state/FriendService'
+import { useGroupState } from '@xrengine/client-core/src/social/state/GroupState'
+import { GroupService } from '@xrengine/client-core/src/social/state/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/state/InviteService'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
+import { usePartyState } from '@xrengine/client-core/src/social/state/PartyState'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { UserService } from '@xrengine/client-core/src/user/store/UserService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useUserState } from '@xrengine/client-core/src/user/state/UserState'
+import { UserService } from '@xrengine/client-core/src/user/state/UserService'
 import PartyParticipantWindow from '../../components/PartyParticipantWindow'
-import { useChannelConnectionState } from '../../reducers/channelConnection/ChannelConnectionState'
-import { ChannelConnectionService } from '../../reducers/channelConnection/ChannelConnectionService'
 import { Group as GroupType } from '@xrengine/common/src/interfaces/Group'
 import { Message } from '@xrengine/common/src/interfaces/Message'
-import { User } from '@xrengine/common/src/interfaces/User'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -65,12 +62,6 @@ import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStrea
 import classNames from 'classnames'
 import moment from 'moment'
 import React, { useEffect, useRef, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useMediaStreamState } from '../../reducers/mediastream/MediaStreamState'
-import { MediaStreamService } from '../../reducers/mediastream/MediaStreamService'
-import { useTransportStreamState } from '../../reducers/transport/TransportState'
-import { TransportService } from '../../reducers/transport/TransportService'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -79,12 +70,18 @@ import {
   leave,
   pauseProducer,
   resumeProducer
-} from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+} from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import styles from './style.module.scss'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { store } from '@xrengine/client-core/src/store'
+import { ChannelConnectionService } from '@xrengine/client-core/src/common/state/ChannelConnectionService'
+import { MediaStreamService } from '@xrengine/client-core/src/media/state/MediaStreamService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/state/MediaStreamState'
+import { TransportService } from '@xrengine/client-core/src/common/state/TransportService'
+import { useTransportStreamState } from '@xrengine/client-core/src/common/state/TransportState'
+import { useChannelConnectionState } from '@xrengine/client-core/src/common/state/ChannelConnectionState'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -127,7 +124,7 @@ const Harmony = (props: Props): any => {
     harmonyHidden
   } = props
 
-  const dispatch = useDispatch()
+  const dispatch = store.dispatch
   const userState = useUserState()
 
   const messageRef = React.useRef()
@@ -304,9 +301,9 @@ const Harmony = (props: Props): any => {
       TransportService.updateChannelTypeState()
     }
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
-      dispatch(UserService.getLayerUsers(true))
+      UserService.getLayerUsers(true)
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
-      dispatch(UserService.getLayerUsers(false))
+      UserService.getLayerUsers(false)
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
@@ -339,7 +336,7 @@ const Harmony = (props: Props): any => {
     chatStateRef.current = chatState
     if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
       ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
-      dispatch(ChatService.updateMessageScrollInit(false))
+      ChatService.updateMessageScrollInit(false)
       setMessageScrollUpdate(false)
     }
     if (messageScrollUpdate === true) {
@@ -352,7 +349,7 @@ const Harmony = (props: Props): any => {
 
   useEffect(() => {
     if (channelState.updateNeeded.value === true) {
-      dispatch(ChatService.getChannels())
+      ChatService.getChannels()
     }
   }, [channelState.updateNeeded.value])
 
@@ -373,7 +370,7 @@ const Harmony = (props: Props): any => {
         }
       }
       if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
-        dispatch(ChatService.getChannelMessages(channel.id))
+        ChatService.getChannelMessages(channel.id)
       }
     })
   }, [channels])
@@ -470,8 +467,8 @@ const Harmony = (props: Props): any => {
   }
 
   const setActiveChat = (channelType, target): void => {
-    dispatch(ChatService.updateMessageScrollInit(true))
-    dispatch(ChatService.updateChatTarget(channelType, target))
+    ChatService.updateMessageScrollInit(true)
+    ChatService.updateChatTarget(channelType, target)
     setMessageDeletePending('')
     setMessageUpdatePending('')
     setEditingMessage('')
@@ -528,13 +525,13 @@ const Harmony = (props: Props): any => {
 
   const nextChannelPage = (): void => {
     if (channelState.skip.value + channelState.limit.value < channelState.total.value) {
-      dispatch(ChatService.getChannels(channelState.skip.value + channelState.limit.value))
+      ChatService.getChannels(channelState.skip.value + channelState.limit.value)
     }
   }
 
   const nextMessagePage = (): void => {
     if (activeChannel.skip + activeChannel.limit < activeChannel.total) {
-      dispatch(ChatService.getChannelMessages(targetChannelId, activeChannel.skip + activeChannel.limit))
+      ChatService.getChannelMessages(targetChannelId, activeChannel.skip + activeChannel.limit)
     } else {
       setMessageScrollUpdate(false)
     }
@@ -570,7 +567,7 @@ const Harmony = (props: Props): any => {
   const confirmMessageDelete = (e: any, message: Message) => {
     e.preventDefault()
     setMessageDeletePending('')
-    dispatch(ChatService.removeMessage(message.id)) //, message.channelId))
+    ChatService.removeMessage(message.id) //, message.channelId))
   }
 
   const cancelMessageUpdate = (e: any) => {
@@ -581,7 +578,7 @@ const Harmony = (props: Props): any => {
 
   const confirmMessageUpdate = (e: any, message: Message) => {
     e.preventDefault()
-    dispatch(ChatService.patchMessage(message.id, editingMessage))
+    ChatService.patchMessage(message.id, editingMessage)
     setMessageUpdatePending('')
     setEditingMessage('')
   }
@@ -722,7 +719,7 @@ const Harmony = (props: Props): any => {
   }
 
   const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
-    dispatch(InviteService.updateInviteTarget(targetObjectType, targetObjectId))
+    InviteService.updateInviteTarget(targetObjectType, targetObjectId)
     setLeftDrawerOpen(false)
     setRightDrawerOpen(true)
   }
@@ -792,13 +789,13 @@ const Harmony = (props: Props): any => {
 
   const nextFriendsPage = (): void => {
     if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
-      dispatch(FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value))
+      FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value)
     }
   }
 
   const nextGroupsPage = (): void => {
     if (groupSubState.skip.value + groupSubState.limit.value < groupSubState.total.value) {
-      dispatch(GroupService.getGroups(groupSubState.skip.value + groupSubState.limit.value))
+      GroupService.getGroups(groupSubState.skip.value + groupSubState.limit.value)
     }
   }
 

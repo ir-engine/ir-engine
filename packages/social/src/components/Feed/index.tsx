@@ -2,16 +2,16 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useTranslation } from 'react-i18next'
 
 import { Button, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
-import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
-import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 
 import FeedCard from '../FeedCard'
 import Featured from '../Featured'
@@ -33,13 +33,13 @@ const Feed = (props: Props) => {
   const creator = feedsState.feeds.feed.creator.value
 
   useEffect(() => {
-    dispatch(FeedService.getFeed(popupsState.popups.feedId?.value))
+    FeedService.getFeed(popupsState.popups.feedId?.value)
   }, [popupsState.popups.feedId?.value])
   feed = feedsState.feeds.fetching.value === false && feedsState.feeds.feed
 
   useEffect(() => {
     if (creator) {
-      dispatch(FeedService.getFeeds('creator', creator.id))
+      FeedService.getFeeds('creator', creator.id)
     }
   }, [JSON.stringify(creator)])
 
@@ -55,8 +55,8 @@ const Feed = (props: Props) => {
   const id = open ? 'simple-popover' : undefined
 
   const deleteAction = (feedId, previewUrl, videoUrl) => {
-    dispatch(FeedService.removeFeed(feedId, previewUrl, videoUrl))
-    dispatch(PopupsStateService.updateFeedPageState(false))
+    FeedService.removeFeed(feedId, previewUrl, videoUrl)
+    PopupsStateService.updateFeedPageState(false)
   }
   return (
     <section className={styles.feedContainer}>
@@ -65,7 +65,7 @@ const Feed = (props: Props) => {
           variant="text"
           className={styles.backButton}
           onClick={() => {
-            dispatch(PopupsStateService.updateFeedPageState(false))
+            PopupsStateService.updateFeedPageState(false)
           }}
         >
           <ArrowBackIosIcon />

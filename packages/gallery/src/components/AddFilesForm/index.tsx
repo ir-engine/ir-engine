@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer, useRef } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
 import styles from './AddFilesForm.module.scss'
@@ -8,7 +8,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import AddIcon from '@material-ui/icons/Add'
 import AppHeader from '../Header'
 import { bindActionCreators, Dispatch } from 'redux'
-import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
 interface Props {
   filesTarget?: any
@@ -103,7 +103,7 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
         preview: file,
         video: file
       } as any
-      dispatch(FeedService.createFeed(newPost))
+      FeedService.createFeed(newPost)
     })
     setAddFilesView(false)
   }

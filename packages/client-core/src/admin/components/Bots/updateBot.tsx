@@ -11,18 +11,18 @@ import Paper from '@material-ui/core/Paper'
 import FormControl from '@material-ui/core/FormControl'
 import InputBase from '@material-ui/core/InputBase'
 import { Save, Autorenew } from '@material-ui/icons'
-import { useLocationState } from '../../reducers/admin/location/LocationState'
-import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
-import { connect, useDispatch } from 'react-redux'
+import { useLocationState } from '../../state/LocationState'
+import { useInstanceState } from '../../state/InstanceState'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { validateForm } from './validation'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
-import { BotService } from '../../reducers/admin/bots/BotsService'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { BotService } from '../../state/BotsService'
+import { useAuthState } from '../../../user/state/AuthState'
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
-import { InstanceService } from '../../reducers/admin/instance/InstanceService'
-import { LocationService } from '../../reducers/admin/location/LocationService'
+import { InstanceService } from '../../state/InstanceService'
+import { LocationService } from '../../state/LocationService'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
@@ -129,7 +129,7 @@ const UpdateBot = (props: Props) => {
     }
     setFormErrors(temp)
     if (validateForm(state, formErrors)) {
-      dispatch(BotService.updateBotAsAdmin(bot.id, data))
+      BotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
       handleClose()
@@ -140,7 +140,7 @@ const UpdateBot = (props: Props) => {
   }
 
   const fetchAdminInstances = () => {
-    dispatch(InstanceService.fetchAdminInstances())
+    InstanceService.fetchAdminInstances()
   }
 
   const handleCloseAlter = (event, reason) => {
@@ -151,7 +151,7 @@ const UpdateBot = (props: Props) => {
   }
 
   const fetchAdminLocations = () => {
-    dispatch(LocationService.fetchAdminLocations())
+    LocationService.fetchAdminLocations()
   }
 
   return (

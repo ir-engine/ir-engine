@@ -2,11 +2,9 @@ import React from 'react'
 import AppBar from '@material-ui/core/AppBar'
 import Fab from '@material-ui/core/Fab'
 import { Forum, People, PersonAdd } from '@material-ui/icons'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
 import styles from './DrawerControls.module.scss'
 
 interface Props {
@@ -29,7 +27,7 @@ export const DrawerControls = (props: Props): JSX.Element => {
     setTopDrawerOpen(false)
     setRightDrawerOpen(false)
     if (disableBottom !== true) setBottomDrawerOpen(true)
-    setTimeout(() => dispatch(ChatService.updateMessageScrollInit(true)), 100)
+    setTimeout(() => ChatService.updateMessageScrollInit(true), 100)
   }
   const openPeople = (): void => {
     setLeftDrawerOpen(true)

@@ -34,6 +34,8 @@
     "@feathersjs/client": "5.0.0-pre.9",
     "@google/model-viewer": "1.8.0",
     "@hookstate/core": "3.0.13",
+    "@hookstate/devtools": "^3.0.1",
+    "@hookstate/logger": "^3.0.0",
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",
     "@material-ui/lab": "4.0.0-alpha.60",

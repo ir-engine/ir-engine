@@ -13,13 +13,11 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import TablePagination from '@material-ui/core/TablePagination'
 import ViewCreator from './ViewCreator'
-import { CreatorService } from '@xrengine/gallery/src/reducers/creator/CreatorService'
-import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 
 interface Props {}
 
@@ -52,7 +50,7 @@ const CreatorTable = (props: Props) => {
 
   const deleteCreatorHandler = () => {
     setShowWarning(false)
-    dispatch(CreatorService.deleteCreator(creatorId))
+    CreatorService.deleteCreator(creatorId)
   }
 
   const handleCloseWarning = () => {
@@ -72,7 +70,7 @@ const CreatorTable = (props: Props) => {
 
   React.useEffect(() => {
     if (user.id.value && creator.updateNeeded.value) {
-      dispatch(CreatorService.fetchCreatorAsAdmin())
+      CreatorService.fetchCreatorAsAdmin()
     }
   }, [user, creator])
 

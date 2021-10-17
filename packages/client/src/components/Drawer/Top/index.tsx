@@ -1,6 +1,6 @@
 import AppBar from '@material-ui/core/AppBar'
 
-import { PartyService } from '@xrengine/client-core/src/social/reducers/party/PartyService'
+import { PartyService } from '@xrengine/client-core/src/user/state/PartyService'
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'

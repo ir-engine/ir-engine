@@ -15,11 +15,11 @@ import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import Grid from '@material-ui/core/Grid'
 import { Edit } from '@material-ui/icons'
-import { BotService } from '../../reducers/admin/bots/BotsService'
+import { BotService } from '../../state/BotsService'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import { useBotState } from '../../reducers/admin/bots/BotsState'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useBotState } from '../../state/BotsState'
+import { useAuthState } from '../../../user/state/AuthState'
 import Button from '@material-ui/core/Button'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
@@ -50,7 +50,7 @@ const DisplayBots = (props: Props) => {
   const botAdminData = botAdmin.bots
   React.useEffect(() => {
     if (user.id.value && botAdmin.updateNeeded) {
-      dispatch(BotService.fetchBotAsAdmin())
+      BotService.fetchBotAsAdmin()
     }
   }, [botAdmin.updateNeeded.value, user?.id?.value])
 
@@ -76,7 +76,7 @@ const DisplayBots = (props: Props) => {
       description: description,
       botId: id
     }
-    dispatch(BotService.createBotCammand(data))
+    BotService.createBotCammand(data)
     setName('')
     setDescription('')
   }
@@ -123,7 +123,7 @@ const DisplayBots = (props: Props) => {
                       <IconButton onClick={() => handleOpenModel(bot)}>
                         <Edit style={{ color: '#fff' }} />
                       </IconButton>
-                      <IconButton onClick={() => dispatch(BotService.removeBots(bot.id))}>
+                      <IconButton onClick={() => BotService.removeBots(bot.id)}>
                         <DeleteIcon style={{ color: '#fff' }} />
                       </IconButton>
                     </div>
@@ -189,7 +189,7 @@ const DisplayBots = (props: Props) => {
                             <IconButton
                               edge="end"
                               aria-label="delete"
-                              onClick={() => dispatch(BotService.removeBotsCommand(el.id))}
+                              onClick={() => BotService.removeBotsCommand(el.id)}
                             >
                               <DeleteIcon style={{ color: '#fff' }} />
                             </IconButton>

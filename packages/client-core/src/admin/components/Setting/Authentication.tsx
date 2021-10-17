@@ -2,11 +2,10 @@ import React, { useEffect } from 'react'
 import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { useStyles } from './styles'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { useAdminAuthSettingState } from '../../reducers/admin/Setting/authentication-setting/AuthSettingState'
-import { AuthSettingService } from '../../reducers/admin/Setting/authentication-setting/AuthSettingService'
-import { Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useAuthState } from '../../../user/state/AuthState'
+import { useAdminAuthSettingState } from '../../state/Setting/AuthSettingState'
+import { AuthSettingService } from '../../state/Setting/AuthSettingService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Switch from '@material-ui/core/Switch'
 import IconButton from '@material-ui/core/IconButton'
 import { Icon } from '@iconify/react'
@@ -71,7 +70,7 @@ const Account = (props: Props) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await dispatch(AuthSettingService.fetchAuthSetting())
+      await AuthSettingService.fetchAuthSetting()
     }
     if (user?.id?.value != null && authSettingState.authSettings.updateNeeded.value) {
       fetchData()

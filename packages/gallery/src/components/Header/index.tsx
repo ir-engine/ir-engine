@@ -15,7 +15,7 @@ import {
   TextField
 } from '@material-ui/core'
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { Filesystem } from '@capacitor/filesystem'
 import { useHistory } from 'react-router'
 

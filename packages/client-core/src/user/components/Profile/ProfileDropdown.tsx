@@ -11,7 +11,7 @@ import { useHistory } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Avatar from '@material-ui/core/Avatar'
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { useAuthState } from '../../state/AuthState'
 interface Props {
   avatarUrl: any
   logoutUser: any
