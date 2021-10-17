@@ -17,7 +17,6 @@ const EditorProtectedRoutes = () => {
   const dispatch = useDispatch()
   const scopes = useAuthState().user?.scopes?.value || []
   const isSceneAllowed = userHasAccess('editor:write')
-  console.log(isSceneAllowed)
   const authState = useAuthState()
   const [pendingAuth, setPendingAuth] = useState(true)
 
