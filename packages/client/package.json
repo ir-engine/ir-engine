@@ -114,7 +114,7 @@
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
     "vite": "2.6.7",
-    "vite-plugin-optimize-persist": "^0.0.5",
+    "vite-plugin-optimize-persist": "0.1.0",
     "vite-plugin-package-config": "^0.0.3",
     "webxr-native": "0.3.0"
   },
