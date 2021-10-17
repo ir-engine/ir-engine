@@ -81,7 +81,7 @@
     "feathers-sequelize": "https://github.com/feathersjs-ecosystem/feathers-sequelize.git",
     "fs-blob-store": "6.0.0",
     "http-server": "^13.0.0",
-    "internal-ip": "^7.0.0",
+    "internal-ip": "^6.1.0",
     "mime-types": "^2.1.27",
     "moment": "^2.27.0",
     "multer": "^1.4.2",
