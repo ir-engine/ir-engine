@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import CardMedia from '@material-ui/core/CardMedia'
 import { Google } from '@styled-icons/bootstrap/Google'
@@ -14,7 +14,7 @@ import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
 import ResetPassword from '../../../user/components/Auth/ResetPassword'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../state/AuthService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
@@ -48,16 +48,16 @@ const FlatSignIn = (props: Props) => {
 
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('google'))
+    AuthService.loginUserByOAuth('google')
   }
 
   const handleFacebookLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('facebook'))
+    AuthService.loginUserByOAuth('facebook')
   }
 
   const handleResetPassword = (token: string, password: string): any => {
-    dispatch(AuthService.resetPassword(token, password))
+    AuthService.resetPassword(token, password)
   }
 
   let component = null

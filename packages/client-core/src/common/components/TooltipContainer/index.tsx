@@ -12,10 +12,6 @@ interface Props {
   className?: string | ''
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
 const TooltipContainer = (props: Props) => {
   const interactTip = isTouchAvailable ? <TouchApp /> : 'E'
   const { t } = useTranslation()
@@ -34,4 +30,4 @@ const TooltipContainer = (props: Props) => {
   ) : null
 }
 
-export default connect(mapStateToProps)(TooltipContainer)
+export default TooltipContainer

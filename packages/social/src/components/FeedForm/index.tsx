@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import VideoRecorder from 'react-video-recorder'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
@@ -19,47 +19,18 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 // @ts-ignore
 import styles from './FeedForm.module.scss'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
-import { changeWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 import Preloader from '@xrengine/social/src/components/Preloader'
-import { useFeedState } from '../../reducers/feed/FeedState'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state),
-
-    webxrnativeState: selectWebXrNativeState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
-  updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
-  updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-  changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
-})
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
 
 interface Props {
   feed?: any
-  popupsState?: any
-  updateNewFeedPageState?: typeof updateNewFeedPageState
-  updateShareFormState?: typeof updateShareFormState
-  updateArMediaState?: typeof updateArMediaState
-  changeWebXrNative?: any
-  webxrnativeState?: any
 }
-const FeedForm = ({
-  feed,
-  updateNewFeedPageState,
-  updateShareFormState,
-  updateArMediaState,
-  popupsState,
-  webxrnativeState,
-  changeWebXrNative
-}: Props) => {
+const FeedForm = ({ feed }: Props) => {
   const [isSended, setIsSended] = useState(false)
   const [isRecordVideo, setRecordVideo] = useState(false)
   const [isVideo, setIsVideo] = useState(false)
@@ -76,14 +47,16 @@ const FeedForm = ({
   const textRef = React.useRef<HTMLInputElement>()
   const videoRef = React.useRef<HTMLInputElement>()
   const { t } = useTranslation()
-  const videoPath = popupsState?.get('videoPath')
-  const videoDir = popupsState?.get('fPath')
-  const nameId = popupsState?.get('nameId')
+  const popupsState = usePopupsStateState()
+  const videoPath = popupsState?.popups?.videoPath?.value
+  const videoDir = popupsState?.popups?.fPath?.value
+  const nameId = popupsState?.popups?.nameId?.value
   const { XRPlugin } = Plugins
   const dispatch = useDispatch()
   const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value)
   const handleComposingTextChange = (event: any): void => setComposingText(event.target.value)
-  const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+  const webxrnativeState = useWebxrNativeState()
+  const webxrRecorderActivity = webxrnativeState.webxrnative.value
   const feedsState = useFeedState()
   const lastFeedVideoUrl = feedsState.feeds.lastFeedVideoUrl?.value
 
@@ -108,9 +81,9 @@ const FeedForm = ({
     }
 
     if (feed) {
-      dispatch(FeedService.updateFeedAsAdmin(feed.id, newFeed))
+      FeedService.updateFeedAsAdmin(feed.id, newFeed)
     } else {
-      const feedMediaLinks = await dispatch(FeedService.createFeed(newFeed))
+      const feedMediaLinks = await FeedService.createFeed(newFeed)
       // @ts-ignore
       // updateShareFormState(true, feedMediaLinks.video, feedMediaLinks.preview);
     }
@@ -126,10 +99,10 @@ const FeedForm = ({
     // }, 2000);
 
     if (webxrRecorderActivity) {
-      changeWebXrNative()
+      WebxrNativeService.changeWebXrNative()
     }
     XRPlugin.deleteVideo({ videoDir: videoDir })
-    updateNewFeedPageState(false, null, null, null)
+    PopupsStateService.updateNewFeedPageState(false, null, null, null)
   }
 
   const dataURItoBlob = (dataURI) => {
@@ -277,9 +250,9 @@ const FeedForm = ({
   }, [])
 
   const closePopUp = () => {
-    updateNewFeedPageState(false, null, null, null)
+    PopupsStateService.updateNewFeedPageState(false, null, null, null)
     if (webxrRecorderActivity) {
-      changeWebXrNative()
+      WebxrNativeService.changeWebXrNative()
     }
     XRPlugin.deleteVideo({ videoDir: videoDir })
   }
@@ -434,4 +407,4 @@ const FeedForm = ({
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedForm)
+export default FeedForm

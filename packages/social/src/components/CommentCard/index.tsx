@@ -13,12 +13,12 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import styles from './CommentCard.module.scss'
 import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import SimpleModal from '../SimpleModal'
-import { FeedCommentService } from '../../reducers/feedComment/FeedCommentService'
-import { useFeedCommentsState } from '../../reducers/feedComment/FeedCommentState'
+import { FeedCommentService } from '@xrengine/client-core/src/social/state/FeedCommentService'
+import { useFeedCommentsState } from '@xrengine/client-core/src/social/state/FeedCommentState'
 import PopupLogin from '../PopupLogin/PopupLogin'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
@@ -30,14 +30,14 @@ const CommentCard = ({ comment }: Props) => {
   const [openFiredModal, setOpenFiredModal] = useState(false)
   const dispatch = useDispatch()
   const handleAddFireClick = (feedId) => {
-    dispatch(FeedCommentService.addFireToFeedComment(feedId))
+    FeedCommentService.addFireToFeedComment(feedId)
   }
   const handleRemoveFireClick = (feedId) => {
-    dispatch(FeedCommentService.removeFireToFeedComment(feedId))
+    FeedCommentService.removeFireToFeedComment(feedId)
   }
   const feedCommentsState = useFeedCommentsState()
   const handleGetCommentFiredUsers = (id) => {
-    dispatch(FeedCommentService.getCommentFires(id))
+    FeedCommentService.getCommentFires(id)
     setOpenFiredModal(true)
   }
   const [buttonPopup, setButtonPopup] = useState(false)

@@ -12,9 +12,12 @@ import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { decodeVector3, decodeQuaternion } from '@xrengine/common/src/utils/decode'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { pipe } from 'bitecs'
+import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
+import { Group } from 'three'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { avatarHalfHeight } from '../../avatar/functions/createAvatar'
 
 export const applyDelayedActions = (world: World) => {
   const { delayedActions } = world
@@ -68,9 +71,7 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
 
     try {
       const newWorldState = WorldStateModel.fromBuffer(buffer)
-      // if (newWorldState.pose.length) console.log('new world state: ' + JSON.stringify(newWorldState))
 
-      // todo: move to client-specific system
       if (isClient) {
         world.fixedTick = Math.max(newWorldState.tick, world.fixedTick)
       }
@@ -108,31 +109,39 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
 
         const networkObjectEntity = world.getNetworkObject(pose.networkId)
         if (!networkObjectEntity) {
-          console.warn(`Rejecting update for non-existing network object ${pose.networkId}`)
+          console.warn(`Rejecting update for non-existing network object: ${pose.networkId}`)
           continue
         }
         const networkComponent = getComponent(networkObjectEntity, NetworkObjectComponent)
 
         // don't apply state if this client has ownership
         const weHaveOwnership = networkComponent.userId === Engine.userId
-        if (weHaveOwnership) continue
+        if (weHaveOwnership) {
+          // console.warn(`Received network update for entity that this client owns: ${pose.networkId}`)
+          continue
+        }
 
         // console.log(`Recieved update for network object ${pose.networkId}, ${JSON.stringify(getEntityComponents(world, networkObjectEntity))}`)
 
         if (hasComponent(networkObjectEntity, VelocityComponent)) {
           const velC = getComponent(networkObjectEntity, VelocityComponent)
           if (pose.linearVelocity.length === 1) velC.velocity.setScalar(0)
-          else velC.velocity.copy(decodeVector3(pose.linearVelocity))
+          else velC.velocity.fromArray(pose.linearVelocity)
         }
 
         if (hasComponent(networkObjectEntity, ColliderComponent)) {
+          const isAvatar = hasComponent(networkObjectEntity, AvatarComponent)
           const collider = getComponent(networkObjectEntity, ColliderComponent)
-          const pos = decodeVector3(pose.position)
-          const rot = decodeQuaternion(pose.rotation)
+          const pos = pose.position
+          const rot = pose.rotation
+
+          // TODO: Find a cleaner way to shift the avatar's capsule
+          const yOffset = isAvatar ? avatarHalfHeight : 0
+
           collider.body.setGlobalPose(
             {
-              translation: { x: pos.x, y: pos.y, z: pos.z },
-              rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w }
+              translation: { x: pos[0], y: pos[1] + yOffset, z: pos[2] },
+              rotation: { x: rot[0], y: rot[1], z: rot[2], w: rot[3] }
             },
             true
           )
@@ -140,15 +149,15 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
 
         if (hasComponent(networkObjectEntity, TransformComponent)) {
           const transformComponent = getComponent(networkObjectEntity, TransformComponent)
-          transformComponent.position.copy(decodeVector3(pose.position))
-          transformComponent.rotation.copy(decodeQuaternion(pose.rotation))
+          transformComponent.position.fromArray(pose.position)
+          transformComponent.rotation.fromArray(pose.rotation)
         }
         // }
       }
       // }
 
-      for (let i = 0; i < newWorldState.ikPose.length; i++) {
-        const ikPose = newWorldState.ikPose[i]
+      for (let i = 0; i < newWorldState.controllerPose.length; i++) {
+        const ikPose = newWorldState.controllerPose[i]
 
         const entity = world.getNetworkObject(ikPose.networkId)
 
@@ -158,17 +167,51 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
         const {
           headPosePosition,
           headPoseRotation,
-          leftPosePosition,
-          leftPoseRotation,
-          rightPosePosition,
-          rightPoseRotation
+          leftRayPosition,
+          leftRayRotation,
+          rightRayPosition,
+          rightRayRotation,
+          leftGripPosition,
+          leftGripRotation,
+          rightGripPosition,
+          rightGripRotation
         } = ikPose
-        xrInputSourceComponent.head.position.copy(decodeVector3(headPosePosition))
-        xrInputSourceComponent.head.quaternion.copy(decodeQuaternion(headPoseRotation))
-        xrInputSourceComponent.controllerLeft.position.copy(decodeVector3(leftPosePosition))
-        xrInputSourceComponent.controllerLeft.quaternion.copy(decodeQuaternion(leftPoseRotation))
-        xrInputSourceComponent.controllerRight.position.copy(decodeVector3(rightPosePosition))
-        xrInputSourceComponent.controllerRight.quaternion.copy(decodeQuaternion(rightPoseRotation))
+        xrInputSourceComponent.head.position.fromArray(headPosePosition)
+        xrInputSourceComponent.head.quaternion.fromArray(headPoseRotation)
+        xrInputSourceComponent.controllerLeft.position.fromArray(leftRayPosition)
+        xrInputSourceComponent.controllerLeft.quaternion.fromArray(leftRayRotation)
+        xrInputSourceComponent.controllerRight.position.fromArray(rightRayPosition)
+        xrInputSourceComponent.controllerRight.quaternion.fromArray(rightRayRotation)
+        xrInputSourceComponent.controllerGripLeft.position.fromArray(leftGripPosition)
+        xrInputSourceComponent.controllerGripLeft.quaternion.fromArray(leftGripRotation)
+        xrInputSourceComponent.controllerGripRight.position.fromArray(rightGripPosition)
+        xrInputSourceComponent.controllerGripRight.quaternion.fromArray(rightGripRotation)
+      }
+
+      for (const netHands of newWorldState.handsPose) {
+        const entity = world.getNetworkObject(netHands.networkId)
+        if (isEntityLocalClient(entity) || !hasComponent(entity, XRHandsInputComponent)) continue
+
+        const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
+
+        netHands.hands.forEach((data, i) => {
+          const hand = xrHandsComponent.hands[i] as any
+
+          if (!hand.joints) {
+            hand.joints = {}
+          }
+
+          // Populate joints
+          data.joints.forEach((j) => {
+            if (!hand.joints[j.key]) {
+              hand.joints[j.key] = new Group()
+            }
+
+            const joint = hand.joints[j.key] as Group
+            joint.position.fromArray(j.position)
+            joint.quaternion.fromArray(j.rotation)
+          })
+        })
       }
     } catch (e) {
       console.log('could not process world state buffer, ' + e + ' ' + e.stack)
@@ -178,14 +221,15 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
   return world
 }
 
-// prettier-ignore
-export const applyIncomingNetworkState = pipe(
-  applyDelayedActions, 
-  applyIncomingActions,
-  applyUnreliableQueue(Network.instance),
-)
-
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
-  world.receptors.add(incomingNetworkReceptor)
+  // prettier-ignore
+  const applyIncomingNetworkState = pipe(
+    applyDelayedActions, 
+    applyIncomingActions,
+    applyUnreliableQueue(Network.instance),
+  )
+
+  world.receptors.push(incomingNetworkReceptor)
+
   return () => applyIncomingNetworkState(world)
 }

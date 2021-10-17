@@ -9,17 +9,13 @@ import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
 import { ChevronLeft, ChevronRight, Menu } from '@material-ui/icons'
 import Avatar from '@material-ui/core/Avatar'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { useAuthState } from '../../state/AuthState'
 import { connect } from 'react-redux'
 import { useStylesForDashboard } from './styles'
 import SideMenu from './SideMenuItem'
 
 interface Props {
   children?: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {}
 }
 
 /**
@@ -107,4 +103,4 @@ const Dashboard = ({ children }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, null)(Dashboard)
+export default Dashboard

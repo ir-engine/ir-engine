@@ -1,5 +1,5 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { string, float32, Schema, uint32, uint8, uint64, int8 } from '../../assets/superbuffer'
+import { float32, Schema, string, uint32, uint64 } from '../../assets/superbuffer'
 import { Model } from '../../assets/superbuffer/model'
 
 /**
@@ -15,21 +15,41 @@ const poseSchema = new Schema({
   angularVelocity: [float32]
 })
 
-const ikPoseSchema = new Schema({
+const jointTransformSchema = new Schema({
+  key: string,
+  position: [float32],
+  rotation: [float32]
+})
+
+const handPoseSchema = new Schema({
+  joints: [jointTransformSchema]
+})
+
+const handsPoseSchema = new Schema({
+  networkId: uint32,
+  hands: [handPoseSchema]
+})
+
+const controllerPoseSchema = new Schema({
   networkId: uint32,
   headPosePosition: [float32],
   headPoseRotation: [float32],
-  leftPosePosition: [float32],
-  leftPoseRotation: [float32],
-  rightPosePosition: [float32],
-  rightPoseRotation: [float32]
+  leftRayPosition: [float32],
+  leftRayRotation: [float32],
+  rightRayPosition: [float32],
+  rightRayRotation: [float32],
+  leftGripPosition: [float32],
+  leftGripRotation: [float32],
+  rightGripPosition: [float32],
+  rightGripRotation: [float32]
 })
 
 const networkSchema = new Schema({
   tick: uint32,
   time: uint64,
   pose: [poseSchema],
-  ikPose: [ikPoseSchema]
+  controllerPose: [controllerPoseSchema],
+  handsPose: [handsPoseSchema]
 })
 
 /** Interface for world state. */
@@ -47,14 +67,30 @@ export interface WorldStateInterface {
     angularVelocity: number[]
   }[]
   /** transform of ik avatars. */
-  ikPose: {
+  controllerPose: {
     networkId: NetworkId
     headPosePosition: number[]
     headPoseRotation: number[]
-    leftPosePosition: number[]
-    leftPoseRotation: number[]
-    rightPosePosition: number[]
-    rightPoseRotation: number[]
+    leftRayPosition: number[]
+    leftRayRotation: number[]
+    rightRayPosition: number[]
+    rightRayRotation: number[]
+    leftGripPosition: number[]
+    leftGripRotation: number[]
+    rightGripPosition: number[]
+    rightGripRotation: number[]
+  }[]
+  handsPose: {
+    networkId: NetworkId
+    hands: {
+      joints: [
+        {
+          key: string
+          position: number[]
+          rotation: number[]
+        }
+      ]
+    }[]
   }[]
 }
 

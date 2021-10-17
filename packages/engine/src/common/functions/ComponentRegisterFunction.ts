@@ -49,6 +49,8 @@ import { SceneDataComponent } from "../../scene/interfaces/SceneDataComponent"
 import { TransformComponent, TransformData } from "../../transform/components/TransformComponent"
 import { ComponentNames } from "../constants/ComponentNames"
 import { isClient } from "./isClient"
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 
 type RegisterFunctionParams = {
   world: World,
@@ -407,7 +409,13 @@ export const ComponentRegisterFunction: ComponentRegisterType = {
 
   [ComponentNames.CAMERA_PROPERTIES]: (params: RegisterFunctionParams): void => {
     if (isClient) {
-      setCameraProperties(Engine.defaultWorld.localClientEntity, params.component.data)
+      matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
+        if (spawnAction.userId === Engine.userId) {
+          setCameraProperties(Engine.defaultWorld.localClientEntity, params.component.data)
+          return true
+        }
+        return false
+      })
     }
   },
 

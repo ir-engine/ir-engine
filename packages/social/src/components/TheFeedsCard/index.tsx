@@ -12,56 +12,39 @@ import WhatshotIcon from '@material-ui/icons/Whatshot'
 import { Feed } from '@xrengine/common/src/interfaces/Feed'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { selectTheFeedsFiresState } from '../../reducers/thefeedsFires/selector'
-import { addFireToTheFeeds, getTheFeedsFires, removeFireToTheFeeds } from '../../reducers/thefeedsFires/service'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { TheFeedsFiresService } from '@xrengine/client-core/src/user/state/TheFeedsFiresService'
 import CreatorAsTitle from '../CreatorAsTitle'
 import styles from './TheFeedsCard.module.scss'
 
 const { Share } = Plugins
 
-const mapStateToProps = (state: any): any => {
-  return {
-    thefeedsFiresState: selectTheFeedsFiresState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getTheFeedsFires: bindActionCreators(getTheFeedsFires, dispatch),
-  addFireToTheFeeds: bindActionCreators(addFireToTheFeeds, dispatch),
-  removeFireToTheFeeds: bindActionCreators(removeFireToTheFeeds, dispatch)
-})
 interface Props {
   feed: Feed
-  thefeedsFiresState?: any
-
-  getTheFeedsFires?: any
-  addFireToTheFeeds?: any
-  removeFireToTheFeeds?: any
 }
 const TheFeedsCard = (props: Props): any => {
   const [buttonPopup, setButtonPopup] = useState(false)
   const [fired, setFired] = useState(false)
-  const { feed, getTheFeedsFires, thefeedsFiresState, addFireToTheFeeds, removeFireToTheFeeds } = props
+  const { feed } = props
   const [firedCount, setFiredCount] = useState(feed.fires)
-
+  const dispatch = useDispatch()
   const [thefeedsFiresCreators, setThefeedsFiresCreators] = useState(null)
 
   const handleAddFireClick = (feedId) => {
-    addFireToTheFeeds(feedId)
+    TheFeedsFiresService.addFireToTheFeeds(feedId)
     setFiredCount(firedCount + 1)
     setFired(true)
   }
   const handleRemoveFireClick = (feedId) => {
-    removeFireToTheFeeds(feedId)
+    TheFeedsFiresService.removeFireToTheFeeds(feedId)
     setFiredCount(firedCount - 1)
     setFired(false)
   }
 
   useEffect(() => {
-    getTheFeedsFires(feed.id, setThefeedsFiresCreators)
+    TheFeedsFiresService.getTheFeedsFires(feed.id, setThefeedsFiresCreators)
   }, [])
 
   const { t } = useTranslation()
@@ -73,8 +56,6 @@ const TheFeedsCard = (props: Props): any => {
       dialogTitle: t('social:shareForm.shareWithBuddies')
     })
   }
-
-  const theFeedsFiresList = thefeedsFiresState?.get('thefeedsFires')
 
   const creatorId = useCreatorState().creators.currentCreator?.id?.value
 
@@ -135,4 +116,4 @@ const TheFeedsCard = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(TheFeedsCard)
+export default TheFeedsCard

@@ -3,12 +3,13 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/state/AuthService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import { FacebookIcon } from '../../../../client-core/src/common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../client-core/src/common/components/Icons/GoogleIcon'
@@ -22,14 +23,8 @@ import { useTranslation } from 'react-i18next'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useSnackbar, SnackbarOrigin } from 'notistack'
 
-import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
-import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
 import { Link, useHistory, Redirect } from 'react-router-dom'
 import ChangedUserName from './ChangedUserName'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
 
 const Registration = (props: any): any => {
   const {
@@ -59,7 +54,7 @@ const Registration = (props: any): any => {
   const [errorUsername, setErrorUsername] = useState(false)
   const [emailPhoneForm, setEmailPhoneForm] = useState(false)
   const [continueAsGuest, setContinueAsGuest] = useState(false)
-  const [registrationServiceClick, setRegistrationServiceClick] = useState(false)
+  const [registrationServiceClick, setRegistrationServiceClick] = useState('')
   const [disabledButtonLogIn, setDisabledButtonLogIn] = useState(false)
 
   let type = ''
@@ -118,8 +113,8 @@ const Registration = (props: any): any => {
 
   useEffect(() => {
     if (accessToken || crutch) {
-      dispatch(AuthService.doLoginAuto(true))
-      dispatch(getWebXrNative())
+      AuthService.doLoginAuto(true)
+      WebxrNativeService.getWebXrNative()
     }
   }, [accessToken, crutch])
 
@@ -131,18 +126,18 @@ const Registration = (props: any): any => {
     if (checkRole(selfUser.userRole.value) || (selfUser.id.value !== '' && continueAsGuest)) {
       history.push('/')
     } else if (registrationServiceClick?.length > 0 && selfUser.userRole.value === 'guest') {
-      dispatch(AuthService.loginUserByOAuth(registrationServiceClick))
+      AuthService.loginUserByOAuth(registrationServiceClick)
     }
   }, [selfUser.id.value, continueAsGuest, selfUser.userRole.value, registrationServiceClick])
 
   useEffect(() => {
-    if (auth?.authUser?.accessToken) {
-      dispatch(CreatorService.createCreator())
+    if (auth?.authUser?.accessToken && auth?.user?.id.value) {
+      CreatorService.createCreator()
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 
   const handleUpdateUsername = () => {
-    dispatch(CreatorService.updateCreator(creator, callBacksFromUpdateUsername))
+    CreatorService.updateCreator(creator, callBacksFromUpdateUsername)
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
 
@@ -167,10 +162,10 @@ const Registration = (props: any): any => {
     e.preventDefault()
     if (!validate()) return
     if (type === 'email') {
-      dispatch(AuthService.addConnectionByEmail(emailPhone, authData.user.id))
+      AuthService.addConnectionByEmail(emailPhone, authData.user.id)
     }
     if (type === 'sms') {
-      dispatch(AuthService.addConnectionBySms(emailPhone, authData.user.id))
+      AuthService.addConnectionBySms(emailPhone, authData.user.id)
     }
     setDisabledButtonLogIn(true)
     enqueueSnackbar('Please check your mail', { variant: 'success', anchorOrigin })
@@ -344,4 +339,4 @@ const Registration = (props: any): any => {
   )
 }
 
-export default connect(mapStateToProps)(Registration)
+export default Registration

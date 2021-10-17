@@ -13,17 +13,17 @@ import TextField from '@material-ui/core/TextField'
 import Checkbox from '@material-ui/core/Checkbox'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { LocationService } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationService'
+import { LocationService } from '@xrengine/client-core/src/admin/state/LocationService'
 
 import styles from './styles.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { useSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
-import { useLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
+import { useSceneState } from '@xrengine/client-core/src/admin/state/SceneState'
+import { useLocationState } from '@xrengine/client-core/src/admin/state/LocationState'
 import { useParams } from 'react-router-dom'
-import { ScenesService } from '@xrengine/client-core/src/world/reducers/scenes/SceneService'
+import { ScenesService } from '@xrengine/client-core/src/world/state/SceneService'
 
 interface Props {
   open: boolean
@@ -31,12 +31,6 @@ interface Props {
   location: any
   editing: boolean
 }
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const LocationModal = (props: Props): any => {
   const { open, handleClose, location, editing } = props
@@ -82,9 +76,9 @@ const LocationModal = (props: Props): any => {
     }
 
     if (editing === true) {
-      dispatch(LocationService.patchLocation(location.id, submission))
+      LocationService.patchLocation(location.id, submission)
     } else {
-      dispatch(ScenesService.createPublishProject(submission))
+      ScenesService.createPublishProject(submission)
       //   createLocation(submission)
     }
 
@@ -92,7 +86,7 @@ const LocationModal = (props: Props): any => {
   }
 
   const deleteLocation = () => {
-    dispatch(LocationService.removeLocation(location.id))
+    LocationService.removeLocation(location.id)
     handleClose()
   }
 
@@ -317,4 +311,4 @@ const LocationModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LocationModal)
+export default LocationModal

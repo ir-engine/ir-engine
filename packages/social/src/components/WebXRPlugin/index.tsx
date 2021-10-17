@@ -2,12 +2,9 @@ import { Capacitor } from '@capacitor/core'
 import { XRPlugin } from 'webxr-native'
 import React, { useEffect, useRef, useState } from 'react'
 import {
-  BufferGeometry,
   CameraHelper,
   Color,
   Group,
-  Line,
-  LineBasicMaterial,
   OrthographicCamera,
   PerspectiveCamera,
   Quaternion,
@@ -24,34 +21,19 @@ import PlayerWorker from 'volumetric/web/decoder/workerFunction.ts?worker'
 
 //@ts-ignore
 import styles from './WebXRPlugin.module.scss'
-import { connect, useDispatch } from 'react-redux'
-import { updateNewFeedPageState, updateWebXRState } from '../../reducers/popupsState/service'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { useArMediaState } from '../../reducers/arMedia/ArMediaState'
-import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 // import HintOne from '../WebXrHints/HintOne'
 // import HintTwo from '../WebXrHints/HintTwo'
-import { FeedService } from '../../reducers/feed/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 import HintOne from '../WebXrHints/HintOne'
 import HintTwo from '../WebXrHints/HintTwo'
 import ZoomGestureHandler from './ZoomGestureHandler'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
-  updateWebXRState: bindActionCreators(updateWebXRState, dispatch)
-})
-
 interface Props {
-  popupsState?: any
-  updateNewFeedPageState?: typeof updateNewFeedPageState
-  updateWebXRState?: typeof updateWebXRState
   setContentHidden?: any
   webxrRecorderActivity?: any
   feedHintsOnborded?: any
@@ -74,9 +56,6 @@ const _DEBUG = false
 const DEBUG_MINI_VIEWPORT_SIZE = 100
 
 export const WebXRPlugin = ({
-  popupsState,
-  updateNewFeedPageState,
-  updateWebXRState,
   setContentHidden,
   webxrRecorderActivity,
   feedHintsOnborded,
@@ -109,7 +88,7 @@ export const WebXRPlugin = ({
     recordingStateRef.current = data
     _setRecordingState(data)
   }
-
+  const popupsState = usePopupsStateState()
   const mediaItemRef = React.useRef(mediaItem)
   const setMediaItem = (data) => {
     mediaItemRef.current = data
@@ -142,7 +121,7 @@ export const WebXRPlugin = ({
     closeBtnAction.current = true
     finishRecord()
     // exit this popup
-    updateWebXRState(false, null)
+    PopupsStateService.updateWebXRState(false, null)
 
     showContent()
   }
@@ -240,9 +219,9 @@ export const WebXRPlugin = ({
     }
   }
 
-  const itemId = popupsState.get('itemId')
+  const itemId = popupsState.popups.itemId?.value
   useEffect(() => {
-    dispatch(ArMediaService.getArMediaItem(itemId))
+    ArMediaService.getArMediaItem(itemId)
   }, [itemId])
   useEffect(() => {
     if (!arMediaState.fetchingItem.value) {
@@ -548,16 +527,16 @@ export const WebXRPlugin = ({
         .then(({ result, filePath, nameId }) => {
           //console.log('END RECORDING, result IS', result)
           // console.log('filePath is', filePath)
-          dispatch(FeedService.setLastFeedVideoUrl(filePath))
-          dispatch(ArMediaService.getArMediaItem(null))
+          FeedService.setLastFeedVideoUrl(filePath)
+          ArMediaService.getArMediaItem(null)
           setSavedFilePath('file://' + filePath)
           if (!closeBtnAction.current) {
             const videoPath = Capacitor.convertFileSrc(filePath)
             console.log(videoPath)
-            updateNewFeedPageState(true, videoPath, filePath, nameId)
+            PopupsStateService.updateNewFeedPageState(true, videoPath, filePath, nameId)
           }
           setRecordingState(RecordingStates.OFF)
-          updateWebXRState(false, null)
+          PopupsStateService.updateWebXRState(false, null)
 
           // if (playerRef.current) {
           //     const video = playerRef.current.video as HTMLMediaElement;
@@ -720,4 +699,4 @@ export const WebXRPlugin = ({
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(WebXRPlugin)
+export default WebXRPlugin

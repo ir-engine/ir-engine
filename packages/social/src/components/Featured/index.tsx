@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 
 import { Typography } from '@material-ui/core'
@@ -13,94 +13,84 @@ import VisibilityIcon from '@material-ui/icons/Visibility'
 import WhatshotIcon from '@material-ui/icons/Whatshot'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useFeedState } from '../../reducers/feed/FeedState'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { updateFeedPageState } from '../../reducers/popupsState/service'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import styles from './Featured.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch)
-})
 interface Props {
-  popupsState?: any
   type?: string
   creatorId?: string
-
-  updateFeedPageState?: typeof updateFeedPageState
 }
 
-const Featured = ({ type, creatorId, popupsState, updateFeedPageState }: Props) => {
-  const [feedsList, setFeedList] = useState([])
+const Featured = ({ type, creatorId, thisData }: any) => {
   const { t } = useTranslation()
   const auth = useAuthState()
   const dispatch = useDispatch()
   const feedsState = useFeedState()
-  useEffect(() => {
-    if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
-      dispatch(FeedService.getFeeds(type, creatorId))
-    } else {
-      const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
-      userIdentityType !== 'guest'
-        ? dispatch(FeedService.getFeeds('featured'))
-        : dispatch(FeedService.getFeeds('featuredGuest'))
-    }
-  }, [type, creatorId])
+  const popupsState = usePopupsStateState()
+  // useEffect(() => {
+  //   if (auth.user.id.value) {
+  //     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
+  //       FeedService.getFeeds(type, creatorId)
+  //     } else {
+  //       const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
+  //       userIdentityType !== 'guest'
+  //         ? FeedService.getFeeds('featured')
+  //         : FeedService.getFeeds('featuredGuest')
+  //     }
+  //   }
+  // }, [type, creatorId])
 
-  useEffect(
-    () =>
-      (type === 'featured' || !type) &&
-      feedsState.feeds.feedsFeaturedFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFeaturedFetching.value, feedsState.feeds.feedsFeatured.value]
-  )
+  // useEffect(
+  //   () =>
+  //     (type === 'featured' || !type) &&
+  //     feedsState.feeds.feedsFeaturedFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsFeatured.value),
+  //   [feedsState.feeds.feedsFeaturedFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
+  // )
 
-  useEffect(
-    () =>
-      (type === 'featured' || !type) &&
-      feedsState.feeds.feedsFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFetching.value, feedsState.feeds.feedsFeatured.value]
-  )
+  // useEffect(
+  //   () =>
+  //     (type === 'featured' || !type) &&
+  //     feedsState.feeds.feedsFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsFeatured.value),
+  //   [feedsState.feeds.feedsFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
+  // )
 
-  useEffect(
-    () =>
-      type === 'creator' &&
-      feedsState.feeds.feedsCreatorFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsCreator.value),
-    [feedsState.feeds.feedsCreatorFetching.value, feedsState.feeds.feedsCreator.value]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'creator' &&
+  //     feedsState.feeds.feedsCreatorFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsCreator.value),
+  //   [feedsState.feeds.feedsCreatorFetching.value, JSON.stringify(feedsState.feeds.feedsCreator.value)]
+  // )
 
-  useEffect(
-    () =>
-      type === 'bookmark' &&
-      feedsState.feeds.feedsBookmarkFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsBookmark.value),
-    [feedsState.feeds.feedsBookmarkFetching.value, feedsState.feeds.feedsBookmark.value]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'bookmark' &&
+  //     feedsState.feeds.feedsBookmarkFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsBookmark.value),
+  //   [feedsState.feeds.feedsBookmarkFetching.value, JSON.stringify(feedsState.feeds.feedsBookmark.value)]
+  // )
 
-  useEffect(
-    () =>
-      type === 'myFeatured' &&
-      feedsState.feeds.myFeaturedFetching.value === false &&
-      setFeedList(feedsState.feeds.myFeatured.value),
-    [feedsState.feeds.myFeaturedFetching.value, feedsState.feeds.myFeatured.value]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'myFeatured' &&
+  //     feedsState.feeds.myFeaturedFetching.value === false &&
+  //     setFeedList(feedsState.feeds.myFeatured.value),
+  //   [feedsState.feeds.myFeaturedFetching.value, JSON.stringify(feedsState.feeds.myFeatured.value)]
+  // )
 
-  useEffect(
-    () =>
-      type === 'fired' &&
-      feedsState.feeds.feedsFiredFetching.value === false &&
-      setFeedList(feedsState.feeds.feedsFired.value),
-    [feedsState.feeds.feedsFiredFetching.value, feedsState.feeds.feedsFired.value]
-  )
+  // useEffect(
+  //   () =>
+  //     type === 'fired' &&
+  //     feedsState.feeds.feedsFiredFetching.value === false &&
+  //     setFeedList(feedsState.feeds.feedsFired.value),
+  //   [feedsState.feeds.feedsFiredFetching.value, JSON.stringify(feedsState.feeds.feedsFired.value)]
+  // )
 
   // if(type === 'creator'){
   //     setFeedList(feedsState.get('feedsCreator'));
@@ -133,8 +123,8 @@ const Featured = ({ type, creatorId, popupsState, updateFeedPageState }: Props) 
 
   return (
     <section className={styles.feedContainer}>
-      {feedsList && feedsList.length > 0 ? (
-        feedsList.map((item, itemIndex) => {
+      {thisData && thisData.length > 0 ? (
+        thisData.map((item, itemIndex) => {
           const sizeIndex =
             itemIndex === 0 || itemIndex % 8 === 0 || itemIndex % 8 === 2 || itemIndex % 8 === 5
               ? 'listItem_width2'
@@ -162,14 +152,14 @@ const Featured = ({ type, creatorId, popupsState, updateFeedPageState }: Props) 
                 className={styles.previewImage}
                 image={item.previewUrl}
                 onClick={() => {
-                  if (popupsState.get('creatorPage') === true && popupsState.get('feedPage') === true) {
-                    updateFeedPageState(false)
+                  if (popupsState.popups.creatorPage?.value === true && popupsState.popups.feedPage?.value === true) {
+                    PopupsStateService.updateFeedPageState(false)
                     const intervalDelay = setTimeout(() => {
                       clearInterval(intervalDelay)
-                      updateFeedPageState(true, item.id)
+                      PopupsStateService.updateFeedPageState(true, item.id)
                     }, 100)
                   } else {
-                    updateFeedPageState(true, item.id)
+                    PopupsStateService.updateFeedPageState(true, item.id)
                   }
                 }}
               />
@@ -195,4 +185,4 @@ const Featured = ({ type, creatorId, popupsState, updateFeedPageState }: Props) 
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Featured)
+export default Featured

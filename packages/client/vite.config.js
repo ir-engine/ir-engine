@@ -1,7 +1,19 @@
-  import fs from 'fs';
-import { defineConfig, loadEnv } from 'vite';
-import config from "config";
+import fs from 'fs'
+import path from 'path'
+import { defineConfig, loadEnv } from 'vite'
+import config from "config"
 import inject from '@rollup/plugin-inject'
+import OptimizationPersist from './scripts/viteoptimizeplugin'
+import PkgConfig from 'vite-plugin-package-config'
+
+const getDependenciesToOptimize = () => {
+  if(!fs.existsSync(path.resolve(__dirname, `./optimizeDeps.json`))) {
+    fs.writeFileSync(path.resolve(__dirname, `./optimizeDeps.json`), JSON.stringify({ dependencies: [] }))
+  }
+  const { dependencies } = JSON.parse(fs.readFileSync(path.resolve(__dirname, `./optimizeDeps.json`), 'utf8'))
+  const defaultDeps = JSON.parse(fs.readFileSync(path.resolve(__dirname, `./defaultDeps.json`), 'utf8'))
+  return [...dependencies, ...defaultDeps.dependencies]
+}
 
 const replaceEnvs = (obj, env) => {
   let result = {};
@@ -40,9 +52,12 @@ export default defineConfig((command) => {
 
   const returned = {
     optimizeDeps: {
-      include: ['@xrengine/realitypacks']
+      include: getDependenciesToOptimize()
     },
-    plugins: [],
+    plugins: [
+      PkgConfig(),
+      OptimizationPersist()
+    ],
     server: {
       host: true,
     },

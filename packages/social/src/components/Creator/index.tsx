@@ -3,14 +3,17 @@
  */
 import Button from '@material-ui/core/Button'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import CreatorCard from '../CreatorCard'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import AppFooter from '../Footer'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+
 import styles from './Creator.module.scss'
 
 interface Props {
@@ -22,6 +25,7 @@ const Creator = ({ creatorId, creatorData }: Props) => {
   const [isMe, setIsMe] = useState(false)
   const dispatch = useDispatch()
   const creatorState = useCreatorState()
+  const feedsState = useFeedState()
   useEffect(() => {
     if (
       creatorState.creators.fetchingCurrentCreator.value === false &&
@@ -30,13 +34,25 @@ const Creator = ({ creatorId, creatorData }: Props) => {
     ) {
       setIsMe(true)
     } else {
+      setIsMe(false)
       if (!creatorData) {
-        dispatch(CreatorService.getCreator(creatorId))
+        CreatorService.getCreator(creatorId)
       }
     }
-  }, [])
+  }, [creatorId])
+
   const { t } = useTranslation()
   const [videoType, setVideoType] = useState('creator')
+
+  const myID =
+    isMe === true
+      ? creatorState?.creators?.currentCreator?.id?.value
+      : creatorData
+      ? creatorData.id
+      : creatorState?.creators?.creator?.id?.value
+  useEffect(() => {
+    FeedService.getFeeds(videoType, myID)
+  }, [videoType, myID])
   return (
     <>
       <section className={styles.creatorContainer}>
@@ -68,16 +84,7 @@ const Creator = ({ creatorId, creatorData }: Props) => {
           </section>
         )}
         <section className={styles.feedsWrapper}>
-          <Featured
-            creatorId={
-              isMe === true
-                ? creatorState?.creators?.currentCreator?.id?.value
-                : creatorData
-                ? creatorData.id
-                : creatorState?.creators?.creator?.id?.value
-            }
-            type={videoType}
-          />
+          <Featured thisData={feedsState.feeds.feedsCreator.value} />
         </section>
       </section>
     </>

@@ -694,7 +694,7 @@ function TreeNode({
                   </TreeNodeLabel>
                 )}
               </TreeNodeLabelContainer>
-              {/* {node.object.issues.length > 0 && <NodeIssuesIcon node={node.object} />} */}
+              {node.object.issues && node.object.issues.length > 0 && <NodeIssuesIcon node={node.object} />}
             </TreeNodeSelectTarget>
           </TreeNodeContent>
 

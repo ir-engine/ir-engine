@@ -1,42 +1,39 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 // @ts-ignore
 import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
-import { updateCreatorFormState } from '../../reducers/popupsState/service'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { useTranslation } from 'react-i18next'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch)
-})
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 
 interface Props {
   logo?: string
-  updateCreatorFormState?: typeof updateCreatorFormState
   setView: any
 }
-const AppHeader = ({ updateCreatorFormState, setView, onGoRegistration }: any) => {
+const AppHeader = ({ setView, onGoRegistration }: any) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
+  const [creator, setCreator] = useState({})
+  const auth = useAuthState()
   useEffect(() => {
-    dispatch(CreatorService.getLoggedCreator())
+    if (auth.user.id.value) {
+      CreatorService.getLoggedCreator()
+    }
   }, [])
   const creatorState = useCreatorState()
-  const creator =
-    creatorState.creators.fetchingCurrentCreator.value === false && creatorState.creators.currentCreator.value
-  /* Hided for now */
-  // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
+
+  useEffect(() => {
+    setCreator(
+      creatorState.creators.fetchingCurrentCreator.value === false && creatorState.creators.currentCreator.value
+    )
+  }, [])
 
   return (
     <nav className={styles.headerContainer}>
@@ -53,22 +50,19 @@ const AppHeader = ({ updateCreatorFormState, setView, onGoRegistration }: any) =
           })
         }}
       />
-      {creator &&
-        {
-          /*!checkGuest*/
-        } && (
-          <Avatar
-            onClick={() => {
-              onGoRegistration(() => {
-                updateCreatorFormState(true)
-              })
-            }}
-            alt={creator?.username}
-            src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
-          />
-        )}
+      {creator && (
+        <Avatar
+          onClick={() => {
+            onGoRegistration(() => {
+              PopupsStateService.updateCreatorFormState(true)
+            })
+          }}
+          alt={creator?.username}
+          src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
+        />
+      )}
     </nav>
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppHeader)
+export default AppHeader

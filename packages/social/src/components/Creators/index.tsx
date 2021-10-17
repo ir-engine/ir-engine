@@ -5,36 +5,21 @@ import { Card, CardContent, CardMedia, Typography, Avatar } from '@material-ui/c
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import PersonPinIcon from '@material-ui/icons/PersonPin'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 // @ts-ignore
 import styles from './Creators.module.scss'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { updateCreatorPageState } from '../../reducers/popupsState/service'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
+interface Props {}
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch)
-})
-
-interface Props {
-  popupsState?: any
-
-  updateCreatorPageState?: typeof updateCreatorPageState
-}
-
-const Creators = ({ popupsState, updateCreatorPageState }: Props) => {
+const Creators = (props: Props) => {
   const creatorsState = useCreatorState()
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(CreatorService.getCreators())
+    CreatorService.getCreators()
   }, [])
   const creators =
     creatorsState.creators.creators?.value && creatorsState.creators.fetchingCreators?.value === false
@@ -42,16 +27,15 @@ const Creators = ({ popupsState, updateCreatorPageState }: Props) => {
       : null
 
   const handleCreatorView = (id) => {
-    updateCreatorPageState(false)
-    updateCreatorPageState(true, id)
+    PopupsStateService.updateCreatorPageState(false)
+    PopupsStateService.updateCreatorPageState(true, id)
   }
 
   const currentCreator = creatorsState.creators.currentCreator?.id?.value
   useEffect(() => {
-    dispatch(CreatorService.getBlockedList(currentCreator))
+    CreatorService.getBlockedList(currentCreator)
   }, [])
   const blackList = creatorsState?.creators?.blocked.value
-  // console.log(Array.from(new Set(blackList?.map((item: any) => item.id))))
 
   return (
     <section className={styles.creatorContainer}>
@@ -90,4 +74,4 @@ const Creators = ({ popupsState, updateCreatorPageState }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Creators)
+export default Creators

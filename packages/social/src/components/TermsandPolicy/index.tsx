@@ -10,9 +10,9 @@ import DialogContent from '@material-ui/core/DialogContent/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText/DialogContentText'
 import { Button, Typography } from '@material-ui/core'
 import { bindActionCreators, Dispatch } from 'redux'
-import { CreatorService } from '../../reducers/creator/CreatorService'
-import { connect, useDispatch } from 'react-redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 import { Link } from 'react-router-dom'
 
 const Transition = React.forwardRef(
@@ -21,18 +21,19 @@ const Transition = React.forwardRef(
   }
 )
 
-export const TermsAndPolicy = ({}: any) => {
+const TermsAndPolicy = ({ setView }: any) => {
   const creatorsState = useCreatorState()
-  const currentCreator = creatorsState.creators.currentCreator
+  const currentCreator = creatorsState.creators.currentCreator.value
+  const dispatch = useDispatch()
 
   // Made at the time of the test Aleks951
-  // const [openTerms, setOpenTerms] = useState(!!!currentCreator.terms)
   const [openTerms, setOpenTerms] = useState(!!!currentCreator.terms)
-  const [openPolicy, setOpenPolicy] = useState(!!!currentCreator.terms?.value ? false : !!!currentCreator.policy)
+  // const [openTerms, setOpenTerms] = useState(true)
+  const [openPolicy, setOpenPolicy] = useState(!!!currentCreator.terms ? false : !!!currentCreator.policy)
   const { t } = useTranslation()
   const [agree, setAgree] = useState(false)
   const [agreePP, setAgreePP] = useState(false)
-  const dispatch = useDispatch()
+
   const checkboxHandler = () => {
     // if agree === true, it will be set to false
     // if agree === false, it will be set to true
@@ -66,8 +67,7 @@ export const TermsAndPolicy = ({}: any) => {
         id: creatorsState.creators.currentCreator?.id?.value,
         terms: true,
         policy: true,
-        name: creatorsState.creators.currentCreator?.name?.value,
-        username: creatorsState.creators.currentCreator?.username?.value
+        name: creatorsState.creators.currentCreator?.name?.value
       })
     )
   }

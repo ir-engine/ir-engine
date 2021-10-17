@@ -1,33 +1,22 @@
 import React, { useEffect } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectPopupsState } from '../../../reducers/popupsState/selector'
-import { updateNewFeedPageState } from '../../../reducers/popupsState/service'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import FeedForm from '../../FeedForm'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch)
-})
-
 interface Props {
-  popupsState?: any
-  updateNewFeedPageState?: typeof updateNewFeedPageState
   setView?: any
 }
-export const FeedFormPopup = ({ popupsState, updateNewFeedPageState, setView }: Props) => {
+export const FeedFormPopup = ({ setView }: Props) => {
+  const dispatch = useDispatch()
+  const popupsState = usePopupsStateState()
   //common for new feed page
   const handleNewFeedClose = () => {
-    updateNewFeedPageState(false)
+    PopupsStateService.updateNewFeedPageState(false)
   }
 
   const renderNewFeedModal = () =>
-    popupsState?.get('shareFeedPage') === true && (
+    popupsState.popups.shareFeedPage?.value === true && (
       // <SharedModal
       //     open={popupsState?.get('shareFeedPage')}
       //     onClose={handleNewFeedClose}
@@ -38,11 +27,11 @@ export const FeedFormPopup = ({ popupsState, updateNewFeedPageState, setView }: 
     )
   // <AppFooter />
   //  </SharedModal>;
-  const newFeedPageState = popupsState?.get('shareFeedPage')
+
   useEffect(() => {
     renderNewFeedModal()
-  }, [newFeedPageState])
+  }, [popupsState.popups.shareFeedPage.value])
   return renderNewFeedModal()
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedFormPopup)
+export default FeedFormPopup

@@ -1,7 +1,7 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
-import { LocationService } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationService'
+import { LocationService } from '@xrengine/client-core/src/admin/state/LocationService'
 import { DockLayout, DockMode } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { Component } from 'react'
@@ -35,11 +35,9 @@ import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
-import { accessLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
-import { accessSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
-import { SceneService } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneService'
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
-import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
+import { accessLocationState } from '@xrengine/client-core/src/admin/state/LocationState'
+import { accessSceneState } from '@xrengine/client-core/src/admin/state/SceneState'
+import { SceneService } from '@xrengine/client-core/src/admin/state/SceneService'
 import { CommandManager } from '../managers/CommandManager'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
@@ -49,7 +47,9 @@ import { NodeManager, registerPredefinedNodes } from '../managers/NodeManager'
 import { registerPredefinedSources, SourceManager } from '../managers/SourceManager'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
-import Store from '@xrengine/client-core/src/store'
+import { store } from '@xrengine/client-core/src/store'
+import { upload } from '@xrengine/client-core/src/util/upload'
+import { getToken } from '../functions/getToken'
 
 const maxUploadSize = 25
 
@@ -445,15 +445,15 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    const dispatch = Store.store.dispatch
+    const dispatch = store.dispatch
     if (accessLocationState().locations.updateNeeded.value === true) {
-      dispatch(LocationService.fetchAdminLocations())
+      LocationService.fetchAdminLocations()
     }
     if (accessSceneState().scenes.updateNeeded.value === true) {
-      dispatch(SceneService.fetchAdminScenes())
+      SceneService.fetchAdminScenes()
     }
     if (accessLocationState().locationTypes.updateNeeded.value === true) {
-      dispatch(LocationService.fetchLocationTypes())
+      LocationService.fetchLocationTypes()
     }
     const pathParams = this.state.pathParams
     const queryParams = this.state.queryParams

@@ -1,10 +1,9 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useContentPackState } from '../../reducers/contentPack/ContentPackState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useContentPackState } from '../../state/ContentPackState'
 import styles from './ContentPack.module.scss'
-import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
+import { ContentPackService } from '../../state/ContentPackService'
 import { Add, Edit } from '@material-ui/icons'
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
 import Backdrop from '@material-ui/core/Backdrop'
@@ -47,7 +46,9 @@ const AddToContentPackModal = (props: Props): any => {
   }
 
   const handleCreateOrPatch = (event: React.MouseEvent<HTMLElement>, newValue: string | null) => {
-    setCreateOrPatch(newValue)
+    if (newValue) {
+      setCreateOrPatch(newValue)
+    }
   }
 
   const addCurrentScenesToContentPack = async () => {
@@ -79,10 +80,12 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       setProcessing(true)
       if (contentPackName !== '') {
-        await addAvatarsToContentPack({
-          avatars: avatars,
-          contentPack: contentPackName
-        })
+        await dispatch(
+          ContentPackService.addAvatarsToContentPack({
+            avatars: avatars,
+            contentPack: contentPackName
+          })
+        )
         setProcessing(false)
         window.location.href = '/admin/content-packs'
         closeModal()
@@ -97,10 +100,12 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       setProcessing(true)
       if (contentPackName !== '') {
-        await addRealityPacksToContentPack({
-          realityPacks: realityPacks,
-          contentPack: contentPackName
-        })
+        await dispatch(
+          ContentPackService.addRealityPacksToContentPack({
+            realityPacks: realityPacks,
+            contentPack: contentPackName
+          })
+        )
         setProcessing(false)
         window.location.href = '/admin/content-packs'
         closeModal()
@@ -116,20 +121,26 @@ const AddToContentPackModal = (props: Props): any => {
       setProcessing(true)
       if (newContentPackName !== '') {
         if (scenes != null)
-          await createContentPack({
-            scenes: scenes,
-            contentPack: newContentPackName
-          })
+          await dispatch(
+            ContentPackService.createContentPack({
+              scenes: scenes,
+              contentPack: newContentPackName
+            })
+          )
         else if (avatars != null)
-          await createContentPack({
-            avatars: avatars,
-            contentPack: newContentPackName
-          })
+          await dispatch(
+            ContentPackService.createContentPack({
+              avatars: avatars,
+              contentPack: newContentPackName
+            })
+          )
         else if (realityPacks != null)
-          await createContentPack({
-            realityPacks: realityPacks,
-            contentPack: newContentPackName
-          })
+          await dispatch(
+            ContentPackService.createContentPack({
+              realityPacks: realityPacks,
+              contentPack: newContentPackName
+            })
+          )
         setProcessing(false)
         window.location.href = '/admin/content-packs'
         closeModal()
@@ -148,7 +159,7 @@ const AddToContentPackModal = (props: Props): any => {
 
   useEffect(() => {
     if (contentPackState.updateNeeded.value === true) {
-      fetchContentPacks()
+      ContentPackService.fetchContentPacks()
     }
   }, [contentPackState.updateNeeded.value])
 

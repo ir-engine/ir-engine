@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
-import { connect } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectPopupsState } from '../../../reducers/popupsState/selector'
-import { updateCreatorFormState } from '../../../reducers/popupsState/service'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
 
@@ -11,32 +11,26 @@ import styles from './CreatorFormPopup.module.scss'
 import CreatorForm from '../../CreatorForm'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch)
-})
-
 interface Props {
-  popupsState?: any
-  updateCreatorFormState?: typeof updateCreatorFormState
   webxrRecorderActivity: any
   setView?: any
 }
-export const CreatorFormPopup = ({ popupsState, updateCreatorFormState, webxrRecorderActivity, setView }: Props) => {
+export const CreatorFormPopup = ({ webxrRecorderActivity, setView }: Props) => {
+  const dispatch = useDispatch()
+
+  const popupsState = usePopupsStateState()
+
   //common for creator form
-  const handleCreatorFormClose = () => updateCreatorFormState(false)
+  const handleCreatorFormClose = () => {
+    PopupsStateService.updateCreatorFormState(false)
+  }
   const platformClass = isIOS ? styles.isIos : ''
 
   const renderCreatoFormModal = () =>
-    popupsState?.get('creatorForm') === true &&
+    popupsState?.popups?.creatorForm?.value === true &&
     !webxrRecorderActivity && (
       <SharedModal
-        open={popupsState?.get('creatorForm')}
+        open={popupsState?.popups?.creatorForm?.value}
         onClose={handleCreatorFormClose}
         className={styles.creatorFormPopup + ' ' + platformClass}
       >
@@ -45,11 +39,10 @@ export const CreatorFormPopup = ({ popupsState, updateCreatorFormState, webxrRec
       </SharedModal>
     )
 
-  const creatorFormState = popupsState?.get('creatorForm')
   useEffect(() => {
     renderCreatoFormModal()
-  }, [creatorFormState])
+  }, [popupsState?.popups.creatorForm.value])
   return renderCreatoFormModal()
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreatorFormPopup)
+export default CreatorFormPopup

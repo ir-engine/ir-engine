@@ -8,7 +8,6 @@ import {
   MeshBasicMaterial,
   MeshPhongMaterial,
   RingGeometry,
-  Vector3,
   XRInputSource
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -16,6 +15,21 @@ import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceCom
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
+
+const initController = (controller: any, left: boolean) => {
+  const controller3DModel = AssetLoader.getFromCache('/models/webxr/controllers/valve_controller_knu_1_0_right.glb')
+    .scene.children[2]
+
+  const controllerMesh = controller3DModel.clone()
+
+  controllerMesh.position.z = -0.12
+  controllerMesh.material = new MeshPhongMaterial()
+  controller.add(controllerMesh)
+  controller.userData.mesh = controllerMesh
+  if (left) {
+    controller.userData.mesh.scale.set(-1, 1, 1)
+  }
+}
 
 export const addDefaultControllerModels = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
@@ -35,18 +49,9 @@ export const addDefaultControllerModels = (entity: Entity) => {
         const targetRay = createController(ev.data)
         controller.add(targetRay)
         controller.targetRay = targetRay
-        controller.userData.xrInputSource = xrInputSource
-
-        // Swap controllers if neccessary
-        if (
-          (controller === xrInputSourceComponent.controllerLeft && xrInputSource.handedness === 'right') ||
-          (controller === xrInputSourceComponent.controllerRight && xrInputSource.handedness === 'left')
-        ) {
-          const tempController = xrInputSourceComponent.controllerLeft
-          xrInputSourceComponent.controllerLeft = xrInputSourceComponent.controllerRight
-          xrInputSourceComponent.controllerRight = tempController
-        }
       }
+
+      controller.userData.xrInputSource = xrInputSource
     })
 
     controller.addEventListener('disconnected', (ev) => {
@@ -56,12 +61,10 @@ export const addDefaultControllerModels = (entity: Entity) => {
     })
   })
 
-  const controller3DModel = AssetLoader.getFromCache('/models/webxr/controllers/valve_controller_knu_1_0_right.glb')
-    .scene.children[2]
-
   const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
 
   controllersGrip.forEach((controller: any) => {
+    // TODO: For some reason this event only fires when picking up the controller again on Oculus Quest 2
     controller.addEventListener('connected', (ev) => {
       const xrInputSource = ev.data as XRInputSource
 
@@ -69,49 +72,37 @@ export const addDefaultControllerModels = (entity: Entity) => {
         return
       }
 
-      if (!controller.userData.xrInputSource) {
-        const controllerMesh = controller3DModel.clone()
-
+      if (controller.userData.mesh) {
         if (xrInputSource.handedness === 'left') {
-          controllerMesh.scale.multiply(new Vector3(-1, 1, 1))
-        }
-
-        controllerMesh.position.z = -0.12
-        controllerMesh.material = new MeshPhongMaterial()
-        controller.add(controllerMesh)
-        controller.userData.xrInputSource = xrInputSource
-
-        // Swap controllers if neccessary
-        if (
-          (controller === xrInputSourceComponent.controllerGripLeft && xrInputSource.handedness === 'right') ||
-          (controller === xrInputSourceComponent.controllerGripRight && xrInputSource.handedness === 'left')
-        ) {
-          const tempController = xrInputSourceComponent.controllerGripLeft
-          xrInputSourceComponent.controllerGripLeft = xrInputSourceComponent.controllerGripRight
-          xrInputSourceComponent.controllerGripRight = tempController
+          controller.userData.mesh.scale.set(-1, 1, 1)
+        } else {
+          controller.userData.mesh.scale.setScalar(1)
         }
       }
+
+      controller.userData.xrInputSource = xrInputSource
     })
+
+    // TODO: Should call this function inside above event to get correct mapping
+    initController(controller, controller === xrInputSourceComponent.controllerGripLeft)
   })
 }
 
-export const addDefaultHandModel = (entity: Entity) => {
-  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+export const initializeHandModel = (controller: any, handedness: string) => {
+  const handMesh = AssetLoader.getFromCache(`/models/webxr/controllers/hands/${handedness}.glb`)?.scene?.children[0]
 
-  xrInputSourceComponent.hands.forEach((controller: any) => {
-    controller.addEventListener('connected', (ev) => {
-      const xrInputSource = ev.data
+  if (!handMesh) {
+    console.error(`Could not load ${handedness} hand mesh`)
+    return
+  }
 
-      if (!xrInputSource.hand || controller.userData.mesh) {
-        return
-      }
+  if (controller.userData.mesh) {
+    controller.remove(controller.userData.mesh)
+  }
 
-      const handMesh = AssetLoader.getFromCache(`/models/webxr/controllers/hands/${xrInputSource.handedness}.glb`).scene
-        .children[0]
-      controller.userData.mesh = new XRHandMeshModel(controller, handMesh, xrInputSource)
-      controller.add(controller.userData.mesh)
-    })
-  })
+  controller.userData.mesh = new XRHandMeshModel(controller, handMesh, handedness)
+  controller.add(controller.userData.mesh)
+  controller.userData.handedness = handedness
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html

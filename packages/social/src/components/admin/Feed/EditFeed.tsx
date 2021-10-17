@@ -14,16 +14,14 @@ import './PlayerStyles.css'
 import { useFeedStyles, useFeedStyle } from './styles'
 import { validateFeedForm } from './validation'
 import { Save } from '@material-ui/icons'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { FeedService } from '../../../reducers/feed/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
 interface Props {
   adminFeed: any
   closeEdit: () => void
 }
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const EditFeed = (props: Props) => {
   const { closeEdit, adminFeed } = props
@@ -85,7 +83,7 @@ const EditFeed = (props: Props) => {
 
     setState({ ...state, formErrors: temp })
     if (validateFeedForm(state, state.formErrors)) {
-      dispatch(FeedService.updateFeedAsAdmin(adminFeed.id, { preview, video, title, description }))
+      FeedService.updateFeedAsAdmin(adminFeed.id, { preview, video, title, description })
       closeEdit()
     }
   }
@@ -233,4 +231,4 @@ const EditFeed = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(EditFeed)
+export default EditFeed

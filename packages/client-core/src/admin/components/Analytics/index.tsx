@@ -7,11 +7,10 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
 import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { useAnalyticsState } from '@xrengine/client-core/src/admin/reducers/admin/analytics/AnalyticsState'
-import { AnalyticsService } from '../../reducers/admin/analytics/AnalyticsService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { useAnalyticsState } from '../../state/AnalyticsState'
+import { AnalyticsService } from '../../state/AnalyticsService'
 
 interface Props {
   adminGroupState?: any
@@ -27,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(2),
       textAlign: 'center',
       color: theme.palette.text.secondary,
-      height: '40vh',
+      height: '35rem',
       width: '99.9%'
     },
     mtopp: {
@@ -53,6 +52,7 @@ const Analytics = (props: Props) => {
   const dispatch = useDispatch()
   const [refetch, setRefetch] = useState(false)
   const [graphSelector, setGraphSelector] = useState('activity')
+  let isDataAvailable = false
   const analyticsState = useAnalyticsState()
 
   const activeLocations = analyticsState.activeLocations.value
@@ -73,60 +73,62 @@ const Analytics = (props: Props) => {
 
   const activityGraphData = [
     {
-      id: 'Active Parties',
-      color: 'hsl(77, 70%, 20%)',
+      name: 'Active Parties',
       data: activeParties
     },
     {
-      id: 'Active Locations',
-      color: 'hsl(128, 20%, 80%)',
+      name: 'Active Locations',
       data: activeLocations
     },
     {
-      id: 'Active Instances',
-      color: 'hsl(50, 20%, 80%)',
+      name: 'Active Instances',
       data: activeInstances
     },
     {
-      id: 'Active Scenes',
-      color: 'hsl(0, 20%, 80%)',
+      name: 'Active Scenes',
       data: activeScenes
     },
     {
-      id: 'Instance Users',
-      color: 'hsl(212, 20%, 80%)',
+      name: 'Instance Users',
       data: instanceUsers
     },
     {
-      id: 'Channel Users',
-      color: 'hsl(250, 20%, 80%)',
+      name: 'Channel Users',
       data: channelUsers
     }
   ]
 
   const userGraphData = [
     {
-      id: 'Daily Users',
-      color: 'hsl(77, 70%, 20%)',
+      name: 'Daily Users',
       data: dailyUsers
     },
     {
-      id: 'Daily New Users',
-      color: 'hsl(250, 10%, 20%)',
+      name: 'Daily New Users',
       data: dailyNewUsers
     }
   ]
 
+  if (
+    activityGraphData[0].data.length &&
+    activityGraphData[1].data.length &&
+    activityGraphData[2].data.length &&
+    activityGraphData[3].data.length &&
+    activityGraphData[4].data.length &&
+    activityGraphData[5].data.length
+  )
+    isDataAvailable = true
+
   useEffect(() => {
     if (refetch === true) {
-      dispatch(AnalyticsService.fetchActiveParties())
-      dispatch(AnalyticsService.fetchInstanceUsers())
-      dispatch(AnalyticsService.fetchChannelUsers())
-      dispatch(AnalyticsService.fetchActiveLocations())
-      dispatch(AnalyticsService.fetchActiveScenes())
-      dispatch(AnalyticsService.fetchActiveInstances())
-      dispatch(AnalyticsService.fetchDailyUsers())
-      dispatch(AnalyticsService.fetchDailyNewUsers())
+      AnalyticsService.fetchActiveParties()
+      AnalyticsService.fetchInstanceUsers()
+      AnalyticsService.fetchChannelUsers()
+      AnalyticsService.fetchActiveLocations()
+      AnalyticsService.fetchActiveScenes()
+      AnalyticsService.fetchActiveInstances()
+      AnalyticsService.fetchDailyUsers()
+      AnalyticsService.fetchDailyNewUsers()
     }
     setRefetch(false)
   }, [refetch])
@@ -144,31 +146,30 @@ const Analytics = (props: Props) => {
   const classes = useStyles()
   const data = [
     {
-      number: activeParties[activeParties.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeParties[activeParties.length - 1] ? activeParties[activeParties.length - 1][1] : 0,
       label: 'Active Parties'
     },
     {
-      number: activeLocations[activeLocations.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeLocations[activeLocations.length - 1] ? activeLocations[activeLocations.length - 1][1] : 0,
       label: 'Active Locations'
     },
     {
-      number: activeScenes[activeScenes.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeScenes[activeScenes.length - 1] ? activeScenes[activeScenes.length - 1][1] : 0,
       label: 'Active Scenes'
     },
     {
-      number: activeInstances[activeInstances.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeInstances[activeInstances.length - 1] ? activeInstances[activeInstances.length - 1][1] : 0,
       label: 'Active Instances'
     },
     {
-      number: dailyUsers[dailyUsers.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: dailyUsers[dailyUsers.length - 1] ? dailyUsers[dailyUsers.length - 1][1] : 0,
       label: 'Users Today'
     },
     {
-      number: dailyNewUsers[dailyNewUsers.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: dailyNewUsers[dailyNewUsers.length - 1] ? dailyNewUsers[dailyNewUsers.length - 1][1] : 0,
       label: 'New Users Today'
     }
   ]
-  const graphData = graphSelector === 'activity' ? activityGraphData : userGraphData
 
   return (
     <div>
@@ -191,8 +192,8 @@ const Analytics = (props: Props) => {
               Users
             </ToggleButton>
           </ToggleButtonGroup>
-          {graphSelector === 'users' && <UserGraph data={graphData} />}
-          {graphSelector === 'activity' && <ActivityGraph data={graphData} />}
+          {graphSelector === 'activity' && isDataAvailable && <ActivityGraph data={activityGraphData} />}
+          {graphSelector === 'users' && <UserGraph data={userGraphData} />}
         </Paper>
       </div>
       {/*<div className={classes.mtopp}>*/}

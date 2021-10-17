@@ -14,7 +14,7 @@ import { Raycaster } from 'three'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
 
 export default async function ClientAvatarSpawnSystem(world: World): Promise<System> {
-  world.receptors.add((action) => {
+  world.receptors.push((action) => {
     matches(action).when(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
       const entity = createAvatar(spawnAction)
 

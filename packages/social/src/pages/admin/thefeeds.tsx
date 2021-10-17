@@ -4,65 +4,38 @@
 import React, { useEffect } from 'react'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import {
-  createTheFeedsNew,
-  getTheFeedsNew,
-  removeTheFeeds,
-  updateTheFeedsAsAdmin
-} from '@xrengine/social/src/reducers/thefeeds/service'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { TheFeedsService } from '@xrengine/client-core/src/social/state/TheFeedsService'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import TheFeedsConsole from '@xrengine/social/src/components/admin/Feeds'
-import { selectTheFeedsState } from '@xrengine/social/src/reducers/thefeeds/selector'
+import { useTheFeedsState } from '@xrengine/client-core/src/social/state/TheFeedsState'
 
 // const thefeeds = '';
 // conts Feeds = '';
 
-const mapStateToProps = (state: any): any => {
-  return {
-    theFeedsState: selectTheFeedsState(state)
-  }
-}
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getTheFeedsNew: bindActionCreators(getTheFeedsNew, dispatch),
-  createTheFeedsNew: bindActionCreators(createTheFeedsNew, dispatch),
-  removeTheFeeds: bindActionCreators(removeTheFeeds, dispatch),
-  updateTheFeedsAsAdmin: bindActionCreators(updateTheFeedsAsAdmin, dispatch)
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch)
-})
 interface Props {
-  theFeedsState?: any
-  getTheFeedsNew?: any
-  createTheFeedsNew?: any
-  removeTheFeeds: any
-  updateTheFeedsAsAdmin: any
   //doLoginAuto: typeof AuthService.doLoginAuto
 }
 
-const TheFeeds = ({
-  theFeedsState,
-  getTheFeedsNew,
-  createTheFeedsNew,
-  removeTheFeeds,
-  updateTheFeedsAsAdmin
-}: //doLoginAuto
+const TheFeeds = ({}: //doLoginAuto
 Props) => {
   const dispatch = useDispatch()
   const create = (data) => {
-    createTheFeedsNew(data)
+    TheFeedsService.createTheFeedsNew(data)
   }
   const deleteTheFeed = (id) => {
-    removeTheFeeds(id)
+    TheFeedsService.removeTheFeeds(id)
   }
   const update = (obj) => {
-    updateTheFeedsAsAdmin(obj)
+    TheFeedsService.updateTheFeedsAsAdmin(obj)
   }
+  const theFeedsState = useTheFeedsState()
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true, true))
-    getTheFeedsNew()
+    AuthService.doLoginAuto(true, true)
+    TheFeedsService.getTheFeedsNew()
   }, [])
-  const TheFeedsList = theFeedsState?.get('thefeeds') ? theFeedsState?.get('thefeeds') : []
+  const TheFeedsList = theFeedsState?.thefeeds.value || []
   return (
     <>
       <div>
@@ -74,4 +47,4 @@ Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(TheFeeds)
+export default TheFeeds

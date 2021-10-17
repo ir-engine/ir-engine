@@ -20,7 +20,8 @@ import {
   Settings,
   SupervisorAccount,
   Toys,
-  Casino
+  Casino,
+  Shuffle
 } from '@material-ui/icons'
 import { Link, withRouter } from 'react-router-dom'
 import { useStylesForDashboard } from './styles'
@@ -31,16 +32,10 @@ import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople'
 import ExpandLess from '@material-ui/icons/ExpandLess'
 import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { useAuthState } from '../../state/AuthState'
 interface Props {
   authState?: any
   location: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {
-    //authState: selectAuthState(state)
-  }
 }
 
 const SideMenuItem = (props: Props) => {
@@ -49,6 +44,7 @@ const SideMenuItem = (props: Props) => {
   const scopes = useAuthState().user?.scopes?.value || []
 
   let allowedRoutes = {
+    routes: true,
     location: false,
     user: false,
     bot: false,
@@ -124,6 +120,21 @@ const SideMenuItem = (props: Props) => {
           </ListItem>
         </Link>
 
+        {allowedRoutes.routes && (
+          <Link to="/admin/routes" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              selected={'/admin/routes' === pathname}
+              style={{ color: 'white' }}
+              button
+            >
+              <Shuffle>
+                <CalendarViewDay style={{ color: 'white' }} />
+              </Shuffle>
+              <ListItemText primary={t('user:dashboard.routes')} />
+            </ListItem>
+          </Link>
+        )}
         {allowedRoutes.location || allowedRoutes.instance ? (
           <ListItem style={{ color: 'white' }} button onClick={() => setOpenLocation(!openLocation)}>
             <ListItemIcon>
@@ -454,4 +465,4 @@ const SideMenuItem = (props: Props) => {
   )
 }
 
-export default withRouter(connect(mapStateToProps, null)(SideMenuItem))
+export default withRouter(SideMenuItem)

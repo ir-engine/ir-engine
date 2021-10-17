@@ -1,19 +1,19 @@
 import { ThemeProvider } from '@material-ui/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
-import { AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
-import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { AppAction } from '@xrengine/client-core/src/common/state/AppActions'
+import { useAppState } from '@xrengine/client-core/src/common/state/AppState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import { theme } from '@xrengine/client-core/src/theme'
 import { Config } from '@xrengine/common/src/config'
 import { Helmet } from 'react-helmet'
 import React, { Fragment, useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import Harmony from '.'
+import { useDispatch } from '@xrengine/client-core/src/store'
+// import Harmony from '.'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
+import Harmony from './Harmony'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -40,12 +40,6 @@ interface Props {
   pageTitle: string
   children?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const Layout = (props: Props): any => {
   const { pageTitle, children } = props
@@ -84,7 +78,7 @@ const Layout = (props: Props): any => {
       window.addEventListener('touchend', initialClickListener)
     }
 
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }, [])
 
   //info about current mode to conditional render menus
@@ -98,7 +92,8 @@ const Layout = (props: Props): any => {
             {siteTitle} | {pageTitle}
           </title>
         </Helmet>
-        <Harmony
+        <Harmony />
+        {/* <Harmony
           isHarmonyPage={true}
           setHarmonyOpen={setHarmonyOpen}
           setDetailsType={setDetailsType}
@@ -109,7 +104,8 @@ const Layout = (props: Props): any => {
           setSelectedGroup={setSelectedGroup}
           setLeftDrawerOpen={setLeftDrawerOpen}
           setRightDrawerOpen={setRightDrawerOpen}
-        />
+        /> */}
+
         <Fragment>
           <UIDialog />
           <Alerts />
@@ -142,14 +138,15 @@ const Layout = (props: Props): any => {
               />
             </Fragment>
           )}
-        {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
-          <Fragment>
-            <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
-          </Fragment>
-        )}
+        {/* {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && ( */}
+        <Fragment>
+          {/* <InviteHarmony /> */}
+          <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
+        </Fragment>
+        {/* )} */}
       </section>
     </ThemeProvider>
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Layout)
+export default Layout

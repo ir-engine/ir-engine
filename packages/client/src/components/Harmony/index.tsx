@@ -37,26 +37,23 @@ import {
   ThreeDRotation,
   Videocam
 } from '@material-ui/icons'
-import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import { ChatAction } from '@xrengine/client-core/src/social/reducers/chat/ChatActions'
-import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
-import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/FriendService'
-import { useGroupState } from '@xrengine/client-core/src/social/reducers/group/GroupState'
-import { GroupService } from '@xrengine/client-core/src/social/reducers/group/GroupService'
-import { InviteService } from '@xrengine/client-core/src/social/reducers/invite/InviteService'
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
+import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
+import { ChatAction } from '@xrengine/client-core/src/social/state/ChatActions'
+import { useFriendState } from '@xrengine/client-core/src/social/state/FriendState'
+import { FriendService } from '@xrengine/client-core/src/social/state/FriendService'
+import { useGroupState } from '@xrengine/client-core/src/social/state/GroupState'
+import { GroupService } from '@xrengine/client-core/src/social/state/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/state/InviteService'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
+import { usePartyState } from '@xrengine/client-core/src/social/state/PartyState'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { UserService } from '@xrengine/client-core/src/user/store/UserService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useUserState } from '@xrengine/client-core/src/user/state/UserState'
+import { UserService } from '@xrengine/client-core/src/user/state/UserService'
 import PartyParticipantWindow from '../../components/PartyParticipantWindow'
-import { useChannelConnectionState } from '../../reducers/channelConnection/ChannelConnectionState'
-import { ChannelConnectionService } from '../../reducers/channelConnection/ChannelConnectionService'
 import { Group as GroupType } from '@xrengine/common/src/interfaces/Group'
 import { Message } from '@xrengine/common/src/interfaces/Message'
-import { User } from '@xrengine/common/src/interfaces/User'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -65,12 +62,6 @@ import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStrea
 import classNames from 'classnames'
 import moment from 'moment'
 import React, { useEffect, useRef, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useMediaStreamState } from '../../reducers/mediastream/MediaStreamState'
-import { MediaStreamService } from '../../reducers/mediastream/MediaStreamService'
-import { useTransportStreamState } from '../../reducers/transport/TransportState'
-import { TransportService } from '../../reducers/transport/TransportService'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -79,19 +70,20 @@ import {
   leave,
   pauseProducer,
   resumeProducer
-} from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+} from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import styles from './style.module.scss'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { store } from '@xrengine/client-core/src/store'
+import { ChannelConnectionService } from '@xrengine/client-core/src/common/state/ChannelConnectionService'
+import { MediaStreamService } from '@xrengine/client-core/src/media/state/MediaStreamService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/state/MediaStreamState'
+import { TransportService } from '@xrengine/client-core/src/common/state/TransportService'
+import { useTransportStreamState } from '@xrengine/client-core/src/common/state/TransportState'
+import { useChannelConnectionState } from '@xrengine/client-core/src/common/state/ChannelConnectionState'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 interface Props {
   setLeftDrawerOpen: any
@@ -132,7 +124,7 @@ const Harmony = (props: Props): any => {
     harmonyHidden
   } = props
 
-  const dispatch = useDispatch()
+  const dispatch = store.dispatch
   const userState = useUserState()
 
   const messageRef = React.useRef()
@@ -142,8 +134,8 @@ const Harmony = (props: Props): any => {
   const channelState = chatState.channels
   const channels = channelState.channels.value
   const channelConnectionState = useChannelConnectionState()
-  const channelEntries = Object.values(channels).filter((channel) => !!channel) as any[]
-  const instanceChannel = channelEntries.find((entry) => entry.instanceId != null)
+  const channelEntries = Object.values(channels).filter((channel) => !!channel)!
+  const instanceChannel = channelEntries.find((entry) => entry.instanceId != null)!
   const targetObject = chatState.targetObject
   const targetObjectType = chatState.targetObjectType
   const targetChannelId = chatState.targetChannelId.value
@@ -155,7 +147,7 @@ const Harmony = (props: Props): any => {
   const [messageUpdatePending, setMessageUpdatePending] = useState('')
   const [editingMessage, setEditingMessage] = useState('')
   const [composingMessage, setComposingMessage] = useState('')
-  const activeChannel = channels[targetChannelId]
+  const activeChannel = channels.find((c) => c.id === targetChannelId)!
   const [producerStarting, _setProducerStarting] = useState('')
   const [activeAVChannelId, _setActiveAVChannelId] = useState('')
   const [channelAwaitingProvision, _setChannelAwaitingProvision] = useState({
@@ -194,7 +186,6 @@ const Harmony = (props: Props): any => {
   const groups = groupSubState.groups.value
   const party = usePartyState().party.value
   const currentLocation = useLocationState().currentLocation.location
-
   const setProducerStarting = (value) => {
     producerStartingRef.current = value
     _setProducerStarting(value)
@@ -236,8 +227,8 @@ const Harmony = (props: Props): any => {
   const videoEnabled =
     isHarmonyPage === true
       ? true
-      : currentLocation?.locationSettings?.value
-      ? currentLocation?.locationSettings?.videoEnabled?.value
+      : currentLocation?.location_settings?.value
+      ? currentLocation?.location_settings?.videoEnabled?.value
       : false
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
@@ -282,7 +273,7 @@ const Harmony = (props: Props): any => {
       await shutdownEngine()
       setWarningRefreshModalValues(initialRefreshModalValues)
       await init()
-      dispatch(ChannelConnectionService.resetChannelServer())
+      ChannelConnectionService.resetChannelServer()
     })
 
     return () => {
@@ -291,11 +282,11 @@ const Harmony = (props: Props): any => {
         EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler)
 
         EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
-          if (e.instance === true) dispatch(ChannelConnectionService.resetChannelServer())
+          if (e.instance === true) ChannelConnectionService.resetChannelServer()
         })
 
         EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
-          dispatch(ChannelConnectionService.resetChannelServer())
+          ChannelConnectionService.resetChannelServer()
           if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('')
         })
       }
@@ -310,9 +301,9 @@ const Harmony = (props: Props): any => {
       TransportService.updateChannelTypeState()
     }
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
-      dispatch(UserService.getLayerUsers(true))
+      UserService.getLayerUsers(true)
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
-      dispatch(UserService.getLayerUsers(false))
+      UserService.getLayerUsers(false)
   }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
@@ -330,7 +321,7 @@ const Harmony = (props: Props): any => {
 
   useEffect(() => {
     if (channelConnectionState.connected.value === false && channelAwaitingProvision?.id?.length > 0) {
-      dispatch(ChannelConnectionService.provisionChannelServer(null, channelAwaitingProvision.id))
+      ChannelConnectionService.provisionChannelServer(null, channelAwaitingProvision.id)
       if (channelAwaitingProvision?.audio === true) setProducerStarting('audio')
       if (channelAwaitingProvision?.video === true) setProducerStarting('video')
       setChannelAwaitingProvision({
@@ -345,7 +336,7 @@ const Harmony = (props: Props): any => {
     chatStateRef.current = chatState
     if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
       ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
-      dispatch(ChatService.updateMessageScrollInit(false))
+      ChatService.updateMessageScrollInit(false)
       setMessageScrollUpdate(false)
     }
     if (messageScrollUpdate === true) {
@@ -358,18 +349,17 @@ const Harmony = (props: Props): any => {
 
   useEffect(() => {
     if (channelState.updateNeeded.value === true) {
-      dispatch(ChatService.getChannels())
+      ChatService.getChannels()
     }
   }, [channelState.updateNeeded.value])
 
   useEffect(() => {
     channelRef.current = channels
     channelEntries.forEach((channel) => {
-      if (!channel) return
       if (chatState.updateMessageScroll.value === true) {
         dispatch(ChatAction.setUpdateMessageScroll(false))
         if (
-          channel.id === targetChannelId &&
+          channel?.id === targetChannelId &&
           messageEl != null &&
           (messageEl as any).scrollHeight -
             (messageEl as any).scrollTop -
@@ -379,8 +369,8 @@ const Harmony = (props: Props): any => {
           ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
         }
       }
-      if (channel.updateNeeded != null && channel.updateNeeded === true) {
-        dispatch(ChatService.getChannelMessages(channel.id))
+      if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
+        ChatService.getChannelMessages(channel.id)
       }
     })
   }, [channels])
@@ -405,7 +395,7 @@ const Harmony = (props: Props): any => {
         title: 'No Available Servers',
         body: "There aren't any servers available to handle this request. Attempting to re-connect in",
         action: async () => {
-          dispatch(ChannelConnectionService.provisionChannelServer())
+          ChannelConnectionService.provisionChannelServer()
         },
         parameters: [null, targetChannelId],
         timeout: 10000,
@@ -467,20 +457,18 @@ const Harmony = (props: Props): any => {
 
   const packageMessage = (): void => {
     if (composingMessage.length > 0) {
-      dispatch(
-        ChatService.createMessage({
-          targetObjectId: targetObject.id,
-          targetObjectType: targetObjectType,
-          text: composingMessage
-        })
-      )
+      ChatService.createMessage({
+        targetObjectId: targetObject.id.value,
+        targetObjectType: targetObjectType.value,
+        text: composingMessage
+      })
       setComposingMessage('')
     }
   }
 
   const setActiveChat = (channelType, target): void => {
-    dispatch(ChatService.updateMessageScrollInit(true))
-    dispatch(ChatService.updateChatTarget(channelType, target))
+    ChatService.updateMessageScrollInit(true)
+    ChatService.updateChatTarget(channelType, target)
     setMessageDeletePending('')
     setMessageUpdatePending('')
     setEditingMessage('')
@@ -507,11 +495,11 @@ const Harmony = (props: Props): any => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler)
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
-      if (e.instance === true) dispatch(ChannelConnectionService.resetChannelServer())
+      if (e.instance === true) ChannelConnectionService.resetChannelServer()
     })
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
-      dispatch(ChannelConnectionService.resetChannelServer())
+      ChannelConnectionService.resetChannelServer()
       setLastConnectToWorldId('')
       MediaStreams.instance.channelId = null!
       MediaStreams.instance.channelType = null!
@@ -537,13 +525,13 @@ const Harmony = (props: Props): any => {
 
   const nextChannelPage = (): void => {
     if (channelState.skip.value + channelState.limit.value < channelState.total.value) {
-      dispatch(ChatService.getChannels(channelState.skip.value + channelState.limit.value))
+      ChatService.getChannels(channelState.skip.value + channelState.limit.value)
     }
   }
 
   const nextMessagePage = (): void => {
     if (activeChannel.skip + activeChannel.limit < activeChannel.total) {
-      dispatch(ChatService.getChannelMessages(targetChannelId, activeChannel.skip + activeChannel.limit))
+      ChatService.getChannelMessages(targetChannelId, activeChannel.skip + activeChannel.limit)
     } else {
       setMessageScrollUpdate(false)
     }
@@ -579,7 +567,7 @@ const Harmony = (props: Props): any => {
   const confirmMessageDelete = (e: any, message: Message) => {
     e.preventDefault()
     setMessageDeletePending('')
-    dispatch(ChatService.removeMessage(message.id)) //, message.channelId))
+    ChatService.removeMessage(message.id) //, message.channelId))
   }
 
   const cancelMessageUpdate = (e: any) => {
@@ -590,7 +578,7 @@ const Harmony = (props: Props): any => {
 
   const confirmMessageUpdate = (e: any, message: Message) => {
     e.preventDefault()
-    dispatch(ChatService.patchMessage(message.id, editingMessage))
+    ChatService.patchMessage(message.id, editingMessage)
     setMessageUpdatePending('')
     setEditingMessage('')
   }
@@ -672,7 +660,7 @@ const Harmony = (props: Props): any => {
     await endVideoChat({})
     await leave(false)
     setActiveAVChannelId(targetChannelId)
-    dispatch(ChannelConnectionService.provisionChannelServer(null, targetChannelId))
+    ChannelConnectionService.provisionChannelServer(null, targetChannelId)
   }
 
   const endCall = async () => {
@@ -731,7 +719,7 @@ const Harmony = (props: Props): any => {
   }
 
   const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
-    dispatch(InviteService.updateInviteTarget(targetObjectType, targetObjectId))
+    InviteService.updateInviteTarget(targetObjectType, targetObjectId)
     setLeftDrawerOpen(false)
     setRightDrawerOpen(true)
   }
@@ -801,13 +789,13 @@ const Harmony = (props: Props): any => {
 
   const nextFriendsPage = (): void => {
     if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
-      dispatch(FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value))
+      FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value)
     }
   }
 
   const nextGroupsPage = (): void => {
     if (groupSubState.skip.value + groupSubState.limit.value < groupSubState.total.value) {
-      dispatch(GroupService.getGroups(groupSubState.skip.value + groupSubState.limit.value))
+      GroupService.getGroups(groupSubState.skip.value + groupSubState.limit.value)
     }
   }
 
@@ -860,7 +848,7 @@ const Harmony = (props: Props): any => {
         channelConnectionState.instanceServerConnecting.value === false &&
         channelConnectionState.connected.value === false
       ) {
-        dispatch(ChannelConnectionService.provisionChannelServer(null, instanceChannel.id))
+        ChannelConnectionService.provisionChannelServer(null, instanceChannel.id)
       }
     }
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS })
@@ -877,17 +865,15 @@ const Harmony = (props: Props): any => {
       channelConnectionState.instanceServerConnecting.value === false &&
       channelConnectionState.connected.value === false
     ) {
-      init().then(() => {
-        ChannelConnectionService.connectToChannelServer(channelConnectionState.channelId.value, isHarmonyPage)
-        MediaStreamService.updateCamVideoState()
-        MediaStreamService.updateCamAudioState()
-      })
+      ChannelConnectionService.connectToChannelServer(channelConnectionState.channelId.value, isHarmonyPage)
+      MediaStreamService.updateCamVideoState()
+      MediaStreamService.updateCamAudioState()
     }
   }, [
-    channelConnectionState.instanceProvisioned.value,
-    channelConnectionState.updateNeeded.value,
-    channelConnectionState.instanceServerConnecting.value,
-    channelConnectionState.connected.value
+    channelConnectionState.instanceProvisioned,
+    channelConnectionState.updateNeeded,
+    channelConnectionState.instanceServerConnecting,
+    channelConnectionState.connected
   ])
 
   const chatSelectors = (
@@ -1302,8 +1288,8 @@ const Harmony = (props: Props): any => {
           )}
           <List ref={messageRef as any} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
             {activeChannel != null &&
-              activeChannel.messages &&
-              [...activeChannel.messages]
+              activeChannel.Messages &&
+              [...activeChannel.Messages]
                 .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                 .map((message) => {
                   return (
@@ -1480,4 +1466,4 @@ const Harmony = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Harmony)
+export default Harmony

@@ -65,7 +65,7 @@ export class World {
   /** Outgoing actions */
   outgoingActions = new Set<Action>()
 
-  currentNetworkState: WorldStateInterface
+  outgoingNetworkState: WorldStateInterface
   previousNetworkState: WorldStateInterface
 
   /**
@@ -156,7 +156,7 @@ export class World {
   /**
    * Action receptors
    */
-  receptors = new Set<(action: Action) => void>()
+  receptors = new Array<(action: Action) => void>()
 
   /**
    * Execute systems on this world

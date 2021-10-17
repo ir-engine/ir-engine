@@ -2,31 +2,16 @@ import { Box, CardActionArea, CardActions, CardContent, CardMedia, makeStyles, T
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import React, { useEffect } from 'react'
-import { connect } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { updateShareFormState, updateNewFeedPageState } from '../../reducers/popupsState/service'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import styles from './ShareForm.module.scss'
 import { Plugins } from '@capacitor/core'
 import { useTranslation } from 'react-i18next'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
 import { Share } from '@capacitor/share'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
-  updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch)
-})
-
-interface Props {
-  updateShareFormState?: typeof updateShareFormState
-  updateNewFeedPageState?: typeof updateNewFeedPageState
-  popupsState?: any
-}
+interface Props {}
 
 const useStyles = makeStyles({
   root: {
@@ -49,15 +34,16 @@ const useStyles = makeStyles({
   }
 })
 
-const ShareForm = ({ updateShareFormState, updateNewFeedPageState, popupsState }: Props) => {
-  const videoUrl = popupsState?.get('videoUrl')
-  const previewUrl = popupsState?.get('imgSrc')
+const ShareForm = (props: Props) => {
+  const popupsState = usePopupsStateState()
+  const videoUrl = popupsState.popups.videoUrl?.value
+  const previewUrl = popupsState.popups.imgSrc?.value
   const classes = useStyles()
   const { t } = useTranslation()
-
+  const dispatch = useDispatch()
   const closePopUps = () => {
-    updateShareFormState(false)
-    updateNewFeedPageState(false)
+    PopupsStateService.updateShareFormState(false)
+    PopupsStateService.updateNewFeedPageState(false)
   }
 
   const shareVia = () => {
@@ -106,4 +92,4 @@ const ShareForm = ({ updateShareFormState, updateNewFeedPageState, popupsState }
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ShareForm)
+export default ShareForm

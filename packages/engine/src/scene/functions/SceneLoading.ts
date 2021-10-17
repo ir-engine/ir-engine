@@ -1,4 +1,4 @@
-import { DirectionalLight, Object3D } from 'three'
+import { DirectionalLight } from 'three'
 import { Object3DClassMap } from '../../common/constants/Object3DClassMap'
 import { ComponentRegisterFunction } from '../../common/functions/ComponentRegisterFunction'
 import { isClient } from '../../common/functions/isClient'
@@ -8,12 +8,12 @@ import { Entity } from '../../ecs/classes/Entity'
 import EntityTree from '../../ecs/classes/EntityTree'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { configureCSM, handleRendererSettings } from '../functions/handleRendererSettings'
-import { SceneData } from '../interfaces/SceneData'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -107,7 +107,7 @@ export class WorldScene {
     }
 
     if (ComponentRegisterFunction[component.sanitizedName]) {
-      ComponentRegisterFunction[component.sanitizedName]({ world: Engine.defaultWorld, worldScene: this, entity, component, sceneProperty })
+      ComponentRegisterFunction[component.sanitizedName]({ world: useWorld(), worldScene: this, entity, component, sceneProperty })
     } else {
       console.warn("Couldn't load Component", component.sanitizedName)
     }

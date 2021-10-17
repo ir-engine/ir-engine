@@ -2,53 +2,46 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useTranslation } from 'react-i18next'
 
 import { Button, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
-import { useFeedState } from '../../reducers/feed/FeedState'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { updateFeedPageState } from '../../reducers/popupsState/service'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 
 import FeedCard from '../FeedCard'
-import CommentList from '../CommentList'
-import NewComment from '../NewComment'
 import Featured from '../Featured'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 import Popover from '@material-ui/core/Popover'
 
 import styles from './Feed.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch)
-})
-
 interface Props {
   feedId?: string
-  popupsState?: any
-  updateFeedPageState?: typeof updateFeedPageState
 }
-const Feed = ({ popupsState, updateFeedPageState }: Props) => {
+const Feed = (props: Props) => {
   let feed = null as any
   const { t } = useTranslation()
   const dispatch = useDispatch()
-
+  const popupsState = usePopupsStateState()
   const feedsState = useFeedState()
 
+  const creator = feedsState.feeds.feed.creator.value
+
   useEffect(() => {
-    dispatch(FeedService.getFeed(popupsState.get('feedId')))
-  }, [popupsState.get('feedId')])
+    FeedService.getFeed(popupsState.popups.feedId?.value)
+  }, [popupsState.popups.feedId?.value])
   feed = feedsState.feeds.fetching.value === false && feedsState.feeds.feed
+
+  useEffect(() => {
+    if (creator) {
+      FeedService.getFeeds('creator', creator.id)
+    }
+  }, [JSON.stringify(creator)])
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -62,14 +55,19 @@ const Feed = ({ popupsState, updateFeedPageState }: Props) => {
   const id = open ? 'simple-popover' : undefined
 
   const deleteAction = (feedId, previewUrl, videoUrl) => {
-    dispatch(FeedService.removeFeed(feedId, previewUrl, videoUrl))
-    updateFeedPageState(false)
+    FeedService.removeFeed(feedId, previewUrl, videoUrl)
+    PopupsStateService.updateFeedPageState(false)
   }
-
   return (
     <section className={styles.feedContainer}>
       <section className={styles.controls}>
-        <Button variant="text" className={styles.backButton} onClick={() => updateFeedPageState(false)}>
+        <Button
+          variant="text"
+          className={styles.backButton}
+          onClick={() => {
+            PopupsStateService.updateFeedPageState(false)
+          }}
+        >
           <ArrowBackIosIcon />
           {t('social:feed.back')}
         </Button>
@@ -98,11 +96,11 @@ const Feed = ({ popupsState, updateFeedPageState }: Props) => {
           </Popover>
         </div>
       </section>
-      {feed && <FeedCard feed={feed} />}
-      {feed && (
+      {feed.id.value && <FeedCard feed={feed.value} />}
+      {feed.id.value && (
         <>
           <Typography variant="h5">{t('social:feed.related')}</Typography>
-          <Featured type="creator" creatorId={feed.creator.id} />
+          <Featured thisData={feedsState.feeds.feedsCreator.value} />
         </>
       )}
       {/*hided for now*/}
@@ -112,4 +110,4 @@ const Feed = ({ popupsState, updateFeedPageState }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Feed)
+export default Feed

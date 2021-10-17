@@ -1,83 +1,46 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React from 'react'
-
-import HomeIcon from '@material-ui/icons/Home'
+import React, { useEffect } from 'react'
 // import WhatshotIcon from '@material-ui/icons/Whatshot';
 
 // @ts-ignore
 import styles from './Footer.module.scss'
 import Avatar from '@material-ui/core/Avatar'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import { useEffect } from 'react'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 // import IndexPage from "@xrengine/social/pages/login";
-import {
-  updateArMediaState,
-  updateCreatorFormState,
-  updateCreatorPageState,
-  updateFeedPageState,
-  updateNewFeedPageState,
-  updateShareFormState
-} from '../../reducers/popupsState/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import ViewMode from '../ViewMode/ViewMode'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
-  updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
-  updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
-  updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-  updateShareFormState: bindActionCreators(updateShareFormState, dispatch)
-})
 interface Props {
-  updateCreatorPageState?: typeof updateCreatorPageState
-  updateNewFeedPageState?: typeof updateNewFeedPageState
-  popupsState?: any
-  updateCreatorFormState?: typeof updateCreatorFormState
-  updateFeedPageState?: typeof updateFeedPageState
-  updateArMediaState?: typeof updateArMediaState
-  updateShareFormState?: typeof updateShareFormState
   setView?: any
 }
-const AppFooter = ({
-  updateCreatorPageState,
-  popupsState,
-  updateCreatorFormState,
-  updateFeedPageState,
-  updateArMediaState,
-  updateShareFormState,
-  setView,
-  onGoRegistration
-}: any) => {
+const AppFooter = ({ setView, onGoRegistration }: any) => {
   const dispatch = useDispatch()
   const creatorState = useCreatorState()
+  const auth = useAuthState()
   useEffect(() => {
-    dispatch(CreatorService.getLoggedCreator())
+    if (auth.user.id.value) {
+      CreatorService.getLoggedCreator()
+    }
   }, [])
 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
   const handleOpenCreatorPage = (id) => {
-    updateCreatorPageState(true, id)
+    PopupsStateService.updateCreatorPageState(true, id)
   }
 
   const onGoHome = () => {
-    updateCreatorPageState(false)
-    updateCreatorFormState(false)
-    updateFeedPageState(false)
-    updateNewFeedPageState(false)
-    updateArMediaState(false)
-    updateShareFormState(false)
+    PopupsStateService.updateCreatorPageState(false)
+    PopupsStateService.updateCreatorFormState(false)
+    PopupsStateService.updateFeedPageState(false)
+    PopupsStateService.updateNewFeedPageState(false)
+    PopupsStateService.updateArMediaState(false)
+    PopupsStateService.updateShareFormState(false)
     setView('featured')
   }
 
@@ -99,9 +62,9 @@ const AppFooter = ({
         )} */}
       <Avatar
         onClick={() => {
-          onGoRegistration(() => {
-            handleOpenCreatorPage(creatorState.creators.currentCreator?.id?.value)
-          })
+          // onGoRegistration(() => {
+          handleOpenCreatorPage(creatorState.creators.currentCreator?.id?.value)
+          // })
         }}
         alt={creatorState.creators.currentCreator?.username?.value}
         className={styles.footerAvatar}
@@ -115,4 +78,4 @@ const AppFooter = ({
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppFooter)
+export default AppFooter

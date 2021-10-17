@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useHistory } from 'react-router-dom'
 
 import { CardMedia, Typography, Button } from '@material-ui/core'
@@ -22,24 +22,16 @@ import SubjectIcon from '@material-ui/icons/Subject'
 
 import TextField from '@material-ui/core/TextField'
 import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
-import { updateCreatorFormState } from '../../reducers/popupsState/service'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { useTranslation } from 'react-i18next'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch)
-})
 interface Props {
   creatorData?: any
-  updateCreatorFormState?: typeof updateCreatorFormState
 }
 
-const CreatorForm = ({ creatorData, updateCreatorFormState }: Props) => {
+const CreatorForm = ({ creatorData }: Props) => {
   const history = useHistory()
   const avatarRef = React.useRef<HTMLInputElement>()
   const dispatch = useDispatch()
@@ -63,7 +55,7 @@ const CreatorForm = ({ creatorData, updateCreatorFormState }: Props) => {
 
   const handleUpdateUser = (e: any) => {
     e.preventDefault()
-    dispatch(CreatorService.updateCreator(creator, callBacksFromUpdateUsername))
+    CreatorService.updateCreator(creator, callBacksFromUpdateUsername)
   }
   const handlePickAvatar = async (file) => setCreator({ ...creator, newAvatar: file.target.files[0] })
   const { t } = useTranslation()
@@ -78,7 +70,7 @@ const CreatorForm = ({ creatorData, updateCreatorFormState }: Props) => {
 
   useEffect(
     () => setCreator(creatorsState.creators.currentCreator.value),
-    [creatorsState.creators.currentCreator.value]
+    [JSON.stringify(creatorsState.creators.currentCreator.value)]
   )
 
   return (
@@ -87,7 +79,13 @@ const CreatorForm = ({ creatorData, updateCreatorFormState }: Props) => {
         <form className={styles.form} noValidate onSubmit={(e) => handleUpdateUser(e)}>
           <nav className={styles.headerContainer}>
             {!creatorData && (
-              <Button variant="text" className={styles.backButton} onClick={() => updateCreatorFormState(false)}>
+              <Button
+                variant="text"
+                className={styles.backButton}
+                onClick={() => {
+                  PopupsStateService.updateCreatorFormState(false)
+                }}
+              >
                 <ArrowBackIosIcon />
                 {t('social:creatorForm.back')}
               </Button>
@@ -220,4 +218,4 @@ const CreatorForm = ({ creatorData, updateCreatorFormState }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreatorForm)
+export default CreatorForm

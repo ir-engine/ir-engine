@@ -7,8 +7,8 @@ import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { Button, MediumButton } from '../components/inputs/Button'
 import { connectMenu, ContextMenu, MenuItem } from '../components/layout/ContextMenu'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import {
   ErrorMessage,
   ProjectGrid,
@@ -22,7 +22,7 @@ import { deleteProject, getProjects } from '../functions/projectFunctions'
 import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDialog'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useHistory } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import {
@@ -55,24 +55,10 @@ type Props = {
 }
 
 /**
- * function to get authState.
- * @mapStateToProps
- */
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-/**
  *function to bind auto login and user.
  *@mapDispatchToProps
  *
  */
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
-  // logoutUser: bindActionCreators(AuthService.logoutUser, dispatch)
-})
 
 /**
  *Component to render the existing projects in grids with a grid to add new project.
@@ -117,7 +103,7 @@ const ProjectsPage = (props: Props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
     console.warn('PROJECTS PAGE PROPS: ', props)
     //console.log(authState)
     // We dont need to load projects if the user isn't logged in
@@ -320,4 +306,4 @@ const ProjectsPage = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectsPage)
+export default ProjectsPage

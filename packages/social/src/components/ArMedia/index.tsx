@@ -2,14 +2,14 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import { Button, CardMedia, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
-import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
-import { useArMediaState } from '../../reducers/arMedia/ArMediaState'
-import { updateArMediaState, updateWebXRState } from '../../reducers/popupsState/service'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 // import {  Plugins } from '@capacitor/core';
 import Preloader from '@xrengine/social/src/components/Preloader'
 
@@ -19,44 +19,40 @@ import styles from './ArMedia.module.scss'
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
 import { useHistory } from 'react-router-dom'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-  updateWebXRState: bindActionCreators(updateWebXRState, dispatch)
-})
+import { ArMedia } from '@xrengine/common/src/interfaces/ArMedia'
 interface Props {
   projects?: any[]
   view?: any
-  updateArMediaState?: typeof updateArMediaState
-  updateWebXRState?: typeof updateWebXRState
 }
 
-const ArMedia = ({ updateArMediaState, updateWebXRState }: Props) => {
+const ArMedia = (props: Props) => {
   const [type, setType] = useState('clip')
-  const [list, setList] = useState(null)
+  const [list, setList] = useState<ArMedia[]>([])
   const [preloading, setPreloading] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
   const arMediaState = useArMediaState()
   useEffect(() => {
-    dispatch(ArMediaService.getArMedia())
+    ArMediaService.getArMedia()
   }, [])
   const { t } = useTranslation()
   const history = useHistory()
   const dispatch = useDispatch()
   useEffect(() => {
     if (arMediaState.fetching.value === false) {
-      setList(arMediaState?.list?.value?.filter((item) => item.type === type))
+      setList(arMediaState?.list?.value?.filter((item) => item.type === type) || [])
     }
   }, [arMediaState.fetching.value, type])
 
   return (
     <section className={styles.arMediaContainer}>
       {preloading && <Preloader text={'Loading...'} />}
-      <Button variant="text" className={styles.backButton} onClick={() => updateArMediaState(false)}>
+      <Button
+        variant="text"
+        className={styles.backButton}
+        onClick={() => {
+          PopupsStateService.updateArMediaState(false)
+        }}
+      >
         <ArrowBackIosIcon />
         {t('social:arMedia.back')}
       </Button>
@@ -77,7 +73,7 @@ const ArMedia = ({ updateArMediaState, updateWebXRState }: Props) => {
         {/*</Button>*/}
       </section>
       <section className={styles.flexContainer}>
-        {list?.map((item, itemIndex) => (
+        {list.map((item, itemIndex) => (
           <section key={item.id} className={styles.previewImageContainer}>
             <CardMedia onClick={() => setSelectedItem(item)} className={styles.previewImage} image={item.previewUrl} />
             <Typography>{item.title}</Typography>
@@ -97,8 +93,8 @@ const ArMedia = ({ updateArMediaState, updateWebXRState }: Props) => {
               })
             }
             setPreloading(false)
-            updateArMediaState(false)
-            updateWebXRState(true, selectedItem.id)
+            PopupsStateService.updateArMediaState(false)
+            PopupsStateService.updateWebXRState(true, selectedItem.id)
           }}
           variant="contained"
         >
@@ -109,4 +105,4 @@ const ArMedia = ({ updateArMediaState, updateWebXRState }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ArMedia)
+export default ArMedia

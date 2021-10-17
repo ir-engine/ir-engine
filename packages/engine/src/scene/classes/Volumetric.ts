@@ -10,7 +10,6 @@ import {
   MeshStandardMaterial,
   VideoTexture
 } from 'three'
-import { RethrownError } from '../functions/errors'
 import Hls from 'hls.js/dist/hls.light'
 import isHLS from '../functions/isHLS'
 import AudioSource from './AudioSource'
@@ -70,7 +69,7 @@ export default class Volumetric extends AudioSource {
       }
       const onError = (error) => {
         cleanup()
-        reject(new RethrownError(`Error loading volumetric "${(this.el as any).src}"`, error))
+        reject(new Error(`Error loading volumetric "${(this.el as any).src}"`))
       }
       if (_isHLS) {
         this.hls.on((Hls as any).Events.ERROR, onError)

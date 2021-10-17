@@ -70,7 +70,6 @@ export function assembleScene(scene: any, contentPack: string): any {
               if (value[0] === '/') value = value.slice(1)
               const file = await storageProvider.getObject(value)
               await storageProvider.putObject({
-                ACL: 'public-read',
                 Body: file.Body,
                 ContentType: file.ContentType,
                 Key: getAssetKey(value as string, contentPack)
@@ -111,7 +110,6 @@ export function assembleRealityPack(realityPack: any, contentPack: string): Prom
       const uploadPromises = []
       uploadPromises.push(
         storageProvider.putObject({
-          ACL: 'public-read',
           Body: manifest.data,
           ContentType: getContentType(realityPack.storageProviderManifest),
           Key: `content-pack/${contentPack}/reality-pack/${realityPack.name}/manifest.json`
@@ -124,7 +122,6 @@ export function assembleRealityPack(realityPack: any, contentPack: string): Prom
           new Promise(async (resolve) => {
             const fileResult = await axios.get(subFileLink, getAxiosConfig())
             await storageProvider.putObject({
-              ACL: 'public-read',
               Body: fileResult.data,
               ContentType: getContentType(path),
               Key: `content-pack/${contentPack}/reality-pack/${realityPack.name}/${path}`
@@ -159,11 +156,11 @@ export async function populateScene(
   if (existingSceneResult != null) {
     if (existingSceneResult.thumbnailOwnedFileId != null)
       await app.service('static-resource').remove(existingSceneResult.thumbnailOwnedFileId)
-    const entityResult = await app.service('entity').find({
+    const entityResult = (await app.service('entity').find({
       query: {
         collectionId: existingSceneResult.id
       }
-    })
+    })) as any
     await Promise.all(
       entityResult.data.map(async (entity) => {
         await app.service('component').remove(null, {
@@ -188,7 +185,6 @@ export async function populateScene(
     const thumbnailResult = await axios.get(thumbnailUrl, getAxiosConfig())
     const thumbnailKey = getThumbnailKey(thumbnailUrl)
     await storageProvider.putObject({
-      ACL: 'public-read',
       Body: thumbnailResult.data,
       ContentType: 'jpeg',
       Key: thumbnailKey
@@ -227,7 +223,6 @@ export async function populateScene(
           const contentType = getContentType(component.props[key])
           const downloadResult = await axios.get(component.props[key], getAxiosConfig('json'))
           await storageProvider.putObject({
-            ACL: 'public-read',
             Body: downloadResult.data,
             ContentType: contentType,
             Key: getAssetS3Key(value as string)
@@ -249,9 +244,8 @@ export async function populateAvatar(avatar: any, app: Application): Promise<any
     const avatarResult = await axios.get(avatar.avatar, getAxiosConfig())
     const avatarKey = getAvatarLinkKey(avatar.avatar)
     await storageProvider.putObject({
-      ACL: 'public-read',
       Body: avatarResult.data,
-      ContentType: mimeType.lookup(avatarKey),
+      ContentType: mimeType.lookup(avatarKey) as string,
       Key: avatarKey
     })
     const existingAvatarResult = await (app.service('static-resource') as any).Model.findOne({
@@ -273,9 +267,8 @@ export async function populateAvatar(avatar: any, app: Application): Promise<any
     const thumbnailResult = await axios.get(avatar.thumbnail, getAxiosConfig())
     const thumbnailKey = getAvatarLinkKey(avatar.thumbnail)
     await storageProvider.putObject({
-      ACL: 'public-read',
       Body: thumbnailResult.data,
-      ContentType: mimeType.lookup(thumbnailKey),
+      ContentType: mimeType.lookup(thumbnailKey) as string,
       Key: thumbnailKey
     })
     const existingThumbnailResult = await (app.service('static-resource') as any).Model.findOne({
@@ -311,9 +304,8 @@ export async function uploadAvatar(avatar: any, thumbnail: any, contentPack: str
     try {
       const avatarResult = await axios.get(avatar.url, getAxiosConfig())
       await storageProvider.putObject({
-        ACL: 'public-read',
         Body: avatarResult.data,
-        ContentType: mimeType.lookup(avatar.url),
+        ContentType: mimeType.lookup(avatar.url) as string,
         Key: getAvatarKey(contentPack, avatar.key)
       })
       resolve(true)
@@ -326,9 +318,8 @@ export async function uploadAvatar(avatar: any, thumbnail: any, contentPack: str
     try {
       const avatarThumbnailResult = await axios.get(thumbnail.url, getAxiosConfig())
       await storageProvider.putObject({
-        ACL: 'public-read',
         Body: avatarThumbnailResult.data,
-        ContentType: mimeType.lookup(thumbnail.url),
+        ContentType: mimeType.lookup(thumbnail.url) as string,
         Key: getAvatarThumbnailKey(contentPack, thumbnail.key)
       })
       resolve(true)
@@ -367,7 +358,6 @@ export async function populateRealityPack(
   const files = manifestData.files
   uploadPromises.push(
     storageProvider.putObject({
-      ACL: 'public-read',
       Body: manifestStream.data,
       ContentType: getContentType(realityPack.manifest),
       Key: `reality-pack/${manifestData.name}/manifest.json`
@@ -380,7 +370,6 @@ export async function populateRealityPack(
       new Promise(async (resolve) => {
         const fileResult = await axios.get(subFileLink, getAxiosConfig())
         await storageProvider.putObject({
-          ACL: 'public-read',
           Body: fileResult.data,
           ContentType: getContentType(path),
           Key: `reality-pack/${manifestData.name}/${path}`
@@ -389,11 +378,12 @@ export async function populateRealityPack(
       })
     )
   })
+
   await app.service('reality-pack').create(
     {
       storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${manifestData.name}/manifest.json`,
       sourceManifest: realityPack.manifest,
-      localManifest: `/reality-packs/packs/${manifestData.name}/manifest.json`,
+      localManifest: `/reality-packs/projects/${manifestData.name}/manifest.json`,
       global: false,
       name: manifestData.name
     },
@@ -404,7 +394,7 @@ export async function populateRealityPack(
     try {
       console.log('Attempting to reload k8s clients!')
       const restartClientsResponse = await app.k8DefaultClient.patch(
-        `deployment/${config.server.releaseName}-xrengine-client`,
+        `deployment/${config.server.releaseName}-builder-xrengine-builder`,
         {
           spec: {
             template: {

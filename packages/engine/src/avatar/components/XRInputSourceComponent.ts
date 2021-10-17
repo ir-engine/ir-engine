@@ -28,12 +28,6 @@ export type XRInputSourceComponentType = {
    * @property {Group} head
    */
   head: Group
-
-  /**
-   * @property {Group} hands
-   * Hand controllers
-   */
-  hands: Group[]
 }
 
 export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType>('XRInputSourceComponent')

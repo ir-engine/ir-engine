@@ -1,18 +1,18 @@
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
 import { EngineCallbacks, initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 import DefaultLayoutView from './DefaultLayoutView'
 import NetworkInstanceProvisioning from './NetworkInstanceProvisioning'
 import Layout from '../Layout/Layout'
 import { useTranslation } from 'react-i18next'
 import { RealityPackReactProps } from './RealityPackReactProps'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -67,12 +67,6 @@ interface Props {
   hideFullscreen?: boolean
 }
 
-const mapStateToProps = (state: any) => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({})
-
 export const EnginePage = (props: Props) => {
   const { t } = useTranslation()
   const [isUserBanned, setUserBanned] = useState(true)
@@ -82,11 +76,12 @@ export const EnginePage = (props: Props) => {
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
   const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-  const [sceneId, setSceneId] = useState(null)
+  const [sceneId, setSceneId] = useState('')
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [realityPackComponents, setRealityPackComponents] = useState([] as any[])
   const locationState = useLocationState()
+  const dispatch = useDispatch()
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     setLoadingItemCount(loadingItemCount || 0)
@@ -97,13 +92,22 @@ export const EnginePage = (props: Props) => {
     onSceneLoaded: () => setLoadingItemCount(0)
   }
 
+  /**
+   * Log in & initialise flow...
+   *
+   * 1. Try to log in
+   */
   useEffect(() => {
     addUIEvents()
-    // if (!Network.instance.transport) {
-    init(props.locationName)
-    // }
+    AuthService.doLoginAuto(true)
+    return (): void => {
+      shutdownEngine()
+    }
   }, [])
 
+  /**
+   * 2. Once we have logged in, retrieve the location data
+   */
   useEffect(() => {
     checkForBan()
     if (!isUserBanned && !locationState.fetchingCurrentLocation.value) {
@@ -111,11 +115,23 @@ export const EnginePage = (props: Props) => {
     }
   }, [authState.isLoggedIn.value, authState.user.id.value])
 
+  /**
+   * 3. Once we have the location data, set the scene ID
+   */
   useEffect(() => {
-    return (): void => {
-      shutdownEngine()
+    if (sceneId === '' && locationState.currentLocation.location.sceneId.value) {
+      setSceneId(locationState.currentLocation.location.sceneId.value)
     }
-  }, [])
+  }, [locationState.currentLocation.location.sceneId.value])
+
+  /**
+   * 4. Once we have the scene ID, initialise the engine
+   */
+  useEffect(() => {
+    if (sceneId !== '') {
+      init()
+    }
+  }, [sceneId])
 
   const checkForBan = (): void => {
     const selfUser = authState.user
@@ -126,15 +142,8 @@ export const EnginePage = (props: Props) => {
     setUserBanned(isUserBanned)
   }
 
-  const reinit = () => {
-    const currentLocation = locationState.currentLocation.location
-    if (sceneId === null && currentLocation.sceneId.value !== null) {
-      setSceneId(currentLocation.sceneId.value)
-    }
-    init(sceneId!)
-  }
-
-  const init = async (sceneId: string): Promise<any> => {
+  const init = async (): Promise<any> => {
+    console.log('init', sceneId)
     setIsTeleporting(false)
 
     const componentFunctions = await initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks)
@@ -186,8 +195,6 @@ export const EnginePage = (props: Props) => {
       <NetworkInstanceProvisioning
         locationName={props.locationName}
         sceneId={sceneId}
-        setSceneId={setSceneId}
-        reinit={reinit}
         isUserBanned={isUserBanned}
         setIsValidLocation={setIsValidLocation}
       />
@@ -207,7 +214,7 @@ export const EnginePage = (props: Props) => {
             loadingItemCount={loadingItemCount}
             isValidLocation={isValidLocation}
             allowDebug={props.allowDebug}
-            reinit={reinit}
+            reinit={init}
             children={props.children}
             showTouchpad={props.showTouchpad}
             isTeleporting={isTeleporting}
@@ -219,6 +226,4 @@ export const EnginePage = (props: Props) => {
   )
 }
 
-const connector = connect(mapStateToProps, mapDispatchToProps)(EnginePage)
-
-export default connector
+export default EnginePage

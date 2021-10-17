@@ -4,7 +4,11 @@ import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
 import path from 'path'
-import { StorageProviderInterface } from './storageprovider.interface'
+import {
+  StorageListObjectInterface,
+  StorageObjectInterface,
+  StorageProviderInterface
+} from './storageprovider.interface'
 
 const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 
@@ -18,7 +22,7 @@ export class LocalStorage implements StorageProviderInterface {
     return { Body: result }
   }
 
-  listObjects = async (prefix: string, pattern?: string): Promise<any> => {
+  listObjects = async (prefix: string, pattern?: string): Promise<StorageListObjectInterface> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, prefix)
     if (!fs.existsSync(filePath)) await fs.promises.mkdir(filePath, { recursive: true })
     const globResult = glob.sync(path.join(filePath, pattern || '**/*.*'))
@@ -29,7 +33,7 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
-  putObject = async (params: any): Promise<any> => {
+  putObject = async (params: StorageObjectInterface): Promise<any> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, params.Key)
     const pathWithoutFileExec = keyPathRegex.exec(filePath)
     if (pathWithoutFileExec == null) throw new Error('Invalid file path in local putObject')

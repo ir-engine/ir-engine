@@ -11,10 +11,10 @@ import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import IconButton from '@material-ui/core/IconButton'
 import { Icon } from '@iconify/react'
-import { connect, useDispatch } from 'react-redux'
-import { useServerSettingState } from '../../reducers/admin/Setting/server/ServerSettingState'
-import { ServerSettingService } from '../../reducers/admin/Setting/server/ServerSettingService'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useServerSettingState } from '../../state/Setting/ServerSettingState'
+import { ServerSettingService } from '../../state/Setting/ServerSettingService'
+import { useAuthState } from '../../../user/state/AuthState'
 
 interface serverProps {
   fetchServerSettings?: any
@@ -95,7 +95,7 @@ const Server = (props: serverProps) => {
 
   useEffect(() => {
     if (user?.id?.value != null && serverSettingState?.Server?.updateNeeded?.value === true) {
-      dispatch(ServerSettingService.fetchServerSettings())
+      ServerSettingService.fetchServerSettings()
     }
   }, [authState])
 
@@ -105,7 +105,7 @@ const Server = (props: serverProps) => {
         SERVER
       </Typography>
       {serverSettings.map((el) => (
-        <Grid container spacing={3} key={el.id}>
+        <Grid container spacing={3} key={el?.id || ''}>
           <Grid item xs={12} sm={6}>
             <label>Enabled</label>
             <Paper component="div" className={classes.createInput}>
@@ -141,7 +141,13 @@ const Server = (props: serverProps) => {
             </Paper>
             <label>Port</label>
             <Paper component="div" className={classes.createInput}>
-              <InputBase name="port" className={classes.input} value={el.port} disabled style={{ color: '#fff' }} />
+              <InputBase
+                name="port"
+                className={classes.input}
+                value={el?.port || ''}
+                disabled
+                style={{ color: '#fff' }}
+              />
             </Paper>
             <label> Client Host</label>
             <Paper component="div" className={classes.createInput}>
@@ -150,7 +156,7 @@ const Server = (props: serverProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.clientHost}
+                value={el?.clientHost || ''}
               />
             </Paper>
             <label>Root Directory</label>
@@ -160,7 +166,7 @@ const Server = (props: serverProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.rootDirectory}
+                value={el?.rootDirectory || ''}
               />
             </Paper>
             <label>Public Directory</label>
@@ -170,7 +176,7 @@ const Server = (props: serverProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.publicDirectory}
+                value={el?.publicDirectory || ''}
               />
             </Paper>
             <label>Node Modules Directory</label>
@@ -180,7 +186,7 @@ const Server = (props: serverProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.nodeModulesDirectory}
+                value={el?.nodeModulesDirectory || ''}
               />
             </Paper>{' '}
             <label>Local StorageProvider </label>
@@ -190,7 +196,7 @@ const Server = (props: serverProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.localStorageProvider}
+                value={el?.localStorageProvider || ''}
               />
             </Paper>
             <label> Perform Dry Run</label>
@@ -213,7 +219,7 @@ const Server = (props: serverProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.storageProvider}
+                value={el?.storageProvider || ''}
               />
             </Paper>
             <label>Google Analytics Tracking ID </label>
@@ -225,7 +231,7 @@ const Server = (props: serverProps) => {
                 name="googleTrackingid"
                 className={classes.input}
                 style={{ color: '#fff' }}
-                value={el.gaTrackingId}
+                value={el?.gaTrackingId || ''}
               />
             </Paper>
             <ListItem button onClick={handleClick}>
@@ -236,7 +242,12 @@ const Server = (props: serverProps) => {
               <List component="div" disablePadding>
                 <ListItem button className={classes.nested}>
                   <Paper component="div" className={classes.createInput}>
-                    <InputBase name="hub" className={classes.input} style={{ color: '#fff' }} value={el.hubEndpoint} />
+                    <InputBase
+                      name="hub"
+                      className={classes.input}
+                      style={{ color: '#fff' }}
+                      value={el.hub?.endpoint}
+                    />
                   </Paper>
                 </ListItem>
               </List>
@@ -249,7 +260,7 @@ const Server = (props: serverProps) => {
               <List component="div" disablePadding>
                 <ListItem button className={classes.nested}>
                   <ListItemText primary="Default:10" />
-                  <ListItemText primary={`Max: ${el.paginate}`} />
+                  <ListItemText primary={`Max: ${el?.paginate || ''}`} />
                 </ListItem>
               </List>
             </Collapse>
@@ -264,7 +275,7 @@ const Server = (props: serverProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.certPath}
+                value={el?.certPath || ''}
               />
             </Paper>
             <label> KeyPath </label>
@@ -274,7 +285,7 @@ const Server = (props: serverProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.keyPath}
+                value={el?.keyPath || ''}
               />
             </Paper>
             <label> Local </label>
@@ -295,7 +306,7 @@ const Server = (props: serverProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.releaseName}
+                value={el?.releaseName || ''}
               />
             </Paper>
             <label> Default Content Pack URL </label>
@@ -305,7 +316,7 @@ const Server = (props: serverProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.defaultContentPackURL}
+                value={el?.defaultContentPackURL || ''}
               />
             </Paper>
           </Grid>

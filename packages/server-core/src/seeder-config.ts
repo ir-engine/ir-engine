@@ -9,6 +9,8 @@ import { userSeeds } from './user/seeder-config'
 import { worldSeeds } from './world/seeder-config'
 import { scopeSeeds } from './scope/seeder-config'
 import { settingSeeds } from './setting/seeder-config'
+import { analyticsSeeds } from './analytics/seeder-config'
+import { routeSeeds } from './route/seeder-config'
 
 export const seeds: Array<ServicesSeedConfig> = [
   ...entitySeeds,
@@ -21,7 +23,9 @@ export const seeds: Array<ServicesSeedConfig> = [
   ...worldSeeds,
   ...componentSeeds,
   ...scopeSeeds,
-  ...settingSeeds
+  ...settingSeeds,
+  ...analyticsSeeds,
+  ...routeSeeds
 ]
 
 export default seeds

@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server-core",
   "description": "Shared components for XREngine server",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -26,8 +26,8 @@
     "vr"
   ],
   "author": {
-    "name": "XREngine Collective",
-    "email": "shawmakesmagic@gmail.com"
+    "name": "XRFoundation Collective",
+    "email": "hello@xrfoundation.io"
   },
   "contributors": [],
   "bugs": {},
@@ -43,29 +43,29 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "socket.io": "4.2.0"
+    "socket.io": "4.3.1"
   },
   "peerDependencies": {
     "chokidar": "^3.4.2",
-    "socket.io": "4.2.0"
+    "socket.io": "4.3.1"
   },
   "dependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.9",
     "@feathersjs/authentication-local": "^5.0.0-pre.9",
     "@feathersjs/authentication-oauth": "^5.0.0-pre.9",
     "@feathersjs/cli": "^4.5.0",
-    "@feathersjs/commons": "5.0.0-pre.10",
+    "@feathersjs/commons": "5.0.0-pre.9",
     "@feathersjs/configuration": "^5.0.0-pre.9",
-    "@feathersjs/errors": "5.0.0-pre.10",
+    "@feathersjs/errors": "5.0.0-pre.9",
     "@feathersjs/express": "^5.0.0-pre.9",
-    "@feathersjs/feathers": "5.0.0-pre.10",
-    "@feathersjs/rest-client": "5.0.0-pre.10",
-    "@feathersjs/socketio": "5.0.0-pre.10",
+    "@feathersjs/feathers": "5.0.0-pre.9",
+    "@feathersjs/rest-client": "5.0.0-pre.9",
+    "@feathersjs/socketio": "5.0.0-pre.9",
     "@feathersjs/socketio-client": "^5.0.0-pre.9",
     "@feathersjs/transport-commons": "^5.0.0-pre.9",
-    "@google-cloud/agones-sdk": "1.17.0",
-    "@xrengine/common": "^0.4.8",
-    "@xrengine/engine": "^0.4.8",
+    "@google-cloud/agones-sdk": "1.18.0",
+    "@xrengine/common": "^0.4.9",
+    "@xrengine/engine": "^0.4.9",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
@@ -85,13 +85,14 @@
     "mime-types": "^2.1.27",
     "moment": "^2.27.0",
     "multer": "^1.4.2",
+    "mysql2": "2.3.0",
     "nanoid": "^3.1.5",
     "node-fetch": "^2.6.0",
     "nodemailer-smtp-transport": "^2.4.2",
     "pug": "^3.0.0",
     "require-main-filename": "^2.0.0",
     "s3-blob-store": "^4.1.1",
-    "sequelize": "6.6.5",
+    "sequelize": "6.7.0",
     "slugify": "^1.4.5",
     "universal-analytics": "^0.4.20",
     "uuid": "^8.0.0",
@@ -107,21 +108,21 @@
     "@types/lodash": "4.14.175",
     "@types/mime-types": "2.1.1",
     "@types/multer": "1.4.7",
-    "@types/node": "14.17.21",
+    "@types/node": "14.17.27",
     "@types/node-fetch": "2.5.12",
     "@types/nodemailer-smtp-transport": "2.7.5",
     "@types/pug": "2.0.5",
-    "@typescript-eslint/eslint-plugin": "4.33.0",
-    "@typescript-eslint/parser": "4.33.0",
+    "@typescript-eslint/eslint-plugin": "5.0.0",
+    "@typescript-eslint/parser": "5.0.0",
     "app-root-path": "3.0.0",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
-    "eslint": "7.32.0",
+    "eslint": "8.0.1",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
     "typedoc": "0.22.5",
-    "typescript": "4.4.3"
+    "typescript": "4.4.4"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from 'three'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { Axis } from '../classes/Axis'
-import { IKRigComponent } from './IKRigComponent'
 
 export type IKPoseLimbData = { lengthScale: number; dir: Vector3; jointDirection: Vector3 }
 export type IKPoseLookTwist = { lookDirection: Vector3; twistDirection: Vector3 }

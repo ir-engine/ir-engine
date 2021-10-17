@@ -5,7 +5,7 @@ import { AudioListener } from './audio/StereoAudioListener'
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
-import { SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
+import { SpawnPoints } from './avatar/AvatarSpawnSystem'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
@@ -88,6 +88,8 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
 const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
   Engine.scene = new Scene()
 
+  // Had to add this to make mocha tests pass
+  Network.instance ||= new Network()
   Network.instance.isInitialized = true
 
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
@@ -125,7 +127,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
 
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
-    updatesPerSecond: 60
+    tickRate: 60
   })
 
   /**
@@ -150,11 +152,11 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/AfkCheckSystem'))
 
   // Avatar Systems
-  registerSystem(SystemUpdateType.FIXED, import('./avatar/ClientAvatarSpawnSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarControllerSystem'))
   // Avatar IKRig
-  registerSystem(SystemUpdateType.FIXED, import('./ikrig/systems/IKRigSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./ikrig/systems/SkeletonRigSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
 
@@ -190,6 +192,11 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   // Animation Systems
   registerSystem(SystemUpdateType.PRE_RENDER, import('./avatar/AvatarLoadingSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./avatar/AnimationSystem'))
+
+  //Rendered Update
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/RendererUpdateSystem'))
+
+  // Animation Systems
   registerSystem(SystemUpdateType.PRE_RENDER, import('./particles/systems/ParticleSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./debug/systems/DebugHelpersSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./renderer/HighlightSystem'))
@@ -228,7 +235,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
 
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
-    updatesPerSecond: 60
+    tickRate: 60
   })
   // Network Incoming Systems
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/IncomingNetworkSystem'))
@@ -237,7 +244,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 
   // Input Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./avatar/ServerAvatarSpawnSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
 

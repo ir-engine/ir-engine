@@ -10,7 +10,7 @@ import {
   ContextMenuTrigger as _ContextMenuTrigger,
   ContextMenuProps
 } from 'react-contextmenu'
-import { EditorTheme } from '../theme'
+import { EditorTheme } from '@xrengine/client-core/src/util/theme'
 import { createGlobalStyle } from 'styled-components'
 export const connectMenu = _connectMenu
 export const MenuItem = _MenuItem

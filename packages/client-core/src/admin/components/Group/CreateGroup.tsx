@@ -9,24 +9,18 @@ import Button from '@material-ui/core/Button'
 import DialogActions from '@material-ui/core/DialogActions'
 import { formValid } from './validation'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { GroupService } from '../../reducers/admin/group/GroupService'
+import { GroupService } from '../../state/GroupService'
 import TextField from '@material-ui/core/TextField'
-import { useScopeState } from '../../reducers/admin/scope/ScopeState'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { ScopeService } from '../../reducers/admin/scope/ScopeService'
+import { useScopeState } from '../../state/ScopeState'
+import { useAuthState } from '../../../user/state/AuthState'
+import { ScopeService } from '../../state/ScopeService'
 
 interface Props {
   open: boolean
   handleClose: (open: boolean) => void
   adminGroupState?: any
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
-const mapStateToProps = (state: any): any => {
-  return {}
 }
 
 const CreateGroup = (props: Props) => {
@@ -51,7 +45,7 @@ const CreateGroup = (props: Props) => {
 
   React.useEffect(() => {
     if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      dispatch(ScopeService.getScopeTypeService())
+      ScopeService.getScopeTypeService()
     }
   }, [adminScopeState.scopeType.updateNeeded.value, user])
 
@@ -83,7 +77,7 @@ const CreateGroup = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
-      dispatch(GroupService.createGroupByAdmin({ name, description, scopeType }))
+      GroupService.createGroupByAdmin({ name, description, scopeType })
       setState({
         ...state,
         name: '',
@@ -181,4 +175,4 @@ const CreateGroup = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateGroup)
+export default CreateGroup

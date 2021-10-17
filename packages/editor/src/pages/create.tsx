@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import { Dispatch } from 'redux'
+import { store, useDispatch } from '../../store'
 import { connect } from 'react-redux'
 
 /**
@@ -16,19 +16,6 @@ const CreateProjectPage = React.lazy(() => import('../components/projects/Create
 interface Props {}
 
 /**
- *Function component providing authState on the basis of state.
- */
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-/**
- *Function component providing doAutoLogin on the basis of dispatch.
- */
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
-/**
  * Function component providing project editor view.
  */
 const CreatePage = (props: Props) => {
@@ -39,4 +26,4 @@ const CreatePage = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreatePage)
+export default CreatePage

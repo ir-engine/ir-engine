@@ -19,25 +19,28 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { Config } from '@xrengine/common/src/config'
 import { useHistory } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import { client } from '../../feathers'
-import { useAuthState } from '../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../reducers/admin/AdminState'
-import { useLocationState } from '../reducers/admin/location/LocationState'
-import { SceneService } from '../reducers/admin/scene/SceneService'
-import { UserService } from '../reducers/admin/user/UserService'
-import { InstanceService } from '../reducers/admin/instance/InstanceService'
-import { useUserState } from './../reducers/admin/user/UserState'
-import { useInstanceState } from './../reducers/admin/instance/InstanceState'
-import { LocationService } from '../reducers/admin/location/LocationService'
-import { useSceneState } from './../reducers/admin/scene/SceneState'
+import { useAuthState } from '../../user/state/AuthState'
+import { ADMIN_PAGE_LIMIT } from '../state/AdminState'
+import { useLocationState } from '../state/LocationState'
+import { SceneService } from '../state/SceneService'
+import { UserService } from '../state/UserService'
+import { InstanceService } from '../state/InstanceService'
+import { useUserState } from '../state/UserState'
+import { useInstanceState } from '../state/InstanceState'
+import { LocationService } from '../state/LocationService'
+import { useSceneState } from '../state/SceneState'
 import Grid from '@material-ui/core/Grid'
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
 import LocationModal from './LocationModal'
 import Search from './Search'
 import { useTranslation } from 'react-i18next'
+import { InstanceSeed } from '@xrengine/common/src/interfaces/Instance'
+
+import { LocationSeed } from '@xrengine/common/src/interfaces/Location'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -154,32 +157,13 @@ const AdminConsole = (props: Props) => {
   const router = useHistory()
   const adminInstanceState = useInstanceState()
   const authState = useAuthState()
-  const initialLocation = {
-    id: null,
-    name: '',
-    maxUsersPerInstance: 10,
-    sceneId: null,
-    locationSettingsId: null,
-    location_setting: {
-      instanceMediaChatEnabled: false,
-      videoEnabled: false,
-      locationType: 'private'
-    }
-  }
-
-  const initialInstance = {
-    id: '',
-    ipAddress: '',
-    currentUsers: 0,
-    locationId: ''
-  }
 
   const user = authState.user
   const [locationModalOpen, setLocationModalOpen] = useState(false)
   const [instanceModalOpen, setInstanceModalOpen] = useState(false)
   const [locationEditing, setLocationEditing] = useState(false)
-  const [selectedLocation, setSelectedLocation] = useState(initialLocation)
-  const [selectedInstance, setSelectedInstance] = useState(initialInstance)
+  const [selectedLocation, setSelectedLocation] = useState(LocationSeed)
+  const [selectedInstance, setSelectedInstance] = useState(InstanceSeed)
   const adminSceneState = useSceneState()
   const adminScenes = adminSceneState.scenes.scenes
 
@@ -251,13 +235,13 @@ const AdminConsole = (props: Props) => {
       name: location.name,
       sceneId: location.sceneId,
       maxUsersPerInstance: location.maxUsersPerInstance,
-      type: location?.location_setting?.locationType,
+      type: location.location_settings?.locationType,
       tags: {
         isFeatured: location?.isFeatured,
         isLobby: location?.isLobby
       },
-      instanceMediaChatEnabled: location?.location_setting?.instanceMediaChatEnabled?.toString(),
-      videoEnabled: location?.location_setting?.videoEnabled?.toString()
+      instanceMediaChatEnabled: location.location_settings?.instanceMediaChatEnabled?.toString(),
+      videoEnabled: location.location_settings?.videoEnabled?.toString()
     }
   })
 
@@ -267,7 +251,7 @@ const AdminConsole = (props: Props) => {
       ipAddress: instance.ipAddress,
       currentUsers: instance.currentUsers,
       locationId: instance.locationId,
-      gsId: instance.gameserver_subdomain_provision?.gs_id,
+      gsId: instance?.gameserver_subdomain_provision?.gs_id,
       serverAddress:
         instance.gameserver_subdomain_provision != null
           ? `https://${instance.gameserver_subdomain_provision.gs_number}.${Config.publicRuntimeConfig.gameserverDomain}`
@@ -292,34 +276,38 @@ const AdminConsole = (props: Props) => {
 
   const handleLocationClick = (event: React.MouseEvent<unknown>, id: string) => {
     const selected = adminLocations.value.find((location) => location.id === id)
-    setSelectedLocation(selected)
-    setLocationEditing(true)
-    setLocationModalOpen(true)
+    if (selected !== undefined) {
+      setSelectedLocation(selected)
+      setLocationEditing(true)
+      setLocationModalOpen(true)
+    }
   }
 
   const openModalCreate = () => {
-    setSelectedLocation(initialLocation)
+    setSelectedLocation(LocationSeed)
     setLocationEditing(false)
     setLocationModalOpen(true)
   }
 
   const handleInstanceClick = (event: React.MouseEvent<unknown>, id: string) => {
-    const selected = adminInstances.value.find((instance) => instance.id === id)
-    setSelectedInstance(selected)
-    setInstanceModalOpen(true)
+    const selected = adminInstances.value.find((instance) => instance.id.toString() === id)
+    if (selected !== undefined) {
+      setSelectedInstance(selected)
+      setInstanceModalOpen(true)
+    }
   }
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     switch (selectedTab) {
       case 'locations':
-        dispatch(LocationService.fetchAdminLocations(incDec))
+        LocationService.fetchAdminLocations(incDec)
         break
       case 'users':
-        dispatch(UserService.fetchUsersAsAdmin(incDec))
+        UserService.fetchUsersAsAdmin(incDec)
         break
       case 'instances':
-        dispatch(InstanceService.fetchAdminInstances(incDec))
+        InstanceService.fetchAdminInstances(incDec)
         break
     }
     setPage(newPage)
@@ -333,13 +321,13 @@ const AdminConsole = (props: Props) => {
   const handleLocationClose = (e: any): void => {
     setLocationEditing(false)
     setLocationModalOpen(false)
-    setSelectedLocation(initialLocation)
+    setSelectedLocation(LocationSeed)
   }
 
   const handleInstanceClose = (e: any): void => {
     console.log('handleInstanceClosed')
     setInstanceModalOpen(false)
-    setSelectedInstance(initialInstance)
+    setSelectedInstance(InstanceSeed)
   }
 
   const handleTabChange = (e: any, newValue: string) => {
@@ -386,19 +374,19 @@ const AdminConsole = (props: Props) => {
 
   useEffect(() => {
     if (user?.id?.value != null && adminLocationState.locations.updateNeeded.value === true) {
-      dispatch(LocationService.fetchAdminLocations())
+      LocationService.fetchAdminLocations()
     }
     if (user?.id?.value != null && adminSceneState.scenes.updateNeeded.value === true) {
-      dispatch(SceneService.fetchAdminScenes())
+      SceneService.fetchAdminScenes()
     }
     if (user?.id?.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
-      dispatch(LocationService.fetchLocationTypes())
+      LocationService.fetchLocationTypes()
     }
     if (user?.id?.value != null && adminUserState.users.updateNeeded.value === true) {
-      dispatch(UserService.fetchUsersAsAdmin())
+      UserService.fetchUsersAsAdmin()
     }
     if (user?.id?.value != null && adminInstanceState.instances.updateNeeded.value === true) {
-      dispatch(InstanceService.fetchAdminInstances())
+      InstanceService.fetchAdminInstances()
     }
   }, [
     authState.user?.id?.value,

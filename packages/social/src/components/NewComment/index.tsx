@@ -2,20 +2,15 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import TextField from '@material-ui/core/TextField'
 import MessageIcon from '@material-ui/icons/Message'
 import styles from './NewComment.module.scss'
-import { FeedCommentService } from '../../reducers/feedComment/FeedCommentService'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { FeedCommentService } from '@xrengine/client-core/src/social/state/FeedCommentService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import PopupLogin from '../PopupLogin/PopupLogin'
 import { useTranslation } from 'react-i18next'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 interface Props {
   feedId: any
@@ -32,7 +27,7 @@ const NewComment = ({ feedId }: Props) => {
     setComposingComment(event.target.value)
   }
   const handleAddComment = () => {
-    composingComment.trim().length > 0 && dispatch(FeedCommentService.addCommentToFeed(feedId, composingComment))
+    composingComment.trim().length > 0 && FeedCommentService.addCommentToFeed(feedId, composingComment)
     setComposingComment('')
   }
   const checkGuest = useAuthState().authUser?.identityProvider?.type?.value === 'guest' ? true : false
@@ -57,4 +52,4 @@ const NewComment = ({ feedId }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewComment)
+export default NewComment

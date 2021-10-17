@@ -10,6 +10,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
+import { initializeHandModel } from './addControllerModels'
 
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -19,12 +21,11 @@ const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Mat
  */
 
 export const startWebXR = (): void => {
-  const controllerLeft = Engine.xrRenderer.getController(1)
-  const controllerRight = Engine.xrRenderer.getController(0)
-  const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1)
-  const controllerGripRight = Engine.xrRenderer.getControllerGrip(0)
+  const controllerLeft = Engine.xrRenderer.getController(0)
+  const controllerRight = Engine.xrRenderer.getController(1)
+  const controllerGripLeft = Engine.xrRenderer.getControllerGrip(0)
+  const controllerGripRight = Engine.xrRenderer.getControllerGrip(1)
   const container = new Group()
-  const hands = [Engine.xrRenderer.getHand(0), Engine.xrRenderer.getHand(1)]
 
   Engine.scene.remove(Engine.camera)
   container.add(Engine.camera)
@@ -40,10 +41,10 @@ export const startWebXR = (): void => {
     controllerLeft,
     controllerRight,
     controllerGripLeft,
-    controllerGripRight,
-    hands
+    controllerGripRight
   })
 
+  bindXRHandEvents()
   dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ userId: Engine.userId, enabled: true }))
 }
 
@@ -61,6 +62,41 @@ export const endXR = (): void => {
   removeComponent(useWorld().localClientEntity, XRInputSourceComponent)
 
   dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ userId: Engine.userId, enabled: false }))
+}
+
+/**
+ * Initializes XR hand controllers for local client
+ * @author Mohsen Heydari <github.com/mohsenheydari>
+ * @returns {void}
+ */
+
+export const bindXRHandEvents = () => {
+  const world = useWorld()
+  const hands = [Engine.xrRenderer.getHand(0), Engine.xrRenderer.getHand(1)]
+  let eventSent = false
+
+  hands.forEach((controller: any) => {
+    controller.addEventListener('connected', (ev) => {
+      const xrInputSource = ev.data
+
+      if (!xrInputSource.hand || controller.userData.mesh) {
+        return
+      }
+
+      if (!hasComponent(world.localClientEntity, XRHandsInputComponent)) {
+        addComponent(world.localClientEntity, XRHandsInputComponent, {
+          hands
+        })
+      }
+
+      initializeHandModel(controller, xrInputSource.handedness)
+
+      if (!eventSent) {
+        dispatchFrom(Engine.userId, () => NetworkWorldAction.xrHandsConnected({ userId: Engine.userId }))
+        eventSent = true
+      }
+    })
+  })
 }
 
 /**
@@ -136,7 +172,6 @@ export const getHandTransform = (
   entity: Entity,
   hand: ParityValue = ParityValue.NONE
 ): { position: Vector3; rotation: Quaternion } => {
-  const avatar = getComponent(entity, AvatarComponent)
   const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {

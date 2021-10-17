@@ -13,6 +13,7 @@ import {
 } from './content-pack-helper'
 import config from '../../appconfig'
 import axios from 'axios'
+import { StorageListObjectInterface, StorageObjectInterface } from '../..'
 
 interface Data {}
 
@@ -60,7 +61,7 @@ export class ContentPack implements ServiceMethods<Data> {
   async setup() {}
 
   async find(params?: Params): Promise<any[] | Paginated<any>> {
-    const result = await new Promise((resolve, reject) => {
+    const result = (await new Promise((resolve, reject) => {
       storageProvider
         .listObjects('content-pack')
         .then((data) => {
@@ -70,8 +71,8 @@ export class ContentPack implements ServiceMethods<Data> {
           console.error(err)
           reject(err)
         })
-    })
-    const manifests = (result as any).Contents.filter((result) => packRegex.exec(result.Key) != null)
+    })) as StorageListObjectInterface
+    const manifests = result.Contents.filter((result) => packRegex.exec(result.Key) != null)
     return Promise.all(
       manifests.map(async (manifest) => {
         const manifestResult = (await new Promise((resolve, reject) => {
@@ -84,7 +85,7 @@ export class ContentPack implements ServiceMethods<Data> {
               console.error(err)
               reject(err)
             })
-        })) as any
+        })) as StorageObjectInterface
         return {
           name: packRegex.exec(manifest.Key)[1],
           url: `https://${storageProvider.provider.cacheDomain}/${manifest.Key}`,
@@ -135,7 +136,6 @@ export class ContentPack implements ServiceMethods<Data> {
               const url = thumbnail.url
               const thumbnailDownload = await axios.get(url, getAxiosConfig())
               await storageProvider.putObject({
-                ACL: 'public-read',
                 Body: thumbnailDownload.data,
                 ContentType: 'jpeg',
                 Key: getThumbnailKey(contentPack, url)
@@ -143,7 +143,6 @@ export class ContentPack implements ServiceMethods<Data> {
               thumbnailLink = getThumbnailUrl(contentPack, url)
             }
             await storageProvider.putObject({
-              ACL: 'public-read',
               Body: Buffer.from(JSON.stringify(worldFile)),
               ContentType: 'application/json',
               Key: worldFileKey
@@ -159,7 +158,8 @@ export class ContentPack implements ServiceMethods<Data> {
           })
         )
       }
-    } else if (avatars != null) {
+    }
+    if (avatars != null) {
       for (const avatarItem of avatars) {
         promises.push(
           new Promise(async (resolve) => {
@@ -175,7 +175,8 @@ export class ContentPack implements ServiceMethods<Data> {
           })
         )
       }
-    } else if (realityPacks != null) {
+    }
+    if (realityPacks != null) {
       for (const realityPack of realityPacks) {
         const newRealityPack = {
           name: realityPack.name,
@@ -194,7 +195,6 @@ export class ContentPack implements ServiceMethods<Data> {
 
     await Promise.all(promises)
     await storageProvider.putObject({
-      ACL: 'public-read',
       Body: Buffer.from(JSON.stringify(body)),
       ContentType: 'application/json',
       Key: getManifestKey(contentPack)
@@ -222,7 +222,7 @@ export class ContentPack implements ServiceMethods<Data> {
   async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     let uploadPromises = []
     const { scenes, contentPack, avatars, realityPacks } = data as any
-    let pack = await storageProvider.getObject(getManifestKey(contentPack))
+    const pack = await storageProvider.getObject(getManifestKey(contentPack))
     const body = JSON.parse((pack as any).Body.toString())
     const invalidationItems = [`/content-pack/${contentPack}/manifest.json`]
     const promises = []
@@ -249,7 +249,6 @@ export class ContentPack implements ServiceMethods<Data> {
               const thumbnailDownload = await axios.get(url, getAxiosConfig())
               const thumbnailKey = getThumbnailKey(contentPack, url)
               await storageProvider.putObject({
-                ACL: 'public-read',
                 Body: thumbnailDownload.data,
                 ContentType: 'jpeg',
                 Key: thumbnailKey
@@ -258,7 +257,6 @@ export class ContentPack implements ServiceMethods<Data> {
               invalidationItems.push(`/${thumbnailKey}`)
             }
             await storageProvider.putObject({
-              ACL: 'public-read',
               Body: Buffer.from(JSON.stringify(worldFile)),
               ContentType: 'application/json',
               Key: worldFileKey
@@ -319,7 +317,6 @@ export class ContentPack implements ServiceMethods<Data> {
     if (body.version) body.version++
     else body.version = 1
     await storageProvider.putObject({
-      ACL: 'public-read',
       Body: Buffer.from(JSON.stringify(body)),
       ContentType: 'application/json',
       Key: getManifestKey(contentPack)

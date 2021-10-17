@@ -40,13 +40,12 @@ export class UploadPresigned implements ServiceMethods<Data> {
   }
 
   async get(id: Id, params?: Params): Promise<Data> {
-    let url
     const key = this.getKeyForFilename(
       params['identity-provider'].userId,
       params.query.fileName,
       params.query.isPublicAvatar
     )
-    url = await storageProvider.getSignedUrl(
+    return await storageProvider.getSignedUrl(
       key,
       PRESIGNED_URL_EXPIRATION_DURATION || 3600, // Expiration duration in Seconds
       [
@@ -54,7 +53,6 @@ export class UploadPresigned implements ServiceMethods<Data> {
         ['content-length-range', MIN_AVATAR_FILE_SIZE, MAX_AVATAR_FILE_SIZE] // Max size 15 MB
       ]
     )
-    return url
   }
 
   async create(data: Data, params?: Params): Promise<Data> {

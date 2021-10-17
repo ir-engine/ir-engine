@@ -13,7 +13,7 @@ import {
   RepeatWrapping,
   TextureLoader
 } from 'three'
-import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
+import { resolveMedia } from '@xrengine/editor/src/functions/resolveMedia'
 import EditorNodeMixin from './EditorNodeMixin'
 export default class TestModelNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'TestModel'

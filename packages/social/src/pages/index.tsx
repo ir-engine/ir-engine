@@ -1,5 +1,5 @@
 // import {Stories} from '@xrengine/social/src/components/Stories';
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -20,12 +20,12 @@ import ArMediaPopup from '@xrengine/social/src/components/popups/ArMediaPopup'
 import FeedFormPopup from '@xrengine/social/src/components/popups/FeedFormPopup'
 import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPopup'
 import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
-import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
-import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 // @ts-ignore
 import styles from './index.module.scss'
 import Button from '@material-ui/core/Button'
@@ -36,30 +36,12 @@ import Splash from '@xrengine/social/src/components/Splash'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
 // import { WebXRStart } from '../components/popups/WebXR'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { Redirect } from 'react-router-dom'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    webxrnativeState: selectWebXrNativeState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
-  getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
-  changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
-})
-
-import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
 import App from './App'
 
-const Home = ({
-  //doLoginAuto,
-  webxrnativeState,
-  changeWebXrNative,
-  getWebXrNative
-}) => {
+const Home = ({}) => {
   const dispatch = useDispatch()
   const auth = useAuthState()
 
@@ -69,15 +51,17 @@ const Home = ({
   const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
 
   useEffect(() => {
-    if (accessToken) {
-      dispatch(AuthService.doLoginAuto(true))
-      getWebXrNative()
-    }
+    // if (accessToken) {
+    AuthService.doLoginAuto(true)
+    WebxrNativeService.getWebXrNative()
+    // }
   }, [accessToken])
 
   useEffect(() => {
     if (auth?.authUser?.accessToken) {
-      CreatorService.createCreator()
+      if (auth.user.id.value) {
+        CreatorService.createCreator()
+      }
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 
@@ -99,7 +83,7 @@ const Home = ({
     }
   }, [currentCreator])
 
-  const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+  const webxrRecorderActivity = useWebxrNativeState().webxrnative.value
 
   const changeOnboarding = () => {
     setOnborded(true)
@@ -133,11 +117,11 @@ const Home = ({
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
-  if (!accessToken) {
-    return <Redirect to="/registration" />
-  }
+  // if (!accessToken) {
+  //   return <Redirect to="/registration" />
+  // }
 
   return <App />
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default Home

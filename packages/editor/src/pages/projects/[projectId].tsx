@@ -8,9 +8,9 @@ import React, { lazy, Suspense, useEffect, useState } from 'react'
 // importing component EditorContainer.
 const EditorContainer = lazy(() => import('../../components/EditorContainer'))
 
-import { useDispatch } from 'react-redux'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 
 /**
  * Declaring Props interface having two props.
@@ -18,16 +18,13 @@ import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthSe
  *@doLoginAuto can be of type doLoginAuto component.
  *
  */
-interface Props {
-  //doLoginAuto?: typeof AuthService.doLoginAuto
-}
+interface Props {}
 
 /**
  * Function component providing project editor view.
  */
 const Project = (props: Props) => {
   // initialising consts using props interface.
-  //const {  doLoginAuto } = props
   const dispatch = useDispatch()
   const authState = useAuthState()
   // initialising authUser.
@@ -37,7 +34,7 @@ const Project = (props: Props) => {
 
   // setting doLoginAuto true once DOM get rendered or get updated..
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }, [])
 
   return (

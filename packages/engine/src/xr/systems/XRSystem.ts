@@ -13,7 +13,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
-import { addDefaultControllerModels, addDefaultHandModel } from '../functions/addControllerModels'
+import { addDefaultControllerModels } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 
 /**
@@ -98,7 +98,6 @@ export default async function XRSystem(world: World): Promise<System> {
     if (Engine.xrControllerModel) {
       for (const entity of localXRControllerQuery.enter()) {
         addDefaultControllerModels(entity)
-        addDefaultHandModel(entity)
       }
     }
   }

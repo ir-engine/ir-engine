@@ -3,10 +3,10 @@ import { useHistory } from 'react-router-dom'
 
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { AuthService } from '../../reducers/auth/AuthService'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { AuthService } from '../../state/AuthService'
+import { useAuthState } from '../../state/AuthState'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
 import CardMedia from '@material-ui/core/CardMedia'
 import { Trans, useTranslation } from 'react-i18next'
@@ -27,7 +27,7 @@ const ConfirmEmail = (props: Props): any => {
 
     const identityProvider = auth.identityProvider
 
-    dispatch(AuthService.resendVerificationEmail(identityProvider.token.value))
+    AuthService.resendVerificationEmail(identityProvider.token.value)
   }
 
   return (

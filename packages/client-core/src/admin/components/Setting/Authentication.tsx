@@ -2,11 +2,10 @@ import React, { useEffect } from 'react'
 import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { useStyles } from './styles'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { useAdminAuthSettingState } from '../../reducers/admin/Setting/authentication-setting/AuthSettingState'
-import { AuthSettingService } from '../../reducers/admin/Setting/authentication-setting/AuthSettingService'
-import { Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useAuthState } from '../../../user/state/AuthState'
+import { useAdminAuthSettingState } from '../../state/Setting/AuthSettingState'
+import { AuthSettingService } from '../../state/Setting/AuthSettingService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Switch from '@material-ui/core/Switch'
 import IconButton from '@material-ui/core/IconButton'
 import { Icon } from '@iconify/react'
@@ -23,7 +22,6 @@ const initialState = {
 }
 const Account = (props: Props) => {
   const classes = useStyles()
-
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.authSettings?.value || []
   const id = authSetting?.id
@@ -70,18 +68,15 @@ const Account = (props: Props) => {
   const user = authState.user
 
   useEffect(() => {
-    const fetchData = async () => {
-      await dispatch(AuthSettingService.fetchAuthSetting())
-    }
     if (user?.id?.value != null && authSettingState.authSettings.updateNeeded.value) {
-      fetchData()
+      AuthSettingService.fetchAuthSetting()
     }
-  }, [authState])
+  }, [authState.user?.id?.value])
 
   useEffect(() => {
     if (authSetting) {
       let temp = { ...state }
-      authSetting.authStrategies.forEach((el) => {
+      authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
         })
@@ -89,15 +84,15 @@ const Account = (props: Props) => {
       setState(temp)
       setHoldAuth(temp)
     }
-  }, [authSettingState])
+  }, [authSettingState?.authSettings?.updateNeeded?.value])
 
   const handleSubmit = () => {
     const auth = Object.keys(state).map((prop) => ({ [prop]: state[prop] }))
-    dispatch(AuthSettingService.pathAuthSetting({ authStrategies: JSON.stringify(auth) }, id))
+    AuthSettingService.pathAuthSetting({ authStrategies: JSON.stringify(auth) }, id)
   }
   const handleCancel = () => {
     let temp = { ...state }
-    authSetting.authStrategies.forEach((el) => {
+    authSetting?.authStrategies?.forEach((el) => {
       Object.entries(el).forEach(([strategyName, strategy]) => {
         temp[strategyName] = strategy
       })
@@ -122,7 +117,7 @@ const Account = (props: Props) => {
             <label> Service</label>
             <Paper component="div" className={classes.createInput}>
               <InputBase
-                value={authSetting?.service}
+                value={authSetting?.service || ''}
                 name="service"
                 style={{ color: '#fff' }}
                 disabled
@@ -132,7 +127,7 @@ const Account = (props: Props) => {
             <label>Secret</label>
             <Paper component="div" className={classes.createInput}>
               <InputBase
-                value={authSetting?.secret}
+                value={authSetting?.secret || ''}
                 name="secret"
                 style={{ color: '#fff' }}
                 disabled
@@ -142,7 +137,7 @@ const Account = (props: Props) => {
             <label>Entity</label>
             <Paper component="div" className={classes.createInput}>
               <InputBase
-                value={authSetting?.entity}
+                value={authSetting?.entity || ''}
                 name="entity"
                 style={{ color: '#fff' }}
                 disabled
@@ -180,7 +175,7 @@ const Account = (props: Props) => {
             <Paper component="div" className={classes.createInput}>
               <label>User Name:</label>
               <InputBase
-                value={authSetting?.local.usernameField}
+                value={authSetting?.local.usernameField || ''}
                 name="username"
                 style={{ color: '#fff' }}
                 disabled
@@ -190,7 +185,7 @@ const Account = (props: Props) => {
             <Paper component="div" className={classes.createInput}>
               <label>Password:</label>
               <InputBase
-                value={authSetting?.local.passwordField}
+                value={authSetting?.local.passwordField || ''}
                 name="password"
                 style={{ color: '#fff' }}
                 disabled
@@ -212,7 +207,7 @@ const Account = (props: Props) => {
             <Paper component="div" className={classes.createInput}>
               <label>Host:</label>
               <InputBase
-                value={authSetting?.oauth?.defaults.host}
+                value={authSetting?.oauth?.defaults?.host || ''}
                 name="host"
                 style={{ color: '#fff' }}
                 disabled
@@ -222,7 +217,7 @@ const Account = (props: Props) => {
             <Paper component="div" className={classes.createInput}>
               <label>Protocol:</label>
               <InputBase
-                value={authSetting?.oauth?.defaults.protocol}
+                value={authSetting?.oauth?.defaults?.protocol || ''}
                 name="protocol"
                 style={{ color: '#fff' }}
                 disabled
@@ -235,7 +230,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Key:</label>
                   <InputBase
-                    value={authSetting?.oauth?.facebook.key}
+                    value={authSetting?.oauth?.facebook?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     disabled
@@ -252,7 +247,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Secret:</label>
                   <InputBase
-                    value={authSetting?.oauth?.facebook.secret}
+                    value={authSetting?.oauth?.facebook?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
                     disabled
@@ -269,7 +264,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Callback:</label>
                   <InputBase
-                    value={authSetting?.callback?.facebook}
+                    value={authSetting?.callback?.facebook || ''}
                     name="callbackGithub"
                     style={{ color: '#fff' }}
                     disabled
@@ -284,7 +279,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Key:</label>
                   <InputBase
-                    value={authSetting?.oauth?.github.key}
+                    value={authSetting?.oauth?.github?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     disabled
@@ -301,7 +296,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Secret:</label>
                   <InputBase
-                    value={authSetting?.oauth?.github.secret}
+                    value={authSetting?.oauth?.github.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
                     disabled
@@ -319,7 +314,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Callback:</label>
                   <InputBase
-                    value={authSetting?.callback?.github}
+                    value={authSetting?.callback?.github || ''}
                     name="callbackGithub"
                     style={{ color: '#fff' }}
                     disabled
@@ -337,7 +332,7 @@ const Account = (props: Props) => {
                   <label>Key:</label>
                   <InputBase
                     type={showPassword.google.key ? 'text' : 'password'}
-                    value={authSetting?.oauth?.google.key}
+                    value={authSetting?.oauth?.google.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     disabled
@@ -354,7 +349,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Secret:</label>
                   <InputBase
-                    value={authSetting?.oauth?.google.secret}
+                    value={authSetting?.oauth?.google?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
                     disabled
@@ -372,7 +367,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Callback:</label>
                   <InputBase
-                    value={authSetting?.callback?.google}
+                    value={authSetting?.callback?.google || ''}
                     name="callbackGoogle"
                     style={{ color: '#fff' }}
                     disabled
@@ -388,7 +383,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Key:</label>
                   <InputBase
-                    value={authSetting?.oauth?.linkedin.key}
+                    value={authSetting?.oauth?.linkedin?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     disabled
@@ -405,7 +400,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Secret:</label>
                   <InputBase
-                    value={authSetting?.oauth?.linkedin.secret}
+                    value={authSetting?.oauth?.linkedin?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
                     disabled
@@ -422,7 +417,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Callback:</label>
                   <InputBase
-                    value={authSetting?.callback?.linkedin}
+                    value={authSetting?.callback?.linkedin || ''}
                     name="callbackLinkedin"
                     style={{ color: '#fff' }}
                     disabled
@@ -438,7 +433,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Key:</label>
                   <InputBase
-                    value={authSetting?.oauth?.twitter.key}
+                    value={authSetting?.oauth?.twitter?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
                     disabled
@@ -455,7 +450,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Secret:</label>
                   <InputBase
-                    value={authSetting?.oauth?.twitter.secret}
+                    value={authSetting?.oauth?.twitter?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
                     disabled
@@ -473,7 +468,7 @@ const Account = (props: Props) => {
                 <Paper component="div" className={classes.createInput}>
                   <label>Callback:</label>
                   <InputBase
-                    value={authSetting?.callback?.twitter}
+                    value={authSetting?.callback?.twitter || ''}
                     name="callbackTwitter"
                     style={{ color: '#fff' }}
                     disabled

@@ -10,15 +10,15 @@ import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/AdminState'
-import { SceneService } from '../../reducers/admin/scene/SceneService'
-import { LocationService } from '../../reducers/admin/location/LocationService'
+import { useAuthState } from '../../../user/state/AuthState'
+import { ADMIN_PAGE_LIMIT } from '../../state/AdminState'
+import { SceneService } from '../../state/SceneService'
+import { LocationService } from '../../state/LocationService'
 import styles from './Scenes.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
-import { useSceneState } from '../../reducers/admin/scene/SceneState'
+import { useSceneState } from '../../state/SceneState'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -140,7 +140,7 @@ const Scenes = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(SceneService.fetchAdminScenes(incDec))
+    SceneService.fetchAdminScenes(incDec)
     setPage(newPage)
   }
 
@@ -170,7 +170,7 @@ const Scenes = (props: Props) => {
 
   useEffect(() => {
     if (user?.id.value != null && (adminSceneState.scenes.updateNeeded.value === true || refetch === true)) {
-      dispatch(SceneService.fetchAdminScenes())
+      SceneService.fetchAdminScenes()
     }
     setRefetch(false)
   }, [authState.user?.id?.value, adminSceneState.scenes.updateNeeded.value, refetch])

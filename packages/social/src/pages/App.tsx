@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import { SnackbarProvider } from 'notistack'
 
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import AppFooter from '@xrengine/social/src/components/Footer'
-import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 // import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
 
-import { User } from '@xrengine/common/src/interfaces/User'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
-import { getWebXrNative, changeWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 
 import CreatorPopup from '@xrengine/social/src/components/popups/CreatorPopup'
 import FeedPopup from '@xrengine/social/src/components/popups/FeedPopup'
@@ -37,20 +35,11 @@ import WebXRStart from '../components/popups/WebXR'
 import { useHistory } from 'react-router-dom'
 import TemporarySolution from './TemporarySolution'
 
-import { CreatorAction } from '../reducers/creator/CreatorActions'
+import { CreatorAction } from '@xrengine/client-core/src/social/state/CreatorActions'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    webxrnativeState: selectWebXrNativeState(state)
-  }
-}
+interface Props {}
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
-  changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
-})
-
-const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
+const Home = (props: Props) => {
   const history = useHistory()
   const dispatch = useDispatch()
   const auth = useAuthState()
@@ -69,8 +58,8 @@ const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
       currentTime.slice(0, -5) === currentCreator?.createdAt?.value?.slice(0, -5) && setOnborded(false)
     }
   }, [currentCreator])
-
-  const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+  const webxrnativeState = useWebxrNativeState()
+  const webxrRecorderActivity = webxrnativeState.webxrnative.value
 
   const changeOnboarding = () => {
     setOnborded(true)
@@ -84,7 +73,7 @@ const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
   if (
     !currentCreator?.value ||
     currentCreator?.value === null ||
-    (splashTimeout && currentCreator?.isBlocked?.value == false)
+    (splashTimeout && !currentCreator?.isBlocked?.value)
   ) {
     //add additional duration Splash after initialized user
     const splash = setTimeout(() => {
@@ -95,7 +84,8 @@ const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
   }
 
   const onGoRegistration = (callBack?) => {
-    if (auth.user.userRole.value === 'guest') {
+    // if (auth.user.userRole.value === 'guest') {
+    if (false) {
       history.push('/registration')
     } else if (callBack) {
       callBack()
@@ -111,8 +101,11 @@ const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
     )
   }
 
-  // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
+  const changeWebXrNative = () => {
+    WebxrNativeService.changeWebXrNative()
+  }
 
+  // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
   return (
     <>
       {view === 'terms' || view === 'policy' ? (
@@ -125,10 +118,11 @@ const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
             {/* <Stories stories={stories} /> */}
             <FeedMenu view={view} setView={setView} />
             <AppFooter setView={setView} onGoRegistration={onGoRegistration} />
-            {currentCreator?.value &&
+            {(currentCreator?.value &&
               // Made at the time of the test Aleks951
-              (!!!currentCreator.terms || !!!currentCreator.policy) &&
-              auth.user.userRole.value === 'user' && <TermsAndPolicy view={view} setView={setView} />}
+              (!!!currentCreator.terms.value || !!!currentCreator.policy.value) &&
+              auth.user.userRole.value === 'user') ||
+              (auth.user.userRole.value === 'guest' && <TermsAndPolicy view={view} setView={setView} />)}
             <ArMediaPopup />
             <WebXRStart
               feedHintsOnborded={feedHintsOnborded}
@@ -148,4 +142,4 @@ const Home = ({ webxrnativeState, changeWebXrNative, getWebXrNative }) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default Home

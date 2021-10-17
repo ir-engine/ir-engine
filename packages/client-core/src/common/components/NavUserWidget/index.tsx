@@ -1,21 +1,13 @@
-import { User } from '@xrengine/common/src/interfaces/User'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { AuthService } from '../../../user/reducers/auth/AuthService'
-import { DialogAction } from '../../reducers/dialog/DialogActions'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { AuthService } from '../../../user/state/AuthService'
+import { DialogAction } from '../../state/DialogActions'
 import SignIn from '../../../user/components/Auth/Login'
 import Dropdown from '../../../user/components/Profile/ProfileDropdown'
 import { useTranslation } from 'react-i18next'
 import styles from './NavUserWidget.module.scss'
 import Button from '@material-ui/core/Button'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 interface Props {
   login?: boolean
@@ -31,7 +23,7 @@ const NavUserBadge = (props: Props): any => {
   }, [])
 
   const handleLogout = () => {
-    dispatch(AuthService.logoutUser())
+    AuthService.logoutUser()
   }
 
   const handleLogin = () => {
@@ -73,4 +65,4 @@ const NavUserBadge = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NavUserBadge)
+export default NavUserBadge

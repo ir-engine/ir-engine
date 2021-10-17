@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Typography from '@material-ui/core/Typography'
 import DeleteIcon from '@material-ui/icons/Delete'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
@@ -15,14 +15,14 @@ import InputLabel from '@material-ui/core/InputLabel'
 import FormControl from '@material-ui/core/FormControl'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import { client } from '../../../../feathers'
-import { AlertAction } from '../../../../common/reducers/alert/AlertActions'
+import { AlertAction } from '../../../../common/state/AlertActions'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 
 const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
-  const [scenes, setScenes] = useState([])
+  const [scenes, setScenes] = useState<{ sid: string; name: string }[]>([])
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [locationTypes, setLocationTypes] = useState([])
   const [error, setError] = useState({

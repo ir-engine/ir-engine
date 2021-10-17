@@ -34,6 +34,14 @@ export class NetworkWorldAction {
     { allowDispatchFromAny: true }
   )
 
+  static xrHandsConnected = defineActionCreator(
+    {
+      type: 'network.XR_HANDS_CONNECTED',
+      userId: matchesUserId
+    },
+    { allowDispatchFromAny: true }
+  )
+
   static spawnObject = defineActionCreator({
     type: 'network.SPAWN_OBJECT',
     userId: matchesUserId,

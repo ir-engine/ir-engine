@@ -5,15 +5,14 @@ import { Typography, Paper, Button } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { DialogActions } from '@material-ui/core'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { validateCreatorForm } from './validation'
-import { CreatorService } from '../../../reducers/creator/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {
   adminCreator: any
   closeEditModal: any
 }
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const EditCreator = (props: Props) => {
   const classesx = useCreatorStyle()
@@ -91,7 +90,7 @@ const EditCreator = (props: Props) => {
 
     setState({ ...state, formErrors: temp })
     if (validateCreatorForm(state, state.formErrors)) {
-      dispatch(CreatorService.updateCreator({ id, name, username, email, twitter, bio }))
+      CreatorService.updateCreator({ id, name, username, email, twitter, bio })
       setState({
         ...state,
         name: '',
@@ -212,4 +211,4 @@ const EditCreator = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(EditCreator)
+export default EditCreator

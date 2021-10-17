@@ -5,13 +5,11 @@ import Paper from '@material-ui/core/Paper'
 import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
 import { useUserStyles } from './styles'
-import { UserService } from '../../reducers/admin/user/UserService'
-import { connect, useDispatch } from 'react-redux'
+import { UserService } from '../../state/UserService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 
 interface Props {}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const SearchUser = (props: Props) => {
   const classes = useUserStyles()
@@ -19,7 +17,7 @@ const SearchUser = (props: Props) => {
   const dispatch = useDispatch()
 
   const handleChange = (e: any) => {
-    dispatch(UserService.searchUserAction(search))
+    UserService.searchUserAction(search)
     setSearch(e.target.value)
   }
 
@@ -38,4 +36,4 @@ const SearchUser = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(SearchUser)
+export default SearchUser

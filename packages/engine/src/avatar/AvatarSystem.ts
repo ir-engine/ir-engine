@@ -21,6 +21,9 @@ import { useWorld } from '../ecs/functions/SystemHooks'
 import { teleportRigidbody } from '../physics/functions/teleportRigidbody'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { detectUserInTrigger } from './functions/detectUserInTrigger'
+import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
+import { Engine } from '../ecs/classes/Engine'
+import { initializeHandModel } from '../xr/functions/addControllerModels'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -31,21 +34,40 @@ function avatarActionReceptor(action) {
       const entity = world.getUserAvatarEntity(a.userId)
       if (!entity) return
 
-      if (a.enabled && !hasComponent(entity, XRInputSourceComponent)) {
-        addComponent(entity, XRInputSourceComponent, {
-          controllerLeft: new Group(),
-          controllerRight: new Group(),
-          controllerGripLeft: new Group(),
-          controllerGripRight: new Group(),
-          container: new Group(),
-          head: new Group(),
-          hands: [new Group(), new Group()]
-        })
+      if (a.enabled) {
+        if (!hasComponent(entity, XRInputSourceComponent)) {
+          addComponent(entity, XRInputSourceComponent, {
+            controllerLeft: new Group(),
+            controllerRight: new Group(),
+            controllerGripLeft: new Group(),
+            controllerGripRight: new Group(),
+            container: new Group(),
+            head: new Group()
+          })
+        }
       } else {
         if (hasComponent(entity, XRInputSourceComponent)) {
           removeComponent(entity, XRInputSourceComponent)
         }
       }
+    })
+
+    .when(NetworkWorldAction.xrHandsConnected.matchesFromAny, (a) => {
+      if (a.userId === Engine.userId) return
+      const entity = world.getUserAvatarEntity(a.userId)
+      if (!entity) return
+
+      if (!hasComponent(entity, XRHandsInputComponent)) {
+        addComponent(entity, XRHandsInputComponent, {
+          hands: [new Group(), new Group()]
+        })
+      }
+
+      const xrInputSource = getComponent(entity, XRHandsInputComponent)
+
+      xrInputSource.hands.forEach((controller: any, i: number) => {
+        initializeHandModel(controller, i === 0 ? 'left' : 'right')
+      })
     })
 
     .when(NetworkWorldAction.teleportObject.matches, (a) => {
@@ -70,12 +92,13 @@ function avatarActionReceptor(action) {
 }
 
 export default async function AvatarSystem(world: World): Promise<System> {
-  world.receptors.add(avatarActionReceptor)
+  world.receptors.push(avatarActionReceptor)
 
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
+  const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent])
 
   return () => {
     for (const entity of xrInputQuery.enter(world)) {
@@ -86,12 +109,20 @@ export default async function AvatarSystem(world: World): Promise<System> {
         xrInputSourceComponent.controllerLeft,
         xrInputSourceComponent.controllerGripLeft,
         xrInputSourceComponent.controllerRight,
-        xrInputSourceComponent.controllerGripRight,
-        ...xrInputSourceComponent.hands
+        xrInputSourceComponent.controllerGripRight
       )
 
       xrInputSourceComponent.container.applyQuaternion(rotate180onY)
       object3DComponent.value.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
+    }
+
+    for (const entity of xrHandsInputQuery.enter(world)) {
+      const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
+      const object3DComponent = getComponent(entity, Object3DComponent)
+      const container = new Group()
+      container.add(...xrHandsComponent.hands)
+      container.applyQuaternion(rotate180onY)
+      object3DComponent.value.add(container)
     }
 
     for (const entity of raycastQuery(world)) {

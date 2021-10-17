@@ -5,11 +5,11 @@ import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
-import { InviteService } from '../../../social/reducers/invite/InviteService'
+import { InviteService } from '../../../social/state/InviteService'
 import { makeStyles, createStyles, Theme, useTheme } from '@material-ui/core/styles'
-import { useInviteState } from '../../../social/reducers/invite/InviteState'
+import { useInviteState } from '../../../social/state/InviteState'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { Delete } from '@material-ui/icons'
 import { useConfirm } from 'material-ui-confirm'
 import IconButton from '@material-ui/core/IconButton'
@@ -19,7 +19,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import LastPageIcon from '@material-ui/icons/LastPage'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
-import { INVITE_PAGE_LIMIT } from '../../../social/reducers/invite/InviteState'
+import { INVITE_PAGE_LIMIT } from '../../../social/state/InviteState'
 
 interface Props {
   sentInvites?: any
@@ -118,13 +118,13 @@ const SentInvite = (props: Props) => {
   )
   const deleteInvite = (invite) => {
     confirm({ description: `This will permanently delete ${invite.token}.` })
-      .then(() => dispatch(InviteService.removeInvite(invite)))
+      .then(() => InviteService.removeInvite(invite))
       .catch(() => console.error('error'))
   }
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(InviteService.retrieveSentInvites(incDec))
+    InviteService.retrieveSentInvites(incDec)
     setPage(newPage)
   }
 
@@ -195,4 +195,4 @@ const SentInvite = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SentInvite)
+export default SentInvite

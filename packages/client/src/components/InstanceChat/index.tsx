@@ -1,6 +1,5 @@
 import Avatar from '@material-ui/core/Avatar'
 import Badge from '@material-ui/core/Badge'
-import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import Fab from '@material-ui/core/Fab'
@@ -9,27 +8,19 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
 import { Message as MessageIcon, Send } from '@material-ui/icons'
-import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useInstanceConnectionState } from '../../reducers/instanceConnection/InstanceConnectionState'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 import defaultStyles from './InstanceChat.module.scss'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/state/InstanceConnectionState'
 
 interface Props {
   styles?: any
@@ -70,7 +61,7 @@ const InstanceChat = (props: Props): any => {
       instanceConnectionState.connected.value === true &&
       channelState.fetchingInstanceChannel.value !== true
     ) {
-      dispatch(ChatService.getInstanceChannel())
+      ChatService.getInstanceChannel()
     }
   }, [user?.instanceId?.value])
 
@@ -174,9 +165,11 @@ const InstanceChat = (props: Props): any => {
                     let chatMessage = message.text
 
                     if (system !== 'none') {
-                      if ((isClient && isBot(window)) || system === '[jl_system]')
+                      if ((isClient && isBot(window)) || system === 'jl_system') {
                         chatMessage = removeMessageSystem(message.text)
-                      else return undefined
+                      } else {
+                        return undefined
+                      }
                     }
                     return (
                       <ListItem
@@ -236,9 +229,11 @@ const InstanceChat = (props: Props): any => {
                   if (e.key === 'Enter' && e.ctrlKey) {
                     e.preventDefault()
                     const selectionStart = (e.target as HTMLInputElement).selectionStart
-                    setCursorPosition(selectionStart)
+                    setCursorPosition(selectionStart || 0)
                     setComposingMessage(
-                      composingMessage.substring(0, selectionStart) + '\n' + composingMessage.substring(selectionStart)
+                      composingMessage.substring(0, selectionStart || 0) +
+                        '\n' +
+                        composingMessage.substring(selectionStart || 0)
                     )
                     !isMultiline && setIsMultiline(true)
                   } else if (e.key === 'Enter' && !e.ctrlKey) {
@@ -272,4 +267,4 @@ const InstanceChat = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat)
+export default InstanceChat

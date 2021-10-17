@@ -7,18 +7,12 @@ import SingleConnection from './SingleConnection'
 import { User } from '@xrengine/common/src/interfaces/User'
 import styles from './ProfileConnections.module.scss'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { useAuthState } from '../../state/AuthState'
 
 interface Props {
   auth: any
   classes: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (): any => ({})
 
 const ProfileConnections = (props: Props): any => {
   const { classes } = props
@@ -60,4 +54,4 @@ const ProfileConnections = (props: Props): any => {
 
 const ProfileConnectionsWrapper = (props: any): any => <ProfileConnections {...props} />
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileConnectionsWrapper)
+export default ProfileConnectionsWrapper
