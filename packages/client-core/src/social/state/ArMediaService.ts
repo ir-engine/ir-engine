@@ -1,11 +1,11 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { store, useDispatch } from '../../store'
+import { useDispatch } from '../../store'
 import { AlertService } from '../../common/state/AlertService'
-import { client } from '@xrengine/client-core/src/feathers'
+import { client } from '../../feathers'
 import { ArMediaAction } from './ArMediaActions'
-import { upload } from '../../../util/upload'
+import { upload } from '../../util/upload'
 
 export const ArMediaService = {
   getArMediaService: async (type?: string, limit: Number = 12) => {

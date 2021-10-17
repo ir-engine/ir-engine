@@ -1,14 +1,13 @@
 import React from 'react'
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import DialogActions from '@material-ui/core/DialogActions'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Snackbar from '@material-ui/core/Snackbar'
 import MuiAlert from '@material-ui/lab/Alert'
-import { useLocationStyles, useLocationStyle } from './styles'
+import { useRouteStyles, useRouteStyle } from './styles'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -37,8 +36,8 @@ interface Props {
 
 const CreateLocation = (props: Props) => {
   const { open, handleClose, closeViewModel } = props
-  const classesx = useLocationStyle()
-  const classes = useLocationStyles()
+  const classesx = useRouteStyle()
+  const classes = useRouteStyles()
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
   const [state, setState] = React.useState({

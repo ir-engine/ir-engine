@@ -4,8 +4,8 @@ import InputBase from '@material-ui/core/InputBase'
 import IconButton from '@material-ui/core/IconButton'
 import Send from '@material-ui/icons/Send'
 import { ChatService } from '../../../social/state/ChatService'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { useStyle, useStyles } from './style'
+import { useDispatch } from '../../../store'
+import { useStyles } from './style'
 
 const CreateMessage = () => {
   const classes = useStyles()

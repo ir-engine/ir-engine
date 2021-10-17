@@ -1,7 +1,7 @@
-import { AlertService } from '@xrengine/client-core/src/common/state/AlertService'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { AlertService } from '../../common/state/AlertService'
+import { bindActionCreators } from 'redux'
+import { useDispatch } from '../../store'
+import { AuthService } from '../../user/state/AuthService'
 
 import {} from './RegistrationActions'
 
