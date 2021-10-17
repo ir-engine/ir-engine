@@ -5,7 +5,7 @@ import { Dispatch } from 'redux'
 import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { ArMediaAction } from './ArMediaActions'
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { upload } from '../../../util/upload'
 
 export const ArMediaService = {
   getArMediaService: (type?: string, limit: Number = 12) => {

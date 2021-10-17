@@ -1,5 +1,5 @@
 import i18n from 'i18next'
-import { getAccountId } from '@xrengine/engine/src/scene/functions/getAccountId'
+import { getAccountId } from './getAccountId'
 import { ProjectManager } from '../managers/ProjectManager'
 
 /**

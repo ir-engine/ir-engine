@@ -96,11 +96,12 @@ export class Feed extends Service {
     //Featured menu item for Guest
     //Featured menu item
     if (action === 'featuredGuest' || action === 'featured') {
-      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType, feed.description as description, feed.title as title, COUNT(DISTINCT ff.id) as fires, COUNT(DISTINCT fl.id) as likes
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType, feed.description as description, feed.title as title, COUNT(DISTINCT ff.id) as fires, COUNT(DISTINCT fl.id) as likes, isf.id as fired
         FROM \`feed\` as feed
        JOIN static_resource as sr ON sr.id=feed.previewId
        LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id
        LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id
+       LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId='${creatorId}'
        WHERE feed.creatorId NOT IN (select blockedId from block_creator where 
          creatorId = '${creatorId}')
          AND feed.creatorId NOT IN (select creatorId from block_creator where blockedId = '${creatorId}')
@@ -192,11 +193,13 @@ export class Feed extends Service {
 
     //change this to fired!!!!!!
     if (action === 'fired') {
-      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType, feed.description as description, feed.title as title 
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType, feed.description as description, feed.title as title, isf.id as fired 
          FROM \`feed\` as feed
          JOIN \`static_resource\` as sr ON sr.id=feed.previewId
          JOIN \`feed_fires\` as fb ON fb.feedId=feed.id
+         LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId=:creatorId
          WHERE fb.creatorId=:creatorId
+         GROUP BY feed.id
          ORDER BY feed.createdAt DESC    
          LIMIT :skip, :limit `
 

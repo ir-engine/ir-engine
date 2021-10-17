@@ -79,14 +79,14 @@ const feedReceptor = (action: FeedActionType): any => {
 
       case 'ADD_FEED_FIRES':
         currentFeed = s.feeds.feed?.value
-        s.feeds.feeds.set(
-          s.feeds.feeds.value.map((feed) => {
+        return s.feeds.merge({
+          feedsFeatured: s.feeds.feedsFeatured.value.map((feed) => {
             if (feed.id === action.feedId) {
               return { ...feed, fires: ++feed.fires, isFired: true }
             }
             return { ...feed }
           })
-        )
+        })
         return s.feeds.feed.set(currentFeed ? { ...currentFeed, fires: ++currentFeed.fires, isFired: true } : {})
       case 'REMOVE_FEED_FIRES':
         currentFeed = s.feeds.feed?.value

@@ -246,7 +246,7 @@ const Server = (props: serverProps) => {
                       name="hub"
                       className={classes.input}
                       style={{ color: '#fff' }}
-                      value={el?.hub?.endpoint || ''}
+                      value={el.hub?.endpoint}
                     />
                   </Paper>
                 </ListItem>

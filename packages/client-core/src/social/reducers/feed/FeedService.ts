@@ -4,10 +4,8 @@
 import { Dispatch } from 'redux'
 import { AlertService } from '../../../common/reducers/alert/AlertService'
 import { client } from '../../../feathers'
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
-
+import { upload } from '../../../util/upload'
 import { accessAuthState } from '../../../user/reducers/auth/AuthState'
-
 import { FeedAction } from './FeedActions'
 
 export const FeedService = {

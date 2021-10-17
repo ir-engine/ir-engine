@@ -73,7 +73,7 @@ const Home = (props: Props) => {
   if (
     !currentCreator?.value ||
     currentCreator?.value === null ||
-    (splashTimeout && currentCreator?.isBlocked?.value == false)
+    (splashTimeout && !currentCreator?.isBlocked?.value)
   ) {
     //add additional duration Splash after initialized user
     const splash = setTimeout(() => {

@@ -209,6 +209,7 @@
     "feeds": "Feeds",
     "instance": "Instance",
     "locations": "Locations",
+    "routes": "Routes",
     "invites": "Invites",
     "sessions": "Sessions",
     "groups": "Groups",

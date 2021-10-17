@@ -7,6 +7,7 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 // TODO: Decouple this
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import querystring from 'querystring'
 import { Dispatch } from 'redux'
@@ -28,8 +29,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { accessLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { accessPartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
+import { accessLocationState } from '../../../social/reducers/location/LocationState'
+import { accessPartyState } from '../../../social/reducers/party/PartyState'
 
 export const AuthService = {
   doLoginAuto: (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -88,6 +89,7 @@ export const AuthService = {
           }
           const authUser = resolveAuthUser(res)
           dispatch(AuthAction.loginUserSuccess(authUser))
+          if (isDev) globalThis.userId = authUser.identityProvider.userId
           await AuthService.loadUserData(dispatch, authUser.identityProvider.userId)
         } else {
           console.log('****************')

@@ -37,7 +37,7 @@ export class Physics {
   obstacleContext: PhysX.PxObstacleContext
   defaultCCTQueryCallback: PhysX.PxQueryFilterCallback
 
-  stepTime: number = 1000 / 60
+  timeScale: number = 1
   substeps: number = 1
   collisionEventQueue = [] as any[]
 

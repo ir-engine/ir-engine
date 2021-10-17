@@ -10,7 +10,6 @@ import { Config } from '@xrengine/common/src/config'
 import { Helmet } from 'react-helmet'
 import React, { Fragment, useEffect, useState } from 'react'
 import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 // import Harmony from '.'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
@@ -139,11 +138,12 @@ const Layout = (props: Props): any => {
               />
             </Fragment>
           )}
-        {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
-          <Fragment>
-            <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
-          </Fragment>
-        )}
+        {/* {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && ( */}
+        <Fragment>
+          {/* <InviteHarmony /> */}
+          <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
+        </Fragment>
+        {/* )} */}
       </section>
     </ThemeProvider>
   )

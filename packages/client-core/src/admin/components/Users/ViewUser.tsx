@@ -17,9 +17,8 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { bindActionCreators, Dispatch } from 'redux'
 import { UserService } from '../../reducers/admin/user/UserService'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import InputBase from '@material-ui/core/InputBase'
 
 import { useUserStyles, useUserStyle } from './styles'
@@ -32,7 +31,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import { useScopeState } from '../../reducers/admin/scope/ScopeState'
 import { ScopeService } from '../../reducers/admin/scope/ScopeService'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { AuthService } from '../../../user/reducers/auth/AuthService'
 
 interface Props {
   openView: boolean
@@ -112,14 +111,15 @@ const ViewUser = (props: Props) => {
     adminUserState.staticResource.updateNeeded.value,
     user.id.value,
     refetch,
-    singleUser.updateNeeded.value
+    singleUser.updateNeeded.value,
+    adminScopeState.scopeType.updateNeeded.value
   ])
 
   React.useEffect(() => {
     if (!refetch) {
       setRefetch(true)
     }
-  }, [userAdmin.id])
+  }, [userAdmin.id, refetch])
 
   React.useEffect(() => {
     if (singleUserData?.value) {

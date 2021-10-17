@@ -9,7 +9,7 @@ import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
 import { connect, useDispatch } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { useAnalyticsState } from '@xrengine/client-core/src/admin/reducers/admin/analytics/AnalyticsState'
+import { useAnalyticsState } from '../../reducers/admin/analytics/AnalyticsState'
 import { AnalyticsService } from '../../reducers/admin/analytics/AnalyticsService'
 
 interface Props {

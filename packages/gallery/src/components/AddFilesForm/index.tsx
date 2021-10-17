@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useReducer, useRef } from 'react'
-import { connect } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
 import styles from './AddFilesForm.module.scss'
@@ -38,7 +38,8 @@ const descriptionReducer = (state, action) => {
 
 const getTitleAndDescription = (str) => {
   str = str.trim()
-  let [title, description] = str.split('\n')
+  let [title, ...description] = str.split('\n')
+  description = description.join('\n')
   let result = {
     title: title,
     description: str.length > 80 ? str : ''
@@ -61,16 +62,14 @@ const getTitleAndDescription = (str) => {
 }
 
 const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) => {
-  const [descrText, setDescrText] = useState('')
-  const [descriptions, dispatch] = useReducer(descriptionReducer, descriptionState)
+  const dispatch = useDispatch()
+  const [descriptions, dispatchDescriptions] = useReducer(descriptionReducer, descriptionState)
   const [titleFile, setTitleFile] = useState('')
-  const [preview, setPreview] = useState(null)
-  const [video, setVideo] = useState(null)
   const inputFileRef = useRef(null)
 
   // const handleDescrTextChange = (event: any): void => setDescrText(event.target.value)
   const handleDescrTextChange = (event: any, name: any) => {
-    dispatch({
+    dispatchDescriptions({
       type: 'CHANGE_TEXT',
       payload: {
         name,
@@ -82,7 +81,7 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
   useEffect(() => {
     filesTarget?.forEach((file) => {
       if (!descriptions.has(file)) {
-        dispatch({
+        dispatchDescriptions({
           type: 'CHANGE_TEXT',
           payload: {
             name: file,
@@ -95,7 +94,7 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
 
   const handleAddPosts = () => {
     ;[...filesTarget].forEach((file, index) => {
-      const { title, description } = getTitleAndDescription(descriptions.get(file) || titleFile)
+      const { title, description } = getTitleAndDescription(descriptions.get(file))
       console.group('Title and description')
       console.groupEnd()
       const newPost = {
@@ -109,13 +108,18 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
     setAddFilesView(false)
   }
   const handleDeleteMedia = (index) => {
+    const file = filesTarget.find((item, itemIndex) => {
+      return itemIndex === index
+    })
     const entries = filesTarget.filter((item, itemIndex) => {
       return itemIndex !== index
     })
-    dispatch({
-      type: 'DELETE_ITEM',
-      payload: `description-${index}`
-    })
+    if (!!file) {
+      dispatchDescriptions({
+        type: 'DELETE_ITEM',
+        payload: { name: file }
+      })
+    }
     setFilesTarget([...entries])
   }
   const handleAddFiles = () => {
@@ -124,6 +128,7 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
   const handleFilesTarget = (files: Array<any>) => {
     setFilesTarget([...filesTarget, ...files])
   }
+
   return (
     <section className={styles.viewport}>
       <AppHeader title="CREATOR" hideAddButtons inputFileRef={inputFileRef} setFilesTarget={handleFilesTarget} />
@@ -145,13 +150,13 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
                             image={URL.createObjectURL(item)}
                             controls
                           />
-                          <span className={styles.removeItem} onClick={() => handleDeleteMedia(itemIndex)}>
-                            <CloseIcon className={styles.close} />
-                          </span>
+                        </div>
+                        <div className={styles.removeItem} onClick={() => handleDeleteMedia(itemIndex)}>
+                          <CloseIcon className={styles.close} />
                         </div>
                         <div style={{ padding: '0 30px 30px', margin: '25px 0' }}>
                           <TextField
-                            autoFocus
+                            className={styles.textField}
                             inputProps={{
                               style: {
                                 fontSize: '17pt',
@@ -164,12 +169,13 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
                             style={{ backgroundColor: '#fff' }}
                             margin="dense"
                             id={`description-${itemIndex}`}
-                            label="Add description"
+                            label={false}
                             variant="outlined"
                             fullWidth
                             multiline
                             value={descriptions.get(item)}
                             onChange={(e) => handleDescrTextChange(e, item)}
+                            onFocus={(e) => e.target.select()}
                           />
                         </div>
                       </Card>
@@ -178,7 +184,10 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
                 })
               : ''}
           </Grid>
-          <Button className={styles.publish} onClick={handleAddPosts}>
+          <Button
+            className={`${styles.publish}${filesTarget.length ? '' : ` ${styles.hidden}`}`}
+            onClick={handleAddPosts}
+          >
             <div>
               <AddIcon className={styles.addIcon} />
             </div>

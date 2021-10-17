@@ -3,7 +3,7 @@ import { Engine } from '../../../src/ecs/classes/Engine'
 import { engineTestSetup } from '../../util/setupEngine'
 import assert, { strictEqual } from 'assert'
 import { Network } from '../../../src/networking/classes/Network'
-import OutgoingNetworkSystem, { forwardIncomingActionsFromOthersIfHost, queueAllOutgoingPoses, rerouteActions } from '../../../src/networking/systems/OutgoingNetworkSystem'
+import OutgoingNetworkSystem, { forwardIncomingActionsFromOthersIfHost, queueAllOutgoingPoses, rerouteActions, rerouteOutgoingActionsBoundForSelf } from '../../../src/networking/systems/OutgoingNetworkSystem'
 import { createWorld, World } from '../../../src/ecs/classes/World'
 import { Action, ActionRecipients } from '../../../src/networking/interfaces/Action'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -117,6 +117,72 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       // verify incomingActions are cleared if we are NOT a host
       strictEqual(world.incomingActions.size, 0)
+    })
+
+  })
+
+  describe('rerouteOutgoingActionsBoundForSelf', () => {
+
+    it('should reroute outgoing actions from this host back to itself (loopback)', () => {
+
+      /* mock */
+      const world = createWorld()
+
+      const action = NetworkWorldAction.spawnObject({
+        userId: '0' as UserId,
+        prefab: '',
+        parameters: {},
+        $tick: 0,
+        // make action come from this host
+        $from: Engine.userId,
+        // being sent to self
+        $to: 'local' as ActionRecipients,
+      })
+      
+      world.outgoingActions.add(action)
+
+      /* run */
+      rerouteOutgoingActionsBoundForSelf(world)
+
+      /* assert */
+      // verify incoming action was removed from outgoingActions
+      strictEqual(world.outgoingActions.has(action), false)
+      // and added to incomingActions
+      strictEqual(world.incomingActions.has(action), true)
+
+    })
+
+    it('should apply outgoing actions to self and others if hosting and action is from this host', () => {
+
+      /* mock */
+      const world = createWorld()
+
+      // make this engine user the host
+      // world.isHosting === true
+      Engine.userId = world.hostId
+
+      const action = NetworkWorldAction.spawnObject({
+        userId: '0' as UserId,
+        prefab: '',
+        parameters: {},
+        $tick: 0,
+        // make action come from this host
+        $from: Engine.userId,
+        // being sent to other
+        $to: '1' as ActionRecipients,
+      })
+      
+      world.outgoingActions.add(action)
+
+      /* run */
+      rerouteOutgoingActionsBoundForSelf(world)
+
+      /* assert */
+      // verify incoming action was NOT removed from outgoingActions (applies action to other clients)
+      strictEqual(world.outgoingActions.has(action), true)
+      // and added to incomingActions (applies action to self)
+      strictEqual(world.incomingActions.has(action), true)
+
     })
 
   })
