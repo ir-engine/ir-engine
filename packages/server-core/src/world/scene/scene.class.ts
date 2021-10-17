@@ -64,7 +64,7 @@ export class Scene implements ServiceMethods<Data> {
    * @returns {@Object} contains specific project
    * @author Vyacheslav Solovjov
    */
-  async get(id: Id, params: Params): Promise<SceneDetailInterface> {
+  async get(id: Id, params?: Params): Promise<SceneDetailInterface> {
     const loggedInUser = extractLoggedInUserFromParams(params)
 
     let project

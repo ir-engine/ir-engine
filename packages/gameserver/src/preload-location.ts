@@ -22,7 +22,7 @@ export default async function (locationName, app: Application) {
   if (scene == null) return
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
   const projectResult = await app.service('scene').get(scene.sid)
-  const projectUrl = projectResult.project_url
+  const projectUrl = projectResult.scene_url
   const regexResult = projectUrl.match(projectRegex)
   if (regexResult) {
     service = regexResult[1]

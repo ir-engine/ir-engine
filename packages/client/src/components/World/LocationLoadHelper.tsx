@@ -60,11 +60,11 @@ export const getSceneData = async (sceneId: string, isOffline: boolean): Promise
     return testScenes[sceneId] || testScenes.test
   }
 
-  const projectResult = await client.service('scene').get(sceneId)
-  store.dispatch(SceneAction.setCurrentScene(projectResult))
+  const sceneResult = await client.service('scene').get(sceneId)
+  store.dispatch(SceneAction.setCurrentScene(sceneResult))
 
-  const projectUrl = projectResult.project_url
-  const regexResult = projectUrl.match(projectRegex)
+  const sceneUrl = sceneResult.scene_url
+  const regexResult = sceneUrl.match(projectRegex)
 
   let service, serviceId
   if (regexResult) {
