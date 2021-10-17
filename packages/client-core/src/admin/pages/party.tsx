@@ -10,7 +10,6 @@ const Party = (props: Props) => {
   React.useEffect(() => {
     AuthService.doLoginAuto(false)
   }, [])
-
   return <PartyCore />
 }
 

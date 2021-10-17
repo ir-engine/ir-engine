@@ -599,7 +599,7 @@ const LeftDrawer = (props: Props): any => {
                     {partyUsers &&
                       partyUsers.length > 0 &&
                       [...partyUsers]
-                        .sort((a, b) => a.user.name.localeCompare(b.user.name))
+                        .sort((a, b) => (a?.user?.name || '')?.localeCompare(b?.user?.name || ''))
                         .map((partyUser) => {
                           return (
                             <ListItem key={partyUser.id}>

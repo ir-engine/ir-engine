@@ -1,7 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 
 import { AnalyticsActionType } from './AnalyticsActions'
-
 export const ANALYTICS_PAGE_LIMIT = 100
 
 const state = createState({

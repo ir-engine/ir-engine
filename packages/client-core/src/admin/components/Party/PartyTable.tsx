@@ -65,13 +65,13 @@ const PartyTable = (props: PartyPropsTable) => {
     setPage(0)
   }
 
-  const rows = adminPartyData.map((el) =>
-    createData(
+  const rows = adminPartyData?.map((el) => {
+    return createData(
       el.id,
-      el.instance?.ipAddress || <span className={classes.spanNone}>None</span>,
-      el.location?.name || <span className={classes.spanNone}>None</span>
+      el?.instance?.ipAddress || `<span className={classes.spanNone}>None</span>`,
+      el.location?.name || `<span className={classes.spanNone}>None</span>`
     )
-  )
+  })
 
   return (
     <div className={classes.root}>

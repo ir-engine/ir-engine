@@ -36,10 +36,7 @@ const state = createState({
     updateNeeded: true
   },
   singleUser: {
-    singleUser: {
-      userRole: '',
-      scopes: []
-    },
+    singleUser: UserSeed as User,
     retrieving: false,
     fetched: false,
     updateNeeded: true

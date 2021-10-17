@@ -1,10 +1,10 @@
-import { RealityPackResult } from '@xrengine/common/src/interfaces/RealityPackResult'
+import { AdminRealityPackResult } from '@xrengine/common/src/interfaces/AdminRealityPackResult'
 
 export const RealityPackAction = {
-  realityPacksFetched: (realityPackResult: RealityPackResult) => {
+  realityPacksFetched: (adminRealityPackResult: AdminRealityPackResult) => {
     return {
       type: 'REALITY_PACKS_RETRIEVED' as const,
-      realityPackResult: realityPackResult
+      adminRealityPackResult: adminRealityPackResult
     }
   }
 }

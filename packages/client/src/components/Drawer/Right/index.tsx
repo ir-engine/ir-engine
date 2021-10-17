@@ -67,8 +67,7 @@ const Invites = (props: Props): any => {
   const invitableGroupState = groupState.invitableGroups
   const invitableGroups = invitableGroupState.groups
   const party = usePartyState().party.value
-  const selfPartyUser =
-    party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id.value) : {}
+  const selfPartyUser = party?.partyUsers?.find((partyUser) => partyUser?.user?.id === user.id.value)
 
   const [tabIndex, setTabIndex] = useState(0)
   const [inviteTabIndex, setInviteTabIndex] = useState(0)
@@ -295,7 +294,7 @@ const Invites = (props: Props): any => {
               {inviteTabIndex === 1 &&
                 [...receivedInvites.value]
                   .sort((a, b) => {
-                    return a.created - b.created
+                    return a.createdAt - b.createdAt
                   })
                   .map((invite, index) => {
                     return (
@@ -304,17 +303,17 @@ const Invites = (props: Props): any => {
                           <ListItemAvatar>
                             <Avatar src={invite.user.avatarUrl} />
                           </ListItemAvatar>
-                          {invite.inviteType === 'friend' && (
+                          {invite?.inviteType === 'friend' && (
                             <ListItemText>
-                              {capitalize(invite.inviteType)} request from {invite.user.name}
+                              {capitalize(invite?.inviteType || '')} request from {invite.user.name}
                             </ListItemText>
                           )}
-                          {invite.inviteType === 'group' && (
+                          {invite?.inviteType === 'group' && (
                             <ListItemText>
-                              Join group {invite.groupName} from {invite.user.name}
+                              Join group {invite?.groupName} from {invite.user.name}
                             </ListItemText>
                           )}
-                          {invite.inviteType === 'party' && (
+                          {invite?.inviteType === 'party' && (
                             <ListItemText>Join a party from {invite.user.name}</ListItemText>
                           )}
                           <Button variant="contained" color="primary" onClick={() => acceptRequest(invite)}>
@@ -331,7 +330,7 @@ const Invites = (props: Props): any => {
               {inviteTabIndex === 2 &&
                 [...sentInvites.value]
                   .sort((a, b) => {
-                    return a.created - b.created
+                    return a.createdAt - b.createdAt
                   })
                   .map((invite, index) => {
                     return (
@@ -340,18 +339,18 @@ const Invites = (props: Props): any => {
                           <ListItemAvatar>
                             <Avatar src={invite.user.avatarUrl} />
                           </ListItemAvatar>
-                          {invite.inviteType === 'friend' && (
+                          {invite?.inviteType === 'friend' && (
                             <ListItemText>
-                              {capitalize(invite.inviteType)} request to{' '}
+                              {capitalize(invite?.inviteType)} request to{' '}
                               {invite.invitee ? invite.invitee.name : invite.token}
                             </ListItemText>
                           )}
-                          {invite.inviteType === 'group' && (
+                          {invite?.inviteType === 'group' && (
                             <ListItemText>
-                              Join group {invite.groupName} to {invite.invitee ? invite.invitee.name : invite.token}
+                              Join group {invite?.groupName} to {invite.invitee ? invite.invitee.name : invite.token}
                             </ListItemText>
                           )}
-                          {invite.inviteType === 'party' && (
+                          {invite?.inviteType === 'party' && (
                             <ListItemText>
                               Join a party to {invite.invitee ? invite.invitee.name : invite.token}
                             </ListItemText>
@@ -392,12 +391,12 @@ const Invites = (props: Props): any => {
                 <Tab
                   icon={<SupervisedUserCircle style={{ fontSize: 30 }} />}
                   label="Friends"
-                  onClick={() => updateInviteTargetType('user', null)}
+                  onClick={() => updateInviteTargetType('user', undefined)}
                 />
                 <Tab
                   icon={<Group style={{ fontSize: 30 }} />}
                   label="Groups"
-                  onClick={() => updateInviteTargetType('group', null)}
+                  onClick={() => updateInviteTargetType('group', undefined)}
                 />
                 <Tab
                   icon={<GroupWork style={{ fontSize: 30 }} />}
@@ -444,12 +443,9 @@ const Invites = (props: Props): any => {
               {inviteTypeIndex === 2 && party == null && (
                 <div className={styles['flex-justify-center']}>You are not currently in a party</div>
               )}
-              {inviteTypeIndex === 2 &&
-                party != null &&
-                selfPartyUser?.isOwner !== true &&
-                selfPartyUser?.isOwner !== 1 && (
-                  <div className={styles['flex-justify-center']}>You are not the owner of your current party</div>
-                )}
+              {inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true && (
+                <div className={styles['flex-justify-center']}>You are not the owner of your current party</div>
+              )}
               {!(
                 (inviteTypeIndex === 1 && invitableGroupState.total.value === 0) ||
                 (inviteTypeIndex === 1 &&
@@ -458,10 +454,7 @@ const Invites = (props: Props): any => {
                     (invitableGroup) => invitableGroup.id === inviteState.targetObjectId.value
                   ) == null) ||
                 (inviteTypeIndex === 2 && party == null) ||
-                (inviteTypeIndex === 2 &&
-                  party != null &&
-                  selfPartyUser?.isOwner !== true &&
-                  selfPartyUser?.isOwner !== 1)
+                (inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true)
               ) && (
                 <div>
                   <Tabs

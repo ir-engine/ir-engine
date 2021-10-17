@@ -1,9 +1,10 @@
 import { ContentPackActionType } from './ContentPackActions'
 import _ from 'lodash'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { AdminContentPack } from '@xrengine/common/src/interfaces/AdminContentPack'
 
 const state = createState({
-  contentPacks: [],
+  contentPacks: [] as Array<AdminContentPack>,
   updateNeeded: true
 })
 

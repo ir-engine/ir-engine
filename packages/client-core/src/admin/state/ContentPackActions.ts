@@ -1,5 +1,7 @@
+import { AdminContentPack } from '@xrengine/common/src/interfaces/AdminContentPack'
+
 export const ContentPackAction = {
-  loadedContentPacks: (contentPacks: any[]) => {
+  loadedContentPacks: (contentPacks: AdminContentPack[]) => {
     return {
       type: 'LOADED_CONTENT_PACKS' as const,
       contentPacks: contentPacks

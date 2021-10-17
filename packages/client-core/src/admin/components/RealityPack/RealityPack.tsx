@@ -116,14 +116,14 @@ const RealityPack = () => {
   }
 
   const [order, setOrder] = useState<Order>('asc')
-  const [orderBy, setOrderBy] = useState<any>('name')
+  const [orderBy, setOrderBy] = useState<string>('name')
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(REALITY_PACK_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [uploadRealityPackModalOpen, setUploadRealityPackModalOpen] = useState(false)
-  const [selectedRealityPacks, setSelectedRealityPacks] = useState([])
+  const [selectedRealityPacks, setSelectedRealityPacks] = useState<AdminRealityPack[]>([])
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
     width: window.innerWidth

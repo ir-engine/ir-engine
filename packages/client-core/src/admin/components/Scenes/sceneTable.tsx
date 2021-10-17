@@ -33,7 +33,7 @@ const SceneTable = (props: Props) => {
   const scene = useSceneState().scenes
   const sceneData = scene?.scenes
   const sceneCount = scene?.total
-  const [singleScene, setSingleScene] = React.useState('')
+  const [singleScene, setSingleScene] = React.useState(null)
   const [open, setOpen] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)
   const [sceneId, setSceneId] = React.useState('')
@@ -63,8 +63,10 @@ const SceneTable = (props: Props) => {
 
   const handleViewScene = (id: string) => {
     const scene = sceneData?.value.find((sc) => sc.id === id)
-    setSingleScene(scene)
-    setOpen(true)
+    if (scene !== undefined) {
+      setSingleScene(scene)
+      setOpen(true)
+    }
   }
 
   const handleShowWarning = (id: string) => {

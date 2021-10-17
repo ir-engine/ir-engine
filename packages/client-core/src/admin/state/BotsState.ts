@@ -3,6 +3,7 @@ import { createState, DevTools, useState, none, Downgraded } from '@hookstate/co
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
 
 export const BOTS_PAGE_LIMIT = 100
 
@@ -14,7 +15,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   bots: {
-    bots: [],
+    bots: [] as Array<AdminBot>,
     skip: 0,
     limit: BOTS_PAGE_LIMIT,
     total: 0,
