@@ -23,7 +23,7 @@ export type RenderSettingsProps = {
 }
 
 export const configureCSM = (directionalLights: DirectionalLight[], remove?: boolean): void => {
-  if (!isClient || !Engine.renderer.shadowMap.enabled) return
+  if (!isClient || !Engine.renderer?.shadowMap.enabled) return
 
   if (remove || !directionalLights.length) {
     if (!Engine.csm) return
@@ -48,7 +48,7 @@ export const configureCSM = (directionalLights: DirectionalLight[], remove?: boo
 }
 
 export const handleRendererSettings = (args: RenderSettingsProps, reset?: boolean): void => {
-  if (!isClient) return
+  if (!isClient || !Engine.renderer) return
 
   if (reset) {
     Engine.renderer.shadowMap.enabled = true

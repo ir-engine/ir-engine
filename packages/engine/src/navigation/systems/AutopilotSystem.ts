@@ -57,7 +57,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       const { overrideCoords, overridePosition } = getComponent(entity, AutoPilotOverrideComponent)
       raycaster.setFromCamera(coords, Engine.camera)
 
-      const raycasterResults: Intersection[] = []
+      const raycasterResults: Intersection<any>[] = []
 
       const clickResult = navmeshesQuery().reduce(
         (previousEntry, currentEntity) => {

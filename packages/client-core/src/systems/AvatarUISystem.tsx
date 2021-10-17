@@ -2,13 +2,14 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent, TransformData } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Quaternion, Vector3 } from 'three'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 
@@ -21,11 +22,12 @@ export default async function AvatarUISystem(world: World): Promise<System> {
       const userId = getComponent(userEntity, NetworkObjectComponent).userId
       const ui = createAvatarDetailView(userId)
       AvatarUI.set(userEntity, ui)
-      addComponent(ui.entity, TransformComponent, {
+      const object3dComponent = getComponent(ui.entity, Object3DComponent)
+      addComponent<TransformData, {}>(ui.entity, TransformComponent,  new TransformData(object3dComponent.value, {
         position: new Vector3(),
         rotation: new Quaternion(),
         scale: new Vector3(1, 1, 1)
-      })
+      }))
     }
 
     for (const userEntity of userQuery()) {

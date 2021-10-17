@@ -2,8 +2,8 @@ import { Object3D, Audio, PositionalAudio } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 
 export const AudioType = {
-  Stereo: 'stereo',
-  PannerNode: 'pannernode'
+  Stereo: 'stereo' as const,
+  PannerNode: 'pannernode' as const
 }
 
 export const DistanceModelType = {
@@ -11,6 +11,9 @@ export const DistanceModelType = {
   Inverse: 'inverse',
   Exponential: 'exponential'
 }
+
+export type AudioTypes = typeof AudioType.Stereo | typeof AudioType.PannerNode
+export type DistanceModelTypes = typeof DistanceModelType.Exponential | typeof DistanceModelType.Inverse | typeof DistanceModelType.Linear
 
 export const AudioTypeOptions = Object.values(AudioType).map((v) => ({
   label: v,
@@ -35,6 +38,10 @@ export default class AudioSource extends Object3D {
   audio: any
   audioSource: any
   isSynced: boolean
+  elementId: string
+  interactable: boolean
+  synchronize: number
+
   constructor(audioListener, elTag = 'audio', id?: string) {
     super()
 

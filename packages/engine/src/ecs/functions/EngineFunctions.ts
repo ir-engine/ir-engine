@@ -6,13 +6,13 @@ import { isClient } from '../../common/functions/isClient'
 import { Network } from '../../networking/classes/Network'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
-import { hasComponent, removeAllComponents } from './ComponentFunctions'
+import { getComponent, removeAllComponents } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -84,7 +84,8 @@ export const processLocationChange = async (): Promise<void> => {
   const sceneObjectsToRemove = [] as Object3D[]
 
   world.entities.forEach((entity) => {
-    if (!hasComponent(entity, PersistTagComponent)) {
+    const entityMetadata = getComponent(entity, VisibleComponent)
+    if (!entityMetadata || !entityMetadata.persist) {
       removeAllComponents(entity)
       entitiesToRemove.push(entity)
       removedEntities.push(entity)

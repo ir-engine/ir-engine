@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent, TransformData } from '../../transform/components/TransformComponent'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -50,11 +50,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
         timer: 0
       })
   }
-  const transform = addComponent(entity, TransformComponent, {
-    position: new Vector3().copy(spawnAction.parameters.position),
-    rotation: new Quaternion().copy(spawnAction.parameters.rotation),
-    scale: new Vector3(1, 1, 1)
-  })
+
 
   addComponent(entity, VelocityComponent, {
     velocity: new Vector3()
@@ -99,6 +95,12 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
+
+  const transform = addComponent<TransformData, {}>(entity, TransformComponent, new TransformData(tiltContainer, {
+    position: new Vector3().copy(spawnAction.parameters.position),
+    rotation: new Quaternion().copy(spawnAction.parameters.rotation),
+    scale: new Vector3(1, 1, 1)
+  }))
 
   const filterData = new PhysX.PxQueryFilterData()
   filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)

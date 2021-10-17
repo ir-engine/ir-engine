@@ -1,4 +1,3 @@
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { forwardVector3, multiplyQuaternion, normalize, subVector } from '@xrengine/common/src/utils/mathUtils'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
@@ -8,7 +7,6 @@ import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/i
 import { ProximityComponent } from '../components/ProximityComponent'
 import { ChatService } from '../../social/reducers/chat/ChatService'
 import { accessAuthState } from '../../user/reducers/auth/AuthState'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 

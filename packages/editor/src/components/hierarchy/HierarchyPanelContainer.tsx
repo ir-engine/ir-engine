@@ -18,11 +18,12 @@ import traverseEarlyOut from '../../functions/traverseEarlyOut'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
-import { NodeManager } from '../../managers/NodeManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -640,6 +641,8 @@ function TreeNode({
     })
   })
 
+  const nameComponent = getComponent(object.eid, NameComponent)
+
   //returning tree view for hierarchy panel
   return (
     <TreeDepthContainer style={style}>
@@ -687,7 +690,7 @@ function TreeNode({
                   </TreeNodeRenameInputContainer>
                 ) : (
                   <TreeNodeLabel canDrop={canDropOn} isOver={isOverOn}>
-                    {object.eid}
+                    {nameComponent.name}
                   </TreeNodeLabel>
                 )}
               </TreeNodeLabelContainer>
@@ -1177,7 +1180,7 @@ export default function HierarchyPanel() {
   return (
     <Fragment>
       <PanelContainer>
-        {(SceneManager.instance.helperScene) && (
+        {(SceneManager.instance.scene) && (
           <AutoSizer>
             {({ height, width }) => (
               <FixedSizeList

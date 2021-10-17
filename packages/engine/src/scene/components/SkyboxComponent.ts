@@ -1,17 +1,16 @@
+import { ComponentNames } from '../../common/constants/ComponentNames'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { Sky } from '../../scene/classes/Sky'
 
 // TODO: WOrk in progress
 export type SkyboxComponentProps = {
-  obj3d: Sky
 }
 
 export class SkyboxComponentClass {
-  static legacyComponentName = 'skybox'
-  static nodeName = 'Skybox'
+  static legacyComponentName = ComponentNames.SKYBOX
 
-  constructor(props: SkyboxComponentProps) {
-    this.obj3d = props.obj3d ?? new Sky()
+  constructor(obj3d: Sky, props: SkyboxComponentProps) {
+    this.obj3d = obj3d
   }
 
   obj3d: Sky

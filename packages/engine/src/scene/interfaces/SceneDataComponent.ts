@@ -8,4 +8,5 @@ export interface SceneDataComponent {
   props: Record<string, any>
   createdAt: string
   updatedAt: string
+  sanitizedName?: string
 }

@@ -13,7 +13,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent, TransformData } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractiveFocusedComponent } from '../components/InteractiveFocusedComponent'
@@ -27,9 +27,9 @@ import AudioSource from '../../scene/classes/AudioSource'
 import { Engine } from '../../ecs/classes/Engine'
 import { createBoxComponent } from '../functions/createBoxComponent'
 import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 
 const upVec = new Vector3(0, 1, 0)
 
@@ -52,12 +52,15 @@ export default async function InteractiveSystem(world: World): Promise<System> {
   const textGroup = new Group().add(text)
   addComponent(interactTextEntity, Object3DComponent, { value: textGroup })
   Engine.scene.add(textGroup)
-  addComponent(interactTextEntity, PersistTagComponent, {})
-  const transformComponent = addComponent(interactTextEntity, TransformComponent, {
+
+  const entityMetadata = getComponent(interactTextEntity, VisibleComponent)
+  entityMetadata.persist = true
+
+  const transformComponent = addComponent<TransformData, {}>(interactTextEntity, TransformComponent, new TransformData(textGroup, {
     position: new Vector3(),
     rotation: new Quaternion(),
     scale: new Vector3(1, 1, 1)
-  })
+  }))
   transformComponent.scale.setScalar(0)
   textGroup.visible = false
 

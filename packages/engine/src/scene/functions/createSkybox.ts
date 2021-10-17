@@ -1,7 +1,7 @@
 import { Color, CubeTextureLoader, PMREMGenerator, sRGBEncoding, TextureLoader } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { SceneBackgroundProps, SkyTypeEnum } from '../../scene/constants/SkyBoxShaderProps'
 import { Sky } from '../classes/Sky'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -13,8 +13,7 @@ export const createSkybox = (entity, args: SceneBackgroundProps) => {
     switch (args.backgroundType) {
       case SkyTypeEnum.skybox:
         const option = args.skyboxProps
-        const sky = new Sky()
-        addComponent(entity, Object3DComponent, { value: sky })
+        const sky = getComponent(entity, Object3DComponent).value as Sky
 
         sky.azimuth = option.azimuth
         sky.inclination = option.inclination

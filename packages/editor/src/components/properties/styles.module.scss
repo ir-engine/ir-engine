@@ -1,0 +1,15 @@
+.metadataConainer {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  padding: 8px 0;
+
+  .row {
+    min-width: 100%;
+  }
+}
+
+.nameInput {
+  min-width: 100%;
+}

@@ -61,6 +61,11 @@ export class GenerateMeshBVHWorker {
         }
       }
 
+      if (!geometry.attributes.position) {
+        console.warn('Position attribute is not defined')
+        return
+      }
+
       if (
         (geometry.attributes.position as InterleavedBufferAttribute).isInterleavedBufferAttribute ||
         (geometry.index && (geometry.index as any as InterleavedBufferAttribute).isInterleavedBufferAttribute)

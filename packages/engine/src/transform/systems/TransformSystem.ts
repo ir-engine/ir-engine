@@ -110,19 +110,20 @@ export default async function TransformSystem(world: World): Promise<System> {
       tween.tween.update()
     }
 
-    for (const entity of transformObjectQuery(world)) {
-      const transform = getComponent(entity, TransformComponent)
-      const object3DComponent = getComponent(entity, Object3DComponent)
+    // TODO: this query is no longer required since updating value in transform component will automatically update the position in the scene.
+    // for (const entity of transformObjectQuery(world)) {
+    //   const transform = getComponent(entity, TransformComponent)
+    //   const object3DComponent = getComponent(entity, Object3DComponent)
 
-      if (!object3DComponent.value) {
-        console.warn('object3D component on entity', entity, ' is undefined')
-        continue
-      }
+    //   if (!object3DComponent.value) {
+    //     // console.warn('object3D component on entity', entity, ' is undefined')
+    //     continue
+    //   }
 
-      object3DComponent.value.position.copy(transform.position)
-      object3DComponent.value.quaternion.copy(transform.rotation)
-      object3DComponent.value.scale.copy(transform.scale)
-      object3DComponent.value.updateMatrixWorld()
-    }
+    //   object3DComponent.value.position.copy(transform.position)
+    //   object3DComponent.value.quaternion.copy(transform.rotation)
+    //   object3DComponent.value.scale.copy(transform.scale)
+    //   object3DComponent.value.updateMatrixWorld()
+    // }
   }
 }

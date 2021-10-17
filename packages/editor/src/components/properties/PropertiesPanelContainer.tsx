@@ -2,13 +2,12 @@ import React, { Component } from 'react'
 import DefaultNodeEditor from './DefaultNodeEditor'
 import styled from 'styled-components'
 import TransformPropertyGroup from './TransformPropertyGroup'
-import NameInputGroup from './NameInputGroup'
 import InputGroup from '../inputs/InputGroup'
-import BooleanInput from '../inputs/BooleanInput'
 import { withTranslation } from 'react-i18next'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { NodeManager } from '../../managers/NodeManager'
+import EntityMetadataEditor from './EntityMetadataEditor'
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.
@@ -203,7 +202,7 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
       content = (
         <StyledNodeEditor>
           <PropertiesHeader>
-            <NameInputGroupContainer>
+            {/* <NameInputGroupContainer>
               <NameInputGroup node={activeNode} />
               {activeNode.nodeName !== 'Scene' && (
                 <>
@@ -220,7 +219,8 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
             </NameInputGroupContainer>
             <PersistInputGroup name="Persist" label={this.props.t('editor:properties.lbl-persist')}>
               <BooleanInput value={activeNode.persist} onChange={this.onChangePersist} />
-            </PersistInputGroup>
+            </PersistInputGroup> */}
+            <EntityMetadataEditor node={activeNode} />
             {!disableTransform && <TransformPropertyGroup node={activeNode} />}
           </PropertiesHeader>
           {nodeEditor}

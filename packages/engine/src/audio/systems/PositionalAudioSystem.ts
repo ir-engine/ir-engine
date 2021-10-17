@@ -7,10 +7,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
-import {
-  PositionalAudioSettingsComponent,
-  PositionalAudioSettingsComponentType
-} from '../../scene/components/AudioSettingsComponent'
+import { PositionalAudioSettingsComponent } from '../../scene/components/AudioSettingsComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 import { AudioTagComponent } from '../components/AudioTagComponent'

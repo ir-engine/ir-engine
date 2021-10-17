@@ -1,8 +1,7 @@
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { CameraMode } from '../camera/types/CameraMode'
-import { addComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
-import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { createAvatar } from './functions/createAvatar'
 import { AudioTagComponent } from '../audio/components/AudioTagComponent'
@@ -12,6 +11,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import matches from 'ts-matches'
 import { Raycaster } from 'three'
+import { VisibleComponent } from '../scene/components/VisibleComponent'
 
 export default async function ClientAvatarSpawnSystem(world: World): Promise<System> {
   world.receptors.add((action) => {
@@ -37,7 +37,9 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
           locked: true,
           raycaster: new Raycaster()
         })
-        addComponent(entity, PersistTagComponent, {})
+
+        const entityMetadata = getComponent(entity, VisibleComponent)
+        entityMetadata.persist = true
       }
     })
   })

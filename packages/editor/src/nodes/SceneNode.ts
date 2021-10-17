@@ -40,13 +40,8 @@ import { SceneManager } from '../managers/SceneManager'
 import CubemapBakeNode from './CubemapBakeNode'
 import EditorNodeMixin from './EditorNodeMixin'
 import GroupNode from './GroupNode'
-import { SpawnPointComponent, SpawnPointComponentClass } from '@xrengine/engine/src/scene/components/SpawnPointComponent'
-import { SimpleMaterialComponent, SimpleMaterialComponentClass } from '@xrengine/engine/src/scene/components/SimpleMaterialComponent'
 import EntityTree from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { ScenePreviewCameraTagComponent, ScenePreviewCameraTagComponentClass } from '@xrengine/engine/src/scene/components/ScenePreviewCameraComponent'
-import { SkyboxComponent, SkyboxComponentClass } from '@xrengine/engine/src/scene/components/SkyboxComponent'
-import { PostProcessingComponent, PostProcessingComponentClass } from '@xrengine/engine/src/scene/components/PostProcessingComponent'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = 'Scene'
@@ -54,132 +49,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   static canAddNode() {
     return false
   }
-  static async loadProject(json) {
-    const { root, metadata, entities } = json
-    let scene = null
-    const dependencies = []
-    function loadAsync(promise) {
-      dependencies.push(promise)
-    }
-    const errors = []
-    function onError(object, error) {
-      errors.push(error)
-    }
-    const sortedEntities = sortEntities(entities)
 
-    const ents = {}
-    for (const entityId of sortedEntities) {
-      const entity = entities[entityId]
-      let EntityNodeConstructor
-      for (const NodeConstructor of NodeManager.instance.nodeTypes) {
-        if (NodeConstructor.shouldDeserialize(entity)) {
-          EntityNodeConstructor = NodeConstructor
-          break
-        }
-      }
-      if (!EntityNodeConstructor) {
-        console.warn(`No node constructor found for entity "${entity.name}"`)
-      } else {
-        // TODO: This will be replace by Scene Loading Function already in use for loading scene for locations
-        if (EntityNodeConstructor.legacyComponentName === 'hemisphere-light') {
-          const hemi = entity.components.find(c =>  c.name === 'hemisphere-light').props
-          const worldEntity = createEntity()
-          ents[entity.entityId] = worldEntity
-          addComponent(worldEntity, Object3DComponent, { comp: HemisphereLightComponent })
-          addComponent(worldEntity, HemisphereLightComponent, new HemisphereLightComponentClass(hemi) as any)
-
-          setInterval(() => {
-            const hemi = getComponent(worldEntity, HemisphereLightComponent)
-            hemi.intensity = 1 + Math.random() * 2
-          }, 1000)
-        } else if (EntityNodeConstructor.legacyComponentName === 'ground-plane') {
-          const sp = entity.components.find(c =>  c.name === 'ground-plane').props
-          const worldEntity = createEntity()
-          ents[entity.entityId] = worldEntity
-          addComponent(worldEntity, Object3DComponent, { comp: GroundPlaneComponent })
-          addComponent(worldEntity, GroundPlaneComponent, new GroundPlaneComponentClass(sp) as any)
-        } else if (EntityNodeConstructor.legacyComponentName === 'spawn-point') {
-          const worldEntity = createEntity()
-          ents[entity.entityId] = worldEntity
-          addComponent(worldEntity, SpawnPointComponent, new SpawnPointComponentClass(true) as any)
-
-          // TODO: Have to check for async component loading, maybe callback?
-          setTimeout(() => {
-            addComponent(worldEntity, Object3DComponent, { comp: SpawnPointComponent })
-          }, 5000)
-        } else if (EntityNodeConstructor.nodeName === 'Scene') {
-          const worldEntity = createEntity()
-          ents[entity.entityId] = worldEntity
-          addComponent(worldEntity, SimpleMaterialComponent, new SimpleMaterialComponentClass() as any)
-        } else if (EntityNodeConstructor.legacyComponentName === 'group') {
-
-        } else if (EntityNodeConstructor.legacyComponentName === 'scene-preview-camera') {
-          const sp = entity.components.find(c =>  c.name === 'scene-preview-camera').props
-          const worldEntity = createEntity()
-          ents[entity.entityId] = worldEntity
-          addComponent(worldEntity, Object3DComponent, { comp: ScenePreviewCameraTagComponent })
-          addComponent(worldEntity, ScenePreviewCameraTagComponent, new ScenePreviewCameraTagComponentClass(sp) as any)
-        } else if (EntityNodeConstructor.legacyComponentName === 'skybox') {
-          const sp = entity.components.find(c =>  c.name === 'skybox').props
-          const worldEntity = createEntity()
-          ents[entity.entityId] = worldEntity
-          addComponent(worldEntity, Object3DComponent, { comp: SkyboxComponent })
-          addComponent(worldEntity, SkyboxComponent, new SkyboxComponentClass(sp) as any)
-        } else if (EntityNodeConstructor.legacyComponentName === 'postProcessing') {
-          const sp = entity.components.find(c =>  c.name === 'postProcessing').props
-          const worldEntity = createEntity()
-          ents[entity.entityId] = worldEntity
-          addComponent(worldEntity, Object3DComponent, { comp: PostProcessingComponent })
-          addComponent(worldEntity, PostProcessingComponent, new PostProcessingComponentClass(sp) as any)
-        }
-        else {
-          continue
-
-                  try {
-                    const node = await EntityNodeConstructor.deserialize(entity, loadAsync, onError)
-                    node.uuid = entityId
-                    if (entity.parent) {
-                      const parent = getNodeWithUUID(scene, entity.parent)
-                      if (!parent) {
-                        throw new Error(
-                          `Node "${entity.name}" with uuid "${entity.uuid}" specifies parent "${entity.parent}", but was not found.`
-                        )
-                      }
-                      parent.children.splice(entity.index, 0, node)
-                      node.parent = parent
-                    } else if (entityId === root) {
-                      scene = node
-                      scene.metadata = metadata
-                    } else {
-                      throw new Error(`Node "${entity.name}" with uuid "${entity.uuid}" does not specify a parent.`)
-                    }
-                  } catch (e) {
-                    console.error('Node failed to load - it will be removed', e)
-                    errors.push(e)
-                  }
-        }
-      }
-    }
-
-    const world = useWorld()
-
-    if (!world.entityTree) world.entityTree = new EntityTree()
-
-    const tree = world.entityTree
-
-    // Below code will add create entity tree which will be used for heirarchy panel 
-    Object.keys(entities).forEach((key) => {
-      const sceneEntity = entities[key]
-
-      if (!ents[sceneEntity.entityId]) return
-
-      // console.debug(ents[sceneEntity.entityId], ents[sceneEntity.parent])
-      tree.addEntity(ents[sceneEntity.entityId], ents[sceneEntity.parent])
-    })
-
-    await Promise.all(dependencies)
-    return [scene, errors]
-  }
   static shouldDeserialize(entityJson) {
     return entityJson.parent === undefined
   }

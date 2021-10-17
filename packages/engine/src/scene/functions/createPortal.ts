@@ -23,7 +23,7 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FontManager } from '../../xrui/classes/FontManager'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { PortalComponent } from '../components/PortalComponent'
+import { PortalComponent, PortalData } from '../components/PortalComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { BodyType } from '../../physics/types/PhysicsTypes'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
@@ -139,16 +139,24 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
   addComponent(entity, ColliderComponent, { body: portalBody })
   addComponent(entity, CollisionComponent, { collisions: [] })
 
-  addComponent(entity, PortalComponent, {
-    location: locationName,
-    linkedPortalId,
-    displayText,
-    previewMesh,
-    isPlayerInPortal: false,
-    remoteSpawnPosition: new Vector3(),
-    remoteSpawnRotation: new Quaternion(),
-    remoteSpawnEuler: new Euler()
-  })
+  const object3dComponent = getComponent(entity, Object3DComponent)
+  addComponent<PortalData, {}>(
+    entity,
+    PortalComponent,
+    new PortalData(
+      object3dComponent.value as Mesh,
+      {
+        location: locationName,
+        linkedPortalId,
+        displayText,
+        previewMesh,
+        isPlayerInPortal: false,
+        remoteSpawnPosition: new Vector3(),
+        remoteSpawnRotation: new Quaternion(),
+        remoteSpawnEuler: new Euler()
+      }
+    )
+  )
 
   Engine.defaultWorld.portalEntities.push(entity)
 }

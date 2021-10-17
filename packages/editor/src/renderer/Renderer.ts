@@ -33,6 +33,7 @@ import { effectType } from '@xrengine/engine/src/scene/classes/PostProcessing'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export class Renderer {
   canvas: HTMLCanvasElement
@@ -57,6 +58,7 @@ export class Renderer {
     renderer.setPixelRatio(window.devicePixelRatio)
     renderer.info.autoReset = false
     this.webglRenderer = renderer
+    Engine.renderer = renderer
 
     this.screenshotRenderer = makeRenderer(1920, 1080)
 
@@ -79,8 +81,6 @@ export class Renderer {
         this.outlineEffect.selection.set(meshes)
       }
     })
-
-    this.configureEffectComposer()
   }
 
   update(dt, _time) {
@@ -104,15 +104,15 @@ export class Renderer {
       return
     }
 
-    const { scene, camera, postProcessingNode, helperScene } = SceneManager.instance
+    const { scene, camera, postProcessingNode } = SceneManager.instance
 
     if (!this.effectComposer) this.effectComposer = new EffectComposer(this.webglRenderer)
     else this.effectComposer.removeAllPasses()
 
-    this.renderPass = new RenderPass(helperScene, camera)
+    this.renderPass = new RenderPass(scene, camera)
     this.effectComposer.addPass(this.renderPass)
 
-    const normalPass = new NormalPass(helperScene, camera, {
+    const normalPass = new NormalPass(scene, camera, {
       renderTarget: new WebGLRenderTarget(1, 1, {
         minFilter: NearestFilter,
         magFilter: NearestFilter,
@@ -140,7 +140,7 @@ export class Renderer {
             passes.push(new effect(camera, normalPass.texture, { ...pass, normalDepthBuffer }))
           } else if (effect === DepthOfFieldEffect) passes.push(new effect(camera, pass))
           else if (effect === OutlineEffect) {
-            const eff = new effect(helperScene, camera, pass)
+            const eff = new effect(scene, camera, pass)
             passes.push(eff)
             this.outlineEffect = eff
           } else passes.push(new effect(pass))

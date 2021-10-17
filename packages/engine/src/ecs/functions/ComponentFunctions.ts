@@ -147,6 +147,14 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
   return componentRef
 }
 
+export const getCountOfComponentType = <T, S extends bitECS.ISchema>(
+  component: MappedComponent<T, S>,
+  world = useWorld()
+): number => {
+  const query = defineQuery([component])
+  return query(world).length
+}
+
 export const getAllComponentsOfType = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
   world = useWorld()
@@ -164,6 +172,10 @@ export const getAllEntitiesWithComponent = <T, S extends bitECS.ISchema>(
 ): Entity[] => {
   const query = defineQuery([component])
   return query(world)
+}
+
+export const getAllComponents = (entity: Entity, world = useWorld()): MappedComponent<any, any>[] => {
+  return bitECS.getEntityComponents(world, entity) as MappedComponent<any, any>[]
 }
 
 export const removeAllComponents = (entity: Entity, world = useWorld()) => {

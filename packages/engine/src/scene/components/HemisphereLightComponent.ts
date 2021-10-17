@@ -1,19 +1,16 @@
 import { Color, HemisphereLight } from 'three'
-import { Engine } from '../../../dist'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
-import { Component } from './Component'
+import { ComponentNames } from '../../common/constants/ComponentNames'
+import { createMappedComponent, getCountOfComponentType } from '../../ecs/functions/ComponentFunctions'
+import { ComponentData } from '../../common/classes/ComponentData'
 
-/** Component Class for Object3D type from three.js.  */
-
-export type HemisphereLightComponentProps = {
-  skyColor: Color,
-  groundColor: Color,
-  intensity: number
-  obj3d?: HemisphereLight
+export type HemisphereLightDataProps = {
+  skyColor?: Color,
+  groundColor?: Color,
+  intensity?: number
 }
 
-export class HemisphereLightComponentClass implements Component {
-  static legacyComponentName = 'hemisphere-light'
+export class HemisphereLightData implements ComponentData {
+  static legacyComponentName = ComponentNames.HEMISPHERE_LIGHT
   static nodeName = 'Hemisphere Light'
   static metadata: [
     {
@@ -34,11 +31,22 @@ export class HemisphereLightComponentClass implements Component {
     }
   ]
 
-  constructor(props: HemisphereLightComponentProps) {
-    this.obj3d = props.obj3d ?? new HemisphereLight()
-    this.skyColor = typeof props.skyColor === 'string' ? new Color(props.skyColor) : props.skyColor
-    this.groundColor =  typeof props.groundColor === 'string' ? new Color(props.groundColor) : props.groundColor
-    this.intensity = props.intensity
+  constructor(obj3d: HemisphereLight, props?: HemisphereLightDataProps) {
+    this.obj3d = obj3d
+
+    if (props) {
+      if (props.skyColor) {
+        this.skyColor = typeof props.skyColor === 'string' ? new Color(props.skyColor) : props.skyColor
+      }
+
+      if (props.groundColor) {
+        this.groundColor =  typeof props.groundColor === 'string' ? new Color(props.groundColor) : props.groundColor
+      }
+
+      if (props.intensity != null) {
+        this.intensity = props.intensity
+      }
+    }
   }
 
   obj3d: HemisphereLight
@@ -67,9 +75,7 @@ export class HemisphereLightComponentClass implements Component {
     this.obj3d.intensity = intensity
   }
 
-  dirty?: boolean
-
-  serialize(): HemisphereLightComponentProps {
+  serialize(): HemisphereLightDataProps {
     return {
       skyColor: this.skyColor,
       groundColor: this.groundColor,
@@ -81,18 +87,9 @@ export class HemisphereLightComponentClass implements Component {
     return JSON.stringify(this.serialize())
   }
 
-  deserialize(props): HemisphereLightComponentClass {
-    return new HemisphereLightComponentClass(props)
-  }
-
-  deserializeFromJSON(json: string): HemisphereLightComponentClass {
-    return this.deserialize(JSON.parse(json))
-  }
-
   canBeAdded(): boolean {
-    return true
-    // Engine.scene.findNodeByType(HemisphereLightNode) === null
+    return getCountOfComponentType(HemisphereLightComponent) === 0
   }
 }
 
-export const HemisphereLightComponent = createMappedComponent<HemisphereLightComponentClass>('HemisphereLightComponent')
+export const HemisphereLightComponent = createMappedComponent<HemisphereLightData>('HemisphereLightComponent')

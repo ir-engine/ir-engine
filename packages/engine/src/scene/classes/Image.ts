@@ -10,19 +10,25 @@ import {
   MeshStandardMaterial
 } from 'three'
 import loadTexture from '../../assets/functions/loadTexture'
+
 export const ImageProjection = {
-  Flat: 'flat',
-  Equirectangular360: '360-equirectangular'
+  Flat: 'flat' as const,
+  Equirectangular360: '360-equirectangular' as const
 }
+
 export const ImageAlphaMode = {
-  Opaque: 'opaque',
-  Blend: 'blend',
-  Mask: 'mask'
+  Opaque: 'opaque' as const,
+  Blend: 'blend' as const,
+  Mask: 'mask' as const
 }
+
+export type ImageAlphaModeType = typeof ImageAlphaMode.Opaque | typeof ImageAlphaMode.Blend | typeof ImageAlphaMode.Mask
+export type ImageProjectionType = typeof ImageProjection.Flat | typeof ImageProjection.Equirectangular360
+
 export default class Image extends Object3D {
   _src: any
-  _projection: string
-  _alphaMode: string
+  _projection: ImageProjectionType
+  _alphaMode: ImageAlphaModeType
   _alphaCutoff: number
   _mesh: Mesh
   _texture: any

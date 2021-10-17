@@ -1,7 +1,7 @@
 import { createCollider, BodyOptions } from '../functions/createCollider'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { VelocityComponent } from '../components/VelocityComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent, TransformData } from '../../transform/components/TransformComponent'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import {
   BoxBufferGeometry,
@@ -47,11 +47,11 @@ export const createRigidbody = (world, type) => {
     value: mesh
   })
 
-  addComponent(entity, TransformComponent, {
+  addComponent<TransformData, {}>(entity, TransformComponent, new TransformData(mesh, {
     position: new Vector3().random().multiplyScalar(5).add(new Vector3(0, 5, 0)),
     rotation: new Quaternion(),
     scale: new Vector3(0.5, 0.5, 0.5)
-  })
+  }))
 
   // createCollider(entity, mesh)
 }

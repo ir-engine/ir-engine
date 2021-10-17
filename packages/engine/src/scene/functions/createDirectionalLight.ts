@@ -6,6 +6,8 @@ import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { addObject3DComponent } from './addObject3DComponent'
 import { applyArgsToObject3d } from './applyArgsToObject3d'
 
+
+// TODO: Remove below
 export const createDirectionalLight = (
   entity: Entity,
   component: SceneDataComponent,

@@ -3,11 +3,10 @@ import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent, TransformData } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
@@ -15,6 +14,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 import { CameraLayers } from '../constants/CameraLayers'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -215,13 +215,15 @@ export default async function CameraSystem(world: World): Promise<System> {
   const cameraEntity = createEntity()
   addComponent(cameraEntity, CameraComponent, {})
 
-  // addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
-  addComponent(cameraEntity, TransformComponent, {
+  addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
+  addComponent<TransformData, {}>(cameraEntity, TransformComponent, new TransformData(Engine.camera, {
     position: new Vector3(),
     rotation: new Quaternion(),
     scale: new Vector3(1, 1, 1)
-  })
-  addComponent(cameraEntity, PersistTagComponent, {})
+  }))
+
+  const entityMetadata = getComponent(cameraEntity, VisibleComponent)
+  entityMetadata.persist = true
   Engine.activeCameraEntity = cameraEntity
 
   return () => {

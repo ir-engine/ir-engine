@@ -1,7 +1,6 @@
 import i18n from 'i18next'
 import { PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, AudioListener, PropertyBinding } from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
-import SceneNode from '../nodes/SceneNode'
 import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
 import { generateImageFileThumbnail, generateVideoFileThumbnail } from '../functions/thumbnails'
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
@@ -19,6 +18,7 @@ import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import PostProcessingNode from '../nodes/PostProcessingNode'
 import { Renderer } from '../renderer/Renderer'
+import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 
 export class SceneManager {
   static instance: SceneManager
@@ -29,11 +29,10 @@ export class SceneManager {
   }
 
   renderer: Renderer
-  scene: SceneNode
+  scene: Scene
   sceneModified: boolean
   camera: PerspectiveCamera
   audioListener: AudioListener
-  helperScene: Scene
   grid: EditorInfiniteGridHelper
   raycaster: Raycaster
   centerScreenSpace: Vector2
@@ -65,22 +64,56 @@ export class SceneManager {
     }
 
     // getting scene data
-    console.debug(projectFile)
-    const [scene, error] = await SceneNode.loadProject(projectFile)
+    // const [scene, error] = await SceneNode.loadProject(projectFile)
+
+    await WorldScene.load(projectFile, null, { generateEntityTree: true, isEditor: true })
     // if (scene === null) throw new Error('Scene data is null, please create a new scene.')
 
-    this.scene = scene
+    this.scene = Engine.scene
 
     this.grid = new EditorInfiniteGridHelper()
     this.transformGizmo = new TransformGizmo()
 
-    // this.helperScene.add(this.grid)
-    // this.helperScene.add(this.transformGizmo)
-
     this.sceneModified = false
 
-    console.debug(Engine)
-    if (error) return error
+    this.camera = Engine.camera as PerspectiveCamera
+
+    this.scene.add(this.grid)
+    this.scene.add(this.transformGizmo)
+
+
+    this.audioListener = new AudioListener()
+    this.camera.add(this.audioListener)
+    this.camera.layers.enable(1)
+    this.camera.name = 'Camera'
+
+    this.camera.position.set(0, 5, 10)
+    this.camera.lookAt(new Vector3())
+
+    this.scene.add(this.camera)
+
+    this.thumbnailRenderer = new ThumbnailRenderer()
+    window.addEventListener('resize', this.onResize)
+
+    // this.scene.traverse((node) => {
+    //   if (node.isNode) {
+    //     if (node.name === 'Post Processing') {
+    //       this.postProcessingNode = node
+    //     }
+
+    //     node.onChange()
+    //   }
+    // })
+
+    ControlManager.instance.initControls()
+    this.grid.setSize(ControlManager.instance.editorControls.translationSnap)
+
+    this.disableUpdate = false
+    CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
+
+    this.renderer.configureEffectComposer()
+
+    // if (error) return error
   }
 
   /**
@@ -92,56 +125,8 @@ export class SceneManager {
     this.sceneModified = true
   }
 
-  /**
-   * Function initializeRenderer used to render canvas.
-   *
-   * @author Robert Long
-   * @param  {any} canvas [ contains canvas data ]
-   */
-  initializeRenderer(canvas: HTMLCanvasElement): void {
-    try {
-      this.camera = Engine.camera as PerspectiveCamera
-      this.helperScene = Engine.scene
-
-      this.helperScene.add(this.grid)
-      this.helperScene.add(this.transformGizmo)
-
-
-      this.audioListener = new AudioListener()
-      this.camera.add(this.audioListener)
-      this.camera.layers.enable(1)
-      this.camera.name = 'Camera'
-
-      this.camera.position.set(0, 5, 10)
-      this.camera.lookAt(new Vector3())
-
-      this.helperScene.add(this.camera)
-
-      this.renderer = new Renderer(canvas)
-
-      this.thumbnailRenderer = new ThumbnailRenderer()
-      window.addEventListener('resize', this.onResize)
-
-      // requestAnimationFrame(this.update)
-
-      // this.scene.traverse((node) => {
-      //   if (node.isNode) {
-      //     if (node.name === 'Post Processing') {
-      //       this.postProcessingNode = node
-      //     }
-
-      //     node.onChange()
-      //   }
-      // })
-
-      ControlManager.instance.initControls()
-      this.grid.setSize(ControlManager.instance.editorControls.translationSnap)
-
-      this.disableUpdate = false
-      CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
-    } catch (error) {
-      console.error(error)
-    }
+  createRenderer(canvas: HTMLCanvasElement): void {
+    this.renderer = new Renderer(canvas)
   }
 
   /**
@@ -371,18 +356,18 @@ export class SceneManager {
    */
   update = (delta: number, time: number) => {
     if (!this.disableUpdate) {
-      this.helperScene.updateMatrixWorld()
+      this.scene.updateMatrixWorld()
       ControlManager.instance.inputManager.update(delta, time)
 
-      this.helperScene.traverse((node) => {
-        if (this.renderer.isShadowMapEnabled && node.isDirectionalLight) {
-          resizeShadowCameraFrustum(node, this.helperScene)
-        }
+      // this.scene.traverse((node) => {
+      //   if (this.renderer.isShadowMapEnabled && node.isDirectionalLight) {
+      //     resizeShadowCameraFrustum(node, this.scene)
+      //   }
 
-        // if (node.isNode) {
-        //   node.onUpdate?(delta, time)
-        // }
-      })
+      //   // if (node.isNode) {
+      //   //   node.onUpdate?(delta, time)
+      //   // }
+      // })
 
       ControlManager.instance.flyControls.update(delta)
       ControlManager.instance.editorControls.update()

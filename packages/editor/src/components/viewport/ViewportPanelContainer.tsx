@@ -49,13 +49,8 @@ export function ViewportPanelContainer() {
   }, [])
 
   useEffect(() => {
-    const initRenderer = () => {
-      SceneManager.instance.initializeRenderer(canvasRef.current)
-      CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
-    }
-
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
-    CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
+    SceneManager.instance.createRenderer(canvasRef.current)
 
     return () => {
       CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)

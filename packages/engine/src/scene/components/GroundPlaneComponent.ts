@@ -1,18 +1,18 @@
 import { CircleBufferGeometry, Color, Mesh, MeshBasicMaterial, MeshStandardMaterial, Quaternion, Vector3 } from 'three'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { Component } from './Component'
+import { ComponentData } from '../../common/classes/ComponentData'
+import { ComponentNames } from '../../common/constants/ComponentNames'
 
-export type GroundPlaneComponentProps = {
+export type GroundPlaneDataProps = {
   color: Color,
   receiveShadow: boolean,
   walkable: boolean
-  obj3d?: Mesh
 }
 
 // TODO: Component class to hold the component data
-export class GroundPlaneComponentClass implements Component {
-  static legacyComponentName = 'ground-plane'
+export class GroundPlaneData implements ComponentData {
+  static legacyComponentName = ComponentNames.GROUND_PLANE
 
   // TODO: Will be used for rendering Editor input UI
   static metadata: [
@@ -33,14 +33,13 @@ export class GroundPlaneComponentClass implements Component {
     }
   ]
 
-  constructor(props: GroundPlaneComponentProps) {
-    this.obj3d = props.obj3d ?? new Mesh(
-      new CircleBufferGeometry(1000, 32),
-      new MeshStandardMaterial({
-        color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
-        roughness: 0
-      })
-    )
+  constructor(obj3d: Mesh, props: GroundPlaneDataProps) {
+    this.obj3d = obj3d
+    if (!this.obj3d.geometry) this.obj3d.geometry = new CircleBufferGeometry(1000, 32)
+    if (!this.obj3d.material) this.obj3d.material = new MeshStandardMaterial({
+      color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
+      roughness: 0
+    })
 
     this.obj3d.name = 'GroundPlaneMesh'
     this.obj3d.position.setY(-0.05)
@@ -97,7 +96,7 @@ export class GroundPlaneComponentClass implements Component {
     this.obj3d.receiveShadow = receiveShadow
   }
 
-  serialize(): GroundPlaneComponentProps {
+  serialize(): GroundPlaneDataProps {
     return {
       color: this.color,
       receiveShadow: this.receiveShadow,
@@ -108,15 +107,6 @@ export class GroundPlaneComponentClass implements Component {
   serializeToJSON(): string {
     return JSON.stringify(this.serialize())
   }
-
-  deserialize(props): GroundPlaneComponentClass {
-    return new GroundPlaneComponentClass(props)
-  }
-
-  deserializeFromJSON(json: string): GroundPlaneComponentClass {
-    return this.deserialize(JSON.parse(json))
-  }
 }
 
-// TODO: Compoent type
-export const GroundPlaneComponent = createMappedComponent<GroundPlaneComponentClass>('GroundPlaneComponent')
+export const GroundPlaneComponent = createMappedComponent<GroundPlaneData>('GroundPlaneComponent')

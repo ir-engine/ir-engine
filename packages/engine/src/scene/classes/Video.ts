@@ -12,20 +12,24 @@ import {
 import Hls from 'hls.js'
 import isHLS from '../functions/isHLS'
 import AudioSource from './AudioSource'
-export const VideoProjection = {
-  Flat: 'flat',
-  Equirectangular360: '360-equirectangular'
-}
 import { Engine } from '../../ecs/classes/Engine'
 import isDash from '../functions/isDash'
+
+export const VideoProjection = {
+  Flat: 'flat' as const,
+  Equirectangular360: '360-equirectangular' as const
+}
+
+export type VideoProjectionType = typeof VideoProjection.Flat | typeof VideoProjection.Equirectangular360
 
 export default class Video extends AudioSource {
   _texture: any
   _mesh: Mesh
-  _projection: string
+  _projection: VideoProjectionType
   hls: Hls
   dash: any
   startTime: number
+  isLivestream: boolean
 
   constructor(audioListener, id: string) {
     super(audioListener, 'video', id)

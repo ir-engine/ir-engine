@@ -4,11 +4,10 @@ import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentMap, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { applyTransformToMesh, applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
+import { SceneLoadParams, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { parseGeometry } from '../../map/parseGeometry'
 import * as YUKA from 'yuka'
@@ -16,7 +15,7 @@ import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { delay } from '../../common/functions/delay'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { NameComponent } from '../components/NameComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent, TransformData } from '../../transform/components/TransformComponent'
 
 export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) => {
   const meshesToProcess: Mesh[] = []
@@ -37,13 +36,13 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
 
     // apply root mesh's world transform to this mesh locally
     // applyTransformToMeshWorld(entity, mesh)
-    addComponent(e, TransformComponent, {
+    addComponent(e, Object3DComponent, { value: mesh })
+    addComponent<TransformData, {}>(e, TransformComponent, new TransformData(mesh, {
       position: mesh.getWorldPosition(new Vector3()),
       rotation: mesh.getWorldQuaternion(new Quaternion()),
       scale: mesh.getWorldScale(new Vector3())
-    })
+    }))
     mesh.removeFromParent()
-    addComponent(e, Object3DComponent, { value: mesh })
 
     const components: { [key: string]: any } = {}
     const prefabs: { [key: string]: any } = {}
@@ -89,7 +88,7 @@ export const parseGLTFModel = (
   sceneLoader: WorldScene,
   entity: Entity,
   component: SceneDataComponent,
-  sceneProperty: ScenePropertyType,
+  sceneProperty: SceneLoadParams,
   scene: Mesh
 ) => {
   // console.log(sceneLoader, entity, component, sceneProperty, scene)
@@ -186,7 +185,7 @@ export const loadGLTFModel = (
   sceneLoader: WorldScene,
   entity: Entity,
   component: SceneDataComponent,
-  sceneProperty: ScenePropertyType
+  sceneProperty: SceneLoadParams
 ) => {
   sceneLoader.loaders.push(
     new Promise<void>((resolve, reject) => {
