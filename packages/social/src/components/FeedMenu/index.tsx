@@ -9,9 +9,9 @@ import Featured from '../Featured'
 import TheFeed from '../TheFeed'
 // import TipsAndTricks from '../TipsAndTricks'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
-import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
-import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'
@@ -27,7 +27,7 @@ const FeedMenu = ({ view, setView }) => {
   const feedsState = useFeedState()
 
   useEffect(() => {
-    dispatch(FeedService.getFeeds('featured'))
+    FeedService.getFeeds('featured')
   }, [])
 
   const padding = 40

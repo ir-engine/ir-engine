@@ -229,7 +229,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
     applyUnreliableQueue(Network.instance),
   )
 
-  world.receptors.add(incomingNetworkReceptor)
+  world.receptors.push(incomingNetworkReceptor)
 
   return () => applyIncomingNetworkState(world)
 }

@@ -1,16 +1,15 @@
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import Typography from '@material-ui/core/Typography'
-import { useDialogState } from '../../reducers/dialog/DialogState'
-import { DialogAction } from '../../reducers/dialog/DialogActions'
+import { useDialogState } from '../../state/DialogState'
+import { DialogAction } from '../../state/DialogActions'
 import { useHistory } from 'react-router-dom'
 import styles from './Dialog.module.scss'
-import i18n from 'i18next'
 
 interface Props {
   dialog: any

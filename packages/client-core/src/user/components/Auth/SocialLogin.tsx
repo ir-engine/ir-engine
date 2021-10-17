@@ -7,9 +7,9 @@ import FacebookIcon from '@material-ui/icons/Facebook'
 import LinkedinIcon from '@material-ui/icons/LinkedIn'
 import TwitterIcon from '@material-ui/icons/Twitter'
 import styles from './Auth.module.scss'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../state/AuthService'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 interface Props {
   auth?: any
@@ -27,27 +27,27 @@ const SocialLogin = (props: Props): any => {
   const dispatch = useDispatch()
   const handleGithubLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('github'))
+    AuthService.loginUserByOAuth('github')
   }
 
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('google'))
+    AuthService.loginUserByOAuth('google')
   }
 
   const handleFacebookLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('facebook'))
+    AuthService.loginUserByOAuth('facebook')
   }
 
   const handleLinkedinLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('linkedin2'))
+    AuthService.loginUserByOAuth('linkedin2')
   }
 
   const handleTwitterLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('twitter'))
+    AuthService.loginUserByOAuth('twitter')
   }
 
   const githubButton = enableGithubSocial ? (

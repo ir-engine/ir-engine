@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback, ElementType } from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useTranslation } from 'react-i18next'
 import { Button, Card, Typography, CardContent, CardMedia, CardHeader, Grid } from '@material-ui/core'
-import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
-import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 import { Document, Page, pdfjs } from 'react-pdf'
 import Pagination from '@mui/material/Pagination'
 import HighlightOffIcon from '@material-ui/icons/HighlightOff'
@@ -14,8 +14,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 import styles from './Feed.module.scss'
 import { Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack } from '@mui/material'
 import { useHistory } from 'react-router'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 import { MediaContent } from '../Featured/MediaContent'
 
 export const getComponentTypeForMedia = (mime) => {
@@ -58,7 +58,7 @@ const Feed = ({ feedId }: Props) => {
   const handleDeleteClick = () => setOpen(true)
   const handleClose = () => setOpen(false)
   const handleOk = () => {
-    dispatch(FeedService.removeFeed(feedId, feed.previewUrl, feed.videoUrl))
+    FeedService.removeFeed(feedId, feed.previewUrl, feed.videoUrl)
     setOpen(false)
     history.goBack()
   }
@@ -91,7 +91,7 @@ const Feed = ({ feedId }: Props) => {
   }
 
   useEffect(() => {
-    dispatch(FeedService.getFeed(feedId))
+    FeedService.getFeed(feedId)
   }, [])
 
   feed = feedsState.feeds.fetching.value === false && feedsState.feeds.feed.value

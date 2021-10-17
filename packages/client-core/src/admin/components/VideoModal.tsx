@@ -6,9 +6,9 @@ import Grid from '@material-ui/core/Grid'
 import Modal from '@material-ui/core/Modal'
 import TextField from '@material-ui/core/TextField'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { AdminService } from '../reducers/admin/AdminService'
+import { AdminService } from '../state/AdminService'
 import styles from './Admin.module.scss'
 
 interface Props {
@@ -88,16 +88,16 @@ const VideoModal = (props: Props): any => {
 
     if (props.mode === 'create') {
       delete form.id
-      dispatch(AdminService.createVideo(form as any))
+      AdminService.createVideo(form as any)
       props.handleClose()
     } else {
-      dispatch(AdminService.updateVideo(form as any))
+      AdminService.updateVideo(form as any)
       props.handleClose()
     }
   }
 
   const deleteVideo = (id: string): void => {
-    dispatch(AdminService.deleteVideo(id))
+    AdminService.deleteVideo(id)
     props.handleClose()
   }
 

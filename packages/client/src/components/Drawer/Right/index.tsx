@@ -25,24 +25,22 @@ import {
   PhoneIphone,
   SupervisedUserCircle
 } from '@material-ui/icons'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
-import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/FriendService'
-import { useGroupState } from '@xrengine/client-core/src/social/reducers/group/GroupState'
-import { GroupService } from '@xrengine/client-core/src/social/reducers/group/GroupService'
-import { InviteService } from '@xrengine/client-core/src/social/reducers/invite/InviteService'
-import { useInviteState } from '@xrengine/client-core/src/social/reducers/invite/InviteState'
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { LocationService } from '@xrengine/client-core/src/social/reducers/location/LocationService'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useFriendState } from '@xrengine/client-core/src/social/state/FriendState'
+import { FriendService } from '@xrengine/client-core/src/social/state/FriendService'
+import { useGroupState } from '@xrengine/client-core/src/social/state/GroupState'
+import { GroupService } from '@xrengine/client-core/src/social/state/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/state/InviteService'
+import { useInviteState } from '@xrengine/client-core/src/social/state/InviteState'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
+import { LocationService } from '@xrengine/client-core/src/social/state/LocationService'
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { InstanceConnectionService } from '../../../reducers/instanceConnection/InstanceConnectionService'
-import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { usePartyState } from '@xrengine/client-core/src/social/state/PartyState'
 import styles from './Right.module.scss'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
 
 interface Props {
   rightDrawerOpen?: any
@@ -81,13 +79,13 @@ const Invites = (props: Props): any => {
   const locationState = useLocationState()
   useEffect(() => {
     if (groupState.invitableUpdateNeeded.value === true && groupState.getInvitableGroupsInProgress.value !== true) {
-      dispatch(GroupService.getInvitableGroups(0))
+      GroupService.getInvitableGroups(0)
     }
   }, [groupState.invitableUpdateNeeded.value, groupState.getInvitableGroupsInProgress.value])
 
   useEffect(() => {
     if (locationState.updateNeeded.value === true) {
-      dispatch(LocationService.getLocations())
+      LocationService.getLocations()
     }
   }, [locationState.updateNeeded.value])
 
@@ -105,13 +103,13 @@ const Invites = (props: Props): any => {
     }
   }
 
-  const updateInviteTargetType = (targetObjectType: string, targetObjectId?: string) => {
-    dispatch(InviteService.updateInviteTarget(targetObjectType, targetObjectId))
+  const updateInviteTargetType = (targetObjectType: string, targetObjectId: string) => {
+    InviteService.updateInviteTarget(targetObjectType, targetObjectId)
     setUserToken('')
   }
 
   const handleInviteGroupChange = (event: React.ChangeEvent<{ value: string }>): void => {
-    dispatch(InviteService.updateInviteTarget('group', event.target.value))
+    InviteService.updateInviteTarget('group', event.target.value)
   }
 
   const handleInviteChange = (event: any, newValue: number): void => {
@@ -134,7 +132,7 @@ const Invites = (props: Props): any => {
       invitee: tabIndex === 3 ? userToken : null
     }
 
-    dispatch(InviteService.sendInvite(sendData))
+    InviteService.sendInvite(sendData)
     setUserToken('')
   }
 
@@ -148,45 +146,45 @@ const Invites = (props: Props): any => {
 
   const confirmDelete = (inviteId) => {
     setDeletePending('')
-    dispatch(InviteService.removeInvite(inviteId))
+    InviteService.removeInvite(inviteId)
   }
 
   const previousInvitePage = () => {
     if (inviteTabIndex === 0) {
-      dispatch(InviteService.retrieveReceivedInvites('decrement'))
+      InviteService.retrieveReceivedInvites('decrement')
     } else {
-      dispatch(InviteService.retrieveSentInvites('decrement'))
+      InviteService.retrieveSentInvites('decrement')
     }
   }
 
   const nextInvitePage = () => {
     if (inviteTabIndex === 0) {
       if (receivedInviteState.skip.value + receivedInviteState.limit.value < receivedInviteState.total.value) {
-        dispatch(InviteService.retrieveReceivedInvites('increment'))
+        InviteService.retrieveReceivedInvites('increment')
       }
     } else {
       if (sentInviteState.skip.value + sentInviteState.limit.value < sentInviteState.total.value) {
-        dispatch(InviteService.retrieveSentInvites('increment'))
+        InviteService.retrieveSentInvites('increment')
       }
     }
   }
 
   const acceptRequest = (invite) => {
-    dispatch(InviteService.acceptInvite(invite.id, invite.passcode))
+    InviteService.acceptInvite(invite.id, invite.passcode)
   }
 
   const declineRequest = (invite) => {
-    dispatch(InviteService.declineInvite(invite))
+    InviteService.declineInvite(invite)
   }
 
   useEffect(() => {
     if (inviteState.sentUpdateNeeded.value === true && inviteState.getSentInvitesInProgress.value !== true)
-      dispatch(InviteService.retrieveSentInvites())
+      InviteService.retrieveSentInvites()
     if (inviteState.receivedUpdateNeeded.value === true && inviteState.getReceivedInvitesInProgress.value !== true)
-      dispatch(InviteService.retrieveReceivedInvites())
+      InviteService.retrieveReceivedInvites()
     setInviteTypeIndex(targetObjectType?.value === 'party' ? 2 : targetObjectType?.value === 'group' ? 1 : 0)
     if (targetObjectType?.value == null || targetObjectType?.value?.length === 0)
-      dispatch(InviteService.updateInviteTarget('user', undefined))
+      InviteService.updateInviteTarget('user', null)
     if (targetObjectType?.value != null && targetObjectId?.value != null) setSelectedAccordion('invite')
   }, [
     inviteState.sentUpdateNeeded.value,
@@ -218,13 +216,13 @@ const Invites = (props: Props): any => {
 
   const nextInvitableGroupsPage = () => {
     if (invitableGroupState.skip.value + invitableGroupState.limit.value < invitableGroupState.total.value) {
-      dispatch(GroupService.getInvitableGroups(invitableGroupState.skip.value + invitableGroupState.limit.value))
+      GroupService.getInvitableGroups(invitableGroupState.skip.value + invitableGroupState.limit.value)
     }
   }
 
   const nextFriendsPage = (): void => {
     if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
-      dispatch(FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value))
+      FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value)
     }
   }
 
@@ -237,7 +235,7 @@ const Invites = (props: Props): any => {
   }
 
   const provisionInstance = (location, instance?) => {
-    dispatch(InstanceConnectionService.provisionInstanceServer(location.id, instance?.id))
+    InstanceConnectionService.provisionInstanceServer(location.id, instance?.id)
   }
 
   return (
@@ -252,7 +250,7 @@ const Invites = (props: Props): any => {
         open={rightDrawerOpen === true}
         onClose={() => {
           setRightDrawerOpen(false)
-          dispatch(InviteService.updateInviteTarget('user', undefined))
+          InviteService.updateInviteTarget('user', null)
           setTabIndex(0)
         }}
         onOpen={() => {

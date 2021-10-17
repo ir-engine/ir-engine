@@ -2,11 +2,10 @@ import React, { useEffect } from 'react'
 import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { useStyles } from './styles'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { useAdminAuthSettingState } from '../../reducers/admin/Setting/authentication-setting/AuthSettingState'
-import { AuthSettingService } from '../../reducers/admin/Setting/authentication-setting/AuthSettingService'
-import { Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useAuthState } from '../../../user/state/AuthState'
+import { useAdminAuthSettingState } from '../../state/Setting/AuthSettingState'
+import { AuthSettingService } from '../../state/Setting/AuthSettingService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Switch from '@material-ui/core/Switch'
 import IconButton from '@material-ui/core/IconButton'
 import { Icon } from '@iconify/react'
@@ -70,7 +69,7 @@ const Account = (props: Props) => {
 
   useEffect(() => {
     if (user?.id?.value != null && authSettingState.authSettings.updateNeeded.value) {
-      dispatch(AuthSettingService.fetchAuthSetting())
+      AuthSettingService.fetchAuthSetting()
     }
   }, [authState.user?.id?.value])
 
@@ -89,7 +88,7 @@ const Account = (props: Props) => {
 
   const handleSubmit = () => {
     const auth = Object.keys(state).map((prop) => ({ [prop]: state[prop] }))
-    dispatch(AuthSettingService.pathAuthSetting({ authStrategies: JSON.stringify(auth) }, id))
+    AuthSettingService.pathAuthSetting({ authStrategies: JSON.stringify(auth) }, id)
   }
   const handleCancel = () => {
     let temp = { ...state }

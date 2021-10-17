@@ -12,16 +12,17 @@ import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import { useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { REALITY_PACK_PAGE_LIMIT } from '../../reducers/admin/reality-pack/RealityPackState'
-import { fetchAdminRealityPacks } from '../../reducers/admin/reality-pack/RealityPackService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { REALITY_PACK_PAGE_LIMIT } from '../../state/RealityPackState'
+import { LocationService } from '../../state/LocationService'
+import { fetchAdminRealityPacks } from '../../state/RealityPackService'
 import styles from './RealityPack.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadRealityPackModel from '../ContentPack/UploadRealityPackModel'
-import { useRealityPackState } from '../../reducers/admin/reality-pack/RealityPackState'
-import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
-import { AdminRealityPack } from '@xrengine/common/src/interfaces/AdminRealityPack'
+import { useRealityPackState } from '../../state/RealityPackState'
+import { ContentPackService } from '../../state/ContentPackService'
+
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
 }
@@ -173,13 +174,9 @@ const RealityPack = () => {
   const tryReuploadRealityPack = async (row) => {
     try {
       const existingRealityPack = adminRealityPacks.value.find((realityPack) => realityPack.id === row.id)
-      if (existingRealityPack != undefined) {
-        await dispatch(
-          ContentPackService.uploadRealityPack({
-            uploadURL: existingRealityPack.sourceManifest
-          })
-        )
-      }
+      await ContentPackService.uploadRealityPack({
+        uploadURL: existingRealityPack.sourceManifest
+      })
     } catch (err) {
       console.log(err)
     }

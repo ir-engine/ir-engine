@@ -1,5 +1,5 @@
 import React from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import Card from '@material-ui/core/Card'
 import CardActionArea from '@material-ui/core/CardActionArea'
@@ -16,7 +16,7 @@ import Typography from '@material-ui/core/Typography'
 import ViewMedia from './ViewMedia'
 import { useARMediaStyles } from './styles'
 import Grid from '@material-ui/core/Grid'
-import { ArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaService'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 import { ArMedia } from '@xrengine/common/src/interfaces/ArMedia'
 
 interface Props {
@@ -56,7 +56,7 @@ const MediaTable = (props: Props) => {
   }
 
   const handleDelete = () => {
-    dispatch(ArMediaService.removeArMedia(mediaId))
+    ArMediaService.removeArMedia(mediaId)
     handleClose()
   }
 

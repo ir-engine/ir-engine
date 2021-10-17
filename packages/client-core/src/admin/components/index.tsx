@@ -19,19 +19,19 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { Config } from '@xrengine/common/src/config'
 import { useHistory } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import { client } from '../../feathers'
-import { useAuthState } from '../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../reducers/admin/AdminState'
-import { useLocationState } from '../reducers/admin/location/LocationState'
-import { SceneService } from '../reducers/admin/scene/SceneService'
-import { UserService } from '../reducers/admin/user/UserService'
-import { InstanceService } from '../reducers/admin/instance/InstanceService'
-import { useUserState } from './../reducers/admin/user/UserState'
-import { useInstanceState } from './../reducers/admin/instance/InstanceState'
-import { LocationService } from '../reducers/admin/location/LocationService'
-import { useSceneState } from './../reducers/admin/scene/SceneState'
+import { useAuthState } from '../../user/state/AuthState'
+import { ADMIN_PAGE_LIMIT } from '../state/AdminState'
+import { useLocationState } from '../state/LocationState'
+import { SceneService } from '../state/SceneService'
+import { UserService } from '../state/UserService'
+import { InstanceService } from '../state/InstanceService'
+import { useUserState } from '../state/UserState'
+import { useInstanceState } from '../state/InstanceState'
+import { LocationService } from '../state/LocationService'
+import { useSceneState } from '../state/SceneState'
 import Grid from '@material-ui/core/Grid'
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
@@ -301,13 +301,13 @@ const AdminConsole = (props: Props) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     switch (selectedTab) {
       case 'locations':
-        dispatch(LocationService.fetchAdminLocations(incDec))
+        LocationService.fetchAdminLocations(incDec)
         break
       case 'users':
-        dispatch(UserService.fetchUsersAsAdmin(incDec))
+        UserService.fetchUsersAsAdmin(incDec)
         break
       case 'instances':
-        dispatch(InstanceService.fetchAdminInstances(incDec))
+        InstanceService.fetchAdminInstances(incDec)
         break
     }
     setPage(newPage)
@@ -374,19 +374,19 @@ const AdminConsole = (props: Props) => {
 
   useEffect(() => {
     if (user?.id?.value != null && adminLocationState.locations.updateNeeded.value === true) {
-      dispatch(LocationService.fetchAdminLocations())
+      LocationService.fetchAdminLocations()
     }
     if (user?.id?.value != null && adminSceneState.scenes.updateNeeded.value === true) {
-      dispatch(SceneService.fetchAdminScenes())
+      SceneService.fetchAdminScenes()
     }
     if (user?.id?.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
-      dispatch(LocationService.fetchLocationTypes())
+      LocationService.fetchLocationTypes()
     }
     if (user?.id?.value != null && adminUserState.users.updateNeeded.value === true) {
-      dispatch(UserService.fetchUsersAsAdmin())
+      UserService.fetchUsersAsAdmin()
     }
     if (user?.id?.value != null && adminInstanceState.instances.updateNeeded.value === true) {
-      dispatch(InstanceService.fetchAdminInstances())
+      InstanceService.fetchAdminInstances()
     }
   }, [
     authState.user?.id?.value,

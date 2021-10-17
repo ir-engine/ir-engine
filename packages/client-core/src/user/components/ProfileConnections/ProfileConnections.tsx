@@ -7,7 +7,7 @@ import SingleConnection from './SingleConnection'
 import { User } from '@xrengine/common/src/interfaces/User'
 import styles from './ProfileConnections.module.scss'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { useAuthState } from '../../state/AuthState'
 
 interface Props {
   auth: any

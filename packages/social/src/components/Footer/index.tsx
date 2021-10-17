@@ -7,14 +7,14 @@ import React, { useEffect } from 'react'
 // @ts-ignore
 import styles from './Footer.module.scss'
 import Avatar from '@material-ui/core/Avatar'
-import { useDispatch } from 'react-redux'
-import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
-import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 // import IndexPage from "@xrengine/social/pages/login";
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import ViewMode from '../ViewMode/ViewMode'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 
 interface Props {
   setView?: any
@@ -25,22 +25,22 @@ const AppFooter = ({ setView, onGoRegistration }: any) => {
   const auth = useAuthState()
   useEffect(() => {
     if (auth.user.id.value) {
-      dispatch(CreatorService.getLoggedCreator())
+      CreatorService.getLoggedCreator()
     }
   }, [])
 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
   const handleOpenCreatorPage = (id) => {
-    dispatch(PopupsStateService.updateCreatorPageState(true, id))
+    PopupsStateService.updateCreatorPageState(true, id)
   }
 
   const onGoHome = () => {
-    dispatch(PopupsStateService.updateCreatorPageState(false))
-    dispatch(PopupsStateService.updateCreatorFormState(false))
-    dispatch(PopupsStateService.updateFeedPageState(false))
-    dispatch(PopupsStateService.updateNewFeedPageState(false))
-    dispatch(PopupsStateService.updateArMediaState(false))
-    dispatch(PopupsStateService.updateShareFormState(false))
+    PopupsStateService.updateCreatorPageState(false)
+    PopupsStateService.updateCreatorFormState(false)
+    PopupsStateService.updateFeedPageState(false)
+    PopupsStateService.updateNewFeedPageState(false)
+    PopupsStateService.updateArMediaState(false)
+    PopupsStateService.updateShareFormState(false)
     setView('featured')
   }
 

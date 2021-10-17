@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react'
-import { InviteService } from '../../../social/reducers/invite/InviteService'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { useInviteState } from '../../../social/reducers/invite/InviteState'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import AppBar from '@material-ui/core/AppBar'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
@@ -15,12 +13,14 @@ import Button from '@material-ui/core/Button'
 import Search from './searchInvites'
 import styles from '../Admin.module.scss'
 import InviteModel from './InviteModel'
-import { UserService } from '../../reducers/admin/user/UserService'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { UserService } from '../../state/UserService'
+import { useAuthState } from '../../../user/state/AuthState'
 import { ConfirmProvider } from 'material-ui-confirm'
 import Grid from '@material-ui/core/Grid'
-import { useUserState } from '../../reducers/admin/user/UserState'
+import { useUserState } from '../../state/UserState'
 import { inviteStyles } from './styles'
+import { useInviteState } from '../../../social/state/InviteState'
+import { InviteService } from '../../../social/state/InviteService'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -98,20 +98,20 @@ const InvitesConsole = (props: Props) => {
 
   useEffect(() => {
     if (user?.id.value != null && (adminUserState.users.updateNeeded.value === true || refetch === true)) {
-      dispatch(UserService.fetchUsersAsAdmin())
+      UserService.fetchUsersAsAdmin()
     }
     setRefetch(false)
   }, [useAuthState(), adminUserState.users.updateNeeded.value, refetch])
 
   useEffect(() => {
     if (inviteState.sentUpdateNeeded.value === true) {
-      dispatch(InviteService.retrieveSentInvites())
+      InviteService.retrieveSentInvites()
     }
   }, [inviteState.sentUpdateNeeded.value])
 
   useEffect(() => {
     if (inviteState.sentUpdateNeeded.value === true) {
-      dispatch(InviteService.retrieveReceivedInvites())
+      InviteService.retrieveReceivedInvites()
     }
   }, [inviteState.sentUpdateNeeded.value])
 

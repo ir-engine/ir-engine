@@ -1,15 +1,12 @@
-import { configureStore } from '@xrengine/client-core/src/store'
-import { Config } from '@xrengine/common/src/config'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import React, { useEffect, useCallback } from 'react'
 import { Helmet } from 'react-helmet'
-import { Provider, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from 'styled-components'
 import theme from '../../theme'
-import reducers from '../reducers'
 import './styles.scss'
-import { AuthAction } from '@xrengine/client-core/src/user/reducers/auth/AuthAction'
+import { AuthAction } from '@xrengine/client-core/src/user/state/AuthAction'
 import RouterComp from '../router'
 
 const App = (): any => {
@@ -48,14 +45,12 @@ const App = (): any => {
   )
 }
 
-const StoreProvider = () => {
+const AppPage = () => {
   return (
-    <Provider store={configureStore(reducers)}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   )
 }
 
-export default StoreProvider
+export default AppPage

@@ -3,12 +3,10 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
-import { useAuthState } from '../../../reducers/auth/AuthState'
-import { AuthService } from '../../../reducers/auth/AuthService'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { useAuthState } from '../../../../user/state/AuthState'
+import { AuthService } from '../../../../user/state/AuthService'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
@@ -75,7 +73,7 @@ const ProfileMenu = (props: Props): any => {
     const name = username.trim()
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
-      dispatch(AuthService.updateUsername(selfUser.id.value, name))
+      AuthService.updateUsername(selfUser.id.value, name)
     }
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
@@ -96,19 +94,19 @@ const ProfileMenu = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') dispatch(AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value))
-    else if (type === 'sms') dispatch(AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value))
+    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value)
+    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value)
     return
   }
 
   const handleOAuthServiceClick = (e) => {
-    dispatch(AuthService.loginUserByOAuth(e.currentTarget.id))
+    AuthService.loginUserByOAuth(e.currentTarget.id)
   }
 
   const handleLogout = async (e) => {
     if (changeActiveMenu != null) changeActiveMenu(null)
     else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
-    await dispatch(AuthService.logoutUser())
+    await AuthService.logoutUser()
     // window.location.reload()
   }
 
@@ -136,7 +134,7 @@ const ProfileMenu = (props: Props): any => {
     const result: any = await navigator.credentials.get(didAuthQuery)
     console.log(result)
 
-    dispatch(AuthService.loginUserByXRWallet(result))
+    AuthService.loginUserByXRWallet(result)
   }
 
   return (

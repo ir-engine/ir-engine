@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import styles from './PartyVideoWindows.module.scss'
 import PartyParticipantWindow from '../PartyParticipantWindow'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useMediaStreamState } from '../../reducers/mediastream/MediaStreamState'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { UserService } from '@xrengine/client-core/src/user/store/UserService'
-import { connect, useDispatch } from 'react-redux'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useUserState } from '@xrengine/client-core/src/user/state/UserState'
+import { UserService } from '@xrengine/client-core/src/user/state/UserService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { State, Downgraded } from '@hookstate/core'
 import { User } from '@xrengine/common/src/interfaces/User'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/state/MediaStreamState'
 
 interface Props {}
 
@@ -24,10 +24,9 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
   const channelLayerUsers = userState.channelLayerUsers
 
   useEffect(() => {
-    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded === true)
-      dispatch(UserService.getLayerUsers(true))
+    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded === true) UserService.getLayerUsers(true)
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded === true)
-      dispatch(UserService.getLayerUsers(false))
+      UserService.getLayerUsers(false)
   }, [selfUser, userState.layerUsersUpdateNeeded, userState.channelLayerUsersUpdateNeeded])
 
   useEffect(() => {

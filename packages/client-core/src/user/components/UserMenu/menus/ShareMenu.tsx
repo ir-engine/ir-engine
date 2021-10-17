@@ -6,10 +6,10 @@ import Button from '@material-ui/core/Button'
 import { Send, FileCopy } from '@material-ui/icons'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import styles from '../UserMenu.module.scss'
-import { InviteService } from '../../../../social/reducers/invite/InviteService'
-import { connect, useDispatch } from 'react-redux'
+import { InviteService } from '../../../../social/state/InviteService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useTranslation } from 'react-i18next'
-import { useInviteState } from '../../../../social/reducers/invite/InviteState'
+import { useInviteState } from '../../../../social/state/InviteState'
 
 interface Props {
   alertSuccess?: any
@@ -54,7 +54,7 @@ const ShareMenu = (props: Props): any => {
       targetObjectId: inviteState.targetObjectId.value,
       invitee: null
     }
-    dispatch(InviteService.sendInvite(sendData))
+    InviteService.sendInvite(sendData)
     setEmail('')
   }
 

@@ -10,14 +10,14 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import { TableContainer, TableHead, TablePagination, TableRow } from '@material-ui/core'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import { useGroupState } from '../../reducers/admin/group/GroupState'
-import { GroupService } from '../../reducers/admin/group/GroupService'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useGroupState } from '../../state/GroupState'
+import { GroupService } from '../../state/GroupService'
+import { useAuthState } from '../../../user/state/AuthState'
 import { columns, Data } from './Variables'
 import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
-import { GROUP_PAGE_LIMIT } from '../../reducers/admin/group/GroupState'
+import { GROUP_PAGE_LIMIT } from '../../state/GroupState'
 
 interface Props {}
 
@@ -39,7 +39,7 @@ const GroupTable = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(GroupService.getGroupService(incDec))
+    GroupService.getGroupService(incDec)
     setPage(newPage)
   }
 
@@ -67,7 +67,7 @@ const GroupTable = (props: Props) => {
 
   const deleteGroupHandler = () => {
     setShowWarning(false)
-    dispatch(GroupService.deleteGroupByAdmin(groupId))
+    GroupService.deleteGroupByAdmin(groupId)
   }
 
   const closeViewModel = (open) => {
@@ -75,7 +75,7 @@ const GroupTable = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (adminGroupState.group.updateNeeded.value) dispatch(GroupService.getGroupService())
+    if (adminGroupState.group.updateNeeded.value) GroupService.getGroupService()
   }, [adminGroupState.group.updateNeeded.value, user])
 
   const createData = (id: any, name: any, description: string): Data => {

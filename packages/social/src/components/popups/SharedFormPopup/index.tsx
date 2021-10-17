@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
 import ShareForm from '../../ShareForm/ShareForm'
@@ -18,7 +18,7 @@ export const SharedFormPopup = ({ setView }: Props) => {
   const popupsState = usePopupsStateState()
   //common for share form page
   const handleShareFormClose = () => {
-    dispatch(PopupsStateService.updateShareFormState(false))
+    PopupsStateService.updateShareFormState(false)
   }
   const renderShareFormModal = () =>
     popupsState?.popups?.shareForm?.value === true && (
