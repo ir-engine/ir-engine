@@ -21,12 +21,14 @@ export default function seeder(opts = {}) {
     const app = this
     const seeder = new Seeder(app, opts)
     app.seed = () => {
-      return seeder.seedApp().then()
-      // .catch((err) => {
-      //   console.log(`Seeding error: ${err}`)
+      return seeder
+        .seedApp()
+        .then()
+        .catch((err) => {
+          console.log(`Seeding error: ${err}`)
 
-      //   throw new GeneralError(new Error(err))
-      // })
+          throw new GeneralError(new Error(err))
+        })
     }
   }
 }

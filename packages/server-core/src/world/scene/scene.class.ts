@@ -16,6 +16,7 @@ import logger from '../../logger'
 import { Op } from 'sequelize'
 import config from '../../appconfig'
 import { contents } from '@xrengine/common/src/scenes-templates'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 interface Data {}
 interface ServiceOptions {}
 
@@ -51,9 +52,8 @@ export class Scene implements ServiceMethods<Data> {
       (findParams as any).where = {
         [Op.or]: [{ userId: loggedInUser.userId }, { userId: null }]
       }
-    const projects = await this.models.collection.findAll(findParams)
-    const processedProjects = projects.map((project: any) => mapSceneDetailData(project.toJSON()))
-    return { projects: processedProjects }
+    const scenes = await this.models.collection.findAll(findParams)
+    return scenes.map((scene: any) => mapSceneDetailData(scene.toJSON()))
   }
 
   /**
@@ -64,7 +64,7 @@ export class Scene implements ServiceMethods<Data> {
    * @returns {@Object} contains specific project
    * @author Vyacheslav Solovjov
    */
-  async get(id: Id, params: Params): Promise<any> {
+  async get(id: Id, params: Params): Promise<SceneDetailInterface> {
     const loggedInUser = extractLoggedInUserFromParams(params)
 
     let project
@@ -134,7 +134,7 @@ export class Scene implements ServiceMethods<Data> {
     return data
   }
 
-  async patch(projectId: NullableId, data: any, params: Params): Promise<any> {
+  async patch(projectId: NullableId, data: any, params: Params): Promise<SceneDetailInterface> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const seqeulizeClient = this.app.get('sequelizeClient')
     const models = seqeulizeClient.models

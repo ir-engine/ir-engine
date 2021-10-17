@@ -10,8 +10,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { withTranslation } from 'react-i18next'
 import Modal from 'react-modal'
 import styled from 'styled-components'
-import { createProject, getProject, saveProject } from '../functions/projectFunctions'
-import { getScene } from '../functions/getScene'
+import { createScene, getScene, saveScene } from '../functions/sceneFunctions'
 import AssetsPanel from './assets/AssetsPanel'
 import { DialogContextProvider } from './contexts/DialogContext'
 import { defaultSettings, SettingsContextProvider } from './contexts/SettingsContext'
@@ -51,6 +50,7 @@ import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import Store from '@xrengine/client-core/src/store'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import { client } from '@xrengine/client-core/src/feathers'
 
 const maxUploadSize = 25
 
@@ -91,7 +91,7 @@ export const publishProject = async (project, showDialog, hideDialog?): Promise<
         }
       })
       // saving project.
-      project = await saveProject(project.project_id, signal)
+      project = await saveScene(project.project_id, signal)
 
       if (signal.aborted) {
         const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
@@ -274,9 +274,7 @@ export const publishProject = async (project, showDialog, hideDialog?): Promise<
     }
 
     try {
-      project = await ProjectManager.instance.feathersClient
-        .service(`/publish-scene/${project.project_id}`)
-        .create({ scene: sceneParams })
+      project = await client.service(`/publish-scene/${project.project_id}`).create({ scene: sceneParams })
     } catch (error) {
       throw new Error(error)
     }
@@ -417,7 +415,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     registerPredefinedNodes()
     registerPredefinedSources()
 
-    ProjectManager.instance.initializeFeathersClient(getToken())
+    // ProjectManager.instance.initializeFeathersClient(getToken())
 
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.setDebuginfo)
     CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), this.onProjectLoaded)
@@ -624,12 +622,12 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     let project
 
     try {
-      project = await getProject(projectId)
+      project = await getScene(projectId)
       ProjectManager.instance.ownedFileIds = JSON.parse(project.ownedFileIds)
       globalThis.currentProjectID = project.project_id
 
       const projectIndex = project.project_url.split('collection/')[1]
-      const projectFile = await ProjectManager.instance.feathersClient.service(`collection`).get(projectIndex, {
+      const projectFile = await client.service(`collection`).get(projectIndex, {
         headers: {
           'content-type': 'application/json'
         }
@@ -821,7 +819,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     })
     SceneManager.instance.scene.setMetadata({ name: result.name })
 
-    const project = await createProject(
+    const project = await createScene(
       SceneManager.instance.scene,
       parentSceneId,
       blob,
@@ -837,7 +835,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     pathParams.set('projectId', project.project_id)
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project, pathParams }, () => {
-        this.props.history.replace(`/editor/projects/${project.project_id}`)
+        this.props.history.replace(`/editor/${project.project_id}`)
         this.setState({ creatingProject: false })
       })
     })
@@ -846,11 +844,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   onNewProject = async () => {
-    this.props.history.push('/editor/projects/new')
+    this.props.history.push('/editor/new')
   }
 
   onOpenProject = () => {
-    this.props.history.push('/editor/projects')
+    this.props.history.push('/editor')
   }
 
   onDuplicateProject = async () => {
@@ -1010,7 +1008,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     try {
       const { project } = this.state
       if (project) {
-        const newProject = await saveProject(project.project_id, abortController.signal)
+        const newProject = await saveScene(project.project_id, abortController.signal)
 
         this.setState({ project: newProject })
         const pathParams = this.state.pathParams

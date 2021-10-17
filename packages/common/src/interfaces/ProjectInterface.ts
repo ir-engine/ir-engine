@@ -10,4 +10,6 @@ export interface ProjectInterface {
   }
   // TODO: remove this when github is in
   files: string[]
+  clientReactEntryPoint: string
+  moduleEntryPoints: string[]
 }

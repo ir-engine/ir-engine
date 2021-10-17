@@ -1,40 +1,22 @@
 import i18n from 'i18next'
-import { Config } from '@xrengine/common/src/config'
-import { SceneInterface } from '@xrengine/common/src/interfaces/SceneInterface'
-import { getToken } from './getToken'
+import { SceneDetailInterface, SceneInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { upload } from '@xrengine/client-core/src/util/upload'
 import { ProjectManager } from '../managers/ProjectManager'
 import { SceneManager } from '../managers/SceneManager'
-
-const serverURL = Config.publicRuntimeConfig.apiServer
+import { client } from '@xrengine/client-core/src/feathers'
 
 /**
- * getProjects used to get list projects created by user.
+ * getScenes used to get list projects created by user.
  *
  * @return {Promise}
  */
-export const getProjects = async (): Promise<any> => {
-  const token = getToken()
-
-  const headers = {
-    'content-type': 'application/json',
-    authorization: `Bearer ${token}`
+export const getScenes = async (): Promise<SceneDetailInterface[]> => {
+  try {
+    return await client.service('scene').find()
+  } catch (error) {
+    console.log('Error in Getting Project:' + error)
+    throw new Error(error)
   }
-
-  const response = await fetch(`${serverURL}/project`, { headers })
-
-  const json = await response.json().catch((err) => {
-    console.log('Error fetching JSON')
-    console.log(err)
-  })
-
-  if (!Array.isArray(json.projects) || json.projects == null) {
-    throw new Error(
-      i18n.t('editor:errors.fetchingProjectError', { error: json.error || i18n.t('editor:errors.unknownError') })
-    )
-  }
-
-  return json.projects
 }
 
 /**
@@ -43,10 +25,9 @@ export const getProjects = async (): Promise<any> => {
  * @param projectId
  * @returns
  */
-export const getProject = async (projectId): Promise<JSON> => {
+export const getScene = async (projectId): Promise<SceneDetailInterface> => {
   try {
-    const json = await ProjectManager.instance.feathersClient.service('scene').get(projectId)
-    return json
+    return await client.service('scene').get(projectId)
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)
@@ -54,7 +35,7 @@ export const getProject = async (projectId): Promise<JSON> => {
 }
 
 /**
- * createProject used to create project.
+ * createScene used to create a scene.
  *
  * @author Robert Long
  * @author Abhishek Pathak
@@ -66,14 +47,14 @@ export const getProject = async (projectId): Promise<JSON> => {
  * @param  {any}  hideDialog
  * @return {Promise}               [response as json]
  */
-export const createProject = async (
+export const createScene = async (
   scene,
   parentSceneId,
   thumbnailBlob,
   signal,
   showDialog,
   hideDialog
-): Promise<any> => {
+): Promise<SceneDetailInterface> => {
   if (signal.aborted) {
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
@@ -121,52 +102,33 @@ export const createProject = async (
   sceneData.ownedFileIds = Object.assign({}, sceneData.ownedFileIds, ProjectManager.instance.ownedFileIds)
   ProjectManager.instance.currentOwnedFileIds = {}
 
-  let json: any = {}
   try {
-    json = (await ProjectManager.instance.feathersClient
-      .service('scene')
-      .create({ scene: sceneData })) as SceneInterface
+    return (await client.service('scene').create({ scene: sceneData })) as SceneDetailInterface
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)
   }
-
-  return json
 }
 
 /**
- * deleteProject used to delete project using projectId.
+ * deleteScene used to delete project using projectId.
  *
  * @author Robert Long
- * @param  {any}  projectId
+ * @param  {any}  sceneId
  * @return {Promise}
  */
-export const deleteProject = async (projectId): Promise<any> => {
-  const token = getToken()
-
-  const headers = {
-    'content-type': 'application/json',
-    authorization: `Bearer ${token}`
+export const deleteScene = async (sceneId): Promise<any> => {
+  try {
+    await client.service('scene').remove(sceneId)
+  } catch (error) {
+    console.log('Error in Getting Project:' + error)
+    throw new Error(error)
   }
-
-  const projectEndpoint = `${serverURL}/project/${projectId}`
-
-  const resp = await fetch(projectEndpoint, { method: 'DELETE', headers })
-  console.log('Response: ' + Object.values(resp))
-
-  if (resp.status === 401) {
-    throw new Error(i18n.t('editor:errors.notAuthenticated'))
-  }
-
-  if (resp.status !== 200) {
-    throw new Error(i18n.t('editor:errors.projectDeletionFail', { reason: await resp.text() }))
-  }
-
   return true
 }
 
 /**
- * saveProject used to save changes in existing project.
+ * saveScene used to save changes in existing project.
  *
  * @author Robert Long
  * @author Abhishek Pathak
@@ -174,7 +136,7 @@ export const deleteProject = async (projectId): Promise<any> => {
  * @param  {any}  signal
  * @return {Promise}
  */
-export const saveProject = async (projectId, signal): Promise<any> => {
+export const saveScene = async (projectId, signal): Promise<SceneDetailInterface> => {
   if (signal.aborted) {
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
@@ -231,12 +193,10 @@ export const saveProject = async (projectId, signal): Promise<any> => {
   project.ownedFileIds = Object.assign({}, project.ownedFileIds, ProjectManager.instance.ownedFileIds)
   ProjectManager.instance.currentOwnedFileIds = {}
 
-  let json = {}
   try {
-    json = await ProjectManager.instance.feathersClient.service('scene').patch(projectId, { project })
+    return (await client.service('scene').patch(projectId, { project })) as SceneDetailInterface
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)
   }
-  return json
 }

@@ -7,9 +7,10 @@ import SelectInput from '../inputs/SelectInput'
 import ProjectNode from '../../nodes/ProjectNode'
 import { CommandManager } from '../../managers/CommandManager'
 import { ProjectManager } from '../../managers/ProjectManager'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/Project'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import NodeEditor from './NodeEditor'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { client } from '@xrengine/client-core/src/feathers'
 
 /**
  * Define properties for Project component.
@@ -81,7 +82,7 @@ export class ProjectNodeEditor extends Component<ProjectNodeEditorProps, Project
   getProjects = async () => {
     let projects: ProjectInterface[] = []
     try {
-      projects = (await ProjectManager.instance.feathersClient.service('project-data').find()).data
+      projects = (await client.service('project-data').find()).data
       console.log(projects)
     } catch (e) {
       console.log(e)

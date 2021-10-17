@@ -62,7 +62,7 @@ export default (app: Application): any => {
 
   ;(scene as any).associate = (models: any): void => {
     ;(scene as any).belongsTo(models.location, { foreignKey: 'locationId' })
-    ;(scene as any).belongsToMany(models.asset, { through: models.asset, foreignKey: 'user_id' })
+    // ;(scene as any).belongsToMany(models.asset, { through: models.project_asset, foreignKey: 'user_id' })
     ;(scene as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
   }
 

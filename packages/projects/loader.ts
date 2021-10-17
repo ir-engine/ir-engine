@@ -1,4 +1,4 @@
-import type { ProjectInterface } from '@xrengine/common/src/interfaces/Project'
+import type { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { SystemModulePromise, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
