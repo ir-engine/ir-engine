@@ -5,7 +5,7 @@ import mimeType from 'mime-types'
 import StorageProvider from '../../media/storageprovider/storageprovider'
 import { Agent } from 'https'
 import { Params } from '@feathersjs/feathers'
-import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 const storageProvider = new StorageProvider()
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/
@@ -100,31 +100,31 @@ export function assembleScene(scene: any, contentPack: string): any {
   }
 }
 
-export function assembleRealityPack(realityPack: any, contentPack: string): Promise<any> {
-  console.log('assembleRealityPack', realityPack, contentPack)
+export function assembleProject(project: any, contentPack: string): Promise<any> {
+  console.log('assembleProject', project, contentPack)
   return new Promise(async (resolve, reject) => {
     try {
-      const manifest = await axios.get(realityPack.storageProviderManifest, getAxiosConfig())
+      const manifest = await axios.get(project.storageProviderManifest, getAxiosConfig())
       const data = JSON.parse(manifest.data.toString())
       const files = data.files
       const uploadPromises = []
       uploadPromises.push(
         storageProvider.putObject({
           Body: manifest.data,
-          ContentType: getContentType(realityPack.storageProviderManifest),
-          Key: `content-pack/${contentPack}/reality-pack/${realityPack.name}/manifest.json`
+          ContentType: getContentType(project.storageProviderManifest),
+          Key: `content-pack/${contentPack}/project/${project.name}/manifest.json`
         })
       )
       files.forEach((file) => {
         const path = file.replace('./', '')
-        const subFileLink = realityPack.storageProviderManifest.replace('manifest.json', path)
+        const subFileLink = project.storageProviderManifest.replace('manifest.json', path)
         uploadPromises.push(
           new Promise(async (resolve) => {
             const fileResult = await axios.get(subFileLink, getAxiosConfig())
             await storageProvider.putObject({
               Body: fileResult.data,
               ContentType: getContentType(path),
-              Key: `content-pack/${contentPack}/reality-pack/${realityPack.name}/${path}`
+              Key: `content-pack/${contentPack}/project/${project.name}/${path}`
             })
             resolve(true)
           })
@@ -333,56 +333,56 @@ export async function uploadAvatar(avatar: any, thumbnail: any, contentPack: str
 
 /**
  *
- * @param realityPack
- * @param realityPack.name name of the reality pack
- * @param realityPack.manifest manifest.json URL
+ * @param project
+ * @param project.name name of the project
+ * @param project.manifest manifest.json URL
  * @param app
  * @param params
  */
 
-export async function populateRealityPack(
-  realityPack: { name: string; manifest: string },
+export async function populateProject(
+  project: { name: string; manifest: string },
   app: Application,
   params: Params
 ): Promise<any> {
   const uploadPromises = []
-  const existingPackResult = await (app.service('reality-pack') as any).Model.findOne({
+  const existingPackResult = await (app.service('project') as any).Model.findOne({
     where: {
-      name: realityPack.name
+      name: project.name
     }
   })
-  if (existingPackResult != null) await app.service('reality-pack').remove(existingPackResult.id, params)
-  const manifestStream = await axios.get(realityPack.manifest, getAxiosConfig())
-  const manifestData = JSON.parse(manifestStream.data.toString()) as RealityPackInterface
-  console.log('Installing reality pack from ', realityPack.manifest, 'with manifest.json', manifestData)
+  if (existingPackResult != null) await app.service('project').remove(existingPackResult.id, params)
+  const manifestStream = await axios.get(project.manifest, getAxiosConfig())
+  const manifestData = JSON.parse(manifestStream.data.toString()) as ProjectInterface
+  console.log('Installing project from ', project.manifest, 'with manifest.json', manifestData)
   const files = manifestData.files
   uploadPromises.push(
     storageProvider.putObject({
       Body: manifestStream.data,
-      ContentType: getContentType(realityPack.manifest),
-      Key: `reality-pack/${manifestData.name}/manifest.json`
+      ContentType: getContentType(project.manifest),
+      Key: `project/${manifestData.name}/manifest.json`
     })
   )
   files.forEach((file) => {
     const path = file.replace('./', '')
-    const subFileLink = realityPack.manifest.replace('manifest.json', path)
+    const subFileLink = project.manifest.replace('manifest.json', path)
     uploadPromises.push(
       new Promise(async (resolve) => {
         const fileResult = await axios.get(subFileLink, getAxiosConfig())
         await storageProvider.putObject({
           Body: fileResult.data,
           ContentType: getContentType(path),
-          Key: `reality-pack/${manifestData.name}/${path}`
+          Key: `project/${manifestData.name}/${path}`
         })
         resolve(true)
       })
     )
   })
-  await app.service('reality-pack').create(
+  await app.service('project').create(
     {
-      storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${manifestData.name}/manifest.json`,
-      sourceManifest: realityPack.manifest,
-      localManifest: `/reality-packs/projects/${manifestData.name}/manifest.json`,
+      storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/project/${manifestData.name}/manifest.json`,
+      sourceManifest: project.manifest,
+      localManifest: `/projects/projects/${manifestData.name}/manifest.json`,
       global: false,
       name: manifestData.name
     },

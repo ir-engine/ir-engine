@@ -1,5 +1,3 @@
-// TODO: rename to projects
-
 export interface ProjectInterface {
   name: string
   version: string
@@ -10,4 +8,6 @@ export interface ProjectInterface {
   routes: {
     [route: string]: string
   }
+  // TODO: remove this when github is in
+  files: string[]
 }

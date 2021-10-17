@@ -1,12 +1,17 @@
+/**
+ * An object for swagger documentation configiration
+ *
+ * @author Kevin KIMENYI
+ */
 export default {
   definitions: {
-    'publish-project': {
+    scene: {
       type: 'object',
       properties: {}
     },
-    'publish-project_list': {
+    scene_list: {
       type: 'array',
-      items: { $ref: '#/definitions/publish-project' }
+      items: { $ref: '#/definitions/project' }
     }
   },
   securities: ['create', 'update', 'patch', 'remove'],

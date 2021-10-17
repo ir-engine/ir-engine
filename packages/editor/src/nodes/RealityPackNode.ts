@@ -5,9 +5,9 @@ import EditorNodeMixin from './EditorNodeMixin'
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-export default class RealityPackNode extends EditorNodeMixin(Object3D) {
-  static legacyComponentName = 'realitypack'
-  static nodeName = 'Reality Pack'
+export default class ProjectNode extends EditorNodeMixin(Object3D) {
+  static legacyComponentName = 'project'
+  static nodeName = 'Project'
   static disableTransform = true
   static haveStaticTags = false
 
@@ -19,7 +19,7 @@ export default class RealityPackNode extends EditorNodeMixin(Object3D) {
 
   static async deserialize(json) {
     const node = await super.deserialize(json)
-    const { packName, entryPoints } = json.components.find((c) => c.name === 'realitypack').props
+    const { packName, entryPoints } = json.components.find((c) => c.name === 'project').props
     node.packName = packName
     node.entryPoints = entryPoints ?? []
     return node
@@ -27,7 +27,7 @@ export default class RealityPackNode extends EditorNodeMixin(Object3D) {
 
   async serialize(projectID) {
     return await super.serialize(projectID, {
-      realitypack: {
+      project: {
         packName: this.packName,
         entryPoints: this.entryPoints
       }

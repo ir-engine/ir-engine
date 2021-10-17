@@ -3,7 +3,7 @@ import Paginated from '../../types/PageObject'
 import { Forbidden } from '@feathersjs/errors'
 import { Transaction } from 'sequelize/types'
 import { Application } from '../../../declarations'
-import { mapProjectDetailData, defaultProjectImport } from '../scene/project-helper'
+import { mapSceneDetailData, defaultSceneImport } from '../scene/scene-helper'
 import StorageProvider from '../../media/storageprovider/storageprovider'
 import { collectionType } from '../../entities/collection-type/collectionType'
 
@@ -119,9 +119,9 @@ export class PublishProject implements ServiceMethods<Data> {
         type: collectionType.scene
       },
       attributes: ['name', 'id', 'sid'],
-      include: defaultProjectImport(this.app.get('sequelizeClient').models)
+      include: defaultSceneImport(this.app.get('sequelizeClient').models)
     })
-    return mapProjectDetailData(projectData.toJSON())
+    return mapSceneDetailData(projectData.toJSON())
   }
 
   /**

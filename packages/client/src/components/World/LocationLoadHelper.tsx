@@ -112,7 +112,7 @@ export const initEngine = async (
     initOptions.systems?.push(system)
   }
 
-  const realityPackReactComponents = packs.react.map((c) => React.lazy(() => c))
+  const projectReactComponents = packs.react.map((c) => React.lazy(() => c))
 
   // 2. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
@@ -180,7 +180,7 @@ export const initEngine = async (
     engineCallbacks.onSuccess()
   }
 
-  return realityPackReactComponents
+  return projectReactComponents
 }
 
 export const teleportToLocation = async (

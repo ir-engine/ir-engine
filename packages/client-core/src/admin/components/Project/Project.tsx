@@ -14,7 +14,7 @@ import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
 import { useDispatch } from 'react-redux'
 import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { REALITY_PACK_PAGE_LIMIT } from '../../reducers/admin/project/ProjectState'
+import { PROJECT_PAGE_LIMIT } from '../../reducers/admin/project/ProjectState'
 import { fetchAdminProjects } from '../../reducers/admin/project/ProjectService'
 import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
@@ -118,7 +118,7 @@ const Projects = () => {
   const [orderBy, setOrderBy] = useState<any>('name')
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(REALITY_PACK_PAGE_LIMIT)
+  const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [uploadProjectsModalOpen, setUploadProjectsModalOpen] = useState(false)
@@ -220,7 +220,7 @@ const Projects = () => {
               color="primary"
               onClick={() => setUploadProjectsModalOpen(true)}
             >
-              {'Add Reality Pack'}
+              {'Add Project'}
             </Button>
           </Grid>
           <Grid item xs={6}>
@@ -301,7 +301,7 @@ const Projects = () => {
 
         <div className={styles.tableFooter}>
           <TablePagination
-            rowsPerPageOptions={[REALITY_PACK_PAGE_LIMIT]}
+            rowsPerPageOptions={[PROJECT_PAGE_LIMIT]}
             component="div"
             count={adminProjectCount?.value || 0}
             rowsPerPage={rowsPerPage}

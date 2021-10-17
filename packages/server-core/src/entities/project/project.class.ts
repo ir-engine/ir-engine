@@ -3,7 +3,7 @@ import { Application } from '../../../declarations'
 
 interface Data {}
 
-export class RealityPack extends Service {
+export class Project extends Service {
   app: Application
   docs: any
 

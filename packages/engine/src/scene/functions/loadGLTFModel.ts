@@ -22,7 +22,7 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
   const meshesToProcess: Mesh[] = []
 
   res.traverse((mesh: Mesh) => {
-    if ('xrengine.entity' in mesh.userData || 'realitypack.entity' in mesh.userData) {
+    if ('xrengine.entity' in mesh.userData || 'project.entity' in mesh.userData) {
       meshesToProcess.push(mesh)
     }
   })
@@ -30,9 +30,9 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
   for (const mesh of meshesToProcess) {
     const sceneEntityId = MathUtils.generateUUID()
     const e = createEntity()
-    addComponent(e, NameComponent, { name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] })
+    addComponent(e, NameComponent, { name: mesh.userData['xrengine.entity'] ?? mesh.userData['project.entity'] })
     delete mesh.userData['xrengine.entity']
-    delete mesh.userData['realitypack.entity']
+    delete mesh.userData['project.entity']
     delete mesh.userData.name
 
     // apply root mesh's world transform to this mesh locally
@@ -53,7 +53,7 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
       const parts = key.split('.')
       if (parts.length > 1) {
         // TODO: deprecate xrengine
-        if (parts[0] === 'realitypack' || parts[0] === 'xrengine') {
+        if (parts[0] === 'project' || parts[0] === 'xrengine') {
           const componentExists = ComponentMap.has(parts[1])
           const _toLoad = componentExists ? components : prefabs
           if (typeof _toLoad[parts[1]] === 'undefined') {

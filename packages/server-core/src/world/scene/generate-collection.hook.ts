@@ -6,7 +6,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
 import { collectionType } from '../../entities/collection-type/collectionType'
 import config from '../../appconfig'
 import StorageProvider from '../../media/storageprovider/storageprovider'
-import { readJSONFromBlobStore } from './project-helper'
+import { readJSONFromBlobStore } from './scene-helper'
 
 export default (options: any) => {
   return async (context: HookContext): Promise<HookContext> => {

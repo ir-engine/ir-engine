@@ -1,28 +1,28 @@
 import { Params } from '@feathersjs/feathers'
-import hooks from './reality-pack.hooks'
+import hooks from './project.hooks'
 import { Application } from '../../../declarations'
-import { RealityPack } from './reality-pack.class'
-import createModel from './reality-pack.model'
-import realityPackDocs from './reality-pack.docs'
-import { getAxiosConfig, populateRealityPack } from '../content-pack/content-pack-helper'
+import { Project } from './project.class'
+import createModel from './project.model'
+import projectDocs from './project.docs'
+import { getAxiosConfig, populateProject } from '../content-pack/content-pack-helper'
 import axios from 'axios'
-import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import fs from 'fs'
 import path from 'path'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'reality-pack': RealityPack
+    project: Project
   }
 }
 
-export const addRealityPack = (app: any): any => {
+export const addProject = (app: any): any => {
   return async (data: { uploadURL: string }, params: Params) => {
     try {
       const manifestData = await axios.get(data.uploadURL, getAxiosConfig())
-      const manifest = JSON.parse(manifestData.data.toString()) as RealityPackInterface
-      await populateRealityPack({ name: manifest.name, manifest: data.uploadURL }, app, params)
+      const manifest = JSON.parse(manifestData.data.toString()) as ProjectInterface
+      await populateProject({ name: manifest.name, manifest: data.uploadURL }, app, params)
     } catch (error) {
       console.log(error)
       return false
@@ -31,7 +31,7 @@ export const addRealityPack = (app: any): any => {
   }
 }
 
-export const getInstalledRealityPacks = (realityPackClass: RealityPack) => {
+export const getInstalledProjects = (projectClass: Project) => {
   if (isDev) {
     return async (params: Params) => {
       const packs = fs
@@ -40,7 +40,7 @@ export const getInstalledRealityPacks = (realityPackClass: RealityPack) => {
         .map((dirent) => dirent.name)
         .map((dir) => {
           try {
-            const json: RealityPackInterface = JSON.parse(
+            const json: ProjectInterface = JSON.parse(
               fs.readFileSync(
                 path.resolve(__dirname, '../../../../projects/projects/' + dir + '/manifest.json'),
                 'utf8'
@@ -49,7 +49,7 @@ export const getInstalledRealityPacks = (realityPackClass: RealityPack) => {
             json.name = dir
             return json
           } catch (e) {
-            console.warn('[getRealityPacks]: Failed to read manifest.json for reality pack', dir, 'with error', e)
+            console.warn('[getProjects]: Failed to read manifest.json for project', dir, 'with error', e)
             return
           }
         })
@@ -60,11 +60,11 @@ export const getInstalledRealityPacks = (realityPackClass: RealityPack) => {
     }
   } else {
     return async (params: Params) => {
-      const packs = (await realityPackClass.find()) as any
+      const packs = (await projectClass.find()) as any
       const manifests = []
       for (const data of packs.data) {
         const manifestData = await axios.get(data.storageProviderManifest, getAxiosConfig())
-        manifests.push(JSON.parse(manifestData.data.toString()) as RealityPackInterface)
+        manifests.push(JSON.parse(manifestData.data.toString()) as ProjectInterface)
       }
       return {
         data: manifests
@@ -80,18 +80,20 @@ export default (app: Application): void => {
     multi: true
   }
 
-  const realityPackClass = new RealityPack(options, app)
-  realityPackClass.docs = realityPackDocs
+  const projectClass = new Project(options, app)
+  projectClass.docs = projectDocs
 
-  app.use('reality-pack', realityPackClass)
-  app.use('upload-reality-pack', {
-    create: addRealityPack(app)
+  app.use('project', projectClass)
+  // @ts-ignore
+  app.use('upload-project', {
+    create: addProject(app)
   })
-  app.use('reality-pack-data', {
-    find: getInstalledRealityPacks(realityPackClass)
+  // @ts-ignore
+  app.use('project-data', {
+    find: getInstalledProjects(projectClass)
   })
 
-  const service = app.service('reality-pack')
+  const service = app.service('project')
 
   service.hooks(hooks)
 }

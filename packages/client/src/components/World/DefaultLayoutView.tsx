@@ -30,7 +30,7 @@ interface Props {
   isTeleporting
   locationName
 
-  // todo: remove these props in favour of reality packs
+  // todo: remove these props in favour of projects
   customComponents?: any
   theme?: any
   hideVideo?: boolean

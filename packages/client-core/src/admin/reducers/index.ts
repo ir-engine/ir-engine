@@ -9,7 +9,7 @@ import { adminRouteReducer } from './admin/routes/RouteState'
 import { adminSceneReducer } from './admin/scene/SceneState'
 import { adminBotsReducer } from './admin/bots/BotsState'
 import { AdminAnalyticsReducer } from './admin/analytics/AnalyticsState'
-import { adminRealityPackReducer } from './admin/project/ProjectState'
+import { adminProjectReducer } from './admin/project/ProjectState'
 import { arMediaReducer } from '../../social/reducers/arMedia/ArMediaState'
 import { feedReducer } from '../../social/reducers/feed/FeedState'
 import { creatorReducer } from '../../social/reducers/creator/CreatorState'
@@ -39,7 +39,7 @@ export default {
   adminLocation: adminLocationReducer,
   adminParty: adminPartyReducer,
   admiRoutes: adminRouteReducer,
-  adminRealityPack: adminRealityPackReducer,
+  adminProject: adminProjectReducer,
   adminScene: adminSceneReducer,
   adminBots: adminBotsReducer,
   adminAnalytics: AdminAnalyticsReducer,

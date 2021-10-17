@@ -5,7 +5,7 @@ import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { ProjectActionType } from './ProjectActions'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
-export const REALITY_PACK_PAGE_LIMIT = 100
+export const PROJECT_PAGE_LIMIT = 100
 
 export const state = createState({
   isLoggedIn: false,
@@ -17,7 +17,7 @@ export const state = createState({
   projects: {
     projects: [] as Array<ProjectInterface>,
     skip: 0,
-    limit: REALITY_PACK_PAGE_LIMIT,
+    limit: PROJECT_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,

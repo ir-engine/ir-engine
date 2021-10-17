@@ -50,6 +50,7 @@ import { registerPredefinedSources, SourceManager } from '../managers/SourceMana
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import Store from '@xrengine/client-core/src/store'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 const maxUploadSize = 25
 
@@ -274,7 +275,7 @@ export const publishProject = async (project, showDialog, hideDialog?): Promise<
 
     try {
       project = await ProjectManager.instance.feathersClient
-        .service(`/publish-project/${project.project_id}`)
+        .service(`/publish-scene/${project.project_id}`)
         .create({ scene: sceneParams })
     } catch (error) {
       throw new Error(error)
@@ -378,7 +379,7 @@ type EditorContainerProps = {
   history: any
 }
 type EditorContainerState = {
-  project: any
+  project: SceneDetailInterface
   parentSceneId: null
   // templateUrl: any;
   settingsContext: any

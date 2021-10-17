@@ -1,13 +1,13 @@
 import { Application } from '../../../declarations'
-import { Project } from './project.class'
-import projectDocs from './project.docs'
-import createModel from './project.model'
-import hooks from './project.hooks'
-import createAssetModel from './project-asset.model'
+import { Scene } from './scene.class'
+import projectDocs from './scene.docs'
+import createModel from './scene.model'
+import hooks from './scene.hooks'
+import createAssetModel from './asset.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    project: Project
+    scene: Scene
   }
 }
 
@@ -24,7 +24,7 @@ export default (app: Application): any => {
    *
    * @author Vyacheslav Solovjov
    */
-  const event = new Project(options, app)
+  const event = new Scene(options, app)
   event.docs = projectDocs
 
   app.use('scene', event)

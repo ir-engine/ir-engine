@@ -119,13 +119,13 @@ const ContentPackDetailsModal = (props: Props): any => {
                   })}
                 </div>
               </div>
-              <div className={styles['reality-packs-container']}>
-                <div className={styles['header']}>Reality Packs</div>
+              <div className={styles['projects-container']}>
+                <div className={styles['header']}>Projects</div>
                 <div className={styles['container']}>
-                  {contentPack.data?.realityPacks?.map((realityPack) => {
+                  {contentPack.data?.projects?.map((project) => {
                     return (
-                      <div key={realityPack.name} className={styles['scene']}>
-                        <div className={styles['name']}>{realityPack.name}</div>
+                      <div key={project.name} className={styles['scene']}>
+                        <div className={styles['name']}>{project.name}</div>
                       </div>
                     )
                   })}

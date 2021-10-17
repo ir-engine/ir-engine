@@ -47,7 +47,7 @@ export default {
       attachOwnerIdInBody('userId'),
       mapProjectSaveData(),
       validateCollectionData(),
-      generateSceneCollection({ type: collectionType.project })
+      generateSceneCollection({ type: collectionType.scene })
     ],
     update: [disallow()],
     patch: [attachOwnerIdInBody('userId'), mapProjectIdToQuery(), mapProjectSaveData(), validateCollectionData()],

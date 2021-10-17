@@ -1,5 +1,6 @@
 import i18n from 'i18next'
 import { Config } from '@xrengine/common/src/config'
+import { SceneInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { getToken } from './getToken'
 import { upload } from '@xrengine/client-core/src/util/upload'
 import { ProjectManager } from '../managers/ProjectManager'
@@ -98,31 +99,33 @@ export const createProject = async (
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const project = {
+  const sceneData = {
     name: scene.name,
     thumbnailOwnedFileId: {
       file_id: thumbnailFileId,
       file_token: thumbnailFileToken
     },
     ownedFileIds: {},
-    project_file_id: projectFileId,
-    project_file_token: projectFileToken
+    scene_file_id: projectFileId,
+    scene_file_token: projectFileToken
   }
 
   if (parentSceneId) {
-    project['parent_scene_id'] = parentSceneId
+    sceneData['parent_scene_id'] = parentSceneId
   }
   ProjectManager.instance.ownedFileIds = Object.assign(
     {},
     ProjectManager.instance.ownedFileIds,
     ProjectManager.instance.currentOwnedFileIds
   )
-  project.ownedFileIds = Object.assign({}, project.ownedFileIds, ProjectManager.instance.ownedFileIds)
+  sceneData.ownedFileIds = Object.assign({}, sceneData.ownedFileIds, ProjectManager.instance.ownedFileIds)
   ProjectManager.instance.currentOwnedFileIds = {}
 
-  let json = {}
+  let json: any = {}
   try {
-    json = await ProjectManager.instance.feathersClient.service('scene').create({ project })
+    json = (await ProjectManager.instance.feathersClient
+      .service('scene')
+      .create({ scene: sceneData })) as SceneInterface
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)

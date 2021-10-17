@@ -3,11 +3,11 @@ import { Transaction } from 'sequelize/types'
 import fetch from 'node-fetch'
 
 import {
-  mapProjectDetailData,
-  defaultProjectImport,
+  mapSceneDetailData,
+  defaultSceneImport,
   readJSONFromBlobStore,
-  mapProjectTemplateDetailData
-} from './project-helper'
+  mapSceneTemplateDetailData
+} from './scene-helper'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { Application } from '../../../declarations'
 import StorageProvider from '../../media/storageprovider/storageprovider'
@@ -19,7 +19,7 @@ import { contents } from '@xrengine/common/src/scenes-templates'
 interface Data {}
 interface ServiceOptions {}
 
-export class Project implements ServiceMethods<Data> {
+export class Scene implements ServiceMethods<Data> {
   app: Application
   options: ServiceOptions
   models: any
@@ -45,14 +45,14 @@ export class Project implements ServiceMethods<Data> {
     const user = await this.app.service('user').get(loggedInUser.userId)
     const findParams = {
       attributes: ['name', 'id', 'sid', 'url'],
-      include: defaultProjectImport(this.app.get('sequelizeClient').models)
+      include: defaultSceneImport(this.app.get('sequelizeClient').models)
     }
     if (user.userRole !== 'admin')
       (findParams as any).where = {
         [Op.or]: [{ userId: loggedInUser.userId }, { userId: null }]
       }
     const projects = await this.models.collection.findAll(findParams)
-    const processedProjects = projects.map((project: any) => mapProjectDetailData(project.toJSON()))
+    const processedProjects = projects.map((project: any) => mapSceneDetailData(project.toJSON()))
     return { projects: processedProjects }
   }
 
@@ -73,7 +73,7 @@ export class Project implements ServiceMethods<Data> {
       if (!project) {
         return Promise.reject(new BadRequest('Project template not found'))
       }
-      return mapProjectTemplateDetailData(project)
+      return mapSceneTemplateDetailData(project)
     } else {
       project = await this.models.collection.findOne({
         attributes: ['name', 'id', 'sid', 'url', 'type', 'ownedFileIds'],
@@ -81,7 +81,7 @@ export class Project implements ServiceMethods<Data> {
           sid: id
           // userId: loggedInUser.userId
         },
-        include: defaultProjectImport(this.app.get('sequelizeClient').models)
+        include: defaultSceneImport(this.app.get('sequelizeClient').models)
       })
     }
 
@@ -89,7 +89,7 @@ export class Project implements ServiceMethods<Data> {
       return Promise.reject(new BadRequest("Project not found Or you don't have access!"))
     }
 
-    return mapProjectDetailData(project.toJSON())
+    return mapSceneDetailData(project.toJSON())
   }
 
   /**
@@ -118,7 +118,7 @@ export class Project implements ServiceMethods<Data> {
         logger.info('Project temp Owned file removed result: ', result)
       }
     )
-    return mapProjectDetailData(params.collection)
+    return mapSceneDetailData(params.collection)
   }
 
   /**
@@ -274,7 +274,7 @@ export class Project implements ServiceMethods<Data> {
       )
     })
     const savedProject = await this.reloadProject(project.id, project)
-    return mapProjectDetailData(savedProject.toJSON())
+    return mapSceneDetailData(savedProject.toJSON())
   }
   /**
    * A function which is used to remove specific project

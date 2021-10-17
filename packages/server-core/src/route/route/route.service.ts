@@ -31,7 +31,7 @@ export const getInstalledRoutes = () => {
         project
       })
     } catch (e) {
-      console.warn('[getRealityPacks]: Failed to read routes.json for project', project, 'with error', e)
+      console.warn('[getProjects]: Failed to read routes.json for project', project, 'with error', e)
       return
     }
   })

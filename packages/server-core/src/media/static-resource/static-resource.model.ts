@@ -62,9 +62,6 @@ export default (app: Application): any => {
       foreignKey: 'parentResourceId',
       allowNull: true
     })
-    // (staticResource as any).belongsTo(models.subscription_level, { foreignKey: 'subscriptionLevel' });
-    // belongs to collection   (asset as any).belongsToMany(models.project, { through: models.project_asset, foreignKey: 'assetId' });
-    // thumbnail   (asset as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
   }
 
   return staticResource

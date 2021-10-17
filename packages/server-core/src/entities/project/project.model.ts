@@ -3,8 +3,8 @@ import { Application } from '../../../declarations'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const RealityPack = sequelizeClient.define(
-    'reality_pack',
+  const Project = sequelizeClient.define(
+    'project',
     {
       id: {
         type: DataTypes.UUID,
@@ -37,7 +37,7 @@ export default (app: Application): any => {
       }
     }
   )
-  ;(RealityPack as any).associate = (models: any): void => {}
+  ;(Project as any).associate = (models: any): void => {}
 
-  return RealityPack
+  return Project
 }

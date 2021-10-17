@@ -17,7 +17,7 @@ interface Props {
   handleClose: any
   scenes?: any
   avatars?: any
-  realityPacks?: any
+  projects?: any
 }
 
 const AddToContentPackModal = (props: Props): any => {
@@ -26,7 +26,7 @@ const AddToContentPackModal = (props: Props): any => {
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
-  const [realityPackURL, setRealityPackURL] = useState('')
+  const [projectURL, setProjectURL] = useState('')
   const dispatch = useDispatch()
   const showError = (err: string) => {
     setError(err)
@@ -35,13 +35,13 @@ const AddToContentPackModal = (props: Props): any => {
     }, 3000)
   }
 
-  const tryUploadRealityPack = async () => {
+  const tryUploadProject = async () => {
     try {
-      if (realityPackURL !== '') {
+      if (projectURL !== '') {
         setProcessing(true)
         await dispatch(
-          ContentPackService.uploadRealityPack({
-            uploadURL: realityPackURL
+          ContentPackService.uploadProject({
+            uploadURL: projectURL
           })
         )
         setProcessing(false)
@@ -54,7 +54,7 @@ const AddToContentPackModal = (props: Props): any => {
   }
 
   const closeModal = () => {
-    setRealityPackURL('')
+    setProjectURL('')
     handleClose()
   }
 
@@ -86,11 +86,11 @@ const AddToContentPackModal = (props: Props): any => {
                   <TextField
                     className={styles['pack-select']}
                     id="contentPackSelect"
-                    value={realityPackURL}
-                    onChange={(e) => setRealityPackURL(e.target.value)}
+                    value={projectURL}
+                    onChange={(e) => setProjectURL(e.target.value)}
                   />
-                  <Button type="submit" variant="contained" color="primary" onClick={tryUploadRealityPack}>
-                    Upload Reality Pack
+                  <Button type="submit" variant="contained" color="primary" onClick={tryUploadProject}>
+                    Upload Project
                   </Button>
                 </FormControl>
               </div>

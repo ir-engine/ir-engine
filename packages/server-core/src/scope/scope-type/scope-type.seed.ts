@@ -75,10 +75,10 @@ export const scopeTypeSeed = {
       type: 'scene:write'
     },
     {
-      type: 'realityPacks:read'
+      type: 'projects:read'
     },
     {
-      type: 'realityPacks:write'
+      type: 'projects:write'
     }
   ]
 }

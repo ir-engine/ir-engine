@@ -1,6 +1,7 @@
 import config from '../../appconfig'
+import { SceneDetailData, SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
-export function mapSceneData(scene: any, projectId: string): any {
+export function mapSceneData(scene: any, projectId: string): SceneDetailData {
   if (!scene) {
     return null
   }
@@ -17,7 +18,7 @@ export function mapSceneData(scene: any, projectId: string): any {
   delete selectedSceneData.scene_owned_file
   return selectedSceneData
 }
-export function defaultProjectImport(models: any): any[] {
+export function defaultSceneImport(models: any): any[] {
   const includedEntities = [
     {
       model: models.static_resource,
@@ -51,7 +52,7 @@ export function readJSONFromBlobStore(storage, key): any {
   })
 }
 
-export function mapProjectDetailData(project: any): any {
+export function mapSceneDetailData(project: any): SceneDetailInterface {
   const _proj = {
     name: project.name,
     parent_scene: mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.sid),
@@ -64,7 +65,7 @@ export function mapProjectDetailData(project: any): any {
   return _proj
 }
 
-export function mapProjectTemplateDetailData(projectTemplate: any): any {
+export function mapSceneTemplateDetailData(projectTemplate: any): any {
   const selectedSceneData = {
     ...projectTemplate,
     sceneId: null,

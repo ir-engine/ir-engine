@@ -1,12 +1,11 @@
-import { TooManyRequests } from '@feathersjs/errors'
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../../../declarations'
 import generateShortId from '../../util/generate-short-id'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const project = sequelizeClient.define(
-    'project',
+  const scene = sequelizeClient.define(
+    'scene',
     {
       id: {
         type: DataTypes.UUID,
@@ -61,12 +60,11 @@ export default (app: Application): any => {
     }
   )
 
-  ;(project as any).associate = (models: any): void => {
-    ;(project as any).belongsTo(models.location, { foreignKey: 'locationId' })
-    //    (project as any).belongsTo(models.user, { foreignKey: 'user_id' });
-    ;(project as any).belongsToMany(models.asset, { through: models.project_asset, foreignKey: 'user_id' })
-    ;(project as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
+  ;(scene as any).associate = (models: any): void => {
+    ;(scene as any).belongsTo(models.location, { foreignKey: 'locationId' })
+    ;(scene as any).belongsToMany(models.asset, { through: models.asset, foreignKey: 'user_id' })
+    ;(scene as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
   }
 
-  return project
+  return scene
 }

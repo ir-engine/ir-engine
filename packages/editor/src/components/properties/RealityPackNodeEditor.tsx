@@ -4,28 +4,28 @@ import { withTranslation } from 'react-i18next'
 import { Dashboard } from '@material-ui/icons'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import RealityPackNode from '../../nodes/RealityPackNode'
+import ProjectNode from '../../nodes/ProjectNode'
 import { CommandManager } from '../../managers/CommandManager'
 import { ProjectManager } from '../../managers/ProjectManager'
-import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/Project'
 import NodeEditor from './NodeEditor'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 /**
- * Define properties for RealityPack component.
+ * Define properties for Project component.
  *
  * @author Abhishek Pathak
  * @author Josh Field
  * @type {Object}
  */
 
-type RealityPackNodeEditorProps = {
-  node?: RealityPackNode
+type ProjectNodeEditorProps = {
+  node?: ProjectNode
   t: Function
 }
 
-type RealityPackEditorStates = {
-  realityPacks: RealityPackInterface[]
+type ProjectEditorStates = {
+  projects: ProjectInterface[]
 }
 
 const systemUpdateTypes = [
@@ -60,37 +60,37 @@ const systemUpdateTypes = [
 ]
 
 /**
- * For RealityPacks
+ * For Projects
  *
  * @author Abhishek Pathak
  * @param       {Object} props
  * @constructor
  */
 
-export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps, RealityPackEditorStates> {
+export class ProjectNodeEditor extends Component<ProjectNodeEditorProps, ProjectEditorStates> {
   static iconComponent = Dashboard
-  static description = i18n.t('editor:properties.realitypacknode.description')
+  static description = i18n.t('editor:properties.projectnode.description')
 
   constructor(props) {
     super(props)
     this.state = {
-      realityPacks: []
+      projects: []
     }
   }
 
-  getRealityPacks = async () => {
-    let realityPacks: RealityPackInterface[] = []
+  getProjects = async () => {
+    let projects: ProjectInterface[] = []
     try {
-      realityPacks = (await ProjectManager.instance.feathersClient.service('reality-pack-data').find()).data
-      console.log(realityPacks)
+      projects = (await ProjectManager.instance.feathersClient.service('project-data').find()).data
+      console.log(projects)
     } catch (e) {
       console.log(e)
       return
     }
-    this.setState({ realityPacks })
+    this.setState({ projects })
   }
 
-  onChangeRealityPack = (val) => {
+  onChangeProject = (val) => {
     CommandManager.instance.setPropertyOnSelection('packName', val)
     CommandManager.instance.setPropertyOnSelection('entryPoints', [])
   }
@@ -106,21 +106,21 @@ export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps,
   }
 
   componentDidMount() {
-    this.getRealityPacks()
+    this.getProjects()
   }
 
   render() {
-    const node = this.props.node as RealityPackNode
-    const currentPack = this.state.realityPacks.find((pack) => pack.name === node.packName)
-    RealityPackNodeEditor.description = i18n.t('editor:properties.realitypacknode.description')
+    const node = this.props.node as ProjectNode
+    const currentPack = this.state.projects.find((pack) => pack.name === node.packName)
+    ProjectNodeEditor.description = i18n.t('editor:properties.projectnode.description')
     return (
-      <NodeEditor description={RealityPackNodeEditor.description} {...this.props}>
-        <InputGroup name="RealityPack" label="Reality Pack">
+      <NodeEditor description={ProjectNodeEditor.description} {...this.props}>
+        <InputGroup name="Project" label="Project">
           <SelectInput
-            options={this.state.realityPacks.map((r) => {
+            options={this.state.projects.map((r) => {
               return { label: r.name, value: r.name }
             })}
-            onChange={this.onChangeRealityPack}
+            onChange={this.onChangeProject}
             value={node.packName}
           />
         </InputGroup>
@@ -144,4 +144,4 @@ export class RealityPackNodeEditor extends Component<RealityPackNodeEditorProps,
   }
 }
 
-export default withTranslation()(RealityPackNodeEditor)
+export default withTranslation()(ProjectNodeEditor)

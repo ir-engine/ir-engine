@@ -1,5 +1,5 @@
 import StorageProvider from '@xrengine/server-core/src/media/storageprovider/storageprovider'
-import { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import fs from 'fs'
 import path from 'path'
 
@@ -57,30 +57,30 @@ function deleteFolderRecursive(path) {
 
 export const download = async (packName) => {
   try {
-    const manifestResult = await storageProvider.getObject(`reality-pack/${packName}/manifest.json`)
-    const manifest = JSON.parse(manifestResult.Body.toString()) as RealityPackInterface
+    const manifestResult = await storageProvider.getObject(`project/${packName}/manifest.json`)
+    const manifest = JSON.parse(manifestResult.Body.toString()) as ProjectInterface
 
-    console.log('[RealityPackLoader]: Installing reality pack', packName, '...')
+    console.log('[ProjectLoader]: Installing project', packName, '...')
 
-    const localRealityPackDirectory = path.resolve(__dirname, '../../projects/projects', packName)
-    if (fs.existsSync(localRealityPackDirectory)) {
-      console.log('[Reality pack temp debug]: fs exists, deleting')
-      deleteFolderRecursive(localRealityPackDirectory)
+    const localProjectDirectory = path.resolve(__dirname, '../../projects/projects', packName)
+    if (fs.existsSync(localProjectDirectory)) {
+      console.log('[Project temp debug]: fs exists, deleting')
+      deleteFolderRecursive(localProjectDirectory)
     }
 
-    console.log('[Reality pack temp debug]: local dir', localRealityPackDirectory)
+    console.log('[Project temp debug]: local dir', localProjectDirectory)
 
-    writeFileSyncRecursive(path.resolve(localRealityPackDirectory, 'manifest.json'), manifestResult.Body.toString()) //, 'utf8')
+    writeFileSyncRecursive(path.resolve(localProjectDirectory, 'manifest.json'), manifestResult.Body.toString()) //, 'utf8')
 
     for (const filePath of manifest.files) {
-      console.log(`[RealityPackLoader]: - downloading "reality-pack/${packName}/${filePath}"`)
-      const fileResult = await storageProvider.getObject(`reality-pack/${packName}/${filePath}`)
-      writeFileSyncRecursive(path.resolve(localRealityPackDirectory, filePath), fileResult.Body.toString()) //, 'utf8')
+      console.log(`[ProjectLoader]: - downloading "project/${packName}/${filePath}"`)
+      const fileResult = await storageProvider.getObject(`project/${packName}/${filePath}`)
+      writeFileSyncRecursive(path.resolve(localProjectDirectory, filePath), fileResult.Body.toString()) //, 'utf8')
     }
 
-    console.log('[RealityPackLoader]: Successfully downloaded and mounted reality pack', packName)
+    console.log('[ProjectLoader]: Successfully downloaded and mounted project', packName)
   } catch (e) {
-    console.log(`[RealityPackLoader]: Failed to download reality pack with error ${e}`)
+    console.log(`[ProjectLoader]: Failed to download project with error ${e}`)
     return false
   }
 

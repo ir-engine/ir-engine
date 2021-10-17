@@ -8,8 +8,8 @@ import {
   populateAvatar,
   populateScene,
   uploadAvatar,
-  assembleRealityPack,
-  populateRealityPack
+  assembleProject,
+  populateProject
 } from './content-pack-helper'
 import config from '../../appconfig'
 import axios from 'axios'
@@ -39,10 +39,10 @@ const getAvatarUrl = (packName: string, avatar: any) =>
 const getAvatarThumbnailUrl = (packName: string, thumbnail: any) =>
   `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/${thumbnail.key}`
 
-const getRealityPackManifestUrl = (packName: string, realityPack: any) =>
-  `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/reality-pack/${realityPack.name}/manifest.json`
-const getRealityPackManifestKey = (packName: string, realityPack: any) =>
-  `/content-pack/${packName}/reality-pack/${realityPack.name}/manifest.json`
+const getProjectManifestUrl = (packName: string, project: any) =>
+  `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/project/${project.name}/manifest.json`
+const getProjectManifestKey = (packName: string, project: any) =>
+  `/content-pack/${packName}/project/${project.name}/manifest.json`
 
 /**
  * A class for Upload Media service
@@ -105,16 +105,16 @@ export class ContentPack implements ServiceMethods<Data> {
     }
 
     let uploadPromises = []
-    const { scenes, contentPack, avatars, realityPacks } = data as any
+    const { scenes, contentPack, avatars, projects } = data as any
     await storageProvider.checkObjectExistence(getManifestKey(contentPack))
     const body = {
       version: 1,
       avatars: [],
       scenes: [],
-      realityPacks: []
+      projects: []
     }
     const promises = []
-    console.log('incoming realityPacks', realityPacks)
+    console.log('incoming projects', projects)
     if (scenes != null) {
       for (const scene of scenes) {
         promises.push(
@@ -176,20 +176,20 @@ export class ContentPack implements ServiceMethods<Data> {
         )
       }
     }
-    if (realityPacks != null) {
-      for (const realityPack of realityPacks) {
-        const newRealityPack = {
-          name: realityPack.name,
-          manifest: getRealityPackManifestUrl(contentPack, realityPack)
+    if (projects != null) {
+      for (const project of projects) {
+        const newProject = {
+          name: project.name,
+          manifest: getProjectManifestUrl(contentPack, project)
         }
         promises.push(
           new Promise(async (resolve) => {
-            const assembleResponse = await assembleRealityPack(realityPack, contentPack)
+            const assembleResponse = await assembleProject(project, contentPack)
             uploadPromises = assembleResponse.uploadPromises
             resolve(true)
           })
         )
-        body.realityPacks.push(newRealityPack)
+        body.projects.push(newProject)
       }
     }
 
@@ -206,7 +206,7 @@ export class ContentPack implements ServiceMethods<Data> {
   async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     const manifestUrl = (data as any).manifestUrl
     const manifestResult = await axios.get(manifestUrl, getAxiosConfig('json'))
-    const { avatars, scenes, realityPacks } = manifestResult.data
+    const { avatars, scenes, projects } = manifestResult.data
     const promises = []
     for (const index in scenes) {
       const scene = scenes[index]
@@ -214,14 +214,14 @@ export class ContentPack implements ServiceMethods<Data> {
       promises.push(populateScene(scene.sid, sceneResult.data, manifestUrl, this.app, scene.thumbnail))
     }
     for (const index in avatars) promises.push(populateAvatar(avatars[index], this.app))
-    for (const index in realityPacks) promises.push(populateRealityPack(realityPacks[index].manifest, this.app, params))
+    for (const index in projects) promises.push(populateProject(projects[index].manifest, this.app, params))
     await Promise.all(promises)
     return data
   }
 
   async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     let uploadPromises = []
-    const { scenes, contentPack, avatars, realityPacks } = data as any
+    const { scenes, contentPack, avatars, projects } = data as any
     const pack = await storageProvider.getObject(getManifestKey(contentPack))
     const body = JSON.parse((pack as any).Body.toString())
     const invalidationItems = [`/content-pack/${contentPack}/manifest.json`]
@@ -291,25 +291,23 @@ export class ContentPack implements ServiceMethods<Data> {
           })
         )
       }
-    } else if (realityPacks != null) {
-      if (body.realityPacks == null) body.realityPacks = []
-      for (const realityPack of realityPacks) {
-        body.realityPacks = body.realityPacks.filter(
-          (existingRealityPack) => existingRealityPack.name !== realityPack.name
-        )
-        const newRealityPack = {
-          name: realityPack.name,
-          manifest: getRealityPackManifestUrl(contentPack, realityPack)
+    } else if (projects != null) {
+      if (body.projects == null) body.projects = []
+      for (const project of projects) {
+        body.projects = body.projects.filter((existingProject) => existingProject.name !== project.name)
+        const newProject = {
+          name: project.name,
+          manifest: getProjectManifestUrl(contentPack, project)
         }
-        invalidationItems.push(getRealityPackManifestKey(contentPack, realityPack))
+        invalidationItems.push(getProjectManifestKey(contentPack, project))
         promises.push(
           new Promise(async (resolve) => {
-            const assembleResponse = await assembleRealityPack(realityPack, contentPack)
+            const assembleResponse = await assembleProject(project, contentPack)
             uploadPromises = assembleResponse.uploadPromises
             resolve(true)
           })
         )
-        body.realityPacks.push(newRealityPack)
+        body.projects.push(newProject)
       }
     }
 
