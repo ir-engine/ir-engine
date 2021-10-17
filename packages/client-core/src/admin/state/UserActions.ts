@@ -41,7 +41,7 @@ export const UserAction = {
       data: data
     }
   },
-  userRoleUpdated: (data: any) => {
+  userRoleUpdated: (data: User) => {
     return {
       type: 'USER_ROLE_UPDATED' as const,
       data: data
@@ -53,7 +53,7 @@ export const UserAction = {
       userResult: userResult
     }
   },
-  fetchedSingleUser: (data: any) => {
+  fetchedSingleUser: (data: User) => {
     return {
       type: 'SINGLE_USER_ADMIN_LOADED' as const,
       data: data

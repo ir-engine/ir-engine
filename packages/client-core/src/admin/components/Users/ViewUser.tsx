@@ -77,7 +77,7 @@ const ViewUser = (props: Props) => {
   const userRole = adminUserState.userRole
   const userRoleData = userRole ? userRole.userRole.value : []
   const singleUser = adminUserState.singleUser
-  const singleUserData = adminUserState.singleUser.singleUser
+  const singleUserData = singleUser.singleUser
   const staticResource = adminUserState.staticResource
   const staticResourceData = staticResource.staticResource
   const adminScopeState = useScopeState()
@@ -130,7 +130,7 @@ const ViewUser = (props: Props) => {
   }, [userAdmin.id, refetch])
 
   React.useEffect(() => {
-    if (singleUserData) {
+    if (singleUserData?.value) {
       setState({
         ...state,
         name: userAdmin.name || '',
@@ -138,7 +138,8 @@ const ViewUser = (props: Props) => {
         scopeType: userAdmin.scopes || []
       })
     }
-  }, [singleUserData.value])
+  }, [singleUserData?.id?.value])
+
   const defaultProps = {
     options: userRoleData,
     getOptionLabel: (option: any) => option.role
@@ -412,7 +413,7 @@ const ViewUser = (props: Props) => {
                 User scope
               </Typography>
               <div className={classes.scopeContainer}>
-                {singleUserData.scopes?.value.map((el, index) => {
+                {singleUserData?.scopes?.value?.map((el, index) => {
                   const [label, type] = el.type.split(':')
                   return (
                     <Grid container spacing={3} style={{ paddingLeft: '10px', width: '100%' }} key={el.id}>

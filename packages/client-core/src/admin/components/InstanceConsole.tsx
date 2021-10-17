@@ -186,16 +186,20 @@ function InstanceConsole(props: Props) {
   }
 
   const handleInstanceClick = (event: React.MouseEvent<unknown>, id: string) => {
-    const selected = adminInstances.value.find((instance) => instance.id === id)
-    setSelectedInstance(selected)
-    setInstanceModalOpen(true)
+    const selected = adminInstances.value.find((instance) => instance.id.toString() === id)
+    if (selected !== undefined) {
+      setSelectedInstance(selected)
+      setInstanceModalOpen(true)
+    }
   }
 
   const handleInstanceUpdateClick = (id: string) => {
-    const selected = adminInstances.value.find((instance) => instance.id === id)
-    setInstanceEdit(selected)
-    setInstanceCreateOpen(true)
-    setInstanceEditing(true)
+    const selected = adminInstances.value.find((instance) => instance.id.toString() === id)
+    if (selected !== undefined) {
+      setInstanceEdit(selected)
+      setInstanceCreateOpen(true)
+      setInstanceEditing(true)
+    }
   }
 
   const handleInstanceClose = (e: any): void => {

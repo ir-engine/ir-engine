@@ -841,7 +841,7 @@ const loadAvatarForUpdatedUser = async (user) => {
   const world = useWorld()
 
   return new Promise(async (resolve) => {
-    const networkUser = world.clients.get(user.id)
+    const networkUser = world?.clients?.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {

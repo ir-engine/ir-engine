@@ -3,6 +3,7 @@ import { PartyActionType } from './PartActions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
 
 export const PARTY_PAGE_LIMIT = 100
 
@@ -14,7 +15,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   parties: {
-    parties: [],
+    parties: [] as Array<AdminParty>,
     skip: 0,
     limit: PARTY_PAGE_LIMIT,
     total: 0,
@@ -30,8 +31,8 @@ export const receptor = (action: PartyActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'PARTY_ADMIN_DISPLAYED':
-        result = action.data.data
-        return s.parties.merge({ parties: result, updateNeeded: false })
+        result = action.data
+        return s.parties.merge({ parties: result.data, updateNeeded: false })
       case 'PARTY_ADMIN_CREATED':
         return s.parties.merge({ updateNeeded: true })
     }

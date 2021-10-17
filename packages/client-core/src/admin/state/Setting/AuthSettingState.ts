@@ -1,10 +1,10 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 
 import { AuthSettingActionType } from './AuthSettingActions'
-
+import { AdminAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
 const state = createState({
   authSettings: {
-    authSettings: [],
+    authSettings: [] as Array<AdminAuthSetting>,
     skip: 0,
     limit: 100,
     total: 0,
@@ -20,7 +20,7 @@ export const receptor = (action: AuthSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_AUTH_SETTING_FETCHED':
-        result = action.list
+        result = action.adminRedisSettingResult
         return s.authSettings.merge({
           authSettings: result.data,
           skip: result.skip,

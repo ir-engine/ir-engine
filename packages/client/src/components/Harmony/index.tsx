@@ -37,7 +37,7 @@ import {
   ThreeDRotation,
   Videocam
 } from '@material-ui/icons'
-import { ChannelType, useChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
 import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
 import { ChatAction } from '@xrengine/client-core/src/social/state/ChatActions'
 import { useFriendState } from '@xrengine/client-core/src/social/state/FriendState'
@@ -147,7 +147,7 @@ const Harmony = (props: Props): any => {
   const [messageUpdatePending, setMessageUpdatePending] = useState('')
   const [editingMessage, setEditingMessage] = useState('')
   const [composingMessage, setComposingMessage] = useState('')
-  const activeChannel = channels[targetChannelId]
+  const activeChannel = channels.find((c) => c.id === targetChannelId)!
   const [producerStarting, _setProducerStarting] = useState('')
   const [activeAVChannelId, _setActiveAVChannelId] = useState('')
   const [channelAwaitingProvision, _setChannelAwaitingProvision] = useState({
@@ -457,11 +457,11 @@ const Harmony = (props: Props): any => {
 
   const packageMessage = (): void => {
     if (composingMessage.length > 0) {
-      dispatch(
-        ChatService.createMessage({
-          text: composingMessage
-        })
-      )
+      ChatService.createMessage({
+        targetObjectId: targetObject.id.value,
+        targetObjectType: targetObjectType.value,
+        text: composingMessage
+      })
       setComposingMessage('')
     }
   }
@@ -1288,8 +1288,8 @@ const Harmony = (props: Props): any => {
           )}
           <List ref={messageRef as any} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
             {activeChannel != null &&
-              activeChannel.messages &&
-              [...activeChannel.messages]
+              activeChannel.Messages &&
+              [...activeChannel.Messages]
                 .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                 .map((message) => {
                   return (

@@ -79,7 +79,7 @@ const CreateBot = (props: Props) => {
     if (user?.id.value != null && adminLocation.updateNeeded.value === true) {
       LocationService.fetchAdminLocations()
     }
-  }, [user, adminInstanceState.instances.updateNeeded.value])
+  }, [user.id.value, adminInstanceState.instances.updateNeeded.value])
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -99,7 +99,7 @@ const CreateBot = (props: Props) => {
       setState({ ...state, instance: '' })
       setCurrentIntance(instanceFilter)
     }
-  }, [state.location, adminInstanceState.instances.instances.value])
+  }, [state.location, adminInstanceState.instances.instances.value.length])
 
   const temp: Location[] = []
   locationData.value.forEach((el) => {

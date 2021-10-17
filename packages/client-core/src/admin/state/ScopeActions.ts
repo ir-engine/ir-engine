@@ -1,37 +1,40 @@
+import { AdminScopTypeResult } from '@xrengine/common/src/interfaces/AdminScopeTypeResult'
+import { AdminScopeResult } from '@xrengine/common/src/interfaces/AdminScopeResult'
+import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
 export const ScopeAction = {
   fetchingScope: () => {
     return {
       type: 'SCOPE_FETCHING' as const
     }
   },
-  setAdminScope: (list: any[]) => {
+  setAdminScope: (adminScopeResult: AdminScopeResult) => {
     return {
       type: 'SCOPE_ADMIN_RETRIEVED' as const,
-      list
+      adminScopeResult: adminScopeResult
     }
   },
-  addAdminScope: (item) => {
+  addAdminScope: (adminScope: AdminScope) => {
     return {
       type: 'ADD_SCOPE' as const,
-      item
+      adminScope: adminScope
     }
   },
-  updateAdminScope: (result) => {
+  updateAdminScope: (adminScope: AdminScope) => {
     return {
       type: 'UPDATE_SCOPE' as const,
-      item: result
+      adminScope: adminScope
     }
   },
-  removeScopeItem: (id) => {
+  removeScopeItem: (id: string) => {
     return {
       type: 'REMOVE_SCOPE' as const,
-      id
+      id: id
     }
   },
-  getScopeType: (item: any[]) => {
+  getScopeType: (adminScopTypeResult: AdminScopTypeResult) => {
     return {
       type: 'SCOPE_TYPE_RETRIEVED',
-      list: item
+      adminScopTypeResult: adminScopTypeResult
     }
   }
 }

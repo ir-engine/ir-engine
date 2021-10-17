@@ -18,4 +18,9 @@ export type Channel = {
   group: Group
   party: Party
   instance: Instance
+  updatedAt: string
+  updateNeeded: boolean
+  limit: 5
+  skip: 0
+  total: 0
 }

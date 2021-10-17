@@ -21,6 +21,7 @@ import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
 import { useProjectState } from '../../../admin/state/ProjectState'
 import { ContentPackService } from '../../../admin/state/ContentPackService'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -115,14 +116,14 @@ const Projects = () => {
   }
 
   const [order, setOrder] = useState<Order>('asc')
-  const [orderBy, setOrderBy] = useState<any>('name')
+  const [orderBy, setOrderBy] = useState<string>('name')
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [uploadProjectsModalOpen, setUploadProjectsModalOpen] = useState(false)
-  const [selectedProjects, setSelectedProjects] = useState([])
+  const [selectedProjects, setSelectedProjects] = useState<ProjectInterface[]>([])
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
     width: window.innerWidth

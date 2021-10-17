@@ -45,7 +45,7 @@ const Client = (props: clientProps) => {
         </Typography>
         <label>Enabled</label>
         {clientSettings.map((el) => (
-          <div key={el.id}>
+          <div key={el?.id || ''}>
             <Paper component="div" className={classes.createInput}>
               <Switch
                 disabled
@@ -58,15 +58,21 @@ const Client = (props: clientProps) => {
             </Paper>
             <label>Logo</label>
             <Paper component="div" className={classes.createInput}>
-              <InputBase name="logo" className={classes.input} style={{ color: '#fff' }} value={el.logo} />
+              <InputBase name="logo" className={classes.input} style={{ color: '#fff' }} value={el?.logo || ''} />
             </Paper>
             <label>Title</label>
             <Paper component="div" className={classes.createInput}>
-              <InputBase name="title" className={classes.input} style={{ color: '#fff' }} value={el.title} />
+              <InputBase name="title" className={classes.input} style={{ color: '#fff' }} value={el?.title || ''} />
             </Paper>
             <label>URL</label>
             <Paper component="div" className={classes.createInput}>
-              <InputBase name="url" className={classes.input} disabled style={{ color: '#fff' }} value={el.url} />
+              <InputBase
+                name="url"
+                className={classes.input}
+                disabled
+                style={{ color: '#fff' }}
+                value={el?.url || ''}
+              />
             </Paper>
             <label>Release Name</label>
             <Paper component="div" className={classes.createInput}>
@@ -75,7 +81,7 @@ const Client = (props: clientProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.releaseName}
+                value={el?.releaseName || ''}
               />
             </Paper>
           </div>

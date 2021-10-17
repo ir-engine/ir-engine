@@ -1,47 +1,49 @@
+import { AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnalyticsData'
+
 export const AnalyticsAction = {
-  activePartiesFetched: (analytics: any) => {
+  activePartiesFetched: (analytics: AdminAnalyticsResult) => {
     return {
       type: 'ACTIVE_PARTIES_FETCHED' as const,
       analytics: analytics
     }
   },
-  activeInstancesFetched: (analytics: any) => {
+  activeInstancesFetched: (analytics: AdminAnalyticsResult) => {
     return {
       type: 'ACTIVE_INSTANCES_FETCHED' as const,
       analytics: analytics
     }
   },
-  channelUsersFetched: (analytics: any) => {
+  channelUsersFetched: (analytics: AdminAnalyticsResult) => {
     return {
       type: 'CHANNEL_USERS_FETCHED' as const,
       analytics: analytics
     }
   },
-  instanceUsersFetched: (analytics: any) => {
+  instanceUsersFetched: (analytics: AdminAnalyticsResult) => {
     return {
       type: 'INSTANCE_USERS_FETCHED' as const,
       analytics: analytics
     }
   },
-  activeLocationsFetched: (analytics: any) => {
+  activeLocationsFetched: (analytics: AdminAnalyticsResult) => {
     return {
       type: 'ACTIVE_LOCATIONS_FETCHED' as const,
       analytics: analytics
     }
   },
-  activeScenesFetched: (analytics: any) => {
+  activeScenesFetched: (analytics: AdminAnalyticsResult) => {
     return {
       type: 'ACTIVE_SCENES_FETCHED' as const,
       analytics: analytics
     }
   },
-  dailyUsersFetched: (analytics: any) => {
+  dailyUsersFetched: (analytics: AdminAnalyticsResult) => {
     return {
       type: 'DAILY_USERS_FETCHED' as const,
       analytics: analytics
     }
   },
-  dailyNewUsersFetched: (analytics: any) => {
+  dailyNewUsersFetched: (analytics: AdminAnalyticsResult) => {
     return {
       type: 'DAILY_NEW_USERS_FETCHED' as const,
       analytics: analytics
