@@ -48,6 +48,7 @@ import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { client } from '@xrengine/client-core/src/feathers'
+import { upload } from '@xrengine/client-core/src/util/upload'
 
 const maxUploadSize = 25
 

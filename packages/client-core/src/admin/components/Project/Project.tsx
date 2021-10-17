@@ -14,13 +14,13 @@ import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '../../../user/state/AuthState'
-import { PROJECT_PAGE_LIMIT } from '../../reducers/admin/project/ProjectState'
-import { fetchAdminProjects } from '../../reducers/admin/project/ProjectService'
+import { PROJECT_PAGE_LIMIT } from '../../../admin/state/ProjectState'
+import { fetchAdminProjects } from '../../../admin/state/ProjectService'
 import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
-import { useProjectState } from '../../reducers/admin/project/ProjectState'
-import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
+import { useProjectState } from '../../../admin/state/ProjectState'
+import { ContentPackService } from '../../../admin/state/ContentPackService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
