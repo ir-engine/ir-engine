@@ -13,6 +13,8 @@ import { useChatState } from '../../../social/services/ChatService'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useUserState } from '../../../user/services/UserService'
 import { ChatAction } from '../../../social/services/ChatService'
+import { useChannelConnectionState } from '@xrengine/client-core/src/common/state/ChannelConnectionState'
+import { store } from '@xrengine/client-core/src/store'
 
 import CreateMessage from './CreateMessage'
 import MessageList from './MessageList'
@@ -20,52 +22,39 @@ import MessageList from './MessageList'
 export default function RightHarmony() {
   const classex = useStyle()
   const classes = useStyles()
-  const dispatch = useDispatch()
-  const userState = useUserState()
   const [openInvite, setOpenInvite] = React.useState(false)
+  const dispatch = store.dispatch
+  const userState = useUserState()
+
   const messageRef = React.useRef()
   const messageEl = messageRef.current
   const selfUser = useAuthState().user
   const chatState = useChatState()
-  const targetObject = chatState.targetObject
-  const targetObjectType = chatState.targetObjectType
   const channelState = chatState.channels
   const channels = channelState.channels.value
+  const channelConnectionState = useChannelConnectionState()
   const channelEntries = Object.values(channels).filter((channel) => !!channel)!
-  const targetChannelId = chatState.targetChannelId.value
-  const activeChannel = channels[targetChannelId]
   const channelRef = useRef(channels)
+
+  const instanceChannel = channelEntries.find((entry) => entry.instanceId != null)!
+  const targetObject = chatState.targetObject
+  const targetObjectType = chatState.targetObjectType
+  const targetChannelId = chatState.targetChannelId.value
+  const messageScrollInit = chatState.messageScrollInit
+  const activeChannel = channels.find((c) => c.id === targetChannelId)!
+
   const openInviteModel = (open: boolean) => {
     setOpenInvite(open)
   }
 
-  useEffect(() => {
-    if (channelState.updateNeeded.value === true) {
-      ChatService.getChannels()
-    }
-  }, [channelState.updateNeeded.value])
+  console.log('RRRRRRRRRR', activeChannel)
 
   useEffect(() => {
-    channelRef.current = channels
-    channelEntries.forEach((channel) => {
-      if (chatState.updateMessageScroll.value === true) {
-        dispatch(ChatAction.setUpdateMessageScroll(false))
-        if (
-          channel?.id === targetChannelId &&
-          messageEl != null &&
-          (messageEl as any).scrollHeight -
-            (messageEl as any).scrollTop -
-            (messageEl as any).firstElementChild?.offsetHeight <=
-            (messageEl as any).clientHeight + 20
-        ) {
-          ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
-        }
-      }
-      if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
-        ChatService.getChannelMessages(channel.id)
-      }
-    })
-  }, [channels])
+    if (channelState.updateNeeded) {
+      ChatService.getChannels()
+      ChatService.getChannelMessages(targetChannelId)
+    }
+  }, [channelState.updateNeeded])
 
   return (
     <div className={classes.rightRoot}>
