@@ -72,12 +72,14 @@ spec:
                 - cat
                 - ./builder-started.txt
             initialDelaySeconds: 30
+            periodSeconds: 600
           readinessProbe:
             exec:
               command:
                 - cat
                 - ./builder-started.txt
             initialDelaySeconds: 30
+            periodSeconds: 600
           resources:
             {{- toYaml .Values.builder.resources | nindent 12 }}
         - name: dind
