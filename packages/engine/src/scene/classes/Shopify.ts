@@ -4,6 +4,10 @@ import { AnimationManager } from '../../avatar/AnimationManager'
 import cloneObject3D from '../../scene/functions/cloneObject3D'
 export default class Shopify extends Object3D {
   model: any
+  shopifyProducts: any
+  _shopifyDomain: any
+  _shopifyToken: any
+  _shopifyProductId: any
   _src: any
   _castShadow: boolean
   _receiveShadow: boolean
@@ -15,14 +19,34 @@ export default class Shopify extends Object3D {
     super()
     ;(this as any).type = 'Shopify'
     this.model = null
+    this.shopifyProducts = []
     this._src = null
+    this._shopifyDomain = ''
+    this._shopifyToken = ''
     this._castShadow = false
     this._receiveShadow = false
     // Use index instead of references to AnimationClips to simplify animation cloning / track name remapping
     this.activeClipIndex = -1
     this.animationMixer = null
     this.activeClipAction = null
-    debugger
+  }
+  get shopifyDomain() {
+    return this._shopifyDomain
+  }
+  set shopifyDomain(value) {
+    this._shopifyDomain = value
+  }
+  get shopifyToken() {
+    return this._shopifyToken
+  }
+  set shopifyToken(value) {
+    this._shopifyToken = value
+  }
+  get shopifyProductId() {
+    return this._shopifyProductId
+  }
+  set shopifyProductId(value) {
+    this._shopifyProductId = value
   }
   get src() {
     return this._src
@@ -56,6 +80,7 @@ export default class Shopify extends Object3D {
     this.receiveShadow = this._receiveShadow
     return this
   }
+
   getClipOptions() {
     console.log('CLIP OPTIONS')
     console.log(this.model)

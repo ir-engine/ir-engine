@@ -5,7 +5,6 @@ import React, { Component, Fragment } from 'react'
 import { withTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
-import ShopifyInput from '../inputs/ShopifyInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
@@ -91,6 +90,18 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
       properties: { ...initialProps, src }
     })
+  }
+
+  onChangeShopifyDomain = (domain) => {
+    CommandManager.instance.setPropertyOnSelection('shopifyDomain', domain)
+  }
+
+  onChangeShopifyToken = (token) => {
+    CommandManager.instance.setPropertyOnSelection('shopifyToken', token)
+  }
+
+  onChangeProducts = (id) => {
+    CommandManager.instance.setPropertyOnSelection('shopifyProductId', id)
   }
 
   // TODO
@@ -276,12 +287,19 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
     const node = this.props.node as any
     return (
       <NodeEditor description={ShopifyNodeEditor.description} {...this.props}>
-        <InputGroup name="Model Url" label={this.props.t('editor:properties.shopify.lbl-modelurl')}>
-          <ShopifyInput value={node.src} onChange={this.onChangeSrc} />
-          {!(this.props.node as ShopifyNode).isValidURL && (
-            <div>{this.props.t('editor:properties.shopify.error-url')}</div>
-          )}
+        <InputGroup name="Shopify Domain" label={this.props.t('editor:properties.shopify.lbl-shopifyDomain')}>
+          <StringInput value={node.shopifyDomain} onChange={this.onChangeShopifyDomain} />
         </InputGroup>
+        <InputGroup name="Shopify Acess Token" label={this.props.t('editor:properties.shopify.lbl-shopifyAccessToken')}>
+          <StringInput value={node.shopifyToken} onChange={this.onChangeShopifyToken} />
+        </InputGroup>
+
+        <InputGroup name="Shopify Products" label={this.props.t('editor:properties.shopify.lbl-shopifyProducts')}>
+          <SelectInput options={node.shopifyProducts} value={node.shopifyProductId} onChange={this.onChangeProducts} />
+        </InputGroup>
+        {/* {!(this.props.node as ShopifyNode).isValidURL && (
+          <div>{this.props.t('editor:properties.shopify.error-url')}</div>
+        )} */}
 
         {/* TODO: implement environment map overrides. - source from scene env map, a custom BPCEM bake, URL string
          <InputGroup name="Environment Map" label={this.props.t('editor:properties.shopify.lbl-modelurl')}>

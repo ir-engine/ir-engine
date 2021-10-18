@@ -5,20 +5,28 @@ import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import { makeCollidersInvisible } from '@xrengine/engine/src/physics/functions/parseModelColliders'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
-import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
+import { RethrownError } from '../functions/errors'
+import { resolveMedia } from '../functions/resolveMedia'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from '../managers/CacheManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { delay } from '@xrengine/engine/src/common/functions/delay'
+import axios from 'axios'
 
 export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   static nodeName = 'Shopify'
   static legacyComponentName = 'gltf-shopify'
   static initialElementProps = {
     initialScale: 'fit',
-    src: ''
+    src: '',
+    shopifyDomain: '',
+    shopifyProducts: [],
+    shopifyToken: '',
+    shopifyProductId: ''
   }
 
   meshColliders = []
@@ -27,14 +35,28 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
     const node = await super.deserialize(json)
     loadAsync(
       (async () => {
-        const { src, envMapOverride, textureOverride } = json.components.find((c) => c.name === 'gltf-shopify').props
-
+        const { src, envMapOverride, textureOverride, shopifyProducts, shopifyDomain, shopifyToken, shopifyProductId } =
+          json.components.find((c) => c.name === 'gltf-shopify').props
+        debugger
         await node.load(src, onError)
-        if (node.envMapOverride) node.envMapOverride = envMapOverride
-        if (textureOverride)
-          SceneManager.instance.scene.traverse((obj) => {
-            if (obj.uuid === textureOverride) node.textureOverride = obj.uuid
+
+        if (shopifyProducts) node.shopifyProducts = shopifyProducts
+        if (shopifyDomain) node._shopifyDomain = shopifyDomain
+        if (shopifyToken) node._shopifyToken = shopifyToken
+        if (shopifyProductId) node._shopifyProductId = shopifyProductId
+
+        if (envMapOverride) node.envMapOverride = envMapOverride
+        if (textureOverride) {
+          // Using this to pass texture override uuid to event callback instead of creating a new variable
+          node.textureOverride = textureOverride
+          CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), () => {
+            SceneManager.instance.scene.traverse((obj) => {
+              if (obj.uuid === node.textureOverride) {
+                node.textureOverride = obj.uuid
+              }
+            })
           })
+        }
 
         node.collidable = !!json.components.find((c) => c.name === 'collidable')
         node.walkable = !!json.components.find((c) => c.name === 'walkable')
@@ -90,13 +112,14 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   boundingSphere = new Sphere()
   gltfJson = null
   isValidURL = false
+  isProductReady = false
   isUpdateDataMatrix = true
   animations = []
 
   constructor() {
     super()
   }
-  // Overrides Model's src property and stores the original (non-resolved) url.
+  // Overrides Shopify's src property and stores the original (non-resolved) url.
   get src(): string {
     return this._canonicalUrl
   }
@@ -104,11 +127,152 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   set src(value: string) {
     this.load(value).catch(console.error)
   }
+
+  get shopifyDomain() {
+    return this._shopifyDomain
+  }
+  set shopifyDomain(value) {
+    this._shopifyDomain = value
+    this.getShopifyProduction()
+  }
+
+  get shopifyToken() {
+    return this._shopifyToken
+  }
+  set shopifyToken(value) {
+    this._shopifyToken = value
+    this.getShopifyProduction()
+  }
+
+  get shopifyProductId() {
+    return this._shopifyProductId
+  }
+  set shopifyProductId(value) {
+    this._shopifyProductId = value
+    if (this.shopifyProducts && this.shopifyProducts.length != 0) {
+      const filtered = this.shopifyProducts.filter((product) => product.value == value)
+      if (filtered && filtered.length != 0) {
+        this.src = filtered[0].path
+      }
+    }
+  }
+
+  async getShopifyProduction() {
+    if (!this.shopifyDomain || this.shopifyDomain == '' || !this.shopifyToken || this.shopifyToken == '') return
+    try {
+      const res = await axios.post(
+        `${this.shopifyDomain}/api/2021-07/graphql.json`,
+        {
+          query: `
+            query {
+              products(first: 250) {
+                edges {
+                  node {
+                    id
+                    title
+                  }
+                }
+              }
+            }
+        `
+        },
+        { headers: { 'X-Shopify-Storefront-Access-Token': this.shopifyToken, 'Content-Type': 'application/json' } }
+      )
+      if (!res || !res.data) return
+      const productData: any = res.data
+      this.shopifyProducts = []
+      if (productData.data && productData.data.products && productData.data.products.edges) {
+        for (const edgeProduct of productData.data.products.edges) {
+          const response = await axios.post(
+            `${this.shopifyDomain}/api/2021-07/graphql.json`,
+            {
+              query: `
+                query {
+                  node(id: "${edgeProduct.node.id}") {
+                    ...on Product {
+                      id
+                        media(first: 250) {
+                        edges {
+                          node {
+                            mediaContentType
+                            alt
+                            ...mediaFieldsByType
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                
+                fragment mediaFieldsByType on Media {
+                  ...on ExternalVideo {
+                    id
+                    host
+                    embeddedUrl
+                  }
+                  ...on MediaImage {
+                    image {
+                      originalSrc
+                    }
+                  }
+                  ...on Model3d {
+                    sources {
+                      url
+                      mimeType
+                      format
+                      filesize
+                    }
+                  }
+                  ...on Video {
+                    sources {
+                      url
+                      mimeType
+                      format
+                      height
+                      width
+                    }
+                  }
+                }
+                
+            `
+            },
+            { headers: { 'X-Shopify-Storefront-Access-Token': this.shopifyToken, 'Content-Type': 'application/json' } }
+          )
+          if (response && response.data) {
+            debugger
+            const mediaData: any = response.data
+            if (mediaData.data && mediaData.data.node && mediaData.data.node.media && mediaData.data.node.media.edges) {
+              for (const edgeMedia of mediaData.data.node.media.edges) {
+                if (edgeMedia.node && edgeMedia.node.mediaContentType == 'MODEL_3D') {
+                  for (const source of edgeMedia.node.sources) {
+                    if (source.format == 'glb') {
+                      this.shopifyProducts.push({
+                        value: edgeProduct.node.id,
+                        label: edgeProduct.node.title,
+                        path: source.url
+                      })
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        console.log(this.shopifyProducts)
+        CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
+        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+      }
+    } catch (error) {
+      this.shopifyProducts = []
+      console.error(error)
+    }
+  }
+
   reload() {
     console.log('reload')
     this.load(this.src).catch(console.error)
   }
-  // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
+  // Overrides Shopify's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
     const loadPromise = CacheManager.gltfCache.get(src)
     const { scene, json, animations } = await loadPromise
@@ -118,7 +282,7 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
 
     return clonedScene
   }
-  // Overrides Model's load method and resolves the src url before loading.
+  // Overrides Shopify's load method and resolves the src url before loading.
   async load(src, onError?) {
     const nextSrc = src || ''
     if (nextSrc === '') {
@@ -229,7 +393,7 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
             const animatedNode = this.model.getObjectByProperty('uuid', uuid)
             if (!animatedNode) {
               // throw new Error(
-              //   `Model.updateStaticModes: model with url "${this._canonicalUrl}" has an invalid animation "${animation.name}"`
+              //   `Shopify.updateStaticModes: model with url "${this._canonicalUrl}" has an invalid animation "${animation.name}"`
               // )
             } else {
               setStaticMode(animatedNode, StaticModes.Dynamic)
@@ -240,8 +404,13 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
     })
   }
   async serialize(projectID) {
+    debugger
     const components = {
       'gltf-shopify': {
+        shopifyProducts: this.shopifyProducts,
+        shopifyDomain: this._shopifyDomain,
+        shopifyToken: this._shopifyToken,
+        shopifyProductId: this._shopifyProductId,
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
         textureOverride: this.textureOverride,
@@ -292,6 +461,10 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
     }
     this.collidable = source.collidable
     this.textureOverride = source.textureOverride
+    this.shopifyDomain = source.shopifyDomain
+    this.shopifyProducts = source.shopifyProducts
+    this.shopifyToken = source.shopifyToken
+    this.shopifyProductId = source.shopifyProductId
     this.walkable = source.walkable
     return this
   }
