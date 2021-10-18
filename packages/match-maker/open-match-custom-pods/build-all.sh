@@ -7,7 +7,7 @@ REGISTRY=xianizpua
 
 #kubectl -n mm101-tutorial delete pod,svc --all
 
-if [[ $2 = "push" ]]
+if [ $2 = "push" ]
 then
   docker push $REGISTRY/mm101-tutorial-director
   docker push $REGISTRY/mm101-tutorial-frontend

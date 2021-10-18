@@ -1,0 +1,17 @@
+{{- if .Values.matchfunction.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xrengine.matchfunction.fullname" . }}
+  labels:
+    {{- include "xrengine.matchfunction.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.matchfunction.service.type }}
+  ports:
+    - port: {{ .Values.matchfunction.service.port }}
+      targetPort: {{ .Values.matchfunction.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "xrengine.matchfunction.selectorLabels" . | nindent 4 }}
+{{- end -}}
