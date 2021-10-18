@@ -115,7 +115,13 @@ const InviteModel = (props: Props) => {
     setOpenWarning(false)
   }
 
-  const currencies = []
+  interface Currency {
+    value: string
+    label: string
+  }
+
+  const currencies: Currency[] = []
+
   const provide = [
     {
       value: 'email',
@@ -198,7 +204,13 @@ const InviteModel = (props: Props) => {
     })
   }
 
-  const stateOptions = []
+  interface StateOption {
+    key: string
+    text: string
+    value: string
+  }
+
+  const stateOptions: StateOption[] = []
   users.forEach((el) => {
     stateOptions.push({
       key: el.id,

@@ -10,8 +10,8 @@ import TheFeed from '../TheFeed'
 // import TipsAndTricks from '../TipsAndTricks'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from 'react-redux'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { useFeedState } from '../../reducers/feed/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/reducers/feed/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/reducers/feed/FeedState'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'

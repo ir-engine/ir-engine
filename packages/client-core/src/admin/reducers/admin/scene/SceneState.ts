@@ -36,7 +36,7 @@ const sceneReceptor = (action: SceneActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_SCENES_RETRIEVED':
-        result = action.collections
+        result = action.sceneDataResult
         return s.scenes.merge({
           scenes: result.data,
           skip: result.skip,

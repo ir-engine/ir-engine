@@ -1,8 +1,10 @@
+import { ChargebeeSettingResult } from '@xrengine/common/src/interfaces/ChargebeeSettingResult'
+
 export const ChargebeeSettingAction = {
-  fetchedChargebee: (chargebee: any) => {
+  fetchedChargebee: (chargebeeSettingResult: ChargebeeSettingResult) => {
     return {
       type: 'CHARGEBEE_SETTING_DISPLAY' as const,
-      chargebee: chargebee
+      chargebeeSettingResult: chargebeeSettingResult
     }
   }
 }

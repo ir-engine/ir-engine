@@ -118,11 +118,11 @@ const LeftDrawer = (props: Props): any => {
       selectedGroup.id && selectedGroup.id.length > 0
         ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === user.id.value)
         : {}
-    const partyUsers = party && party?.partyUsers?.value ? party.partyUsers.value : []
+    const partyUsers = party && party?.partyUsers && party?.partyUsers?.value ? party.partyUsers.value : []
     const selfPartyUser =
       party && party?.partyUsers?.value
-        ? party?.partyUsers?.value.find((partyUser) => partyUser.userId === user.id.value)
-        : {}
+        ? party?.partyUsers?.value?.find((partyUser) => partyUser.user.id === user.id.value)
+        : null
     const currentLocation = useLocationState().currentLocation.location.value
 
     useEffect(() => {
@@ -201,11 +201,12 @@ const LeftDrawer = (props: Props): any => {
       setLeftDrawerOpen(false)
     }
 
+    /*
     const showLocationBanConfirm = (e, userId) => {
       e.preventDefault()
       setLocationBanPending(userId)
     }
-
+  
     const cancelLocationBan = (e) => {
       e.preventDefault()
       setLocationBanPending('')
@@ -216,7 +217,7 @@ const LeftDrawer = (props: Props): any => {
       console.log('Confirming location ban')
       setLocationBanPending('')
       dispatch(LocationService.banUserFromLocation(userId, currentLocation.id))
-    }
+    } */
 
     const nextGroupsPage = (): void => {
       if (groupSubState.skip.value + groupSubState.limit.value < groupSubState.total.value) {
@@ -278,7 +279,7 @@ const LeftDrawer = (props: Props): any => {
       const partyUser = _.find(partyUsers, (pUser) => pUser.id === partyUserId)
       setPartyUserDeletePending('')
       dispatch(PartyService.removePartyUser(partyUserId))
-      if (partyUser.userId === user.id.value) setLeftDrawerOpen(false)
+      if (partyUser && partyUser.user.id === user.id.value) setLeftDrawerOpen(false)
     }
 
     const showTransferPartyOwnerConfirm = (e, partyUserId) => {
@@ -547,7 +548,7 @@ const LeftDrawer = (props: Props): any => {
                     >
                       Chat
                     </Button>
-                    {(selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
+                    {selfPartyUser?.isOwner === true && (
                       <Button
                         variant="contained"
                         color="secondary"
@@ -557,7 +558,7 @@ const LeftDrawer = (props: Props): any => {
                         Invite
                       </Button>
                     )}
-                    {partyDeletePending !== true && (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
+                    {partyDeletePending !== true && selfPartyUser?.isOwner === true && (
                       <Button
                         variant="contained"
                         className={styles['background-red']}
@@ -601,32 +602,30 @@ const LeftDrawer = (props: Props): any => {
                   >
                     {partyUsers &&
                       partyUsers.length > 0 &&
-                      partyUsers
-                        .sort((a, b) => a.name - b.name)
+                      [...partyUsers]
+                        .sort((a, b) => a.user.name.localeCompare(b.user.name))
                         .map((partyUser) => {
                           return (
                             <ListItem key={partyUser.id}>
                               <ListItemAvatar>
                                 <Avatar src={partyUser.user.avatarUrl} />
                               </ListItemAvatar>
-                              {user.id.value === partyUser.userId &&
-                                (partyUser.isOwner === true || partyUser.isOwner === 1) && (
-                                  <ListItemText primary={partyUser.user.name + ' (you, owner)'} />
-                                )}
-                              {user.id.value === partyUser.userId &&
-                                partyUser.isOwner !== true &&
-                                partyUser.isOwner !== 1 && <ListItemText primary={partyUser.user.name + ' (you)'} />}
-                              {user.id.value !== partyUser.userId &&
-                                (partyUser.isOwner === true || partyUser.isOwner === 1) && (
-                                  <ListItemText primary={partyUser.user.name + ' (owner)'} />
-                                )}
-                              {user.id.value !== partyUser.userId &&
-                                partyUser.isOwner !== true &&
-                                partyUser.isOwner !== 1 && <ListItemText primary={partyUser.user.name} />}
+                              {user.id.value === partyUser.id && partyUser.isOwner === true && (
+                                <ListItemText primary={partyUser.user.name + ' (you, owner)'} />
+                              )}
+                              {user.id.value === partyUser.id && partyUser.isOwner !== true && (
+                                <ListItemText primary={partyUser.user.name + ' (you)'} />
+                              )}
+                              {user.id.value !== partyUser.id && partyUser.isOwner === true && (
+                                <ListItemText primary={partyUser.user.name + ' (owner)'} />
+                              )}
+                              {user.id.value !== partyUser.id && partyUser.isOwner !== true && (
+                                <ListItemText primary={partyUser.user.name} />
+                              )}
                               {partyUserDeletePending !== partyUser.id &&
                                 partyTransferOwnerPending !== partyUser.id &&
-                                (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                user.id.value !== partyUser.userId && (
+                                selfPartyUser?.isOwner === true &&
+                                user.id.value !== partyUser.id && (
                                   <Button
                                     variant="contained"
                                     className={styles.groupUserMakeOwnerInit}
@@ -656,8 +655,8 @@ const LeftDrawer = (props: Props): any => {
                               )}
                               {partyTransferOwnerPending !== partyUser.id &&
                                 partyUserDeletePending !== partyUser.id &&
-                                (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                user.id.value !== partyUser.userId && (
+                                selfPartyUser?.isOwner === true &&
+                                user.id.value !== partyUser.id && (
                                   <Button
                                     className={styles.groupUserDeleteInit}
                                     onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}
@@ -665,7 +664,7 @@ const LeftDrawer = (props: Props): any => {
                                     <Delete />
                                   </Button>
                                 )}
-                              {partyUserDeletePending !== partyUser.id && user.id.value === partyUser.userId && (
+                              {partyUserDeletePending !== partyUser.id && user.id.value === partyUser.id && (
                                 <Button
                                   className={styles.groupUserDeleteInit}
                                   onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}
@@ -675,7 +674,7 @@ const LeftDrawer = (props: Props): any => {
                               )}
                               {partyTransferOwnerPending !== partyUser.id && partyUserDeletePending === partyUser.id && (
                                 <div className={styles.userConfirmButtons}>
-                                  {user.id.value !== partyUser.userId && (
+                                  {user.id.value !== partyUser.id && (
                                     <Button
                                       variant="contained"
                                       color="primary"
@@ -684,7 +683,7 @@ const LeftDrawer = (props: Props): any => {
                                       Remove User
                                     </Button>
                                   )}
-                                  {user.id.value === partyUser.userId && (
+                                  {user.id.value === partyUser.id && (
                                     <Button
                                       variant="contained"
                                       color="primary"

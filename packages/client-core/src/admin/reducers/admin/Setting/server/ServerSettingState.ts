@@ -1,9 +1,10 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { ServerSettingActionType } from './ServerSettingActions'
+import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
 
 const state = createState({
   Server: {
-    server: [],
+    server: [] as Array<ServerSetting>,
     updateNeeded: true
   }
 })
@@ -18,7 +19,7 @@ const serverSettingReceptor = (action: ServerSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'SETTING_SERVER_DISPLAY':
-        result = action.serverInfo
+        result = action.serverSettingResult
         return s.Server.merge({ server: result.data, updateNeeded: false })
     }
   }, action.type)

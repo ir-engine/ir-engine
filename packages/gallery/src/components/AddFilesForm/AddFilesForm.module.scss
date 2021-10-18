@@ -7,8 +7,6 @@
 }
 .feedContainer {
     margin: 30px 30px 0;
-    // overflow-y: scroll;
-    // height: inherit;
     .gridItem {
         position: r  elative;
 
@@ -23,6 +21,7 @@
         display: none;
     }
     .creatorItem {
+        position: relative;
         background-color: #F8F8F8;
         min-height: 476px;
         height: 100%;
@@ -46,8 +45,6 @@
     .removeButton {
         display: none;
         position: absolute;
-        bottom: -10px;
-        right: -10px;
         padding: 0;
         margin: 0;
         cursor: pointer !important;
@@ -61,16 +58,12 @@
         padding: 30px 20px 0;
         align-items: center;
         display: flex;
-        position: relative;
     }
     .image {
         width: auto;
         margin: auto;
         max-width: 100%;
         max-height: 100%;
-    }
-    .image:hover ~ .removeItem {
-        display: flex;
     }
     .imageList {
         height: auto;
@@ -89,14 +82,20 @@
     }
     .removeItem {
         position: absolute;
-        padding: 0 40px 0 0;
+        // padding: 0 40px 0 0;
         width: 100%;
         display: none;
         height: 100%;
         z-index: 9999;
         cursor: pointer;
+        top: 0px;
+        left: 0px;
     }
     .removeItem:hover {
+        display: flex;
+    }
+
+    .imageWrapper:hover ~ .removeItem {
         display: flex;
     }
     .close {
@@ -108,6 +107,7 @@
         width: 100%;
     }
     .publish {
+        position: absolute;
         --size: 127px;
         --radius: calc(var(--size) / 2);
         display: grid; 
@@ -116,9 +116,11 @@
         border-radius: var(--radius);
         background-color: #cfcfcf;
         color: #ffffff;
-        margin-top: 50px;
-        margin-left: auto;
+        // margin-top: 50px;
+        // margin-left: auto;
         font-size: 14pt;
+        right: 40px;
+        bottom: 40px;
 
         .addIcon {
             color: #fdfdff;
@@ -145,4 +147,14 @@
     font-family: Jost, sans-serif !important;
     font-size: 20pt !important;
     color: #9b9b9b !important;
+}
+
+.textField {
+    :global(.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline) {
+        border-color: rgba(0, 0, 0, 0.87);
+    }
+}
+
+.hidden {
+    display: none !important;
 }

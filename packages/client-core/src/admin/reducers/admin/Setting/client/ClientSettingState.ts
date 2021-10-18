@@ -1,9 +1,10 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { ClientSettingActionType } from './ClientSettingActions'
+import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 
 const state = createState({
   Client: {
-    client: [],
+    client: [] as Array<ClientSetting>,
     updateNeeded: true
   }
 })
@@ -18,7 +19,7 @@ const clientSettingReceptor = (action: ClientSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CLIENT_SETTING_DISPLAY':
-        result = action.client
+        result = action.clientSettingResult
         return s.Client.merge({ client: result.data, updateNeeded: false })
     }
   }, action.type)

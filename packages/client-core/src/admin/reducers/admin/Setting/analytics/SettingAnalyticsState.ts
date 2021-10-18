@@ -1,9 +1,10 @@
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { SettingAnalyticsActionType } from './SettingAnalyticsActions'
+import { SettingAnalytics } from '@xrengine/common/src/interfaces/SettingAnalytics'
 
 const state = createState({
   Analytics: {
-    analytics: [],
+    analytics: [] as Array<SettingAnalytics>,
     updateNeeded: true
   }
 })
@@ -18,7 +19,7 @@ const settingAnalyticsReceptor = (action: SettingAnalyticsActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'SETTING_ANALYIS_DISPLAY':
-        result = action.analytics
+        result = action.settingAnalyticsResult
         return s.Analytics.merge({ analytics: result.data, updateNeeded: false })
     }
   }, action.type)

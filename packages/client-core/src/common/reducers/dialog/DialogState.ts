@@ -1,9 +1,10 @@
-import { createState, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState, Downgraded } from '@hookstate/core'
 import { DialogActionType } from './DialogActions'
+import { DialogSeed } from '@xrengine/common/src/interfaces/Dialog'
 
 const state = createState({
   isOpened: false,
-  content: undefined
+  content: DialogSeed
 })
 
 export const DialogReducer = (_, action: DialogActionType) => {
@@ -17,7 +18,7 @@ const dialogReceptor = (action: DialogActionType): any => {
       case 'SHOW_DIALOG':
         return s.merge({ isOpened: true, content: action.content })
       case 'CLOSE_DIALOG':
-        return s.merge({ isOpened: false, content: undefined })
+        return s.merge({ isOpened: false, content: DialogSeed })
       default:
         break
     }

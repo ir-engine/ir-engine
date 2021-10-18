@@ -1,8 +1,10 @@
+import { GameServerSettingResult } from '@xrengine/common/src/interfaces/GameServerSettingResult'
+
 export const GameServerSettingAction = {
-  fetchedGameServer: (gameServer: any) => {
+  fetchedGameServer: (gameServerSettingResult: GameServerSettingResult) => {
     return {
       type: 'GAME_SERVER_SETTING_DISPLAY',
-      gameServer: gameServer
+      gameServerSettingResult: gameServerSettingResult
     }
   }
 }

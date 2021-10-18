@@ -3,6 +3,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarActionType } from './AvatarActions'
+import { Avatar } from '@xrengine/common/src/interfaces/Avatar'
 
 export const AVATAR_PAGE_LIMIT = 100
 
@@ -14,7 +15,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   avatars: {
-    avatars: [],
+    avatars: [] as Array<Avatar>,
     skip: 0,
     limit: AVATAR_PAGE_LIMIT,
     total: 0,

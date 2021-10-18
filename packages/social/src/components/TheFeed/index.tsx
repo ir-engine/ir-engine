@@ -4,16 +4,14 @@
 import React, { useEffect } from 'react'
 import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-// import { selectFeedsState } from '../../reducers/feed/selector';
-// import { getFeeds } from '../../reducers/feed/service';
-import { TheFeedsService } from '@xrengine/social/src/reducers/thefeeds/TheFeedsService'
-import { useTheFeedsState } from '@xrengine/social/src/reducers/thefeeds/TheFeedsState'
+
+import { TheFeedsService } from '@xrengine/client-core/src/social/reducers/thefeeds/TheFeedsService'
+import { useTheFeedsState } from '@xrengine/client-core/src/social/reducers/thefeeds/TheFeedsState'
 
 import TheFeedsCard from '../TheFeedsCard'
 
 // @ts-ignore
 import styles from './TheFeed.module.scss'
-import { useFeedState } from '../../reducers/feed/FeedState'
 
 interface Props {}
 

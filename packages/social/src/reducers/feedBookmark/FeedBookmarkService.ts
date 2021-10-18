@@ -4,7 +4,7 @@
 import { Dispatch } from 'redux'
 import { AlertService } from '@xrengine/client-core/src/common/reducers/alert/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
-import { FeedAction } from '../feed/FeedActions'
+import { FeedAction } from '@xrengine/client-core/src/social/reducers/feed/FeedActions'
 
 export const FeedBookmarkService = {
   addBookmarkToFeed: (feedId: string) => {

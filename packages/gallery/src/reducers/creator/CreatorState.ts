@@ -3,18 +3,18 @@
  */
 import { createState, useState, none, Downgraded } from '@hookstate/core'
 import { CreatorActionType } from './CreatorActions'
-
+import { Creator, CreatorShort, CreatorNotification } from '@xrengine/common/src/interfaces/Creator'
 const state = createState({
   creators: {
-    creators: [],
+    creators: [] as Array<Creator>,
     fetchingCreators: false,
-    creator: {},
+    creator: {} as Creator,
     fetchingCreator: false,
-    currentCreator: {},
+    currentCreator: {} as Creator,
     fetchingCurrentCreator: false,
-    currentCreatorNotifications: {},
-    followers: [],
-    following: [],
+    currentCreatorNotifications: [] as Array<CreatorNotification>,
+    followers: [] as Array<CreatorShort>,
+    following: [] as Array<CreatorShort>,
     fetching: false
   },
   updateNeeded: true,

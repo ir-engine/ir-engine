@@ -7,7 +7,7 @@ const LetterAvatars = (): any => {
   return (
     <Fragment>
       <Typography variant="body1" color="inherit">
-        Shaw
+        Adam
       </Typography>
       <div className="root">
         <Avatar className={styles.purple}>S</Avatar>

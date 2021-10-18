@@ -24,6 +24,12 @@
     "404": {
         "msg": "404 - Page Not Found"
     },
+    "503": {
+        "msg": "503 - Service Unavailable"
+    },
+    "no-projects": {
+        "msg": "Error: No Projects Installed - please contact a site admin"
+    },
     "dev": {
         "pageTitle": "Home"
     },

@@ -30,6 +30,10 @@ import { BotService } from '../../reducers/admin/bots/BotsService'
 import { useLocationState } from '../../reducers/admin/location/LocationState'
 import { validateForm } from './validation'
 
+import { Location } from '@xrengine/common/src/interfaces/Location'
+
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+
 interface Props {}
 
 const Alert = (props) => {
@@ -41,7 +45,7 @@ const CreateBot = (props: Props) => {
     name: '',
     description: ''
   })
-  const [commandData, setCommandData] = React.useState([])
+  const [commandData, setCommandData] = React.useState<{ name: string; description: string }[]>([])
   const [open, setOpen] = React.useState(false)
   const [error, setError] = React.useState('')
 
@@ -50,7 +54,7 @@ const CreateBot = (props: Props) => {
     description: '',
     location: ''
   })
-  const [currentInstance, setCurrentIntance] = React.useState([])
+  const [currentInstance, setCurrentIntance] = React.useState<Instance[]>([])
   const [state, setState] = React.useState({
     name: '',
     description: '',
@@ -84,20 +88,20 @@ const CreateBot = (props: Props) => {
     setOpen(false)
   }
 
-  const data = []
+  const data: Instance[] = []
   instanceData.value.forEach((element) => {
     data.push(element)
   })
 
   React.useEffect(() => {
-    const instanceFilter = data.filter((el) => el.location?.id === state.location)
+    const instanceFilter = data.filter((el) => el.locationId === state.location)
     if (instanceFilter.length > 0) {
       setState({ ...state, instance: '' })
       setCurrentIntance(instanceFilter)
     }
   }, [state.location, adminInstanceState.instances.instances.value])
 
-  const temp = []
+  const temp: Location[] = []
   locationData.value.forEach((el) => {
     temp.push(el)
   })

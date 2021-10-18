@@ -35,7 +35,7 @@ const partyReceptor = (action: PartyActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'PARTY_ADMIN_DISPLAYED':
-        result = action.data
+        result = action.data.data
         return s.parties.merge({ parties: result, updateNeeded: false })
       case 'PARTY_ADMIN_CREATED':
         return s.parties.merge({ updateNeeded: true })
