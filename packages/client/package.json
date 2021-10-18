@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "private": true,
   "repository": {
     "type": "git",
@@ -52,11 +52,11 @@
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.15",
     "@vladmandic/face-api": "1.5.4",
-    "@xrengine/client-core": "^0.4.8",
-    "@xrengine/common": "^0.4.8",
-    "@xrengine/editor": "^0.4.8",
-    "@xrengine/engine": "^0.4.8",
-    "@xrengine/projects": "^0.4.8",
+    "@xrengine/client-core": "^0.4.10",
+    "@xrengine/common": "^0.4.10",
+    "@xrengine/editor": "^0.4.10",
+    "@xrengine/engine": "^0.4.10",
+    "@xrengine/projects": "^0.4.10",
     "axios": "0.23.0",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
@@ -119,11 +119,11 @@
     "webxr-native": "0.3.0"
   },
   "devDependencies": {
+    "@hookstate/devtools": "^3.0.1",
     "@rollup/plugin-typescript": "8.3.0",
     "@types/node": "14.17.27",
     "@types/react": "17.0.30",
     "@types/react-dom": "17.0.9",
-    "@hookstate/devtools": "^3.0.1",
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "esbuild-plugin-tsc": "0.3.0",
