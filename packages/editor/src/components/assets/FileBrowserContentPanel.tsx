@@ -11,6 +11,8 @@ import FileBrowserGrid from './FileBrowserGrid'
 import { Config } from '@xrengine/common/src/config'
 import { Button } from '../inputs/Button'
 import { File } from '@styled-icons/fa-solid'
+import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu'
+import { useTranslation } from 'react-i18next'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -19,6 +21,9 @@ import { File } from '@styled-icons/fa-solid'
  */
 
 export default function FileBrowserContentPanel({ onSelectionChanged }) {
+  const isLoading = true
+  const { t } = useTranslation()
+
   const onSelect = (props) => {
     if (props.type !== 'folder')
       onSelectionChanged({ resourceUrl: props.description, name: props.label, contentType: props.type })
@@ -127,20 +132,26 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       {console.log('Rendering File Browser Panel CHILD')}
       <Button onClick={onBackDirectory}>Back</Button>
       <Button onClick={onRefreshDirectory}>Refresh View</Button>
-      <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
-        <AssetPanelContentContainer>
-          <FileBrowserGrid
-            items={selectedProjectFiles}
-            onSelect={onSelect}
-            isLoading={false}
-            addNewFolder={addNewFolder}
-            moveContent={moveContent}
-            deleteContent={deleteContent}
-            currentContent={currentContentRef}
-            onPaste={pasteContent}
-          />
-        </AssetPanelContentContainer>
-      </AssetsPanelContainer>
+
+      <ContextMenuTrigger id={'uniqueId.current'}>
+        <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
+          <AssetPanelContentContainer>
+            <FileBrowserGrid
+              items={selectedProjectFiles}
+              onSelect={onSelect}
+              isLoading={false}
+              moveContent={moveContent}
+              deleteContent={deleteContent}
+              currentContent={currentContentRef}
+            />
+          </AssetPanelContentContainer>
+        </AssetsPanelContainer>
+      </ContextMenuTrigger>
+
+      <ContextMenu id={'uniqueId.current'} hideOnLeave={true}>
+        <MenuItem onClick={addNewFolder}>{t('editor:layout.filebrowser.addnewfolder')}</MenuItem>
+        <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
+      </ContextMenu>
     </>
   )
 }

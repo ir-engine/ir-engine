@@ -251,13 +251,11 @@ const MemoFileGridItem = FileBrowserItem
 export function FileBrowserGrid({
   isLoading,
   selectedItems,
-  addNewFolder,
   items,
   onSelect,
   moveContent,
   deleteContent,
-  currentContent,
-  onPaste
+  currentContent
 }) {
   const uniqueId = useRef(`FileGrid${lastId}`)
   const { t } = useTranslation()
@@ -273,31 +271,25 @@ export function FileBrowserGrid({
   return (
     <>
       {console.log('Rendering File Browser GRID')}
-      <ContextMenuTrigger id={'uniqueId.current'}>
-        <VerticalScrollContainer flex>
-          <InfiniteScroll pageStart={0} loadMore={() => {}} hasMore={false} threshold={100} useWindow={false}>
-            <MediaGrid>
-              {unique(items, 'id').map((item, index) => (
-                <MemoFileGridItem
-                  key={item.id}
-                  contextMenuId={uniqueId.current + index}
-                  item={item}
-                  selected={selectedItems.indexOf(item) !== -1}
-                  onClick={onSelect}
-                  moveContent={moveContent}
-                  deleteContent={deleteContent}
-                  currentContent={currentContent}
-                />
-              ))}
-              {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
-            </MediaGrid>
-          </InfiniteScroll>
-        </VerticalScrollContainer>
-      </ContextMenuTrigger>
-      <ContextMenu id={'uniqueId.current'} hideOnLeave={true}>
-        <MenuItem onClick={addNewFolder}>{t('editor:layout.filebrowser.addnewfolder')}</MenuItem>
-        <MenuItem onClick={onPaste}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
-      </ContextMenu>
+      <VerticalScrollContainer flex>
+        <InfiniteScroll pageStart={0} loadMore={() => {}} hasMore={false} threshold={100} useWindow={false}>
+          <MediaGrid minWidth={'20%'}>
+            {unique(items, 'id').map((item, index) => (
+              <MemoFileGridItem
+                key={item.id}
+                contextMenuId={uniqueId.current + index}
+                item={item}
+                selected={selectedItems.indexOf(item) !== -1}
+                onClick={onSelect}
+                moveContent={moveContent}
+                deleteContent={deleteContent}
+                currentContent={currentContent}
+              />
+            ))}
+            {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
+          </MediaGrid>
+        </InfiniteScroll>
+      </VerticalScrollContainer>
     </>
   )
 }
@@ -308,10 +300,8 @@ FileBrowserGrid.propTypes = {
   isLoading: PropTypes.bool,
   onSelect: PropTypes.func,
   moveContent: PropTypes.func,
-  addNewFolder: PropTypes.func,
   deleteContent: PropTypes.func,
   currentContent: PropTypes.any,
-  onPaste: PropTypes.func,
   selectedItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.any.isRequired,
