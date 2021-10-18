@@ -17,61 +17,22 @@ declare module '../../../declarations' {
   }
 }
 
-export const addProject = (app: any): any => {
-  return async (data: { uploadURL: string }, params: Params) => {
-    try {
-      const manifestData = await axios.get(data.uploadURL, getAxiosConfig())
-      const manifest = JSON.parse(manifestData.data.toString()) as ProjectInterface
-      await populateProject({ name: manifest.name, manifest: data.uploadURL }, app, params)
-    } catch (error) {
-      console.log(error)
-      return false
-    }
-    return true
-  }
-}
+// export const addProject = (app: any): any => {
+//   return async (data: { uploadURL: string }, params: Params) => {
+//     try {
+//       const manifestData = await axios.get(data.uploadURL, getAxiosConfig())
+//       const manifest = JSON.parse(manifestData.data.toString()) as ProjectInterface
+//       await populateProject({ name: manifest.name, manifest: data.uploadURL }, app, params)
+//     } catch (error) {
+//       console.log(error)
+//       return false
+//     }
+//     return true
+//   }
+// }
 
-export const getInstalledProjects = (projectClass: Project) => {
-  if (isDev) {
-    return async (params: Params) => {
-      const packs = fs
-        .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
-        .filter((dirent) => dirent.isDirectory())
-        .map((dirent) => dirent.name)
-        .map((dir) => {
-          try {
-            const json: ProjectInterface = JSON.parse(
-              fs.readFileSync(
-                path.resolve(__dirname, '../../../../projects/projects/' + dir + '/manifest.json'),
-                'utf8'
-              )
-            )
-            json.name = dir
-            return json
-          } catch (e) {
-            console.warn('[getProjects]: Failed to read manifest.json for project', dir, 'with error', e)
-            return
-          }
-        })
-        .filter((val) => val !== undefined)
-      return {
-        data: packs
-      }
-    }
-  } else {
-    return async (params: Params) => {
-      const packs = (await projectClass.find()) as any
-      const manifests = []
-      for (const data of packs.data) {
-        const manifestData = await axios.get(data.storageProviderManifest, getAxiosConfig())
-        manifests.push(JSON.parse(manifestData.data.toString()) as ProjectInterface)
-      }
-      return {
-        data: manifests
-      }
-    }
-  }
-}
+// export const getInstalledProjects = (projectClass: Project) => {
+// }
 
 export default (app: Application): void => {
   const options = {
@@ -84,14 +45,16 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
+
   // @ts-ignore
-  app.use('upload-project', {
-    create: addProject(app)
-  })
-  // @ts-ignore
-  app.use('project-data', {
-    find: getInstalledProjects(projectClass)
-  })
+  // app.use('upload-project', {
+  //   create: addProject(app)
+  // })
+
+  // // @ts-ignore
+  // app.use('project-data', {
+  //   find: getInstalledProjects(projectClass)
+  // })
 
   const service = app.service('project')
 

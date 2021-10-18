@@ -16,11 +16,6 @@ export const ContentPackAction = {
     return {
       type: 'CONTENT_PACK_PATCHED' as const
     }
-  },
-  postProject: () => {
-    return {
-      type: 'PROJECT_POSTED' as const
-    }
   }
 }
 

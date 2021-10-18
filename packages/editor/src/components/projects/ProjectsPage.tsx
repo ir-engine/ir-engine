@@ -42,7 +42,6 @@ const ProjectsPage = (props: Props) => {
       const data = showingScenes ? getScenes() : getProjects()
       data
         .then((p) => {
-          console.log(p)
           setProjects(
             p.map((project) => ({
               ...project,

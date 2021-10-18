@@ -15,3 +15,10 @@ export async function fetchAdminProjects(incDec?: 'increment' | 'decrement') {
   })
   store.dispatch(ProjectAction.projectsFetched(projects))
 }
+
+export async function uploadProject(uploadURL: any) {
+  const dispatch = useDispatch()
+  const result = await client.service('upload-project').create({ uploadURL })
+  console.log('Upload project result', result)
+  dispatch(ProjectAction.postProject())
+}

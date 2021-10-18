@@ -12,10 +12,6 @@ export default (app: Application): any => {
         allowNull: false,
         primaryKey: true
       },
-      global: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-      },
       name: {
         type: DataTypes.STRING
       },
@@ -23,9 +19,6 @@ export default (app: Application): any => {
         type: DataTypes.STRING
       },
       sourceManifest: {
-        type: DataTypes.STRING
-      },
-      localManifest: {
         type: DataTypes.STRING
       }
     },

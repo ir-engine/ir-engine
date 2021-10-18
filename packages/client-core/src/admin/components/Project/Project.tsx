@@ -15,7 +15,7 @@ import TablePagination from '@material-ui/core/TablePagination'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '../../../user/state/AuthState'
 import { PROJECT_PAGE_LIMIT } from '../../../admin/state/ProjectState'
-import { fetchAdminProjects } from '../../../admin/state/ProjectService'
+import { fetchAdminProjects, uploadProject } from '../../../admin/state/ProjectService'
 import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
@@ -31,8 +31,8 @@ const Projects = () => {
   const authState = useAuthState()
   const user = authState.user
   const adminProjectState = useProjectState()
-  const adminProject = adminProjectState.projects.projects
-  const adminProjectCount = adminProjectState.projects.total
+  const adminProjects = adminProjectState.projects
+  const adminProjectCount = adminProjectState.total
   const dispatch = useDispatch()
 
   const headCell = [
@@ -137,7 +137,7 @@ const Projects = () => {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = adminProject.value.map((n) => n.name)
+      const newSelecteds = adminProjects.value.map((n) => n.name)
       setSelected(newSelecteds)
       return
     }
@@ -172,8 +172,8 @@ const Projects = () => {
 
   const tryReuploadProjects = async (row) => {
     try {
-      const existingProjects = adminProject.value.find((projects) => projects.id === row.id)!
-      await ContentPackService.uploadProject({
+      const existingProjects = adminProjects.value.find((projects) => projects.id === row.id)!
+      await uploadProject({
         uploadURL: existingProjects.sourceManifest
       })
     } catch (err) {
@@ -186,11 +186,11 @@ const Projects = () => {
   // }, [])
 
   useEffect(() => {
-    if (user?.id.value != null && (adminProjectState.projects.updateNeeded.value === true || refetch === true)) {
+    if (user?.id.value != null && (adminProjectState.updateNeeded.value === true || refetch === true)) {
       fetchAdminProjects()
     }
     setRefetch(false)
-  }, [authState, adminProjectState.projects.updateNeeded.value, refetch])
+  }, [authState, adminProjectState.updateNeeded.value, refetch])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -246,7 +246,7 @@ const Projects = () => {
               rowCount={adminProjectCount?.value || 0}
             />
             <TableBody>
-              {stableSort(adminProject?.value ?? [], getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(adminProjects?.value ?? [], getComparator(order, orderBy)).map((row, index) => {
                 return (
                   <TableRow
                     hover

@@ -28,7 +28,7 @@ const getAvatarLinkKey = (value: string) => {
   return `${regexExec[0]}`
 }
 
-const getContentType = (url: string) => {
+export const getContentType = (url: string) => {
   if (/.glb$/.test(url) === true) return 'glb'
   if (/.jpeg$/.test(url) === true) return 'jpeg'
   if (/.json$/.test(url) === true) return 'json'
@@ -345,50 +345,50 @@ export async function populateProject(
   app: Application,
   params: Params
 ): Promise<any> {
-  const uploadPromises = []
-  const existingPackResult = await (app.service('project') as any).Model.findOne({
-    where: {
-      name: project.name
-    }
-  })
-  if (existingPackResult != null) await app.service('project').remove(existingPackResult.id, params)
-  const manifestStream = await axios.get(project.manifest, getAxiosConfig())
-  const manifestData = JSON.parse(manifestStream.data.toString()) as ProjectInterface
-  console.log('Installing project from ', project.manifest, 'with manifest.json', manifestData)
-  const files = manifestData.files
-  uploadPromises.push(
-    storageProvider.putObject({
-      Body: manifestStream.data,
-      ContentType: getContentType(project.manifest),
-      Key: `project/${manifestData.name}/manifest.json`
-    })
-  )
-  files.forEach((file) => {
-    const path = file.replace('./', '')
-    const subFileLink = project.manifest.replace('manifest.json', path)
-    uploadPromises.push(
-      new Promise(async (resolve) => {
-        const fileResult = await axios.get(subFileLink, getAxiosConfig())
-        await storageProvider.putObject({
-          Body: fileResult.data,
-          ContentType: getContentType(path),
-          Key: `project/${manifestData.name}/${path}`
-        })
-        resolve(true)
-      })
-    )
-  })
-  await app.service('project').create(
-    {
-      storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/project/${manifestData.name}/manifest.json`,
-      sourceManifest: project.manifest,
-      localManifest: `/projects/projects/${manifestData.name}/manifest.json`,
-      global: false,
-      name: manifestData.name
-    },
-    params
-  )
-  await Promise.all(uploadPromises)
+  // const uploadPromises = []
+  // const existingPackResult = await (app.service('project') as any).Model.findOne({
+  //   where: {
+  //     name: project.name
+  //   }
+  // })
+  // if (existingPackResult != null) await app.service('project').remove(existingPackResult.id, params)
+  // const manifestStream = await axios.get(project.manifest, getAxiosConfig())
+  // const manifestData = JSON.parse(manifestStream.data.toString()) as ProjectInterface
+  // console.log('Installing project from ', project.manifest, 'with manifest.json', manifestData)
+  // const files = manifestData.files
+  // uploadPromises.push(
+  //   storageProvider.putObject({
+  //     Body: manifestStream.data,
+  //     ContentType: getContentType(project.manifest),
+  //     Key: `project/${manifestData.name}/manifest.json`
+  //   })
+  // )
+  // files.forEach((file) => {
+  //   const path = file.replace('./', '')
+  //   const subFileLink = project.manifest.replace('manifest.json', path)
+  //   uploadPromises.push(
+  //     new Promise(async (resolve) => {
+  //       const fileResult = await axios.get(subFileLink, getAxiosConfig())
+  //       await storageProvider.putObject({
+  //         Body: fileResult.data,
+  //         ContentType: getContentType(path),
+  //         Key: `project/${manifestData.name}/${path}`
+  //       })
+  //       resolve(true)
+  //     })
+  //   )
+  // })
+  // await app.service('project').create(
+  //   {
+  //     storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/project/${manifestData.name}/manifest.json`,
+  //     sourceManifest: project.manifest,
+  //     localManifest: `/projects/projects/${manifestData.name}/manifest.json`,
+  //     global: false,
+  //     name: manifestData.name
+  //   },
+  //   params
+  // )
+  // await Promise.all(uploadPromises)
   if (app.k8DefaultClient) {
     try {
       console.log('Attempting to reload k8s clients!')

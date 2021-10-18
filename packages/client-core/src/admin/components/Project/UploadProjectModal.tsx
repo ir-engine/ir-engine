@@ -1,8 +1,8 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import styles from './ContentPack.module.scss'
-import { ContentPackService } from '../../state/ContentPackService'
+import styles from './Projects.module.scss'
+import { uploadProject } from '../../state/ProjectService'
 import Backdrop from '@material-ui/core/Backdrop'
 import Button from '@material-ui/core/Button'
 import Fade from '@material-ui/core/Fade'
@@ -39,11 +39,7 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       if (projectURL !== '') {
         setProcessing(true)
-        await dispatch(
-          ContentPackService.uploadProject({
-            uploadURL: projectURL
-          })
-        )
+        await uploadProject({ uploadURL: projectURL })
         setProcessing(false)
         closeModal()
       }

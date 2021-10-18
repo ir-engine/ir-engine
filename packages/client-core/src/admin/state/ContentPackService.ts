@@ -70,12 +70,6 @@ export const ContentPackService = {
     console.log('Patch content-pack with reality-pack(s) result', result)
     dispatch(ContentPackAction.patchedContentPack())
   },
-  uploadProject: async (data: any) => {
-    const dispatch = useDispatch()
-    const result = await client.service('upload-project').create(data)
-    console.log('Upload project result', result)
-    dispatch(ContentPackAction.postProject())
-  },
   downloadContentPack: async (url: string) => {
     await client.service('content-pack').update(null, {
       manifestUrl: url

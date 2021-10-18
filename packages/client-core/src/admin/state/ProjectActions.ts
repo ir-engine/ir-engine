@@ -6,6 +6,11 @@ export const ProjectAction = {
       type: 'PROJECTS_RETRIEVED' as const,
       projectResult: projectResult
     }
+  },
+  postProject: () => {
+    return {
+      type: 'PROJECT_POSTED' as const
+    }
   }
 }
 
