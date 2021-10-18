@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import { Dispatch } from 'redux'
+import { store, useDispatch } from '../../store'
 import { connect } from 'react-redux'
 
 /**

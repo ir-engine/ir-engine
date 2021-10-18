@@ -10,6 +10,7 @@ import { Config } from '@xrengine/common/src/config'
 const ROOT_REDIRECT: any = Config.publicRuntimeConfig.rootRedirect
 
 export const HomePage = (): any => {
+  console.log('homepage')
   const router = useHistory()
   const { t } = useTranslation()
   useEffect(() => {

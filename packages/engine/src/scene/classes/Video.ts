@@ -101,9 +101,6 @@ export default class Video extends AudioSource {
           cleanup()
           console.log(`Error loading video "${this.el.src}"`, error)
           resolve()
-          // reject(
-          //   new RethrownError()
-          // );
         }
         const cleanup = () => {
           this.el.removeEventListener('loadeddata', onLoadedMetadata)

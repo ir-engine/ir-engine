@@ -45,6 +45,7 @@
         "undefinedParent": "editor.reparent: newParent is undefined",
         "notAuthenticated": "Not authenticated",
         "fetchingProjectError": "Error fetching projects: {{error}}",
+        "fetchingRouteError": "Error fetching routes: {{error}}",
         "unknownError": "Unknown error",
         "resolveURL": "Error resolving url \"{{url}}\":\n",
         "mediaSearchAborted": "Media search aborted",

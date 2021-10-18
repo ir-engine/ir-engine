@@ -1,13 +1,11 @@
-import React from 'react'
 import IconButton from '@material-ui/core/IconButton'
 import InputBase from '@material-ui/core/InputBase'
 import Paper from '@material-ui/core/Paper'
-import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
+import React from 'react'
+import { useDispatch } from '../../../store'
+import { UserService } from '../../state/UserService'
 import { useUserStyles } from './styles'
-import { UserService } from '../../reducers/admin/user/UserService'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 
 interface Props {}
 
@@ -17,7 +15,7 @@ const SearchUser = (props: Props) => {
   const dispatch = useDispatch()
 
   const handleChange = (e: any) => {
-    dispatch(UserService.searchUserAction(search))
+    UserService.searchUserAction(search)
     setSearch(e.target.value)
   }
 

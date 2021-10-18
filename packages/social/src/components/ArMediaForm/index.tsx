@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useTranslation } from 'react-i18next'
 
@@ -13,8 +13,8 @@ import BackupIcon from '@material-ui/icons/Backup'
 
 import styles from './ArMediaForm.module.scss'
 
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
 interface Props {
   projects?: any[]
@@ -38,7 +38,7 @@ const ArMediaForm = ({ projects, view }: Props) => {
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
-    dispatch(ArMediaService.createArMedia({ type, title }, { manifest, audio, dracosis, preview }))
+    ArMediaService.createArMedia({ type, title }, { manifest, audio, dracosis, preview })
   }
 
   const handlePickManifest = async (file) => {

@@ -12,10 +12,10 @@ import WhatshotIcon from '@material-ui/icons/Whatshot'
 import { Feed } from '@xrengine/common/src/interfaces/Feed'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { TheFeedsFiresService } from '../../reducers/thefeedsFires/TheFeedsFiresService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { TheFeedsFiresService } from '@xrengine/client-core/src/user/state/TheFeedsFiresService'
 import CreatorAsTitle from '../CreatorAsTitle'
 import styles from './TheFeedsCard.module.scss'
 
@@ -33,18 +33,18 @@ const TheFeedsCard = (props: Props): any => {
   const [thefeedsFiresCreators, setThefeedsFiresCreators] = useState(null)
 
   const handleAddFireClick = (feedId) => {
-    dispatch(TheFeedsFiresService.addFireToTheFeeds(feedId))
+    TheFeedsFiresService.addFireToTheFeeds(feedId)
     setFiredCount(firedCount + 1)
     setFired(true)
   }
   const handleRemoveFireClick = (feedId) => {
-    dispatch(TheFeedsFiresService.removeFireToTheFeeds(feedId))
+    TheFeedsFiresService.removeFireToTheFeeds(feedId)
     setFiredCount(firedCount - 1)
     setFired(false)
   }
 
   useEffect(() => {
-    dispatch(TheFeedsFiresService.getTheFeedsFires(feed.id, setThefeedsFiresCreators))
+    TheFeedsFiresService.getTheFeedsFires(feed.id, setThefeedsFiresCreators)
   }, [])
 
   const { t } = useTranslation()

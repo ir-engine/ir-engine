@@ -8,9 +8,9 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import { DialogActions } from '@material-ui/core'
 import { validateCreatorForm } from './validation'
 import { useCreatorStyle, useCreatorStyles } from './styles'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { CreatorService } from '../../../reducers/creator/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {
   open: boolean
@@ -85,7 +85,7 @@ const CreateCreator = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateCreatorForm(state, state.formErrors)) {
-      dispatch(CreatorService.createCreator(data))
+      CreatorService.createCreator(data)
       // closeViewModel(false)
       setState({
         ...state,

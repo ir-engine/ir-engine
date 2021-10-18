@@ -1,17 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Provider, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { BrowserRouter } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import { ThemeProvider } from 'styled-components'
-import { configureStore } from '@xrengine/client-core/src/store'
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
-import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
+import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import theme from '../../theme'
 import { Config } from '@xrengine/common/src/config'
 import { SnackbarProvider } from 'notistack'
-import { AuthAction } from '@xrengine/client-core/src/user/reducers/auth/AuthAction'
+import { AuthAction } from '@xrengine/client-core/src/user/state/AuthAction'
 import RouterComp from '../router'
-import reducers from '../reducers'
 import './styles.scss'
 import AppUrlListener from '../components/AppDeepLink'
 
@@ -55,12 +53,10 @@ const App = (): any => {
 
 const StoreProvider = () => {
   return (
-    <Provider store={configureStore(reducers)}>
-      <BrowserRouter>
-        <AppUrlListener></AppUrlListener>
-        <App />
-      </BrowserRouter>
-    </Provider>
+    <BrowserRouter>
+      <AppUrlListener></AppUrlListener>
+      <App />
+    </BrowserRouter>
   )
 }
 

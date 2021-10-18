@@ -18,10 +18,10 @@ import { useTranslation } from 'react-i18next'
 import { Save } from '@material-ui/icons'
 import { validateARMediaForm } from './validation'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import InsertDriveFile from '@material-ui/icons/InsertDriveFile'
 import Card from '@material-ui/core/Card'
-import { ArMediaService } from '../../../reducers/arMedia/ArMediaService'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
 interface Props {
   mediaAdmin: any
@@ -102,7 +102,7 @@ const EditArMedia = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateARMediaForm(state, state.formErrors)) {
-      dispatch(ArMediaService.updateArMedia({ type, title }, { manifest, audio, dracosis, preview }, mediaAdmin.id))
+      ArMediaService.updateArMedia({ type, title }, { manifest, audio, dracosis, preview }, mediaAdmin.id)
       //   closeViewModel(false)
       //   setState({
       //     ...state,

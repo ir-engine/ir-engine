@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '../../../store'
 import Button from '@material-ui/core/Button'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListSubheader from '@material-ui/core/ListSubheader'
 import DownloadModal from './DownloadModal'
-import { useContentPackState } from '../../reducers/contentPack/ContentPackState'
+import { useContentPackState } from '../../state/ContentPackState'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
+import { ContentPackService } from '../../state/ContentPackService'
 import ContentPackDetailsModal from './ContentPackDetailsModal'
 import styles from './ContentPack.module.scss'
 
@@ -41,7 +41,7 @@ const ContentPacksConsole = (props: Props) => {
 
   useEffect(() => {
     if (contentPackState.updateNeeded.value === true) {
-      dispatch(ContentPackService.fetchContentPacks())
+      ContentPackService.fetchContentPacks()
     }
   }, [contentPackState.updateNeeded.value])
 

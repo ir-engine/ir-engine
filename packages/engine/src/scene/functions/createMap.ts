@@ -1,42 +1,46 @@
-import { Engine } from '../../ecs/classes/Engine'
-import { create, update } from '../../map'
+import { getStartCoords } from '../../map'
 import { MapProps } from '../../map/MapProps'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { GeoLabelSetComponent } from '../../map/GeoLabelSetComponent'
-
-let currentEnt
+import { MapComponent } from '../../map/MapComponent'
+import { Group } from 'three'
+import getPhases from '../../map/functions/getPhases'
+import actuateEager from '../../map/functions/actuateEager'
+import createStore from '../../map/functions/createStore'
+import { Engine } from '../../ecs/classes/Engine'
+import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 
 export async function createMap(entity: Entity, args: MapProps): Promise<void> {
-  const { mapMesh, navMesh, groundMesh, labels } = await create(args)
+  // TODO: handle "navigator.geolocation.getCurrentPosition" rejection?
+  const center = await getStartCoords(args)
+
+  const store = createStore(center, [0, 0], 40, 800, args.scale?.x || 1, args)
+  addComponent(entity, MapComponent, store)
+
+  const mapObject3D = new Group()
+  const navigationRaycastTarget = new Group()
+
+  mapObject3D.name = '(Geographic) Map'
+
   addComponent(entity, Object3DComponent, {
-    value: mapMesh
+    value: mapObject3D
   })
-  addComponent(entity, NavMeshComponent, {
-    yukaNavMesh: navMesh,
-    navTarget: groundMesh
-  })
-  addComponent(entity, GeoLabelSetComponent, { value: new Set(labels) })
   if (args.enableDebug) {
-    addComponent(entity, DebugNavMeshComponent, {})
+    addComponent(entity, DebugNavMeshComponent, { object3d: new Group() })
   }
-  currentEnt = entity
-}
 
-export async function updateMap(args: MapProps, longtitude, latitude, position): Promise<void> {
-  const remobj = Engine.scene.getObjectByName('MapObject')
-  const { mapMesh, navMesh, groundMesh } = await update(args, longtitude, latitude, position)
+  await actuateEager(store, getPhases({ exclude: ['navigation'] }))
 
-  remobj?.removeFromParent()
-  Engine.scene.add(mapMesh)
+  navigationRaycastTarget.scale.setScalar(store.scale)
+  Engine.scene.add(navigationRaycastTarget)
 
-  // getComponent(currentEnt, Object3DComponent).value.clear()
-  // getComponent(currentEnt, Object3DComponent).value.add(mapMesh)
-
-  getComponent(currentEnt, NavMeshComponent).navTarget.clear()
-  getComponent(currentEnt, NavMeshComponent).navTarget.add(groundMesh)
-  getComponent(currentEnt, NavMeshComponent).yukaNavMesh = navMesh
+  addComponent(entity, NavMeshComponent, {
+    /*
+  * [Mappa#2](https://github.com/lagunalabsio/mappa/issues/2)
+    yukaNavMesh: store.navMesh,
+  */
+    navTarget: navigationRaycastTarget
+  })
 }

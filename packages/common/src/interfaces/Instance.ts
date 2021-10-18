@@ -3,6 +3,7 @@ export interface Instance {
   currentUsers: number
   ipAddress: string
   locationId: string
+  gameserver_subdomain_provision?: GameServerSubdomainProvision
 }
 
 export const InstanceSeed: Instance = {
@@ -10,4 +11,11 @@ export const InstanceSeed: Instance = {
   ipAddress: '',
   currentUsers: 0,
   locationId: ''
+}
+
+export interface GameServerSubdomainProvision {
+  id: number
+  gs_id: string
+  gs_number: string
+  allocated: boolean
 }

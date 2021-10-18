@@ -158,7 +158,8 @@ export class ContentPack implements ServiceMethods<Data> {
           })
         )
       }
-    } else if (avatars != null) {
+    }
+    if (avatars != null) {
       for (const avatarItem of avatars) {
         promises.push(
           new Promise(async (resolve) => {
@@ -174,7 +175,8 @@ export class ContentPack implements ServiceMethods<Data> {
           })
         )
       }
-    } else if (realityPacks != null) {
+    }
+    if (realityPacks != null) {
       for (const realityPack of realityPacks) {
         const newRealityPack = {
           name: realityPack.name,

@@ -91,7 +91,9 @@ export const processLocationChange = async (): Promise<void> => {
     }
   })
 
-  Engine.defaultWorld.execute(1 / 60, Engine.defaultWorld.elapsedTime + 1 / 60)
+  const { delta } = Engine.defaultWorld
+
+  Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
@@ -111,6 +113,6 @@ export const processLocationChange = async (): Promise<void> => {
 
   isClient && EngineRenderer.instance.resetPostProcessing()
 
-  Engine.defaultWorld.execute(1 / 60, Engine.defaultWorld.elapsedTime + 1 / 60)
+  Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
   world.physics.dispose()
 }

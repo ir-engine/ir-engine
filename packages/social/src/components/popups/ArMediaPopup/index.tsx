@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { usePopupsStateState } from '../../../reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '../../../reducers/popupsState/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import ArMedia from '../../ArMedia'
 import SharedModal from '../../SharedModal'
 import styles from './ArMediaPopup.module.scss'
@@ -14,7 +14,7 @@ export const ArMediaPopup = (props: Props) => {
   const dispatch = useDispatch()
   //common for ArMedia choose
   const handleArMediamClose = () => {
-    dispatch(PopupsStateService.updateArMediaState(false))
+    PopupsStateService.updateArMediaState(false)
   }
   const renderArMediaModal = () =>
     popupsState?.popups.arMedia?.value === true && (
