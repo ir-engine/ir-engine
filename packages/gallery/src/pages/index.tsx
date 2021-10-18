@@ -1,11 +1,11 @@
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import FeedMenu from '../components/FeedMenu'
-import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
-import { CreatorService } from '@xrengine/client-core/src/social/reducers/creator/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 
 import AppHeader from '../components/Header'
@@ -25,12 +25,12 @@ const Home = () => {
     const user = auth.user
     const userId = user ? user.id.value : null
     if (userId) {
-      dispatch(CreatorService.createCreator())
+      CreatorService.createCreator()
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }, [])
 
   const creatorsState = useCreatorState()

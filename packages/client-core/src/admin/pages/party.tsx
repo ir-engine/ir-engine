@@ -1,16 +1,15 @@
 import PartyCore from '../components/Party'
-import { AuthService } from '../../user/reducers/auth/AuthService'
+import { AuthService } from '../../user/state/AuthService'
 import React from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '../../store'
 
 interface Props {}
 
 const Party = (props: Props) => {
   const dispatch = useDispatch()
   React.useEffect(() => {
-    dispatch(AuthService.doLoginAuto(false))
+    AuthService.doLoginAuto(false)
   }, [])
-
   return <PartyCore />
 }
 

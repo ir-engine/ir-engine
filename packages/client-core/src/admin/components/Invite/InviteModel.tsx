@@ -8,11 +8,10 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames'
 import styles from '../Admin.module.scss'
-import { InviteService } from '../../../social/reducers/invite/InviteService'
-import { InviteTypeService } from '../../../social/reducers/inviteType/InviteTypeService'
-import { useInviteTypeState } from '../../../social/reducers/inviteType/InviteTypeState'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { InviteService } from '../../../social/state/InviteService'
+import { InviteTypeService } from '../../../social/state/InviteTypeService'
+import { useInviteTypeState } from '../../../social/state/InviteTypeState'
+import { useDispatch } from '../../../store'
 import { Dropdown } from 'semantic-ui-react'
 import Snackbar from '@material-ui/core/Snackbar'
 import _ from 'lodash'
@@ -21,14 +20,6 @@ import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import Container from '@material-ui/core/Container'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
 interface Props {
   open: boolean
   handleClose: any
@@ -186,7 +177,7 @@ const InviteModel = (props: Props) => {
       targetObjectId: targetUser[0]
     }
     if (token && currency && targetUser) {
-      await dispatch(InviteService.sendInvite(data))
+      await InviteService.sendInvite(data)
       refreshData()
       handleClose()
     } else {
@@ -221,7 +212,7 @@ const InviteModel = (props: Props) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await dispatch(InviteTypeService.retrieveInvites())
+      await InviteTypeService.retrieveInvites()
     }
     fetchData()
   }, [])

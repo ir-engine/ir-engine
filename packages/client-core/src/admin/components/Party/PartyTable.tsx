@@ -6,14 +6,13 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
-import { PartyService } from '../../reducers/admin/party/PartyService'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { PartyService } from '../../state/PartyService'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
 import { PartyPropsTable, partyColumns, PartyData } from './variables'
 import { usePartyStyles, usePartyStyle } from './style'
-import { usePartyState } from '../../reducers/admin/party/PartyState'
-import { PARTY_PAGE_LIMIT } from '../../reducers/admin/party/PartyState'
+import { usePartyState } from '../../state/PartyState'
+import { PARTY_PAGE_LIMIT } from '../../state/PartyState'
 
 const PartyTable = (props: PartyPropsTable) => {
   const classes = usePartyStyle()
@@ -32,13 +31,13 @@ const PartyTable = (props: PartyPropsTable) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(PartyService.fetchAdminParty(incDec))
+    PartyService.fetchAdminParty(incDec)
     setPage(newPage)
   }
 
   React.useEffect(() => {
     if (user?.id?.value && adminParty.updateNeeded.value === true) {
-      dispatch(PartyService.fetchAdminParty())
+      PartyService.fetchAdminParty()
     }
   }, [authState.user?.id?.value, adminPartyState.parties.updateNeeded.value])
 
@@ -66,13 +65,13 @@ const PartyTable = (props: PartyPropsTable) => {
     setPage(0)
   }
 
-  const rows = adminPartyData.map((el) =>
-    createData(
+  const rows = adminPartyData?.map((el) => {
+    return createData(
       el.id,
-      el.instance?.ipAddress || <span className={classes.spanNone}>None</span>,
-      el.location?.name || <span className={classes.spanNone}>None</span>
+      el?.instance?.ipAddress || `<span className={classes.spanNone}>None</span>`,
+      el.location?.name || `<span className={classes.spanNone}>None</span>`
     )
-  )
+  })
 
   return (
     <div className={classes.root}>

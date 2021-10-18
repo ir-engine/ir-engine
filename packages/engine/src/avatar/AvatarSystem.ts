@@ -92,7 +92,7 @@ function avatarActionReceptor(action) {
 }
 
 export default async function AvatarSystem(world: World): Promise<System> {
-  world.receptors.add(avatarActionReceptor)
+  world.receptors.push(avatarActionReceptor)
 
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 

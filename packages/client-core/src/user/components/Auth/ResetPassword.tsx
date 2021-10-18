@@ -1,13 +1,11 @@
-import React, { useState } from 'react'
 import Button from '@material-ui/core/Button'
+import Container from '@material-ui/core/Container'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-import { useDispatch } from 'react-redux'
-import styles from './Auth.module.scss'
-import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { AuthService } from '../../reducers/auth/AuthService'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
+import styles from './Auth.module.scss'
 
 interface Props {
   completeAction?: any

@@ -1,29 +1,27 @@
-import React, { useState } from 'react'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import Avatar from '@material-ui/core/Avatar'
-import { useStyle, useStyles, StyledMenu } from './style'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import Person from '@material-ui/icons/Person'
-import Face from '@material-ui/icons/Face'
-import Typography from '@mui/material/Typography'
-import MenuItem from '@mui/material/MenuItem'
-import EditIcon from '@mui/icons-material/Edit'
-import { connect, useDispatch } from 'react-redux'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import StarIcon from '@mui/icons-material/Star'
-import DeleteIcon from '@mui/icons-material/Delete'
-import ReplyIcon from '@mui/icons-material/Reply'
+import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import Button from '@material-ui/core/Button'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemAvatar from '@material-ui/core/ListItemAvatar'
+import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
+import Face from '@material-ui/icons/Face'
+import Person from '@material-ui/icons/Person'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
+import ReplyIcon from '@mui/icons-material/Reply'
+import StarIcon from '@mui/icons-material/Star'
+import MenuItem from '@mui/material/MenuItem'
+import Typography from '@mui/material/Typography'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import moment from 'moment'
+import React, { useState } from 'react'
+import { ChatService } from '../../../social/state/ChatService'
+import { useDispatch } from '../../../store'
+import { StyledMenu, useStyle, useStyles } from './style'
 
 interface Props {
   activeChannel: any
@@ -75,7 +73,7 @@ export default function MessageList(props: Props) {
   const confirmMessageDelete = (e: any) => {
     e.preventDefault()
     setShowWarning(false)
-    dispatch(ChatService.removeMessage(messageTodelete)) //, message.channelId))
+    ChatService.removeMessage(messageTodelete)
     setMessageToDelete('')
   }
 
@@ -94,7 +92,7 @@ export default function MessageList(props: Props) {
 
   const confirmMessageUpdate = (e: any) => {
     e.preventDefault()
-    dispatch(ChatService.patchMessage(messageUpdatePending, editingMessageText))
+    ChatService.patchMessage(messageUpdatePending, editingMessageText)
     setMessageUpdatePending('')
     setEditingMessage('')
   }

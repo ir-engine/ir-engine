@@ -20,7 +20,7 @@ const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
 export default async function AnimationSystem(world: World): Promise<System> {
-  world.receptors.add(animationActionReceptor)
+  world.receptors.push(animationActionReceptor)
 
   function animationActionReceptor(action) {
     matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {

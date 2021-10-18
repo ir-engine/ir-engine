@@ -378,6 +378,7 @@ export async function populateRealityPack(
       })
     )
   })
+
   await app.service('reality-pack').create(
     {
       storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${manifestData.name}/manifest.json`,

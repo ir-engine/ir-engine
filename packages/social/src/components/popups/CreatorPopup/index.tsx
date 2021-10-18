@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import Creator from '../../Creator'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
@@ -18,7 +18,7 @@ export const CreatorPopup = ({ webxrRecorderActivity, setView }: Props) => {
   const dispatch = useDispatch()
 
   const handleCreatorClose = () => {
-    dispatch(PopupsStateService.updateCreatorPageState(false))
+    PopupsStateService.updateCreatorPageState(false)
   }
   const renderCreatorModal = () =>
     popupsState?.popups?.creatorPage?.value === true &&

@@ -2,13 +2,13 @@ import React from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useARMediaStyles } from './styles'
 import SearchVideo from './SearchVideo'
 import MediaTable from './MediaTable'
 import MediaModel from './CreateVideo'
-import { useArMediaState } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaState'
-import { ArMediaService } from '@xrengine/client-core/src/social/reducers/arMedia/ArMediaService'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
 interface Props {
   list?: any
@@ -26,7 +26,7 @@ const VideoMedia = (props: Props) => {
 
   React.useEffect(() => {
     if (armediaState.updateNeeded.value) {
-      dispatch(ArMediaService.getArMediaService())
+      ArMediaService.getArMediaService()
     }
   }, [armediaState.updateNeeded.value])
   const classes = useARMediaStyles()
@@ -50,7 +50,7 @@ const VideoMedia = (props: Props) => {
   const fetchNextData = (e) => {
     const triggerHeight = e.target.scrollTop + e.target.offsetHeight
     if (triggerHeight >= e.target.scrollHeight && armediaData.value.length + NUMBER_PER_PAGE > limit.value) {
-      dispatch(ArMediaService.getArMediaService(null, limit.value + NUMBER_PER_PAGE))
+      ArMediaService.getArMediaService(null, limit.value + NUMBER_PER_PAGE)
     }
   }
 

@@ -18,15 +18,14 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import FormGroup from '@material-ui/core/FormGroup'
 import Switch from '@material-ui/core/Switch'
-import { useSceneState } from '../../reducers/admin/scene/SceneState'
-import { connect, useDispatch } from 'react-redux'
-import { useLocationState } from '../../reducers/admin/location/LocationState'
+import { useSceneState } from '../../state/SceneState'
+import { useDispatch } from '../../../store'
+import { useLocationState } from '../../state/LocationState'
 import { validateUserForm } from '../Users/validation'
-import { LocationService } from '../../reducers/admin/location/LocationService'
-import { bindActionCreators, Dispatch } from 'redux'
+import { LocationService } from '../../state/LocationService'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useAuthState } from '../../../user/state/AuthState'
 
 interface Props {
   openView: any
@@ -156,7 +155,7 @@ const ViewLocation = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      dispatch(LocationService.patchLocation(location.id, locationData))
+      LocationService.patchLocation(location.id, locationData)
       setState({
         ...state,
         name: '',

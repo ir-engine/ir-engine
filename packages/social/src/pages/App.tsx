@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import { SnackbarProvider } from 'notistack'
 
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import AppFooter from '@xrengine/social/src/components/Footer'
-import { useCreatorState } from '@xrengine/client-core/src/social/reducers/creator/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 // import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useWebxrNativeState } from '@xrengine/client-core/src/social/reducers/webxr_native/WebxrNativeState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
 
-import { WebxrNativeService } from '@xrengine/client-core/src/social/reducers/webxr_native/WebxrNativeService'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 
 import CreatorPopup from '@xrengine/social/src/components/popups/CreatorPopup'
 import FeedPopup from '@xrengine/social/src/components/popups/FeedPopup'
@@ -35,7 +35,7 @@ import WebXRStart from '../components/popups/WebXR'
 import { useHistory } from 'react-router-dom'
 import TemporarySolution from './TemporarySolution'
 
-import { CreatorAction } from '@xrengine/client-core/src/social/reducers/creator/CreatorActions'
+import { CreatorAction } from '@xrengine/client-core/src/social/state/CreatorActions'
 
 interface Props {}
 
@@ -102,7 +102,7 @@ const Home = (props: Props) => {
   }
 
   const changeWebXrNative = () => {
-    dispatch(WebxrNativeService.changeWebXrNative())
+    WebxrNativeService.changeWebXrNative()
   }
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />

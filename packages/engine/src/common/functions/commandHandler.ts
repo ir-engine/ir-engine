@@ -20,9 +20,8 @@ import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 import { isBot } from './isBot'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
+import { accessChatState } from '@xrengine/client-core/src/social/state/ChatState'
 import { Entity } from '../../ecs/classes/Entity'
-import { Network } from '../../networking/classes/Network'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 //The values the commands that must have in the start

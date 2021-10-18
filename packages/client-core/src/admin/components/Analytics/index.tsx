@@ -7,10 +7,10 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
 import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
-import { connect, useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { useAnalyticsState } from '../../reducers/admin/analytics/AnalyticsState'
-import { AnalyticsService } from '../../reducers/admin/analytics/AnalyticsService'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { useAnalyticsState } from '../../state/AnalyticsState'
+import { AnalyticsService } from '../../state/AnalyticsService'
 
 interface Props {
   adminGroupState?: any
@@ -121,14 +121,14 @@ const Analytics = (props: Props) => {
 
   useEffect(() => {
     if (refetch === true) {
-      dispatch(AnalyticsService.fetchActiveParties())
-      dispatch(AnalyticsService.fetchInstanceUsers())
-      dispatch(AnalyticsService.fetchChannelUsers())
-      dispatch(AnalyticsService.fetchActiveLocations())
-      dispatch(AnalyticsService.fetchActiveScenes())
-      dispatch(AnalyticsService.fetchActiveInstances())
-      dispatch(AnalyticsService.fetchDailyUsers())
-      dispatch(AnalyticsService.fetchDailyNewUsers())
+      AnalyticsService.fetchActiveParties()
+      AnalyticsService.fetchInstanceUsers()
+      AnalyticsService.fetchChannelUsers()
+      AnalyticsService.fetchActiveLocations()
+      AnalyticsService.fetchActiveScenes()
+      AnalyticsService.fetchActiveInstances()
+      AnalyticsService.fetchDailyUsers()
+      AnalyticsService.fetchDailyNewUsers()
     }
     setRefetch(false)
   }, [refetch])

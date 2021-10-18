@@ -40,7 +40,7 @@ function equippableActionReceptor(action) {
  * @author Josh Field <github.com/HexaField>
  */
 export default async function EquippableSystem(world: World): Promise<System> {
-  world.receptors.add(equippableActionReceptor)
+  world.receptors.push(equippableActionReceptor)
 
   return () => {
     for (const entity of equippableQuery.enter()) {

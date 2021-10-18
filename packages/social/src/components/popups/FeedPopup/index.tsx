@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '@xrengine/client-core/src/social/reducers/popupsState/PopupsStateService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
 import Feed from '../../Feed'
@@ -22,7 +22,7 @@ export const FeedPopup = ({ webxrRecorderActivity, setView }: Props) => {
   const dispatch = useDispatch()
 
   const handleFeedClose = () => {
-    dispatch(PopupsStateService.updateFeedPageState(false))
+    PopupsStateService.updateFeedPageState(false)
   }
   const renderFeedModal = () =>
     popupsState?.popups?.feedPage?.value === true &&

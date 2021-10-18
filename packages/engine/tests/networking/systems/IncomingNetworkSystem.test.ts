@@ -43,7 +43,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			world.delayedActions.add(action)
 	
 			const recepted: typeof action[] = []
-			world.receptors.add(
+			world.receptors.push(
 				(a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
 			)
 	
@@ -84,7 +84,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			world.incomingActions.add(action)
 
 			const recepted: typeof action[] = []
-			world.receptors.add(
+			world.receptors.push(
 				(a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
 			)
 
@@ -118,7 +118,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			world.incomingActions.add(action)
 	
 			const recepted: typeof action[] = []
-			world.receptors.add(
+			world.receptors.push(
 				(a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
 			)
 	

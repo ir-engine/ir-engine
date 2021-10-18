@@ -1,10 +1,10 @@
 import React, { Fragment, Suspense, useEffect } from 'react'
 import { Switch, Redirect } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '../store'
 import PrivateRoute from '../Private'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { useAuthState } from '../user/reducers/auth/AuthState'
-import { AuthService } from '../user/reducers/auth/AuthService'
+import { useAuthState } from '../user/state/AuthState'
+import { AuthService } from '../user/state/AuthService'
 
 const analytic = React.lazy(() => import('./pages/index'))
 const avatars = React.lazy(() => import('./pages/avatars'))
@@ -45,7 +45,7 @@ const ProtectedRoutes = (props: Props) => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(false))
+    AuthService.doLoginAuto(false)
   }, [])
 
   scopes.forEach((scope) => {

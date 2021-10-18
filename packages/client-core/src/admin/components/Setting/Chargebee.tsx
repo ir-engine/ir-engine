@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { Paper, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
-import { ChargebeeSettingService } from '../../reducers/admin/Setting/chargebee/ChargebeeSettingServices'
-import { useChargebeeSettingState } from '../../reducers/admin/Setting/chargebee/ChargebeeSettingState'
-import { connect, useDispatch } from 'react-redux'
+import { ChargebeeSettingService } from '../../state/Setting/ChargebeeSettingServices'
+import { useChargebeeSettingState } from '../../state/Setting/ChargebeeSettingState'
+import { useDispatch } from '../../../store'
 import { useStyles } from './styles'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useAuthState } from '../../../user/state/AuthState'
 interface Props {}
 
 const ChargeBee = (props: Props) => {
@@ -18,7 +18,7 @@ const ChargeBee = (props: Props) => {
 
   useEffect(() => {
     if (user?.id?.value != null && chargeBeeSettingState?.Chargebee?.updateNeeded?.value) {
-      dispatch(ChargebeeSettingService.fetchChargeBee())
+      ChargebeeSettingService.fetchChargeBee()
     }
   }, [authState])
 

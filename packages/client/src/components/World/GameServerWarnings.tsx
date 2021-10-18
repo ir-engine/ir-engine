@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { InstanceConnectionService } from '../../reducers/instanceConnection/InstanceConnectionService'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
 
 type GameServerWarningsProps = {
   isTeleporting: boolean
@@ -85,7 +84,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           open: true,
           title: 'No Available Servers',
           body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
-          action: async () => dispatch(InstanceConnectionService.provisionInstanceServer()),
+          action: async () => InstanceConnectionService.provisionInstanceServer(),
           parameters: [currentLocation.id, props.instanceId, currentLocation.sceneId],
           noCountdown: false
         })

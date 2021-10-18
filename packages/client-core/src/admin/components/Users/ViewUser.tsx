@@ -16,22 +16,22 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { UserService } from '../../reducers/admin/user/UserService'
-import { useDispatch } from 'react-redux'
+import { useAuthState } from '../../../user/state/AuthState'
+import { UserService } from '../../state/UserService'
+import { useDispatch } from '../../../store'
 import InputBase from '@material-ui/core/InputBase'
 
 import { useUserStyles, useUserStyle } from './styles'
-import { useUserState } from '../../reducers/admin/user/UserState'
+import { useUserState } from '../../state/UserState'
 import { validateUserForm } from './validation'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
-import { useScopeState } from '../../reducers/admin/scope/ScopeState'
-import { ScopeService } from '../../reducers/admin/scope/ScopeService'
-import { AuthService } from '../../../user/reducers/auth/AuthService'
+import { useScopeState } from '../../state/ScopeState'
+import { ScopeService } from '../../state/ScopeService'
+import { AuthService } from '../../../user/state/AuthService'
 
 interface Props {
   openView: boolean
@@ -58,7 +58,7 @@ const ViewUser = (props: Props) => {
   const [openDialog, setOpenDialog] = React.useState(false)
   const [status, setStatus] = React.useState('')
   const [editMode, setEditMode] = React.useState(false)
-  const [refetch, setRefetch] = React.useState(false)
+  const [refetch, setRefetch] = React.useState(0)
 
   const [state, setState] = React.useState({
     name: '',
@@ -77,7 +77,7 @@ const ViewUser = (props: Props) => {
   const userRole = adminUserState.userRole
   const userRoleData = userRole ? userRole.userRole.value : []
   const singleUser = adminUserState.singleUser
-  const singleUserData = adminUserState.singleUser.singleUser
+  const singleUserData = singleUser.singleUser
   const staticResource = adminUserState.staticResource
   const staticResourceData = staticResource.staticResource
   const adminScopeState = useScopeState()
@@ -92,19 +92,18 @@ const ViewUser = (props: Props) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      dispatch(AuthService.doLoginAuto(false))
-      await dispatch(UserService.fetchUserRole())
+      AuthService.doLoginAuto(false)
+      await UserService.fetchUserRole()
     }
     if (adminUserState.users.updateNeeded.value === true && user.id.value) fetchData()
     if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
-      dispatch(UserService.fetchSingleUserAdmin(userAdmin.id))
-      setRefetch(false)
+      UserService.fetchSingleUserAdmin(userAdmin.id)
     }
     if (user.id.value && staticResource.updateNeeded.value) {
-      dispatch(UserService.fetchStaticResource())
+      UserService.fetchStaticResource()
     }
     if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      dispatch(ScopeService.getScopeTypeService())
+      ScopeService.getScopeTypeService()
     }
   }, [
     adminUserState.users.updateNeeded.value,
@@ -115,14 +114,23 @@ const ViewUser = (props: Props) => {
     adminScopeState.scopeType.updateNeeded.value
   ])
 
+  console.log(
+    adminUserState.users.updateNeeded.value,
+    adminUserState.staticResource.updateNeeded.value,
+    user.id.value,
+    refetch,
+    singleUser.updateNeeded.value,
+    adminScopeState.scopeType.updateNeeded.value
+  )
+
   React.useEffect(() => {
     if (!refetch) {
-      setRefetch(true)
+      setRefetch(refetch + 1)
     }
   }, [userAdmin.id, refetch])
 
   React.useEffect(() => {
-    if (singleUserData) {
+    if (singleUserData?.value) {
       setState({
         ...state,
         name: userAdmin.name || '',
@@ -130,16 +138,17 @@ const ViewUser = (props: Props) => {
         scopeType: userAdmin.scopes || []
       })
     }
-  }, [singleUserData.value])
+  }, [singleUserData?.id?.value])
+
   const defaultProps = {
     options: userRoleData,
     getOptionLabel: (option: any) => option.role
   }
 
   const patchUserRole = async (user: any, role: string) => {
-    await dispatch(UserService.updateUserRole(user, role))
+    await UserService.updateUserRole(user, role)
     handleCloseDialog()
-    setRefetch(true)
+    setRefetch(refetch + 1)
   }
 
   const handleInputChange = (e) => {
@@ -180,7 +189,7 @@ const ViewUser = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      dispatch(UserService.patchUser(userAdmin.id, data))
+      UserService.patchUser(userAdmin.id, data)
       setState({
         ...state,
         name: '',
@@ -404,7 +413,7 @@ const ViewUser = (props: Props) => {
                 User scope
               </Typography>
               <div className={classes.scopeContainer}>
-                {singleUserData.scopes?.value.map((el, index) => {
+                {singleUserData?.scopes?.value?.map((el, index) => {
                   const [label, type] = el.type.split(':')
                   return (
                     <Grid container spacing={3} style={{ paddingLeft: '10px', width: '100%' }} key={el.id}>

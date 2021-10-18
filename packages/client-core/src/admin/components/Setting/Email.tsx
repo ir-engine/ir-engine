@@ -5,11 +5,10 @@ import InputBase from '@material-ui/core/InputBase'
 import Switch from '@material-ui/core/Switch'
 import { Icon } from '@iconify/react'
 import IconButton from '@material-ui/core/IconButton'
-import { useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useEmailSettingState } from '../../reducers/admin/Setting/email/EmailSettingState'
-import { EmailSettingService } from '../../reducers/admin/Setting/email/EmailSettingServices'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useDispatch } from '../../../store'
+import { useEmailSettingState } from '../../state/Setting/EmailSettingState'
+import { EmailSettingService } from '../../state/Setting/EmailSettingServices'
+import { useAuthState } from '../../../user/state/AuthState'
 
 interface emailProps {}
 
@@ -34,7 +33,7 @@ const Email = (props: emailProps) => {
 
   useEffect(() => {
     if (user?.id?.value != null && emailSettingState?.Email?.updateNeeded?.value === true) {
-      dispatch(EmailSettingService.fetchedEmailSettings())
+      EmailSettingService.fetchedEmailSettings()
     }
   }, [authState])
 

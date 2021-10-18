@@ -7,18 +7,16 @@ import ListItemText from '@material-ui/core/ListItemText'
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
 import TextField from '@material-ui/core/TextField'
 import { Clear, Delete, Edit, Save, Send } from '@material-ui/icons'
-import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { Message } from '@xrengine/common/src/interfaces/Message'
-import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import styles from './Bottom.module.scss'
-import { ChatAction } from '@xrengine/client-core/src/social/reducers/chat/ChatActions'
+import { ChatAction } from '@xrengine/client-core/src/social/state/ChatActions'
 
 interface Props {
   bottomDrawerOpen: boolean
@@ -38,7 +36,7 @@ const BottomDrawer = (props: Props): any => {
   const channels = channelState.channels
   const targetObject = chatState.targetObject
   const targetObjectType = chatState.targetObjectType
-  const targetChannelId = chatState.targetChannelId
+  const targetChannelId = chatState.targetChannelId.value
   const messageScrollInit = chatState.messageScrollInit
   const [messageScrollUpdate, setMessageScrollUpdate] = useState(false)
   const [topMessage, setTopMessage] = useState({})
@@ -47,12 +45,12 @@ const BottomDrawer = (props: Props): any => {
   const [messageUpdatePending, setMessageUpdatePending] = useState('')
   const [editingMessage, setEditingMessage] = useState('')
   const [composingMessage, setComposingMessage] = useState('')
-  const activeChannel = channels[targetChannelId.value]
+  const activeChannel = channels.find((c) => c.id.value === targetChannelId)
 
   useEffect(() => {
     if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
       ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
-      dispatch(ChatService.updateMessageScrollInit(false))
+      ChatService.updateMessageScrollInit(false)
       setMessageScrollUpdate(false)
     }
     if (messageScrollUpdate === true) {
@@ -65,7 +63,7 @@ const BottomDrawer = (props: Props): any => {
 
   useEffect(() => {
     if (channelState.updateNeeded.value === true) {
-      dispatch(ChatService.getChannels())
+      ChatService.getChannels()
     }
   }, [channelState.updateNeeded.value])
 
@@ -85,7 +83,7 @@ const BottomDrawer = (props: Props): any => {
         }
       }
       if (channel.updateNeeded === true) {
-        dispatch(ChatService.getChannelMessages(channel.id))
+        ChatService.getChannelMessages(channel.id)
       }
     })
   }, [channels.value])
@@ -107,19 +105,17 @@ const BottomDrawer = (props: Props): any => {
 
   const packageMessage = (event: any): void => {
     if (composingMessage.length > 0) {
-      dispatch(
-        ChatService.createMessage({
-          targetObjectId: targetObject.id.value,
-          targetObjectType: targetObjectType,
-          text: composingMessage
-        })
-      )
+      ChatService.createMessage({
+        targetObjectId: targetObject.id.value,
+        targetObjectType: targetObjectType.value,
+        text: composingMessage
+      })
       setComposingMessage('')
     }
   }
 
   const setActiveChat = (channel): void => {
-    dispatch(ChatService.updateMessageScrollInit(true))
+    ChatService.updateMessageScrollInit(true)
     const channelType = channel.channelType
     const target =
       channelType === 'user'
@@ -133,7 +129,7 @@ const BottomDrawer = (props: Props): any => {
         : channelType === 'instance'
         ? channel.instance
         : channel.party
-    dispatch(ChatService.updateChatTarget(channelType, target)) //, channel.id))
+    ChatService.updateChatTarget(channelType, target) //, channel.id))
     setMessageDeletePending('')
     setMessageUpdatePending('')
     setEditingMessage('')
@@ -151,7 +147,7 @@ const BottomDrawer = (props: Props): any => {
       e.target.scrollTop === 0 &&
       e.target.scrollHeight > e.target.clientHeight &&
       messageScrollInit.value !== true &&
-      activeChannel.skip + activeChannel.limit < activeChannel.total
+      channelState.skip.value + channelState.limit.value < channelState.total.value
     ) {
       setMessageScrollUpdate(true)
       setTopMessage((messageEl as any).firstElementChild)
@@ -161,13 +157,13 @@ const BottomDrawer = (props: Props): any => {
 
   const nextChannelPage = (): void => {
     if (channelState.skip.value + channelState.limit.value < channelState.total.value) {
-      dispatch(ChatService.getChannels(channelState.skip.value + channelState.limit.value))
+      ChatService.getChannels(channelState.skip.value + channelState.limit.value)
     }
   }
 
   const nextMessagePage = (): void => {
-    if (activeChannel.skip + activeChannel.limit < activeChannel.total) {
-      dispatch(ChatService.getChannelMessages(targetChannelId.value, activeChannel.skip + activeChannel.limit))
+    if (channelState.skip.value + channelState.limit.value < channelState.total.value) {
+      ChatService.getChannelMessages(targetChannelId, channelState.skip.value + channelState.limit.value)
     } else {
       setMessageScrollUpdate(false)
     }
@@ -203,7 +199,7 @@ const BottomDrawer = (props: Props): any => {
   const confirmMessageDelete = (e: any, message: Message) => {
     e.preventDefault()
     setMessageDeletePending('')
-    dispatch(ChatService.removeMessage(message.id)) //, message.channelId))
+    ChatService.removeMessage(message.id) //, message.channelId))
   }
 
   const cancelMessageUpdate = (e: any) => {
@@ -214,7 +210,7 @@ const BottomDrawer = (props: Props): any => {
 
   const confirmMessageUpdate = (e: any, message: Message) => {
     e.preventDefault()
-    dispatch(ChatService.patchMessage(message.id, editingMessage))
+    ChatService.patchMessage(message.id, editingMessage)
     setMessageUpdatePending('')
     setEditingMessage('')
   }
@@ -230,6 +226,8 @@ const BottomDrawer = (props: Props): any => {
     }
   }
 
+  const channelListSize = Object.keys(channels.value).length
+
   return (
     <div>
       <SwipeableDrawer
@@ -244,20 +242,20 @@ const BottomDrawer = (props: Props): any => {
         <div className={styles['bottom-container']}>
           <List onScroll={(e) => onChannelScroll(e)} className={styles['chat-container']}>
             {channels &&
-              channels.value.size > 0 &&
-              Array.from(channels.value)
+              channelListSize > 0 &&
+              [...channels.value]
                 .sort(
-                  ([channelId1, channel1], [channelId2, channel2]) =>
+                  (channel1, channel2) =>
                     new Date(channel2.updatedAt).getTime() - new Date(channel1.updatedAt).getTime()
                 )
-                .map(([channelId, channel], index) => {
+                .map((channel, index) => {
                   return (
                     <ListItem
-                      key={channelId}
+                      key={channel.id}
                       className={styles.selectable}
                       onClick={() => setActiveChat(channel)}
-                      selected={channelId === targetChannelId}
-                      divider={index < channels.value.size - 1}
+                      selected={channel.id === targetChannelId}
+                      divider={index < channelListSize - 1}
                     >
                       {channel.channelType === 'user' && (
                         <ListItemAvatar>
@@ -285,7 +283,7 @@ const BottomDrawer = (props: Props): any => {
                   )
                 })}
             {channels == null ||
-              (channels.value.size === 0 && (
+              (channelListSize === 0 && (
                 <ListItem key="no-chats" disabled>
                   <ListItemText primary="No active chats" />
                 </ListItem>
@@ -294,8 +292,8 @@ const BottomDrawer = (props: Props): any => {
           <div className={styles['list-container']}>
             <List ref={messageRef as any} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
               {activeChannel != null &&
-                activeChannel.messages &&
-                activeChannel.messages
+                activeChannel.Messages.value &&
+                [...activeChannel.Messages.value]
                   .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                   .map((message) => {
                     return (
@@ -394,9 +392,9 @@ const BottomDrawer = (props: Props): any => {
                       </ListItem>
                     )
                   })}
-              {targetChannelId.value.length === 0 && targetObject.value.id != null && (
+              {targetChannelId.length === 0 && targetObject.value.id != null && (
                 <div className={styles['first-message-placeholder']}>
-                  <div>{targetChannelId.value}</div>
+                  <div>{targetChannelId}</div>
                   Start a chat with{' '}
                   {targetObjectType.value === 'user' || targetObjectType.value === 'group'
                     ? targetObject.name.value

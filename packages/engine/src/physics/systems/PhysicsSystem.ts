@@ -63,7 +63,7 @@ export default async function PhysicsSystem(
     }
   })
 
-  world.receptors.add(physicsActionReceptor)
+  world.receptors.push(physicsActionReceptor)
 
   return () => {
     // for (const entity of spawnRigidbodyQuery.enter()) {
@@ -189,7 +189,7 @@ export default async function PhysicsSystem(
 
     // step physics world
     for (let i = 0; i < world.physics.substeps; i++) {
-      world.physics.scene.simulate(world.physics.stepTime / (1000 * world.physics.substeps), true)
+      world.physics.scene.simulate((world.physics.timeScale * world.fixedDelta) / world.physics.substeps, true)
       world.physics.scene.fetchResults(true)
     }
   }
