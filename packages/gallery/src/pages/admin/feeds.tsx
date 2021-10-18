@@ -2,15 +2,15 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
-import { useFeedState } from '@xrengine/social/src/reducers/feed/FeedState'
-import { FeedService } from '@xrengine/social/src/reducers/feed/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
 const FeedsPage = () => {
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(FeedService.getFeeds('admin'))
+    FeedService.getFeeds('admin')
   }, [])
   const feedState = useFeedState()
   const feedsList = feedState && feedState.feeds.fetching.value === false ? feedState.feeds.feedsAdmin : null

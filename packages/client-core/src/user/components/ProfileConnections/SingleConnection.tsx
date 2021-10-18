@@ -4,21 +4,21 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { AlertAction } from '../../../common/reducers/alert/AlertActions'
-import { DialogAction } from '../../../common/reducers/dialog/DialogActions'
+import { useDispatch } from '../../../store'
+import { AlertAction } from '../../../common/state/AlertActions'
+import { DialogAction } from '../../../common/state/DialogActions'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../state/AuthService'
 import { ConnectionTexts } from './ConnectionTexts'
 import { useTranslation } from 'react-i18next'
 import styles from './ProfileConnections.module.scss'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { useAuthState } from '../../state/AuthState'
 
 interface Props {
   auth?: any
   classes?: any
-  connectionType?: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password' | 'linkedin'
+  connectionType: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password' | 'linkedin'
 }
 
 const SingleConnection = (props: Props): any => {
@@ -39,7 +39,7 @@ const SingleConnection = (props: Props): any => {
 
     setState({
       ...state,
-      identityProvider: user.identityProviders.find((v) => v.type === connectionType)
+      identityProvider: user.identityProviders.find((v) => v.type === connectionType) || IdentityProviderSeed
     })
   }, [])
 
@@ -51,7 +51,7 @@ const SingleConnection = (props: Props): any => {
       return
     }
 
-    dispatch(AuthService.removeConnection(identityProvider.id, state.userId))
+    AuthService.removeConnection(identityProvider.id, state.userId)
   }
 
   const connect = (): any => {
@@ -61,7 +61,7 @@ const SingleConnection = (props: Props): any => {
       case 'facebook':
       case 'google':
       case 'github':
-        dispatch(AuthService.addConnectionByOauth(connectionType, userId))
+        AuthService.addConnectionByOauth(connectionType, userId)
         break
       case 'email':
         dispatch(
@@ -85,7 +85,7 @@ const SingleConnection = (props: Props): any => {
         )
         break
       case 'linkedin':
-        dispatch(AuthService.addConnectionByOauth(connectionType, userId))
+        AuthService.addConnectionByOauth(connectionType, userId)
         break
     }
   }

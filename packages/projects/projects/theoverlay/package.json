@@ -1,0 +1,14 @@
+{
+  "name": "theoverlay",
+  "version": "0.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "update-files": "node update-files.js"
+  },
+  "dependencies": {
+    "@xrengine/client": "^0.4.9",
+    "@xrengine/client-core": "^0.4.9"
+  },
+  "license": "ISC"
+}

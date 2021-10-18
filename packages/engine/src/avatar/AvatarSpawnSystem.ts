@@ -49,7 +49,7 @@ export class SpawnPoints {
 }
 
 export default async function AvatarSpawnSystem(world: World): Promise<System> {
-  world.receptors.add((action) => {
+  world.receptors.push((action) => {
     matches(action).when(NetworkWorldAction.spawnAvatar.matches, createAvatar)
   })
 

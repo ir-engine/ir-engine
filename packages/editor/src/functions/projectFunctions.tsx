@@ -1,7 +1,7 @@
 import i18n from 'i18next'
 import { Config } from '@xrengine/common/src/config'
-import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
+import { getToken } from './getToken'
+import { upload } from '@xrengine/client-core/src/util/upload'
 import { ProjectManager } from '../managers/ProjectManager'
 import { SceneManager } from '../managers/SceneManager'
 

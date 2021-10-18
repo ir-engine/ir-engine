@@ -12,16 +12,15 @@ import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import { useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { REALITY_PACK_PAGE_LIMIT } from '../../reducers/admin/reality-pack/RealityPackState'
-import { LocationService } from '../../reducers/admin/location/LocationService'
-import { fetchAdminRealityPacks } from '../../reducers/admin/reality-pack/RealityPackService'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { REALITY_PACK_PAGE_LIMIT } from '../../state/RealityPackState'
+import { fetchAdminRealityPacks } from '../../state/RealityPackService'
 import styles from './RealityPack.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadRealityPackModel from '../ContentPack/UploadRealityPackModel'
-import { useRealityPackState } from '../../reducers/admin/reality-pack/RealityPackState'
-import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
+import { useRealityPackState } from '../../state/RealityPackState'
+import { ContentPackService } from '../../state/ContentPackService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -116,14 +115,14 @@ const RealityPack = () => {
   }
 
   const [order, setOrder] = useState<Order>('asc')
-  const [orderBy, setOrderBy] = useState<any>('name')
+  const [orderBy, setOrderBy] = useState<string>('name')
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(REALITY_PACK_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [uploadRealityPackModalOpen, setUploadRealityPackModalOpen] = useState(false)
-  const [selectedRealityPacks, setSelectedRealityPacks] = useState([])
+  const [selectedRealityPacks, setSelectedRealityPacks] = useState<AdminRealityPack[]>([])
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
     width: window.innerWidth
@@ -174,11 +173,9 @@ const RealityPack = () => {
   const tryReuploadRealityPack = async (row) => {
     try {
       const existingRealityPack = adminRealityPacks.value.find((realityPack) => realityPack.id === row.id)
-      await dispatch(
-        ContentPackService.uploadRealityPack({
-          uploadURL: existingRealityPack.sourceManifest
-        })
-      )
+      await ContentPackService.uploadRealityPack({
+        uploadURL: existingRealityPack.sourceManifest
+      })
     } catch (err) {
       console.log(err)
     }

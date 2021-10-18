@@ -6,14 +6,14 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { useFeedStyle, useFeedStyles } from './styles'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import Grid from '@material-ui/core/Grid'
 import CardData from './CardData'
 import ViewFeed from './ViewFeed'
-import { FeedService } from '../../../reducers/feed/FeedService'
-import { useFeedState } from '../../../reducers/feed/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
 
 interface Props {
   feedState?: any
@@ -36,7 +36,7 @@ const FeedTable = (props: Props) => {
 
   React.useEffect(() => {
     if (user.id.value && feeds.updateNeeded.value) {
-      dispatch(FeedService.getFeeds('admin'))
+      FeedService.getFeeds('admin')
     }
   }, [user.id.value, feeds.updateNeeded.value])
 
@@ -48,7 +48,7 @@ const FeedTable = (props: Props) => {
   const deleteFeedHandler = () => {
     setShowWarning(false)
     const feed = adminFeeds.value.find((feed) => feed.id === feedId)
-    dispatch(FeedService.removeFeed(feedId, feed.previewId, feed.videoId))
+    FeedService.removeFeed(feedId, feed.previewId, feed.videoId)
   }
 
   const closeViewModelHandler = (open) => {

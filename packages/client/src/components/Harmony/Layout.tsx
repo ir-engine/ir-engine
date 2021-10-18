@@ -1,16 +1,15 @@
 import { ThemeProvider } from '@material-ui/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
-import { AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
-import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { AppAction } from '@xrengine/client-core/src/common/state/AppActions'
+import { useAppState } from '@xrengine/client-core/src/common/state/AppState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import { theme } from '@xrengine/client-core/src/theme'
 import { Config } from '@xrengine/common/src/config'
 import { Helmet } from 'react-helmet'
 import React, { Fragment, useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 // import Harmony from '.'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
@@ -79,7 +78,7 @@ const Layout = (props: Props): any => {
       window.addEventListener('touchend', initialClickListener)
     }
 
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }, [])
 
   //info about current mode to conditional render menus
@@ -139,11 +138,12 @@ const Layout = (props: Props): any => {
               />
             </Fragment>
           )}
-        {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
-          <Fragment>
-            <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
-          </Fragment>
-        )}
+        {/* {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && ( */}
+        <Fragment>
+          {/* <InviteHarmony /> */}
+          <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
+        </Fragment>
+        {/* )} */}
       </section>
     </ThemeProvider>
   )

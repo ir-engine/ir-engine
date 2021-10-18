@@ -301,6 +301,7 @@ const Setting = () => {
             handleClient={handleClient}
             handleGameServer={handleGameServer}
             handleServer={handleServer}
+            handleAnalytics={handleAnalytics}
             serverFocused={serverFocused}
             awsFocused={awsFocused}
             emailFocused={emailFocused}
@@ -309,6 +310,7 @@ const Setting = () => {
             authFocused={authFocused}
             chargebeeFocused={chargebeeFocused}
             redisFocused={redisFocused}
+            analyticsFocused={analyticsFocused}
           />
         </Grid>
         <Grid item xs={12} sm={9} lg={9}>

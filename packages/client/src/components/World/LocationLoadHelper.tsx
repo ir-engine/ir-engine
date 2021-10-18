@@ -1,10 +1,10 @@
-import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
+import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/state/AppActions'
 import { client } from '@xrengine/client-core/src/feathers'
 import { Config } from '@xrengine/common/src/config'
-import { LocationService } from '@xrengine/client-core/src/social/reducers/location/LocationService'
-import Store from '@xrengine/client-core/src/store'
+import { LocationService } from '@xrengine/client-core/src/social/state/LocationService'
+import { store } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { SceneAction } from '@xrengine/client-core/src/world/reducers/scenes/ScreenActions'
+import { SceneAction } from '@xrengine/client-core/src/world/state/ScreenActions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -15,16 +15,16 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { InstanceConnectionService } from '../../reducers/instanceConnection/InstanceConnectionService'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Vector3, Quaternion } from 'three'
 import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
-import { getPacksFromSceneData } from '@xrengine/realitypacks/loader'
+import { getPacksFromSceneData } from '@xrengine/projects/loader'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import React from 'react'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -41,7 +41,7 @@ export const retriveLocationByName = (authState: any, locationName: string, hist
         })
         .catch((err) => console.log('getLobby error', err))
     } else {
-      Store.store.dispatch(LocationService.getLocationByName(locationName))
+      LocationService.getLocationByName(locationName)
     }
   }
 }
@@ -61,7 +61,7 @@ export const getSceneData = async (sceneId: string, isOffline: boolean): Promise
   }
 
   const projectResult = await client.service('project').get(sceneId)
-  Store.store.dispatch(SceneAction.setCurrentScene(projectResult))
+  store.dispatch(SceneAction.setCurrentScene(projectResult))
 
   const projectUrl = projectResult.project_url
   const regexResult = projectUrl.match(projectRegex)
@@ -131,7 +131,7 @@ export const initEngine = async (
     const didConnect = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
-    await Promise.all([Store.store.dispatch(InstanceConnectionService.connectToInstanceServer('instance')), didConnect])
+    await Promise.all([InstanceConnectionService.connectToInstanceServer('instance'), didConnect])
   }
 
   if (typeof engineCallbacks?.onConnectedToServer === 'function') {
@@ -139,15 +139,15 @@ export const initEngine = async (
   }
 
   // 4. Start scene loading
-  Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
+  store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
   console.log('Awaiting scene load')
 
   await WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
 
   getPortalDetails()
-  Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
-  Store.store.dispatch(AppAction.setAppLoaded(true))
+  store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
+  store.dispatch(AppAction.setAppLoaded(true))
 
   // 5. Join to new world
   if (!isOffline) {
@@ -174,7 +174,7 @@ export const initEngine = async (
   }
 
   // 6. Dispatch success
-  Store.store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
+  store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
 
   if (typeof engineCallbacks?.onSuccess === 'function') {
     engineCallbacks.onSuccess()
@@ -199,11 +199,11 @@ export const teleportToLocation = async (
   // }
 
   // shut down connection with existing GS
-  Store.store.dispatch(InstanceConnectionService.resetInstanceServer())
+  InstanceConnectionService.resetInstanceServer()
   Network.instance.transport.close()
 
   await teleportToScene(portalComponent, async () => {
     onTeleport()
-    Store.store.dispatch(LocationService.getLocationByName(portalComponent.location))
+    LocationService.getLocationByName(portalComponent.location)
   })
 }

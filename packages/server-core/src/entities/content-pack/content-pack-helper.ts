@@ -378,11 +378,12 @@ export async function populateRealityPack(
       })
     )
   })
+
   await app.service('reality-pack').create(
     {
       storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/reality-pack/${manifestData.name}/manifest.json`,
       sourceManifest: realityPack.manifest,
-      localManifest: `/reality-packs/packs/${manifestData.name}/manifest.json`,
+      localManifest: `/reality-packs/projects/${manifestData.name}/manifest.json`,
       global: false,
       name: manifestData.name
     },

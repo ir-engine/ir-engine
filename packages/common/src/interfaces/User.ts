@@ -16,12 +16,12 @@ export interface UserScope {
 }
 
 export interface User {
-  id: UserId
-  name: string
-  userRole: string
-  avatarId: string
-  identityProviders: IdentityProvider[]
-  locationAdmins: LocationAdmin[]
+  id?: UserId
+  name?: string
+  userRole?: string
+  avatarId?: string
+  identityProviders?: IdentityProvider[]
+  locationAdmins?: LocationAdmin[]
   relationType?: RelationshipType
   inverseRelationType?: RelationshipType
   avatarUrl?: string

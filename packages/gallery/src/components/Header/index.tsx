@@ -15,8 +15,9 @@ import {
   TextField
 } from '@material-ui/core'
 import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { Filesystem } from '@capacitor/filesystem'
+import { useHistory } from 'react-router'
 
 interface Props {
   title?: string
@@ -43,6 +44,7 @@ const AppHeader = ({ title, setAddFilesView, setFilesTarget, hideAddButtons, inp
   const authState = useAuthState()
   const classes = useStyles()
   const [userRole, setUserRole] = useState('')
+  const history = useHistory()
 
   useEffect(() => {
     if (authState.user) {
@@ -55,9 +57,20 @@ const AppHeader = ({ title, setAddFilesView, setFilesTarget, hideAddButtons, inp
     setAddFilesView && setAddFilesView(true)
   }
 
+  const handleTitleClick = () => {
+    history.push({
+      pathname: '/',
+      search: 'tag=all'
+    })
+  }
+
   return (
     <nav className={styles.headerContainer}>
-      {title && <span className={styles.title}>{title}</span>}
+      {title && (
+        <span onClick={handleTitleClick} className={styles.title}>
+          {title}
+        </span>
+      )}
       <input
         // accept="image/*"
         className={styles.input}

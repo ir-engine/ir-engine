@@ -62,7 +62,7 @@ export const download = async (packName) => {
 
     console.log('[RealityPackLoader]: Installing reality pack', packName, '...')
 
-    const localRealityPackDirectory = path.resolve(__dirname, '../../realitypacks/packs', packName)
+    const localRealityPackDirectory = path.resolve(__dirname, '../../projects/projects', packName)
     if (fs.existsSync(localRealityPackDirectory)) {
       console.log('[Reality pack temp debug]: fs exists, deleting')
       deleteFolderRecursive(localRealityPackDirectory)

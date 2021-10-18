@@ -6,6 +6,8 @@ import React, { useRef, useState, useEffect } from 'react'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import { useMediaQuery } from '@mui/material'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { useHistory, useLocation } from 'react-router'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'
@@ -15,20 +17,44 @@ const FeedMenu = () => {
   const featuredRef = useRef<HTMLInputElement>()
   const creatorsRef = useRef<HTMLInputElement>()
   const { t } = useTranslation()
-  const [view, setView] = useState('all')
-  const [viewType, setViewType] = useState('grid')
+  const [view, setView] = useState(null)
+  const [viewType, setViewType] = useState('gallery')
   const [isFeatured, setIsFeatured] = useState(false)
-  const match = useMediaQuery('(max-width:1279px)')
+  const [firstRun, setFirstRun] = useState(null)
+  const feedsState = useFeedState()
+  const history = useHistory()
+  const location = useLocation()
 
   useEffect(() => {
-    if (view !== 'all' && !isFeatured) {
-      setView('all')
+    if (view === null) {
+      const params = new URLSearchParams(location.search)
+      if (params.get('tag') && ['all', 'featured'].includes(params.get('tag'))) {
+        setView(params.get('tag'))
+      }
     }
-  }, [view, isFeatured])
+  }, [])
 
   useEffect(() => {
-    match && setViewType('list')
-  }, [match])
+    const params = new URLSearchParams(location.search)
+    if (firstRun && !params.get('tag') && !!!feedsState.feeds.feedsFiredFetching.value && view === null) {
+      if (!!feedsState.feeds.feedsFired.value.length) {
+        setView('featured')
+        history.push({
+          pathname: '/',
+          search: '?tag=featured'
+        })
+      } else {
+        setView('all')
+        history.push({
+          pathname: '/',
+          search: '?tag=all'
+        })
+      }
+    }
+    if (firstRun === null && feedsState.feeds.feedsFiredFetching.value) {
+      setFirstRun(true)
+    }
+  }, [feedsState.feeds.feedsFiredFetching.value, firstRun])
 
   const padding = 40
   const handleMenuClick = (view) => {
@@ -37,8 +63,14 @@ const FeedMenu = () => {
     switch (view) {
       case 'all':
         leftScrollPos = creatorsRef.current.offsetLeft - padding
+        history.push({
+          search: '?tag=all'
+        })
         break
       default:
+        history.push({
+          search: '?tag=featured'
+        })
         leftScrollPos = 0
         break
     }
@@ -58,14 +90,35 @@ const FeedMenu = () => {
     all: [styles.creatorsButton, view === 'all' && styles.active]
   }
 
+  useEffect(() => {
+    if (view === 'featured' && !isFeatured) {
+      setView('all')
+      history.push({
+        pathname: '/',
+        search: 'tag=all'
+      })
+    }
+  }, [view, isFeatured])
+
   const handleViewTypeSwitch = (type): void => {
+    const params = new URLSearchParams(location.search)
     switch (type) {
-      case 'grid':
-        setViewType('grid')
+      case 'gallery':
+        setViewType('gallery')
+        params.set('view', 'gallery')
+        history.push({
+          pathname: location.pathname,
+          search: params.toString()
+        })
         break
 
-      case 'list':
-        setViewType('list')
+      case 'blog':
+        setViewType('blog')
+        params.set('view', 'blog')
+        history.push({
+          pathname: location.pathname,
+          search: params.toString()
+        })
         break
 
       default:
@@ -77,7 +130,12 @@ const FeedMenu = () => {
       <nav className={styles.feedMenuContainer}>
         <Grid container>
           <Grid item xs>
-            <section className={styles.switcher} ref={containerRef}>
+            <section
+              className={`${styles.switcher}${
+                !!feedsState.feeds.feedsFired.value.length || isFeatured ? ` ${styles.switcherActive}` : ''
+              }`}
+              ref={containerRef}
+            >
               <Button
                 variant={view === 'featured' ? 'contained' : 'text'}
                 ref={featuredRef}
@@ -105,23 +163,24 @@ const FeedMenu = () => {
               </Button>
             </section>
           </Grid>
-          <section className={styles.viewSwitcher} style={match ? { display: 'none' } : {}}>
-            <Button
-              variant={viewType === 'grid' ? 'contained' : 'text'}
-              className={styles.viewSwitchButton + (viewType === 'grid' ? ' ' + styles.viewActive : '')}
-              onClick={() => handleViewTypeSwitch('grid')}
-            >
-              <AppsIcon />
-            </Button>
-            <Button
-              variant={viewType === 'list' ? 'contained' : 'text'}
-              className={styles.viewSwitchButton + (viewType === 'list' ? ' ' + styles.viewActive : '')}
-              onClick={() => handleViewTypeSwitch('list')}
-            >
-              <ViewAgendaIcon />
-            </Button>
-          </section>
-          <Grid item></Grid>
+          <Grid item>
+            <section className={styles.viewSwitcher}>
+              <Button
+                variant={viewType === 'gallery' ? 'contained' : 'text'}
+                className={styles.viewSwitchButton + (viewType === 'gallery' ? ' ' + styles.viewActive : '')}
+                onClick={() => handleViewTypeSwitch('gallery')}
+              >
+                <AppsIcon style={{ margin: '10px 0' }} />
+              </Button>
+              <Button
+                variant={viewType === 'blog' ? 'contained' : 'text'}
+                className={styles.viewSwitchButton + (viewType === 'blog' ? ' ' + styles.viewActive : '')}
+                onClick={() => handleViewTypeSwitch('blog')}
+              >
+                <ViewAgendaIcon />
+              </Button>
+            </section>
+          </Grid>
         </Grid>
       </nav>
       <section className={styles.content}>{content}</section>

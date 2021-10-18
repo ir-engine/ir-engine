@@ -3,16 +3,16 @@
  */
 import Button from '@material-ui/core/Button'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import CreatorCard from '../CreatorCard'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import AppFooter from '../Footer'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { useFeedState } from '../../reducers/feed/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
 
 import styles from './Creator.module.scss'
 
@@ -36,7 +36,7 @@ const Creator = ({ creatorId, creatorData }: Props) => {
     } else {
       setIsMe(false)
       if (!creatorData) {
-        dispatch(CreatorService.getCreator(creatorId))
+        CreatorService.getCreator(creatorId)
       }
     }
   }, [creatorId])
@@ -51,7 +51,7 @@ const Creator = ({ creatorId, creatorData }: Props) => {
       ? creatorData.id
       : creatorState?.creators?.creator?.id?.value
   useEffect(() => {
-    dispatch(FeedService.getFeeds(videoType, myID))
+    FeedService.getFeeds(videoType, myID)
   }, [videoType, myID])
   return (
     <>
