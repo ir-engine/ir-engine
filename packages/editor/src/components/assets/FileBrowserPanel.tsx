@@ -25,7 +25,7 @@ export default function FileBrowserPanel() {
       mode: 'vertical' as DockMode,
       children: [
         {
-          size: 5,
+          size: 7,
           tabs: [
             {
               id: 'projectFilesPanel',
@@ -35,7 +35,7 @@ export default function FileBrowserPanel() {
           ]
         },
         {
-          size: 5,
+          size: 3,
           tabs: [{ id: 'previewPanel', title: 'Preview', content: <AssetsPreviewPanel ref={assetsPreviewPanelRef} /> }]
         }
       ]

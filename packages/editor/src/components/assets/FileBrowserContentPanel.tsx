@@ -10,10 +10,12 @@ import { ProjectManager } from '../../managers/ProjectManager'
 import FileBrowserGrid from './FileBrowserGrid'
 import { Config } from '@xrengine/common/src/config'
 import { Button } from '../inputs/Button'
-import { File } from '@styled-icons/fa-solid'
-import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu'
+import { File } from '@styled-icons/fa-solid/File'
 import { useTranslation } from 'react-i18next'
-
+import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { ToolButton } from '../toolbar/ToolButton'
+import { ArrowBack } from '@styled-icons/boxicons-regular/ArrowBack'
+import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  * @author Abhishek Pathak
@@ -127,13 +129,16 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   let currentContent = null
   const currentContentRef = useRef(currentContent)
 
+  const headGrid = { display: 'grid', 'grid-template-columns': '1fr auto', 'grid-gap': '20px' }
   return (
     <>
       {console.log('Rendering File Browser Panel CHILD')}
-      <Button onClick={onBackDirectory}>Back</Button>
-      <Button onClick={onRefreshDirectory}>Refresh View</Button>
+      <div style={headGrid}>
+        <ToolButton icon={ArrowBack} onClick={onBackDirectory} id="backDir" iconHeight="100%" iconWidth="100%" />
+        <ToolButton icon={Refresh} onClick={onRefreshDirectory} id="refreshDir" iconHeight="100%" iconWidth="100%" />
+      </div>
 
-      <ContextMenuTrigger id={'uniqueId.current'}>
+      <ContextMenuTrigger id={'uniqueId_current'} holdToDisplay={-1}>
         <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
           <AssetPanelContentContainer>
             <FileBrowserGrid
@@ -148,7 +153,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         </AssetsPanelContainer>
       </ContextMenuTrigger>
 
-      <ContextMenu id={'uniqueId.current'} hideOnLeave={true}>
+      <ContextMenu id={'uniqueId_current'} hideOnLeave={true}>
         <MenuItem onClick={addNewFolder}>{t('editor:layout.filebrowser.addnewfolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>

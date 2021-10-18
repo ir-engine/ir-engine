@@ -130,15 +130,21 @@ const MediaGridItemLabel = (styled as any).div`
 const MediaGridInputLabel = (styled as any).input`
   white-space: nowrap;
   overflow: hidden;
+  width:auto;
   text-overflow: ellipsis;
   :disabled{
-    background: red;
-    border-color:#dddddd;
+    background:rgba(51, 170, 51, 0) ;
+    border-color:rgba(0,0,0,0);
+  }
+  :enabled{
+    color:black;
+  }
+  :hover{
+  overflow: visible;
+
   }
   text-align:center;
-  :hover{
-    background:blue;
-  }
+  color:white;
 `
 
 /**
@@ -222,7 +228,7 @@ export function IconMediaGridItem({
       <MediaGridItemContainer {...rest}>
         <MediaGridItemContent>
           <MediaGridItemIconContainer>
-            <IconComponent size={48} />
+            <IconComponent size={'48%'} />
           </MediaGridItemIconContainer>
         </MediaGridItemContent>
       </MediaGridItemContainer>

@@ -169,7 +169,7 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
           {content}
         </ContextMenuTrigger>
 
-        <ContextMenu id={contextMenuId}>
+        <ContextMenu id={contextMenuId} hideOnLeave={true}>
           <>
             {item.type !== 'folder' && (
               <>
@@ -232,7 +232,7 @@ FileBrowserItem.defaultProps = {
 //variable used to create uniqueId
 let lastId = 0
 
-const MemoFileGridItem = FileBrowserItem
+const MemoFileGridItem = memo(FileBrowserItem)
 
 /**
  * FileBrowserGrid component used to render FileBrowser.
@@ -272,23 +272,21 @@ export function FileBrowserGrid({
     <>
       {console.log('Rendering File Browser GRID')}
       <VerticalScrollContainer flex>
-        <InfiniteScroll pageStart={0} loadMore={() => {}} hasMore={false} threshold={100} useWindow={false}>
-          <MediaGrid minWidth={'20%'}>
-            {unique(items, 'id').map((item, index) => (
-              <MemoFileGridItem
-                key={item.id}
-                contextMenuId={uniqueId.current + index}
-                item={item}
-                selected={selectedItems.indexOf(item) !== -1}
-                onClick={onSelect}
-                moveContent={moveContent}
-                deleteContent={deleteContent}
-                currentContent={currentContent}
-              />
-            ))}
-            {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
-          </MediaGrid>
-        </InfiniteScroll>
+        <MediaGrid>
+          {unique(items, 'id').map((item, index) => (
+            <MemoFileGridItem
+              key={item.id}
+              contextMenuId={uniqueId.current + index}
+              item={item}
+              selected={selectedItems.indexOf(item) !== -1}
+              onClick={onSelect}
+              moveContent={moveContent}
+              deleteContent={deleteContent}
+              currentContent={currentContent}
+            />
+          ))}
+          {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
+        </MediaGrid>
       </VerticalScrollContainer>
     </>
   )
