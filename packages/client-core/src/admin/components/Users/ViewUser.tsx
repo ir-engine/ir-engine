@@ -18,7 +18,7 @@ import Button from '@material-ui/core/Button'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { useAuthState } from '../../../user/state/AuthState'
 import { UserService } from '../../state/UserService'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import InputBase from '@material-ui/core/InputBase'
 
 import { useUserStyles, useUserStyle } from './styles'

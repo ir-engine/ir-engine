@@ -1,22 +1,19 @@
-import React, { useState, useEffect } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useHistory } from 'react-router-dom'
-
 import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
 import Container from '@material-ui/core/Container'
-import InputAdornment from '@material-ui/core/InputAdornment'
+import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
-import { Visibility, VisibilityOff } from '@material-ui/icons'
+import InputAdornment from '@material-ui/core/InputAdornment'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
-
-import { useAuthState } from '../../state/AuthState'
-import { AuthService } from '../../state/AuthService'
-import styles from './Auth.module.scss'
+import { Visibility, VisibilityOff } from '@material-ui/icons'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router-dom'
 import { CreatorService } from '../../../social/state/CreatorService'
 import { useCreatorState } from '../../../social/state/CreatorState'
-import { useTranslation } from 'react-i18next'
+import { useDispatch } from '../../../store'
+import { AuthService } from '../../state/AuthService'
+import { useAuthState } from '../../state/AuthState'
+import styles from './Auth.module.scss'
 
 const initialState = { email: '', password: '' }
 

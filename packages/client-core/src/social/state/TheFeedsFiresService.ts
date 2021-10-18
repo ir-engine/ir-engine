@@ -1,9 +1,9 @@
 /**
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
-import { store, useDispatch } from '../../store'
-import { AlertService } from '@xrengine/client-core/src/common/state/AlertService'
-import { client } from '@xrengine/client-core/src/feathers'
+import { AlertService } from '../../common/state/AlertService'
+import { client } from '../../feathers'
+import { useDispatch } from '../../store'
 import { TheFeedsAction } from './TheFeedsActions'
 
 // thefeeds

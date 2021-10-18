@@ -10,7 +10,7 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import IconButton from '@material-ui/core/IconButton'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 
 interface Props {
   token: string

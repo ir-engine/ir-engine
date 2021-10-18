@@ -1,6 +1,6 @@
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { TransportAction } from './TransportActions'
-import { store } from '@xrengine/client-core/src/store'
+import { store } from '../../store'
 
 export const TransportService = {
   updateChannelTypeState: () => {

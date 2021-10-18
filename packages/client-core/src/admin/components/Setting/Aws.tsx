@@ -3,7 +3,7 @@ import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { useAdminAwsSettingState } from '../../state/Setting/AwsSettingState'
 import { AwsSettingService } from '../../state/Setting/AwsSettingServices'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import { useStyles } from './styles'
 import { useAuthState } from '../../../user/state/AuthState'
 

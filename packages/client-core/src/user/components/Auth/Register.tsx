@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import { AuthService } from '../../state/AuthService'
 import React, { useState } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import styles from './Auth.module.scss'
 import { useTranslation } from 'react-i18next'
 

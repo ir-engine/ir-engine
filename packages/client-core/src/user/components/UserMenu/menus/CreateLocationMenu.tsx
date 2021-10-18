@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../../store'
 import Typography from '@material-ui/core/Typography'
 import DeleteIcon from '@material-ui/icons/Delete'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'

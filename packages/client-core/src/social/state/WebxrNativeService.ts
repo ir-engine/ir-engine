@@ -1,8 +1,8 @@
 /**
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
-import { store, useDispatch } from '../../store'
-import { AlertService } from '@xrengine/client-core/src/common/state/AlertService'
+import { AlertService } from '../../common/state/AlertService'
+import { useDispatch } from '../../store'
 import { WebxrNativeAction } from './WebxrNativeActions'
 
 export const WebxrNativeService = {
