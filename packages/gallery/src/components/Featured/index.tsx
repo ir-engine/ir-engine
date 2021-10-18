@@ -15,7 +15,7 @@ import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 import styles from './Featured.module.scss'
 import { useHistory } from 'react-router'
-import { FeedFiresService } from '../../state/FeedFiresService'
+import { FeedFiresService } from '@xrengine/client-core/src/social/state/FeedFiresService'
 import { getComponentTypeForMedia } from '../Feed'
 import { MediaContent } from './MediaContent'
 
@@ -38,12 +38,7 @@ const gridValues = {
 }
 
 let lazyVideoObserver = null
-const lazyLoadingObserver = () => {
-  var lazyVideos = [].slice.call(document.querySelectorAll('video.lazy'))
-  console.group('lazyVideos')
-  console.log(lazyVideos)
-  console.groupEnd()
-
+const lazyLoadingObserver = (lazyVideos) => {
   if ('IntersectionObserver' in window) {
     lazyVideoObserver = new IntersectionObserver(function (entries, observer) {
       entries.forEach(function (video) {
@@ -89,16 +84,30 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
   const dispatch = useDispatch()
   const removeIdsStringify = JSON.stringify([...removedIds])
   const feedsState = useFeedState()
+  const [refs, setRefs] = useState([])
+
+  const addToRefs = (el) => {
+    if (el && !refs.includes(el)) {
+      setRefs([...refs, el])
+    }
+  }
+  useEffect(() => {
+    if (!!feedsState.feeds.feedsFired.value.length) {
+      setIsFeatured(true)
+    }
+  }, [feedsState.feeds.feedsFiredFetching, JSON.stringify(feedsState.feeds.feedsFired.value)])
 
   useEffect(
     () => () => {
       if (lazyVideoObserver !== null) {
-        console.log('disconect')
         lazyVideoObserver.disconnect()
       }
     },
     []
   )
+  useEffect(() => {
+    lazyLoadingObserver(refs)
+  }, [refs])
 
   useEffect(() => {
     if (auth.user.id.value) {
@@ -127,7 +136,7 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
       (type === 'featured' || !type) &&
       feedsState.feeds.feedsFetching.value === false &&
       setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
+    [feedsState.feeds.feedsFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value.values())]
   )
 
   useEffect(
@@ -135,7 +144,7 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
       (type === 'featured' || !type) &&
       feedsState.feeds.feedsFeaturedFetching.value === false &&
       setFeedList(feedsState.feeds.feedsFeatured.value),
-    [feedsState.feeds.feedsFeaturedFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value)]
+    [feedsState.feeds.feedsFeaturedFetching.value, JSON.stringify(feedsState.feeds.feedsFeatured.value.values())]
   )
 
   useEffect(
@@ -143,7 +152,7 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
       type === 'creator' &&
       feedsState.feeds.feedsCreatorFetching.value === false &&
       setFeedList(feedsState.feeds.feedsCreator.value),
-    [feedsState.feeds.feedsCreatorFetching.value, JSON.stringify(feedsState.feeds.feedsCreator.value)]
+    [feedsState.feeds.feedsCreatorFetching.value, JSON.stringify(feedsState.feeds.feedsCreator.value.values())]
   )
 
   useEffect(
@@ -151,12 +160,12 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
       type === 'fired' &&
       feedsState.feeds.feedsFiredFetching.value === false &&
       setFeedList(feedsState.feeds.feedsFired.value),
-    [feedsState.feeds.feedsFiredFetching.value, JSON.stringify(feedsState.feeds.feedsFired.value)]
+    [feedsState.feeds.feedsFiredFetching.value, JSON.stringify(feedsState.feeds.feedsFired.value.values())]
   )
-  const feedsFiredStringify = JSON.stringify(feedsState.feeds.feedsFired.value)
+  const feedsFiredStringify = JSON.stringify(feedsState.feeds.feedsFired.value.values())
   useEffect(() => {
-    typeof setIsFeatured === 'function' && setIsFeatured(!!feedsState.feeds.feedsFired.value?.length)
-  }, [feedsState.feeds.feedsFetching.value, feedsFiredStringify])
+    typeof setIsFeatured === 'function' && setIsFeatured(!!feedsState.feeds.feedsFired.value?.length && removedIds.size)
+  }, [feedsState.feeds.feedsFetching.value, feedsFiredStringify, removeIdsStringify])
 
   const handleAddToFeatured = (item) => {
     if (!feedIds.has(item)) {
@@ -218,9 +227,17 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
                             onClick: () => {
                               history.push('/post?postId=' + item.id)
                             }
-                          }) || <MediaContent full={false} className={styles.image} item={item} history={history} />}
+                          }) || (
+                            <MediaContent
+                              full={false}
+                              className={styles.image}
+                              item={item}
+                              history={history}
+                              addToRefs={addToRefs}
+                            />
+                          )}
                         </div>
-                        <CardContent style={{ textAlign: 'center', display: 'flex' }}>
+                        <CardContent className={styles.cardContent}>
                           <span className={styles.descr}>{item.title}</span>
                         </CardContent>
                       </Card>
@@ -230,7 +247,6 @@ const Featured = ({ type, creatorId, viewType, isFeatured, setIsFeatured }: Prop
               })
           : ''}
       </Grid>
-      {lazyLoadingObserver()}
     </section>
   )
 }

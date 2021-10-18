@@ -56,6 +56,7 @@ const AppHeader = ({ title, setAddFilesView, setFilesTarget, hideAddButtons, inp
   }
 
   const handleTitleClick = () => {
+    setAddFilesView && setAddFilesView(false)
     history.push({
       pathname: '/',
       search: 'tag=all'

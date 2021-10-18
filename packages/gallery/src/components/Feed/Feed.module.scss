@@ -121,9 +121,6 @@
         height: 86vh;
     }
     
-    .list {
-        // height: fit-content;
-    }
     .featuredButton {
         display: none;
         position: absolute;
@@ -164,5 +161,32 @@
     .mediaPreviewIcon {
         font-size: 120pt;
         display: flex;
+    }
+
+    .share {
+        position: absolute;
+        --size: 127px;
+        --radius: calc(var(--size) / 2);
+        display: grid; 
+        width: var(--size);
+        height: var(--size);
+        border-radius: var(--radius);
+        background-color: #cfcfcf;
+        color: #ffffff;
+        font-size: 14pt;
+        right: 40px;
+        bottom: 40px;
+
+        .shareIcon {
+            color: #fdfdff;
+            font-size: 60pt;
+            margin-bottom: -18px;
+            margin: -10px 0 -18px;
+        }
+
+        .shareText {
+            margin-top: 4px;
+            margin-bottom: -10px;
+        }
     }
 }
