@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server",
   "description": "API Server for XREngine",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "private": true,
   "homepage": "",
   "main": "dist/index.js",
@@ -69,7 +69,7 @@
     "@feathersjs/socketio": "5.0.0-pre.9",
     "@feathersjs/socketio-client": "5.0.0-pre.9",
     "@feathersjs/transport-commons": "5.0.0-pre.9",
-    "@xrengine/server-core": "^0.4.9",
+    "@xrengine/server-core": "^0.4.10",
     "aws-sdk": "2.1009.0",
     "bent": "7.3.12",
     "chargebee": "2.7.0",
