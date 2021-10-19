@@ -7,7 +7,7 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { useFeedStyle, useFeedStyles } from './styles'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import Grid from '@material-ui/core/Grid'
 import CardData from './CardData'

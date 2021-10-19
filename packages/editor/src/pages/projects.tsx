@@ -24,7 +24,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useHistory } from 'react-router-dom'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import {
   ProfileButton,
   StyledProjectsContainer,

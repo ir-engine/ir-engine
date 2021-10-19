@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import ArMedia from '../../ArMedia'

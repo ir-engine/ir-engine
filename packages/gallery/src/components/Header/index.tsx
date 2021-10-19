@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styles from './Header.module.scss'
 
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import {
   Button,

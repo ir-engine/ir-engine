@@ -9,7 +9,7 @@ import styles from './TermsandPolicy.module.scss'
 import DialogContent from '@material-ui/core/DialogContent/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText/DialogContentText'
 import { Button, Typography } from '@material-ui/core'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'

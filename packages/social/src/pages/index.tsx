@@ -2,8 +2,6 @@
 import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'

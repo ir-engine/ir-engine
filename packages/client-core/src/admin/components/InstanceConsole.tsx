@@ -12,7 +12,7 @@ import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import { useDispatch } from '../../store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
 // import CreateInstance from './Instance/CreateInstance'

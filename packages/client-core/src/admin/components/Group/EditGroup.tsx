@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import { formValid } from './validation'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useDispatch } from '../../../store'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { ScopeService } from '../../state/ScopeService'

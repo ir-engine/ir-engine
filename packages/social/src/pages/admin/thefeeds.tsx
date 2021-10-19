@@ -3,7 +3,7 @@
  */
 import React, { useEffect } from 'react'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { TheFeedsService } from '@xrengine/client-core/src/social/state/TheFeedsService'
 import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'

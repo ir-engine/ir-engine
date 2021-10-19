@@ -17,7 +17,7 @@ import AudioPlayer from 'material-ui-audio-player'
 import { useTranslation } from 'react-i18next'
 import { Save } from '@material-ui/icons'
 import { validateARMediaForm } from './validation'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useDispatch } from '@xrengine/client-core/src/store'
 import InsertDriveFile from '@material-ui/icons/InsertDriveFile'
 import Card from '@material-ui/core/Card'

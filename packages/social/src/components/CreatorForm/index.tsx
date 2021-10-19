@@ -21,7 +21,7 @@ import SubjectIcon from '@material-ui/icons/Subject'
 // import TitleIcon from '@material-ui/icons/Title';
 
 import TextField from '@material-ui/core/TextField'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'

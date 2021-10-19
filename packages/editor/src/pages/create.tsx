@@ -1,6 +1,5 @@
 import React, { Suspense } from 'react'
 import { store, useDispatch } from '../../store'
-import { connect } from 'react-redux'
 
 /**
  * Exporting component by dynamicaly loaded component.

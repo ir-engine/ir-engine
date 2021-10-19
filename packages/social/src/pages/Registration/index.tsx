@@ -10,7 +10,7 @@ import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorSe
 import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { FacebookIcon } from '../../../../client-core/src/common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../client-core/src/common/components/Icons/LinkedInIcon'

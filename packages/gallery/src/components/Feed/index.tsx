@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, ElementType } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useTranslation } from 'react-i18next'
 import { Button, Card, Typography, CardContent, CardMedia, CardHeader, Grid } from '@material-ui/core'

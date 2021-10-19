@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
 
 import { Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
