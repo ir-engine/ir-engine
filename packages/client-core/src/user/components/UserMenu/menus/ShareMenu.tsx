@@ -7,7 +7,7 @@ import { Send, FileCopy } from '@material-ui/icons'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import styles from '../UserMenu.module.scss'
 import { InviteService } from '../../../../social/state/InviteService'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../../store'
 import { useTranslation } from 'react-i18next'
 import { useInviteState } from '../../../../social/state/InviteState'
 

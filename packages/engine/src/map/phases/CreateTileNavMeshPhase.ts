@@ -1,8 +1,7 @@
 import { bboxPolygon as convertBboxToPolygon, clone } from '@turf/turf'
 import computeTileBoundingBox from '../functions/computeTileBoundingBox'
-import { Store } from '../functions/createStore'
 import createUsingCache from '../functions/createUsingCache'
-import { MapTransformedFeature, TaskStatus, TileKey } from '../types'
+import { MapStateUnwrapped, MapTransformedFeature, TaskStatus, TileKey } from '../types'
 import computePolygonDifference from '../functions/computePolygonDifference'
 import { TILE_ZOOM } from '../constants'
 import createSurroundingTileIterator from '../functions/createSurroundingTileIterator'
@@ -39,21 +38,21 @@ function fixLastPair(coordinates: Polygon) {
   outerRing[outerRing.length - 1] = outerRing[0].slice() as PC.Pair
 }
 
-const createNavMeshUsingCache = createUsingCache((store: Store, ...key: TileKey) => {
+const createNavMeshUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: TileKey) => {
   const [x, y] = key
 
   const relevantFeatures: MapTransformedFeature[] = []
-  for (const featureKey of store.tileMeta.get(key).cachedFeatureKeys) {
+  for (const featureKey of state.tileMeta.get(key).cachedFeatureKeys) {
     if (featureKey[0] === 'building') {
-      const feature = store.transformedFeatureCache.get(featureKey)
+      const feature = state.transformedFeatureCache.get(featureKey)
       relevantFeatures.push(feature)
     }
   }
 
-  const bbox = computeTileBoundingBox(x, y, store.originalCenter)
+  const bbox = computeTileBoundingBox(x, y, state.originalCenter)
   const bboxPolygon = convertBboxToPolygon(bbox)
 
-  const scaleCoord = createScaleTransform(store.scale)
+  const scaleCoord = createScaleTransform(state.scale)
 
   fixLastPair(bboxPolygon.geometry.coordinates as any)
   transformGeometry('Polygon', bboxPolygon.geometry.coordinates as any, scaleCoord)
@@ -80,23 +79,28 @@ const createNavMeshUsingCache = createUsingCache((store: Store, ...key: TileKey)
   return nonOverlappingConvexPolygons as PC.MultiPolygon
 })
 
-export function getTaskKeys(store: Store) {
-  return createSurroundingTileIterator(store.center, store.navMeshRadius, TILE_ZOOM)
+export function getTaskKeys(state: MapStateUnwrapped) {
+  return createSurroundingTileIterator(state.center, state.navMeshRadius, TILE_ZOOM)
 }
 
-export function getTaskStatus(store: Store, key: TileKey) {
-  return store.tileNavMeshTasks.get(key)
+export function getTaskStatus(state: MapStateUnwrapped, key: TileKey) {
+  return state.tileNavMeshTasks.get(key)
 }
-export function setTaskStatus(store: Store, key: TileKey, status: TaskStatus) {
-  return store.tileNavMeshTasks.set(key, status)
-}
-
-export function execTask(store: Store, key: TileKey) {
-  return createNavMeshUsingCache(store.tileNavMeshCache, key, store)
+export function setTaskStatus(state: MapStateUnwrapped, key: TileKey, status: TaskStatus) {
+  return state.tileNavMeshTasks.set(key, status)
 }
 
-export function cleanup(store: Store) {
-  for (const [key] of store.tileNavMeshCache.evictLeastRecentlyUsedItems()) {
-    store.tileNavMeshTasks.delete(key)
+export function execTask(state: MapStateUnwrapped, key: TileKey) {
+  return createNavMeshUsingCache(state.tileNavMeshCache, key, state)
+}
+
+export function cleanup(state: MapStateUnwrapped) {
+  for (const [key] of state.tileNavMeshCache.evictLeastRecentlyUsedItems()) {
+    state.tileNavMeshTasks.delete(key)
   }
+}
+
+export function reset(state: MapStateUnwrapped) {
+  state.tileNavMeshTasks.clear()
+  state.tileNavMeshCache.clear()
 }

@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/editor",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "main": "lib/editor.umd.js",
   "module": "lib/editor.es.js",
   "types": "lib/index.d.ts",
@@ -31,9 +31,9 @@
     "react": "^17.0.0"
   },
   "dependencies": {
+    "@feathersjs/client": "5.0.0-pre.9",
     "@feathersjs/feathers": "5.0.0-pre.10",
     "@feathersjs/rest-client": "5.0.0-pre.10",
-    "@feathersjs/client": "5.0.0-pre.9",
     "@google/model-viewer": "1.8.0",
     "@hookstate/core": "3.0.13",
     "@material-ui/core": "4.12.3",
@@ -53,10 +53,10 @@
     "@types/styled-components": "5.1.15",
     "@typescript-eslint/eslint-plugin": "5.0.0",
     "@typescript-eslint/parser": "5.0.0",
-    "@xrengine/client-core": "^0.4.9",
-    "@xrengine/common": "^0.4.9",
-    "@xrengine/engine": "^0.4.9",
-    "@xrengine/projects": "^0.4.9",
+    "@xrengine/client-core": "^0.4.10",
+    "@xrengine/common": "^0.4.10",
+    "@xrengine/engine": "^0.4.10",
+    "@xrengine/projects": "^0.4.10",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
     "autoprefixer": "10.3.7",
@@ -71,7 +71,7 @@
     "eventemitter3": "4.0.7",
     "formik": "2.2.9",
     "fuse.js": "6.4.6",
-    "i18next": "21.3.1",
+    "i18next": "21.3.2",
     "immutable": "4.0.0",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
@@ -79,6 +79,7 @@
     "material-ui-confirm": "3.0.1",
     "mocha": "^9.1.1",
     "moment": "2.29.1",
+    "mousetrap": "^1.6.5",
     "nipplejs": "0.9.0",
     "rc-dock": "3.2.2",
     "rc-slider": "9.7.4",
@@ -112,8 +113,7 @@
     "uuid": "8.3.2",
     "video-react": "0.14.1",
     "volumetric": "0.2.28",
-    "yup": "0.32.11",
-    "mousetrap": "^1.6.5"
+    "yup": "0.32.11"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "21.0.0",

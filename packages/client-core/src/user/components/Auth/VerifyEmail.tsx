@@ -6,7 +6,7 @@ import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
 import { AuthService } from '../../state/AuthService'
 import styles from './Auth.module.scss'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 
 interface Props {
   auth: any

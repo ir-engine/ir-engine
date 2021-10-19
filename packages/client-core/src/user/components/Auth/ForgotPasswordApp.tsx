@@ -1,14 +1,13 @@
-import React, { useState } from 'react'
 import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
-import { AuthService } from '../../state/AuthService'
 import Grid from '@material-ui/core/Grid'
-import styles from './Auth.module.scss'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
+import Typography from '@material-ui/core/Typography'
+import { useDispatch } from '../../../store'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AuthService } from '../../state/AuthService'
+import styles from './Auth.module.scss'
 
 interface Props {
   classes: any

@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -54,8 +54,9 @@
     "@types/styled-components": "5.1.15",
     "@typescript-eslint/eslint-plugin": "5.0.0",
     "@typescript-eslint/parser": "5.0.0",
-    "@xrengine/common": "^0.4.9",
-    "@xrengine/engine": "^0.4.9",
+    "@xrengine/common": "^0.4.10",
+    "@xrengine/editor": "^0.4.10",
+    "@xrengine/engine": "^0.4.10",
     "apexcharts": "^3.28.3",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
@@ -71,7 +72,7 @@
     "eventemitter3": "4.0.7",
     "formik": "2.2.9",
     "fuse.js": "6.4.6",
-    "i18next": "21.3.1",
+    "i18next": "21.3.2",
     "immutable": "4.0.0",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",

@@ -3,7 +3,7 @@ import { Paper, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { ChargebeeSettingService } from '../../state/Setting/ChargebeeSettingServices'
 import { useChargebeeSettingState } from '../../state/Setting/ChargebeeSettingState'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import { useStyles } from './styles'
 import { useAuthState } from '../../../user/state/AuthState'
 interface Props {}

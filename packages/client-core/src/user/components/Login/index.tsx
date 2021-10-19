@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '../../../store'
 import CardMedia from '@material-ui/core/CardMedia'
 import { Google } from '@styled-icons/bootstrap/Google'
 import { Facebook } from '@styled-icons/bootstrap/Facebook'

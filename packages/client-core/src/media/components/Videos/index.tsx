@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import styles from './Videos.module.scss'
 import Button from '@material-ui/core/Button'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import { PublicVideo } from '../../state/VideoActions'
 import { useVideoState } from '../../state/VideoState'
 import { VideoService } from '../../state/VideoService'

@@ -6,7 +6,7 @@ import Switch from '@material-ui/core/Switch'
 import { useAdminRedisSettingState } from '../../state/Setting/AdminRedisSettingState'
 import { AdminRedisSettingService } from '../../state/Setting/AdminRedisSettingService'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/state/AuthState'
 
 interface Props {

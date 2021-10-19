@@ -1,7 +1,7 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import Image, { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 import { RethrownError } from '../functions/errors'
-import { resolveMedia } from '@xrengine/editor/src/functions/resolveMedia'
+import { resolveMedia } from '../functions/resolveMedia'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { CacheManager } from '../managers/CacheManager'

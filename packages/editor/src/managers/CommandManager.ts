@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
-import { fetchContentType } from '@xrengine/editor/src/functions/fetchContentType'
-import { guessContentType } from '@xrengine/editor/src/functions/guessContentType'
+import { fetchContentType } from '../functions/fetchContentType'
+import { guessContentType } from '../functions/guessContentType'
 import History from '../classes/History'
 import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'

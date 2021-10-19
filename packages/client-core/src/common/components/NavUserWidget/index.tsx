@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/state/AuthState'
 import { AuthService } from '../../../user/state/AuthService'
 import { DialogAction } from '../../state/DialogActions'
