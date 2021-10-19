@@ -36,7 +36,7 @@ const ProjectsPage = (props: Props) => {
 
   const { t } = useTranslation()
   const idKey = showingScenes ? 'scene_id' : 'project_id'
-  const newProjectPath = showingScenes ? '/editor/create' : '/project/new'
+  const newProjectPath = showingScenes ? '/editor/new' : '/project/new'
 
   useEffect(() => {
     if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
