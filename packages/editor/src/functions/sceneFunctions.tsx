@@ -175,8 +175,8 @@ export const saveScene = async (projectId, signal): Promise<SceneDetailInterface
       file_token: thumbnailFileToken
     },
     ownedFileIds: {},
-    project_file_id: projectFileId,
-    project_file_token: projectFileToken
+    scene_file_id: projectFileId,
+    scene_file_token: projectFileToken
   }
 
   const sceneId = scene.metadata && scene.metadata.sceneId ? scene.metadata.sceneId : null
@@ -194,7 +194,7 @@ export const saveScene = async (projectId, signal): Promise<SceneDetailInterface
   ProjectManager.instance.currentOwnedFileIds = {}
 
   try {
-    return (await client.service('scene').patch(projectId, { project })) as SceneDetailInterface
+    return (await client.service('scene').patch(projectId, { scene: project })) as SceneDetailInterface
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)

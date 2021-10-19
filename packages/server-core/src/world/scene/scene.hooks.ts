@@ -31,7 +31,6 @@ const mapSceneSaveData = () => {
 
 const validateCollectionData = () => {
   return async (context: HookContext): Promise<HookContext> => {
-    console.log(context.data)
     if (!context?.data?.ownedFileId || !context?.data?.name || !context?.data?.thumbnailOwnedFileId) {
       return await Promise.reject(new BadRequest('Scene Data is required!'))
     }
