@@ -1,3 +1,4 @@
+# syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
 FROM node:16-buster
 
