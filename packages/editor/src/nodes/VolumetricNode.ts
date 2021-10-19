@@ -9,10 +9,14 @@ import { ControlManager } from '../managers/ControlManager'
 export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   static legacyComponentName = 'volumetric'
   static nodeName = 'Volumetric'
+  static initialElementProps = {
+    src: '',
+    srcUrl: ''
+  }
   // static initialElementProps = {
   //   src: new URL(editorLandingVolumetric, location as any).href
   // };
-  static initialElementProps = {}
+  // static initialElementProps = {}
   static async deserialize(json, loadAsync) {
     const node = (await super.deserialize(json)) as any
     const {
@@ -34,6 +38,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     loadAsync(
       (async () => {
         node.src = src
+        node.srcUrl = src
         node.controls = controls || false
         node.autoPlay = autoPlay
         node.loop = loop
@@ -78,12 +83,19 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     this.volume = 0.5
     this.controls = true
   }
+
+  get srcUrl(): string {
+    return this._canonicalUrl
+  }
+  set srcUrl(value) {
+    debugger
+    this.load(value).catch(console.error)
+  }
+
   get src(): string {
     return this._canonicalUrl
   }
-  set src(value) {
-    this.load(value).catch(console.error)
-  }
+
   get autoPlay(): any {
     return this._autoPlay
   }

@@ -9,7 +9,7 @@ import { System } from '../../ecs/classes/System'
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
 
-export const TriggerSysyem = async (world: World): Promise<System> => {
+export default async function TriggerSystem(world: World): Promise<System> {
   const triggerCollidedQuery = defineQuery([TriggerVolumeComponent, TriggerDetectedComponent])
 
   return () => {
@@ -17,62 +17,34 @@ export const TriggerSysyem = async (world: World): Promise<System> => {
       let triggerComponent = getComponent(entity, TriggerVolumeComponent)
 
       const args = triggerComponent.args
-      let enterComponent = args.enterComponent
-      let enterProperty = args.enterProperty
-      let enterValue = args.enterValue
+      let onEnter = args.onEnter
+
+      console.log(triggerComponent)
 
       let targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
-
-      if (enterComponent === 'video' || enterComponent === 'volumteric') {
-        if (enterProperty === 'paused') {
-          if (enterValue) {
-            targetObj.pause()
-          } else {
-            targetObj.play()
-          }
-        }
-      } else if (enterComponent === 'loop-animation') {
-        if (enterProperty === 'paused') {
-          if (enterValue) {
-            targetObj.stopAnimation()
-          } else {
-            targetObj.playAnimation()
-          }
-        }
+      console.log('handleTriggerEnter', targetObj)
+      if (targetObj[onEnter]) {
+        targetObj[onEnter]()
+      } else if (targetObj.execute) {
+        targetObj.execute(onEnter)
       }
-
-      console.log('handleTriggerEnter')
     }
 
     for (const entity of triggerCollidedQuery.exit(world)) {
       let triggerComponent = getComponent(entity, TriggerVolumeComponent)
 
       const args = triggerComponent.args
-      let leaveComponent = args.leaveComponent
-      let leaveProperty = args.leaveProperty
-      let leaveValue = args.leaveValue
+      let onExit = args.onExit
+
+      console.log(triggerComponent)
 
       let targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
-
-      if (leaveComponent === 'video' || leaveComponent === 'volumteric') {
-        if (leaveProperty === 'paused') {
-          if (leaveValue) {
-            targetObj.pause()
-          } else {
-            targetObj.play()
-          }
-        }
-      } else if (leaveComponent === 'loop-animation') {
-        if (leaveProperty === 'paused') {
-          if (leaveValue) {
-            targetObj.stopAnimation()
-          } else {
-            targetObj.playAnimation()
-          }
-        }
+      console.log('handleTriggerExit', targetObj)
+      if (targetObj[onExit]) {
+        targetObj[onExit]()
+      } else if (targetObj.execute) {
+        targetObj.execute(onExit)
       }
-
-      console.log('handleTriggerExit')
     }
 
     return world

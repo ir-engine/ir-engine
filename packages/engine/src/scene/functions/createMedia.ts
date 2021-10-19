@@ -87,8 +87,9 @@ interface VolumetricProps {
 export const createVolumetric = (entity, props: VolumetricProps) => {
   const container = new UpdateableObject3D()
   const worker = new DracosisPlayerWorker()
-  // const resourceUrl = "https://172.160.10.156:3000/static/volumetric/liam.drcs";
+  // const resourceUrl = "https://172.160.10.156:3000/static/volumetric/liam.drcs"
   const resourceUrl = props.src
+  let isBuffering = false
   DracosisSequence = new DracosisPlayer({
     scene: container,
     renderer: Engine.renderer,
@@ -99,7 +100,20 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
     loop: props.loop,
     autoplay: props.autoPlay,
     scale: 1,
-    frameRate: 25
+    frameRate: 25,
+    onMeshBuffering: (progress) => {
+      console.warn('BUFFERING!!', progress)
+      if (!isBuffering) {
+        container.visible = false
+      }
+      isBuffering = true
+    },
+    onFrameShow: () => {
+      if (isBuffering) {
+        container.visible = true
+      }
+      isBuffering = false
+    }
   })
 
   container.update = () => {
@@ -114,8 +128,10 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
 
   addComponent(entity, RenderedComponent, {})
 
-  //temporary code
-  DracosisSequence.play()
+  container.execute = (key) => {
+    console.log('Volumetric Execute: ', key)
+    if (DracosisSequence[key]) DracosisSequence[key]()
+  }
 
   addObject3DComponent(entity, container, props)
   if (props.interactable) addComponent(entity, InteractableComponent, { data: props })

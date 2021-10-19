@@ -132,7 +132,7 @@ export default async function AvatarSystem(world: World): Promise<System> {
       raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
 
-      detectUserInTrigger(entity)
+      // detectUserInTrigger(entity)
     }
   }
 }

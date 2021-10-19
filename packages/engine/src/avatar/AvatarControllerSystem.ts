@@ -8,7 +8,7 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { moveAvatar } from './functions/moveAvatar'
-import { detectUserInPortal } from './functions/detectUserInPortal'
+import { detectUserInCollisions } from './functions/detectUserInCollisions'
 import { World } from '../ecs/classes/World'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { dispatchFrom } from '../networking/functions/dispatchFrom'
@@ -84,7 +84,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
 
     for (const entity of controllerQuery(world)) {
       // todo: replace this with trigger detection
-      detectUserInPortal(entity)
+      detectUserInCollisions(entity)
 
       moveAvatar(world, entity, Engine.camera)
 
