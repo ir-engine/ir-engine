@@ -50,11 +50,11 @@ export default function RightHarmony() {
   console.log('RRRRRRRRRR', activeChannel)
 
   useEffect(() => {
-    if (channelState.updateNeeded) {
-      ChatService.getChannels()
-      ChatService.getChannelMessages(targetChannelId)
-    }
-  }, [channelState.updateNeeded])
+    // if (channelState.updateNeeded) {
+    ChatService.getChannels()
+    ChatService.getChannelMessages(targetChannelId)
+    // }
+  }, [])
 
   return (
     <div className={classes.rightRoot}>
