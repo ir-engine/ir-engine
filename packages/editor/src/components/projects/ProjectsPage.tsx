@@ -36,6 +36,7 @@ const ProjectsPage = (props: Props) => {
 
   const { t } = useTranslation()
   const idKey = showingScenes ? 'scene_id' : 'project_id'
+  const newProjectPath = showingScenes ? '/editor/create' : '/project/new'
 
   useEffect(() => {
     if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
@@ -68,13 +69,23 @@ const ProjectsPage = (props: Props) => {
    */
   const onDeleteProject = async (project) => {
     try {
-      // calling api to delete project on the basis of project_id.
-      await deleteScene(project[idKey])
-
-      // setting projects after removing deleted project.
-      setProjects(projects.filter((p) => p[idKey] !== project[idKey]))
+      if (showingScenes) {
+        // calling api to delete project on the basis of project_id.
+        await deleteScene(project[idKey])
+        // setting projects after removing deleted project.
+        setProjects(projects.filter((p) => p[idKey] !== project[idKey]))
+      } else {
+      }
     } catch (error) {
-      console.log('Delete project error')
+      console.log(`Error deleting ${showingScenes ? 'scene' : 'project'}, ${error}`)
+    }
+  }
+
+  const onAddNew = () => {
+    if (showingScenes) {
+      routeTo('/editor/new')
+    } else {
+      // TODO
     }
   }
 
@@ -141,7 +152,7 @@ const ProjectsPage = (props: Props) => {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button onClick={routeTo('/editor/new')}>{t('editor.projects.lbl-newProject')}</Button>
+                    <Button onClick={routeTo(newProjectPath)}>{t('editor.projects.lbl-newProject')}</Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
                 <ProjectGridContent>
@@ -150,8 +161,7 @@ const ProjectsPage = (props: Props) => {
                     <ProjectGrid
                       loading={loading}
                       projects={projects}
-                      // newProjectPath="/editor/templates"
-                      newProjectPath="/editor/create"
+                      newProjectPath={newProjectPath}
                       newProjectLabel={t('editor.projects.lbl-newProject')}
                       contextMenuId={contextMenuId}
                     />

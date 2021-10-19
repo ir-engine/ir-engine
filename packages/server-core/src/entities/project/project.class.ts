@@ -73,22 +73,28 @@ export class Project extends Service {
 
     // Add to DB
     const dbEntryData: ProjectDBEntryInterface = {
-      storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/project/${manifestData.name}/manifest.json`,
+      storageProviderManifest: `https://${storageProvider.cacheDomain}/project/${manifestData.name}/manifest.json`,
       sourceManifest: data.uploadURL,
       global: false,
       name: manifestData.name
     } as any
 
     await super.create(dbEntryData, params)
+    // TODO: trigger re-build
     await Promise.all(uploadPromises)
   }
 
   async remove(id: Id, params: Params) {
     try {
-      const { name } = await super.get(id, params)
-      const manifestPath = path.resolve(__dirname, `../../../../projects/project/${name}/manifest.json`)
-      fs.rmSync(manifestPath)
+      // we dont want to remove projects for local development, as this is handled manually for now,
+      // and could be done by accident to which code could be lost
+      // if(!isDev) {
+      //   const { name } = await super.get(id, params)
+      //   const manifestPath = path.resolve(__dirname, `../../../../projects/project/${name}/manifest.json`)
+      //   fs.rmSync(manifestPath)
+      // }
       await super.remove(id, params)
+      // TODO: trigger re-build
     } catch (e) {
       console.log(`[Projects]: failed to remove project ${id}`, e)
       return false

@@ -191,7 +191,7 @@ export async function populateScene(
     })
     await app.service('static-resource').create({
       sid: collection.sid,
-      url: `https://${storageProvider.provider.cacheDomain}/${thumbnailKey}`,
+      url: `https://${storageProvider.cacheDomain}/${thumbnailKey}`,
       mimeType: 'image/jpeg'
     })
     const newStaticResource = await app.service('static-resource').find({
@@ -257,7 +257,7 @@ export async function populateAvatar(avatar: any, app: Application): Promise<any
     if (existingAvatarResult != null) await app.service('static-resource').remove(existingAvatarResult.id)
     await app.service('static-resource').create({
       name: avatar.name,
-      url: `https://${storageProvider.provider.cacheDomain}/${avatarKey}`,
+      url: `https://${storageProvider.cacheDomain}/${avatarKey}`,
       key: avatarKey,
       staticResourceType: 'avatar'
     })
@@ -280,7 +280,7 @@ export async function populateAvatar(avatar: any, app: Application): Promise<any
     if (existingThumbnailResult != null) await app.service('static-resource').remove(existingThumbnailResult.id)
     await app.service('static-resource').create({
       name: avatar.name,
-      url: `https://${storageProvider.provider.cacheDomain}/${thumbnailKey}`,
+      url: `https://${storageProvider.cacheDomain}/${thumbnailKey}`,
       key: thumbnailKey,
       staticResourceType: 'user-thumbnail'
     })
@@ -380,7 +380,7 @@ export async function populateProject(
   // })
   // await app.service('project').create(
   //   {
-  //     storageProviderManifest: `https://${storageProvider.provider.cacheDomain}/project/${manifestData.name}/manifest.json`,
+  //     storageProviderManifest: `https://${storageProvider.cacheDomain}/project/${manifestData.name}/manifest.json`,
   //     sourceManifest: project.manifest,
   //     localManifest: `/projects/projects/${manifestData.name}/manifest.json`,
   //     global: false,

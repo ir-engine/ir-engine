@@ -25,22 +25,22 @@ const thumbnailRegex = /([a-zA-Z0-9_-]+).jpeg/
 const getManifestKey = (packName: string) => `content-pack/${packName}/manifest.json`
 const getWorldFileKey = (packName: string, name: string) => `content-pack/${packName}/world/${name}.world`
 const getWorldFileUrl = (packName: string, uuid: string) =>
-  `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/world/${uuid}.world`
+  `https://${storageProvider.cacheDomain}/content-pack/${packName}/world/${uuid}.world`
 const getThumbnailKey = (packName: string, url: string) => {
   const uuidRegexExec = thumbnailRegex.exec(url)
   return `content-pack/${packName}/img/${uuidRegexExec[1]}.jpeg`
 }
 const getThumbnailUrl = (packName: string, url: string) => {
   const uuidRegexExec = thumbnailRegex.exec(url)
-  return `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/img/${uuidRegexExec[1]}.jpeg`
+  return `https://${storageProvider.cacheDomain}/content-pack/${packName}/img/${uuidRegexExec[1]}.jpeg`
 }
 const getAvatarUrl = (packName: string, avatar: any) =>
-  `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/${avatar.key}`
+  `https://${storageProvider.cacheDomain}/content-pack/${packName}/${avatar.key}`
 const getAvatarThumbnailUrl = (packName: string, thumbnail: any) =>
-  `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/${thumbnail.key}`
+  `https://${storageProvider.cacheDomain}/content-pack/${packName}/${thumbnail.key}`
 
 const getProjectManifestUrl = (packName: string, project: any) =>
-  `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/project/${project.name}/manifest.json`
+  `https://${storageProvider.cacheDomain}/content-pack/${packName}/project/${project.name}/manifest.json`
 const getProjectManifestKey = (packName: string, project: any) =>
   `/content-pack/${packName}/project/${project.name}/manifest.json`
 
@@ -88,7 +88,7 @@ export class ContentPack implements ServiceMethods<Data> {
         })) as StorageObjectInterface
         return {
           name: packRegex.exec(manifest.Key)[1],
-          url: `https://${storageProvider.provider.cacheDomain}/${manifest.Key}`,
+          url: `https://${storageProvider.cacheDomain}/${manifest.Key}`,
           data: JSON.parse(manifestResult.Body.toString())
         }
       })
