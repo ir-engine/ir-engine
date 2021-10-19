@@ -155,11 +155,13 @@ const ProfileMenu = (props: Props): any => {
             )}
           </div>
           <div className={styles.headerBlock}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              {t('user:usermenu.profile.lbl-username')}
+            </Typography>
             <span className={styles.inputBlock}>
               <TextField
                 margin="none"
                 size="small"
-                label={t('user:usermenu.profile.lbl-username')}
                 name="username"
                 variant="outlined"
                 value={username || ''}
@@ -250,11 +252,11 @@ const ProfileMenu = (props: Props): any => {
                   {t('user:usermenu.profile.connectSocial')}
                 </Typography>
                 <div className={styles.socialContainer}>
-                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
                   <a href="#" id="google" onClick={handleOAuthServiceClick}>
                     <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
+                  </a>
+                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
+                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                   </a>
                   <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
                     <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />

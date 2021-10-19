@@ -68,15 +68,21 @@ const ShareMenu = (props: Props): any => {
         <Typography variant="h1" className={styles.panelHeader}>
           {t('user:usermenu.share.title')}
         </Typography>
-        <textarea readOnly className={styles.shareLink} ref={refLink} value={window.location.href} />
-        <Button onClick={copyLinkToClipboard} className={styles.copyBtn}>
-          {t('user:usermenu.share.lbl-copy')}
-          <span className={styles.materialIconBlock}>
-            <FileCopy />
-          </span>
-        </Button>
-
-        <Typography variant="h5">{t('user:usermenu.share.lbl-phoneEmail')}</Typography>
+        <TextField
+          className={styles.copyField}
+          size="small"
+          variant="outlined"
+          value={window.location.href}
+          disabled={true}
+          inputRef={refLink}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end" onClick={copyLinkToClipboard}>
+                <FileCopy />
+              </InputAdornment>
+            )
+          }}
+        />
         <TextField
           className={styles.emailField}
           size="small"
@@ -84,14 +90,12 @@ const ShareMenu = (props: Props): any => {
           variant="outlined"
           value={email}
           onChange={(e) => handleChang(e)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end" onClick={() => packageInvite()}>
-                <Send />
-              </InputAdornment>
-            )
-          }}
         />
+        <div className={styles.sendInviteContainer}>
+          <Button className={styles.sendInvite} onClick={packageInvite}>
+            {t('user:usermenu.share.lbl-send-invite')}
+          </Button>
+        </div>
         {isShareAvailable ? (
           <div className={styles.shareBtnContainer}>
             <Button className={styles.shareBtn} onClick={shareOnApps}>
