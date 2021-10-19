@@ -25,6 +25,7 @@ import { InputValue } from '../input/interfaces/InputValue'
 import { InputAlias } from '../input/types/InputAlias'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
+import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
@@ -411,14 +412,14 @@ const gamepadLook: InputBehaviorType = (entity: Entity): void => {
   }
 }
 
-export const clickNavMesh: InputBehaviorType = (entity, inputKey, inputValue): void => {
+export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputValue): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Ended) {
     return
   }
   const input = getComponent(entity, InputComponent)
   const coords = input.data.get(BaseInput.SCREENXY)?.value
   if (coords) {
-    // addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
+    addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
   }
 }
 
@@ -527,7 +528,7 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.SWITCH_SHOULDER_SIDE, switchShoulderSide)
   map.set(BaseInput.CAMERA_SCROLL, throttle(changeCameraDistanceByDelta, 30, { leading: true, trailing: false }))
 
-  map.set(BaseInput.PRIMARY, clickNavMesh)
+  map.set(BaseInput.PRIMARY, handlePrimaryButton)
 
   return map
 }

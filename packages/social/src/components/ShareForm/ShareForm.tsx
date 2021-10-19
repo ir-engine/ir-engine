@@ -2,13 +2,13 @@ import { Box, CardActionArea, CardActions, CardContent, CardMedia, makeStyles, T
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import styles from './ShareForm.module.scss'
 import { Plugins } from '@capacitor/core'
 import { useTranslation } from 'react-i18next'
-import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
 import { Share } from '@capacitor/share'
 
 interface Props {}
@@ -42,8 +42,8 @@ const ShareForm = (props: Props) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const closePopUps = () => {
-    dispatch(PopupsStateService.updateShareFormState(false))
-    dispatch(PopupsStateService.updateNewFeedPageState(false))
+    PopupsStateService.updateShareFormState(false)
+    PopupsStateService.updateNewFeedPageState(false)
   }
 
   const shareVia = () => {

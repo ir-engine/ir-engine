@@ -1,8 +1,8 @@
 import { EmptyLayout } from '@xrengine/client-core/src/common/components/Layout/EmptyLayout'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
 import { useTranslation } from 'react-i18next'
 import AdminLogin from '../components/AdminLogin'
 
@@ -14,7 +14,7 @@ export const IndexPage = (props: Props): any => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }, [])
 
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>

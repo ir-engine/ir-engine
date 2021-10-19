@@ -3,12 +3,12 @@
  */
 import React, { useEffect } from 'react'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import { TheFeedsService } from '@xrengine/social/src/reducers/thefeeds/TheFeedsService'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { TheFeedsService } from '@xrengine/client-core/src/social/state/TheFeedsService'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import TheFeedsConsole from '@xrengine/social/src/components/admin/Feeds'
-import { useTheFeedsState } from '@xrengine/social/src/reducers/thefeeds/TheFeedsState'
+import { useTheFeedsState } from '@xrengine/client-core/src/social/state/TheFeedsState'
 
 // const thefeeds = '';
 // conts Feeds = '';
@@ -21,19 +21,19 @@ const TheFeeds = ({}: //doLoginAuto
 Props) => {
   const dispatch = useDispatch()
   const create = (data) => {
-    dispatch(TheFeedsService.createTheFeedsNew(data))
+    TheFeedsService.createTheFeedsNew(data)
   }
   const deleteTheFeed = (id) => {
-    dispatch(TheFeedsService.removeTheFeeds(id))
+    TheFeedsService.removeTheFeeds(id)
   }
   const update = (obj) => {
-    dispatch(TheFeedsService.updateTheFeedsAsAdmin(obj))
+    TheFeedsService.updateTheFeedsAsAdmin(obj)
   }
   const theFeedsState = useTheFeedsState()
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true, true))
-    dispatch(TheFeedsService.getTheFeedsNew())
+    AuthService.doLoginAuto(true, true)
+    TheFeedsService.getTheFeedsNew()
   }, [])
   const TheFeedsList = theFeedsState?.thefeeds.value || []
   return (

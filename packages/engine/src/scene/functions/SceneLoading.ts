@@ -394,7 +394,7 @@ export class WorldScene {
       case 'includeInCubemapBake':
       case 'cubemapbake':
       case 'group':
-      case 'realitypack': // loaded prior to engine init
+      case 'project': // loaded prior to engine init
         break
 
       case 'visible':

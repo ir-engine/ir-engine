@@ -21,14 +21,14 @@ import PlayerWorker from 'volumetric/web/decoder/workerFunction.ts?worker'
 
 //@ts-ignore
 import styles from './WebXRPlugin.module.scss'
-import { connect, useDispatch } from 'react-redux'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
-import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
-import { useArMediaState } from '../../reducers/arMedia/ArMediaState'
-import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 // import HintOne from '../WebXrHints/HintOne'
 // import HintTwo from '../WebXrHints/HintTwo'
-import { FeedService } from '../../reducers/feed/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 import HintOne from '../WebXrHints/HintOne'
 import HintTwo from '../WebXrHints/HintTwo'
 import ZoomGestureHandler from './ZoomGestureHandler'
@@ -121,7 +121,7 @@ export const WebXRPlugin = ({
     closeBtnAction.current = true
     finishRecord()
     // exit this popup
-    dispatch(PopupsStateService.updateWebXRState(false, null))
+    PopupsStateService.updateWebXRState(false, null)
 
     showContent()
   }
@@ -221,7 +221,7 @@ export const WebXRPlugin = ({
 
   const itemId = popupsState.popups.itemId?.value
   useEffect(() => {
-    dispatch(ArMediaService.getArMediaItem(itemId))
+    ArMediaService.getArMediaItem(itemId)
   }, [itemId])
   useEffect(() => {
     if (!arMediaState.fetchingItem.value) {
@@ -527,16 +527,16 @@ export const WebXRPlugin = ({
         .then(({ result, filePath, nameId }) => {
           //console.log('END RECORDING, result IS', result)
           // console.log('filePath is', filePath)
-          dispatch(FeedService.setLastFeedVideoUrl(filePath))
-          dispatch(ArMediaService.getArMediaItem(null))
+          FeedService.setLastFeedVideoUrl(filePath)
+          ArMediaService.getArMediaItem(null)
           setSavedFilePath('file://' + filePath)
           if (!closeBtnAction.current) {
             const videoPath = Capacitor.convertFileSrc(filePath)
             console.log(videoPath)
-            dispatch(PopupsStateService.updateNewFeedPageState(true, videoPath, filePath, nameId))
+            PopupsStateService.updateNewFeedPageState(true, videoPath, filePath, nameId)
           }
           setRecordingState(RecordingStates.OFF)
-          dispatch(PopupsStateService.updateWebXRState(false, null))
+          PopupsStateService.updateWebXRState(false, null)
 
           // if (playerRef.current) {
           //     const video = playerRef.current.video as HTMLMediaElement;

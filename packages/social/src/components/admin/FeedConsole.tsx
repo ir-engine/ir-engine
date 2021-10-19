@@ -2,8 +2,8 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -27,8 +27,8 @@ import { Edit } from '@material-ui/icons'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
 import FeedForm from '@xrengine/social/src/components/FeedForm'
-import { FeedService } from '@xrengine/social/src/reducers/feed/FeedService'
-import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/AdminState'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/state/AdminState'
 import { EnhancedTableHead } from '@xrengine/client-core/src/admin/components/AdminHelpers'
 import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 
@@ -139,7 +139,7 @@ const FeedConsole = (props: Props) => {
   }
 
   const handleUpdateFeed = (feed) => {
-    dispatch(FeedService.updateFeedAsAdmin(feed.id, feed))
+    FeedService.updateFeedAsAdmin(feed.id, feed)
   }
 
   return (

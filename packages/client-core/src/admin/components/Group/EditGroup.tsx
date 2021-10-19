@@ -7,13 +7,13 @@ import Button from '@material-ui/core/Button'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import { formValid } from './validation'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+
+import { useDispatch } from '../../../store'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { ScopeService } from '../../reducers/admin/scope/ScopeService'
-import { useScopeState } from '../../reducers/admin/scope/ScopeState'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { GroupService } from '../../reducers/admin/group/GroupService'
+import { ScopeService } from '../../state/ScopeService'
+import { useScopeState } from '../../state/ScopeState'
+import { useAuthState } from '../../../user/state/AuthState'
+import { GroupService } from '../../state/GroupService'
 import { useGroupStyles, useGroupStyle } from './styles'
 
 interface Props {
@@ -44,7 +44,7 @@ const EditGroup = (props: Props) => {
 
   React.useEffect(() => {
     if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      dispatch(ScopeService.getScopeTypeService())
+      ScopeService.getScopeTypeService()
     }
   }, [adminScopeState.scopeType.updateNeeded.value, user])
 
@@ -79,7 +79,7 @@ const EditGroup = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
-      dispatch(GroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeType }))
+      GroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeType })
       setState({
         ...state,
         name: '',

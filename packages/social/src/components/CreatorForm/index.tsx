@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useHistory } from 'react-router-dom'
 
 import { CardMedia, Typography, Button } from '@material-ui/core'
@@ -21,10 +21,10 @@ import SubjectIcon from '@material-ui/icons/Subject'
 // import TitleIcon from '@material-ui/icons/Title';
 
 import TextField from '@material-ui/core/TextField'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
@@ -55,7 +55,7 @@ const CreatorForm = ({ creatorData }: Props) => {
 
   const handleUpdateUser = (e: any) => {
     e.preventDefault()
-    dispatch(CreatorService.updateCreator(creator, callBacksFromUpdateUsername))
+    CreatorService.updateCreator(creator, callBacksFromUpdateUsername)
   }
   const handlePickAvatar = async (file) => setCreator({ ...creator, newAvatar: file.target.files[0] })
   const { t } = useTranslation()
@@ -83,7 +83,7 @@ const CreatorForm = ({ creatorData }: Props) => {
                 variant="text"
                 className={styles.backButton}
                 onClick={() => {
-                  dispatch(PopupsStateService.updateCreatorFormState(false))
+                  PopupsStateService.updateCreatorFormState(false)
                 }}
               >
                 <ArrowBackIosIcon />

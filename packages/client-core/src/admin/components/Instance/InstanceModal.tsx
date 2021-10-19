@@ -15,15 +15,14 @@ import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
 import classNames from 'classnames'
 import { useHistory } from 'react-router-dom'
 import React, { useEffect, useRef, useState } from 'react'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
 import styles from '../Admin.module.scss'
-
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { User } from '@xrengine/common/src/interfaces/User'
 interface Props {
   open: boolean
   handleClose: any
-  instance?: any
+  instance?: Instance
 }
 
 function Alert(props: AlertProps) {
@@ -46,12 +45,12 @@ const InstanceModal = (props: Props): any => {
   const classes = useStyles()
   const [openToast, setOpenToast] = React.useState(false)
   const [message, setMessage] = React.useState('')
-  const currentInstanceId = useRef()
+  const currentInstanceId = useRef(0)
 
-  const [instanceUsers, setInstanceUsers] = useState([])
+  const [instanceUsers, setInstanceUsers] = useState<User[]>([])
 
   const getInstanceUsers = async () => {
-    if (instance?.id != null && instance?.id !== '' && currentInstanceId.current === instance.id) {
+    if (instance?.id != null && instance?.id !== 0 && currentInstanceId.current === instance.id) {
       const instanceUserResult = await client.service('user').find({
         query: {
           $limit: 1000,
@@ -71,7 +70,7 @@ const InstanceModal = (props: Props): any => {
   }
 
   useEffect(() => {
-    currentInstanceId.current = instance?.id
+    currentInstanceId.current = instance?.id || 0
     getInstanceUsers()
   }, [instance])
 
@@ -94,8 +93,8 @@ const InstanceModal = (props: Props): any => {
 
   const redirectToInstance = async () => {
     try {
-      const location = await client.service('location').get(instance.locationId)
-      const route = `/location/${location.slugifiedName}?instanceId=${instance.id}`
+      const location = await client.service('location').get(instance?.locationId)
+      const route = `/location/${location.slugifiedName}?instanceId=${instance?.id}`
       router.push(route)
     } catch (err) {
       console.log('Error redirecting to instance:')

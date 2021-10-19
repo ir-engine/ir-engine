@@ -1,9 +1,7 @@
 // import {Stories} from '@xrengine/social/src/components/Stories';
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
@@ -20,12 +18,12 @@ import ArMediaPopup from '@xrengine/social/src/components/popups/ArMediaPopup'
 import FeedFormPopup from '@xrengine/social/src/components/popups/FeedFormPopup'
 import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPopup'
 import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
-import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
-import { useWebxrNativeState } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeState'
-import { WebxrNativeService } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 // @ts-ignore
 import styles from './index.module.scss'
 import Button from '@material-ui/core/Button'
@@ -36,10 +34,9 @@ import Splash from '@xrengine/social/src/components/Splash'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
 // import { WebXRStart } from '../components/popups/WebXR'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { Redirect } from 'react-router-dom'
 
-import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
 import App from './App'
 
 const Home = ({}) => {
@@ -53,15 +50,15 @@ const Home = ({}) => {
 
   useEffect(() => {
     // if (accessToken) {
-    dispatch(AuthService.doLoginAuto(true))
-    dispatch(WebxrNativeService.getWebXrNative())
+    AuthService.doLoginAuto(true)
+    WebxrNativeService.getWebXrNative()
     // }
   }, [accessToken])
 
   useEffect(() => {
     if (auth?.authUser?.accessToken) {
       if (auth.user.id.value) {
-        dispatch(CreatorService.createCreator())
+        CreatorService.createCreator()
       }
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])

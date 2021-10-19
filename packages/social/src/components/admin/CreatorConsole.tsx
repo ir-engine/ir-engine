@@ -2,8 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -27,8 +26,8 @@ import { EnhancedTableHead } from '@xrengine/client-core/src/admin/components/Ad
 import CreatorForm from '@xrengine/social/src/components/CreatorForm'
 import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 import CreatorCard from '@xrengine/social/src/components/CreatorCard'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
-import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/AdminState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/state/AdminState'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

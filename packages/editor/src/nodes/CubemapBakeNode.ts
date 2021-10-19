@@ -20,11 +20,12 @@ import { CubemapBakeTypes } from '@xrengine/engine/src/scene/types/CubemapBakeTy
 import EditorNodeMixin from './EditorNodeMixin'
 import { envmapPhysicalParsReplace, worldposReplace } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
-import { convertCubemapToEquiImageData, uploadCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
+import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import SkyboxNode from './SkyboxNode'
 import { deleteAsset } from '../functions/deleteAsset'
 import { SceneManager } from '../managers/SceneManager'
 import { ProjectManager } from '../managers/ProjectManager'
+import { uploadCubemap } from '../functions/uploadCubemap'
 
 export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'Cubemap Bake'

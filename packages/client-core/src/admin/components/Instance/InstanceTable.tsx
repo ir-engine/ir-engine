@@ -6,14 +6,13 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { InstanceService } from '../../reducers/admin/instance/InstanceService'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useAuthState } from '../../../user/state/AuthState'
+import { InstanceService } from '../../state/InstanceService'
+import { useDispatch } from '../../../store'
 import { instanceColumns, InstanceData } from './variables'
-import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
+import { useInstanceState } from '../../state/InstanceState'
 import { useInstanceStyle, useInstanceStyles } from './styles'
-import { INSTNCE_PAGE_LIMIT } from '../../reducers/admin/instance/InstanceState'
+import { INSTNCE_PAGE_LIMIT } from '../../state/InstanceState'
 
 interface Props {
   fetchAdminState?: any
@@ -39,7 +38,7 @@ const InstanceTable = (props: Props) => {
   const adminInstances = adminInstanceState.instances
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(InstanceService.fetchAdminInstances(incDec))
+    InstanceService.fetchAdminInstances(incDec)
     setPage(newPage)
   }
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,8 +58,7 @@ const InstanceTable = (props: Props) => {
   }, [])
 
   React.useEffect(() => {
-    if ((user.id.value && adminInstances.updateNeeded.value) || refetch === true)
-      dispatch(InstanceService.fetchAdminInstances())
+    if ((user.id.value && adminInstances.updateNeeded.value) || refetch === true) InstanceService.fetchAdminInstances()
     setRefetch(false)
   }, [user, adminInstanceState.instances.updateNeeded.value, refetch])
 

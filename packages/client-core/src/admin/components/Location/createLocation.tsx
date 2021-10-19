@@ -1,8 +1,7 @@
 import React from 'react'
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '../../../store'
 import DialogActions from '@material-ui/core/DialogActions'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -19,11 +18,11 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormGroup from '@material-ui/core/FormGroup'
 import Switch from '@material-ui/core/Switch'
 import { useTranslation } from 'react-i18next'
-import { useLocationState } from '../../reducers/admin/location/LocationState'
-import { useSceneState } from '../../reducers/admin/scene/SceneState'
-import { LocationService } from '../../reducers/admin/location/LocationService'
+import { useLocationState } from '../../state/LocationState'
+import { useSceneState } from '../../state/SceneState'
+import { LocationService } from '../../state/LocationService'
 import { validateUserForm } from '../Users/validation'
-import { useAlertState } from '../../../common/reducers/alert/AlertState'
+import { useAlertState } from '../../../common/state/AlertState'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -158,7 +157,7 @@ const CreateLocation = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      dispatch(LocationService.createLocation(data))
+      LocationService.createLocation(data)
       //  closeViewModel(false)
     } else {
       setError('Please fill all required field')
@@ -366,10 +365,10 @@ const CreateLocation = (props: Props) => {
             </Grid>
           </Grid>
           <DialogActions>
-            <Button className={classesx.saveBtn} onClick={handleSubmit}>
+            <Button className={classes.saveBtn} onClick={handleSubmit}>
               Submit
             </Button>
-            <Button onClick={handleClose(false)} className={classesx.saveBtn}>
+            <Button onClick={handleClose(false)} className={classes.saveBtn}>
               Cancel
             </Button>
           </DialogActions>

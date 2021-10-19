@@ -1,10 +1,8 @@
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import React, { Suspense, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
 import NetworkDebug from '../NetworkDebug'
 import GameServerWarnings from './GameServerWarnings'
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
@@ -13,8 +11,7 @@ import { InteractableModal } from '@xrengine/client-core/src/world/components/In
 import InstanceChat from '../InstanceChat'
 import MediaIconsBox from '../MediaIconsBox'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import { useTranslation } from 'react-i18next'
-import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
+import { usePartyState } from '@xrengine/client-core/src/social/state/PartyState'
 
 const goHome = () => (window.location.href = window.location.origin)
 
@@ -30,7 +27,7 @@ interface Props {
   isTeleporting
   locationName
 
-  // todo: remove these props in favour of reality packs
+  // todo: remove these props in favour of projects
   customComponents?: any
   theme?: any
   hideVideo?: boolean

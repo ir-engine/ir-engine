@@ -132,6 +132,8 @@
       "youAreA": "You are a",
       "logout": "Log out",
       "connectPhone": "Connect your email or phone number",
+      "or": "Or",
+      "lbl-wallet": "Login with Wallet",
       "ph-phoneEmail": "Phone Number / Email",
       "phoneEmailError": "Invalid phone or email address",
       "loginWithReadyPlayerMe": "Login with Ready Player Me",
@@ -187,7 +189,7 @@
       "parties": "Parties",
       "chats": "Chats",
       "content": "Content Packs",
-      "realityPacks": "Reality Packs",
+      "projects": "Projects",
       "scenes": "Scenes",
       "avatars": "Avatars",
       "bots": "Bots"
@@ -207,6 +209,7 @@
     "feeds": "Feeds",
     "instance": "Instance",
     "locations": "Locations",
+    "routes": "Routes",
     "invites": "Invites",
     "sessions": "Sessions",
     "groups": "Groups",
@@ -216,5 +219,26 @@
     "scenes": "Scenes",
     "avatars": "Avatars",
     "bots": "Bots"
-  }
+  },
+  "avatar": {
+    "title": "Upload Avatar",
+    "lbl-browse": "Browse",
+    "lbl-thumbnail": "Thumbnail",
+    "lbl-upload": "Upload",
+    "selectAvatar": "Select Avatar...",
+    "selectThumbnail": "Select Thumbnail...",
+    "rotate": "Rotate",
+    "pan": "Pan",
+    "noBone": "Obejct does not contain any bones or skin",
+    "outOfBound": "Object is out of bound.",
+    "emptyObj": "Object is empty.",
+    "maxTriangleError": "Object contains greater than {{allowedTriangles}} faces.",
+    "selectValidFile": "Select valid 3d avatar file.",
+    "selectValidThumbnail": "Selected valid Thumbnail file.",
+    "fileOversized": "Avatar file size must be between {{minSize}} MB and {{maxSize}} MB",
+    "confirmation": "Are you sure?",
+    "canNotBeRemoved": "Active Avatar can not be removed",
+    "remove": "Remove avatar"
+}
+
 }

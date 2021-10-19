@@ -5,11 +5,9 @@ import React, { useEffect } from 'react'
 
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 import ArMediaDashboard from '@xrengine/social/src/components/admin/Armedia'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
 
-import { useArMediaState } from '@xrengine/social/src/reducers/arMedia/ArMediaState'
-import { ArMediaService } from '@xrengine/social/src/reducers/arMedia/ArMediaService'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
 const ArMediaPage = () => {
   const arMediaState = useArMediaState()

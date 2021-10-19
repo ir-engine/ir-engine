@@ -4,8 +4,7 @@
 import React, { useEffect } from 'react'
 
 import Dashboard from '@xrengine/social/src/components/Dashboard'
-//import { useFeedState } from '@xrengine/social/src/reducers/feed/FeedState'
-import { FeedService } from '@xrengine/social/src/reducers/feed/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
 const FeedsPage = () => {
   useEffect(() => {

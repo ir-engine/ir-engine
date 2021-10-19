@@ -1,12 +1,11 @@
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import FeedMenu from '../components/FeedMenu'
-import { useCreatorState } from '@xrengine/social/src/reducers/creator/CreatorState'
-import { CreatorService } from '@xrengine/social/src/reducers/creator/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 import AppHeader from '../components/Header'
 
@@ -30,7 +29,7 @@ const Home = () => {
   }, [auth.isLoggedIn.value, auth.user.id.value])
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }, [])
 
   const creatorsState = useCreatorState()

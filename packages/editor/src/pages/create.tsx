@@ -1,11 +1,10 @@
 import React, { Suspense } from 'react'
-import { Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { store, useDispatch } from '../../store'
 
 /**
  * Exporting component by dynamicaly loaded component.
  */
-const CreateProjectPage = React.lazy(() => import('../components/projects/CreateProjectPage'))
+const CreateProjectPage = React.lazy(() => import('../components/projects old/CreateProjectPage'))
 
 /**
  * Declaring Props interface having two props.

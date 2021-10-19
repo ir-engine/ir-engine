@@ -3,11 +3,10 @@ import { useStyles } from './styles'
 import { Paper, Button, Typography } from '@material-ui/core'
 import Switch from '@material-ui/core/Switch'
 import InputBase from '@material-ui/core/InputBase'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useClientSettingState } from '../../reducers/admin/Setting/client/ClientSettingState'
-import { ClientSettingService } from '../../reducers/admin/Setting/client/ClientSettingServices'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useDispatch } from '../../../store'
+import { useClientSettingState } from '../../state/Setting/ClientSettingState'
+import { ClientSettingService } from '../../state/Setting/ClientSettingServices'
+import { useAuthState } from '../../../user/state/AuthState'
 
 interface clientProps {}
 
@@ -34,7 +33,7 @@ const Client = (props: clientProps) => {
 
   useEffect(() => {
     if (user?.id?.value != null && clientSettingState?.Client?.updateNeeded?.value === true) {
-      dispatch(ClientSettingService.fetchedClientSettings())
+      ClientSettingService.fetchedClientSettings()
     }
   }, [authState])
 
@@ -46,7 +45,7 @@ const Client = (props: clientProps) => {
         </Typography>
         <label>Enabled</label>
         {clientSettings.map((el) => (
-          <div key={el.id}>
+          <div key={el?.id || ''}>
             <Paper component="div" className={classes.createInput}>
               <Switch
                 disabled
@@ -59,15 +58,21 @@ const Client = (props: clientProps) => {
             </Paper>
             <label>Logo</label>
             <Paper component="div" className={classes.createInput}>
-              <InputBase name="logo" className={classes.input} style={{ color: '#fff' }} value={el.logo} />
+              <InputBase name="logo" className={classes.input} style={{ color: '#fff' }} value={el?.logo || ''} />
             </Paper>
             <label>Title</label>
             <Paper component="div" className={classes.createInput}>
-              <InputBase name="title" className={classes.input} style={{ color: '#fff' }} value={el.title} />
+              <InputBase name="title" className={classes.input} style={{ color: '#fff' }} value={el?.title || ''} />
             </Paper>
             <label>URL</label>
             <Paper component="div" className={classes.createInput}>
-              <InputBase name="url" className={classes.input} disabled style={{ color: '#fff' }} value={el.url} />
+              <InputBase
+                name="url"
+                className={classes.input}
+                disabled
+                style={{ color: '#fff' }}
+                value={el?.url || ''}
+              />
             </Paper>
             <label>Release Name</label>
             <Paper component="div" className={classes.createInput}>
@@ -76,7 +81,7 @@ const Client = (props: clientProps) => {
                 className={classes.input}
                 disabled
                 style={{ color: '#fff' }}
-                value={el.releaseName}
+                value={el?.releaseName || ''}
               />
             </Paper>
           </div>

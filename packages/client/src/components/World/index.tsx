@@ -1,5 +1,5 @@
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
@@ -10,9 +10,9 @@ import DefaultLayoutView from './DefaultLayoutView'
 import NetworkInstanceProvisioning from './NetworkInstanceProvisioning'
 import Layout from '../Layout/Layout'
 import { useTranslation } from 'react-i18next'
-import { RealityPackReactProps } from './RealityPackReactProps'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { useDispatch } from 'react-redux'
+import { ProjectReactProps } from './ProjectReactProps'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -61,7 +61,7 @@ interface Props {
   showTouchpad?: boolean
   children?: any
   chatState?: any
-  // todo: remove these props in favour of reality packs
+  // todo: remove these props in favour of projects
   theme?: any
   hideVideo?: boolean
   hideFullscreen?: boolean
@@ -79,7 +79,7 @@ export const EnginePage = (props: Props) => {
   const [sceneId, setSceneId] = useState('')
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
-  const [realityPackComponents, setRealityPackComponents] = useState([] as any[])
+  const [projectComponents, setProjectComponents] = useState([] as any[])
   const locationState = useLocationState()
   const dispatch = useDispatch()
 
@@ -99,7 +99,7 @@ export const EnginePage = (props: Props) => {
    */
   useEffect(() => {
     addUIEvents()
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
     return (): void => {
       shutdownEngine()
     }
@@ -148,7 +148,7 @@ export const EnginePage = (props: Props) => {
 
     const componentFunctions = await initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks)
 
-    const customProps: RealityPackReactProps = {
+    const customProps: ProjectReactProps = {
       harmonyOpen,
       setHarmonyOpen
       // canvas
@@ -161,7 +161,7 @@ export const EnginePage = (props: Props) => {
       components.push(...components, <ComponentFunction {...customProps} key={key++} />)
     })
 
-    setRealityPackComponents(components)
+    setProjectComponents(components)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
@@ -197,10 +197,11 @@ export const EnginePage = (props: Props) => {
         sceneId={sceneId}
         isUserBanned={isUserBanned}
         setIsValidLocation={setIsValidLocation}
+        reinit={init}
       />
       {canvas}
-      {realityPackComponents.length ? (
-        realityPackComponents
+      {projectComponents.length ? (
+        projectComponents
       ) : (
         <Layout
           pageTitle={t('location.locationName.pageTitle')}

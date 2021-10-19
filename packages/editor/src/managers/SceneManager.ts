@@ -16,7 +16,7 @@ import { ControlManager } from './ControlManager'
 import resizeShadowCameraFrustum from '../functions/resizeShadowCameraFrustum'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
-import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
+import { RethrownError } from '../functions/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import PostProcessingNode from '../nodes/PostProcessingNode'
 

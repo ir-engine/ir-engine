@@ -1,6 +1,6 @@
 import { PartyUser } from './PartyUser'
 
 export type Party = {
-  id: string
-  partyUsers: PartyUser[]
+  id?: string
+  partyUsers?: PartyUser[]
 }

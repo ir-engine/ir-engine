@@ -212,7 +212,7 @@ export default function Dashboard({ children }) {
             </ListItem>
           </Link>
 
-          <Link style={{ textDecoration: 'none' }} to="/editor/projects/create">
+          <Link style={{ textDecoration: 'none' }} to="/editor/new">
             <ListItem style={{ color: 'white' }} onClick={changeComponent} button>
               <ListItemIcon>
                 <GradientIcon style={{ color: 'white' }} />

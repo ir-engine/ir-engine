@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload'
@@ -12,7 +12,7 @@ import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { validateFeedForm } from './validation'
-import { FeedService } from '../../../reducers/feed/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
 interface Props {
   open: boolean

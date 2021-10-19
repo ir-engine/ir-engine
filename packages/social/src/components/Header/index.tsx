@@ -5,13 +5,13 @@ import React, { useEffect, useState } from 'react'
 // @ts-ignore
 import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 
 interface Props {
   logo?: string
@@ -24,7 +24,7 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
   const auth = useAuthState()
   useEffect(() => {
     if (auth.user.id.value) {
-      dispatch(CreatorService.getLoggedCreator())
+      CreatorService.getLoggedCreator()
     }
   }, [])
   const creatorState = useCreatorState()
@@ -50,20 +50,17 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
           })
         }}
       />
-      {creator &&
-        {
-          /*!checkGuest*/
-        } && (
-          <Avatar
-            onClick={() => {
-              onGoRegistration(() => {
-                dispatch(PopupsStateService.updateCreatorFormState(true))
-              })
-            }}
-            alt={creator?.username}
-            src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
-          />
-        )}
+      {creator && (
+        <Avatar
+          onClick={() => {
+            onGoRegistration(() => {
+              PopupsStateService.updateCreatorFormState(true)
+            })
+          }}
+          alt={creator?.username}
+          src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
+        />
+      )}
     </nav>
   )
 }

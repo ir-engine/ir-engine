@@ -1,7 +1,9 @@
 import { Application } from '../../../declarations'
 import { Scene } from './scene.class'
+import projectDocs from './scene.docs'
 import createModel from './scene.model'
 import hooks from './scene.hooks'
+import createAssetModel from './asset.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -9,7 +11,8 @@ declare module '../../../declarations' {
   }
 }
 
-export default (app: Application): void => {
+export default (app: Application): any => {
+  createAssetModel(app)
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -21,7 +24,10 @@ export default (app: Application): void => {
    *
    * @author Vyacheslav Solovjov
    */
-  app.use('scene', new Scene(options, app))
+  const event = new Scene(options, app)
+  event.docs = projectDocs
+
+  app.use('scene', event)
 
   /**
    * Get our initialized service so that we can register hooks

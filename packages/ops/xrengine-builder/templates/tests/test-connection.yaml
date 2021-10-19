@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "xrengine.builder.fullname" . }}-test-connection"
+  labels:
+    {{- include "xrengine.builder.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "xrengine.builder.fullname" . }}:{{ .Values.builder.service.port }}']
+  restartPolicy: Never

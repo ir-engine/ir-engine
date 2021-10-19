@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import List from '@material-ui/core/List'
 import Divider from '@material-ui/core/Divider'
 import ListItem from '@material-ui/core/ListItem'
-import { connect } from 'react-redux'
+
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import { useTranslation } from 'react-i18next'
@@ -20,7 +20,8 @@ import {
   Settings,
   SupervisorAccount,
   Toys,
-  Casino
+  Casino,
+  Shuffle
 } from '@material-ui/icons'
 import { Link, withRouter } from 'react-router-dom'
 import { useStylesForDashboard } from './styles'
@@ -31,7 +32,7 @@ import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople'
 import ExpandLess from '@material-ui/icons/ExpandLess'
 import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { useAuthState } from '../../state/AuthState'
 interface Props {
   authState?: any
   location: any
@@ -43,6 +44,7 @@ const SideMenuItem = (props: Props) => {
   const scopes = useAuthState().user?.scopes?.value || []
 
   let allowedRoutes = {
+    routes: true,
     location: false,
     user: false,
     bot: false,
@@ -53,7 +55,7 @@ const SideMenuItem = (props: Props) => {
     instance: false,
     invite: false,
     globalAvatars: false,
-    realityPacks: false
+    projects: false
   }
 
   scopes.forEach((scope) => {
@@ -118,6 +120,21 @@ const SideMenuItem = (props: Props) => {
           </ListItem>
         </Link>
 
+        {allowedRoutes.routes && (
+          <Link to="/admin/routes" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              selected={'/admin/routes' === pathname}
+              style={{ color: 'white' }}
+              button
+            >
+              <Shuffle>
+                <CalendarViewDay style={{ color: 'white' }} />
+              </Shuffle>
+              <ListItemText primary={t('user:dashboard.routes')} />
+            </ListItem>
+          </Link>
+        )}
         {allowedRoutes.location || allowedRoutes.instance ? (
           <ListItem style={{ color: 'white' }} button onClick={() => setOpenLocation(!openLocation)}>
             <ListItemIcon>
@@ -305,11 +322,11 @@ const SideMenuItem = (props: Props) => {
             </Link>
           )}
 
-          {allowedRoutes.realityPacks && (
-            <Link to="/admin/reality-packs" className={classes.textLink}>
+          {allowedRoutes.projects && (
+            <Link to="/admin/projects" className={classes.textLink}>
               <ListItem
                 classes={{ selected: classes.selected }}
-                selected={'/admin/reality-packs' === pathname}
+                selected={'/admin/projects' === pathname}
                 className={classes.nested}
                 style={{ color: 'white' }}
                 button
@@ -317,7 +334,7 @@ const SideMenuItem = (props: Props) => {
                 <ListItemIcon>
                   <Code style={{ color: 'white' }} />
                 </ListItemIcon>
-                <ListItemText primary={t('user:dashboard.realityPacks')} />
+                <ListItemText primary={t('user:dashboard.projects')} />
               </ListItem>
             </Link>
           )}

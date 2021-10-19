@@ -1,15 +1,13 @@
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import { Config } from '@xrengine/common/src/config'
-import { AuthAction } from '@xrengine/client-core/src/user/reducers/auth/AuthAction'
-import { configureStore } from '@xrengine/client-core/src/store'
-import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
-import theme from '@xrengine/editor/src/components/theme'
+import { AuthAction } from '@xrengine/client-core/src/user/state/AuthAction'
+import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
+import theme from '@xrengine/client-core/src/util/theme'
 import React, { useCallback, useEffect } from 'react'
 import { Helmet } from 'react-helmet'
-import { Provider, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from 'styled-components'
-import reducers from '../reducers'
 import RouterComp from '../route/public'
 import './styles.scss'
 
@@ -49,14 +47,12 @@ const App = (): any => {
   )
 }
 
-const StoreProvider = () => {
+const AppPage = () => {
   return (
-    <Provider store={configureStore(reducers)}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   )
 }
 
-export default StoreProvider
+export default AppPage
