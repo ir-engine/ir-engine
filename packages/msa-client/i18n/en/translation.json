@@ -1,0 +1,57 @@
+{
+    "location": {
+        "locationName": {
+            "pageTitle": "Home"
+        }
+    },
+    "editor": {
+        "projects": {
+            "header": "Please Login",
+            "welcomeMsg": "Welcome",
+            "locationHeader": "Locations",
+            "projectHeader": "Projects",
+            "description": "If you&#39;re new here we recommend going through the tutorial. Otherwise, jump right in and create a project from scratch or from one of our templates.",
+            "lbl-startTutorial": "Start Tutorial",
+            "lbl-newProject": "New Project",
+            "contextMenu": "Delete Project"
+        }
+    },
+    "error": {
+        "goHomeLink": "Go Home",
+        "withStatusCode": "An error {{code}} occurred on server",
+        "withoutStatusCode": "An error occurred on server"
+    },
+    "404": {
+        "msg": "404 - Page Not Found"
+    },
+    "dev": {
+        "pageTitle": "Home"
+    },
+    "login": {
+        "pageTitle": "Login"
+    },
+    "workerTest": {
+        "pageTitle": "Worker Test"
+    },
+    "index": {
+        "by": "BY",
+        "xr": "XR",
+        "foundation": "Foundation",
+        "description": "<0>Realtime social apps for everyone,</0><1/><2>at <1>metaverse</1> scale.</2>"
+    },
+    "xrengineContact": {
+        "header": "Get In Touch!",
+        "description": "We’d love to help you with your virtual events, digital retail, entertainment and other needs.",
+        "lbl-name": "Name",
+        "lbl-email": "Email",
+        "lbl-company": "Company",
+        "lbl-project": "Describe your Project",
+        "lbl-send": "Send",
+        "lbl-ok": "Ok",
+        "lbl-success": "Message Sent, We'll get back to you shortly.",
+        "lbl-failure": "An error occured, Plese try again",
+        "err-username": "Please enter you name.",
+        "err-email": "Email is require.",
+        "err-msg": "Provide some brief description of your project."
+    }
+}
