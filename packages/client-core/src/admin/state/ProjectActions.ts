@@ -1,7 +1,7 @@
-import { ProjectResult } from '@xrengine/common/src/interfaces/ProjectResult'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 export const ProjectAction = {
-  projectsFetched: (projectResult: ProjectResult) => {
+  projectsFetched: (projectResult: ProjectInterface[]) => {
     return {
       type: 'PROJECTS_RETRIEVED' as const,
       projectResult: projectResult

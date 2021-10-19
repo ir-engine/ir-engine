@@ -1,4 +1,4 @@
-import { download } from "@xrengine/gameserver/src/downloadProjects";
+import { download } from "@xrengine/server-core/src/entities/project/downloadProjects";
 import dotenv from 'dotenv';
 import Sequelize from 'sequelize';
 

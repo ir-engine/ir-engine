@@ -616,14 +616,14 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       message: this.t('editor:loadingMsg')
     })
 
-    let project
+    let project: SceneDetailInterface
 
     try {
       project = await getScene(projectId)
       ProjectManager.instance.ownedFileIds = JSON.parse(project.ownedFileIds)
       globalThis.currentProjectID = project.scene_id
 
-      const projectIndex = project.project_url.split('collection/')[1]
+      const projectIndex = project.scene_url.split('collection/')[1]
       const projectFile = await client.service(`collection`).get(projectIndex, {
         headers: {
           'content-type': 'application/json'
