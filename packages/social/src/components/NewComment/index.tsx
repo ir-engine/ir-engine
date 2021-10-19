@@ -3,7 +3,7 @@
  */
 import React, { useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import TextField from '@material-ui/core/TextField'
 import MessageIcon from '@material-ui/icons/Message'
 import styles from './NewComment.module.scss'

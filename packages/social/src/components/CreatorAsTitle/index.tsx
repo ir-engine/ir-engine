@@ -3,7 +3,6 @@
  */
 import React from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
 
 import { Typography, CardHeader, Avatar, IconButton } from '@material-ui/core'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'

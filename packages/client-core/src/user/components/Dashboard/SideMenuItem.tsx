@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import List from '@material-ui/core/List'
 import Divider from '@material-ui/core/Divider'
 import ListItem from '@material-ui/core/ListItem'
-import { connect } from 'react-redux'
+
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import { useTranslation } from 'react-i18next'

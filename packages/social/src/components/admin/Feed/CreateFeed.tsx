@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useDispatch } from '@xrengine/client-core/src/store'
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'

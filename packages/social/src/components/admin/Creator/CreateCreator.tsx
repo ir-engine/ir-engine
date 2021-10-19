@@ -9,7 +9,7 @@ import { DialogActions } from '@material-ui/core'
 import { validateCreatorForm } from './validation'
 import { useCreatorStyle, useCreatorStyles } from './styles'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {

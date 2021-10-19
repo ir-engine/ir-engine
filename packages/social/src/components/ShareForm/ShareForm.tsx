@@ -3,7 +3,7 @@ import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import styles from './ShareForm.module.scss'
 import { Plugins } from '@capacitor/core'

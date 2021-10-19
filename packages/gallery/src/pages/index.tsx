@@ -6,7 +6,6 @@ import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorS
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
 
 import AppHeader from '../components/Header'
 

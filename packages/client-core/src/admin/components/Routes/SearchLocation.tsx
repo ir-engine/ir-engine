@@ -4,14 +4,12 @@ import InputBase from '@material-ui/core/InputBase'
 import Paper from '@material-ui/core/Paper'
 import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
-import { useLocationStyles } from './styles'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useRouteStyles } from './styles'
 
 interface Props {}
 
 const SearchLocation = (props: Props) => {
-  const classes = useLocationStyles()
+  const classes = useRouteStyles()
   const [search, setSearch] = React.useState('')
   //    const handleChange = (e: any) => {
   //      setSearch(e.target.value);
