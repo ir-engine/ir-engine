@@ -8,9 +8,9 @@ import { ProjectDBEntryInterface } from '@xrengine/common/src/interfaces/Project
 import fs from 'fs'
 import path from 'path'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import StorageProvider from '../../media/storageprovider/storageprovider'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 
-const storageProvider = new StorageProvider()
+const storageProvider = useStorageProvider()
 
 export class Project extends Service {
   app: Application

@@ -1,7 +1,7 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
-import StorageProvider from '../../media/storageprovider/storageprovider'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import {
   assembleScene,
   getAxiosConfig,
@@ -18,7 +18,7 @@ import { StorageListObjectInterface, StorageObjectInterface } from '../..'
 interface Data {}
 
 interface ServiceOptions {}
-const storageProvider = new StorageProvider()
+const storageProvider = useStorageProvider()
 const packRegex = /content-pack\/([a-zA-Z0-9_-]+)\/manifest.json/
 const thumbnailRegex = /([a-zA-Z0-9_-]+).jpeg/
 

@@ -1,6 +1,6 @@
-import StorageProvider from './storageprovider'
+import { useStorageProvider } from './storageprovider'
 
-const storageProvider = new StorageProvider()
+const storageProvider = useStorageProvider()
 
 export const getFileKeysRecursive = async (path: string) => {
   const files: string[] = []

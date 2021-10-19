@@ -2,12 +2,12 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import axios, { AxiosRequestConfig } from 'axios'
 import mimeType from 'mime-types'
-import StorageProvider from '../../media/storageprovider/storageprovider'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { Agent } from 'https'
 import { Params } from '@feathersjs/feathers'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
-const storageProvider = new StorageProvider()
+const storageProvider = useStorageProvider()
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/
 const thumbnailRegex = /([a-zA-Z0-9_-]+).jpeg/
 const avatarRegex = /avatars\/([a-zA-Z0-9_-]+).([a-zA-Z0-9_-]+)/

@@ -5,7 +5,7 @@ import fetch from 'node-fetch'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { collectionType } from '../../entities/collection-type/collectionType'
 import config from '../../appconfig'
-import StorageProvider from '../../media/storageprovider/storageprovider'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { readJSONFromBlobStore } from './scene-helper'
 
 export default (options: any) => {
@@ -17,7 +17,7 @@ export default (options: any) => {
     const StaticResourceModel = models.static_resource
     const ComponentModel = models.component
     const ComponentTypeModel = models.component_type
-    const provider = new StorageProvider()
+    const provider = useStorageProvider()
     const storage = provider.getStorage()
     const loggedInUser = extractLoggedInUserFromParams(context.params)
 

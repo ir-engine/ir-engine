@@ -4,7 +4,7 @@ import { Forbidden } from '@feathersjs/errors'
 import { Transaction } from 'sequelize/types'
 import { Application } from '../../../declarations'
 import { mapSceneDetailData, defaultSceneImport } from '../scene/scene-helper'
-import StorageProvider from '../../media/storageprovider/storageprovider'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { collectionType } from '../../entities/collection-type/collectionType'
 
 interface Data {}
@@ -65,7 +65,7 @@ export class PublishProject implements ServiceMethods<Data> {
     const projectId = params?.query?.projectId
 
     // const loggedInUser = extractLoggedInUserFromParams(params)
-    const provider = new StorageProvider()
+    const provider = useStorageProvider()
     const storage = provider.getStorage()
     const project = await CollectionModel.findOne({
       where: { sid: projectId, type: 'scene' }

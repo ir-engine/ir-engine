@@ -10,7 +10,7 @@ import {
 } from './scene-helper'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { Application } from '../../../declarations'
-import StorageProvider from '../../media/storageprovider/storageprovider'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { BadRequest } from '@feathersjs/errors'
 import logger from '../../logger'
 import { Op } from 'sequelize'
@@ -101,7 +101,7 @@ export class Scene implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    */
   async create(data: any, params: Params): Promise<any> {
-    const provider = new StorageProvider()
+    const provider = useStorageProvider()
     const storage = provider.getStorage()
 
     // After saving project, remove the project json file from s3, as we have saved that on database in collection table
@@ -143,7 +143,7 @@ export class Scene implements ServiceMethods<Data> {
     const StaticResourceModel = models.static_resource
     const ComponentModel = models.component
     const ComponentTypeModel = models.component_type
-    const provider = new StorageProvider()
+    const provider = useStorageProvider()
     const storage = provider.getStorage()
 
     const project = await CollectionModel.findOne({
