@@ -44,7 +44,7 @@ export enum ComponentNames {
   INCLUDE_IN_CUBEMAP_BAKE = 'includeInCubemapBake',
   CUBEMAP_BAKE = 'cubemapbake',
   GROUP = 'group',
-  REALITY_PACK = 'realitypack',
+  PROJECT = 'project',
   VISIBILE = 'visible',
   MESH_COLLIDER = 'mesh-collider'
 }

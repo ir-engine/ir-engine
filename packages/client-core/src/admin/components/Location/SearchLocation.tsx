@@ -5,8 +5,6 @@ import Paper from '@material-ui/core/Paper'
 import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
 import { useLocationStyles } from './styles'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 
 interface Props {}
 

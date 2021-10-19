@@ -3,7 +3,7 @@
  */
 import React, { useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useTranslation } from 'react-i18next'
 
 import Button from '@material-ui/core/Button'

@@ -8,18 +8,20 @@ export default (app: Application): any => {
     'scene',
     {
       id: {
-        primaryKey: true,
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV1,
+        primaryKey: true,
         allowNull: false
       },
-      sid: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-        defaultValue: (): string => generateShortId(8)
+      user_id: {
+        type: DataTypes.UUID,
+        allowNull: false
       },
-      slug: {
+      isPublic: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+      },
+      metadata: {
         type: DataTypes.STRING,
         allowNull: false
       },
@@ -27,39 +29,30 @@ export default (app: Application): any => {
         type: DataTypes.STRING,
         allowNull: false
       },
-      description: {
+      root: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      state: {
+      sidsid: {
         type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: 'active'
+        defaultValue: (): string => generateShortId(8),
+        allowNull: false
       },
-      imported_from_host: {
+      type: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
       },
-      imported_from_port: {
-        type: DataTypes.INTEGER,
-        allowNull: true
-      },
-      imported_from_sid: {
+      url: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
+      },
+      version: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
     },
     {
       hooks: {
-        beforeValidate(scene: any): void {
-          if (scene.name) {
-            scene.slug = (scene.name as string)
-              .split(' ')
-              .filter((character) => character.length)
-              .join('-')
-              .toLowerCase()
-          }
-        },
         beforeCount(options: any): void {
           options.raw = true
         }
@@ -68,13 +61,9 @@ export default (app: Application): any => {
   )
 
   ;(scene as any).associate = (models: any): void => {
-    ;(scene as any).belongsTo(models.user, { foreignKey: 'ownerUserId' })
-    ;(scene as any).hasOne(models.project, { foreignKey: 'sceneId' })
-    ;(scene as any).belongsTo(models.scene, { foreignKey: 'parentSceneId' })
-    ;(scene as any).belongsTo(models.scene_listing, { foreignKey: 'parentSceneListingId' })
-    ;(scene as any).belongsTo(models.owned_file, { foreignKey: 'modelOwnedFileId', allowNull: false })
-    ;(scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshotOwnedFileId', allowNull: false })
-    // (scene as any).belongsTo(models.collection, { foreignKey: 'collectionId' });
+    ;(scene as any).belongsTo(models.location, { foreignKey: 'locationId' })
+    // ;(scene as any).belongsToMany(models.asset, { through: models.project_asset, foreignKey: 'user_id' })
+    ;(scene as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
   }
 
   return scene

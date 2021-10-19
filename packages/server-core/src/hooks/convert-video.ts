@@ -9,7 +9,7 @@ export {}
 // import AWS from 'aws-sdk';
 // import S3BlobStore from 's3-blob-store';
 // import { Application } from '../../../declarations';
-// import StorageProvider from '../storage/storageprovider';
+// import { useStorageProvider } from '../storage/storageprovider';
 // import createStaticResource from './create-static-resource';
 //
 // import fs from 'fs';
@@ -81,7 +81,7 @@ export {}
 //             };
 //
 //             localContext.params.mimeType = mimetype;
-//             localContext.params.storageProvider = new StorageProvider();
+//             localContext.params.storageProvider = useStorageProvider();
 //             localContext.params.uploadPath = path.join('public',
 //               localContext.params.videoSource, fileId, 'video');
 //
@@ -149,7 +149,7 @@ export {}
 //     let thumbnailUploadResult: any;
 //     const localContext = _.cloneDeep(context);
 //
-//     localContext.params.storageProvider = new StorageProvider();
+//     localContext.params.storageProvider = useStorageProvider();
 //     localContext.params.uploadPath = path.join('public', localContext.params.videoSource, fileId, 'video');
 //
 //     if (localContext.data.metadata.thumbnailUrl != null && localContext.data.metadata.thumbnailUrl.length > 0) {
@@ -281,7 +281,7 @@ export {}
 //         if (!localContext.data.metadata.thumbnailUrl ||
 //             localContext.data.metadata.thumbnailUrl.length === 0) {
 //           console.log('Getting thumbnail from youtube-dl');
-//           localContext.params.storageProvider = new StorageProvider();
+//           localContext.params.storageProvider = useStorageProvider();
 //           localContext.params.uploadPath = s3Path;
 //           await fs.promises.rmdir(localFilePath, { recursive: true });
 //           await fs.promises.mkdir(localFilePath, { recursive: true });

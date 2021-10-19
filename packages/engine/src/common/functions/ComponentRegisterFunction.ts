@@ -435,7 +435,7 @@ export const ComponentRegisterFunction: ComponentRegisterType = {
   [ComponentNames.INCLUDE_IN_CUBEMAP_BAKE]: (params: RegisterFunctionParams): void => { },
   [ComponentNames.CUBEMAP_BAKE]: (params: RegisterFunctionParams): void => { },
   [ComponentNames.GROUP]: (params: RegisterFunctionParams): void => { },
-  [ComponentNames.REALITY_PACK]: (params: RegisterFunctionParams): void => { },// loaded prior to engine init
+  [ComponentNames.PROJECT]: (params: RegisterFunctionParams): void => { },  // loaded prior to engine init
 
   [ComponentNames.VISIBILE]: (params: RegisterFunctionParams): void => {
     if (isClient) {

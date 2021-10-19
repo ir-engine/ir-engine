@@ -13,7 +13,7 @@ import { Feed } from '@xrengine/common/src/interfaces/Feed'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 import { TheFeedsFiresService } from '@xrengine/client-core/src/social/state/TheFeedsFiresService'
 import CreatorAsTitle from '../CreatorAsTitle'

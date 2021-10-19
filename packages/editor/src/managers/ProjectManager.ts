@@ -1,6 +1,3 @@
-import { Application, feathers } from '@feathersjs/feathers'
-import rest from '@feathersjs/rest-client'
-import { Config } from '@xrengine/common/src/config'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { MultiError } from '../functions/errors'
 import { loadEnvironmentMap } from '../components/EnvironmentMap'
@@ -24,7 +21,6 @@ export class ProjectManager {
   initializing: boolean
   initialized: boolean
 
-  feathersClient: Application<any, any>
   ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
   currentOwnedFileIds: {}
 
@@ -58,19 +54,6 @@ export class ProjectManager {
 
     // Engine will be initialized
     initializeEngine(initializationOptions).then(() => {})
-  }
-
-  /**
-   * A Function to Initialize the FeathersClient with the auth token
-   * @author Abhishek Pathak
-   */
-  initializeFeathersClient(token) {
-    this.feathersClient = feathers()
-    const headers = {
-      authorization: `Bearer ${token}`
-    }
-    const restClient = rest(Config.publicRuntimeConfig.apiServer).fetch(window.fetch.bind(window), { headers })
-    this.feathersClient.configure(restClient)
   }
 
   /**

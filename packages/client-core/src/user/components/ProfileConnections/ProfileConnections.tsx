@@ -2,7 +2,7 @@ import React from 'react'
 import Grid from '@material-ui/core/Grid'
 import Divider from '@material-ui/core/Divider'
 import Typography from '@material-ui/core/Typography'
-import { connect } from 'react-redux'
+
 import SingleConnection from './SingleConnection'
 import { User } from '@xrengine/common/src/interfaces/User'
 import styles from './ProfileConnections.module.scss'
