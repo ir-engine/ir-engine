@@ -74,7 +74,7 @@
     "diff": "lerna diff",
     "precommit": "no-master-commits -b master",
     "make-user-admin": "ts-eager scripts/make-user-admin.js",
-    "install-reality-packs": "ts-eager scripts/install-reality-packs.js",
+    "install-projects": "ts-eager scripts/install-projects.js",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "depcheck": "lerna exec --no-bail --stream -- depcheck"
   },

@@ -1,4 +1,4 @@
-import { download } from "@xrengine/gameserver/src/downloadRealityPacks";
+import { download } from "@xrengine/server-core/src/entities/project/downloadProjects";
 import dotenv from 'dotenv';
 import Sequelize from 'sequelize';
 
@@ -16,7 +16,7 @@ db.url = process.env.MYSQL_URL ??
     `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;
 
 
-async function installAllRealityPacks() {
+async function installAllProjects() {
   
   try {
     const sequelizeClient = new Sequelize({
@@ -28,7 +28,7 @@ async function installAllRealityPacks() {
     });
     await sequelizeClient.sync();
 
-    const RealityPacks = sequelizeClient.define('reality_pack', {
+    const Projects = sequelizeClient.define('project', {
       id: {
           type: Sequelize.DataTypes.UUID,
           defaultValue: Sequelize.DataTypes.UUIDV1,
@@ -41,10 +41,10 @@ async function installAllRealityPacks() {
       }
     });
 
-    const realityPacks = await RealityPacks.findAll()
+    const projects = await Projects.findAll()
 
-    for(const realityPack of realityPacks) {
-      await download(realityPack.name)
+    for(const project of projects) {
+      await download(project.name)
     }
   } catch (e) {
     console.log(e)
@@ -52,4 +52,4 @@ async function installAllRealityPacks() {
 
 };
 
-installAllRealityPacks();
+installAllProjects();

@@ -55,7 +55,7 @@ const SideMenuItem = (props: Props) => {
     instance: false,
     invite: false,
     globalAvatars: false,
-    realityPacks: false
+    projects: false
   }
 
   scopes.forEach((scope) => {
@@ -322,11 +322,11 @@ const SideMenuItem = (props: Props) => {
             </Link>
           )}
 
-          {allowedRoutes.realityPacks && (
-            <Link to="/admin/reality-packs" className={classes.textLink}>
+          {allowedRoutes.projects && (
+            <Link to="/admin/projects" className={classes.textLink}>
               <ListItem
                 classes={{ selected: classes.selected }}
-                selected={'/admin/reality-packs' === pathname}
+                selected={'/admin/projects' === pathname}
                 className={classes.nested}
                 style={{ color: 'white' }}
                 button
@@ -334,7 +334,7 @@ const SideMenuItem = (props: Props) => {
                 <ListItemIcon>
                   <Code style={{ color: 'white' }} />
                 </ListItemIcon>
-                <ListItemText primary={t('user:dashboard.realityPacks')} />
+                <ListItemText primary={t('user:dashboard.projects')} />
               </ListItem>
             </Link>
           )}

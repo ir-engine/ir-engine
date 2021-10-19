@@ -6,7 +6,7 @@ CURRENT_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 touch ./builder-started.txt
 sh ./scripts/setup_helm.sh
 sh ./scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
-npm run install-reality-packs
+npm run install-projects
 sh ./scripts/build_docker.sh $RELEASE_NAME $DOCKER_LABEL
 npm install -g cli aws-sdk
 echo CALLING PUBLISH AND DEPLOY SCRIPTS
