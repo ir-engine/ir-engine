@@ -330,9 +330,10 @@ const WorkspaceContainer = (styled as any).div`
  *Styled component used as dock container.
  *
  * @author Hanzla Mateen
+ * @author Abhishek Pathak
  * @type {type}
  */
-const DockContainer = (styled as any).div`
+export const DockContainer = (styled as any).div`
   .dock-panel {
     background: transparent;
     pointer-events: auto;
@@ -349,6 +350,7 @@ const DockContainer = (styled as any).div`
   }
   .dock-divider {
     pointer-events: auto;
+    background:rgba(1,1,1,${(props) => props.dividerAlpha});
   }
   .dock {
     border-radius: 4px;
@@ -370,6 +372,12 @@ const DockContainer = (styled as any).div`
     background-color: #ffffff; 
   }
 `
+/**
+ * @author Abhishek Pathak
+ */
+DockContainer.defaultProps = {
+  dividerAlpha: 0
+}
 
 type EditorContainerProps = {
   t: any

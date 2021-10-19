@@ -2,6 +2,7 @@ import React from 'react'
 import DockLayout, { DockMode } from 'rc-dock'
 import FileBrowserContentPanel from './FileBrowserContentPanel'
 import { AssetsPreviewPanel } from './AssetsPreviewPanel'
+import { DockContainer } from '../EditorContainer'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -45,11 +46,13 @@ export default function FileBrowserPanel() {
   return (
     <>
       {console.log('Rendering File Browser Panel PARENT')}
-      <DockLayout
-        defaultLayout={defaultLayout}
-        style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
-        onLayoutChange={onLayoutChangedCallback}
-      />
+      <DockContainer dividerAlpha={0.3}>
+        <DockLayout
+          defaultLayout={defaultLayout}
+          style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
+          onLayoutChange={onLayoutChangedCallback}
+        />
+      </DockContainer>
     </>
   )
 }

@@ -175,10 +175,10 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
               <>
                 <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
                 <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-                <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
                 <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>
               </>
             )}
+            <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
             <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
             <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
             <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
@@ -272,7 +272,7 @@ export function FileBrowserGrid({
     <>
       {console.log('Rendering File Browser GRID')}
       <VerticalScrollContainer flex>
-        <MediaGrid>
+        <MediaGrid minWidth={'60px'}>
           {unique(items, 'id').map((item, index) => (
             <MemoFileGridItem
               key={item.id}
