@@ -5,6 +5,9 @@ RUN apt update
 # Create app directory
 WORKDIR /app
 
+# copy then compile the code
+COPY . .
+
 RUN npm run build-docker
 
 ENV APP_ENV=production
