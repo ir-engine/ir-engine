@@ -100,7 +100,7 @@
     "nanoid": "3.1.30",
     "node-fetch": "2.6.5",
     "nodemailer-smtp-transport": "2.7.4",
-    "nodemon": "2.0.13",
+    "nodemon": "2.0.14",
     "ps-list": "7.2.0",
     "pug": "3.0.2",
     "regenerator-runtime": "^0.13.7",
