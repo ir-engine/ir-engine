@@ -49,7 +49,7 @@
     "@styled-icons/fa-regular": "10.34.0",
     "@styled-icons/fa-solid": "10.34.0",
     "@types/styled-components": "5.1.15",
-    "@vladmandic/face-api": "1.5.4",
+    "@vladmandic/face-api": "1.5.5",
     "@xrengine/client-core": "^0.4.10",
     "@xrengine/common": "^0.4.10",
     "@xrengine/editor": "^0.4.10",
