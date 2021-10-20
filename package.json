@@ -97,7 +97,7 @@
     "socket.io": "4.3.1",
     "terser": "^5.6.1",
     "@typescript-eslint/eslint-plugin": "^4.6.0 || ^5.0.0",
-    "@typescript-eslint/parser": "5.0.0"
+    "@typescript-eslint/parser": "5.1.0"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.9",
@@ -125,7 +125,7 @@
     "@babel/preset-env": "7.15.8",
     "@hookstate/core": "3.0.13",
     "@types/mocha": "9.0.0",
-    "@typescript-eslint/parser": "5.0.0",
+    "@typescript-eslint/parser": "5.1.0",
     "babel-jest": "27.3.1",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
