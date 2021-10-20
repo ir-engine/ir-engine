@@ -15,7 +15,6 @@
   "module": "lib/client-core.es.js",
   "types": "lib/index.d.ts",
   "npmClient": "npm",
-  "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 APP_ENV=production vite build --config vite.build.js",
@@ -54,7 +53,6 @@
     "@typescript-eslint/eslint-plugin": "5.1.0",
     "@typescript-eslint/parser": "5.1.0",
     "@xrengine/common": "^0.4.10",
-    "@xrengine/editor": "^0.4.10",
     "@xrengine/engine": "^0.4.10",
     "apexcharts": "^3.28.3",
     "app-root-path": "3.0.0",

@@ -1,6 +1,5 @@
 import i18n from 'i18next'
-import { getAccountId } from './getAccountId'
-import { ProjectManager } from '../managers/ProjectManager'
+import { getAccountId } from '@xrengine/client-core/src/util/getAccountId'
 import { client } from '@xrengine/client-core/src/feathers'
 
 /**

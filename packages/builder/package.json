@@ -31,7 +31,6 @@
   "engines": {
     "node": ">= 16.3.0"
   },
-  "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
     "start": "cross-env NODE_ENV=production ts-eager src/index.ts",

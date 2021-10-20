@@ -12,7 +12,6 @@
     "access": "public"
   },
   "npmClient": "npm",
-  "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "vite --host",
