@@ -153,6 +153,8 @@ certs/
 *.blend1
 *.ts.bak
 
+/packages/**/src/index.ts
+
 /packages/projects/projects/*
 !/packages/projects/projects/theoverlay/
 !/packages/projects/projects/Creator-Starter-Template/

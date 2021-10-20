@@ -1,0 +1,33 @@
+apiVersion: v2
+name: xrengine
+description: A Helm chart for Kubernetes
+icon: https://avatars3.githubusercontent.com/u/61642798
+
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 3.3.5
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application.
+appVersion: 0.4.0
+
+
+dependencies:
+  #https://bitnami.com/stack/mariadb/helm
+#  - name: mariadb
+#    version: "7.3.16"
+#    repository: "https://charts.bitnami.com/bitnami"
+#    # install MariaDB if user does not have external DB
+#    condition: mariadb.enabled
+
+#  - name: agones
+#    version: "1.7.0"
+#    repository: "https://agones.dev/chart/stable"
+#    condition: agones.enabled
+
+#  - name: redis
+#    version: "10.7.13"
+#    repository: "https://charts.bitnami.com/bitnami"
+#    condition: redis.enabled
