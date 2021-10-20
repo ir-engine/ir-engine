@@ -5,9 +5,9 @@ import { Typography, Paper, Button } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { DialogActions } from '@material-ui/core'
 
-import { useDispatch } from '@standardcreative/client-core/src/store'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { validateCreatorForm } from './validation'
-import { CreatorService } from '@standardcreative/client-core/src/social/state/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {
   adminCreator: any

@@ -1,4 +1,4 @@
-import { DEFAULT_AVATAR_ID } from '@standardcreative/common/src/constants/AvatarConstants'
+import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
 import config from '../../appconfig'
 
 export const userSeed = {

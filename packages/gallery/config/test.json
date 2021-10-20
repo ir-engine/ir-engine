@@ -1,0 +1,79 @@
+
+{
+  "host": "127.0.0.1",
+  "port": 3030,
+  "public": "../public/",
+  "paginate": {
+    "default": 10,
+    "max": 50
+  },
+  "authentication": {
+    "entity": "user",
+    "service": "user",
+    "secret": "rlHRymcnyXeCbTcgHZB5TfG3dZg=",
+    "authStrategies": [
+      "jwt",
+      "local"
+    ],
+    "jwtOptions": {
+      "header": {
+        "typ": "access"
+      },
+      "audience": "https://127.0.0.1",
+      "issuer": "feathers",
+      "algorithm": "HS256",
+      "expiresIn": "1d"
+    },
+    "local": {
+      "entity": "user",
+      "service": "user",
+      "usernameField": "email",
+      "passwordField": "password"
+    },
+    "oauth": {
+      "redirect": "/",
+      "auth0": {
+        "key": "<auth0 oauth key>",
+        "secret": "<auth0 oauth secret>",
+        "subdomain": "<auth0 subdomain>"
+      },
+      "google": {
+        "key": "GOOGLE_CLIENT_ID",
+        "secret": "GOOGLE_CLIENT_SECRET",
+        "scope": [
+          "email",
+          "profile",
+          "openid"
+        ]
+      },
+      "facebook": {
+        "key": "FACEBOOK_CLIENT_ID",
+        "secret": "FACEBOOK_CLIENT_SECRET",
+        "scope": ["email, public_profile"]
+      },
+      "twitter": {
+        "key": "<twitter oauth key>",
+        "secret": "<twitter oauth secret>"
+      },
+      "github": {
+        "key": "GITHUB_CLIENT_ID",
+        "secret": "GITHUB_CLIENT_SECRET"
+      }
+    }
+  },
+  "aws": {
+    "s3": {
+      "blob_bucket_name": "blob-storage-test",
+      "public_video_path": "/",
+      "public_video_bucket": "video",
+      "region": "us-east-1",
+      "cloudfront": {
+        "domain": "https://invalid.s3.amazonaws.com"
+      }
+    },
+    "keys": {
+      "access_key_id": "invalid",
+      "secret_access_key": "invalid"
+    }
+  }
+}

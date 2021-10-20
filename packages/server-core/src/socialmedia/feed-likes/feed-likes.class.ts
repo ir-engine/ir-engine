@@ -7,7 +7,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
 import { getCreatorByUserId } from '../util/getCreator'
 
 /**
- * A class for Feed service
+ * A class for ARC Feed service
  */
 export class FeedLikes extends Service {
   //eslint-disable-next-line @typescript-eslint/no-unused-vars

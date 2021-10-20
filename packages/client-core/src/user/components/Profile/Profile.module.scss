@@ -1,0 +1,87 @@
+.root {
+  display: flex;
+  flex-direction: column;
+}
+
+.paper {
+  padding: 16px 32px 24px;
+  box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
+  background-color: #fff;
+}
+
+.signup__fileField {
+  display: none;
+}
+
+.profile {
+  @media (max-width: 768px) {
+    margin: 5%;
+  }
+}
+.uploadform{
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.max-size-200 {
+    max-height: 200px;
+    max-width: 200px;
+}
+
+.hover-icon {
+    cursor: pointer;
+    &:hover {
+        background-color: gray;
+    }
+}
+
+.username {
+    display: flex;
+    align-items: center;
+}
+
+.user-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.user-id {
+    text-align: center;
+}
+
+/**/
+.settingRow{
+  display: flex;
+  flex-direction: column;
+  .settingLabel{
+    font-weight: normal;
+  }
+  .settingValue{
+    .controlsSvg span{
+      background-color: transparent;
+    }
+  }
+}

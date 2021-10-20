@@ -1,6 +1,6 @@
 // import * as authentication from '@feathersjs/authentication'
-import attachOwnerIdInQuery from '@standardcreative/server-core/src/hooks/set-loggedin-user-in-query'
-import addAssociations from '@standardcreative/server-core/src/hooks/add-associations'
+import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
 import * as authentication from '@feathersjs/authentication'
 

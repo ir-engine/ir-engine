@@ -14,9 +14,9 @@ import './PlayerStyles.css'
 import { useFeedStyles, useFeedStyle } from './styles'
 import { validateFeedForm } from './validation'
 import { Save } from '@material-ui/icons'
-import { useDispatch } from '@standardcreative/client-core/src/store'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { FeedService } from '@standardcreative/client-core/src/social/state/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
 interface Props {
   adminFeed: any

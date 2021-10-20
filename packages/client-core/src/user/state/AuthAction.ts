@@ -1,7 +1,7 @@
-import { AuthUser } from '@standardcreative/common/src/interfaces/AuthUser'
-import { User, UserSetting } from '@standardcreative/common/src/interfaces/User'
-import { IdentityProvider } from '@standardcreative/common/src/interfaces/IdentityProvider'
-import { Avatar } from '@standardcreative/common/src/interfaces/Avatar'
+import { AuthUser } from '@xrengine/common/src/interfaces/AuthUser'
+import { User, UserSetting } from '@xrengine/common/src/interfaces/User'
+import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { Avatar } from '@xrengine/common/src/interfaces/Avatar'
 
 export interface EmailLoginForm {
   email: string

@@ -1,0 +1,17 @@
+{{- if .Values.analytics.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xrengine.analytics.fullname" . }}
+  labels:
+    {{- include "xrengine.analytics.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.analytics.service.type }}
+  ports:
+    - port: {{ .Values.analytics.service.port }}
+      targetPort: {{ .Values.analytics.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "xrengine.analytics.selectorLabels" . | nindent 4 }}
+{{- end -}}

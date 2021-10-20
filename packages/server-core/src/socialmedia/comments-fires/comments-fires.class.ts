@@ -9,7 +9,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
 import { getCreatorByUserId } from '../util/getCreator'
 
 /**
- * A class for Feed Comment fires service
+ * A class for ARC Feed Comment fires service
  */
 export class CommentsFire extends Service {
   //eslint-disable-next-line @typescript-eslint/no-unused-vars

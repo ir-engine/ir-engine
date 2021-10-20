@@ -1,5 +1,5 @@
-import { Instance } from '@standardcreative/common/src/interfaces/Instance'
-import { InstanceResult } from '@standardcreative/common/src/interfaces/InstanceResult'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { InstanceResult } from '@xrengine/common/src/interfaces/InstanceResult'
 
 export const InstanceAction = {
   instancesRetrievedAction: (instanceResult: InstanceResult) => {

@@ -1,11 +1,11 @@
 // TODO: Reenable me! But decoupled so we don't need to import this lib
-// import { endVideoChat } from '@standardcreative/client-networking/src/transports/SocketWebRTCClientFunctions';
+// import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 // TODO: Reenable me! But decoupled, maybe parties need to be in the client-networking lib
 import { PartyAction } from './PartyActions'
 
-import { Config } from '@standardcreative/common/src/config'
+import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../common/state/AlertService'
 import { UserAction } from '../../user/state/UserAction'
 import { accessAuthState } from '../../user/state/AuthState'

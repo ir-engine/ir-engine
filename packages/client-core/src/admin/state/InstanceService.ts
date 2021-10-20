@@ -2,7 +2,7 @@ import { store, useDispatch } from '../../store'
 import { InstanceAction } from './InstanceActions'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/state/AlertService'
-import { Config } from '@standardcreative/common/src/config'
+import { Config } from '@xrengine/common/src/config'
 import { accessInstanceState } from './InstanceState'
 import { accessAuthState } from '../../user/state/AuthState'
 

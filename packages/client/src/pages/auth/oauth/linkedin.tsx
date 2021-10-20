@@ -1,6 +1,7 @@
 import React from 'react'
-import { LinkedinCallback } from '@standardcreative/client-core/src/user/components/Oauth/LinkedinCallBack'
 
-export const LinkedinHomePage = () => <LinkedinCallback />
+import { LinkedinCallback } from '@xrengine/client-core/src/user/components/Oauth/LinkedinCallBack'
 
-export default LinkedinHomePage
+export const LinkedInHomePage = () => <LinkedinCallback />
+
+export default LinkedInHomePage

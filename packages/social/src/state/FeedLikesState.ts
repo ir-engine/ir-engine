@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { FeedLikesActionType } from './FeedLikesActions'
-import { CreatorShort } from '@standardcreative/common/src/interfaces/Creator'
+import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
 
 const state = createState({
   feedLikes: {

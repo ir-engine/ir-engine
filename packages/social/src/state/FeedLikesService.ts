@@ -1,8 +1,8 @@
-import { client } from '@standardcreative/client-core/src/feathers'
+import { client } from '@xrengine/client-core/src/feathers'
 import { FeedLikesAction } from './FeedLikesActions'
-import { FeedAction } from '@standardcreative/client-core/src/social/state/FeedActions'
-import { AlertService } from '@standardcreative/client-core/src/common/state/AlertService'
-import { useDispatch } from '@standardcreative/client-core/src/store'
+import { FeedAction } from '@xrengine/client-core/src/social/state/FeedActions'
+import { AlertService } from '@xrengine/client-core/src/common/state/AlertService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 export const FeedLikesService = {
   getFeedLikes: async (feedId: string) => {

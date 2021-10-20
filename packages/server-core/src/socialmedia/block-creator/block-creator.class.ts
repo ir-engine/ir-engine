@@ -6,7 +6,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
 import { getCreatorByUserId } from '../util/getCreator'
 
 /**
- * A class for Feed-bookmark service
+ * A class for ARC Feed-bookmark service
  */
 export class BlockCreator extends Service {
   //eslint-disable-next-line @typescript-eslint/no-unused-vars

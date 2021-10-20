@@ -28,9 +28,14 @@
   },
   "exclude": [
     "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.test.js",
+    "tests/**",
     "./src/**/*.d.ts"
   ],
   "include": [
     "./**/*.ts",
-    "./**/*.tsx" ]
+    "./**/*.tsx"
+, "../social/src/components/admin/ADMIN_FETCH_AR_MEDIA.ts"  ]
 }

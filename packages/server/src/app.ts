@@ -8,18 +8,18 @@ import swagger from 'feathers-swagger'
 import { feathers } from '@feathersjs/feathers'
 import express, { json, urlencoded, static as _static, rest, notFound, errorHandler } from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
-import logger from '@standardcreative/server-core/src/logger'
+import logger from '@xrengine/server-core/src/logger'
 import channels from './channels'
-import authentication from '@standardcreative/server-core/src/user/authentication'
-import config from '@standardcreative/server-core/src/appconfig'
+import authentication from '@xrengine/server-core/src/user/authentication'
+import config from '@xrengine/server-core/src/appconfig'
 import sync from 'feathers-sync'
-import { api } from '@standardcreative/server-core/src/k8s'
+import { api } from '@xrengine/server-core/src/k8s'
 import winston from 'winston'
 import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
-import services from '@standardcreative/server-core/src/services'
-import sequelize from '@standardcreative/server-core/src/sequelize'
-import { Application } from '@standardcreative/server-core/declarations'
+import services from '@xrengine/server-core/src/services'
+import sequelize from '@xrengine/server-core/src/sequelize'
+import { Application } from '@xrengine/server-core/declarations'
 
 const emitter = new EventEmitter()
 
@@ -37,8 +37,8 @@ if (config.server.enabled) {
         // TODO: Relate to server config, don't hardcode this here
         specs: {
           info: {
-            title: 'Creator API Surface',
-            description: 'APIs for the Creator application',
+            title: 'XREngine API Surface',
+            description: 'APIs for the XREngine application',
             version: '1.0.0'
           },
           schemes: ['https'],
@@ -90,7 +90,7 @@ if (config.server.enabled) {
               'https://' + config.server.clientHost,
               'capacitor://' + config.server.clientHost,
               'ionic://' + config.server.clientHost,
-              'https://localhost:3000'
+              'https://localhost:3001'
             ],
             methods: ['OPTIONS', 'GET', 'POST'],
             allowedHeaders: '*',

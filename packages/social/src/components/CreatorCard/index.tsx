@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react'
 
-import { useDispatch } from '@standardcreative/client-core/src/store'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 import Card from '@material-ui/core/Card'
 import CardMedia from '@material-ui/core/CardMedia'
@@ -19,10 +19,10 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 // import SimpleModal from '../SimpleModal';
 // @ts-ignore
 import styles from './CreatorCard.module.scss'
-import { useCreatorState } from '@standardcreative/client-core/src/social/state/CreatorState'
-import { CreatorService } from '@standardcreative/client-core/src/social/state/CreatorService'
-import { PopupsStateService } from '@standardcreative/client-core/src/social/state/PopupsStateService'
-import { FeedService } from '@standardcreative/client-core/src/social/state/FeedService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core'
 import SimpleModal from '../SimpleModal'
 

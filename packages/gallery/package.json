@@ -1,0 +1,67 @@
+{
+  "name": "@xrengine/gallery",
+  "version": "0.4.10",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/XRFoundation/XREngine.git"
+  },
+  "engines": {
+    "node": ">= 16.3.0"
+  },
+  "npmClient": "npm",
+  "jest": "ts-jest",
+  "scripts": {
+    "check-errors": "tsc --noEmit",
+    "dev": "vite --host",
+    "build": "cross-env APP_ENV=production NODE_OPTIONS=--max_old_space_size=6144 vite build && cp src/server.js www/server.js",
+    "validate": "npm run test",
+    "start": "cp src/server.js www/server.js && node www/server.js"
+  },
+  "resolutions": {
+    "socket.io": "4.3.1",
+    "@types/react": "17.0.30",
+    "react": "17.0.2"
+  },
+  "peerDependencies": {
+    "@types/react": "^17.0.0",
+    "react": "^17.0.2",
+    "socket.io": "4.3.1"
+  },
+  "dependencies": {
+    "@capacitor-community/http": "1.3.0",
+    "@capacitor/android": "3.2.5",
+    "@capacitor/app": "1.0.5",
+    "@capacitor/cli": "3.2.5",
+    "@capacitor/filesystem": "1.0.5",
+    "@capacitor/ios": "3.2.5",
+    "@capacitor/share": "1.0.6",
+    "@material-ui/core": "4.12.3",
+    "@xrengine/client-core": "^0.4.10",
+    "@xrengine/common": "^0.4.10",
+    "@xrengine/editor": "^0.4.10",
+    "@xrengine/engine": "^0.4.10",
+    "app-root-path": "3.0.0",
+    "formik": "2.2.9",
+    "react": "^17.0.2",
+    "react-dom": "17.0.2",
+    "react-pdf": "5.4.1",
+    "react-router-transition": "2.1.0",
+    "react-video-recorder": "3.19.1",
+    "sass": "1.43.2",
+    "styled-components": "5.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "14.17.27",
+    "@types/react": "17.0.30",
+    "config": "3.3.6",
+    "cross-env": "7.0.3",
+    "eslint": "8.0.1",
+    "typescript": "4.4.4",
+    "vite": "2.6.10"
+  },
+  "browser": {
+    "fs": false
+  },
+  "license": "ISC"
+}

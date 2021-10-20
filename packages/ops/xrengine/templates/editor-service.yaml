@@ -1,0 +1,17 @@
+{{- if .Values.editor.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xrengine.editor.fullname" . }}
+  labels:
+    {{- include "xrengine.editor.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.editor.service.type }}
+  ports:
+    - port: {{ .Values.editor.service.port }}
+      targetPort: {{ .Values.editor.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "xrengine.editor.selectorLabels" . | nindent 4 }}
+{{- end }}

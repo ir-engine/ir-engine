@@ -30,7 +30,7 @@ const ConfirmEmail = (props: Props): any => {
   return (
     <section className={styles.loginPage}>
       <span className={styles.placeholder} />
-      <CardMedia className={styles.logo} image={props.logo} title="Logo" />
+      <CardMedia className={styles.logo} image={props.logo} title="ARC Logo" />
       <span className={styles.placeholder} />
       <Typography component="h1" variant="h5" align="center">
         {t('user:auth.confirmEmail.header')}

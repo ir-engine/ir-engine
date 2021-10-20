@@ -1,0 +1,153 @@
+# Copyright 2018 Google LLC All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Declare variables to be passed into your templates.
+
+agones:
+  featureGates: "RollingUpdateOnReady=true"
+  metrics:
+    prometheusEnabled: true
+    prometheusServiceDiscovery: true
+    stackdriverEnabled: false
+    stackdriverProjectID: ""
+    stackdriverLabels: ""
+  rbacEnabled: true
+  registerServiceAccounts: true
+  registerWebhooks: true
+  registerApiService: true
+  crds:
+    install: true
+    cleanupOnDelete: true
+  serviceaccount:
+    controller:
+      name: agones-controller
+    sdk:
+      name: agones-sdk
+  createPriorityClass: true
+  priorityClassName: agones-system
+  controller:
+    resources: {}
+    nodeSelector: {}
+    tolerations:
+      - key: "agones.dev/agones-system"
+        operator: "Equal"
+        value: "true"
+        effect: "NoExecute"
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+                - key: agones.dev/agones-system
+                  operator: Exists
+    generateTLS: true
+    safeToEvict: false
+    persistentLogs: true
+    persistentLogsSizeLimitMB: 10000
+    logLevel: info
+    numWorkers: 100
+    apiServerQPS: 400
+    apiServerQPSBurst: 500
+    http:
+      port: 8080
+    healthCheck:
+      initialDelaySeconds: 3
+      periodSeconds: 3
+      failureThreshold: 3
+      timeoutSeconds: 1
+  ping:
+    install: true
+    resources: {}
+    nodeSelector: {}
+    tolerations:
+      - key: "agones.dev/agones-system"
+        operator: "Equal"
+        value: "true"
+        effect: "NoExecute"
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+                - key: agones.dev/agones-system
+                  operator: Exists
+    replicas: 2
+    http:
+      expose: true
+      response: ok
+      port: 80
+      serviceType: NodePort
+    tcp:
+      expose: true
+      rateLimit: 20
+      port: 50000
+      serviceType: NodePort
+    healthCheck:
+      initialDelaySeconds: 3
+      periodSeconds: 3
+      failureThreshold: 3
+      timeoutSeconds: 1
+  allocator:
+    install: true
+    healthCheck:
+      initialDelaySeconds: 3
+      periodSeconds: 3
+      failureThreshold: 3
+      timeoutSeconds: 1
+    tolerations:
+      - key: "agones.dev/agones-system"
+        operator: "Equal"
+        value: "true"
+        effect: "NoExecute"
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+                - key: agones.dev/agones-system
+                  operator: Exists
+    replicas: 3
+    http:
+      port: 443
+      serviceType: NodePort
+    generateTLS: true
+  image:
+    registry: gcr.io/agones-images
+    tag: 1.17.0
+    controller:
+      name: agones-controller
+      pullPolicy: IfNotPresent
+    sdk:
+      name: agones-sdk
+      cpuRequest: 30m
+      cpuLimit: 0
+      memoryRequest: 0
+      memoryLimit: 0
+      alwaysPull: false
+    ping:
+      name: agones-ping
+      pullPolicy: IfNotPresent
+    allocator:
+      name: agones-allocator
+      pullPolicy: IfNotPresent
+
+
+gameservers:
+  namespaces:
+    - default
+  minPort: 7000
+  maxPort: 8000

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styles from './FeedOnboarding.module.scss'
-import { isIOS } from '@standardcreative/client-core/src/util/platformCheck'
+import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 
 interface Props {
   setFeedOnborded?: any

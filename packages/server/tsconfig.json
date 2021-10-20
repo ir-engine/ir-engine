@@ -26,7 +26,13 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "**/node_modules/**"
+    "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.test.js",
+    "../../node_modules/k8s/*",
+    "tests/*",
+    "tests old/*"
   ],
   "include": [
     "./**/*.ts",

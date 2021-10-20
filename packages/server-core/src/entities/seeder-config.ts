@@ -1,4 +1,4 @@
-import { ServicesSeedConfig } from '@standardcreative/common/src/interfaces/ServicesSeedConfig'
+import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
 import { collectionTypeSeed } from './collection-type/collection-type.seed'
 import { collectionSeed } from './collection/collection.seed'
 import { componentTypeSeed } from './component-type/component-type.seed'

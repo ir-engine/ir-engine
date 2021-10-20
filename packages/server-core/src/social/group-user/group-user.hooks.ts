@@ -1,5 +1,5 @@
-import groupPermissionAuthenticate from '@standardcreative/server-core/src/hooks/group-permission-authenticate'
-import groupUserPermissionAuthenticate from '@standardcreative/server-core/src/hooks/group-user-permission-authenticate'
+import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
+import groupUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-user-permission-authenticate'
 import * as authentication from '@feathersjs/authentication'
 import { disallow, isProvider, iff } from 'feathers-hooks-common'
 import { HookContext } from '@feathersjs/feathers'

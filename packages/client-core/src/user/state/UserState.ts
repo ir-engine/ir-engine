@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { RelationshipSeed } from '@standardcreative/common/src/interfaces/Relationship'
-import { User } from '@standardcreative/common/src/interfaces/User'
+import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
+import { User } from '@xrengine/common/src/interfaces/User'
 import { UserActionType } from './UserAction'
 
 const state = createState({

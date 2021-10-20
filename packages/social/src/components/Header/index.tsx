@@ -5,13 +5,13 @@ import React, { useEffect, useState } from 'react'
 // @ts-ignore
 import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
-import { useDispatch } from '@standardcreative/client-core/src/store'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useCreatorState } from '@standardcreative/client-core/src/social/state/CreatorState'
-import { CreatorService } from '@standardcreative/client-core/src/social/state/CreatorService'
-import { PopupsStateService } from '@standardcreative/client-core/src/social/state/PopupsStateService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '@standardcreative/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 
 interface Props {
   logo?: string
@@ -40,7 +40,7 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
       <img
         src="/assets/LogoColored.png"
         className={styles.headerLogo}
-        alt="Creator"
+        alt="ARC"
         style={{
           cursor: 'pointer'
         }}
@@ -58,7 +58,7 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
             })
           }}
           alt={creator?.username}
-          src={'/assets/userpic.png'}
+          src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
         />
       )}
     </nav>

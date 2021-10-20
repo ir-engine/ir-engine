@@ -1,0 +1,56 @@
+.creatorContainer{
+    height: 100vh;
+    // overflow: scroll;
+
+    .headerContainer{
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        box-sizing: border-box;
+        flex-direction: row;
+        background: #F9F9F9;
+        border-bottom: 1px solid #DDDDDD;
+        justify-content: space-between;
+        padding: 5px 0;
+
+        .backButton,
+        .saveButton{
+            width: fit-content;
+            margin: 0;
+        }
+        .pageTitle{
+            font-weight: bold;
+        }
+    }
+   
+    .avatarImage{
+        height: 110px;
+        width: 110px;
+        border-radius: 50%;
+        margin: 20px auto;
+        background-color: #CA3E7B;
+    }
+
+    .formLine{
+        width: 100%;
+        padding: 5px 0;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+
+        .fieldLabelIcon{
+            flex-grow: 0;
+            margin: 0 10px 0 0;
+            color: #C4C4C6;
+        }
+    }
+    .content{
+        padding: 5px 20px;
+
+        .logOutButton{
+            position: related;
+            left: 50%;
+            transform: translate(-50%);
+        }
+    }
+}

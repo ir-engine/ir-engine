@@ -1,17 +1,34 @@
-import { Config, validateEmail, validatePhoneNumber } from '@standardcreative/common/src/config'
-import { resolveAuthUser } from '@standardcreative/common/src/interfaces/AuthUser'
-import { IdentityProvider } from '@standardcreative/common/src/interfaces/IdentityProvider'
-import { resolveUser } from '@standardcreative/common/src/interfaces/User'
-import { isDev } from '@standardcreative/common/src/utils/isDev'
+import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
+import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { resolveUser, resolveWalletUser } from '@xrengine/common/src/interfaces/User'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+// TODO: Decouple this
+// import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
-import querystring from 'querystring'
-import { v1 } from 'uuid'
-import { AlertService } from '../../common/state/AlertService'
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
-import { AuthAction, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
-import { accessAuthState } from './AuthState'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 
+import querystring from 'querystring'
+import { store, useDispatch } from '../../store'
+import { v1 } from 'uuid'
+import { client } from '../../feathers'
+import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src/config'
+import { UserAction } from './UserAction'
+import { AuthAction, EmailLoginForm, EmailRegistrationForm } from './AuthAction'
+import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
+import { accessAuthState } from './AuthState'
+import { hasComponent, addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { ProximityComponent } from '../../proximity/components/ProximityComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
+import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { accessLocationState } from '../../social/state/LocationState'
+import { accessPartyState } from '../../social/state/PartyState'
+import { AlertService } from '../../common/state/AlertService'
 
 export const AuthService = {
   doLoginAuto: async (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
@@ -163,6 +180,32 @@ export const AuthService = {
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
   },
+  loginUserByXRWallet: async (wallet: any) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        dispatch(AuthAction.actionProcessing(true))
+
+        const credentials: any = parseUserWalletCredentials(wallet)
+        console.log(credentials)
+
+        const walletUser = resolveWalletUser(credentials)
+
+        //TODO: This is temp until we move completely to XR wallet
+        const oldId = accessAuthState().user.id.value
+        walletUser.id = oldId
+
+        loadXRAvatarForUpdatedUser(walletUser)
+        dispatch(AuthAction.loadedUserData(walletUser))
+      } catch (err) {
+        console.log(err)
+        dispatch(AuthAction.loginUserError('Failed to login'))
+        AlertService.dispatchAlertError(err.message)
+      } finally {
+        dispatch(AuthAction.actionProcessing(false))
+      }
+    }
+  },
   loginUserByOAuth: async (service: string) => {
     const dispatch = useDispatch()
     {
@@ -182,7 +225,7 @@ export const AuthService = {
       window.location.href = redirectUrl
     }
   },
-  loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
+  loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string): any => {
     const dispatch = useDispatch()
     {
       try {
@@ -654,6 +697,14 @@ export const AuthService = {
                       .patch(selfUser.id.value, { avatarId: name })
                       .then((_) => {
                         AlertService.dispatchAlertSuccess('Avatar Uploaded Successfully.')
+                        if (Network?.instance?.transport)
+                          (Network.instance.transport as any).sendNetworkStatUpdateMessage({
+                            type: MessageTypes.AvatarUpdated,
+                            userId: selfUser.id.value,
+                            avatarId: name,
+                            avatarURL: modelCloudfrontURL,
+                            thumbnailURL: thumbnailCloudfrontURL
+                          })
                       })
                   }
                 })
@@ -734,6 +785,14 @@ export const AuthService = {
         .then((res: any) => {
           // dispatchAlertSuccess(dispatch, 'User Avatar updated');
           dispatch(AuthAction.userAvatarIdUpdated(res))
+          if (Network?.instance?.transport)
+            (Network.instance.transport as any).sendNetworkStatUpdateMessage({
+              type: MessageTypes.AvatarUpdated,
+              userId,
+              avatarId,
+              avatarURL,
+              thumbnailURL
+            })
         })
     }
   },
@@ -762,13 +821,185 @@ const parseUserWalletCredentials = (wallet) => {
   }
 }
 
+const getAvatarResources = (user) => {
+  return client.service('static-resource').find({
+    query: {
+      name: user.avatarId,
+      staticResourceType: { $in: ['user-thumbnail', 'avatar'] },
+      $or: [{ userId: null }, { userId: user.id }],
+      $sort: {
+        userId: -1
+      },
+      $limit: 2
+    }
+  })
+}
+
+const loadAvatarForUpdatedUser = async (user) => {
+  if (user.instanceId == null && user.channelInstanceId == null) return Promise.resolve(true)
+
+  const world = useWorld()
+
+  return new Promise(async (resolve) => {
+    const networkUser = world?.clients?.get(user.id)
+
+    // If network is not initialized then wait to be initialized.
+    if (!networkUser) {
+      setTimeout(async () => {
+        await loadAvatarForUpdatedUser(user)
+        resolve(true)
+      }, 200)
+      return
+    }
+
+    if (networkUser?.avatarDetail?.avatarId === user.avatarId) {
+      resolve(true)
+      return
+    }
+
+    // Fetch Avatar Resources for updated user.
+    const avatars = await getAvatarResources(user)
+
+    if (avatars?.data && avatars.data.length === 2) {
+      const avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url
+      const thumbnailURL =
+        avatars?.data[0].staticResourceType === 'user-thumbnail' ? avatars?.data[0].url : avatars?.data[1].url
+
+      networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
+
+      //Find entityId from network objects of updated user and dispatch avatar load event.
+      const world = Engine.defaultWorld
+      const userEntity = world.getUserAvatarEntity(user.id)
+      setAvatar(userEntity, user.avatarId, avatarURL)
+    } else {
+      await loadAvatarForUpdatedUser(user)
+    }
+    resolve(true)
+  })
+}
+
+const loadXRAvatarForUpdatedUser = async (user) => {
+  if (!user || !user.id) Promise.resolve(true)
+
+  return new Promise(async (resolve) => {
+    const networkUser = Engine.defaultWorld.clients.get(user.id)
+
+    // If network is not initialized then wait to be initialized.
+    if (!networkUser) {
+      setTimeout(async () => {
+        await loadAvatarForUpdatedUser(user)
+        resolve(true)
+      }, 200)
+      return
+    }
+
+    const avatarURL = user.avatarUrl
+    const thumbnailURL = user.avatarUrl
+
+    networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
+
+    //Find entityId from network objects of updated user and dispatch avatar load event.
+    const world = Engine.defaultWorld
+    const userEntity = world.getUserAvatarEntity(user.id)
+    setAvatar(userEntity, user.avatarId, avatarURL)
+    resolve(true)
+  })
+}
+
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('user').on('patched', async (params) => {
     const selfUser = accessAuthState().user
     const user = resolveUser(params.userRelationship)
 
+    console.log('User patched', user)
+    await loadAvatarForUpdatedUser(user)
+    _updateUsername(user.id, user.name)
+
+    const eid = getEid(user.id)
+    console.log('adding username component to user: ' + user.name + ' eid: ' + eid)
+    if (eid !== undefined) {
+      if (!hasComponent(eid, UserNameComponent)) {
+        addComponent(eid, UserNameComponent, { username: user.name })
+      } else {
+        getComponent(eid, UserNameComponent).username = user.name
+      }
+    }
+
     if (selfUser.id.value === user.id) {
+      store.dispatch(UserAction.clearLayerUsers())
       if (selfUser.channelInstanceId.value !== user.channelInstanceId)
+        store.dispatch(UserAction.clearChannelLayerUsers())
+      store.dispatch(AuthAction.userUpdated(user))
+      if (user.partyId) {
+        // setRelationship('party', user.partyId);
+      }
+      if (user.instanceId !== selfUser.instanceId.value) {
+        const parsed = new URL(window.location.href)
+        let query = parsed.searchParams
+        query.set('instanceId', user?.instanceId || '')
+        parsed.search = query.toString()
+
+        if (history.pushState) {
+          window.history.replaceState({}, '', parsed.toString())
+        }
+      }
+      const world = Engine.defaultWorld
+      if (typeof world.localClientEntity !== 'undefined') {
+        if (!hasComponent(world.localClientEntity, ProximityComponent, world) && isBot(window)) {
+          addComponent(
+            world.localClientEntity,
+            ProximityComponent,
+            {
+              usersInRange: [],
+              usersInIntimateRange: [],
+              usersInHarassmentRange: [],
+              usersLookingTowards: []
+            },
+            world
+          )
+        }
+        if (!hasComponent(world.localClientEntity, WebCamInputComponent, world)) {
+          addComponent(
+            world.localClientEntity,
+            WebCamInputComponent,
+            {
+              emotions: []
+            },
+            world
+          )
+        }
+        console.log('added web cam input component to local client')
+      }
+    } else {
+      if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId.value)
+        store.dispatch(UserAction.addedChannelLayerUser(user))
+      if (user.instanceId != null && user.instanceId === selfUser.instanceId.value) {
+        store.dispatch(UserAction.addedLayerUser(user))
+        store.dispatch(UserAction.displayUserToast(user, { userAdded: true }))
+      }
+      if (user.instanceId !== selfUser.instanceId.value) {
+        store.dispatch(UserAction.removedLayerUser(user))
+        store.dispatch(UserAction.displayUserToast(user, { userRemoved: true }))
+      }
+      if (user.channelInstanceId !== selfUser.channelInstanceId.value)
+        store.dispatch(UserAction.removedChannelLayerUser(user))
+    }
+  })
+  client.service('location-ban').on('created', async (params) => {
+    const selfUser = accessAuthState().user
+    const party = accessPartyState().party.value
+    const selfPartyUser =
+      party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value) : {}
+    const currentLocation = accessLocationState().currentLocation.location
+    const locationBan = params.locationBan
+    if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
+      // TODO: Decouple and reenable me!
+      // endVideoChat({ leftParty: true });
+      // leave(true);
+      if (selfPartyUser != undefined && selfPartyUser?.id != null) {
+        await client.service('party-user').remove(selfPartyUser.id)
+      }
+      const user = resolveUser(await client.service('user').get(selfUser.id.value))
       store.dispatch(AuthAction.userUpdated(user))
     }
   })

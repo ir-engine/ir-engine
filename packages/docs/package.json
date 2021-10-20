@@ -1,0 +1,60 @@
+{
+  "name": "@xrengine/docs",
+  "version": "0.4.10",
+  "private": true,
+  "scripts": {
+    "docusaurus": "docusaurus",
+    "start": "cross-env NODE_OPTIONS=--max_old_space_size=8192 docusaurus start",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=8192 docusaurus build",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "docusaurus deploy",
+    "clear": "docusaurus clear",
+    "serve": "docusaurus serve",
+    "write-translations": "docusaurus write-translations",
+    "write-heading-ids": "docusaurus write-heading-ids"
+  },
+  "dependencies": {
+    "@docusaurus/core": "2.0.0-beta.7",
+    "@docusaurus/preset-classic": "2.0.0-beta.7",
+    "@mdx-js/react": "1.6.22",
+    "clsx": "1.1.1",
+    "docusaurus": "1.14.7",
+    "react": "^17.0.0",
+    "react-dom": "17.0.2",
+    "terser-webpack-plugin": "5.2.4"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "resolutions": {
+    "@types/react": "17.0.30",
+    "react": "17.0.2",
+    "terser": "5.9.0",
+    "**/terser-webpack-plugin": "5.2.4"
+  },
+  "peerDependencies": {
+    "@types/react": "^17.0.0",
+    "react": "^17.0.0"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "2.0.0-beta.7",
+    "@tsconfig/docusaurus": "1.0.4",
+    "@types/react": "17.0.30",
+    "@types/react-helmet": "6.1.4",
+    "@types/react-router-dom": "5.3.1",
+    "cross-env": "7.0.3",
+    "docusaurus-plugin-typedoc": "0.16.3",
+    "typedoc": "0.22.5",
+    "typedoc-plugin-markdown": "3.11.3",
+    "typescript": "4.4.4"
+  }
+}

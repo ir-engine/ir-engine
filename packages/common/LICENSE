@@ -1,8 +1,8 @@
 ============================================================================
 ============================================================================
 
-Some portions of the Creator codebase are derived from other projects.
-All original work by the Creator team is subject to MIT license.
+Some portions of the XREngine codebase are derived from other projects.
+All original work by the XREngine team is subject to MIT license.
 
 Some derivative works are subject to GPL and MPL licenses. These licenses
 have been included in LICENSE.md files adjacent to the code they apply to.
@@ -12,7 +12,7 @@ have been included in LICENSE.md files adjacent to the code they apply to.
 
 MIT License
 
-Copyright (c) 2021 Creator
+Copyright (c) 2021 XREngine
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -1,5 +1,5 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { DEFAULT_AVATARS } from '@standardcreative/common/src/constants/AvatarConstants'
+import { DEFAULT_AVATARS } from '@xrengine/common/src/constants/AvatarConstants'
 import { Application } from '../../../declarations'
 import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'

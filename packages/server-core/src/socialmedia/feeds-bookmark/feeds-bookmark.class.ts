@@ -12,7 +12,7 @@ import { getCreatorByUserId } from '../util/getCreator'
 // conts TheFeeds = '';
 
 /**
- * A class for TheFeeds-bookmark service
+ * A class for ARC TheFeeds-bookmark service
  */
 export class TheFeedsBookmark extends Service {
   //eslint-disable-next-line @typescript-eslint/no-unused-vars

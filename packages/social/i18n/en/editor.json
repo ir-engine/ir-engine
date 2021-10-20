@@ -350,6 +350,10 @@
             "description": "Dynamically loads a video.",
             "lbl-video": "Video",
             "lbl-projection": "Projection"
+        },
+        "volumetric": {
+            "description": "Dynamically loads a volumetric video.",
+            "lbl-volumetric": "Volumetric"
         }
     },
     "projects": {

@@ -1,6 +1,6 @@
 import config from '../../appconfig'
 import { locationSettingsSeed } from '../location-settings/location-settings.seed'
-import { Location } from '@standardcreative/common/src/interfaces/Location'
+import { Location } from '@xrengine/common/src/interfaces/Location'
 
 export const locationSeed = {
   randomize: false,

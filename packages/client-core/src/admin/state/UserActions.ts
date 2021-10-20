@@ -1,8 +1,8 @@
-import { User } from '@standardcreative/common/src/interfaces/User'
-import { UserResult } from '@standardcreative/common/src/interfaces/UserResult'
-import { StaticResourceResult } from '@standardcreative/common/src/interfaces/StaticResourceResult'
-import { UserRoleResult } from '@standardcreative/common/src/interfaces/UserRoleResult'
-import { UserRole } from '@standardcreative/common/src/interfaces/UserRole'
+import { User } from '@xrengine/common/src/interfaces/User'
+import { UserResult } from '@xrengine/common/src/interfaces/UserResult'
+import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
+import { UserRoleResult } from '@xrengine/common/src/interfaces/UserRoleResult'
+import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
 
 export const UserAction = {
   loadedUsers: (userResult: UserResult) => {

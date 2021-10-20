@@ -1,5 +1,5 @@
 import React from 'react'
-import { Config } from '@standardcreative/common/src/config'
+import { Config } from '@xrengine/common/src/config'
 
 interface Props {
   onClick: any

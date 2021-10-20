@@ -1,6 +1,6 @@
 import { store, useDispatch } from '../../store'
 import { AlertAction } from './AlertActions'
-import { Config } from '@standardcreative/common/src/config'
+import { Config } from '@xrengine/common/src/config'
 
 let timerId: any
 

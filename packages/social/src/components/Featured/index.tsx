@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from '@standardcreative/client-core/src/store'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 import { Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
@@ -12,11 +12,11 @@ import VisibilityIcon from '@material-ui/icons/Visibility'
 import WhatshotIcon from '@material-ui/icons/Whatshot'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
-import { useAuthState } from '@standardcreative/client-core/src/user/state/AuthState'
-import { useFeedState } from '@standardcreative/client-core/src/social/state/FeedState'
-import { FeedService } from '@standardcreative/client-core/src/social/state/FeedService'
-import { usePopupsStateState } from '@standardcreative/client-core/src/social/state/PopupsStateState'
-import { PopupsStateService } from '@standardcreative/client-core/src/social/state/PopupsStateService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import styles from './Featured.module.scss'
 
 interface Props {

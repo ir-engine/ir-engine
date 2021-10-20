@@ -9,7 +9,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
 import { getCreatorByUserId } from '../util/getCreator'
 
 /**
- * A class for Feed Comment service
+ * A class for ARC Feed Comment service
  */
 export class Comments extends Service {
   app: Application

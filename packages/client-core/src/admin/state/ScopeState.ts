@@ -1,8 +1,8 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 
 import { ScopeActionType } from './ScopeActions'
-import { AdminScopeType } from '@standardcreative/common/src/interfaces/AdminScopeType'
-import { AdminScope } from '@standardcreative/common/src/interfaces/AdminScope'
+import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
 export const SCOPE_PAGE_LIMIT = 100
 
 const state = createState({

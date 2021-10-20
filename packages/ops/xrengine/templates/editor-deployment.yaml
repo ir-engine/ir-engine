@@ -1,0 +1,63 @@
+{{- if .Values.editor.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xrengine.editor.fullname" . }}
+  labels:
+    {{- include "xrengine.editor.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.editor.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "xrengine.editor.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "xrengine.editor.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/editor-configmap.yaml") . | sha256sum }}
+    spec:
+    {{- with .Values.editor.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "xrengine.editor.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.editor.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.editor.securityContext | nindent 12 }}
+          image: "{{ .Values.editor.image.repository }}:{{ .Values.editor.image.tag }}"
+          imagePullPolicy: {{ .Values.editor.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "xrengine.editor.fullname" . }}
+                optional: true
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.editor.resources | nindent 12 }}
+      {{- with .Values.editor.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.editor.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.editor.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

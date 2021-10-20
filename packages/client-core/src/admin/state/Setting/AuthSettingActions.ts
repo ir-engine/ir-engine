@@ -1,4 +1,4 @@
-import { AdminRedisSettingResult } from '@standardcreative/common/src/interfaces/AdminAuthSettingResult'
+import { AdminRedisSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
 
 export const AuthSettingAction = {
   authSettingRetrieved: (adminRedisSettingResult: AdminRedisSettingResult) => {

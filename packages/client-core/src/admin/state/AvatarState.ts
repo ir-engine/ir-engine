@@ -1,9 +1,9 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { UserSeed } from '@standardcreative/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@standardcreative/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@standardcreative/common/src/interfaces/AuthUser'
+import { UserSeed } from '@xrengine/common/src/interfaces/User'
+import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarActionType } from './AvatarActions'
-import { Avatar } from '@standardcreative/common/src/interfaces/Avatar'
+import { Avatar } from '@xrengine/common/src/interfaces/Avatar'
 
 export const AVATAR_PAGE_LIMIT = 100
 

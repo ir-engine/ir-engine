@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { InviteActionType } from './InviteActions'
-import { Invite } from '@standardcreative/common/src/interfaces/Invite'
+import { Invite } from '@xrengine/common/src/interfaces/Invite'
 
 export const INVITE_PAGE_LIMIT = 10
 

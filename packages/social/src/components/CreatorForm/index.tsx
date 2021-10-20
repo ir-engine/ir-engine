@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from '@standardcreative/client-core/src/store'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useHistory } from 'react-router-dom'
 
 import { CardMedia, Typography, Button } from '@material-ui/core'
@@ -22,9 +22,9 @@ import SubjectIcon from '@material-ui/icons/Subject'
 
 import TextField from '@material-ui/core/TextField'
 
-import { useCreatorState } from '@standardcreative/client-core/src/social/state/CreatorState'
-import { CreatorService } from '@standardcreative/client-core/src/social/state/CreatorService'
-import { PopupsStateService } from '@standardcreative/client-core/src/social/state/PopupsStateService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {

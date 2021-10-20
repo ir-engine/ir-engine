@@ -8,9 +8,9 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import { DialogActions } from '@material-ui/core'
 import { validateCreatorForm } from './validation'
 import { useCreatorStyle, useCreatorStyles } from './styles'
-import { useDispatch } from '@standardcreative/client-core/src/store'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { CreatorService } from '@standardcreative/client-core/src/social/state/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {
   open: boolean

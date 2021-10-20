@@ -100,6 +100,9 @@
         "creators": "Creators",
         "feed": "The Feed"
     },
+    "header": {
+        "lbl-volumetric": "Volumetric"
+    },
     "login": {
         "account": "Have an account?",
         "login": "Login",
@@ -165,7 +168,7 @@
         "horizontalMode": "Horizontal mode has an unlimited record time",
         "start": "Start",
         "not-show": "Do not show it again",
-        "welcome": "Welcome!",
+        "welcome": "Welcome to ARC!  Make personal videos with one of our holograms and post it to your social media channels!",
         "step": "STEP {{step}}",
         "text-step-1": "Choose a hologram from the library.",
         "text-step-2": "This is Augmented Reality, so scan the space with your camera from side to side  for 3-5 seconds where you want the hologram performance to be.",

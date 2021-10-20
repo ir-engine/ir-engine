@@ -1,4 +1,4 @@
-import { InviteTypeResult } from '@standardcreative/common/src/interfaces/InviteTypeResult'
+import { InviteTypeResult } from '@xrengine/common/src/interfaces/InviteTypeResult'
 
 export const InviteTypeAction = {
   retrievedInvitesTypes: (inviteType: InviteTypeResult) => {

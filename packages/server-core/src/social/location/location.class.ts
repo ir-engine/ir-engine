@@ -1,4 +1,4 @@
-import { Location as LocationType } from '@standardcreative/common/src/interfaces/Location'
+import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'

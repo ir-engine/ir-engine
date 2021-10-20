@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 
-import { CreatorShort } from '@standardcreative/common/src/interfaces/Creator'
+import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
 
 export const FeedFiresAction = {
   feedFiresRetrieved: (feedFires: CreatorShort[]) => {

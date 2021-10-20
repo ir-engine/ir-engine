@@ -1,4 +1,4 @@
-import { Config } from '@standardcreative/common/src/config'
+import { Config } from '@xrengine/common/src/config'
 import React, { useEffect, useState } from 'react'
 import Search from './Search'
 import Table from '@material-ui/core/Table'
@@ -27,7 +27,7 @@ import { ADMIN_PAGE_LIMIT } from '../state/AdminState'
 import { useInstanceState } from '../state/InstanceState'
 import { InstanceService } from '../state/InstanceService'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { InstanceSeed } from '@standardcreative/common/src/interfaces/Instance'
+import { InstanceSeed } from '@xrengine/common/src/interfaces/Instance'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

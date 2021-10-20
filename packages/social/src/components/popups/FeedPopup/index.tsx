@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react'
-import { useDispatch } from '@standardcreative/client-core/src/store'
-import { usePopupsStateState } from '@standardcreative/client-core/src/social/state/PopupsStateState'
-import { PopupsStateService } from '@standardcreative/client-core/src/social/state/PopupsStateService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
 import Feed from '../../Feed'
 
 //@ts-ignore
 import styles from './FeedPopup.module.scss'
-import { isIOS } from '@standardcreative/client-core/src/util/platformCheck'
+import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 
 interface Props {
   webxrRecorderActivity: any

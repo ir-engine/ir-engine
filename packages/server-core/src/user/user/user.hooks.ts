@@ -1,5 +1,5 @@
 import * as authentication from '@feathersjs/authentication'
-import addAssociations from '@standardcreative/server-core/src/hooks/add-associations'
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'

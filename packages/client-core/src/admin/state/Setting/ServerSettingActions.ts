@@ -1,4 +1,4 @@
-import { ServerSettingResult } from '@standardcreative/common/src/interfaces/ServerSettingResult'
+import { ServerSettingResult } from '@xrengine/common/src/interfaces/ServerSettingResult'
 
 export const ServerSettingAction = {
   fetchedSeverInfo: (serverSettingResult: ServerSettingResult) => {

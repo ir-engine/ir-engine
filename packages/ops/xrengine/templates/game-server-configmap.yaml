@@ -1,0 +1,15 @@
+{{- if .Values.gameserver.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "xrengine.gameserver.fullname" . }}
+  labels:
+    {{- include "xrengine.gameserver.labels" . | nindent 4 }}
+data:
+{{- if .Values.gameserver.extraEnv }}
+{{ toYaml .Values.gameserver.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.gameserver.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.gameserver.config }}'
+{{- end }}
+{{- end -}}

@@ -59,9 +59,13 @@ spec:
             - name: RELEASE_NAME
               value: {{ $releaseName }}
             - name: DOCKER_HOST
+<<<<<<< HEAD
               value: tcp://localhost:2376
             - name: DOCKER_TLS_VERIFY
               value: "1"
+=======
+              value: tcp://localhost:2375
+>>>>>>> parent of f8f603a93a... Init commit
             - name: TAG
               value: {{ .Values.builder.image.tag }}
           ports:
@@ -84,6 +88,7 @@ spec:
             periodSeconds: 600
           resources:
             {{- toYaml .Values.builder.resources | nindent 12 }}
+<<<<<<< HEAD
           volumeMounts:
             - name: dind-storage
               mountPath: /var/lib/docker
@@ -94,6 +99,12 @@ spec:
           env:
             - name: DOCKER_TLS_CERTDIR
               value: /var/lib/docker/certs
+=======
+        - name: dind
+          image: docker:18.05-dind
+          securityContext:
+            privileged: true
+>>>>>>> parent of f8f603a93a... Init commit
           volumeMounts:
             - name: dind-storage
               mountPath: /var/lib/docker

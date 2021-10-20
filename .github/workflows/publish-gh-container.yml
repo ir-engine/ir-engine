@@ -1,0 +1,33 @@
+name: publish-gh-container
+on:
+  release:
+    types: [created]
+jobs:
+  dev-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+      - name: Setup AWS
+        run: scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET: ${{ secrets.AWS_SECRET }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+      - name: Build Docker Image
+        run: bash scripts/build_docker.sh dev $DOCKER_LABEL $AWS_REGION
+        env:
+          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
+          REPO_NAME: ${{ secrets.DEV_REPO_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ECR_URL: ${{ secrets.ECR_URL }}
+      - name: Publish to GitHub Container Packages
+        run: bash scripts/publish_gh_container.sh ${{ github.event.release.tag_name }} $DOCKER_LABEL
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USERNAME: ${{ github.repository_owner }}
+          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}

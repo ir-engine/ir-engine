@@ -1,5 +1,5 @@
-import { AdminBotResult } from '@standardcreative/common/src/interfaces/AdminBotResult'
-import { AdminBot, BotCommands } from '@standardcreative/common/src/interfaces/AdminBot'
+import { AdminBotResult } from '@xrengine/common/src/interfaces/AdminBotResult'
+import { AdminBot, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
 export const BotsAction = {
   fetchedBot: (bots: AdminBotResult) => {
     return {

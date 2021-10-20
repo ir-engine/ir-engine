@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xrengine
+  namespace: xrengine
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: xrengine
+  template:
+    metadata:
+      labels:
+        app: xrengine
+    spec:
+      serviceAccountName: xrengine
+      containers:
+        - name: xrengine
+          image: xrengine/xrengine:v4.0.6
+          ports:
+            - containerPort: 3000
+            - containerPort: 3001
+          env:
+            - name: APP_ENV
+              value: production
+          volumeMounts:
+            - mountPath: "/usr/src/xrengine/config/tmp"
+              name: xrengine-prod-config
+              readOnly: true
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - cp /usr/src/xrengine/config/tmp/production.json /usr/src/xrengine/config/production.json
+          imagePullPolicy: IfNotPresent
+      dnsPolicy: Default
+      volumes:
+        - name: xrengine-prod-config
+          secret:
+            secretName: xrengine-prod-config
+      $patch: replace
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: xrengine-ingress-master
+  namespace: xrengine
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.org/mergeable-ingress-type: "master"
+spec:
+  tls:
+    - hosts:
+        - api.xrengine.dev
+      secretName: xrengine-secret
+  rules:
+    - host: api.xrengine.dev
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: xrengine-ingress-location-upload-minion
+  namespace: xrengine
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.org/mergeable-ingress-type: "minion"
+    nginx.org/client-max-body-size: "2000m"
+spec:
+  rules:
+    - host: api.xrengine.dev
+      http:
+        paths:
+          - backend:
+              serviceName: xrengine
+              servicePort: 3000
+            path: /location/upload_file
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: xrengine-ingress-ws-minion
+  namespace: xrengine
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.org/mergeable-ingress-type: "minion"
+    nginx.org/websocket-services: "xrengine-ws"
+spec:
+  rules:
+    - host: api.xrengine.dev
+      http:
+        paths:
+          - backend:
+              serviceName: xrengine-ws
+              servicePort: 3001
+            path: /subscriptions
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: xrengine-ingress-main-minion
+  namespace: xrengine
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.org/mergeable-ingress-type: "minion"
+spec:
+  rules:
+    - host: api.xrengine.dev
+      http:
+        paths:
+          - backend:
+              serviceName: xrengine
+              servicePort: 3000
+            path: /

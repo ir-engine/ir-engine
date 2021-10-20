@@ -1,5 +1,5 @@
-import { Relationship } from '@standardcreative/common/src/interfaces/Relationship'
-import { User } from '@standardcreative/common/src/interfaces/User'
+import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
+import { User } from '@xrengine/common/src/interfaces/User'
 import { useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { UserAction, UserActionType } from './UserAction'

@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 
-import { Creator, CreatorShort, CreatorNotification } from '@standardcreative/common/src/interfaces/Creator'
+import { Creator, CreatorShort, CreatorNotification } from '@xrengine/common/src/interfaces/Creator'
 
 export const CreatorAction = {
   setStateCreators: (splashTimeout: boolean) => {

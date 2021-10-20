@@ -2,7 +2,7 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 
-import { CreatorShort } from '@standardcreative/common/src/interfaces/Creator'
+import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
 
 // thefeeds
 // TheFeeds

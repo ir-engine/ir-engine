@@ -1,8 +1,8 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { CommentInterface } from '@standardcreative/common/src/interfaces/Comment'
-import { CreatorShort } from '@standardcreative/common/src/interfaces/Creator'
+import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'
+import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
 
 export const FeedCommentAction = {
   fetchingFeedComments: () => {

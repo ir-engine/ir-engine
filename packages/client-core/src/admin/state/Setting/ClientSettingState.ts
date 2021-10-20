@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { ClientSettingActionType } from './ClientSettingActions'
-import { ClientSetting } from '@standardcreative/common/src/interfaces/ClientSetting'
+import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 
 const state = createState({
   Client: {

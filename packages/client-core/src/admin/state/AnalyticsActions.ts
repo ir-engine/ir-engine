@@ -1,4 +1,4 @@
-import { AdminAnalyticsResult } from '@standardcreative/common/src/interfaces/AdminAnalyticsData'
+import { AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnalyticsData'
 
 export const AnalyticsAction = {
   activePartiesFetched: (analytics: AdminAnalyticsResult) => {

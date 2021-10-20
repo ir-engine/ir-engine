@@ -1,10 +1,10 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { AlertService } from '@standardcreative/client-core/src/common/state/AlertService'
-import { client } from '@standardcreative/client-core/src/feathers'
-import { FeedAction } from '@standardcreative/client-core/src/social/state/FeedActions'
-import { useDispatch } from '@standardcreative/client-core/src/store'
+import { AlertService } from '@xrengine/client-core/src/common/state/AlertService'
+import { client } from '@xrengine/client-core/src/feathers'
+import { FeedAction } from '@xrengine/client-core/src/social/state/FeedActions'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 export const FeedBookmarkService = {
   addBookmarkToFeed: async (feedId: string) => {

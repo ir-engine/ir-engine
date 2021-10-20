@@ -1,4 +1,4 @@
-import { AdminContentPack } from '@standardcreative/common/src/interfaces/AdminContentPack'
+import { AdminContentPack } from '@xrengine/common/src/interfaces/AdminContentPack'
 
 export const ContentPackAction = {
   loadedContentPacks: (contentPacks: AdminContentPack[]) => {

@@ -1,9 +1,9 @@
 import { BotsActionType } from './BotsActions'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { UserSeed } from '@standardcreative/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@standardcreative/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@standardcreative/common/src/interfaces/AuthUser'
-import { AdminBot } from '@standardcreative/common/src/interfaces/AdminBot'
+import { UserSeed } from '@xrengine/common/src/interfaces/User'
+import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
 
 export const BOTS_PAGE_LIMIT = 100
 

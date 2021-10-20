@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { GroupActionType } from './GroupActions'
-import { Group } from '@standardcreative/common/src/interfaces/Group'
+import { Group } from '@xrengine/common/src/interfaces/Group'
 
 export const GROUP_PAGE_LIMIT = 10
 

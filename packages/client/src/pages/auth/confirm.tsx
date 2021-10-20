@@ -1,6 +1,6 @@
 import React from 'react'
-import ConfirmEmail from '@standardcreative/client-core/src/user/components/Auth/ConfirmEmailApp'
+import ConfirmEmail from '@xrengine/client-core/src/user/components/Auth/ConfirmEmail'
 
-export const ConfirmEmailPage = () => <ConfirmEmail logo="/assets/LogoColored.png" />
+export const ConfirmEmailPage = () => <ConfirmEmail />
 
 export default ConfirmEmailPage

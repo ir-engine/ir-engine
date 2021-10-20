@@ -30,9 +30,9 @@ import { BotService } from '../../state/BotsService'
 import { useLocationState } from '../../state/LocationState'
 import { validateForm } from './validation'
 
-import { Location } from '@standardcreative/common/src/interfaces/Location'
+import { Location } from '@xrengine/common/src/interfaces/Location'
 
-import { Instance } from '@standardcreative/common/src/interfaces/Instance'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 interface Props {}
 

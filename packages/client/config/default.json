@@ -1,26 +1,33 @@
 {
   "publicRuntimeConfig": {
-    "title": "Gallery",
+    "title": "The Overlay",
+    "siteTitle": "The Overlay",
+    "siteDescription": "Connected Worlds for Everyone",
     "dev": false,
     "loginDisabled": false,
     "logo": "./logo.svg",
+    "gameserverHost": "${VITE_GAMESERVER_HOST}",
+    "gameserverPort": "${VITE_GAMESERVER_PORT}",
     "apiServer": "https://${VITE_SERVER_HOST}:${VITE_SERVER_PORT}",
-    "appServer": "https://${VITE_APP_HOST}:${VITE_APP_PORT}",
+    "gameserver": "https://${VITE_GAMESERVER_HOST}:${VITE_GAMESERVER_PORT}",
     "readyPlayerMeUrl":"${VITE_READY_PLAYER_ME_URL}",
-    "siteTitle": "Gallery",
-    "siteDescription": "Connected Social for Everyone",
+    "mediatorServer": "${VITE_MEDIATOR_SERVER}",
     "feathersStoreKey": "TheOverlay-Auth-Store",
-    "localStorageKey": "standard-creative-client-store-key-v1",
+    "localStorageKey": "theoverlay-client-store-key-v1",
+    "lobbyLocationName": "lobby",
     "auth": {
       "enableSmsMagicLink": true,
       "enableEmailMagicLink": true,
       "enableUserPassword": true,
       "enableGithubSocial": true,
       "enableFacebookSocial": true,
-      "enableGoogleSocial": true
+      "enableGoogleSocial": true,
+      "enableLinkedInSocial": true,
+      "enableTwitterSocial": true
     },
     "alert": {
       "timeout": 10000
-    }
+    },
+    "offlineMode": false
   }
 }

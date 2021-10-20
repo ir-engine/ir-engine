@@ -3,9 +3,9 @@
  */
 import React, { useEffect, useState } from 'react'
 
-import { useDispatch } from '@standardcreative/client-core/src/store'
-import { useFeedCommentsState } from '@standardcreative/client-core/src/social/state/FeedCommentState'
-import { FeedCommentService } from '@standardcreative/client-core/src/social/state/FeedCommentService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useFeedCommentsState } from '@xrengine/client-core/src/social/state/FeedCommentState'
+import { FeedCommentService } from '@xrengine/client-core/src/social/state/FeedCommentService'
 import TextField from '@material-ui/core/TextField'
 import SendIcon from '@material-ui/icons/Send'
 import Grid from '@material-ui/core/Grid'

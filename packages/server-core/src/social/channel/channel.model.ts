@@ -29,6 +29,7 @@ export default (app: Application): any => {
     ;(channel as any).belongsTo(models.group, { foreignKey: 'groupId' })
     ;(channel as any).belongsTo(models.party, { foreignKey: 'partyId' })
     ;(channel as any).belongsTo(models.channel_type, { foreignKey: 'channelType', as: 'type', required: true })
+    ;(channel as any).belongsTo(models.instance, { foreignKey: 'instanceId' })
   }
 
   return channel

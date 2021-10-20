@@ -3,7 +3,7 @@
  */
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { FeedFiresActionType } from './FeedFiresActions'
-import { CreatorShort } from '@standardcreative/common/src/interfaces/Creator'
+import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
 
 const state = createState({
   feedFires: {

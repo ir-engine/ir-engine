@@ -1,9 +1,9 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { PartyActionType } from './PartyActions'
 
-import { PartyUser } from '@standardcreative/common/src/interfaces/PartyUser'
+import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 import _ from 'lodash'
-import { Party } from '@standardcreative/common/src/interfaces/Party'
+import { Party } from '@xrengine/common/src/interfaces/Party'
 
 const state = createState({
   party: {} as Party,

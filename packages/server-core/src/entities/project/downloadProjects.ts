@@ -1,6 +1,6 @@
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
-// import { ProjectInterface } from '@standardcreative/common/src/interfaces/ProjectInterface'
+// import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import fs from 'fs'
 import path from 'path'
 

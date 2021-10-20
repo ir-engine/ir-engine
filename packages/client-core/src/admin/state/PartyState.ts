@@ -1,9 +1,9 @@
 import { createState, DevTools, useState, Downgraded } from '@hookstate/core'
 import { PartyActionType } from './PartActions'
-import { UserSeed } from '@standardcreative/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@standardcreative/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@standardcreative/common/src/interfaces/AuthUser'
-import { AdminParty } from '@standardcreative/common/src/interfaces/AdminParty'
+import { UserSeed } from '@xrengine/common/src/interfaces/User'
+import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
 
 export const PARTY_PAGE_LIMIT = 100
 

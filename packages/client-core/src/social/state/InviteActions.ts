@@ -1,4 +1,4 @@
-import { InviteResult } from '@standardcreative/common/src/interfaces/InviteResult'
+import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
 
 export const InviteAction = {
   sentInvite: (id: string) => {

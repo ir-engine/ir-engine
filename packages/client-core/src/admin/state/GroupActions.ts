@@ -1,5 +1,5 @@
-import { GroupResult } from '@standardcreative/common/src/interfaces/GroupResult'
-import { Group } from '@standardcreative/common/src/interfaces/Group'
+import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
+import { Group } from '@xrengine/common/src/interfaces/Group'
 export const GroupAction = {
   fetchingGroup: () => {
     return {

@@ -1,7 +1,7 @@
 import { hooks } from '@feathersjs/authentication'
 import { iff, disallow } from 'feathers-hooks-common'
-import restrictUserRole from '@standardcreative/server-core/src/hooks/restrict-user-role'
-import addUserToBody from '@standardcreative/server-core/src/hooks/set-loggedin-user-in-body'
+import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
+import addUserToBody from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
 import config from '../../appconfig'
 
 const { authenticate } = hooks

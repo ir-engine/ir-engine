@@ -1,5 +1,5 @@
-import { AdminPartyResult } from '@standardcreative/common/src/interfaces/AdminPartyResult'
-import { AdminParty } from '@standardcreative/common/src/interfaces/AdminParty'
+import { AdminPartyResult } from '@xrengine/common/src/interfaces/AdminPartyResult'
+import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
 
 export const PartyAction = {
   partyAdminCreated: (data: AdminParty) => {

@@ -1,9 +1,9 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { InstanceActionType } from './InstanceActions'
-import { UserSeed } from '@standardcreative/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@standardcreative/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@standardcreative/common/src/interfaces/AuthUser'
-import { Instance } from '@standardcreative/common/src/interfaces/Instance'
+import { UserSeed } from '@xrengine/common/src/interfaces/User'
+import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 export const INSTNCE_PAGE_LIMIT = 100
 

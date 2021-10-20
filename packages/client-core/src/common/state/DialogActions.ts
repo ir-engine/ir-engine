@@ -1,4 +1,4 @@
-import { Dialog } from '@standardcreative/common/src/interfaces/Dialog'
+import { Dialog } from '@xrengine/common/src/interfaces/Dialog'
 
 export const DialogAction = {
   dialogShow: (content: Dialog) => {

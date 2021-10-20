@@ -1,7 +1,7 @@
 /**
  * @author Gleb Ordinsky <glebordinsky@gmail.com>
  */
-import * as notifications from '@standardcreative/server-core/src/hooks/notifications'
+import * as notifications from '@xrengine/server-core/src/hooks/notifications'
 
 export default {
   before: {

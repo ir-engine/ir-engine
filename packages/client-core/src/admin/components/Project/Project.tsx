@@ -18,7 +18,7 @@ import { fetchAdminProjects, uploadProject } from '../../../admin/state/ProjectS
 import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
-import { ProjectInterface } from '@standardcreative/common/src/interfaces/ProjectInterface'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

@@ -3,7 +3,7 @@
  */
 import { AlertService } from '../../common/state/AlertService'
 import { client } from '../../feathers'
-import { Creator } from '@standardcreative/common/src/interfaces/Creator'
+import { Creator } from '@xrengine/common/src/interfaces/Creator'
 import { upload } from '../../util/upload'
 
 import { CreatorAction } from './CreatorActions'

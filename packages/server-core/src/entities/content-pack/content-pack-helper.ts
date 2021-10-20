@@ -5,7 +5,7 @@ import mimeType from 'mime-types'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { Agent } from 'https'
 import { Params } from '@feathersjs/feathers'
-import { ProjectInterface } from '@standardcreative/common/src/interfaces/ProjectInterface'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 const storageProvider = useStorageProvider()
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/
@@ -393,7 +393,7 @@ export async function populateProject(
     try {
       console.log('Attempting to reload k8s clients!')
       const restartClientsResponse = await app.k8DefaultClient.patch(
-        `deployment/${config.server.releaseName}-builder-creator-builder`,
+        `deployment/${config.server.releaseName}-builder-xrengine-builder`,
         {
           spec: {
             template: {

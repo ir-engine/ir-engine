@@ -1,4 +1,4 @@
-import { GameServerSettingResult } from '@standardcreative/common/src/interfaces/GameServerSettingResult'
+import { GameServerSettingResult } from '@xrengine/common/src/interfaces/GameServerSettingResult'
 
 export const GameServerSettingAction = {
   fetchedGameServer: (gameServerSettingResult: GameServerSettingResult) => {

@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { ServerSettingActionType } from './ServerSettingActions'
-import { ServerSetting } from '@standardcreative/common/src/interfaces/ServerSetting'
+import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
 
 const state = createState({
   Server: {

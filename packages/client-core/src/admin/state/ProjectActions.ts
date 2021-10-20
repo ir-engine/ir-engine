@@ -1,4 +1,4 @@
-import { ProjectInterface } from '@standardcreative/common/src/interfaces/ProjectInterface'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 export const ProjectAction = {
   projectsFetched: (projectResult: ProjectInterface[]) => {
