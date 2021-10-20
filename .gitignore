@@ -157,6 +157,7 @@ certs/
 
 /packages/**/src/index.ts
 
+/packages/client/public/projects/*
 /packages/projects/projects/*
 !/packages/projects/projects/theoverlay/
 !/packages/projects/projects/XREngine-Starter-Template/
