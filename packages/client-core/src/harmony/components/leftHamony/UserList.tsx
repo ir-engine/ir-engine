@@ -14,9 +14,11 @@ import { useFriendState } from '../../../social/services/FriendService'
 import { usePartyState } from '../../../social/services/PartyService'
 import { ChatService } from '../../../social/services/ChatService'
 import { useDispatch } from '../../../store'
+import InviteHarmony from '../inviteHarmony'
 import { useUserStyles } from './style'
 
 const UserList = ({ chatType }) => {
+  const [openInvite, setOpenInvite] = React.useState(false)
   const dispatch = useDispatch()
   const classes = useUserStyles()
   const userState = useUserState()
@@ -29,6 +31,11 @@ const UserList = ({ chatType }) => {
   const friends = friendSubState.friends.value
   const party = usePartyState().party.value
   const instanceLayerUsers = userState.layerUsers.value
+
+  const openInviteModel = (open: boolean) => {
+    setOpenInvite(open)
+  }
+
   let data
   switch (chatType) {
     case 'Group':
@@ -82,11 +89,13 @@ const UserList = ({ chatType }) => {
             color="secondary"
             style={{ marginTop: '4rem', marginLeft: '4rem' }}
             startIcon={<GroupAdd />}
+            onClick={() => openInviteModel(true)}
           >
             Invite
           </Button>
         )}
       </List>
+      <InviteHarmony open={openInvite} handleClose={openInviteModel} />
     </div>
   )
 }
