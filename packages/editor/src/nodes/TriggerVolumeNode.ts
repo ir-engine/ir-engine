@@ -18,6 +18,7 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
   constructor() {
     super()
     const boxMesh = new Mesh(TriggerVolumeNode._geometry, TriggerVolumeNode._material)
+    boxMesh.scale.multiplyScalar(2) // engine uses half-extents for box size, to be compatible with gltf and threejs
     const box = new BoxHelper(boxMesh, 0xffff00)
     box.layers.set(1)
     this.helper = box

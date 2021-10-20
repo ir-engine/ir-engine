@@ -216,7 +216,6 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./transform/systems/TransformSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./scene/systems/TriggerSystem'))
   registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
   })

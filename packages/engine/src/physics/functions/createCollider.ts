@@ -97,7 +97,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   let geometry
   switch (shapeOptions.type) {
     case 'box':
-      geometry = new PhysX.PxBoxGeometry(Math.abs(scale.x / 2), Math.abs(scale.y / 2), Math.abs(scale.z / 2))
+      geometry = new PhysX.PxBoxGeometry(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
       break
 
     case 'ground':
@@ -201,7 +201,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
 
 export const createBody = (entity: Entity, bodyOptions: any, shapes: PhysX.PxShape[] = []) => {
   const { rotation } = getComponent(entity, TransformComponent)
-  var rot = rotation
+  let rot = rotation
   if (bodyOptions.type !== 'ground') {
     rot = new Quaternion()
   }

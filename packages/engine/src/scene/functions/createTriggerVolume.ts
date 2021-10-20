@@ -22,13 +22,6 @@ export const createTriggerVolume = async function (entity, args): Promise<Mesh> 
   boxMesh.scale.set(scale.x, scale.y, scale.z)
   boxMesh.quaternion.set(rot.x, rot.y, rot.z, rot.w)
 
-  if (args.showHelper) {
-    // A visual representation for the trigger
-    const box = new BoxHelper(boxMesh, 0xffff00)
-    box.layers.set(1)
-    addObject3DComponent(entity, box, {})
-  }
-
   boxMesh.userData = {
     type: 'box',
     isTrigger: true,
@@ -43,6 +36,14 @@ export const createTriggerVolume = async function (entity, args): Promise<Mesh> 
     target: args.target,
     active: false
   })
+
+  if (args.showHelper) {
+    // A visual representation for the trigger
+    boxMesh.scale.multiplyScalar(2) // engine uses half-extents for box size, to be compatible with gltf and threejs
+    const box = new BoxHelper(boxMesh, 0xffff00)
+    box.layers.set(1)
+    addObject3DComponent(entity, box, {})
+  }
 
   return boxMesh
 }

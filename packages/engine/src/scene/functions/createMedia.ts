@@ -86,11 +86,13 @@ interface VolumetricProps {
 
 export const createVolumetric = (entity, props: VolumetricProps) => {
   const container = new UpdateableObject3D()
+  debugger
   const worker = new DracosisPlayerWorker()
   const resourceUrl = props.src
   let isBuffering = false
-  let timer = null
+  let timer: any
   let isPlayed = false
+  let preProgress = 0
   DracosisSequence = new DracosisPlayer({
     scene: container,
     renderer: Engine.renderer,
@@ -104,12 +106,15 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
     frameRate: 25,
     onMeshBuffering: (progress) => {
       console.warn('BUFFERING!!', progress)
+      if (progress == preProgress) return
+      preProgress = progress
       if (!isBuffering) {
         DracosisSequence.paused = true
         if (timer) clearTimeout(timer)
         timer = setTimeout(() => {
           if (isPlayed) {
             DracosisSequence.play()
+            preProgress = 0
           }
         }, 500)
       }

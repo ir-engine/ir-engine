@@ -37,7 +37,6 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     } = json.components.find((c) => c.name === 'volumetric').props
     loadAsync(
       (async () => {
-        node.src = src
         node.srcUrl = src
         node.controls = controls || false
         node.autoPlay = autoPlay
@@ -88,12 +87,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     return this._canonicalUrl
   }
   set srcUrl(value) {
-    debugger
     this.load(value).catch(console.error)
-  }
-
-  get src(): string {
-    return this._canonicalUrl
   }
 
   get autoPlay(): any {
