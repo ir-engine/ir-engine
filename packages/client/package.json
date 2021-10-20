@@ -116,7 +116,7 @@
     "@rollup/plugin-typescript": "8.3.0",
     "@types/node": "14.17.27",
     "@types/react": "17.0.30",
-    "@types/react-dom": "17.0.9",
+    "@types/react-dom": "17.0.10",
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "esbuild-plugin-tsc": "0.3.0",
