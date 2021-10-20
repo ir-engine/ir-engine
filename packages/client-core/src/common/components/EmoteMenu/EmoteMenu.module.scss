@@ -67,7 +67,7 @@
         justify-content: center;
         align-items: center;
         border-radius: 50%;
-        border: solid 100px rgba(0, 0, 0, 0.8);
+        border: solid 100px rgb(51 51 110 / 50%);
         border-bottom-color: transparent;
         opacity:0.9;
         position:relative;
@@ -99,6 +99,7 @@
             margin: 0;
             padding: 0;
             min-width: 0;
+            background-color: transparent;
 
             &:hover { transform: scale(1.2); }
             img {
@@ -120,7 +121,7 @@
     position: absolute;
     left: 2.9px;
     top: 190px;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgb(51 51 110 / 50%);
     transform: rotate(45deg);
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
@@ -142,7 +143,7 @@
     position: absolute;
     right: 2.9px;
     top: 190px;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgb(51 51 110 / 50%);
     transform: rotate(135deg);
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
