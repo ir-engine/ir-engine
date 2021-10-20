@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useEffect, memo, useState } from 'react'
 import PropTypes from 'prop-types'
-import InfiniteScroll from 'react-infinite-scroller'
 import styled from 'styled-components'
 import { VerticalScrollContainer } from '../layout/Flex'
 import { MediaGrid, IconMediaGridItem } from '../layout/MediaGrid'
@@ -16,7 +15,6 @@ import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
 import { ProjectManager } from '../../managers/ProjectManager'
 import { Folder } from '@styled-icons/fa-solid/Folder'
-import { SubMenu } from 'react-contextmenu'
 
 function collectMenuProps({ item }) {
   return { item }

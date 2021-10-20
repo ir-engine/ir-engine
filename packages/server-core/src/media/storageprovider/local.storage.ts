@@ -63,7 +63,7 @@ export class LocalStorage implements StorageProviderInterface {
       fields: {
         Key: key
       },
-      url: `https://${this.cacheDomain}`,
+      url: `https://${this.cacheDomain}${key}`,
       local: true,
       cacheDomain: this.cacheDomain
     }
@@ -81,7 +81,6 @@ export class LocalStorage implements StorageProviderInterface {
               resolve(false)
               return
             }
-
             if (exists)
               blobs.remove(key, (err) => {
                 if (err) {
@@ -134,20 +133,24 @@ export class LocalStorage implements StorageProviderInterface {
       const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
       const regexx = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
       const query = regexx.exec(key)
+      const url = this.getSignedUrl(key, 3600, null).url
       const res: FileBrowserContentType = {
         key,
         name: query.groups.name,
-        type: query.groups.extension
+        type: query.groups.extension,
+        url
       }
       return res
     })
     const folder = glob.sync(path.join(filePath, '*/')).map((result) => {
       const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
       const name = key.replace(`${folderName}`, '').split('/')[0]
+      const url = this.getSignedUrl(key, 3600, null).url
       const res: FileBrowserContentType = {
         key,
         name,
-        type: 'folder'
+        type: 'folder',
+        url
       }
       return res
     })

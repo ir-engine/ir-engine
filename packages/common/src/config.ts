@@ -17,7 +17,6 @@ export class Config {
     apiServer: 'https://localhost:3030',
     appServer: 'https://localhost:3000',
     gameserver: 'https://localhost:3031',
-    fileserver: 'https://localhost:8642',
     mediatorServer: 'https://authn.io',
     wasmUrl: 'https://localhost:3000/recast/recast.wasm',
     readyPlayerMeUrl: 'https://xre.readyplayer.me',

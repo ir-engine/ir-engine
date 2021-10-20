@@ -7,7 +7,6 @@ import { UploadFileType } from './sources/MyAssetsSource'
 import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
 import { NodeManager } from '../../managers/NodeManager'
 import FileBrowserGrid from './FileBrowserGrid'
-import { Config } from '@xrengine/common/src/config'
 import { File } from '@styled-icons/fa-solid/File'
 import { useTranslation } from 'react-i18next'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
@@ -51,7 +50,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
           ? nodeEditor.WrappedComponent.iconComponent
           : nodeEditor.iconComponent
         : File
-      const url = Config.publicRuntimeConfig.fileserver + content.key
+      const url = content.url
       const returningObject = {
         description: url,
         id: content.key,

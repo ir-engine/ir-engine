@@ -1,6 +1,7 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { Application } from '../../../declarations'
+import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 
 /**
  * A class for Managing files in FileBrowser
@@ -8,11 +9,10 @@ import { Application } from '../../../declarations'
  * @author Abhishek Pathak
  */
 export class FileBrowserService implements ServiceMethods<any> {
-  store
+  store: StorageProviderInterface
 
   async setup(app: Application, path: string) {
-    const provider = useStorageProvider()
-    this.store = useStorageProvider() //provider.getStorage()
+    this.store = useStorageProvider()
   }
 
   async find(params?: Params) {}
