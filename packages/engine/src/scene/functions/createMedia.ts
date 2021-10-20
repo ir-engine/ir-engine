@@ -86,7 +86,6 @@ interface VolumetricProps {
 
 export const createVolumetric = (entity, props: VolumetricProps) => {
   const container = new UpdateableObject3D()
-  debugger
   const worker = new DracosisPlayerWorker()
   const resourceUrl = props.src
   let isBuffering = false
