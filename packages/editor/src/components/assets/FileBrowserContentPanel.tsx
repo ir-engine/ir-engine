@@ -6,16 +6,15 @@ import { AssetPanelContentContainer } from './AssetsPanel'
 import { UploadFileType } from './sources/MyAssetsSource'
 import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
 import { NodeManager } from '../../managers/NodeManager'
-import { ProjectManager } from '../../managers/ProjectManager'
 import FileBrowserGrid from './FileBrowserGrid'
 import { Config } from '@xrengine/common/src/config'
-import { Button } from '../inputs/Button'
 import { File } from '@styled-icons/fa-solid/File'
 import { useTranslation } from 'react-i18next'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
 import { ArrowBack } from '@styled-icons/boxicons-regular/ArrowBack'
 import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
+import { client } from '@xrengine/client-core/src/feathers'
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  * @author Abhishek Pathak
@@ -40,11 +39,8 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
 
   const renderProjectFiles = async (directory) => {
-    console.log('Current selected directory is:' + selectedDirectory)
     const returningObjects = []
-    const resultFromThis = directory
-      ? ((await ProjectManager.instance.feathersClient.service(`file-browser`).get(directory)) as any[])
-      : []
+    const resultFromThis = directory ? ((await client.service(`file-browser`).get(directory)) as any[]) : []
 
     for (let i = 0; i < resultFromThis.length; i++) {
       const content = resultFromThis[i] as FileBrowserContentType
@@ -76,7 +72,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }, [selectedDirectory])
 
   const addNewFolder = () => {
-    ProjectManager.instance.feathersClient
+    client
       .service(`file-browser`)
       .create({ fileName: `${selectedDirectory}NewFolder` })
       .then((res) => {
@@ -103,7 +99,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }
 
   const moveContent = (from, to, isCopy = false, renameTo = null) => {
-    ProjectManager.instance.feathersClient
+    client
       .service('file-browser')
       .update(from, { destination: to, isCopy, renameTo })
       .then((res) => {
@@ -113,7 +109,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }
 
   const deleteContent = ({ contentPath, type }) => {
-    ProjectManager.instance.feathersClient
+    client
       .service('file-browser')
       .remove(contentPath, { query: { type } })
       .then((res) => {
@@ -129,10 +125,9 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   let currentContent = null
   const currentContentRef = useRef(currentContent)
 
-  const headGrid = { display: 'grid', 'grid-template-columns': '1fr auto', 'grid-gap': '20px' }
+  const headGrid = { display: 'grid', gridTemplateColumns: '1fr auto', gridGap: '20px' }
   return (
     <>
-      {console.log('Rendering File Browser Panel CHILD')}
       <div style={headGrid}>
         <ToolButton icon={ArrowBack} onClick={onBackDirectory} id="backDir" iconHeight="100%" iconWidth="100%" />
         <ToolButton icon={Refresh} onClick={onRefreshDirectory} id="refreshDir" iconHeight="100%" iconWidth="100%" />

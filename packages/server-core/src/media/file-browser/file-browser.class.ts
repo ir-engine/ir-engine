@@ -1,5 +1,5 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
-import { StorageProvider } from '../..'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { Application } from '../../../declarations'
 
 /**
@@ -8,7 +8,12 @@ import { Application } from '../../../declarations'
  * @author Abhishek Pathak
  */
 export class FileBrowserService implements ServiceMethods<any> {
-  store = new StorageProvider()
+  store
+
+  async setup(app: Application, path: string) {
+    const provider = useStorageProvider()
+    this.store = useStorageProvider() //provider.getStorage()
+  }
 
   async find(params?: Params) {}
 
@@ -30,6 +35,4 @@ export class FileBrowserService implements ServiceMethods<any> {
   async remove(id, params?: Params) {
     return await this.store.deleteContent(id, params.query.type)
   }
-
-  async setup(app: Application, path: string) {}
 }

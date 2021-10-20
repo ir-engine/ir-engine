@@ -270,7 +270,6 @@ export function FileBrowserGrid({
   //returning view of AssetGridItems
   return (
     <>
-      {console.log('Rendering File Browser GRID')}
       <VerticalScrollContainer flex>
         <MediaGrid minWidth={'60px'}>
           {unique(items, 'id').map((item, index) => (
