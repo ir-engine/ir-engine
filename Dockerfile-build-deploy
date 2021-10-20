@@ -9,7 +9,7 @@ WORKDIR /app
 # copy then compile the code
 COPY . .
 
-RUN npm run build-docker
+RUN npm run build-client
 
 ENV APP_ENV=production
 

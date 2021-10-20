@@ -38,7 +38,7 @@
   },
   "npmClient": "npm",
   "scripts": {
-    "check": "npm run lint && npm run test:packages && npm run build-docker",
+    "check": "npm run lint && npm run test:packages && npm run build-client",
     "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
     "start": "npm run dev",
     "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently npm:dev-agones \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/client && npm run local\"",
@@ -67,9 +67,8 @@
     "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "validate": "npm run lint && lerna run validate",
-    "build": "lerna run build --parallel",
     "build-publish": "lerna run --ignore @xrengine/bot build-publish --parallel",
-    "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
+    "build-client": "cd packages/client && npm run build",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
     "precommit": "no-master-commits -b master",
@@ -84,7 +83,7 @@
   ],
   "pre-push": [
     "test:packages",
-    "build-docker"
+    "build-client"
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
