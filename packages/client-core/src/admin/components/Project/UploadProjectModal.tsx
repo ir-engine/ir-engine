@@ -27,6 +27,8 @@ const AddToContentPackModal = (props: Props): any => {
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [projectURL, setProjectURL] = useState('')
+  const [projectName, setProjectName] = useState('')
+  const [branchName, seBranchName] = useState('')
   const dispatch = useDispatch()
   const showError = (err: string) => {
     setError(err)
@@ -39,7 +41,7 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       if (projectURL !== '') {
         setProcessing(true)
-        await uploadProject({ uploadURL: projectURL })
+        await uploadProject(projectURL, branchName, projectName)
         setProcessing(false)
         closeModal()
       }
@@ -78,12 +80,26 @@ const AddToContentPackModal = (props: Props): any => {
             {processing === false && createOrPatch === 'patch' && (
               <div>
                 <FormControl>
-                  <InputLabel id="contentPackSelect">URL</InputLabel>
+                  <InputLabel id="urlSelect">URL</InputLabel>
                   <TextField
                     className={styles['pack-select']}
-                    id="contentPackSelect"
+                    id="urlSelect"
                     value={projectURL}
                     onChange={(e) => setProjectURL(e.target.value)}
+                  />
+                  <InputLabel id="branchSelect">Branch</InputLabel>
+                  <TextField
+                    className={styles['pack-select']}
+                    id="branchSelect"
+                    value={branchName}
+                    onChange={(e) => setProjectURL(e.target.value)}
+                  />
+                  <InputLabel id="nameSelect">Name</InputLabel>
+                  <TextField
+                    className={styles['pack-select']}
+                    id="nameSelect"
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
                   />
                   <Button type="submit" variant="contained" color="primary" onClick={tryUploadProject}>
                     Upload Project
