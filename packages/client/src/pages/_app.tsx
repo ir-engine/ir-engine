@@ -13,7 +13,10 @@ import reducers from '../reducers'
 import RouterComp from '../route/public'
 import './styles.scss'
 
-const App = (): any => {
+import App from './msa/components/NewComponents/App'
+// import MSA from './msa'
+
+const AppMain = (): any => {
   const dispatch = useDispatch()
 
   const initApp = useCallback(() => {
@@ -41,9 +44,14 @@ const App = (): any => {
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
       </Helmet>
+
+      <App />
+
       <ThemeProvider theme={theme}>
         <GlobalStyle />
         <RouterComp />
+
+        {/* <MSA /> */}
       </ThemeProvider>
     </>
   )
@@ -53,7 +61,7 @@ const StoreProvider = () => {
   return (
     <Provider store={configureStore(reducers)}>
       <BrowserRouter>
-        <App />
+        <AppMain />
       </BrowserRouter>
     </Provider>
   )
