@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server-core",
   "description": "Shared components for XREngine server",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -64,8 +64,8 @@
     "@feathersjs/socketio-client": "^5.0.0-pre.9",
     "@feathersjs/transport-commons": "^5.0.0-pre.9",
     "@google-cloud/agones-sdk": "1.18.0",
-    "@xrengine/common": "^0.4.9",
-    "@xrengine/engine": "^0.4.9",
+    "@xrengine/common": "^0.4.10",
+    "@xrengine/engine": "^0.4.10",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
@@ -99,10 +99,10 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@rollup/plugin-alias": "3.1.5",
+    "@rollup/plugin-alias": "3.1.6",
     "@rollup/plugin-commonjs": "21.0.0",
     "@rollup/plugin-json": "4.1.0",
-    "@rollup/plugin-node-resolve": "13.0.5",
+    "@rollup/plugin-node-resolve": "13.0.6",
     "@rollup/plugin-replace": "3.0.0",
     "@types/dotenv-flow": "3.2.0",
     "@types/lodash": "4.14.175",

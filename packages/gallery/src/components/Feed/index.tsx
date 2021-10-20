@@ -1,22 +1,44 @@
-import React, { useEffect, useState, useCallback, ElementType } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
+import React, { useEffect, useState, useCallback, ElementType, useRef } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
+import { bindActionCreators, Dispatch } from 'redux'
 import { useTranslation } from 'react-i18next'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import { Button, Card, Typography, CardContent, CardMedia, CardHeader, Grid } from '@material-ui/core'
 import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 import { Document, Page, pdfjs } from 'react-pdf'
 import Pagination from '@mui/material/Pagination'
 import HighlightOffIcon from '@material-ui/icons/HighlightOff'
+import ShareIcon from '@material-ui/icons/Share'
+import FacebookIcon from '@material-ui/icons/Facebook'
+import TwitterIcon from '@material-ui/icons/Twitter'
+import RedditIcon from '@material-ui/icons/Reddit'
+import LinkIcon from '@material-ui/icons/Link'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
 
 import styles from './Feed.module.scss'
-import { Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack } from '@mui/material'
-import { useHistory } from 'react-router'
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import {
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Fade,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  Stack
+} from '@mui/material'
+import { useHistory, useLocation } from 'react-router'
 import { MediaContent } from '../Featured/MediaContent'
+import { Popover } from '@material-ui/core'
 
 export const getComponentTypeForMedia = (mime) => {
   switch (true) {
@@ -44,9 +66,12 @@ const Feed = ({ feedId }: Props) => {
   const [pageNumber, setPageNumber] = useState(1)
   const feedsState = useFeedState()
   const [open, setOpen] = useState(false)
+  const [openShare, setOpenShare] = useState(false)
   const history = useHistory()
   const auth = useAuthState()
   const creatorState = useCreatorState()
+  const location = useLocation()
+  const shareRef = useRef(null)
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages)
   }
@@ -90,9 +115,63 @@ const Feed = ({ feedId }: Props) => {
     return result
   }
 
+  const handleShareClick = () => {
+    setOpenShare(!openShare)
+  }
+
+  const handleShare = (e) => {
+    e.preventDefault()
+
+    const ahref = window.location.href
+    const encodedAhref = encodeURIComponent(ahref)
+    var link
+
+    switch (e.currentTarget.id) {
+      case 'facebook':
+        link = `https://www.facebook.com/sharer/sharer.php?u=${ahref}`
+        openLink(link)
+        break
+
+      case 'twitter':
+        link = `https://twitter.com/intent/tweet?url=${encodedAhref}`
+        openLink(link)
+        break
+
+      case 'reddit':
+        link = `https://www.reddit.com/submit?url=${encodedAhref}`
+        openLink(link)
+        break
+
+      case 'copy':
+        navigator.clipboard.writeText(ahref)
+        break
+
+      default:
+        break
+    }
+  }
+
+  const openLink = (socialLink) => {
+    window.open(socialLink, '_blank')
+  }
+
   useEffect(() => {
-    FeedService.getFeed(feedId)
+    const user = auth.user
+    const userId = user ? user.id.value : null
+    if (userId) {
+      CreatorService.createCreator()
+    }
+  }, [auth.isLoggedIn.value, auth.user.id.value])
+
+  useEffect(() => {
+    AuthService.doLoginAuto(true)
   }, [])
+
+  useEffect(() => {
+    if (auth.user.id.value) {
+      FeedService.getFeed(feedId)
+    }
+  }, [auth.user.id.value])
 
   feed = feedsState.feeds.fetching.value === false && feedsState.feeds.feed.value
   const userAsCreatorId = creatorState.creators.currentCreator.id.value
@@ -156,6 +235,48 @@ const Feed = ({ feedId }: Props) => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Button className={styles.share} onClick={handleShareClick} ref={shareRef}>
+        <div>
+          <ShareIcon className={styles.shareIcon} />
+        </div>
+        <div className={styles.shareText}>Share</div>
+      </Button>
+      <Popover
+        open={openShare}
+        anchorEl={shareRef.current}
+        TransitionComponent={Fade}
+        onClose={handleShareClick}
+        style={{ top: -160, left: -25 }}
+      >
+        <Paper>
+          <List dense={true}>
+            <ListItem button style={{ paddingTop: '.75em' }} id="facebook" onClick={handleShare}>
+              <ListItemIcon>
+                <FacebookIcon />
+              </ListItemIcon>
+              <ListItemText primary="Facebook" />
+            </ListItem>
+            <ListItem button style={{ paddingTop: '.75em' }} id="twitter" onClick={handleShare}>
+              <ListItemIcon>
+                <TwitterIcon />
+              </ListItemIcon>
+              <ListItemText primary="Twitter" />
+            </ListItem>
+            <ListItem button style={{ paddingTop: '.75em' }} id="reddit" onClick={handleShare}>
+              <ListItemIcon>
+                <RedditIcon />
+              </ListItemIcon>
+              <ListItemText primary="Reddit" />
+            </ListItem>
+            <ListItem button style={{ paddingTop: '.75em' }} id="copy" onClick={handleShare}>
+              <ListItemIcon>
+                <LinkIcon />
+              </ListItemIcon>
+              <ListItemText primary="Copy Link" />
+            </ListItem>
+          </List>
+        </Paper>
+      </Popover>
     </section>
   )
 }

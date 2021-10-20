@@ -6,35 +6,37 @@ import { Group, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
 import { addComponent, getComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
-import { MapComponent } from '../../src/map/MapComponent'
 import { Entity } from '../../src/ecs/classes/Entity'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
-import createStore from '../../src/map/functions/createStore'
 import { lineString } from '@turf/helpers'
 import { System } from '../../src/ecs/classes/System'
-import {AvatarComponent} from '../../src/avatar/components/AvatarComponent'
-import {NavMeshComponent} from '../../src/navigation/component/NavMeshComponent'
+import { AvatarComponent } from '../../src/avatar/components/AvatarComponent'
+import { NavMeshComponent } from '../../src/navigation/component/NavMeshComponent'
+import { MapAction, mapReducer } from '../../src/map/MapReceptor'
+import { MapStateUnwrapped } from '../../src/map/types'
+import { MapComponent } from '../../src/map/MapComponent'
 
 describe('MapUpdateSystem', () => {
   const triggerRefreshRadius = 20 // meters
-  const minimumSceneRadius = triggerRefreshRadius * 2
-  const mapScale = 0.5
-  const mapArgs = {}
   const mapCenter = [0, 0]
-  let world: World,
-    execute: System,
+  let execute: System,
+    world: World,
+    state: MapStateUnwrapped,
+    subScene: Object3D,
     viewerEntity: Entity,
     mapEntity: Entity,
-    store: ReturnType<typeof createStore>,
-    subScene: Object3D,
-    actuateLazy: SinonSpy,
     getPhases: SinonSpy,
+    startPhases: SinonSpy,
+    resetPhases: SinonSpy,
     createFeatureLabel: SinonSpy,
     createSUT: (world: World) => Promise<System>
 
   beforeEach(async () => {
-    mock('../../src/map/functions/actuateLazy', sinon.spy())
-    mock('../../src/map/functions/getPhases', sinon.spy())
+    mock('../../src/map/functions/PhaseFunctions', {
+      getPhases: sinon.spy(),
+      startPhases: sinon.spy(),
+      resetPhases: sinon.spy()
+    })
     mock(
       '../../src/map/functions/createFeatureLabel',
       (() => {
@@ -51,14 +53,19 @@ describe('MapUpdateSystem', () => {
       })()
     )
     createSUT = require('../../src/map/MapUpdateSystem').default
-    actuateLazy = require('../../src/map/functions/actuateLazy')
-    getPhases = require('../../src/map/functions/getPhases')
+    const PhaseFunctions = require('../../src/map/functions/PhaseFunctions')
+    getPhases = PhaseFunctions.getPhases
+    startPhases = PhaseFunctions.startPhases
+    resetPhases = PhaseFunctions.resetPhases
     createFeatureLabel = require('../../src/map/functions/createFeatureLabel')
     world = createWorld()
     viewerEntity = createEntity(world)
     mapEntity = createEntity(world)
     execute = await createSUT(world)
-    store = createStore(mapCenter, [0, 0], triggerRefreshRadius, minimumSceneRadius, mapScale, mapArgs)
+    subScene = new Object3D()
+
+    state = mapReducer(null, MapAction.initialize(mapCenter))
+
     subScene = new Object3D()
 
     addComponent(
@@ -73,7 +80,7 @@ describe('MapUpdateSystem', () => {
     )
     addComponent(viewerEntity, AvatarComponent, {} as any, world)
 
-    addComponent(mapEntity, MapComponent, store, world)
+    addComponent(mapEntity, MapComponent, {}, world)
     addComponent(mapEntity, Object3DComponent, { value: subScene }, world)
     addComponent(
       mapEntity,
@@ -81,7 +88,7 @@ describe('MapUpdateSystem', () => {
       {
         position: new Vector3(),
         rotation: new Quaternion(),
-        scale: new Vector3().setScalar(mapScale)
+        scale: new Vector3().setScalar(state.scale)
       },
       world
     )
@@ -100,14 +107,26 @@ describe('MapUpdateSystem', () => {
     mock.stopAll()
   })
 
+  it('resets and starts the flow when external code changes the map center point', () => {
+    state.center = [12, 12]
+    execute()
+
+    state.center[0] = 13
+
+    execute()
+
+    assert.equal(resetPhases.callCount, 1)
+    assert.equal(startPhases.callCount, 1)
+  })
+
   it('does nothing while player moves within refresh boundary', () => {
     const viewerTransform = getComponent(viewerEntity, TransformComponent)
 
     execute()
-    viewerTransform.position.set((triggerRefreshRadius / 2) * mapScale, 0, 0)
+    viewerTransform.position.set((triggerRefreshRadius / 2) * state.scale, 0, 0)
     execute()
 
-    assert.equal(actuateLazy.callCount, 0)
+    assert.equal(startPhases.callCount, 0)
   })
 
   // I don't know why this test fails when run with the rest of this suite but passes when run by itself.
@@ -115,25 +134,58 @@ describe('MapUpdateSystem', () => {
     const viewerTransform = getComponent(viewerEntity, TransformComponent)
 
     execute()
-    viewerTransform.position.set(triggerRefreshRadius * mapScale, 0, 0)
+    viewerTransform.position.set(state.triggerRefreshRadius * state.scale, 0, 0)
     console.log('position updated')
     execute()
 
     console.log('callCount', getPhases.callCount)
     assert(getPhases.calledOnce)
-    assert(actuateLazy.calledOnce)
+    assert(startPhases.calledOnce)
 
-    viewerTransform.position.set(triggerRefreshRadius * 1.5 * mapScale, 0, 0)
+    viewerTransform.position.set(state.triggerRefreshRadius * 1.5 * state.scale, 0, 0)
     execute()
 
     assert(getPhases.calledOnce)
-    assert(actuateLazy.calledOnce)
+    assert(startPhases.calledOnce)
 
-    viewerTransform.position.set(triggerRefreshRadius * 2 * mapScale, 0, 0)
+    viewerTransform.position.set(state.triggerRefreshRadius * 2 * state.scale, 0, 0)
     execute()
 
     assert(getPhases.calledTwice)
-    assert(actuateLazy.calledTwice)
+    assert(startPhases.calledTwice)
+  })
+
+  it('updates the scene when `needsUpdate` flag is set', () => {
+    const mesh = new Mesh()
+    const subScene = getComponent(mapEntity, Object3DComponent)
+    state.needsUpdate = true
+    state.completeObjects.set(['road', 0, 0, '0'], {
+      centerPoint: [0, 0],
+      boundingCircleRadius: 5,
+      mesh
+    })
+
+    execute()
+
+    assert(subScene.value.children.includes(mesh))
+  })
+
+  it('unsets the flag after the scene has been updated', () => {
+    state.needsUpdate = true
+
+    execute()
+
+    assert.equal(state.needsUpdate, false)
+  })
+
+  it('does nothing while player moves within refresh boundary', () => {
+    const viewerTransform = getComponent(viewerEntity, TransformComponent)
+
+    execute()
+    viewerTransform.position.set((state.triggerRefreshRadius / 2) * state.scale, 0, 0)
+    execute()
+
+    assert.equal(startPhases.callCount, 0)
   })
 
   it('adds and positions labels in the scene (if close enough)', () => {
@@ -143,11 +195,12 @@ describe('MapUpdateSystem', () => {
       [2, 1],
       [4, 2]
     ])
-    const label = createFeatureLabel("123 sesame st", feature, [0, 0])
+    const label = createFeatureLabel('123 sesame st', feature, [0, 0])
 
-    store.labelCache.set(['road', 0, 0, '0'], label)
+    state.labelCache.set(['road', 0, 0, '0'], label)
+    state.needsUpdate = true
 
-    world.fixedDelta = .16
+    world.fixedDelta = 0.16
     world.fixedElapsedTime = world.fixedDelta * 20
     execute()
 
@@ -160,9 +213,10 @@ describe('MapUpdateSystem', () => {
   it('adds meshes to the navigation plane as they become available', () => {
     const mesh = new Mesh()
     const navTarget = getComponent(mapEntity, NavMeshComponent).navTarget
-    store.completeObjects.set(['landuse_fallback', 0, 0, '0'], {mesh, centerPoint: [0, 0], boundingCircleRadius: 1})
+    state.completeObjects.set(['landuse_fallback', 0, 0, '0'], { mesh, centerPoint: [0, 0], boundingCircleRadius: 1 })
+    state.needsUpdate = true
 
-    world.fixedDelta = .16
+    world.fixedDelta = 0.16
     world.fixedElapsedTime = world.fixedDelta * 20
     execute()
 

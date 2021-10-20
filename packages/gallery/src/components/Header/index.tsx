@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styles from './Header.module.scss'
 
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import {
   Button,
@@ -58,6 +56,7 @@ const AppHeader = ({ title, setAddFilesView, setFilesTarget, hideAddButtons, inp
   }
 
   const handleTitleClick = () => {
+    setAddFilesView && setAddFilesView(false)
     history.push({
       pathname: '/',
       search: 'tag=all'

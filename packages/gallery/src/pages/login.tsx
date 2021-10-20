@@ -2,7 +2,7 @@ import { EmptyLayout } from '@xrengine/client-core/src/common/components/Layout/
 import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useTranslation } from 'react-i18next'
 import AdminLogin from '../components/AdminLogin'
 

@@ -1,9 +1,9 @@
-import type { RealityPackInterface } from '@xrengine/common/src/interfaces/RealityPack'
+import type { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { SystemModulePromise, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 
-interface RealityPackNodeArguments {
+interface ProjectNodeArguments {
   packName: string
   entryPoints: {
     systemUpdateType: keyof typeof SystemUpdateType
@@ -12,41 +12,41 @@ interface RealityPackNodeArguments {
   }[]
 }
 
-type RealityPackReactComponent = Promise<{ default: (...args: any) => JSX.Element }>
+type ProjectReactComponent = Promise<{ default: (...args: any) => JSX.Element }>
 
-interface RealityPackModules {
+interface ProjectModules {
   systems: SystemModuleType<any>[]
-  react: RealityPackReactComponent[]
+  react: ProjectReactComponent[]
 }
 
-export const getPacksFromSceneData = async (sceneData: SceneData, isClient: boolean): Promise<RealityPackModules> => {
+export const getPacksFromSceneData = async (sceneData: SceneData, isClient: boolean): Promise<ProjectModules> => {
   const modules = {
     systems: [],
     react: []
   }
   for (const entity of Object.values(sceneData.entities)) {
     for (const component of entity.components) {
-      if (component.type === 'realitypack') {
-        const data: RealityPackNodeArguments = component.data
-        const realityPackModules = await importPack(data, isClient)
-        modules.systems.push(...realityPackModules.systems)
-        modules.react.push(...realityPackModules.react)
+      if (component.type === 'project') {
+        const data: ProjectNodeArguments = component.data
+        const projectModules = await importPack(data, isClient)
+        modules.systems.push(...projectModules.systems)
+        modules.react.push(...projectModules.react)
       }
     }
   }
   return modules
 }
 
-export const importPack = async (data: RealityPackNodeArguments, isClient: boolean): Promise<RealityPackModules> => {
-  console.info(`Loading Reality Pack with data`, data)
+export const importPack = async (data: ProjectNodeArguments, isClient: boolean): Promise<ProjectModules> => {
+  console.info(`Loading Project with data`, data)
   const modules = {
     systems: [],
     react: []
   }
   try {
-    const realityPackManifest = (await import(`./projects/${data.packName}/manifest.json`)) as RealityPackInterface
+    const projectManifest = (await import(`./projects/${data.packName}/manifest.json`)) as ProjectInterface
 
-    console.info(`Got Reality Pack Manifest`, realityPackManifest)
+    console.info(`Got Project Manifest`, projectManifest)
 
     for (const { entryPoint, systemUpdateType, args } of data.entryPoints) {
       const entryPointSplit = entryPoint.split('.')
@@ -71,18 +71,16 @@ export const importPack = async (data: RealityPackNodeArguments, isClient: boole
             })
             break
           default:
-            console.error(
-              `[RealityPackLoader]: Failed to load reality pack. File type '${entryPointExtension} 'not supported.`
-            )
+            console.error(`[ProjectLoader]: Failed to load project. File type '${entryPointExtension} 'not supported.`)
             break
         }
       } catch (e) {
-        console.log('[RealityPackLoader]: Failed to load reality pack entry point:', entryPoint, e)
+        console.log('[ProjectLoader]: Failed to load project entry point:', entryPoint, e)
       }
     }
 
     if (isClient) {
-      for (const entryPoint of realityPackManifest.clientReactEntryPoint) {
+      for (const entryPoint of projectManifest.clientReactEntryPoint) {
         const entryPointSplit = entryPoint.split('.')
         const entryPointExtension = entryPointSplit.pop()
         const entryPointFileName = entryPointSplit.join('.')
@@ -96,17 +94,17 @@ export const importPack = async (data: RealityPackNodeArguments, isClient: boole
               break
             default:
               console.error(
-                `[RealityPackLoader]: Failed to load reality pack. File type '${entryPointExtension} 'not supported.`
+                `[ProjectLoader]: Failed to load project. File type '${entryPointExtension} 'not supported.`
               )
               break
           }
         } catch (e) {
-          console.log('[RealityPackLoader]: Failed to load reality pack entry point:', entryPoint, e)
+          console.log('[ProjectLoader]: Failed to load project entry point:', entryPoint, e)
         }
       }
     }
   } catch (e) {
-    console.log(`[RealityPackLoader]: Failed to load reality pack manifest ${data} with error ${e}`)
+    console.log(`[ProjectLoader]: Failed to load project manifest ${data} with error ${e}`)
   }
 
   return modules

@@ -7,7 +7,7 @@ import { Button, CardMedia, TextField, Typography } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close'
 import AddIcon from '@material-ui/icons/Add'
 import AppHeader from '../Header'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
 interface Props {
@@ -131,7 +131,13 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
 
   return (
     <section className={styles.viewport}>
-      <AppHeader title="CREATOR" hideAddButtons inputFileRef={inputFileRef} setFilesTarget={handleFilesTarget} />
+      <AppHeader
+        title="CREATOR"
+        hideAddButtons
+        inputFileRef={inputFileRef}
+        setFilesTarget={handleFilesTarget}
+        setAddFilesView={setAddFilesView}
+      />
       <Button className={styles.addFilesButton} onClick={handleAddFiles}>
         ADD FILES:
       </Button>

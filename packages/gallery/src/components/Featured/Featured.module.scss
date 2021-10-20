@@ -67,4 +67,22 @@
         font-size: 120pt;
         display: flex;
     }
+
+    .cardContent {
+        text-align: center;
+        display: flex;
+    }
+
+    @media (max-width: 768px) {
+       .imageWrapper {
+           max-height: 100%;
+           height: auto;
+           padding-bottom: 30px;
+       } 
+
+        .cardContent {
+            display: none;
+        }
+
+    }
 }

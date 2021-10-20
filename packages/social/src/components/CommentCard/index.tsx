@@ -12,7 +12,7 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 
 import styles from './CommentCard.module.scss'
 import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useDispatch } from '@xrengine/client-core/src/store'
 import SimpleModal from '../SimpleModal'
 import { FeedCommentService } from '@xrengine/client-core/src/social/state/FeedCommentService'
