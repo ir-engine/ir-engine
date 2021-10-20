@@ -123,7 +123,7 @@
     "semantic-release-monorepo": "7.0.5",
     "ts-node": "10.3.0",
     "ts-node-dev": "1.1.8",
-    "typedoc": "0.22.5",
+    "typedoc": "0.22.6",
     "typescript": "4.4.4"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
