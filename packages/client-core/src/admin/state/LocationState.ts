@@ -1,10 +1,10 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { UserSeed } from '@standardcreative/common/src/interfaces/User'
+import { IdentityProviderSeed } from '@standardcreative/common/src/interfaces/IdentityProvider'
+import { AuthUserSeed } from '@standardcreative/common/src/interfaces/AuthUser'
 import { LocationActionType } from './LocationActions'
-import { Location } from '@xrengine/common/src/interfaces/Location'
-import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
+import { Location } from '@standardcreative/common/src/interfaces/Location'
+import { LocationType } from '@standardcreative/common/src/interfaces/LocationType'
 
 export const LOCATION_PAGE_LIMIT = 100
 

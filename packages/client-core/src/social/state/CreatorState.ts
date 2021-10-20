@@ -3,7 +3,7 @@
  */
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { CreatorActionType } from './CreatorActions'
-import { Creator, CreatorShort, CreatorNotification } from '@xrengine/common/src/interfaces/Creator'
+import { Creator, CreatorShort, CreatorNotification } from '@standardcreative/common/src/interfaces/Creator'
 
 const state = createState({
   creators: {

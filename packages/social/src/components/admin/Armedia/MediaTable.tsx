@@ -1,5 +1,5 @@
 import React from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 
 import Card from '@material-ui/core/Card'
 import CardActionArea from '@material-ui/core/CardActionArea'
@@ -16,8 +16,8 @@ import Typography from '@material-ui/core/Typography'
 import ViewMedia from './ViewMedia'
 import { useARMediaStyles } from './styles'
 import Grid from '@material-ui/core/Grid'
-import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
-import { ArMedia } from '@xrengine/common/src/interfaces/ArMedia'
+import { ArMediaService } from '@standardcreative/client-core/src/social/state/ArMediaService'
+import { ArMedia } from '@standardcreative/common/src/interfaces/ArMedia'
 
 interface Props {
   list?: Array<ArMedia>

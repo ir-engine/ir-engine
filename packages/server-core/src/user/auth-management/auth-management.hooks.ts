@@ -1,6 +1,6 @@
 import { hooks } from '@feathersjs/authentication'
 import { iff } from 'feathers-hooks-common'
-import isAction from '@xrengine/server-core/src/hooks/is-action'
+import isAction from '@standardcreative/server-core/src/hooks/is-action'
 const { authenticate } = hooks
 
 export default {

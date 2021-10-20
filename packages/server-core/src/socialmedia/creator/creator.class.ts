@@ -8,7 +8,7 @@ import { QueryTypes } from 'sequelize'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { getCreatorByUserId } from '../util/getCreator'
 /**
- * A class for ARC Creator service
+ * A class for Creator service
  */
 export class Creator extends Service {
   app: Application

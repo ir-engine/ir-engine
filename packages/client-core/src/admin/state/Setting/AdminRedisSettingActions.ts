@@ -1,4 +1,4 @@
-import { AdminRedisSettingResult } from '@xrengine/common/src/interfaces/AdminRedisSettingResult'
+import { AdminRedisSettingResult } from '@standardcreative/common/src/interfaces/AdminRedisSettingResult'
 
 export const AdminRedisSettingAction = {
   redisSettingRetrieved: (adminRedisSettingResult: AdminRedisSettingResult) => {

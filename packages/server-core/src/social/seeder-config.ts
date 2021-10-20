@@ -4,7 +4,7 @@ import { inviteTypeSeed } from './invite-type/invite-type.seed'
 import { locationTypeSeed } from './location-type/location-type.seed'
 import { locationSeed } from './location/location.seed'
 import { messageStatusSeed } from './message-status/message-status.seed'
-import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
+import { ServicesSeedConfig } from '@standardcreative/common/src/interfaces/ServicesSeedConfig'
 
 export const socialSeeds: Array<ServicesSeedConfig> = [
   groupUserRankSeed,

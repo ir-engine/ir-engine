@@ -1,7 +1,4 @@
-import config from '../../appconfig'
 import { entitySeed } from '../entity/entity.seed'
-import { defaultPostProcessingSchema } from '@xrengine/engine/src/scene/classes/PostProcessing'
-import { Vector3 } from 'three'
 
 export const componentSeed = {
   path: 'component',
@@ -177,7 +174,6 @@ export const componentSeed = {
     {
       id: '09cc03c4-24e9-11eb-bc2e-e7e742fb069f',
       data: {
-        options: defaultPostProcessingSchema
       },
       createdAt: '2020-11-12 13:14:45',
       updatedAt: '2020-11-12 13:14:45',

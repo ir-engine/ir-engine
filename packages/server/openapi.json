@@ -1,7 +1,7 @@
 {
     "info": {
-      "title": "XREngine API Surface",
-      "description": "APIs for the XREngine application",
+      "title": "Creator API Surface",
+      "description": "APIs for the Creator application",
       "version": "1.0.0"
     },
     "paths": {

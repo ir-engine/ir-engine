@@ -1,11 +1,7 @@
 {
-  "name": "@xrengine/server-core",
-  "description": "Shared components for XREngine server",
+  "name": "@standardcreative/server-core",
+  "description": "Shared components for Creator server",
   "version": "0.4.10",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/XRFoundation/XREngine.git"
-  },
   "homepage": "",
   "publishConfig": {
     "access": "public"
@@ -26,7 +22,7 @@
     "vr"
   ],
   "author": {
-    "name": "XRFoundation Collective",
+    "name": "Standard Creative",
     "email": "hello@xrfoundation.io"
   },
   "contributors": [],
@@ -38,7 +34,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "echo \"TODO: no test specified\" && exit 0",
-    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 APP_ENV=production rollup -c",
+    "build-publish": "rimraf lib && cross-env NODE_OPTIONS=--max_old_space_size=8192 APP_ENV=production rollup -c",
     "validate": "npm run build && npm run test",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
@@ -64,8 +60,7 @@
     "@feathersjs/socketio-client": "^5.0.0-pre.9",
     "@feathersjs/transport-commons": "^5.0.0-pre.9",
     "@google-cloud/agones-sdk": "1.18.0",
-    "@xrengine/common": "^0.4.10",
-    "@xrengine/engine": "^0.4.10",
+    "@standardcreative/common": "^0.4.10",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",

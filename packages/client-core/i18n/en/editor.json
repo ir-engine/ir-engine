@@ -413,10 +413,6 @@
             "lbl-interactable": "Interactable",
             "lbl-id": "Element Id"
         },
-        "volumetric": {
-            "description": "Dynamically loads a volumetric video.",
-            "lbl-volumetric": "Volumetric"
-        },
         "spline": {
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."

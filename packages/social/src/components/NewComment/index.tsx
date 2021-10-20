@@ -2,13 +2,13 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 
 import TextField from '@material-ui/core/TextField'
 import MessageIcon from '@material-ui/icons/Message'
 import styles from './NewComment.module.scss'
-import { FeedCommentService } from '@xrengine/client-core/src/social/state/FeedCommentService'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { FeedCommentService } from '@standardcreative/client-core/src/social/state/FeedCommentService'
+import { useAuthState } from '@standardcreative/client-core/src/user/state/AuthState'
 import PopupLogin from '../PopupLogin/PopupLogin'
 import { useTranslation } from 'react-i18next'
 

@@ -3,8 +3,8 @@
  */
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { FeedCommentActionType } from './FeedCommentActions'
-import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'
-import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
+import { CommentInterface } from '@standardcreative/common/src/interfaces/Comment'
+import { CreatorShort } from '@standardcreative/common/src/interfaces/Creator'
 
 const state = createState({
   feeds: {

@@ -1,9 +1,9 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { AlertService } from '@xrengine/client-core/src/common/state/AlertService'
-import { client } from '@xrengine/client-core/src/feathers'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { AlertService } from '@standardcreative/client-core/src/common/state/AlertService'
+import { client } from '@standardcreative/client-core/src/feathers'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 // import { fetchingFeedFires, feedFiresRetrieved } from './actions'
 // import { addFeedReport } from '../feed/actions'
 

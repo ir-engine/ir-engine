@@ -15,7 +15,7 @@
 
 import { TheFeedsBookmarkActionType } from './TheFeedsBookmarkActions'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { store } from '@xrengine/client-core/src/store'
+import { store } from '@standardcreative/client-core/src/store'
 
 const state = createState({
   thefeedsbookmark: {

@@ -1,5 +1,5 @@
-import config from '@xrengine/server-core/src/appconfig'
-import seeder from '@xrengine/server-core/src/util/seeder'
+import config from '@standardcreative/server-core/src/appconfig'
+import seeder from '@standardcreative/server-core/src/util/seeder'
 import { Sequelize } from 'sequelize'
 import { setTimeout } from 'timers'
 import { Application } from '../declarations'

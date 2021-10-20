@@ -13,7 +13,7 @@ import { getCreatorByUserId } from '../util/getCreator'
 // conts TheFeeds = '';
 
 /**
- * A class for ARC Feed service
+ * A class for Feed service
  */
 export class TheFeedsFires extends Service {
   //eslint-disable-next-line @typescript-eslint/no-unused-vars

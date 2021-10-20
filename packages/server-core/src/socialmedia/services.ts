@@ -7,7 +7,6 @@ import FeedBookmark from './feed-bookmark/feed-bookmark.service'
 import Comments from './comments/comments.service'
 import CommentsFires from './comments-fires/comments-fires.service'
 import FollowCreator from './follow-creator/follow-creator.service'
-import ArMedia from './ar-media/ar-media.service'
 import TheFeeds from './feeds/feeds.service'
 import TheFeedsFires from './feeds-fires/feeds-fires.service'
 import BlockCreator from './block-creator/block-creator.service'
@@ -23,7 +22,6 @@ export default [
   Comments,
   CommentsFires,
   FollowCreator,
-  ArMedia,
   TheFeeds,
   TheFeedsFires,
   BlockCreator

@@ -1,4 +1,4 @@
-import { ClientSettingResult } from '@xrengine/common/src/interfaces/ClientSettingResult'
+import { ClientSettingResult } from '@standardcreative/common/src/interfaces/ClientSettingResult'
 export const ClientSettingAction = {
   fetchedClient: (clientSettingResult: ClientSettingResult) => {
     return {

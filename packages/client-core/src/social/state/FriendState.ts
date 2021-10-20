@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { FriendActionType } from './FriendActions'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { User } from '@standardcreative/common/src/interfaces/User'
 import _ from 'lodash'
 
 const state = createState({

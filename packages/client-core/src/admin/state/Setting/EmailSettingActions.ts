@@ -1,4 +1,4 @@
-import { EmailSettingResult } from '@xrengine/common/src/interfaces/EmailSettingResult'
+import { EmailSettingResult } from '@standardcreative/common/src/interfaces/EmailSettingResult'
 
 export const EmailSettingAction = {
   fetchedEmail: (emailSettingResult: EmailSettingResult) => {

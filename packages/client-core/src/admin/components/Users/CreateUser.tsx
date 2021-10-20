@@ -23,7 +23,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
 import { ScopeService } from '../../state/ScopeService'
 import { useScopeState } from '../../state/ScopeState'
-import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { AdminScopeType } from '@standardcreative/common/src/interfaces/AdminScopeType'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />

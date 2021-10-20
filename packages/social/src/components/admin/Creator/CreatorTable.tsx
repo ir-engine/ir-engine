@@ -13,11 +13,11 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 import TablePagination from '@material-ui/core/TablePagination'
 import ViewCreator from './ViewCreator'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useAuthState } from '@standardcreative/client-core/src/user/state/AuthState'
+import { useCreatorState } from '@standardcreative/client-core/src/social/state/CreatorState'
 
 interface Props {}
 

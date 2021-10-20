@@ -5,12 +5,12 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
 import { QueryTypes } from 'sequelize'
-import { TheFeeds as FeedsInterface } from '@xrengine/common/src/interfaces/Feeds'
+import { TheFeeds as FeedsInterface } from '@standardcreative/common/src/interfaces/Feeds'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { BadRequest } from '@feathersjs/errors'
 import { getCreatorByUserId } from '../util/getCreator'
 /**
- * A class for ARC TheFeeds service
+ * A class for TheFeeds service
  */
 
 // const thefeeds = '';

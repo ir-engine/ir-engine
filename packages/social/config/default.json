@@ -1,16 +1,16 @@
 {
   "publicRuntimeConfig": {
-    "title": "ARC",
+    "title": "Creator",
     "dev": false,
     "loginDisabled": false,
     "logo": "./logo.svg",
     "apiServer": "https://${VITE_SERVER_HOST}:${VITE_SERVER_PORT}",
     "appServer": "https://${VITE_APP_HOST}:${VITE_APP_PORT}",
     "readyPlayerMeUrl":"${VITE_READY_PLAYER_ME_URL}",
-    "siteTitle": "ARC",
+    "siteTitle": "Creator",
     "siteDescription": "Connected Social for Everyone",
     "feathersStoreKey": "TheOverlay-Auth-Store",
-    "localStorageKey": "arc-client-store-key-v1",
+    "localStorageKey": "standard-creative-client-store-key-v1",
     "auth": {
       "enableSmsMagicLink": true,
       "enableEmailMagicLink": true,

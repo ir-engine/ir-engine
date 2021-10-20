@@ -1,4 +1,4 @@
-import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
+import { AvatarResult } from '@standardcreative/common/src/interfaces/AvatarResult'
 
 export const AvatarAction = {
   avatarsFetched: (avatars: AvatarResult) => {

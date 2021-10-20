@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>, Gleb Ordinsky
  */
 import React, { useState, useEffect } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 
 import CardMedia from '@material-ui/core/CardMedia'
 import Typography from '@material-ui/core/Typography'
@@ -21,21 +21,20 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import Avatar from '@material-ui/core/Avatar'
 import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
-import { Feed } from '@xrengine/common/src/interfaces/Feed'
+import { Feed } from '@standardcreative/common/src/interfaces/Feed'
 import CreatorAsTitle from '../CreatorAsTitle'
 // @ts-ignore
 import styles from './FeedCard.module.scss'
 import SimpleModal from '../SimpleModal'
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { FeedService } from '@standardcreative/client-core/src/social/state/FeedService'
 
-import { FeedFiresService } from '@xrengine/client-core/src/social/state/FeedFiresService'
+import { FeedFiresService } from '@standardcreative/client-core/src/social/state/FeedFiresService'
 import { FeedLikesService } from '../../state/FeedLikesService'
 
 import { useTranslation } from 'react-i18next'
 
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { PopupsStateService } from '@standardcreative/client-core/src/social/state/PopupsStateService'
 import { FeedReportsService } from '../../state/FeedReportsService'
-import { Share } from '@capacitor/share'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 import CommentList from '../CommentList'
@@ -115,12 +114,6 @@ const FeedCard = (props: Props): any => {
 
   const { t } = useTranslation()
   const shareVia = () => {
-    Share.share({
-      title: t('social:shareForm.arcMedia'),
-      text: t('social:shareForm.videoCreated'),
-      url: encodeURI(feed.videoUrl),
-      dialogTitle: t('social:shareForm.shareWithBuddies')
-    })
   }
 
   // const handleGetFeedFiredUsers = (feedId) => {

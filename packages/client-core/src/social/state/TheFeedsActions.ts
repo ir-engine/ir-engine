@@ -3,7 +3,7 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 
-import { TheFeedsShort, TheFeeds } from '@xrengine/common/src/interfaces/Feeds'
+import { TheFeedsShort, TheFeeds } from '@standardcreative/common/src/interfaces/Feeds'
 
 export const TheFeedsAction = {
   thefeedsRetrieved: (thefeeds: TheFeeds[]) => {

@@ -1,7 +1,7 @@
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import logRequest from '../../hooks/log-request'
-import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
+import verifyScope from '@standardcreative/server-core/src/hooks/verify-scope'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 

@@ -5,13 +5,13 @@ import { Card, CardContent, CardMedia, Typography, Avatar } from '@material-ui/c
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import PersonPinIcon from '@material-ui/icons/PersonPin'
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { useCreatorState } from '@standardcreative/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@standardcreative/client-core/src/social/state/CreatorService'
 // @ts-ignore
 import styles from './Creators.module.scss'
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { PopupsStateService } from '@standardcreative/client-core/src/social/state/PopupsStateService'
 
 interface Props {}
 

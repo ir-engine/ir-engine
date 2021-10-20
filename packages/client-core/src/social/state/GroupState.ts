@@ -1,8 +1,8 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import _ from 'lodash'
-import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
+import { GroupUser } from '@standardcreative/common/src/interfaces/GroupUser'
 import { GroupActionType } from './GroupActions'
-import { Group } from '@xrengine/common/src/interfaces/Group'
+import { Group } from '@standardcreative/common/src/interfaces/Group'
 
 const state = createState({
   groups: {

@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { EmailSettingActionType } from './EmailSettingActions'
-import { EmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
+import { EmailSetting } from '@standardcreative/common/src/interfaces/EmailSetting'
 
 const state = createState({
   Email: {

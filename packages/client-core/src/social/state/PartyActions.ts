@@ -1,6 +1,6 @@
-import { Party } from '@xrengine/common/src/interfaces/Party'
-import { PartyResult } from '@xrengine/common/src/interfaces/PartyResult'
-import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
+import { Party } from '@standardcreative/common/src/interfaces/Party'
+import { PartyResult } from '@standardcreative/common/src/interfaces/PartyResult'
+import { PartyUser } from '@standardcreative/common/src/interfaces/PartyUser'
 
 export const PartyAction = {
   loadedParty: (partyResult: PartyResult) => {

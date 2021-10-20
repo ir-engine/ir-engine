@@ -1,6 +1,6 @@
-import { Location } from '@xrengine/common/src/interfaces/Location'
-import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
-import { LocationTypesResult } from '@xrengine/common/src/interfaces/LocationTypesResult'
+import { Location } from '@standardcreative/common/src/interfaces/Location'
+import { LocationResult } from '@standardcreative/common/src/interfaces/LocationResult'
+import { LocationTypesResult } from '@standardcreative/common/src/interfaces/LocationTypesResult'
 export const LocationAction = {
   locationsRetrieved: (locations: LocationResult) => {
     return {

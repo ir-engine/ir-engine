@@ -1,6 +1,6 @@
-import { User } from '@xrengine/common/src/interfaces/User'
-import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
-import { FriendResult } from '@xrengine/common/src/interfaces/FriendResult'
+import { User } from '@standardcreative/common/src/interfaces/User'
+import { UserRelationship } from '@standardcreative/common/src/interfaces/UserRelationship'
+import { FriendResult } from '@standardcreative/common/src/interfaces/FriendResult'
 
 export const FriendAction = {
   loadedFriends: (friendResult: FriendResult) => {

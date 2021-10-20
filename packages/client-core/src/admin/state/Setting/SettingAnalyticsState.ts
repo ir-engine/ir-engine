@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { SettingAnalyticsActionType } from './SettingAnalyticsActions'
-import { SettingAnalytics } from '@xrengine/common/src/interfaces/SettingAnalytics'
+import { SettingAnalytics } from '@standardcreative/common/src/interfaces/SettingAnalytics'
 
 const state = createState({
   Analytics: {

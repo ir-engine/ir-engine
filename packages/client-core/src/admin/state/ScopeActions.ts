@@ -1,6 +1,6 @@
-import { AdminScopTypeResult } from '@xrengine/common/src/interfaces/AdminScopeTypeResult'
-import { AdminScopeResult } from '@xrengine/common/src/interfaces/AdminScopeResult'
-import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
+import { AdminScopTypeResult } from '@standardcreative/common/src/interfaces/AdminScopeTypeResult'
+import { AdminScopeResult } from '@standardcreative/common/src/interfaces/AdminScopeResult'
+import { AdminScope } from '@standardcreative/common/src/interfaces/AdminScope'
 export const ScopeAction = {
   fetchingScope: () => {
     return {

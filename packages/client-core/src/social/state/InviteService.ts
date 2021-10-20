@@ -1,10 +1,10 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { InviteAction } from './InviteActions'
-import { Invite } from '@xrengine/common/src/interfaces/Invite'
+import { Invite } from '@standardcreative/common/src/interfaces/Invite'
 import { accessAuthState } from '../../user/state/AuthState'
 import { accessInviteState } from './InviteState'
-import { Config } from '@xrengine/common/src/config'
+import { Config } from '@standardcreative/common/src/config'
 import { AlertService } from '../../common/state/AlertService'
 import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
 

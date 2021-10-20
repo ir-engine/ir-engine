@@ -1,4 +1,4 @@
-import { TheFeedsFires } from '@xrengine/server-core/src/socialmedia/feeds-fires/feeds-fires.class'
+import { TheFeedsFires } from '@standardcreative/server-core/src/socialmedia/feeds-fires/feeds-fires.class'
 /**
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */

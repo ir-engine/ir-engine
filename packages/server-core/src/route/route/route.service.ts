@@ -6,7 +6,7 @@ import createModel from './route.model'
 import routeDocs from './route.docs'
 import fs from 'fs'
 import path from 'path'
-import { InstalledRoutesInterface, ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
+import { InstalledRoutesInterface, ActiveRoutesInterface } from '@standardcreative/common/src/interfaces/Route'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

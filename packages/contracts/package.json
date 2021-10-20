@@ -1,0 +1,33 @@
+{
+  "scripts": {
+    "build": "yarn build:contracts && yarn build:package",
+    "prepublishOnly": "yarn build",
+    "test": "hardhat test",
+    "compile": "hardhat clean && hardhat compile",
+    "typechain": "rm -rf ./typechain && typechain --show-stack-traces --target ethers-v5 --out-dir ./typechain 'artifacts/!(build-info)/**/!(*.dbg*)*.json'",
+    "build:contracts": "yarn compile && yarn typechain",
+    "build:package": "rm -rf ./dist && tsc && cp typechain/*.d.ts dist/typechain && cp -R addresses dist && cp -R artifacts/contracts dist/artifacts && cp -R contracts dist",
+    "deploy-local": "ts-node scripts/deploy.ts --chainId 1337 && cp -R addresses dist"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-waffle": "^2.0.0",
+    "@openzeppelin/contracts": "^4.3.0",
+    "@openzeppelin/contracts-upgradeable": "^4.3.0",
+    "@typechain/ethers-v5": "^7.0.1",
+    "@typechain/hardhat": "^2.2.0",
+    "@types/chai": "^4.2.21",
+    "@types/fs-extra": "^9.0.12",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.4.2",
+    "chai": "^4.3.4",
+    "dotenv": "^10.0.0",
+    "ethereum-waffle": "^3.0.0",
+    "ethers": "^5.0.0",
+    "fs-extra": "^10.0.0",
+    "hardhat": "^2.5.0",
+    "ts-node": "^10.1.0",
+    "typechain": "^5.1.2",
+    "typescript": "^4.3.5"
+  }
+}

@@ -21,7 +21,7 @@ const Bots = () => {
           <Card className={classes.root}>
             <Paper className={classes.header}>
               <Typography className={classes.title}>
-                <List style={{ paddingTop: '5px' }} /> <span style={{ marginLeft: '10px' }}> XREngine bots </span>
+                <List style={{ paddingTop: '5px' }} /> <span style={{ marginLeft: '10px' }}> Creator bots </span>
               </Typography>
             </Paper>
             <DisplayBots />

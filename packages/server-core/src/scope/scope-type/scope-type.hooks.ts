@@ -1,5 +1,5 @@
 import * as authentication from '@feathersjs/authentication'
-import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
+import restrictUserRole from '@standardcreative/server-core/src/hooks/restrict-user-role'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 const { authenticate } = authentication.hooks

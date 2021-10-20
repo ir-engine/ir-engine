@@ -9,9 +9,9 @@ import Featured from '../Featured'
 import TheFeed from '../TheFeed'
 // import TipsAndTricks from '../TipsAndTricks'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { useDispatch } from '@standardcreative/client-core/src/store'
+import { FeedService } from '@standardcreative/client-core/src/social/state/FeedService'
+import { useFeedState } from '@standardcreative/client-core/src/social/state/FeedState'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'

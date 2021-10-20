@@ -1,6 +1,6 @@
 import { createState, useState } from '@hookstate/core'
 import { ProjectActionType } from './ProjectActions'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { ProjectInterface } from '@standardcreative/common/src/interfaces/ProjectInterface'
 
 export const PROJECT_PAGE_LIMIT = 100
 

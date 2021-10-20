@@ -8,7 +8,7 @@ import {
   MAX_AVATAR_FILE_SIZE,
   MIN_AVATAR_FILE_SIZE,
   PRESIGNED_URL_EXPIRATION_DURATION
-} from '@xrengine/common/src/constants/AvatarConstants'
+} from '@standardcreative/common/src/constants/AvatarConstants'
 import config from '../../appconfig'
 
 const storageProvider: any = useStorageProvider()

@@ -1,3 +1,8 @@
+body{
+  overflow: hidden;
+  margin: 0px;
+}
+
 @mixin flex-collapse {
   display: flex;
   flex-direction: column;
@@ -5,16 +10,54 @@
   flex-grow: 1;
 }
 
-.MuiDrawer-paperAnchorRight,
 .MuiDrawer-paperAnchorLeft {
   width: 30%;
 
-  @media (orientation: portrait) {
-    width: 70% !important;
+  @media (max-width: 768px) {
+    width: 90%;
   }
 
+  .MuiAccordion-root {
+    min-height: 50px;
+    overflow-y: auto;
+
+    &.Mui-expanded {
+      @include flex-collapse;
+
+      .MuiCollapse-container.MuiCollapse-entered {
+        @include flex-collapse;
+
+        .MuiCollapse-wrapper {
+          @include flex-collapse;
+
+          .MuiCollapse-wrapperInner {
+            @include flex-collapse;
+
+            & > div {
+              @include flex-collapse;
+
+              & > .MuiAccordionDetails-root {
+                @include flex-collapse;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .MuiAccordionSummary-content {
+    & > svg {
+      margin-right: 5px;
+    }
+  }
+}
+
+.MuiDrawer-paperAnchorRight {
+  width: 30%;
+
   @media (max-width: 768px) {
-    width: 90% !important;
+    width: 90%;
   }
 
   .MuiAccordion-root {
@@ -51,29 +94,21 @@
       min-width: initial;
     }
   }
-
-  .MuiAccordionSummary-content {
-    & > svg {
-      margin-right: 5px;
-    }
-  }
 }
 
-[class*=Bottom_list-container] {
-  .MuiDrawer-paperAnchorBottom {
-    opacity: 85%;
-    height: 60% !important;
-    max-width: 1000px;
+.MuiDrawer-paperAnchorBottom {
+  opacity: 85%;
+  height: 60% !important;
+  max-width: 1000px;
 
-    @media (max-width: 768px) {
-      max-width: 100%;
-      height: 80% !important;
-    }
+  @media (max-width: 768px) {
+    max-width: 100%;
+    height: 80% !important;
+  }
 
-    .MuiFormControl-marginNormal {
-      margin-top: 8px;
-      margin-right: 5px;
-    }
+  .MuiFormControl-marginNormal {
+    margin-top: 8px;
+    margin-right: 5px;
   }
 }
 
@@ -89,12 +124,9 @@
   color: black;
   text-align: center;
 }
-body{
-  overflow: auto;
-  overscroll-behavior-y: contain;
-}
 
-.menuDrawerOpened{
+
+.menuDrawerOpened{  
   [class*=InstanceChat_instance-chat-container]{
     right: 25vw;
     left: auto;
@@ -103,8 +135,8 @@ body{
       height: 0;
     }
     // @media (max-width: 768px){
-    //   right: 50%;
-    // }
+    //   right: 50%;      
+    // } 
     @media (max-width: 1280px){
       right: 33%;
     }
@@ -135,194 +167,6 @@ body{
     @media (max-width: 768px){
       left: 5px;
       right: auto;
-    }
-  }
-}
-
-.plugintest{
-  background:rgba(0,0,0,0);
-}
-
-.plugintestReadout{
-  background:rgba(255,255,255,128);
-  width:100vw;
-  height:50vh;
-  position:fixed;
-  bottom:0;
-  left:auto;
-  right:auto;
-  margin:auto;
-  padding:1em;
-}
-
-.plugintestControls {
-  width:100vw;
-  height:50vh;
-  position:fixed;
-  bottom:0;
-}
-
-.lander {
-  min-height: 100vh;
-  background-image: -moz-linear-gradient(150deg,#00022E,#dbdbdb 100%);
-  background-image: linear-gradient(150deg, #00022E, #ff007d4a);
-  position: relative;
-  overflow: hidden;
-
-  *{
-    font-family: Inter;
-    font-style: normal;
-    font-weight: 400;
-    z-index: 1;
-  }
-
-  .main-background {
-    position: absolute;
-    bottom: 0;
-    z-index: 0;
-    img { display: block; }
-
-    @media (max-width: 550px) {
-      .img-container {
-        position: absolute;
-        width: 700px;
-        bottom: 0;
-        left: -100px;
-      }
-    }
-
-    @media (min-width: 769px) { bottom: -75px; }
-    @media (min-width: 950px) { bottom: -175px; }
-    @media (min-width: 1250px) {
-      top: 150px;
-      bottom: 0;
-      width: 100%;
-      .img-container, img { width: 100%; }
-    }
-  }
-
-  .logo-bottom {
-    text-align: right;
-    margin-top: 15px;
-    font-size: 14px;
-    span { margin-right: 5px; }
-    .gray-txt { color: grey; }
-    .gradiant-txt {
-      color: transparent;
-      background-image: -moz-linear-gradient(357.78deg,#5236ff 0,#c20560 100%);
-      background-image: linear-gradient(92.22deg,#5236ff,#c20560);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-    .white-txt { color: white; margin-right: 0; }
-  }
-
-  .link-container {
-    position: absolute;
-    right: 30px;
-    top: 35px;
-    .link-block {
-      display: flex;
-      .icon { width: 30px; }
-      .icon + .icon { margin-left: 20px; }
-      .icon:hover, .icon:focus { opacity: 0.8; }
-    }
-    .logo-bottom { display: none; }
-
-    @media (max-width: 550px) {
-      width: 100%;
-      display: flex;
-      position: relative;
-      justify-content: center;
-      flex-direction: column;
-      align-items: center;
-      right: 0;
-      top: 0;
-      padding: 20px;
-      background: #000c;
-
-      .logo-bottom { display: block; }
-    }
-  }
-
-  .navbar {
-    padding: 30px 30px 15px 30px;
-    background: #0002;
-    .logo-section {
-      display: inline-block;
-      .lander-logo { width: 250px; }
-    }
-
-    @media (max-width: 550px) {
-      text-align: center;
-    }
-  }
-
-  .main-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    max-width: 1024px;
-    margin: auto;
-    .desc {
-      font-size: 20px;
-      margin: 10px 0 60px;
-      color: #dbdbdb;
-
-      .second-line {
-        font-size: 35px;
-        color: white;
-        .metaverse {
-          position: relative;
-          display: inline-block;
-          &::after {
-            width: 175px;
-            background: -moz-linear-gradient(357.78deg,#5236ff 0,#c20560 100%);
-            background: linear-gradient(92.22deg,#5236ff,#c20560);
-            border-radius: 1px;
-            height: 4px;
-            content: '';
-            display: block;
-            position: absolute;
-            left: 0;
-            bottom: 2;
-          }
-        }
-      }
-
-      @media (max-width: 550px) {
-        font-size: 15px;
-        .second-line {
-          font-size: 27px;
-          .metaverse::after { width: 135px; }
-        }
-      }
-
-    }
-    @media (min-width: 769px) {
-      flex-direction: row;
-      align-items: flex-start;
-      .desc {
-        width: 400px;
-        flex-shrink: 0;
-        margin-top: 100px;
-      }
-    }
-  }
-}
-
-[class*=Harmony_selectable] {
-  & > .MuiListItemText-root {
-    width: 75%;
-
-    & > .MuiTypography-displayBlock {
-      @media (max-width: 768px) {
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
     }
   }
 }

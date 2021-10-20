@@ -1,8 +1,60 @@
-import { RethrownError } from '@xrengine/editor/src/functions/errors'
 import i18n from 'i18next'
-import { AudioFileTypes, CustomScriptFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { getToken } from '@xrengine/editor/src/functions/getToken'
-import { Config } from '@xrengine/common/src/config'
+import { Config } from '@standardcreative/common/src/config'
+
+function eventToMessage(event) {
+  if (!event) return ''
+  if (event.message) return event.message
+  const target = event.target
+  if (target) {
+    if (event.target.error && event.target.error.message) return target.error.message
+    if (event.target.src) return `Failed to load "${target.src}"`
+    if (target instanceof XMLHttpRequest) {
+      return `Network Error: ${target.status || 'Unknown Status.'} ${
+        target.statusText || 'Unknown Error. Possibly a CORS error.'
+      }`
+    }
+    return `Unknown error on ${target}.`
+  }
+  return `Unknown error: "${JSON.stringify(event)}"`
+}
+
+class BaseError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = this.constructor.name
+    this.message = message
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, this.constructor)
+    } else {
+      this.stack = new Error(message).stack
+    }
+  }
+}
+// Override the message of an error but append the existing stack trace.
+class RethrownError extends BaseError {
+  originalError
+  constructor(message, error) {
+    super(`${message}:\n  Cause:\n    ${eventToMessage(error).replace(/\n/g, '\n    ')}`)
+    this.originalError = error
+    this.stack += '\n' + error.stack
+  }
+}
+
+const getToken = (): string => {
+  const token = localStorage.getItem(Config.publicRuntimeConfig.feathersStoreKey)
+
+  if (token == null || token.length === 0) {
+    throw new Error(i18n.t('editor:errors.notAuthenticated'))
+  }
+
+  return token
+}
+
+
+// array containing audio file type
+export const AudioFileTypes = ['.mp3', '.mpeg', 'audio/mpeg']
+//array containing custom script type.
+export const CustomScriptFileTypes = ['.tsx', '.ts', '.js']
 
 const serverURL = Config.publicRuntimeConfig.apiServer
 

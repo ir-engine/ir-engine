@@ -4,7 +4,7 @@
 
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { FeedActionType } from './FeedActions'
-import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed'
+import { FeedShort, Feed } from '@standardcreative/common/src/interfaces/Feed'
 
 const state = createState({
   feeds: {

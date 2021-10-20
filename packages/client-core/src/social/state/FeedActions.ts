@@ -2,7 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 
-import { FeedShort, Feed, FeedResult } from '@xrengine/common/src/interfaces/Feed'
+import { FeedShort, Feed, FeedResult } from '@standardcreative/common/src/interfaces/Feed'
 
 export const FeedAction = {
   feedsRetrieved: (feeds: Feed[]) => {

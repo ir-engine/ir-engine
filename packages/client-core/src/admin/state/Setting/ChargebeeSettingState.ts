@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { ChargebeeSettingActionType } from './ChargebeeSettingActions'
-import { ChargebeeSetting } from '@xrengine/common/src/interfaces/ChargebeeSetting'
+import { ChargebeeSetting } from '@standardcreative/common/src/interfaces/ChargebeeSetting'
 
 const state = createState({
   Chargebee: {

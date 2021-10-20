@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { GameServerSettingActionType } from './GameServerSettingActions'
-import { GameServerSetting } from '@xrengine/common/src/interfaces/GameServerSetting'
+import { GameServerSetting } from '@standardcreative/common/src/interfaces/GameServerSetting'
 
 const state = createState({
   gameServer: {

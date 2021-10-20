@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, Downgraded } from '@hookstate/core'
 import { DialogActionType } from './DialogActions'
-import { DialogSeed } from '@xrengine/common/src/interfaces/Dialog'
+import { DialogSeed } from '@standardcreative/common/src/interfaces/Dialog'
 
 const state = createState({
   isOpened: false,

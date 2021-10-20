@@ -2,10 +2,10 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 
-import { TheFeedsService } from '@xrengine/client-core/src/social/state/TheFeedsService'
-import { useTheFeedsState } from '@xrengine/client-core/src/social/state/TheFeedsState'
+import { TheFeedsService } from '@standardcreative/client-core/src/social/state/TheFeedsService'
+import { useTheFeedsState } from '@standardcreative/client-core/src/social/state/TheFeedsState'
 
 import TheFeedsCard from '../TheFeedsCard'
 

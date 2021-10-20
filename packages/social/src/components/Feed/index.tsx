@@ -2,16 +2,16 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 import { useTranslation } from 'react-i18next'
 
 import { Button, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { useFeedState } from '@standardcreative/client-core/src/social/state/FeedState'
+import { FeedService } from '@standardcreative/client-core/src/social/state/FeedService'
+import { usePopupsStateState } from '@standardcreative/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@standardcreative/client-core/src/social/state/PopupsStateService'
 
 import FeedCard from '../FeedCard'
 import Featured from '../Featured'

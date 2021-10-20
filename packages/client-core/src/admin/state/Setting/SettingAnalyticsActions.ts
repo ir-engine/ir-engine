@@ -1,4 +1,4 @@
-import { SettingAnalyticsResult } from '@xrengine/common/src/interfaces/SettingAnalyticsResult'
+import { SettingAnalyticsResult } from '@standardcreative/common/src/interfaces/SettingAnalyticsResult'
 
 export const SettingAnalyticsAction = {
   fetchedAnalytics: (settingAnalyticsResult: SettingAnalyticsResult) => {

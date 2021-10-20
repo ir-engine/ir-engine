@@ -5,7 +5,7 @@ import { Google } from '@styled-icons/bootstrap/Google'
 import { Facebook } from '@styled-icons/bootstrap/Facebook'
 import Fab from '@material-ui/core/Fab'
 import styles from './Login.module.scss'
-import { Config } from '@xrengine/common/src/config'
+import { Config } from '@standardcreative/common/src/config'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
@@ -137,7 +137,7 @@ const FlatSignIn = (props: Props) => {
         </Button>
       )}
       <span className={styles.placeholder} />
-      <CardMedia className={styles.logo} image={props.logo} title="ARC Logo" />
+      <CardMedia className={styles.logo} image={props.logo} title="Logo" />
       <span className={styles.placeholder} />
       {component}
       {enableUserPassword && socialCount > 0 && (

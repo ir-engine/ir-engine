@@ -19,7 +19,7 @@ import { PartyProps } from './variables'
 import { usePartyStyle } from './style'
 import { useLocationState } from '../../state/LocationState'
 import { useInstanceState } from '../../state/InstanceState'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Instance } from '@standardcreative/common/src/interfaces/Instance'
 
 const CreateParty = (props: PartyProps) => {
   const classes = usePartyStyle()

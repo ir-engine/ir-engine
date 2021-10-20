@@ -1,7 +1,7 @@
 import { VideoCreationForm, VideoUpdateForm, AdminAction } from './AdminActions'
 
 import axios from 'axios'
-import { Config } from '@xrengine/common/src/config'
+import { Config } from '@standardcreative/common/src/config'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/state/AlertService'
 import { PublicVideo, VideoAction } from '../../media/state/VideoActions'

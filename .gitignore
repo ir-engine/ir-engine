@@ -130,8 +130,6 @@ dist
 # TernJS port file
 .tern-port
 
-**/xrengine-secrets.env
-**/xrengine-dev-secrets.env
 lib/
 bin/
 
@@ -157,5 +155,5 @@ certs/
 
 /packages/projects/projects/*
 !/packages/projects/projects/theoverlay/
-!/packages/projects/projects/XREngine-Starter-Template/
+!/packages/projects/projects/Creator-Starter-Template/
 /packages/client/optimizeDeps.json

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
@@ -16,7 +16,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { validateARMediaForm } from './validation'
-import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
+import { ArMediaService } from '@standardcreative/client-core/src/social/state/ArMediaService'
 
 interface Props {
   open: boolean

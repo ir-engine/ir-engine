@@ -27,9 +27,6 @@
     "503": {
         "msg": "503 - Service Unavailable"
     },
-    "no-projects": {
-        "msg": "Error: No Projects Installed - please contact a site admin"
-    },
     "dev": {
         "pageTitle": "Home"
     },
@@ -43,7 +40,7 @@
         "by": "BY",
         "xr": "XR",
         "foundation": "Foundation",
-        "description": "<0>Realtime social apps for everyone,</0><1/><2>at <1>metaverse</1> scale.</2>"
+        "description": "Realtime social apps for everyone, at metaverse scale."
     },
     "xrengineContact": {
         "header": "Get In Touch!",
@@ -53,11 +50,16 @@
         "lbl-company": "Company",
         "lbl-project": "Describe your Project",
         "lbl-send": "Send",
-        "lbl-ok": "Ok",
-        "lbl-success": "Message Sent, We'll get back to you shortly.",
-        "lbl-failure": "An error occured, Plese try again",
-        "err-username": "Please enter you name.",
-        "err-email": "Email is require.",
-        "err-msg": "Provide some brief description of your project."
+        "lbl-success": "Message Sent, I'll get back to you shortly",
+        "lbl-failure": "An error occured, Plese try again"
+    },
+    "activity": {
+        "title": "Activity"
+    },
+    "explore": {
+        "title": "Explore"
+    },
+    "messages": {
+        "title": "Messages"
     }
 }

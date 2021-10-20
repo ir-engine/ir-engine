@@ -24,7 +24,7 @@ import IconButton from '@material-ui/core/IconButton'
 import { InstanceService } from '../../state/InstanceService'
 import { LocationService } from '../../state/LocationService'
 
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Instance } from '@standardcreative/common/src/interfaces/Instance'
 
 interface Props {
   open: boolean

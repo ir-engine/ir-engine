@@ -5,7 +5,7 @@
 // conts TheFeeds = '';
 // const THEFEEDS = '';
 
-import { TheFeedsShort, TheFeeds } from '@xrengine/common/src/interfaces/Feeds'
+import { TheFeedsShort, TheFeeds } from '@standardcreative/common/src/interfaces/Feeds'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { TheFeedsActionType } from './TheFeedsActions'
 

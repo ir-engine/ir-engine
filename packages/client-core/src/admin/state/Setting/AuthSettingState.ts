@@ -1,7 +1,7 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 
 import { AuthSettingActionType } from './AuthSettingActions'
-import { AdminAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
+import { AdminAuthSetting } from '@standardcreative/common/src/interfaces/AdminAuthSetting'
 const state = createState({
   authSettings: {
     authSettings: [] as Array<AdminAuthSetting>,

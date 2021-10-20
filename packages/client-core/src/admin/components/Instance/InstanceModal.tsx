@@ -17,8 +17,8 @@ import { useHistory } from 'react-router-dom'
 import React, { useEffect, useRef, useState } from 'react'
 import { client } from '../../../feathers'
 import styles from '../Admin.module.scss'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { Instance } from '@standardcreative/common/src/interfaces/Instance'
+import { User } from '@standardcreative/common/src/interfaces/User'
 interface Props {
   open: boolean
   handleClose: any

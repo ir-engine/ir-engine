@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next'
 import { useSceneState } from '../state/SceneState'
 import { useLocationState } from '../state/LocationState'
 
-import { Location } from '@xrengine/common/src/interfaces/Location'
+import { Location } from '@standardcreative/common/src/interfaces/Location'
 
 interface Props {
   open: boolean

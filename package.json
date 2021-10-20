@@ -1,29 +1,11 @@
 {
-  "name": "xrengine",
-  "description": "Game Engine, Server & Devops powering The XREngine. Please support XRFoundation https://opencollective.com/xrfoundation",
+  "name": "creator-nft",
   "version": "0.2.5",
-  "homepage": "xrengine.io",
   "private": true,
   "workspaces": {
     "packages": [
       "packages/*"
     ]
-  },
-  "keywords": [
-    "three",
-    "three.js",
-    "ecs",
-    "webgl",
-    "mmo",
-    "game engine",
-    "webrtc",
-    "productivity",
-    "xr",
-    "vr"
-  ],
-  "author": {
-    "name": "XR Engine - XR Foundation",
-    "email": "info@xrengine.io"
   },
   "entrypoint": {},
   "contributors": [],
@@ -39,7 +21,7 @@
   "jest": "ts-jest",
   "scripts": {
     "check": "npm run lint && npm run test:packages && npm run build-docker",
-    "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
+    "check-errors": "lerna run check-errors --ignore @standardcreative/server --ignore @standardcreative/server-core --parallel",
     "start": "npm run dev",
     "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently npm:dev-agones \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/client && npm run local\"",
     "dev": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server npm:dev-client",
@@ -53,30 +35,8 @@
     "dev-client": "cd packages/client && npm run dev",
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
     "dev-nginx": "",
-    "cleanup-tests": "node tests/cleanup-tests.js",
-    "test": "npm run test:e2e && npm run test:packages",
-    "test:e2e": "mocha",
-    "test:packages": "lerna run test",
-    "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
-    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",
-    "format-staged": "lint-staged",
-    "version-increment": "lerna version --conventional-commits --yes",
-    "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
-    "publish": "lerna publish from-package --yes",
-    "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
-    "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
-    "validate": "npm run lint && lerna run validate",
-    "build": "lerna run build --parallel",
-    "build-publish": "lerna run --ignore @xrengine/bot build-publish --parallel",
-    "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
-    "update-name-gh-package": "lerna run update-name-gh-package",
-    "diff": "lerna diff",
-    "precommit": "no-master-commits -b master",
-    "make-user-admin": "ts-eager scripts/make-user-admin.js",
-    "install-projects": "ts-eager scripts/install-projects.js",
-    "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
-    "depcheck": "lerna exec --no-bail --stream -- depcheck"
+    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\""
   },
   "types": "lib/",
   "pre-commit": [
@@ -137,7 +97,6 @@
     "kill-port": "1.6.1",
     "lerna": "4.0.0",
     "lint-staged": "11.2.3",
-    "mocha": "9.1.3",
     "no-master-commits": "1.1.1",
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",

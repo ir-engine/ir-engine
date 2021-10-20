@@ -1,8 +1,8 @@
-import config from '@xrengine/server-core/src/appconfig'
+import config from '@standardcreative/server-core/src/appconfig'
 import fs from 'fs'
 import https from 'https'
 import app from './app'
-import logger from '@xrengine/server-core/src/logger'
+import logger from '@standardcreative/server-core/src/logger'
 import psList from 'ps-list'
 
 process.on('unhandledRejection', (error, promise) => {
@@ -26,7 +26,7 @@ process.on('unhandledRejection', (error, promise) => {
       // Check for child process with mac OSX
       // exec("docker ps | grep mariadb", (err, stdout, stderr) => {
       //   if(!stdout.includes("mariadb")){
-      //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xrengine/scripts/start-db.sh and restart server\x1b[0m');
+      //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run creator/scripts/start-db.sh and restart server\x1b[0m');
       //   }
       // });
     }

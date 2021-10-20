@@ -1,4 +1,4 @@
-import { Config } from '@xrengine/common/src/config'
+import { Config } from '@standardcreative/common/src/config'
 import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/state/AlertService'
 import { client } from '../../feathers'

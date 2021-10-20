@@ -16,10 +16,10 @@ export const emailSeed = {
       from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>` || 'test',
       subject: JSON.stringify({
         // Subject of the Login Link email
-        login: 'XREngine login link',
-        friend: 'XREngine friend request',
-        group: 'XREngine group invitation',
-        party: 'XREngine party invitation'
+        login: 'Creator login link',
+        friend: 'Creator friend request',
+        group: 'Creator group invitation',
+        party: 'Creator party invitation'
       }),
       smsNameCharacterLimit: 20
     }

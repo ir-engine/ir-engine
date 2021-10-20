@@ -2,15 +2,15 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 
 import { Typography, CardHeader, Avatar, IconButton } from '@material-ui/core'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { PopupsStateService } from '@standardcreative/client-core/src/social/state/PopupsStateService'
+import { usePopupsStateState } from '@standardcreative/client-core/src/social/state/PopupsStateState'
+import { CreatorService } from '@standardcreative/client-core/src/social/state/CreatorService'
 
 interface Props {
   creator?: any

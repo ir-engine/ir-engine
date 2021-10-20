@@ -16,7 +16,7 @@ import Avatar from '@material-ui/core/Avatar'
 import Chip from '@material-ui/core/Chip'
 import FormControl from '@material-ui/core/FormControl'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { Config } from '@xrengine/common/src/config'
+import { Config } from '@standardcreative/common/src/config'
 import { useHistory } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '../../store'
@@ -37,9 +37,9 @@ import InstanceModal from './Instance/InstanceModal'
 import LocationModal from './LocationModal'
 import Search from './Search'
 import { useTranslation } from 'react-i18next'
-import { InstanceSeed } from '@xrengine/common/src/interfaces/Instance'
+import { InstanceSeed } from '@standardcreative/common/src/interfaces/Instance'
 
-import { LocationSeed } from '@xrengine/common/src/interfaces/Location'
+import { LocationSeed } from '@standardcreative/common/src/interfaces/Location'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

@@ -11,14 +11,14 @@ import WhatshotIcon from '@material-ui/icons/Whatshot'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 
 import styles from './CommentCard.module.scss'
-import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'
+import { CommentInterface } from '@standardcreative/common/src/interfaces/Comment'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 import SimpleModal from '../SimpleModal'
-import { FeedCommentService } from '@xrengine/client-core/src/social/state/FeedCommentService'
-import { useFeedCommentsState } from '@xrengine/client-core/src/social/state/FeedCommentState'
+import { FeedCommentService } from '@standardcreative/client-core/src/social/state/FeedCommentService'
+import { useFeedCommentsState } from '@standardcreative/client-core/src/social/state/FeedCommentState'
 import PopupLogin from '../PopupLogin/PopupLogin'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@standardcreative/client-core/src/user/state/AuthState'
 import { useTranslation } from 'react-i18next'
 
 interface Props {

@@ -9,7 +9,6 @@ export const staticResourceTypeSeed = {
     { type: 'audio' },
     { type: 'model3d' },
     { type: 'script' },
-    { type: 'volumetric' }, // any volumetric file, parse metadata for staticResourceType
     { type: 'json' }, // JSON data
     { type: 'avatar' }, // User Avatar 3d model
     { type: 'user-thumbnail' }, // User avatar profile thumbnail

@@ -1,4 +1,4 @@
-import { ChargebeeSettingResult } from '@xrengine/common/src/interfaces/ChargebeeSettingResult'
+import { ChargebeeSettingResult } from '@standardcreative/common/src/interfaces/ChargebeeSettingResult'
 
 export const ChargebeeSettingAction = {
   fetchedChargebee: (chargebeeSettingResult: ChargebeeSettingResult) => {

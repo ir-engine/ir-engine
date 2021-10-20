@@ -12,23 +12,11 @@ export const routeSeedData = {
     },
     {
       project: 'theoverlay',
-      route: '/harmony'
-    },
-    {
-      project: 'theoverlay',
-      route: '/location'
-    },
-    {
-      project: 'theoverlay',
       route: '/admin'
     },
     {
       project: 'theoverlay',
       route: '/auth'
-    },
-    {
-      project: 'theoverlay',
-      route: '/editor'
     }
   ]
 }

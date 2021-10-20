@@ -1,8 +1,0 @@
-
-[submodule "themes/docsy"]
-	path = docs/themes/docsy
-	url = https://github.com/google/docsy
-[submodule "public"]
-	path = docs/public
-	url = https://github.com/XRFoundation/XREngine.github.io.git
-	branch = master

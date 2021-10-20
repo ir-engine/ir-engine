@@ -2,7 +2,7 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 
-import { TheFeeds } from '@xrengine/common/src/interfaces/Feeds'
+import { TheFeeds } from '@standardcreative/common/src/interfaces/Feeds'
 
 export const TheFeedsBookmarkAction = {
   addTheFeedsBookmark: (thefeeds: TheFeeds) => {

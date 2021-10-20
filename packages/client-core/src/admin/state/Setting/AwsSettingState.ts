@@ -2,7 +2,7 @@ import { createState, DevTools, useState, none, Downgraded } from '@hookstate/co
 
 import { AwsSettingActionType } from './AwsSettingActions'
 
-import { AdminAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
+import { AdminAwsSetting } from '@standardcreative/common/src/interfaces/AdminAwsSetting'
 
 const state = createState({
   awsSettings: {

@@ -1,8 +1,8 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
-import { getI18nConfigs as getClientCoreI18nConfigs } from '@xrengine/client-core/src/i18n'
-import { setRuntime } from '@xrengine/common/src/config'
+import { getI18nConfigs as getClientCoreI18nConfigs } from '@standardcreative/client-core/src/i18n'
+import { setRuntime } from '@standardcreative/common/src/config'
 import translation from '../i18n/en/translation.json'
 
 export const initialize = (): Promise<void> => {

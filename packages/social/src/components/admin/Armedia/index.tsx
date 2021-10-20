@@ -2,13 +2,13 @@ import React from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@standardcreative/client-core/src/store'
 import { useARMediaStyles } from './styles'
 import SearchVideo from './SearchVideo'
 import MediaTable from './MediaTable'
 import MediaModel from './CreateVideo'
-import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
-import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
+import { useArMediaState } from '@standardcreative/client-core/src/social/state/ArMediaState'
+import { ArMediaService } from '@standardcreative/client-core/src/social/state/ArMediaService'
 
 interface Props {
   list?: any

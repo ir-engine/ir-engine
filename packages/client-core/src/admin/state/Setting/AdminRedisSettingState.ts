@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { AdminRedisSettingActionType } from './AdminRedisSettingActions'
-import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
+import { AdminRedisSetting } from '@standardcreative/common/src/interfaces/AdminRedisSetting'
 
 const state = createState({
   redisSettings: {

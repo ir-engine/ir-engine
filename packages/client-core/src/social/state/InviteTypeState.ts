@@ -1,6 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { InviteTypeActionType } from './InviteTypeActions'
-import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
+import { InviteType } from '@standardcreative/common/src/interfaces/InviteType'
 
 const state = createState({
   inviteTypeData: {
