@@ -131,7 +131,13 @@ const AddFilesForm = ({ filesTarget, setAddFilesView, setFilesTarget }: Props) =
 
   return (
     <section className={styles.viewport}>
-      <AppHeader title="CREATOR" hideAddButtons inputFileRef={inputFileRef} setFilesTarget={handleFilesTarget} />
+      <AppHeader
+        title="CREATOR"
+        hideAddButtons
+        inputFileRef={inputFileRef}
+        setFilesTarget={handleFilesTarget}
+        setAddFilesView={setAddFilesView}
+      />
       <Button className={styles.addFilesButton} onClick={handleAddFiles}>
         ADD FILES:
       </Button>

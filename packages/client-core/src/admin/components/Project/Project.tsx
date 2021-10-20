@@ -12,14 +12,12 @@ import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/state/AuthState'
-import { PROJECT_PAGE_LIMIT } from '../../../admin/state/ProjectState'
+import { PROJECT_PAGE_LIMIT, useProjectState } from '../../../admin/state/ProjectState'
 import { fetchAdminProjects, uploadProject } from '../../../admin/state/ProjectService'
 import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
-import { useProjectState } from '../../../admin/state/ProjectState'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 if (!global.setImmediate) {
@@ -31,8 +29,7 @@ const Projects = () => {
   const user = authState.user
   const adminProjectState = useProjectState()
   const adminProjects = adminProjectState.projects
-  const adminProjectCount = adminProjectState.total
-  const dispatch = useDispatch()
+  const adminProjectCount = 1 //adminProjectState.tota l =
 
   const headCell = [
     { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
@@ -119,7 +116,6 @@ const Projects = () => {
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
-  const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [uploadProjectsModalOpen, setUploadProjectsModalOpen] = useState(false)
   const [selectedProjects, setSelectedProjects] = useState<ProjectInterface[]>([])
@@ -136,9 +132,9 @@ const Projects = () => {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = adminProjects.value.map((n) => n.name)
-      setSelected(newSelecteds)
-      return
+      // const newSelecteds = adminProjects.value.map((n) => n.name)
+      // setSelected(newSelecteds)
+      // return
     }
     setSelected([])
   }
@@ -162,13 +158,6 @@ const Projects = () => {
     } else setSelectedProjects(selectedProjects.splice(existingProjectsIndex, 1))
   }
 
-  const fetchTick = () => {
-    setTimeout(() => {
-      setRefetch(true)
-      fetchTick()
-    }, 5000)
-  }
-
   const tryReuploadProjects = async (row) => {
     try {
       const existingProjects = adminProjects.value.find((projects) => projects.id === row.id)!
@@ -185,11 +174,15 @@ const Projects = () => {
   // }, [])
 
   useEffect(() => {
-    if (user?.id.value != null && (adminProjectState.updateNeeded.value === true || refetch === true)) {
+    if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
+      console.log('fetchAdminProjects')
       fetchAdminProjects()
     }
-    setRefetch(false)
-  }, [authState, adminProjectState.updateNeeded.value, refetch])
+  }, [adminProjectState.updateNeeded.value])
+
+  useEffect(() => {
+    console.log('adminProjectState', adminProjectState.projects.value)
+  }, [adminProjectState.value])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -245,7 +238,7 @@ const Projects = () => {
               rowCount={adminProjectCount?.value || 0}
             />
             <TableBody>
-              {stableSort(adminProjects?.value ?? [], getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(adminProjects.value ?? [], getComparator(order, orderBy)).map((row, index) => {
                 return (
                   <TableRow
                     hover

@@ -3,7 +3,7 @@ import CardMedia from '@material-ui/core/CardMedia'
 import styles from './Featured.module.scss'
 import { getComponentTypeForMedia } from '../Feed'
 
-export const MediaContent = ({ item, history, className, full }) => {
+export const MediaContent = ({ item, history, className, addToRefs, full }) => {
   switch (getComponentTypeForMedia(item.previewType || 'image')) {
     case 'img':
       return (
@@ -33,6 +33,7 @@ export const MediaContent = ({ item, history, className, full }) => {
       return (
         <CardMedia
           component="video"
+          ref={addToRefs}
           className={`${className} lazy`}
           {...dataSrc}
           {...options}
