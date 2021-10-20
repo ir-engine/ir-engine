@@ -152,6 +152,6 @@
   },
   "dependencies": {
     "@iconify/react": "3.0.1",
-    "depcheck": "^1.4.2"
+    "depcheck": "1.4.2"
   }
 }

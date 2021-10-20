@@ -75,7 +75,7 @@
     "moment": "2.29.1",
     "rc-dock": "3.2.2",
     "rc-slider": "9.7.4",
-    "react": "^17.0.0",
+    "react": "17.0.2",
     "react-color": "2.19.3",
     "react-contextmenu": "2.14.0",
     "react-dnd-html5-backend": "14.0.2",
@@ -108,11 +108,11 @@
     "uuid": "8.3.2",
     "vite": "2.6.10",
     "vite-plugin-optimize-persist": "0.1.0",
-    "vite-plugin-package-config": "^0.0.3",
+    "vite-plugin-package-config": "0.0.3",
     "webxr-native": "0.3.0"
   },
   "devDependencies": {
-    "@hookstate/devtools": "^3.0.1",
+    "@hookstate/devtools": "3.0.1",
     "@rollup/plugin-typescript": "8.3.0",
     "@types/node": "14.17.27",
     "@types/react": "17.0.30",
