@@ -103,7 +103,7 @@
     "nodemon": "2.0.14",
     "ps-list": "7.2.0",
     "pug": "3.0.2",
-    "regenerator-runtime": "^0.13.7",
+    "regenerator-runtime": "0.13.9",
     "request": "2.88.2",
     "require-main-filename": "2.0.0",
     "rollup-plugin-node-builtins": "2.1.2",
