@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 # syntax = docker/dockerfile:1.2
-=======
->>>>>>> parent of f8f603a93a... Init commit
 # not slim because we need github depedencies
 FROM node:16-buster
 
