@@ -6,7 +6,8 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "packages/projects/projects/*"
     ]
   },
   "keywords": [
@@ -74,7 +75,7 @@
     "diff": "lerna diff",
     "precommit": "no-master-commits -b master",
     "make-user-admin": "ts-eager scripts/make-user-admin.js",
-    "install-reality-packs": "ts-eager scripts/install-reality-packs.js",
+    "install-projects": "ts-eager scripts/install-projects.js",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "depcheck": "lerna exec --no-bail --stream -- depcheck"
   },
@@ -125,14 +126,14 @@
     "@hookstate/core": "3.0.13",
     "@types/mocha": "9.0.0",
     "@typescript-eslint/parser": "5.1.0",
-    "babel-jest": "27.2.5",
+    "babel-jest": "27.3.1",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
     "concurrently": "6.3.0",
     "cpy-cli": "3.1.1",
-    "esbuild": "0.13.7",
+    "esbuild": "0.13.8",
     "esbuild-plugin-sass": "0.6.0",
-    "jest": "27.2.5",
+    "jest": "27.3.1",
     "jest-puppeteer": "6.0.0",
     "kill-port": "1.6.1",
     "lerna": "4.0.0",

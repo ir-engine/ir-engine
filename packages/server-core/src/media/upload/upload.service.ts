@@ -1,6 +1,6 @@
 import express from 'express'
 import multer from 'multer'
-import StorageProvider from '../storageprovider/storageprovider'
+import { useStorageProvider } from '../storageprovider/storageprovider'
 import blobService from 'feathers-blob'
 
 import { Application } from '../../../declarations'
@@ -17,7 +17,7 @@ declare module '../../../declarations' {
 }
 
 export default (app: Application): void => {
-  const provider = new StorageProvider()
+  const provider = useStorageProvider()
   const doc = uploadDocs
 
   /**

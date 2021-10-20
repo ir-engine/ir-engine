@@ -155,7 +155,10 @@ certs/
 *.blend1
 *.ts.bak
 
+/packages/**/src/index.ts
+
+/packages/client/public/projects/*
 /packages/projects/projects/*
 !/packages/projects/projects/theoverlay/
-!/packages/projects/projects/standard-creative-gallery/
+!/packages/projects/projects/XREngine-Starter-Template/
 /packages/client/optimizeDeps.json

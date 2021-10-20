@@ -16,11 +16,6 @@ export const ContentPackAction = {
     return {
       type: 'CONTENT_PACK_PATCHED' as const
     }
-  },
-  postRealityPack: () => {
-    return {
-      type: 'REALITY_PACK_POSTED' as const
-    }
   }
 }
 

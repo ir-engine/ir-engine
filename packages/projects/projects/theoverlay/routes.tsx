@@ -49,7 +49,6 @@ export default function (route: string) {
       ]
     case '/editor':
       return [
-        <Redirect exact key={'/editor redirect'} path="/editor" to="/editor/projects" />,
         <Route
           key={'/editor'}
           path={'/editor'}

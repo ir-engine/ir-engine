@@ -30,7 +30,7 @@ const getAllChildren = async (
 }
 
 export const removeFile = async (context: HookContext, resourceId) => {
-  const provider = new StorageProvider()
+  const provider = useStorageProvider()
 
   const { app } = context
   const staticResourceService = app.service('static-resource')
