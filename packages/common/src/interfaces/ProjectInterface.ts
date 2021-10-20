@@ -1,4 +1,4 @@
-export interface ProjectManifestInterface {
+export interface ProjectPackageInterface {
   name: string
   version: string
   thumbnailUrl: string
@@ -11,7 +11,8 @@ export interface ProjectManifestInterface {
   moduleEntryPoints: string[]
 }
 
-export interface ProjectInterface extends ProjectManifestInterface {
-  storageProviderManifest?: string // does not exist in local dev
-  sourceManifest: string
+export interface ProjectInterface extends ProjectPackageInterface {
+  storageProviderPath?: string // does not exist in local dev
+  repositoryBranch?: string
+  repositoryPath: string
 }

@@ -162,9 +162,7 @@ const Projects = () => {
   const tryReuploadProjects = async (row) => {
     try {
       const existingProjects = adminProjects.value.find((projects) => projects.name === row.name)!
-      await uploadProject({
-        uploadURL: existingProjects.sourceManifest
-      })
+      await uploadProject(existingProjects.repositoryPath, existingProjects.repositoryBranch, existingProjects.name)
     } catch (err) {
       console.log(err)
     }

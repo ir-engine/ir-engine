@@ -3,15 +3,13 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 // import { ProjectManifestInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import fs from 'fs'
 import path from 'path'
+import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 
 const storageProvider = useStorageProvider()
 
 export const download = async (packName) => {
   try {
     const files = await getFileKeysRecursive(`project/${packName}`)
-
-    // const manifestResult = await storageProvider.getObject(`project/${packName}/manifest.json`)
-    // const manifest = JSON.parse(manifestResult.Body.toString()) as ProjectManifestInterface
 
     console.log('[ProjectLoader]: Installing project', packName, '...')
 
@@ -26,16 +24,6 @@ export const download = async (packName) => {
       const fileResult = await storageProvider.getObject(filePath)
       writeFileSyncRecursive(path.resolve(localProjectDirectory, filePath), fileResult.Body.toString()) //, 'utf8')
     }
-
-    // console.log('[Project temp debug]: local dir', localProjectDirectory)
-
-    // writeFileSyncRecursive(path.resolve(localProjectDirectory, 'manifest.json'), manifestResult.Body.toString()) //, 'utf8')
-
-    // for (const filePath of manifest.files) {
-    //   console.log(`[ProjectLoader]: - downloading "project/${packName}/${filePath}"`)
-    //   const fileResult = await storageProvider.getObject(`project/${packName}/${filePath}`)
-    //   writeFileSyncRecursive(path.resolve(localProjectDirectory, filePath), fileResult.Body.toString()) //, 'utf8')
-    // }
 
     console.log('[ProjectLoader]: Successfully downloaded and mounted project', packName)
   } catch (e) {

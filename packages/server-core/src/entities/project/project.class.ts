@@ -1,9 +1,8 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
-import { getAxiosConfig, getContentType, populateProject } from '../content-pack/content-pack-helper'
-import axios from 'axios'
-import { ProjectInterface, ProjectManifestInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { getContentType } from '../content-pack/content-pack-helper'
+import { ProjectInterface, ProjectPackageInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import fs from 'fs'
 import path from 'path'
 import { isDev } from '@xrengine/common/src/utils/isDev'
@@ -27,6 +26,38 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+
+    /**
+     * On dev, sync the db with any projects installed locally
+     */
+    if (isDev) {
+      super.find().then((dbEntries: any) => {
+        const data: ProjectInterface[] = dbEntries.data
+        console.log(dbEntries)
+
+        const locallyInstalledProjects = fs
+          .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
+          .filter((dirent) => dirent.isDirectory())
+          .map((dirent) => dirent.name)
+
+        for (const name of locallyInstalledProjects) {
+          if (!data.find((e) => e.name === name)) {
+            const packageData = JSON.parse(
+              fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/', name, 'package.json'), 'utf8')
+            ).xrengine as ProjectPackageInterface
+
+            packageData.name = name
+
+            const dbEntryData: ProjectInterface = {
+              ...packageData,
+              repositoryPath: getRemoteURLFromGitData(name)
+            }
+
+            super.create(dbEntryData)
+          }
+        }
+      })
+    }
   }
 
   /**
@@ -81,11 +112,14 @@ export class Project extends Service {
 
     // TODO: populate avatars & scenes
 
+    const packageData = JSON.parse(fs.readFileSync(path.resolve(projectLocalDirectory, 'package.json'), 'utf8'))
+      .xrengine as ProjectPackageInterface
+
     // Add to DB
     const dbEntryData: ProjectInterface = {
-      ...manifestData,
+      ...packageData,
       storageProviderPath: `https://${storageProvider.cacheDomain}/project/${data.name}/`,
-      sourcePath: data.url
+      repositoryPath: data.url
     }
 
     await super.create(dbEntryData, params)
@@ -95,13 +129,6 @@ export class Project extends Service {
 
   async remove(id: Id, params: Params) {
     try {
-      // we dont want to remove projects for local development, as this is handled manually for now,
-      // and could be done by accident to which code could be lost
-      // if(!isDev) {
-      //   const { name } = await super.get(id, params)
-      //   const manifestPath = path.resolve(__dirname, `../../../../projects/projects/${name}/manifest.json`)
-      //   fs.rmSync(manifestPath)
-      // }
       if (!isDev) await super.remove(id, params)
       // TODO: trigger re-build
     } catch (e) {
@@ -112,27 +139,25 @@ export class Project extends Service {
   }
 
   /**
-   * Gets the manifest from the storage provider
+   * Gets the metadata from the local fs
    *
    * @param id
    * @param params
    * @returns
    */
   async get(name: string, params: Params) {
-    const manifestPath = path.resolve(__dirname, `../../../../projects/projects/${name}/manifest.json`)
-    if (fs.existsSync(manifestPath)) {
+    const metadataPath = path.resolve(__dirname, `../../../../projects/projects/${name}/package.json`)
+    if (fs.existsSync(metadataPath)) {
       try {
-        const json: ProjectInterface = JSON.parse(
-          fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/' + name + '/manifest.json'), 'utf8')
-        )
+        const json: ProjectInterface = JSON.parse(fs.readFileSync(metadataPath, 'utf8')).xrengine
         json.name = name
         if (isDev) {
           const remoteURL = getRemoteURLFromGitData(name)
-          json.sourceManifest = remoteURL
+          json.repositoryPath = remoteURL
         } else {
           const data = (await super.get(name, params)) as ProjectInterface
-          json.sourceManifest = data.sourceManifest
-          json.storageProviderManifest = data.storageProviderManifest
+          json.repositoryPath = data.repositoryPath
+          json.storageProviderPath = data.storageProviderPath
         }
         return json
       } catch (e) {
@@ -144,28 +169,34 @@ export class Project extends Service {
   }
 
   /**
+   * Gets the metadata from the local fs
    *
    * @param params
    * @returns
    */
   async find(params: Params) {
-    const dbEntries = ((await super.find(params)) as any).data as ProjectInterface[]
-    console.log(dbEntries)
     return fs
       .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
-      .map((dir) => {
+      .map(async (name) => {
         try {
           const json: ProjectInterface = JSON.parse(
-            fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/' + dir + '/manifest.json'), 'utf8')
-          )
-          json.name = dir
-          const remoteURL = getRemoteURLFromGitData(dir)
-          json.sourceManifest = remoteURL
+            fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/' + name + '/package.json'), 'utf8')
+          ).xrengine
+          json.name = name
+          if (isDev) {
+            const remoteURL = getRemoteURLFromGitData(name)
+            json.repositoryPath = remoteURL
+          } else {
+            const data = (await super.get(name, params)) as ProjectInterface
+            json.repositoryPath = data.repositoryPath
+            json.storageProviderPath = data.storageProviderPath
+          }
+          console.log(json)
           return json
         } catch (e) {
-          console.warn('[getProjects]: Failed to read manifest.json for project', dir, 'with error', e)
+          console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
           return
         }
       })
