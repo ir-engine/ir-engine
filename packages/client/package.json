@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@capacitor/core": "3.2.5",
-    "@emotion/react": "11.4.1",
+    "@emotion/react": "11.5.0",
     "@emotion/styled": "11.3.0",
     "@feathersjs/client": "5.0.0-pre.9",
     "@hookstate/core": "3.0.13",
