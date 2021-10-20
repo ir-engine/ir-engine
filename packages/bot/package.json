@@ -12,7 +12,6 @@
     "access": "public"
   },
   "npmClient": "npm",
-  "jest": "ts-jest",
   "main": "src/bot.ts",
   "scripts": {
     "check-errors": "tsc --noemit",

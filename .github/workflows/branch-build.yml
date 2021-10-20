@@ -25,4 +25,4 @@ jobs:
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
       - run: npm run test:packages
-      - run: npm run build-docker
+      - run: npm run build-client

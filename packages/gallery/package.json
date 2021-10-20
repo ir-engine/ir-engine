@@ -10,7 +10,6 @@
     "node": ">= 16.3.0"
   },
   "npmClient": "npm",
-  "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noEmit",
     "dev": "vite --host",

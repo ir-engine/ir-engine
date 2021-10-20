@@ -29,7 +29,6 @@
   "engines": {
     "node": ">= 16.3.0"
   },
-  "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "concurrently \"cross-env APP_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm run dev\" \"npm run serve-local-files\"",

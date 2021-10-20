@@ -34,7 +34,6 @@
   "engines": {
     "node": ">= 16.3.0"
   },
-  "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "echo \"TODO: no test specified\" && exit 0",

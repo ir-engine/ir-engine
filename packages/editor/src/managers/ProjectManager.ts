@@ -1,5 +1,5 @@
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import { MultiError } from '../functions/errors'
+import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { loadEnvironmentMap } from '../components/EnvironmentMap'
 import ErrorIcon from '../classes/ErrorIcon'
 import EditorCommands from '../constants/EditorCommands'
