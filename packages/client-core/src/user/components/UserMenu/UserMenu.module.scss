@@ -1540,6 +1540,23 @@
                 width: 100%;
             }
 
+            .iconBlock {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                cursor: pointer;
+                border-radius: 50%;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                background-color: #5F5FF1;
+
+                svg {
+                    color: white;
+                    font-size: 20px;
+                }
+            }
+
             &.selectedAvatar {
                 border: solid 2px #21B84E;
             }
@@ -1553,11 +1570,11 @@
 
 .itemContainerPrev {
     content: "";
-    width: 33px;
+    width: 40px;
     height: 70px;
     position: absolute;
-    left: 2.9px;
-    top: 190px;
+    left: 2.5px;
+    top: 192.7px;
     background-color: rgb(51 51 110 / 50%);
     transform: rotate(45deg);
     border-top-right-radius: 50px;
@@ -1571,12 +1588,17 @@
         padding: 0;
         background-color: transparent;
         top: 18px;
-        right: -3px;
+        right: 3px;
         transform: rotate(-45deg);
+
+        @media (max-width: 360px) {
+            top: 13px;
+        }
 
         svg {
             position: relative;
             z-index: 1;
+            font-size: 30px;
         }
 
         &:hover {
@@ -1592,21 +1614,21 @@
     }
 
     @media (max-width: 360px) {
-        width: 33px;
+        width: 40px;
         height: 60px;
         position: absolute;
-        left: 0;
-        top: 156px;
+        left: -1px;
+        top: 159px;
     }
 }
 
 .itemContainerNext {
     content: "";
-    width: 33px;
+    width: 40px;
     height: 70px;
     position: absolute;
-    right: 2.9px;
-    top: 190px;
+    right: 2.5px;
+    top: 192.7px;
     background-color: rgb(51 51 110 / 50%);
     transform: rotate(135deg);
     border-top-right-radius: 50px;
@@ -1620,13 +1642,18 @@
         padding: 0;
         background-color: transparent;
         top: 18px;
-        right: -3px;
+        right: 3px;
         background-color: transparent;
         transform: rotate(225deg);
+
+        @media (max-width: 360px) {
+            top: 13px;
+        }
 
         svg {
             position: relative;
             z-index: 1;
+            font-size: 30px;
         }
 
         &:hover {
@@ -1642,10 +1669,10 @@
     }
 
     @media (max-width: 360px) {
-        width: 33px;
+        width: 40px;
         height: 60px;
         position: absolute;
-        right: 0;
-        top: 156px;
+        right: -1px;
+        top: 159px;
     }
 }

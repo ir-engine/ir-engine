@@ -38,7 +38,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   menuItemWidth: number
   menuItemRadius: number
   effectiveRadius: number
-  menuPadding: number = window.innerWidth > 360 ? 35 : 30
+  menuPadding: number = window.innerWidth > 360 ? 15 : 10
   menuThickness: number = 100
   styles: any
   constructor(props) {

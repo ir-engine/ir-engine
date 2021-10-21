@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
+import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd, Delete, Close } from '@material-ui/icons'
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
@@ -22,7 +23,7 @@ const AvatarMenu = (props: any): any => {
   const [avatarTobeDeleted, setAvatarTobeDeleted] = useState(null)
   let [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
 
-  let menuPadding = window.innerWidth > 360 ? 30 : 25
+  let menuPadding = window.innerWidth > 360 ? 15 : 10
   let menuThickness = menuRadius > 170 ? 70 : 60
   let menuItemWidth = menuThickness - menuPadding
   let menuItemRadius = menuItemWidth / 2
@@ -119,14 +120,42 @@ const AvatarMenu = (props: any): any => {
     const avatarList = []
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, props.avatarList.length)
-    const angle = 360 / imgPerPage
+    let angle = 0
     let index = 0
+    let itemAngle = 0
+    let x = 0
+    let y = 0
+
+    if (page === 0) {
+      angle = 360 / (imgPerPage + 1)
+      itemAngle = angle * index + 270
+      x = effectiveRadius * Math.cos((itemAngle * Math.PI) / 280)
+      y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
+      index++
+
+      avatarList.push(
+        <div
+          className={styles.menuItem}
+          style={{
+            width: menuItemWidth,
+            height: menuItemWidth,
+            transform: `translate(${x}px , ${y}px)`
+          }}
+        >
+          <div type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
+            <PersonAdd />
+          </div>
+        </div>
+      )
+    } else {
+      angle = 360 / imgPerPage
+    }
 
     for (let i = startIndex; i < endIndex; i++, index++) {
       const characterAvatar = props.avatarList[i]
-      const itemAngle = angle * index + 270
-      const x = effectiveRadius * Math.cos((itemAngle * Math.PI) / 280)
-      const y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
+      itemAngle = angle * index + 270
+      x = effectiveRadius * Math.cos((itemAngle * Math.PI) / 280)
+      y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
 
       avatarList.push(
         <Card
@@ -197,57 +226,46 @@ const AvatarMenu = (props: any): any => {
 
   return (
     <section className={styles.avatarMenu}>
-      <div
-        className={styles.itemContainer}
-        style={{
-          width: menuRadius * 2,
-          height: menuRadius * 2,
-          borderWidth: menuThickness
-        }}
-      >
-        <div className={styles.itemContainerPrev}>
-          <button
-            type="button"
-            className={`${styles.iconBlock} ${page === 0 ? styles.disabled : ''}`}
-            onClick={loadPreviousAvatars}
-          >
-            <NavigateBefore />
-          </button>
-        </div>
+      <ClickAwayListener onClickAway={closeMenu} mouseEvent="onMouseDown">
         <div
-          className={styles.menuItemBlock}
+          className={styles.itemContainer}
           style={{
-            width: menuItemRadius,
-            height: menuItemRadius
+            width: menuRadius * 2,
+            height: menuRadius * 2,
+            borderWidth: menuThickness
           }}
         >
-          {renderAvatarList()}
-        </div>
-        <div className={styles.itemContainerNext}>
-          <button
-            type="button"
-            className={`${styles.iconBlock} ${
-              (page + 1) * imgPerPage >= props.avatarList.length ? styles.disabled : ''
-            }`}
-            onClick={loadNextAvatars}
+          <div className={styles.itemContainerPrev}>
+            <button
+              type="button"
+              className={`${styles.iconBlock} ${page === 0 ? styles.disabled : ''}`}
+              onClick={loadPreviousAvatars}
+            >
+              <NavigateBefore />
+            </button>
+          </div>
+          <div
+            className={styles.menuItemBlock}
+            style={{
+              width: menuItemRadius,
+              height: menuItemRadius
+            }}
           >
-            <NavigateNext />
-          </button>
+            {renderAvatarList()}
+          </div>
+          <div className={styles.itemContainerNext}>
+            <button
+              type="button"
+              className={`${styles.iconBlock} ${
+                (page + 1) * imgPerPage >= props.avatarList.length ? styles.disabled : ''
+              }`}
+              onClick={loadNextAvatars}
+            >
+              <NavigateNext />
+            </button>
+          </div>
         </div>
-      </div>
-      <div className={styles.actionBlock}>
-        <button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
-          <ArrowBack /> Back
-        </button>
-        <button type="button" id="confirm-avatar" className={styles.iconBlock} onClick={closeMenu}>
-          <Check />
-        </button>
-        {props.enableSharing !== false && (
-          <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
-            <PersonAdd />
-          </button>
-        )}
-      </div>
+      </ClickAwayListener>
     </section>
   )
 }
