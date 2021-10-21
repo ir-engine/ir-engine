@@ -49,8 +49,15 @@ export default function RightHarmony() {
     setOpenInvite(open)
   }
 
-  console.log('RRRRRRRRRR', activeChannel)
+  useEffect(() => {
+    if (channelState.updateNeeded) {
+      ChatService.getChannels()
+    }
+  }, [channelState.updateNeeded.value])
 
+  console.log(activeChannel)
+  console.log(channels)
+  console.log(chatState)
   useEffect(() => {
     if (channelState.updateNeeded) {
       ChatService.getChannels()
