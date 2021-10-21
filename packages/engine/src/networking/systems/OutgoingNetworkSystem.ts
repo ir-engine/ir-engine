@@ -173,17 +173,23 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
   return world
 }
 
-export const queueUnchangedPoses = (world: World) => {
+export const queueUnchangedPosesServer = (world: World) => {
   const ents = networkTransformsQuery(world)
   for (let i = 0; i < ents.length; i++) {
     queueEntityTransform(world, ents[i])
   }
+
+  // todo: forward updates for remotely owned objects
+
   return world
 }
 
 // todo: move to client-specific system?
-export const queueUnchangedPosesForClient = (world: World) => {
+export const queueUnchangedPosesClient = (world: World) => {
   queueEntityTransform(world, world.localClientEntity)
+
+  // todo: queue udpates for owned objects
+
   return world
 }
 
@@ -296,7 +302,12 @@ export const resetNetworkState = (world: World) => {
 // prettier-ignore
 export const queueAllOutgoingPoses = pipe(
   resetNetworkState,
-  isClient ? queueUnchangedPosesForClient : queueUnchangedPoses,
+  /**
+   * For the client, we only want to send out objects we have authority over,
+   *   which are the local avatar and any owned objects
+   * For the server, we want to send all objects
+   */
+  isClient ? queueUnchangedPosesClient : queueUnchangedPosesServer,
   queueXRHandPoses,
   queueUnchangedControllerPoses
 )
@@ -320,12 +331,6 @@ const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
 }
 
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
-  /**
-   * For the client, we only want to send out objects we have authority over,
-   *   which are the local avatar and any owned objects
-   * For the server, we want to send all objects
-   */
-
   const sendActions = sendActionsOnTransport(Network.instance.transport)
   const sendData = sendDataOnTransport(Network.instance.transport)
 
