@@ -55,9 +55,6 @@ export default function RightHarmony() {
     }
   }, [channelState.updateNeeded.value])
 
-  console.log(activeChannel)
-  console.log(channels)
-  console.log(chatState)
   useEffect(() => {
     if (channelState.updateNeeded) {
       ChatService.getChannels()
