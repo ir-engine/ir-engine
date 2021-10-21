@@ -24,14 +24,14 @@
     "localstart": "cross-env APP_ENV=production VITE_LOCAL_BUILD=true npm run start"
   },
   "resolutions": {
-    "socket.io": "4.2.0",
+    "socket.io": "4.3.1",
     "@types/react": "17.0.31",
     "react": "17.0.2"
   },
   "peerDependencies": {
     "@types/react": "^17.0.0",
     "react": "^17.0.0",
-    "socket.io": "4.2.0"
+    "socket.io": "4.3.1"
   },
   "dependencies": {
     "@capacitor/core": "3.2.5",
@@ -103,7 +103,7 @@
     "sass": "1.42.1",
     "semantic-ui-react": "2.0.4",
     "shaka-player": "3.2.0",
-    "socket.io-client": "4.2.0",
+    "socket.io-client": "4.3.2",
     "styled-components": "5.3.1",
     "url-toolkit": "2.2.3",
     "use-debounce": "7.0.0",
