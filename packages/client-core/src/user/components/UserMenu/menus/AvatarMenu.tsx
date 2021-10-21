@@ -10,7 +10,7 @@ import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 
 const AvatarMenu = (props: any): any => {
   const MAX_AVATARS_PER_PAGE = 6
-  const MIN_AVATARS_PER_PAGE = 4
+  const MIN_AVATARS_PER_PAGE = 5
 
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
   const { t } = useTranslation()
@@ -20,6 +20,13 @@ const AvatarMenu = (props: any): any => {
   const [selectedAvatarId, setSelectedAvatarId] = useState('')
   const [isAvatarLoaded, setAvatarLoaded] = useState(false)
   const [avatarTobeDeleted, setAvatarTobeDeleted] = useState(null)
+  let [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
+
+  let menuPadding = window.innerWidth > 360 ? 30 : 25
+  let menuThickness = menuRadius > 170 ? 70 : 60
+  let menuItemWidth = menuThickness - menuPadding
+  let menuItemRadius = menuItemWidth / 2
+  let effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
 
   useEffect((() => {
     function handleResize() {
@@ -43,6 +50,22 @@ const AvatarMenu = (props: any): any => {
       setPage(page - 1)
     }
   }, [props.avatarList])
+
+  useEffect(() => {
+    window.addEventListener('resize', calculateMenuRadius)
+  }, [])
+
+  const calculateMenuRadius = (): void => {
+    setMenuRadius(window.innerWidth > 360 ? 182 : 150)
+    calculateOtherValues()
+  }
+
+  const calculateOtherValues = (): void => {
+    menuThickness = menuRadius > 170 ? 70 : 60
+    menuItemWidth = menuThickness - menuPadding
+    menuItemRadius = menuItemWidth / 2
+    effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
+  }
 
   const loadNextAvatars = (e) => {
     e.preventDefault()
@@ -96,17 +119,28 @@ const AvatarMenu = (props: any): any => {
     const avatarList = []
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, props.avatarList.length)
-    for (let i = startIndex; i < endIndex; i++) {
+    const angle = 360 / imgPerPage
+    let index = 0
+
+    for (let i = startIndex; i < endIndex; i++, index++) {
       const characterAvatar = props.avatarList[i]
+      const itemAngle = angle * index + 270
+      const x = effectiveRadius * Math.cos((itemAngle * Math.PI) / 280)
+      const y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
 
       avatarList.push(
         <Card
           key={characterAvatar.avatar.id}
           className={`
-						${styles.avatarPreviewWrapper}
-						${characterAvatar.avatar.name === props.avatarId ? styles.activeAvatar : ''}
+            ${styles.menuItem}
 						${characterAvatar.avatar.name === selectedAvatarId ? styles.selectedAvatar : ''}
+						${characterAvatar.avatar.name === props.avatarId ? styles.activeAvatar : ''}
 					`}
+          style={{
+            width: menuItemWidth,
+            height: menuItemWidth,
+            transform: `translate(${x}px , ${y}px)`
+          }}
         >
           <CardContent onClick={() => selectAvatar(characterAvatar)}>
             <LazyImage
@@ -160,39 +194,61 @@ const AvatarMenu = (props: any): any => {
 
     return avatarList
   }
+
   return (
-    <div className={styles.avatarPanel}>
-      <section className={styles.avatarContainer}>{renderAvatarList()}</section>
-      <section className={styles.controlContainer}>
-        <button
-          type="button"
-          className={`${styles.iconBlock} ${page === 0 ? styles.disabled : ''}`}
-          onClick={loadPreviousAvatars}
-        >
-          <NavigateBefore />
-        </button>
-        <div className={styles.actionBlock}>
-          <button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
-            <ArrowBack />
+    <section className={styles.avatarMenu}>
+      <div
+        className={styles.itemContainer}
+        style={{
+          width: menuRadius * 2,
+          height: menuRadius * 2,
+          borderWidth: menuThickness
+        }}
+      >
+        <div className={styles.itemContainerPrev}>
+          <button
+            type="button"
+            className={`${styles.iconBlock} ${page === 0 ? styles.disabled : ''}`}
+            onClick={loadPreviousAvatars}
+          >
+            <NavigateBefore />
           </button>
-          <button type="button" id="confirm-avatar" className={styles.iconBlock} onClick={closeMenu}>
-            <Check />
-          </button>
-          {props.enableSharing !== false && (
-            <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
-              <PersonAdd />
-            </button>
-          )}
         </div>
-        <button
-          type="button"
-          className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= props.avatarList.length ? styles.disabled : ''}`}
-          onClick={loadNextAvatars}
+        <div
+          className={styles.menuItemBlock}
+          style={{
+            width: menuItemRadius,
+            height: menuItemRadius
+          }}
         >
-          <NavigateNext />
+          {renderAvatarList()}
+        </div>
+        <div className={styles.itemContainerNext}>
+          <button
+            type="button"
+            className={`${styles.iconBlock} ${
+              (page + 1) * imgPerPage >= props.avatarList.length ? styles.disabled : ''
+            }`}
+            onClick={loadNextAvatars}
+          >
+            <NavigateNext />
+          </button>
+        </div>
+      </div>
+      <div className={styles.actionBlock}>
+        <button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
+          <ArrowBack /> Back
         </button>
-      </section>
-    </div>
+        <button type="button" id="confirm-avatar" className={styles.iconBlock} onClick={closeMenu}>
+          <Check />
+        </button>
+        {props.enableSharing !== false && (
+          <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
+            <PersonAdd />
+          </button>
+        )}
+      </div>
+    </section>
   )
 }
 
