@@ -6,7 +6,8 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "packages/projects/projects/*"
     ]
   },
   "keywords": [
@@ -36,9 +37,8 @@
     "node": ">= 16.3.0"
   },
   "npmClient": "npm",
-  "jest": "ts-jest",
   "scripts": {
-    "check": "npm run lint && npm run test:packages && npm run build-docker",
+    "check": "npm run lint && npm run test:packages && npm run build-client",
     "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
     "start": "npm run dev",
     "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently npm:dev-agones \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/client && npm run local\"",
@@ -67,9 +67,8 @@
     "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "validate": "npm run lint && lerna run validate",
-    "build": "lerna run build --parallel",
     "build-publish": "lerna run --ignore @xrengine/bot build-publish --parallel",
-    "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
+    "build-client": "cd packages/client && npm run build",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
     "precommit": "no-master-commits -b master",
@@ -84,7 +83,7 @@
   ],
   "pre-push": [
     "test:packages",
-    "build-docker"
+    "build-client"
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -96,7 +95,7 @@
     "socket.io": "4.3.1",
     "terser": "^5.6.1",
     "@typescript-eslint/eslint-plugin": "^4.6.0 || ^5.0.0",
-    "@typescript-eslint/parser": "5.0.0"
+    "@typescript-eslint/parser": "5.1.0"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.9",
@@ -124,16 +123,13 @@
     "@babel/preset-env": "7.15.8",
     "@hookstate/core": "3.0.13",
     "@types/mocha": "9.0.0",
-    "@typescript-eslint/parser": "5.0.0",
-    "babel-jest": "27.2.5",
+    "@typescript-eslint/parser": "5.1.0",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
     "concurrently": "6.3.0",
     "cpy-cli": "3.1.1",
-    "esbuild": "0.13.7",
+    "esbuild": "0.13.8",
     "esbuild-plugin-sass": "0.6.0",
-    "jest": "27.2.5",
-    "jest-puppeteer": "6.0.0",
     "kill-port": "1.6.1",
     "lerna": "4.0.0",
     "lint-staged": "11.2.3",
@@ -142,7 +138,6 @@
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",
     "prettier": "2.4.1",
-    "puppeteer": "10.4.0",
     "react-router-dom": "5.3.0",
     "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
@@ -151,6 +146,6 @@
   },
   "dependencies": {
     "@iconify/react": "3.0.1",
-    "depcheck": "^1.4.2"
+    "depcheck": "1.4.2"
   }
 }

@@ -1,7 +1,7 @@
-import { RethrownError } from '@xrengine/editor/src/functions/errors'
+import { RethrownError } from './errors'
 import i18n from 'i18next'
 import { AudioFileTypes, CustomScriptFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { getToken } from '@xrengine/editor/src/functions/getToken'
+import { getToken } from './getToken'
 import { Config } from '@xrengine/common/src/config'
 
 const serverURL = Config.publicRuntimeConfig.apiServer

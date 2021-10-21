@@ -12,7 +12,7 @@ import { client } from '@xrengine/client-core/src/feathers'
  */
 export const getProjects = async (): Promise<ProjectInterface[]> => {
   try {
-    const data = await client.service('project').find()
+    const { data } = await client.service('project').find()
     return data
   } catch (error) {
     console.log('Error in Getting Project:' + error)
