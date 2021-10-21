@@ -55,7 +55,6 @@ const RouteTable = () => {
   const adminRoute = adminRouteState.routes
   const activeRouteData = adminRoute.activeRoutes
   const installedRouteData = adminRoute.routes
-  console.log(installedRouteData.value, activeRouteData.value)
   const adminRouteCount = adminRoute.total
   const [processing, setProcessing] = useState(false)
 
@@ -99,7 +98,7 @@ const RouteTable = () => {
     RouteService.setRouteActive(project, route, checked)
     // }, 1000)
   }
-  console.log(installedRouteData)
+
   const installedRoutes = installedRouteData
     .map((el) => {
       if (!el.routes?.length) return []
