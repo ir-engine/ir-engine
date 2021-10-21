@@ -1,5 +1,5 @@
-import { fetchContentType } from '@xrengine/editor/src/functions/fetchContentType'
-import { guessContentType } from '@xrengine/editor/src/functions/guessContentType'
+import { fetchContentType } from './fetchContentType'
+import { guessContentType } from './guessContentType'
 
 /**
  *  getContentType is used to get content type url.

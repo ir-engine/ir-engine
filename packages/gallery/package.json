@@ -10,7 +10,6 @@
     "node": ">= 16.3.0"
   },
   "npmClient": "npm",
-  "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noEmit",
     "dev": "vite --host",
@@ -43,13 +42,13 @@
     "@xrengine/engine": "^0.4.10",
     "app-root-path": "3.0.0",
     "formik": "2.2.9",
-    "react": "^17.0.2",
+    "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-pdf": "5.4.1",
     "react-router-transition": "2.1.0",
     "react-video-recorder": "3.19.1",
     "sass": "1.43.2",
-    "styled-components": "5.3.1"
+    "styled-components": "5.3.3"
   },
   "devDependencies": {
     "@types/node": "14.17.27",

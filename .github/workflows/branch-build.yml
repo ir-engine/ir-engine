@@ -20,17 +20,9 @@ jobs:
           path: |
             node_modules
             */*/node_modules
-<<<<<<< HEAD
-          key: ${{ runner.os }}-branch-${{ hashFiles('**/package.json') }}
-      - run: npm install --production=false --loglevel notice --legacy-peer-deps
-      - run: npm run lint
-      - run: npm run test:packages
-      - run: npm run build-docker
-=======
             package-lock.json
           key: ${{ runner.os }}-branch-${{ hashFiles('**/package-lock.json') }}
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
       - run: npm run test:packages
-      - run: npm run build-docker
->>>>>>> parent of f8f603a93a... Init commit
+      - run: npm run build-client
