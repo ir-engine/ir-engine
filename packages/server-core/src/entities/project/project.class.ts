@@ -46,6 +46,11 @@ export class Project extends Service {
               fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/', name, 'package.json'), 'utf8')
             ).xrengine as ProjectPackageInterface
 
+            if (!packageData) {
+              console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
+              continue
+            }
+
             packageData.name = name
 
             const dbEntryData: ProjectInterface = {
@@ -53,6 +58,7 @@ export class Project extends Service {
               repositoryPath: getRemoteURLFromGitData(name)
             }
 
+            console.log('[Projects]: Found new locally installed project', name)
             super.create(dbEntryData)
           }
         }
@@ -67,10 +73,15 @@ export class Project extends Service {
    * @param app
    * @returns
    */
-  async create(data: { url: string; branch: string; name: string }, params: Params) {
+  async create(data: { url: string }, params: Params) {
     const uploadPromises = []
 
-    const projectLocalDirectory = path.resolve(__dirname, `../../../../projects/projects/${data.name}/`)
+    const urlParts = data.url.split('/')
+    let projectName = urlParts.pop()
+    if (!projectName) throw new Error('Git repo must be plain URL')
+    if (projectName.substr(-4) === '.git') projectName = projectName.slice(0, -4)
+
+    const projectLocalDirectory = path.resolve(__dirname, `../../../../projects/projects/${projectName}/`)
 
     // remove existing
     if (fs.existsSync(projectLocalDirectory)) {
@@ -80,31 +91,32 @@ export class Project extends Service {
 
     const existingPackResult = await this.Model.findOne({
       where: {
-        name: data.name
+        name: projectName
       }
     })
     if (existingPackResult != null) await this.remove(existingPackResult.id, params)
 
     const git = useGit()
-    const response = await new Promise((resolve) => {
+    await new Promise((resolve) => {
       git.clone(data.url, projectLocalDirectory, [], resolve)
     })
-
-    console.log(response)
 
     // console.log('Installing project from ', data.uploadURL, 'with manifest.json', data)
 
     // upload files - TODO: replace with git integration
     const files = getFilesRecursive(projectLocalDirectory)
-    files.forEach((file) => {
+    files.forEach((file: string) => {
       uploadPromises.push(
         new Promise(async (resolve) => {
-          const fileResult = fs.readFileSync(file)
-          await storageProvider.putObject({
-            Body: fileResult,
-            ContentType: getContentType(file),
-            Key: `project/${data.name}/${path}`
-          })
+          try {
+            const fileResult = fs.readFileSync(file)
+            const filePathRelative = file.slice(projectLocalDirectory.length)
+            await storageProvider.putObject({
+              Body: fileResult,
+              ContentType: getContentType(file),
+              Key: `project/${projectName}/${filePathRelative}`
+            })
+          } catch (e) {}
           resolve(true)
         })
       )
@@ -118,13 +130,13 @@ export class Project extends Service {
     // Add to DB
     const dbEntryData: ProjectInterface = {
       ...packageData,
-      storageProviderPath: `https://${storageProvider.cacheDomain}/project/${data.name}/`,
+      name: projectName,
+      storageProviderPath: `https://${storageProvider.cacheDomain}/project/${projectName}/`,
       repositoryPath: data.url
     }
 
-    await super.create(dbEntryData, params)
+    await Promise.all([...uploadPromises, super.create(dbEntryData, params)])
     // TODO: trigger re-build
-    await Promise.all(uploadPromises)
   }
 
   async remove(id: Id, params: Params) {
@@ -146,25 +158,30 @@ export class Project extends Service {
    * @returns
    */
   async get(name: string, params: Params) {
-    const metadataPath = path.resolve(__dirname, `../../../../projects/projects/${name}/package.json`)
-    if (fs.existsSync(metadataPath)) {
-      try {
-        const json: ProjectInterface = JSON.parse(fs.readFileSync(metadataPath, 'utf8')).xrengine
-        json.name = name
-        if (isDev) {
-          const remoteURL = getRemoteURLFromGitData(name)
-          json.repositoryPath = remoteURL
-        } else {
-          const data = (await super.get(name, params)) as ProjectInterface
-          json.repositoryPath = data.repositoryPath
-          json.storageProviderPath = data.storageProviderPath
-        }
-        return json
-      } catch (e) {
-        console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
-        return
-      }
-    }
+    // Intentionally NO-OP
+
+    // const metadataPath = path.resolve(__dirname, `../../../../projects/projects/${name}/package.json`)
+    // if (fs.existsSync(metadataPath)) {
+    //   try {
+    //     const json: ProjectInterface = JSON.parse(
+    //       fs.readFileSync(metadataPath, 'utf8')
+    //     ).xrengine
+    //     if(!json) return
+    //     json.name = name
+    //     if (isDev) {
+    //       const remoteURL = getRemoteURLFromGitData(name)
+    //       json.repositoryPath = remoteURL
+    //     } else {
+    //       const data = (await super.get(name, params)) as ProjectInterface
+    //       json.repositoryPath = data.repositoryPath
+    //       json.storageProviderPath = data.storageProviderPath
+    //     }
+    //     return json
+    //   } catch (e) {
+    //     console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
+    //     return
+    //   }
+    // }
     return null
   }
 
@@ -174,32 +191,35 @@ export class Project extends Service {
    * @param params
    * @returns
    */
-  async find(params: Params) {
-    return fs
-      .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => dirent.name)
-      .map(async (name) => {
-        try {
-          const json: ProjectInterface = JSON.parse(
-            fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/' + name + '/package.json'), 'utf8')
-          ).xrengine
-          json.name = name
-          if (isDev) {
-            const remoteURL = getRemoteURLFromGitData(name)
-            json.repositoryPath = remoteURL
-          } else {
-            const data = (await super.get(name, params)) as ProjectInterface
-            json.repositoryPath = data.repositoryPath
-            json.storageProviderPath = data.storageProviderPath
-          }
-          console.log(json)
-          return json
-        } catch (e) {
-          console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
-          return
-        }
-      })
-      .filter((val) => val !== undefined)
-  }
+  // async find(params: Params) {
+  //   const data = await Promise.all(fs
+  //     .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
+  //     .filter((dirent) => dirent.isDirectory())
+  //     .map((dirent) => dirent.name)
+  //     .map(async (name) => {
+  //       try {
+  //         const json: ProjectInterface = JSON.parse(
+  //           fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/' + name + '/package.json'), 'utf8')
+  //         ).xrengine
+  //         if(!json) return
+  //         json.name = name
+  //         if (isDev) {
+  //           const remoteURL = getRemoteURLFromGitData(name)
+  //           json.repositoryPath = remoteURL
+  //         } else {
+  //           const data = (await super.get(name, params)) as ProjectInterface
+  //           json.repositoryPath = data.repositoryPath
+  //           json.storageProviderPath = data.storageProviderPath
+  //         }
+  //         return json
+  //       } catch (e) {
+  //         console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
+  //         return
+  //       }
+  //     })
+  //   )
+  //   return {
+  //      data: data.filter((val) => val !== undefined)
+  //   }
+  // }
 }

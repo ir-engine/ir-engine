@@ -14,8 +14,8 @@ import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
 import { useAuthState } from '../../../user/state/AuthState'
-import { PROJECT_PAGE_LIMIT, useProjectState } from '../../../admin/state/ProjectState'
-import { fetchAdminProjects, uploadProject } from '../../../admin/state/ProjectService'
+import { PROJECT_PAGE_LIMIT, useProjectState } from '../../state/ProjectState'
+import { fetchAdminProjects, uploadProject } from '../../state/ProjectService'
 import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
@@ -162,7 +162,7 @@ const Projects = () => {
   const tryReuploadProjects = async (row) => {
     try {
       const existingProjects = adminProjects.value.find((projects) => projects.name === row.name)!
-      await uploadProject(existingProjects.repositoryPath, existingProjects.repositoryBranch, existingProjects.name)
+      await uploadProject(existingProjects.repositoryPath)
     } catch (err) {
       console.log(err)
     }

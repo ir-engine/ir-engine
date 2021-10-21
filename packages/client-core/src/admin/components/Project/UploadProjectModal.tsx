@@ -27,8 +27,6 @@ const AddToContentPackModal = (props: Props): any => {
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [projectURL, setProjectURL] = useState('')
-  const [projectName, setProjectName] = useState('')
-  const [branchName, seBranchName] = useState('')
   const dispatch = useDispatch()
   const showError = (err: string) => {
     setError(err)
@@ -41,7 +39,7 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       if (projectURL !== '') {
         setProcessing(true)
-        await uploadProject(projectURL, branchName, projectName)
+        await uploadProject(projectURL)
         setProcessing(false)
         closeModal()
       }
@@ -80,27 +78,15 @@ const AddToContentPackModal = (props: Props): any => {
             {processing === false && createOrPatch === 'patch' && (
               <div>
                 <FormControl>
-                  <InputLabel id="urlSelect">URL</InputLabel>
-                  <TextField
-                    className={styles['pack-select']}
-                    id="urlSelect"
-                    value={projectURL}
-                    onChange={(e) => setProjectURL(e.target.value)}
-                  />
-                  <InputLabel id="branchSelect">Branch</InputLabel>
-                  <TextField
-                    className={styles['pack-select']}
-                    id="branchSelect"
-                    value={branchName}
-                    onChange={(e) => setProjectURL(e.target.value)}
-                  />
-                  <InputLabel id="nameSelect">Name</InputLabel>
-                  <TextField
-                    className={styles['pack-select']}
-                    id="nameSelect"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                  />
+                  <div>
+                    <InputLabel id="urlSelect">URL</InputLabel>
+                    <TextField
+                      className={styles['pack-select']}
+                      id="urlSelect"
+                      value={projectURL}
+                      onChange={(e) => setProjectURL(e.target.value)}
+                    />
+                  </div>
                   <Button type="submit" variant="contained" color="primary" onClick={tryUploadProject}>
                     Upload Project
                   </Button>

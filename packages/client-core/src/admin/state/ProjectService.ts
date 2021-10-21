@@ -13,12 +13,13 @@ export async function fetchAdminProjects(incDec?: 'increment' | 'decrement') {
     //   $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip
     // }
   })
-  store.dispatch(ProjectAction.projectsFetched(projects))
+  console.log(projects.data)
+  store.dispatch(ProjectAction.projectsFetched(projects.data))
 }
 
-export async function uploadProject(url: string, branch: string, name: string) {
+export async function uploadProject(url: string) {
   const dispatch = useDispatch()
-  const result = await client.service('project').create({ url, branch, name })
+  const result = await client.service('project').create({ url })
   console.log('Upload project result', result)
   dispatch(ProjectAction.postProject())
   fetchAdminProjects()
