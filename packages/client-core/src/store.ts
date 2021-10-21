@@ -1,3 +1,11 @@
+/**
+ * if HMR is reloading this file, decline it, as it will import the globs more than once
+ */
+//@ts-ignore
+if (import.meta.hot) {
+  import.meta.hot.decline()
+}
+
 declare global {
   interface ImportMeta {
     globEager: (glob: string) => { [module: string]: any }
@@ -24,7 +32,7 @@ export const store = {
   },
 
   dispatch(action: { type: string; [key: string]: any }) {
-    console.log(action)
+    // console.log(action)
     for (const r of store.receptors) r(action)
   }
 }

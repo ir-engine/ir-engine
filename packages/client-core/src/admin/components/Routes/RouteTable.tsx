@@ -98,7 +98,7 @@ const RouteTable = () => {
     RouteService.setRouteActive(project, route, checked)
     // }, 1000)
   }
-  console.log(installedRouteData)
+
   const installedRoutes = installedRouteData
     .map((el) => {
       if (!el.routes?.length) return []
