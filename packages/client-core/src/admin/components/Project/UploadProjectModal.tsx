@@ -39,7 +39,7 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       if (projectURL !== '') {
         setProcessing(true)
-        await uploadProject({ uploadURL: projectURL })
+        await uploadProject(projectURL)
         setProcessing(false)
         closeModal()
       }
@@ -78,13 +78,15 @@ const AddToContentPackModal = (props: Props): any => {
             {processing === false && createOrPatch === 'patch' && (
               <div>
                 <FormControl>
-                  <InputLabel id="contentPackSelect">URL</InputLabel>
-                  <TextField
-                    className={styles['pack-select']}
-                    id="contentPackSelect"
-                    value={projectURL}
-                    onChange={(e) => setProjectURL(e.target.value)}
-                  />
+                  <div>
+                    <InputLabel id="urlSelect">URL</InputLabel>
+                    <TextField
+                      className={styles['pack-select']}
+                      id="urlSelect"
+                      value={projectURL}
+                      onChange={(e) => setProjectURL(e.target.value)}
+                    />
+                  </div>
                   <Button type="submit" variant="contained" color="primary" onClick={tryUploadProject}>
                     Upload Project
                   </Button>

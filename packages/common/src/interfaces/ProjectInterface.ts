@@ -1,4 +1,4 @@
-export interface ProjectInterface {
+export interface ProjectPackageInterface {
   name: string
   version: string
   thumbnailUrl: string
@@ -6,8 +6,13 @@ export interface ProjectInterface {
   scenes: string[]
   scripts: string[]
   routes: string[]
-  // TODO: remove this when github is in
-  files: string[]
+  // TODO: remove these when file browser is in
   clientReactEntryPoint: string
   moduleEntryPoints: string[]
+}
+
+export interface ProjectInterface extends ProjectPackageInterface {
+  storageProviderPath?: string // does not exist in local dev
+  repositoryBranch?: string
+  repositoryPath: string
 }

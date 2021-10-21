@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
+import Cross from '@material-ui/icons/Cancel'
 import Cached from '@material-ui/icons/Cached'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -13,8 +14,8 @@ import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
 import { useAuthState } from '../../../user/state/AuthState'
-import { PROJECT_PAGE_LIMIT, useProjectState } from '../../../admin/state/ProjectState'
-import { fetchAdminProjects, uploadProject } from '../../../admin/state/ProjectService'
+import { PROJECT_PAGE_LIMIT, useProjectState } from '../../state/ProjectState'
+import { fetchAdminProjects, uploadProject } from '../../state/ProjectService'
 import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
@@ -29,13 +30,13 @@ const Projects = () => {
   const user = authState.user
   const adminProjectState = useProjectState()
   const adminProjects = adminProjectState.projects
-  const adminProjectCount = 1 //adminProjectState.tota l =
+  const adminProjectCount = adminProjects.value.length
 
   const headCell = [
-    { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+    // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'addToContentPack', numeric: false, disablePadding: false, label: 'Add to Content Pack' },
-    { id: 'update', numeric: false, disablePadding: true, label: 'Update' }
+    { id: 'update', numeric: false, disablePadding: true, label: 'Update' },
+    { id: 'remove', numeric: false, disablePadding: false, label: 'Remove' }
   ]
 
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -139,19 +140,19 @@ const Projects = () => {
     setSelected([])
   }
 
-  const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchAdminProjects(incDec)
-    setPage(newPage)
-  }
+  // const handlePageChange = (event: unknown, newPage: number) => {
+  //   const incDec = page < newPage ? 'increment' : 'decrement'
+  //   fetchAdminProjects(incDec)
+  //   setPage(newPage)
+  // }
 
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
-  }
+  // const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setRowsPerPage(parseInt(event.target.value, 10))
+  //   setPage(0)
+  // }
 
   const handleCheck = (e: any, row: any) => {
-    const existingProjectsIndex = selectedProjects.findIndex((project) => project.id === row.id)
+    const existingProjectsIndex = selectedProjects.findIndex((project) => project.name === row.name)
     if (e.target.checked === true) {
       if (existingProjectsIndex >= 0) setSelectedProjects(selectedProjects.splice(existingProjectsIndex, 1, row))
       else setSelectedProjects(selectedProjects.concat(row))
@@ -160,10 +161,8 @@ const Projects = () => {
 
   const tryReuploadProjects = async (row) => {
     try {
-      const existingProjects = adminProjects.value.find((projects) => projects.id === row.id)!
-      await uploadProject({
-        uploadURL: existingProjects.sourceManifest
-      })
+      const existingProjects = adminProjects.value.find((projects) => projects.name === row.name)!
+      await uploadProject(existingProjects.repositoryPath)
     } catch (err) {
       console.log(err)
     }
@@ -175,14 +174,9 @@ const Projects = () => {
 
   useEffect(() => {
     if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
-      console.log('fetchAdminProjects')
       fetchAdminProjects()
     }
   }, [adminProjectState.updateNeeded.value])
-
-  useEffect(() => {
-    console.log('adminProjectState', adminProjectState.projects.value)
-  }, [adminProjectState.value])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -214,17 +208,6 @@ const Projects = () => {
               {'Add Project'}
             </Button>
           </Grid>
-          <Grid item xs={6}>
-            <Button
-              className={styles['open-modal']}
-              type="button"
-              variant="contained"
-              color="primary"
-              onClick={() => setAddToContentPackModalOpen(true)}
-            >
-              {dimensions.width <= 768 ? '+ Pack' : 'Add to Content Pack'}
-            </Button>
-          </Grid>
         </Grid>
         <TableContainer className={styles.tableContainer}>
           <Table stickyHeader aria-labelledby="tableTitle" size={'medium'} aria-label="enhanced table">
@@ -235,10 +218,10 @@ const Projects = () => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={adminProjectCount?.value || 0}
+              rowCount={adminProjectCount || 0}
             />
             <TableBody>
-              {stableSort(adminProjects.value ?? [], getComparator(order, orderBy)).map((row, index) => {
+              {adminProjects.value.map((row) => {
                 return (
                   <TableRow
                     hover
@@ -246,30 +229,10 @@ const Projects = () => {
                     style={{ color: 'black !important' }}
                     // onClick={(event) => handleLocationClick(event, row.id.toString())}
                     tabIndex={-1}
-                    key={row.id}
+                    key={row.name}
                   >
-                    <TableCell
-                      className={styles.tcell}
-                      component="th"
-                      id={row.id.toString()}
-                      align="right"
-                      scope="row"
-                      padding="none"
-                    >
-                      {row.id}
-                    </TableCell>
                     <TableCell className={styles.tcell} align="right">
                       {row.name}
-                    </TableCell>
-                    <TableCell className={styles.tcell} align="right">
-                      {user.userRole.value === 'admin' && (
-                        <Checkbox
-                          className={styles.checkbox}
-                          onChange={(e) => handleCheck(e, row)}
-                          name="stereoscopic"
-                          color="primary"
-                        />
-                      )}
                     </TableCell>
                     <TableCell className={styles.tcell} align="right">
                       {user.userRole.value === 'admin' && (
@@ -283,6 +246,18 @@ const Projects = () => {
                         </Button>
                       )}
                     </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {user.userRole.value === 'admin' && (
+                        <Button
+                          className={styles.checkbox}
+                          onChange={(e) => handleCheck(e, row)}
+                          name="stereoscopic"
+                          color="primary"
+                        >
+                          <Cross />
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 )
               })}
@@ -290,18 +265,18 @@ const Projects = () => {
           </Table>
         </TableContainer>
 
-        <div className={styles.tableFooter}>
+        {/* <div className={styles.tableFooter}>
           <TablePagination
             rowsPerPageOptions={[PROJECT_PAGE_LIMIT]}
             component="div"
-            count={adminProjectCount?.value || 0}
+            count={adminProjectCount || 0}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handlePageChange}
             onRowsPerPageChange={handleRowsPerPageChange}
             className={styles.tablePagination}
           />
-        </div>
+        </div> */}
         <AddToContentPackModal
           open={addToContentPackModalOpen}
           projects={selectedProjects}
