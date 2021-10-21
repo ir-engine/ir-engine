@@ -51,10 +51,9 @@ export class Project extends Service {
               continue
             }
 
-            packageData.name = name
-
             const dbEntryData: ProjectInterface = {
               ...packageData,
+              name,
               repositoryPath: getRemoteURLFromGitData(name)
             }
 
@@ -157,32 +156,29 @@ export class Project extends Service {
    * @param params
    * @returns
    */
-  async get(name: string, params: Params) {
-    // Intentionally NO-OP
+  // TODO: remove this entire function when nodes reference file browser
+  async get(name: string, params: Params): Promise<{ data: ProjectInterface }> {
+    const data: ProjectInterface[] = ((await super.find(params)) as any).data
+    const entry = data.find((e) => e.name === name)
 
-    // const metadataPath = path.resolve(__dirname, `../../../../projects/projects/${name}/package.json`)
-    // if (fs.existsSync(metadataPath)) {
-    //   try {
-    //     const json: ProjectInterface = JSON.parse(
-    //       fs.readFileSync(metadataPath, 'utf8')
-    //     ).xrengine
-    //     if(!json) return
-    //     json.name = name
-    //     if (isDev) {
-    //       const remoteURL = getRemoteURLFromGitData(name)
-    //       json.repositoryPath = remoteURL
-    //     } else {
-    //       const data = (await super.get(name, params)) as ProjectInterface
-    //       json.repositoryPath = data.repositoryPath
-    //       json.storageProviderPath = data.storageProviderPath
-    //     }
-    //     return json
-    //   } catch (e) {
-    //     console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
-    //     return
-    //   }
-    // }
-    return null
+    const metadataPath = path.resolve(__dirname, `../../../../projects/projects/${name}/package.json`)
+    if (fs.existsSync(metadataPath)) {
+      try {
+        const json: ProjectPackageInterface = JSON.parse(fs.readFileSync(metadataPath, 'utf8')).xrengine
+        return {
+          data: {
+            ...json,
+            ...entry
+          }
+        }
+      } catch (e) {
+        console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
+        return
+      }
+    }
+    return {
+      data: entry
+    }
   }
 
   /**
@@ -191,35 +187,28 @@ export class Project extends Service {
    * @param params
    * @returns
    */
-  // async find(params: Params) {
-  //   const data = await Promise.all(fs
-  //     .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
-  //     .filter((dirent) => dirent.isDirectory())
-  //     .map((dirent) => dirent.name)
-  //     .map(async (name) => {
-  //       try {
-  //         const json: ProjectInterface = JSON.parse(
-  //           fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/' + name + '/package.json'), 'utf8')
-  //         ).xrengine
-  //         if(!json) return
-  //         json.name = name
-  //         if (isDev) {
-  //           const remoteURL = getRemoteURLFromGitData(name)
-  //           json.repositoryPath = remoteURL
-  //         } else {
-  //           const data = (await super.get(name, params)) as ProjectInterface
-  //           json.repositoryPath = data.repositoryPath
-  //           json.storageProviderPath = data.storageProviderPath
-  //         }
-  //         return json
-  //       } catch (e) {
-  //         console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
-  //         return
-  //       }
-  //     })
-  //   )
-  //   return {
-  //      data: data.filter((val) => val !== undefined)
-  //   }
-  // }
+  // TODO: remove this entire function when nodes reference file browser
+  async find(params: Params) {
+    const entries = (await super.find(params)) as any
+    entries.data = await Promise.all(
+      entries.data.map(async (entries) => {
+        try {
+          const json: ProjectPackageInterface = JSON.parse(
+            fs.readFileSync(
+              path.resolve(__dirname, '../../../../projects/projects/' + entries.name + '/package.json'),
+              'utf8'
+            )
+          ).xrengine
+          return {
+            ...json,
+            ...entries
+          }
+        } catch (e) {
+          console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
+          return
+        }
+      })
+    )
+    return entries
+  }
 }

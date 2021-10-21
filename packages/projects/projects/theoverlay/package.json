@@ -3,9 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "main": "",
-  "scripts": {
-    "update-files": "node update-files.js"
-  },
+  "scripts": {},
   "dependencies": {},
   "xrengine": {
     "routes": ["/", "/login", "/harmony", "/admin", "/location", "/auth", "/editor"],

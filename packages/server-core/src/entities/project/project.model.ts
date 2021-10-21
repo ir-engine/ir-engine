@@ -15,6 +15,9 @@ export default (app: Application): any => {
       name: {
         type: DataTypes.STRING
       },
+      thumbnail: {
+        type: DataTypes.STRING
+      },
       storageProviderManifest: {
         type: DataTypes.STRING
       },
