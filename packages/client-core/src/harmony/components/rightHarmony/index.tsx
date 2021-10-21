@@ -18,6 +18,7 @@ import { store } from '@xrengine/client-core/src/store'
 
 import CreateMessage from './CreateMessage'
 import MessageList from './MessageList'
+import queryString from 'querystring'
 
 export default function RightHarmony() {
   const classex = useStyle()
@@ -25,6 +26,8 @@ export default function RightHarmony() {
   const [openInvite, setOpenInvite] = React.useState(false)
   const dispatch = store.dispatch
   const userState = useUserState()
+  const persed = queryString.parse(location.search)
+  console.log(persed['?channel'])
 
   const messageRef = React.useRef()
   const messageEl = messageRef.current
@@ -41,20 +44,26 @@ export default function RightHarmony() {
   const targetObjectType = chatState.targetObjectType
   const targetChannelId = chatState.targetChannelId.value
   const messageScrollInit = chatState.messageScrollInit
-  const activeChannel = channels.find((c) => c.id === targetChannelId)!
+  const activeChannel = channels.find((c) => c.channelType === targetObjectType.value)!
 
   const openInviteModel = (open: boolean) => {
     setOpenInvite(open)
   }
 
-  console.log('RRRRRRRRRR', activeChannel)
-
   useEffect(() => {
-    // if (channelState.updateNeeded) {
-    ChatService.getChannels()
-    ChatService.getChannelMessages(targetChannelId)
-    // }
-  }, [])
+    if (channelState.updateNeeded) {
+      ChatService.getChannels()
+    }
+  }, [channelState.updateNeeded.value])
+
+  console.log(activeChannel)
+  console.log(channels)
+  console.log(chatState)
+  useEffect(() => {
+    if (targetChannelId) {
+      ChatService.getChannelMessages(targetChannelId)
+    }
+  }, [targetChannelId])
 
   return (
     <div className={classes.rightRoot}>
