@@ -1,4 +1,5 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { store } from '../../store'
 
 import { AlertActionType } from './AlertActions'
 
@@ -7,7 +8,7 @@ const state = createState({
   message: ''
 })
 
-export const receptor = (action: AlertActionType): any => {
+store.receptors.push((action: AlertActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'SHOW_NOTIFICATION':
@@ -18,7 +19,7 @@ export const receptor = (action: AlertActionType): any => {
         break
     }
   }, action.alertType)
-}
+})
 
 export const alertState = () => state
 

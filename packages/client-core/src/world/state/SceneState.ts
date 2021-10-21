@@ -1,4 +1,5 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { store } from '../../store'
 
 import { SceneActionType } from './ScreenActions'
 export interface PublicScenesState {
@@ -19,7 +20,7 @@ const state = createState({
   error: ''
 })
 
-export const receptor = (action: SceneActionType): any => {
+store.receptors.push((action: SceneActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'SCENES_FETCHED_SUCCESS':
@@ -30,7 +31,7 @@ export const receptor = (action: SceneActionType): any => {
         return s.merge({ currentScene: action.scene })
     }
   }, action.type)
-}
+})
 
 export const accessSceneState = () => state
 

@@ -55,6 +55,7 @@ const RouteTable = () => {
   const adminRoute = adminRouteState.routes
   const activeRouteData = adminRoute.activeRoutes
   const installedRouteData = adminRoute.routes
+  console.log(installedRouteData.value, activeRouteData.value)
   const adminRouteCount = adminRoute.total
   const [processing, setProcessing] = useState(false)
 

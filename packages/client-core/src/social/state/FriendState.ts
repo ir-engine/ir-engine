@@ -2,6 +2,7 @@ import { createState, DevTools, useState, none, Downgraded } from '@hookstate/co
 import { FriendActionType } from './FriendActions'
 import { User } from '@xrengine/common/src/interfaces/User'
 import _ from 'lodash'
+import { store } from '../../store'
 
 const state = createState({
   friends: {
@@ -14,7 +15,7 @@ const state = createState({
   updateNeeded: true
 })
 
-export const receptor = (action: FriendActionType): any => {
+store.receptors.push((action: FriendActionType): any => {
   let newValues, selfUser, otherUser, otherUserId
   state.batch((s) => {
     switch (action.type) {
@@ -71,7 +72,7 @@ export const receptor = (action: FriendActionType): any => {
         return s.getFriendsInProgress.set(true)
     }
   }, action.type)
-}
+})
 
 export const accessFriendState = () => state
 
