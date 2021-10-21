@@ -3,7 +3,6 @@ import { createState, DevTools, useState, none, Downgraded } from '@hookstate/co
 import { AwsSettingActionType } from './AwsSettingActions'
 
 import { AdminAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
-import { store } from '../../../store'
 
 const state = createState({
   awsSettings: {
@@ -15,7 +14,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: AwsSettingActionType): any => {
+export const receptor = (action: AwsSettingActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
@@ -24,7 +23,7 @@ store.receptors.push((action: AwsSettingActionType): any => {
         return s.awsSettings.merge({ awsSettings: result.data, updateNeeded: false })
     }
   }, action.type)
-})
+}
 
 export const accessAdminAwsSettingState = () => state
 

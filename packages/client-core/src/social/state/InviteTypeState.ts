@@ -1,7 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { InviteTypeActionType } from './InviteTypeActions'
 import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
-import { store } from '../../store'
 
 const state = createState({
   inviteTypeData: {
@@ -12,7 +11,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: InviteTypeActionType): any => {
+export const receptor = (action: InviteTypeActionType): any => {
   let newValues
   state.batch((s) => {
     switch (action.type) {
@@ -26,7 +25,7 @@ store.receptors.push((action: InviteTypeActionType): any => {
         return s.inviteTypeData.total.set(newValues.total)
     }
   }, action.type)
-})
+}
 
 export const accessInviteTypeState = () => state
 

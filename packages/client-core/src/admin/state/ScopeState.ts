@@ -3,7 +3,6 @@ import { createState, DevTools, useState, none, Downgraded } from '@hookstate/co
 import { ScopeActionType } from './ScopeActions'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
-import { store } from '../../store'
 export const SCOPE_PAGE_LIMIT = 100
 
 const state = createState({
@@ -30,7 +29,7 @@ const state = createState({
   fetching: false
 })
 
-store.receptors.push((action: ScopeActionType): any => {
+export const receptor = (action: ScopeActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
@@ -69,7 +68,7 @@ store.receptors.push((action: ScopeActionType): any => {
         })
     }
   }, action.type)
-})
+}
 
 export const accessScopeState = () => state
 

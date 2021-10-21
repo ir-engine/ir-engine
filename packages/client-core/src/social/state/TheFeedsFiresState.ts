@@ -4,7 +4,6 @@ import { TheFeedsFires } from '@xrengine/server-core/src/socialmedia/feeds-fires
  */
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { TheFeedsFiresActionType } from './TheFeedsFiresActions'
-import { store } from '../../store'
 
 // thefeeds
 // TheFeeds
@@ -17,7 +16,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: TheFeedsFiresActionType): any => {
+export const receptor = (action: TheFeedsFiresActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'THEFEEDS_FIRES_FETCH':
@@ -32,7 +31,7 @@ store.receptors.push((action: TheFeedsFiresActionType): any => {
         )
     }
   }, action.type)
-})
+}
 
 export const accessTheFeedsFiresState = () => state
 export const useTheFeedsFiresState = () => useState(state)

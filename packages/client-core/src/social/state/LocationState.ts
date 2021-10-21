@@ -1,7 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { store } from '../../store'
 
 import { LocationActionType } from './LocationActions'
 
@@ -22,7 +21,7 @@ const state = createState({
   invalidLocation: false
 })
 
-store.receptors.push((action: LocationActionType): any => {
+export const receptor = (action: LocationActionType): any => {
   let newValues, updateMap
   state.batch((s) => {
     switch (action.type) {
@@ -68,7 +67,7 @@ store.receptors.push((action: LocationActionType): any => {
         return s.currentLocationUpdateNeeded.set(true)
     }
   }, action.type)
-})
+}
 
 export const accessLocationState = () => state
 

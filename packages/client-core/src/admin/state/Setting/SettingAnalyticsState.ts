@@ -1,7 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { SettingAnalyticsActionType } from './SettingAnalyticsActions'
 import { SettingAnalytics } from '@xrengine/common/src/interfaces/SettingAnalytics'
-import { store } from '../../../store'
 
 const state = createState({
   Analytics: {
@@ -10,7 +9,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: SettingAnalyticsActionType): any => {
+export const receptor = (action: SettingAnalyticsActionType): any => {
   let result
   state.batch((s) => {
     switch (action.type) {
@@ -19,7 +18,7 @@ store.receptors.push((action: SettingAnalyticsActionType): any => {
         return s.Analytics.merge({ analytics: result.data, updateNeeded: false })
     }
   }, action.type)
-})
+}
 
 export const accessSettingAnalyticsState = () => state
 

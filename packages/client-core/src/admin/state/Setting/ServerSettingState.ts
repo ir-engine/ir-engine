@@ -1,7 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { ServerSettingActionType } from './ServerSettingActions'
 import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
-import { store } from '../../../store'
 
 const state = createState({
   Server: {
@@ -10,7 +9,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: ServerSettingActionType): any => {
+export const receptor = (action: ServerSettingActionType): any => {
   let result
   state.batch((s) => {
     switch (action.type) {
@@ -19,7 +18,7 @@ store.receptors.push((action: ServerSettingActionType): any => {
         return s.Server.merge({ server: result.data, updateNeeded: false })
     }
   }, action.type)
-})
+}
 
 export const accessServerSettingState = () => state
 

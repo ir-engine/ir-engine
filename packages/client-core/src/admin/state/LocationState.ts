@@ -5,7 +5,6 @@ import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { LocationActionType } from './LocationActions'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
-import { store } from '../../store'
 
 export const LOCATION_PAGE_LIMIT = 100
 
@@ -33,7 +32,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: LocationActionType): any => {
+export const receptor = (action: LocationActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
@@ -71,7 +70,7 @@ store.receptors.push((action: LocationActionType): any => {
         return s.locationTypes.set({ locationTypes: result.data, updateNeeded: false })
     }
   }, action.type)
-})
+}
 
 export const accessLocationState = () => state
 

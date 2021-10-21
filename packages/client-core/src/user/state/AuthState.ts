@@ -5,7 +5,6 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { getStoredAuthState, saveAuthState } from './AuthService'
-import { store } from '../../store'
 const state = createState({
   isLoggedIn: false,
   isProcessing: false,
@@ -16,7 +15,7 @@ const state = createState({
   avatarList: [] as Array<UserAvatar>
 })
 
-store.receptors.push((action: AuthActionType): void => {
+export const receptor = (action: AuthActionType): void => {
   state.batch((s) => {
     switch (action.type) {
       case 'ACTION_PROCESSING':
@@ -87,7 +86,7 @@ store.receptors.push((action: AuthActionType): void => {
       }
     }
   }, action.type)
-})
+}
 
 export const accessAuthState = () => state
 export const useAuthState = () => useState(state) as any as typeof state as typeof state
