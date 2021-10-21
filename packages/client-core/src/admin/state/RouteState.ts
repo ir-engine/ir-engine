@@ -42,7 +42,6 @@ export const receptor = (action: RouteActionType): any => {
         return s.routes.merge({ routes: result, updateNeeded: false })
       case 'ADMIN_ROUTE_ACTIVE_RECEIVED':
         result = action.data.data
-        console.log('ADMIN_ROUTE_ACTIVE_RECEIVED')
         return s.routes.merge({ activeRoutes: result, updateNeeded: false })
     }
   }, action.type)
