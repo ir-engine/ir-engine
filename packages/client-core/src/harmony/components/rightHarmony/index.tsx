@@ -27,7 +27,6 @@ export default function RightHarmony() {
   const dispatch = store.dispatch
   const userState = useUserState()
   const persed = queryString.parse(location.search)
-  console.log(persed['?channel'])
 
   const messageRef = React.useRef()
   const messageEl = messageRef.current
@@ -56,9 +55,6 @@ export default function RightHarmony() {
     }
   }, [channelState.updateNeeded.value])
 
-  console.log(activeChannel)
-  console.log(channels)
-  console.log(chatState)
   useEffect(() => {
     if (targetChannelId) {
       ChatService.getChannelMessages(targetChannelId)
