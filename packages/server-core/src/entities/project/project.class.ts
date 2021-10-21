@@ -27,42 +27,48 @@ export class Project extends Service {
     super(options)
     this.app = app
 
-    /**
-     * On dev, sync the db with any projects installed locally
-     */
-    // if (isDev) {
-    //   super.find().then((dbEntries: any) => {
-    //     const data: ProjectInterface[] = dbEntries.data
-    //     console.log(dbEntries)
+    if (isDev) {
+      // TODO: find a better solution than a timeout for this
+      setTimeout(() => {
+        this._fetchDevLocalProjects()
+      }, 3000)
+    }
+  }
 
-    //     const locallyInstalledProjects = fs
-    //       .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
-    //       .filter((dirent) => dirent.isDirectory())
-    //       .map((dirent) => dirent.name)
+  /**
+   * On dev, sync the db with any projects installed locally
+   */
+  private async _fetchDevLocalProjects() {
+    const dbEntries = (await super.find()) as any
+    const data: ProjectInterface[] = dbEntries.data
+    console.log(dbEntries)
 
-    //     for (const name of locallyInstalledProjects) {
-    //       if (!data.find((e) => e.name === name)) {
-    //         const packageData = JSON.parse(
-    //           fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/', name, 'package.json'), 'utf8')
-    //         ).xrengine as ProjectPackageInterface
+    const locallyInstalledProjects = fs
+      .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name)
 
-    //         if (!packageData) {
-    //           console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
-    //           continue
-    //         }
+    for (const name of locallyInstalledProjects) {
+      if (!data.find((e) => e.name === name)) {
+        const packageData = JSON.parse(
+          fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/', name, 'package.json'), 'utf8')
+        ).xrengine as ProjectPackageInterface
 
-    //         const dbEntryData: ProjectInterface = {
-    //           ...packageData,
-    //           name,
-    //           repositoryPath: getRemoteURLFromGitData(name)
-    //         }
+        if (!packageData) {
+          console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
+          continue
+        }
 
-    //         console.log('[Projects]: Found new locally installed project', name)
-    //         super.create(dbEntryData)
-    //       }
-    //     }
-    //   })
-    // }
+        const dbEntryData: ProjectInterface = {
+          ...packageData,
+          name,
+          repositoryPath: getRemoteURLFromGitData(name)
+        }
+
+        console.log('[Projects]: Found new locally installed project', name)
+        super.create(dbEntryData)
+      }
+    }
   }
 
   /**
