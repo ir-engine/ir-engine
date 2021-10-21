@@ -73,7 +73,7 @@ const createMovingAvatar = (world) => {
   return entity
 }
 
-describe('moveAvatar function tests', async () => {
+describe('moveAvatar function tests', () => {
   
 	let world
 
@@ -85,7 +85,7 @@ describe('moveAvatar function tests', async () => {
     await world.physics.createScene()
 	})
 
-  it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', async () => {
+  it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', () => {
     /* mock */
     world.physics.timeScale = 1
     world.fixedDelta = 1000 / 60
@@ -110,7 +110,7 @@ describe('moveAvatar function tests', async () => {
     strictEqual(velocity.velocity.z, 1)
   })
 
-  it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', async () => {
+  it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
     /* mock */
     world.physics.timeScale = 1
     world.fixedDelta = 1000 / 120
@@ -135,7 +135,7 @@ describe('moveAvatar function tests', async () => {
     strictEqual(velocity.velocity.z, 1)
   })
 
-  it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', async () => {
+  it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
     /* mock */
     world.physics.timeScale = 1 / 2
     world.fixedDelta = 1000 / 60
