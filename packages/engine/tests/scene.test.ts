@@ -16,11 +16,11 @@ import assert from 'assert'
 describe('Scene Loader', () => {
 
   // force close until we can reset the engine properly
-  after(async () => {
-    setTimeout(() => process.exit(0), 1000)
-  })
+  // after(async () => {
+  //   setTimeout(() => process.exit(0), 1000)
+  // })
 
-  it('Can load gltf metadata', async () => {
+  it.skip('Can load gltf metadata', async () => {
 
     const mockComponentData = { data: { src: '' } } as any
     const CustomComponent = createMappedComponent<{ value: number}>('CustomComponent')

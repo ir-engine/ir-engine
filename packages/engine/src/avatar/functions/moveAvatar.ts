@@ -127,14 +127,28 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
     // }
   }
 
-  const target = {
+  // clamp velocities [-1 .. 1]
+  if (Math.abs(velocity.velocity.x) > 1) velocity.velocity.x /= Math.abs(velocity.velocity.x)
+  if (Math.abs(velocity.velocity.y) > 1) velocity.velocity.y /= Math.abs(velocity.velocity.y)
+  if (Math.abs(velocity.velocity.z) > 1) velocity.velocity.z /= Math.abs(velocity.velocity.z)
+  if (Math.abs(newVelocity.x) > 1) newVelocity.x /= Math.abs(newVelocity.x)
+  if (Math.abs(newVelocity.y) > 1) newVelocity.y /= Math.abs(newVelocity.y)
+  if (Math.abs(newVelocity.z) > 1) newVelocity.z /= Math.abs(newVelocity.z)
+
+  const displacement = {
     x: newVelocity.x,
     y: velocity.velocity.y,
     z: newVelocity.z
   }
 
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
-  const collisionFlags = controller.controller.move(target, 0.001, timeStep, filters, world.physics.obstacleContext)
+  const collisionFlags = controller.controller.move(
+    displacement,
+    0.001,
+    timeStep,
+    filters,
+    world.physics.obstacleContext
+  )
 
   controller.collisions = [
     collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN),
