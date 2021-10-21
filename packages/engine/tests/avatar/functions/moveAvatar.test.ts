@@ -106,8 +106,8 @@ describe('moveAvatar function tests', async () => {
     /* assert */
 
     // velocity should increase on horizontal plane
-    strictEqual(velocity.velocity.x, 83.33333331994835)
-    strictEqual(velocity.velocity.z, 83.33333331994835)
+    strictEqual(velocity.velocity.x, 1)
+    strictEqual(velocity.velocity.z, 1)
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', async () => {
@@ -131,8 +131,8 @@ describe('moveAvatar function tests', async () => {
     /* assert */
 
     // velocity should increase on horizontal plane
-    strictEqual(velocity.velocity.x, 41.66552651991949)
-    strictEqual(velocity.velocity.z, 41.66552651991949)
+    strictEqual(velocity.velocity.x, 1)
+    strictEqual(velocity.velocity.z, 1)
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', async () => {
@@ -156,8 +156,37 @@ describe('moveAvatar function tests', async () => {
     /* assert */
 
     // velocity should increase on horizontal plane
-    strictEqual(velocity.velocity.x, 41.66552651991949)
-    strictEqual(velocity.velocity.z, 41.66552651991949)
+    strictEqual(velocity.velocity.x, 1)
+    strictEqual(velocity.velocity.z, 1)
   })
 
+  it('should not allow velocity to breach a full unit through multiple frames', () => {
+    /* mock */
+    world.physics.timeScale = 1
+    world.fixedDelta = 1000 / 60
+
+    const entity = createMovingAvatar(world)
+    
+    const camera = new PerspectiveCamera(60, 800/600, 0.1, 10000)
+
+    const velocity = getComponent(entity, VelocityComponent)
+    
+    // velocity starts at 0
+    strictEqual(velocity.velocity.x, 0)
+    strictEqual(velocity.velocity.z, 0)
+
+    /* run */
+    moveAvatar(world, entity, camera)
+    moveAvatar(world, entity, camera)
+    moveAvatar(world, entity, camera)
+    moveAvatar(world, entity, camera)
+    moveAvatar(world, entity, camera)
+    moveAvatar(world, entity, camera)
+
+    /* assert */
+
+    // velocity should increase on horizontal plane
+    assert(velocity.velocity.x <= 1)
+    assert(velocity.velocity.z <= 1)
+  })
 })
