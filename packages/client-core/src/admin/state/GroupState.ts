@@ -1,7 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { GroupActionType } from './GroupActions'
 import { Group } from '@xrengine/common/src/interfaces/Group'
-import { store } from '../../store'
 
 export const GROUP_PAGE_LIMIT = 10
 
@@ -19,7 +18,7 @@ export const state = createState({
   fetching: false
 })
 
-store.receptors.push((action: GroupActionType): any => {
+export const receptor = (action: GroupActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
@@ -44,7 +43,7 @@ store.receptors.push((action: GroupActionType): any => {
         return s.group.merge({ updateNeeded: true })
     }
   }, action.type)
-})
+}
 
 export const accessGroupState = () => state
 

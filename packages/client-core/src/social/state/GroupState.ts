@@ -3,7 +3,6 @@ import _ from 'lodash'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 import { GroupActionType } from './GroupActions'
 import { Group } from '@xrengine/common/src/interfaces/Group'
-import { store } from '../../store'
 
 const state = createState({
   groups: {
@@ -25,7 +24,7 @@ const state = createState({
   closeDetails: ''
 })
 
-store.receptors.push((action: GroupActionType): any => {
+export const receptor = (action: GroupActionType): any => {
   let newValues,
     updateMap,
     updateMapGroups,
@@ -147,7 +146,7 @@ store.receptors.push((action: GroupActionType): any => {
         return s.closeDetails.set('')
     }
   }, action.type)
-})
+}
 
 export const accessGroupState = () => state
 

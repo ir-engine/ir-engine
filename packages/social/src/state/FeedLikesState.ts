@@ -1,7 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { FeedLikesActionType } from './FeedLikesActions'
 import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
-import { store } from '@xrengine/client-core/src/store'
 
 const state = createState({
   feedLikes: {
@@ -10,7 +9,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: FeedLikesActionType): any => {
+export const receptor = (action: FeedLikesActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'FEED_LIKES_FETCH':
@@ -19,7 +18,7 @@ store.receptors.push((action: FeedLikesActionType): any => {
         return s.feedLikes.merge({ feedLikes: action.feedLikes, fetching: false })
     }
   }, action.type)
-})
+}
 
 export const accessFeedLikesState = () => state
 export const useFeedLikesState = () => useState(state)

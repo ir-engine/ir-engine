@@ -1,7 +1,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
 import { User } from '@xrengine/common/src/interfaces/User'
-import { store } from '../../store'
 import { UserActionType } from './UserAction'
 
 const state = createState({
@@ -15,7 +14,7 @@ const state = createState({
   toastMessages: [] as Array<{ user: User; userAdded?: boolean; userRemoved?: boolean }>
 })
 
-store.receptors.push((action: UserActionType): void => {
+export const receptor = (action: UserActionType): void => {
   state.batch((s) => {
     switch (action.type) {
       case 'LOADED_RELATIONSHIP':
@@ -79,7 +78,7 @@ store.receptors.push((action: UserActionType): void => {
         return s.toastMessages.merge([action.message])
     }
   }, action.type)
-})
+}
 
 export const accessUserState = () => state
 export const useUserState = () => useState(state) as any as typeof state as unknown as typeof state

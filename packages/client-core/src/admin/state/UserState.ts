@@ -6,7 +6,6 @@ import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
-import { store } from '../../store'
 
 export const USER_PAGE_LIMIT = 100
 
@@ -50,7 +49,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: UserActionType): any => {
+export const receptor = (action: UserActionType): any => {
   let result
   state.batch((s) => {
     switch (action.type) {
@@ -111,7 +110,7 @@ store.receptors.push((action: UserActionType): any => {
         return s.singleUser.merge({ updateNeeded: true })
     }
   }, action.type)
-})
+}
 
 export const accessUserState = () => state
 

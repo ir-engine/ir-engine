@@ -1,5 +1,4 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { store } from '../../store'
 
 import { ChannelConnectionActionType } from './ChannelConnectionActions'
 
@@ -22,7 +21,7 @@ const state = createState({
 
 let connectionSocket = null
 
-store.receptors.push((action: ChannelConnectionActionType): any => {
+export const receptor = (action: ChannelConnectionActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CHANNEL_SERVER_PROVISIONING':
@@ -68,7 +67,7 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
         return state
     }
   }, action.type)
-})
+}
 
 export const accessChannelConnectionState = () => state
 

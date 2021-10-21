@@ -5,7 +5,6 @@ import { createState, DevTools, useState, none, Downgraded } from '@hookstate/co
 import { FeedCommentActionType } from './FeedCommentActions'
 import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'
 import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
-import { store } from '../../store'
 
 const state = createState({
   feeds: {
@@ -15,7 +14,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: FeedCommentActionType): any => {
+export const receptor = (action: FeedCommentActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'FEED_COMMENTS_FETCH':
@@ -47,7 +46,7 @@ store.receptors.push((action: FeedCommentActionType): any => {
         return s.feeds.commentFires.set(action.creators)
     }
   }, action.type)
-})
+}
 
 export const accessFeedCommentsState = () => state
 export const useFeedCommentsState = () => useState(state)

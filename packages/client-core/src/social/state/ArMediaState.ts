@@ -3,7 +3,6 @@
  */
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { ArMedia } from '@xrengine/common/src/interfaces/ArMedia'
-import { store } from '../../store'
 /**
  * Commenting code to compile TSDOC Docusaurus
  * this file contain some issues with
@@ -33,7 +32,7 @@ const state = createState({
   fetchingItem: false
 })
 
-store.receptors.push((action: ArMediaActionType): any => {
+export const receptor = (action: ArMediaActionType): any => {
   state.batch((s) => {
     let result: any
     switch (action.type) {
@@ -65,7 +64,7 @@ store.receptors.push((action: ArMediaActionType): any => {
         return s.arMedia.updateNeeded.set(true)
     }
   }, action.type)
-})
+}
 
 export const accessArMediaState = () => state
 export const useArMediaState = () => useState(state)

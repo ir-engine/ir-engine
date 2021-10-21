@@ -1,14 +1,13 @@
 import { createState, DevTools, useState, Downgraded } from '@hookstate/core'
 import { DialogActionType } from './DialogActions'
 import { DialogSeed } from '@xrengine/common/src/interfaces/Dialog'
-import { store } from '../../store'
 
 const state = createState({
   isOpened: false,
   content: DialogSeed
 })
 
-store.receptors.push((action: DialogActionType): any => {
+export const receptor = (action: DialogActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'SHOW_DIALOG':
@@ -19,7 +18,7 @@ store.receptors.push((action: DialogActionType): any => {
         break
     }
   }, action.type)
-})
+}
 
 export const dialogState = () => state
 

@@ -1,5 +1,4 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { store } from '../../store'
 
 import { AnalyticsActionType } from './AnalyticsActions'
 export const ANALYTICS_PAGE_LIMIT = 100
@@ -15,7 +14,7 @@ const state = createState({
   dailyNewUsers: []
 })
 
-store.receptors.push((action: AnalyticsActionType): any => {
+export const receptor = (action: AnalyticsActionType): any => {
   let result: any, updateMap: any, date: Date
   state.batch((s) => {
     switch (action.type) {
@@ -93,7 +92,7 @@ store.receptors.push((action: AnalyticsActionType): any => {
         })
     }
   }, action.type)
-})
+}
 
 export const accessAnalyticsState = () => state
 

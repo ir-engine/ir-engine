@@ -2,7 +2,6 @@ import { createState, DevTools, useState, none, Downgraded } from '@hookstate/co
 
 import { AuthSettingActionType } from './AuthSettingActions'
 import { AdminAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
-import { store } from '../../../store'
 const state = createState({
   authSettings: {
     authSettings: [] as Array<AdminAuthSetting>,
@@ -15,7 +14,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: AuthSettingActionType): any => {
+export const receptor = (action: AuthSettingActionType): any => {
   let result: any
 
   state.batch((s) => {
@@ -33,7 +32,7 @@ store.receptors.push((action: AuthSettingActionType): any => {
         return s.authSettings.updateNeeded.set(true)
     }
   }, action.type)
-})
+}
 
 export const accessAdminAuthSettingState = () => state
 

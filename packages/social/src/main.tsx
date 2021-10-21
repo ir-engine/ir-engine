@@ -5,8 +5,8 @@ import Splash from '@xrengine/social/src/components/Splash'
 import { store } from '@xrengine/client-core/src/store'
 
 // Add additional state modules
-// const stateModules = import.meta.globEager('./state/*State')
-// store.registerStateModules(stateModules)
+const stateModules = import.meta.globEager('./state/*State')
+store.registerStateModules(stateModules)
 
 import('./env-config').then((module) => {
   const envConfig = module.default

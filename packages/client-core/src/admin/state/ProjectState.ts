@@ -1,7 +1,6 @@
 import { createState, useState } from '@hookstate/core'
 import { ProjectActionType } from './ProjectActions'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { store } from '../../store'
 
 export const PROJECT_PAGE_LIMIT = 100
 
@@ -10,7 +9,7 @@ export const state = createState({
   updateNeeded: true
 })
 
-store.receptors.push((action: ProjectActionType): any => {
+export const receptor = (action: ProjectActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
@@ -22,7 +21,7 @@ store.receptors.push((action: ProjectActionType): any => {
         })
     }
   }, action.type)
-})
+}
 
 export const accessProjectState = () => state
 

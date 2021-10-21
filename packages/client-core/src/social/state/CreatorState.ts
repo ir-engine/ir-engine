@@ -4,7 +4,6 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { CreatorActionType } from './CreatorActions'
 import { Creator, CreatorShort, CreatorNotification } from '@xrengine/common/src/interfaces/Creator'
-import { store } from '../../store'
 
 const state = createState({
   creators: {
@@ -24,7 +23,7 @@ const state = createState({
   }
 })
 
-store.receptors.push((action: CreatorActionType): any => {
+export const receptor = (action: CreatorActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'SET_STATE_CREATORS':
@@ -87,7 +86,7 @@ store.receptors.push((action: CreatorActionType): any => {
         return s.creators.following.set(action.creators)
     }
   }, action.type)
-})
+}
 
 export const accessCreatorState = () => state
 export const useCreatorState = () => useState(state)
