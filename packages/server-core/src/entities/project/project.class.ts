@@ -30,39 +30,39 @@ export class Project extends Service {
     /**
      * On dev, sync the db with any projects installed locally
      */
-    if (isDev) {
-      super.find().then((dbEntries: any) => {
-        const data: ProjectInterface[] = dbEntries.data
-        console.log(dbEntries)
+    // if (isDev) {
+    //   super.find().then((dbEntries: any) => {
+    //     const data: ProjectInterface[] = dbEntries.data
+    //     console.log(dbEntries)
 
-        const locallyInstalledProjects = fs
-          .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
-          .filter((dirent) => dirent.isDirectory())
-          .map((dirent) => dirent.name)
+    //     const locallyInstalledProjects = fs
+    //       .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
+    //       .filter((dirent) => dirent.isDirectory())
+    //       .map((dirent) => dirent.name)
 
-        for (const name of locallyInstalledProjects) {
-          if (!data.find((e) => e.name === name)) {
-            const packageData = JSON.parse(
-              fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/', name, 'package.json'), 'utf8')
-            ).xrengine as ProjectPackageInterface
+    //     for (const name of locallyInstalledProjects) {
+    //       if (!data.find((e) => e.name === name)) {
+    //         const packageData = JSON.parse(
+    //           fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/', name, 'package.json'), 'utf8')
+    //         ).xrengine as ProjectPackageInterface
 
-            if (!packageData) {
-              console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
-              continue
-            }
+    //         if (!packageData) {
+    //           console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
+    //           continue
+    //         }
 
-            const dbEntryData: ProjectInterface = {
-              ...packageData,
-              name,
-              repositoryPath: getRemoteURLFromGitData(name)
-            }
+    //         const dbEntryData: ProjectInterface = {
+    //           ...packageData,
+    //           name,
+    //           repositoryPath: getRemoteURLFromGitData(name)
+    //         }
 
-            console.log('[Projects]: Found new locally installed project', name)
-            super.create(dbEntryData)
-          }
-        }
-      })
-    }
+    //         console.log('[Projects]: Found new locally installed project', name)
+    //         super.create(dbEntryData)
+    //       }
+    //     }
+    //   })
+    // }
   }
 
   /**
