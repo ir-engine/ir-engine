@@ -51,7 +51,7 @@
     "react-router-transition": "2.1.0",
     "react-video-recorder": "3.19.1",
     "redux": "4.1.1",
-    "sass": "1.42.1",
+    "sass": "1.43.3",
     "styled-components": "5.3.1"
   },
   "devDependencies": {
