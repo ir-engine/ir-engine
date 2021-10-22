@@ -1,3 +1,4 @@
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
@@ -439,7 +440,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return this
   }
   async serialize(projectId): Promise<any> {
-    const sceneJson = {
+    const sceneJson: SceneJson = {
       version: 4,
       root: this.uuid,
       metadata: this.parseMetadataToObject(this.metadata),

@@ -34,7 +34,7 @@ export const routeColumns: RouteColumn[] = [
 /**
  * Temporary
  */
-const ROUTE_PAGE_LIMIT = 10
+const ROUTE_PAGE_LIMIT = 1000
 
 /**
  *

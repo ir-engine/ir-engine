@@ -1,10 +1,12 @@
 import io from 'socket.io-client'
 import feathers from '@feathersjs/client'
 import { Config } from '@xrengine/common/src/config'
+// import { Application as FeathersApplication } from '@feathersjs/feathers/lib/declarations'
+import type { Application } from '../../server-core/declarations'
 
 const feathersStoreKey: string = Config.publicRuntimeConfig.feathersStoreKey
 // TODO: offlineMode flag not working correctly
-const feathersClient: any = !Config.publicRuntimeConfig.offlineMode ? feathers() : undefined
+const feathersClient: Application = feathers()
 
 if (!Config.publicRuntimeConfig.offlineMode) {
   const socket = io(Config.publicRuntimeConfig.apiServer, {

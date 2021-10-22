@@ -16,7 +16,7 @@ import logger from '../../logger'
 import { Op } from 'sequelize'
 import config from '../../appconfig'
 import { contents } from '@xrengine/common/src/scenes-templates'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneDetailInterface, SceneInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 interface Data {}
 interface ServiceOptions {}
 
@@ -134,7 +134,7 @@ export class Scene implements ServiceMethods<Data> {
     return data
   }
 
-  async patch(projectId: NullableId, data: any, params: Params): Promise<SceneDetailInterface> {
+  async patch(sceneId: NullableId, data: any, params: Params): Promise<SceneDetailInterface> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const seqeulizeClient = this.app.get('sequelizeClient')
     const models = seqeulizeClient.models
@@ -148,7 +148,7 @@ export class Scene implements ServiceMethods<Data> {
 
     const project = await CollectionModel.findOne({
       where: {
-        sid: projectId
+        sid: sceneId
         // userId: loggedInUser.userId
       }
     })
@@ -169,7 +169,7 @@ export class Scene implements ServiceMethods<Data> {
     if (!ownedFile) {
       return await Promise.reject(new BadRequest('Project File not found!'))
     }
-    let sceneData
+    let sceneData: SceneInterface
     if (config.server.storageProvider === 'aws') {
       sceneData = await fetch(ownedFile.url).then((res) => res.json())
     } else {
