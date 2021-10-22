@@ -5,7 +5,7 @@ import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { RouteActionType } from './RouteActions'
 import { store } from '../../store'
 
-export const ROUTE_PAGE_LIMIT = 100
+export const ROUTE_PAGE_LIMIT = 10000
 
 const state = createState({
   isLoggedIn: false,

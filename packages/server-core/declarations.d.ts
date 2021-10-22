@@ -1,9 +1,12 @@
+// src/declarations.d.ts
 import { Application as ExpressFeathers } from '@feathersjs/express'
+import '@feathersjs/transport-commons'
 
-// A mapping of service names to types. Will be extended in service files.
-export interface ServiceTypes {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ServiceTypes {
+  [x: string]: any // TODO: fix this
+}
 
-// The application instance type that will be used everywhere else
 export type Application = ExpressFeathers<ServiceTypes> & {
   // Common
   k8AgonesClient: any

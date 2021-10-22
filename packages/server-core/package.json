@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.9",
+    "@feathersjs/authentication-client": "^5.0.0-pre.9",
     "@feathersjs/authentication-local": "^5.0.0-pre.9",
     "@feathersjs/authentication-oauth": "^5.0.0-pre.9",
     "@feathersjs/cli": "^4.5.0",
