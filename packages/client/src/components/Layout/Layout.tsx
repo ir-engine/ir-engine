@@ -1,4 +1,4 @@
-import { Forum, FullscreenExit, People, ZoomOutMap } from '@material-ui/icons'
+import { Forum, FullscreenExit, People, ZoomOutMap, Refresh } from '@material-ui/icons'
 import { ThemeProvider } from '@material-ui/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
@@ -204,7 +204,7 @@ const Layout = (props: Props): any => {
             )}
 
             <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
-              <img src="/static/restart.svg" />
+              <Refresh />
             </button>
 
             <Harmony
