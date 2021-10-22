@@ -16,8 +16,8 @@ const FriendTab = () => {
   const classes = useStyles()
   const classex = useStyle()
 
-  const [via, setVia] = useState('Email')
-  const [to, setTo] = useState('Smith')
+  const [via, setVia] = useState('Send Via')
+  const [to, setTo] = useState('Select Friend')
 
   const handleChangeVia = (event) => {
     setVia(event.target.value)
@@ -42,6 +42,9 @@ const FriendTab = () => {
             }}
             MenuProps={{ classes: { paper: classex.selectPaper } }}
           >
+            <MenuItem value="Send Via" disabled style={{ background: 'transparent', color: '#f1f1f1' }}>
+              <em>Send Via </em>
+            </MenuItem>
             {['Phone', 'Email', 'Invite Code', 'Friend'].map((el) => (
               <MenuItem value={el} key={el} style={{ background: 'transparent', color: '#f1f1f1' }}>
                 <ListItemIcon>
@@ -71,7 +74,7 @@ const FriendTab = () => {
               }}
               MenuProps={{ classes: { paper: classex.selectPaper } }}
             >
-              <MenuItem value="" disabled style={{ background: 'transparent', color: '#f1f1f1' }}>
+              <MenuItem value="Select Friend" disabled style={{ background: 'transparent', color: '#f1f1f1' }}>
                 <em>Select Friend</em>
               </MenuItem>
               {['Kim', 'Kevin', 'Smith', 'Nelly'].map((el) => (

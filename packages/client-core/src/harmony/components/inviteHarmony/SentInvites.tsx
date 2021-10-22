@@ -52,7 +52,7 @@ const SentInvites = () => {
   const classex = useStyles()
 
   return (
-    <div>
+    <div className={classes.scroll}>
       <List className={classes.rootList}>
         {invites.map((el) => {
           return (

@@ -15,6 +15,7 @@ import { usePartyState } from '../../../social/services/PartyService'
 import { ChatService } from '../../../social/services/ChatService'
 import { useDispatch } from '../../../store'
 import InviteHarmony from '../inviteHarmony'
+import CreateGroup from './CreateGroup'
 import { useUserStyles } from './style'
 
 const UserList = ({ chatType }) => {
@@ -31,6 +32,11 @@ const UserList = ({ chatType }) => {
   const friends = friendSubState.friends.value
   const party = usePartyState().party.value
   const instanceLayerUsers = userState.layerUsers.value
+  const [openCreateGroupModel, setOpenCreateGroupModel] = React.useState(false)
+
+  const toggleCreateGroupModel = (open: boolean) => {
+    setOpenCreateGroupModel(open)
+  }
 
   const openInviteModel = (open: boolean) => {
     setOpenInvite(open)
@@ -63,6 +69,19 @@ const UserList = ({ chatType }) => {
 
   return (
     <div>
+      {chatType === 'Group' ? (
+        <Button
+          variant="contained"
+          color="secondary"
+          style={{ marginBottom: '4rem', marginLeft: '4rem' }}
+          startIcon={<GroupAdd />}
+          onClick={() => toggleCreateGroupModel(true)}
+        >
+          Create Group
+        </Button>
+      ) : (
+        ''
+      )}
       <List className={classes.root}>
         {data && data.length > 0 ? (
           data.map((el) => {
@@ -96,6 +115,7 @@ const UserList = ({ chatType }) => {
         )}
       </List>
       <InviteHarmony open={openInvite} handleClose={openInviteModel} />
+      <CreateGroup open={openCreateGroupModel} handleClose={toggleCreateGroupModel} />
     </div>
   )
 }

@@ -23,7 +23,10 @@ export const useStyles = makeStyles((theme: Theme) =>
       bottom: '3rem',
       right: '2.5rem',
       background: '#3A4149',
-      boxShadow: '0 0 4px rgb(0 0 0 / 60%)'
+      boxShadow: '0 0 4px rgb(0 0 0 / 60%)',
+      '&:hover': {
+        background: '#888'
+      }
     },
     acceptInviteBtn: {
       margin: 'auto 5px',
@@ -81,6 +84,23 @@ export const useStyles = makeStyles((theme: Theme) =>
     mb10: {
       marginTop: '10%',
       padding: '0px'
+    },
+    scroll: {
+      height: '90vh',
+      overflowY: 'scroll',
+      '&::-webkit-scrollbar': {
+        width: '5px'
+      },
+      '&::-webkit-scrollbar-track': {
+        background: '#1f252d'
+      },
+      '&::-webkit-scrollbar-thumb': {
+        background: '#555',
+        borderRadius: '10px'
+      },
+      '&::-webkit-scrollbar-thumb:hover': {
+        background: '#f1f1f1'
+      }
     }
   })
 )
@@ -88,7 +108,8 @@ export const useStyles = makeStyles((theme: Theme) =>
 export const useStyle = makeStyles({
   paper: {
     width: '50rem',
-    padding: '0px'
+    padding: '0px',
+    overflow: 'hidden'
   },
   root: {
     flexGrow: 1,

@@ -76,13 +76,19 @@ const ReceivedInvites = () => {
       name: 'Pele',
       description: 'Church gathering',
       accepted: true
+    },
+    {
+      id: 'WGTWF-4541',
+      name: 'Pele',
+      description: 'Church gathering',
+      accepted: true
     }
   ]
   const classes = useStyles()
   const classex = useStyles()
 
   return (
-    <div>
+    <div className={classes.scroll}>
       <List className={classes.rootList}>
         {invites.map((el) => {
           return (
