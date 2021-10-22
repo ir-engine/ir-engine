@@ -31,6 +31,7 @@ const state = createState({
 
 store.receptors.push((action: ChatActionType): any => {
   state.batch((s) => {
+    console.log(action!.type, s?.channels)
     switch (action!.type) {
       case 'LOADED_CHANNELS':
         s.channels.merge({
@@ -65,6 +66,7 @@ store.receptors.push((action: ChatActionType): any => {
         const channelId = action.message.channelId
         const selfUser = action.selfUser
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
+        console.log(channel)
         if (!channel) {
           s.channels.updateNeeded.set(true)
         } else {
@@ -96,9 +98,9 @@ store.receptors.push((action: ChatActionType): any => {
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
         if (channel) {
           for (const m of action.messages) {
-            const message = channel.Messages.find((m2) => m2.id.value === m.id)
+            const message = channel.messages.find((m2) => m2.id.value === m.id)
             if (message) message.set(m)
-            else channel.Messages[channel.Messages.length].set(m)
+            else channel.messages[channel.messages.length].set(m)
           }
         }
 
