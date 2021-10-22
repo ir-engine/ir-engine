@@ -30,14 +30,14 @@ function RouterComp(props) {
     return <div>Loading...</div>
   }
 
-  // if (Array.isArray(customRoutes) && !customRoutes.length) {
-  //   return (
-  //     <>
-  //       <h1 style={{ color: 'black' }}>{t('no-projects.msg')}</h1>
-  //       <img src="/static/xrengine black.png" />
-  //     </>
-  //   )
-  // }
+  if (Array.isArray(customRoutes) && !customRoutes.length) {
+    return (
+      <>
+        <h1 style={{ color: 'black' }}>{t('no-projects.msg')}</h1>
+        <img src="/static/xrengine black.png" />
+      </>
+    )
+  }
 
   return (
     <ErrorBoundary>
@@ -64,13 +64,7 @@ function RouterComp(props) {
               path={'/admin'}
               component={React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))}
             />
-
             {/* if no index page has been provided, indicate this as obviously as possible */}
-            <Route
-              key={'/examples/match'}
-              path={'/examples/match'}
-              component={React.lazy(() => import('../pages/examples/matchmaking'))}
-            />
             <Route key={'/503'} path={'/'} component={React.lazy(() => import('../pages/503'))} exact />
             <Route key={'*504'} path="*" component={React.lazy(() => import('../pages/404'))} />
           </Switch>
