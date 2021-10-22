@@ -3,8 +3,11 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { RouteActionType } from './RouteActions'
+/**
+ * if HMR is reloading this file, decline it, as it will import the globs more than once
+ */
 
-export const ROUTE_PAGE_LIMIT = 100
+export const ROUTE_PAGE_LIMIT = 10000
 
 const state = createState({
   isLoggedIn: false,
