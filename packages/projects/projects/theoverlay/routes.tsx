@@ -8,6 +8,8 @@ const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRou
 const $location = React.lazy(() => import('@xrengine/client/src/pages/location/location'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
 const $editor = React.lazy(() => import('@xrengine/client/src/pages/editor/editor'))
+// examples
+const $examplesMatchmaking = React.lazy(() => import('@xrengine/client/src/pages/examples/matchmaking'))
 
 export default function (route: string) {
   switch (route) {
@@ -25,6 +27,8 @@ export default function (route: string) {
       return [<Route key={'/auth'} path={'/auth'} component={$auth} />]
     case '/editor':
       return [<Route key={'/editor'} path={'/editor'} component={$editor} />]
+    case '/examples':
+      return [<Route path="/examples/matchmaking" component={$examplesMatchmaking} />]
   }
 
   // TODO: add test routes
