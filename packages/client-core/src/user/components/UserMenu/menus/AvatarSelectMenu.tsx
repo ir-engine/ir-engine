@@ -17,6 +17,7 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
+import { TextField } from '@mui/material'
 
 interface Props {
   changeActiveMenu: Function
@@ -297,9 +298,11 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
           </div>
         )}
         <div className={styles.avatarNameContainer}>
-          <input
-            type="text"
+          <TextField
             id="avatarName"
+            size="small"
+            name="avatarname"
+            variant="outlined"
             className={styles.avatarNameInput}
             onChange={this.handleAvatarNameChange}
             placeholder="Avatar Name"
