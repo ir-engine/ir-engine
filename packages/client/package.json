@@ -119,7 +119,7 @@
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "esbuild-plugin-tsc": "0.3.0",
-    "eslint": "8.0.0",
+    "eslint": "8.1.0",
     "mocha": "9.1.2"
   },
   "license": "ISC"
