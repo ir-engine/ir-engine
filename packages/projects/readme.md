@@ -1,10 +1,8 @@
 # Projects
 
-Projects are XREngine's implementation of plugins - a way to extend core functionality with complete and continuous integration right into the heart of everything you'd need as a developer. The engine, UI layout, networking, database, and more.
-
 ## Usage
 
-Projects are added per-scene via the editor. Here, various configurables can be specified, such as the point in the update loop the various system entry points are to be registered.
+Projects are git git repositories that  added per-scene via the editor. Here, various configurables can be specified, such as the point in the update loop the various system entry points are to be registered.
 
 ## Structure
 

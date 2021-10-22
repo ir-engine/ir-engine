@@ -183,7 +183,8 @@ export async function populateScene(
   })
   if (thumbnailUrl != null) {
     const thumbnailResult = await axios.get(thumbnailUrl, getAxiosConfig())
-    const thumbnailKey = getThumbnailKey(thumbnailUrl)
+    // TODO: add project id here too
+    const thumbnailKey = `${sceneId}/${getThumbnailKey(thumbnailUrl)}`
     await storageProvider.putObject({
       Body: thumbnailResult.data,
       ContentType: 'jpeg',

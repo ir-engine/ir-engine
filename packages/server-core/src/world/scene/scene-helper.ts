@@ -1,5 +1,6 @@
 import config from '../../appconfig'
 import { SceneDetailData, SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import { BlobStore } from '../../media/storageprovider/storageprovider.interface'
 
 export function mapSceneData(scene: any, projectId: string): SceneDetailData {
   if (!scene) {
@@ -29,7 +30,7 @@ export function defaultSceneImport(models: any): any[] {
   return includedEntities
 }
 
-export function readJSONFromBlobStore(storage, key): any {
+export function readJSONFromBlobStore(storage: BlobStore, key): any {
   return new Promise((resolve, reject) => {
     const chunks = []
     storage
