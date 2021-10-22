@@ -52,7 +52,7 @@
     "@types/react-redux": "7.1.20",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.15",
-    "@vladmandic/face-api": "1.5.4",
+    "@vladmandic/face-api": "1.5.6",
     "axios": "0.23.0",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
