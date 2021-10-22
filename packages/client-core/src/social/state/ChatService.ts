@@ -100,6 +100,7 @@ export const ChatService = {
             $skip: skip != null ? skip : chatState.channels.skip
           }
         })
+        console.log(messageResult)
         dispatch(ChatAction.loadedMessages(channelId, messageResult))
       } catch (err) {
         console.log(err)
