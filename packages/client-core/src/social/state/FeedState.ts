@@ -5,6 +5,7 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { FeedActionType } from './FeedActions'
 import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed'
+import { store } from '../../store'
 
 const state = createState({
   feeds: {
@@ -32,7 +33,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: FeedActionType): any => {
+store.receptors.push((action: FeedActionType): any => {
   state.batch((s) => {
     let currentFeed
     switch (action.type) {
@@ -188,7 +189,7 @@ export const receptor = (action: FeedActionType): any => {
         return s.feeds.lastFeedVideoUrl.set(action.filePath)
     }
   }, action.type)
-}
+})
 
 export const accessFeedState = () => state
 export const useFeedState = () => useState(state)

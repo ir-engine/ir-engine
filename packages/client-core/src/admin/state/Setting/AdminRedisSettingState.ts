@@ -1,6 +1,7 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { AdminRedisSettingActionType } from './AdminRedisSettingActions'
 import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
+import { store } from '../../../store'
 
 const state = createState({
   redisSettings: {
@@ -12,7 +13,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: AdminRedisSettingActionType): any => {
+store.receptors.push((action: AdminRedisSettingActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
@@ -21,7 +22,7 @@ export const receptor = (action: AdminRedisSettingActionType): any => {
         return s.redisSettings.merge({ redisSettings: result.data, updateNeeded: false })
     }
   }, action.type)
-}
+})
 
 export const accessAdminRedisSettingState = () => state
 
