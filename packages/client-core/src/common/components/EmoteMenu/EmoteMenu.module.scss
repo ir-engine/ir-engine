@@ -40,7 +40,7 @@
         min-width: 0;
         transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
 
-        &:hover { transform: scale(1.2); }
+        &:hover { transform: scale(1.2); background: rgba(0, 0, 0, 0.2); }
         > svg { height: 50%; width: 50%; }
 
         @media screen and (max-height: 475px) {
