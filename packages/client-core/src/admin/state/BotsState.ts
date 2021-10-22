@@ -4,6 +4,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
+import { store } from '../../store'
 
 export const BOTS_PAGE_LIMIT = 100
 
@@ -36,7 +37,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: BotsActionType): void => {
+store.receptors.push((action: BotsActionType): void => {
   let result
   state.batch((s) => {
     switch (action.type) {
@@ -62,7 +63,7 @@ export const receptor = (action: BotsActionType): void => {
         return s.bots.merge({ updateNeeded: true })
     }
   }, action.type)
-}
+})
 
 export const accessBotState = () => state
 

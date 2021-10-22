@@ -4,13 +4,14 @@ import { PartyActionType } from './PartyActions'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 import _ from 'lodash'
 import { Party } from '@xrengine/common/src/interfaces/Party'
+import { store } from '../../store'
 
 const state = createState({
   party: {} as Party,
   updateNeeded: true
 })
 
-export const receptor = (action: PartyActionType): any => {
+store.receptors.push((action: PartyActionType): any => {
   let newValues, updateMap, partyUser, updateMapPartyUsers
 
   state.batch((s) => {
@@ -76,7 +77,7 @@ export const receptor = (action: PartyActionType): any => {
         return s.updateNeeded.set(true)
     }
   }, action.type)
-}
+})
 
 export const accessPartyState = () => state
 
