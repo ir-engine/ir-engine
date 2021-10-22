@@ -14,7 +14,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { LocationService } from '@xrengine/client-core/src/admin/state/LocationService'
 
 import styles from './styles.module.scss'

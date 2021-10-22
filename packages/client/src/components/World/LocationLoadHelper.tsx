@@ -60,11 +60,11 @@ export const getSceneData = async (sceneId: string, isOffline: boolean): Promise
     return testScenes[sceneId] || testScenes.test
   }
 
-  const projectResult = await client.service('project').get(sceneId)
-  store.dispatch(SceneAction.setCurrentScene(projectResult))
+  const sceneResult = await client.service('scene').get(sceneId)
+  store.dispatch(SceneAction.setCurrentScene(sceneResult))
 
-  const projectUrl = projectResult.project_url
-  const regexResult = projectUrl.match(projectRegex)
+  const sceneUrl = sceneResult.scene_url
+  const regexResult = sceneUrl.match(projectRegex)
 
   let service, serviceId
   if (regexResult) {
@@ -112,7 +112,7 @@ export const initEngine = async (
     initOptions.systems?.push(system)
   }
 
-  const realityPackReactComponents = packs.react.map((c) => React.lazy(() => c))
+  const projectReactComponents = packs.react.map((c) => React.lazy(() => c))
 
   // 2. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
@@ -180,7 +180,7 @@ export const initEngine = async (
     engineCallbacks.onSuccess()
   }
 
-  return realityPackReactComponents
+  return projectReactComponents
 }
 
 export const teleportToLocation = async (

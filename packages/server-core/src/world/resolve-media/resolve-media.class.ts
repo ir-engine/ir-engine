@@ -2,7 +2,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
 import { BadRequest } from '@feathersjs/errors'
-import StorageProvider from '../../media/storageprovider/storageprovider'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../logger'
 
 interface Data {}
@@ -28,7 +28,7 @@ export class ResolveMedia implements ServiceMethods<Data> {
     this.options = options
     this.app = app
     this.models = this.app.get('sequelizeClient').models
-    this.storage = new StorageProvider().getStorage()
+    this.storage = useStorageProvider().getStorage()
   }
 
   async setup() {}

@@ -38,7 +38,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   menuItemWidth: number
   menuItemRadius: number
   effectiveRadius: number
-  menuPadding: number = 50
+  menuPadding: number = window.innerWidth > 360 ? 35 : 30
   menuThickness: number = 100
   styles: any
   constructor(props) {
@@ -164,10 +164,11 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   }
 
   calculateMenuRadius = (): number => {
-    return Math.max(
-      Math.min(this.props.radius || (Math.min(window.innerWidth, window.innerHeight) * 0.6) / 2),
-      MIN_MENU_RADIUS
-    )
+    // return Math.max(
+    //   Math.min(this.props.radius || (Math.min(window.innerWidth, window.innerHeight) * 0.6) / 2),
+    //   MIN_MENU_RADIUS
+    // )
+    return window.innerWidth > 360 ? 182 : 150
   }
 
   componentDidMount() {
@@ -187,7 +188,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   }
 
   calculateOtherValues = (): void => {
-    this.menuThickness = this.state.menuRadius > 190 ? 100 : 80
+    this.menuThickness = this.state.menuRadius > 170 ? 70 : 60
     this.menuItemWidth = this.menuThickness - this.menuPadding
     this.menuItemRadius = this.menuItemWidth / 2
     this.effectiveRadius = this.state.menuRadius - this.menuItemRadius - this.menuPadding / 2
@@ -241,7 +242,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
                       style={{
                         width: this.menuItemWidth,
                         height: this.menuItemWidth,
-                        transform: 'translate(' + x + 'px, ' + y + 'px)'
+                        transform: `translate(${x}px , ${y}px)`
                       }}
                       {...item.containerProps}
                     >

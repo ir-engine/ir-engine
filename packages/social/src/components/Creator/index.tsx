@@ -4,7 +4,7 @@
 import Button from '@material-ui/core/Button'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import CreatorCard from '../CreatorCard'

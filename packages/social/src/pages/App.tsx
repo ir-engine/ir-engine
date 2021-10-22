@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { SnackbarProvider } from 'notistack'
 
 import AppHeader from '@xrengine/social/src/components/Header'

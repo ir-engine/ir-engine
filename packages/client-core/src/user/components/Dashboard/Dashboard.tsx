@@ -10,7 +10,7 @@ import IconButton from '@material-ui/core/IconButton'
 import { ChevronLeft, ChevronRight, Menu } from '@material-ui/icons'
 import Avatar from '@material-ui/core/Avatar'
 import { useAuthState } from '../../state/AuthState'
-import { connect } from 'react-redux'
+
 import { useStylesForDashboard } from './styles'
 import SideMenu from './SideMenuItem'
 

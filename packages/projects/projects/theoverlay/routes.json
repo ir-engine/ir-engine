@@ -1,3 +1,0 @@
-{ 
-  "routes": ["/", "/login", "/harmony", "/admin", "/location", "/auth", "/editor"]
-}

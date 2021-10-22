@@ -23,15 +23,16 @@ export const getInstalledRoutes = () => {
   const data: InstalledRoutesInterface[] = []
   projects.forEach(async (project) => {
     try {
-      const { routes } = JSON.parse(
-        fs.readFileSync(path.resolve(__dirname, `../../../../projects/projects/${project}/routes.json`), 'utf8')
-      )
-      data.push({
-        routes,
-        project
-      })
+      const routesJsonPath = path.resolve(__dirname, `../../../../projects/projects/${project}/package.json`)
+      if (fs.existsSync(routesJsonPath)) {
+        const { routes } = JSON.parse(fs.readFileSync(routesJsonPath, 'utf8')).xrengine
+        data.push({
+          routes,
+          project
+        })
+      }
     } catch (e) {
-      console.warn('[getRealityPacks]: Failed to read routes.json for project', project, 'with error', e)
+      console.warn('[getProjects]: Failed to read package.json for project', project, 'with error', e)
       return
     }
   })
@@ -41,13 +42,9 @@ export const getInstalledRoutes = () => {
 export const activateRoute = (routeService: Route): any => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
     const activatedRoutes = ((await routeService.find()) as any).data as ActiveRoutesInterface[]
-    console.log(activatedRoutes)
     const installedRoutes = getInstalledRoutes().data
-    console.log(installedRoutes)
     if (data.activate) {
-      console.log('activating', data, '\n')
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))
-      console.log('routeToActivate', routeToActivate)
       if (routeToActivate) {
         // if any projects already have this route, deactivate them
         for (const route of activatedRoutes) {
@@ -60,9 +57,7 @@ export const activateRoute = (routeService: Route): any => {
         return true
       }
     } else {
-      console.log('deactivating', data, '\n')
       const routeToDeactivate = activatedRoutes.find((r) => r.project === data.project && r.route === data.route)
-      console.log('routeToDeactivate', routeToDeactivate)
       if (routeToDeactivate) {
         await routeService.remove(routeToDeactivate.id)
         return true

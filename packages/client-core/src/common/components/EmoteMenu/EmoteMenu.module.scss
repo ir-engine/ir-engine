@@ -67,7 +67,7 @@
         justify-content: center;
         align-items: center;
         border-radius: 50%;
-        border: solid 100px rgba(0, 0, 0, 0.8);
+        border: solid 100px rgb(51 51 110 / 50%);
         border-bottom-color: transparent;
         opacity:0.9;
         position:relative;
@@ -76,9 +76,16 @@
         border-width: 70px !important;
         left: -30px;
 
+        @media (max-width: 500px) {
+            left: 0;
+        }
 
-
-
+        @media (max-width: 360px) {
+            left: 0;
+            width:300px !important;
+            height:300px !important;
+            border-width: 60px !important;
+        }
 
         .menuItemBlock {
             position: relative;
@@ -92,6 +99,7 @@
             margin: 0;
             padding: 0;
             min-width: 0;
+            background-color: transparent;
 
             &:hover { transform: scale(1.2); }
             img {
@@ -102,24 +110,32 @@
     }
 }
 
-
-
 .hideMenu {
     transform: scale(0);
 }
-       .itemContainer::before {
-     content: "";
+
+.itemContainer::before {
+    content: "";
     width: 33px;
     height: 70px;
     position: absolute;
     left: 2.9px;
     top: 190px;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgb(51 51 110 / 50%);
     transform: rotate(45deg);
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
     opacity: 1;
+
+    @media (max-width: 360px) {
+        width: 33px;
+        height: 60px;
+        position: absolute;
+        left: 0;
+        top: 156px;
+    }
 }
+
 .itemContainer::after {
     content: "";
     width: 33px;
@@ -127,12 +143,17 @@
     position: absolute;
     right: 2.9px;
     top: 190px;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgb(51 51 110 / 50%);
     transform: rotate(135deg);
     border-top-right-radius: 50px;
     border-bottom-right-radius: 50px;
     opacity: 1;
+
+    @media (max-width: 360px) {
+        width: 33px;
+        height: 60px;
+        position: absolute;
+        right: 0;
+        top: 156px;
+    }
 }
-
-
-

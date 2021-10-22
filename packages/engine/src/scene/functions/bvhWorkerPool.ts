@@ -5,12 +5,12 @@ import { isClient } from '../../common/functions/isClient'
 //TODO: Find number of cores on server side
 let poolSize = 2
 
-if (isClient) {
-  poolSize = window.navigator?.hardwareConcurrency || 2
-}
+// if (isClient) {
+//   poolSize = window.navigator?.hardwareConcurrency || 2
+// }
 
-let bvhWorkers: GenerateMeshBVHWorker[] = []
-let meshQueue: Mesh[] = []
+const bvhWorkers: GenerateMeshBVHWorker[] = []
+const meshQueue: Mesh[] = []
 
 export function generateMeshBVH(mesh) {
   if (!mesh.isMesh) return
@@ -26,7 +26,7 @@ export function generateMeshBVH(mesh) {
 }
 
 function runBVHGenerator() {
-  for (let worker of bvhWorkers) {
+  for (const worker of bvhWorkers) {
     if (meshQueue.length < 1) {
       break
     }

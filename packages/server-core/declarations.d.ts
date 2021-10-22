@@ -1,0 +1,25 @@
+// src/declarations.d.ts
+import { Application as ExpressFeathers } from '@feathersjs/express'
+import '@feathersjs/transport-commons'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ServiceTypes {
+  [x: string]: any // TODO: fix this
+}
+
+export type Application = ExpressFeathers<ServiceTypes> & {
+  // Common
+  k8AgonesClient: any
+  k8DefaultClient: any
+  agonesSDK: any
+  sync: any
+
+  // Gameserver
+  instance: any
+  gsSubdomainNumber: number
+  isChannelInstance: boolean
+  gsName: any
+  isSetup: Promise<boolean>
+
+  // API Server
+}

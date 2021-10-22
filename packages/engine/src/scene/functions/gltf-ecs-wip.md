@@ -7,9 +7,9 @@ Model userData properties
 
 ```ts
 {
-  [realitypack.entity]: name
-  [realitypack.prefab-type.property]: value
-  [realitypack.component-type.property]: value
+  [projectentity]: name
+  [project.prefab-type.property]: value
+  [project.component-type.property]: value
 }
 ```
 
@@ -17,9 +17,9 @@ Golf holes example
 
 ```ts
 {
-  "realitypack.entity": “GolfHole-0"
-  "realitypack.box-collider.isTrigger": true
-  "realitypack.CustomComponent.value": 12345
+  "project.entity": “GolfHole-0"
+  "project.box-collider.isTrigger": true
+  "project.CustomComponent.value": 12345
 }
 ```
 
