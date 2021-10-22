@@ -1,4 +1,3 @@
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CameraMode } from '../types/CameraMode'
 import { Raycaster } from 'three'
@@ -30,9 +29,9 @@ export type FollowCameraComponentType = {
 
 export const FollowCameraDefaultValues: FollowCameraComponentType = {
   mode: CameraMode.ThirdPerson,
-  zoomLevel: 3,
+  distance: 5,
+  zoomLevel: 5,
   zoomVelocity: { value: 0 },
-  distance: 3,
   minDistance: 2,
   maxDistance: 7,
   theta: Math.PI,
