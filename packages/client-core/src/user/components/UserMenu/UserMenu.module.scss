@@ -29,26 +29,28 @@
 
     .iconContainer {
         display: inline-flex;
-        border-radius: 5px;
-        background: #00000050;
         margin: auto;
 
         .materialIconBlock {
             padding: 1em;
+            opacity: 0.8;
+            border-radius: 50%;
+            background-color: #5F5FF1;
 
             svg{
-                opacity: 0.4;
+                color: white;
             }
 
             &:hover {
+                opacity: 1;
                 cursor: pointer;
+            }
 
-                svg {
-                    opacity: 1;
-                    color: #A8A8FF;
-                }
+            &:nth-child(1), &:nth-child(2) {
+                margin-right: 5px;
             }
         }
+
         .materialIconBlock.activeMenu {
             color: #A8A8FF;
         }
