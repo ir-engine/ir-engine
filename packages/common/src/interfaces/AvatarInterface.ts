@@ -1,4 +1,4 @@
-export interface Avatar {
+export interface AvatarInterface {
   id: string
   sid?: string
   key?: string
