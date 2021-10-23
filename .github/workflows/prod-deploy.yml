@@ -31,7 +31,7 @@ jobs:
         run: bash scripts/build_docker_builder.sh prod $DOCKER_LABEL $AWS_REGION
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
-          REPO_NAME: ${{ secrets.PROD_REPO_NAME }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_URL: ${{ secrets.ECR_URL }}
       - name: npm-install 'cli' and 'aws-sdk'
@@ -40,7 +40,7 @@ jobs:
         run: bash scripts/publish_ecr_builder.sh prod $GITHUB_SHA $DOCKER_LABEL $AWS_REGION
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
-          REPO_NAME: ${{ secrets.PROD_REPO_NAME }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_URL: ${{ secrets.ECR_URL }}
       - name: Deploy to EKS
