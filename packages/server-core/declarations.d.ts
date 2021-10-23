@@ -8,10 +8,6 @@ export interface ServiceTypes {
   [x: string]: any // TODO: fix this
 }
 
-export type FeathersSequelizeOverrideType<T> = {
-  findOne: (...args) => Promise<Model<T> & T>
-}
-
 // TODO: fix sequlize typings for this
 export interface Models {}
 

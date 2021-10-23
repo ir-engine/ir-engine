@@ -6,9 +6,21 @@ import config from '../../appconfig'
 
 const COLLECTION_API_ENDPOINT = `${config.server.url}/collection`
 
-export default (app: Application): any => {
+export type CollectionModel = {
+  id: string
+  sid: string
+  name: string
+  description: string
+  version: number
+  metadata: string
+  isPublic: boolean
+  url: string
+  ownedFileIds: string
+}
+
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const collection = sequelizeClient.define(
+  const collection = sequelizeClient.define<Model<CollectionModel>>(
     'collection',
     {
       id: {
@@ -85,18 +97,6 @@ export default (app: Application): any => {
 
   return collection
 }
-
-// export class CollectionModel extends Model {
-//   id: string
-//   sid: string
-//   name: string
-//   description: string
-//   version: number
-//   metadata: string
-//   isPublic: boolean
-//   url: string
-//   ownedFileIds: string
-// }
 
 // export default (app: Application) => {
 //   const sequelizeClient: Sequelize = app.get('sequelizeClient')
