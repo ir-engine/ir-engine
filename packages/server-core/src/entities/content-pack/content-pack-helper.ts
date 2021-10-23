@@ -100,24 +100,24 @@ export function assembleScene(scene: any, contentPack: string): any {
   }
 }
 
-export function assembleProject(project: any, contentPack: string): Promise<any> {
+export function assembleProject(project: ProjectInterface, contentPack: string): Promise<any> {
   console.log('assembleProject', project, contentPack)
   return new Promise(async (resolve, reject) => {
     try {
-      const manifest = await axios.get<Buffer>(project.storageProviderManifest, getAxiosConfig())
+      const manifest = await axios.get<Buffer>(project.storageProviderPath, getAxiosConfig())
       const data = JSON.parse(manifest.data.toString())
       const files = data.files
       const uploadPromises = []
       uploadPromises.push(
         storageProvider.putObject({
           Body: manifest.data,
-          ContentType: getContentType(project.storageProviderManifest),
+          ContentType: getContentType(project.storageProviderPath),
           Key: `content-pack/${contentPack}/project/${project.name}/manifest.json`
         })
       )
       files.forEach((file) => {
         const path = file.replace('./', '')
-        const subFileLink = project.storageProviderManifest.replace('manifest.json', path)
+        const subFileLink = project.storageProviderPath.replace('manifest.json', path)
         uploadPromises.push(
           new Promise(async (resolve) => {
             const fileResult = await axios.get<Buffer>(subFileLink, getAxiosConfig())

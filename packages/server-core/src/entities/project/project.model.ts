@@ -5,8 +5,8 @@ export type ProjectModelType = {
   id: string
   name: string
   thumbnail: string
-  storageProviderManifest: string
-  sourceManifest: string
+  storageProviderPath: string
+  repositoryPath: string
 }
 
 export default (app: Application) => {
@@ -26,10 +26,10 @@ export default (app: Application) => {
       thumbnail: {
         type: DataTypes.STRING
       },
-      storageProviderManifest: {
+      storageProviderPath: {
         type: DataTypes.STRING
       },
-      sourceManifest: {
+      repositoryPath: {
         type: DataTypes.STRING
       }
     },
