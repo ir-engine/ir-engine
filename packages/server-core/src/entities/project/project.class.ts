@@ -208,20 +208,20 @@ export class Project extends Service {
   async find(params: Params) {
     const entries = (await super.find(params)) as any
     entries.data = await Promise.all(
-      entries.data.map(async (entries) => {
+      entries.data.map(async (entry) => {
         try {
           const json: ProjectPackageInterface = JSON.parse(
             fs.readFileSync(
-              path.resolve(__dirname, '../../../../projects/projects/' + entries.name + '/package.json'),
+              path.resolve(__dirname, '../../../../projects/projects/' + entry.name + '/package.json'),
               'utf8'
             )
           ).xrengine
           return {
             ...json,
-            ...entries
+            ...entry
           }
         } catch (e) {
-          console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
+          console.warn('[getProjects]: Failed to read package.json for project', entry.name, 'with error', e)
           return
         }
       })
