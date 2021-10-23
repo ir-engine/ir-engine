@@ -37,7 +37,7 @@
     "@types/three": "0.133.0",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "8.0.0",
+    "eslint": "8.1.0",
     "eslint-plugin-react": "7.26.1",
     "mocha": "9.1.2",
     "semantic-release": "18.0.0",
