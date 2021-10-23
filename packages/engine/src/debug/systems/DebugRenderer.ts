@@ -99,7 +99,7 @@ export const DebugRenderer = () => {
         Engine.scene.remove(mesh)
         needsUpdate = true
       }
-      delete body._debugNeedsUpdate
+      body._debugNeedsUpdate = false
     }
 
     if (!mesh || needsUpdate) {
@@ -194,9 +194,9 @@ export const DebugRenderer = () => {
       }
 
       case PhysX.PxGeometryType.eCONVEXMESH.value: {
-        const verts = shape._vertices
-        const indices = shape._indices
-        const scale = shape._scale
+        const verts = shape._vertices as number[]
+        const indices = shape._indices as number[]
+        const scale = shape._scale as Vector3
         const bufferGeometry = new BufferGeometry()
         bufferGeometry.setAttribute('position', new Float32BufferAttribute(verts, 3))
         bufferGeometry.setIndex(indices)
@@ -206,9 +206,9 @@ export const DebugRenderer = () => {
       }
 
       case PhysX.PxGeometryType.eTRIANGLEMESH.value: {
-        const verts = shape._vertices
-        const indices = shape._indices
-        const scale = shape._scale
+        const verts = shape._vertices as number[]
+        const indices = shape._indices as number[]
+        const scale = shape._scale as Vector3
         const bufferGeometry = new BufferGeometry()
         bufferGeometry.setAttribute('position', new Float32BufferAttribute(verts, 3))
         bufferGeometry.setIndex(indices)

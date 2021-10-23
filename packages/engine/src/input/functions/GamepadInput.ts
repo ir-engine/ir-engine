@@ -38,7 +38,7 @@ export const handleGamepads = () => {
   // Get an immutable reference to input
   if (!gamepadConnected) return
   // Get gamepads from the DOM
-  gamepads = navigator.getGamepads()
+  gamepads = navigator.getGamepads() as Gamepad[]
 
   // Loop over connected gamepads
   for (_index = 0; _index < gamepads.length; _index++) {
@@ -82,7 +82,7 @@ const handleGamepadButton = (gamepad: Gamepad, index: number) => {
   Engine.inputState.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
     type: InputType.BUTTON,
     value: [gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF],
-    lifecycleState: gamepad.buttons[index].touched ? LifecycleValue.STARTED : LifecycleValue.ENDED
+    lifecycleState: gamepad.buttons[index].touched ? LifecycleValue.Started : LifecycleValue.Ended
   })
   gamepadButtons[index] = gamepad.buttons[index].touched ? 1 : 0
 }
@@ -113,7 +113,8 @@ export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedIn
   if (x !== prevLeftX || y !== prevLeftY) {
     Engine.inputState.set(mappedInputValue, {
       type: InputType.TWODIM,
-      value: [x, y]
+      value: [x, y],
+      lifecycleState: LifecycleValue.Changed
     })
 
     gamepadInput[xIndex] = x
@@ -160,7 +161,8 @@ export const handleGamepadDisconnected = (event: any): void => {
     if (gamepadButtons[index] === BinaryValue.ON) {
       Engine.inputState.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
-        value: [BinaryValue.OFF]
+        value: [BinaryValue.OFF],
+        lifecycleState: LifecycleValue.Changed
       })
     }
     gamepadButtons[index] = 0

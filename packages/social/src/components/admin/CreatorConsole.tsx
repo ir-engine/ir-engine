@@ -2,8 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -27,8 +26,8 @@ import { EnhancedTableHead } from '@xrengine/client-core/src/admin/components/Ad
 import CreatorForm from '@xrengine/social/src/components/CreatorForm'
 import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 import CreatorCard from '@xrengine/social/src/components/CreatorCard'
-import { updateCreator } from '@xrengine/social/src/reducers/creator/service'
-import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/reducers'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/state/AdminState'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -40,7 +39,6 @@ interface Props {
   fetchAdminInstances?: any
   removeUser?: any
   list?: any
-  updateCreator?: typeof updateCreator
 }
 
 interface HeadCell {
@@ -49,14 +47,6 @@ interface HeadCell {
   label: string
   numeric: boolean
 }
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreator: bindActionCreators(updateCreator, dispatch)
-})
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -83,7 +73,7 @@ const Transition = React.forwardRef(
 
 const CreatorConsole = (props: Props) => {
   const classes = useStyles()
-  const { list, updateCreator } = props
+  const { list } = props
   const headCells = [
     { id: 'avatar', numeric: false, disablePadding: false, label: '' },
     { id: 'verified', numeric: false, disablePadding: false, label: 'Verified' },
@@ -164,7 +154,7 @@ const CreatorConsole = (props: Props) => {
   }
 
   const handleUpdateCreator = (creator) => {
-    updateCreator(creator)
+    CreatorService.updateCreator(creator)
   }
   return (
     <div>
@@ -278,4 +268,4 @@ const CreatorConsole = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreatorConsole)
+export default CreatorConsole

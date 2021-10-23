@@ -1,4 +1,3 @@
-import { Quat } from '../../networking/types/SnapshotDataTypes'
 import { PI, TAU } from '../constants/MathConstants'
 
 /**
@@ -75,6 +74,8 @@ export const radianLerp = (start: number, end: number, t: number): number => {
 
   return result
 }
+
+type Quat = { x: number; y: number; z: number; w: number }
 
 /**
  * Find Interpolation between 2 quaternion.

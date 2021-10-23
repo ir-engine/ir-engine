@@ -11,59 +11,35 @@ import Paper from '@material-ui/core/Paper'
 import FormControl from '@material-ui/core/FormControl'
 import InputBase from '@material-ui/core/InputBase'
 import { Save, Autorenew } from '@material-ui/icons'
-import { selectAdminLocationState } from '../../reducers/admin/location/selector'
-import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
-import { connect } from 'react-redux'
+import { useLocationState } from '../../state/LocationState'
+import { useInstanceState } from '../../state/InstanceState'
+import { useDispatch } from '../../../store'
 import { validateForm } from './validation'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
-import { updateBotAsAdmin } from '../../reducers/admin/bots/service'
-import { Dispatch, bindActionCreators } from 'redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { BotService } from '../../state/BotsService'
+import { useAuthState } from '../../../user/state/AuthState'
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
-import { fetchAdminInstances } from '../../reducers/admin/instance/service'
-import { fetchAdminLocations } from '../../reducers/admin/location/service'
+import { InstanceService } from '../../state/InstanceService'
+import { LocationService } from '../../state/LocationService'
+
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 interface Props {
   open: boolean
   handleClose: () => void
   bot: any
-  adminLocationState?: any
-  adminInstanceState?: any
-  updateBotAsAdmin?: any
-  fetchAdminInstances?: any
-  fetchAdminLocations?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    adminLocationState: selectAdminLocationState(state),
-    adminInstanceState: selectAdminInstanceState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateBotAsAdmin: bindActionCreators(updateBotAsAdmin, dispatch),
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
-  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
-})
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
 }
 
 const UpdateBot = (props: Props) => {
-  const {
-    open,
-    handleClose,
-    bot,
-    adminLocationState,
-    adminInstanceState,
-    updateBotAsAdmin,
-    fetchAdminLocations,
-    fetchAdminInstances
-  } = props
+  const { open, handleClose, bot } = props
+  const adminInstanceState = useInstanceState()
+  const dispatch = useDispatch()
   const classx = useStyle()
   const classes = useStyles()
   const [state, setState] = React.useState({
@@ -77,13 +53,13 @@ const UpdateBot = (props: Props) => {
     description: '',
     location: ''
   })
-  const [currentInstance, setCurrentIntance] = React.useState([])
+  const [currentInstance, setCurrentIntance] = React.useState<Instance[]>([])
   const [openAlter, setOpenAlter] = React.useState(false)
   const [error, setError] = React.useState('')
-  const adminLocation = adminLocationState.get('locations')
-  const locationData = adminLocation.get('locations')
-  const adminInstances = adminInstanceState.get('instances')
-  const instanceData = adminInstances.get('instances')
+  const adminLocation = useLocationState().locations
+  const locationData = adminLocation.locations
+  const adminInstances = adminInstanceState.instances
+  const instanceData = adminInstances.instances
   const user = useAuthState().user
 
   React.useEffect(() => {
@@ -118,20 +94,20 @@ const UpdateBot = (props: Props) => {
     setState({ ...state, [names]: value })
   }
 
-  const data = []
-  instanceData.forEach((element) => {
+  const data: Instance[] = []
+  instanceData.value.forEach((element) => {
     data.push(element)
   })
 
   React.useEffect(() => {
     if (bot) {
-      const instanceFilter = data.filter((el) => el.location.id === state.location)
+      const instanceFilter = data.filter((el) => el.locationId === state.location)
       if (instanceFilter.length > 0) {
         setState({ ...state, instance: state.instance || '' })
         setCurrentIntance(instanceFilter)
       }
     }
-  }, [state.location, bot, adminInstanceState])
+  }, [state.location, bot, adminInstanceState.instances.instances.value])
 
   const handleUpdate = () => {
     const data = {
@@ -153,7 +129,7 @@ const UpdateBot = (props: Props) => {
     }
     setFormErrors(temp)
     if (validateForm(state, formErrors)) {
-      updateBotAsAdmin(bot.id, data)
+      BotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
       handleClose()
@@ -163,11 +139,19 @@ const UpdateBot = (props: Props) => {
     }
   }
 
+  const fetchAdminInstances = () => {
+    InstanceService.fetchAdminInstances()
+  }
+
   const handleCloseAlter = (event, reason) => {
     if (reason === 'clickaway') {
       return
     }
     setOpenAlter(false)
+  }
+
+  const fetchAdminLocations = () => {
+    LocationService.fetchAdminLocations()
   }
 
   return (
@@ -228,7 +212,7 @@ const UpdateBot = (props: Props) => {
                     <MenuItem value="" disabled>
                       <em>Select location</em>
                     </MenuItem>
-                    {locationData.map((el) => (
+                    {locationData.value.map((el) => (
                       <MenuItem value={el.id} key={el.id}>
                         {el.name}
                       </MenuItem>
@@ -239,7 +223,7 @@ const UpdateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={() => fetchAdminLocations()}>
+                <IconButton onClick={fetchAdminLocations}>
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>
@@ -280,7 +264,7 @@ const UpdateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={() => fetchAdminInstances()}>
+                <IconButton onClick={fetchAdminInstances}>
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>
@@ -320,4 +304,4 @@ const UpdateBot = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UpdateBot)
+export default UpdateBot

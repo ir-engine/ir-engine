@@ -7,7 +7,10 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       margin: 'auto 5px',
       width: '100%',
       background: 'rgb(58, 65, 73)',
-      color: '#f1f1f1 !important'
+      color: '#f1f1f1 !important',
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '0.7rem'
+      }
     },
     rootTable: {
       flexGrow: 1,
@@ -19,13 +22,19 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       marginBottom: '10px'
     },
     marginBottm: {
-      marginBottom: '15px'
+      marginBottom: '15px',
+      [theme.breakpoints.down('sm')]: {
+        marginBottom: '0'
+      }
     },
     marginTp: {
       marginTop: '20%'
     },
     marginTpM: {
-      marginTop: '10%'
+      marginTop: '10%',
+      [theme.breakpoints.down('sm')]: {
+        marginTop: '2.5rem'
+      }
     },
     createInput: {
       padding: '2px 4px',
@@ -92,12 +101,18 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       height: '21vh',
       background: '#111',
       color: '#f1f1f1',
-      backgroundColor: '#343b41'
+      backgroundColor: '#343b41',
+      [theme.breakpoints.down('sm')]: {
+        height: '10vh'
+      }
     },
     locationTitle: {
       margin: '50px auto',
       width: '300px',
-      textAlign: 'center'
+      textAlign: 'center',
+      [theme.breakpoints.down('sm')]: {
+        margin: '10px auto'
+      }
     },
     locationSubTitle: {
       display: 'flex',
@@ -120,18 +135,38 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       marginBottom: '20px'
     },
     pdl: {
-      paddingLeft: '1rem'
+      paddingLeft: '1rem',
+      [theme.breakpoints.down('sm')]: {
+        paddingLeft: '0'
+      }
     },
     smpd: {
       padding: '2px'
     },
+    typoFont: {
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '1.5rem',
+        paddingLeft: '1rem'
+      }
+    },
+    headingFont: {
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '1.6rem'
+      },
+      [theme.breakpoints.between(100, 395)]: {
+        fontSize: '1.4rem'
+      }
+    },
     spacing: {
       paddingLeft: '2.5rem',
-      marginTop: '5%'
+      marginTop: '5%',
+      [theme.breakpoints.down('sm')]: {
+        paddingLeft: '1rem'
+      }
     },
     middlePaper: {
       color: '#f1f1f1',
-      padding: '20px 0 0 20px',
+      padding: '20px 0 8px 20px',
       background: '#15171B',
       height: '10rem'
     },
@@ -142,13 +177,22 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       width: '150px',
       marginRight: '25px',
       boxShadow:
-        '0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%) !important'
+        '0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%) !important',
+      [theme.breakpoints.down('sm')]: {
+        width: '120px'
+      },
+      [theme.breakpoints.between(100, 335)]: {
+        width: '100px'
+      }
     },
     btnContainer: {
       padding: '2rem'
     },
     pdlarge: {
-      paddingLeft: '3rem'
+      paddingLeft: '3rem',
+      [theme.breakpoints.down('sm')]: {
+        paddingLeft: '2rem'
+      }
     },
     mt10: {
       marginTop: '10%'
@@ -156,51 +200,47 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export const useLocationStyle = makeStyles({
-  paper: {
-    width: '40%',
-    backgroundColor: '#43484F',
-    color: '#f1f1f1',
-    overflow: 'hidden'
-  },
-  actionStyle: {
-    textDecoration: 'none',
-    color: '#000',
-    marginRight: '10px'
-  },
-  spanDange: {
-    color: '#FF8C00'
-  },
-  spanNone: {
-    color: '#808080'
-  },
-  spanWhite: {
-    color: '#f1f1f1'
-  },
-  selectPaper: {
-    background: '#343b41',
-    color: '#f1f1f1'
-  },
-  saveBtn: {
-    marginLeft: 'auto',
-    background: '#43484F !important',
-    color: '#fff !important',
-    width: '150px',
-    marginRight: '25px',
-    boxShadow:
-      '0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%) !important'
-  },
-  tableCellHeader: {
-    background: '#343b41 !important',
-    color: '#f1f1f1 !important',
-    borderBottom: '2px solid #23282c !important'
-  },
-  tableCellBody: {
-    borderBottom: '1px solid #23282c !important',
-    color: '#f1f1f1 !important'
-  },
-  tableFooter: {
-    background: '#343b41 !important',
-    color: '#f1f1f1 !important'
-  }
-})
+export const useLocationStyle = makeStyles((theme: Theme) =>
+  createStyles({
+    paper: {
+      width: '40%',
+      backgroundColor: '#43484F',
+      color: '#f1f1f1',
+      overflow: 'hidden',
+      [theme.breakpoints.down('sm')]: {
+        overflowY: 'scroll'
+      }
+    },
+    actionStyle: {
+      textDecoration: 'none',
+      color: '#000',
+      marginRight: '10px'
+    },
+    spanDange: {
+      color: '#FF8C00'
+    },
+    spanNone: {
+      color: '#808080'
+    },
+    spanWhite: {
+      color: '#f1f1f1'
+    },
+    selectPaper: {
+      background: '#343b41',
+      color: '#f1f1f1'
+    },
+    tableCellHeader: {
+      background: '#343b41 !important',
+      color: '#f1f1f1 !important',
+      borderBottom: '2px solid #23282c !important'
+    },
+    tableCellBody: {
+      borderBottom: '1px solid #23282c !important',
+      color: '#f1f1f1 !important'
+    },
+    tableFooter: {
+      background: '#343b41 !important',
+      color: '#f1f1f1 !important'
+    }
+  })
+)

@@ -72,7 +72,7 @@ export const getCollisionMask = (options: ShapeOptions) => {
 
 export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptions): PhysX.PxShape => {
   // type is required
-  if (!shapeOptions.type) return
+  if (!shapeOptions.type) return undefined!
 
   const scale = mesh.scale ?? new Vector3(1, 1, 1)
 
@@ -80,12 +80,12 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
 
   if (shapeOptions.type === 'trimesh' || shapeOptions.type === 'convex') {
     // if no mesh data, ignore
-    if (!mesh.geometry && (!shapeOptions.vertices || !shapeOptions.indices)) return
+    if (!mesh.geometry && (!shapeOptions.vertices || !shapeOptions.indices)) return undefined!
 
     // clone the geometry and apply the scale, as a PhysX body or mesh shape cannot be scaled generically
     const geometry = mergeBufferGeometries([mesh.geometry])
-    shapeOptions.vertices = Array.from(geometry.attributes.position.array)
-    shapeOptions.indices = Array.from(geometry.index.array)
+    shapeOptions.vertices = Array.from(geometry!.attributes.position.array)
+    shapeOptions.indices = Array.from(geometry!.index!.array)
   }
 
   // check for case mismatch
@@ -129,9 +129,9 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
       //   // Engine.scene.add(debugMesh)
       // }
       // yes, don't break here - use convex for cylinder
-      return
+      return undefined!
     case 'convex':
-      geometry = world.physics.createConvexMesh(scale, shapeOptions.vertices)
+      geometry = world.physics.createConvexMesh(scale, shapeOptions.vertices!)
       const convexMesh = (geometry as PhysX.PxConvexMeshGeometry).getConvexMesh()
       shapeOptions.vertices = vectorToArray(convexMesh.getVertices())
       shapeOptions.indices = vectorToArray(convexMesh.getIndexBuffer())
@@ -139,7 +139,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
       break
 
     case 'trimesh':
-      geometry = world.physics.createTrimesh(scale, shapeOptions.vertices, shapeOptions.indices)
+      geometry = world.physics.createTrimesh(scale, shapeOptions.vertices!, shapeOptions.indices!)
       const triangleMesh = (geometry as PhysX.PxTriangleMeshGeometry).getTriangleMesh()
       shapeOptions.vertices = vectorToArray(triangleMesh.getVertices())
       shapeOptions.indices = vectorToArray(triangleMesh.getTriangles())
@@ -148,7 +148,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
 
     default:
       console.error('unknown shape', shapeOptions)
-      return
+      return undefined!
   }
 
   const material = world.physics.physics.createMaterial(
@@ -243,10 +243,10 @@ export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
 
 const EPSILON = 1e-6
 export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: BodyOptions | ShapeOptions) => {
-  const shapes = []
+  const shapes: any[] = []
   shapes.push(createShape(entity, asset as any, data as ShapeOptions))
 
-  const shapeObjs = []
+  const shapeObjs: any[] = []
   asset.traverse((mesh: Mesh) => {
     if (typeof mesh.userData['type'] === 'string') {
       shapeObjs.push(mesh)

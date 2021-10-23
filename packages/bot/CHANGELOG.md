@@ -187,6 +187,38 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+
+
+**Note:** Version bump only for package @xrengine/bot
+
+
+
+
+
+
+
+**Note:** Version bump only for package @xrengine/bot
+
+
+
+
+
+
+
+**Note:** Version bump only for package @xrengine/bot
+
+
+
+
+
+
+
+**Note:** Version bump only for package @xrengine/bot
+
+
+
+
+
 ## 0.2.36 (2021-06-25)
 
 **Note:** Version bump only for package @xrengine/bot

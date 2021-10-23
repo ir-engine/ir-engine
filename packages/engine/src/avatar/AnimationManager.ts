@@ -1,7 +1,8 @@
-import { AnimationClip, Group, Material, Mesh, SkinnedMesh, Vector3 } from 'three'
+import { AnimationClip, Group, Material, Mesh, Skeleton, Bone, SkinnedMesh, Vector3 } from 'three'
 import { getLoader } from '../assets/functions/LoadGLTF'
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
+import { getDefaultSkeleton } from './functions/avatarFunctions'
 
 export class AnimationManager {
   static instance: AnimationManager = new AnimationManager()
@@ -31,6 +32,11 @@ export class AnimationManager {
               this._defaultSkeleton = child
             }
           })
+
+          if (!this._defaultSkeleton) {
+            // reconstruct skeleton from stored data
+            this._defaultSkeleton = getDefaultSkeleton()
+          }
 
           this._animations = gltf.animations
           this._animations?.forEach((clip) => {

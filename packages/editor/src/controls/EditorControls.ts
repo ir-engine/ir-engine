@@ -1,4 +1,3 @@
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import {
   TransformAxis,
   TransformAxisConstraints,
@@ -61,13 +60,11 @@ export default class EditorControls extends EventEmitter {
   maxFocusDistance: number
   raycaster: Raycaster
   raycasterResults: any[]
-  scene: any
   box: Box3
   sphere: Sphere
   centerViewportPosition: Vector2
   raycastIgnoreLayers: Layers
   renderableLayers: Layers
-  transformGizmo: TransformGizmo
   transformMode: string
   multiplePlacement: boolean
   transformModeOnCancel: string
@@ -134,15 +131,12 @@ export default class EditorControls extends EventEmitter {
     this.maxFocusDistance = 1000
     this.raycaster = new Raycaster()
     this.raycasterResults = []
-    this.scene = SceneManager.instance.scene
     this.box = new Box3()
     this.sphere = new Sphere()
     this.centerViewportPosition = new Vector2()
     this.raycastIgnoreLayers = new Layers()
     this.raycastIgnoreLayers.set(1)
     this.renderableLayers = new Layers()
-    this.transformGizmo = new TransformGizmo()
-    SceneManager.instance.helperScene.add(this.transformGizmo)
     this.transformMode = TransformMode.Translate
     this.multiplePlacement = false
     this.transformModeOnCancel = TransformMode.Translate
@@ -155,7 +149,6 @@ export default class EditorControls extends EventEmitter {
     this.translationSnap = 0.5
     this.rotationSnap = 10
     this.scaleSnap = 0.1
-    SceneManager.instance.grid.setSize(this.translationSnap)
     this.selectionBoundingBox = new Box3()
     this.selectStartPosition = new Vector2()
     this.selectEndPosition = new Vector2()
@@ -189,9 +182,7 @@ export default class EditorControls extends EventEmitter {
     CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
-  onSceneSet = (scene) => {
-    this.scene = scene
-  }
+
   onBeforeSelectionChanged = () => {
     if (this.transformMode === TransformMode.Grab) {
       const checkpoint = this.grabHistoryCheckpoint
@@ -255,7 +246,7 @@ export default class EditorControls extends EventEmitter {
     const modifier = input.get(EditorInputs.modifier)
     let grabStart = false
     if (this.transformModeChanged) {
-      this.transformGizmo.setTransformMode(this.transformMode)
+      SceneManager.instance.transformGizmo.setTransformMode(this.transformMode)
       if (this.transformMode === TransformMode.Grab || this.transformMode === TransformMode.Placement) {
         grabStart = true
       }
@@ -274,18 +265,20 @@ export default class EditorControls extends EventEmitter {
         this.transformPropertyChanged
       ) {
         if (this.transformPivot === TransformPivot.Selection) {
-          lastSelectedObject.getWorldPosition(this.transformGizmo.position)
+          lastSelectedObject.getWorldPosition(SceneManager.instance.transformGizmo.position)
         } else {
           this.selectionBoundingBox.makeEmpty()
           for (let i = 0; i < selectedTransformRoots.length; i++) {
             this.selectionBoundingBox.expandByObject(selectedTransformRoots[i])
           }
           if (this.transformPivot === TransformPivot.Center) {
-            this.selectionBoundingBox.getCenter(this.transformGizmo.position)
+            this.selectionBoundingBox.getCenter(SceneManager.instance.transformGizmo.position)
           } else {
-            this.transformGizmo.position.x = (this.selectionBoundingBox.max.x + this.selectionBoundingBox.min.x) / 2
-            this.transformGizmo.position.y = this.selectionBoundingBox.min.y
-            this.transformGizmo.position.z = (this.selectionBoundingBox.max.z + this.selectionBoundingBox.min.z) / 2
+            SceneManager.instance.transformGizmo.position.x =
+              (this.selectionBoundingBox.max.x + this.selectionBoundingBox.min.x) / 2
+            SceneManager.instance.transformGizmo.position.y = this.selectionBoundingBox.min.y
+            SceneManager.instance.transformGizmo.position.z =
+              (this.selectionBoundingBox.max.z + this.selectionBoundingBox.min.z) / 2
           }
         }
       }
@@ -296,18 +289,18 @@ export default class EditorControls extends EventEmitter {
         this.transformPropertyChanged
       ) {
         if (this.transformSpace === TransformSpace.LocalSelection) {
-          lastSelectedObject.getWorldQuaternion(this.transformGizmo.quaternion)
+          lastSelectedObject.getWorldQuaternion(SceneManager.instance.transformGizmo.quaternion)
         } else {
-          this.transformGizmo.rotation.set(0, 0, 0)
+          SceneManager.instance.transformGizmo.rotation.set(0, 0, 0)
         }
-        this.inverseGizmoQuaternion.copy(this.transformGizmo.quaternion).invert()
+        this.inverseGizmoQuaternion.copy(SceneManager.instance.transformGizmo.quaternion).invert()
       }
       if ((this.transformModeChanged || this.transformSpaceChanged) && this.transformMode === TransformMode.Scale) {
-        this.transformGizmo.setLocalScaleHandlesVisible(this.transformSpace !== TransformSpace.World)
+        SceneManager.instance.transformGizmo.setLocalScaleHandlesVisible(this.transformSpace !== TransformSpace.World)
       }
-      this.transformGizmo.visible = true
+      SceneManager.instance.transformGizmo.visible = true
     } else {
-      this.transformGizmo.visible = false
+      SceneManager.instance.transformGizmo.visible = false
     }
     this.selectionChanged = false
     this.transformModeChanged = false
@@ -319,20 +312,26 @@ export default class EditorControls extends EventEmitter {
       const selectStartPosition = input.get(EditorInputs.selectStartPosition)
       this.selectStartPosition.copy(selectStartPosition)
       this.raycaster.setFromCamera(selectStartPosition, this.camera)
-      if (this.transformGizmo.activeControls) {
-        this.transformAxis = this.transformGizmo.selectAxisWithRaycaster(this.raycaster)
+      if (SceneManager.instance.transformGizmo.activeControls) {
+        this.transformAxis = SceneManager.instance.transformGizmo.selectAxisWithRaycaster(this.raycaster)
         if (this.transformAxis) {
-          const axisInfo = (this.transformGizmo as any).selectedAxis.axisInfo
-          this.planeNormal.copy(axisInfo.planeNormal).applyQuaternion(this.transformGizmo.quaternion).normalize()
-          this.transformPlane.setFromNormalAndCoplanarPoint(this.planeNormal, this.transformGizmo.position)
+          const axisInfo = (SceneManager.instance.transformGizmo as any).selectedAxis.axisInfo
+          this.planeNormal
+            .copy(axisInfo.planeNormal)
+            .applyQuaternion(SceneManager.instance.transformGizmo.quaternion)
+            .normalize()
+          this.transformPlane.setFromNormalAndCoplanarPoint(
+            this.planeNormal,
+            SceneManager.instance.transformGizmo.position
+          )
           this.dragging = true
         } else {
           this.dragging = false
         }
       }
-    } else if ((this.transformGizmo as any).activeControls && !this.dragging) {
+    } else if ((SceneManager.instance.transformGizmo as any).activeControls && !this.dragging) {
       this.raycaster.setFromCamera(cursorPosition, this.camera)
-      this.transformGizmo.highlightHoveredAxis(this.raycaster)
+      SceneManager.instance.transformGizmo.highlightHoveredAxis(this.raycaster)
     }
     const selectEnd = input.get(EditorInputs.selectEnd) === 1
     if (this.dragging || this.transformMode === TransformMode.Grab || this.transformMode === TransformMode.Placement) {
@@ -355,7 +354,7 @@ export default class EditorControls extends EventEmitter {
         )
       }
       if (selectStart) {
-        this.dragOffset.subVectors(this.transformGizmo.position, this.planeIntersection)
+        this.dragOffset.subVectors(SceneManager.instance.transformGizmo.position, this.planeIntersection)
       } else if (grabStart) {
         this.dragOffset.set(0, 0, 0)
       }
@@ -366,17 +365,19 @@ export default class EditorControls extends EventEmitter {
         this.transformMode === TransformMode.Placement
       ) {
         this.translationVector
-          .subVectors(this.planeIntersection, this.transformGizmo.position)
+          .subVectors(this.planeIntersection, SceneManager.instance.transformGizmo.position)
           .applyQuaternion(this.inverseGizmoQuaternion)
           .multiply(constraint)
-        this.translationVector.applyQuaternion(this.transformGizmo.quaternion)
-        this.transformGizmo.position.add(this.translationVector)
+        this.translationVector.applyQuaternion(SceneManager.instance.transformGizmo.quaternion)
+        SceneManager.instance.transformGizmo.position.add(this.translationVector)
         if (this.shouldSnap(modifier)) {
-          const transformPosition = this.transformGizmo.position
+          const transformPosition = SceneManager.instance.transformGizmo.position
           const prevX = transformPosition.x
           const prevY = transformPosition.y
           const prevZ = transformPosition.z
-          const transformedConstraint = new Vector3().copy(constraint).applyQuaternion(this.transformGizmo.quaternion)
+          const transformedConstraint = new Vector3()
+            .copy(constraint)
+            .applyQuaternion(SceneManager.instance.transformGizmo.quaternion)
           transformPosition.set(
             transformedConstraint.x !== 0
               ? Math.round(transformPosition.x / this.translationSnap) * this.translationSnap
@@ -411,10 +412,12 @@ export default class EditorControls extends EventEmitter {
         if (selectStart) {
           this.initRotationDragVector
             .subVectors(this.planeIntersection, this.dragOffset)
-            .sub(this.transformGizmo.position)
+            .sub(SceneManager.instance.transformGizmo.position)
           this.prevRotationAngle = 0
         }
-        this.curRotationDragVector.subVectors(this.planeIntersection, this.dragOffset).sub(this.transformGizmo.position)
+        this.curRotationDragVector
+          .subVectors(this.planeIntersection, this.dragOffset)
+          .sub(SceneManager.instance.transformGizmo.position)
         this.normalizedInitRotationDragVector.copy(this.initRotationDragVector).normalize()
         this.normalizedCurRotationDragVector.copy(this.curRotationDragVector).normalize()
         let rotationAngle = this.curRotationDragVector.angleTo(this.initRotationDragVector)
@@ -429,33 +432,33 @@ export default class EditorControls extends EventEmitter {
         const relativeRotationAngle = rotationAngle - this.prevRotationAngle
         this.prevRotationAngle = rotationAngle
         CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
-          pivot: this.transformGizmo.position,
+          pivot: SceneManager.instance.transformGizmo.position,
           axis: this.planeNormal,
           angle: relativeRotationAngle
         })
-        const selectedAxisInfo = (this.transformGizmo as any).selectedAxis.axisInfo
+        const selectedAxisInfo = (SceneManager.instance.transformGizmo as any).selectedAxis.axisInfo
         if (selectStart) {
           selectedAxisInfo.startMarker.visible = true
           selectedAxisInfo.endMarker.visible = true
           if (this.transformSpace !== TransformSpace.World) {
             const startMarkerLocal = selectedAxisInfo.startMarkerLocal
-            startMarkerLocal.position.copy(this.transformGizmo.position)
-            startMarkerLocal.quaternion.copy(this.transformGizmo.quaternion)
-            startMarkerLocal.scale.copy(this.transformGizmo.scale)
-            this.scene.add(startMarkerLocal)
+            startMarkerLocal.position.copy(SceneManager.instance.transformGizmo.position)
+            startMarkerLocal.quaternion.copy(SceneManager.instance.transformGizmo.quaternion)
+            startMarkerLocal.scale.copy(SceneManager.instance.transformGizmo.scale)
+            SceneManager.instance.scene.add(startMarkerLocal)
           }
         }
         if (this.transformSpace === TransformSpace.World) {
           if (!selectedAxisInfo.rotationTarget) {
             throw new Error(
               `Couldn't rotate object due to an unknown error. The selected axis is ${
-                (this.transformGizmo as any).selectedAxis.name
+                (SceneManager.instance.transformGizmo as any).selectedAxis.name
               } The selected axis info is: ${JSON.stringify(selectedAxisInfo)}`
             )
           }
           selectedAxisInfo.rotationTarget.rotateOnAxis(selectedAxisInfo.planeNormal, relativeRotationAngle)
         } else {
-          this.transformGizmo.rotateOnAxis(selectedAxisInfo.planeNormal, relativeRotationAngle)
+          SceneManager.instance.transformGizmo.rotateOnAxis(selectedAxisInfo.planeNormal, relativeRotationAngle)
         }
         if (selectEnd) {
           selectedAxisInfo.startMarker.visible = false
@@ -463,7 +466,7 @@ export default class EditorControls extends EventEmitter {
           selectedAxisInfo.rotationTarget.rotation.set(0, 0, 0)
           if (this.transformSpace !== TransformSpace.World) {
             const startMarkerLocal = selectedAxisInfo.startMarkerLocal
-            this.scene.remove(startMarkerLocal)
+            SceneManager.instance.scene.remove(startMarkerLocal)
           }
         }
       } else if (this.transformMode === TransformMode.Scale) {
@@ -480,7 +483,7 @@ export default class EditorControls extends EventEmitter {
             1 +
             this.camera
               .getWorldDirection(viewDirection)
-              .applyQuaternion(this.transformGizmo.quaternion)
+              .applyQuaternion(SceneManager.instance.transformGizmo.quaternion)
               .dot(this.deltaDragVector)
         } else {
           scaleFactor = 1 + constraint.dot(this.deltaDragVector)
@@ -539,20 +542,20 @@ export default class EditorControls extends EventEmitter {
             CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
           }
         }
-        this.transformGizmo.deselectAxis()
+        SceneManager.instance.transformGizmo.deselectAxis()
         this.dragging = false
       }
     }
     this.transformPropertyChanged = false
     if (input.get(EditorInputs.rotateLeft)) {
       CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
-        pivot: this.transformGizmo.position,
+        pivot: SceneManager.instance.transformGizmo.position,
         axis: new Vector3(0, 1, 0),
         angle: this.rotationSnap * _Math.DEG2RAD
       })
     } else if (input.get(EditorInputs.rotateRight)) {
       CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
-        pivot: this.transformGizmo.position,
+        pivot: SceneManager.instance.transformGizmo.position,
         axis: new Vector3(0, 1, 0),
         angle: -this.rotationSnap * _Math.DEG2RAD
       })
@@ -651,8 +654,8 @@ export default class EditorControls extends EventEmitter {
   raycastNode(coords) {
     this.raycaster.setFromCamera(coords, this.camera)
     this.raycasterResults.length = 0
-    this.raycaster.intersectObject(this.scene, true, this.raycasterResults)
-    return getIntersectingNode(this.raycasterResults, this.scene)
+    this.raycaster.intersectObject(SceneManager.instance.scene, true, this.raycasterResults)
+    return getIntersectingNode(this.raycasterResults, SceneManager.instance.scene)
   }
   focus(objects) {
     const box = this.box
@@ -683,15 +686,15 @@ export default class EditorControls extends EventEmitter {
     camera.position.copy(center).add(delta)
   }
   updateTransformGizmoScale() {
-    const eyeDistance = this.transformGizmo.position.distanceTo(this.camera.position)
-    this.transformGizmo.scale.set(1, 1, 1).multiplyScalar(eyeDistance / 5)
+    const eyeDistance = SceneManager.instance.transformGizmo.position.distanceTo(this.camera.position)
+    SceneManager.instance.transformGizmo.scale.set(1, 1, 1).multiplyScalar(eyeDistance / 5)
   }
   _raycastRecursive(object, excludeObjects?, excludeLayers?) {
     if (
       (excludeObjects && excludeObjects.indexOf(object) !== -1) ||
       (excludeLayers && excludeLayers.test(object.layers)) ||
-      (SceneManager.instance.renderer.renderer.batchManager &&
-        SceneManager.instance.renderer.renderer.batchManager.batches.indexOf(object) !== -1) ||
+      (SceneManager.instance.renderer.webglRenderer.batchManager &&
+        SceneManager.instance.renderer.webglRenderer.batchManager.batches.indexOf(object) !== -1) ||
       !object.visible
     ) {
       return
@@ -705,7 +708,11 @@ export default class EditorControls extends EventEmitter {
   getRaycastPosition(coords, target, modifier) {
     this.raycaster.setFromCamera(coords, this.camera)
     this.raycasterResults.length = 0
-    this._raycastRecursive(this.scene, CommandManager.instance.selectedTransformRoots, this.raycastIgnoreLayers)
+    this._raycastRecursive(
+      SceneManager.instance.scene,
+      CommandManager.instance.selectedTransformRoots,
+      this.raycastIgnoreLayers
+    )
     this._raycastRecursive(SceneManager.instance.grid)
     this.raycasterResults.sort(sortDistance)
     const result = this.raycasterResults[0]

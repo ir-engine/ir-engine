@@ -1,5 +1,4 @@
 // Initializes the `location-settings` service on path `/location-settings`
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { LocationSettings } from './location-settings.class'
 import createModel from './location-settings.model'
@@ -9,7 +8,7 @@ import locationSettingsDocs from './location-settings-docs'
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'location-settings': LocationSettings & ServiceAddons<any>
+    'location-settings': LocationSettings
   }
 }
 
@@ -27,7 +26,7 @@ export default function (app: Application): void {
    */
   const event = new LocationSettings(options, app)
   event.docs = locationSettingsDocs
-  app.use('/location-settings', event)
+  app.use('location-settings', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -36,5 +35,5 @@ export default function (app: Application): void {
    */
   const service = app.service('location-settings')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

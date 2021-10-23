@@ -5,21 +5,13 @@ import Paper from '@material-ui/core/Paper'
 import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
 import { useLocationStyles } from './styles'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 
-interface Props {
-  searchUserAction?: any
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
+interface Props {}
 
 const SearchLocation = (props: Props) => {
-  const { searchUserAction } = props
   const classes = useLocationStyles()
   const [search, setSearch] = React.useState('')
   //    const handleChange = (e: any) => {
-  //      searchUserAction(search);
   //      setSearch(e.target.value);
   //    };
 
@@ -38,4 +30,4 @@ const SearchLocation = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(SearchLocation)
+export default SearchLocation

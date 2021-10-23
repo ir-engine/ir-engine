@@ -1,34 +1,25 @@
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { GeneralStateList } from '../../reducers/app/actions'
-import { selectAppOnBoardingStep } from '../../reducers/app/selector'
-import { selectCurrentScene } from '../../../world/reducers/scenes/selector'
+import { GeneralStateList } from '../../state/AppActions'
+import { useAppState } from '../../state/AppState'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
 import LottieLoader from './LottieLoader'
 
 interface Props {
   objectsToLoad?: number
-  onBoardingStep?: number
-  currentScene?: any
+
   Loader?: any
 }
 
-const mapStateToProps = (state: any): any => {
-  return {
-    onBoardingStep: selectAppOnBoardingStep(state),
-    currentScene: selectCurrentScene(state)
-  }
-}
-
 const LoadingScreen = (props: Props) => {
-  const { onBoardingStep, objectsToLoad, currentScene, Loader } = props
+  const { objectsToLoad, Loader } = props
+  const onBoardingStep = useAppState().onBoardingStep
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')
   const { t } = useTranslation()
 
   useEffect(() => {
-    switch (onBoardingStep) {
+    switch (onBoardingStep.value) {
       case GeneralStateList.START_STATE:
         setLoadingText(t('common:loader.connecting'))
         setShowProgressBar(true)
@@ -46,10 +37,10 @@ const LoadingScreen = (props: Props) => {
         setLoadingText(t('common:loader.loading'))
         break
     }
-  }, [onBoardingStep])
+  }, [onBoardingStep.value])
 
   useEffect(() => {
-    if (onBoardingStep === GeneralStateList.SCENE_LOADING) {
+    if (onBoardingStep.value === GeneralStateList.SCENE_LOADING) {
       setLoadingText(
         t('common:loader.' + (objectsToLoad > 1 ? 'objectRemainingPlural' : 'objectRemaining'), {
           count: objectsToLoad
@@ -72,4 +63,4 @@ const LoadingScreen = (props: Props) => {
     </>
   )
 }
-export default connect(mapStateToProps)(LoadingScreen)
+export default LoadingScreen

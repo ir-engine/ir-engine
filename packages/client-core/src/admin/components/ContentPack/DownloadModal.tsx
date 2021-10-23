@@ -6,35 +6,23 @@ import TextField from '@material-ui/core/TextField'
 import { Done } from '@material-ui/icons'
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../../common/reducers/app/selector'
+import { useDispatch } from '../../../store'
 import styles from './ContentPack.module.scss'
-import { downloadContentPack } from '../../reducers/contentPack/service'
+import { ContentPackService } from '../../state/ContentPackService'
 
 interface Props {
   open: boolean
   handleClose: any
   uploadAvatar?: any
-  downloadContentPack?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    appState: selectAppState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  downloadContentPack: bindActionCreators(downloadContentPack, dispatch)
-})
 
 const DownloadModal = (props: Props): any => {
-  const { open, handleClose, downloadContentPack } = props
+  const { open, handleClose } = props
 
   const [contentPackUrl, setContentPackUrl] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const dispatch = useDispatch()
 
   const showError = (err: string) => {
     setError(err)
@@ -52,7 +40,7 @@ const DownloadModal = (props: Props): any => {
 
   const getContentPack = async () => {
     try {
-      const res = await downloadContentPack(contentPackUrl)
+      const res = await ContentPackService.downloadContentPack(contentPackUrl)
       showSuccess()
     } catch (err) {
       showError('Invalid URL')
@@ -110,4 +98,4 @@ const DownloadModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DownloadModal)
+export default DownloadModal

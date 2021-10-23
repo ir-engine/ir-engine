@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import List from '@material-ui/core/List'
-import { Dispatch, bindActionCreators } from 'redux'
+
 import ListItem from '@material-ui/core/ListItem'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ListItemText from '@material-ui/core/ListItemText'
@@ -18,79 +18,68 @@ import { Autorenew, Face, Save } from '@material-ui/icons'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
-import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
-import { fetchAdminInstances } from '../../reducers/admin/instance/service'
-import { fetchAdminLocations } from '../../reducers/admin/location/service'
-import { connect } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+
+import { InstanceService } from '../../state/InstanceService'
+import { useInstanceState } from '../../state/InstanceState'
+import { LocationService } from '../../state/LocationService'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
-import { createBotAsAdmin } from '../../reducers/admin/bots/service'
-import { selectAdminLocationState } from '../../reducers/admin/location/selector'
+import { BotService } from '../../state/BotsService'
+import { useLocationState } from '../../state/LocationState'
 import { validateForm } from './validation'
 
-interface Props {
-  fetchAdminInstances?: any
-  adminInstanceState?: any
-  createBotAsAdmin?: any
-  adminLocationState?: any
-  fetchAdminLocations?: any
-}
+import { Location } from '@xrengine/common/src/interfaces/Location'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    adminInstanceState: selectAdminInstanceState(state),
-    adminLocationState: selectAdminLocationState(state)
-  }
-}
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
-  createBotAsAdmin: bindActionCreators(createBotAsAdmin, dispatch),
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch)
-})
+interface Props {}
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
 }
 
 const CreateBot = (props: Props) => {
-  const { adminInstanceState, fetchAdminInstances, createBotAsAdmin, fetchAdminLocations, adminLocationState } = props
   const [command, setCommand] = React.useState({
     name: '',
     description: ''
   })
-  const [commandData, setCommandData] = React.useState([])
+  const [commandData, setCommandData] = React.useState<{ name: string; description: string }[]>([])
   const [open, setOpen] = React.useState(false)
   const [error, setError] = React.useState('')
+
   const [formErrors, setFormErrors] = React.useState({
     name: '',
     description: '',
     location: ''
   })
-  const [currentInstance, setCurrentIntance] = React.useState([])
+  const [currentInstance, setCurrentIntance] = React.useState<Instance[]>([])
   const [state, setState] = React.useState({
     name: '',
     description: '',
     instance: '',
     location: ''
   })
+  const adminInstanceState = useInstanceState()
+  const dispatch = useDispatch()
   const classes = useStyles()
   const classx = useStyle()
   const authState = useAuthState()
   const user = authState.user
-  const adminInstances = adminInstanceState.get('instances')
-  const instanceData = adminInstances.get('instances')
-  const adminLocation = adminLocationState.get('locations')
-  const locationData = adminLocation.get('locations')
+  const adminInstances = adminInstanceState.instances
+  const instanceData = adminInstances.instances
+  const adminLocationState = useLocationState()
+  const adminLocation = adminLocationState.locations
+  const locationData = adminLocation.locations
   React.useEffect(() => {
-    if (user.id.value && adminInstances.get('updateNeeded')) {
-      fetchAdminInstances()
+    if (user.id.value && adminInstances.updateNeeded.value) {
+      InstanceService.fetchAdminInstances()
     }
-    if (user?.id.value != null && adminLocation.get('updateNeeded') === true) {
-      fetchAdminLocations()
+    if (user?.id.value != null && adminLocation.updateNeeded.value === true) {
+      LocationService.fetchAdminLocations()
     }
-  }, [user, adminInstanceState])
+  }, [user.id.value, adminInstanceState.instances.updateNeeded.value])
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -99,21 +88,21 @@ const CreateBot = (props: Props) => {
     setOpen(false)
   }
 
-  const data = []
-  instanceData.forEach((element) => {
+  const data: Instance[] = []
+  instanceData.value.forEach((element) => {
     data.push(element)
   })
 
   React.useEffect(() => {
-    const instanceFilter = data.filter((el) => el.location.id === state.location)
+    const instanceFilter = data.filter((el) => el.locationId === state.location)
     if (instanceFilter.length > 0) {
       setState({ ...state, instance: '' })
       setCurrentIntance(instanceFilter)
     }
-  }, [state.location, adminInstanceState])
+  }, [state.location, adminInstanceState.instances.instances.value.length])
 
-  const temp = []
-  locationData.forEach((el) => {
+  const temp: Location[] = []
+  locationData.value.forEach((el) => {
     temp.push(el)
   })
 
@@ -139,7 +128,7 @@ const CreateBot = (props: Props) => {
 
     setFormErrors(temp)
     if (validateForm(state, formErrors)) {
-      createBotAsAdmin(data)
+      BotService.createBotAsAdmin(data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCommandData([])
       setCurrentIntance([])
@@ -147,6 +136,14 @@ const CreateBot = (props: Props) => {
       setError('Please fill all required field')
       setOpen(true)
     }
+  }
+
+  const fetchAdminInstances = () => {
+    InstanceService.fetchAdminInstances()
+  }
+
+  const fetchAdminLocations = () => {
+    LocationService.fetchAdminLocations()
   }
 
   const handleInputChange = (e) => {
@@ -174,7 +171,7 @@ const CreateBot = (props: Props) => {
     <Card className={classes.rootLeft}>
       <Paper className={classes.header} style={{ display: 'flex' }}>
         <Typography className={classes.title}>
-          <Face style={{ paddingTop: '5px' }} /> <span style={{ marginLeft: '10px' }}> Create new bot </span>
+          <Face style={{ paddingTop: '5px' }} /> <span className={classes.smFont}> Create new bot </span>
         </Typography>
 
         <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleSubmit}>
@@ -246,7 +243,7 @@ const CreateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={() => fetchAdminLocations()}>
+                <IconButton onClick={fetchAdminLocations}>
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>
@@ -283,7 +280,7 @@ const CreateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={() => fetchAdminInstances()}>
+                <IconButton onClick={fetchAdminInstances}>
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>
@@ -366,4 +363,4 @@ const CreateBot = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateBot)
+export default CreateBot

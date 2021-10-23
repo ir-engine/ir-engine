@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { SubscriptionLevel } from './subscription-level.class'
 import createModel from './subscription-level.model'
@@ -7,11 +6,11 @@ import subscriptionLevelDocs from './subscription-level.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'subscription-level': SubscriptionLevel & ServiceAddons<any>
+    'subscription-level': SubscriptionLevel
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -25,7 +24,7 @@ export default (app: Application): any => {
    */
   const event = new SubscriptionLevel(options, app)
   event.docs = subscriptionLevelDocs
-  app.use('/subscription-level', event)
+  app.use('subscription-level', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -34,5 +33,5 @@ export default (app: Application): any => {
    */
   const service = app.service('subscription-level')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

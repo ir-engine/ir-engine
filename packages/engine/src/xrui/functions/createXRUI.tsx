@@ -21,6 +21,7 @@ async function createUIRootLayer<S extends State<any>>(
   containerElement.style.position = 'fixed'
 
   ReactDOM.render(
+    //@ts-ignore
     <XRUIStateContext.Provider value={state}>
       <UI />
     </XRUIStateContext.Provider>,

@@ -13,64 +13,35 @@ import TextField from '@material-ui/core/TextField'
 import Checkbox from '@material-ui/core/Checkbox'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { createLocation, patchLocation, removeLocation } from '../reducers/admin/location/service'
-import { selectAppState } from '../../common/reducers/app/selector'
+import { useDispatch } from '../../store'
+import { LocationService } from '../state/LocationService'
 import styles from './Admin.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { selectAdminSceneState } from '../reducers/admin/scene/selector'
-import { selectAdminLocationState } from '../reducers/admin/location/selector'
+import { useSceneState } from '../state/SceneState'
+import { useLocationState } from '../state/LocationState'
+
+import { Location } from '@xrengine/common/src/interfaces/Location'
 
 interface Props {
   open: boolean
   handleClose: any
-  location: any
+  location: Location
   editing: boolean
-  createLocation?: any
-  patchLocation?: any
-  removeLocation?: any
-  adminSceneState?: any
-  adminLocationState?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    appState: selectAppState(state),
-
-    adminSceneState: selectAdminSceneState(state),
-    adminLocationState: selectAdminLocationState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createLocation: bindActionCreators(createLocation, dispatch),
-  patchLocation: bindActionCreators(patchLocation, dispatch),
-  removeLocation: bindActionCreators(removeLocation, dispatch)
-})
 
 const LocationModal = (props: Props): any => {
-  const {
-    open,
-    handleClose,
-    location,
-    editing,
-    createLocation,
-    patchLocation,
-    removeLocation,
-    adminSceneState,
-    adminLocationState
-  } = props
-
+  const { open, handleClose, location, editing } = props
+  const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [sceneId, setSceneId] = useState('')
   const [maxUsers, setMaxUsers] = useState(10)
   const [videoEnabled, setVideoEnabled] = useState(false)
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
   const [locationType, setLocationType] = useState('private')
-  const adminScenes = adminSceneState.get('scenes').get('scenes')
-  const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
+  const adminSceneState = useSceneState()
+  const adminScenes = adminSceneState.scenes.scenes
+  const locationTypes = useLocationState().locationTypes.locationTypes
   const [state, setState] = React.useState({
     feature: false,
     lobby: false
@@ -92,16 +63,16 @@ const LocationModal = (props: Props): any => {
     }
 
     if (editing === true) {
-      patchLocation(location.id, submission)
+      LocationService.patchLocation(location.id, submission)
     } else {
-      createLocation(submission)
+      LocationService.createLocation(submission)
     }
 
     handleClose()
   }
 
   const deleteLocation = () => {
-    removeLocation(location.id)
+    LocationService.removeLocation(location.id)
     handleClose()
   }
 
@@ -110,12 +81,12 @@ const LocationModal = (props: Props): any => {
       setName(location.name)
       setSceneId(location.sceneId || '')
       setMaxUsers(location.maxUsersPerInstance)
-      setVideoEnabled(location.location_setting.videoEnabled)
-      setInstanceMediaChatEnabled(location.location_setting.instanceMediaChatEnabled)
-      setLocationType(location.location_setting.locationType)
+      setVideoEnabled(location.location_settings.videoEnabled)
+      setInstanceMediaChatEnabled(location.location_settings.instanceMediaChatEnabled)
+      setLocationType(location.location_settings.locationType)
       setState({
         lobby: location.isLobby,
-        feature: location.isFeature
+        feature: location.isFeatured
       })
     } else {
       setName('')
@@ -192,7 +163,7 @@ const LocationModal = (props: Props): any => {
             <FormControl>
               <InputLabel id="scene">{t('admin:components.locationModel.lbl-scene')}</InputLabel>
               <Select labelId="scene" id="scene" value={sceneId} onChange={(e) => setSceneId(e.target.value as string)}>
-                {adminScenes.map((scene) => (
+                {adminScenes.value.map((scene) => (
                   <MenuItem key={scene.sid} value={scene.sid}>{`${scene.name} (${scene.sid})`}</MenuItem>
                 ))}
               </Select>
@@ -205,7 +176,7 @@ const LocationModal = (props: Props): any => {
                 value={locationType}
                 onChange={(e) => setLocationType(e.target.value as string)}
               >
-                {locationTypes.map((type) => (
+                {locationTypes.value.map((type) => (
                   <MenuItem key={type.type} value={type.type}>
                     {type.type}
                   </MenuItem>
@@ -294,4 +265,4 @@ const LocationModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LocationModal)
+export default LocationModal

@@ -4,35 +4,38 @@ import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationGraph } from './animations/AvatarAnimationGraph'
 import { AvatarStates } from './animations/Util'
 import { AnimationRenderer } from './animations/AnimationRenderer'
-import { loadAvatar } from './functions/avatarFunctions'
+import { loadAvatarForEntity } from './functions/avatarFunctions'
 import { AnimationManager } from './AnimationManager'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
-import { NetworkWorldActions, NetworkWorldActionType } from '../networking/interfaces/NetworkWorldActions'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { Network } from '../networking/classes/Network'
 import { AnimationGraph } from './animations/AnimationGraph'
 import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
-
-function avatarActionReceptor(action: NetworkWorldActionType) {
-  switch (action.type) {
-    case NetworkWorldActions.ANIMATION_CHANGE: {
-      if (!Network.instance.networkObjects[action.networkId]) {
-        return console.warn(`Entity with id ${action.networkId} does not exist! You should probably reconnect...`)
-      }
-      if (Network.instance.networkObjects[action.networkId].uniqueId === Network.instance.userId) return
-      const entity = Network.instance.networkObjects[action.networkId].entity
-      action.params.forceTransition = true
-      AnimationGraph.forceUpdateAnimationState(entity, action.newStateName, action.params)
-    }
-  }
-}
+import { Engine } from '../ecs/classes/Engine'
+import { matches } from 'ts-matches'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 
 const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
 export default async function AnimationSystem(world: World): Promise<System> {
+  world.receptors.push(animationActionReceptor)
+
+  function animationActionReceptor(action) {
+    matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
+      if ($from === Engine.userId) return
+      const avatarEntity = world.getUserAvatarEntity($from)
+      const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
+      if (!networkObject) {
+        return console.warn(`Avatar Entity for user id ${$from} does not exist! You should probably reconnect...`)
+      }
+      action.params.forceTransition = true
+      AnimationGraph.forceUpdateAnimationState(avatarEntity, action.newStateName, action.params)
+    })
+  }
+
   await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
-  world.receptors.add(avatarActionReceptor)
 
   return () => {
     const { delta } = world
@@ -44,7 +47,7 @@ export default async function AnimationSystem(world: World): Promise<System> {
     }
 
     for (const entity of avatarAnimationQuery.enter(world)) {
-      loadAvatar(entity)
+      loadAvatarForEntity(entity)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       avatarAnimationComponent.animationGraph = new AvatarAnimationGraph()
       avatarAnimationComponent.currentState = avatarAnimationComponent.animationGraph.states[AvatarStates.IDLE]

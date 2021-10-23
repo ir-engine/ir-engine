@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import AssetDropZone from '../assets/AssetDropZone'
 import { addAssetAtCursorPositionOnDrop } from '../dnd'
 import * as styles from './Viewport.module.scss'
-import editorTheme from '../theme'
+import editorTheme from '@xrengine/client-core/src/util/theme'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
@@ -19,7 +19,7 @@ import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
  * @constructor
  */
 export function ViewportPanelContainer() {
-  const canvasRef = React.createRef<HTMLCanvasElement>()
+  const canvasRef = useRef<HTMLCanvasElement>()
   const [flyModeEnabled, setFlyModeEnabled] = useState(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
@@ -45,11 +45,17 @@ export function ViewportPanelContainer() {
       EditorEvents.TRANSFROM_MODE_CHANGED.toString(),
       onTransformModeChanged
     )
+    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
   }, [])
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.INITIALIZED.toString(), onEditorInitialized)
-    SceneManager.instance.initializeRenderer(canvasRef.current)
+    const initRenderer = () => {
+      SceneManager.instance.initializeRenderer(canvasRef.current)
+      CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
+    }
+
+    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
+    CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
 
     return () => {
       CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)

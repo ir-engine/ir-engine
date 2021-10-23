@@ -15,7 +15,7 @@ describe.skip('Feathers application tests', () => {
 
   beforeAll((done) => {
     server = app.listen(port)
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.APP_ENV === 'development') {
       const nextReadyEmitter = app.get('nextReadyEmitter')
       nextReadyEmitter.once('next-ready', () => {
         done()

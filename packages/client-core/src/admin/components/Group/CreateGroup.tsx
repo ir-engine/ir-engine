@@ -8,41 +8,28 @@ import InputBase from '@material-ui/core/InputBase'
 import Button from '@material-ui/core/Button'
 import DialogActions from '@material-ui/core/DialogActions'
 import { formValid } from './validation'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { useDispatch } from '../../../store'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { createGroupByAdmin } from '../../reducers/admin/group/service'
+import { GroupService } from '../../state/GroupService'
 import TextField from '@material-ui/core/TextField'
-import { selectScopeState } from '../../reducers/admin/scope/selector'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { getScopeTypeService } from '../../reducers/admin/scope/service'
+import { useScopeState } from '../../state/ScopeState'
+import { useAuthState } from '../../../user/state/AuthState'
+import { ScopeService } from '../../state/ScopeService'
 
 interface Props {
   open: boolean
   handleClose: (open: boolean) => void
   adminGroupState?: any
-  createGroupService?: any
-  adminScopeState?: any
-  getScopeTypeService?: any
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createGroupService: bindActionCreators(createGroupByAdmin, dispatch),
-  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
-})
-
-const mapStateToProps = (state: any): any => {
-  return {
-    adminScopeState: selectScopeState(state)
-  }
 }
 
 const CreateGroup = (props: Props) => {
-  const { open, handleClose, createGroupService, getScopeTypeService, adminScopeState } = props
+  const { open, handleClose } = props
   const classes = useGroupStyles()
   const classx = useGroupStyle()
   const user = useAuthState().user
-  const adminScopes = adminScopeState.get('scopeType').get('scopeType')
+  const adminScopeState = useScopeState()
+  const adminScopes = adminScopeState.scopeType.scopeType
+  const dispatch = useDispatch()
 
   const [state, setState] = React.useState({
     name: '',
@@ -56,10 +43,10 @@ const CreateGroup = (props: Props) => {
   })
 
   React.useEffect(() => {
-    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id.value) {
-      getScopeTypeService()
+    if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
+      ScopeService.getScopeTypeService()
     }
-  }, [adminScopeState, user])
+  }, [adminScopeState.scopeType.updateNeeded.value, user])
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -89,7 +76,7 @@ const CreateGroup = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
-      createGroupService({ name, description, scopeType })
+      GroupService.createGroupByAdmin({ name, description, scopeType })
       setState({
         ...state,
         name: '',
@@ -149,7 +136,7 @@ const CreateGroup = (props: Props) => {
                 className={classes.selector}
                 classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
                 id="tags-standard"
-                options={adminScopes}
+                options={adminScopes.value}
                 disableCloseOnSelect
                 filterOptions={(options: any) =>
                   options.filter(
@@ -187,4 +174,4 @@ const CreateGroup = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateGroup)
+export default CreateGroup

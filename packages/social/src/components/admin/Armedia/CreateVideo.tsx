@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload'
@@ -16,24 +16,20 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { validateARMediaForm } from './validation'
-import { createArMedia } from '../../../reducers/arMedia/service'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
 interface Props {
   open: boolean
   handleClose: any
   closeViewModel: any
-  createArMedia?: typeof createArMedia
 }
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createArMedia: bindActionCreators(createArMedia, dispatch)
-})
 
 const CreateVideo = (props: Props) => {
   const { t } = useTranslation()
-  const { open, handleClose, closeViewModel, createArMedia } = props
+  const { open, handleClose, closeViewModel } = props
   const classes = useARMediaStyles()
   const classesx = useARMediaStyle()
+  const dispatch = useDispatch()
   const [state, setState] = useState({
     title: '',
     type: '',
@@ -104,7 +100,7 @@ const CreateVideo = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateARMediaForm(state, state.formErrors)) {
-      createArMedia({ type, title }, { manifest, audio, dracosis, preview })
+      ArMediaService.createArMedia({ type, title }, { manifest, audio, dracosis, preview })
       closeViewModel(false)
       setState({
         ...state,
@@ -254,4 +250,4 @@ const CreateVideo = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(CreateVideo)
+export default CreateVideo

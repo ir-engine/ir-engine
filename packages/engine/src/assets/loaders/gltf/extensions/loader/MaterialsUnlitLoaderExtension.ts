@@ -27,7 +27,7 @@ export class MaterialsUnlitLoaderExtension extends LoaderExtension {
   }
   createMaterial = async () => new MeshBasicMaterial()
   setMaterialParams = async (material, materialDef) => {
-    const pending = []
+    const pending: any[] = []
     material.color.set(0xffffff)
     material.opacity = 1.0
     const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE

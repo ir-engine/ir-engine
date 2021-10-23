@@ -2,10 +2,7 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>, Gleb Ordinsky
  */
 import React, { useState, useEffect } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
-
-import { useHistory } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 import CardMedia from '@material-ui/core/CardMedia'
 import Typography from '@material-ui/core/Typography'
@@ -13,8 +10,9 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import WhatshotIcon from '@material-ui/icons/Whatshot'
 import TelegramIcon from '@material-ui/icons/Telegram'
-// import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
-// import BookmarkIcon from '@material-ui/icons/Bookmark';
+import AddCommentIcon from '@material-ui/icons/AddCommentOutlined'
+import FavoriteBorderOutlinedIcon from '@material-ui/icons/FavoriteBorderOutlined'
+import FavoriteIcon from '@material-ui/icons/Favorite'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import Popover from '@material-ui/core/Popover'
 import Button from '@material-ui/core/Button'
@@ -28,101 +26,73 @@ import CreatorAsTitle from '../CreatorAsTitle'
 // @ts-ignore
 import styles from './FeedCard.module.scss'
 import SimpleModal from '../SimpleModal'
-import { addViewToFeed, removeFeed } from '../../reducers/feed/service'
-// import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
-import { selectFeedFiresState } from '../../reducers/feedFires/selector'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
-// import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
-import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service'
-import PopupLogin from '../PopupLogin/PopupLogin'
-// import { IndexPage } from '@xrengine/social/pages/login';
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getLoggedCreator } from '../../reducers/creator/service'
-import Featured from '../Featured'
+import { FeedFiresService } from '@xrengine/client-core/src/social/state/FeedFiresService'
+import { FeedLikesService } from '../../state/FeedLikesService'
+
 import { useTranslation } from 'react-i18next'
-import { updateCreatorPageState, updateFeedPageState } from '../../reducers/popupsState/service'
+
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { FeedReportsService } from '../../state/FeedReportsService'
 import { Share } from '@capacitor/share'
-import { addReportToFeed } from '../../reducers/feedReport/service'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
+import CommentList from '../CommentList'
+import Grid from '@material-ui/core/Grid'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    feedFiresState: selectFeedFiresState(state),
-    authState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //     getFeedFires: bindActionCreators(getFeedFires, dispatch),
-  //     addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
-  //     removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
-  getFeedFires: bindActionCreators(getFeedFires, dispatch),
-  addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
-  addReportToFeed: bindActionCreators(addReportToFeed, dispatch),
-  removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
-  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
-  updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
-  // addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
-  // removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
-  addViewToFeed: bindActionCreators(addViewToFeed, dispatch)
-})
 interface Props {
   feed: Feed
-  feedFiresState?: any
-  authState?: any
-  //     getFeedFires?: typeof getFeedFires;
-  //     addFireToFeed? : typeof addFireToFeed;
-  //     removeFireToFeed?: typeof removeFireToFeed;
-  getFeedFires?: any
-  addFireToFeed?: any
-  removeFireToFeed?: any
-  updateCreatorPageState?: any
-  updateFeedPageState?: any
-  // addBookmarkToFeed?: typeof addBookmarkToFeed;
-  // removeBookmarkToFeed?: typeof removeBookmarkToFeed;
-  addViewToFeed?: typeof addViewToFeed
-  addReportToFeed?: typeof addReportToFeed
-  removeFeed?: typeof removeFeed
 }
+
 const FeedCard = (props: Props): any => {
+  const [liked, setLiked] = useState(false)
   const [buttonPopup, setButtonPopup] = useState(false)
   const [fired, setFired] = useState(false)
   const [reported, setReported] = useState(false)
+  const dispatch = useDispatch()
   //     const [isVideo, setIsVideo] = useState(false);
   //     const [openFiredModal, setOpenFiredModal] = useState(false);
   //     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addViewToFeed} = props;
-  const {
-    feed,
-    authState,
-    getFeedFires,
-    feedFiresState,
-    addFireToFeed,
-    removeFireToFeed,
-    addViewToFeed,
-    addReportToFeed,
-    updateCreatorPageState,
-    updateFeedPageState,
-    removeFeed
-  } = props
+  const { feed } = props
   const [firedCount, setFiredCount] = useState(feed.fires)
+  const [likedCount, setLikedCount] = useState(feed.likes)
   const [videoDisplay, setVideoDisplay] = useState(false)
   const [feedFiresCreators, setFeedFiresCreators] = useState(null)
+  const [feedLikesCreators, setFeedLikesCreators] = useState(null)
 
   const handleAddFireClick = (feedId) => {
-    addFireToFeed(feedId)
+    FeedFiresService.addFireToFeed(feedId)
     setFiredCount(firedCount + 1)
     setFired(true)
+    if (liked) {
+      handleRemoveLikeClick(feedId)
+    }
   }
 
   const handleRemoveFireClick = (feedId) => {
-    removeFireToFeed(feedId)
+    FeedFiresService.removeFireToFeed(feedId)
     setFiredCount(firedCount - 1)
     setFired(false)
   }
 
+  const handleAddLikeClick = (feedId) => {
+    FeedLikesService.addLikeToFeed(feedId)
+    setLikedCount(likedCount + 1)
+    setLiked(true)
+    if (fired) {
+      handleRemoveFireClick(feedId)
+    }
+  }
+
+  const handleRemoveLikeClick = (feedId) => {
+    FeedLikesService.removeLikeToFeed(feedId)
+    setLikedCount(likedCount - 1)
+    setLiked(false)
+  }
+
   const handleReportFeed = (feedId) => {
-    addReportToFeed(feedId)
+    FeedReportsService.addReportToFeed(feedId)
     setReported(true)
   }
 
@@ -140,7 +110,7 @@ const FeedCard = (props: Props): any => {
   //         }
   //     };
   useEffect(() => {
-    getFeedFires(feed.id, setFeedFiresCreators)
+    FeedFiresService.getFeedFires(feed.id)
   }, [])
 
   const { t } = useTranslation()
@@ -162,19 +132,17 @@ const FeedCard = (props: Props): any => {
 
   //     const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
-  const creatorId = authState.get('currentCreator').id
-
-  useEffect(() => {
-    setFired(!!feedFiresCreators?.data.find((i) => i.id === creatorId))
-  }, [feedFiresCreators])
+  //const creatorId = authState.get('currentCreator').id
 
   useEffect(() => {
     setVideoDisplay(true)
+    setFired(feed.isFired)
+    setLiked(feed.isLiked)
   }, [feed.id])
 
   const previewImageClick = () => {
     setVideoDisplay(true)
-    addViewToFeed(feed.id)
+    FeedService.addViewToFeed(feed.id)
   }
 
   useEffect(() => {
@@ -199,23 +167,54 @@ const FeedCard = (props: Props): any => {
         {/*                     title={feed.title}                       */}
         {/*                     onClick={()=>setIsVideo(true)}                */}
         {/*                 />} */}
+        <Grid container alignItems="flex-end">
+          <Grid xs item>
+            {!videoDisplay ? (
+              <img src={feed.previewUrl} className={styles.previewImage} alt={feed.title} onClick={previewImageClick} />
+            ) : (
+              <CardMedia
+                className={styles.previewImage}
+                component="video"
+                src={feed.videoUrl}
+                title={feed.title}
+                controls
+              />
+            )}
+            <span className={styles.eyeLine}>
+              {feed.viewsCount}
+              <VisibilityIcon style={{ fontSize: '16px' }} />
+            </span>
+          </Grid>
+          <Grid item>
+            <div className={styles.iconSubContainerVertical}>
+              <div>
+                {liked ? (
+                  <FavoriteIcon htmlColor="red" onClick={() => handleRemoveLikeClick(feed.id)} />
+                ) : (
+                  <FavoriteBorderOutlinedIcon htmlColor="#DDDDDD" onClick={() => handleAddLikeClick(feed.id)} />
+                )}
+                <span className={styles.counter}>{likedCount}</span>
+              </div>
+              <div>
+                {fired ? (
+                  <WhatshotIcon
+                    className={styles.fireIcon}
+                    htmlColor="#FF6201"
+                    onClick={() => handleRemoveFireClick(feed.id)}
+                  />
+                ) : (
+                  <WhatshotIcon
+                    className={styles.fireIcon}
+                    htmlColor="#DDDDDD"
+                    onClick={() => handleAddFireClick(feed.id)}
+                  />
+                )}
+                <span className={styles.counter}>{firedCount}</span>
+              </div>
+            </div>
+          </Grid>
+        </Grid>
 
-        {!videoDisplay ? (
-          <img src={feed.previewUrl} className={styles.previewImage} alt={feed.title} onClick={previewImageClick} />
-        ) : (
-          <CardMedia
-            className={styles.previewImage}
-            component="video"
-            src={feed.videoUrl}
-            title={feed.title}
-            controls
-          />
-        )}
-
-        <span className={styles.eyeLine}>
-          {feed.viewsCount}
-          <VisibilityIcon style={{ fontSize: '16px' }} />
-        </span>
         <CardContent className={styles.cardContent}>
           <section className={styles.iconsContainer}>
             {/*                         <Typography className={styles.titleContainer} gutterBottom variant="h4" */}
@@ -229,7 +228,7 @@ const FeedCard = (props: Props): any => {
                 <Avatar
                   src={feed.creator.avatar ? feed.creator.avatar : '/assets/userpic.png'}
                   alt={feed.creator.username}
-                  onClick={() => updateCreatorPageState(true, feed.creator.id)}
+                  onClick={() => PopupsStateService.updateCreatorPageState(true, feed.creator.id)}
                   className={styles.avatar}
                 />
               }
@@ -246,20 +245,8 @@ const FeedCard = (props: Props): any => {
               }
             />
             <section className={styles.iconSubContainer}>
-              {feed.isFired ? (
-                <WhatshotIcon
-                  className={styles.fireIcon}
-                  htmlColor="#FF6201"
-                  onClick={() => handleRemoveFireClick(feed.id)}
-                />
-              ) : (
-                <WhatshotIcon
-                  className={styles.fireIcon}
-                  htmlColor="#DDDDDD"
-                  onClick={() => handleAddFireClick(feed.id)}
-                />
-              )}
               <TelegramIcon onClick={shareVia} />
+              <AddCommentIcon onClick={null} />
               <ReportOutlinedIcon htmlColor="#FF0000" onClick={() => handleReportFeed(feed.id)} />
             </section>
             {/*hided for now*/}
@@ -273,6 +260,7 @@ const FeedCard = (props: Props): any => {
           <Typography className={styles.cartText} variant="h6">
             {feed.description}
           </Typography>
+          <CommentList feedId={feed.id} />
         </CardContent>
       </Card>
       {/* <SimpleModal type={'feed-fires'} list={feedFiresState.get('feedFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} /> */}
@@ -296,4 +284,4 @@ const FeedCard = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedCard)
+export default FeedCard

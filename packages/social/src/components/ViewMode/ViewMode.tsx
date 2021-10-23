@@ -1,18 +1,11 @@
 import React, { forwardRef, useState } from 'react'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
-import AddCircleIcon from '@material-ui/icons/AddCircle'
-import { bindActionCreators, Dispatch } from 'redux'
-import { updateArMediaState } from '../../reducers/popupsState/service'
-import { connect } from 'react-redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core'
 import { useTranslation } from 'react-i18next'
 import StepWizard from 'react-step-wizard'
@@ -20,22 +13,10 @@ import StepWizard from 'react-step-wizard'
 //
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
-import { updateCreator } from '../../reducers/creator/service'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 // @ts-ignore
 import classes from './ViewMode.module.scss'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state),
-    creatorsState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-  updateCreator: bindActionCreators(updateCreator, dispatch)
-})
 
 const useStyles = makeStyles({})
 
@@ -45,15 +26,14 @@ const Transition = React.forwardRef(
   }
 )
 
-interface Props {
-  updateArMediaState?: typeof updateArMediaState
-}
+interface Props {}
 
-export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: any) => {
+export const ViewMode = ({ onGoRegistration }: any) => {
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
-  const currentCreator = creatorsState.get('currentCreator')
-
+  const creatorsState = useCreatorState()
+  const currentCreator = creatorsState.creators.currentCreator.value
+  const dispatch = useDispatch()
   const handleClickOpen = () => {
     if (XRPlugin.accessPermission !== undefined) {
       // @ts-ignore
@@ -76,9 +56,7 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
     }
     return (
       <div>
-        <p>
-          Welcome to ARC!  Make personal videos with one of our holograms and post it to your social media channels!
-        </p>
+        <p>{t('social:view.welcome')}</p>
       </div>
     )
   }
@@ -89,8 +67,8 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
 
     return (
       <div>
-        <h3 className="text-center">STEP 1</h3>
-        <p>Choose a hologram from the library.</p>
+        <h3 className="text-center">{t('social:view.step', { step: '1' })}</h3>
+        <p>{t('social:view.text-step-1')}</p>
       </div>
     )
   }
@@ -102,11 +80,8 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
 
     return (
       <div>
-        <h3 className="text-center">STEP 2</h3>
-        <p>
-          This is Augmented Reality, so scan the space with your camera from side to side  for 3-5 seconds where you
-          want the hologram performance to be.
-        </p>
+        <h3 className="text-center">{t('social:view.step', { step: '2' })}</h3>
+        <p>{t('social:view.text-step-2')}</p>
       </div>
     )
   }
@@ -118,10 +93,10 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
 
     return (
       <div>
-        <h3 className="text-center">STEP 3</h3>
-        <p>Tap screen once on location where you want the hologram anchored.  </p>
-        <p>TIP!  Tap once elsewhere to move the hologram to another position.   </p>
-        <p>TIP!  You can resize the hologram by pinching or expanding the screen with your thumb and index finger.  </p>
+        <h3 className="text-center">{t('social:view.step', { step: '3' })}</h3>
+        <p>{t('social:view.text-step-3-part-1')}</p>
+        <p>{t('social:view.text-step-3-part-2')}</p>
+        <p>{t('social:view.text-step-3-part-3')}</p>
       </div>
     )
   }
@@ -133,9 +108,9 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
 
     return (
       <div>
-        <h3 className="text-center">STEP 4</h3>
-        <p>Double tap red record button to START your video recording.</p>
-        <p>Double tap red record button to STOP.</p>
+        <h3 className="text-center">{t('social:view.step', { step: '4' })}</h3>
+        <p>{t('social:view.text-step-4-part-1')}</p>
+        <p>{t('social:view.text-step-4-part-2')}</p>
       </div>
     )
   }
@@ -169,17 +144,29 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
   })
 
   const handleSteps = () => {
-    updateCreator({ id: creatorsState.get('currentCreator').id, steps: true })
+    dispatch(
+      CreatorService.updateCreator({
+        id: creatorsState.creators.currentCreator?.id?.value,
+        steps: true,
+        name: creatorsState.creators.currentCreator?.name?.value,
+        username: creatorsState.creators.currentCreator?.username?.value
+      })
+    )
     handleOpenNewFeedPage()
   }
 
   const handleOpenNewFeedPage = () => {
     setOpen(false)
-    updateArMediaState(true)
+    PopupsStateService.updateArMediaState(true)
   }
 
   return (
-    <div className={classes.mainBlock}>
+    <div
+      onClick={() => {
+        onGoRegistration()
+      }}
+      className={classes.mainBlock}
+    >
       {/*     <AddCircleIcon onClick={handleClickOpen} style={{fontSize: '5em'}} /> */}
       <img src="/assets/tabBar(1).svg" onClick={handleClickOpen} />
       <Dialog
@@ -201,7 +188,7 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
       >
         <div className={classes.popup}>
           <Button onClick={handleClose} color="primary" className={classes.btn_cancel}>
-            {t('social:view.cancel')}
+            {t('social:cancel')}
           </Button>
           <div>
             <StepWizard nav={<Nav />} transitions={state.transitions}>
@@ -213,8 +200,7 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
             </StepWizard>
           </div>
           <Button color="primary" className={classes.btn_dont} onClick={handleSteps}>
-            {' '}
-            Do not show it again
+            {t('social:view.not-show')}
           </Button>
           <Button
             onClick={() => {
@@ -231,4 +217,4 @@ export const ViewMode = ({ updateArMediaState, creatorsState, updateCreator }: a
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ViewMode)
+export default ViewMode

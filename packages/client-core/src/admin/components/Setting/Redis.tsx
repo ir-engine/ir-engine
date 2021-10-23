@@ -1,14 +1,34 @@
-import React from 'react'
-import { Paper, Button, Typography } from '@material-ui/core'
+import React, { useEffect } from 'react'
+import { Paper, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { useStyles } from './styles'
 import Switch from '@material-ui/core/Switch'
-const Redis = () => {
+import { useAdminRedisSettingState } from '../../state/Setting/AdminRedisSettingState'
+import { AdminRedisSettingService } from '../../state/Setting/AdminRedisSettingService'
+
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
+
+interface Props {
+  redisSettingState?: any
+}
+
+const Redis = (props: Props) => {
   const classes = useStyles()
+  const redisSettingState = useAdminRedisSettingState()
+  const [redisSetting] = redisSettingState?.redisSettings?.redisSettings?.value || []
+  const dispatch = useDispatch()
   const [enabled, setEnabled] = React.useState({
     checkedA: true,
     checkedB: true
   })
+  const authState = useAuthState()
+  const user = authState.user
+  useEffect(() => {
+    if (user?.id?.value != null && redisSettingState?.redisSettings?.updateNeeded?.value) {
+      AdminRedisSettingService.fetchRedisSetting()
+    }
+  }, [authState])
 
   const handleEnable = (event) => {
     setEnabled({ ...enabled, [event.target.name]: event.target.checked })
@@ -34,15 +54,33 @@ const Redis = () => {
         <br />
         <Paper component="div" className={classes.createInput}>
           <label>Address:</label>
-          <InputBase name="address" className={classes.input} disabled style={{ color: '#fff' }} />
+          <InputBase
+            value={redisSetting?.address || ''}
+            name="address"
+            className={classes.input}
+            disabled
+            style={{ color: '#fff' }}
+          />
         </Paper>
         <Paper component="div" className={classes.createInput}>
           <label>Port:</label>
-          <InputBase name="port" className={classes.input} disabled style={{ color: '#fff' }} />
+          <InputBase
+            value={redisSetting?.port || ''}
+            name="port"
+            className={classes.input}
+            disabled
+            style={{ color: '#fff' }}
+          />
         </Paper>
         <Paper component="div" className={classes.createInput}>
           <label>Password:</label>
-          <InputBase name="password" className={classes.input} disabled style={{ color: '#fff' }} />
+          <InputBase
+            value={redisSetting?.password || ''}
+            name="password"
+            className={classes.input}
+            disabled
+            style={{ color: '#fff' }}
+          />
         </Paper>
       </form>
     </div>

@@ -10,16 +10,13 @@ import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../../common/reducers/app/selector'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/reducers'
-import { fetchAdminScenes } from '../../reducers/admin/scene/service'
-import { fetchLocationTypes } from '../../reducers/admin/location/service'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { ADMIN_PAGE_LIMIT } from '../../state/AdminState'
+import { SceneService } from '../../state/SceneService'
 import styles from './Scenes.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
-import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
+import { useSceneState } from '../../state/SceneState'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -27,30 +24,14 @@ if (!global.setImmediate) {
 
 interface Props {
   locationState?: any
-  fetchAdminScenes?: any
-  fetchLocationTypes?: any
-  adminSceneState?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    appState: selectAppState(state),
-    adminSceneState: selectAdminSceneState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
-})
 
 const Scenes = (props: Props) => {
-  const { fetchAdminScenes, adminSceneState } = props
-
   const authState = useAuthState()
   const user = authState.user
-  const adminScenes = adminSceneState.get('scenes').get('scenes')
-  const adminScenesCount = adminSceneState.get('scenes').get('total')
+  const adminSceneState = useSceneState()
+  const adminScenes = adminSceneState.scenes.scenes
+  const adminScenesCount = adminSceneState.scenes.total
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
@@ -139,7 +120,7 @@ const Scenes = (props: Props) => {
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedScenes, setSelectedScenes] = useState([])
-
+  const dispatch = useDispatch()
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')
@@ -148,7 +129,7 @@ const Scenes = (props: Props) => {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = adminScenes.map((n) => n.name)
+      const newSelecteds = adminScenes.value.map((n) => n.name)
       setSelected(newSelecteds)
       return
     }
@@ -157,7 +138,7 @@ const Scenes = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchAdminScenes(incDec)
+    SceneService.fetchAdminScenes(incDec)
     setPage(newPage)
   }
 
@@ -186,11 +167,11 @@ const Scenes = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (user?.id.value != null && (adminSceneState.get('scenes').get('updateNeeded') === true || refetch === true)) {
-      fetchAdminScenes()
+    if (user?.id.value != null && (adminSceneState.scenes.updateNeeded.value === true || refetch === true)) {
+      SceneService.fetchAdminScenes()
     }
     setRefetch(false)
-  }, [authState, adminSceneState, refetch])
+  }, [authState.user?.id?.value, adminSceneState.scenes.updateNeeded.value, refetch])
 
   return (
     <div>
@@ -204,10 +185,10 @@ const Scenes = (props: Props) => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={adminScenesCount || 0}
+              rowCount={adminScenesCount?.value || 0}
             />
             <TableBody className={styles.thead}>
-              {stableSort(adminScenes, getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(adminScenes.value, getComparator(order, orderBy)).map((row, index) => {
                 return (
                   <TableRow
                     hover
@@ -254,7 +235,7 @@ const Scenes = (props: Props) => {
           <TablePagination
             rowsPerPageOptions={[ADMIN_PAGE_LIMIT]}
             component="div"
-            count={adminScenesCount}
+            count={adminScenesCount?.value || 0}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handlePageChange}
@@ -281,4 +262,4 @@ const Scenes = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Scenes)
+export default Scenes

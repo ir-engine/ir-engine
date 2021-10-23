@@ -1,4 +1,5 @@
-import { Box3, BufferGeometry, InterleavedBufferAttribute } from 'three'
+import { Box3, BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'three'
+//@ts-ignore
 import { MeshBVH } from 'three-mesh-bvh'
 import { isClient } from '../functions/isClient'
 import Worker from 'web-worker'
@@ -41,6 +42,9 @@ export class GenerateMeshBVHWorker {
         if (error) {
           reject(new Error(error))
         } else {
+          // MeshBVH uses generated index instead of default geometry index
+          geometry.setIndex(new BufferAttribute(serialized.index, 1))
+
           const bvh = MeshBVH.deserialize(serialized, geometry, false)
           const boundsOptions = Object.assign(
             {
@@ -48,11 +52,6 @@ export class GenerateMeshBVHWorker {
             },
             options
           )
-
-          // we need to replace the arrays because they're neutered entirely by the
-          // webworker transfer.
-          // geometry.getAttribute('position').attributes.position.array = position
-          // geometry.setIndex(new BufferAttribute(serialized.index, 1, false))
 
           if (boundsOptions.setBoundingBox) {
             geometry.boundingBox = bvh.getBoundingBox(new Box3())
@@ -62,25 +61,22 @@ export class GenerateMeshBVHWorker {
         }
       }
 
-      const posAttribute = geometry.getAttribute('position')
-      const position = Float32Array.from(posAttribute.array)
-      if (!geometry.getIndex()) {
-        geometry.setIndex(Array.from(Object.keys(posAttribute.array).map(Number)))
-      }
-      const index = Float32Array.from(geometry.getIndex().array)
-
       if (
-        (posAttribute as InterleavedBufferAttribute).isInterleavedBufferAttribute ||
-        (geometry.getIndex() as any as InterleavedBufferAttribute)?.isInterleavedBufferAttribute
+        (geometry.attributes.position as InterleavedBufferAttribute).isInterleavedBufferAttribute ||
+        (geometry.index && (geometry.index as any as InterleavedBufferAttribute).isInterleavedBufferAttribute)
       ) {
-        console.warn(
-          'GenerateMeshBVHWorker: InterleavedBufferAttribute are not supported for the geometry attributes.',
-          geometry
+        throw new Error(
+          'GenerateMeshBVHWorker: InterleavedBufferAttribute are not supported for the geometry attributes.'
         )
-        return
       }
 
-      const transferrables = [position.buffer, index.buffer]
+      const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
+      const position = Float32Array.from(geometry.attributes.position.array)
+
+      const transferrables = [position as ArrayLike<number>]
+      if (index) {
+        transferrables.push(index as ArrayLike<number>)
+      }
 
       worker.postMessage(
         {
@@ -88,7 +84,7 @@ export class GenerateMeshBVHWorker {
           position,
           options
         },
-        transferrables
+        transferrables.map((arr: any) => arr.buffer)
       )
     })
   }

@@ -9,7 +9,7 @@ import typescript from 'rollup-plugin-typescript2';
 import commonjs from '@rollup/plugin-commonjs';
 import alias from '@rollup/plugin-alias';
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = process.env.APP_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx', '.json'];
 
 const libraryName = 'server-core';
@@ -34,7 +34,7 @@ export default {
       rollupCommonJSResolveHack: false
     }),
     replace({
-      'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
+      'process.env.APP_ENV': JSON.stringify(isProd ? 'production' : 'development'),
     }),
     resolve({
       extensions,

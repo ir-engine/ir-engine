@@ -1,12 +1,13 @@
 {
   "name": "xrengine",
-  "description": "Game Engine, Server & Devops powering The XREngine. Please support XRFoundation https://opencollective.com/xrengine",
+  "description": "Game Engine, Server & Devops powering The XREngine. Please support XRFoundation https://opencollective.com/xrfoundation",
   "version": "0.2.5",
   "homepage": "xrengine.io",
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "packages/projects/projects/*"
     ]
   },
   "keywords": [
@@ -36,27 +37,27 @@
     "node": ">= 16.3.0"
   },
   "npmClient": "npm",
-  "jest": "ts-jest",
   "scripts": {
+    "check": "npm run lint && npm run test:packages && npm run build-client",
     "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
     "start": "npm run dev",
+    "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently npm:dev-agones \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/client && npm run local\"",
     "dev": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server npm:dev-client",
     "dev-windows": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-windows npm:dev-client",
     "golf": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-golf npm:dev-client",
+    "starter": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-starter npm:dev-client",
     "dev-docker": "cd scripts && docker-compose up -d",
     "dev-agones": "cd scripts && ./start-agones.sh",
     "dev-server": "cd packages/server && npm run dev",
     "dev-server-windows": "cd packages/server && npm run dev-windows",
-    "dev-server-golf": "cd packages/server && npm run golf",
     "dev-client": "cd packages/client && npm run dev",
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
     "dev-nginx": "",
     "cleanup-tests": "node tests/cleanup-tests.js",
-    "test": "lerna run test",
-    "test-packages": "lerna run test",
-    "test-ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
-    "test:golf": "cross-env TEST_LOCATION_NAME=golftest jest --testPathPattern=tests/golf --detectOpenHandles",
-    "test:golf-basic": "cross-env TEST_LOCATION_NAME=golfbasic jest --testPathPattern=tests/golf --detectOpenHandles",
+    "test": "npm run test:e2e && npm run test:packages",
+    "test:e2e": "mocha",
+    "test:packages": "lerna run test",
+    "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",
     "format-staged": "lint-staged",
@@ -66,21 +67,23 @@
     "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "validate": "npm run lint && lerna run validate",
-    "build": "lerna run build --parallel",
     "build-publish": "lerna run --ignore @xrengine/bot build-publish --parallel",
-    "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
+    "build-client": "cd packages/client && npm run build",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
     "precommit": "no-master-commits -b master",
-    "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json"
+    "make-user-admin": "ts-eager scripts/make-user-admin.js",
+    "install-projects": "ts-eager scripts/install-projects.js",
+    "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
+    "depcheck": "lerna exec --no-bail --stream -- depcheck"
   },
   "types": "lib/",
   "pre-commit": [
     "format-staged"
   ],
   "pre-push": [
-    "test-packages",
-    "build-docker"
+    "test:packages",
+    "build-client"
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -89,57 +92,60 @@
     ]
   },
   "resolutions": {
-    "socket.io": "4.2.0",
+    "socket.io": "4.3.1",
     "terser": "^5.6.1",
-    "@typescript-eslint/eslint-plugin": "4.31.2",
-    "@typescript-eslint/parser": "4.31.2"
+    "@typescript-eslint/eslint-plugin": "^4.6.0 || ^5.0.0",
+    "@typescript-eslint/parser": "5.1.0"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.9",
     "@feathersjs/authentication-local": "^5.0.0-pre.9",
     "@feathersjs/authentication-oauth": "^5.0.0-pre.9",
     "@feathersjs/cli": "^4.5.0",
-    "@feathersjs/commons": "5.0.0-pre.10",
+    "@feathersjs/commons": "5.0.0-pre.9",
     "@feathersjs/configuration": "^5.0.0-pre.9",
-    "@feathersjs/errors": "5.0.0-pre.10",
+    "@feathersjs/errors": "5.0.0-pre.9",
     "@feathersjs/express": "^5.0.0-pre.9",
-    "@feathersjs/feathers": "5.0.0-pre.10",
+    "@feathersjs/feathers": "5.0.0-pre.9",
     "@feathersjs/hooks": "0.6.5",
-    "@feathersjs/rest-client": "5.0.0-pre.10",
-    "@feathersjs/socketio": "5.0.0-pre.10",
+    "@feathersjs/rest-client": "5.0.0-pre.9",
+    "@feathersjs/socketio": "5.0.0-pre.9",
     "@feathersjs/socketio-client": "^5.0.0-pre.9",
     "@feathersjs/transport-commons": "^5.0.0-pre.9",
-    "@typescript-eslint/eslint-plugin": "^4.6.0",
-    "@typescript-eslint/parser": "^4.16.1",
+    "@typescript-eslint/eslint-plugin": "^4.6.0 || ^5.0.0",
+    "@typescript-eslint/parser": "^4.16.1 || ^5.0.0",
     "chokidar": "^3.4.2",
-    "socket.io": "4.2.0",
+    "socket.io": "4.3.1",
     "terser": "^5.6.1"
   },
   "devDependencies": {
-    "@babel/plugin-transform-runtime": "7.15.0",
-    "@babel/preset-env": "7.15.6",
-    "@hookstate/core": "3.0.11",
-    "@typescript-eslint/parser": "4.31.2",
-    "babel-jest": "27.2.1",
+    "@babel/plugin-transform-runtime": "7.15.8",
+    "@babel/preset-env": "7.15.8",
+    "@hookstate/core": "3.0.13",
+    "@types/mocha": "9.0.0",
+    "@typescript-eslint/parser": "5.1.0",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
-    "concurrently": "6.2.1",
+    "concurrently": "6.3.0",
     "cpy-cli": "3.1.1",
-    "esbuild": "0.12.25",
+    "esbuild": "0.13.8",
     "esbuild-plugin-sass": "0.6.0",
-    "jest": "27.2.1",
-    "jest-puppeteer": "5.0.4",
     "kill-port": "1.6.1",
     "lerna": "4.0.0",
-    "lint-staged": "11.1.2",
+    "lint-staged": "11.2.3",
+    "mocha": "9.1.3",
     "no-master-commits": "1.1.1",
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",
     "prettier": "2.4.1",
-    "puppeteer": "10.2.0",
     "react-router-dom": "5.3.0",
     "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
+    "ts-eager": "2.0.2",
     "yuka": "0.7.6"
+  },
+  "dependencies": {
+    "@iconify/react": "3.0.1",
+    "depcheck": "1.4.2"
   }
 }

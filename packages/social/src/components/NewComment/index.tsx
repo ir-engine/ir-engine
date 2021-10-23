@@ -2,31 +2,24 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
 import TextField from '@material-ui/core/TextField'
 import MessageIcon from '@material-ui/icons/Message'
 import styles from './NewComment.module.scss'
-import { addCommentToFeed } from '../../reducers/feedComment/service'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { FeedCommentService } from '@xrengine/client-core/src/social/state/FeedCommentService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import PopupLogin from '../PopupLogin/PopupLogin'
 import { useTranslation } from 'react-i18next'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  addCommentToFeed: bindActionCreators(addCommentToFeed, dispatch)
-})
-
 interface Props {
-  addCommentToFeed?: typeof addCommentToFeed
   feedId: any
 }
 
-const NewComment = ({ addCommentToFeed, feedId }: Props) => {
+const NewComment = ({ feedId }: Props) => {
   const [composingComment, setComposingComment] = useState('')
   const [buttonPopup, setButtonPopup] = useState(false)
+  const dispatch = useDispatch()
   const { t } = useTranslation()
   const commentRef = React.useRef<HTMLInputElement>()
 
@@ -34,7 +27,7 @@ const NewComment = ({ addCommentToFeed, feedId }: Props) => {
     setComposingComment(event.target.value)
   }
   const handleAddComment = () => {
-    composingComment.trim().length > 0 && addCommentToFeed(feedId, composingComment)
+    composingComment.trim().length > 0 && FeedCommentService.addCommentToFeed(feedId, composingComment)
     setComposingComment('')
   }
   const checkGuest = useAuthState().authUser?.identityProvider?.type?.value === 'guest' ? true : false
@@ -59,4 +52,4 @@ const NewComment = ({ addCommentToFeed, feedId }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewComment)
+export default NewComment

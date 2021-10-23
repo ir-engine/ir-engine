@@ -43,7 +43,7 @@ export const loadModelAnimation = (entity: Entity, component: SceneDataComponent
             loopType: LoopRepeat,
             action
           }
-        ]
+        ] as any
         currentState.animations[0].action.play()
       }
     })

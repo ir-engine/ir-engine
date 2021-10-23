@@ -38,7 +38,7 @@ export default class AudioSource extends Object3D {
   constructor(audioListener, elTag = 'audio', id?: string) {
     super()
 
-    let el: HTMLVideoElement | HTMLAudioElement = null
+    let el: HTMLVideoElement | HTMLAudioElement = null!
     if (elTag === 'video' && id) {
       const videoElement = document.getElementById(id) as HTMLVideoElement
       if (videoElement) {
@@ -216,7 +216,7 @@ export default class AudioSource extends Object3D {
         this.el.pause()
       }
 
-      let cleanup = null
+      let cleanup: any = null
       const onLoadedData = () => {
         cleanup()
         resolve()

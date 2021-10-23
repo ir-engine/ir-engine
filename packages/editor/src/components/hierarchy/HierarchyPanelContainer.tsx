@@ -690,7 +690,7 @@ function TreeNode({
                   </TreeNodeLabel>
                 )}
               </TreeNodeLabelContainer>
-              {node.object.issues.length > 0 && <NodeIssuesIcon node={node.object} />}
+              {node.object.issues && node.object.issues.length > 0 && <NodeIssuesIcon node={node.object} />}
             </TreeNodeSelectTarget>
           </TreeNodeContent>
 
@@ -722,6 +722,8 @@ const MemoTreeNode = memo(TreeNode, areEqual)
  */
 function* treeWalker(collapsedNodes) {
   const stack = []
+
+  if (!SceneManager.instance.scene) return
 
   stack.push({
     depth: 0,

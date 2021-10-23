@@ -16,7 +16,9 @@ import { ControlManager } from './ControlManager'
 import resizeShadowCameraFrustum from '../functions/resizeShadowCameraFrustum'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
-import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
+import { RethrownError } from '@xrengine/client-core/src/util/errors'
+import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import PostProcessingNode from '../nodes/PostProcessingNode'
 
 export class SceneManager {
   static instance: SceneManager
@@ -36,10 +38,11 @@ export class SceneManager {
   raycaster: Raycaster
   centerScreenSpace: Vector2
   thumbnailRenderer: ThumbnailRenderer
-  animationCallback = null
   disableUpdate: boolean
   clock: Clock
   rafId: number
+  transformGizmo: TransformGizmo
+  postProcessingNode: PostProcessingNode
 
   static buildSceneManager() {
     this.instance = new SceneManager()
@@ -47,7 +50,6 @@ export class SceneManager {
 
   constructor() {
     this.renderer = null
-    this.scene = new SceneNode()
     this.sceneModified = false
     this.raycaster = new Raycaster()
 
@@ -60,11 +62,36 @@ export class SceneManager {
     this.camera.name = 'Camera'
 
     this.centerScreenSpace = new Vector2()
+    this.clock = new Clock()
+    this.disableUpdate = true
+  }
+
+  async initializeScene(projectFile: any): Promise<Error[] | void> {
+    this.disableUpdate = true
+
+    // remove existing scene
+    if (this.scene) {
+      CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.scene)
+    }
+
+    // getting scene data
+    const [scene, error] = await SceneNode.loadProject(projectFile)
+    if (scene === null) throw new Error('Scene data is null, please create a new scene.')
+
+    this.scene = scene
+    this.camera.position.set(0, 5, 10)
+    this.camera.lookAt(new Vector3())
 
     this.grid = new EditorInfiniteGridHelper()
-    this.helperScene.add(this.grid as any)
+    this.transformGizmo = new TransformGizmo()
 
-    this.clock = new Clock()
+    this.scene.add(this.camera)
+    this.scene.add(this.grid)
+    this.scene.add(this.transformGizmo)
+
+    this.sceneModified = false
+
+    if (error) return error
   }
 
   /**
@@ -74,7 +101,6 @@ export class SceneManager {
    */
   onEmitSceneModified() {
     this.sceneModified = true
-    CommandManager.instance.emitEvent(EditorEvents.SCENE_MODIFIED)
   }
 
   /**
@@ -86,11 +112,29 @@ export class SceneManager {
   initializeRenderer(canvas: HTMLCanvasElement): void {
     try {
       this.renderer = new Renderer(canvas)
+
       this.thumbnailRenderer = new ThumbnailRenderer()
       window.addEventListener('resize', this.onResize)
-      // resolveRenderer()
+
+      requestAnimationFrame(this.update)
+
+      this.scene.traverse((node) => {
+        if (node.isNode) {
+          if (node.name === 'Post Processing') {
+            this.postProcessingNode = node
+          }
+
+          node.onChange()
+        }
+      })
+
+      ControlManager.instance.initControls()
+      this.grid.setSize(ControlManager.instance.editorControls.translationSnap)
+
+      this.disableUpdate = false
+      CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
     } catch (error) {
-      // rejectRenderer(error)
+      console.error(error)
     }
   }
 
@@ -146,7 +190,7 @@ export class SceneManager {
    */
   onResize = () => {
     ControlManager.instance.inputManager.onResize()
-    SceneManager.instance.renderer.onResize()
+    this.renderer.onResize()
     CommandManager.instance.emit('resize')
   }
 
@@ -235,7 +279,7 @@ export class SceneManager {
 
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
 
-    const scene = SceneManager.instance.scene
+    const scene = this.scene
 
     const clonedScene = cloneObject3D(scene, true)
     const animations = clonedScene.getAnimationClips()
@@ -326,10 +370,8 @@ export class SceneManager {
       this.scene.updateMatrixWorld()
       ControlManager.instance.inputManager.update(delta, time)
 
-      const enableShadows = this.renderer.renderMode.enableShadows
-
       this.scene.traverse((node) => {
-        if (enableShadows && node.isDirectionalLight) {
+        if (this.renderer.isShadowMapEnabled && node.isDirectionalLight) {
           resizeShadowCameraFrustum(node, this.scene)
         }
 
@@ -337,12 +379,9 @@ export class SceneManager {
           node.onUpdate(delta, time)
         }
       })
+
       ControlManager.instance.flyControls.update(delta)
       ControlManager.instance.editorControls.update()
-
-      if (this.animationCallback) {
-        this.animationCallback()
-      }
 
       this.renderer.update(delta, time)
       ControlManager.instance.inputManager.reset()

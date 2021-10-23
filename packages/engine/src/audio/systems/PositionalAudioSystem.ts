@@ -72,8 +72,8 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
     if (startSuspendedContexts) {
       for (const entity of avatarAudioQuery()) {
         const audio = positionalAudioSettings?.usePositionalAudio
-          ? getComponent(entity, PositionalAudioComponent, true)
-          : getComponent(entity, AudioComponent, true)
+          ? getComponent(entity, PositionalAudioComponent)
+          : getComponent(entity, AudioComponent)
         if (audio?.value?.context?.state === 'suspended') audio.value.context.resume()
       }
       startSuspendedContexts = false
@@ -82,8 +82,8 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
     if (suspendPositionalAudio) {
       for (const entity of avatarAudioQuery()) {
         const audio = positionalAudioSettings?.usePositionalAudio
-          ? getComponent(entity, PositionalAudioComponent, true)
-          : getComponent(entity, AudioComponent, true)
+          ? getComponent(entity, PositionalAudioComponent)
+          : getComponent(entity, AudioComponent)
         audio.value.context.suspend()
       }
       suspendPositionalAudio = false
@@ -94,8 +94,7 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
     }
 
     for (const entity of audioQuery.exit()) {
-      const positionalAudio =
-        getComponent(entity, PositionalAudioComponent, true) ?? getComponent(entity, AudioComponent, true)
+      const positionalAudio = getComponent(entity, PositionalAudioComponent) ?? getComponent(entity, AudioComponent)
       if (positionalAudio?.value?.source) positionalAudio.value.disconnect()
     }
 
@@ -127,10 +126,10 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
     for (const entity of avatarAudioQuery.exit()) {
       avatarAudioStream.delete(entity)
 
-      const positionalAudio = getComponent(entity, PositionalAudioComponent, true)
+      const positionalAudio = getComponent(entity, PositionalAudioComponent)
       if (positionalAudio != null) Engine.scene.remove(positionalAudio.value)
 
-      const audio = getComponent(entity, AudioComponent, true)
+      const audio = getComponent(entity, AudioComponent)
       if (audio != null) Engine.scene.remove(audio.value)
     }
 

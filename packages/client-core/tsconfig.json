@@ -12,6 +12,7 @@
     "noEmit": false,
     "module": "esnext",
     "strict": false,
+    "strictNullChecks": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -36,5 +37,5 @@
   "include": [
     "./**/*.ts",
     "./**/*.tsx"
-, "../social/src/components/admin/ADMIN_FETCH_AR_MEDIA.ts"  ]
+  ]
 }

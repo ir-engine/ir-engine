@@ -110,6 +110,27 @@ export const useSceneStyles = makeStyles((theme: Theme) =>
     },
     table: {
       minWidth: 650
+    },
+    headingFont: {
+      width: '100%',
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '1.6rem'
+      },
+      [theme.breakpoints.between(100, 395)]: {
+        fontSize: '1.4rem'
+      }
+    },
+    typoFont: {
+      width: '100%',
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '1.3rem'
+      }
+    },
+    typoFontsm: {
+      width: '100%',
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '1.05rem'
+      }
     }
   })
 )
@@ -118,7 +139,8 @@ export const useSceneStyle = makeStyles({
   paper: {
     width: '60%',
     backgroundColor: '#43484F',
-    color: '#f1f1f1'
+    color: '#f1f1f1',
+    overflow: 'hidden'
   },
   sceneInfo: {
     marginTop: '5%',

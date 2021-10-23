@@ -7,7 +7,7 @@ import { Application } from '../../../declarations'
 /**
  * This model contain creator information - ARCAPP
  */
-export default (app: Application): any => {
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const Creator = sequelizeClient.define(
     'creator',
@@ -46,7 +46,8 @@ export default (app: Application): any => {
       username: {
         type: DataTypes.STRING,
         defaultValue: (): string => '',
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       email: {
         type: DataTypes.STRING,

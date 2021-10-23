@@ -1,5 +1,4 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
-import { BorderBottom } from '@material-ui/icons'
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -97,6 +96,31 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     notFocused: {
       background: '#43484F'
+    },
+    spanDange: {
+      color: '#FF8C00 !important',
+      marginBottom: '0.8rem',
+      position: 'fixed'
+    },
+    clearMenuBg: {
+      background: '#43484F',
+      border: '1px solid #43484F',
+      borderRadius: '50%',
+      position: 'fixed',
+      zIndex: 3
+    },
+    invisible: {
+      display: 'none',
+      [theme.breakpoints.down('sm')]: {
+        display: 'inline-block',
+        marginBottom: '3rem'
+      }
+    },
+    visible: {
+      display: 'inline-block',
+      [theme.breakpoints.down('sm')]: {
+        display: 'none'
+      }
     }
   })
 )

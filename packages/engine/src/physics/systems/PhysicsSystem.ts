@@ -1,65 +1,45 @@
+import { Vector3, Quaternion } from 'three'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { Network } from '../../networking/classes/Network'
+import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
-import { SpawnNetworkObjectComponent } from '../../scene/components/SpawnNetworkObjectComponent'
 import { RigidBodyTagComponent } from '../components/RigidBodyTagComponent'
-import { Quaternion, Vector3 } from 'three'
-import { InterpolationComponent } from '../components/InterpolationComponent'
 import { isClient } from '../../common/functions/isClient'
-import { PrefabType } from '../../networking/templates/PrefabType'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { dispatchFromServer } from '../../networking/functions/dispatch'
-import {
-  NetworkWorldAction,
-  NetworkWorldActions,
-  NetworkWorldActionType
-} from '../../networking/interfaces/NetworkWorldActions'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { NetworkObjectOwnerComponent } from '../../networking/components/NetworkObjectOwnerComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { isDynamicBody, isKinematicBody, isStaticBody } from '../classes/Physics'
 import { teleportRigidbody } from '../functions/teleportRigidbody'
 import { CollisionComponent } from '../components/CollisionComponent'
+import matches from 'ts-matches'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
-function avatarActionReceptor(action: NetworkWorldActionType) {
-  switch (action.type) {
-    case NetworkWorldActions.TELEPORT:
-      {
-        const [x, y, z, qX, qY, qZ, qW] = action.pose
+function physicsActionReceptor(action: unknown) {
+  const world = useWorld()
+  matches(action).when(NetworkWorldAction.teleportObject.matches, (a) => {
+    const [x, y, z, qX, qY, qZ, qW] = a.pose
+    const entity = world.getNetworkObject(a.networkId)
 
-        if (!Network.instance.networkObjects[action.networkId])
-          return console.warn(`Entity with id ${action.networkId} does not exist! You should probably reconnect...`)
+    const colliderComponent = getComponent(entity, ColliderComponent)
+    if (colliderComponent) {
+      teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
+      return
+    }
 
-        const entity = Network.instance.networkObjects[action.networkId].entity
-
-        const colliderComponent = getComponent(entity, ColliderComponent)
-        if (colliderComponent) {
-          teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
-          return
-        }
-
-        const controllerComponent = getComponent(entity, AvatarControllerComponent)
-        if (controllerComponent) {
-          const avatar = getComponent(entity, AvatarComponent)
-          controllerComponent.controller.setPosition(new Vector3(x, y + avatar.avatarHalfHeight, z))
-          const velocity = getComponent(entity, VelocityComponent)
-          velocity.velocity.setScalar(0)
-        }
-      }
-      break
-  }
+    const controllerComponent = getComponent(entity, AvatarControllerComponent)
+    if (controllerComponent) {
+      const avatar = getComponent(entity, AvatarComponent)
+      controllerComponent.controller.setPosition(new Vector3(x, y + avatar.avatarHalfHeight, z))
+      const velocity = getComponent(entity, VelocityComponent)
+      velocity.velocity.setScalar(0)
+    }
+  })
 }
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -70,11 +50,10 @@ export default async function PhysicsSystem(
   world: World,
   attributes: { simulationEnabled?: boolean }
 ): Promise<System> {
-  const spawnRigidbodyQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
-  const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
+  const colliderQuery = defineQuery([ColliderComponent])
   const raycastQuery = defineQuery([RaycastComponent])
   const collisionComponent = defineQuery([CollisionComponent])
-  const clientAuthoritativeQuery = defineQuery([NetworkObjectComponent, NetworkObjectOwnerComponent, ColliderComponent])
+  const networkColliderQuery = defineQuery([NetworkObjectComponent, ColliderComponent])
 
   let simulationEnabled = true
 
@@ -84,29 +63,29 @@ export default async function PhysicsSystem(
     }
   })
 
-  world.receptors.add(avatarActionReceptor)
+  world.receptors.push(physicsActionReceptor)
 
   return () => {
-    for (const entity of spawnRigidbodyQuery.enter()) {
-      const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+    // for (const entity of spawnRigidbodyQuery.enter()) {
+    //   const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
 
-      addComponent(entity, TransformComponent, {
-        position: new Vector3().copy(parameters.position),
-        rotation: new Quaternion().copy(parameters.rotation),
-        scale: new Vector3(1, 1, 1)
-      })
+    //   addComponent(entity, TransformComponent, {
+    //     position: new Vector3().copy(parameters.position),
+    //     rotation: new Quaternion().copy(parameters.rotation),
+    //     scale: new Vector3(1, 1, 1)
+    //   })
 
-      // TODO: figure out how we are going to spawn the body
+    //   // TODO: figure out how we are going to spawn the body
 
-      if (isClient) {
-        addComponent(entity, InterpolationComponent, {})
-      } else {
-        dispatchFromServer(NetworkWorldAction.createObject(networkId, uniqueId, PrefabType.RigidBody, parameters))
-      }
-    }
+    //   if (isClient) {
+    //     addComponent(entity, InterpolationComponent, {})
+    //   } else {
+    //     dispatchFromServer(NetworkWorldAction.createObject(networkId, uniqueId, PrefabType.RigidBody, parameters))
+    //   }
+    // }
 
     for (const entity of colliderQuery.exit()) {
-      const colliderComponent = getComponent(entity, ColliderComponent, true)
+      const colliderComponent = getComponent(entity, ColliderComponent)
       if (colliderComponent?.body) {
         world.physics.removeBody(colliderComponent.body)
       }
@@ -121,8 +100,9 @@ export default async function PhysicsSystem(
       if (!velocity) continue
       const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
-      if ((!isClient && hasComponent(entity, NetworkObjectOwnerComponent)) || hasComponent(entity, AvatarComponent))
-        continue
+      const network = getComponent(entity, NetworkObjectComponent)
+
+      if ((!isClient && network.userId !== Engine.userId) || hasComponent(entity, AvatarComponent)) continue
 
       if (isStaticBody(collider.body)) {
         const body = collider.body as PhysX.PxRigidDynamic
@@ -156,9 +136,9 @@ export default async function PhysicsSystem(
       }
     }
 
-    for (const entity of clientAuthoritativeQuery()) {
-      const collider = getComponent(entity, ColliderComponent)
-      if (!isClient) {
+    if (!isClient) {
+      for (const entity of networkColliderQuery()) {
+        const collider = getComponent(entity, ColliderComponent)
         const transform = getComponent(entity, TransformComponent)
         const body = collider.body as PhysX.PxRigidDynamic
         teleportRigidbody(body, transform.position, transform.rotation)
@@ -178,12 +158,13 @@ export default async function PhysicsSystem(
         getComponent(entity, CollisionComponent).collisions.push(collisionEvent)
       }
       if (collisionEvent.shapeA) {
-        const bodyAID = world.physics.bodyIDByShapeID.get((collisionEvent.shapeA as any)._id)
+        const bodyAID = world.physics.bodyIDByShapeID.get((collisionEvent.shapeA as any)._id)!
         const bodyA = world.physics.bodies.get(bodyAID)
-        const bodyBID = world.physics.bodyIDByShapeID.get((collisionEvent.shapeB as any)._id)
+        const bodyBID = world.physics.bodyIDByShapeID.get((collisionEvent.shapeB as any)._id)!
         const bodyB = world.physics.bodies.get(bodyBID)
-        const entityA = (bodyA as any).userData.entity
-        const entityB = (bodyA as any).userData.entity
+        if (!bodyA || !bodyB) continue
+        const entityA = (bodyA as any).userData?.entity
+        const entityB = (bodyB as any).userData?.entity
         getComponent(entityA, CollisionComponent).collisions.push({
           type: collisionEvent.type,
           bodySelf: bodyA,
@@ -208,7 +189,7 @@ export default async function PhysicsSystem(
 
     // step physics world
     for (let i = 0; i < world.physics.substeps; i++) {
-      world.physics.scene.simulate(world.physics.stepTime / (1000 * world.physics.substeps), true)
+      world.physics.scene.simulate((world.physics.timeScale * world.fixedDelta) / world.physics.substeps, true)
       world.physics.scene.fetchResults(true)
     }
   }

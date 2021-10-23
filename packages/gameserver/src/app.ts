@@ -16,14 +16,14 @@ import channels from './channels'
 import authentication from '@xrengine/server-core/src/user/authentication'
 import sync from 'feathers-sync'
 import { api } from '@xrengine/server-core/src/k8s'
-import { WebRTCGameServer } from './WebRTCGameServer'
 import winston from 'winston'
 import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
-import { awaitEngineLoaded } from '@xrengine/engine/src/ecs/classes/Engine'
 import { register } from 'trace-unhandled'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 register()
 
 export const createApp = (): Application => {
@@ -87,6 +87,7 @@ export const createApp = (): Application => {
         socketio(
           {
             serveClient: false,
+            pingTimeout: process.env.APP_ENV === 'development' ? 1200000 : 20000,
             cors: {
               origin: [
                 'https://' + config.gameserver.clientHost,
@@ -100,13 +101,13 @@ export const createApp = (): Application => {
             }
           },
           (io) => {
+            Network.instance.transport = new SocketWebRTCServerTransport(app)
+            Network.instance.transport.initialize()
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
-              awaitEngineLoaded().then(() => {
-                ;(socket as any).feathers.socketQuery = socket.handshake.query
-                ;(socket as any).socketQuery = socket.handshake.query
-                next()
-              })
+              ;(socket as any).feathers.socketQuery = socket.handshake.query
+              ;(socket as any).socketQuery = socket.handshake.query
+              next()
             })
           }
         )
@@ -121,7 +122,7 @@ export const createApp = (): Application => {
                 : `redis://${config.redis.address}:${config.redis.port}`
           })
         )
-        ;(app as any).sync.ready.then(() => {
+        app.sync.ready.then(() => {
           logger.info('Feathers-sync started')
         })
       }
@@ -134,7 +135,7 @@ export const createApp = (): Application => {
       app.configure(services)
 
       if (config.gameserver.mode === 'realtime') {
-        ;(app as any).k8AgonesClient = api({
+        app.k8AgonesClient = api({
           endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
           version: '/apis/agones.dev/v1',
           auth: {
@@ -142,7 +143,7 @@ export const createApp = (): Application => {
             token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
           }
         })
-        ;(app as any).k8DefaultClient = api({
+        app.k8DefaultClient = api({
           endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
           version: '/api/v1',
           auth: {
@@ -152,21 +153,17 @@ export const createApp = (): Application => {
         })
       }
 
-      if (config.kubernetes.enabled || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
+      if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {
         agonesSDK.connect()
         agonesSDK.ready().catch((err) => {
           throw new Error(
             '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
           )
         })
-        ;(app as any).agonesSDK = agonesSDK
+        app.agonesSDK = agonesSDK
         setInterval(() => agonesSDK.health(), 1000)
 
         app.configure(channels)
-
-        WebRTCGameServer.instance.initialize(app).then(() => {
-          console.log('Initialized new gameserver instance')
-        })
       } else {
         console.warn('Did not create gameserver')
       }

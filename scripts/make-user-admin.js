@@ -2,6 +2,7 @@
 const dotenv = require('dotenv');
 const cli = require('cli');
 const Sequelize = require('sequelize');
+const { scopeTypeSeed } = require('../packages/server-core/src/scope/scope-type/scope-type.seed')
 
 dotenv.config();
 const db = {
@@ -77,7 +78,11 @@ cli.main(async () => {
         if (userMatch != null) {
             userMatch.userRole = 'admin';
             await userMatch.save();
-            await Scope.create({ userId: options.id, type: 'user:read'})
+            for(const { type } of scopeTypeSeed.templates) {
+              try {
+                await Scope.create({ userId: options.id, type })
+              } catch (e) { console.log(e) }
+            }
         }
 
         cli.ok(`User with id ${options.id} made an admin` );

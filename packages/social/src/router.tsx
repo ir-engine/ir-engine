@@ -38,14 +38,14 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
 
         {/* Editor Routes */}
         <Route
-          path="/editor/projects/:projectId"
+          path="/editor/:projectId"
           component={React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))}
         />
-        <Route path="/editor/projects" component={React.lazy(() => import('@xrengine/editor/src/pages/projects'))} />
-        <Route path="/editor/create" component={React.lazy(() => import('@xrengine/editor/src/pages/create'))} />
-        {/* <Redirect path="/editor" to="/editor/projects" /> */}
+        <Route path="/editor" component={React.lazy(() => import('@xrengine/editor/src/pages/projects'))} />
+        {/* <Route path="/editor/create" component={React.lazy(() => import('@xrengine/editor/src/pages/create'))} /> */}
+        {/* <Redirect path="/editor" to="/editor" /> */}
 
-        {/* <Route path="/editor/projects/create" component={React.lazy(() => import('./pages/admin/editor'))} /> */}
+        {/* <Route path="/editor/create" component={React.lazy(() => import('./pages/admin/editor'))} /> */}
 
         {/* Auth Routes */}
         <Route path="/auth/oauth/facebook" component={React.lazy(() => import('./pages/auth/oauth/facebook'))} />
@@ -55,6 +55,9 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         <Route path="/auth/confirm" component={React.lazy(() => import('./pages/auth/confirm'))} />
         <Route path="/auth/forgotpassword" component={React.lazy(() => import('./pages/auth/forgotpassword'))} />
         <Route path="/auth/magiclink" component={React.lazy(() => import('./pages/auth/magiclink'))} />
+
+        {/* Registration Routes */}
+        <Route path="/registration" component={React.lazy(() => import('./pages/Registration'))} />
 
         {/* Post Routes */}
         <Route path="/post/:pid" component={React.lazy(() => import('./pages/post/[pid]'))} />
@@ -71,6 +74,10 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         <Route path="/onboarding" component={React.lazy(() => import('./pages/onboarding'))} />
         <Route path="/videorecord" component={React.lazy(() => import('./pages/videorecord'))} />
         <Route path="/privacypolicy" component={React.lazy(() => import('./pages/privacypolicy'))} />
+
+        {/* Terms and Policy */}
+        <Route path="/terms" component={React.lazy(() => import('./pages/TermsAndPolicy/terms'))} />
+        <Route path="/policy" component={React.lazy(() => import('./pages/TermsAndPolicy/policy'))} />
 
         <Route path="/:pid" component={React.lazy(() => import('./pages/[pid]'))} />
 

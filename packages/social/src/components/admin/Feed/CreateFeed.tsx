@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload'
@@ -12,23 +12,19 @@ import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { validateFeedForm } from './validation'
-import { createFeed } from '../../../reducers/feed/service'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
 interface Props {
   open: boolean
-  handleClose: (open: boolean) => void
+
   closeViewModel: (open: boolean) => void
-  createFeed?: typeof createFeed
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createFeed: bindActionCreators(createFeed, dispatch)
-})
-
 const CreateFeeds = (props: Props) => {
-  const { open, handleClose, createFeed, closeViewModel } = props
+  const { open, closeViewModel } = props
   const classes = useFeedStyles()
   const classesx = useFeedStyle()
+  const dispatch = useDispatch()
   const [state, setState] = useState({
     title: '',
     description: '',
@@ -82,7 +78,14 @@ const CreateFeeds = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateFeedForm(state, state.formErrors)) {
-      createFeed({ title: state.title, description: state.description, video: state.video, preview: state.preview })
+      dispatch(
+        FeedService.createFeed({
+          title: state.title,
+          description: state.description,
+          video: state.video,
+          preview: state.preview
+        })
+      )
       setState({
         ...state,
         title: '',
@@ -193,4 +196,4 @@ const CreateFeeds = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(CreateFeeds)
+export default CreateFeeds

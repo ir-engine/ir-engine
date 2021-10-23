@@ -5,24 +5,15 @@ import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
-import { showDialog } from '../../../common/reducers/dialog/service'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../state/AuthService'
 import React, { useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '../../../store'
 import styles from './Auth.module.scss'
 import { useTranslation } from 'react-i18next'
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  showDialog: bindActionCreators(showDialog, dispatch)
-})
-
-interface Props {
-  showDialog: typeof showDialog
-}
+interface Props {}
 
 const SignUp = (props: Props): any => {
-  const { showDialog } = props
   const dispatch = useDispatch()
   const initialState = {
     email: '',
@@ -112,4 +103,4 @@ const SignUp = (props: Props): any => {
 
 const SignUpWrapper = (props: any): any => <SignUp {...props} />
 
-export default connect(null, mapDispatchToProps)(SignUpWrapper)
+export default SignUpWrapper

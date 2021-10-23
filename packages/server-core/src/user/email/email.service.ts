@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { Email } from './email.class'
 import hooks from './email.hooks'
@@ -9,7 +8,7 @@ import emailDocs from './email.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    email: Email & ServiceAddons<any>
+    email: Email
   }
 }
 
@@ -21,9 +20,9 @@ export default (app: Application): void => {
    */
   const event = Mailer(smtpTransport({ ...config.email.smtp }))
   event.docs = emailDocs
-  app.use('/email', event)
+  app.use('email', event)
 
   const service = app.service('email')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

@@ -10,10 +10,14 @@ export interface Feed extends FeedShort {
   videoUrl: string
   previewUrl: string
   fires: number
+  likes: number
   title: string
   description: string
   isFired?: boolean
+  isLiked?: boolean
   isBookmarked?: boolean
+  previewType?: string
+  videoType?: string
 }
 
 export interface FeedDatabaseRow {
@@ -27,4 +31,11 @@ export interface FeedDatabaseRow {
   createdAt: string
   updatedAt: string
   authorId: string
+}
+
+export interface FeedResult {
+  data: Feed[]
+  total: number
+  limit: number
+  skip: number
 }

@@ -13,7 +13,7 @@ export default class CubemapCapturer {
     this.height = resolution
     this.sceneToRender = sceneToRender
     this.renderer = renderer
-    this.cubeCamera = null
+    this.cubeCamera = null!
     const gl = this.renderer.getContext()
     const cubeMapSize = Math.min(resolution, gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE))
     this.cubeRenderTarget = new WebGLCubeRenderTarget(cubeMapSize, {

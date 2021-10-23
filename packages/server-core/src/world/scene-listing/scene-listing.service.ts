@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { SceneListing } from './scene-listing.class'
 import createModel from './scene-listing.model'
@@ -6,11 +5,11 @@ import hooks from './scene-listing.hooks'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'scene-listing': SceneListing & ServiceAddons<any>
+    'scene-listing': SceneListing
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -22,7 +21,7 @@ export default (app: Application): any => {
    *
    * @author Vyacheslav Solovjov
    */
-  app.use('/scene-listing', new SceneListing(options, app))
+  app.use('scene-listing', new SceneListing(options, app))
 
   /**
    * Get our initialized service so that we can register hooks
@@ -31,5 +30,5 @@ export default (app: Application): any => {
    */
   const service = app.service('scene-listing')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

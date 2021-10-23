@@ -1,7 +1,10 @@
 export interface LocationSettings {
   id: string
   locationId: string
-  videoEnabled: boolean
+  locationType: 'private' | 'public' | 'showroom'
   instanceMediaChatEnabled: boolean
-  locationType: string
+  audioEnabled: boolean
+  screenSharingEnabled: boolean
+  faceStreamingEnabled: boolean
+  videoEnabled: boolean
 }

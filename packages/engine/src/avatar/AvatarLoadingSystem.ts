@@ -55,11 +55,11 @@ export default async function AvatarLoadingSystem(world: World): Promise<System>
       const light = apc.light
       const plate = apc.plate
 
-      const R = 0.6 * plate.geometry.boundingSphere.radius
+      const R = 0.6 * plate.geometry.boundingSphere?.radius!
       for (let i = 0, n = 5 + 10 * R * Math.random(); i < n; i += 1) {
         const ray = light.clone()
         ray.material = (<any>light.material).clone()
-        ray.position.y -= 2 * ray.geometry.boundingSphere.radius * Math.random()
+        ray.position.y -= 2 * ray.geometry.boundingSphere?.radius! * Math.random()
 
         var a = (2 * Math.PI * i) / n,
           r = R * Math.random()
@@ -123,8 +123,8 @@ export default async function AvatarLoadingSystem(world: World): Promise<System>
       const object = getComponent(entity, Object3DComponent).value
       const opacityMultiplier = getComponent(entity, AvatarEffectComponent).opacityMultiplier
 
-      let pillar = null
-      let plate = null
+      let pillar: any = null!
+      let plate: any = null!
 
       const childrens = object.children
       for (let i = 0; i < childrens.length; i++) {
@@ -181,8 +181,8 @@ export default async function AvatarLoadingSystem(world: World): Promise<System>
               removeComponent(entity, TweenComponent)
 
               const object = getComponent(entity, Object3DComponent).value
-              let pillar = null
-              let plate = null
+              let pillar: any = null!
+              let plate: any = null!
 
               const childrens = object.children
               for (let i = 0; i < childrens.length; i++) {

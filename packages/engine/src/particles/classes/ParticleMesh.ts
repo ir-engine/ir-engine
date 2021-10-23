@@ -136,7 +136,7 @@ export function createParticleMesh(options: particleMeshOptions): ParticleMesh {
  * @param config Config which will be applied on geometry.
  */
 export function updateGeometry(geometry: ParticleGeometry, config: particleMeshOptions): void {
-  const particleCount = config.particleCount
+  const particleCount = config.particleCount ?? 0
   const NUM_KEYFRAMES = 3
 
   const offsets = new Float32Array(particleCount * 3)
@@ -225,7 +225,7 @@ export function updateMaterial(material: any, config: particleMeshOptions): void
   material.depthWrite = config.depthWrite
   material.depthTest = config.depthTest
 
-  const style = config.style.toLowerCase()
+  const style = config.style?.toLowerCase()
   const defines = material.defines
 
   if (config.useAngularMotion) defines.USE_ANGULAR_MOTION = true

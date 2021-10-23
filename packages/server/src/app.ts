@@ -19,10 +19,11 @@ import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
+import { Application } from '@xrengine/server-core/declarations'
 
 const emitter = new EventEmitter()
 
-const app = express(feathers())
+const app = express(feathers()) as Application
 
 app.set('nextReadyEmitter', emitter)
 
@@ -74,8 +75,8 @@ if (config.server.enabled) {
       })
     )
     app.use(compress())
-    app.use(json())
     app.use(urlencoded({ extended: true }))
+    app.use(json())
     app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
 
     // Set up Plugins and providers
@@ -115,7 +116,7 @@ if (config.server.enabled) {
               : `redis://${config.redis.address}:${config.redis.port}`
         })
       )
-      ;(app as any).sync.ready.then(() => {
+      app.sync.ready.then(() => {
         logger.info('Feathers-sync started')
       })
     }
@@ -130,7 +131,7 @@ if (config.server.enabled) {
     app.configure(channels)
 
     if (config.server.mode === 'api' || config.server.mode === 'realtime') {
-      ;(app as any).k8AgonesClient = api({
+      app.k8AgonesClient = api({
         endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/apis/agones.dev/v1',
         auth: {
@@ -138,7 +139,7 @@ if (config.server.enabled) {
           token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
         }
       })
-      ;(app as any).k8DefaultClient = api({
+      app.k8DefaultClient = api({
         endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/api/v1',
         auth: {

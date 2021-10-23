@@ -1,46 +1,34 @@
 import React from 'react'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useARMediaStyles } from './styles'
 import SearchVideo from './SearchVideo'
 import MediaTable from './MediaTable'
 import MediaModel from './CreateVideo'
-import { selectArMediaState } from '../../../reducers/arMedia/selector'
-import { getArMediaService } from '../../../reducers/arMedia/service'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
 interface Props {
   list?: any
-  getArMediaService?: typeof getArMediaService
-  adminArmediaState?: any
 }
 
 const NUMBER_PER_PAGE = 12
 
-const mapStateToProps = (state: any): any => {
-  return {
-    adminArmediaState: selectArMediaState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getArMediaService: bindActionCreators(getArMediaService, dispatch)
-})
-
 const VideoMedia = (props: Props) => {
-  const { getArMediaService, adminArmediaState } = props
   //   const [allMedia, setAllMedia] = useState(props.list)
-
-  const armediaState = adminArmediaState.get('arMedia')
-  const armediaData = armediaState.get('arMedia')
-  const limit = armediaState.get('limit')
+  const adminArmediaState = useArMediaState()
+  const armediaState = adminArmediaState.arMedia
+  const armediaData = armediaState.arMedia
+  const limit = armediaState.limit
+  const dispatch = useDispatch()
 
   React.useEffect(() => {
-    if (armediaState.get('updateNeeded')) {
-      getArMediaService()
+    if (armediaState.updateNeeded.value) {
+      ArMediaService.getArMediaService()
     }
-  }, [armediaState])
+  }, [armediaState.updateNeeded.value])
   const classes = useARMediaStyles()
   const [mediaModalOpen, setMediaModalOpen] = React.useState(false)
 
@@ -61,8 +49,8 @@ const VideoMedia = (props: Props) => {
 
   const fetchNextData = (e) => {
     const triggerHeight = e.target.scrollTop + e.target.offsetHeight
-    if (triggerHeight >= e.target.scrollHeight && armediaData.length + NUMBER_PER_PAGE > limit) {
-      getArMediaService(null, limit + NUMBER_PER_PAGE)
+    if (triggerHeight >= e.target.scrollHeight && armediaData.value.length + NUMBER_PER_PAGE > limit.value) {
+      ArMediaService.getArMediaService(null, limit.value + NUMBER_PER_PAGE)
     }
   }
 
@@ -79,7 +67,7 @@ const VideoMedia = (props: Props) => {
         </Grid>
       </Grid>
       <div className={classes.rootTable}>
-        <MediaTable list={armediaData} />
+        <MediaTable list={armediaData.value} />
       </div>
       {mediaModalOpen && (
         <MediaModel open={mediaModalOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />
@@ -88,4 +76,4 @@ const VideoMedia = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VideoMedia)
+export default VideoMedia

@@ -1,6 +1,6 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import Volumetric from '@xrengine/engine/src/scene/classes/Volumetric'
-import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
+import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
@@ -123,12 +123,22 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
       ;(this.el as any).play()
     }
   }
+  onUserEnter(): void {
+    ;(this.el as any).play()
+  }
+  onUserStays(): void {
+    ;(this.el as any).play()
+  }
+  onUserExit(): void {
+    ;(this.el as any).stop()
+    ;(this.el as any).currentTime = 0
+  }
   onPause(): void {
     ;(this.el as any).pause()
     ;(this.el as any).currentTime = 0
   }
   onChange(): void {
-    this.onResize()
+    this.onResize && this.onResize()
   }
   clone(recursive): VolumetricNode {
     return new (this as any).constructor(this.audioListener).copy(this, recursive)

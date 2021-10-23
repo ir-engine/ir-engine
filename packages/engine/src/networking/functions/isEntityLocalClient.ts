@@ -1,6 +1,7 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { Network } from '../classes/Network'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export const isEntityLocalClient = (entity: Entity) => {
-  return typeof Network.instance.localClientEntity !== 'undefined' && Network.instance.localClientEntity === entity
+  const world = useWorld()
+  return world.localClientEntity !== undefined && world.localClientEntity === entity
 }

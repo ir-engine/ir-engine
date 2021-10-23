@@ -2,38 +2,27 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import Typography from '@material-ui/core/Typography'
-import React from 'react'
-import { useEffect } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { getCreatorNotificationList } from '../../reducers/creator/service'
+import React, { useEffect } from 'react'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import NotificationCard from '../NotificationCard'
 import { useTranslation } from 'react-i18next'
 
 import styles from './NotificationList.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getCreatorNotificationList: bindActionCreators(getCreatorNotificationList, dispatch)
-})
-
 interface Props {
   creatorsState?: any
-  getCreatorNotificationList?: any
 }
-const NotificationList = ({ creatorsState, getCreatorNotificationList }: Props) => {
+const NotificationList = ({ creatorsState }: Props) => {
   const { t } = useTranslation()
+  const dispatch = useDispatch()
+
   useEffect(() => {
-    getCreatorNotificationList()
+    CreatorService.getCreatorNotificationList()
   }, [])
-  const notificationList =
-    creatorsState && creatorsState.get('creators') ? creatorsState.get('currentCreatorNotifications') : null
+  const notificationList = creatorsState && creatorsState.creators ? creatorsState.currentCreatorNotifications : null
   return (
     <section className={styles.notificationsContainer}>
       <Typography variant="h2">{t('social:notification.activity')}</Typography>
@@ -42,4 +31,4 @@ const NotificationList = ({ creatorsState, getCreatorNotificationList }: Props) 
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NotificationList)
+export default NotificationList

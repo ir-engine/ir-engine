@@ -10,6 +10,7 @@
             "welcomeMsg": "Welcome",
             "locationHeader": "Locations",
             "projectHeader": "Projects",
+            "sceneHeader": "Scenes",
             "description": "If you&#39;re new here we recommend going through the tutorial. Otherwise, jump right in and create a project from scratch or from one of our templates.",
             "lbl-startTutorial": "Start Tutorial",
             "lbl-newProject": "New Project",
@@ -23,6 +24,12 @@
     },
     "404": {
         "msg": "404 - Page Not Found"
+    },
+    "503": {
+        "msg": "503 - Service Unavailable"
+    },
+    "no-projects": {
+        "msg": "Error: No Projects Installed - please contact a site admin"
     },
     "dev": {
         "pageTitle": "Home"

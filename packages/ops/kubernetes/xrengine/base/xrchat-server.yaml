@@ -137,7 +137,7 @@ spec:
           env:
             - name: KUBERNETES
               value: 'true'
-            - name: NODE_ENV
+            - name: APP_ENV
               value: dev
             - name: MYSQL_DATABASE
               valueFrom:

@@ -1,6 +1,10 @@
 const { register } = require('trace-unhandled')
 register()
 
+require("ts-node").register({
+  project: "./tsconfig.json",
+})
+
 process.on('SIGTERM', async (err) => {
   console.log('[XREngine Tests]: Server SIGTERM')
   console.log(err)

@@ -1,6 +1,7 @@
 import type { XREngineBot } from '@xrengine/bot/src/bot'
 import { XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 import { compareArrays } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
+import assert from 'assert'
 
 export const setupXR = async (bot: XREngineBot) => {
   await bot.runHook(XRBotHooks.OverrideXR)
@@ -8,16 +9,16 @@ export const setupXR = async (bot: XREngineBot) => {
 }
 
 export const testWebXR = (bot: XREngineBot) => {
-  test(
+  it(
     'Web XR works',
     async () => {
-      expect(await bot.runHook(XRBotHooks.XRSupported)).toBe(true)
-      expect(await bot.runHook(XRBotHooks.XRInitialized)).toBe(true)
+      assert(await bot.runHook(XRBotHooks.XRSupported))
+      assert(await bot.runHook(XRBotHooks.XRInitialized))
     },
     10 * 1000
   )
 
-  test(
+  it(
     'Can detect and move input sources',
     async () => {
       await bot.delay(2000)

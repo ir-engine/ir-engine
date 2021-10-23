@@ -1,6 +1,9 @@
+import matches from 'ts-matches'
 import { AnimationAction, AnimationActionLoopStyles, AnimationClip, Vector3 } from 'three'
+import { matchesVector3 } from '../../networking/interfaces/Action'
 
 /** State of the avatar animation */
+
 export const AvatarStates = {
   DEFAULT: 'DEFAULT',
   IDLE: 'IDLE',
@@ -11,6 +14,10 @@ export const AvatarStates = {
   EMOTE: 'EMOTE',
   LOOPABLE_EMOTE: 'LOOPABLE_EMOTE'
 }
+
+export const matchesAvatarState = matches.some(
+  ...Object.keys(AvatarStates).map((k: keyof typeof AvatarStates) => matches.literal(k))
+)
 
 export const AvatarAnimations = {
   // Jump and falling
@@ -41,17 +48,19 @@ export const AvatarAnimations = {
   WAVE: 'wave',
   KISS: 'kiss',
   DEFEAT: 'defeat',
+  PAUSE: 'pause',
   CRY: 'cry'
 }
 
-/** Type of movement of the avatar in any given frame */
-export type MovementType = {
+const matchesMovementType = matches.shape({
   /** Velocity of the avatar */
-  velocity: Vector3
-
+  velocity: matchesVector3,
   /** Distance from the ground of the avatar */
-  distanceFromGround: number
-}
+  distanceFromGround: matches.number
+})
+
+/** Type of movement of the avatar in any given frame */
+export type MovementType = typeof matchesMovementType._TYPE
 
 /** Animation type */
 export enum AnimationType {
@@ -63,15 +72,21 @@ export enum AnimationType {
 }
 
 /** Type of calculate weights method parameters */
+export const matchesWeightsParameters = matches.partial({
+  movement: matchesMovementType,
+  resetAnimation: matches.boolean,
+  forceTransition: matches.boolean
+})
+
 export type WeightsParameterType = {
   /** Movement of the avatar in the frame */
-  movement?: MovementType
+  movement: MovementType
 
   /** Whether reset currrent playing animation. Useful while intra state transition */
-  resetAnimation?: boolean
+  resetAnimation: boolean
 
   /** Skip validation check and force state transition */
-  forceTransition?: boolean
+  forceTransition: boolean
 
   /** Other data to be passed with */
   [key: string]: any
@@ -86,26 +101,26 @@ export interface Animation {
   weight: number
 
   /** Weight when transition will start. Value will be used to interpolate */
-  transitionStartWeight?: number
+  transitionStartWeight: number
 
   /** Weight when transition will end. Value will be used to interpolate */
-  transitionEndWeight?: number
+  transitionEndWeight: number
 
   /** Type of the loop */
   loopType: AnimationActionLoopStyles
 
   /** Total loop counts */
-  loopCount?: number
+  loopCount: number
 
   /** Time scale of the animation. Default is 1. Value less then 1 will slow down the animation. */
-  timeScale?: number
+  timeScale: number
 
   /** Animation clip from the loaded animations */
-  clip?: AnimationClip
+  clip: AnimationClip
 
   /** Animation action for this animation */
-  action?: AnimationAction
+  action: AnimationAction
 
   /** A Decorator function to apply custom behaviour to the animation action */
-  decorateAction?: (action: AnimationAction) => void
+  decorateAction: (action: AnimationAction) => void
 }

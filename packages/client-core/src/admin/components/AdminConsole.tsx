@@ -6,36 +6,20 @@ import GridListTileBar from '@material-ui/core/GridListTileBar'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import IconButton from '@material-ui/core/IconButton'
 import InfoIcon from '@material-ui/icons/Info'
-import { connect } from 'react-redux'
+import { useDispatch } from '../../store'
 import Container from '@material-ui/core/Container'
-import { bindActionCreators, Dispatch } from 'redux'
 import styles from './Admin.module.scss'
 import VideoModal from './VideoModal'
 import { useHistory } from 'react-router-dom'
-import { selectVideoState } from '../../media/components/video/selector'
-import { useAuthState } from '../../user/reducers/auth/AuthState'
-import { fetchAdminVideos } from '../reducers/admin/service'
+import { useVideoState } from '../../media/state/VideoState'
+import { useAuthState } from '../../user/state/AuthState'
+import { AdminService } from '../state/AdminService'
 
-interface Props {
-  videos: any
-  fetchAdminVideos: typeof fetchAdminVideos
-}
-
-const mapStateToProps = (state: any): any => {
-  return {
-    videos: selectVideoState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminVideos: bindActionCreators(fetchAdminVideos, dispatch)
-})
+interface Props {}
 
 const AdminConsole = (props: Props): any => {
-  const { fetchAdminVideos, videos } = props
-
   const auth = useAuthState()
-
+  const dispatch = useDispatch()
   const initialState = {
     name: '',
     url: '',
@@ -54,9 +38,9 @@ const AdminConsole = (props: Props): any => {
 
   const router = useHistory()
   const [state, setState] = useState(initialState)
-
+  const videos = useVideoState()
   useEffect(() => {
-    fetchAdminVideos()
+    AdminService.fetchAdminVideos()
   }, [])
 
   const handleCreateModal = (): void => {
@@ -103,7 +87,7 @@ const AdminConsole = (props: Props): any => {
           <Container component="main" maxWidth="md">
             <div className={styles.admin}>
               <GridList className={styles.grid} cellHeight={200} cols={2}>
-                {videos.get('videos').map((video) => (
+                {videos.videos.value.map((video) => (
                   <GridListTile className={styles.cell} key={video.id} cols={1}>
                     <img src={video.metadata.thumbnailUrl} alt={video.name} />
                     <GridListTileBar
@@ -130,4 +114,4 @@ const AdminConsoleWrapper = (props: any): any => {
   return <AdminConsole {...props} />
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdminConsoleWrapper)
+export default AdminConsoleWrapper

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getFeatureStyles, IFeatureStylesByLayerName } from './styles'
 test("getFeatureStyles", () => {
   const stylesByLayerName: IFeatureStylesByLayerName = {

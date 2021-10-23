@@ -201,7 +201,7 @@ describe("move", () => {
       expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
       const data1 = input.data.get(BaseInput.SCREENXY);
       expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
-      expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+      expect(data1.lifecycleState).toBe(LifecycleValue.Started);
       expect(mockedBehaviorOnStarted.mock.calls.length).toBe(1);
     });
 
@@ -216,7 +216,7 @@ describe("move", () => {
       expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
       const data2 = input.data.get(BaseInput.SCREENXY);
       expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
-      expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+      expect(data2.lifecycleState).toBe(LifecycleValue.Changed);
       expect(mockedBehaviorOnChanged.mock.calls.length).toBe(1);
     });
 
@@ -230,7 +230,7 @@ describe("move", () => {
       expect(input.data.has(BaseInput.SCREENXY)).toBeTruthy();
       const data2 = input.data.get(BaseInput.SCREENXY);
       expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
-      expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+      expect(data2.lifecycleState).toBe(LifecycleValue.Unchanged);
       expect(mockedBehaviorOnUnChanged.mock.calls.length).toBe(1);
     });
 
@@ -242,11 +242,11 @@ describe("move", () => {
     //
     //     const data1 = input.data.get(BaseInput.SCREENXY);
     //     expect(data1.value).toMatchObject([ normalPoint1.x, normalPoint1.y ]);
-    //     expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+    //     expect(data1.lifecycleState).toBe(LifecycleValue.Started);
     //
     //     const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
     //     expect(data2.value).toMatchObject([ normalPoint2.x, normalPoint2.y ]);
-    //     expect(data2.lifecycleState).toBe(LifecycleValue.STARTED);
+    //     expect(data2.lifecycleState).toBe(LifecycleValue.Started);
     //
     //     expect(mockedBehaviorOnStarted.mock.calls.length).toBe(2);
     //   });
@@ -261,7 +261,7 @@ describe("move", () => {
       expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
       const data1 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
       expect(data1.value).toMatchObject([ 0, 0 ]);
-      expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+      expect(data1.lifecycleState).toBe(LifecycleValue.Started);
       //expect(mockedBehaviorOnStarted.mock.calls.length).toBe(1);
     });
 
@@ -274,7 +274,7 @@ describe("move", () => {
       expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
       const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
       expect(data2.value).toMatchObject([ normalDiff.x, normalDiff.y ]);
-      expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+      expect(data2.lifecycleState).toBe(LifecycleValue.Changed);
       // expect(mockedBehaviorOnChanged.mock.calls.length).toBe(1);
     });
 
@@ -288,7 +288,7 @@ describe("move", () => {
       expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
       const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
       expect(data2.value).toMatchObject([ normalDiff.x, normalDiff.y ]);
-      expect(data2.lifecycleState).toBe(LifecycleValue.UNCHANGED);
+      expect(data2.lifecycleState).toBe(LifecycleValue.Unchanged);
       //expect(mockedBehaviorOnUnChanged.mock.calls.length).toBe(1);
     });
 
@@ -311,7 +311,7 @@ describe("gestures", () => {
       expect(input.data.has(BaseInput.INTERACT)).toBeTruthy();
       const data1 = input.data.get(BaseInput.INTERACT);
       expect(data1.value).toBe(BinaryValue.ON);
-      expect(data1.lifecycleState).toBe(LifecycleValue.STARTED);
+      expect(data1.lifecycleState).toBe(LifecycleValue.Started);
       expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1);
     });
 
@@ -323,7 +323,7 @@ describe("gestures", () => {
       expect(input.data.has(BaseInput.INTERACT)).toBeTruthy();
       const data1 = input.data.get(BaseInput.INTERACT);
       expect(data1.value).toBe(BinaryValue.ON);
-      expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
+      expect(data1.lifecycleState).toBe(LifecycleValue.Continued);
       expect(mockedButtonBehaviorOnContinued.mock.calls.length).toBe(1);
     });
 
@@ -348,7 +348,7 @@ describe("gestures", () => {
     //     expect(input.data.has(BaseInput.INTERACT)).toBeTruthy();
     //     const data1 = input.data.get(BaseInput.SECONDARY);
     //     expect(data1.value).toBe(BinaryValue.ON);
-    //     expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
+    //     expect(data1.lifecycleState).toBe(LifecycleValue.Continued);
     //
     //     expect(mockedButtonBehaviorOnEnded.mock.calls.length).toBe(1);
     //   });
@@ -366,7 +366,7 @@ describe("gestures", () => {
       expect(input.data.has(BaseInput.LOOKTURN_PLAYERONE)).toBeTruthy();
       const data2 = input.data.get(BaseInput.LOOKTURN_PLAYERONE);
       expect(data2.value).toMatchObject([ normalDiff.x, normalDiff.y ]);
-      expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+      expect(data2.lifecycleState).toBe(LifecycleValue.Changed);
       //expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1);
     });
 
@@ -378,7 +378,7 @@ describe("gestures", () => {
     //   expect(input.data.has(BaseInput.INTERACT)).toBeTruthy();
     //   const data1 = input.data.get(BaseInput.INTERACT);
     //   expect(data1.value).toBe(BinaryValue.ON);
-    //   expect(data1.lifecycleState).toBe(LifecycleValue.CONTINUED);
+    //   expect(data1.lifecycleState).toBe(LifecycleValue.Continued);
     //   expect(mockedButtonBehaviorOnContinued.mock.calls.length).toBe(1);
     // });
     //
@@ -420,7 +420,7 @@ describe("gestures", () => {
       const data2 = input.data.get(BaseInput.CAMERA_SCROLL);
       expect(data2.value).toBe((distance2 - distance1)*100);  // TODO: remove 100 multiplication after mouse scroll will be normalized (or divided by 100)
 
-      // expect(data2.lifecycleState).toBe(LifecycleValue.CHANGED);
+      // expect(data2.lifecycleState).toBe(LifecycleValue.Changed);
       //expect(mockedButtonBehaviorOnStarted.mock.calls.length).toBe(1);
     });
   });

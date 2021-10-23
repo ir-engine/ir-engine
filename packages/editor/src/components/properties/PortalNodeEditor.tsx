@@ -14,6 +14,7 @@ import NodeEditor from './NodeEditor'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { ProjectManager } from '../../managers/ProjectManager'
+import { client } from '@xrengine/client-core/src/feathers'
 
 type PortalNodeEditorProps = {
   node?: object
@@ -113,7 +114,7 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
   loadPortals = async () => {
     let portalsDetail
     try {
-      portalsDetail = await ProjectManager.instance.feathersClient.service('portal/list').find()
+      portalsDetail = await client.service('portal/list').find()
     } catch (error) {
       throw new Error(error)
       return []

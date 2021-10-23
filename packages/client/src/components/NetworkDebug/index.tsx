@@ -3,12 +3,8 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
-import { Downgraded } from '@hookstate/core'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import Store from '@xrengine/client-core/src/store'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 export const NetworkDebug = ({ reinit }) => {
   const [isShowing, setShowing] = useState(false)
@@ -16,10 +12,6 @@ export const NetworkDebug = ({ reinit }) => {
   const [avatarDebug, setAvatarDebug] = useState(false)
 
   const showingStateRef = useRef(isShowing)
-
-  const storeStates = Store.store.getState()
-
-  const userState = useUserState().attach(Downgraded).value
 
   function setupListener() {
     window.addEventListener('keydown', downHandler)
@@ -141,11 +133,7 @@ export const NetworkDebug = ({ reinit }) => {
             </div>
             <div>
               <h1>Network Clients</h1>
-              <JSONTree data={{ ...Network.instance.clients }} />
-            </div>
-            <div>
-              <h1>Network Objects</h1>
-              <JSONTree data={{ ...Network.instance.networkObjects }} />
+              <JSONTree data={{ ...Engine.defaultWorld.clients }} />
             </div>
             <div>
               <h1>Engine Entities</h1>
@@ -154,10 +142,6 @@ export const NetworkDebug = ({ reinit }) => {
             <div>
               <h1>Engine Components</h1>
               <JSONTree data={renderComps()} />
-            </div>
-            <div>
-              <h1>Store States</h1>
-              <JSONTree data={storeStates} />
             </div>
           </div>
         )}

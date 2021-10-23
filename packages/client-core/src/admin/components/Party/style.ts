@@ -78,6 +78,11 @@ export const usePartyStyles = makeStyles((theme: Theme) =>
       width: '100%',
       background: 'rgb(58, 65, 73)',
       color: '#f1f1f1 !important'
+    },
+    typoFont: {
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '0.6rem'
+      }
     }
   })
 )

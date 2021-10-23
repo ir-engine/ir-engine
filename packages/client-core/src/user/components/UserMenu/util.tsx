@@ -1,3 +1,5 @@
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import type { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 export const Views = {
@@ -40,8 +42,9 @@ export interface SettingMenuProps {
 
 export const DEFAULT_PROFILE_IMG_PLACEHOLDER = '/placeholders/default-silhouette.svg'
 
-export const getAvatarURLFromNetwork = (network: Network, userId: string) => {
-  if (!network || !userId) return DEFAULT_PROFILE_IMG_PLACEHOLDER
-  if (!network.clients[userId]) return DEFAULT_PROFILE_IMG_PLACEHOLDER
-  return network.clients[userId].avatarDetail?.thumbnailURL || DEFAULT_PROFILE_IMG_PLACEHOLDER
+export function getAvatarURLForUser(userId?: UserId) {
+  const world = Engine.defaultWorld
+  if (!world || !userId) return DEFAULT_PROFILE_IMG_PLACEHOLDER
+  if (!world.clients.has(userId)) return DEFAULT_PROFILE_IMG_PLACEHOLDER
+  return world.clients.get(userId)!.avatarDetail?.thumbnailURL || DEFAULT_PROFILE_IMG_PLACEHOLDER
 }

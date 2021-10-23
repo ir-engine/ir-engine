@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { ComponentType } from './component-type.class'
 import createModel from './component-type.model'
@@ -7,11 +6,14 @@ import componentTypeDocs from './component-type.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'component-type': ComponentType & ServiceAddons<any>
+    'component-type': ComponentType
+  }
+  interface Models {
+    component_type: ReturnType<typeof createModel>
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -27,9 +29,9 @@ export default (app: Application): any => {
   const event = new ComponentType(options, app)
   event.docs = componentTypeDocs
 
-  app.use('/component-type', event)
+  app.use('component-type', event)
 
   const service = app.service('component-type')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

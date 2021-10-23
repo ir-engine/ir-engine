@@ -231,9 +231,9 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
   }, [])
 
   const copyURL = useCallback((_, trigger) => {
-    // if (navigator.clipboard) {
-    //   navigator.clipboard.writeText(trigger.item.url);
-    // }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(trigger.item.url)
+    }
   }, [])
 
   const openURL = useCallback((_, trigger) => {

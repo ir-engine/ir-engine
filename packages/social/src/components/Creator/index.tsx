@@ -3,84 +3,66 @@
  */
 import Button from '@material-ui/core/Button'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import {
-  followCreator,
-  getCreator,
-  getFollowersList,
-  getFollowingList,
-  unFollowCreator
-} from '../../reducers/creator/service'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import CreatorCard from '../CreatorCard'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import AppFooter from '../Footer'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+
 import styles from './Creator.module.scss'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getCreator: bindActionCreators(getCreator, dispatch),
-  followCreator: bindActionCreators(followCreator, dispatch),
-  unFollowCreator: bindActionCreators(unFollowCreator, dispatch),
-  getFollowersList: bindActionCreators(getFollowersList, dispatch),
-  getFollowingList: bindActionCreators(getFollowingList, dispatch)
-})
 
 interface Props {
   creatorId: string
-  creatorState?: any
-  getCreator?: typeof getCreator
-  followCreator?: typeof followCreator
-  unFollowCreator?: typeof unFollowCreator
-  getFollowersList?: typeof getFollowersList
-  getFollowingList?: typeof getFollowingList
   creatorData?: any
 }
 
-const Creator = ({
-  creatorId,
-  creatorState,
-  getCreator,
-  followCreator,
-  unFollowCreator,
-  getFollowersList,
-  getFollowingList,
-  creatorData
-}: Props) => {
+const Creator = ({ creatorId, creatorData }: Props) => {
   const [isMe, setIsMe] = useState(false)
+  const dispatch = useDispatch()
+  const creatorState = useCreatorState()
+  const feedsState = useFeedState()
   useEffect(() => {
     if (
-      creatorState &&
-      creatorState.get('fetchingCurrentCreator') === false &&
-      creatorState.get('currentCreator') &&
-      creatorId === creatorState.get('currentCreator').id
+      creatorState.creators.fetchingCurrentCreator.value === false &&
+      creatorState.creators.currentCreator.value &&
+      creatorId === creatorState.creators.currentCreator?.id?.value
     ) {
       setIsMe(true)
     } else {
+      setIsMe(false)
       if (!creatorData) {
-        getCreator(creatorId)
+        CreatorService.getCreator(creatorId)
       }
     }
-  }, [])
+  }, [creatorId])
+
   const { t } = useTranslation()
   const [videoType, setVideoType] = useState('creator')
+
+  const myID =
+    isMe === true
+      ? creatorState?.creators?.currentCreator?.id?.value
+      : creatorData
+      ? creatorData.id
+      : creatorState?.creators?.creator?.id?.value
+  useEffect(() => {
+    FeedService.getFeeds(videoType, myID)
+  }, [videoType, myID])
   return (
     <>
       <section className={styles.creatorContainer}>
         <CreatorCard
           creator={
             isMe === true
-              ? creatorState?.get('currentCreator')
+              ? creatorState?.creators.currentCreator?.id?.value
               : creatorData
               ? creatorData
-              : creatorState?.get('creator')
+              : creatorState?.creators?.creator?.value
           }
         />
         {isMe && (
@@ -102,20 +84,11 @@ const Creator = ({
           </section>
         )}
         <section className={styles.feedsWrapper}>
-          <Featured
-            creatorId={
-              isMe === true
-                ? creatorState?.get('currentCreator').id
-                : creatorData
-                ? creatorData.id
-                : creatorState?.get('creator')?.id
-            }
-            type={videoType}
-          />
+          <Featured thisData={feedsState.feeds.feedsCreator.value} />
         </section>
       </section>
     </>
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Creator)
+export default Creator

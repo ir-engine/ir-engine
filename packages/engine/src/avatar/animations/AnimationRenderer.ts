@@ -207,7 +207,7 @@ export class AnimationRenderer {
     })
 
     if (emptyPrevState) {
-      avatarAnimationComponent.prevState = null
+      avatarAnimationComponent.prevState = null!
     }
   }
 }

@@ -27,7 +27,7 @@ type SwitchCameraModeProps = {
   pointerLock?: boolean
 }
 
-let changeTimeout = undefined
+let changeTimeout: any = undefined
 export const switchCameraMode = (
   entity: Entity,
   args: SwitchCameraModeProps = { pointerLock: false, cameraMode: CameraMode.ThirdPerson },

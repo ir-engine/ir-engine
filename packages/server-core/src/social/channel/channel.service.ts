@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { Channel } from './channel.class'
 import createModel from './channel.model'
@@ -9,11 +8,11 @@ import channelDocs from './channel.docs'
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    channel: Channel & ServiceAddons<any>
+    channel: Channel
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate')
@@ -26,11 +25,11 @@ export default (app: Application): any => {
    */
   const event = new Channel(options, app)
   event.docs = channelDocs
-  app.use('/channel', event)
+  app.use('channel', event)
 
   const service = app.service('channel')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 
   /**
    * A method which is used to create channel
@@ -66,7 +65,7 @@ export default (app: Application): any => {
         // if (user2AvatarResult.total > 0) {
         //   data.user2.dataValues.avatarUrl = user2AvatarResult.data[0].url;
         // }
-        targetIds = [data.userId1, data.userId2]
+        targetIds = []
       } else if (data.channelType === 'group') {
         if (data.group == null) {
           data.group = await (app.service('group') as any).Model.findOne({

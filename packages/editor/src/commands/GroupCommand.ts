@@ -71,8 +71,8 @@ export default class GroupCommand extends Command {
   execute() {
     this.emitBeforeExecuteEvent()
 
-    const groupNode = new GroupNode(this)
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, groupNode, {
+    this.groupNode = new GroupNode(this)
+    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.groupNode, {
       parents: this.groupParent,
       befores: this.groupBefore,
       shouldEmitEvent: false,
@@ -80,13 +80,13 @@ export default class GroupCommand extends Command {
     })
 
     CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
-      parents: groupNode,
+      parents: this.groupNode,
       shouldEmitEvent: false,
       isObjectSelected: false
     })
 
     if (this.isSelected) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, groupNode, {
+      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.groupNode, {
         shouldEmitEvent: false,
         shouldGizmoUpdate: false
       })

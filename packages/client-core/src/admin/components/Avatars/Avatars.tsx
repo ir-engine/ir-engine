@@ -11,18 +11,15 @@ import TableCell from '@material-ui/core/TableCell'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../../common/reducers/app/selector'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { AVATAR_PAGE_LIMIT } from '../../reducers/admin/avatar/reducers'
-import { fetchLocationTypes } from '../../reducers/admin/location/service'
-import { fetchAdminAvatars } from '../../reducers/admin/avatar/service'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { AVATAR_PAGE_LIMIT } from '../../state/AvatarState'
 import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
-import { selectAdminAvatarState } from '../../reducers/admin/avatar/selector'
+import { useAvatarState } from '../../state/AvatarState'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
-import { AuthService } from '../../../user/reducers/auth/AuthService'
+import { AuthService } from '../../../user/state/AuthService'
+import { AvatarService } from '../../state/AvatarService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -30,30 +27,15 @@ if (!global.setImmediate) {
 
 interface Props {
   locationState?: any
-  fetchAdminAvatars?: any
-  fetchLocationTypes?: any
-  adminAvatarState?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    appState: selectAppState(state),
-    adminAvatarState: selectAdminAvatarState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminAvatars: bindActionCreators(fetchAdminAvatars, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
-})
 
 const Avatars = (props: Props) => {
-  const { fetchAdminAvatars, adminAvatarState } = props
+  const adminAvatarState = useAvatarState()
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
-  const adminAvatars = adminAvatarState.get('avatars').get('avatars')
-  const adminAvatarCount = adminAvatarState.get('avatars').get('total')
+  const adminAvatars = adminAvatarState.avatars.avatars
+  const adminAvatarCount = adminAvatarState.avatars.total
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
@@ -157,7 +139,7 @@ const Avatars = (props: Props) => {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = adminAvatars.map((n) => n.name)
+      const newSelecteds = adminAvatars.value.map((n) => n.name)
       setSelected(newSelecteds)
       return
     }
@@ -166,7 +148,7 @@ const Avatars = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchAdminAvatars(incDec)
+    AvatarService.fetchAdminAvatars(incDec)
     setPage(newPage)
   }
 
@@ -199,11 +181,11 @@ const Avatars = (props: Props) => {
   // }, [])
 
   useEffect(() => {
-    if (user?.id.value != null && (adminAvatarState.get('avatars').get('updateNeeded') === true || refetch === true)) {
-      fetchAdminAvatars()
+    if (user?.id.value != null && (adminAvatarState.avatars.updateNeeded.value === true || refetch === true)) {
+      AvatarService.fetchAdminAvatars()
     }
     setRefetch(false)
-  }, [authState, adminAvatarState, refetch])
+  }, [authState.user?.id?.value, adminAvatarState.avatars.updateNeeded.value, refetch])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -221,7 +203,7 @@ const Avatars = (props: Props) => {
   }
 
   const uploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
-    dispatch(AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar))
+    AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar)
   }
 
   return (
@@ -260,10 +242,10 @@ const Avatars = (props: Props) => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={adminAvatarCount || 0}
+              rowCount={adminAvatarCount.value || 0}
             />
             <TableBody>
-              {stableSort(adminAvatars, getComparator(order, orderBy)).map((row, index) => {
+              {stableSort(adminAvatars.value, getComparator(order, orderBy)).map((row, index) => {
                 return (
                   <TableRow
                     hover
@@ -310,7 +292,7 @@ const Avatars = (props: Props) => {
           <TablePagination
             rowsPerPageOptions={[AVATAR_PAGE_LIMIT]}
             component="div"
-            count={adminAvatarCount}
+            count={adminAvatarCount.value}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handlePageChange}
@@ -335,4 +317,4 @@ const Avatars = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Avatars)
+export default Avatars

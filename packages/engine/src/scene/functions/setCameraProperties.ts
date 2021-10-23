@@ -5,17 +5,17 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { CameraMode } from '../../camera/types/CameraMode'
-import { Network } from '../../networking/classes/Network'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 
 type Props = {
-  projectionType?: ProjectionType
-  fov?: number
-  cameraNearClip?: number
-  cameraFarClip?: number
-  minCameraDistance?: number
-  maxCameraDistance?: number
-  startCameraDistance?: number
+  projectionType: ProjectionType
+  fov: number
+  cameraNearClip: number
+  cameraFarClip: number
+  minCameraDistance: number
+  maxCameraDistance: number
+  startCameraDistance: number
   cameraMode: CameraMode
   cameraModeDefault: CameraMode
   startInFreeLook: boolean
@@ -52,5 +52,5 @@ export const setCameraProperties = (entity: Entity, data: Props): void => {
   cameraFollow.maxPhi = data.maxPhi
   cameraFollow.locked = !data.startInFreeLook
   Engine.camera.updateProjectionMatrix()
-  switchCameraMode(Network.instance.localClientEntity, data, true)
+  switchCameraMode(useWorld().localClientEntity, data, true)
 }

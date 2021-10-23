@@ -37,9 +37,9 @@ export class Physics {
   obstacleContext: PhysX.PxObstacleContext
   defaultCCTQueryCallback: PhysX.PxQueryFilterCallback
 
-  stepTime: number = 1000 / 60
+  timeScale: number = 1
   substeps: number = 1
-  collisionEventQueue = []
+  collisionEventQueue = [] as any[]
 
   bodies = new Map<number, PhysX.PxRigidActor>()
   shapes = new Map<number, PhysX.PxShape>()
@@ -57,7 +57,7 @@ export class Physics {
 
   getOriginalShapeObject(shapes: PhysX.PxShape | PhysX.PxShape[]) {
     const shape: PhysX.PxShape = (shapes as any).length ? shapes[0] : shapes
-    return this.shapes.get(this.shapeIDByPointer.get(shape.$$.ptr))
+    return this.shapes.get(this.shapeIDByPointer.get(shape.$$.ptr)!)
   }
 
   async createScene(config: PhysXConfig = {}) {
@@ -71,7 +71,7 @@ export class Physics {
     this.foundation = PhysX.PxCreateFoundation(this.physxVersion, this.allocator, this.defaultErrorCallback)
     this.cookingParamas = new PhysX.PxCookingParams(tolerance)
     this.cooking = PhysX.PxCreateCooking(this.physxVersion, this.foundation, this.cookingParamas)
-    this.physics = PhysX.PxCreatePhysics(this.physxVersion, this.foundation, tolerance, false, null)
+    this.physics = PhysX.PxCreatePhysics(this.physxVersion, this.foundation, tolerance, false, null!)
 
     const triggerCallback = {
       onContactBegin: (
@@ -81,7 +81,7 @@ export class Physics {
         contactNormals: PhysX.PxVec3Vector,
         impulses: PhysX.PxRealVector
       ) => {
-        const contacts = []
+        const contacts = [] as any
         for (let i = 0; i < contactPoints.size(); i++) {
           if (impulses.get(i) > 0) {
             contacts.push({
@@ -229,7 +229,7 @@ export class Physics {
   }
 
   createShape(geometry: PhysX.PxGeometry, material = this.createMaterial(), options: ShapeOptions = {}): PhysX.PxShape {
-    if (!geometry) return
+    if (!geometry) throw new Error('Expcted geometry')
 
     const id = this._getNextAvailableShapeID()
 
@@ -275,7 +275,7 @@ export class Physics {
       this.physics
     )
 
-    if (trimesh === null) return
+    if (trimesh === null) throw new Error('Unable to create trimesh')
 
     const meshScale = new PhysX.PxMeshScale(scale, new Quaternion())
     const geometry = new PhysX.PxTriangleMeshGeometry(
@@ -308,7 +308,7 @@ export class Physics {
     const shapes = body.getShapes()
     const shapesArray = ((shapes as PhysX.PxShape[]).length ? shapes : [shapes]) as PhysX.PxShape[]
     shapesArray.forEach((shape) => {
-      const shapeID = this.shapeIDByPointer.get(shape.$$.ptr)
+      const shapeID = this.shapeIDByPointer.get(shape.$$.ptr)!
       this.shapes.delete(shapeID)
       this.shapeIDByPointer.delete(shape.$$.ptr)
       // TODO: properly clean up shape
@@ -350,7 +350,7 @@ export class Physics {
       PhysX.PxUserControllerHitReport.implement({
         onShapeHit: (event: PhysX.PxControllerShapeHit) => {
           const shape = event.getShape()
-          const shapeID = this.shapeIDByPointer.get(shape.$$.ptr)
+          const shapeID = this.shapeIDByPointer.get(shape.$$.ptr)!
           const bodyID = this.bodyIDByShapeID.get(shapeID)
           const position = event.getWorldPos()
           const normal = event.getWorldNormal()
@@ -491,7 +491,7 @@ export class Physics {
             distance: buffer.distance,
             normal: buffer.normal,
             position: buffer.position,
-            _bodyID: this.bodyIDByShapeID.get(this.shapeIDByPointer.get(shape.$$.ptr))
+            _bodyID: this.bodyIDByShapeID.get(this.shapeIDByPointer.get(shape.$$.ptr)!)!
           })
         }
       }

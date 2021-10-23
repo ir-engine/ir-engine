@@ -72,9 +72,9 @@ class TestTransport implements NetworkTransport {
 const oneFixedRunTimeSpan = 1 / Engine.physicsFrameRate;
 let localTime = now();
 function executeFrame() {
-  execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.Fixed);
+  execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.FIXED);
   execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.Network);
-  execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.Free);
+  execute(oneFixedRunTimeSpan, localTime, SystemUpdateType.UPDATE);
   localTime += oneFixedRunTimeSpan;
 }
 
@@ -128,7 +128,7 @@ beforeEach(() => {
 
 describe("idle", () => {
   test("default idle", () => {
-    execute(1, 1, SystemUpdateType.Fixed);
+    execute(1, 1, SystemUpdateType.FIXED);
     const state = getComponent(player, State);
     expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
   });
@@ -158,7 +158,7 @@ describe("idle", () => {
     const input = getComponent(player, Input);
     input.data.set(BaseInput.JUMP, {
       type: InputType.BUTTON,
-      lifecycleState: LifecycleValue.STARTED,
+      lifecycleState: LifecycleValue.Started,
       value: BinaryValue.ON
     });
     executeFrame();
@@ -215,7 +215,7 @@ describe("moving", () => {
     const input = getComponent(player, Input);
     input.data.set(BaseInput.JUMP, {
       type: InputType.BUTTON,
-      lifecycleState: LifecycleValue.STARTED,
+      lifecycleState: LifecycleValue.Started,
       value: BinaryValue.ON
     });
     executeFrame();
@@ -251,7 +251,7 @@ describe("fall", () => {
     const input = getComponent(player, Input);
     input.data.set(BaseInput.JUMP, {
       type: InputType.BUTTON,
-      lifecycleState: LifecycleValue.STARTED,
+      lifecycleState: LifecycleValue.Started,
       value: BinaryValue.ON
     });
     executeFrame();

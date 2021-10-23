@@ -1,10 +1,9 @@
 import { useLocation, withRouter } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../state/AuthService'
 import Container from '@material-ui/core/Container'
-import { useAuthState } from '../../reducers/auth/AuthState'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { useAuthState } from '../../state/AuthState'
+import { useDispatch } from '../../../store'
 import { useTranslation } from 'react-i18next'
 
 const mapStateToProps = (state: any): any => {
@@ -28,11 +27,11 @@ const FacebookCallbackComponent = (props): any => {
     if (!error) {
       if (type === 'connection') {
         const user = useAuthState().user
-        dispatch(AuthService.refreshConnections(user.id.value))
+        AuthService.refreshConnections(user.id.value)
       } else {
         let redirectSuccess = `${path}`
         if (instanceId != null) redirectSuccess += `?instanceId=${instanceId}`
-        dispatch(AuthService.loginUserByJwt(token, redirectSuccess || '/', '/'))
+        AuthService.loginUserByJwt(token, redirectSuccess || '/', '/')
       }
     }
 

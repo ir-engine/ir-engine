@@ -6,7 +6,7 @@ import url from 'url'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 
-if (globalThis.process?.env.NODE_ENV === 'development') {
+if (globalThis.process?.env.APP_ENV === 'development') {
   var fs = require('fs')
   if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
     var fromEnvPath = appRootPath.path + '/.env.local.default'

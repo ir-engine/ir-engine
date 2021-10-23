@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { Magiclink } from './magic-link.class'
 import magicLinkDocs from './magic-link.docs'
@@ -6,7 +5,7 @@ import hooks from './magic-link.hooks'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'magic-link': Magiclink & ServiceAddons<any>
+    'magic-link': Magiclink
   }
 }
 
@@ -23,7 +22,7 @@ export default (app: Application): void => {
    */
   const event = new Magiclink(options, app)
   event.docs = magicLinkDocs
-  app.use('/magic-link', event)
+  app.use('magic-link', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -32,5 +31,5 @@ export default (app: Application): void => {
    */
   const service = app.service('magic-link')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

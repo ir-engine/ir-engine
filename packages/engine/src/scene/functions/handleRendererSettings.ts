@@ -30,7 +30,7 @@ export const configureCSM = (directionalLights: DirectionalLight[], remove?: boo
 
     Engine.csm.remove()
     Engine.csm.dispose()
-    Engine.csm = undefined
+    Engine.csm = undefined!
 
     return
   }

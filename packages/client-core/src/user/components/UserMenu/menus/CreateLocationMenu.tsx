@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '../../../../store'
 import Typography from '@material-ui/core/Typography'
 import DeleteIcon from '@material-ui/icons/Delete'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
@@ -15,14 +15,14 @@ import InputLabel from '@material-ui/core/InputLabel'
 import FormControl from '@material-ui/core/FormControl'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import { client } from '../../../../feathers'
-import { showAlert } from '../../../../common/reducers/alert/actions'
+import { AlertAction } from '../../../../common/state/AlertActions'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 
 const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
-  const [scenes, setScenes] = useState([])
+  const [scenes, setScenes] = useState<{ sid: string; name: string }[]>([])
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [locationTypes, setLocationTypes] = useState([])
   const [error, setError] = useState({
@@ -71,7 +71,7 @@ const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }
 
     upsertPromise
       .then((_) => {
-        dispatch(showAlert('success', t('user:usermenu.newLocation.success')))
+        dispatch(AlertAction.showAlert('success', t('user:usermenu.newLocation.success')))
         changeActiveMenu(Views.Location)
       })
       .catch((err) => {
@@ -80,7 +80,7 @@ const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }
           return
         }
 
-        dispatch(showAlert('error', t('user:usermenu.newLocation.failure')))
+        dispatch(AlertAction.showAlert('error', t('user:usermenu.newLocation.failure')))
         console.error('Error =>', err)
       })
   }
@@ -90,11 +90,11 @@ const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }
       .service('location')
       .remove(location.id)
       .then((_) => {
-        dispatch(showAlert('success', t('user:usermenu.newLocation.removeSuccess')))
+        dispatch(AlertAction.showAlert('success', t('user:usermenu.newLocation.removeSuccess')))
         changeActiveMenu(Views.Location)
       })
       .catch((err) => {
-        dispatch(showAlert('error', t('user:usermenu.newLocation.failure')))
+        dispatch(AlertAction.showAlert('error', t('user:usermenu.newLocation.failure')))
         console.error('Error =>', err)
       })
     setShowDeleteDialog(false)

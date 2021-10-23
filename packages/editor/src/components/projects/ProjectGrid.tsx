@@ -111,7 +111,11 @@ export function ProjectGrid({ projects, newProjectPath, newProjectLabel, context
     <StyledProjectGrid>
       {newProjectPath && !loading && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
       {projects.map((project) => (
-        <ProjectGridItem key={project.project_id || project.id} project={project} contextMenuId={contextMenuId} />
+        <ProjectGridItem
+          key={project.project_id || project.id || project.name}
+          project={project}
+          contextMenuId={contextMenuId}
+        />
       ))}
       {loading && <LoadingProjectGridItem />}
     </StyledProjectGrid>

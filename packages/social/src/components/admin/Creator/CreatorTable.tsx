@@ -13,46 +13,28 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import TablePagination from '@material-ui/core/TablePagination'
 import ViewCreator from './ViewCreator'
-import { deleteCreator, fetchCreatorAsAdmin } from '../../../reducers/creator/service'
-import { selectCreatorsState } from '../../../reducers/creator/selector'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 
-interface Props {
-  fetchCreatorAsAdmin?: typeof fetchCreatorAsAdmin
-
-  creatorState?: any
-  deleteCreator?: typeof deleteCreator
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchCreatorAsAdmin: bindActionCreators(fetchCreatorAsAdmin, dispatch),
-  deleteCreator: bindActionCreators(deleteCreator, dispatch)
-})
-
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorState: selectCreatorsState(state)
-  }
-}
+interface Props {}
 
 const CreatorTable = (props: Props) => {
-  const { fetchCreatorAsAdmin, creatorState } = props
   const classx = useCreatorStyles()
   const classes = useCreatorStyle()
   const user = useAuthState().user
-  const creator = creatorState.get('creators')
-  const creatorData = creator.get('creators')
+  const creatorState = useCreatorState()
+  const creator = creatorState.creators
+  const creatorData = creator.creators
   const [singleCreator, setSingleCreator] = React.useState('')
   const [open, setOpen] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)
   const [creatorId, setCreatorId] = React.useState('')
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(12)
-
+  const dispatch = useDispatch()
   const handlePageChange = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
@@ -68,7 +50,7 @@ const CreatorTable = (props: Props) => {
 
   const deleteCreatorHandler = () => {
     setShowWarning(false)
-    deleteCreator(creatorId)
+    CreatorService.deleteCreator(creatorId)
   }
 
   const handleCloseWarning = () => {
@@ -81,14 +63,14 @@ const CreatorTable = (props: Props) => {
   }
 
   const handleViewCreator = (id: string) => {
-    const creator = creatorData.find((creator) => creator.id === id)
-    setSingleCreator(creator)
+    const creator = creatorData.value.find((creator) => creator.id === id)
+    setSingleCreator({ ...creator })
     setOpen(true)
   }
 
   React.useEffect(() => {
-    if (user.id.value && creator.get('updateNeeded')) {
-      fetchCreatorAsAdmin()
+    if (user.id.value && creator.updateNeeded.value) {
+      CreatorService.fetchCreatorAsAdmin()
     }
   }, [user, creator])
 
@@ -125,7 +107,7 @@ const CreatorTable = (props: Props) => {
     }
   }
 
-  const rows = creatorData.map((el) => {
+  const rows = creatorData.value.map((el) => {
     return createData(
       el.id,
       el.name || <span className={classes.spanNone}>None</span>,
@@ -138,7 +120,7 @@ const CreatorTable = (props: Props) => {
     )
   })
 
-  const count = rows.size ? rows.size : rows.length
+  const count = rows.length
 
   return (
     <div className={classes.root}>
@@ -214,4 +196,4 @@ const CreatorTable = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreatorTable)
+export default CreatorTable

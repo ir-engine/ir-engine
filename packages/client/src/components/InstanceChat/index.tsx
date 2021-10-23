@@ -1,6 +1,5 @@
 import Avatar from '@material-ui/core/Avatar'
 import Badge from '@material-ui/core/Badge'
-import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import Fab from '@material-ui/core/Fab'
@@ -9,46 +8,21 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
 import { Message as MessageIcon, Send } from '@material-ui/icons'
-import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
-import {
-  createMessage,
-  getInstanceChannel,
-  updateChatTarget,
-  updateMessageScrollInit
-} from '@xrengine/client-core/src/social/reducers/chat/service'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 import defaultStyles from './InstanceChat.module.scss'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    chatState: selectChatState(state),
-    instanceConnectionState: selectInstanceConnectionState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getInstanceChannel: bindActionCreators(getInstanceChannel, dispatch),
-  createMessage: bindActionCreators(createMessage, dispatch),
-  updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
-  updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
-})
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/state/InstanceConnectionState'
 
 interface Props {
-  chatState?: any
-  instanceConnectionState?: any
-  getInstanceChannel?: any
-  createMessage?: any
   styles?: any
   MessageButton?: any
   CloseButton?: any
@@ -59,10 +33,6 @@ interface Props {
 
 const InstanceChat = (props: Props): any => {
   const {
-    chatState,
-    instanceConnectionState,
-    getInstanceChannel,
-    createMessage,
     styles = defaultStyles,
     MessageButton = MessageIcon,
     CloseButton = MessageIcon,
@@ -71,26 +41,29 @@ const InstanceChat = (props: Props): any => {
   } = props
 
   let activeChannel
+  const dispatch = useDispatch()
   const messageRef = React.useRef<HTMLInputElement>()
-  const user = useAuthState().user.value
-  const channelState = chatState.get('channels')
-  const channels = channelState.get('channels')
+  const user = useAuthState().user
+  const chatState = useChatState()
+  const channelState = chatState.channels
+  const channels = channelState.channels.value
   const [composingMessage, setComposingMessage] = useState('')
   const [unreadMessages, setUnreadMessages] = useState(false)
-  const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance')
+  const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
+  const instanceConnectionState = useInstanceConnectionState()
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
 
   useEffect(() => {
     if (
-      user?.instanceId != null &&
-      instanceConnectionState.get('connected') === true &&
-      channelState.get('fetchingInstanceChannel') !== true
+      user?.instanceId?.value != null &&
+      instanceConnectionState.connected.value === true &&
+      channelState.fetchingInstanceChannel.value !== true
     ) {
-      getInstanceChannel()
+      ChatService.getInstanceChannel()
     }
-  }, [user?.instanceId])
+  }, [user?.instanceId?.value])
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
@@ -99,11 +72,13 @@ const InstanceChat = (props: Props): any => {
 
   const packageMessage = (): void => {
     if (composingMessage.length > 0) {
-      createMessage({
-        targetObjectId: user.instanceId,
-        targetObjectType: 'instance',
-        text: composingMessage
-      })
+      dispatch(
+        ChatService.createMessage({
+          targetObjectId: user.instanceId.value,
+          targetObjectType: 'instance',
+          text: composingMessage
+        })
+      )
       setComposingMessage('')
     }
   }
@@ -122,13 +97,13 @@ const InstanceChat = (props: Props): any => {
 
   const getMessageUser = (message): string => {
     let returned = message.sender?.name
-    if (message.senderId === user.id) returned += ' (you)'
+    if (message.senderId === user.id.value) returned += ' (you)'
     //returned += ': '
     return returned
   }
 
   const isMessageSentBySelf = (message): boolean => {
-    return message.senderId === user.id
+    return message.senderId === user.id.value
   }
 
   useEffect(() => {
@@ -178,7 +153,7 @@ const InstanceChat = (props: Props): any => {
             <CardContent className={styles['message-container']}>
               {activeChannel != null &&
                 activeChannel.messages &&
-                activeChannel.messages
+                [...activeChannel.messages]
                   .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                   .slice(
                     activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0,
@@ -187,7 +162,15 @@ const InstanceChat = (props: Props): any => {
                   .map((message) => {
                     if (isClient && !isBot(window) && isCommand(message.text)) return undefined
                     const system = getChatMessageSystem(message.text)
-                    if (system !== 'none') message.text = removeMessageSystem(message.text)
+                    let chatMessage = message.text
+
+                    if (system !== 'none') {
+                      if ((isClient && isBot(window)) || system === 'jl_system') {
+                        chatMessage = removeMessageSystem(message.text)
+                      } else {
+                        return undefined
+                      }
+                    }
                     return (
                       <ListItem
                         className={classNames({
@@ -210,7 +193,7 @@ const InstanceChat = (props: Props): any => {
                                 <span className={styles.userName} color="primary">
                                   {getMessageUser(message)}
                                 </span>
-                                <p>{message.text}</p>
+                                <p>{chatMessage}</p>
                               </span>
                             }
                           />
@@ -246,9 +229,11 @@ const InstanceChat = (props: Props): any => {
                   if (e.key === 'Enter' && e.ctrlKey) {
                     e.preventDefault()
                     const selectionStart = (e.target as HTMLInputElement).selectionStart
-                    setCursorPosition(selectionStart)
+                    setCursorPosition(selectionStart || 0)
                     setComposingMessage(
-                      composingMessage.substring(0, selectionStart) + '\n' + composingMessage.substring(selectionStart)
+                      composingMessage.substring(0, selectionStart || 0) +
+                        '\n' +
+                        composingMessage.substring(selectionStart || 0)
                     )
                     !isMultiline && setIsMultiline(true)
                   } else if (e.key === 'Enter' && !e.ctrlKey) {
@@ -273,7 +258,7 @@ const InstanceChat = (props: Props): any => {
           invisible={!unreadMessages}
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
-          <Fab className={styles['chatBadge']} color="primary" onClick={() => toggleChatWindow()}>
+          <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
             {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
           </Fab>
         </Badge>
@@ -282,4 +267,4 @@ const InstanceChat = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat)
+export default InstanceChat

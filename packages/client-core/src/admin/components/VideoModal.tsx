@@ -6,34 +6,18 @@ import Grid from '@material-ui/core/Grid'
 import Modal from '@material-ui/core/Modal'
 import TextField from '@material-ui/core/TextField'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectAdminState } from '../reducers/admin/selector'
-import { createVideo, deleteVideo, updateVideo } from '../reducers/admin/service'
+import { useDispatch } from '../../store'
+import { AdminService } from '../state/AdminService'
 import styles from './Admin.module.scss'
 
 interface Props {
   open: boolean
   handleClose: any
-  createVideo?: typeof createVideo
-  updateVideo?: typeof updateVideo
-  deleteVideo?: typeof deleteVideo
-  admin?: any
+
   video?: any
   mode: string
 }
 
-const mapStateToProps = (state: any): any => {
-  return {
-    admin: selectAdminState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createVideo: bindActionCreators(createVideo, dispatch),
-  updateVideo: bindActionCreators(updateVideo, dispatch),
-  deleteVideo: bindActionCreators(deleteVideo, dispatch)
-})
 const VideoModal = (props: Props): any => {
   const initialState = {
     id: props.video?.id ? props.video.id : '',
@@ -76,6 +60,7 @@ const VideoModal = (props: Props): any => {
     state[e.target.name] = e.target.checked
   }
 
+  const dispatch = useDispatch()
   const createVideo = (e: any): void => {
     e.preventDefault()
 
@@ -102,16 +87,16 @@ const VideoModal = (props: Props): any => {
 
     if (props.mode === 'create') {
       delete form.id
-      props.createVideo(form as any)
+      AdminService.createVideo(form as any)
       props.handleClose()
     } else {
-      props.updateVideo(form as any)
+      AdminService.updateVideo(form as any)
       props.handleClose()
     }
   }
 
   const deleteVideo = (id: string): void => {
-    props.deleteVideo(id)
+    AdminService.deleteVideo(id)
     props.handleClose()
   }
 
@@ -286,4 +271,4 @@ const VideoModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(VideoModal)
+export default VideoModal

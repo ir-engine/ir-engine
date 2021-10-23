@@ -1,20 +1,16 @@
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import LinkIcon from '@material-ui/icons/Link'
 import PersonIcon from '@material-ui/icons/Person'
-import FilterHdrIcon from '@material-ui/icons/FilterHdr'
 import SettingsIcon from '@material-ui/icons/Settings'
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
-// import { provisionInstanceServer } from "@xrengine/client-networking/src/reducers/instanceConnection/service";
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import React, { useState, useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { alertSuccess } from '../../../common/reducers/alert/service'
-import { selectAppOnBoardingStep } from '../../../common/reducers/app/selector'
-import { useAuthState } from '../../reducers/auth/AuthState'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { useDispatch } from '../../../store'
+import { AlertService } from '../../../common/state/AlertService'
+import { useAuthState } from '../../state/AuthState'
+import { AuthService } from '../../state/AuthService'
 import AvatarMenu from './menus/AvatarMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
@@ -35,19 +31,8 @@ type StateType = {
   hideLogin: boolean
 }
 
-const mapStateToProps = (state: any): any => {
-  return {
-    onBoardingStep: selectAppOnBoardingStep(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  alertSuccess: bindActionCreators(alertSuccess, dispatch)
-  // provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-})
-
 const UserMenu = (props: UserMenuProps): any => {
-  const { alertSuccess, enableSharing, hideLogin } = props
+  const { enableSharing, hideLogin } = props
 
   const dispatch = useDispatch()
 
@@ -100,26 +85,26 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (selfUser?.value) {
-      dispatch(AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL))
+      AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL)
     }
   }
 
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSetting, ...newSetting }
     setUserSetting(setting)
-    dispatch(AuthService.updateUserSettings(selfUser.user_setting.id.value, setting))
+    AuthService.updateUserSettings(selfUser.user_setting.id.value, setting)
   }
 
   const handleFetchAvatarList = (): any => {
-    return dispatch(AuthService.fetchAvatarList())
+    return AuthService.fetchAvatarList()
   }
 
   const handleUploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
-    return dispatch(AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar))
+    return AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar)
   }
 
   const handleRemoveAvatar = (keys: [string]): any => {
-    return dispatch(AuthService.removeAvatar(keys))
+    return AuthService.removeAvatar(keys)
   }
 
   const updateGraphicsSettings = (newSetting: any): void => {
@@ -157,6 +142,10 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const updateLocationDetail = (location) => {
     setActiveLocation({ ...location })
+  }
+
+  const alertSuccess = (message) => {
+    AlertService.alertSuccess(message)
   }
 
   const renderMenuPanel = () => {
@@ -258,4 +247,4 @@ const UserMenu = (props: UserMenuProps): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserMenu)
+export default UserMenu

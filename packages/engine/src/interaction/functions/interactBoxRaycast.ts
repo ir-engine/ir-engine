@@ -35,7 +35,7 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
   const interacts = getComponent(entity, InteractorComponent)
   if (!isEntityLocalClient(entity)) {
     interacts.subFocusedArray = []
-    interacts.focusedInteractive = null
+    interacts.focusedInteractive = null!
     return
   }
 
@@ -74,7 +74,7 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
 
   if (!subFocusedArray.length) {
     interacts.subFocusedArray = []
-    interacts.focusedInteractive = null
+    interacts.focusedInteractive = null!
     return
   }
 
@@ -87,7 +87,7 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
   const interactable = getComponent(entityInteractable, InteractableComponent)
   const distance = interactable.data?.interactionDistance ?? interactiveReachDistance
 
-  const resultIsCloseEnough = distanceToPlayer < distance
+  const resultIsCloseEnough = distanceToPlayer! < distance
   if (resultIsCloseEnough) {
     interacts.focusedInteractive = entityInteractable
   }

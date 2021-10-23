@@ -1,29 +1,12 @@
 import { Polygon, MultiPolygon, Position, Feature } from 'geojson'
-import rewind from '@mapbox/geojson-rewind'
-import { groupBy } from 'lodash'
-import polygonClipping from 'polygon-clipping'
-import { multiPolygon, polygon } from '@turf/turf'
-import { llToScene } from './MeshBuilder'
+// stringified worker code relies on "turf" module being globally available
+import * as turf from '@turf/turf'
 
-/**
- * Assumptions:
- *   - self completely surrounds all of the other polygons
- *   - self does not contain holes/interior rings
- *   - self is a simple polygon without overlapping edges
- *   - other polygons do not have holes, or not ones we care about
- */
-export function subtract(self: Polygon, others: (Polygon | MultiPolygon)[]): Polygon {
-  others.forEach((other) => {
-    switch (other.type) {
-      case 'Polygon':
-        subtractPolygonCoordinates(self, other.coordinates)
-      case 'MultiPolygon':
-        other.coordinates.forEach((polygonCoords) => {
-          subtractPolygonCoordinates(self, polygonCoords)
-        })
-    }
-  })
-  return rewind(self)
+export function scalePolygon(coords: Position[], xFactor: number, zFactor: number): Position[] {
+  return coords.map(([x, z]) => [x * xFactor, z * zFactor])
+}
+export function translatePolygon(coords: Position[], xDiff: number, zDiff: number): Position[] {
+  return coords.map(([x, z]) => [x + xDiff, z + zDiff])
 }
 
 function subtractPolygonCoordinates(self: Polygon, other: Position[][]) {
@@ -80,38 +63,11 @@ export function copy(self: Polygon): Polygon {
   }
 }
 
-/** Useful for when a feature is split across multiple vector tiles */
-export function unifyFeatures(features: Feature[]): Feature[] {
-  const featuresById = groupBy(features, 'id')
-
-  const featuresByIdArray = Object.values(featuresById)
-
-  return featuresByIdArray.map((features) => {
-    if (features.length > 1) {
-      const allCoords = features.map(getCoords)
-
-      const unifiedCoords = polygonClipping.union.apply(null, allCoords)
-      let maxHeight = 0
-
-      features.forEach((f) => {
-        maxHeight = f.properties.height ? Math.max(f.properties.height) : maxHeight
-      })
-      const unifiedProperties = {
-        ...features[0].properties,
-        height: maxHeight
-      }
-
-      return unifiedCoords.length === 1
-        ? polygon(unifiedCoords[0] as any, unifiedProperties)
-        : multiPolygon(unifiedCoords as any, unifiedProperties)
-    } else {
-      return features[0]
-    }
+export function addTileIndex(featuresFromTile: Feature[]) {
+  featuresFromTile.forEach((feature, index) => {
+    const properties = (feature.properties ||= {})
+    properties['tileIndex'] = `${index}`
   })
-
-  function getCoords(f: Feature): polygonClipping.Polygon | polygonClipping.MultiPolygon {
-    return (f.geometry as Polygon).coordinates as any
-  }
 }
 
 export function scaleAndTranslatePosition(position: Position, llCenter: Position, scale = 1) {
@@ -133,4 +89,10 @@ export function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: Po
   }
 
   return geometry
+}
+
+export function computeBoundingCircleRadius(feature: Feature) {
+  const [minX, minY, maxX, maxY] = turf.bbox(feature)
+
+  return Math.max(maxX - minX, maxY - minY) / 2
 }

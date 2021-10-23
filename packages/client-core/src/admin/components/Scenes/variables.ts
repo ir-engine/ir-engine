@@ -6,30 +6,30 @@ export interface SceneColumn {
 }
 
 export const sceneColumns: SceneColumn[] = [
-  { id: 'name', label: 'Name', minWidth: 150 },
-  { id: 'description', label: 'Description', minWidth: 100 },
+  { id: 'name', label: 'Name', minWidth: 65 },
+  { id: 'description', label: 'Description', minWidth: 65 },
   {
     id: 'type',
     label: 'Type',
-    minWidth: 150,
+    minWidth: 65,
     align: 'right'
   },
   {
     id: 'entity',
     label: 'Entity',
-    minWidth: 150,
+    minWidth: 65,
     align: 'right'
   },
   {
     id: 'version',
     label: 'Version',
-    minWidth: 150,
+    minWidth: 65,
     align: 'right'
   },
   {
     id: 'action',
     label: 'Action',
-    minWidth: 150,
+    minWidth: 65,
     align: 'right'
   }
 ]
@@ -52,12 +52,12 @@ export interface EntityColumn {
 }
 
 export const entityColumns: EntityColumn[] = [
-  { id: 'name', label: 'Name', minWidth: 150 },
-  { id: 'index', label: 'Index', minWidth: 100 },
+  { id: 'name', label: 'Name', minWidth: 65 },
+  { id: 'index', label: 'Index', minWidth: 65 },
   {
     id: 'components',
     label: 'Components',
-    minWidth: 100,
+    minWidth: 65,
     align: 'right'
   }
 ]

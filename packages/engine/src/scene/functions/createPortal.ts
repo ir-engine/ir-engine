@@ -72,7 +72,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
           const invResolution = scale / fontResolution
           geometry.scale(invResolution, invResolution * 0.8, 1 / fontResolution)
           geometry.computeBoundingBox()
-          const xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x)
+          const xMid = -0.5 * (geometry.boundingBox?.max.x! - geometry.boundingBox?.min.x!)
           geometry.translate(xMid, 0, 1)
           return geometry
         }
@@ -82,7 +82,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
         if (args.displayText && args.displayText !== '') {
           const displayTextGeom = createText(args.displayText, 1)
           displayTextGeom.translate(0, -1.6, 0)
-          geometry = mergeBufferGeometries([geometry, displayTextGeom])
+          geometry = mergeBufferGeometries([geometry, displayTextGeom]) as BufferGeometry
         }
 
         const textSize = 0.15

@@ -6,12 +6,12 @@ export interface Column {
 }
 
 export const columns: Column[] = [
-  { id: 'name', label: 'Name', minWidth: 170 },
-  { id: 'description', label: 'Description', minWidth: 100 },
+  { id: 'name', label: 'Name', minWidth: 65 },
+  { id: 'description', label: 'Description', minWidth: 65 },
   {
     id: 'action',
     label: 'Action',
-    minWidth: 170,
+    minWidth: 65,
     align: 'right'
   }
 ]
