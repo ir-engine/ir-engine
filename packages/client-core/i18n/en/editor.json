@@ -210,10 +210,11 @@
             "lbl-interactionType": "Interaction Type"
         },
         "shopify": {
-            "description": "A 3D model of a scene loaded from a GLTF file from Shopify Products 3D Media.",
+            "description": "A 3D object of a scene loaded from Shopify Products Media.",
             "lbl-shopifyDomain": "Shopify Domain",
             "lbl-shopifyAccessToken": "Shopify Access Token",
             "lbl-shopifyProducts": "Shopify Products",
+            "lbl-shopifyProductItems": "Shopify Media",
             "lbl-textureOverride": "Override Texture",
             "error-url": "Error Loading From URL",
             "lbl-loopAnimation": "Loop Animation",

@@ -1,5 +1,4 @@
 import { Cube } from '@styled-icons/fa-solid/Cube'
-import ShopifyNode from '../../nodes/ShopifyNode'
 import i18n from 'i18next'
 import React, { Component, Fragment } from 'react'
 import { withTranslation } from 'react-i18next'
@@ -7,6 +6,8 @@ import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
+import VideoInput from '../inputs/VideoInput'
+import ImageInput from '../inputs/ImageInput'
 import NodeEditor from './NodeEditor'
 import dompurify from 'dompurify'
 import { Object3D } from 'three'
@@ -14,6 +15,12 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
+
+import AudioSourceProperties from './AudioSourceProperties'
+import useSetPropertySelected from './useSetPropertySelected'
+import { ControlledStringInput } from '../inputs/StringInput'
+import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
+import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 
 /**
  * Array containing options for InteractableOption.
@@ -82,16 +89,7 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
   //initializing description and will appears on the editor view
   static description = i18n.t('editor:properties.shopify.description')
 
-  //initializing iconComponent with image name
-  static iconComponent = Cube
-
-  //function to handle change in property src
-  onChangeSrc = (src, initialProps) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
-      properties: { ...initialProps, src }
-    })
-  }
-
+  //Shopify UI Controls
   onChangeShopifyDomain = (domain) => {
     CommandManager.instance.setPropertyOnSelection('shopifyDomain', domain)
   }
@@ -104,58 +102,11 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
     CommandManager.instance.setPropertyOnSelection('shopifyProductId', id)
   }
 
-  // TODO
-  // function to handle change in property src
-  // onChangeEnvMap = (src, initialProps) => {
-  //   CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, { properties: { ...initialProps, src } })
-  // };
-
-  //fucntion to handle changes in activeChipIndex property
-  onChangeAnimation = (activeClipIndex) => {
-    CommandManager.instance.setPropertyOnSelection('activeClipIndex', activeClipIndex)
+  onChangeProductItems = (id) => {
+    CommandManager.instance.setPropertyOnSelection('shopifyProductItemId', id)
   }
 
-  onChangeAnimationSource = (hasAvatarAnimations) => {
-    CommandManager.instance.setPropertyOnSelection('hasAvatarAnimations', hasAvatarAnimations)
-    ;(this.props.node as any).reload()
-  }
-
-  //function to handle change in collidable property
-  // not currently in use, used by floor plan
-  // onChangeCollidable = collidable => {
-  //   CommandManager.instance.setPropertyOnSelection("collidable", collidable);
-  // };
-
-  onChangeTextureOverride = (textureOverride) => {
-    console.log(textureOverride)
-    CommandManager.instance.setPropertyOnSelection('textureOverride', textureOverride)
-  }
-
-  // function to handle changes in walkable property
-  // not currently in use, used by floor plan
-  // onChangeWalkable = walkable => {
-  //   CommandManager.instance.setPropertyOnSelection("walkable", walkable);
-  // };
-
-  // function to handle changes in castShadow property
-  onChangeCastShadow = (castShadow) => {
-    CommandManager.instance.setPropertyOnSelection('castShadow', castShadow)
-  }
-
-  // function to handle changes in Receive shadow property
-  onChangeReceiveShadow = (receiveShadow) => {
-    CommandManager.instance.setPropertyOnSelection('receiveShadow', receiveShadow)
-  }
-
-  // function to handle changes in interactable property
-  onChangeInteractable = (interactable) => {
-    CommandManager.instance.setPropertyOnSelection('interactable', interactable)
-  }
-
-  // function to handle change in isUpdateDataMatrix property
-  onChangeUpdateDataMatrix = (matrixAutoUpdate) => {
-    CommandManager.instance.setPropertyOnSelection('isUpdateDataMatrix', matrixAutoUpdate)
-  }
+  //Interactive UI Controls
 
   // function to handle changes in interactionType property
   onChangeInteractionType = (interactionType) => {
@@ -175,16 +126,6 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
   // function to handle changes in payloadName property
   onChangePayloadName = (payloadName) => {
     CommandManager.instance.setPropertyOnSelection('payloadName', payloadName)
-  }
-
-  // function to handle changes in payloadName property
-  onChangeRole = (role, selected) => {
-    CommandManager.instance.setPropertyOnSelection('role', selected.label)
-  }
-
-  //function to handle the changes in target
-  onChangeTarget = (target) => {
-    CommandManager.instance.setPropertyOnSelection('target', target)
   }
 
   // function to handle changes in payloadUrl
@@ -208,15 +149,6 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
     if (sanitizedHTML !== payloadHtmlContent)
       console.warn("Code has been sanitized, don't try anything sneaky please...")
     CommandManager.instance.setPropertyOnSelection('payloadHtmlContent', sanitizedHTML)
-  }
-
-  // function to handle changes in isAnimationPropertyDisabled
-  isAnimationPropertyDisabled() {
-    const { multiEdit, node } = this.props as any
-    if (multiEdit) {
-      return CommandManager.instance.selected.some((selectedNode) => selectedNode.src !== node.src)
-    }
-    return false
   }
 
   // creating view for interactable type
@@ -281,6 +213,182 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
     }
   }
 
+  //Model UI Controls
+  isAnimationPropertyDisabled() {
+    const { multiEdit, node } = this.props as any
+    if (multiEdit) {
+      return CommandManager.instance.selected.some((selectedNode) => selectedNode.src !== node.src)
+    }
+    return false
+  }
+
+  onChangeAnimation = (activeClipIndex) => {
+    CommandManager.instance.setPropertyOnSelection('activeClipIndex', activeClipIndex)
+  }
+
+  onChangeAnimationSource = (hasAvatarAnimations) => {
+    CommandManager.instance.setPropertyOnSelection('hasAvatarAnimations', hasAvatarAnimations)
+    ;(this.props.node as any).reload()
+  }
+  onChangeTextureOverride = (textureOverride) => {
+    CommandManager.instance.setPropertyOnSelection('textureOverride', textureOverride)
+  }
+
+  // function to handle changes in castShadow property
+  onChangeCastShadow = (castShadow) => {
+    CommandManager.instance.setPropertyOnSelection('castShadow', castShadow)
+  }
+
+  // function to handle changes in Receive shadow property
+  onChangeReceiveShadow = (receiveShadow) => {
+    CommandManager.instance.setPropertyOnSelection('receiveShadow', receiveShadow)
+  }
+
+  // function to handle change in isUpdateDataMatrix property
+  onChangeUpdateDataMatrix = (matrixAutoUpdate) => {
+    CommandManager.instance.setPropertyOnSelection('isUpdateDataMatrix', matrixAutoUpdate)
+  }
+
+  onChangeIsLivestream = (isLivestream) => {
+    CommandManager.instance.setPropertyOnSelection('isLivestream', isLivestream)
+  }
+
+  onChangeProjection = (projection) => {
+    CommandManager.instance.setPropertyOnSelection('projection', projection)
+  }
+
+  onChangeId = (elementId) => {
+    CommandManager.instance.setPropertyOnSelection('elementId', elementId)
+  }
+
+  onChangeControls = (controls) => {
+    CommandManager.instance.setPropertyOnSelection('controls', controls)
+  }
+
+  onChangeTransparencyMode = (alphaMode) => {
+    CommandManager.instance.setPropertyOnSelection('alphaMode', alphaMode)
+  }
+
+  onChangeAlphaCutoff = (alphaCutoff) => {
+    CommandManager.instance.setPropertyOnSelection('alphaCutoff', alphaCutoff)
+  }
+
+  //creating model ui controls
+  renderPropertiesFields = (node) => {
+    const videoProjectionOptions = Object.values(VideoProjection).map((v) => ({ label: v, value: v }))
+    const mapValue = (v) => ({ label: v, value: v })
+    const imageProjectionOptions = Object.values(ImageProjection).map(mapValue)
+    const imageTransparencyOptions = Object.values(ImageAlphaMode).map(mapValue)
+    switch (node.extendType) {
+      case 'model':
+        return (
+          <Fragment>
+            <InputGroup name="Loop Animation" label={this.props.t('editor:properties.model.lbl-loopAnimation')}>
+              <SelectInput
+                disabled={this.isAnimationPropertyDisabled()}
+                options={node.extendNode.getClipOptions()}
+                value={node.extendNode.activeClipIndex}
+                onChange={this.onChangeAnimation}
+              />
+            </InputGroup>
+            <InputGroup name="Is Avatar" label={this.props.t('editor:properties.model.lbl-isAvatar')}>
+              <BooleanInput value={node.extendNode.hasAvatarAnimations} onChange={this.onChangeAnimationSource} />
+            </InputGroup>
+            <InputGroup name="Texture Override" label={this.props.t('editor:properties.model.lbl-textureOverride')}>
+              <SelectInput
+                options={SceneManager.instance.scene.children.map((obj: Object3D) => {
+                  return {
+                    label: obj.name,
+                    value: obj.uuid
+                  }
+                })}
+                value={node.extendNode.textureOverride}
+                onChange={this.onChangeTextureOverride}
+              />
+            </InputGroup>
+            <InputGroup name="Cast Shadow" label={this.props.t('editor:properties.model.lbl-castShadow')}>
+              <BooleanInput value={node.extendNode.castShadow} onChange={this.onChangeCastShadow} />
+            </InputGroup>
+            <InputGroup name="Receive Shadow" label={this.props.t('editor:properties.model.lbl-receiveShadow')}>
+              <BooleanInput value={node.extendNode.receiveShadow} onChange={this.onChangeReceiveShadow} />
+            </InputGroup>
+            <InputGroup name="MatrixAutoUpdate" label={this.props.t('editor:properties.model.lbl-matrixAutoUpdate')}>
+              <BooleanInput value={node.extendNode.isUpdateDataMatrix} onChange={this.onChangeUpdateDataMatrix} />
+            </InputGroup>
+          </Fragment>
+        )
+        break
+      case 'video':
+        return (
+          <Fragment>
+            <InputGroup name="Livestream" label={this.props.t('editor:properties.video.lbl-islivestream')}>
+              <BooleanInput value={node.extendNode.isLivestream} onChange={this.onChangeIsLivestream} />
+            </InputGroup>
+            <InputGroup name="Projection" label={this.props.t('editor:properties.video.lbl-projection')}>
+              <SelectInput
+                options={videoProjectionOptions}
+                value={node.extendNode.projection}
+                onChange={this.onChangeProjection}
+              />
+            </InputGroup>
+            <InputGroup name="Location" label={this.props.t('editor:properties.video.lbl-id')}>
+              <ControlledStringInput value={node.extendNode.elementId} onChange={this.onChangeId} />
+            </InputGroup>
+            <AudioSourceProperties node={node.extendNode} multiEdit={this.props.multiEdit} />
+          </Fragment>
+        )
+        break
+      case 'image':
+        return (
+          <Fragment>
+            <InputGroup
+              name="Controls"
+              label={this.props.t('editor:properties.image.lbl-controls')}
+              info={this.props.t('editor:properties.image.info-controls')}
+            >
+              <BooleanInput value={node.extendNode.controls} onChange={this.onChangeControls} />
+            </InputGroup>
+            <InputGroup
+              name="Transparency Mode"
+              label={this.props.t('editor:properties.image.lbl-transparency')}
+              info={this.props.t('editor:properties.image.info-transparency')}
+            >
+              <SelectInput
+                options={imageTransparencyOptions}
+                value={node.extendNode.alphaMode}
+                onChange={this.onChangeTransparencyMode}
+              />
+            </InputGroup>
+            {node.extendNode.alphaMode === ImageAlphaMode.Mask && (
+              <NumericInputGroup
+                name="Alpha Cutoff"
+                label={this.props.t('editor:properties.image.lbl-alphaCutoff')}
+                info={this.props.t('editor:properties.image.info-alphaCutoff')}
+                min={0}
+                max={1}
+                smallStep={0.01}
+                mediumStep={0.1}
+                largeStep={0.25}
+                value={node.extendNode.alphaCutoff}
+                onChange={this.onChangeAlphaCutoff}
+              />
+            )}
+            <InputGroup name="Projection" label={this.props.t('editor:properties.image.lbl-projection')}>
+              <SelectInput
+                options={imageProjectionOptions}
+                value={node.extendNode.projection}
+                onChange={this.onChangeProjection}
+              />
+            </InputGroup>
+          </Fragment>
+        )
+        break
+      default:
+        return <Fragment></Fragment>
+        break
+    }
+  }
+
   // rendering view of ShopifyNodeEditor
   render() {
     ShopifyNodeEditor.description = this.props.t('editor:properties.shopify.description')
@@ -297,65 +405,15 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
         <InputGroup name="Shopify Products" label={this.props.t('editor:properties.shopify.lbl-shopifyProducts')}>
           <SelectInput options={node.shopifyProducts} value={node.shopifyProductId} onChange={this.onChangeProducts} />
         </InputGroup>
-        {/* {!(this.props.node as ShopifyNode).isValidURL && (
-          <div>{this.props.t('editor:properties.shopify.error-url')}</div>
-        )} */}
 
-        {/* TODO: implement environment map overrides. - source from scene env map, a custom BPCEM bake, URL string
-         <InputGroup name="Environment Map" label={this.props.t('editor:properties.shopify.lbl-modelurl')}>
-          <ShopifyInput value={node.src} onChange={this.onChangeSrc} />
-          {!(this.props.node as ShopifyNode).isValidURL && <div>{this.props.t('editor:properties.shopify.error-url')}</div>}
-        </InputGroup> */}
-        <InputGroup name="Loop Animation" label={this.props.t('editor:properties.shopify.lbl-loopAnimation')}>
+        <InputGroup name="Shopify Products" label={this.props.t('editor:properties.shopify.lbl-shopifyProductItems')}>
           <SelectInput
-            disabled={this.isAnimationPropertyDisabled()}
-            options={node.getClipOptions()}
-            value={node.activeClipIndex}
-            onChange={this.onChangeAnimation}
+            options={node.shopifyProductItems}
+            value={node.shopifyProductItemId}
+            onChange={this.onChangeProductItems}
           />
         </InputGroup>
-        <InputGroup name="Is Avatar" label={this.props.t('editor:properties.shopify.lbl-isAvatar')}>
-          <BooleanInput value={node.hasAvatarAnimations} onChange={this.onChangeAnimationSource} />
-        </InputGroup>
-        {/* <InputGroup name="Collidable" label={this.props.t('editor:properties.shopify.lbl-collidable')}>
-          // === not currently in use, used by floor plan === //
-          <BooleanInput
-            value={node.collidable}
-            onChange={this.onChangeCollidable}
-          />
-        </InputGroup> */}
-        <InputGroup name="Texture Override" label={this.props.t('editor:properties.shopify.lbl-textureOverride')}>
-          <SelectInput
-            options={SceneManager.instance.scene.children.map((obj: Object3D) => {
-              return {
-                label: obj.name,
-                value: obj.uuid
-              }
-            })}
-            value={node.textureOverride}
-            onChange={this.onChangeTextureOverride}
-          />
-        </InputGroup>
-        {/* <InputGroup name="Walkable" label={this.props.t('editor:properties.shopify.lbl-walkable')}>
-            // === not currently in use, used by floor plan === //
-            <BooleanInput
-            value={node.walkable}
-            onChange={this.onChangeWalkable}
-          />
-        </InputGroup> */}
-        <InputGroup name="Cast Shadow" label={this.props.t('editor:properties.shopify.lbl-castShadow')}>
-          <BooleanInput value={node.castShadow} onChange={this.onChangeCastShadow} />
-        </InputGroup>
-        <InputGroup name="Receive Shadow" label={this.props.t('editor:properties.shopify.lbl-receiveShadow')}>
-          <BooleanInput value={node.receiveShadow} onChange={this.onChangeReceiveShadow} />
-        </InputGroup>
-        <InputGroup name="Interactable" label={this.props.t('editor:properties.shopify.lbl-interactable')}>
-          <BooleanInput value={node.interactable} onChange={this.onChangeInteractable} />
-        </InputGroup>
-        <InputGroup name="MatrixAutoUpdate" label={this.props.t('editor:properties.shopify.lbl-matrixAutoUpdate')}>
-          <BooleanInput value={node.isUpdateDataMatrix} onChange={this.onChangeUpdateDataMatrix} />
-        </InputGroup>
-        {this.renderInteractableDependantFields(node)}
+        {this.renderPropertiesFields(node)}
       </NodeEditor>
     )
   }

@@ -16,75 +16,128 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { delay } from '@xrengine/engine/src/common/functions/delay'
 import axios from 'axios'
+import Image, { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+
+import ModelNode from './ModelNode'
+import VideoNode from './VideoNode'
+import ImageNode from './ImageNode'
 
 export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   static nodeName = 'Shopify'
   static legacyComponentName = 'gltf-shopify'
   static initialElementProps = {
-    initialScale: 'fit',
-    src: '',
     shopifyDomain: '',
     shopifyProducts: [],
     shopifyToken: '',
-    shopifyProductId: ''
+    shopifyProductId: '',
+    shopifyProductItems: [],
+    shopifyProductItemId: '',
+    extendType: ''
   }
 
-  meshColliders = []
+  extendNode: any
 
   static async deserialize(json, loadAsync, onError) {
     const node = await super.deserialize(json)
     loadAsync(
       (async () => {
-        const { src, envMapOverride, textureOverride, shopifyProducts, shopifyDomain, shopifyToken, shopifyProductId } =
-          json.components.find((c) => c.name === 'gltf-shopify').props
-        debugger
-        await node.load(src, onError)
+        const {
+          extend,
+          extendType,
+          shopifyProducts,
+          shopifyDomain,
+          shopifyToken,
+          shopifyProductId,
+          shopifyProductItems,
+          shopifyProductItemId
+        } = json.components.find((c) => c.name === 'gltf-shopify').props
 
         if (shopifyProducts) node.shopifyProducts = shopifyProducts
+        if (shopifyProductItems) node.shopifyProductItems = shopifyProductItems
         if (shopifyDomain) node._shopifyDomain = shopifyDomain
         if (shopifyToken) node._shopifyToken = shopifyToken
         if (shopifyProductId) node._shopifyProductId = shopifyProductId
+        if (shopifyProductItemId) node._shopifyProductItemId = shopifyProductItemId
+        if (extendType) node.extendType = extendType
 
-        if (envMapOverride) node.envMapOverride = envMapOverride
-        if (textureOverride) {
-          // Using this to pass texture override uuid to event callback instead of creating a new variable
-          node.textureOverride = textureOverride
-          CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), () => {
-            SceneManager.instance.scene.traverse((obj) => {
-              if (obj.uuid === node.textureOverride) {
-                node.textureOverride = obj.uuid
-              }
+        if (extendType == 'model') {
+          node.extendNode = new ModelNode()
+          node.extendNode.initialScale = 'fit'
+
+          await node.extendNode.load(extend.src, onError)
+
+          if (node.extendNode.envMapOverride) node.extendNode.envMapOverride = extend.envMapOverride
+
+          if (extend.textureOverride) {
+            // Using this to pass texture override uuid to event callback instead of creating a new variable
+            node.extendNode.textureOverride = extend.textureOverride
+            CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), () => {
+              SceneManager.instance.scene.traverse((obj) => {
+                if (obj.uuid === node.extendNode.textureOverride) {
+                  node.extendNode.textureOverride = obj.uuid
+                }
+              })
             })
-          })
-        }
+          }
 
-        node.collidable = !!json.components.find((c) => c.name === 'collidable')
-        node.walkable = !!json.components.find((c) => c.name === 'walkable')
-        const loopAnimationComponent = json.components.find((c) => c.name === 'loop-animation')
-        if (loopAnimationComponent && loopAnimationComponent.props) {
-          const { clip, activeClipIndex, hasAvatarAnimations } = loopAnimationComponent.props
-          node.hasAvatarAnimations = hasAvatarAnimations
-          if (activeClipIndex !== undefined) {
-            node.activeClipIndex = loopAnimationComponent.props.activeClipIndex
-          } else if (clip !== undefined && node.model && node.model.animations) {
-            // DEPRECATED: Old loop-animation component stored the clip name rather than the clip index
-            // node.activeClipIndex = node.model.animations.findIndex(
-            //   animation => animation.name === clip
-            // );
-            const clipIndex = node.model.animations.findIndex((animation) => animation.name === clip)
+          node.extendNode.collidable = extend.collidable
+          node.extendNode.walkable = extend.walkable
 
-            if (clipIndex !== -1) {
-              node.activeClipIndices = [clipIndex]
+          //Todo need to check again with animated model
+          const loopAnimationComponent = extend['loop-animation']
+          if (loopAnimationComponent && loopAnimationComponent.props) {
+            const { clip, activeClipIndex, hasAvatarAnimations } = loopAnimationComponent.props
+            node.extendNode.hasAvatarAnimations = hasAvatarAnimations
+            if (activeClipIndex !== undefined) {
+              node.extendNode.activeClipIndex = loopAnimationComponent.props.activeClipIndex
+            } else if (clip !== undefined && node.extendNode.model && node.extendNode.model.animations) {
+              // DEPRECATED: Old loop-animation component stored the clip name rather than the clip index
+              // node.activeClipIndex = node.model.animations.findIndex(
+              //   animation => animation.name === clip
+              // );
+              const clipIndex = node.extendNode.model.animations.findIndex((animation) => animation.name === clip)
+
+              if (clipIndex !== -1) {
+                node.extendNode.activeClipIndices = [clipIndex]
+              }
             }
           }
+          if (extend['castShadow']) {
+            node.extendNode.castShadow = extend['castShadow']
+            node.extendNode.receiveShadow = extend['receiveShadow']
+          }
+        } else if (extendType == 'video') {
+          node.extendNode = new VideoNode()
+          node.extendNode.src = extend.src
+          await node.extendNode.load(extend.src, onError)
+          node.extendNode.interactable = extend.interactable
+          node.extendNode.isLivestream = extend.isLivestream
+          node.extendNode.controls = extend.controls || false
+          node.extendNode.autoPlay = extend.autoPlay
+          node.extendNode.synchronize = extend.synchronize
+          node.extendNode.loop = extend.loop
+          node.extendNode.audioType = extend.audioType
+          node.extendNode.volume = extend.volume
+          node.extendNode.distanceModel = extend.distanceModel
+          node.extendNode.rolloffFactor = extend.rolloffFactor
+          node.extendNode.refDistance = extend.refDistance
+          node.extendNode.maxDistance = extend.maxDistance
+          node.extendNode.coneInnerAngle = extend.coneInnerAngle
+          node.extendNode.coneOuterAngle = extend.coneOuterAngle
+          node.extendNode.coneOuterGain = extend.coneOuterGain
+          node.extendNode.projection = extend.projection
+          node.extendNode.elementId = extend.elementId
+        } else if (extendType == 'image') {
+          node.extendNode = new ImageNode()
+          await node.extendNode.load(extend.src, onError)
+          node.controls = extend.controls || false
+          node.alphaMode = extend.alphaMode === undefined ? ImageAlphaMode.Blend : extend.alphaMode
+          node.alphaCutoff = extend.alphaCutoff === undefined ? 0.5 : extend.alphaCutoff
+          node.projection = extend.projection
         }
-        const shadowComponent = json.components.find((c) => c.name === 'shadow')
-        if (shadowComponent) {
-          node.castShadow = shadowComponent.props.cast
-          node.receiveShadow = shadowComponent.props.receive
-        }
-        const interactableComponent = json.components.find((c) => c.name === 'interact')
+        node.add(node.extendNode.children[0].clone())
 
+        const interactableComponent = json.components.find((c) => c.name === 'interact')
         if (interactableComponent) {
           node.interactable = interactableComponent.props.interactable
           node.interactionType = interactableComponent.props.interactionType
@@ -102,32 +155,60 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
     return node
   }
 
-  _canonicalUrl = ''
-  envMapOverride = ''
-  textureOverride = ''
-  collidable = true
-  walkable = true
-  initialScale: string | number = 1
-  boundingBox = new Box3()
-  boundingSphere = new Sphere()
-  gltfJson = null
-  isValidURL = false
-  isProductReady = false
-  isUpdateDataMatrix = true
-  animations = []
-
   constructor() {
     super()
   }
-  // Overrides Shopify's src property and stores the original (non-resolved) url.
-  get src(): string {
-    return this._canonicalUrl
-  }
-  // When getters are overridden you must also override the setter.
-  set src(value: string) {
-    this.load(value).catch(console.error)
+
+  //set properties from editor
+  set activeClipIndex(value) {
+    if (this.extendNode) this.extendNode.activeClipIndex = value
   }
 
+  set hasAvatarAnimations(value) {
+    if (this.extendNode) this.extendNode.hasAvatarAnimations = value
+  }
+
+  set textureOverride(value) {
+    if (this.extendNode) this.extendNode.textureOverride = value
+  }
+
+  set castShadow(value) {
+    if (this.extendNode) this.extendNode.castShadow = value
+  }
+
+  set receiveShadow(value) {
+    if (this.extendNode) this.extendNode.receiveShadow = value
+  }
+
+  set isUpdateDataMatrix(value) {
+    if (this.extendNode) this.extendNode.isUpdateDataMatrix = value
+  }
+
+  set isLivestream(value) {
+    if (this.extendNode) this.extendNode.isLivestream = value
+  }
+
+  set projection(value) {
+    if (this.extendNode) this.extendNode.projection = value
+  }
+
+  set elementId(value) {
+    if (this.extendNode) this.extendNode.elementId = value
+  }
+
+  set controls(value) {
+    if (this.extendNode) this.extendNode.controls = value
+  }
+
+  set alphaMode(value) {
+    if (this.extendNode) this.extendNode.alphaMode = value
+  }
+
+  set alphaCutoff(value) {
+    if (this.extendNode) this.extendNode.alphaCutoff = value
+  }
+
+  //shopify properties
   get shopifyDomain() {
     return this._shopifyDomain
   }
@@ -135,7 +216,6 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
     this._shopifyDomain = value
     this.getShopifyProduction()
   }
-
   get shopifyToken() {
     return this._shopifyToken
   }
@@ -143,18 +223,74 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
     this._shopifyToken = value
     this.getShopifyProduction()
   }
-
   get shopifyProductId() {
     return this._shopifyProductId
   }
   set shopifyProductId(value) {
     this._shopifyProductId = value
+    this.shopifyProductItems = []
+    let modelCount = 0
+    let videoCount = 0
+    let imageCount = 0
     if (this.shopifyProducts && this.shopifyProducts.length != 0) {
       const filtered = this.shopifyProducts.filter((product) => product.value == value)
       if (filtered && filtered.length != 0) {
-        this.src = filtered[0].path
+        if (filtered[0] && filtered[0].media) {
+          filtered[0].media.forEach((media, index) => {
+            let label = media.extendType.replace(/\b\w/g, (l) => l.toUpperCase())
+            if (media.extendType == 'model') {
+              modelCount++
+              label += ` ${modelCount}`
+            } else if (media.extendType == 'video') {
+              videoCount++
+              label += ` ${videoCount}`
+            } else {
+              imageCount++
+              label += ` ${imageCount}`
+            }
+            this.shopifyProductItems.push({
+              value: index,
+              label,
+              media
+            })
+          })
+        }
       }
     }
+  }
+  get shopifyProductItemId() {
+    return this._shopifyProductItemId
+  }
+  set shopifyProductItemId(value) {
+    this._shopifyProductItemId = value
+    this.setMediaNode(value)
+  }
+
+  async setMediaNode(index) {
+    while (this.children.length > 0) {
+      this.remove(this.children[0])
+    }
+    if (this.extendNode && this.extendNode.dispose) {
+      this.extendNode.dispose()
+    }
+
+    if (!this.shopifyProductItems[index] || !this.shopifyProductItems[index].media) return
+
+    const media = this.shopifyProductItems[index].media
+    this.extendType = media.extendType
+
+    if (media.extendType == 'model') {
+      this.extendNode = new ModelNode()
+      this.extendNode.initialScale = 'fit'
+    } else if (media.extendType == 'video') {
+      this.extendNode = new VideoNode()
+      this.extendNode.src = media.url
+    } else if (media.extendType == 'image') {
+      this.extendNode = new ImageNode()
+    }
+
+    await this.extendNode.load(media.url)
+    this.add(this.extendNode.children[0].clone())
   }
 
   async getShopifyProduction() {
@@ -181,6 +317,8 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
       if (!res || !res.data) return
       const productData: any = res.data
       this.shopifyProducts = []
+      this.shopifyProductItems = []
+      this.shopifyProductItemIndex = ''
       if (productData.data && productData.data.products && productData.data.products.edges) {
         for (const edgeProduct of productData.data.products.edges) {
           const response = await axios.post(
@@ -239,22 +377,33 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
             { headers: { 'X-Shopify-Storefront-Access-Token': this.shopifyToken, 'Content-Type': 'application/json' } }
           )
           if (response && response.data) {
-            debugger
             const mediaData: any = response.data
             if (mediaData.data && mediaData.data.node && mediaData.data.node.media && mediaData.data.node.media.edges) {
+              const sourceData = []
               for (const edgeMedia of mediaData.data.node.media.edges) {
-                if (edgeMedia.node && edgeMedia.node.mediaContentType == 'MODEL_3D') {
-                  for (const source of edgeMedia.node.sources) {
-                    if (source.format == 'glb') {
-                      this.shopifyProducts.push({
-                        value: edgeProduct.node.id,
-                        label: edgeProduct.node.title,
-                        path: source.url
-                      })
-                    }
+                if (edgeMedia.node && edgeMedia.node.sources && edgeMedia.node.sources[0]) {
+                  let sourceValue = edgeMedia.node.sources[0]
+                  if (sourceValue.format == 'glb') {
+                    //3d model
+                    sourceValue.extendType = 'model'
+                  } else {
+                    sourceValue.extendType = 'video'
                   }
+                  sourceData.push(sourceValue)
+                } else if (edgeMedia.node.image && edgeMedia.node.image.originalSrc) {
+                  sourceData.push({
+                    url: edgeMedia.node.image.originalSrc,
+                    mimeType: 'image/png',
+                    format: 'png',
+                    extendType: 'image'
+                  })
                 }
               }
+              this.shopifyProducts.push({
+                value: edgeProduct.node.id,
+                label: edgeProduct.node.title,
+                media: sourceData
+              })
             }
           }
         }
@@ -270,155 +419,76 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
 
   reload() {
     console.log('reload')
-    this.load(this.src).catch(console.error)
-  }
-  // Overrides Shopify's loadGLTF method and uses the Editor's gltf cache.
-  async loadGLTF(src) {
-    const loadPromise = CacheManager.gltfCache.get(src)
-    const { scene, json, animations } = await loadPromise
-    this.gltfJson = json
-    const clonedScene = cloneObject3D(scene)
-    clonedScene.animations = animations
-
-    return clonedScene
-  }
-  // Overrides Shopify's load method and resolves the src url before loading.
-  async load(src, onError?) {
-    const nextSrc = src || ''
-    if (nextSrc === '') {
-      return
-    }
-    this._canonicalUrl = nextSrc
-    this.issues = []
-    this.gltfJson = null
-    if (this.model) {
-      // SceneManager.instance.renderer.removeBatchedObject(this.model)
-      this.remove(this.model)
-      this.model = null
-    }
-    this.hideErrorIcon()
-    try {
-      this.isValidURL = true
-      const { url, files } = await resolveMedia(src)
-      if (this.model) {
-        // SceneManager.instance.renderer.removeBatchedObject(this.model)
-      }
-      await super.load(url)
-
-      if (this.initialScale === 'fit') {
-        this.scale.set(1, 1, 1)
-        if (this.model) {
-          this.updateMatrixWorld()
-          this.boundingBox.setFromObject(this.model)
-          this.boundingBox.getBoundingSphere(this.boundingSphere)
-          const diameter = this.boundingSphere.radius * 2
-          if ((diameter > 1000 || diameter < 0.1) && diameter !== 0) {
-            // Scale models that are too big or to small to fit in a 1m bounding sphere.
-            const scaleFactor = 1 / diameter
-            this.scale.set(scaleFactor, scaleFactor, scaleFactor)
-          } else if (diameter > 20) {
-            // If the bounding sphere of a model is over 20m in diameter, assume that the model was
-            // exported with units as centimeters and convert to meters.
-            // disabled this because we import scenes that are often bigger than this threshold
-            // this.scale.set(0.01, 0.01, 0.01);
-          }
-        }
-        // Clear scale to fit property so that the swapped model maintains the same scale.
-        this.initialScale = 1
-      } else {
-        this.scale.multiplyScalar(this.initialScale)
-        this.initialScale = 1
-      }
-      if (this.model) {
-        this.model.traverse((object) => {
-          if (object.material && object.material.isMeshStandardMaterial) {
-            object.material.envMap = SceneManager.instance.scene?.environmentMap
-            object.material.needsUpdate = true
-          }
-        })
-      }
-      makeCollidersInvisible(this.model)
-      this.updateStaticModes()
-    } catch (error) {
-      this.showErrorIcon()
-      const modelError = new RethrownError(`Error loading model "${this._canonicalUrl}"`, error)
-      if (onError) {
-        onError(this, modelError)
-      }
-      console.error(modelError)
-      this.issues.push({ severity: 'error', message: 'Error loading model.' })
-      this.isValidURL = false
-      //this._canonicalUrl = "";
-    }
-    CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
-    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
-
-    // this.hideLoadingCube();
-    return this
-  }
-  onAdd() {
-    if (this.model) {
-      // SceneManager.instance.renderer.addBatchedObject(this.model)
-    }
-  }
-  onRemove() {
-    if (this.model) {
-      // SceneManager.instance.renderer.removeBatchedObject(this.model)
-    }
-  }
-  onPlay() {
-    this.playAnimation()
-  }
-  onPause() {
-    this.stopAnimation()
-  }
-  onUpdate(delta: number, time: number) {
-    super.onUpdate(delta, time)
-    if (ControlManager.instance.isInPlayMode || this.animationMixer) {
-      this.update(delta)
-    }
-  }
-  simplyfyFloat(arr) {
-    return arr.map((v: number) => parseFloat((Math.round(v * 10000) / 10000).toFixed(4)))
+    if (this.extendNode) this.extendNode.reload()
   }
 
-  updateStaticModes() {
-    if (!this.model) return
-    setStaticMode(this.model, StaticModes.Static)
-    AnimationManager.instance.getAnimations().then((animations) => {
-      if (animations && animations.length > 0) {
-        for (const animation of animations) {
-          for (const track of animation.tracks) {
-            const { nodeName: uuid } = PropertyBinding.parseTrackName(track.name)
-            const animatedNode = this.model.getObjectByProperty('uuid', uuid)
-            if (!animatedNode) {
-              // throw new Error(
-              //   `Shopify.updateStaticModes: model with url "${this._canonicalUrl}" has an invalid animation "${animation.name}"`
-              // )
-            } else {
-              setStaticMode(animatedNode, StaticModes.Dynamic)
-            }
-          }
-        }
-      }
-    })
-  }
   async serialize(projectID) {
-    debugger
+    let extend: any
+    if (this.extendType == 'model') {
+      extend = {
+        src: this.extendNode._canonicalUrl,
+        envMapOverride: this.extendNode.envMapOverride !== '' ? this.extendNode.envMapOverride : undefined,
+        textureOverride: this.extendNode.textureOverride,
+        matrixAutoUpdate: this.extendNode.isUpdateDataMatrix,
+        castShadow: this.extendNode.castShadow,
+        receiveShadow: this.extendNode.receiveShadow
+      }
+
+      if (this.activeClipIndex !== -1) {
+        extend['loop-animation'] = {
+          activeClipIndex: this.extendNode.activeClipIndex,
+          hasAvatarAnimations: this.extendNode.hasAvatarAnimations
+        }
+      }
+
+      if (this.collidable) {
+        extend['collidable'] = {}
+      }
+
+      if (this.walkable) {
+        extend['walkable'] = {}
+      }
+    } else if (this.extendType == 'video') {
+      extend = {
+        src: this.extendNode.src,
+        interactable: this.extendNode.interactable,
+        isLivestream: this.extendNode.isLivestream,
+        controls: this.extendNode.controls,
+        autoPlay: this.extendNode.autoPlay,
+        synchronize: this.extendNode.synchronize,
+        loop: this.extendNode.loop,
+        audioType: this.extendNode.audioType,
+        volume: this.extendNode.volume,
+        distanceModel: this.extendNode.distanceModel,
+        rolloffFactor: this.extendNode.rolloffFactor,
+        refDistance: this.extendNode.refDistance,
+        maxDistance: this.extendNode.maxDistance,
+        coneInnerAngle: this.extendNode.coneInnerAngle,
+        coneOuterAngle: this.extendNode.coneOuterAngle,
+        coneOuterGain: this.extendNode.coneOuterGain,
+        projection: this.extendNode.projection,
+        elementId: this.extendNode.elementId
+      }
+    } else if (this.extendType == 'image') {
+      extend = {
+        src: this.extendNode._canonicalUrl,
+        controls: this.extendNode.controls,
+        alphaMode: this.extendNode.alphaMode,
+        alphaCutoff: this.extendNode.alphaCutoff,
+        projection: this.extendNode.projection
+      }
+    }
+
     const components = {
       'gltf-shopify': {
         shopifyProducts: this.shopifyProducts,
         shopifyDomain: this._shopifyDomain,
         shopifyToken: this._shopifyToken,
         shopifyProductId: this._shopifyProductId,
-        src: this._canonicalUrl,
-        envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
-        textureOverride: this.textureOverride,
-        matrixAutoUpdate: this.isUpdateDataMatrix
-      },
-      shadow: {
-        cast: this.castShadow,
-        receive: this.receiveShadow
+        shopifyProductItemId: this._shopifyProductItemId,
+        shopifyProductItems: this.shopifyProductItems,
+        extendType: this.extendType,
+        extend
       },
       interact: {
         interactable: this.interactable,
@@ -433,61 +503,6 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
         payloadModelUrl: this._canonicalUrl
       }
     }
-
-    if (this.activeClipIndex !== -1) {
-      components['loop-animation'] = {
-        activeClipIndex: this.activeClipIndex,
-        hasAvatarAnimations: this.hasAvatarAnimations
-      }
-    }
-    if (this.collidable) {
-      components['collidable'] = {}
-    }
-    if (this.walkable) {
-      components['walkable'] = {}
-    }
     return await super.serialize(projectID, components)
-  }
-  copy(source, recursive = true) {
-    super.copy(source, recursive)
-    if (source.loadingCube) {
-      this.initialScale = source.initialScale
-      this.load(source.src)
-    } else {
-      this.updateStaticModes()
-      this.gltfJson = source.gltfJson
-      this._canonicalUrl = source._canonicalUrl
-      this.envMapOverride = source.envMapOverride
-    }
-    this.collidable = source.collidable
-    this.textureOverride = source.textureOverride
-    this.shopifyDomain = source.shopifyDomain
-    this.shopifyProducts = source.shopifyProducts
-    this.shopifyToken = source.shopifyToken
-    this.shopifyProductId = source.shopifyProductId
-    this.walkable = source.walkable
-    return this
-  }
-
-  prepareForExport(ctx: any): void {
-    super.prepareForExport()
-    this.addGLTFComponent('shadow', {
-      cast: this.castShadow,
-      receive: this.receiveShadow
-    })
-    // TODO: Support exporting more than one active clip.
-    if (this.activeClip) {
-      const activeClipIndex = ctx.animations.indexOf(this.activeClip)
-      if (activeClipIndex === -1) {
-        throw new Error(
-          `Error exporting model "${this.name}" with url "${this._canonicalUrl}". Animation could not be found.`
-        )
-      } else {
-        this.addGLTFComponent('loop-animation', {
-          hasAvatarAnimations: this.hasAvatarAnimations,
-          activeClipIndex: activeClipIndex
-        })
-      }
-    }
   }
 }
