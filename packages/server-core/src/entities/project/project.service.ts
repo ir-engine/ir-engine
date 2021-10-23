@@ -8,6 +8,9 @@ declare module '../../../declarations' {
   interface ServiceTypes {
     project: Project
   }
+  interface Models {
+    project: ReturnType<typeof createModel>
+  }
 }
 
 export default (app: Application): void => {

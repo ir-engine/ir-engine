@@ -4,7 +4,7 @@ import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../../../declarations'
 import { HookReturn } from 'sequelize/types/lib/hooks'
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const locationType = sequelizeClient.define(
     'location_type',

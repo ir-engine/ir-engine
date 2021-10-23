@@ -7,7 +7,7 @@ import { Application } from '../../../declarations'
  * this model contain users setting
  */
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const UserSettings = sequelizeClient.define(
     'user_settings',

@@ -7,6 +7,7 @@ export interface ProjectPackageInterface {
 }
 
 export interface ProjectInterface extends ProjectPackageInterface {
+  id?: string
   name: string
   // version: string
   storageProviderPath?: string // does not exist in local dev

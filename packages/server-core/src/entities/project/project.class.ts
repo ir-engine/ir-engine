@@ -65,8 +65,15 @@ export class Project extends Service {
           repositoryPath: getRemoteURLFromGitData(name)
         }
 
-        console.log('[Projects]: Found new locally installed project', name)
+        console.warn('[Projects]: Found new locally installed project', name)
         super.create(dbEntryData)
+      }
+    }
+
+    for (const { name, id } of data) {
+      if (!locallyInstalledProjects.includes(name)) {
+        console.warn(`[Projects]: Project ${name} not found, assuming removed`)
+        super.remove(id)
       }
     }
   }
