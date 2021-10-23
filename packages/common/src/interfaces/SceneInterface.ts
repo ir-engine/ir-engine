@@ -1,14 +1,18 @@
-export interface SceneInterface {
+export interface SceneJson {
+  entities: { [uuid: string]: any }
+  root: string
+  metadata: string
+  version: number
+}
+
+export interface SceneInterface extends SceneJson {
   id: string
   user_id: string
   isPublic: boolean
-  metadata: string
   name: string
-  root: string
   sidsid: string
   type: string
   url: string
-  version: string
 }
 
 // TODO
@@ -29,4 +33,16 @@ export interface SceneDetailInterface {
   scene: SceneDetailData
   thumbnailUrl: string
   ownedFileIds: string
+}
+
+export interface SceneSaveInterface {
+  name: string
+  scene_id: string
+  thumbnailOwnedFileId: {
+    file_id: string
+    file_token: string
+  }
+  ownedFileIds: {}
+  scene_file_id: string
+  scene_file_token: string
 }

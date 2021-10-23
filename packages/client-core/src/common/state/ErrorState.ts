@@ -1,6 +1,7 @@
 import { ErrorActionType } from './ErrorActions'
 
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { store } from '../../store'
 
 const state = createState({
   readError: {
@@ -13,7 +14,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: ErrorActionType): any => {
+store.receptors.push((action: ErrorActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'SET_SCOPE_READ_ERROR':
@@ -22,7 +23,7 @@ export const receptor = (action: ErrorActionType): any => {
         return s.merge({ writeError: { scopeErrorMessage: action.message, statusCode: action.statusCode } })
     }
   }, action.type)
-}
+})
 
 export const errorState = () => state
 

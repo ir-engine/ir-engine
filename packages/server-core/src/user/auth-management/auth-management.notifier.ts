@@ -12,7 +12,7 @@ import config from '../../appconfig'
  * @returns {@function} sentEmail with app and email
  * @author Vyacheslav Solovjov
  */
-export default (app: Application): any => {
+export default (app: Application) => {
   return {
     service: config.authentication.service,
     identifyUserProps: ['token', 'type'],

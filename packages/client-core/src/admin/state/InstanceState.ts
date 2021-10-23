@@ -4,6 +4,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { store } from '../../store'
 
 export const INSTNCE_PAGE_LIMIT = 100
 
@@ -26,7 +27,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: InstanceActionType): any => {
+store.receptors.push((action: InstanceActionType): any => {
   let result
   state.batch((s) => {
     switch (action.type) {
@@ -51,7 +52,7 @@ export const receptor = (action: InstanceActionType): any => {
         s.merge({ instances: instance })
     }
   }, action.type)
-}
+})
 
 export const accessInstanceState = () => state
 

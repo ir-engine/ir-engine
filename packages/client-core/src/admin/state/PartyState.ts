@@ -4,6 +4,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
+import { store } from '../../store'
 
 export const PARTY_PAGE_LIMIT = 100
 
@@ -26,7 +27,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: PartyActionType): any => {
+store.receptors.push((action: PartyActionType): any => {
   let result
   state.batch((s) => {
     switch (action.type) {
@@ -37,7 +38,7 @@ export const receptor = (action: PartyActionType): any => {
         return s.parties.merge({ updateNeeded: true })
     }
   }, action.type)
-}
+})
 
 export const accessPartyState = () => state
 

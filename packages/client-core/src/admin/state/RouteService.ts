@@ -23,7 +23,7 @@ export const RouteService = {
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {
-        const routes = await client.service('route').find()
+        const routes = await client.service('route').find({ paginate: false })
         dispatch(RouteActions.activeRoutesRetrievedAction(routes))
       }
     } catch (err) {

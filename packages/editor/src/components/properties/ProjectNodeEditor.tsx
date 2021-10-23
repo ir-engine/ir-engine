@@ -82,7 +82,7 @@ export class ProjectNodeEditor extends Component<ProjectNodeEditorProps, Project
   getProjects = async () => {
     let projects: ProjectInterface[] = []
     try {
-      projects = await client.service('project').find()
+      projects = (await client.service('project').find()).data
       console.log(projects)
     } catch (e) {
       console.log(e)

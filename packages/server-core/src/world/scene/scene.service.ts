@@ -9,9 +9,12 @@ declare module '../../../declarations' {
   interface ServiceTypes {
     scene: Scene
   }
+  interface Models {
+    scene: ReturnType<typeof createModel>
+  }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   createAssetModel(app)
   const options = {
     Model: createModel(app),
