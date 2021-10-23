@@ -10,6 +10,7 @@ import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { getFilesRecursive } from '../../util/fsHelperFunctions'
+import { retriggerBuilderService } from './project-helper'
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
@@ -148,13 +149,16 @@ export class Project extends Service {
     }
 
     await Promise.all([...uploadPromises, super.create(dbEntryData, params)])
-    // TODO: trigger re-build
+    await retriggerBuilderService(this.app)
   }
 
   async remove(id: Id, params: Params) {
+    console.log('remove', id)
     try {
-      if (!isDev) await super.remove(id, params)
-      // TODO: trigger re-build
+      if (!isDev) {
+        await super.remove(id, params)
+        await retriggerBuilderService(this.app)
+      }
     } catch (e) {
       console.log(`[Projects]: failed to remove project ${id}`, e)
       return false

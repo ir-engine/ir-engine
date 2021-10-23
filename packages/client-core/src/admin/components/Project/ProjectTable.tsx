@@ -15,7 +15,7 @@ import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
 import { useAuthState } from '../../../user/state/AuthState'
 import { PROJECT_PAGE_LIMIT, useProjectState } from '../../state/ProjectState'
-import { fetchAdminProjects, uploadProject } from '../../state/ProjectService'
+import { fetchAdminProjects, removeProject, uploadProject } from '../../state/ProjectService'
 import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
@@ -151,12 +151,9 @@ const Projects = () => {
   //   setPage(0)
   // }
 
-  const handleCheck = (e: any, row: any) => {
-    const existingProjectsIndex = selectedProjects.findIndex((project) => project.name === row.name)
-    if (e.target.checked === true) {
-      if (existingProjectsIndex >= 0) setSelectedProjects(selectedProjects.splice(existingProjectsIndex, 1, row))
-      else setSelectedProjects(selectedProjects.concat(row))
-    } else setSelectedProjects(selectedProjects.splice(existingProjectsIndex, 1))
+  const onRemoveProject = async (e: any, row: any) => {
+    const projectToRemove = selectedProjects.find((project) => project.name === row.name)!
+    await removeProject(projectToRemove.id!)
   }
 
   const tryReuploadProjects = async (row) => {
@@ -250,7 +247,7 @@ const Projects = () => {
                       {user.userRole.value === 'admin' && (
                         <Button
                           className={styles.checkbox}
-                          onChange={(e) => handleCheck(e, row)}
+                          onChange={(e) => onRemoveProject(e, row)}
                           name="stereoscopic"
                           color="primary"
                         >
