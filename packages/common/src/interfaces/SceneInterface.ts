@@ -1,14 +1,18 @@
-export interface SceneInterface {
+export interface SceneJson {
+  entities: { [uuid: string]: any }
+  root: string
+  metadata: string
+  version: string | number
+}
+
+export interface SceneInterface extends SceneJson {
   id: string
   user_id: string
   isPublic: boolean
-  metadata: string
   name: string
-  root: string
   sidsid: string
   type: string
   url: string
-  version: string
 }
 
 // TODO

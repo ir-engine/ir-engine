@@ -1,14 +1,8 @@
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
-import { HemisphereLightComponent, HemisphereLightComponentClass } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
-import { GroundPlaneComponent, GroundPlaneComponentClass } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
-import { addObject3DComponent } from '@xrengine/engine/src/scene/functions/addObject3DComponent'
 import {
-  CircleBufferGeometry,
   Color,
   CubeTextureLoader,
   DataTexture,
@@ -17,8 +11,6 @@ import {
   Group,
   LinearFilter,
   LinearToneMapping,
-  Mesh,
-  MeshStandardMaterial,
   Object3D,
   PCFSoftShadowMap,
   PMREMGenerator,
@@ -31,17 +23,12 @@ import {
 } from 'three'
 import MeshCombinationGroup from '../classes/MeshCombinationGroup'
 import asyncTraverse from '../functions/asyncTraverse'
-import getNodeWithUUID from '../functions/getNodeWithUUID'
 import serializeColor from '../functions/serializeColor'
-import sortEntities from '../functions/sortEntities'
 import { isStatic, setStaticMode, StaticModes } from '../functions/StaticMode'
-import { NodeManager } from '../managers/NodeManager'
 import { SceneManager } from '../managers/SceneManager'
 import CubemapBakeNode from './CubemapBakeNode'
 import EditorNodeMixin from './EditorNodeMixin'
 import GroupNode from './GroupNode'
-import EntityTree from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = 'Scene'
@@ -400,7 +387,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return this
   }
   async serialize(projectId): Promise<any> {
-    const sceneJson = {
+    const sceneJson: SceneJson = {
       version: 4,
       root: this.uuid,
       metadata: this.parseMetadataToObject(this.metadata),

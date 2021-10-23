@@ -1,6 +1,7 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { InviteActionType } from './InviteActions'
 import { Invite } from '@xrengine/common/src/interfaces/Invite'
+import { store } from '../../store'
 
 export const INVITE_PAGE_LIMIT = 10
 
@@ -25,7 +26,7 @@ const state = createState({
   targetObjectType: ''
 })
 
-export const receptor = (action: InviteActionType): any => {
+store.receptors.push((action: InviteActionType): any => {
   let newValues
   state.batch((s) => {
     switch (action.type) {
@@ -75,7 +76,7 @@ export const receptor = (action: InviteActionType): any => {
         return s.getReceivedInvitesInProgress.set(true)
     }
   }, action.type)
-}
+})
 
 export const accessInviteState = () => state
 

@@ -2,13 +2,14 @@ import { ContentPackActionType } from './ContentPackActions'
 import _ from 'lodash'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { AdminContentPack } from '@xrengine/common/src/interfaces/AdminContentPack'
+import { store } from '../../store'
 
 const state = createState({
   contentPacks: [] as Array<AdminContentPack>,
   updateNeeded: true
 })
 
-export const receptor = (action: ContentPackActionType): any => {
+store.receptors.push((action: ContentPackActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'LOADED_CONTENT_PACKS':
@@ -19,7 +20,7 @@ export const receptor = (action: ContentPackActionType): any => {
         return s.merge({ updateNeeded: true })
     }
   }, action.type)
-}
+})
 
 export const accessContentPackState = () => state
 
