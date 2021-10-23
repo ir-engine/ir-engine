@@ -152,7 +152,7 @@ const Projects = () => {
   // }
 
   const onRemoveProject = async (e: any, row: any) => {
-    const projectToRemove = selectedProjects.find((project) => project.name === row.name)!
+    const projectToRemove = adminProjects.value.find((project) => project.name === row.name)!
     await removeProject(projectToRemove.id!)
   }
 
@@ -247,7 +247,7 @@ const Projects = () => {
                       {user.userRole.value === 'admin' && (
                         <Button
                           className={styles.checkbox}
-                          onChange={(e) => onRemoveProject(e, row)}
+                          onClick={(e) => onRemoveProject(e, row)}
                           name="stereoscopic"
                           color="primary"
                         >
