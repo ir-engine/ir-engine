@@ -77,6 +77,8 @@ export default class ModifyPropertyCommand extends Command {
     for (const propertyName in properties) {
       if (!Object.prototype.hasOwnProperty.call(properties, propertyName)) continue
 
+      const finalProp = propertyName.split('.').pop()
+
       for (let i = 0; i < objects.length; i++) {
         const object = objects[i]
 
@@ -85,9 +87,9 @@ export default class ModifyPropertyCommand extends Command {
         const res = this.getNestedObject(object, propertyName)
 
         if (value && value.copy) {
-          res[propertyName].copy(value)
+          res[finalProp].copy(value)
         } else {
-          res[propertyName] = value
+          res[finalProp] = value
         }
 
         if (object.onChange) {

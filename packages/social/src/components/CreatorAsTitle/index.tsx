@@ -2,36 +2,25 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 import { Typography, CardHeader, Avatar, IconButton } from '@material-ui/core'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import { updateCreatorPageState } from '../../reducers/popupsState/service'
-import { selectPopupsState } from '../../reducers/popupsState/selector'
-import { unBlockCreator } from '../../reducers/creator/service'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
-  unBlockCreator: bindActionCreators(unBlockCreator, dispatch)
-})
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {
   creator?: any
-  popupsState?: any
-  updateCreatorPageState?: typeof updateCreatorPageState
 }
-const CreatorAsTitle = ({ creator, updateCreatorPageState, unBlockCreator, popupsState }: any) => {
+
+const CreatorAsTitle = ({ creator }: any) => {
+  const dispatch = useDispatch()
+  const popupsState = usePopupsStateState()
   const removeBlockedUser = (blokedCreatorId) => {
-    unBlockCreator(blokedCreatorId)
+    CreatorService.unBlockCreator(blokedCreatorId)
   }
 
   return creator ? (
@@ -41,14 +30,14 @@ const CreatorAsTitle = ({ creator, updateCreatorPageState, unBlockCreator, popup
           src={creator.avatar}
           alt={creator.username}
           onClick={() => {
-            if (popupsState.get('creatorPage') === true) {
-              updateCreatorPageState(false)
+            if (popupsState.popups.creatorPage?.value === true) {
+              PopupsStateService.updateCreatorPageState(false)
               const intervalDelay = setTimeout(() => {
                 clearInterval(intervalDelay)
-                updateCreatorPageState(true, creator.id)
+                PopupsStateService.updateCreatorPageState(true, creator.id)
               }, 100)
             } else {
-              updateCreatorPageState(true, creator.id)
+              PopupsStateService.updateCreatorPageState(true, creator.id)
             }
           }}
         />
@@ -78,4 +67,4 @@ const CreatorAsTitle = ({ creator, updateCreatorPageState, unBlockCreator, popup
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreatorAsTitle)
+export default CreatorAsTitle

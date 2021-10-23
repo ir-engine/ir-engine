@@ -10,18 +10,17 @@ import { Object3DComponent } from '../src/scene/components/Object3DComponent'
 import { parseGLTFModel } from '../src/scene/functions/loadGLTFModel'
 import { TransformComponent } from '../src/transform/components/TransformComponent'
 import { WorldScene } from "../src/scene/functions/SceneLoading";
-import { createCollider, createShape } from "../src/physics/functions/createCollider";
 import { isTriggerShape } from "../src/physics/classes/Physics";
-
+import assert from 'assert'
 
 describe('Scene Loader', () => {
 
   // force close until we can reset the engine properly
-  afterAll(async () => {
-    setTimeout(() => process.exit(0), 1000)
-  })
+  // after(async () => {
+  //   setTimeout(() => process.exit(0), 1000)
+  // })
 
-  test('Can load gltf metadata', async () => {
+  it.skip('Can load gltf metadata', async () => {
 
     const mockComponentData = { data: { src: '' } } as any
     const CustomComponent = createMappedComponent<{ value: number}>('CustomComponent')
@@ -35,32 +34,32 @@ describe('Scene Loader', () => {
     const number = Math.random()
     const mesh = new Mesh()
     mesh.userData = {
-      'realitypack.entity': entityName,
-      'realitypack.box-collider.isTrigger': true,
-      'realitypack.CustomComponent.value': number
+      'project.entity': entityName,
+      'project.box-collider.isTrigger': true,
+      'project.CustomComponent.value': number
     }
     const colliderQuery = defineQuery([NameComponent, TransformComponent, Object3DComponent, CustomComponent, ColliderComponent])
   
-    parseGLTFModel(sceneLoader, entity, mockComponentData, undefined, mesh)
+    parseGLTFModel(sceneLoader, entity, mockComponentData, undefined!, mesh)
 
     const [loadedEntity] = colliderQuery(useWorld())
-    expect(typeof loadedEntity).not.toBe('undefined')
-    expect(getComponent(loadedEntity, NameComponent).name).toBe(entityName)
-    expect(getComponent(loadedEntity, CustomComponent).value).toBe(number)
+    assert.equal(typeof loadedEntity, 'number')
+    assert.equal(getComponent(loadedEntity, NameComponent).name, entityName)
+    assert.equal(getComponent(loadedEntity, CustomComponent).value, number)
     const shape = useWorld().physics.getOriginalShapeObject(getComponent(loadedEntity, ColliderComponent).body.getShapes())
-    expect(isTriggerShape(shape)).toBe(true)
+    assert.equal(isTriggerShape(shape!), true)
   })
 
   // TODO
-  test.skip('Can load physics objects from gltf metadata', async () => {
+  it.skip('Can load physics objects from gltf metadata', async () => {
 
     const entity = createEntity()
     addComponent(entity, TransformComponent, { position: new Vector3(), rotation: new Quaternion(), scale: new Vector3(1,1,1), })
     const entityName = 'physics test entity'
     const parentGroup = new Group()
     parentGroup.userData = {
-      'realitypack.entity': entityName,
-      'realitypack.collider.bodyType': 0,
+      'project.entity': entityName,
+      'project.collider.bodyType': 0,
     }
 
     const mesh = new Mesh()

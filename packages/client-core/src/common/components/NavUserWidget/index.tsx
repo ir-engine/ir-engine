@@ -1,31 +1,20 @@
-import { User } from '@xrengine/common/src/interfaces/User'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { AuthService } from '../../../user/reducers/auth/AuthService'
-import { showDialog } from '../../reducers/dialog/service'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { AuthService } from '../../../user/state/AuthService'
+import { DialogAction } from '../../state/DialogActions'
 import SignIn from '../../../user/components/Auth/Login'
 import Dropdown from '../../../user/components/Profile/ProfileDropdown'
 import { useTranslation } from 'react-i18next'
 import styles from './NavUserWidget.module.scss'
 import Button from '@material-ui/core/Button'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  showDialog: bindActionCreators(showDialog, dispatch)
-})
-
 interface Props {
   login?: boolean
-  showDialog?: typeof showDialog
 }
 
 const NavUserBadge = (props: Props): any => {
-  const { login, showDialog } = props
+  const { login } = props
   const dispatch = useDispatch()
 
   const { t } = useTranslation()
@@ -34,14 +23,14 @@ const NavUserBadge = (props: Props): any => {
   }, [])
 
   const handleLogout = () => {
-    dispatch(AuthService.logoutUser())
+    AuthService.logoutUser()
   }
 
   const handleLogin = () => {
     const params = new URLSearchParams(document.location.search)
     const showLoginDialog = params.get('login')
     if (showLoginDialog === String(true)) {
-      showDialog({ children: <SignIn /> })
+      dispatch(DialogAction.dialogShow({ children: <SignIn /> }))
     }
   }
   const auth = useAuthState()
@@ -62,9 +51,11 @@ const NavUserBadge = (props: Props): any => {
           color="primary"
           className={styles.loginButton}
           onClick={() =>
-            showDialog({
-              children: <SignIn />
-            })
+            dispatch(
+              DialogAction.dialogShow({
+                children: <SignIn />
+              })
+            )
           }
         >
           {t('common:navUserWidget.login')}
@@ -74,4 +65,4 @@ const NavUserBadge = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NavUserBadge)
+export default NavUserBadge

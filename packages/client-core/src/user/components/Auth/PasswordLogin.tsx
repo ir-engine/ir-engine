@@ -8,35 +8,23 @@ import Grid from '@material-ui/core/Grid'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '../../reducers/auth/AuthState'
-import { showDialog, closeDialog } from '../../../common/reducers/dialog/service'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../state/AuthState'
+import { DialogAction } from '../../../common/state/DialogActions'
 import SignUp from './Register'
 import ForgotPassword from './ForgotPassword'
 import styles from './Auth.module.scss'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../state/AuthService'
 import { useTranslation } from 'react-i18next'
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  showDialog: bindActionCreators(showDialog, dispatch),
-  closeDialog: bindActionCreators(closeDialog, dispatch)
-})
 
 const initialState = { email: '', password: '' }
 
 interface Props {
   isAddConnection?: boolean
-  closeDialog?: typeof closeDialog
-  showDialog?: typeof showDialog
 }
 
 export const PasswordLogin = (props: Props): any => {
-  const { isAddConnection, closeDialog, showDialog } = props
+  const { isAddConnection } = props
   const auth = useAuthState()
   const [state, setState] = useState(initialState)
   const { t } = useTranslation()
@@ -60,7 +48,7 @@ export const PasswordLogin = (props: Props): any => {
           userId
         )
       )
-      closeDialog()
+      dispatch(DialogAction.dialogClose())
     } else {
       dispatch(
         AuthService.loginUserByPassword({
@@ -128,9 +116,11 @@ export const PasswordLogin = (props: Props): any => {
                   href="#"
                   // variant="body2"
                   onClick={() =>
-                    showDialog({
-                      children: <ForgotPassword />
-                    })
+                    dispatch(
+                      DialogAction.dialogShow({
+                        children: <ForgotPassword />
+                      })
+                    )
                   }
                 >
                   {t('user:auth.passwordLogin.forgotPassword')}
@@ -143,9 +133,11 @@ export const PasswordLogin = (props: Props): any => {
                   href="#"
                   // variant="body2"
                   onClick={() =>
-                    showDialog({
-                      children: <SignUp />
-                    })
+                    dispatch(
+                      DialogAction.dialogShow({
+                        children: <SignUp />
+                      })
+                    )
                   }
                 >
                   {t('user:auth.passwordLogin.signup')}
@@ -161,4 +153,4 @@ export const PasswordLogin = (props: Props): any => {
 
 const PasswordLoginWrapper = (props: Props): any => <PasswordLogin {...props} />
 
-export default connect(mapStateToProps, mapDispatchToProps)(PasswordLoginWrapper)
+export default PasswordLoginWrapper

@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from 'three'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { Axis } from '../classes/Axis'
-import { IKRigComponent } from './IKRigComponent'
 
 export type IKPoseLimbData = { lengthScale: number; dir: Vector3; jointDirection: Vector3 }
 export type IKPoseLookTwist = { lookDirection: Vector3; twistDirection: Vector3 }
@@ -18,8 +17,6 @@ export type IKPoseComponentType = {
   endPosition?: Vector3 // Target position for chain to reach (end effector)
   axis?: Axis // Axis of rotation toward the end position
   length?: number
-
-  targetRigs?: ReturnType<typeof IKRigComponent.get>[]
 
   spineParentQuaternion?: Quaternion
   spineParentPosition?: Vector3
@@ -54,8 +51,6 @@ export const defaultIKPoseComponentValues = function (): IKPoseComponentType {
     endPosition: new Vector3(), // Target position for chain to reach (end effector)
     axis: new Axis(), // Axis of rotation toward the end position
     length: 0,
-
-    targetRigs: [],
 
     spineParentQuaternion: new Quaternion(),
     spineParentPosition: new Vector3(),

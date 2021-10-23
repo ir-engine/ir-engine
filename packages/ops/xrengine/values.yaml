@@ -53,7 +53,7 @@ client:
     SERVER_ENABLED: "false"
     SITE_TITLE: MyXR
     SITE_DESC: Connected Worlds for Everyone
-    NODE_ENV: production
+    APP_ENV: production
 
 
 api:

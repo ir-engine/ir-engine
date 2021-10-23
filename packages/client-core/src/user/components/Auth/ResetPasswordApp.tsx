@@ -3,14 +3,14 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../state/AuthService'
 import styles from './Auth.module.scss'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import IconButton from '@material-ui/core/IconButton'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '../../../store'
 
 interface Props {
   token: string
@@ -30,7 +30,7 @@ export const ResetPassword = (props: Props): any => {
   }
   const handleReset = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.resetPassword(token, state.password))
+    AuthService.resetPassword(token, state.password)
     setState({ ...state, isSubmitted: true })
   }
 

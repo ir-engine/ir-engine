@@ -1,37 +1,53 @@
-import { SkinnedMesh, Vector3 } from 'three'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Chain } from '../components/Chain'
+// @ts-nocheck
+import { Object3D, SkinnedMesh } from 'three'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Chain } from '../classes/Chain'
 import { IKObj } from '../components/IKObj'
-import { IKRigComponent } from '../components/IKRigComponent'
+import { IKRigComponent, IKRigTargetComponent, IKRigComponentType } from '../components/IKRigComponent'
 import { ArmatureType } from '../enums/ArmatureType'
 import { Entity } from '../../ecs/classes/Entity'
 import Pose from '../classes/Pose'
 import { setupMixamoIKRig, setupTRexIKRig } from './IKFunctions'
 import { IKSolverFunction, solveLimb } from './IKSolvers'
 
-export function initRig(
+export function addRig(
   entity: Entity,
+  rootObject: Object3D,
   tpose = null,
   use_node_offset = false,
   arm_type: ArmatureType = ArmatureType.MIXAMO
-) {
-  const rig = getComponent(entity, IKRigComponent)
-  // const armature = getComponent(entity, Armature)
+): IKRigComponentType {
+  return _addRig(IKRigComponent, entity, rootObject, tpose, use_node_offset, arm_type)
+}
 
-  // rig.arm = armature
-  // Set up poses
-  rig.pose = new Pose(entity, false)
-  rig.tpose = new Pose(entity, true) // If Passing a TPose, it must have its world space computed.
+export function addTargetRig(
+  entity: Entity,
+  rootObject: Object3D,
+  tpose = null,
+  use_node_offset = false,
+  arm_type: ArmatureType = ArmatureType.MIXAMO
+): IKRigComponentType {
+  return _addRig(IKRigTargetComponent, entity, rootObject, tpose, use_node_offset, arm_type)
+}
 
-  //-----------------------------------------
-  // Apply Node's Starting Transform as an offset for poses.
-  // This is only important when computing World Space Transforms when
-  // dealing with specific skeletons, like Mixamo stuff.
-  // Need to do this to render things correctly
-  // TODO: Verify the numbers of this vs the original
-  let objRoot = getComponent(entity, IKObj).ref // Obj is a ThreeJS Component
-  rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
-  rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
+function _addRig(
+  componentClass: typeof IKRigComponent | typeof IKRigTargetComponent,
+  entity: Entity,
+  rootObject: Object3D,
+  tpose = null,
+  use_node_offset = false,
+  arm_type: ArmatureType = ArmatureType.MIXAMO
+): IKRigComponentType {
+  // NOTE: rootObject should contain skinnedMesh and it's bones
+  const skinnedMesh = rootObject.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+
+  addComponent(entity, IKObj, { ref: skinnedMesh })
+  const rig = addComponent(entity, componentClass, {
+    tpose: new Pose(rootObject, true), // If Passing a TPose, it must have its world space computed.
+    pose: new Pose(rootObject, false),
+    chains: null, // will be populated later in setup rig
+    points: null // will be populated later in setup rig
+  })
 
   //
   // //-----------------------------------------
@@ -56,16 +72,20 @@ export function initRig(
   // // Known Skeleton Structures.
   switch (arm_type) {
     case ArmatureType.MIXAMO:
-      setupMixamoIKRig(entity, rig)
+      setupMixamoIKRig(rig)
       break
     case ArmatureType.TREX:
-      setupTRexIKRig(entity, rig)
+      setupTRexIKRig(rig)
       break
     default:
       console.error('Unsupported rig type', arm_type)
   }
 
   rig.tpose.apply()
+
+  if (!Object.keys(rig.chains).length || !Object.keys(rig.points).length) {
+    debugger
+  }
 
   return rig
 }
@@ -74,15 +94,15 @@ function initMixamoRig(armature, rig) {
   console.error('initMixamoRig NOT IMPLEMENTED')
 }
 
-export function addPoint(entity: Entity, name: string, boneName: string): void {
-  const armature = getComponent(entity, IKObj).ref
-  const rig = getComponent(entity, IKRigComponent)
+export function addPoint(rig: IKRigComponentType, name: string, boneName: string): void {
+  const bones = rig.tpose.bones
   rig.points[name] = {
-    index: armature.skeleton.bones.findIndex((bone) => bone.name.includes(boneName))
+    index: bones.findIndex((bone) => bone.name.includes(boneName))
   }
 }
+
 export function addChain(
-  entity: Entity,
+  rig: IKRigComponentType,
   name: string,
   nameArray: string[],
   end_name: string | null = null,
@@ -90,18 +110,17 @@ export function addChain(
 ) {
   //  axis="z",
   let boneName: string, b
-  const armature = getComponent(entity, IKObj).ref
-  const rig = getComponent(entity, IKRigComponent)
+  const bones = rig.tpose.bones
 
   const chain = new Chain() // axis
   for (boneName of nameArray) {
-    const index = armature.skeleton.bones.findIndex((bone) => bone.name.includes(boneName))
+    const index = bones.findIndex((bone) => bone.name.includes(boneName))
     // TODO: skip the bone? or skip the chain? or throw error?
     if (index === -1) {
-      console.warn('addChain: Bone [%s] not found in armature', boneName, armature)
+      console.warn('addChain: Bone [%s] not found in armature', boneName, bones)
       continue
     }
-    const bone = armature.skeleton.bones[index]
+    const bone = bones[index].bone
 
     let length = 0
     if (bone.children.length > 0) {
@@ -115,9 +134,7 @@ export function addChain(
   }
 
   if (end_name) {
-    chain.end_idx = armature.skeleton.bones.findIndex((bone) =>
-      bone.name.toLowerCase().includes(end_name.toLowerCase())
-    )
+    chain.end_idx = bones.findIndex((bone) => bone.name.toLowerCase().includes(end_name.toLowerCase()))
   }
 
   chain.ikSolver = ikSolver ?? solveLimb

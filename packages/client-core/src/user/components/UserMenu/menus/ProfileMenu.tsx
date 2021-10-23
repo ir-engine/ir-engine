@@ -3,17 +3,15 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
-import { useAuthState } from '../../../reducers/auth/AuthState'
-import { AuthService } from '../../../reducers/auth/AuthService'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { useAuthState } from '../../../../user/state/AuthState'
+import { AuthService } from '../../../../user/state/AuthService'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '../../../../store'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
-import { getAvatarURLFromNetwork, Views } from '../util'
+import { getAvatarURLForUser, Views } from '../util'
 import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../UserMenu.module.scss'
@@ -75,7 +73,7 @@ const ProfileMenu = (props: Props): any => {
     const name = username.trim()
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
-      dispatch(AuthService.updateUsername(selfUser.id.value, name))
+      AuthService.updateUsername(selfUser.id.value, name)
     }
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
@@ -96,19 +94,19 @@ const ProfileMenu = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') dispatch(AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value))
-    else if (type === 'sms') dispatch(AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value))
+    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value)
+    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value)
     return
   }
 
   const handleOAuthServiceClick = (e) => {
-    dispatch(AuthService.loginUserByOAuth(e.currentTarget.id))
+    AuthService.loginUserByOAuth(e.currentTarget.id)
   }
 
   const handleLogout = async (e) => {
     if (changeActiveMenu != null) changeActiveMenu(null)
     else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
-    await dispatch(AuthService.logoutUser())
+    await AuthService.logoutUser()
     // window.location.reload()
   }
 
@@ -136,7 +134,7 @@ const ProfileMenu = (props: Props): any => {
     const result: any = await navigator.credentials.get(didAuthQuery)
     console.log(result)
 
-    dispatch(AuthService.loginUserByXRWallet(result))
+    AuthService.loginUserByXRWallet(result)
   }
 
   return (
@@ -144,19 +142,26 @@ const ProfileMenu = (props: Props): any => {
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
-            <img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id?.value)} />
+            <img src={getAvatarURLForUser(selfUser?.id?.value)} />
             {changeActiveMenu != null && (
-              <Button className={styles.avatarBtn} onClick={() => changeActiveMenu(Views.Avatar)} disableRipple>
+              <Button
+                className={styles.avatarBtn}
+                id="select-avatar"
+                onClick={() => changeActiveMenu(Views.Avatar)}
+                disableRipple
+              >
                 <Create />
               </Button>
             )}
           </div>
           <div className={styles.headerBlock}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              {t('user:usermenu.profile.lbl-username')}
+            </Typography>
             <span className={styles.inputBlock}>
               <TextField
                 margin="none"
                 size="small"
-                label={t('user:usermenu.profile.lbl-username')}
                 name="username"
                 variant="outlined"
                 value={username || ''}
@@ -226,7 +231,7 @@ const ProfileMenu = (props: Props): any => {
                 </form>
               </section>
             )}
-            {selfUser?.userRole.value === 'guest' && (
+            {selfUser?.userRole.value === 'guest' && changeActiveMenu != null && (
               <section className={styles.walletSection}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
@@ -247,11 +252,11 @@ const ProfileMenu = (props: Props): any => {
                   {t('user:usermenu.profile.connectSocial')}
                 </Typography>
                 <div className={styles.socialContainer}>
-                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
                   <a href="#" id="google" onClick={handleOAuthServiceClick}>
                     <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
+                  </a>
+                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
+                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                   </a>
                   <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
                     <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />

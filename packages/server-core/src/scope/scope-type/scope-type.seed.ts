@@ -3,6 +3,12 @@ export const scopeTypeSeed = {
   randomize: false,
   templates: [
     {
+      type: 'routes:read'
+    },
+    {
+      type: 'routes:write'
+    },
+    {
       type: 'location:read'
     },
     {
@@ -67,6 +73,12 @@ export const scopeTypeSeed = {
     },
     {
       type: 'scene:write'
+    },
+    {
+      type: 'projects:read'
+    },
+    {
+      type: 'projects:write'
     }
   ]
 }

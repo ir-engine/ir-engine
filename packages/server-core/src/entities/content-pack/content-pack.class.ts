@@ -1,34 +1,62 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
-import StorageProvider from '../../media/storageprovider/storageprovider'
-import { assembleScene, getAxiosConfig, populateAvatar, populateScene, uploadAvatar } from './content-pack-helper'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import {
+  assembleScene,
+  getAxiosConfig,
+  populateAvatar,
+  populateScene,
+  uploadAvatar,
+  assembleProject,
+  populateProject
+} from './content-pack-helper'
 import config from '../../appconfig'
 import axios from 'axios'
+import {
+  StorageListObjectInterface,
+  StorageObjectInterface
+} from '../../media/storageprovider/storageprovider.interface'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
-interface Data {}
+interface Data {
+  scenes?: SceneData[]
+  contentPack?: any
+  avatars?: Array<{
+    thumbnail: string
+    avatar: AvatarInterface
+  }>
+  projects?: ProjectInterface[]
+}
 
 interface ServiceOptions {}
-const storageProvider = new StorageProvider()
+const storageProvider = useStorageProvider()
 const packRegex = /content-pack\/([a-zA-Z0-9_-]+)\/manifest.json/
 const thumbnailRegex = /([a-zA-Z0-9_-]+).jpeg/
 
 const getManifestKey = (packName: string) => `content-pack/${packName}/manifest.json`
 const getWorldFileKey = (packName: string, name: string) => `content-pack/${packName}/world/${name}.world`
 const getWorldFileUrl = (packName: string, uuid: string) =>
-  `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/world/${uuid}.world`
+  `https://${storageProvider.cacheDomain}/content-pack/${packName}/world/${uuid}.world`
 const getThumbnailKey = (packName: string, url: string) => {
   const uuidRegexExec = thumbnailRegex.exec(url)
   return `content-pack/${packName}/img/${uuidRegexExec[1]}.jpeg`
 }
 const getThumbnailUrl = (packName: string, url: string) => {
   const uuidRegexExec = thumbnailRegex.exec(url)
-  return `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/img/${uuidRegexExec[1]}.jpeg`
+  return `https://${storageProvider.cacheDomain}/content-pack/${packName}/img/${uuidRegexExec[1]}.jpeg`
 }
 const getAvatarUrl = (packName: string, avatar: any) =>
-  `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/${avatar.key}`
+  `https://${storageProvider.cacheDomain}/content-pack/${packName}/${avatar.key}`
 const getAvatarThumbnailUrl = (packName: string, thumbnail: any) =>
-  `https://${storageProvider.provider.cacheDomain}/content-pack/${packName}/${thumbnail.key}`
+  `https://${storageProvider.cacheDomain}/content-pack/${packName}/${thumbnail.key}`
+
+const getProjectManifestUrl = (packName: string, project: any) =>
+  `https://${storageProvider.cacheDomain}/content-pack/${packName}/project/${project.name}/manifest.json`
+const getProjectManifestKey = (packName: string, project: any) =>
+  `/content-pack/${packName}/project/${project.name}/manifest.json`
 
 /**
  * A class for Upload Media service
@@ -46,8 +74,8 @@ export class ContentPack implements ServiceMethods<Data> {
 
   async setup() {}
 
-  async find(params?: Params): Promise<any[] | Paginated<any>> {
-    const result = await new Promise((resolve, reject) => {
+  async find(params?: Params) {
+    const result = (await new Promise((resolve, reject) => {
       storageProvider
         .listObjects('content-pack')
         .then((data) => {
@@ -57,8 +85,8 @@ export class ContentPack implements ServiceMethods<Data> {
           console.error(err)
           reject(err)
         })
-    })
-    const manifests = (result as any).Contents.filter((result) => packRegex.exec(result.Key) != null)
+    })) as StorageListObjectInterface
+    const manifests = result.Contents.filter((result) => packRegex.exec(result.Key) != null)
     return Promise.all(
       manifests.map(async (manifest) => {
         const manifestResult = (await new Promise((resolve, reject) => {
@@ -71,10 +99,10 @@ export class ContentPack implements ServiceMethods<Data> {
               console.error(err)
               reject(err)
             })
-        })) as any
+        })) as StorageObjectInterface
         return {
           name: packRegex.exec(manifest.Key)[1],
-          url: `https://${storageProvider.provider.cacheDomain}/${manifest.Key}`,
+          url: `https://${storageProvider.cacheDomain}/${manifest.Key}`,
           data: JSON.parse(manifestResult.Body.toString())
         }
       })
@@ -87,18 +115,20 @@ export class ContentPack implements ServiceMethods<Data> {
 
   async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
-      return await Promise.all(data.map((current) => this.create(current, params)))
+      return (await Promise.all(data.map((current) => this.create(current, params)))) as any
     }
 
     let uploadPromises = []
-    const { scenes, contentPack, avatars } = data as any
+    const { scenes, contentPack, avatars, projects } = data
     await storageProvider.checkObjectExistence(getManifestKey(contentPack))
     const body = {
       version: 1,
       avatars: [],
-      scenes: []
+      scenes: [],
+      projects: []
     }
     const promises = []
+    console.log('incoming projects', projects)
     if (scenes != null) {
       for (const scene of scenes) {
         promises.push(
@@ -118,9 +148,8 @@ export class ContentPack implements ServiceMethods<Data> {
             if (thumbnailFind.total > 0) {
               const thumbnail = thumbnailFind.data[0]
               const url = thumbnail.url
-              const thumbnailDownload = await axios.get(url, getAxiosConfig())
+              const thumbnailDownload = await axios.get<Buffer>(url, getAxiosConfig())
               await storageProvider.putObject({
-                ACL: 'public-read',
                 Body: thumbnailDownload.data,
                 ContentType: 'jpeg',
                 Key: getThumbnailKey(contentPack, url)
@@ -128,7 +157,6 @@ export class ContentPack implements ServiceMethods<Data> {
               thumbnailLink = getThumbnailUrl(contentPack, url)
             }
             await storageProvider.putObject({
-              ACL: 'public-read',
               Body: Buffer.from(JSON.stringify(worldFile)),
               ContentType: 'application/json',
               Key: worldFileKey
@@ -144,7 +172,8 @@ export class ContentPack implements ServiceMethods<Data> {
           })
         )
       }
-    } else if (avatars != null) {
+    }
+    if (avatars != null) {
       for (const avatarItem of avatars) {
         promises.push(
           new Promise(async (resolve) => {
@@ -161,10 +190,25 @@ export class ContentPack implements ServiceMethods<Data> {
         )
       }
     }
+    if (projects != null) {
+      for (const project of projects) {
+        const newProject = {
+          name: project.name,
+          manifest: getProjectManifestUrl(contentPack, project)
+        }
+        promises.push(
+          new Promise(async (resolve) => {
+            const assembleResponse = await assembleProject(project, contentPack)
+            uploadPromises = assembleResponse.uploadPromises
+            resolve(true)
+          })
+        )
+        body.projects.push(newProject)
+      }
+    }
 
     await Promise.all(promises)
     await storageProvider.putObject({
-      ACL: 'public-read',
       Body: Buffer.from(JSON.stringify(body)),
       ContentType: 'application/json',
       Key: getManifestKey(contentPack)
@@ -176,22 +220,23 @@ export class ContentPack implements ServiceMethods<Data> {
   async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     const manifestUrl = (data as any).manifestUrl
     const manifestResult = await axios.get(manifestUrl, getAxiosConfig('json'))
-    const { avatars, scenes } = manifestResult.data
+    const { avatars, scenes, projects } = manifestResult.data as Data
     const promises = []
     for (const index in scenes) {
       const scene = scenes[index]
-      const sceneResult = await axios.get(scene.worldFile, getAxiosConfig('json'))
+      const sceneResult = await axios.get<Buffer>(scene.worldFile, getAxiosConfig('json'))
       promises.push(populateScene(scene.sid, sceneResult.data, manifestUrl, this.app, scene.thumbnail))
     }
     for (const index in avatars) promises.push(populateAvatar(avatars[index], this.app))
+    for (const index in projects) promises.push(populateProject(projects[index].manifest, this.app, params))
     await Promise.all(promises)
     return data
   }
 
   async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     let uploadPromises = []
-    const { scenes, contentPack, avatars } = data as any
-    let pack = await storageProvider.getObject(getManifestKey(contentPack))
+    const { scenes, contentPack, avatars, projects } = data as any
+    const pack = await storageProvider.getObject(getManifestKey(contentPack))
     const body = JSON.parse((pack as any).Body.toString())
     const invalidationItems = [`/content-pack/${contentPack}/manifest.json`]
     const promises = []
@@ -215,10 +260,9 @@ export class ContentPack implements ServiceMethods<Data> {
             if (thumbnailFind.total > 0) {
               const thumbnail = thumbnailFind.data[0]
               const url = thumbnail.url
-              const thumbnailDownload = await axios.get(url, getAxiosConfig())
+              const thumbnailDownload = await axios.get<Buffer>(url, getAxiosConfig())
               const thumbnailKey = getThumbnailKey(contentPack, url)
               await storageProvider.putObject({
-                ACL: 'public-read',
                 Body: thumbnailDownload.data,
                 ContentType: 'jpeg',
                 Key: thumbnailKey
@@ -227,7 +271,6 @@ export class ContentPack implements ServiceMethods<Data> {
               invalidationItems.push(`/${thumbnailKey}`)
             }
             await storageProvider.putObject({
-              ACL: 'public-read',
               Body: Buffer.from(JSON.stringify(worldFile)),
               ContentType: 'application/json',
               Key: worldFileKey
@@ -262,13 +305,30 @@ export class ContentPack implements ServiceMethods<Data> {
           })
         )
       }
+    } else if (projects != null) {
+      if (body.projects == null) body.projects = []
+      for (const project of projects) {
+        body.projects = body.projects.filter((existingProject) => existingProject.name !== project.name)
+        const newProject = {
+          name: project.name,
+          manifest: getProjectManifestUrl(contentPack, project)
+        }
+        invalidationItems.push(getProjectManifestKey(contentPack, project))
+        promises.push(
+          new Promise(async (resolve) => {
+            const assembleResponse = await assembleProject(project, contentPack)
+            uploadPromises = assembleResponse.uploadPromises
+            resolve(true)
+          })
+        )
+        body.projects.push(newProject)
+      }
     }
 
     await Promise.all(promises)
     if (body.version) body.version++
     else body.version = 1
     await storageProvider.putObject({
-      ACL: 'public-read',
       Body: Buffer.from(JSON.stringify(body)),
       ContentType: 'application/json',
       Key: getManifestKey(contentPack)

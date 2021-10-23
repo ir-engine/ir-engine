@@ -119,7 +119,7 @@ test("create", () => {
 
   // WorldStateInterface
   Network.instance.incomingMessageQueue.add(WorldStateModel.toBuffer(message));
-  execute(1, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+  execute(1, 1 / Engine.physicsFrameRate, SystemUpdateType.FIXED);
 
   expect(initializeNetworkObject.mock.calls.length).toBe(1);
 
@@ -152,10 +152,10 @@ test("two inputs messages", () => {
     };
   }
   input.schema.inputButtonBehaviors[BaseInput.FORWARD].started.push({
-    behavior: e => buttonCalls.push([e, LifecycleValue.STARTED, null])
+    behavior: e => buttonCalls.push([e, LifecycleValue.Started, null])
   });
   input.schema.inputButtonBehaviors[BaseInput.FORWARD].ended.push({
-    behavior: e => buttonCalls.push([e, LifecycleValue.ENDED, null])
+    behavior: e => buttonCalls.push([e, LifecycleValue.Ended, null])
   });
 
   const messageWorldState: WorldStateInterface = {
@@ -169,21 +169,21 @@ test("two inputs messages", () => {
         "axes1d": [
           {
             input: BaseInput.CROUCH,
-            lifecycleState: LifecycleValue.CHANGED,
+            lifecycleState: LifecycleValue.Changed,
             value: 0.2
           }
         ],
         "axes2d": [
           {
             input: BaseInput.SCREENXY,
-            lifecycleState: LifecycleValue.CHANGED,
+            lifecycleState: LifecycleValue.Changed,
             value: [0.1, 240]
           }
         ],
         "buttons": [
           {
             "input": BaseInput.FORWARD,
-            "lifecycleState": LifecycleValue.STARTED,
+            "lifecycleState": LifecycleValue.Started,
             "value": BinaryValue.ON,
           }
         ],
@@ -198,21 +198,21 @@ test("two inputs messages", () => {
         "axes1d": [
           {
             input: BaseInput.CROUCH,
-            lifecycleState: LifecycleValue.CHANGED,
+            lifecycleState: LifecycleValue.Changed,
             value: 0.9
           }
         ],
         "axes2d": [
           {
             input: BaseInput.SCREENXY,
-            lifecycleState: LifecycleValue.CHANGED,
+            lifecycleState: LifecycleValue.Changed,
             value: [50, 21]
           }
         ],
         "buttons": [
           {
             "input": BaseInput.FORWARD,
-            "lifecycleState": LifecycleValue.ENDED,
+            "lifecycleState": LifecycleValue.Ended,
             "value": BinaryValue.OFF,
           }
         ],
@@ -231,7 +231,7 @@ test("two inputs messages", () => {
   const messageToQueue = !Network.instance.packetCompression ? messageWorldState : WorldStateModel.toBuffer(messageWorldState);
   Network.instance.incomingMessageQueue.add(messageToQueue);
 
-  execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
+  execute(0, 1 / Engine.physicsFrameRate, SystemUpdateType.FIXED);
 
   expect(buttonCalls.length).toBe(2);
 

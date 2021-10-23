@@ -12,7 +12,7 @@ export const collectionSeed = {
       isPublic: 1,
       createdAt: '2020-11-12 10:54:59',
       updatedAt: '2020-11-12 10:54:59',
-      type: 'project',
+      type: 'scene',
       thumbnailOwnedFileId: 'd0828450-24e4-11eb-8630-81b209daf73a'
     }
   ]

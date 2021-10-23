@@ -43,6 +43,25 @@ spec:
               value: "client"
             - name: KUBERNETES
               value: "true"
+            - name: MYSQL_USER
+              value: {{ .Values.mariadb.db.user }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mariadb.db.name }}
+            - name: MYSQL_PASSWORD
+              {{- if not .Values.mariadb.enabled }}
+              value: {{ .Values.mariadb.db.password | quote }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.mariadb.existingSecret }}
+                  name: {{ .Values.mariadb.existingSecret }}
+                  {{- else }}
+                  name: {{ template "xrengine.mariadb.fullname" . }}
+                  {{- end }}
+                  key: mariadb-password
+            {{- end }}
+            - name: MYSQL_HOST
+              value: {{ template "xrengine.mariadb.host" . }}
             - name: RELEASE_NAME
               value: {{ $releaseName }}
           ports:

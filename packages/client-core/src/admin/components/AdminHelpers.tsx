@@ -23,7 +23,7 @@ export function EnhancedTableHead(props: EnhancedTableProps) {
   return (
     <TableHead className={styles.thead}>
       <TableRow className={styles.trow}>
-        {headCells.map((headCell) => (
+        {headCells?.map((headCell) => (
           <TableCell
             className={styles.tcell}
             key={headCell.id}

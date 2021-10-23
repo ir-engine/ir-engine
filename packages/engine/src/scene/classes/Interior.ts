@@ -68,7 +68,7 @@ function loadCubeMap(path): Promise<CubeTexture> {
   const posy = 'posy.jpg'
   const posz = 'posz.jpg'
   return new Promise((resolve, reject) => {
-    loader.load([posx, negx, posy, negy, posz, negz], resolve, null, (error) => reject(error))
+    loader.load([posx, negx, posy, negy, posz, negz], resolve, null!, (error) => reject(error))
   })
 }
 
@@ -81,7 +81,7 @@ function loadDDS(path): Promise<Texture> {
       (data) => {
         resolve(data)
       },
-      null,
+      null!,
       (error) => {
         reject(error)
       }

@@ -1,5 +1,5 @@
 // import {Stories} from '@xrengine/social/src/components/Stories';
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import React, { useEffect, useState } from 'react'
 
@@ -18,68 +18,61 @@ import ArMediaPopup from '@xrengine/social/src/components/popups/ArMediaPopup'
 import FeedFormPopup from '@xrengine/social/src/components/popups/FeedFormPopup'
 import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPopup'
 import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
-import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
-import { createCreator } from '@xrengine/social/src/reducers/creator/service'
-import { selectWebXrNativeState } from '@xrengine/social/src/reducers/webxr_native/selector'
-import { changeWebXrNative, getWebXrNative } from '@xrengine/social/src/reducers/webxr_native/service'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 // @ts-ignore
 import styles from './index.module.scss'
+import Button from '@material-ui/core/Button'
+
+// import image from '/static/images/image.jpg'
+// import mockupIPhone from '/static/images/mockupIPhone.jpg'
 import Splash from '@xrengine/social/src/components/Splash'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+// import { WebXRStart } from '../components/popups/WebXR'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { Redirect } from 'react-router-dom'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state),
-    webxrnativeState: selectWebXrNativeState(state)
-  }
-}
+import App from './App'
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch),
-  createCreator: bindActionCreators(createCreator, dispatch),
-  getWebXrNative: bindActionCreators(getWebXrNative, dispatch),
-  changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
-})
-
-const Home = ({
-  createCreator,
-  //doLoginAuto,
-  creatorsState,
-  webxrnativeState,
-  changeWebXrNative,
-  getWebXrNative
-}) => {
+const Home = ({}) => {
   const dispatch = useDispatch()
   const auth = useAuthState()
 
   /*hided for now*/
 
-  useEffect(() => {
-    if (auth) {
-      // const user = auth.get('authUser')?.identityProvider.type === 'guest' ? auth.get('user') as User : auth.get('authUser')?.identityProvider as User;
-      //   const userId = user ? user.id : null;
-      //   if(userId){}
-      createCreator()
-    }
-  }, [auth.isLoggedIn.value, auth.user.id.value])
+  const authData = getStoredAuthState()
+  const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true))
-    getWebXrNative()
-  }, [])
+    // if (accessToken) {
+    AuthService.doLoginAuto(true)
+    WebxrNativeService.getWebXrNative()
+    // }
+  }, [accessToken])
+
+  useEffect(() => {
+    if (auth?.authUser?.accessToken) {
+      if (auth.user.id.value) {
+        CreatorService.createCreator()
+      }
+    }
+  }, [auth.isLoggedIn.value, auth.user.id.value])
 
   const [onborded, setOnborded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)
   const [splashTimeout, setSplashTimeout] = useState(true)
   const [feedHintsOnborded, setFeedHintsOnborded] = useState(true)
+  const [registrationForm, setRegistrationForm] = useState(true)
   const [view, setView] = useState('featured')
 
-  const currentCreator = creatorsState.get('currentCreator')
+  const creatorsState = useCreatorState()
+
+  const currentCreator = creatorsState.creators.currentCreator.value
   const currentTime = new Date(Date.now()).toISOString()
 
   useEffect(() => {
@@ -88,7 +81,7 @@ const Home = ({
     }
   }, [currentCreator])
 
-  const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+  const webxrRecorderActivity = useWebxrNativeState().webxrnative.value
 
   const changeOnboarding = () => {
     setOnborded(true)
@@ -98,50 +91,35 @@ const Home = ({
   const platformClass = isIOS ? styles.isIos : ''
   const hideContentOnRecord = webxrRecorderActivity ? styles.hideContentOnRecord : ''
 
-  if (!currentCreator || currentCreator === null || (splashTimeout && currentCreator.isBlocked == false)) {
-    //add additional duration Splash after initialized user
-    const splash = setTimeout(() => {
-      setSplashTimeout(false)
-      clearTimeout(splash)
-    }, 5000)
-    return <Splash />
-  }
+  // if (!currentCreator || currentCreator === null || (splashTimeout && currentCreator.isBlocked == false)) {
+  //   //add additional duration Splash after initialized user
+  //   const splash = setTimeout(() => {
+  //     setSplashTimeout(false)
+  //     clearTimeout(splash)
+  //   }, 5000)
+  //   return <Splash />
+  // }
 
-  if (currentCreator.isBlocked == true) {
-    return (
-      <div>
-        <Splash />
-        <Blocked />
-      </div>
-    )
-  }
+  // if (currentCreator.isBlocked == true) {
+  //   return (
+  //     <div>
+  //       <Splash />
+  //       <Blocked />
+  //     </div>
+  //   )
+  // }
+
+  // if (auth.get('user').userRole !== 'user') {
+  //   return <Registration />
+  // }
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
-  return (
-    <div className={platformClass + ' ' + hideContentOnRecord}>
-      {/*{!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}*/}
-      <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
-        <AppHeader />
-        {/* <Stories stories={stories} /> */}
-        <FeedMenu view={view} setView={setView} />
-        <AppFooter setView={setView} />
-        {currentCreator && (!!!currentCreator.terms || !!!currentCreator.policy) && <TermsAndPolicy />}
-        <ArMediaPopup />
-        <WebXRStart
-          feedHintsOnborded={feedHintsOnborded}
-          webxrRecorderActivity={webxrRecorderActivity}
-          setContentHidden={changeWebXrNative}
-          setFeedHintsOnborded={setFeedHintsOnborded}
-        />
-        <CreatorPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <FeedPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-        <FeedFormPopup setView={setView} />
-        <SharedFormPopup setView={setView} />
-      </div>
-    </div>
-  )
+  // if (!accessToken) {
+  //   return <Redirect to="/registration" />
+  // }
+
+  return <App />
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home)
+export default Home

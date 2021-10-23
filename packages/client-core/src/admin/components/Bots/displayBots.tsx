@@ -15,44 +15,23 @@ import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
 import Grid from '@material-ui/core/Grid'
 import { Edit } from '@material-ui/icons'
-import { fetchBotAsAdmin } from '../../reducers/admin/bots/service'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import { selectAdminBotsState } from '../../reducers/admin/bots/selector'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { BotService } from '../../state/BotsService'
+import { useDispatch } from '../../../store'
+import { useBotState } from '../../state/BotsState'
+import { useAuthState } from '../../../user/state/AuthState'
 import Button from '@material-ui/core/Button'
-import { createBotCammand, removeBots, removeBotsCommand } from '../../reducers/admin/bots/service'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import UpdateBot from './updateBot'
 
-interface Props {
-  fetchBotAsAdmin?: any
-  botsAdminState?: any
-  createBotCammand?: any
-  removeBots?: any
-  removeBotsCommand?: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {
-    botsAdminState: selectAdminBotsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchBotAsAdmin: bindActionCreators(fetchBotAsAdmin, dispatch),
-  createBotCammand: bindActionCreators(createBotCammand, dispatch),
-  removeBots: bindActionCreators(removeBots, dispatch),
-  removeBotsCommand: bindActionCreators(removeBotsCommand, dispatch)
-})
+interface Props {}
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
 }
 
 const DisplayBots = (props: Props) => {
-  const { fetchBotAsAdmin, botsAdminState, createBotCammand, removeBots, removeBotsCommand } = props
+  const dispatch = useDispatch()
   const classes = useStyles()
   const [expanded, setExpanded] = React.useState<string | false>('panel0')
   const [name, setName] = React.useState('')
@@ -64,15 +43,15 @@ const DisplayBots = (props: Props) => {
   const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false)
   }
-
-  const botAdmin = botsAdminState.get('bots')
+  const botsAdminState = useBotState()
+  const botAdmin = botsAdminState.bots
   const user = useAuthState().user
-  const botAdminData = botAdmin.get('bots')
+  const botAdminData = botAdmin.bots
   React.useEffect(() => {
-    if (user.id.value && botAdmin.get('updateNeeded')) {
-      fetchBotAsAdmin()
+    if (user.id.value && botAdmin.updateNeeded) {
+      BotService.fetchBotAsAdmin()
     }
-  }, [botAdmin, user])
+  }, [botAdmin.updateNeeded.value, user?.id?.value])
 
   const handleOpenModel = (bot) => {
     setBot(bot)
@@ -96,14 +75,14 @@ const DisplayBots = (props: Props) => {
       description: description,
       botId: id
     }
-    createBotCammand(data)
+    BotService.createBotCammand(data)
     setName('')
     setDescription('')
   }
 
   return (
     <div className={classes.rootRigt}>
-      {botAdminData.map((bot, index) => {
+      {botAdminData.value.map((bot, index) => {
         return (
           <Accordion expanded={expanded === `panel${index}`} onChange={handleChange(`panel${index}`)} key={bot.id}>
             <AccordionSummary
@@ -143,7 +122,7 @@ const DisplayBots = (props: Props) => {
                       <IconButton onClick={() => handleOpenModel(bot)}>
                         <Edit style={{ color: '#fff' }} />
                       </IconButton>
-                      <IconButton onClick={() => removeBots(bot.id)}>
+                      <IconButton onClick={() => BotService.removeBots(bot.id)}>
                         <DeleteIcon style={{ color: '#fff' }} />
                       </IconButton>
                     </div>
@@ -206,7 +185,11 @@ const DisplayBots = (props: Props) => {
                         <ListItem>
                           <ListItemText primary={`/${el.name} --> ${el.description} `} />
                           <ListItemSecondaryAction>
-                            <IconButton edge="end" aria-label="delete" onClick={() => removeBotsCommand(el.id)}>
+                            <IconButton
+                              edge="end"
+                              aria-label="delete"
+                              onClick={() => BotService.removeBotsCommand(el.id)}
+                            >
                               <DeleteIcon style={{ color: '#fff' }} />
                             </IconButton>
                           </ListItemSecondaryAction>
@@ -236,4 +219,4 @@ const DisplayBots = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DisplayBots)
+export default DisplayBots

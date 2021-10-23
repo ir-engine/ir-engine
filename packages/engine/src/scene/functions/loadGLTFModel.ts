@@ -10,7 +10,7 @@ import { applyTransformToMesh, applyTransformToMeshWorld } from '../../physics/f
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-import { parseGeometry } from '../../map/parseGeometry'
+import { parseGeometry } from '../../common/functions/parseGeometry'
 import * as YUKA from 'yuka'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { delay } from '../../common/functions/delay'
@@ -19,7 +19,7 @@ import { NameComponent } from '../components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) => {
-  const meshesToProcess = []
+  const meshesToProcess: Mesh[] = []
 
   res.traverse((mesh: Mesh) => {
     if ('xrengine.entity' in mesh.userData || 'realitypack.entity' in mesh.userData) {
@@ -45,8 +45,8 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
 
-    const components = {}
-    const prefabs = {}
+    const components: { [key: string]: any } = {}
+    const prefabs: { [key: string]: any } = {}
     const data = Object.entries(mesh.userData)
 
     for (const [key, value] of data) {
@@ -107,13 +107,13 @@ export const parseGLTFModel = (
   // DIRTY HACK TO LOAD NAVMESH
   if (component.data.src.match(/navmesh/)) {
     console.log('generate navmesh')
-    let polygons = []
+    let polygons: any[] = []
     scene.traverse((child: Mesh) => {
       child.visible = false
       if (typeof child.geometry !== 'undefined' && child.geometry instanceof BufferGeometry) {
         const childPolygons = parseGeometry({
           position: child.geometry.attributes.position.array as number[],
-          index: child.geometry.index.array as number[]
+          index: child.geometry.index?.array as number[]
         })
         if (childPolygons?.length) {
           polygons = polygons.concat(childPolygons)
@@ -131,7 +131,7 @@ export const parseGLTFModel = (
         yukaNavMesh: navMesh,
         navTarget: scene
       })
-      addComponent(entity, DebugNavMeshComponent, null)
+      addComponent(entity, DebugNavMeshComponent, null!)
     }
   }
 
@@ -200,7 +200,7 @@ export const loadGLTFModel = (
           sceneLoader._onModelLoaded()
           resolve()
         },
-        null,
+        null!,
         (err) => {
           console.log('[SCENE-LOADING]:', err)
           sceneLoader._onModelLoaded()

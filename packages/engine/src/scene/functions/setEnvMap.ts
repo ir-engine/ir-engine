@@ -49,7 +49,7 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
           const posy = 'posy.jpg'
           const posz = 'posz.jpg'
 
-          new CubeTextureLoader().setPath(args.envMapSourceURL).load(
+          new CubeTextureLoader().setPath(args.envMapSourceURL!).load(
             [posx, negx, posy, negy, posz, negz],
             (texture) => {
               const EnvMap = pmremGenerator.fromCubemap(texture).texture
@@ -67,7 +67,7 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
 
           break
         case EnvMapTextureType.Equirectangular:
-          new TextureLoader().load(args.envMapSourceURL, (texture) => {
+          new TextureLoader().load(args.envMapSourceURL!, (texture) => {
             const EnvMap = pmremGenerator.fromEquirectangular(texture).texture
             EnvMap.encoding = sRGBEncoding
             Engine.scene.environment = EnvMap
@@ -84,8 +84,8 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
     case EnvMapSourceType.Default:
       const options = args.envMapCubemapBake
       if (!options) return
-      SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale
-      SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset
+      SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
+      SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset!
 
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
         switch (options.bakeType) {
@@ -103,11 +103,11 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
             break
         }
       })
-      const offset = args.envMapCubemapBake.bakePositionOffset
+      const offset = args.envMapCubemapBake?.bakePositionOffset!
       const position = new Vector3(offset.x, offset.y, offset.z)
-      SceneOptions.instance.boxProjection = args.envMapCubemapBake.boxProjection
+      SceneOptions.instance.boxProjection = args.envMapCubemapBake?.boxProjection!
       SceneOptions.instance.bpcemOptions.bakePositionOffset = position
-      SceneOptions.instance.bpcemOptions.bakeScale = args.envMapCubemapBake.bakeScale
+      SceneOptions.instance.bpcemOptions.bakeScale = args.envMapCubemapBake?.bakeScale!
       break
   }
 

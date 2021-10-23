@@ -1,4 +1,4 @@
-import { Intersection, Material, MathUtils, Matrix4, Quaternion, Raycaster, SkinnedMesh, Vector3 } from 'three'
+import { ArrowHelper, Material, MathUtils, Matrix4, Object3D, Quaternion, Raycaster, SkinnedMesh, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -13,10 +13,8 @@ import { System } from '../../ecs/classes/System'
 import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { CameraLayers } from '../constants/CameraLayers'
+import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -25,6 +23,11 @@ const empty = new Vector3()
 const mx = new Matrix4()
 const tempVec = new Vector3()
 const tempVec1 = new Vector3()
+const cameraRayCount = 6
+const cameraRays: Vector3[] = []
+const rayConeAngle = Math.PI / 6
+const coneDebugHelpers: ArrowHelper[] = []
+const debugRays = false
 
 /**
  * Calculates and returns view vector for give angle. View vector will be at the given angle after the calculation
@@ -86,15 +89,49 @@ const updateCameraTargetRotation = (entity: Entity, delta: number) => {
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
 
-const cameraRayCast = (entity: Entity, target: Vector3): Intersection[] => {
+const getMaxCamDistance = (entity: Entity, target: Vector3): number => {
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
-  const raycastDirection = tempVec1.setScalar(0).subVectors(cameraTransform.position, target).normalize()
-  followCamera.raycaster.far = followCamera.maxDistance
-  followCamera.raycaster.set(target, raycastDirection)
-  return followCamera.raycaster.intersectObjects(Engine.scene.children, true)
+  const targetToCamVec = tempVec1.subVectors(cameraTransform.position, target)
+  // followCamera.raycaster.far = followCamera.maxDistance
+
+  createConeOfVectors(targetToCamVec, cameraRays, rayConeAngle)
+
+  let maxDistance = followCamera.maxDistance
+
+  // Check hit with mid ray
+  followCamera.raycaster.set(target, targetToCamVec.normalize())
+  const hits = followCamera.raycaster.intersectObjects(Engine.scene.children, true)
+
+  if (hits[0] && hits[0].distance < maxDistance) {
+    maxDistance = hits[0].distance
+  }
+
+  //Check the cone for minimum distance
+  cameraRays.forEach((rayDir, i) => {
+    followCamera.raycaster.set(target, rayDir)
+    const hits = followCamera.raycaster.intersectObjects(Engine.scene.children, true)
+
+    if (hits[0] && hits[0].distance < maxDistance) {
+      maxDistance = hits[0].distance
+    }
+
+    if (debugRays) {
+      const helper = coneDebugHelpers[i]
+      helper.setDirection(rayDir)
+      helper.position.copy(target)
+
+      if (hits[0]) {
+        helper.setColor('red')
+      } else {
+        helper.setColor('green')
+      }
+    }
+  })
+
+  return maxDistance
 }
 
 const calculateCameraTarget = (entity: Entity, target: Vector3) => {
@@ -122,25 +159,24 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
 
   calculateCameraTarget(entity, tempVec)
 
-  const hits = cameraRayCast(entity, tempVec)
-  const closestHit = hits[0]
+  let maxDistance = followCamera.zoomLevel
 
-  let zoomDist = followCamera.zoomLevel
-
-  if (closestHit) {
-    // ground collision
-    if (followCamera.phi < -15 && closestHit.distance < zoomDist + 1) {
-      followCamera.distance = closestHit.distance - 1
-      zoomDist = followCamera.distance
-    } else if (closestHit.distance < zoomDist) {
-      zoomDist = closestHit.distance < 0.5 ? closestHit.distance : closestHit.distance - 0.5
-    }
+  // Run only if not in first person mode
+  if (followCamera.zoomLevel >= followCamera.minDistance) {
+    maxDistance = getMaxCamDistance(entity, tempVec)
   }
+
+  // if (maxDistance < followCamera.zoomLevel) {
+  //   // ground collision
+  //   if (followCamera.phi < -15) {
+  //     followCamera.distance = maxDistance
+  //   }
+  // }
 
   // Zoom smoothing
   followCamera.distance = smoothDamp(
     followCamera.distance,
-    Math.min(followCamera.zoomLevel, zoomDist),
+    Math.min(followCamera.zoomLevel, maxDistance),
     followCamera.zoomVelocity,
     0.3,
     delta
@@ -167,7 +203,8 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   // TODO: Can move avatar update code outside this function
   if (followCamera.locked) {
     const newTheta = MathUtils.degToRad(theta + 180) % (Math.PI * 2)
-    avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 2)
+    // avatarTransform.rotation.setFromAxisAngle(upVector, newTheta)
+    avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 4)
   }
 }
 
@@ -192,11 +229,23 @@ export default async function CameraSystem(world: World): Promise<System> {
 
     for (const entity of followCameraQuery.enter()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent)
-      cameraFollow.raycaster = new Raycaster()
       cameraFollow.raycaster.layers.set(CameraLayers.Scene) // Ignore avatars
       ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
       cameraFollow.raycaster.far = cameraFollow.maxDistance
       Engine.activeCameraFollowTarget = entity
+
+      for (let i = 0; i < cameraRayCount; i++) {
+        cameraRays.push(new Vector3())
+
+        if (debugRays) {
+          const arrow = new ArrowHelper()
+          coneDebugHelpers.push(arrow)
+          arrow.traverse((obj: Object3D) => {
+            obj.layers.set(CameraLayers.Avatar)
+          })
+          Engine.scene.add(arrow)
+        }
+      }
     }
 
     for (const entity of followCameraQuery.exit()) {

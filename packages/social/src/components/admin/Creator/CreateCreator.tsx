@@ -8,26 +8,21 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import { DialogActions } from '@material-ui/core'
 import { validateCreatorForm } from './validation'
 import { useCreatorStyle, useCreatorStyles } from './styles'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { createCreator } from '../../../reducers/creator/service'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {
   open: boolean
   handleClose: any
   closeViewModel: any
-  createCreator?: typeof createCreator
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createCreator: bindActionCreators(createCreator, dispatch)
-})
-
 const CreateCreator = (props: Props) => {
-  const { open, handleClose, closeViewModel, createCreator } = props
+  const { open, handleClose, closeViewModel } = props
   const classes = useCreatorStyles()
   const classesx = useCreatorStyle()
-
+  const dispatch = useDispatch()
   const [state, setState] = React.useState({
     name: '',
     username: '',
@@ -68,6 +63,7 @@ const CreateCreator = (props: Props) => {
 
   const handleSubmit = () => {
     const data = {
+      id: '',
       name: state.name,
       username: state.username,
       email: state.email,
@@ -89,7 +85,7 @@ const CreateCreator = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateCreatorForm(state, state.formErrors)) {
-      createCreator(data)
+      CreatorService.createCreator(data)
       // closeViewModel(false)
       setState({
         ...state,
@@ -181,4 +177,4 @@ const CreateCreator = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(CreateCreator)
+export default CreateCreator

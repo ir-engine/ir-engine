@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { SeatStatus } from './seat-status.class'
 import createModel from './seat-status.model'
@@ -7,11 +6,11 @@ import seatStatusDocs from './seat-status.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'seat-status': SeatStatus & ServiceAddons<any>
+    'seat-status': SeatStatus
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -24,7 +23,7 @@ export default (app: Application): any => {
    */
   const event = new SeatStatus(options, app)
   event.docs = seatStatusDocs
-  app.use('/seat-status', event)
+  app.use('seat-status', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -33,5 +32,5 @@ export default (app: Application): any => {
    */
   const service = app.service('seat-status')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

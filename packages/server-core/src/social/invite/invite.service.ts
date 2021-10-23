@@ -1,5 +1,4 @@
 // Initializes the `invite` service on path `/invite`
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { Invite } from './invite.class'
 import createModel from './invite.model'
@@ -10,11 +9,11 @@ import inviteDocs from './invite.docs'
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    invite: Invite & ServiceAddons<any>
+    invite: Invite
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate')
@@ -27,7 +26,7 @@ export default (app: Application): any => {
    */
   const event = new Invite(options, app)
   event.docs = inviteDocs
-  app.use('/invite', event)
+  app.use('invite', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -36,7 +35,7 @@ export default (app: Application): any => {
    */
   const service = app.service('invite')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 
   /**
    * A method which is used to create invite

@@ -3,39 +3,26 @@ import Box from '@material-ui/core/Box'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { User } from '@xrengine/common/src/interfaces/User'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { showAlert } from '../../../common/reducers/alert/actions'
-import { showDialog } from '../../../common/reducers/dialog/service'
+import { useDispatch } from '../../../store'
+import { AlertAction } from '../../../common/state/AlertActions'
+import { DialogAction } from '../../../common/state/DialogActions'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../state/AuthService'
 import { ConnectionTexts } from './ConnectionTexts'
 import { useTranslation } from 'react-i18next'
 import styles from './ProfileConnections.module.scss'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { useAuthState } from '../../state/AuthState'
 
 interface Props {
   auth?: any
   classes?: any
-  connectionType?: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password' | 'linkedin'
-  showDialog?: typeof showDialog
-  showAlert?: typeof showAlert
+  connectionType: 'facebook' | 'github' | 'google' | 'email' | 'sms' | 'password' | 'linkedin'
 }
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  showDialog: bindActionCreators(showDialog, dispatch),
-  showAlert: bindActionCreators(showAlert, dispatch)
-})
 
 const SingleConnection = (props: Props): any => {
-  const { auth, classes, connectionType, showAlert, showDialog } = props
+  const { auth, classes, connectionType } = props
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const initialState = {
@@ -52,7 +39,7 @@ const SingleConnection = (props: Props): any => {
 
     setState({
       ...state,
-      identityProvider: user.identityProviders.find((v) => v.type === connectionType)
+      identityProvider: user.identityProviders.find((v) => v.type === connectionType) || IdentityProviderSeed
     })
   }, [])
 
@@ -60,11 +47,11 @@ const SingleConnection = (props: Props): any => {
     const identityProvider = state.identityProvider
     const authIdentityProvider = props.auth.get('authUser').identityProvider
     if (authIdentityProvider.id === identityProvider.id) {
-      showAlert('error', t('user:profile.connections.ipError'))
+      dispatch(AlertAction.showAlert('error', t('user:profile.connections.ipError')))
       return
     }
 
-    dispatch(AuthService.removeConnection(identityProvider.id, state.userId))
+    AuthService.removeConnection(identityProvider.id, state.userId)
   }
 
   const connect = (): any => {
@@ -74,25 +61,31 @@ const SingleConnection = (props: Props): any => {
       case 'facebook':
       case 'google':
       case 'github':
-        dispatch(AuthService.addConnectionByOauth(connectionType, userId))
+        AuthService.addConnectionByOauth(connectionType, userId)
         break
       case 'email':
-        showDialog({
-          children: <MagicLinkEmail type="email" isAddConnection={true} />
-        })
+        dispatch(
+          DialogAction.dialogShow({
+            children: <MagicLinkEmail type="email" isAddConnection={true} />
+          })
+        )
         break
       case 'sms':
-        showDialog({
-          children: <MagicLinkEmail type="sms" isAddConnection={true} />
-        })
+        dispatch(
+          DialogAction.dialogShow({
+            children: <MagicLinkEmail type="sms" isAddConnection={true} />
+          })
+        )
         break
       case 'password':
-        showDialog({
-          children: <PasswordLogin isAddConnection={true} />
-        })
+        dispatch(
+          DialogAction.dialogShow({
+            children: <PasswordLogin isAddConnection={true} />
+          })
+        )
         break
       case 'linkedin':
-        dispatch(AuthService.addConnectionByOauth(connectionType, userId))
+        AuthService.addConnectionByOauth(connectionType, userId)
         break
     }
   }
@@ -159,4 +152,4 @@ const SingleConnection = (props: Props): any => {
 
 const SingleConnectionWrapper = (props: Props): any => <SingleConnection {...props} />
 
-export default connect(mapStateToProps, mapDispatchToProps)(SingleConnectionWrapper)
+export default SingleConnectionWrapper

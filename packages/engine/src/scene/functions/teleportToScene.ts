@@ -1,13 +1,10 @@
-import { AmbientLight, PerspectiveCamera, Vector3 } from 'three'
+import { AmbientLight, PerspectiveCamera } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
-// import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
@@ -25,21 +22,21 @@ export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
   handleNewScene: () => void
 ) => {
-  Engine.defaultWorld.isInPortal = true
+  Engine.defaultWorld!.isInPortal = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
-  switchCameraMode(Network.instance.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
+  const world = useWorld()
+
+  switchCameraMode(world.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
   // remove controller since physics world will be destroyed and we don't want it moving
-  useWorld().physics.removeController(
-    getComponent(Network.instance.localClientEntity, AvatarControllerComponent).controller
-  )
-  removeComponent(Network.instance.localClientEntity, AvatarControllerComponent)
-  removeComponent(Network.instance.localClientEntity, InteractorComponent)
-  removeComponent(Network.instance.localClientEntity, LocalInputTagComponent)
+  world.physics.removeController(getComponent(world.localClientEntity, AvatarControllerComponent).controller)
+  removeComponent(world.localClientEntity, AvatarControllerComponent)
+  removeComponent(world.localClientEntity, InteractorComponent)
+  removeComponent(world.localClientEntity, LocalInputTagComponent)
 
-  const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
+  const playerObj = getComponent(world.localClientEntity, Object3DComponent)
   const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
 
   const hyperspaceEffect = new PortalEffect(texture)
@@ -58,7 +55,7 @@ export const teleportToScene = async (
   Engine.scene.add(hyperspaceEffect)
 
   // TODO add an ECS thing somewhere to update this properly
-  const delta = 1 / 60
+  const { delta } = world
   const camera = Engine.scene.getObjectByProperty('isPerspectiveCamera', true as any) as PerspectiveCamera
   camera.zoom = 1.5
   const hyperSpaceUpdateInterval = setInterval(() => {
@@ -98,18 +95,18 @@ export const teleportToScene = async (
   await delay(100)
 
   // teleport player to where the portal is
-  const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
+  const transform = getComponent(world.localClientEntity, TransformComponent)
   transform.position.set(
     portalComponent.remoteSpawnPosition.x,
     portalComponent.remoteSpawnPosition.y,
     portalComponent.remoteSpawnPosition.z
   )
 
-  const avatar = getComponent(Network.instance.localClientEntity, AvatarComponent)
+  // const avatar = getComponent(world.localClientEntity, AvatarComponent)
   // rotateViewVectorXZ(avatar.viewVector, portalComponent.remoteSpawnEuler.y)
 
-  createAvatarController(Network.instance.localClientEntity)
-  addComponent(Network.instance.localClientEntity, LocalInputTagComponent, {})
+  createAvatarController(world.localClientEntity)
+  addComponent(world.localClientEntity, LocalInputTagComponent, {})
 
   await delay(250)
 
@@ -131,5 +128,5 @@ export const teleportToScene = async (
 
   clearInterval(hyperSpaceUpdateInterval)
 
-  Engine.defaultWorld.isInPortal = false
+  Engine.defaultWorld!.isInPortal = false
 }

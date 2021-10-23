@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { Instance } from './instance.class'
 import createModel from './instance.model'
@@ -8,11 +7,11 @@ import instanceDocs from './instance.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    instance: Instance & ServiceAddons<any>
+    instance: Instance
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -26,11 +25,11 @@ export default (app: Application): any => {
    */
   const event = new Instance(options, app)
   event.docs = instanceDocs
-  app.use('/instance', event)
+  app.use('instance', event)
 
   const service = app.service('instance')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 
   /**
    * A method used to remove specific instance
@@ -41,7 +40,7 @@ export default (app: Application): any => {
    */
   service.publish('removed', async (data): Promise<any> => {
     try {
-      const admins = await (app.service('user') as any).Model.findAll({
+      const admins = await app.service('user').Model.findAll({
         where: {
           userRole: 'admin'
         }

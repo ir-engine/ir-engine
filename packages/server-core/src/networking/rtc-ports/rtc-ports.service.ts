@@ -1,5 +1,4 @@
 // Initializes the `rtc-ports` service on path `/rtc-ports`
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { RtcPorts } from './rtc-ports.class'
 import createModel from './rtc-ports.model'
@@ -9,11 +8,11 @@ import rtcPortsDocs from './rtc-ports.docs'
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'rtc-ports': RtcPorts & ServiceAddons<any>
+    'rtc-ports': RtcPorts
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate')
@@ -26,7 +25,7 @@ export default (app: Application): any => {
    */
   const event = new RtcPorts(options, app)
   event.docs = rtcPortsDocs
-  app.use('/rtc-ports', event)
+  app.use('rtc-ports', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -35,5 +34,5 @@ export default (app: Application): any => {
    */
   const service = app.service('rtc-ports')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

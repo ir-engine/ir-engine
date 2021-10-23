@@ -1,66 +1,65 @@
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
+import { UserNameComponent } from '../../scene/components/UserNameComponent'
 import { Network } from '../classes/Network'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
-export function getUserId(eid) {
-  for (let e in Network.instance.networkObjects) {
-    if (Network.instance.networkObjects[e].entity === eid) {
-      return Network.instance.networkObjects[e].uniqueId
-    }
-  }
-}
-export function getEid(userId) {
-  for (let e in Network.instance.networkObjects) {
-    if (Network.instance.networkObjects[e].uniqueId === userId) {
-      return Network.instance.networkObjects[e].entity
-    }
-  }
+export function getUserEntityByName(name: string) {
+  const client = Array.from(Engine.defaultWorld.clients.values()).find((c) => {
+    return c.name === name
+  })
+  return client ? useWorld().getUserAvatarEntity(client.userId) : undefined
 }
 
-//returns the client for a player
-export function getPlayer(player) {
-  for (let p in Network.instance.clients) {
-    if (Network.instance.clients[p].name === player) {
-      return Network.instance.clients[p]
-    }
-  }
+export function getRemoteUsers(localUserId, notAfk: boolean): UserId[] {
+  const world = useWorld()
+  const res: UserId[] = []
 
-  return undefined
-}
-//returns the entity for a player
-export function getPlayerEntity(player): number {
-  for (let p in Network.instance.clients) {
-    if (Network.instance.clients[p].name === player) {
-      for (let e in Network.instance.networkObjects) {
-        if (Network.instance.clients[p].userId === Network.instance.networkObjects[e].uniqueId)
-          return Network.instance.networkObjects[e].entity
-      }
-    }
-  }
-
-  return undefined
-}
-
-export function getPlayers(localUserId, notAfk: boolean): string[] {
-  const res: string[] = []
-
-  for (let p in Network.instance.clients) {
-    if (
-      Network.instance.clients[p].userId !== localUserId &&
-      Network.instance.clients[p].name !== undefined &&
-      Network.instance.clients[p].name !== '' &&
-      !res.includes(Network.instance.clients[p].name)
-    ) {
-      if (!notAfk) res.push(Network.instance.clients[p].name)
+  for (let [_, client] of world.clients) {
+    if (client.userId !== localUserId) {
+      if (!notAfk) res.push(client.userId)
       else {
-        const eid = getEid(Network.instance.clients[p].userId)
+        const eid = world.getUserAvatarEntity(client.userId)
         if (eid !== undefined) {
           const acc = getComponent(eid, AfkCheckComponent)
-          if (acc !== undefined && !acc.isAfk) res.push(Network.instance.clients[p].name)
+          if (acc !== undefined && !acc.isAfk) res.push(client.userId)
         }
       }
     }
   }
 
   return res
+}
+
+export function getPlayerName(eid): string {
+  const uid = getComponent(eid, NetworkObjectComponent)?.userId
+  if (uid === undefined || uid === '') return ''
+
+  for (let [_, client] of Engine.defaultWorld.clients) {
+    if (client.userId === uid) {
+      if (client.name !== undefined) {
+        return client.name
+      } else {
+        const unc = getComponent(eid, UserNameComponent)
+        if (unc !== undefined) {
+          return unc.username
+        }
+      }
+    }
+  }
+
+  return ''
+}
+
+export function getEid(userId) {
+  for (let [_, client] of Engine.defaultWorld.clients) {
+    if (client.userId == userId) {
+      return useWorld().getUserAvatarEntity(client.userId)
+    }
+  }
+
+  return undefined
 }

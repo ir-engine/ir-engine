@@ -136,12 +136,23 @@ const useStylesForBots = makeStyles((theme: Theme) =>
       color: '#f1f1f1 !important'
     },
     saveBtn: {
-      marginLeft: 'auto',
+      margin: '5px 5px 5px auto',
       background: '#43484F !important',
       color: '#fff !important',
       width: '150px',
       boxShadow:
-        '0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%) !important'
+        '0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%) !important',
+      [theme.breakpoints.down('xs')]: {
+        width: '80px',
+        fontSize: '0.7rem'
+      }
+    },
+    smFont: {
+      fontSize: '20px',
+      marginLeft: '10px',
+      [theme.breakpoints.down('xs')]: {
+        fontSize: '15px'
+      }
     }
   })
 )

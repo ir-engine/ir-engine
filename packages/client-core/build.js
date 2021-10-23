@@ -8,7 +8,7 @@ esbuild.build({
     plugins: [sassPlugin()],
     platform: "browser",
     define: {
-        ["process.env.NODE_ENV"]: "'production'",
+        ["process.env.APP_ENV"]: "'production'",
         ["process.env.BUILD_MODE"]: true
     },
     external: ['fs', 'path'],

@@ -5,5 +5,5 @@ import { InputType } from '../enums/InputType'
 export interface InputValue {
   type: InputType // How many dimensions? Button, 2D?
   value: NumericalType // What's the value? Binary, scalar, vector
-  lifecycleState?: LifecycleValue
+  lifecycleState: keyof typeof LifecycleValue
 }

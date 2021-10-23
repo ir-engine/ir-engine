@@ -61,7 +61,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       node.azimuth = prop.skyboxProps.azimuth
     }
     node.updateSunPosition()
-    node.onChange()
 
     return node
   }
@@ -96,7 +95,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   }
 
   setUpBackground(type: SkyTypeEnum) {
-    if (SceneManager.instance.scene.background?.dispose) SceneManager.instance.scene.background.dispose()
+    if (SceneManager.instance.scene?.background?.dispose) SceneManager.instance.scene.background.dispose()
     ;(this.sky as Mesh).visible = false
 
     switch (type) {
@@ -111,7 +110,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         const posx = 'posx.jpg'
         const posy = 'posy.jpg'
         const posz = 'posz.jpg'
-        const renderer = SceneManager.instance.renderer.renderer
         new CubeTextureLoader().setPath(this.cubemapPath).load(
           [posx, negx, posy, negy, posz, negz],
           (texture) => {
@@ -131,13 +129,13 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         new TextureLoader().load(this.equirectangularPath, (texture) => {
           texture.encoding = sRGBEncoding
           SceneManager.instance.scene.background = new PMREMGenerator(
-            SceneManager.instance.renderer.renderer
+            SceneManager.instance.renderer.webglRenderer
           ).fromEquirectangular(texture).texture
         })
         break
       default:
         ;(this.sky as Mesh).visible = true
-        SceneManager.instance.scene.background = this.generateSkybox(SceneManager.instance.renderer.renderer)
+        SceneManager.instance.scene.background = this.generateSkybox(SceneManager.instance.renderer.webglRenderer)
         console.log('setUpBackground', SceneManager.instance.scene.background)
         break
     }

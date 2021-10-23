@@ -7,49 +7,15 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
 import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { selectAnalyticsState } from '@xrengine/client-core/src/admin/reducers/admin/analytics/selector'
-import {
-  fetchActiveParties,
-  fetchActiveLocations,
-  fetchActiveScenes,
-  fetchChannelUsers,
-  fetchInstanceUsers,
-  fetchActiveInstances,
-  fetchDailyUsers,
-  fetchDailyNewUsers
-} from '../../reducers/admin/analytics/service'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { useAnalyticsState } from '../../state/AnalyticsState'
+import { AnalyticsService } from '../../state/AnalyticsService'
 
 interface Props {
   adminGroupState?: any
   fetchAdminGroup?: any
-  analyticsState?: any
-  fetchActiveParties?: any
-  fetchActiveLocations?: any
-  fetchActiveScenes?: any
-  fetchChannelUsers?: any
-  fetchInstanceUsers?: any
-  fetchActiveInstances?: any
-  fetchDailyUsers?: any
-  fetchDailyNewUsers?: any
 }
-
-const mapStateToProps = (state: any): any => ({
-  analyticsState: selectAnalyticsState(state)
-})
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchActiveParties: bindActionCreators(fetchActiveParties, dispatch),
-  fetchActiveLocations: bindActionCreators(fetchActiveLocations, dispatch),
-  fetchActiveInstances: bindActionCreators(fetchActiveInstances, dispatch),
-  fetchActiveScenes: bindActionCreators(fetchActiveScenes, dispatch),
-  fetchChannelUsers: bindActionCreators(fetchChannelUsers, dispatch),
-  fetchInstanceUsers: bindActionCreators(fetchInstanceUsers, dispatch),
-  fetchDailyUsers: bindActionCreators(fetchDailyUsers, dispatch),
-  fetchDailyNewUsers: bindActionCreators(fetchDailyNewUsers, dispatch)
-})
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,11 +26,17 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(2),
       textAlign: 'center',
       color: theme.palette.text.secondary,
-      height: '40vh'
-      // maxWidth: "1500px"
+      height: '35rem',
+      width: '99.9%'
     },
     mtopp: {
       marginTop: '20px'
+    },
+    btn: {
+      fontSize: '0.875rem',
+      [theme.breakpoints.down('xs')]: {
+        fontSize: '0.6rem'
+      }
     }
   })
 )
@@ -77,27 +49,20 @@ const useStyles = makeStyles((theme: Theme) =>
  */
 
 const Analytics = (props: Props) => {
-  const {
-    analyticsState,
-    fetchActiveInstances,
-    fetchActiveParties,
-    fetchActiveLocations,
-    fetchActiveScenes,
-    fetchChannelUsers,
-    fetchInstanceUsers,
-    fetchDailyUsers,
-    fetchDailyNewUsers
-  } = props
+  const dispatch = useDispatch()
   const [refetch, setRefetch] = useState(false)
   const [graphSelector, setGraphSelector] = useState('activity')
-  const activeLocations = analyticsState.get('activeLocations')
-  const activeParties = analyticsState.get('activeParties')
-  const activeScenes = analyticsState.get('activeScenes')
-  const activeInstances = analyticsState.get('activeInstances')
-  const instanceUsers = analyticsState.get('instanceUsers')
-  const channelUsers = analyticsState.get('channelUsers')
-  const dailyUsers = analyticsState.get('dailyUsers')
-  const dailyNewUsers = analyticsState.get('dailyNewUsers')
+  let isDataAvailable = false
+  const analyticsState = useAnalyticsState()
+
+  const activeLocations = analyticsState.activeLocations.value
+  const activeParties = analyticsState.activeParties.value
+  const activeScenes = analyticsState.activeScenes.value
+  const activeInstances = analyticsState.activeInstances.value
+  const instanceUsers = analyticsState.instanceUsers.value
+  const channelUsers = analyticsState.channelUsers.value
+  const dailyUsers = analyticsState.dailyUsers.value
+  const dailyNewUsers = analyticsState.dailyNewUsers.value
 
   const fetchTick = () => {
     setTimeout(() => {
@@ -108,60 +73,62 @@ const Analytics = (props: Props) => {
 
   const activityGraphData = [
     {
-      id: 'Active Parties',
-      color: 'hsl(77, 70%, 20%)',
+      name: 'Active Parties',
       data: activeParties
     },
     {
-      id: 'Active Locations',
-      color: 'hsl(128, 20%, 80%)',
+      name: 'Active Locations',
       data: activeLocations
     },
     {
-      id: 'Active Instances',
-      color: 'hsl(50, 20%, 80%)',
+      name: 'Active Instances',
       data: activeInstances
     },
     {
-      id: 'Active Scenes',
-      color: 'hsl(0, 20%, 80%)',
+      name: 'Active Scenes',
       data: activeScenes
     },
     {
-      id: 'Instance Users',
-      color: 'hsl(212, 20%, 80%)',
+      name: 'Instance Users',
       data: instanceUsers
     },
     {
-      id: 'Channel Users',
-      color: 'hsl(250, 20%, 80%)',
+      name: 'Channel Users',
       data: channelUsers
     }
   ]
 
   const userGraphData = [
     {
-      id: 'Daily Users',
-      color: 'hsl(77, 70%, 20%)',
+      name: 'Daily Users',
       data: dailyUsers
     },
     {
-      id: 'Daily New Users',
-      color: 'hsl(250, 10%, 20%)',
+      name: 'Daily New Users',
       data: dailyNewUsers
     }
   ]
 
+  if (
+    activityGraphData[0].data.length &&
+    activityGraphData[1].data.length &&
+    activityGraphData[2].data.length &&
+    activityGraphData[3].data.length &&
+    activityGraphData[4].data.length &&
+    activityGraphData[5].data.length
+  )
+    isDataAvailable = true
+
   useEffect(() => {
     if (refetch === true) {
-      fetchActiveParties()
-      fetchInstanceUsers()
-      fetchChannelUsers()
-      fetchActiveLocations()
-      fetchActiveScenes()
-      fetchActiveInstances()
-      fetchDailyUsers()
-      fetchDailyNewUsers()
+      AnalyticsService.fetchActiveParties()
+      AnalyticsService.fetchInstanceUsers()
+      AnalyticsService.fetchChannelUsers()
+      AnalyticsService.fetchActiveLocations()
+      AnalyticsService.fetchActiveScenes()
+      AnalyticsService.fetchActiveInstances()
+      AnalyticsService.fetchDailyUsers()
+      AnalyticsService.fetchDailyNewUsers()
     }
     setRefetch(false)
   }, [refetch])
@@ -170,7 +137,7 @@ const Analytics = (props: Props) => {
 
   useEffect(() => {
     if (authState.isLoggedIn.value) setRefetch(true)
-  }, [authState])
+  }, [authState.isLoggedIn.value])
 
   useEffect(() => {
     fetchTick()
@@ -179,38 +146,37 @@ const Analytics = (props: Props) => {
   const classes = useStyles()
   const data = [
     {
-      number: activeParties[activeParties.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeParties[activeParties.length - 1] ? activeParties[activeParties.length - 1][1] : 0,
       label: 'Active Parties'
     },
     {
-      number: activeLocations[activeLocations.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeLocations[activeLocations.length - 1] ? activeLocations[activeLocations.length - 1][1] : 0,
       label: 'Active Locations'
     },
     {
-      number: activeScenes[activeScenes.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeScenes[activeScenes.length - 1] ? activeScenes[activeScenes.length - 1][1] : 0,
       label: 'Active Scenes'
     },
     {
-      number: activeInstances[activeInstances.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: activeInstances[activeInstances.length - 1] ? activeInstances[activeInstances.length - 1][1] : 0,
       label: 'Active Instances'
     },
     {
-      number: dailyUsers[dailyUsers.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: dailyUsers[dailyUsers.length - 1] ? dailyUsers[dailyUsers.length - 1][1] : 0,
       label: 'Users Today'
     },
     {
-      number: dailyNewUsers[dailyNewUsers.length - 1]?.y.toLocaleString(undefined, { notation: 'compact' }) ?? 0,
+      number: dailyNewUsers[dailyNewUsers.length - 1] ? dailyNewUsers[dailyNewUsers.length - 1][1] : 0,
       label: 'New Users Today'
     }
   ]
-  const graphData = graphSelector === 'activity' ? activityGraphData : userGraphData
 
   return (
     <div>
       <Grid container spacing={3}>
         {data.map((el) => {
           return (
-            <Grid item xs={3} key={el.label}>
+            <Grid item xs={12} sm={6} lg={3} key={el.label}>
               <Card data={el} />
             </Grid>
           )
@@ -219,15 +185,15 @@ const Analytics = (props: Props) => {
       <div className={classes.mtopp}>
         <Paper className={classes.paper}>
           <ToggleButtonGroup value={graphSelector} exclusive color="primary" aria-label="outlined primary button group">
-            <ToggleButton value="activity" onClick={() => setGraphSelector('activity')}>
+            <ToggleButton className={classes.btn} value="activity" onClick={() => setGraphSelector('activity')}>
               Activity
             </ToggleButton>
-            <ToggleButton value="users" onClick={() => setGraphSelector('users')}>
+            <ToggleButton className={classes.btn} value="users" onClick={() => setGraphSelector('users')}>
               Users
             </ToggleButton>
           </ToggleButtonGroup>
-          {graphSelector === 'users' && <UserGraph data={graphData} />}
-          {graphSelector === 'activity' && <ActivityGraph data={graphData} />}
+          {graphSelector === 'activity' && isDataAvailable && <ActivityGraph data={activityGraphData} />}
+          {graphSelector === 'users' && <UserGraph data={userGraphData} />}
         </Paper>
       </div>
       {/*<div className={classes.mtopp}>*/}
@@ -237,4 +203,4 @@ const Analytics = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Analytics)
+export default Analytics

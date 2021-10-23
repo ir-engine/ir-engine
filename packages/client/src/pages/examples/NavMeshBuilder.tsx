@@ -32,12 +32,12 @@ import {
 import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
 import { defineQuery } from 'bitecs'
 import { NavMeshBuilder } from '@xrengine/engine/src/map/NavMeshBuilder'
-import { fetchVectorTiles } from '@xrengine/engine/src/map/MapBoxClient'
+// import { fetchVectorTiles } from '@xrengine/engine/src/map/functions/fetchVectorTile'
 import { Position, Polygon, MultiPolygon } from 'geojson'
 import pc from 'polygon-clipping'
 import { computeBoundingBox } from '@xrengine/engine/src/map/GeoJSONFns'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { World } from '@xrengine/engine/src'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner
@@ -97,21 +97,20 @@ function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: Position)
 }
 
 const loadNavMeshFromMapBox = async (navigationComponent) => {
-  const builder = new NavMeshBuilder()
-  const center = [-84.388, 33.749] as Position
-  const tiles = await fetchVectorTiles(center)
-  const gBuildings = tiles
-    .reduce((acc, tiles) => acc.concat(tiles.building), [])
-    .map((feature) => scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center as any))
-
-  const gGround = computeBoundingBox(gBuildings)
-  let gBuildingNegativeSpace = [gGround.coordinates]
-  gBuildings.forEach((gPositiveSpace) => {
-    gBuildingNegativeSpace = pc.difference(gBuildingNegativeSpace as any, gPositiveSpace.coordinates as any)
-  })
-  builder.addGeometry({ type: 'MultiPolygon', coordinates: gBuildingNegativeSpace })
-  const navigationMesh = builder.build()
-  loadNavMesh(navigationMesh, navigationComponent)
+  // const builder = new NavMeshBuilder()
+  // const center = [-84.388, 33.749] as Position
+  // const tiles = await fetchVectorTiles(center)
+  // const gBuildings = tiles
+  //   .reduce((acc, tiles) => acc.concat(tiles.building), [])
+  //   .map((feature) => scaleAndTranslate(feature.geometry as Polygon | MultiPolygon, center as any))
+  // const gGround = computeBoundingBox(gBuildings)
+  // let gBuildingNegativeSpace = [gGround.coordinates]
+  // gBuildings.forEach((gPositiveSpace) => {
+  //   gBuildingNegativeSpace = pc.difference(gBuildingNegativeSpace as any, gPositiveSpace.coordinates as any)
+  // })
+  // builder.addGeometry({ type: 'MultiPolygon', coordinates: gBuildingNegativeSpace })
+  // const navigationMesh = builder.build()
+  // loadNavMesh(navigationMesh, navigationComponent)
 }
 
 const loadNavMesh = async (navigationMesh, navigationComponent) => {
@@ -246,8 +245,8 @@ const Page = () => {
     ;(async function () {
       await initializeEngine()
       // Register our systems to do stuff
-      registerSystem(SystemUpdateType.Fixed, Promise.resolve({ default: NavigationSystem }))
-      registerSystem(SystemUpdateType.Free, Promise.resolve({ default: RenderSystem }))
+      registerSystem(SystemUpdateType.FIXED, Promise.resolve({ default: NavigationSystem }))
+      registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: RenderSystem }))
       await Engine.defaultWorld.initSystems()
 
       // Set up rendering and basic scene for demo

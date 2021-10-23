@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectPopupsState } from '../../../reducers/popupsState/selector'
-import { updateShareFormState } from '../../../reducers/popupsState/service'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import SharedModal from '../../SharedModal'
 import AppFooter from '../../Footer'
 import ShareForm from '../../ShareForm/ShareForm'
@@ -10,30 +10,20 @@ import ShareForm from '../../ShareForm/ShareForm'
 //@ts-ignore
 import styles from './SharedFormPopup.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    popupsState: selectPopupsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateShareFormState: bindActionCreators(updateShareFormState, dispatch)
-})
-
 interface Props {
-  popupsState?: any
-  updateShareFormState?: typeof updateShareFormState
   setView?: any
 }
-export const SharedFormPopup = ({ popupsState, updateShareFormState, setView }: Props) => {
+export const SharedFormPopup = ({ setView }: Props) => {
+  const dispatch = useDispatch()
+  const popupsState = usePopupsStateState()
   //common for share form page
   const handleShareFormClose = () => {
-    updateShareFormState(false)
+    PopupsStateService.updateShareFormState(false)
   }
   const renderShareFormModal = () =>
-    popupsState?.get('shareForm') === true && (
+    popupsState?.popups?.shareForm?.value === true && (
       <SharedModal
-        open={popupsState?.get('shareForm')}
+        open={popupsState?.popups.shareForm.value}
         onClose={handleShareFormClose}
         className={styles.shareFormPopup}
       >
@@ -43,11 +33,11 @@ export const SharedFormPopup = ({ popupsState, updateShareFormState, setView }: 
         </div>
       </SharedModal>
     )
-  const shareFormState = popupsState?.get('shareForm')
+
   useEffect(() => {
     renderShareFormModal()
-  }, [shareFormState])
+  }, [popupsState?.popups.shareForm?.value])
   return renderShareFormModal()
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SharedFormPopup)
+export default SharedFormPopup

@@ -2,13 +2,14 @@ import React, { useEffect } from 'react'
 import List from '@material-ui/core/List'
 import Divider from '@material-ui/core/Divider'
 import ListItem from '@material-ui/core/ListItem'
-import { connect } from 'react-redux'
+
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import { useTranslation } from 'react-i18next'
 import {
   Accessibility,
   CalendarViewDay,
+  Code,
   Dashboard as DashboardIcon,
   DirectionsRun,
   GroupAdd,
@@ -18,9 +19,9 @@ import {
   PhotoLibrary,
   Settings,
   SupervisorAccount,
-  VpnKey,
   Toys,
-  Casino
+  Casino,
+  Shuffle
 } from '@material-ui/icons'
 import { Link, withRouter } from 'react-router-dom'
 import { useStylesForDashboard } from './styles'
@@ -28,20 +29,13 @@ import ListSubheader from '@material-ui/core/ListSubheader'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue'
 import ViewModuleIcon from '@material-ui/icons/ViewModule'
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople'
-import SettingsSystemDaydreamIcon from '@material-ui/icons/SettingsSystemDaydream'
 import ExpandLess from '@material-ui/icons/ExpandLess'
 import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { useAuthState } from '../../state/AuthState'
 interface Props {
   authState?: any
   location: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {
-    //authState: selectAuthState(state)
-  }
 }
 
 const SideMenuItem = (props: Props) => {
@@ -50,6 +44,7 @@ const SideMenuItem = (props: Props) => {
   const scopes = useAuthState().user?.scopes?.value || []
 
   let allowedRoutes = {
+    routes: true,
     location: false,
     user: false,
     bot: false,
@@ -59,7 +54,8 @@ const SideMenuItem = (props: Props) => {
     groups: false,
     instance: false,
     invite: false,
-    globalAvatars: false
+    globalAvatars: false,
+    projects: false
   }
 
   scopes.forEach((scope) => {
@@ -124,6 +120,21 @@ const SideMenuItem = (props: Props) => {
           </ListItem>
         </Link>
 
+        {allowedRoutes.routes && (
+          <Link to="/admin/routes" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              selected={'/admin/routes' === pathname}
+              style={{ color: 'white' }}
+              button
+            >
+              <Shuffle>
+                <CalendarViewDay style={{ color: 'white' }} />
+              </Shuffle>
+              <ListItemText primary={t('user:dashboard.routes')} />
+            </ListItem>
+          </Link>
+        )}
         {allowedRoutes.location || allowedRoutes.instance ? (
           <ListItem style={{ color: 'white' }} button onClick={() => setOpenLocation(!openLocation)}>
             <ListItemIcon>
@@ -311,6 +322,23 @@ const SideMenuItem = (props: Props) => {
             </Link>
           )}
 
+          {allowedRoutes.projects && (
+            <Link to="/admin/projects" className={classes.textLink}>
+              <ListItem
+                classes={{ selected: classes.selected }}
+                selected={'/admin/projects' === pathname}
+                className={classes.nested}
+                style={{ color: 'white' }}
+                button
+              >
+                <ListItemIcon>
+                  <Code style={{ color: 'white' }} />
+                </ListItemIcon>
+                <ListItemText primary={t('user:dashboard.projects')} />
+              </ListItem>
+            </Link>
+          )}
+
           {allowedRoutes.contentPacks && (
             <Link to="/admin/content-packs" className={classes.textLink}>
               <ListItem
@@ -351,6 +379,20 @@ const SideMenuItem = (props: Props) => {
               <ListItemText primary={'Setting'} />
             </ListItem>
           </Link>
+          {/* <Link to="/admin/bots" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              className={classes.nested}
+              selected={'/admin/setting' === pathname}
+              style={{ color: 'white' }}
+              button
+            >
+              <ListItemIcon>
+                <Settings style={{ color: 'white' }} />
+              </ListItemIcon>
+              <ListItemText primary={'Setting'} />
+            </ListItem>
+          </Link> */}
           {allowedRoutes.bot && (
             <Link to="/admin/bots" className={classes.textLink}>
               <ListItem
@@ -423,4 +465,4 @@ const SideMenuItem = (props: Props) => {
   )
 }
 
-export default withRouter(connect(mapStateToProps, null)(SideMenuItem))
+export default withRouter(SideMenuItem)

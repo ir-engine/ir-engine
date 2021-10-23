@@ -1,9 +1,18 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
 
-export default (app: Application): any => {
+export type CollectionModelType = {
+  id: string
+  entityId: string
+  name: string
+  parent: string
+  collectionId: string
+  index: number
+}
+
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const entity = sequelizeClient.define(
+  const entity = sequelizeClient.define<Model<CollectionModelType>>(
     'entity',
     {
       id: {

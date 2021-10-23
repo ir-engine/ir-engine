@@ -40,7 +40,6 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
   }
 
   const renderPreview = (props) => {
-    console.log('Render Preview Function')
     switch (props.contentType) {
       case 'model/gltf':
       case 'model/gltf-binary':
@@ -86,7 +85,6 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
 
   return (
     <>
-      {console.log('Rendering Asset Preview Panel')}
       <div>
         <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>
       </div>

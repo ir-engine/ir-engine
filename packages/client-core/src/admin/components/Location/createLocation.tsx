@@ -1,8 +1,7 @@
 import React from 'react'
 import Drawer from '@material-ui/core/Drawer'
 import Button from '@material-ui/core/Button'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { useDispatch } from '../../../store'
 import DialogActions from '@material-ui/core/DialogActions'
 import Container from '@material-ui/core/Container'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -19,11 +18,11 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormGroup from '@material-ui/core/FormGroup'
 import Switch from '@material-ui/core/Switch'
 import { useTranslation } from 'react-i18next'
-import { selectAdminLocationState } from '../../reducers/admin/location/selector'
-import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
-import { createLocation as createLocationAction } from '../../reducers/admin/location/service'
+import { useLocationState } from '../../state/LocationState'
+import { useSceneState } from '../../state/SceneState'
+import { LocationService } from '../../state/LocationService'
 import { validateUserForm } from '../Users/validation'
-import { selectAlertState } from '../../../common/reducers/alert/selector'
+import { useAlertState } from '../../../common/state/AlertState'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -32,28 +31,11 @@ const Alert = (props) => {
 interface Props {
   open: boolean
   handleClose: any
-  adminLocationState?: any
-  adminSceneState?: any
-  createLocationAction?: any
   closeViewModel?: any
-  adminAlert?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    adminLocationState: selectAdminLocationState(state),
-    adminSceneState: selectAdminSceneState(state),
-    adminAlert: selectAlertState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createLocationAction: bindActionCreators(createLocationAction, dispatch)
-})
 
 const CreateLocation = (props: Props) => {
-  const { open, handleClose, adminLocationState, adminSceneState, createLocationAction, closeViewModel, adminAlert } =
-    props
+  const { open, handleClose, closeViewModel } = props
   const classesx = useLocationStyle()
   const classes = useLocationStyles()
   const [openWarning, setOpenWarning] = React.useState(false)
@@ -78,15 +60,18 @@ const CreateLocation = (props: Props) => {
     }
   })
 
+  const dispatch = useDispatch()
   const { t } = useTranslation()
-  const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
-  const location = adminLocationState.get('locations')
-  const adminScenes = adminSceneState.get('scenes').get('scenes')
-  const errorType = adminAlert.get('type')
-  const errorMessage = adminAlert.get('message')
+  const adminLocationState = useLocationState()
+  const locationTypes = adminLocationState.locationTypes.locationTypes
+  const location = adminLocationState.locations
+  const adminScenes = useSceneState().scenes.scenes
+  const alertState = useAlertState()
+  const errorType = alertState.type
+  const errorMessage = alertState.message
 
   React.useEffect(() => {
-    if (location.get('created')) {
+    if (location.created.value) {
       closeViewModel(false)
       setState({
         ...state,
@@ -103,17 +88,17 @@ const CreateLocation = (props: Props) => {
         isFeatured: false
       })
     }
-  }, [location])
+  }, [location.created.value])
 
   React.useEffect(() => {
-    if (errorType === 'error') {
-      setError(errorMessage)
+    if (errorType.value === 'error') {
+      setError(errorMessage.value)
       setOpenWarning(true)
       setTimeout(() => {
         setOpenWarning(false)
       }, 5000)
     }
-  }, [errorType, errorMessage])
+  }, [errorType.value, errorMessage.value])
 
   const handleCloseWarning = (event, reason) => {
     if (reason === 'clickaway') {
@@ -149,7 +134,7 @@ const CreateLocation = (props: Props) => {
       name: state.name,
       sceneId: state.scene,
       maxUsersPerInstance: state.maxUsers,
-      location_setting: {
+      location_settings: {
         locationType: state.type,
         instanceMediaChatEnabled: state.globalMediaEnabled,
         audioEnabled: state.audioEnabled,
@@ -172,7 +157,7 @@ const CreateLocation = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      createLocationAction(data)
+      LocationService.createLocation(data)
       //  closeViewModel(false)
     } else {
       setError('Please fill all required field')
@@ -235,7 +220,7 @@ const CreateLocation = (props: Props) => {
                 <MenuItem value="" disabled>
                   <em>Select scene</em>
                 </MenuItem>
-                {adminScenes.map((el) => (
+                {adminScenes.value.map((el) => (
                   <MenuItem value={el.sid} key={el.sid}>{`${el.name} (${el.sid})`}</MenuItem>
                 ))}
               </Select>
@@ -258,7 +243,7 @@ const CreateLocation = (props: Props) => {
                 <MenuItem value="" disabled>
                   <em>Select type</em>
                 </MenuItem>
-                {locationTypes.map((el) => (
+                {locationTypes.value.map((el) => (
                   <MenuItem value={el.type} key={el.type}>
                     {el.type}
                   </MenuItem>
@@ -380,10 +365,10 @@ const CreateLocation = (props: Props) => {
             </Grid>
           </Grid>
           <DialogActions>
-            <Button className={classesx.saveBtn} onClick={handleSubmit}>
+            <Button className={classes.saveBtn} onClick={handleSubmit}>
               Submit
             </Button>
-            <Button onClick={handleClose(false)} className={classesx.saveBtn}>
+            <Button onClick={handleClose(false)} className={classes.saveBtn}>
               Cancel
             </Button>
           </DialogActions>
@@ -404,4 +389,4 @@ const CreateLocation = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateLocation)
+export default CreateLocation

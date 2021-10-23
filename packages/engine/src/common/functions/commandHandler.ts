@@ -14,12 +14,15 @@ import {
   getSubscribedChatSystems,
   removeMessageSystem
 } from '../../networking/utils/chatSystem'
-import { getPlayerEntity, getPlayers } from '../../networking/utils/getUser'
+import { getRemoteUsers, getUserEntityByName } from '../../networking/utils/getUser'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 import { isBot } from './isBot'
 import { Engine } from '../../ecs/classes/Engine'
+// import { accessChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { Entity } from '../../ecs/classes/Entity'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
@@ -45,10 +48,10 @@ export function getStarterCount(text: string): number {
  * Handles a command, the input is sent both from server and client, each one can handle it differently
  * The return value is boolean (true/false), if it returns true the caller function will terminate, otherwise it will continue
  * First it is called in the server and then in the client
- * The eid in the server is the UserId, while in the client is the EntityId
+ * The entity in the server is the UserId, while in the client is the EntityId
  * @author Alex Titonis
  */
-export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: any): boolean {
+export function handleCommand(cmd: string, entity: Entity, userId: UserId): boolean {
   //It checks for all messages, the default
   if (!isCommand(cmd)) return false
 
@@ -75,17 +78,13 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
         return true
       }
 
-      if (!isServer) {
-        handleMoveCommand(x, y, z, eid)
-      }
+      handleMoveCommand(x, y, z, entity)
 
-      if (!isServer) return true
-      else return false
+      return false
     }
     case 'metadata': {
       //This command is handled only in the client and only if the caller is a bot
-      if (isServer) return false
-      //if (!Engine.isBot && !isBot(window)) return true
+      if (!Engine.isBot && !isBot(window)) return true
 
       //The params must either be 1 or 2, if it is scene, then 1 other wise 2 - world, max distance
       if (params.length > 0) {
@@ -95,38 +94,33 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
         }
       } else return true
 
-      handleMetadataCommand(params, eid)
+      handleMetadataCommand(params, entity)
 
       return true
     }
     case 'goTo': {
-      if (isServer) return false
-      //if(!Engine.isBot && !isBot(window)) return true
+      if (!Engine.isBot && !isBot(window)) return true
 
       if (params.length != 1) {
         console.log('invalid params, it should be /goTo landmark')
         return true
       }
 
-      handleGoToCommand(params[0], eid)
+      handleGoToCommand(params[0], entity)
 
       return true
     }
     case 'emote': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params, it should be /emote emote_name')
         return true
       }
 
-      handleEmoteCommand(params[0], eid)
+      handleEmoteCommand(params[0], entity)
 
       return true
     }
     case 'subscribe': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params, it should be /subscribe chat_system (emotions_system, all)')
         return true
@@ -137,8 +131,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'unsubscribe': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params, it should be /unsubscribe chat_system (emotions_system all)')
         return true
@@ -149,27 +141,21 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'getSubscribed': {
-      if (isServer) return false
-
       handleGetSubscribedChatSystemsCommand(userId)
 
       return true
     }
     case 'face': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
       }
 
-      handleFaceCommand(params[0], eid)
+      handleFaceCommand(params[0], entity)
 
       return true
     }
     case 'getPosition': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
@@ -180,8 +166,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'getRotation': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
@@ -192,8 +176,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'getScale': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
@@ -204,8 +186,6 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'getTransform': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
@@ -216,33 +196,27 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
       return true
     }
     case 'follow': {
-      if (isServer) return false
-
       if (params.length !== 1) {
         console.log('invalid params')
         return true
       }
 
-      handleFollowCommand(params[0], eid)
+      handleFollowCommand(params[0], entity)
 
       return true
     }
     case 'getChatHistory': {
-      if (isServer) return false
-
       handleGetChatHistoryCommand()
 
       return true
     }
     case 'listAllusers': {
-      if (isServer) return false
-
       handleListAllUsersCommand(userId)
 
       return true
     }
     case 'getLocalUserId': {
-      if (isServer || !isBot(window)) return false
+      if (!isBot(window)) return false
 
       handleGetLocalUserIdCommand(userId)
 
@@ -250,25 +224,24 @@ export function handleCommand(cmd: string, eid: any, isServer: boolean, userId: 
     }
     default: {
       console.log('unknown command: ' + base + ' params: ' + (params === '' ? 'none' : params))
-      if (!isServer) return true
-      else return false
+      return false
     }
   }
 }
 
 //Create fake input on the map (like left click) with the coordinates written and implement the auto pilot click request component to the player
-function handleMoveCommand(x: number, y: number, z: number, eid: any) {
-  goTo(new Vector3(x, y, z), eid)
-  /*let linput = getComponent(eid, LocalInputTagComponent)
-  if (linput === undefined) linput = addComponent(eid, LocalInputTagComponent, {})
-  addComponent(eid, AutoPilotClickRequestComponent, { coords: new Vector2(x, z) })*/
+function handleMoveCommand(x: number, y: number, z: number, entity: any) {
+  goTo(new Vector3(x, y, z), entity)
+  /*let linput = getComponent(entity, LocalInputTagComponent)
+  if (linput === undefined) linput = addComponent(entity, LocalInputTagComponent, {})
+  addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(x, z) })*/
 }
 
-function handleMetadataCommand(params: any, eid: any) {
+function handleMetadataCommand(params: any, entity: any) {
   if (params[0] === 'scene') {
     console.log('scene_metadata|' + Engine.defaultWorld.sceneMetadata)
   } else {
-    const position = getComponent(eid, TransformComponent).position
+    const position = getComponent(entity, TransformComponent).position
     const maxDistance: number = parseFloat(params[1])
     let vector: Vector3
     let distance: number = 0
@@ -283,9 +256,9 @@ function handleMetadataCommand(params: any, eid: any) {
   }
 }
 
-function handleGoToCommand(landmark: string, eid: any) {
-  const position = getComponent(eid, TransformComponent).position
-  let nearest: Vector3 = undefined
+function handleGoToCommand(landmark: string, entity: any) {
+  const position = getComponent(entity, TransformComponent).position
+  let nearest: Vector3 = undefined!
   let distance: number = Number.MAX_SAFE_INTEGER
   let cDistance: number = 0
   let vector: Vector3
@@ -304,41 +277,41 @@ function handleGoToCommand(landmark: string, eid: any) {
 
   console.log('goTo: ' + landmark + ' nearest: ' + JSON.stringify(nearest))
   if (nearest !== undefined) {
-    goTo(nearest, eid)
+    goTo(nearest, entity)
   }
 }
 
-function handleEmoteCommand(emote: string, eid: any) {
+function handleEmoteCommand(emote: string, entity: any) {
   switch (emote) {
     case 'dance1':
-      runAnimation(eid, AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_1 })
+      runAnimation(entity, AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_1 })
       break
     case 'dance2':
-      runAnimation(eid, AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_2 })
+      runAnimation(entity, AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_2 })
       break
     case 'dance3':
-      runAnimation(eid, AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_3 })
+      runAnimation(entity, AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_3 })
       break
     case 'dance4':
-      runAnimation(eid, AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })
+      runAnimation(entity, AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })
       break
     case 'clap':
-      runAnimation(eid, AvatarStates.EMOTE, { animationName: AvatarAnimations.CLAP })
+      runAnimation(entity, AvatarStates.EMOTE, { animationName: AvatarAnimations.CLAP })
       break
     case 'cry':
-      runAnimation(eid, AvatarStates.EMOTE, { animationName: AvatarAnimations.CRY })
+      runAnimation(entity, AvatarStates.EMOTE, { animationName: AvatarAnimations.CRY })
       break
     case 'laugh':
-      runAnimation(eid, AvatarStates.EMOTE, { animationName: AvatarAnimations.LAUGH })
+      runAnimation(entity, AvatarStates.EMOTE, { animationName: AvatarAnimations.LAUGH })
       break
     case 'sad':
-      runAnimation(eid, AvatarStates.EMOTE, { animationName: AvatarAnimations.CRY })
+      runAnimation(entity, AvatarStates.EMOTE, { animationName: AvatarAnimations.CRY })
       break
     case 'kiss':
-      runAnimation(eid, AvatarStates.EMOTE, { animationName: AvatarAnimations.KISS })
+      runAnimation(entity, AvatarStates.EMOTE, { animationName: AvatarAnimations.KISS })
       break
     case 'wave':
-      runAnimation(eid, AvatarStates.EMOTE, { animationName: AvatarAnimations.WAVE })
+      runAnimation(entity, AvatarStates.EMOTE, { animationName: AvatarAnimations.WAVE })
       break
     default:
       console.log(
@@ -357,7 +330,7 @@ async function handleGetSubscribedChatSystemsCommand(userId: any) {
   console.log(systems)
 }
 
-function handleFaceCommand(face: string, eid: any) {
+function handleFaceCommand(face: string, entity: any) {
   if (face === undefined || face === '') return
 
   const faces = face.split(' ')
@@ -383,13 +356,13 @@ function handleFaceCommand(face: string, eid: any) {
 function handleGetPositionCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid: number = getPlayerEntity(player)
-  if (eid === undefined) {
-    console.log('undefiend eid')
+  const entity = getUserEntityByName(player)
+  if (entity === undefined) {
+    console.log('undefiend entity')
     return
   }
 
-  const transform = getComponent(eid, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
   if (transform === undefined) {
     console.log('undefined')
     return
@@ -401,10 +374,10 @@ function handleGetPositionCommand(player: string) {
 function handleGetRotationCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid = getPlayerEntity(player)
-  if (eid === undefined) return
+  const entity = getUserEntityByName(player)
+  if (entity === undefined) return
 
-  const transform = getComponent(eid, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
   if (transform === undefined) return
 
   console.log(player + ' rotation: ' + JSON.stringify(transform.rotation))
@@ -413,10 +386,10 @@ function handleGetRotationCommand(player: string) {
 function handleGetScaleCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid = getPlayerEntity(player)
-  if (eid === undefined) return
+  const entity = getUserEntityByName(player)
+  if (entity === undefined) return
 
-  const transform = getComponent(eid, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
   if (transform === undefined) return
 
   console.log(player + ' scale: ' + JSON.stringify(transform.scale))
@@ -425,52 +398,51 @@ function handleGetScaleCommand(player: string) {
 function handleGetTransformCommand(player: string) {
   if (player === undefined || player === '') return
 
-  const eid = getPlayerEntity(player)
-  if (eid === undefined) return
+  const entity = getUserEntityByName(player)
+  if (entity === undefined) return
 
-  const transform = getComponent(eid, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
   if (transform === undefined) return
 
   console.log(player + ' transform: ' + JSON.stringify(transform))
 }
-function handleFollowCommand(param: string, eid: number) {
+function handleFollowCommand(param: string, entity: Entity) {
   if (param === 'stop') {
-    removeFollowComponent(eid)
+    removeFollowComponent(entity)
   } else {
-    const targetEid = getPlayerEntity(param)
-    console.log('follow target eid: ' + targetEid)
-    if (targetEid === undefined || eid === targetEid) return
-    createFollowComponent(eid, targetEid)
+    const targetEntity = getUserEntityByName(param)
+    console.log('follow target entity: ' + targetEntity)
+    if (targetEntity === undefined || entity === targetEntity) return
+    createFollowComponent(entity, targetEntity)
   }
 }
 
 function handleGetChatHistoryCommand() {
-  const chatState = globalThis.store.getState().get('chat')
-  const channelState = chatState.get('channels')
-  const channels = channelState.get('channels')
-  const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance')
-  if (activeChannelMatch && activeChannelMatch.length > 0) {
-    const activeChannel = activeChannelMatch[1]
-    if (activeChannel === undefined) return
-    const messages = activeChannel.messages
-    if (messages === undefined) return
-
-    for (let i = 0; i < messages.length; i++) messages[i].text = removeMessageSystem(messages[i].text)
-
-    console.log('messages|' + JSON.stringify(messages))
-  } else {
-    console.warn("Couldn't get chat state")
-  }
+  // const chatState = accessChatState()
+  // const channelState = chatState.channels
+  // const channels = channelState.channels
+  // const activeChannelMatch = Object.entries(channels).find(([, channel]) => channel.channelType === 'instance')
+  // if (activeChannelMatch && activeChannelMatch.length > 0) {
+  //   const activeChannel = activeChannelMatch[1]
+  //   if (activeChannel === undefined) return
+  //   const messages = activeChannel.messages
+  //   if (messages === undefined) return
+  //   for (let i = 0; i < messages.length; i++) messages[i].text = removeMessageSystem(messages[i].text)
+  //   console.log('messages|' + JSON.stringify(messages))
+  // } else {
+  //   console.warn("Couldn't get chat state")
+  // }
 }
 
 function handleListAllUsersCommand(userId) {
   console.log('listallusers, local id: ' + userId)
   if (userId === undefined) return
 
-  const players: string[] = getPlayers(userId, true)
+  const players = getRemoteUsers(userId, true)
   if (players === undefined) return
 
-  console.log('players|' + players)
+  const playerNames = players.map((userId) => Engine.defaultWorld.clients.get(userId)?.name)
+  console.log('players|' + playerNames)
 }
 function handleGetLocalUserIdCommand(userId) {
   if (userId === undefined || userId === '') return
@@ -478,20 +450,20 @@ function handleGetLocalUserIdCommand(userId) {
   console.log('localId|' + userId)
 }
 
-function runAnimation(eid: any, emote: string, emoteParams: any) {
-  const aac = getComponent(eid, AvatarAnimationComponent)
+function runAnimation(entity: any, emote: string, emoteParams: any) {
+  const aac = getComponent(entity, AvatarAnimationComponent)
 
   if (!aac.animationGraph.validateTransition(aac.currentState, aac.animationGraph.states[emote])) {
     console.warn('immediate transition to [%s] is not available from current state [%s]', emote, aac.currentState.name)
   }
 
-  if (!hasComponent(eid, AutoPilotComponent)) AnimationGraph.forceUpdateAnimationState(eid, emote, emoteParams)
+  if (!hasComponent(entity, AutoPilotComponent)) AnimationGraph.forceUpdateAnimationState(entity, emote, emoteParams)
   else {
-    stopAutopilot(eid)
+    stopAutopilot(entity)
     let interval = setInterval(() => {
       if (aac.animationGraph.validateTransition(aac.currentState, aac.animationGraph.states[emote])) {
         clearInterval(interval)
-        AnimationGraph.forceUpdateAnimationState(eid, emote, emoteParams)
+        AnimationGraph.forceUpdateAnimationState(entity, emote, emoteParams)
       }
     }, 50)
   }
@@ -510,15 +482,15 @@ function getMetadataPosition(_pos: string): Vector3 {
   return new Vector3(x, y, z)
 }
 
-export function goTo(pos: Vector3, eid: number) {
+export function goTo(pos: Vector3, entity: Entity) {
   //console.log('goto: ' + JSON.stringify(pos))
-  let linput = getComponent(eid, LocalInputTagComponent)
-  if (linput === undefined) linput = addComponent(eid, LocalInputTagComponent, {})
-  addComponent(eid, AutoPilotOverrideComponent, {
+  let linput = getComponent(entity, LocalInputTagComponent)
+  if (linput === undefined) linput = addComponent(entity, LocalInputTagComponent, {})
+  addComponent(entity, AutoPilotOverrideComponent, {
     overrideCoords: true,
     overridePosition: pos
   })
-  addComponent(eid, AutoPilotClickRequestComponent, {
+  addComponent(entity, AutoPilotClickRequestComponent, {
     coords: new Vector2(0, 0)
   })
 }

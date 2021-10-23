@@ -17,7 +17,7 @@ const StyledToolButton = (styled as any).button`
   background-color: ${(props) => (props.isSelected ? props.theme.blue : props.theme.toolbar)};
 
   &:hover {
-    background-color: ${(props) => (props.isSelected ? props.theme.blueHover : props.theme.panel2)};
+    background-color: ${(props) => (props.isSelected ? props.theme.blueHover : props.theme.panel)};
   }
 `
 

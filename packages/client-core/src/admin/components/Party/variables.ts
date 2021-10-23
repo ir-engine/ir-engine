@@ -5,7 +5,6 @@ export interface PartyProps {
   authState?: any
   fetchAdminInstances?: any
   createAdminParty?: any
-  adminInstanceState?: any
   adminLocationState?: any
 }
 
@@ -23,12 +22,12 @@ export interface PartyColumn {
 }
 
 export const partyColumns: PartyColumn[] = [
-  { id: 'instance', label: 'Instance', minWidth: 170 },
-  { id: 'location', label: 'Location', minWidth: 100 },
+  { id: 'instance', label: 'Instance', minWidth: 65 },
+  { id: 'location', label: 'Location', minWidth: 65 },
   {
     id: 'action',
     label: 'Action',
-    minWidth: 170,
+    minWidth: 65,
     align: 'right'
   }
 ]

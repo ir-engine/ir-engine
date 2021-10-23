@@ -1,7 +1,5 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
 import styles from './AlertModals.module.scss'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'
@@ -32,7 +30,6 @@ const WarningRetryModal = ({
   handleClose,
   closeEffect
 }: WarningRetryModalProps): any => {
-  const [countdown, setCountdown] = useState(null)
   const [timeRemaining, setTimeRemaining] = useState(0)
 
   const handleCloseButtonClick = (e: any) => {
@@ -46,15 +43,12 @@ const WarningRetryModal = ({
   }
 
   useEffect(() => {
-    if (open && !noCountdown) {
-      setTimeRemaining((timeout || 10000) / 1000)
-    } else {
-      clearInterval(countdown as any)
-    }
-  }, [open, noCountdown])
+    setTimeRemaining((timeout || 10000) / 1000)
+  }, [open, timeout])
 
   useEffect(() => {
-    if (timeRemaining === 0) {
+    if (!open) return
+    if (timeRemaining <= 0) {
       if (typeof action === 'function') {
         action(...(parameters || []))
       }
@@ -64,16 +58,15 @@ const WarningRetryModal = ({
       }
     }
 
-    if (timeRemaining !== 0) {
-      setCountdown(
-        setTimeout(() => {
-          setTimeRemaining(timeRemaining - 1)
-        }, 1000)
-      )
+    let timeout = undefined! as number
+    if (timeRemaining > 0) {
+      timeout = setTimeout(() => {
+        setTimeRemaining(timeRemaining - 1)
+      }, 1000) as any
     }
 
-    return () => clearInterval(countdown as any)
-  }, [timeRemaining])
+    return () => clearTimeout(timeout)
+  }, [timeRemaining, open])
 
   return (
     <div>

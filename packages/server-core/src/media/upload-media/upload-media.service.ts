@@ -1,10 +1,9 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { UploadMedia } from './upload-media.class'
 import hooks from './upload-media.hooks'
 import express from 'express'
 import multer from 'multer'
-import StorageProvider from '../storageprovider/storageprovider'
+import { useStorageProvider } from '../storageprovider/storageprovider'
 import blobService from 'feathers-blob'
 import { v1 as uuidv1 } from 'uuid'
 import dauria from 'dauria'
@@ -13,12 +12,12 @@ const multipartMiddleware = multer()
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    media: UploadMedia & ServiceAddons<any>
+    media: UploadMedia
   }
 }
 
 export default (app: Application): void => {
-  const provider = new StorageProvider()
+  const provider = useStorageProvider()
 
   /**
    * Initialize our service with any options it requires and docs

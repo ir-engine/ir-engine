@@ -1,10 +1,14 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
 import { collectionType as collectionTypeEnum } from './collectionType'
 
-export default (app: Application): any => {
+export type CollectionTypeModelType = {
+  type: string
+}
+
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const collectionType = sequelizeClient.define(
+  const collectionType = sequelizeClient.define<Model<CollectionTypeModelType>>(
     'collection_type',
     {
       type: {

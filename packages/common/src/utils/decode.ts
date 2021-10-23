@@ -2,9 +2,9 @@ import { Vector3, Quaternion } from 'three'
 import { decodeFloat } from './bitConverter'
 
 export function decodeVector3(array): Vector3 {
-  const xArray = []
-  const yArray = []
-  const zArray = []
+  const xArray: any[] = []
+  const yArray: any[] = []
+  const zArray: any[] = []
 
   for (let i = 0; i < array.length; i++) {
     if (i < 4) xArray.push(array[i])
@@ -30,7 +30,7 @@ export function decodeQuaternion(array): Quaternion {
     const b = unquantizedComponents[1]
     const c = unquantizedComponents[2]
 
-    const res = []
+    const res: number[] = []
     let siftedIndex = 0
     for (let i = 0; i < 4; i++) {
       if (i === largestIndex) {
@@ -44,6 +44,7 @@ export function decodeQuaternion(array): Quaternion {
 
     return new Quaternion(res[0], res[1], res[2], res[3])
   }
+  return new Quaternion()
 }
 
 function quatIsZero(array) {

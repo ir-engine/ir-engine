@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { InstanceAttendance } from './instance-attendance.class'
 import createModel from './instance-attendance.model'
@@ -7,11 +6,11 @@ import instanceAttendanceDocs from './instance-attendance.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'instance-attendance': InstanceAttendance & ServiceAddons<any>
+    'instance-attendance': InstanceAttendance
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -25,9 +24,9 @@ export default (app: Application): any => {
    */
   const event = new InstanceAttendance(options, app)
   event.docs = instanceAttendanceDocs
-  app.use('/instance-attendance', event)
+  app.use('instance-attendance', event)
 
   const service = app.service('instance-attendance')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

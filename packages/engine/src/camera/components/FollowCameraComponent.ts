@@ -39,7 +39,7 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   phi: 0,
   shoulderSide: true,
   locked: true,
-  raycaster: null
+  raycaster: new Raycaster()
 }
 
 export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>('FollowCameraComponent')

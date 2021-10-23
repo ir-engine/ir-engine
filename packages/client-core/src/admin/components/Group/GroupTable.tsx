@@ -9,33 +9,19 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import { TableContainer, TableHead, TablePagination, TableRow } from '@material-ui/core'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import { selectGroupState } from '../../reducers/admin/group/selector'
-import { getGroupService, deleteGroupByAdmin } from '../../reducers/admin/group/service'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useDispatch } from '../../../store'
+import { useGroupState } from '../../state/GroupState'
+import { GroupService } from '../../state/GroupService'
+import { useAuthState } from '../../../user/state/AuthState'
 import { columns, Data } from './Variables'
 import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
-import { GROUP_PAGE_LIMIT } from '../../reducers/admin/group/reducers'
+import { GROUP_PAGE_LIMIT } from '../../state/GroupState'
 
-interface Props {
-  adminGroupState?: any
-  fetchAdminGroup?: any
-  deleteGroup?: any
-}
-
-const mapStateToProps = (state: any): any => ({
-  adminGroupState: selectGroupState(state)
-})
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminGroup: bindActionCreators(getGroupService, dispatch),
-  deleteGroup: bindActionCreators(deleteGroupByAdmin, dispatch)
-})
+interface Props {}
 
 const GroupTable = (props: Props) => {
-  const { adminGroupState, fetchAdminGroup, deleteGroup } = props
+  const dispatch = useDispatch()
   const classes = useGroupStyles()
   const classx = useGroupStyle()
 
@@ -46,12 +32,13 @@ const GroupTable = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(GROUP_PAGE_LIMIT)
   const [groupId, setGroupId] = React.useState('')
   const [showWarning, setShowWarning] = React.useState(false)
-  const adminGroups = adminGroupState.get('group').get('group')
-  const adminGroupCount = adminGroupState.get('group').get('total')
+  const adminGroupState = useGroupState()
+  const adminGroups = adminGroupState.group.group
+  const adminGroupCount = adminGroupState.group.total
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchAdminGroup(incDec)
+    GroupService.getGroupService(incDec)
     setPage(newPage)
   }
 
@@ -61,9 +48,11 @@ const GroupTable = (props: Props) => {
   }
 
   const handleViewGroup = (id: string) => {
-    const group = adminGroups.find((group) => group.id === id)
-    setSingleGroup(group)
-    setViewModel(true)
+    const group = adminGroups.value.find((group) => group.id === id)
+    if (group !== null) {
+      setSingleGroup(group)
+      setViewModel(true)
+    }
   }
 
   const handleCloseWarning = () => {
@@ -77,7 +66,7 @@ const GroupTable = (props: Props) => {
 
   const deleteGroupHandler = () => {
     setShowWarning(false)
-    deleteGroup(groupId)
+    GroupService.deleteGroupByAdmin(groupId)
   }
 
   const closeViewModel = (open) => {
@@ -85,8 +74,8 @@ const GroupTable = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (adminGroupState.get('group').get('updateNeeded')) fetchAdminGroup()
-  }, [adminGroupState, user])
+    if (adminGroupState.group.updateNeeded.value) GroupService.getGroupService()
+  }, [adminGroupState.group.updateNeeded.value, user])
 
   const createData = (id: any, name: any, description: string): Data => {
     return {
@@ -107,11 +96,9 @@ const GroupTable = (props: Props) => {
     }
   }
 
-  const rows = adminGroups.map((el) => {
+  const rows = adminGroups.value.map((el) => {
     return createData(el.id, el.name, el.description)
   })
-
-  const count = rows.size ? rows.size : rows.length
 
   return (
     <div className={classx.root}>
@@ -152,7 +139,7 @@ const GroupTable = (props: Props) => {
       <TablePagination
         rowsPerPageOptions={[GROUP_PAGE_LIMIT]}
         component="div"
-        count={adminGroupCount}
+        count={adminGroupCount.value}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handlePageChange}
@@ -187,4 +174,4 @@ const GroupTable = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(GroupTable)
+export default GroupTable

@@ -2,15 +2,16 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { Network } from '../../networking/classes/Network'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { dispatchFromClient } from '../../networking/functions/dispatch'
-import { NetworkWorldAction } from '../../networking/interfaces/NetworkWorldActions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
+import { initializeHandModel } from './addControllerModels'
 
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -20,19 +21,21 @@ const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Mat
  */
 
 export const startWebXR = (): void => {
-  const controllerLeft = Engine.xrRenderer.getController(1) as any
-  const controllerRight = Engine.xrRenderer.getController(0) as any
-  const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1)
-  const controllerGripRight = Engine.xrRenderer.getControllerGrip(0)
+  const controllerLeft = Engine.xrRenderer.getController(0)
+  const controllerRight = Engine.xrRenderer.getController(1)
+  const controllerGripLeft = Engine.xrRenderer.getControllerGrip(0)
+  const controllerGripRight = Engine.xrRenderer.getControllerGrip(1)
   const container = new Group()
 
   Engine.scene.remove(Engine.camera)
   container.add(Engine.camera)
   const head = new Group()
 
-  removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
+  const world = useWorld()
 
-  addComponent(Network.instance.localClientEntity, XRInputSourceComponent, {
+  removeComponent(world.localClientEntity, FollowCameraComponent)
+
+  addComponent(world.localClientEntity, XRInputSourceComponent, {
     head,
     container,
     controllerLeft,
@@ -41,8 +44,8 @@ export const startWebXR = (): void => {
     controllerGripRight
   })
 
-  const { networkId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
-  dispatchFromClient(NetworkWorldAction.enterVR(networkId, true))
+  bindXRHandEvents()
+  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ userId: Engine.userId, enabled: true }))
 }
 
 /**
@@ -52,14 +55,48 @@ export const startWebXR = (): void => {
 
 export const endXR = (): void => {
   Engine.xrSession.end()
-  Engine.xrSession = null
+  Engine.xrSession = null!
   Engine.scene.add(Engine.camera)
 
-  addComponent(Network.instance.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
-  removeComponent(Network.instance.localClientEntity, XRInputSourceComponent)
+  addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
+  removeComponent(useWorld().localClientEntity, XRInputSourceComponent)
 
-  const { networkId } = getComponent(Network.instance.localClientEntity, NetworkObjectComponent)
-  dispatchFromClient(NetworkWorldAction.enterVR(networkId, false))
+  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ userId: Engine.userId, enabled: false }))
+}
+
+/**
+ * Initializes XR hand controllers for local client
+ * @author Mohsen Heydari <github.com/mohsenheydari>
+ * @returns {void}
+ */
+
+export const bindXRHandEvents = () => {
+  const world = useWorld()
+  const hands = [Engine.xrRenderer.getHand(0), Engine.xrRenderer.getHand(1)]
+  let eventSent = false
+
+  hands.forEach((controller: any) => {
+    controller.addEventListener('connected', (ev) => {
+      const xrInputSource = ev.data
+
+      if (!xrInputSource.hand || controller.userData.mesh) {
+        return
+      }
+
+      if (!hasComponent(world.localClientEntity, XRHandsInputComponent)) {
+        addComponent(world.localClientEntity, XRHandsInputComponent, {
+          hands
+        })
+      }
+
+      initializeHandModel(controller, xrInputSource.handedness)
+
+      if (!eventSent) {
+        dispatchFrom(Engine.userId, () => NetworkWorldAction.xrHandsConnected({ userId: Engine.userId }))
+        eventSent = true
+      }
+    })
+  })
 }
 
 /**
@@ -75,7 +112,6 @@ const vec3 = new Vector3()
 const v3 = new Vector3()
 const uniformScale = new Vector3(1, 1, 1)
 const quat = new Quaternion()
-const forward = new Vector3(0, 0, -1)
 
 /**
  * Gets the hand position in world space
@@ -136,7 +172,6 @@ export const getHandTransform = (
   entity: Entity,
   hand: ParityValue = ParityValue.NONE
 ): { position: Vector3; rotation: Quaternion } => {
-  const avatar = getComponent(entity, AvatarComponent)
   const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {

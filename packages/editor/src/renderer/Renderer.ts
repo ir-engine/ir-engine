@@ -1,161 +1,47 @@
-import { Color, Layers, MeshBasicMaterial, MeshNormalMaterial, Vector2 } from 'three'
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
-import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader'
+import {
+  MeshBasicMaterial,
+  MeshNormalMaterial,
+  NearestFilter,
+  RGBFormat,
+  WebGLInfo,
+  WebGLRenderer,
+  WebGLRenderTarget
+} from 'three'
 import { CommandManager } from '../managers/CommandManager'
 import EditorCommands from '../constants/EditorCommands'
 import { getCanvasBlob } from '../functions/thumbnails'
 import PostProcessingNode from '../nodes/PostProcessingNode'
 import ScenePreviewCameraNode from '../nodes/ScenePreviewCameraNode'
 import makeRenderer from './makeRenderer'
-import OutlinePass from './OutlinePass'
-import configurePostProcessing from './RendererPostProcessing'
 import { SceneManager } from '../managers/SceneManager'
-/**
- * @author mrdoob / http://mrdoob.com/
- */
-class RenderMode {
-  name: string
-  renderer: any
-  passes: any[]
-  enableShadows: boolean
-  constructor(renderer) {
-    this.name = 'Default'
-    this.renderer = renderer
-    this.passes = []
-    this.enableShadows = false
-  }
-  render(dt?) {}
-}
-class UnlitRenderMode extends RenderMode {
-  effectComposer: EffectComposer
-  renderPass: RenderPass
-  renderHelpersPass: RenderPass
-  outlinePass: any
-  gammaCorrectionPass: ShaderPass
-  enabledBatchedObjectLayers: Layers
-  disabledBatchedObjectLayers: Layers
-  hiddenLayers: Layers
-  disableBatching: boolean
-  editorRenderer: any
-  constructor(renderer, editorRenderer) {
-    super(renderer)
-    this.name = 'Unlit'
-    this.effectComposer = new EffectComposer(renderer)
-    this.renderPass = new RenderPass(SceneManager.instance.scene, SceneManager.instance.camera)
-    this.effectComposer.addPass(this.renderPass)
-    this.renderHelpersPass = new RenderPass(SceneManager.instance.helperScene, SceneManager.instance.camera)
-    this.renderHelpersPass.clear = false
-    this.effectComposer.addPass(this.renderHelpersPass)
-    const canvasParent = renderer.domElement.parentElement
-    this.outlinePass = new OutlinePass(
-      new Vector2(canvasParent.offsetWidth, canvasParent.offsetHeight),
-      SceneManager.instance.scene,
-      SceneManager.instance.camera,
-      CommandManager.instance.selectedTransformRoots,
-      editorRenderer
-    ) as any
-    this.gammaCorrectionPass = new ShaderPass(GammaCorrectionShader)
-    this.effectComposer.addPass(this.gammaCorrectionPass)
-    this.outlinePass.edgeColor = new Color('#006EFF')
-    this.outlinePass.renderToScreen = true
-    this.effectComposer.addPass(this.outlinePass)
-    this.enableShadows = false
-    this.enabledBatchedObjectLayers = new Layers()
-    this.disabledBatchedObjectLayers = new Layers()
-    this.disabledBatchedObjectLayers.disable(0)
-    this.disabledBatchedObjectLayers.enable(2)
-    this.hiddenLayers = new Layers()
-    this.hiddenLayers.set(1)
-    this.disableBatching = false
-    this.editorRenderer = editorRenderer
-  }
-  onSceneSet() {
-    this.renderer.shadowMap.enabled = this.enableShadows
-    SceneManager.instance.scene.traverse((object) => {
-      if (object.setShadowsEnabled) {
-        object.setShadowsEnabled(this.enableShadows)
-      }
-      if (
-        this.disableBatching &&
-        object.isMesh &&
-        !object.layers.test(this.enabledBatchedObjectLayers) &&
-        !object.layers.test(this.hiddenLayers)
-      ) {
-        object.layers.enable(0)
-        object.layers.enable(2)
-      } else if (
-        !this.disableBatching &&
-        object.isMesh &&
-        object.layers.test(this.disabledBatchedObjectLayers) &&
-        !object.layers.test(this.hiddenLayers)
-      ) {
-        object.layers.disable(0)
-        object.layers.disable(2)
-      }
-    })
-    this.renderPass.scene = SceneManager.instance.scene
-    this.renderPass.camera = SceneManager.instance.camera
-    this.outlinePass.renderScene = SceneManager.instance.scene
-    this.outlinePass.renderCamera = SceneManager.instance.camera
-  }
-  onResize() {
-    const canvasParent = this.renderer.domElement.parentElement
-    this.renderer.setSize(canvasParent.offsetWidth, canvasParent.offsetHeight, false)
-  }
-  render(dt) {
-    this.effectComposer.render(dt)
-  }
-}
-class LitRenderMode extends UnlitRenderMode {
-  constructor(renderer, editorRenderer) {
-    super(renderer, editorRenderer)
-    this.name = 'Lit'
-    this.enableShadows = false
-    this.disableBatching = true
-  }
-}
-class ShadowsRenderMode extends UnlitRenderMode {
-  constructor(renderer, editorRenderer) {
-    super(renderer, editorRenderer)
-    this.name = 'Shadows'
-    this.disableBatching = true
-    this.enableShadows = true
-  }
-}
-class WireframeRenderMode extends UnlitRenderMode {
-  constructor(renderer, editorRenderer) {
-    super(renderer, editorRenderer)
-    this.name = 'Wireframe'
-    this.enableShadows = false
-    this.disableBatching = true
-    this.renderPass.overrideMaterial = new MeshBasicMaterial({
-      wireframe: true
-    })
-  }
-}
-class NormalsRenderMode extends UnlitRenderMode {
-  constructor(renderer, editorRenderer) {
-    super(renderer, editorRenderer)
-    this.name = 'Normals'
-    this.enableShadows = false
-    this.disableBatching = true
-    this.renderPass.overrideMaterial = new MeshNormalMaterial()
-  }
-}
+import { EffectComposer as PostProcessingEffectComposer } from 'postprocessing'
+import EditorEvents from '../constants/EditorEvents'
+
+import {
+  BlendFunction,
+  EffectComposer,
+  DepthOfFieldEffect,
+  OutlineEffect,
+  DepthDownsamplingPass,
+  EffectPass,
+  NormalPass,
+  RenderPass,
+  SSAOEffect,
+  TextureEffect
+} from 'postprocessing'
+import { effectType } from '@xrengine/engine/src/scene/classes/PostProcessing'
+import { RenderModes, RenderModesType } from '../constants/RenderModes'
+
 export default class Renderer {
-  canvas: any
-  renderer: any
-  renderMode: LitRenderMode
-  shadowsRenderMode: ShadowsRenderMode
-  renderModes: any[]
-  screenshotRenderer: any
-  camera: any
-  onUpdateStats: any
-  willusePostProcessing: boolean
-  composer: any
-  node: any
+  canvas: HTMLCanvasElement
+  webglRenderer: WebGLRenderer
+  renderMode: RenderModesType
+  screenshotRenderer: WebGLRenderer
+  onUpdateStats: (info: WebGLInfo) => void
+  effectComposer: PostProcessingEffectComposer
+  outlineEffect: OutlineEffect
+  renderPass: RenderPass
+  PostProcessingNode: PostProcessingNode
 
   constructor(canvas) {
     this.canvas = canvas
@@ -168,22 +54,10 @@ export default class Renderer {
     )
     renderer.setPixelRatio(window.devicePixelRatio)
     renderer.info.autoReset = false
-    this.renderer = renderer
-    this.renderMode = new LitRenderMode(renderer, this)
-    this.shadowsRenderMode = new ShadowsRenderMode(renderer, this)
-    this.renderModes = []
-    if (this.renderer.capabilities.isWebGL2) {
-      this.renderModes.push(new UnlitRenderMode(renderer, this))
-    }
-    this.renderModes.push(
-      this.renderMode,
-      this.shadowsRenderMode,
-      new WireframeRenderMode(renderer, this),
-      new NormalsRenderMode(renderer, this)
-    )
+    this.webglRenderer = renderer
+
     this.screenshotRenderer = makeRenderer(1920, 1080)
-    const camera = SceneManager.instance.camera
-    this.camera = camera
+
     /** @todo */
     // Cascaded shadow maps
     // const csm = new CSM({
@@ -196,62 +70,160 @@ export default class Renderer {
     // });
     // csm.fade = true;
     // Engine.csm = csm;
-    this.willusePostProcessing = false
-    PostProcessingNode.postProcessingCallback = (node, isRemoved = false) => {
-      this.node = node
-      this.composer = configurePostProcessing(node, this.renderMode.renderPass.scene, camera, renderer, isRemoved)
-      this.willusePostProcessing = this.composer !== null
-    }
+
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), () => {
+      if (this.outlineEffect) {
+        const meshes = this.filterMeshes(CommandManager.instance.selectedTransformRoots)
+        this.outlineEffect.selection.set(meshes)
+      }
+    })
+
+    this.configureEffectComposer()
   }
+
   update(dt, _time) {
-    this.renderer.info.reset()
+    this.webglRenderer.info.reset()
     // Engine.csm.update();
-    if (this.willusePostProcessing) this.composer.render(dt)
-    else this.renderMode.render(dt)
+    this.effectComposer
+      ? this.effectComposer.render(dt)
+      : this.webglRenderer.render(SceneManager.instance.scene as any, SceneManager.instance.camera)
+
     if (this.onUpdateStats) {
-      this.renderer.info.render.fps = 1 / dt
-      this.renderer.info.render.frameTime = dt * 1000
-      this.onUpdateStats(this.renderer.info)
+      const renderStat = this.webglRenderer.info.render as any
+      renderStat.fps = 1 / dt
+      renderStat.frameTime = dt * 1000
+      this.onUpdateStats(this.webglRenderer.info)
     }
   }
-  setRenderMode(mode) {
+
+  configureEffectComposer(remove: boolean = false): void {
+    if (remove) {
+      this.effectComposer = null
+      return
+    }
+
+    const { scene, camera, postProcessingNode } = SceneManager.instance
+
+    if (!this.effectComposer) this.effectComposer = new EffectComposer(this.webglRenderer)
+    else this.effectComposer.removeAllPasses()
+
+    this.renderPass = new RenderPass(scene, camera)
+    this.effectComposer.addPass(this.renderPass)
+
+    const normalPass = new NormalPass(scene, camera, {
+      renderTarget: new WebGLRenderTarget(1, 1, {
+        minFilter: NearestFilter,
+        magFilter: NearestFilter,
+        format: RGBFormat,
+        stencilBuffer: false
+      })
+    })
+
+    const depthDownsamplingPass = new DepthDownsamplingPass({
+      normalBuffer: normalPass.texture,
+      resolutionScale: 0.5
+    })
+
+    const normalDepthBuffer = depthDownsamplingPass.texture
+
+    const passes: any[] = []
+
+    if (postProcessingNode) {
+      Object.keys(postProcessingNode.postProcessingOptions).forEach((key: any) => {
+        const pass = postProcessingNode.postProcessingOptions[key]
+        const effect = effectType[key].effect
+
+        if (pass.isActive)
+          if (effect === SSAOEffect) {
+            passes.push(new effect(camera, normalPass.texture, { ...pass, normalDepthBuffer }))
+          } else if (effect === DepthOfFieldEffect) passes.push(new effect(camera, pass))
+          else if (effect === OutlineEffect) {
+            const eff = new effect(scene, camera, pass)
+            passes.push(eff)
+            this.outlineEffect = eff
+          } else passes.push(new effect(pass))
+      })
+    }
+
+    if (passes.length) {
+      const textureEffect = new TextureEffect({
+        blendFunction: BlendFunction.SKIP,
+        texture: depthDownsamplingPass.texture
+      })
+
+      this.effectComposer.addPass(depthDownsamplingPass)
+      this.effectComposer.addPass(new EffectPass(camera, ...passes, textureEffect))
+    }
+  }
+
+  get isShadowMapEnabled() {
+    return this.webglRenderer.shadowMap.enabled
+  }
+
+  enableShadows(status: boolean): void {
+    this.webglRenderer.shadowMap.enabled = status
+    SceneManager.instance.scene.traverse((object) => {
+      if (object.setShadowsEnabled) {
+        object.setShadowsEnabled(this.enableShadows)
+      }
+    })
+  }
+
+  changeRenderMode(mode: RenderModesType) {
     this.renderMode = mode
-    this.renderMode.onSceneSet()
-    this.renderMode.onResize()
+    switch (mode) {
+      case RenderModes.UNLIT:
+        this.enableShadows(false)
+        this.renderPass.overrideMaterial = null
+        break
+      case RenderModes.LIT:
+        this.enableShadows(false)
+        this.renderPass.overrideMaterial = null
+        break
+      case RenderModes.SHADOW:
+        this.enableShadows(true)
+        this.renderPass.overrideMaterial = null
+        break
+      case RenderModes.WIREFRAME:
+        this.enableShadows(false)
+        this.renderPass.overrideMaterial = new MeshBasicMaterial({
+          wireframe: true
+        })
+        break
+      case RenderModes.NORMALS:
+        this.enableShadows(false)
+        this.renderPass.overrideMaterial = new MeshNormalMaterial()
+        break
+    }
+
+    CommandManager.instance.emitEvent(EditorEvents.RENDER_MODE_CHANGED)
   }
-  onSceneSet = () => {
-    this.renderMode.onSceneSet()
-  }
-  addBatchedObject(object) {
-    console.log('Not handling batched object')
-  }
-  removeBatchedObject(object) {
-    console.log('Not handling batched object')
-  }
+
   onResize = () => {
-    const camera = this.camera
+    const camera = SceneManager.instance.camera
     const canvas = this.canvas
     const containerEl = canvas.parentElement.parentElement
     camera.aspect = containerEl.offsetWidth / containerEl.offsetHeight
     camera.updateProjectionMatrix()
-    this.renderer.setSize(containerEl.offsetWidth, containerEl.offsetHeight, false)
+    this.webglRenderer.setSize(containerEl.offsetWidth, containerEl.offsetHeight, false)
     // Engine.csm.updateFrustums();
-    this.renderMode.onResize()
 
-    if (this.willusePostProcessing) {
-      PostProcessingNode.postProcessingCallback(this.node)
-    }
+    this.configureEffectComposer()
   }
+
   takeScreenshot = async (width = 1920, height = 1080) => {
-    console.log('Taking screenshot')
-    const { screenshotRenderer, camera } = this
-    const originalRenderer = this.renderer
-    this.renderer = screenshotRenderer
+    const { screenshotRenderer } = this
+    const originalRenderer = this.webglRenderer
+    this.webglRenderer = screenshotRenderer
     SceneManager.instance.disableUpdate = true
     let scenePreviewCamera = SceneManager.instance.scene.findNodeByType(ScenePreviewCameraNode)
     if (!scenePreviewCamera) {
       scenePreviewCamera = new ScenePreviewCameraNode()
-      camera.matrix.decompose(scenePreviewCamera.position, scenePreviewCamera.rotation, scenePreviewCamera.scale)
+      SceneManager.instance.camera.matrix.decompose(
+        scenePreviewCamera.position,
+        scenePreviewCamera.rotation,
+        scenePreviewCamera.scale
+      )
       CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, [scenePreviewCamera])
     }
     const prevAspect = scenePreviewCamera.aspect
@@ -259,34 +231,41 @@ export default class Renderer {
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.disable(1)
     screenshotRenderer.setSize(width, height, true)
-    SceneManager.instance.scene.traverse((child) => {
-      if (child.isNode) {
-        child.onRendererChanged()
-      }
-    })
-    if (this.renderMode !== this.shadowsRenderMode) {
-      this.shadowsRenderMode.onSceneSet()
-    }
-    screenshotRenderer.render(SceneManager.instance.scene, scenePreviewCamera)
+    screenshotRenderer.render(SceneManager.instance.scene as any, scenePreviewCamera)
     const blob = await getCanvasBlob(screenshotRenderer.domElement)
     scenePreviewCamera.aspect = prevAspect
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.enable(1)
     SceneManager.instance.disableUpdate = false
-    this.renderer = originalRenderer
-    this.renderMode.onSceneSet()
-    SceneManager.instance.scene.traverse((child) => {
-      if (child.isNode) {
-        child.onRendererChanged()
-      }
-    })
-    console.log('Returning blob')
-    console.log(blob)
+    this.webglRenderer = originalRenderer
     return blob
   }
+
+  filterMeshes(object: any | any[], meshes: any[] = []): any[] {
+    if (Array.isArray(object)) {
+      for (let i = 0; i < object.length; i++) {
+        this.filterMeshes(object[i], meshes)
+      }
+
+      return meshes
+    }
+
+    object.traverse((child) => {
+      if (
+        !child.disableOutline &&
+        !child.isHelper &&
+        (child.isMesh || child.isLine || child.isSprite || child.isPoints)
+      ) {
+        meshes.push(child)
+      }
+    })
+
+    return meshes
+  }
+
   dispose() {
-    this.renderer.dispose()
+    this.webglRenderer.dispose()
     this.screenshotRenderer.dispose()
-    this.composer?.dispose()
+    this.effectComposer?.dispose()
   }
 }

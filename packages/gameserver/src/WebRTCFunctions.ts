@@ -21,6 +21,7 @@ import logger from '@xrengine/server-core/src/logger'
 import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
 import { getUserIdFromSocketId } from './NetworkFunctions'
 import config from '@xrengine/server-core/src/appconfig'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 const toArrayBuffer = (buf): any => {
   var ab = new ArrayBuffer(buf.length)
@@ -68,27 +69,28 @@ export const sendNewProducer =
   (socket: SocketIO.Socket, channelType: string, channelId?: string) =>
   async (producer: Producer): Promise<void> => {
     networkTransport = Network.instance.transport as any
-    const userId = getUserIdFromSocketId(socket.id)
-    const selfClient = Network.instance.clients[userId]
+    const userId = getUserIdFromSocketId(socket.id)!
+    const world = Engine.defaultWorld
+    const selfClient = world.clients.get(userId)!
     if (selfClient?.socketId != null) {
-      Object.entries(Network.instance.clients).forEach(([name, value]) => {
-        logger.info(`Sending media for ${name}`)
-        Object.entries(value.media).map(([subName, subValue]) => {
+      for (const [userId, client] of world.clients) {
+        logger.info(`Sending media for ${userId}`)
+        Object.entries(client.media!).map(([subName, subValue]) => {
           if (
             channelType === 'instance'
               ? 'instance' === (subValue as any).channelType
               : (subValue as any).channelType === channelType && (subValue as any).channelId === channelId
           )
-            selfClient.socket.emit(
+            selfClient.socket!.emit(
               MessageTypes.WebRTCCreateProducer.toString(),
-              value.userId,
+              client.userId,
               subName,
               producer.id,
               channelType,
               channelId
             )
         })
-      })
+      }
     }
   }
 // Create consumer for each client!
@@ -99,42 +101,44 @@ export const sendCurrentProducers = async (
   channelId?: string
 ): Promise<void> => {
   networkTransport = Network.instance.transport as any
-  const userId = getUserIdFromSocketId(socket.id)
-  const selfClient = Network.instance.clients[userId]
+  const world = Engine.defaultWorld
+  const selfUserId = getUserIdFromSocketId(socket.id)!
+  const selfClient = world.clients.get(selfUserId)!
   if (selfClient?.socketId != null) {
-    Object.entries(Network.instance.clients).forEach(([name, value]) => {
+    for (const [userId, client] of world.clients) {
       if (
-        name === userId ||
-        (userIds.length > 0 && userIds.includes(name) === false) ||
-        value.media == null ||
-        value.socketId == null
+        userId === selfUserId ||
+        (userIds.length > 0 && userIds.includes(userId) === false) ||
+        client.media == null ||
+        client.socketId == null
       )
         return
-      Object.entries(value.media).map(([subName, subValue]) => {
+      Object.entries(client.media).map(([subName, subValue]) => {
         if ((subValue as any).channelType === channelType && (subValue as any).channelId === channelId)
-          selfClient.socket.emit(
+          selfClient.socket!.emit(
             MessageTypes.WebRTCCreateProducer.toString(),
-            value.userId,
+            client.userId,
             subName,
             (subValue as any).producerId,
             channelType,
             channelId
           )
       })
-    })
+    }
   }
 }
 
 export const handleConsumeDataEvent =
   (socket: SocketIO.Socket) =>
-  async (dataProducer: DataProducer): Promise<boolean> => {
+  async (dataProducer: DataProducer): Promise<any> => {
     networkTransport = Network.instance.transport as any
 
-    const userId = getUserIdFromSocketId(socket.id)
+    const userId = getUserIdFromSocketId(socket.id)!
     logger.info('Data Consumer being created on server by client: ' + userId)
-    if (Network.instance.clients[userId] == null) return Promise.resolve(false)
+    const world = Engine.defaultWorld
+    if (!world.clients.has(userId)) return Promise.resolve(false)
 
-    const newTransport: Transport = Network.instance.clients[userId].instanceRecvTransport
+    const newTransport: Transport = world.clients.get(userId)!.instanceRecvTransport
     const outgoingDataProducer = networkTransport.outgoingDataProducer
 
     if (newTransport != null) {
@@ -146,17 +150,16 @@ export const handleConsumeDataEvent =
 
         dataConsumer.on('producerclose', () => {
           dataConsumer.close()
-          if (Network.instance.clients[userId] != null)
-            Network.instance.clients[userId].dataConsumers.delete(dataProducer.id)
+          if (world.clients.has(userId)) world.clients.get(userId)!.dataConsumers!.delete(dataProducer.id)
         })
 
         logger.info('Setting data consumer to room state')
-        if (Network.instance.clients[userId] == null)
+        if (!world.clients.has(userId))
           return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists' })
-        Network.instance.clients[userId].dataConsumers.set(dataProducer.id, dataConsumer)
-        if (Network.instance.clients[userId] == null)
+        world.clients.get(userId)!.dataConsumers!.set(dataProducer.id, dataConsumer)
+        if (!world.clients.has(userId))
           return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists' })
-        const dataProducerOut = Network.instance.clients[userId].dataProducers.get('instance')
+        const dataProducerOut = world.clients.get(userId)!.dataProducers!!.get('instance')
         // Data consumers are all consuming the single producer that outputs from the server's message queue
         socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
           dataProducerId: dataProducerOut.id,
@@ -191,8 +194,9 @@ export async function closeProducer(producer): Promise<void> {
   if (MediaStreams.instance)
     MediaStreams.instance.producers = MediaStreams.instance?.producers.filter((p) => p.id !== producer.id)
 
-  if (Network.instance.clients[producer.appData.peerId])
-    delete Network.instance.clients[producer.appData.peerId].media[producer.appData.mediaTag]
+  const world = Engine.defaultWorld
+  if (world.clients.has(producer.appData.peerId))
+    delete world.clients.get(producer.appData.peerId)!.media![producer.appData.mediaTag]
 }
 
 export async function closeProducerAndAllPipeProducers(producer): Promise<void> {
@@ -214,7 +218,7 @@ export async function closeProducerAndAllPipeProducers(producer): Promise<void> 
       )
 
     // remove this track's info from our roomState...mediaTag bookkeeping
-    delete Network.instance.clients[producer.appData.peerId]?.media[producer.appData.mediaTag]
+    delete Engine.defaultWorld.clients.get(producer.appData.peerId)?.media![producer.appData.mediaTag]
   }
 }
 
@@ -223,11 +227,13 @@ export async function closeConsumer(consumer): Promise<void> {
 
   if (MediaStreams.instance)
     MediaStreams.instance.consumers = MediaStreams.instance?.consumers.filter((c) => c.id !== consumer.id)
-  Object.entries(Network.instance.clients).forEach(([, value]) => {
-    value.socket.emit(MessageTypes.WebRTCCloseConsumer.toString(), consumer.id)
-  })
 
-  delete Network.instance.clients[consumer.appData.peerId]?.consumerLayers[consumer.id]
+  const world = Engine.defaultWorld
+  for (const [, client] of world.clients) {
+    client.socket!.emit(MessageTypes.WebRTCCloseConsumer.toString(), consumer.id)
+  }
+
+  delete world.clients.get(consumer.appData.peerId)?.consumerLayers![consumer.id]
 }
 
 export async function createWebRtcTransport({
@@ -275,14 +281,17 @@ export async function createWebRtcTransport({
   return newTransport
 }
 
-export async function createInternalDataConsumer(dataProducer: DataProducer, userId: string): Promise<DataConsumer> {
+export async function createInternalDataConsumer(
+  dataProducer: DataProducer,
+  userId: string
+): Promise<DataConsumer | null> {
   networkTransport = Network.instance.transport as any
   try {
     const consumer = await networkTransport.outgoingDataTransport.consumeData({
       dataProducerId: dataProducer.id,
       appData: { peerId: userId, transportId: networkTransport.outgoingDataTransport.id },
-      maxPacketLifeTime: dataProducer.sctpStreamParameters.maxPacketLifeTime,
-      maxRetransmits: dataProducer.sctpStreamParameters.maxRetransmits,
+      maxPacketLifeTime: dataProducer.sctpStreamParameters!.maxPacketLifeTime,
+      maxRetransmits: dataProducer.sctpStreamParameters!.maxRetransmits,
       ordered: false
     })
     consumer.on('message', (message) => {
@@ -293,13 +302,13 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
   } catch (err) {
     console.log('Error creating internal data consumer', err)
     console.log('dataProducer that caused error', dataProducer)
-    return null
   }
+  return null
 }
 
 export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportParams, callback): Promise<any> {
   networkTransport = Network.instance.transport as any
-  const userId = getUserIdFromSocketId(socket.id)
+  const userId = getUserIdFromSocketId(socket.id)!
   const { direction, peerId, sctpCapabilities, channelType, channelId } = Object.assign(data, { peerId: userId })
 
   const existingTransports = Network.instance.transports.filter(
@@ -326,16 +335,17 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
   Network.instance.transports[newTransport.id] = newTransport
 
   // Distinguish between send and create transport of each client w.r.t producer and consumer (data or mediastream)
+  const world = Engine.defaultWorld
   if (direction === 'recv') {
-    if (channelType === 'instance' && Network.instance.clients[userId] != null)
-      Network.instance.clients[userId].instanceRecvTransport = newTransport
+    if (channelType === 'instance' && world.clients.has(userId))
+      world.clients.get(userId)!.instanceRecvTransport = newTransport
     else if (channelType !== 'instance' && channelId != null)
-      Network.instance.clients[userId].channelRecvTransport = newTransport
+      world.clients.get(userId)!.channelRecvTransport = newTransport
   } else if (direction === 'send') {
-    if (channelType === 'instance' && Network.instance.clients[userId] != null)
-      Network.instance.clients[userId].instanceSendTransport = newTransport
-    else if (channelType !== 'instance' && channelId != null && Network.instance.clients[userId] != null)
-      Network.instance.clients[userId].channelSendTransport = newTransport
+    if (channelType === 'instance' && world.clients.has(userId))
+      world.clients.get(userId)!.instanceSendTransport = newTransport
+    else if (channelType !== 'instance' && channelId != null && world.clients.has(userId))
+      world.clients.get(userId)!.channelSendTransport = newTransport
   }
 
   const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
@@ -380,7 +390,9 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
     return
   }
   if (!data.label) throw { error: 'data producer label i.e. channel name is not provided!' }
-  if (Network.instance.clients[userId] == null) return callback({ error: 'client no longer exists' })
+
+  const world = Engine.defaultWorld
+  if (!world.clients.has(userId)) return callback({ error: 'client no longer exists' })
   const { transportId, sctpStreamParameters, label, protocol, appData } = data
   logger.info(`Data channel label: ${label} -- user id: ` + userId)
   logger.info('Data producer params', data)
@@ -395,8 +407,8 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
     const dataProducer = await transport.produceData(options)
     networkTransport.dataProducers.push(dataProducer)
     logger.info(`user ${userId} producing data`)
-    if (Network.instance.clients[userId] != null) {
-      Network.instance.clients[userId].dataProducers.set(label, dataProducer)
+    if (world.clients.has(userId)) {
+      world.clients.get(userId)!.dataProducers!.set(label, dataProducer)
 
       const currentRouter = networkTransport.routers.instance.find(
         (router) => router._internal.routerId === (transport as any)._internal.routerId
@@ -418,12 +430,12 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
         networkTransport.dataProducers.splice(networkTransport.dataProducers.indexOf(dataProducer), 1)
         logger.info("data producer's transport closed: " + dataProducer.id)
         dataProducer.close()
-        Network.instance.clients[userId].dataProducers.delete(label)
+        world.clients.get(userId)!.dataProducers!.delete(label)
       })
       const internalConsumer = await createInternalDataConsumer(dataProducer, userId)
       if (internalConsumer) {
-        if (Network.instance.clients[userId] == null) return callback({ error: 'Client no longer exists' })
-        Network.instance.clients[userId].dataConsumers.set(label, internalConsumer)
+        if (!world.clients.has(userId)) return callback({ error: 'Client no longer exists' })
+        world.clients.get(userId)!.dataConsumers!.set(label, internalConsumer)
         // transport.handleConsumeDataEvent(socket);
         logger.info('transport.handleConsumeDataEvent(socket);')
         // Possibly do stuff with appData here
@@ -498,8 +510,9 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
     if (!MediaStreams.instance?.producers) console.warn('Media stream producers is undefined')
     MediaStreams.instance?.producers?.push(producer)
 
-    if (userId != null && Network.instance.clients[userId] != null) {
-      Network.instance.clients[userId].media[appData.mediaTag] = {
+    const world = Engine.defaultWorld
+    if (userId != null && world.clients.has(userId)) {
+      world.clients.get(userId)!.media![appData.mediaTag] = {
         paused,
         producerId: producer.id,
         globalMute: false,
@@ -509,10 +522,9 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
       }
     }
 
-    Object.keys(Network.instance.clients).forEach((key) => {
-      const client = Network.instance.clients[key]
+    for (const [userId, client] of world.clients) {
       if (client.userId !== userId)
-        client.socket.emit(
+        client.socket!.emit(
           MessageTypes.WebRTCCreateProducer.toString(),
           userId,
           appData.mediaTag,
@@ -520,7 +532,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
           appData.channelType,
           appData.channelId
         )
-    })
+    }
     callback({ id: producer.id })
   } catch (err) {
     console.log('Error with sendTrack:', err)
@@ -530,7 +542,9 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 
 export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<any> {
   networkTransport = Network.instance.transport as any
-  const userId = getUserIdFromSocketId(socket.id)
+
+  const world = Engine.defaultWorld
+  const userId = getUserIdFromSocketId(socket.id)!
   const { mediaPeerId, mediaTag, rtpCapabilities, channelType, channelId } = data
   const producer = MediaStreams.instance.producers.find(
     (p) =>
@@ -598,16 +612,16 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
       // stick this consumer in our list of consumers to keep track of
       MediaStreams.instance?.consumers.push(consumer)
 
-      if (Network.instance.clients[userId] != null)
-        Network.instance.clients[userId].consumerLayers[consumer.id] = {
+      if (world.clients.has(userId))
+        world.clients.get(userId)!.consumerLayers![consumer.id] = {
           currentLayer: null,
           clientSelectedLayer: null
         }
 
       // update above data structure when layer changes.
       consumer.on('layerschange', (layers) => {
-        if (Network.instance.clients[userId] && Network.instance.clients[userId].consumerLayers[consumer.id])
-          Network.instance.clients[userId].consumerLayers[consumer.id].currentLayer = layers && layers.spatialLayer
+        if (world.clients.has(userId) && world.clients.get(userId)!.consumerLayers![consumer.id])
+          world.clients.get(userId)!.consumerLayers![consumer.id].currentLayer = layers && layers.spatialLayer
       })
 
       callback({
@@ -680,13 +694,14 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
       action: 'resume'
     })
     // await producer.resume();
-    if (userId != null && Network.instance.clients[userId] != null) {
-      Network.instance.clients[userId].media[producer.appData.mediaTag].paused = false
-      Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = false
-      const hostClient = Object.entries(Network.instance.clients).find(([, client]) => {
-        return client.media[producer.appData.mediaTag]?.producerId === producerId
-      })
-      hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
+    const world = Engine.defaultWorld
+    if (userId != null && world.clients.has(userId)) {
+      world.clients.get(userId)!.media![producer.appData.mediaTag].paused = false
+      world.clients.get(userId)!.media![producer.appData.mediaTag].globalMute = false
+      const hostClient = Array.from(world.clients.entries()).find(([, client]) => {
+        return client.media![producer.appData.mediaTag]?.producerId === producerId
+      })!
+      hostClient[1].socket!.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
     }
   }
   callback({ resumed: true })
@@ -694,6 +709,7 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
 
 export async function handleWebRtcPauseProducer(socket, data, callback): Promise<any> {
   const userId = getUserIdFromSocketId(socket.id)
+  const world = Engine.defaultWorld
   const { producerId, globalMute } = data,
     producer = MediaStreams.instance?.producers.find((p) => p.id === producerId)
   if (producer != null) {
@@ -703,16 +719,16 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
     })
     if (
       userId != null &&
-      Network.instance.clients[userId] != null &&
-      Network.instance.clients[userId].media[producer.appData.mediaTag] != null
+      world.clients.has(userId) &&
+      world.clients.get(userId)!.media![producer.appData.mediaTag] != null
     ) {
-      Network.instance.clients[userId].media[producer.appData.mediaTag].paused = true
-      Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = globalMute || false
+      world.clients.get(userId)!.media![producer.appData.mediaTag].paused = true
+      world.clients.get(userId)!.media![producer.appData.mediaTag].globalMute = globalMute || false
       if (globalMute === true) {
-        const hostClient = Object.entries(Network.instance.clients).find(([, client]) => {
-          return client.media[producer.appData.mediaTag]?.producerId === producerId
-        })
-        hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
+        const hostClient = Array.from(world.clients.entries()).find(([, client]) => {
+          return client.media![producer.appData.mediaTag]?.producerId === producerId
+        })!
+        hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
       }
     }
   }
@@ -721,8 +737,9 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
 
 export async function handleWebRtcRequestNearbyUsers(socket, data, callback): Promise<any> {
   networkTransport = Network.instance.transport as any
-  const userId = getUserIdFromSocketId(socket.id)
-  const selfClient = Network.instance.clients[userId]
+  const userId = getUserIdFromSocketId(socket.id)!
+  const world = Engine.defaultWorld
+  const selfClient = world.clients.get(userId)!
   if (selfClient?.socketId != null) {
     const nearbyUsers = getNearbyUsers(userId)
     const nearbyUserIds = nearbyUsers == null ? [] : nearbyUsers.map((user) => user.id)

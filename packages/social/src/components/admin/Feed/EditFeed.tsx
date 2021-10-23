@@ -14,22 +14,17 @@ import './PlayerStyles.css'
 import { useFeedStyles, useFeedStyle } from './styles'
 import { validateFeedForm } from './validation'
 import { Save } from '@material-ui/icons'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { updateFeedAsAdmin } from '../../../reducers/feed/service'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
 interface Props {
   adminFeed: any
   closeEdit: () => void
-  updateFeedAsAdmin?: typeof updateFeedAsAdmin
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch)
-})
-
 const EditFeed = (props: Props) => {
-  const { closeEdit, adminFeed, updateFeedAsAdmin } = props
+  const { closeEdit, adminFeed } = props
   const [state, setState] = React.useState({
     title: adminFeed.title,
     description: adminFeed.description,
@@ -42,7 +37,7 @@ const EditFeed = (props: Props) => {
       preview: ''
     }
   })
-
+  const dispatch = useDispatch()
   const classes = useFeedStyles()
   const classex = useFeedStyle()
 
@@ -88,7 +83,7 @@ const EditFeed = (props: Props) => {
 
     setState({ ...state, formErrors: temp })
     if (validateFeedForm(state, state.formErrors)) {
-      updateFeedAsAdmin(adminFeed.id, { preview, video, title, description })
+      FeedService.updateFeedAsAdmin(adminFeed.id, { preview, video, title, description })
       closeEdit()
     }
   }
@@ -236,4 +231,4 @@ const EditFeed = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(EditFeed)
+export default EditFeed

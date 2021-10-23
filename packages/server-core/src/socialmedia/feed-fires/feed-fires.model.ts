@@ -20,6 +20,12 @@ export default function (app: Application): typeof Model {
       }
     },
     {
+      indexes: [
+        {
+          unique: true,
+          fields: ['creatorId', 'feedId']
+        }
+      ],
       hooks: {
         beforeCount(options: any): HookReturn {
           options.raw = true

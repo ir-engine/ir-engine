@@ -1,68 +1,45 @@
-import React, { useState, useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useHistory } from 'react-router-dom'
-
 import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
 import Container from '@material-ui/core/Container'
-import InputAdornment from '@material-ui/core/InputAdornment'
+import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
-import { Visibility, VisibilityOff } from '@material-ui/icons'
+import InputAdornment from '@material-ui/core/InputAdornment'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
-
-import { useAuthState } from '../../reducers/auth/AuthState'
-import { AuthService } from '../../reducers/auth/AuthService'
-import { User } from '@xrengine/common/src/interfaces/User'
-import styles from './Auth.module.scss'
-import { createCreator } from '@xrengine/social/src/reducers/creator/service'
-import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
+import { Visibility, VisibilityOff } from '@material-ui/icons'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  // loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
-  createCreator: bindActionCreators(createCreator, dispatch)
-})
+import { useHistory } from 'react-router-dom'
+import { CreatorService } from '../../../social/state/CreatorService'
+import { useCreatorState } from '../../../social/state/CreatorState'
+import { useDispatch } from '../../../store'
+import { AuthService } from '../../state/AuthService'
+import { useAuthState } from '../../state/AuthState'
+import styles from './Auth.module.scss'
 
 const initialState = { email: '', password: '' }
 
-interface Props {
-  // loginUserByPassword?: typeof loginUserByPassword;
-  createCreator?: typeof createCreator
-  creatorsState?: any
-}
+interface Props {}
 
 export const PasswordLoginApp = (props: Props): any => {
-  const {
-    // loginUserByPassword,
-    createCreator,
-    creatorsState
-  } = props
+  const {} = props
   const dispatch = useDispatch()
   const auth = useAuthState()
   const history = useHistory()
   const { t } = useTranslation()
-
+  const creatorsState = useCreatorState()
   useEffect(() => {
     if (auth) {
       const user = auth.user
       const userId = user ? user.id.value : null
 
       if (userId) {
-        createCreator()
+        CreatorService.createCreator()
       }
     }
   }, [auth])
 
   useEffect(() => {
-    creatorsState && creatorsState.get('currentCreator') && history.push('/')
-  }, [creatorsState])
+    creatorsState.creators?.value?.currentCreator && history.push('/')
+  }, [creatorsState.creators?.value?.currentCreator])
 
   const [state, setState] = useState(initialState)
 
@@ -70,7 +47,7 @@ export const PasswordLoginApp = (props: Props): any => {
 
   const handleEmailLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }
 
   const [showPassword, showHidePassword] = useState(false)
@@ -139,4 +116,4 @@ export const PasswordLoginApp = (props: Props): any => {
 
 const PasswordLoginWrapper = (props: Props): any => <PasswordLoginApp {...props} />
 
-export default connect(mapStateToProps, mapDispatchToProps)(PasswordLoginWrapper)
+export default PasswordLoginWrapper

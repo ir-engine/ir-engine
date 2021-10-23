@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { Location } from './location.class'
 import createModel from './location.model'
@@ -7,11 +6,11 @@ import locationDocs from './location.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    location: Location & ServiceAddons<any>
+    location: Location
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -25,7 +24,7 @@ export default (app: Application): any => {
   const event = new Location(options, app)
   event.docs = locationDocs
 
-  app.use('/location', event)
+  app.use('location', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -34,5 +33,5 @@ export default (app: Application): any => {
    */
   const service = app.service('location')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

@@ -1,8 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
-import { defineQuery, enterQuery, exitQuery } from 'bitecs'
 import { Engine } from '../ecs/classes/Engine'
 import { System } from '../ecs/classes/System'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
@@ -12,10 +11,10 @@ import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
 import { World } from '../ecs/classes/World'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
-import { SpawnPoints } from './ServerAvatarSpawnSystem'
-import { dispatchFromClient } from '../networking/functions/dispatch'
-import { NetworkWorldAction } from '../networking/interfaces/NetworkWorldActions'
+import { dispatchFrom } from '../networking/functions/dispatchFrom'
 import { SpawnPoseComponent } from './components/SpawnPoseComponent'
+import { respawnAvatar } from './functions/respawnAvatar'
+import { ColliderComponent } from '../physics/components/ColliderComponent'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -30,17 +29,11 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
   const quat2 = new Quaternion()
 
   const controllerQuery = defineQuery([AvatarControllerComponent])
-  const avatarControllerRemovedQuery = exitQuery(controllerQuery)
-
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
-  const localXRInputQueryAddQuery = enterQuery(localXRInputQuery)
-  const localXRInputQueryRemoveQuery = exitQuery(localXRInputQuery)
 
   return () => {
-    const { delta } = world
-
-    for (const entity of avatarControllerRemovedQuery(world)) {
-      const controller = getComponent(entity, AvatarControllerComponent, true)
+    for (const entity of controllerQuery.exit(world)) {
+      const controller = getComponent(entity, AvatarControllerComponent)
 
       if (controller?.controller) {
         world.physics.removeController(controller.controller)
@@ -52,7 +45,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
       }
     }
 
-    for (const entity of localXRInputQueryAddQuery(world)) {
+    for (const entity of localXRInputQuery.enter(world)) {
       const avatar = getComponent(entity, AvatarComponent)
 
       // TODO: Temporarily make rig invisible until rig is fixed
@@ -63,7 +56,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
       })
     }
 
-    for (const entity of localXRInputQueryRemoveQuery(world)) {
+    for (const entity of localXRInputQuery.exit(world)) {
       const avatar = getComponent(entity, AvatarComponent)
       // TODO: Temporarily make rig invisible until rig is fixed
       avatar?.modelContainer?.traverse((child) => {
@@ -90,33 +83,31 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
     }
 
     for (const entity of controllerQuery(world)) {
+      // todo: replace this with trigger detection
+      detectUserInPortal(entity)
+
+      moveAvatar(world, entity, Engine.camera)
+
       const controller = getComponent(entity, AvatarControllerComponent)
+      const collider = getComponent(entity, ColliderComponent)
 
       const avatar = getComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)
-      const pose = controller.controller.getPosition()
 
+      const pose = controller.controller.getPosition()
       transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
 
-      detectUserInPortal(entity)
-
-      moveAvatar(entity, delta)
+      collider.body.setGlobalPose(
+        {
+          translation: pose,
+          rotation: transform.rotation
+        },
+        true
+      )
 
       // TODO: implement scene lower bounds parameter
       if (transform.position.y < -10) {
-        const { position, rotation } = getComponent(entity, SpawnPoseComponent)
-        const networkObject = getComponent(entity, NetworkObjectComponent)
-        dispatchFromClient(
-          NetworkWorldAction.teleportObject(networkObject.networkId, [
-            position.x,
-            position.y,
-            position.z,
-            rotation.x,
-            rotation.y,
-            rotation.z,
-            rotation.w
-          ])
-        )
+        respawnAvatar(entity)
         continue
       }
     }

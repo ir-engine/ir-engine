@@ -11,8 +11,8 @@ import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '../../store'
+
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
 // import CreateInstance from './Instance/CreateInstance'
@@ -22,35 +22,20 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
-import { selectAppState } from '../../common/reducers/app/selector'
-import { useAuthState } from '../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../reducers/admin/reducers'
-import { selectAdminInstanceState } from '../reducers/admin/instance/selector'
-import { fetchAdminInstances, removeInstance } from '../reducers/admin/instance/service'
+import { useAuthState } from '../../user/state/AuthState'
+import { ADMIN_PAGE_LIMIT } from '../state/AdminState'
+import { useInstanceState } from '../state/InstanceState'
+import { InstanceService } from '../state/InstanceService'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { InstanceSeed } from '@xrengine/common/src/interfaces/Instance'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
 }
 
 interface Props {
-  adminInstanceState?: any
   locationState?: any
-  fetchAdminInstances?: any
-  removeInstance?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    appState: selectAppState(state),
-    adminInstanceState: selectAdminInstanceState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
-  removeInstance: bindActionCreators(removeInstance, dispatch)
-})
 
 const Transition = React.forwardRef(
   (props: TransitionProps & { children?: React.ReactElement<any, any> }, ref: React.Ref<unknown>) => {
@@ -76,19 +61,13 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function InstanceConsole(props: Props) {
   const classes = useStyles()
-  const { adminInstanceState, fetchAdminInstances, removeInstance } = props
-  const initialInstance = {
-    id: '',
-    ipAddress: '',
-    currentUsers: 0,
-    locationId: ''
-  }
 
+  const adminInstanceState = useInstanceState()
   const user = useAuthState().user
-  const [selectedInstance, setSelectedInstance] = useState(initialInstance)
+  const [selectedInstance, setSelectedInstance] = useState(InstanceSeed)
   const [instanceCreateOpen, setInstanceCreateOpen] = useState(false)
   const [instanceModalOpen, setInstanceModalOpen] = useState(false)
-  const adminInstances = adminInstanceState.get('instances').get('instances')
+  const adminInstances = adminInstanceState.instances.instances
 
   const headCells = {
     instances: [
@@ -182,12 +161,12 @@ function InstanceConsole(props: Props) {
   const [dense, setDense] = React.useState(false)
   const [rowsPerPage, setRowsPerPage] = React.useState(ADMIN_PAGE_LIMIT)
   const [refetch, setRefetch] = React.useState(false)
-  const [instanceEdit, setInstanceEdit] = React.useState(initialInstance)
+  const [instanceEdit, setInstanceEdit] = React.useState(InstanceSeed)
   const [instanceEditing, setInstanceEditing] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [instanceId, setInstanceId] = React.useState('')
-
-  const displayInstances = adminInstances.map((instance) => {
+  const dispatch = useDispatch()
+  const displayInstances = adminInstances.value.map((instance) => {
     return {
       id: instance.id,
       ipAddress: instance.ipAddress,
@@ -207,22 +186,26 @@ function InstanceConsole(props: Props) {
   }
 
   const handleInstanceClick = (event: React.MouseEvent<unknown>, id: string) => {
-    const selected = adminInstances.find((instance) => instance.id === id)
-    setSelectedInstance(selected)
-    setInstanceModalOpen(true)
+    const selected = adminInstances.value.find((instance) => instance.id.toString() === id)
+    if (selected !== undefined) {
+      setSelectedInstance(selected)
+      setInstanceModalOpen(true)
+    }
   }
 
   const handleInstanceUpdateClick = (id: string) => {
-    const selected = adminInstances.find((instance) => instance.id === id)
-    setInstanceEdit(selected)
-    setInstanceCreateOpen(true)
-    setInstanceEditing(true)
+    const selected = adminInstances.value.find((instance) => instance.id.toString() === id)
+    if (selected !== undefined) {
+      setInstanceEdit(selected)
+      setInstanceCreateOpen(true)
+      setInstanceEditing(true)
+    }
   }
 
   const handleInstanceClose = (e: any): void => {
     console.log('handleInstanceClosed')
     setInstanceModalOpen(false)
-    setSelectedInstance(initialInstance)
+    setSelectedInstance(InstanceSeed)
   }
 
   const handleCreateInstanceClose = (e: any): void => {
@@ -231,14 +214,11 @@ function InstanceConsole(props: Props) {
   }
 
   useEffect(() => {
-    if (
-      user?.id.value != null &&
-      (adminInstanceState.get('instances').get('updateNeeded') === true || refetch === true)
-    ) {
-      fetchAdminInstances()
+    if (user?.id.value != null && (adminInstanceState.instances.updateNeeded.value === true || refetch === true)) {
+      InstanceService.fetchAdminInstances()
     }
     setRefetch(false)
-  }, [useAuthState(), adminInstanceState, refetch])
+  }, [useAuthState(), adminInstanceState.instances.updateNeeded.value, refetch])
 
   const handleClickOpen = (instance: any) => {
     setInstanceId(instance)
@@ -251,7 +231,7 @@ function InstanceConsole(props: Props) {
   }
 
   const deleteInstance = () => {
-    removeInstance((instanceId as any).id)
+    dispatch(InstanceService.removeInstance((instanceId as any).id))
     setOpen(false)
     setInstanceId('')
   }
@@ -375,4 +355,4 @@ function InstanceConsole(props: Props) {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InstanceConsole)
+export default InstanceConsole

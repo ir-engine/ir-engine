@@ -4,11 +4,9 @@ import Fade from '@material-ui/core/Fade'
 import Modal from '@material-ui/core/Modal'
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { selectAppState } from '../../../common/reducers/app/selector'
+import { useDispatch } from '../../../store'
 import styles from './ContentPack.module.scss'
-import { downloadContentPack } from '../../reducers/contentPack/service'
+import { ContentPackService } from '../../state/ContentPackService'
 import { Done } from '@material-ui/icons'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
@@ -19,26 +17,15 @@ interface Props {
   open: boolean
   handleClose: any
   uploadAvatar?: any
-  downloadContentPack?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    appState: selectAppState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  downloadContentPack: bindActionCreators(downloadContentPack, dispatch)
-})
 
 const ContentPackDetailsModal = (props: Props): any => {
-  const { contentPack, open, handleClose, downloadContentPack } = props
+  const { contentPack, open, handleClose } = props
 
   const [error, setError] = useState('')
   const [processing, setProcessing] = useState(false)
   const [success, setSuccess] = useState(false)
-
+  const dispatch = useDispatch()
   const showError = (err: string) => {
     setError(err)
     setTimeout(() => {
@@ -56,7 +43,7 @@ const ContentPackDetailsModal = (props: Props): any => {
   const getContentPack = async () => {
     try {
       setProcessing(true)
-      await downloadContentPack(contentPack.url)
+      await ContentPackService.downloadContentPack(contentPack.url)
       setProcessing(false)
       showSuccess()
     } catch (err) {
@@ -131,6 +118,18 @@ const ContentPackDetailsModal = (props: Props): any => {
                   })}
                 </div>
               </div>
+              <div className={styles['projects-container']}>
+                <div className={styles['header']}>Projects</div>
+                <div className={styles['container']}>
+                  {contentPack.data?.projects?.map((project) => {
+                    return (
+                      <div key={project.name} className={styles['scene']}>
+                        <div className={styles['name']}>{project.name}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
             {processing === true && (
               <div className={styles.processing}>
@@ -152,4 +151,4 @@ const ContentPackDetailsModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContentPackDetailsModal)
+export default ContentPackDetailsModal

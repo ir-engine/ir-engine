@@ -4,7 +4,7 @@ import ModelNode from '../../../nodes/ModelNode'
 import VideoNode from '../../../nodes/VideoNode'
 import i18n from 'i18next'
 import { deleteAsset } from '../../../functions/deleteAsset'
-import { uploadAssets } from '@xrengine/engine/src/scene/functions/upload'
+import { uploadAssets } from '@xrengine/client-core/src/util/upload'
 import { searchMedia } from '../../../functions/searchMedia'
 import { ItemTypes } from '../../../constants/AssetTypes'
 import { AcceptsAllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
@@ -28,18 +28,6 @@ export const UploadFileType = {
   'audio/mpeg': AudioNode
 }
 
-const assetTypeToNode = {
-  model: ModelNode,
-  image: ImageNode,
-  video: VideoNode,
-  audio: AudioNode
-}
-const assetTypeToItemType = {
-  model: ItemTypes.Model,
-  image: ItemTypes.Image,
-  video: ItemTypes.Video,
-  audio: ItemTypes.Audio
-}
 export class MyAssetsSource extends BaseSource {
   component: typeof UploadSourcePanel
   tags: { label: string; value: string }[]

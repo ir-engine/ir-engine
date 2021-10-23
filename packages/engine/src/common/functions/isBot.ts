@@ -6,5 +6,5 @@ export function isBot(window: Window) {
   const query = window.location.search
   const params = new URLSearchParams(query)
   const isBot = params.get('bot')
-  return isBot
+  return isBot === null ? false : true
 }

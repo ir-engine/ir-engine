@@ -1,40 +1,28 @@
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { CameraMode } from '../camera/types/CameraMode'
-import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { addComponent, defineQuery, removeComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
-import { Network } from '../networking/classes/Network'
-import { InterpolationComponent } from '../physics/components/InterpolationComponent'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { ShadowComponent } from '../scene/components/ShadowComponent'
-import { SpawnNetworkObjectComponent } from '../scene/components/SpawnNetworkObjectComponent'
-import { AvatarTagComponent } from './components/AvatarTagComponent'
 import { createAvatar } from './functions/createAvatar'
 import { AudioTagComponent } from '../audio/components/AudioTagComponent'
-import { Quaternion, Vector3 } from 'three'
 import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
-
-const spawnQuery = defineQuery([SpawnNetworkObjectComponent, AvatarTagComponent])
+import { Engine } from '../ecs/classes/Engine'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import matches from 'ts-matches'
+import { Raycaster } from 'three'
 
 export default async function ClientAvatarSpawnSystem(world: World): Promise<System> {
-  return () => {
-    for (const entity of spawnQuery.enter()) {
-      const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
-
-      const isLocalPlayer = uniqueId === Network.instance.userId
-      createAvatar(
-        world,
-        entity,
-        { position: new Vector3().copy(parameters.position), rotation: new Quaternion().copy(parameters.rotation) },
-        !isLocalPlayer
-      )
+  world.receptors.push((action) => {
+    matches(action).when(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
+      const entity = createAvatar(spawnAction)
 
       addComponent(entity, AudioTagComponent, {})
-      addComponent(entity, InterpolationComponent, {})
+      // addComponent(entity, InterpolationComponent, {})
       addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
-      if (isLocalPlayer) {
+      if (spawnAction.userId === Engine.userId) {
         addComponent(entity, LocalInputTagComponent, {})
         addComponent(entity, FollowCameraComponent, {
           mode: CameraMode.ThirdPerson,
@@ -47,14 +35,12 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
           phi: 0,
           shoulderSide: true,
           locked: true,
-          raycaster: null
+          raycaster: new Raycaster()
         })
         addComponent(entity, PersistTagComponent, {})
-
-        Network.instance.localClientEntity = entity
       }
+    })
+  })
 
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CLIENT_USER_LOADED, networkId, uniqueId })
-    }
-  }
+  return () => {}
 }

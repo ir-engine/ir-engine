@@ -13,7 +13,7 @@ client:
     API_SERVER: http://xrengine.local
     SITE_TITLE: MyXR
     SITE_DESC: Connected Worlds for Everyone
-    NODE_ENV: development
+    APP_ENV: development
 
 
 server:

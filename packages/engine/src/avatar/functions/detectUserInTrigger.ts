@@ -19,7 +19,7 @@ export const detectUserInTrigger = (entity: Entity): void => {
           console.log('trigger active')
           addComponent(triggerEntity, TriggerDetectedComponent, {})
           const interval = setInterval(() => {
-            if (triggerComponent.active && raycastComponent.hits[0]?.body.userData.entity !== triggerEntity) {
+            if (triggerComponent.active && raycastComponent.hits[0]?.body!.userData.entity !== triggerEntity) {
               console.log('removing trigger')
               triggerComponent.active = false
               removeComponent(triggerEntity, TriggerDetectedComponent)

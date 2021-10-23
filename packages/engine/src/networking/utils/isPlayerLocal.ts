@@ -1,5 +1,5 @@
-import { Network } from '../classes/Network'
+import { Engine } from '../../ecs/classes/Engine'
 
 export function isPlayerLocal(userId): boolean {
-  return Network.instance?.userId === userId
+  return Engine.userId === userId
 }

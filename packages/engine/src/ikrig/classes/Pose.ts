@@ -1,10 +1,9 @@
+// @ts-nocheck
 import { Bone, SkinnedMesh } from 'three'
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { IKObj } from '../components/IKObj'
 import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
-import { spin_bone_forward, align_chain, align_bone_forward, worldToModel } from '../functions/IKFunctions'
+import { spinBoneForward, alignChain, alignBoneForward, worldToModel } from '../functions/IKFunctions'
 import { Entity } from '../../ecs/classes/Entity'
 import { transformAdd } from '../functions/IKSolvers'
 
@@ -42,39 +41,46 @@ class Pose {
   helper: any
 
   align_leg(b_names: string[]) {
-    align_chain(this, DOWN, b_names)
+    alignChain(this, DOWN, b_names)
     return this
   }
   align_arm_left(b_names: string[]) {
-    align_chain(this, LEFT, b_names)
+    alignChain(this, LEFT, b_names)
     return this
   }
   align_arm_right(b_names: string[]) {
-    align_chain(this, RIGHT, b_names)
+    alignChain(this, RIGHT, b_names)
     return this
   }
 
   align_foot(b_name: string) {
-    spin_bone_forward(this, b_name)
-    align_bone_forward(this, b_name)
+    spinBoneForward(this, b_name)
+    alignBoneForward(this, b_name)
     return this
   }
 
   spin_bone_forward(b_name: string) {
-    spin_bone_forward(this, b_name)
+    spinBoneForward(this, b_name)
     return this
   }
   align_bone_forward(b_name: string) {
-    align_bone_forward(this, b_name)
+    alignBoneForward(this, b_name)
     return this
   }
 
-  constructor(entity: Entity, clone: boolean) {
-    this.entity = entity
+  /**
+   *
+   * @param rootObject object containing skinnedMesh and it's bones
+   * @param clone make a cloned version of skeleton
+   */
+  constructor(rootObject: Object3D, clone = false) {
     this.bones = []
-    const armature = getComponent(entity, IKObj).ref
-    const parent: Object3D = clone ? SkeletonUtils.clone(armature.parent) : armature.parent
-    this.skeleton = this.get_skeleton(parent.children) // Recreation of Bone Hierarchy
+    const parent: Object3D = clone ? SkeletonUtils.clone(rootObject) : rootObject
+    this.skeleton = this.get_skeleton(parent) // Recreation of Bone Hierarchy
+
+    if (!this.skeleton.bones[0]) {
+      debugger
+    }
 
     // this.bones = this.skeleton.bones
     this.rootOffset = new Object3D() // Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
@@ -85,15 +91,16 @@ class Pose {
     const skeletonTransform = {
       position: new Vector3(),
       quaternion: new Quaternion(),
-      quaternionInverted: new Quaternion(),
+      invQuaternion: new Quaternion(),
       scale: new Vector3()
     }
+
     const rootBone = this.skeleton.bones.find((b) => !(b.parent instanceof Bone))
     if (rootBone.parent) {
       rootBone.parent.getWorldPosition(skeletonTransform.position)
       rootBone.parent.getWorldQuaternion(skeletonTransform.quaternion)
       rootBone.parent.getWorldScale(skeletonTransform.scale)
-      skeletonTransform.quaternionInverted = skeletonTransform.quaternion.clone().invert()
+      skeletonTransform.invQuaternion.copy(skeletonTransform.quaternion).invert()
     }
 
     for (let i = 0; i < this.skeleton.bones.length; i++) {
@@ -120,6 +127,7 @@ class Pose {
         world: {
           position: new Vector3(),
           quaternion: new Quaternion(),
+          invQuaternion: new Quaternion(),
           scale: new Vector3()
         } // Model Space Transform
       }
@@ -130,6 +138,8 @@ class Pose {
 
       // convert to model space
       worldToModel(boneData.world.position, boneData.world.quaternion, boneData.world.scale, skeletonTransform)
+      // Calculate this once for tpose
+      boneData.world.invQuaternion.copy(boneData.world.quaternion).invert()
 
       //b['index'] = i
       if (b.children.length > 0) {
@@ -147,8 +157,19 @@ class Pose {
     this.skeleton.update()
   }
 
-  get_skeleton(objects: (Object3D | SkinnedMesh)[]): Skeleton {
-    return (objects.find((skin) => skin instanceof SkinnedMesh && skin.skeleton != null) as SkinnedMesh).skeleton
+  get_skeleton(rootObject: Object3D): Skeleton | null {
+    let skeleton: Skeleton = null
+
+    rootObject.traverse((object) => {
+      if (object instanceof SkinnedMesh && object.skeleton != null) {
+        if (skeleton && skeleton.bones.length > object.skeleton.bones.length) {
+          return
+        }
+        skeleton = object.skeleton
+      }
+    })
+
+    return skeleton
   }
 
   setOffset(quaternion: Quaternion, position: Vector3, scale: Vector3) {

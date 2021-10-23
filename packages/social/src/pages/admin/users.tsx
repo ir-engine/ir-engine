@@ -3,37 +3,18 @@
  */
 import React, { useEffect } from 'react'
 import CreatorConsole from '@xrengine/social/src/components/admin/CreatorConsole'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import { selectCreatorsState } from '@xrengine/social/src/reducers/creator/selector'
-import { getCreators } from '@xrengine/social/src/reducers/creator/service'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getCreators: bindActionCreators(getCreators, dispatch)
-})
-
-interface Props {
-  creatorsState?: any
-  getCreators?: any
-}
-
-interface Props {
-  creatorsState?: any
-  getCreators?: any
-}
-
-const UsersPage = ({ creatorsState, getCreators }: Props) => {
-  useEffect(() => getCreators(), [creatorsState.get('currentCreator')])
+const UsersPage = () => {
+  const creatorsState = useCreatorState()
+  useEffect(() => {
+    CreatorService.getCreators()
+  }, [creatorsState.creators.currentCreator])
   const creators =
-    creatorsState && creatorsState.get('fetching') === false && creatorsState.get('creators')
-      ? creatorsState.get('creators')
+    creatorsState && creatorsState.creators.fetching.value === false && creatorsState.creators.value
+      ? creatorsState.creators
       : null
   return (
     <>
@@ -44,4 +25,4 @@ const UsersPage = ({ creatorsState, getCreators }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UsersPage)
+export default UsersPage

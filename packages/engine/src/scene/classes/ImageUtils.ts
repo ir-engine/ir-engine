@@ -24,7 +24,6 @@ import {
   WebGLRenderTarget
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
-import { upload } from '../../scene/functions/upload'
 
 //#region CubemapToEquirectangular Shader
 const vertexShader = `
@@ -77,7 +76,7 @@ const fragmentShader = `
 //download the imagedata as png
 export const downloadImage = (imageData: ImageData, imageName = 'Image', width: number, height: number): void => {
   const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
   canvas.width = width
   canvas.height = height
   ctx.putImageData(imageData, 0, 0)
@@ -143,11 +142,11 @@ export const convertCubemapToEquiImageData = async (
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   if (returnAsBlob) {
     const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
     canvas.width = width
     canvas.height = height
     ctx.putImageData(imageData, 0, 0)
-    const blob = (await new Promise((resolve) => canvas.toBlob(resolve))) as Blob
+    const blob = (await new Promise((resolve) => canvas.toBlob(resolve as any))) as Blob
     return { blob }
   }
   return { imageData }
@@ -174,17 +173,4 @@ export const convertEquiToCubemap = (renderer: WebGLRenderer, source: Texture, s
   material.map = source
   cubecam.update(renderer, convertScene)
   return cubeRenderTarget
-}
-
-export const uploadCubemap = async (
-  renderer: WebGLRenderer,
-  source: WebGLCubeRenderTarget,
-  resoulution: number,
-  fileIdentifier?: string,
-  projectID?: any
-) => {
-  const blob = (await convertCubemapToEquiImageData(renderer, source, resoulution, resoulution, true)).blob
-  const value = (await upload(blob, null, null, fileIdentifier, projectID)) as any
-
-  return value
 }

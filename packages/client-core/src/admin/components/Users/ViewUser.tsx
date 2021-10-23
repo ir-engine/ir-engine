@@ -16,55 +16,29 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { bindActionCreators, Dispatch } from 'redux'
-import { fetchUserRole } from '../../reducers/admin/user/service'
-import { connect, useDispatch } from 'react-redux'
+import { useAuthState } from '../../../user/state/AuthState'
+import { UserService } from '../../state/UserService'
+import { useDispatch } from '../../../store'
 import InputBase from '@material-ui/core/InputBase'
-import { updateUserRole, patchUser, fetchSingleUserAdmin, fetchStaticResource } from '../../reducers/admin/user/service'
+
 import { useUserStyles, useUserStyle } from './styles'
-import { selectAdminUserState } from '../../reducers/admin/user/selector'
+import { useUserState } from '../../state/UserState'
 import { validateUserForm } from './validation'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
-import { selectScopeState } from '../../reducers/admin/scope/selector'
-import { getScopeTypeService } from '../../reducers/admin/scope/service'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { useScopeState } from '../../state/ScopeState'
+import { ScopeService } from '../../state/ScopeService'
+import { AuthService } from '../../../user/state/AuthService'
 
 interface Props {
   openView: boolean
   userAdmin: any
-  fetchUserRole?: any
-  patchUser?: any
   closeViewModel?: any
-  updateUserRole?: any
-  fetchSingleUserAdmin?: any
-  adminUserState?: any
-  fetchStaticResource?: any
-  adminScopeState?: any
-  getScopeTypeService?: any
   //doLoginAuto?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    adminUserState: selectAdminUserState(state),
-    adminScopeState: selectScopeState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
-  patchUser: bindActionCreators(patchUser, dispatch),
-  updateUserRole: bindActionCreators(updateUserRole, dispatch),
-  fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch),
-  fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch),
-  getScopeTypeService: bindActionCreators(getScopeTypeService, dispatch)
-  //doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
-})
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -78,21 +52,13 @@ const ViewUser = (props: Props) => {
   const {
     openView,
     closeViewModel,
-    fetchUserRole,
-    userAdmin,
-    patchUser,
-    updateUserRole,
-    fetchSingleUserAdmin,
-    adminUserState,
-    fetchStaticResource,
-    adminScopeState,
-    getScopeTypeService
+    userAdmin
     //doLoginAuto
   } = props
   const [openDialog, setOpenDialog] = React.useState(false)
   const [status, setStatus] = React.useState('')
   const [editMode, setEditMode] = React.useState(false)
-  const [refetch, setRefetch] = React.useState(false)
+  const [refetch, setRefetch] = React.useState(0)
 
   const [state, setState] = React.useState({
     name: '',
@@ -107,13 +73,15 @@ const ViewUser = (props: Props) => {
   const [error, setError] = React.useState('')
   const [openWarning, setOpenWarning] = React.useState(false)
   const user = useAuthState().user
-  const userRole = adminUserState.get('userRole')
-  const userRoleData = userRole ? userRole.get('userRole') : []
-  const singleUser = adminUserState.get('singleUser')
-  const singleUserData = adminUserState.get('singleUser').get('singleUser')
-  const staticResource = adminUserState.get('staticResource')
-  const staticResourceData = staticResource.get('staticResource')
-  const adminScopes = adminScopeState.get('scopeType').get('scopeType')
+  const adminUserState = useUserState()
+  const userRole = adminUserState.userRole
+  const userRoleData = userRole ? userRole.userRole.value : []
+  const singleUser = adminUserState.singleUser
+  const singleUserData = singleUser.singleUser
+  const staticResource = adminUserState.staticResource
+  const staticResourceData = staticResource.staticResource
+  const adminScopeState = useScopeState()
+  const adminScopes = adminScopeState.scopeType.scopeType
 
   const handleClick = () => {
     setOpenDialog(true)
@@ -124,30 +92,45 @@ const ViewUser = (props: Props) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      dispatch(AuthService.doLoginAuto(false))
-      await fetchUserRole()
+      AuthService.doLoginAuto(false)
+      await UserService.fetchUserRole()
     }
-    if (adminUserState.get('users').get('updateNeeded') === true && user.id.value) fetchData()
-    if ((user.id.value && singleUser.get('updateNeeded') == true) || refetch) {
-      fetchSingleUserAdmin(userAdmin.id)
-      setRefetch(false)
+    if (adminUserState.users.updateNeeded.value === true && user.id.value) fetchData()
+    if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
+      UserService.fetchSingleUserAdmin(userAdmin.id)
     }
-    if (user.id.value && staticResource.get('updateNeeded')) {
-      fetchStaticResource()
+    if (user.id.value && staticResource.updateNeeded.value) {
+      UserService.fetchStaticResource()
     }
-    if (adminScopeState.get('scopeType').get('updateNeeded') && user.id.value) {
-      getScopeTypeService()
+    if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
+      ScopeService.getScopeTypeService()
     }
-  }, [adminUserState, user, refetch, singleUser])
+  }, [
+    adminUserState.users.updateNeeded.value,
+    adminUserState.staticResource.updateNeeded.value,
+    user.id.value,
+    refetch,
+    singleUser.updateNeeded.value,
+    adminScopeState.scopeType.updateNeeded.value
+  ])
+
+  console.log(
+    adminUserState.users.updateNeeded.value,
+    adminUserState.staticResource.updateNeeded.value,
+    user.id.value,
+    refetch,
+    singleUser.updateNeeded.value,
+    adminScopeState.scopeType.updateNeeded.value
+  )
 
   React.useEffect(() => {
     if (!refetch) {
-      setRefetch(true)
+      setRefetch(refetch + 1)
     }
-  }, [userAdmin.id])
+  }, [userAdmin.id, refetch])
 
   React.useEffect(() => {
-    if (singleUserData) {
+    if (singleUserData?.value) {
       setState({
         ...state,
         name: userAdmin.name || '',
@@ -155,16 +138,17 @@ const ViewUser = (props: Props) => {
         scopeType: userAdmin.scopes || []
       })
     }
-  }, [singleUserData])
+  }, [singleUserData?.id?.value])
+
   const defaultProps = {
     options: userRoleData,
     getOptionLabel: (option: any) => option.role
   }
 
   const patchUserRole = async (user: any, role: string) => {
-    await updateUserRole(user, role)
+    await UserService.updateUserRole(user, role)
     handleCloseDialog()
-    setRefetch(true)
+    setRefetch(refetch + 1)
   }
 
   const handleInputChange = (e) => {
@@ -205,7 +189,7 @@ const ViewUser = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      patchUser(userAdmin.id, data)
+      UserService.patchUser(userAdmin.id, data)
       setState({
         ...state,
         name: '',
@@ -247,8 +231,8 @@ const ViewUser = (props: Props) => {
       <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawer()} classes={{ paper: classx.paper }}>
         {userAdmin && (
           <Paper elevation={3} className={classes.paperHeight}>
-            <Container maxWidth="sm">
-              <Grid container spacing={2}>
+            <Container maxWidth="sm" className={classes.pad}>
+              <Grid container spacing={2} className={classes.centering}>
                 <Grid item xs={4}>
                   <Avatar className={classes.large}>
                     {!userAdmin.avatarId ? (
@@ -259,13 +243,13 @@ const ViewUser = (props: Props) => {
                   </Avatar>
                 </Grid>
                 <Grid item xs={8}>
-                  <div className={classes.mt20}>
-                    <Typography variant="h4" component="span">
+                  <div>
+                    <Typography variant="h4" component="span" className={classes.typoFontTitle}>
                       {userAdmin.name}
                     </Typography>
                     <br />
                     {userAdmin.userRole ? (
-                      <Chip label={singleUserData?.userRole} onDelete={handleClick} deleteIcon={<Edit />} />
+                      <Chip label={singleUserData?.userRole?.value} onDelete={handleClick} deleteIcon={<Edit />} />
                     ) : (
                       <Chip label="None" onDelete={handleClick} deleteIcon={<Edit />} />
                     )}
@@ -318,7 +302,7 @@ const ViewUser = (props: Props) => {
         <Container maxWidth="sm">
           {editMode ? (
             <div className={classes.mt10}>
-              <Typography variant="h4" component="h4" className={classes.mb10}>
+              <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
                 {' '}
                 Update personal Information{' '}
               </Typography>
@@ -357,7 +341,7 @@ const ViewUser = (props: Props) => {
                     <MenuItem value="" disabled>
                       <em>Select avatar</em>
                     </MenuItem>
-                    {staticResourceData.map((el) => (
+                    {staticResourceData.value.map((el) => (
                       <MenuItem value={el.name} key={el.id}>
                         {el.name}
                       </MenuItem>
@@ -380,7 +364,7 @@ const ViewUser = (props: Props) => {
                   className={classes.selector}
                   classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
                   id="tags-standard"
-                  options={adminScopes}
+                  options={adminScopes.value}
                   disableCloseOnSelect
                   filterOptions={(options) =>
                     options.filter(
@@ -393,56 +377,58 @@ const ViewUser = (props: Props) => {
               </Paper>
             </div>
           ) : (
-            <Grid container spacing={3} className={classes.mt10}>
-              <Typography variant="h4" component="h4" className={classes.mb20px}>
+            <Grid container spacing={3} className={classes.mt5}>
+              <Typography variant="h4" component="h4" className={`${classes.mb20px} ${classes.headingFont}`}>
                 Personal Information{' '}
               </Typography>
-              <Grid item xs={6}>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
+              <Grid item xs={6} sm={6}>
+                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
                   Location:
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
+                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
                   Avatar:
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
+                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
                   Invite Code:
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
+                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
                   Instance:
                 </Typography>
               </Grid>
-              <Grid item xs={6}>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+              <Grid item xs={4} sm={6}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   {userAdmin?.party?.location?.name || <span className={classx.spanNone}>None</span>}
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   {userAdmin?.avatarId || <span className={classx.spanNone}>None</span>}
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   {userAdmin?.inviteCode || <span className={classx.spanNone}>None</span>}
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   {userAdmin?.party?.instance?.ipAddress || <span className={classx.spanNone}>None</span>}
                 </Typography>
               </Grid>
-              <Typography variant="h5" component="h5" className={classes.mb20px}>
+              <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
                 User scope
               </Typography>
-              {singleUserData.scopes?.map((el, index) => {
-                const [label, type] = el.type.split(':')
-                return (
-                  <Grid container spacing={3} style={{ paddingLeft: '10px' }} key={el.id}>
-                    <Grid item xs={4}>
-                      <Typography variant="h6" component="h6" className={classes.mb10}>
-                        {label}:
-                      </Typography>
+              <div className={classes.scopeContainer}>
+                {singleUserData?.scopes?.value?.map((el, index) => {
+                  const [label, type] = el.type.split(':')
+                  return (
+                    <Grid container spacing={3} style={{ paddingLeft: '10px', width: '100%' }} key={el.id}>
+                      <Grid item xs={8}>
+                        <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
+                          {label}:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Chip label={type} />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={8}>
-                      <Chip label={type} />
-                    </Grid>
-                  </Grid>
-                )
-              })}
+                  )
+                })}
+              </div>
             </Grid>
           )}
           <DialogActions className={classes.mb10}>
@@ -502,4 +488,4 @@ const ViewUser = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ViewUser)
+export default ViewUser

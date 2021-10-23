@@ -105,7 +105,6 @@ export default function EditorNodeMixin(Object3DClass) {
     onRemove() {}
     onSelect() {}
     onDeselect() {}
-    onRendererChanged() {}
     async serialize(projectID, components?): Promise<SerializedNode> {
       const entityJson = {
         name: this.name,

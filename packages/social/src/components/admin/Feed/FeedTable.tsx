@@ -6,40 +6,28 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { useFeedStyle, useFeedStyles } from './styles'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import Grid from '@material-ui/core/Grid'
 import CardData from './CardData'
 import ViewFeed from './ViewFeed'
-import { getFeeds, removeFeed } from '../../../reducers/feed/service'
-import { selectFeedsState } from '../../../reducers/feed/selector'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
 
 interface Props {
-  getAdminFeeds?: typeof getFeeds
-  removeFeed?: typeof removeFeed
   feedState?: any
 }
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getAdminFeeds: bindActionCreators(getFeeds, dispatch),
-  removeFeed: bindActionCreators(removeFeed, dispatch)
-})
-
-const mapStateToProps = (state: any): any => {
-  return {
-    feedState: selectFeedsState(state)
-  }
-}
-
 const FeedTable = (props: Props) => {
-  const { getAdminFeeds, removeFeed, feedState } = props
+  const {} = props
   const classex = useFeedStyle()
   const classes = useFeedStyles()
-
+  const dispatch = useDispatch()
   const user = useAuthState().user
-  const feeds = feedState.get('feedsAdmin')
-  const adminFeeds = feeds.get('feeds')
+  const feedState = useFeedState()
+  const feeds = feedState.feeds.feedsAdmin
+  const adminFeeds = feeds.feeds
 
   const [openViewModal, setOpenViewModal] = React.useState(false)
   const [feedAdmin, setFeedAdmin] = React.useState('')
@@ -47,10 +35,10 @@ const FeedTable = (props: Props) => {
   const [feedId, setFeedId] = React.useState('')
 
   React.useEffect(() => {
-    if (user.id.value && feeds.get('updateNeeded')) {
-      getAdminFeeds('admin')
+    if (user.id.value && feeds.updateNeeded.value) {
+      FeedService.getFeeds('admin')
     }
-  }, [user, getAdminFeeds, feeds])
+  }, [user.id.value, feeds.updateNeeded.value])
 
   const openViewModalHandler = (open: boolean, feed: any) => {
     setFeedAdmin(feed)
@@ -59,8 +47,8 @@ const FeedTable = (props: Props) => {
 
   const deleteFeedHandler = () => {
     setShowWarning(false)
-    const feed = adminFeeds.find((feed) => feed.id === feedId)
-    removeFeed(feedId, feed.previewId, feed.videoId)
+    const feed = adminFeeds.value.find((feed) => feed.id === feedId)
+    FeedService.removeFeed(feedId, feed.previewId, feed.videoId)
   }
 
   const closeViewModelHandler = (open) => {
@@ -76,7 +64,7 @@ const FeedTable = (props: Props) => {
     setShowWarning(false)
   }
 
-  const rows = adminFeeds.map((feed, index) => {
+  const rows = adminFeeds.value.map((feed, index) => {
     return <CardData feed={feed} key={feed.id} openViewModal={openViewModalHandler} deleteFeed={handleShowWarning} />
   })
 
@@ -116,4 +104,4 @@ const FeedTable = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedTable)
+export default FeedTable

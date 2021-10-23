@@ -1,196 +1,174 @@
 {
-    "auth": {
-        "confirmEmail": {
-            "header": "Confirmation Email",
-            "resendEmail": "Please check your email to verify your account. If you didn't get an email, please click <1>here</1> to resend the verification email.",
-            "login": "Have an account? <1>Log in</1>"
-        },
-        "forgotPassword": {
-            "header": "Forgot Password",
-            "enterEmail": "Please enter your registered email address and we'll send you a password reset link.",
-            "lbl-email": "Email Address",
-            "lbl-submit": "Send Link",
-            "emailSent": "Reset Password Email was sent. Please check your email."
-        },
-        "login": {
-            "email": "Email | SMS",
-            "username": "UserName + Password",
-            "social": "Social"
-        },
-        "magiklink": {
-            "header": "Login Link",
-            "descriptionEmail": "Please enter your email address and we'll send you a login link via Email.",
-            "descriptionSMS": "Please enter your phone number and we'll send you a login link via SMS.",
-            "descriptionEmailSMS": "Please enter your email address or phone number (10 digit, US only) and we'll send you a login link via Email or SMS.",
-            "descriptionSMSUS": "Please enter your phone number (10 digit, US only) and we'll send you a login link via SMS.",
-            "lbl-email": "Email address",
-            "lbl-emailPhone": "Email or Phone number",
-            "lbl-phone": "Phone number",
-            "agree": "I agree to the ",
-            "terms": "Terms & Conditions",
-            "lbl-submit": "Send Login Link"
-        },
-        "passwordLogin": {
-            "header": "Sign In",
-            "lbl-email": "Email Address",
-            "lbl-password": "Password",
-            "lbl-rememberMe": "Remember me",
-            "lbl-signin": "Sign In",
-            "forgotPassword": "Forgot password?",
-            "signup": "Don't have an account? Sign Up",
-            "lbl-login": "Log In",
-            "ph-password": "Password",
-            "ph-email": "Email"
-        },
-        "social": {
-            "gitHub": "Login with GitHub",
-            "google": "Login with Google",
-            "facebook": "Login with Facebook",
-            "linkedin": "Login with Linkedin",
-            "twitter": "Login with Twitter"
-        },
-        "register": {
-            "header": "Sign Up",
-            "login": "Log In",
-            "lbl-signup": "Sign Up",
-            "lbl-password": "Password",
-            "lbl-email":"Email Address",
-            "passwordNotMatch": "Passwords Don't Match",
-            "ph-password": "Password",
-            "ph-confirmPassword": "Password Confirm",
-            "ph-email": "Email"
-        },
-        "resetPassword": {
-            "header": "Reset Password",
-            "description": "Please enter your password for your email address",
-            "lbl-submit": "Reset Password",
-            "lbl-password": "Password",
-            "lbl-confirmPassword": "Password Confirm",
-            "passwordNotMatch": "Passwords Don't Match"
-        },
-        "verifyEmail": {
-            "header": "Verify Email",
-            "processing": "Please wait a moment while processing..."
-        }
+  "auth": {
+    "confirmEmail": {
+      "header": "Confirmation Email",
+      "resendEmail": "Please check your email to verify your account. If you didn't get an email, please click <1>here</1> to resend the verification email.",
+      "login": "Have an account? <1>Log in</1>"
     },
-    "usermenu": {
-        "locationTable": {
-            "title": "Locations",
-            "loading": "Loading",
-            "col-name": "Name",
-            "col-scene": "Scene",
-            "col-maxuser": "Max Users",
-            "lbl-search": "Search for locations",
-            "lbl-new": "New"
-        },
-        "newLocation": {
-            "title": "Location",
-            "success": "Saved Successfully.",
-            "failure": "Something went wrong.",
-            "removeSuccess": "Location removed Successfully.",
-            "nameInUse": "Name is in use.",
-            "nameRequire": "Name is required.",
-            "validNumber": "Only numbers(0-9) are allowed.",
-            "lbl-name": "Name",
-            "lbl-maxuser": "Max Users",
-            "lbl-scene": "Scene",
-            "lbl-type": "Type",
-            "lbl-ve": "Video Enabled",
-            "lbl-gme": "Global Media Enabled",
-            "lbl-update": "Update",
-            "lbl-create": "Create",
-            "tooltipCanNotBeDeleted": "Lobby can't be deleted",
-            "confirmation": "Are you sure?",
-            "lbl-yes": "Yes",
-            "lbl-no": "No"
-        },
-        "share": {
-            "lbl-share": "Share",
-            "ph-phoneEmail": "Phone Number / Email",
-            "lbl-phoneEmail": "Send to email or phone number",
-            "lbl-copy": "Copy",
-            "title": "Location URL",
-            "linkCopied": "Link copied to clipboard."
-        },
-        "setting": {
-            "audio": "Audio",
-            "lbl-volume": "Volume",
-            "lbl-microphone": "Microphone",
-            "graphics": "Graphics",
-            "lbl-resolution": "Resolution",
-            "lbl-shadow": "Shadows",
-            "lbl-pp": "Post Processing",
-            "lbl-pbr": "Full PBR",
-            "lbl-automatic": "Automatic"
-        },
-        "profile": {
-            "lbl-username": "Username",
-            "youAreA": "You are a",
-            "youAreAn": "You are an",
-            "logout": "Log out",
-            "inviteCode": "Invite Code",
-            "connectPhone": "Connect your email or phone number",
-            "ph-phoneEmail": "Phone Number / Email",
-            "phoneEmailError": "Valid Email or Phone number is required",
-            "or": "Or",
-            "lbl-wallet": "Login with Wallet",
-            "loginWithReadyPlayerMe":"Login with ready player me",
-            "connectSocial": "Or connect with social accounts",
-            "createOne": "If you don’t have an account, a new one will be created for you."
-        },
-        "avatar": {
-            "title": "Upload Avatar",
-            "lbl-browse": "Browse",
-            "lbl-thumbnail": "Thumbnail",
-            "lbl-upload": "Upload",
-            "selectAvatar": "Select Avatar...",
-            "selectThumbnail": "Select Thumbnail...",
-            "rotate": "Rotate",
-            "pan": "Pan",
-            "noBone": "Obejct does not contain any bones or skin",
-            "outOfBound": "Object is out of bound.",
-            "emptyObj": "Object is empty.",
-            "maxTriangleError": "Object contains greater than {{allowedTriangles}} faces.",
-            "selectValidFile": "Select valid 3d avatar file.",
-            "selectValidThumbnail": "Selected valid Thumbnail file.",
-            "fileOversized": "Avatar file size must be between {{minSize}} MB and {{maxSize}} MB",
-            "confirmation": "Are you sure?",
-            "canNotBeRemoved": "Active Avatar can not be removed",
-            "remove": "Remove avatar"
-        }
+    "forgotPassword": {
+      "header": "Forgot Password",
+      "enterEmail": "Please enter your registered email address and we'll send you a password reset link.",
+      "lbl-email": "Email Address",
+      "lbl-submit": "Send Link",
+      "emailSent": "Reset Password Email was sent. Please check your email."
+    },
+    "login": {
+      "email": "Email | SMS",
+      "username": "UserName + Password",
+      "social": "Social"
+    },
+    "magiklink": {
+      "header": "Login Link",
+      "descriptionEmail": "Please enter your email address and we'll send you a login link via Email.",
+      "descriptionSMS": "Please enter your phone number and we'll send you a login link via SMS.",
+      "descriptionEmailSMS": "Please enter your email address or phone number (10 digit, US only) and we'll send you a login link via Email or SMS.",
+      "descriptionSMSUS": "Please enter your phone number (10 digit, US only) and we'll send you a login link via SMS.",
+      "lbl-email": "Email address",
+      "lbl-emailPhone": "Email or Phone number",
+      "lbl-phone": "Phone number",
+      "agree": "I agree to the ",
+      "terms": "Terms & Conditions",
+      "lbl-submit": "Send Login Link"
+    },
+    "passwordLogin": {
+      "header": "Sign In",
+      "lbl-email": "Email Address",
+      "lbl-password": "Password",
+      "lbl-rememberMe": "Remember me",
+      "lbl-signin": "Sign In",
+      "forgotPassword": "Forgot password?",
+      "signup": "Don't have an account? Sign Up",
+      "lbl-login": "Log In",
+      "ph-password": "Password",
+      "ph-email": "Email"
+    },
+    "social": {
+      "gitHub": "Login with GitHub",
+      "google": "Login with Google",
+      "facebook": "Login with Facebook",
+      "linkedin": "Login with Linkedin",
+      "twitter": "Login with Twitter"
+    },
+    "register": {
+      "header": "Sign Up",
+      "login": "Log In",
+      "lbl-signup": "Sign Up",
+      "lbl-password": "Password",
+      "lbl-email": "Email Address",
+      "passwordNotMatch": "Passwords Don't Match",
+      "ph-password": "Password",
+      "ph-confirmPassword": "Password Confirm",
+      "ph-email": "Email"
+    },
+    "resetPassword": {
+      "header": "Reset Password",
+      "description": "Please enter your password for your email address",
+      "lbl-submit": "Reset Password",
+      "lbl-password": "Password",
+      "lbl-confirmPassword": "Password Confirm",
+      "passwordNotMatch": "Passwords Don't Match"
+    },
+    "verifyEmail": {
+      "header": "Verify Email",
+      "processing": "Please wait a moment while processing..."
+    }
+  },
+  "usermenu": {
+    "locationTable": {
+      "title": "Locations",
+      "loading": "Loading",
+      "col-name": "Name",
+      "col-scene": "Scene",
+      "col-maxuser": "Max Users",
+      "lbl-search": "Search for locations",
+      "lbl-new": "New"
+    },
+    "newLocation": {
+      "title": "Location",
+      "success": "Saved Successfully.",
+      "failure": "Something went wrong.",
+      "removeSuccess": "Location removed Successfully.",
+      "nameInUse": "Name is in use.",
+      "nameRequire": "Name is required.",
+      "validNumber": "Only numbers(0-9) are allowed.",
+      "lbl-name": "Name",
+      "lbl-maxuser": "Max Users",
+      "lbl-scene": "Scene",
+      "lbl-type": "Type",
+      "lbl-ve": "Video Enabled",
+      "lbl-gme": "Global Media Enabled",
+      "lbl-update": "Update",
+      "lbl-create": "Create",
+      "tooltipCanNotBeDeleted": "Lobby can't be deleted",
+      "confirmation": "Are you sure?",
+      "lbl-yes": "Yes",
+      "lbl-no": "No"
+    },
+    "share": {
+      "lbl-share": "Share",
+      "ph-phoneEmail": "Invite by email or phone number",
+      "lbl-phoneEmail": "Send to email or phone number",
+      "lbl-copy": "Copy",
+      "lbl-send-invite": "Send Invite",
+      "title": "Share your Location URL with your team",
+      "linkCopied": "Link copied to clipboard."
+    },
+    "setting": {
+      "audio": "Audio",
+      "lbl-volume": "Volume",
+      "lbl-microphone": "Microphone",
+      "graphics": "Graphics",
+      "lbl-resolution": "Resolution",
+      "lbl-shadow": "Shadows",
+      "lbl-pp": "Post Processing",
+      "lbl-pbr": "Full PBR",
+      "lbl-automatic": "Automatic"
     },
     "profile": {
-        "lbl-profile": "Profile",
-        "lbl-settings": "Settings",
-        "connections": {
-            "title": "Connections",
-            "ipError": "Can not remove active Identity Provider",
-            "disconnect": "disconnect",
-            "connect": "Connect"
-        },
-        "profileDropdown": {
-            "avatar": "User Avatar Icon",
-            "profile": "Profile",
-            "adminConsole": "Admin Console",
-            "logout": "Logout"
-        },
-        "userIcon": {
-            "lbl-name": "Your name",
-            "lbl-update": "Update",
-            "userId": "User ID",
-            "ph-uploadImg": "Upload Product Image",
-            "lbl-selectAcvatar": "Select Avatar",
-            "lbl-submit": "Submit"
-        },
-        "userSettings": {
-            "volume": "Volume",
-            "microphone": "Microphone",
-            "resolution": "Resolution",
-            "high": "High",
-            "low": "Low",
-            "spatialAudio": "Use Spatial Audio",
-            "enterMuted": "Enter Room Muted"
-        }
+      "lbl-profile": "Profile",
+      "lbl-settings": "Settings",
+      "lbl-username": "Username",
+      "inviteCode": "Invite Code",
+      "youAreAn": "You are an",
+      "youAreA": "You are a",
+      "logout": "Log out",
+      "connectPhone": "Connect your email or phone number",
+      "or": "Or",
+      "lbl-wallet": "Login with Wallet",
+      "ph-phoneEmail": "Phone Number / Email",
+      "phoneEmailError": "Invalid phone or email address",
+      "loginWithReadyPlayerMe": "Login with Ready Player Me",
+      "connectSocial": "Or connect with social accounts",
+      "createOne": "If you don't have an account, a new one will be created for you",
+      "connections": {
+        "title": "Connections",
+        "ipError": "Can not remove active Identity Provider",
+        "disconnect": "disconnect",
+        "connect": "Connect"
+      },
+      "profileDropdown": {
+        "avatar": "User Avatar Icon",
+        "profile": "Profile",
+        "adminConsole": "Admin Console",
+        "logout": "Logout"
+      },
+      "userIcon": {
+        "lbl-name": "Your name",
+        "lbl-update": "Update",
+        "userId": "User ID",
+        "ph-uploadImg": "Upload Product Image",
+        "lbl-selectAcvatar": "Select Avatar",
+        "lbl-submit": "Submit"
+      },
+      "userSettings": {
+        "volume": "Volume",
+        "microphone": "Microphone",
+        "resolution": "Resolution",
+        "high": "High",
+        "low": "Low",
+        "spatialAudio": "Use Spatial Audio",
+        "enterMuted": "Enter Room Muted"
+      }
     },
     "oauth": {
         "authenticating": "Authenticating...",
@@ -200,20 +178,68 @@
         "wait": "Please wait a moment while processing..."
     },
     "dashboard": {
-        "header": "Dashboard",
-        "dashboard": "Dashboard",
-        "users": "Users",
-        "feeds": "Feeds",
-        "instance": "Instance",
-        "locations": "Locations",
-        "invites": "Invites",
-        "sessions": "Sessions",
-        "groups": "Groups",
-        "parties": "Parties",
-        "chats": "Chats",
-        "content": "Content Packs",
-        "scenes": "Scenes",
-        "avatars": "Avatars",
-        "bots": "Bots"
+      "header": "Dashboard",
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "feeds": "Feeds",
+      "instance": "Instance",
+      "locations": "Locations",
+      "invites": "Invites",
+      "sessions": "Sessions",
+      "groups": "Groups",
+      "parties": "Parties",
+      "chats": "Chats",
+      "content": "Content Packs",
+      "projects": "Projects",
+      "scenes": "Scenes",
+      "avatars": "Avatars",
+      "bots": "Bots"
     }
+  },
+  "oauth": {
+    "authenticating": "Authenticating...",
+    "authFailed": "{{service}} authentication failed."
+  },
+  "magikLink": {
+    "wait": "Please wait a moment while processing..."
+  },
+  "dashboard": {
+    "header": "Dashboard",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "feeds": "Feeds",
+    "instance": "Instance",
+    "locations": "Locations",
+    "routes": "Routes",
+    "invites": "Invites",
+    "sessions": "Sessions",
+    "groups": "Groups",
+    "parties": "Parties",
+    "chats": "Chats",
+    "content": "Content Packs",
+    "scenes": "Scenes",
+    "avatars": "Avatars",
+    "bots": "Bots"
+  },
+  "avatar": {
+    "title": "Upload Avatar",
+    "lbl-browse": "Browse",
+    "lbl-thumbnail": "Thumbnail",
+    "lbl-upload": "Upload",
+    "selectAvatar": "Select Avatar...",
+    "selectThumbnail": "Select Thumbnail...",
+    "rotate": "Rotate",
+    "pan": "Pan",
+    "noBone": "Obejct does not contain any bones or skin",
+    "outOfBound": "Object is out of bound.",
+    "emptyObj": "Object is empty.",
+    "maxTriangleError": "Object contains greater than {{allowedTriangles}} faces.",
+    "selectValidFile": "Select valid 3d avatar file.",
+    "selectValidThumbnail": "Selected valid Thumbnail file.",
+    "fileOversized": "Avatar file size must be between {{minSize}} MB and {{maxSize}} MB",
+    "confirmation": "Are you sure?",
+    "canNotBeRemoved": "Active Avatar can not be removed",
+    "remove": "Remove avatar"
+}
+
 }

@@ -1,28 +1,57 @@
-import { createStore, applyMiddleware } from 'redux'
-import { saveAuthState } from './persisted.store'
-import thunkMiddleware from 'redux-thunk'
-import Immutable from 'immutable'
-import { composeWithDevTools } from 'redux-devtools-extension'
-import { accessAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-const initialState: any = Immutable.Map()
-const middleware = applyMiddleware(thunkMiddleware)
-
-export function configureStore(reducers) {
-  Store.store = createStore(
-    reducers,
-    initialState,
-    // if not production, enable redux dev tools.
-    process.env.NODE_ENV === 'production' ? middleware : composeWithDevTools(middleware)
-  )
-  ;(window as any).store = Store.store // Exposing the store to window to make it intentionally available to bots and clients and whatnot
-  // add a listener that will be invoked on any state change.
-  Store.store.subscribe(() => {
-    saveAuthState(accessAuthState().value)
-  })
-
-  return Store.store
+/**
+ * if HMR is reloading this file, decline it, as it will import the globs more than once
+ */
+//@ts-ignore
+if (import.meta.hot) {
+  //@ts-ignore
+  import.meta.hot.decline()
 }
 
-export default class Store {
-  static store
+declare global {
+  interface ImportMeta {
+    globEager: (glob: string) => { [module: string]: any }
+  }
 }
+
+export const store = {
+  stateModules: {} as { [module: string]: any },
+
+  stateModulesMissingReceptor: [],
+  receptors: [] as Function[],
+
+  // registerStateModules(stateModules: { [module: string]: any }) {
+  //   Object.assign(store.stateModules, stateModules)
+  //   store.receptors.push(
+  //     ...Object.entries(stateModules).map(([k, m]) => {
+  //       if (!m.receptor) {
+  //         console.warn(`${k} is missing a 'receptor' export`)
+  //         return () => {}
+  //       }
+  //       return m.receptor
+  //     })
+  //   )
+  // },
+
+  dispatch(action: { type: string; [key: string]: any }) {
+    // console.log(action)
+    for (const r of store.receptors) r(action)
+  }
+}
+
+export function useDispatch() {
+  return store.dispatch
+}
+
+// const userStateModules = import.meta.globEager('./user/state/*State.ts')
+// const commonStateModules = import.meta.globEager('./common/state/*State.ts')
+// const adminStateModules = import.meta.globEager('./admin/state/*State.ts')
+// const adminSettingStateModules = import.meta.globEager('./admin/state/Setting/*State.ts')
+// const socialStateModules = import.meta.globEager('./social/state/*State.ts')
+// const mediaStateModules = import.meta.globEager('./media/state/*State.ts')
+
+// store.registerStateModules(userStateModules)
+// store.registerStateModules(commonStateModules)
+// store.registerStateModules(adminStateModules)
+// store.registerStateModules(adminSettingStateModules)
+// store.registerStateModules(socialStateModules)
+// store.registerStateModules(mediaStateModules)

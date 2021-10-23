@@ -1,5 +1,4 @@
 // Initializes the `accept-invite` service on path `/accept-invite`
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { AcceptInvite } from './accept-invite.class'
 import hooks from './accept-invite.hooks'
@@ -11,7 +10,7 @@ import logger from '../../logger'
  */
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'a-i': AcceptInvite & ServiceAddons<any>
+    'a-i': AcceptInvite
   }
 }
 
@@ -37,7 +36,7 @@ function redirect(req, res, next): any {
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     paginate: app.get('paginate')
   }
@@ -47,7 +46,7 @@ export default (app: Application): any => {
    * @author  Vyacheslav Solovjov
    */
   const event = new AcceptInvite(options, app)
-  app.use('/a-i', event, redirect)
+  app.use('a-i', event, redirect)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -55,5 +54,5 @@ export default (app: Application): any => {
    */
   const service = app.service('a-i')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

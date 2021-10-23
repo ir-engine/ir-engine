@@ -8,12 +8,10 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import classNames from 'classnames'
 import styles from '../Admin.module.scss'
-import { sendInvite } from '../../../social/reducers/invite/service'
-import { retrieveInvites } from '../../../social/reducers/inviteType/service'
-import { selectInviteState } from '../../../social/reducers/invite/selector'
-import { selectInviteTypesState } from '../../../social/reducers/inviteType/selector'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { InviteService } from '../../../social/state/InviteService'
+import { InviteTypeService } from '../../../social/state/InviteTypeService'
+import { useInviteTypeState } from '../../../social/state/InviteTypeState'
+import { useDispatch } from '../../../store'
 import { Dropdown } from 'semantic-ui-react'
 import Snackbar from '@material-ui/core/Snackbar'
 import _ from 'lodash'
@@ -22,35 +20,11 @@ import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import Container from '@material-ui/core/Container'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
 interface Props {
   open: boolean
   handleClose: any
-  sendInvite?: any
-  retrieveInvites?: any
-  inviteTypeData?: any
   users: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    receivedInvites: selectInviteState(state),
-    sentInvites: selectInviteState(state),
-    inviteTypeData: selectInviteTypesState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  sendInvite: bindActionCreators(sendInvite, dispatch),
-  retrieveInvites: bindActionCreators(retrieveInvites, dispatch)
-})
 
 function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -109,11 +83,12 @@ const useStyles = makeStyles((theme) => ({
 
 const InviteModel = (props: Props) => {
   const classes = useStyles()
-  const { open, handleClose, sendInvite, retrieveInvites, inviteTypeData, users } = props
+  const { open, handleClose, users } = props
   console.log(open)
   const router = useHistory()
   const [currency, setCurrency] = React.useState('friend')
-  const inviteType = inviteTypeData.get('inviteTypeData').get('inviteType')
+  const inviteTypeData = useInviteTypeState()
+  const inviteType = inviteTypeData.inviteTypeData.invitesType?.value
   const [targetUser, setTargetUser] = React.useState('')
   const [token, setToken] = React.useState('')
   const [passcode, setPasscode] = React.useState('')
@@ -123,7 +98,7 @@ const InviteModel = (props: Props) => {
   // const [openInvite ,setOpenInvite] = React.useState(false);
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
-
+  const dispatch = useDispatch()
   const handleCloseWarning = (event, reason) => {
     if (reason === 'clickaway') {
       return
@@ -131,7 +106,13 @@ const InviteModel = (props: Props) => {
     setOpenWarning(false)
   }
 
-  const currencies = []
+  interface Currency {
+    value: string
+    label: string
+  }
+
+  const currencies: Currency[] = []
+
   const provide = [
     {
       value: 'email',
@@ -196,7 +177,7 @@ const InviteModel = (props: Props) => {
       targetObjectId: targetUser[0]
     }
     if (token && currency && targetUser) {
-      await sendInvite(data)
+      await InviteService.sendInvite(data)
       refreshData()
       handleClose()
     } else {
@@ -205,7 +186,7 @@ const InviteModel = (props: Props) => {
     }
   }
 
-  if (inviteType) {
+  if (inviteType != null) {
     inviteType.forEach((el) => {
       currencies.push({
         value: el.type,
@@ -214,7 +195,13 @@ const InviteModel = (props: Props) => {
     })
   }
 
-  const stateOptions = []
+  interface StateOption {
+    key: string
+    text: string
+    value: string
+  }
+
+  const stateOptions: StateOption[] = []
   users.forEach((el) => {
     stateOptions.push({
       key: el.id,
@@ -225,7 +212,7 @@ const InviteModel = (props: Props) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await retrieveInvites()
+      await InviteTypeService.retrieveInvites()
     }
     fetchData()
   }, [])
@@ -500,4 +487,4 @@ const InviteModel = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InviteModel)
+export default InviteModel

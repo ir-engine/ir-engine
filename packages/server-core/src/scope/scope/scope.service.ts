@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import hooks from './scope.hooks'
 import { Application } from '../../../declarations'
 import { Scope } from './scope.class'
@@ -7,7 +6,7 @@ import scopeDocs from './scope.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    scope: Scope & ServiceAddons<any>
+    scope: Scope
   }
 }
 
@@ -20,9 +19,9 @@ export default (app: Application): void => {
 
   const event = new Scope(options, app)
   event.docs = scopeDocs
-  app.use('/scope', event)
+  app.use('scope', event)
 
   const service = app.service('scope')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

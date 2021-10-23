@@ -1,26 +1,23 @@
-import React, { useEffect } from 'react'
-import { sendInvite, retrieveSentInvites, retrieveReceivedInvites } from '../../../social/reducers/invite/service'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-import { selectInviteState } from '../../../social/reducers/invite/selector'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
 import AppBar from '@material-ui/core/AppBar'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
 import Box from '@material-ui/core/Box'
-import SentInvite from './SentInvite'
-import ReceivedInvite from './ReceivedInvite'
 import Button from '@material-ui/core/Button'
+import Grid from '@material-ui/core/Grid'
+import { makeStyles, Theme } from '@material-ui/core/styles'
+import Tab from '@material-ui/core/Tab'
+import Tabs from '@material-ui/core/Tabs'
+import { ConfirmProvider } from 'material-ui-confirm'
+import React, { useEffect } from 'react'
+import { InviteService } from '../../../social/state/InviteService'
+import { useInviteState } from '../../../social/state/InviteState'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { UserService } from '../../state/UserService'
+import { useUserState } from '../../state/UserState'
+import InviteModel from './InviteModel'
+import ReceivedInvite from './ReceivedInvite'
 // import Search from '../Search'
 import Search from './searchInvites'
-import styles from '../Admin.module.scss'
-import InviteModel from './InviteModel'
-import { fetchUsersAsAdmin } from '../../reducers/admin/user/service'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { selectAdminState } from '../../reducers/admin/selector'
-import { ConfirmProvider } from 'material-ui-confirm'
-import Grid from '@material-ui/core/Grid'
-import { selectAdminUserState } from '../../reducers/admin/user/selector'
+import SentInvite from './SentInvite'
 import { inviteStyles } from './styles'
 
 interface TabPanelProps {
@@ -61,48 +58,21 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }))
 
-interface Props {
-  receivedInvites?: any
-  retrieveReceivedInvites?: any
-  retrieveSentInvites?: any
-  sendInvite?: any
-  sentInvites?: any
-  fetchUsersAsAdmin?: any
-  adminUserState?: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {
-    receivedInvites: selectInviteState(state),
-    sentInvites: selectInviteState(state),
-    adminUserState: selectAdminUserState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
-  sendInvite: bindActionCreators(sendInvite, dispatch),
-  retrieveSentInvites: bindActionCreators(retrieveSentInvites, dispatch),
-  retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch)
-})
+interface Props {}
 
 const InvitesConsole = (props: Props) => {
-  const {
-    fetchUsersAsAdmin,
-    sentInvites,
-    receivedInvites,
-    retrieveSentInvites,
-    retrieveReceivedInvites,
-    adminUserState
-  } = props
   const classes = inviteStyles()
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)
   const [inviteModelOpen, setInviteModelOpen] = React.useState(false)
-  const invites = sentInvites.get('sentInvites').get('invites')
-  const adminUsers = adminUserState.get('users').get('users')
-  const user = useAuthState().user
 
+  const inviteState = useInviteState()
+
+  const invites = inviteState.sentInvites.invites
+  const adminUserState = useUserState()
+  const adminUsers = adminUserState.users.users
+  const user = useAuthState().user
+  const dispatch = useDispatch()
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
   }
@@ -125,23 +95,23 @@ const InvitesConsole = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (user?.id.value != null && (adminUserState.get('users').get('updateNeeded') === true || refetch === true)) {
-      fetchUsersAsAdmin()
+    if (user?.id.value != null && (adminUserState.users.updateNeeded.value === true || refetch === true)) {
+      UserService.fetchUsersAsAdmin()
     }
     setRefetch(false)
-  }, [useAuthState(), adminUserState, refetch])
+  }, [useAuthState(), adminUserState.users.updateNeeded.value, refetch])
 
   useEffect(() => {
-    if (sentInvites.get('sentUpdateNeeded') === true) {
-      retrieveSentInvites()
+    if (inviteState.sentUpdateNeeded.value === true) {
+      InviteService.retrieveSentInvites()
     }
-  }, [sentInvites])
+  }, [inviteState.sentUpdateNeeded.value])
 
   useEffect(() => {
-    if (receivedInvites.get('sentUpdateNeeded') === true) {
-      retrieveReceivedInvites()
+    if (inviteState.sentUpdateNeeded.value === true) {
+      InviteService.retrieveReceivedInvites()
     }
-  }, [receivedInvites])
+  }, [inviteState.sentUpdateNeeded.value])
 
   return (
     <div>
@@ -172,13 +142,13 @@ const InvitesConsole = (props: Props) => {
             <ReceivedInvite invites={[]} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <SentInvite invites={invites} />
+            <SentInvite invites={invites.value} />
           </TabPanel>
         </div>
       </ConfirmProvider>
-      <InviteModel open={inviteModelOpen} handleClose={closeModelInvite} users={adminUsers} />
+      <InviteModel open={inviteModelOpen} handleClose={closeModelInvite} users={adminUsers.value} />
     </div>
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InvitesConsole)
+export default InvitesConsole

@@ -13,65 +13,27 @@ import TextField from '@material-ui/core/TextField'
 import Checkbox from '@material-ui/core/Checkbox'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import {
-  createLocation,
-  patchLocation,
-  removeLocation
-} from '@xrengine/client-core/src/admin/reducers/admin/location/service'
-import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { LocationService } from '@xrengine/client-core/src/admin/state/LocationService'
+
 import styles from './styles.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { selectAdminSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/selector'
-import { selectAdminLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/selector'
+import { useSceneState } from '@xrengine/client-core/src/admin/state/SceneState'
+import { useLocationState } from '@xrengine/client-core/src/admin/state/LocationState'
 import { useParams } from 'react-router-dom'
-import { createPublishProject } from '@xrengine/client-core/src/world/reducers/scenes/service'
+import { ScenesService } from '@xrengine/client-core/src/world/state/SceneService'
 
 interface Props {
   open: boolean
   handleClose: any
   location: any
   editing: boolean
-  createLocation?: any
-  patchLocation?: any
-  removeLocation?: any
-  adminSceneState?: any
-  adminLocationState?: any
-
-  createPublishProject?: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    appState: selectAppState(state),
-
-    adminSceneState: selectAdminSceneState(state),
-    adminLocationState: selectAdminLocationState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createLocation: bindActionCreators(createLocation, dispatch),
-  patchLocation: bindActionCreators(patchLocation, dispatch),
-  removeLocation: bindActionCreators(removeLocation, dispatch),
-  createPublishProject: bindActionCreators(createPublishProject, dispatch)
-})
 
 const LocationModal = (props: Props): any => {
-  const {
-    open,
-    handleClose,
-    location,
-    editing,
-    createLocation,
-    patchLocation,
-    removeLocation,
-    adminSceneState,
-    adminLocationState,
-    createPublishProject
-  } = props
+  const { open, handleClose, location, editing } = props
 
   const [name, setName] = useState('')
   const [sceneId, setSceneId] = useState('')
@@ -80,9 +42,9 @@ const LocationModal = (props: Props): any => {
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
   const [scene, setScene] = useState(null)
   const [locationType, setLocationType] = useState('private')
-  const adminScenes = adminSceneState.get('scenes').get('scenes')
-  const locationTypes = adminLocationState.get('locationTypes').get('locationTypes')
-
+  const adminScenes = useSceneState().scenes.scenes
+  const locationTypes = useLocationState().locationTypes.locationTypes
+  const dispatch = useDispatch()
   const [state, setState] = React.useState({
     feature: false,
     lobby: false
@@ -114,9 +76,9 @@ const LocationModal = (props: Props): any => {
     }
 
     if (editing === true) {
-      patchLocation(location.id, submission)
+      LocationService.patchLocation(location.id, submission)
     } else {
-      createPublishProject(submission)
+      ScenesService.createPublishProject(submission)
       //   createLocation(submission)
     }
 
@@ -124,7 +86,7 @@ const LocationModal = (props: Props): any => {
   }
 
   const deleteLocation = () => {
-    removeLocation(location.id)
+    LocationService.removeLocation(location.id)
     handleClose()
   }
 
@@ -152,10 +114,10 @@ const LocationModal = (props: Props): any => {
 
   useEffect(() => {
     if (currentScene) {
-      const temp = adminScenes.find((el) => el.sid === (currentScene as any).projectId)
-      console.log('====================================')
-      console.log(temp)
-      console.log('====================================')
+      const temp = adminScenes.value.find((el) => el.sid === (currentScene as any).projectId)
+      //console.log('====================================')
+      //console.log(temp)
+      //console.log('====================================')
       setScene(temp)
     }
   }, [adminScenes, currentScene])
@@ -245,7 +207,7 @@ const LocationModal = (props: Props): any => {
                   value={sceneId}
                   onChange={(e) => setSceneId(e.target.value as string)}
                 >
-                  {adminScenes.map((scene) => (
+                  {adminScenes.value.map((scene) => (
                     <MenuItem key={scene.sid} value={scene.sid}>{`${scene.name} (${scene.sid})`}</MenuItem>
                   ))}
                 </Select>
@@ -260,7 +222,7 @@ const LocationModal = (props: Props): any => {
                 value={locationType}
                 onChange={(e) => setLocationType(e.target.value as string)}
               >
-                {locationTypes.map((type) => (
+                {locationTypes.value.map((type) => (
                   <MenuItem key={type.type} value={type.type}>
                     {type.type}
                   </MenuItem>
@@ -349,4 +311,4 @@ const LocationModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(LocationModal)
+export default LocationModal

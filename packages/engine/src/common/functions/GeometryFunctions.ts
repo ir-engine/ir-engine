@@ -1,4 +1,4 @@
-import { BufferGeometry } from 'three'
+import { Box3, BufferGeometry } from 'three'
 /**
  * @param target if the result is applied to this geometry's scale it would be the same size as `source`
  */
@@ -10,8 +10,8 @@ export function getRelativeSizesOfGeometries(
   target.computeBoundingBox()
   source.computeBoundingBox()
 
-  const targetBBox = target.boundingBox
-  const sourceBBox = source.boundingBox
+  const targetBBox = target.boundingBox as Box3
+  const sourceBBox = source.boundingBox as Box3
 
   return (
     (sourceBBox.max[dimension] - sourceBBox.min[dimension]) / (targetBBox.max[dimension] - targetBBox.min[dimension])

@@ -4,25 +4,23 @@ import { useCreatorStyle, useCreatorStyles } from './styles'
 import { Typography, Paper, Button } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { DialogActions } from '@material-ui/core'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { validateCreatorForm } from './validation'
-import { updateCreator } from '../../../reducers/creator/service'
+import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {
   adminCreator: any
   closeEditModal: any
-  updateCreator?: typeof updateCreator
 }
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateCreator: bindActionCreators(updateCreator, dispatch)
-})
 
 const EditCreator = (props: Props) => {
   const classesx = useCreatorStyle()
   const classes = useCreatorStyles()
-  const { adminCreator, closeEditModal, updateCreator } = props
+  const { adminCreator, closeEditModal } = props
   const id = adminCreator.id
+  const dispatch = useDispatch()
+
   const [state, setState] = React.useState({
     name: adminCreator.name,
     username: adminCreator.username,
@@ -92,7 +90,7 @@ const EditCreator = (props: Props) => {
 
     setState({ ...state, formErrors: temp })
     if (validateCreatorForm(state, state.formErrors)) {
-      updateCreator({ id, name, username, email, twitter, bio })
+      CreatorService.updateCreator({ id, name, username, email, twitter, bio })
       setState({
         ...state,
         name: '',
@@ -213,4 +211,4 @@ const EditCreator = (props: Props) => {
   )
 }
 
-export default connect(null, mapDispatchToProps)(EditCreator)
+export default EditCreator

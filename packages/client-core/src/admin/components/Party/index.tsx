@@ -6,6 +6,7 @@ import Search from './SearchParty'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 import PartyTable from './PartyTable'
 import CreateParty from './CreateParty'
+import { usePartyStyles } from './style'
 
 const useStyles = makeStyles((theme: Theme) => ({
   marginBottom: {
@@ -22,6 +23,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const Party = () => {
   const classes = useStyles()
+  const classx = usePartyStyles()
   const [partyModelOpen, setPartyModelOpen] = React.useState(false)
 
   const openModalCreate = () => {
@@ -39,7 +41,12 @@ const Party = () => {
           <Search />
         </Grid>
         <Grid item xs={3}>
-          <Button className={classes.createBtn} type="submit" variant="contained">
+          <Button
+            className={`${classx.typoFont} ${classes.createBtn}`}
+            type="submit"
+            variant="contained"
+            onClick={() => openModalCreate()}
+          >
             Create New Party
           </Button>
         </Grid>

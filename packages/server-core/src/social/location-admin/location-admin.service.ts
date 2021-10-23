@@ -1,5 +1,4 @@
 // Initializes the `location-admin` service on path `/location-admin`
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { LocationAdmin } from './location-admin.class'
 import createModel from './location-admin.model'
@@ -9,7 +8,7 @@ import locationAdminDocs from './location-admin.docs'
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'location-admin': LocationAdmin & ServiceAddons<any>
+    'location-admin': LocationAdmin
   }
 }
 
@@ -26,7 +25,7 @@ export default function (app: Application): void {
    */
   const event = new LocationAdmin(options, app)
   event.docs = locationAdminDocs
-  app.use('/location-admin', event)
+  app.use('location-admin', event)
 
   /**
    * Get our initialized service so that we can register hooks
@@ -35,5 +34,5 @@ export default function (app: Application): void {
    */
   const service = app.service('location-admin')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

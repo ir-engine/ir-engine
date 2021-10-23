@@ -1,4 +1,3 @@
-import { ServiceAddons, HookOptions } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { CollectionType } from './collection-type.class'
 import createModel from './collection-type.model'
@@ -7,11 +6,14 @@ import collectionTypeDocs from './collection-type.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'collection-type': CollectionType & ServiceAddons<any>
+    'collection-type': CollectionType
+  }
+  interface Models {
+    collection_type: ReturnType<typeof createModel>
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -25,9 +27,9 @@ export default (app: Application): any => {
    */
   const event = new CollectionType(options, app)
   event.docs = collectionTypeDocs
-  app.use('/collection-type', event)
+  app.use('collection-type', event)
 
   const service = app.service('collection-type')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

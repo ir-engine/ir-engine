@@ -2,8 +2,8 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -27,8 +27,8 @@ import { Edit } from '@material-ui/icons'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
 import FeedForm from '@xrengine/social/src/components/FeedForm'
-import { updateFeedAsAdmin } from '@xrengine/social/src/reducers/feed/service'
-import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/reducers/admin/reducers'
+import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/state/AdminState'
 import { EnhancedTableHead } from '@xrengine/client-core/src/admin/components/AdminHelpers'
 import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 
@@ -42,15 +42,7 @@ interface Props {
   fetchAdminInstances?: any
   removeUser?: any
   list?: any
-  updateFeedAsAdmin?: typeof updateFeedAsAdmin
 }
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch)
-})
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -77,8 +69,8 @@ const Transition = React.forwardRef(
 
 const FeedConsole = (props: Props) => {
   const classes = useStyles()
-  const { list, updateFeedAsAdmin } = props
-
+  const { list } = props
+  const dispatch = useDispatch()
   const headCells = [
     { id: 'featuredByAdmin', numeric: false, disablePadding: false, label: 'Featured by Admin' },
     { id: 'preview', numeric: false, disablePadding: false, label: 'Preview' },
@@ -147,7 +139,7 @@ const FeedConsole = (props: Props) => {
   }
 
   const handleUpdateFeed = (feed) => {
-    updateFeedAsAdmin(feed.id, feed)
+    FeedService.updateFeedAsAdmin(feed.id, feed)
   }
 
   return (
@@ -280,4 +272,4 @@ const FeedConsole = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedConsole)
+export default FeedConsole

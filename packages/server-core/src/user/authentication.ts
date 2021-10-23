@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { AuthenticationService } from '@feathersjs/authentication'
 import { expressOauth } from '@feathersjs/authentication-oauth'
 import { Application } from '../../declarations'
@@ -12,7 +11,7 @@ import TwitterStrategy from './strategies/twitter'
 
 declare module '../../declarations' {
   interface ServiceTypes {
-    authentication: AuthenticationService & ServiceAddons<any>
+    authentication: AuthenticationService
   }
 }
 
@@ -26,7 +25,7 @@ export default (app: Application): void => {
   authentication.register('linkedin', new LinkedInStrategy(app))
   authentication.register('twitter', new TwitterStrategy(app))
 
-  app.use('/authentication', authentication)
+  app.use('authentication', authentication)
 
   app.configure(expressOauth())
 }

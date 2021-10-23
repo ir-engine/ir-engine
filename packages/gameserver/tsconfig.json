@@ -12,6 +12,7 @@
     "noEmit": false,
     "module": "CommonJS",
     "strict": false,
+    "strictNullChecks": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,

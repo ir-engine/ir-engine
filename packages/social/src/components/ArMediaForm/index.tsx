@@ -2,8 +2,8 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
 import { useTranslation } from 'react-i18next'
 
 import Button from '@material-ui/core/Button'
@@ -13,26 +13,15 @@ import BackupIcon from '@material-ui/icons/Backup'
 
 import styles from './ArMediaForm.module.scss'
 
-import { selectCreatorsState } from '../../reducers/creator/selector'
-import { createArMedia } from '../../reducers/arMedia/service'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    creatorsState: selectCreatorsState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  createArMedia: bindActionCreators(createArMedia, dispatch)
-})
 interface Props {
   projects?: any[]
   view?: any
-  creatorsState?: any
-  createArMedia?: typeof createArMedia
 }
 
-const ArMediaForm = ({ projects, createArMedia, view }: Props) => {
+const ArMediaForm = ({ projects, view }: Props) => {
   const [type, setType] = useState(null)
   const [title, setTitle] = useState('')
   const volumetricManifest = React.useRef<HTMLInputElement>()
@@ -43,13 +32,13 @@ const ArMediaForm = ({ projects, createArMedia, view }: Props) => {
   const [audio, setAudio] = useState(null)
   const [dracosis, setDracosis] = useState(null)
   const [preview, setPreview] = useState(null)
-
+  const dispatch = useDispatch()
   // const [collectionId, setCollectionId] = useState(null);
   const { t } = useTranslation()
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
-    createArMedia({ type, title }, { manifest, audio, dracosis, preview })
+    ArMediaService.createArMedia({ type, title }, { manifest, audio, dracosis, preview })
   }
 
   const handlePickManifest = async (file) => {
@@ -196,4 +185,4 @@ const ArMediaForm = ({ projects, createArMedia, view }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ArMediaForm)
+export default ArMediaForm

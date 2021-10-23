@@ -1,6 +1,5 @@
 import '@feathersjs/transport-commons'
-import { awaitEngineLoaded, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import config from '@xrengine/server-core/src/appconfig'
 import { Application } from '@xrengine/server-core/declarations'
@@ -8,24 +7,113 @@ import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip
 import logger from '@xrengine/server-core/src/logger'
 import { decode } from 'jsonwebtoken'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import path from 'path'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
+import { getPacksFromSceneData } from '@xrengine/projects/loader'
+import { initializeServerEngine } from './initializeServerEngine'
+
+const loadScene = async (app: Application, sceneId: string) => {
+  let service, serviceId
+  const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
+  const sceneResult = await app.service('scene').get(sceneId)
+  // console.log("Scene result is: ", sceneResult)
+  const sceneUrl = sceneResult.scene_url
+  const regexResult = sceneUrl.match(sceneRegex)
+  if (regexResult) {
+    service = regexResult[1]
+    serviceId = regexResult[2]
+  }
+  const sceneData = (await app.service(service).get(serviceId)) as SceneData
+  const packs = await getPacksFromSceneData(sceneData, false)
+
+  await initializeServerEngine(packs.systems, app.isChannelInstance)
+  console.log('Initialized new gameserver instance')
+
+  let entitiesLeft = -1
+  let lastEntitiesLeft = -1
+  const loadingInterval = setInterval(() => {
+    if (entitiesLeft >= 0 && lastEntitiesLeft !== entitiesLeft) {
+      lastEntitiesLeft = entitiesLeft
+      console.log(entitiesLeft + ' entites left...')
+    }
+  }, 1000)
+
+  console.log('Loading scene...')
+
+  await WorldScene.load(sceneData, (left) => {
+    entitiesLeft = left
+  })
+
+  console.log('Scene loaded!')
+  clearInterval(loadingInterval)
+  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
+
+  const portals = getAllComponentsOfType(PortalComponent)
+  await Promise.all(
+    portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
+      return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
+        if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
+      })
+    })
+  )
+}
+
+const createNewInstance = async (app: Application, newInstance, locationId, channelId, agonesSDK) => {
+  console.log('newInstance:', newInstance)
+
+  if (channelId != null) {
+    console.log('channelId: ' + channelId)
+    newInstance.channelId = channelId
+    //While there's no scene, this will still signal that the engine is ready
+    //to handle events, particularly for NetworkFunctions:handleConnectToWorld
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
+  } else {
+    console.log('locationId: ' + locationId)
+    // on local dev, if a scene is already loaded and it's no the scene we want, reset the engine
+    if (config.kubernetes.enabled === false && app.instance && app.instance.locationId !== locationId) {
+      Engine.engineTimer.stop()
+      Engine.sceneLoaded = false
+      WorldScene.isLoading = false
+      await processLocationChange()
+      Engine.engineTimer.start()
+    }
+    newInstance.locationId = locationId
+  }
+
+  console.log('Creating new instance:', newInstance)
+  const instanceResult = await app.service('instance').create(newInstance)
+  await agonesSDK.allocate()
+  app.instance = instanceResult
+
+  if (app.gsSubdomainNumber != null) {
+    const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
+      query: {
+        gs_number: app.gsSubdomainNumber
+      }
+    })
+
+    if (gsSubProvision.total > 0) {
+      const provision = gsSubProvision.data[0]
+      await app.service('gameserver-subdomain-provision').patch(provision.id, {
+        instanceId: instanceResult.id
+      })
+    }
+  }
+}
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
     return
   }
-
   app.on('connection', async (connection) => {
-    await awaitEngineLoaded()
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
-      process.env.NODE_ENV === 'development' ||
+      process.env.APP_ENV === 'development' ||
       config.gameserver.mode === 'local'
     ) {
       try {
@@ -46,144 +134,60 @@ export default (app: Application): void => {
             const user = await app.service('user').get(userId)
             let locationId = (connection as any).socketQuery.locationId
             let channelId = (connection as any).socketQuery.channelId
-            const sceneId = (connection as any).socketQuery.sceneId
+            const sceneId: string = (connection as any).socketQuery.sceneId
 
             if (sceneId === '') return console.warn("Scene ID is empty, can't init")
 
             if (locationId === '') locationId = undefined
             if (channelId === '') channelId = undefined
-            const agonesSDK = (app as any).agonesSDK
+            const agonesSDK = app.agonesSDK
             const gsResult = await agonesSDK.getGameServer()
             const { status } = gsResult
 
-            ;(app as any).isChannelInstance = channelId != null
+            app.isChannelInstance = channelId != null
 
             console.log('Creating new GS or updating current one')
             console.log('agones state is', status.state)
-            console.log('app instance is', (app as any).instance)
+            console.log('app instance is', app.instance)
 
             const isReady = status.state === 'Ready'
             const isNeedingNewServer =
               config.kubernetes.enabled === false &&
               (status.state === 'Shutdown' ||
-                (app as any).instance == null ||
-                (app as any).instance.locationId !== locationId ||
-                (app as any).instance.channelId !== channelId)
+                app.instance == null ||
+                app.instance.locationId !== locationId ||
+                app.instance.channelId !== channelId)
 
             if (isReady || isNeedingNewServer) {
-              logger.info('Starting new instance')
-              const localIp = await getLocalServerIp((app as any).isChannelInstance)
+              console.info('Starting new instance')
+              console.log('Initialized new gameserver instance')
+
+              const localIp = await getLocalServerIp(app.isChannelInstance)
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
               const newInstance = {
                 currentUsers: 1,
                 sceneId: sceneId,
                 ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
               } as any
-              console.log('newInstance:', newInstance)
-              console.log('channelId: ' + channelId)
-              console.log('locationId: ' + locationId)
-              // on local dev, if a scene is already loaded and it's no the scene we want, reset the engine
-              if (
-                config.kubernetes.enabled === false &&
-                (app as any).instance &&
-                (app as any).instance.locationId !== locationId
-              ) {
-                Engine.engineTimer.stop()
-                Engine.sceneLoaded = false
-                WorldScene.isLoading = false
-                const currentPath = (process.platform === 'win32' ? 'file:///' : '') + path.dirname(__filename)
-                await processLocationChange()
-                Engine.engineTimer.start()
-              }
-              if (channelId != null) {
-                newInstance.channelId = channelId
-                //While there's no scene, this will still signal that the engine is ready
-                //to handle events, particularly for NetworkFunctions:handleConnectToWorld
-                EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
-              } else if (locationId != null) {
-                newInstance.locationId = locationId
-              }
-              console.log('Creating new instance:', newInstance)
-              const instanceResult = await app.service('instance').create(newInstance)
-              await agonesSDK.allocate()
-              ;(app as any).instance = instanceResult
-
-              if ((app as any).gsSubdomainNumber != null) {
-                const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
-                  query: {
-                    gs_number: (app as any).gsSubdomainNumber
-                  }
-                })
-
-                if (gsSubProvision.total > 0) {
-                  const provision = gsSubProvision.data[0]
-                  await app.service('gameserver-subdomain-provision').patch(provision.id, {
-                    instanceId: instanceResult.id
-                  })
-                }
-              }
-              console.log('Engine.sceneLoaded, WorldScene.isLoading', Engine.sceneLoaded, WorldScene.isLoading)
-              // Only load the scene if this gameserver hasn't already
+              await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
               if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
-                let service, serviceId
-                const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
-                const projectResult = await app.service('project').get(sceneId)
-                // console.log("Project result is: ", projectResult);
-                const projectUrl = projectResult.project_url
-                const regexResult = projectUrl.match(projectRegex)
-                if (regexResult) {
-                  service = regexResult[1]
-                  serviceId = regexResult[2]
-                }
-                const result = await app.service(service).get(serviceId)
-
-                let entitiesLeft = -1
-                let lastEntitiesLeft = -1
-                const loadingInterval = setInterval(() => {
-                  if (entitiesLeft >= 0 && lastEntitiesLeft !== entitiesLeft) {
-                    lastEntitiesLeft = entitiesLeft
-                    console.log(entitiesLeft + ' entites left...')
-                  }
-                }, 1000)
-
-                console.log('Loading scene...')
-
-                await WorldScene.load(result, (left) => {
-                  entitiesLeft = left
-                })
-
-                console.log('Scene loaded!')
-                clearInterval(loadingInterval)
-                EngineEvents.instance.dispatchEvent({
-                  type: EngineEvents.EVENTS.ENABLE_SCENE,
-                  renderer: true,
-                  physics: true
-                })
-
-                const portals = getAllComponentsOfType(PortalComponent)
-                await Promise.all(
-                  portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
-                    return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
-                      if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
-                    })
-                  })
-                )
+                await loadScene(app, sceneId)
               }
             } else {
               try {
-                const instance = await app.service('instance').get((app as any).instance.id)
+                const instance = await app.service('instance').get(app.instance.id)
                 await agonesSDK.allocate()
-                await app.service('instance').patch((app as any).instance.id, {
+                await app.service('instance').patch(app.instance.id, {
                   currentUsers: (instance.currentUsers as number) + 1
                 })
               } catch (err) {
                 console.log('Could not update instance, likely because it is a local one that does not exist')
               }
             }
-            // console.log(`Patching user ${user.id} instanceId to ${(app as any).instance.id}`);
-            const instanceIdKey = (app as any).isChannelInstance === true ? 'channelInstanceId' : 'instanceId'
+            // console.log(`Patching user ${user.id} instanceId to ${app.instance.id}`);
+            const instanceIdKey = app.isChannelInstance === true ? 'channelInstanceId' : 'instanceId'
             await app.service('user').patch(userId, {
-              [instanceIdKey]: (app as any).instance.id
+              [instanceIdKey]: app.instance.id
             })
             await app.service('instance-attendance').patch(
               null,
@@ -192,28 +196,28 @@ export default (app: Application): void => {
               },
               {
                 where: {
-                  isChannel: (app as any).isChannelInstance,
+                  isChannel: app.isChannelInstance,
                   ended: false,
                   userId: userId
                 }
               }
             )
             const newInstanceAttendance = {
-              instanceId: (app as any).instance.id,
-              isChannel: (app as any).isChannelInstance,
+              instanceId: app.instance.id,
+              isChannel: app.isChannelInstance,
               userId: userId
             }
-            if (!(app as any).isChannelInstance) {
+            if (!app.isChannelInstance) {
               const location = await app.service('location').get(locationId)
               ;(newInstanceAttendance as any).sceneId = location.sceneId
             }
             await app.service('instance-attendance').create(newInstanceAttendance)
-            ;(connection as any).instanceId = (app as any).instance.id
-            app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection)
-            if ((app as any).isChannelInstance !== true)
+            ;(connection as any).instanceId = app.instance.id
+            app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
+            if (app.isChannelInstance !== true)
               await app.service('message').create(
                 {
-                  targetObjectId: (app as any).instance.id,
+                  targetObjectId: app.instance.id,
                   targetObjectType: 'instance',
                   text: `[jl_system]${user.name} joined the layer`,
                   isNotification: true
@@ -233,15 +237,15 @@ export default (app: Application): void => {
               const party = await app.service('party').get(user.partyId)
               const partyUsers = (partyUserResult as any).data
               const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1)
-              if (partyOwner?.userId === userId && party.instanceId !== (app as any).instance.id) {
+              if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
                 await app.service('party').patch(user.partyId, {
-                  instanceId: (app as any).instance.id
+                  instanceId: app.instance.id
                 })
                 const nonOwners = partyUsers.filter(
                   (partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true
                 )
                 const emittedIp = !config.kubernetes.enabled
-                  ? await getLocalServerIp((app as any).isChannelInstance)
+                  ? await getLocalServerIp(app.isChannelInstance)
                   : {
                       ipAddress: status.address,
                       port: status.portsList[0].port
@@ -271,7 +275,7 @@ export default (app: Application): void => {
   app.on('disconnect', async (connection) => {
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
-      process.env.NODE_ENV === 'development' ||
+      process.env.APP_ENV === 'development' ||
       config.gameserver.mode === 'local'
     ) {
       try {
@@ -285,7 +289,7 @@ export default (app: Application): void => {
             )
           } catch (err) {
             if (err.code === 401 && err.data.name === 'TokenExpiredError') {
-              const jwtDecoded = decode(token)
+              const jwtDecoded = decode(token)!
               const idProvider = await app.service('identityProvider').get(jwtDecoded.sub as string)
               authResult = {
                 'identity-provider': idProvider
@@ -296,10 +300,10 @@ export default (app: Application): void => {
           if (identityProvider != null && identityProvider.id != null) {
             const userId = identityProvider.userId
             const user = await app.service('user').get(userId)
-            if ((app as any).isChannelInstance !== true)
+            if (app.isChannelInstance !== true)
               await app.service('message').create(
                 {
-                  targetObjectId: (app as any).instance.id,
+                  targetObjectId: app.instance.id,
                   targetObjectType: 'instance',
                   text: `[jl_system]${user.name} left the layer`,
                   isNotification: true
@@ -310,11 +314,10 @@ export default (app: Application): void => {
                   }
                 }
               )
-            const instanceId = !config.kubernetes.enabled ? (connection as any).instanceId : (app as any).instance?.id
+            const instanceId = !config.kubernetes.enabled ? (connection as any).instanceId : app.instance?.id
             let instance
             try {
-              instance =
-                (app as any).instance && instanceId != null ? await app.service('instance').get(instanceId) : {}
+              instance = app.instance && instanceId != null ? await app.service('instance').get(instanceId) : {}
             } catch (err) {
               console.log('Could not get instance, likely because it is a local one that no longer exists')
             }
@@ -322,20 +325,21 @@ export default (app: Application): void => {
             console.log('user instanceId: ' + user.instanceId)
 
             if (instanceId != null && instance != null) {
-              const activeUsers = Object.keys(Network.instance.clients)
+              const activeUsers = Engine.defaultWorld.clients
+              const activeUsersCount = activeUsers.size
               try {
                 await app.service('instance').patch(instanceId, {
-                  currentUsers: activeUsers.length
+                  currentUsers: activeUsersCount
                 })
               } catch (err) {
                 console.log('Failed to patch instance user count, likely because it was destroyed')
               }
 
               const user = await app.service('user').get(userId)
-              const instanceIdKey = (app as any).isChannelInstance === true ? 'channelInstanceId' : 'instanceId'
+              const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
               if (
-                (Network.instance.clients[userId] == null && config.kubernetes.enabled) ||
-                process.env.NODE_ENV === 'development'
+                (Engine.defaultWorld.clients.has(userId) && config.kubernetes.enabled) ||
+                process.env.APP_ENV === 'development'
               )
                 await app
                   .service('user')
@@ -363,7 +367,7 @@ export default (app: Application): void => {
                 },
                 {
                   query: {
-                    isChannel: (app as any).isChannelInstance,
+                    isChannel: app.isChannelInstance,
                     instanceId: instanceId,
                     userId: user.id
                   }
@@ -372,7 +376,7 @@ export default (app: Application): void => {
 
               app.channel(`instanceIds/${instanceId as string}`).leave(connection)
 
-              if (activeUsers.length < 1) {
+              if (activeUsersCount < 1) {
                 console.log('Deleting instance ' + instanceId)
                 try {
                   await app.service('instance').patch(instanceId, {
@@ -381,10 +385,10 @@ export default (app: Application): void => {
                 } catch (err) {
                   console.log(err)
                 }
-                if ((app as any).gsSubdomainNumber != null) {
+                if (app.gsSubdomainNumber != null) {
                   const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
                     query: {
-                      gs_number: (app as any).gsSubdomainNumber
+                      gs_number: app.gsSubdomainNumber
                     }
                   })
                   await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
@@ -392,14 +396,14 @@ export default (app: Application): void => {
                   })
                 }
                 if (config.kubernetes.enabled) {
-                  delete (app as any).instance
+                  delete app.instance
                 }
-                const gsName = (app as any).gsName
+                const gsName = app.gsName
                 if (gsName !== undefined) {
                   logger.info("App's gameserver name:")
                   logger.info(gsName)
                 }
-                await (app as any).agonesSDK.shutdown()
+                await app.agonesSDK.shutdown()
               }
             }
           }

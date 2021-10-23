@@ -1,4 +1,5 @@
-import { ExtrudeGeometry, Font, FontLoader, Vector3 } from 'three'
+import { ExtrudeGeometry, Vector3 } from 'three'
+import { Font, FontLoader } from '../../assets/font/FontLoader'
 import { Engine } from '../../ecs/classes/Engine'
 
 export class FontManager {
@@ -12,7 +13,7 @@ export class FontManager {
     const invRes = 1 / fontResolution
     geometry.scale(scale.x * invRes, scale.y * invRes, scale.z * invRes)
     geometry.computeBoundingBox()
-    const xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x)
+    const xMid = -0.5 * (geometry.boundingBox?.max.x! - geometry.boundingBox?.min.x!)
     geometry.translate(xMid, 0, 1)
     return geometry
   }

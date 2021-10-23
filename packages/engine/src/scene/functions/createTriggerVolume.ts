@@ -28,23 +28,15 @@ export const createTriggerVolume = async function (entity, args): Promise<Mesh> 
     addObject3DComponent(entity, box, {})
   }
 
-  const body = createCollider(
-    entity,
-    {
-      userData: {
-        type: 'box',
-        collisionLayer: CollisionGroups.Trigger,
-        collisionMask: CollisionGroups.Default
-      }
-    },
-    new Vector3().copy(boxMesh.position),
-    new Quaternion().copy(boxMesh.quaternion),
-    new Vector3().set(boxMesh.scale.x, boxMesh.scale.y, boxMesh.scale.z)
-  )
+  boxMesh.userData = {
+    type: 'box',
+    collisionLayer: CollisionGroups.Trigger,
+    collisionMask: CollisionGroups.Default
+  }
 
-  addComponent(entity, ColliderComponent, { body })
+  createCollider(entity, boxMesh)
 
-  const triggerVolume = addComponent(entity, TriggerVolumeComponent, {
+  addComponent(entity, TriggerVolumeComponent, {
     args: args,
     target: args.target,
     active: false

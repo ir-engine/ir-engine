@@ -59,7 +59,7 @@ export default function GroupsConsole() {
   function EnchancedTableHead(props: EnhancedTableProps) {
     const { order, orderBy, onRequestSort } = props
     const createSortHandler = (property) => (event: React.MouseEvent<unknown>) => {
-      onRequestSort(event, property)
+      onRequestSort && onRequestSort(event, property)
     }
 
     return (

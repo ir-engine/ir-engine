@@ -1,6 +1,6 @@
 export function wait(ms: number): void {
   const date = Date.now()
-  let currentDate = null
+  let currentDate: any = null!
   do {
     currentDate = Date.now()
   } while (currentDate - date < ms)
@@ -14,7 +14,7 @@ export function isNumber(value: string | number): boolean {
 }
 
 export function combine(first, second, third) {
-  const res = []
+  const res: any[] = []
 
   for (let i = 0; i < first.length; i++) res.push(first[i])
   for (let i = 0; i < second.length; i++) res.push(second[i])

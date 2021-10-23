@@ -40,7 +40,6 @@ export default class Video extends AudioSource {
     this._mesh.name = 'VideoMesh'
     this.add(this._mesh)
     this._projection = 'flat'
-    this.hls = null
     this.el.addEventListener('play', () => {
       console.log('video is now playing')
     })
@@ -102,9 +101,6 @@ export default class Video extends AudioSource {
           cleanup()
           console.log(`Error loading video "${this.el.src}"`, error)
           resolve()
-          // reject(
-          //   new RethrownError()
-          // );
         }
         const cleanup = () => {
           this.el.removeEventListener('loadeddata', onLoadedMetadata)

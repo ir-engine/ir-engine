@@ -2,36 +2,27 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-// import { selectFeedsState } from '../../reducers/feed/selector';
-// import { getFeeds } from '../../reducers/feed/service';
-import { getTheFeedsNew } from '@xrengine/social/src/reducers/thefeeds/service'
-import { selectTheFeedsState } from '@xrengine/social/src/reducers/thefeeds/selector'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { TheFeedsService } from '@xrengine/client-core/src/social/state/TheFeedsService'
+import { useTheFeedsState } from '@xrengine/client-core/src/social/state/TheFeedsState'
 
 import TheFeedsCard from '../TheFeedsCard'
 
 // @ts-ignore
 import styles from './TheFeed.module.scss'
 
-const mapStateToProps = (state: any): any => {
-  return {
-    theFeedsState: selectTheFeedsState(state)
-  }
-}
+interface Props {}
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getTheFeedsNew: bindActionCreators(getTheFeedsNew, dispatch)
-})
-interface Props {
-  theFeedsState?: any
-  getTheFeedsNew?: any
-}
-
-const TheFeed = ({ theFeedsState, getTheFeedsNew }: Props) => {
+const TheFeed = (props: Props) => {
+  const dispatch = useDispatch()
   let feedsList = null
-  useEffect(() => getTheFeedsNew(), [])
-  const TheFeedsList = theFeedsState?.get('thefeeds') ? theFeedsState?.get('thefeeds') : []
+  useEffect(() => {
+    TheFeedsService.getTheFeedsNew()
+  }, [])
+  const theFeedsState = useTheFeedsState()
+
+  const TheFeedsList = theFeedsState?.thefeeds?.value || []
   //     useEffect(()=> console.log(TheFeedsList), [TheFeedsList]);
   return (
     <section className={styles.thefeedContainer}>
@@ -44,4 +35,4 @@ const TheFeed = ({ theFeedsState, getTheFeedsNew }: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(TheFeed)
+export default TheFeed

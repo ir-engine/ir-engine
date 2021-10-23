@@ -5,11 +5,9 @@ import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
-import { retrieveReceivedInvites } from '../../../social/reducers/invite/service'
+import { InviteService } from '../../../social/state/InviteService'
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles'
-import { selectInviteState } from '../../../social/reducers/invite/selector'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
+import { useDispatch } from '../../../store'
 import { Delete } from '@material-ui/icons'
 import IconButton from '@material-ui/core/IconButton'
 import FirstPageIcon from '@material-ui/icons/FirstPage'
@@ -18,23 +16,11 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import LastPageIcon from '@material-ui/icons/LastPage'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
-import { INVITE_PAGE_LIMIT } from '../../../social/reducers/invite/reducers'
+import { INVITE_PAGE_LIMIT, useInviteState } from '../../../social/state/InviteState'
 
 interface Props {
-  retrieveReceivedInvites?: any
-  inviteState?: any
   invites: any
 }
-
-const mapStateToProps = (state: any): any => {
-  return {
-    inviteState: selectInviteState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch)
-})
 
 const useStyles = makeStyles({
   table: {
@@ -115,16 +101,17 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 
 const ReceivedInvite = (props: Props) => {
   const classes = useStyles()
-  const { invites, retrieveReceivedInvites, inviteState } = props
+  const { invites } = props
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(INVITE_PAGE_LIMIT)
-
-  const receivedInviteCount = inviteState.get('receivedInvites').get('total')
+  const dispatch = useDispatch()
+  const inviteState = useInviteState()
+  const receivedInviteCount = inviteState.receivedInvites.total.value
   const rows = invites.map((el, index) => createData(el.id, el.user.name, el.passcode, el.inviteType))
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    retrieveReceivedInvites(incDec)
+    InviteService.retrieveReceivedInvites(incDec)
     setPage(newPage)
   }
 
@@ -191,4 +178,4 @@ const ReceivedInvite = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReceivedInvite)
+export default ReceivedInvite

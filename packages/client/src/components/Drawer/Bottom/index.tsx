@@ -7,80 +7,37 @@ import ListItemText from '@material-ui/core/ListItemText'
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
 import TextField from '@material-ui/core/TextField'
 import { Clear, Delete, Edit, Save, Send } from '@material-ui/icons'
-import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector'
-import {
-  createMessage,
-  getChannelMessages,
-  getChannels,
-  patchMessage,
-  removeMessage,
-  updateChatTarget,
-  updateMessageScrollInit
-} from '@xrengine/client-core/src/social/reducers/chat/service'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { Message } from '@xrengine/common/src/interfaces/Message'
-import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import styles from './Bottom.module.scss'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    chatState: selectChatState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getChannels: bindActionCreators(getChannels, dispatch),
-  getChannelMessages: bindActionCreators(getChannelMessages, dispatch),
-  createMessage: bindActionCreators(createMessage, dispatch),
-  removeMessage: bindActionCreators(removeMessage, dispatch),
-  updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
-  patchMessage: bindActionCreators(patchMessage, dispatch),
-  updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
-})
+import { ChatAction } from '@xrengine/client-core/src/social/state/ChatActions'
 
 interface Props {
   bottomDrawerOpen: boolean
   setBottomDrawerOpen: any
   setLeftDrawerOpen: any
-  chatState?: any
-  getChannels?: any
-  getChannelMessages?: any
-  createMessage?: any
-  removeMessage?: any
-  updateChatTarget?: any
-  patchMessage?: any
-  updateMessageScrollInit?: any
 }
 
 const BottomDrawer = (props: Props): any => {
-  const {
-    chatState,
-    getChannels,
-    getChannelMessages,
-    createMessage,
-    removeMessage,
-    bottomDrawerOpen,
-    setBottomDrawerOpen,
-    setLeftDrawerOpen,
-    updateChatTarget,
-    patchMessage,
-    updateMessageScrollInit
-  } = props
+  const { bottomDrawerOpen, setBottomDrawerOpen, setLeftDrawerOpen } = props
 
+  const dispatch = useDispatch()
   const messageRef = React.useRef()
   const messageEl = messageRef.current
   const user = useAuthState().user
-  const channelState = chatState.get('channels')
-  const channels = channelState.get('channels')
-  const targetObject = chatState.get('targetObject')
-  const targetObjectType = chatState.get('targetObjectType')
-  const targetChannelId = chatState.get('targetChannelId')
-  const messageScrollInit = chatState.get('messageScrollInit')
+  const chatState = useChatState()
+  const channelState = chatState.channels
+  const channels = channelState.channels
+  const targetObject = chatState.targetObject
+  const targetObjectType = chatState.targetObjectType
+  const targetChannelId = chatState.targetChannelId.value
+  const messageScrollInit = chatState.messageScrollInit
   const [messageScrollUpdate, setMessageScrollUpdate] = useState(false)
   const [topMessage, setTopMessage] = useState({})
   const [messageCrudSelected, setMessageCrudSelected] = useState('')
@@ -88,12 +45,12 @@ const BottomDrawer = (props: Props): any => {
   const [messageUpdatePending, setMessageUpdatePending] = useState('')
   const [editingMessage, setEditingMessage] = useState('')
   const [composingMessage, setComposingMessage] = useState('')
-  const activeChannel = channels.get(targetChannelId)
+  const activeChannel = channels.find((c) => c.id.value === targetChannelId)
 
   useEffect(() => {
-    if (messageScrollInit === true && messageEl != null && (messageEl as any).scrollTop != null) {
+    if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
       ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
-      updateMessageScrollInit(false)
+      ChatService.updateMessageScrollInit(false)
       setMessageScrollUpdate(false)
     }
     if (messageScrollUpdate === true) {
@@ -102,18 +59,18 @@ const BottomDrawer = (props: Props): any => {
         ;(messageEl as any).scrollTop = (topMessage as any).offsetTop
       }
     }
-  }, [chatState])
+  }, [chatState.messageScrollInit])
 
   useEffect(() => {
-    if (channelState.get('updateNeeded') === true) {
-      getChannels()
+    if (channelState.updateNeeded.value === true) {
+      ChatService.getChannels()
     }
-  }, [channelState])
+  }, [channelState.updateNeeded.value])
 
   useEffect(() => {
-    channels.forEach((channel) => {
-      if (chatState.get('updateMessageScroll') === true) {
-        chatState.set('updateMessageScroll', false)
+    Object.entries(channels.value).forEach(([key, channel]) => {
+      if (chatState.updateMessageScroll.value === true) {
+        dispatch(ChatAction.setUpdateMessageScroll(false))
         if (
           channel.id === targetChannelId &&
           messageEl != null &&
@@ -126,10 +83,10 @@ const BottomDrawer = (props: Props): any => {
         }
       }
       if (channel.updateNeeded === true) {
-        getChannelMessages(channel.id)
+        ChatService.getChannelMessages(channel.id)
       }
     })
-  }, [channels])
+  }, [channels.value])
 
   const openLeftDrawer = (e: any): void => {
     setBottomDrawerOpen(false)
@@ -148,9 +105,9 @@ const BottomDrawer = (props: Props): any => {
 
   const packageMessage = (event: any): void => {
     if (composingMessage.length > 0) {
-      createMessage({
-        targetObjectId: targetObject.id,
-        targetObjectType: targetObjectType,
+      ChatService.createMessage({
+        targetObjectId: targetObject.id.value,
+        targetObjectType: targetObjectType.value,
         text: composingMessage
       })
       setComposingMessage('')
@@ -158,7 +115,7 @@ const BottomDrawer = (props: Props): any => {
   }
 
   const setActiveChat = (channel): void => {
-    updateMessageScrollInit(true)
+    ChatService.updateMessageScrollInit(true)
     const channelType = channel.channelType
     const target =
       channelType === 'user'
@@ -172,7 +129,7 @@ const BottomDrawer = (props: Props): any => {
         : channelType === 'instance'
         ? channel.instance
         : channel.party
-    updateChatTarget(channelType, target, channel.id)
+    ChatService.updateChatTarget(channelType, target) //, channel.id))
     setMessageDeletePending('')
     setMessageUpdatePending('')
     setEditingMessage('')
@@ -189,8 +146,8 @@ const BottomDrawer = (props: Props): any => {
     if (
       e.target.scrollTop === 0 &&
       e.target.scrollHeight > e.target.clientHeight &&
-      messageScrollInit !== true &&
-      activeChannel.skip + activeChannel.limit < activeChannel.total
+      messageScrollInit.value !== true &&
+      channelState.skip.value + channelState.limit.value < channelState.total.value
     ) {
       setMessageScrollUpdate(true)
       setTopMessage((messageEl as any).firstElementChild)
@@ -199,14 +156,14 @@ const BottomDrawer = (props: Props): any => {
   }
 
   const nextChannelPage = (): void => {
-    if (channelState.get('skip') + channelState.get('limit') < channelState.get('total')) {
-      getChannels(channelState.get('skip') + channelState.get('limit'))
+    if (channelState.skip.value + channelState.limit.value < channelState.total.value) {
+      ChatService.getChannels(channelState.skip.value + channelState.limit.value)
     }
   }
 
   const nextMessagePage = (): void => {
-    if (activeChannel.skip + activeChannel.limit < activeChannel.total) {
-      getChannelMessages(targetChannelId, activeChannel.skip + activeChannel.limit)
+    if (channelState.skip.value + channelState.limit.value < channelState.total.value) {
+      ChatService.getChannelMessages(targetChannelId, channelState.skip.value + channelState.limit.value)
     } else {
       setMessageScrollUpdate(false)
     }
@@ -242,7 +199,7 @@ const BottomDrawer = (props: Props): any => {
   const confirmMessageDelete = (e: any, message: Message) => {
     e.preventDefault()
     setMessageDeletePending('')
-    removeMessage(message.id, message.channelId)
+    ChatService.removeMessage(message.id) //, message.channelId))
   }
 
   const cancelMessageUpdate = (e: any) => {
@@ -253,7 +210,7 @@ const BottomDrawer = (props: Props): any => {
 
   const confirmMessageUpdate = (e: any, message: Message) => {
     e.preventDefault()
-    patchMessage(message.id, editingMessage)
+    ChatService.patchMessage(message.id, editingMessage)
     setMessageUpdatePending('')
     setEditingMessage('')
   }
@@ -269,6 +226,8 @@ const BottomDrawer = (props: Props): any => {
     }
   }
 
+  const channelListSize = Object.keys(channels.value).length
+
   return (
     <div>
       <SwipeableDrawer
@@ -283,20 +242,20 @@ const BottomDrawer = (props: Props): any => {
         <div className={styles['bottom-container']}>
           <List onScroll={(e) => onChannelScroll(e)} className={styles['chat-container']}>
             {channels &&
-              channels.size > 0 &&
-              Array.from(channels)
+              channelListSize > 0 &&
+              [...channels.value]
                 .sort(
-                  ([channelId1, channel1], [channelId2, channel2]) =>
+                  (channel1, channel2) =>
                     new Date(channel2.updatedAt).getTime() - new Date(channel1.updatedAt).getTime()
                 )
-                .map(([channelId, channel], index) => {
+                .map((channel, index) => {
                   return (
                     <ListItem
-                      key={channelId}
+                      key={channel.id}
                       className={styles.selectable}
                       onClick={() => setActiveChat(channel)}
-                      selected={channelId === targetChannelId}
-                      divider={index < channels.size - 1}
+                      selected={channel.id === targetChannelId}
+                      divider={index < channelListSize - 1}
                     >
                       {channel.channelType === 'user' && (
                         <ListItemAvatar>
@@ -324,7 +283,7 @@ const BottomDrawer = (props: Props): any => {
                   )
                 })}
             {channels == null ||
-              (channels.size === 0 && (
+              (channelListSize === 0 && (
                 <ListItem key="no-chats" disabled>
                   <ListItemText primary="No active chats" />
                 </ListItem>
@@ -333,8 +292,8 @@ const BottomDrawer = (props: Props): any => {
           <div className={styles['list-container']}>
             <List ref={messageRef as any} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
               {activeChannel != null &&
-                activeChannel.messages &&
-                activeChannel.messages
+                activeChannel.Messages.value &&
+                [...activeChannel.Messages.value]
                   .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                   .map((message) => {
                     return (
@@ -433,19 +392,19 @@ const BottomDrawer = (props: Props): any => {
                       </ListItem>
                     )
                   })}
-              {targetChannelId.length === 0 && targetObject.id != null && (
+              {targetChannelId.length === 0 && targetObject.value.id != null && (
                 <div className={styles['first-message-placeholder']}>
                   <div>{targetChannelId}</div>
                   Start a chat with{' '}
-                  {targetObjectType === 'user' || targetObjectType === 'group'
-                    ? targetObject.name
-                    : targetObjectType === 'instance'
+                  {targetObjectType.value === 'user' || targetObjectType.value === 'group'
+                    ? targetObject.name.value
+                    : targetObjectType.value === 'instance'
                     ? 'your current layer'
                     : 'your current party'}
                 </div>
               )}
             </List>
-            {targetObject != null && targetObject.id != null && (
+            {targetObject != null && targetObject.value.id != null && (
               <div className={styles['flex-center']}>
                 <div className={styles['chat-box']}>
                   <TextField
@@ -469,7 +428,7 @@ const BottomDrawer = (props: Props): any => {
                 </div>
               </div>
             )}
-            {(targetObject == null || targetObject.id == null) && (
+            {(targetObject == null || targetObject.value.id == null) && (
               <div className={styles['no-chat']}>
                 <div>Start a chat with a friend or group from the left drawer</div>
                 <Button variant="contained" color="primary" onClick={openLeftDrawer}>
@@ -484,4 +443,4 @@ const BottomDrawer = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(BottomDrawer)
+export default BottomDrawer

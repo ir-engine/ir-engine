@@ -6,74 +6,58 @@ import Backdrop from '@material-ui/core/Backdrop'
 import classNames from 'classnames'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import TextField from '@material-ui/core/TextField'
-import { bindActionCreators, Dispatch } from 'redux'
-import { fetchAdminLocations } from '../../reducers/admin/location/service'
-import { connect } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { createAdminParty } from '../../reducers/admin/party/service'
-import { fetchAdminInstances } from '../../reducers/admin/instance/service'
+import { LocationService } from '../../state/LocationService'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/state/AuthState'
+import { PartyService } from '../../state/PartyService'
+import { InstanceService } from '../../state/InstanceService'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { PartyProps } from './variables'
 import { usePartyStyle } from './style'
-import { selectAdminLocationState } from '../../reducers/admin/location/selector'
-import { selectAdminInstanceState } from '../../reducers/admin/instance/selector'
-
-const mapStateToProps = (state: any): any => {
-  return {
-    adminInstanceState: selectAdminInstanceState(state),
-    adminLocationState: selectAdminLocationState(state)
-  }
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
-  fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
-  createAdminParty: bindActionCreators(createAdminParty, dispatch)
-})
+import { useLocationState } from '../../state/LocationState'
+import { useInstanceState } from '../../state/InstanceState'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 const CreateParty = (props: PartyProps) => {
   const classes = usePartyStyle()
-
-  const {
-    open,
-    handleClose,
-    createAdminParty,
-    fetchAdminLocations,
-    fetchAdminInstances,
-    adminInstanceState,
-    adminLocationState
-  } = props
+  CreateParty
+  const { open, handleClose } = props
 
   const [location, setLocation] = useState('')
   const [instance, setInstance] = React.useState('')
-
+  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
-  const adminLocation = adminLocationState.get('locations')
-  const locationData = adminLocation.get('locations')
-  const adminInstances = adminInstanceState.get('instances')
-  const instanceData = adminInstances.get('instances')
+  const adminLocationState = useLocationState()
+  const locationData = adminLocationState.locations.locations
+  const adminInstanceState = useInstanceState()
+  const adminInstances = adminInstanceState.instances
+  const instanceData = adminInstances.instances
 
   useEffect(() => {
-    if (user?.id.value != null && adminLocation.get('updateNeeded') === true) {
-      fetchAdminLocations()
+    if (user?.id.value != null && adminLocationState.locations.updateNeeded.value === true) {
+      LocationService.fetchAdminLocations()
     }
 
-    if (user.id.value && adminInstances.get('updateNeeded')) {
-      fetchAdminInstances()
+    if (user.id.value && adminInstances.updateNeeded.value) {
+      InstanceService.fetchAdminInstances()
     }
-  }, [authState, adminLocationState, adminInstanceState])
+  }, [
+    authState.user?.id?.value,
+    adminLocationState.locations.updateNeeded.value,
+    adminInstanceState.instances.updateNeeded.value
+  ])
 
   const defaultProps = {
-    options: locationData,
+    options: locationData.value,
     getOptionLabel: (option: any) => option.name
   }
 
-  const data = []
-  instanceData.forEach((element) => {
+  const data: Instance[] = []
+  instanceData.value.forEach((element) => {
     data.push(element)
   })
 
@@ -84,10 +68,12 @@ const CreateParty = (props: PartyProps) => {
 
   const submitParty = async (e) => {
     e.preventDefault()
-    await createAdminParty({
-      locationId: location,
-      instanceId: instance
-    })
+    await dispatch(
+      PartyService.createAdminParty({
+        locationId: location,
+        instanceId: instance
+      })
+    )
     setLocation('')
     setInstance('')
     handleClose()
@@ -158,4 +144,4 @@ const CreateParty = (props: PartyProps) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateParty)
+export default CreateParty

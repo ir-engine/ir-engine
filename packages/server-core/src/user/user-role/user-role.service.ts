@@ -1,4 +1,3 @@
-import { ServiceAddons } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { UserRole } from './user-role.class'
 import createModel from './user-role.model'
@@ -7,11 +6,11 @@ import userRoleDocs from './user-role.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'user-role': UserRole & ServiceAddons<any>
+    'user-role': UserRole
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
@@ -25,9 +24,9 @@ export default (app: Application): any => {
    */
   const event = new UserRole(options, app)
   event.docs = userRoleDocs
-  app.use('/user-role', event)
+  app.use('user-role', event)
 
   const service = app.service('user-role')
 
-  service.hooks(hooks as any)
+  service.hooks(hooks)
 }

@@ -2,6 +2,7 @@ import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Gr
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { GLTFRemoveMaterialsExtension } from '../classes/GLTFRemoveMaterialsExtension'
+import { GLTFInstancingExtension } from '../classes/GLTFInstancingExtension'
 import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
@@ -22,6 +23,8 @@ if (!isClient) {
   loader.register((parser) => new GLTFRemoveMaterialsExtension(parser))
 }
 
+loader.register((parser) => new GLTFInstancingExtension(parser))
+
 const dracoLoader: any = isClient ? new DRACOLoader() : new NodeDRACOLoader()
 // const dracoLoader = new DRACOLoader()
 if (isClient) {
@@ -37,7 +40,7 @@ export function getLoader(): any {
 }
 
 export function disposeDracoLoaderWorkers(): void {
-  loader.dracoLoader.dispose()
+  loader.dracoLoader?.dispose()
 }
 
 /**
@@ -100,7 +103,7 @@ const loadLightmaps = (parser) => {
 
 const loadLights = (gltf) => {
   if (gltf.parser.json?.extensions?.MOZ_hubs_components?.MOZ_hubs_components?.version === 3) {
-    const objsToRemove = []
+    const objsToRemove: any[] = []
     gltf.scene.traverse((obj) => {
       if (obj.userData.gltfExtensions && obj.userData.gltfExtensions.MOZ_hubs_components) {
         let replacement

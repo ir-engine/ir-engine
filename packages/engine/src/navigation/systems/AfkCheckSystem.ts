@@ -1,8 +1,7 @@
-import { defineQuery } from 'bitecs'
 import { System } from '../../ecs/classes/System'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AfkCheckComponent } from '../component/AfkCheckComponent'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { World } from '../../ecs/classes/World'
 
 const afkTime: number = 0.5

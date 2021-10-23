@@ -8,10 +8,9 @@ import React, { lazy, Suspense, useEffect, useState } from 'react'
 // importing component EditorContainer.
 const EditorContainer = lazy(() => import('../../components/EditorContainer'))
 
-import { connect, useDispatch } from 'react-redux'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { bindActionCreators, Dispatch } from 'redux'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
@@ -22,31 +21,13 @@ import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/ini
  *@doLoginAuto can be of type doLoginAuto component.
  *
  */
-interface Props {
-  //doLoginAuto?: typeof AuthService.doLoginAuto
-}
-
-/**
- *Function component providing authState on the basis of state.
- */
-
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-/**
- *Function component providing doAutoLogin on the basis of dispatch.
- */
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  //doLoginAuto: bindActionCreators(AuthService.doLoginAuto, dispatch)
-})
+interface Props {}
 
 /**
  * Function component providing project editor view.
  */
 const Project = (props: Props) => {
   // initialising consts using props interface.
-  //const {  doLoginAuto } = props
   const dispatch = useDispatch()
   const authState = useAuthState()
   // initialising authUser.
@@ -75,7 +56,7 @@ const Project = (props: Props) => {
 
   // setting doLoginAuto true once DOM get rendered or get updated..
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }, [])
 
   /**
@@ -98,4 +79,4 @@ const Project = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Project)
+export default Project

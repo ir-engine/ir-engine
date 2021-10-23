@@ -1,3 +1,5 @@
+import { Action } from './Action'
+
 /** Interface for the Transport. */
 export interface NetworkTransport {
   /**
@@ -30,19 +32,10 @@ export interface NetworkTransport {
   /**
    * Send actions through reliable channel
    */
-  sendActions(actions: ActionType[]): void
+  sendActions(actions: Set<Action>): void
 
   /**
    * Closes all the media soup transports
    */
   close(): void
-}
-
-export type ActionType = {
-  type: string
-  [key: string]: any
-}
-
-export type IncomingActionType = ActionType & {
-  $userId: string
 }

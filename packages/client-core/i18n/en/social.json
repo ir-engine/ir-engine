@@ -15,6 +15,8 @@
     "copyLink": "Copy Link",
     "embed": "Embed",
     "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
     "profilePic": "{{user}}'s profile pic",
     "ara": "Ara",
     "follow": "Follow",
@@ -41,7 +43,10 @@
     "creator": {
         "myVideos": "My Videos",
         "savedVideos": "Saved Videos",
-        "back": "Back"
+        "back": "Back",
+        "blocked-list": "Blocked List",
+        "block-user": "Block User",
+        "dialog-content": "You will not see the user's profile and content"
     },
     "creatorForm": {
         "back": "Back",
@@ -57,7 +62,8 @@
         "ph-aboutYou": "More about you",
         "ph-twitter": "twitter",
         "ph-instagram": "instagram",
-        "ph-tiktok": "tiktok"
+        "ph-tiktok": "tiktok",
+        "sign-out": "Sign-Out"
     },
     "dashboard": {
         "title": "Dashboard",
@@ -67,7 +73,7 @@
         "arMedia": "Video Media",
         "editor": "Editor"
     },
-    "featured":{
+    "featured": {
         "empty-list": "No feeds for now ..."
     },
     "feed": {
@@ -139,7 +145,8 @@
         "shareVideo": "Share Video",
         "save": "Save To Camera Roll",
         "cancel": "Cancel",
-        "close": "Close"
+        "close": "Close",
+        "addFeed": "Add Feed"
     },
     "simpleModal": {
         "emptyList": "Empty list",
@@ -159,13 +166,35 @@
         "choice": "You have two different recording modes to choose from",
         "verticalMode": "Vertical mode has a 30 sec record time",
         "horizontalMode": "Horizontal mode has an unlimited record time",
-        "start": "Start"
+        "start": "Start",
+        "not-show": "Do not show it again",
+        "welcome": "Welcome to ARC!  Make personal videos with one of our holograms and post it to your social media channels!",
+        "step": "STEP {{step}}",
+        "text-step-1": "Choose a hologram from the library.",
+        "text-step-2": "This is Augmented Reality, so scan the space with your camera from side to side  for 3-5 seconds where you want the hologram performance to be.",
+        "text-step-3-part-1": "Tap screen once on location where you want the hologram anchored.",
+        "text-step-3-part-2": "TIP!  Tap once elsewhere to move the hologram to another position.",
+        "text-step-3-part-3": "TIP!  You can resize the hologram by pinching or expanding the screen with your thumb and index finger.",
+        "text-step-4-part-1": "Double tap red record button to START your video recording.",
+        "text-step-4-part-2": "Double tap red record button to STOP."
     },
     "video": {
         "back": "Back"
     },
-    "terms":{
+    "terms": {
         "confirmTerms": "I agree to Terms of Service",
         "confirmPolicy": "I agree to Privacy Policy"
+    },
+    "registration": {
+        "ph-phoneEmail": "Use phone / email",
+        "facebook": "Continue with Facebook",
+        "google": "Continue with Google",
+        "linkedin": "Continue with Linkedin",
+        "twitter": "Continue with Twitter",
+        "gitHub": "Continue with GitHub",
+        "connect": "Connect your email or phone number",
+        "logIn": "Log in",
+        "LogInTo": "Log in to",
+        "continueAsGuest": "Continue as guest"
     }
 }
