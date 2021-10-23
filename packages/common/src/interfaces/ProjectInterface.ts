@@ -10,8 +10,8 @@ export interface ProjectInterface extends ProjectPackageInterface {
   id?: string
   name: string
   // version: string
+  thumbnail: string
   storageProviderPath?: string // does not exist in local dev
-  repositoryBranch?: string
   repositoryPath: string
   // assets: string[]
   // scenes: string[]
