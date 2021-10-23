@@ -198,7 +198,24 @@ export class WorldScene {
         break
 
       case 'gltf-shopify':
-        loadGLTFModel(this, entity, component, sceneProperty)
+        if (component.data && component.data.extend) {
+          if (component.data.extendType == 'video') {
+            // if livestream, server will send the video info to the client
+            if (isClient) {
+              createVideo(entity, component.data.extend)
+            } else {
+              createMediaServer(entity, component.data.extend)
+            }
+          } else if (component.data.extendType == 'image') {
+            addObject3DComponent(entity, new Image(), component.data.extend)
+          } else if (component.data.extendType == 'model') {
+            Object.keys(component.data.extend).forEach((key) => {
+              component.data[key] = component.data.extend[key]
+            })
+            console.log(component.data)
+            loadGLTFModel(this, entity, component, sceneProperty)
+          }
+        }
         break
 
       case 'loop-animation':
