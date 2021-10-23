@@ -1,10 +1,23 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
 import generateShortId from '../../util/generate-short-id'
 
-export default (app: Application): any => {
+export type SceneModelType = {
+  id: string
+  user_id: string
+  isPublic: boolean
+  metadata: string
+  name: string
+  root: string
+  sidsid: string
+  type: string
+  url: string
+  version: number
+}
+
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const scene = sequelizeClient.define(
+  const scene = sequelizeClient.define<Model<SceneModelType>>(
     'scene',
     {
       id: {

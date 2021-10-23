@@ -1,5 +1,5 @@
 import { Params, Id, NullableId, ServiceMethods } from '@feathersjs/feathers'
-import { Transaction } from 'sequelize/types'
+import { Model, ModelCtor, Sequelize, Transaction } from 'sequelize/types'
 import fetch from 'node-fetch'
 
 import {
@@ -16,9 +16,30 @@ import logger from '../../logger'
 import { Op } from 'sequelize'
 import config from '../../appconfig'
 import { contents } from '@xrengine/common/src/scenes-templates'
-import { SceneDetailInterface, SceneInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import {
+  SceneDetailInterface,
+  SceneInterface,
+  SceneSaveInterface
+} from '@xrengine/common/src/interfaces/SceneInterface'
+import { useSequilizeClient, useSequilizeModels } from '../../util/useSequilizeClient'
+
+import { StaticResourceModelType } from '../../media/static-resource/static-resource.model'
+import { CollectionModelType } from '../../entities/collection/collection.model'
+
 interface Data {}
 interface ServiceOptions {}
+
+interface PatchData {
+  // scene: SceneSaveInterface
+  userId: string
+  ownedFileId: string
+  name: string
+  thumbnailOwnedFileId: {
+    file_id: string
+    file_token: string
+  }
+  ownedFileIds: string // as stringified JSON ??
+}
 
 export class Scene implements ServiceMethods<Data> {
   app: Application
@@ -134,10 +155,10 @@ export class Scene implements ServiceMethods<Data> {
     return data
   }
 
-  async patch(sceneId: NullableId, data: any, params: Params): Promise<SceneDetailInterface> {
+  async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const seqeulizeClient = this.app.get('sequelizeClient')
-    const models = seqeulizeClient.models
+    const seqeulizeClient = useSequilizeClient(this.app)
+    const models = useSequilizeModels(this.app)
     const CollectionModel = models.collection
     const EntityModel = models.entity
     const StaticResourceModel = models.static_resource
@@ -159,16 +180,17 @@ export class Scene implements ServiceMethods<Data> {
 
     // Find the project owned_file from database
     // TODO: Create a hook for create and patch methods to avoid code duplication.
-    const ownedFile = await StaticResourceModel.findOne({
+    const ownedFile: StaticResourceModelType = (await StaticResourceModel.findOne({
       where: {
         id: data.ownedFileId
       },
       raw: true
-    })
+    })) as any
 
     if (!ownedFile) {
       return await Promise.reject(new BadRequest('Project File not found!'))
     }
+
     let sceneData: SceneInterface
     if (config.server.storageProvider === 'aws') {
       sceneData = await fetch(ownedFile.url).then((res) => res.json())
@@ -250,18 +272,14 @@ export class Scene implements ServiceMethods<Data> {
 
       // After saving project, remove the project json file from s3/local, as we have saved that on database in collection table
       const tempOwnedFileKey = ownedFile.key
-      storage.remove(
-        {
-          key: tempOwnedFileKey
-        },
-        (err: any, result: any) => {
-          if (err) {
-            console.log('Storage removal error')
-            console.log('Error in removing project temp Owned file: ', err)
-          }
-          console.log('Project temp Owned file removed result: ', result)
-        }
-      )
+
+      try {
+        const [responseSuccess] = await provider.deleteResources([tempOwnedFileKey])
+        console.log('Project temp Owned file removed result: ', responseSuccess)
+      } catch (e) {
+        console.log('Storage removal error')
+        console.log('Error in removing project temp Owned file: ', e)
+      }
 
       // Remove the static-resource because entities and components have been extracted from that resource
       await StaticResourceModel.destroy(

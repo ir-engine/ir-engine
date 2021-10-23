@@ -10,7 +10,7 @@ declare module '../../../declarations' {
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     events: ['refresh'],
     Model: createModel(app),
