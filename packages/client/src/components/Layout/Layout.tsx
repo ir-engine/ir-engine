@@ -1,4 +1,4 @@
-import { Forum, FullscreenExit, People, ZoomOutMap } from '@material-ui/icons'
+import { Forum, FullscreenExit, People, ZoomOutMap, Refresh } from '@material-ui/icons'
 import { ThemeProvider } from '@material-ui/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
@@ -67,7 +67,6 @@ const Layout = (props: Props): any => {
   const [topDrawerOpen, setTopDrawerOpen] = useState(false)
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(true)
   const [fullScreenActive, setFullScreenActive] = useState(false)
-  const [expanded, setExpanded] = useState(true)
   const [detailsType, setDetailsType] = useState('')
   const [groupFormOpen, setGroupFormOpen] = useState(false)
   const [groupFormMode, setGroupFormMode] = useState('')
@@ -106,42 +105,12 @@ const Layout = (props: Props): any => {
     }
   }, [])
 
-  useEffect((() => {
-    function handleResize() {
-      if (window.innerWidth > 768) setExpanded(true)
-    }
-
-    window.addEventListener('resize', handleResize)
-
-    // disable all browser-handling of touch gestures (document panning/zooming)
-    // touch-action is non-inhered, so apply to all elements on the page
-    const sheet = document.createElement('style')
-    sheet.innerHTML = `
-      html {
-        overflow: hidden;
-        -webkit-user-select: none;
-        user-select: none;
-      }
-      * { 
-        touch-action: none;
-      }
-    `
-    document.head.appendChild(sheet)
-
-    return (_) => {
-      window.removeEventListener('resize', handleResize)
-      document.head.removeChild(sheet)
-    }
-  }) as any)
-
   const openHarmony = (): void => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement
     if (canvas?.style != null) canvas.style.width = '0px'
     props.setHarmonyOpen(true)
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO })
   }
-
-  const toggleExpanded = () => setExpanded(!expanded)
 
   const iOS = (): boolean => {
     return (
@@ -171,19 +140,10 @@ const Layout = (props: Props): any => {
               {path === '/login' && <NavMenu login={login} />}
               {!props.hideVideo && props.harmonyOpen !== true && (
                 <>
-                  {expanded ? (
-                    <section className={styles.locationUserMenu}>
-                      {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
-                      <PartyVideoWindows />
-                    </section>
-                  ) : null}
-                  <button
-                    type="button"
-                    className={styles.expandMenu + ' ' + (expanded ? styles.expanded : '')}
-                    onClick={toggleExpanded}
-                  >
-                    <People />
-                  </button>
+                  <section className={styles.locationUserMenu}>
+                    {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
+                    <PartyVideoWindows />
+                  </section>
                   <UserToast />
                 </>
               )}
@@ -204,7 +164,7 @@ const Layout = (props: Props): any => {
             )}
 
             <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
-              <img src="/static/restart.svg" />
+              <Refresh />
             </button>
 
             <Harmony

@@ -1,6 +1,7 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { EmailSettingActionType } from './EmailSettingActions'
 import { EmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
+import { store } from '../../../store'
 
 const state = createState({
   Email: {
@@ -9,7 +10,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: EmailSettingActionType): any => {
+store.receptors.push((action: EmailSettingActionType): any => {
   let result
   state.batch((s) => {
     switch (action.type) {
@@ -18,7 +19,7 @@ export const receptor = (action: EmailSettingActionType): any => {
         return s.Email.merge({ email: result.data, updateNeeded: false })
     }
   }, action.type)
-}
+})
 
 export const accessEmailSettingState = () => state
 

@@ -1,6 +1,8 @@
 import { Feature, LineString, MultiLineString, MultiPolygon, Polygon } from 'geojson'
 import { BufferGeometry, InstancedBufferGeometry, Mesh } from 'three'
-import { Store } from './functions/createStore'
+import { _MapStateUnwrapped } from './MapReceptor'
+
+export type MapStateUnwrapped = _MapStateUnwrapped
 
 /**
  * @fileoverview a place for all types that are shared by multiple modules but not conceptually owned by any
@@ -95,33 +97,37 @@ export enum TaskStatus {
   STARTED = 1
 }
 
+// TODO DRY
 export interface ISyncPhase<TaskKey, TaskResult> {
   name: string
   isCachingPhase: false
   isAsyncPhase: false
-  getTaskKeys(store: Store): Iterable<TaskKey>
-  execTask(store: Store, key: TaskKey): TaskResult
-  cleanup(store: Store): void
+  getTaskKeys(state: MapStateUnwrapped): Iterable<TaskKey>
+  execTask(state: MapStateUnwrapped, key: TaskKey): TaskResult
+  cleanup(state: MapStateUnwrapped): void
+  reset(state: MapStateUnwrapped): void
 }
 export interface ICachingPhase<TaskKey, TaskResult> {
   name: string
   isCachingPhase: true
   isAsyncPhase: false
-  getTaskStatus(store: Store, key: TaskKey): TaskStatus
-  setTaskStatus(store: Store, key: TaskKey, status: TaskStatus): void
-  getTaskKeys(store: Store): Iterable<TaskKey>
-  execTask(store: Store, key: TaskKey): TaskResult
-  cleanup(store: Store): void
+  getTaskStatus(state: MapStateUnwrapped, key: TaskKey): TaskStatus
+  setTaskStatus(state: MapStateUnwrapped, key: TaskKey, status: TaskStatus): void
+  getTaskKeys(state: MapStateUnwrapped): Iterable<TaskKey>
+  execTask(state: MapStateUnwrapped, key: TaskKey): TaskResult
+  cleanup(state: MapStateUnwrapped): void
+  reset(state: MapStateUnwrapped): void
 }
 export interface IAsyncPhase<TaskKey, TaskResult> {
   name: string
   isCachingPhase: true
   isAsyncPhase: true
-  getTaskStatus(store: Store, key: TaskKey): TaskStatus
-  setTaskStatus(store: Store, key: TaskKey, status: TaskStatus): void
-  getTaskKeys(store: Store): Iterable<TaskKey>
-  startTask(store: Store, key: TaskKey): Promise<TaskResult>
-  cleanup(store: Store): void
+  getTaskStatus(state: MapStateUnwrapped, key: TaskKey): TaskStatus
+  setTaskStatus(state: MapStateUnwrapped, key: TaskKey, status: TaskStatus): void
+  getTaskKeys(state: MapStateUnwrapped): Iterable<TaskKey>
+  startTask(state: MapStateUnwrapped, key: TaskKey): Promise<TaskResult>
+  cleanup(state: MapStateUnwrapped): void
+  reset(state: MapStateUnwrapped): void
 }
 
 export type IPhase<TaskKey, TaskResult> =

@@ -5,6 +5,7 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { FeedActionType } from './FeedActions'
 import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed'
+import { store } from '../../store'
 
 const state = createState({
   feeds: {
@@ -32,7 +33,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: FeedActionType): any => {
+store.receptors.push((action: FeedActionType): any => {
   state.batch((s) => {
     let currentFeed
     switch (action.type) {
@@ -77,7 +78,7 @@ export const receptor = (action: FeedActionType): any => {
         return s.feeds.merge({
           feedsFeatured: s.feeds.feedsFeatured.value.map((feed) => {
             if (feed.id === action.feedId) {
-              return { ...feed, fires: ++feed.fires, isFired: true }
+              return { ...feed, fires: feed.fires.values + 1, isFired: true }
             }
             return { ...feed }
           })
@@ -93,7 +94,7 @@ export const receptor = (action: FeedActionType): any => {
             return { ...feed }
           })
         )
-        return s.feeds.feed.set(currentFeed ? { ...currentFeed, fires: --currentFeed.fires, isFired: false } : {})
+        return s.feeds.feed.set(currentFeed ? { ...currentFeed, fires: currentFeed.fires - 1, isFired: false } : {})
       case 'ADD_FEED_BOOKMARK':
         currentFeed = s.feeds.feed?.value
         s.feeds.feeds.set(
@@ -180,13 +181,15 @@ export const receptor = (action: FeedActionType): any => {
 
         return s.feeds.feedsAdminFetching.set(false)
       case 'DELETE_FEED':
-        return s.feeds.feedsFeatured.set([...s.feeds.feedsFeatured.value.filter((feed) => feed.id !== action.feedId)])
+        return s.feeds.feedsFeatured.set([
+          ...s.feeds.feedsFeatured.value.values().filter((feed) => feed.id !== action.feedId)
+        ])
 
       case 'LAST_FEED_VIDEO_URL':
         return s.feeds.lastFeedVideoUrl.set(action.filePath)
     }
   }, action.type)
-}
+})
 
 export const accessFeedState = () => state
 export const useFeedState = () => useState(state)

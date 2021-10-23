@@ -5,7 +5,7 @@ import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import { makeCollidersInvisible } from '@xrengine/engine/src/physics/functions/parseModelColliders'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { RethrownError } from '../functions/errors'
+import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { resolveMedia } from '../functions/resolveMedia'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
@@ -30,10 +30,13 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const node = await super.deserialize(json)
     loadAsync(
       (async () => {
-        const { src, envMapOverride, textureOverride } = json.components.find((c) => c.name === 'gltf-model').props
+        const { src, envMapOverride, textureOverride, matrixAutoUpdate } = json.components.find(
+          (c) => c.name === 'gltf-model'
+        ).props
 
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
+        if (typeof matrixAutoUpdate !== undefined) node.matrixAutoUpdate = matrixAutoUpdate
         if (textureOverride) {
           // Using this to pass texture override uuid to event callback instead of creating a new variable
           node.textureOverride = textureOverride
@@ -100,7 +103,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   boundingSphere = new Sphere()
   gltfJson = null
   isValidURL = false
-  isUpdateDataMatrix = true
+  matrixAutoUpdate = false
   animations = []
 
   constructor() {
@@ -255,7 +258,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
         textureOverride: this.textureOverride,
-        matrixAutoUpdate: this.isUpdateDataMatrix
+        matrixAutoUpdate: this.matrixAutoUpdate
       },
       shadow: {
         cast: this.castShadow,

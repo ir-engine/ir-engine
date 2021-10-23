@@ -24,11 +24,11 @@ interface Props {
   handleClose: any
   scenes?: any
   avatars?: any
-  realityPacks?: any
+  projects?: any
 }
 
 const AddToContentPackModal = (props: Props): any => {
-  const { open, handleClose, avatars, scenes, realityPacks } = props
+  const { open, handleClose, avatars, scenes, projects } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
@@ -37,7 +37,6 @@ const AddToContentPackModal = (props: Props): any => {
   const [newContentPackName, setNewContentPackName] = useState('')
   const contentPackState = useContentPackState()
   const contentPacks = contentPackState.contentPacks
-  const dispatch = useDispatch()
   const showError = (err: string) => {
     setError(err)
     setTimeout(() => {
@@ -55,15 +54,14 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       if (contentPackName !== '') {
         setProcessing(true)
-        await dispatch(
-          ContentPackService.addScenesToContentPack({
-            scenes: scenes,
-            contentPack: contentPackName
-          })
-        )
-        setProcessing(false)
-        window.location.href = '/admin/content-packs'
-        closeModal()
+        ContentPackService.addScenesToContentPack({
+          scenes: scenes,
+          contentPack: contentPackName
+        }).then(() => {
+          setProcessing(false)
+          window.location.href = '/admin/content-packs'
+          closeModal()
+        })
       } else
         throw new Error(
           createOrPatch === 'patch'
@@ -76,19 +74,18 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
-  const addCurrentAvatarsToContentPack = async () => {
+  const addCurrentAvatarsToContentPack = () => {
     try {
       setProcessing(true)
       if (contentPackName !== '') {
-        await dispatch(
-          ContentPackService.addAvatarsToContentPack({
-            avatars: avatars,
-            contentPack: contentPackName
-          })
-        )
-        setProcessing(false)
-        window.location.href = '/admin/content-packs'
-        closeModal()
+        ContentPackService.addAvatarsToContentPack({
+          avatars: avatars,
+          contentPack: contentPackName
+        }).then(() => {
+          setProcessing(false)
+          window.location.href = '/admin/content-packs'
+          closeModal()
+        })
       } else throw new Error('Existing content pack must be selected')
     } catch (err) {
       setProcessing(false)
@@ -96,19 +93,18 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
-  const addCurrentRealityPacksToContentPack = async () => {
+  const addCurrentProjectToContentPack = () => {
     try {
       setProcessing(true)
       if (contentPackName !== '') {
-        await dispatch(
-          ContentPackService.addRealityPacksToContentPack({
-            realityPacks: realityPacks,
-            contentPack: contentPackName
-          })
-        )
-        setProcessing(false)
-        window.location.href = '/admin/content-packs'
-        closeModal()
+        ContentPackService.addProjectToContentPack({
+          projects,
+          contentPack: contentPackName
+        }).then(() => {
+          setProcessing(false)
+          window.location.href = '/admin/content-packs'
+          closeModal()
+        })
       } else throw new Error('Existing content pack must be selected')
     } catch (err) {
       setProcessing(false)
@@ -116,34 +112,21 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
-  const createNewContentPack = async () => {
+  const createNewContentPack = () => {
     try {
       setProcessing(true)
       if (newContentPackName !== '') {
         if (scenes != null)
-          await dispatch(
-            ContentPackService.createContentPack({
-              scenes: scenes,
-              contentPack: newContentPackName
-            })
-          )
-        else if (avatars != null)
-          await dispatch(
-            ContentPackService.createContentPack({
-              avatars: avatars,
-              contentPack: newContentPackName
-            })
-          )
-        else if (realityPacks != null)
-          await dispatch(
-            ContentPackService.createContentPack({
-              realityPacks: realityPacks,
-              contentPack: newContentPackName
-            })
-          )
-        setProcessing(false)
-        window.location.href = '/admin/content-packs'
-        closeModal()
+          ContentPackService.createContentPack({
+            scenes,
+            avatars,
+            projects,
+            contentPack: newContentPackName
+          }).then(() => {
+            setProcessing(false)
+            window.location.href = '/admin/content-packs'
+            closeModal()
+          })
       } else throw new Error('New content pack name required')
     } catch (err) {
       setProcessing(false)
@@ -196,9 +179,9 @@ const AddToContentPackModal = (props: Props): any => {
                   Adding {avatars.length} {avatars.length === 1 ? 'Avatar' : 'Avatars'}
                 </div>
               )}
-              {realityPacks && (
+              {projects && (
                 <div className={styles['title']}>
-                  Adding {realityPacks.length} {realityPacks.length === 1 ? 'Reality Pack' : 'Reality Packs'}
+                  Adding {projects.length} {projects.length === 1 ? 'Project' : 'Projects'}
                 </div>
               )}
               <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
@@ -244,8 +227,8 @@ const AddToContentPackModal = (props: Props): any => {
                     onClick={
                       scenes != null
                         ? addCurrentScenesToContentPack
-                        : realityPacks != null
-                        ? addCurrentRealityPacksToContentPack
+                        : projects != null
+                        ? addCurrentProjectToContentPack
                         : addCurrentAvatarsToContentPack
                     }
                   >

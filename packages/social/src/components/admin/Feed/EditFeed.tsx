@@ -15,7 +15,7 @@ import { useFeedStyles, useFeedStyle } from './styles'
 import { validateFeedForm } from './validation'
 import { Save } from '@material-ui/icons'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 
 interface Props {

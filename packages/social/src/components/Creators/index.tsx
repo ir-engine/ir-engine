@@ -6,7 +6,7 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import PersonPinIcon from '@material-ui/icons/PersonPin'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 // @ts-ignore

@@ -106,10 +106,11 @@
     },
     "share": {
       "lbl-share": "Share",
-      "ph-phoneEmail": "Phone Number / Email",
+      "ph-phoneEmail": "Invite by email or phone number",
       "lbl-phoneEmail": "Send to email or phone number",
       "lbl-copy": "Copy",
-      "title": "Location URL",
+      "lbl-send-invite": "Send Invite",
+      "title": "Share your Location URL with your team",
       "linkCopied": "Link copied to clipboard."
     },
     "setting": {
@@ -126,7 +127,7 @@
     "profile": {
       "lbl-profile": "Profile",
       "lbl-settings": "Settings",
-      "lbl-username": "Name",
+      "lbl-username": "Username",
       "inviteCode": "Invite Code",
       "youAreAn": "You are an",
       "youAreA": "You are a",
@@ -189,7 +190,7 @@
       "parties": "Parties",
       "chats": "Chats",
       "content": "Content Packs",
-      "realityPacks": "Reality Packs",
+      "projects": "Projects",
       "scenes": "Scenes",
       "avatars": "Avatars",
       "bots": "Bots"

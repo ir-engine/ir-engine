@@ -1,6 +1,6 @@
 import { Application } from '../../../declarations'
 import { StaticResource } from './static-resource.class'
-import createModel from './static-resource.model'
+import createModel, { StaticResourceModelType } from './static-resource.model'
 import createOwnedFileModel from '../owned-file.model'
 import hooks from './static-resource.hooks'
 import staticResourceDocs from './static-resource.docs'
@@ -9,9 +9,12 @@ declare module '../../../declarations' {
   interface ServiceTypes {
     'static-resource': StaticResource
   }
+  interface Models {
+    static_resource: ReturnType<typeof createModel> & StaticResourceModelType
+  }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   createOwnedFileModel(app)
 
   const options = {
