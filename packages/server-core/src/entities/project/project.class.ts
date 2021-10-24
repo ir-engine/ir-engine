@@ -98,8 +98,9 @@ export class Project extends Service {
 
     // remove existing
     if (fs.existsSync(projectLocalDirectory)) {
+      // disable accidental deletion of projects for local development
       if (isDev) throw new Error('Cannot create project - already exists')
-      fs.rmSync(projectLocalDirectory)
+      fs.rmdirSync(projectLocalDirectory)
     }
 
     const existingPackResult = await this.Model.findOne({
