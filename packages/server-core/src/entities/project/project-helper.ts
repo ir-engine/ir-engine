@@ -20,8 +20,10 @@ export const retriggerBuilderService = async (app: Application) => {
         }
       )
       console.log('restartClientsResponse', restartClientsResponse)
+      return restartClientsResponse
     } catch (e) {
       console.log(e)
+      return e
     }
   }
 }
