@@ -17,7 +17,8 @@ export const retriggerBuilderService = async (app: Application) => {
               }
             }
           }
-        }
+        },
+        { contentType: 'application/strategic-merge-patch+json' }
       )
       console.log('restartClientsResponse', restartClientsResponse)
       return restartClientsResponse
