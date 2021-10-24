@@ -25,7 +25,7 @@
   },
   "resolutions": {
     "socket.io": "4.3.1",
-    "@types/react": "17.0.31",
+    "@types/react": "17.0.32",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -114,7 +114,7 @@
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.5",
     "@types/node": "14.17.29",
-    "@types/react": "17.0.31",
+    "@types/react": "17.0.32",
     "@types/react-dom": "17.0.9",
     "config": "3.3.6",
     "cross-env": "7.0.3",
