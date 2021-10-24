@@ -212,7 +212,7 @@ export class Project extends Service {
   // TODO: remove this entire function when nodes reference file browser
   async find(params: Params) {
     const entries = (await super.find(params)) as any
-    return entries.data
+    entries.data = entries.data
       .map((entry) => {
         try {
           const json: ProjectPackageInterface = JSON.parse(
@@ -231,5 +231,6 @@ export class Project extends Service {
         }
       })
       .filter((entry) => !!entry)
+    return entries
   }
 }
