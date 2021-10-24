@@ -11,10 +11,15 @@ rules:
     resources:
       - pods
       - endpoints
+      - deployments
     verbs:
       - get
       - list
       - watch
+      - create
+      - update
+      - delete
+      - patch
   - apiGroups:
       - "agones.dev"
     resources:
