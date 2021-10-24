@@ -110,7 +110,7 @@ export class Project extends Service {
         name: projectName
       }
     })
-    if (existingPackResult != null) await this.remove(existingPackResult.id, params)
+    if (existingPackResult != null) await super.remove(existingPackResult.id, params)
 
     const git = useGit()
     await new Promise((resolve) => {
