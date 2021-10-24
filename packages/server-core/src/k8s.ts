@@ -378,8 +378,7 @@ export class Request {
     this.strictSSL = conf.strictSSL !== false
 
     var endpoint = conf.endpoint || this.readEndpoint(cluster)
-    // this.domain = `${endpoint}${conf.version}/`
-    this.domain = `${endpoint}`
+    this.domain = `${endpoint}${conf.version}/`
   }
 
   // Returns Context JSON from kubeconfig
