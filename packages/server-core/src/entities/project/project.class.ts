@@ -212,8 +212,8 @@ export class Project extends Service {
   // TODO: remove this entire function when nodes reference file browser
   async find(params: Params) {
     const entries = (await super.find(params)) as any
-    entries.data = await Promise.all(
-      entries.data.map(async (entry) => {
+    return entries.data
+      .map((entry) => {
         try {
           const json: ProjectPackageInterface = JSON.parse(
             fs.readFileSync(
@@ -230,7 +230,6 @@ export class Project extends Service {
           return
         }
       })
-    )
-    return entries
+      .filter((entry) => !!entry)
   }
 }
