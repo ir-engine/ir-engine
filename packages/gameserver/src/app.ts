@@ -137,7 +137,7 @@ export const createApp = (): Application => {
       if (config.gameserver.mode === 'realtime') {
         app.k8AgonesClient = api({
           endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-          version: '/apis/agones.dev/v1',
+          // version: '/apis/agones.dev/v1',
           auth: {
             caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
             token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
@@ -145,7 +145,15 @@ export const createApp = (): Application => {
         })
         app.k8DefaultClient = api({
           endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-          version: '/api/v1',
+          // version: '/api/v1',
+          auth: {
+            caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
+            token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
+          }
+        })
+        app.k8DaemonClient = api({
+          endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
+          version: '/apis/apps/v1',
           auth: {
             caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
             token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')

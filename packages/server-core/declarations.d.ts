@@ -15,6 +15,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   // Common
   k8AgonesClient: any
   k8DefaultClient: any
+  k8AppsClient: any
   agonesSDK: any
   sync: any
 
