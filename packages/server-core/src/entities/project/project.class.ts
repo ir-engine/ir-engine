@@ -149,7 +149,10 @@ export class Project extends Service {
     }
 
     await Promise.all([...uploadPromises, super.create(dbEntryData, params)])
-    await retriggerBuilderService(this.app)
+
+    return {
+      reponse: await retriggerBuilderService(this.app)
+    }
   }
 
   async remove(id: Id, params: Params) {
@@ -157,13 +160,12 @@ export class Project extends Service {
     try {
       if (!isDev) {
         await super.remove(id, params)
-        await retriggerBuilderService(this.app)
+        return await retriggerBuilderService(this.app)
       }
     } catch (e) {
       console.log(`[Projects]: failed to remove project ${id}`, e)
-      return false
+      return e
     }
-    return true
   }
 
   /**
