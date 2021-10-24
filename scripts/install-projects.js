@@ -19,14 +19,15 @@ db.url = process.env.MYSQL_URL ??
 async function installAllProjects() {
   
   try {
+    console.log('running installAllProjects')
     const sequelizeClient = new Sequelize({
       ...db,
-      logging: true,
       define: {
           freezeTableName: true
       }
     });
     await sequelizeClient.sync();
+    console.log('inited sequelize client')
 
     const Projects = sequelizeClient.define('project', {
       id: {
@@ -36,13 +37,14 @@ async function installAllProjects() {
           primaryKey: true
       },
       name: {
-          type: Sequelize.DataTypes.STRING,
-          allowNull: false
+          type: Sequelize.DataTypes.STRING
       }
     });
 
+    
     const projects = await Projects.findAll()
-
+    console.log('found projects', projects)
+    
     for(const project of projects) {
       await download(project.name)
     }

@@ -1,7 +1,7 @@
 import { AuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { User, UserSetting } from '@xrengine/common/src/interfaces/User'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { Avatar } from '@xrengine/common/src/interfaces/Avatar'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 export interface EmailLoginForm {
   email: string
@@ -154,7 +154,7 @@ export const AuthAction = {
       user: user
     }
   },
-  updateAvatarList: (avatarList: Avatar[]) => {
+  updateAvatarList: (avatarList: AvatarInterface[]) => {
     return {
       type: 'AVATAR_FETCHED' as const,
       avatarList

@@ -12,6 +12,7 @@ import mapProjectIdToQuery from '@xrengine/server-core/src/hooks/set-project-id-
 import removeRelatedResources from '@xrengine/server-core/src/hooks/remove-related-resources'
 import setResourceIdFromProject from '@xrengine/server-core/src/hooks/set-resource-id-from-project'
 import setResponseStatusCode from '@xrengine/server-core/src/hooks/set-response-status-code'
+import { SceneSaveInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 const { authenticate } = authentication.hooks
 
@@ -21,10 +22,12 @@ const { authenticate } = authentication.hooks
  */
 const mapSceneSaveData = () => {
   return (context: HookContext): HookContext => {
-    context.data.ownedFileId = context.data.scene.scene_file_id
-    context.data.name = context.data.scene.name
-    context.data.thumbnailOwnedFileId = context.data.scene?.thumbnailOwnedFileId
-    context.data.ownedFileIds = JSON.stringify(context.data.scene?.ownedFileIds)
+    const scene: SceneSaveInterface = context.data.scene
+    context.data.ownedFileId = scene.scene_file_id
+    context.data.name = scene.name
+    context.data.thumbnailOwnedFileId = scene.thumbnailOwnedFileId
+    context.data.ownedFileIds = JSON.stringify(scene.ownedFileIds)
+    delete context.data.scene
     return context
   }
 }
