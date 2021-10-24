@@ -22,7 +22,6 @@ async function installAllProjects() {
     console.log('running installAllProjects')
     const sequelizeClient = new Sequelize({
       ...db,
-      logging: true,
       define: {
           freezeTableName: true
       }
