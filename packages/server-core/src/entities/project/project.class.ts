@@ -93,6 +93,7 @@ export class Project extends Service {
     let projectName = urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
     if (projectName.substr(-4) === '.git') projectName = projectName.slice(0, -4)
+    if (projectName.substr(-1) === '/') projectName = projectName.slice(0, -1)
 
     const projectLocalDirectory = path.resolve(__dirname, `../../../../projects/projects/${projectName}/`)
 
@@ -128,7 +129,7 @@ export class Project extends Service {
             await storageProvider.putObject({
               Body: fileResult,
               ContentType: getContentType(file),
-              Key: `project/${projectName}/${filePathRelative}`
+              Key: `projects/${projectName}/${filePathRelative}`
             })
           } catch (e) {}
           resolve(true)
@@ -145,7 +146,7 @@ export class Project extends Service {
     const dbEntryData: ProjectInterface = {
       ...packageData,
       name: projectName,
-      storageProviderPath: `https://${storageProvider.cacheDomain}/project/${projectName}/`,
+      storageProviderPath: `https://${storageProvider.cacheDomain}/projects/${projectName}/`,
       repositoryPath: data.url
     }
 
