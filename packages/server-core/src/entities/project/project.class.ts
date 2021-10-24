@@ -11,6 +11,7 @@ import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { getFilesRecursive } from '../../util/fsHelperFunctions'
 import { retriggerBuilderService } from './project-helper'
+import appRootPath from 'app-root-path'
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
@@ -45,14 +46,14 @@ export class Project extends Service {
     console.log(dbEntries)
 
     const locallyInstalledProjects = fs
-      .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
+      .readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/'), { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
 
     for (const name of locallyInstalledProjects) {
       if (!data.find((e) => e.name === name)) {
         const packageData = JSON.parse(
-          fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/', name, 'package.json'), 'utf8')
+          fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/projects/', name, 'package.json'), 'utf8')
         ).xrengine as ProjectPackageInterface
 
         if (!packageData) {
@@ -95,7 +96,7 @@ export class Project extends Service {
     if (projectName.substr(-4) === '.git') projectName = projectName.slice(0, -4)
     if (projectName.substr(-1) === '/') projectName = projectName.slice(0, -1)
 
-    const projectLocalDirectory = path.resolve(__dirname, `../../../../projects/projects/${projectName}/`)
+    const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
     // remove existing
     if (fs.existsSync(projectLocalDirectory)) {
@@ -182,7 +183,7 @@ export class Project extends Service {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     const entry = data.find((e) => e.name === name)
 
-    const metadataPath = path.resolve(__dirname, `../../../../projects/projects/${name}/package.json`)
+    const metadataPath = path.resolve(appRootPath.path, `packages/projects/projects/${name}/package.json`)
     if (fs.existsSync(metadataPath)) {
       try {
         const json: ProjectPackageInterface = JSON.parse(fs.readFileSync(metadataPath, 'utf8')).xrengine
@@ -193,7 +194,7 @@ export class Project extends Service {
           }
         }
       } catch (e) {
-        console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
+        console.warn('[getProjects]: Failed to read package.json for project', name, 'with error', e)
         return
       }
     }
@@ -216,7 +217,7 @@ export class Project extends Service {
         try {
           const json: ProjectPackageInterface = JSON.parse(
             fs.readFileSync(
-              path.resolve(__dirname, '../../../../projects/projects/' + entry.name + '/package.json'),
+              path.resolve(appRootPath.path, `packages/projects/projects/${entry.name}/package.json`),
               'utf8'
             )
           ).xrengine
