@@ -9,7 +9,7 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
-import { getFilesRecursive } from '../../util/fsHelperFunctions'
+import { deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import { retriggerBuilderService } from './project-helper'
 import appRootPath from 'app-root-path'
 
@@ -102,7 +102,7 @@ export class Project extends Service {
     if (fs.existsSync(projectLocalDirectory)) {
       // disable accidental deletion of projects for local development
       if (isDev) throw new Error('Cannot create project - already exists')
-      fs.rmdirSync(projectLocalDirectory)
+      deleteFolderRecursive(projectLocalDirectory)
     }
 
     const existingPackResult = await this.Model.findOne({
