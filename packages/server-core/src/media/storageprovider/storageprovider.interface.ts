@@ -17,6 +17,15 @@ export interface SignedURLResponse {
   cacheDomain: string
 }
 
+export interface BlobStore {
+  path: string
+  cache: any
+  createWriteStream(options: string | { key: string }, cb?: (err, result) => void)
+  createReadStream(key: string | { key: string }, options?: any)
+  exists(options: string | { key: string }, cb?: (err, result) => void)
+  remove(options: string | { key: string }, cb?: (err, result) => void)
+}
+
 export interface StorageProviderInterface {
   cacheDomain: string
 
@@ -54,7 +63,7 @@ export interface StorageProviderInterface {
   /**
    * @returns {any} Blob store
    */
-  getStorage(): any
+  getStorage(): BlobStore
 
   /**
    * Get a list of keys under a path

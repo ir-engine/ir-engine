@@ -3,7 +3,8 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarActionType } from './AvatarActions'
-import { Avatar } from '@xrengine/common/src/interfaces/Avatar'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { store } from '../../store'
 
 export const AVATAR_PAGE_LIMIT = 100
 
@@ -15,7 +16,7 @@ const state = createState({
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   avatars: {
-    avatars: [] as Array<Avatar>,
+    avatars: [] as Array<AvatarInterface>,
     skip: 0,
     limit: AVATAR_PAGE_LIMIT,
     total: 0,
@@ -26,7 +27,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: AvatarActionType): any => {
+store.receptors.push((action: AvatarActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
@@ -45,7 +46,7 @@ export const receptor = (action: AvatarActionType): any => {
         })
     }
   }, action.type)
-}
+})
 
 export const accessAvatarState = () => state
 

@@ -23,16 +23,16 @@ export const getInstalledRoutes = () => {
   const data: InstalledRoutesInterface[] = []
   projects.forEach(async (project) => {
     try {
-      const routesJsonPath = path.resolve(__dirname, `../../../../projects/projects/${project}/manifest.json`)
+      const routesJsonPath = path.resolve(__dirname, `../../../../projects/projects/${project}/package.json`)
       if (fs.existsSync(routesJsonPath)) {
-        const { routes } = JSON.parse(fs.readFileSync(routesJsonPath, 'utf8'))
+        const { routes } = JSON.parse(fs.readFileSync(routesJsonPath, 'utf8')).xrengine
         data.push({
           routes,
           project
         })
       }
     } catch (e) {
-      console.warn('[getProjects]: Failed to read manifest.json for project', project, 'with error', e)
+      console.warn('[getProjects]: Failed to read package.json for project', project, 'with error', e)
       return
     }
   })

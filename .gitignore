@@ -155,9 +155,16 @@ certs/
 *.blend1
 *.ts.bak
 
-/packages/**/src/index.ts
+# ignore all npm dist cti outputs
+/packages/bot/src/index.ts
+/packages/client-core/src/index.ts
+/packages/common/src/index.ts
+/packages/editor/src/index.ts
+/packages/engine/src/index.ts
+/packages/projects/index.ts
+/packages/server-core/src/index.ts
 
+/packages/client/public/projects/*
 /packages/projects/projects/*
 !/packages/projects/projects/theoverlay/
-!/packages/projects/projects/XREngine-Starter-Template/
 /packages/client/optimizeDeps.json

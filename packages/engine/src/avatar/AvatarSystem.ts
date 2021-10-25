@@ -116,6 +116,12 @@ export default async function AvatarSystem(world: World): Promise<System> {
       object3DComponent.value.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
     }
 
+    for (const entity of xrInputQuery.exit(world)) {
+      const xrInputComponent = getComponent(entity, XRInputSourceComponent)
+      xrInputComponent.container.removeFromParent()
+      xrInputComponent.head.removeFromParent()
+    }
+
     for (const entity of xrHandsInputQuery.enter(world)) {
       const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)

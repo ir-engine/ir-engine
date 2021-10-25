@@ -12,6 +12,13 @@ export const ProjectAction = {
       type: 'PROJECT_POSTED' as const
     }
   }
+  // TODO
+  // buildProgress: (message: string) => {
+  //   return {
+  //     type: 'PROJECT_BUILDER_UPDATE' as const,
+  //     message
+  //   }
+  // }
 }
 
 export type ProjectActionType = ReturnType<typeof ProjectAction[keyof typeof ProjectAction]>

@@ -141,9 +141,9 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
     CommandManager.instance.setPropertyOnSelection('interactable', interactable)
   }
 
-  // function to handle change in isUpdateDataMatrix property
+  // function to handle change in matrixAutoUpdate property
   onChangeUpdateDataMatrix = (matrixAutoUpdate) => {
-    CommandManager.instance.setPropertyOnSelection('isUpdateDataMatrix', matrixAutoUpdate)
+    CommandManager.instance.setPropertyOnSelection('matrixAutoUpdate', matrixAutoUpdate)
   }
 
   // function to handle changes in interactionType property
@@ -333,7 +333,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
           <BooleanInput value={node.interactable} onChange={this.onChangeInteractable} />
         </InputGroup>
         <InputGroup name="MatrixAutoUpdate" label={this.props.t('editor:properties.model.lbl-matrixAutoUpdate')}>
-          <BooleanInput value={node.isUpdateDataMatrix} onChange={this.onChangeUpdateDataMatrix} />
+          <BooleanInput value={node.matrixAutoUpdate} onChange={this.onChangeUpdateDataMatrix} />
         </InputGroup>
         {this.renderInteractableDependantFields(node)}
       </NodeEditor>

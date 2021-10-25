@@ -1,7 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const EmailSetting = sequelizeClient.define(
     'emailSetting',

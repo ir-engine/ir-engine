@@ -28,12 +28,16 @@ const LottieLoader = () => {
   }
 
   useEffect(() => {
+    let mounted = true
     const pathIndex = randomNumber(0, Loaders.length, Math.random)
     const path = Loaders[parseInt(pathIndex)]
 
     import(`./Loaders/${path}.json`).then((res) => {
+      if(!mounted) return
       setAnimation(res)
     })
+
+    return () => {mounted = false}
   }, [])
 
   return (

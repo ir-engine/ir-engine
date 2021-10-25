@@ -21,10 +21,10 @@ const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Mat
  */
 
 export const startWebXR = (): void => {
-  const controllerLeft = Engine.xrRenderer.getController(0)
-  const controllerRight = Engine.xrRenderer.getController(1)
-  const controllerGripLeft = Engine.xrRenderer.getControllerGrip(0)
-  const controllerGripRight = Engine.xrRenderer.getControllerGrip(1)
+  const controllerLeft = Engine.xrManager.getController(0)
+  const controllerRight = Engine.xrManager.getController(1)
+  const controllerGripLeft = Engine.xrManager.getControllerGrip(0)
+  const controllerGripRight = Engine.xrManager.getControllerGrip(1)
   const container = new Group()
 
   Engine.scene.remove(Engine.camera)
@@ -56,6 +56,7 @@ export const startWebXR = (): void => {
 export const endXR = (): void => {
   Engine.xrSession.end()
   Engine.xrSession = null!
+  Engine.xrManager.setSession(null)
   Engine.scene.add(Engine.camera)
 
   addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
@@ -72,7 +73,7 @@ export const endXR = (): void => {
 
 export const bindXRHandEvents = () => {
   const world = useWorld()
-  const hands = [Engine.xrRenderer.getHand(0), Engine.xrRenderer.getHand(1)]
+  const hands = [Engine.xrManager.getHand(0), Engine.xrManager.getHand(1)]
   let eventSent = false
 
   hands.forEach((controller: any) => {

@@ -18,9 +18,6 @@ COPY packages/engine/package.json ./packages/engine/
 COPY packages/gameserver/package.json ./packages/gameserver/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
-COPY packages/social/package.json ./packages/social/
-COPY packages/gallery/package.json ./packages/gallery/
-COPY packages/bot/package.json ./packages/bot/
 COPY packages/projects/package.json ./packages/projects/
 
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
@@ -30,7 +27,7 @@ COPY . .
 
 # copy then compile the code
 
-RUN npm run build-docker
+RUN npm run build-client
 
 ENV APP_ENV=production
 

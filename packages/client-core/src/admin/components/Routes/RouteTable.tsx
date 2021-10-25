@@ -34,7 +34,7 @@ export const routeColumns: RouteColumn[] = [
 /**
  * Temporary
  */
-const ROUTE_PAGE_LIMIT = 10
+const ROUTE_PAGE_LIMIT = 1000
 
 /**
  *
@@ -100,8 +100,9 @@ const RouteTable = () => {
   }
 
   const installedRoutes = installedRouteData
-    .map((el) =>
-      el.routes.map((route) => {
+    .map((el) => {
+      if (!el.routes?.length) return []
+      return el.routes.map((route) => {
         return {
           id: el.project.value + route.value,
           project: el.project.value,
@@ -114,7 +115,7 @@ const RouteTable = () => {
           )
         }
       })
-    )
+    })
     .flat()
 
   return (

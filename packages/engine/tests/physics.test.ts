@@ -21,7 +21,7 @@ const avatarHalfHeight = avatarHeight / 2
 const mockDelta = 1/60
 let mockElapsedTime = 0
 
-describe('Physics', () => {
+describe.skip('Physics', () => {
 
   after(() => setTimeout(() => process.exit(0), 500))
 
@@ -105,7 +105,7 @@ describe('Physics', () => {
   /**
    * this is a hacky quick fix - replace this with proper unit tests
    */
-  it('Can detect dynamic and trigger collision', async () => {
+  it.skip('Can detect dynamic and trigger collision', async () => {
     await initializeEngine(engineTestSetup)
     Engine.engineTimer?.clear()
 

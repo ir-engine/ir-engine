@@ -4,6 +4,7 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { SceneActionType } from './SceneActions'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
+import { store } from '../../store'
 
 export const SCENE_PAGE_LIMIT = 100
 
@@ -26,7 +27,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: SceneActionType): any => {
+store.receptors.push((action: SceneActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
@@ -44,7 +45,7 @@ export const receptor = (action: SceneActionType): any => {
         })
     }
   }, action.type)
-}
+})
 
 export const accessSceneState = () => state
 

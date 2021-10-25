@@ -1,5 +1,9 @@
 import i18n from 'i18next'
-import { SceneDetailInterface, SceneInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import {
+  SceneDetailInterface,
+  SceneInterface,
+  SceneSaveInterface
+} from '@xrengine/common/src/interfaces/SceneInterface'
 import { upload } from '@xrengine/client-core/src/util/upload'
 import { ProjectManager } from '../managers/ProjectManager'
 import { SceneManager } from '../managers/SceneManager'
@@ -156,8 +160,8 @@ export const saveScene = async (projectId, signal): Promise<SceneDetailInterface
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const scene = SceneManager.instance.scene
-  const serializedScene = await scene.serialize(projectId)
+  const sceneNode = SceneManager.instance.scene
+  const serializedScene = await sceneNode.serialize(projectId)
   const projectBlob = new Blob([JSON.stringify(serializedScene)], { type: 'application/json' })
   const {
     file_id: projectFileId,
@@ -168,33 +172,27 @@ export const saveScene = async (projectId, signal): Promise<SceneDetailInterface
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const project = {
-    name: scene.name,
+  ProjectManager.instance.ownedFileIds = {
+    ...ProjectManager.instance.ownedFileIds,
+    ...ProjectManager.instance.currentOwnedFileIds
+  }
+
+  ProjectManager.instance.currentOwnedFileIds = {}
+
+  const scene: SceneSaveInterface = {
+    name: sceneNode.name,
+    scene_id: sceneNode.metadata?.sceneId!,
     thumbnailOwnedFileId: {
       file_id: thumbnailFileId,
       file_token: thumbnailFileToken
     },
-    ownedFileIds: {},
+    ownedFileIds: ProjectManager.instance.ownedFileIds,
     scene_file_id: projectFileId,
     scene_file_token: projectFileToken
   }
 
-  const sceneId = scene.metadata && scene.metadata.sceneId ? scene.metadata.sceneId : null
-
-  if (sceneId) {
-    project['scene_id'] = sceneId
-  }
-
-  ProjectManager.instance.ownedFileIds = Object.assign(
-    {},
-    ProjectManager.instance.ownedFileIds,
-    ProjectManager.instance.currentOwnedFileIds
-  )
-  project.ownedFileIds = Object.assign({}, project.ownedFileIds, ProjectManager.instance.ownedFileIds)
-  ProjectManager.instance.currentOwnedFileIds = {}
-
   try {
-    return (await client.service('scene').patch(projectId, { scene: project })) as SceneDetailInterface
+    return (await client.service('scene').patch(projectId, { scene })) as SceneDetailInterface
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)

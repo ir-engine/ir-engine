@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 # syntax = docker/dockerfile:1.2
-=======
->>>>>>> parent of f8f603a93a... Init commit
 # not slim because we need github depedencies
 FROM node:16-buster
 
@@ -12,7 +9,7 @@ WORKDIR /app
 # copy then compile the code
 COPY . .
 
-RUN npm run build-docker
+RUN npm run build-client
 
 ENV APP_ENV=production
 

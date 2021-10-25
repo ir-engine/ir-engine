@@ -1,5 +1,6 @@
 import { GeneralStateList, AppActionType } from './AppActions'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { store } from '../../store'
 
 /*
 type AppState = {
@@ -28,7 +29,7 @@ const state = createState({
   loadPercent: 0
 })
 
-export const receptor = (action: AppActionType): void => {
+store.receptors.push((action: AppActionType): void => {
   state.batch((s) => {
     switch (action.type) {
       case 'SET_APP_LOADED':
@@ -68,7 +69,7 @@ export const receptor = (action: AppActionType): void => {
         break
     }
   }, action.type)
-}
+})
 
 export const appState = () => state
 
