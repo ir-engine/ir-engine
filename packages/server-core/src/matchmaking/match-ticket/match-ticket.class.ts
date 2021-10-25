@@ -1,7 +1,7 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import { BadRequest } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
-import { createTicket, deleteTicket, getTicket } from '../../../../../../xrengine-matchmaking/src/functions'
+import { createTicket, deleteTicket, getTicket } from 'xrengine-matchmaking/src/functions'
 import { OpenMatchTicket, OpenMatchTicketAssignment } from '@xrengine/engine/tests/mathmaker/interfaces'
 
 interface Data {}
