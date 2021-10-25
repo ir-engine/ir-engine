@@ -58,7 +58,7 @@
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
     "autoprefixer": "10.3.7",
-    "axios": "0.23.0",
+    "axios": "0.24.0",
     "classnames": "2.3.1",
     "credential-handler-polyfill": "2.2.1",
     "cross-env": "7.0.3",

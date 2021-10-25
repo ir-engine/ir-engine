@@ -53,7 +53,7 @@
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.15",
     "@vladmandic/face-api": "1.5.6",
-    "axios": "0.23.0",
+    "axios": "0.24.0",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
     "cross-blob": "3.0.0",
