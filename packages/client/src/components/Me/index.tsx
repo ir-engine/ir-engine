@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styles from './Me.module.scss'
 import PartyParticipantWindow from '../PartyParticipantWindow'
-import { ChevronRight } from '@material-ui/icons'
+import { ChevronRight } from '@mui/icons-material'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 const Me = () => {

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import Button from '@material-ui/core/Button'
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
+import Button from '@mui/material/Button'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
 // @ts-ignore
 import styles from '../UserMenu.module.scss'
-import { NavigateNext, NavigateBefore } from '@material-ui/icons'
+import { NavigateNext, NavigateBefore } from '@mui/icons-material'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
 //import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'

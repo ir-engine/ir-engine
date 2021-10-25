@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import styles from './Registration.module.scss'
-import { TextField, InputAdornment } from '@material-ui/core'
-import { Check } from '@material-ui/icons'
+import { TextField, InputAdornment } from '@mui/material'
+import { Check } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 
 const ChangedUserName = ({ defaultValue, updateUserName }) => {

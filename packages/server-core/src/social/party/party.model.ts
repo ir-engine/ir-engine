@@ -14,7 +14,7 @@ export default (app: Application) => {
       },
       name: {
         type: DataTypes.STRING,
-        allowNull: false
+        defaultValue: ''
       }
     },
     {
