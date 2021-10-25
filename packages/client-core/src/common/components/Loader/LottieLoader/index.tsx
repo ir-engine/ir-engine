@@ -33,11 +33,13 @@ const LottieLoader = () => {
     const path = Loaders[parseInt(pathIndex)]
 
     import(`./Loaders/${path}.json`).then((res) => {
-      if(!mounted) return
+      if (!mounted) return
       setAnimation(res)
     })
 
-    return () => {mounted = false}
+    return () => {
+      mounted = false
+    }
   }, [])
 
   return (

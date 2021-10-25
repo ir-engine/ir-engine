@@ -17,7 +17,7 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 
 const initController = (controller: any, left: boolean) => {
-  if(controller.userData.mesh){
+  if (controller.userData.mesh) {
     return
   }
 
@@ -40,7 +40,7 @@ export const addDefaultControllerModels = (entity: Entity) => {
   const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
 
   controllers.forEach((controller: any) => {
-    if(controller.userData.eventListnerAdded){
+    if (controller.userData.eventListnerAdded) {
       return
     }
 
@@ -74,7 +74,7 @@ export const addDefaultControllerModels = (entity: Entity) => {
   const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
 
   controllersGrip.forEach((controller: any) => {
-    if(controller.userData.eventListnerAdded){
+    if (controller.userData.eventListnerAdded) {
       return
     }
 
@@ -98,7 +98,7 @@ export const addDefaultControllerModels = (entity: Entity) => {
 
       controller.userData.xrInputSource = xrInputSource
     })
-    
+
     // TODO: Should call this function inside above event to get correct mapping
     initController(controller, controller === xrInputSourceComponent.controllerGripLeft)
   })
