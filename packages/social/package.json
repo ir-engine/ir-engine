@@ -61,7 +61,7 @@
     "webxr-native": "0.3.0"
   },
   "devDependencies": {
-    "@types/node": "14.17.29",
+    "@types/node": "14.17.31",
     "@types/react": "17.0.32",
     "config": "3.3.6",
     "cross-env": "7.0.3",
