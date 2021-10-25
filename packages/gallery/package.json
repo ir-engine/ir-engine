@@ -46,7 +46,7 @@
     "formik": "2.2.9",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "react-pdf": "5.4.0",
+    "react-pdf": "5.5.0",
     "react-redux": "7.2.5",
     "react-router-transition": "2.1.0",
     "react-video-recorder": "3.19.1",
