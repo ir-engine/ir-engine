@@ -232,18 +232,6 @@ export class S3Provider implements StorageProviderInterface {
     })
   }
 
-  moveContent(current: string, destination: string, isCopy: boolean, renameTo: string): Promise<any> {
-    throw new Error('Method not implemented.')
-  }
-
-  deleteContent(contentPath: string, type: string): Promise<any> {
-    throw new Error('Method not implemented.')
-  }
-
-  createDirectory(dir: any): Promise<boolean> {
-    throw new Error('Method not implemented.')
-  }
-
   listFolderContent = async (folderName: string): Promise<any> => {
     folderName = '/d923a320-d383-11eb-af5f-170c022909be/'
     const folderContent = (await this.listObjects(folderName)).Contents
@@ -252,8 +240,8 @@ export class S3Provider implements StorageProviderInterface {
       const np = new RegExp(`${folderName}${'(?<filename>.*)'}`)
       const fileName = np.exec(folderContent[i].Key).groups.filename
       const contentType = await this.getObjectContentType(folderContent[i].Key)
-      const url = await this.getSignedUrl(folderContent[i].Key, 1000, {})
-      console.log('URL Is:' + JSON.stringify(url))
+      // const url = await this.getSignedUrl(folderContent[i].Key, 1000, {})
+      // console.log('URL Is:' + JSON.stringify(url))
       const cont: FileBrowserContentType = {
         url: 'https://localhost:3000/editor/new',
         name: fileName,

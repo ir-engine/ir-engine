@@ -91,11 +91,11 @@ export interface StorageProviderInterface {
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
 
-  /**
-   * Create a new Folder in Store
-   * @param dir
-   */
-  createDirectory(dir): Promise<boolean>
+  // /**
+  //  * Create a new Folder in Store
+  //  * @param dir
+  //  */
+  // createDirectory(dir): Promise<boolean>
 
   /**
    * List all the files/folders in the directory
@@ -103,18 +103,18 @@ export interface StorageProviderInterface {
    */
   listFolderContent(folderName: string): Promise<any>
 
-  /**
-   * Move content to/from a directory
-   * @param current
-   * @param destination
-   * @param isCopy
-   * @param isRename
-   */
-  moveContent(current: string, destination: string, isCopy: boolean, isRename: string): Promise<any>
+  // /**
+  //  * Move content to/from a directory
+  //  * @param current
+  //  * @param destination
+  //  * @param isCopy
+  //  * @param isRename
+  //  */
+  // moveContent(current: string, destination: string, isCopy: boolean, isRename: string): Promise<any>
 
-  /**
-   * Delete content using its path
-   * @param contentPath
-   */
-  deleteContent(contentPath: string, type: string): Promise<any>
+  // /**
+  //  * Delete content using its path
+  //  * @param contentPath
+  //  */
+  // deleteContent(contentPath: string, type: string): Promise<any>
 }

@@ -163,7 +163,7 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
   return (
     <div ref={drop}>
       <div ref={drag}>
-        <ContextMenuTrigger id={contextMenuId} holdToDisplay={-1} item={item} collect={collectMenuProps}>
+        <ContextMenuTrigger id={contextMenuId} holdToDisplay={-1} collect={collectMenuProps}>
           {content}
         </ContextMenuTrigger>
 
@@ -270,19 +270,22 @@ export function FileBrowserGrid({
     <>
       <VerticalScrollContainer flex>
         <MediaGrid minWidth={'60px'}>
-          {unique(items, 'id').map((item, index) => (
-            <MemoFileGridItem
-              key={item.id}
-              contextMenuId={uniqueId.current + index}
-              item={item}
-              selected={selectedItems.indexOf(item) !== -1}
-              onClick={onSelect}
-              moveContent={moveContent}
-              deleteContent={deleteContent}
-              currentContent={currentContent}
-            />
-          ))}
-          {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
+          {isLoading ? (
+            <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>
+          ) : (
+            unique(items, 'id').map((item, index) => (
+              <MemoFileGridItem
+                key={item.id}
+                contextMenuId={uniqueId.current + index}
+                item={item}
+                selected={selectedItems.indexOf(item) !== -1}
+                onClick={onSelect}
+                moveContent={moveContent}
+                deleteContent={deleteContent}
+                currentContent={currentContent}
+              />
+            ))
+          )}
         </MediaGrid>
       </VerticalScrollContainer>
     </>
