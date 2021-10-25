@@ -83,6 +83,20 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       marginBottom: '15px',
       background: '#343b41',
       color: '#f1f1f1 !important'
+    },
+    listBtn: {
+      backgroundColor: '#43484F',
+      color: '#fff',
+      '&:hover': {
+        background: 'rgba(0,0,0,0.9)'
+      }
+    },
+    listText: {
+      backgroundColor: '#43484F',
+      width: '100%',
+      '&:hover': {
+        background: 'rgba(0,0,0,0.9)'
+      }
     }
   })
 )

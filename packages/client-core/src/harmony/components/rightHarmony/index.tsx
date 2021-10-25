@@ -65,6 +65,7 @@ export default function RightHarmony() {
 
   useEffect(() => {
     if (targetChannelId) {
+      console.log(persed)
       ChatService.getChannelMessages(targetChannelId)
     }
   }, [targetChannelId])

@@ -12,9 +12,9 @@ import queryString from 'querystring'
 const LeftHarmony = () => {
   const classes = useUserStyles()
   const classx = useStyle()
-  const [chatType, setChatType] = React.useState('Party')
   const history = useHistory()
   const persed = queryString.parse(location.search)
+  const [chatType, setChatType] = React.useState(persed['?channel'] ? persed['?channel'] : 'Party')
 
   const handleChangeType = (event) => {
     setChatType(event.target.value)

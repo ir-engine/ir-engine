@@ -31,7 +31,6 @@ const state = createState({
 
 store.receptors.push((action: ChatActionType): any => {
   state.batch((s) => {
-    console.log(action!.type, s?.channels)
     switch (action!.type) {
       case 'LOADED_CHANNELS':
         s.channels.merge({

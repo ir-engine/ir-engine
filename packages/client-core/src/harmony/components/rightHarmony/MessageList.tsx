@@ -45,7 +45,6 @@ export default function MessageList(props: Props) {
   const [messageTodelete, setMessageToDelete] = useState('')
   const [showWarning, setShowWarning] = React.useState(false)
 
-  console.log(activeChannel)
   const handleClick = (event: React.MouseEvent<HTMLElement>, message: Message) => {
     setAnchorEl(event.currentTarget)
     setMessageToDelete(message.id)
@@ -106,9 +105,6 @@ export default function MessageList(props: Props) {
       return date
     }
   }
-  console.log('..................')
-
-  console.log('MMM', activeChannel)
 
   return (
     <div className={classes.messageContainer}>
