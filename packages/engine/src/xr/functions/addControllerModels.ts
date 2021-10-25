@@ -17,6 +17,10 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 
 const initController = (controller: any, left: boolean) => {
+  if(controller.userData.mesh){
+    return
+  }
+
   const controller3DModel = AssetLoader.getFromCache('/models/webxr/controllers/valve_controller_knu_1_0_right.glb')
     .scene.children[2]
 
@@ -36,6 +40,12 @@ export const addDefaultControllerModels = (entity: Entity) => {
   const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
 
   controllers.forEach((controller: any) => {
+    if(controller.userData.eventListnerAdded){
+      return
+    }
+
+    controller.userData.eventListnerAdded = true
+
     controller.addEventListener('connected', (ev) => {
       const xrInputSource = ev.data as XRInputSource
 
@@ -64,6 +74,12 @@ export const addDefaultControllerModels = (entity: Entity) => {
   const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
 
   controllersGrip.forEach((controller: any) => {
+    if(controller.userData.eventListnerAdded){
+      return
+    }
+
+    controller.userData.eventListnerAdded = true
+
     // TODO: For some reason this event only fires when picking up the controller again on Oculus Quest 2
     controller.addEventListener('connected', (ev) => {
       const xrInputSource = ev.data as XRInputSource
@@ -82,7 +98,7 @@ export const addDefaultControllerModels = (entity: Entity) => {
 
       controller.userData.xrInputSource = xrInputSource
     })
-
+    
     // TODO: Should call this function inside above event to get correct mapping
     initController(controller, controller === xrInputSourceComponent.controllerGripLeft)
   })

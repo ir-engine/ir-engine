@@ -264,9 +264,9 @@ export default async function CameraSystem(world: World): Promise<System> {
       updateCameraTargetRotation(entity, delta)
     }
 
-    if (Engine.xrRenderer?.isPresenting) {
-      Engine.xrRenderer.updateCamera(Engine.camera)
-    } else if (typeof Engine.activeCameraEntity !== 'undefined') {
+    if (Engine.xrManager?.isPresenting) {
+      Engine.xrManager.updateCamera(Engine.camera)
+    } else if (Engine.activeCameraEntity !== undefined) {
       const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
       Engine.camera.position.copy(transform.position)
       Engine.camera.quaternion.copy(transform.rotation)

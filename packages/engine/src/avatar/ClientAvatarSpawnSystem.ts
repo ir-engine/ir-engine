@@ -1,5 +1,3 @@
-import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { CameraMode } from '../camera/types/CameraMode'
 import { addComponent, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { ShadowComponent } from '../scene/components/ShadowComponent'
@@ -10,8 +8,8 @@ import { World } from '../ecs/classes/World'
 import { Engine } from '../ecs/classes/Engine'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import matches from 'ts-matches'
-import { Raycaster } from 'three'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
+import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 
 export default async function ClientAvatarSpawnSystem(world: World): Promise<System> {
   world.receptors.push((action) => {
@@ -24,19 +22,7 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
 
       if (spawnAction.userId === Engine.userId) {
         addComponent(entity, LocalInputTagComponent, {})
-        addComponent(entity, FollowCameraComponent, {
-          mode: CameraMode.ThirdPerson,
-          distance: 5,
-          zoomLevel: 5,
-          zoomVelocity: { value: 0 },
-          minDistance: 2,
-          maxDistance: 7,
-          theta: Math.PI,
-          phi: 0,
-          shoulderSide: true,
-          locked: true,
-          raycaster: new Raycaster()
-        })
+        addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
 
         const entityMetadata = getComponent(entity, VisibleComponent)
         entityMetadata.persist = true
