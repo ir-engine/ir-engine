@@ -53,7 +53,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       const url = content.url
       const returningObject = {
         description: url,
-        id: content.key,
+        id: content.url,
         label: content.name,
         nodeClass: nodeClass,
         url: url,

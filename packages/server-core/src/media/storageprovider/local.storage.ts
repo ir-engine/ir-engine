@@ -135,7 +135,6 @@ export class LocalStorage implements StorageProviderInterface {
       const query = regexx.exec(key)
       const url = this.getSignedUrl(key, 3600, null).url
       const res: FileBrowserContentType = {
-        key,
         name: query.groups.name,
         type: query.groups.extension,
         url
@@ -147,7 +146,6 @@ export class LocalStorage implements StorageProviderInterface {
       const name = key.replace(`${folderName}`, '').split('/')[0]
       const url = this.getSignedUrl(key, 3600, null).url
       const res: FileBrowserContentType = {
-        key,
         name,
         type: 'folder',
         url
