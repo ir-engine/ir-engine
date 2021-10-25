@@ -147,6 +147,14 @@ if (config.server.enabled) {
           token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
         }
       })
+      app.k8AppsClient = api({
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
+        version: '/apis/apps/v1',
+        auth: {
+          caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
+          token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
+        }
+      })
     }
 
     app.use('/healthcheck', (req, res) => {

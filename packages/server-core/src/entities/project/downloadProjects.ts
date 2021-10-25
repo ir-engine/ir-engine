@@ -4,16 +4,18 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import fs from 'fs'
 import path from 'path'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
+import appRootPath from 'app-root-path'
 
 const storageProvider = useStorageProvider()
 
 export const download = async (packName) => {
   try {
-    const files = await getFileKeysRecursive(`project/${packName}`)
-
+    console.log('downloading pack with pack name', packName)
+    const files = await getFileKeysRecursive(`projects/${packName}`)
+    console.log(files)
     console.log('[ProjectLoader]: Installing project', packName, '...')
 
-    const localProjectDirectory = path.resolve(__dirname, '../../projects/projects', packName)
+    const localProjectDirectory = path.resolve(appRootPath.path, 'packages/projects/projects', packName)
     if (fs.existsSync(localProjectDirectory)) {
       console.log('[Project temp debug]: fs exists, deleting')
       deleteFolderRecursive(localProjectDirectory)
@@ -22,7 +24,8 @@ export const download = async (packName) => {
     for (const filePath of files) {
       console.log(`[ProjectLoader]: - downloading "${filePath}"`)
       const fileResult = await storageProvider.getObject(filePath)
-      writeFileSyncRecursive(path.resolve(localProjectDirectory, filePath), fileResult.Body.toString()) //, 'utf8')
+      console.log(path.resolve(appRootPath.path, 'packages/projects'))
+      writeFileSyncRecursive(path.resolve(appRootPath.path, 'packages/projects', filePath), fileResult.Body.toString()) //, 'utf8')
     }
 
     console.log('[ProjectLoader]: Successfully downloaded and mounted project', packName)
