@@ -17,6 +17,15 @@ export interface SignedURLResponse {
   cacheDomain: string
 }
 
+export interface BlobStore {
+  path: string
+  cache: any
+  createWriteStream(options: string | { key: string }, cb?: (err, result) => void)
+  createReadStream(key: string | { key: string }, options?: any)
+  exists(options: string | { key: string }, cb?: (err, result) => void)
+  remove(options: string | { key: string }, cb?: (err, result) => void)
+}
+
 export interface StorageProviderInterface {
   cacheDomain: string
 
@@ -54,7 +63,7 @@ export interface StorageProviderInterface {
   /**
    * @returns {any} Blob store
    */
-  getStorage(): any
+  getStorage(): BlobStore
 
   /**
    * Get a list of keys under a path
@@ -82,11 +91,11 @@ export interface StorageProviderInterface {
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
 
-  /**
-   * Create a new Folder in Store
-   * @param dir
-   */
-  createDirectory(dir): Promise<boolean>
+  // /**
+  //  * Create a new Folder in Store
+  //  * @param dir
+  //  */
+  // createDirectory(dir): Promise<boolean>
 
   /**
    * List all the files/folders in the directory
@@ -94,18 +103,18 @@ export interface StorageProviderInterface {
    */
   listFolderContent(folderName: string): Promise<any>
 
-  /**
-   * Move content to/from a directory
-   * @param current
-   * @param destination
-   * @param isCopy
-   * @param isRename
-   */
-  moveContent(current: string, destination: string, isCopy: boolean, isRename: string): Promise<any>
+  // /**
+  //  * Move content to/from a directory
+  //  * @param current
+  //  * @param destination
+  //  * @param isCopy
+  //  * @param isRename
+  //  */
+  // moveContent(current: string, destination: string, isCopy: boolean, isRename: string): Promise<any>
 
-  /**
-   * Delete content using its path
-   * @param contentPath
-   */
-  deleteContent(contentPath: string, type: string): Promise<any>
+  // /**
+  //  * Delete content using its path
+  //  * @param contentPath
+  //  */
+  // deleteContent(contentPath: string, type: string): Promise<any>
 }

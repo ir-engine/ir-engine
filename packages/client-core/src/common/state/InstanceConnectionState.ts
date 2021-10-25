@@ -1,4 +1,5 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { store } from '../../store'
 
 import { InstanceConnectionActionType } from './InstanceConnectionActions'
 
@@ -21,7 +22,7 @@ const state = createState({
 
 let connectionSocket = null
 
-export const receptor = (action: InstanceConnectionActionType): any => {
+store.receptors.push((action: InstanceConnectionActionType): any => {
   let newValues, newInstance
   state.batch((s) => {
     switch (action.type) {
@@ -73,7 +74,7 @@ export const receptor = (action: InstanceConnectionActionType): any => {
         return state
     }
   }, action.type)
-}
+})
 
 export const accessInstanceConnectionState = () => state
 

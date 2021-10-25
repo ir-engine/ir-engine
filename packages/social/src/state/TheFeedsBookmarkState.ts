@@ -24,7 +24,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: TheFeedsBookmarkActionType): any => {
+store.receptors.push((action: TheFeedsBookmarkActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADD_THEFEEDS_BOOKMARK':
@@ -35,7 +35,7 @@ export const receptor = (action: TheFeedsBookmarkActionType): any => {
         ])
     }
   }, action.type)
-}
+})
 
 export const accessTheFeedsBookmarkState = () => state
 export const useTheFeedsBookmarkState = () => useState(state)

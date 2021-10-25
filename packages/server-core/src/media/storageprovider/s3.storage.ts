@@ -1,3 +1,4 @@
+import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
 import AWS from 'aws-sdk'
 import { PresignedPost } from 'aws-sdk/clients/s3'
 import S3BlobStore from 's3-blob-store'
@@ -10,17 +11,6 @@ import {
 } from './storageprovider.interface'
 
 export class S3Provider implements StorageProviderInterface {
-  moveContent(current: string, destination: string, isCopy: boolean, renameTo: string): Promise<any> {
-    throw new Error('Method not implemented.')
-  }
-
-  deleteContent(contentPath: string, type: string): Promise<any> {
-    throw new Error('Method not implemented.')
-  }
-
-  createDirectory(dir: any): Promise<boolean> {
-    throw new Error('Method not implemented.')
-  }
   bucket = config.aws.s3.staticResourceBucket
   cacheDomain = config.aws.cloudfront.domain
   provider: AWS.S3 = new AWS.S3({
@@ -87,9 +77,24 @@ export class S3Provider implements StorageProviderInterface {
       )
     )
   }
-  listFolderContent = async (folderName: string): Promise<any> => {
-    ////////////////
-    return {}
+
+  getObjectContentType = async (key: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      this.provider.headObject(
+        {
+          Bucket: this.bucket,
+          Key: key
+        },
+        (err, data) => {
+          if (err) {
+            console.log('Error:' + err)
+            reject(err)
+          } else {
+            resolve(data.ContentType)
+          }
+        }
+      )
+    })
   }
 
   listObjects = async (prefix: string): Promise<StorageListObjectInterface> => {
@@ -97,7 +102,8 @@ export class S3Provider implements StorageProviderInterface {
       this.provider.listObjectsV2(
         {
           Bucket: this.bucket,
-          Prefix: prefix
+          Prefix: prefix,
+          Delimiter: '/'
         },
         (err, data) => {
           if (err) {
@@ -224,6 +230,26 @@ export class S3Provider implements StorageProviderInterface {
         }
       )
     })
+  }
+
+  listFolderContent = async (folderName: string): Promise<any> => {
+    folderName = '/d923a320-d383-11eb-af5f-170c022909be/'
+    const folderContent = (await this.listObjects(folderName)).Contents
+    const returnCon = []
+    for (let i = 0; i < folderContent.length; i++) {
+      const np = new RegExp(`${folderName}${'(?<filename>.*)'}`)
+      const fileName = np.exec(folderContent[i].Key).groups.filename
+      const contentType = await this.getObjectContentType(folderContent[i].Key)
+      // const url = await this.getSignedUrl(folderContent[i].Key, 1000, {})
+      // console.log('URL Is:' + JSON.stringify(url))
+      const cont: FileBrowserContentType = {
+        url: 'https://localhost:3000/editor/new',
+        name: fileName,
+        type: contentType
+      }
+      returnCon.push(cont)
+    }
+    return returnCon
   }
 }
 export default S3Provider

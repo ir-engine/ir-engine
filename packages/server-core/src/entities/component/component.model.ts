@@ -1,9 +1,17 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
 
-export default (app: Application): any => {
+export type ComponentModelType = {
+  id: string
+  name: any
+  props: any
+  data: any
+  entityId: string
+}
+
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const component = sequelizeClient.define(
+  const component = sequelizeClient.define<Model<ComponentModelType>>(
     'component',
     {
       id: {

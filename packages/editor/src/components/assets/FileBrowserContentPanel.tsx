@@ -5,6 +5,8 @@ import styles from './styles.module.scss'
 import { AssetPanelContentContainer } from './AssetsPanel'
 import { UploadFileType } from './sources/MyAssetsSource'
 import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
+import { getUrlFromId } from '../../functions/getUrlFromId'
+import { getContentType } from '../../functions/getContentType'
 import { NodeManager } from '../../managers/NodeManager'
 import FileBrowserGrid from './FileBrowserGrid'
 import { File } from '@styled-icons/fa-solid/File'
@@ -14,6 +16,8 @@ import { ToolButton } from '../toolbar/ToolButton'
 import { ArrowBack } from '@styled-icons/boxicons-regular/ArrowBack'
 import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
 import { client } from '@xrengine/client-core/src/feathers'
+import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/state/FileBrowserService'
+
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  * @author Abhishek Pathak
@@ -21,69 +25,59 @@ import { client } from '@xrengine/client-core/src/feathers'
  */
 
 export default function FileBrowserContentPanel({ onSelectionChanged }) {
-  const isLoading = true
   const { t } = useTranslation()
 
   const onSelect = (props) => {
-    if (props.type !== 'folder')
+    if (props.type !== 'folder') {
       onSelectionChanged({ resourceUrl: props.description, name: props.label, contentType: props.type })
-    else {
+    } else {
       const newPath = `${selectedDirectory}${props.label}/`
       console.log('New Path for the DIrectory is:' + newPath)
       setSelectedDirectory(newPath)
     }
   }
 
+  const [isLoading, setLoading] = useState(true)
   const [selectedDirectory, setSelectedDirectory] = useState('/')
-  const [selectedProjectFiles, setSelectedProjectFiles] = useState([])
+  const fileState = useFileBrowserState()
 
-  const renderProjectFiles = async (directory) => {
-    const returningObjects = []
-    const resultFromThis = directory ? ((await client.service(`file-browser`).get(directory)) as any[]) : []
-
-    for (let i = 0; i < resultFromThis.length; i++) {
-      const content = resultFromThis[i] as FileBrowserContentType
-      const nodeClass = UploadFileType[content.type]
-      const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
-      const iconComponent = nodeEditor
-        ? nodeEditor.WrappedComponent
-          ? nodeEditor.WrappedComponent.iconComponent
-          : nodeEditor.iconComponent
-        : File
-      const url = content.url
-      const returningObject = {
-        description: url,
-        id: content.key,
-        label: content.name,
-        nodeClass: nodeClass,
-        url: url,
-        type: content.type,
-        initialProps: { src: new URL(url) },
-        iconComponent
-      }
-      returningObjects.push(returningObject)
+  const files = fileState.files.value.map((file) => {
+    const nodeClass = UploadFileType[file.type]
+    const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
+    const iconComponent = nodeEditor
+      ? nodeEditor.WrappedComponent
+        ? nodeEditor.WrappedComponent.iconComponent
+        : nodeEditor.iconComponent
+      : File
+    const url = file.url
+    return {
+      description: url,
+      id: file.url,
+      label: file.name,
+      nodeClass: nodeClass,
+      url: url,
+      type: file.type,
+      initialProps: { src: new URL(url) },
+      iconComponent
     }
-    setSelectedProjectFiles(returningObjects)
-  }
+  })
 
   useEffect(() => {
-    renderProjectFiles(selectedDirectory)
+    setLoading(false)
+  }, [fileState.files.value])
+
+  useEffect(() => {
+    onRefreshDirectory()
   }, [selectedDirectory])
 
-  const addNewFolder = () => {
-    client
-      .service(`file-browser`)
-      .create({ fileName: `${selectedDirectory}NewFolder` })
-      .then((res) => {
-        if (res) renderProjectFiles(selectedDirectory)
-      })
-      .catch(() => {
-        console.log("Can't Create new Folder")
-      })
+  const addNewFolder = async () => {
+    await FileBrowserService.addNewFolder(selectedDirectory)
+    onRefreshDirectory()
   }
 
   const onRefreshDirectory = () => {
-    renderProjectFiles(selectedDirectory)
+    FileBrowserService.fetchFiles(selectedDirectory)
+    setLoading(true)
   }
 
   const onBackDirectory = () => {
@@ -97,28 +91,23 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     setSelectedDirectory(newPath)
   }
 
-  const moveContent = (from, to, isCopy = false, renameTo = null) => {
-    client
-      .service('file-browser')
-      .update(from, { destination: to, isCopy, renameTo })
-      .then((res) => {
-        if (res) renderProjectFiles(selectedDirectory)
-      })
-      .catch(() => console.log('Error on Moving'))
+  const moveContent = async (from, to, isCopy = false, renameTo = null) => {
+    await FileBrowserService.moveContent(from, to, isCopy, renameTo)
+    onRefreshDirectory()
   }
 
-  const deleteContent = ({ contentPath, type }) => {
-    client
-      .service('file-browser')
-      .remove(contentPath, { query: { type } })
-      .then((res) => {
-        if (res) renderProjectFiles(selectedDirectory)
-      })
-      .catch(() => console.log('Error on Deletion'))
+  const deleteContent = async ({ contentPath, type }) => {
+    await FileBrowserService.deleteContent(contentPath, type)
+    onRefreshDirectory()
   }
 
-  const pasteContent = () => {
-    moveContent(currentContentRef.current.itemid, selectedDirectory, currentContentRef.current.isCopy)
+  const pasteContent = async () => {
+    await FileBrowserService.moveContent(
+      currentContentRef.current.itemid,
+      selectedDirectory,
+      currentContentRef.current.isCopy
+    )
+    onRefreshDirectory()
   }
 
   let currentContent = null
@@ -136,9 +125,9 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
         <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
           <AssetPanelContentContainer>
             <FileBrowserGrid
-              items={selectedProjectFiles}
+              items={files}
               onSelect={onSelect}
-              isLoading={false}
+              isLoading={isLoading}
               moveContent={moveContent}
               deleteContent={deleteContent}
               currentContent={currentContentRef}

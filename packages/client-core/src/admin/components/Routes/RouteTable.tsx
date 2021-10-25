@@ -34,7 +34,7 @@ export const routeColumns: RouteColumn[] = [
 /**
  * Temporary
  */
-const ROUTE_PAGE_LIMIT = 10
+const ROUTE_PAGE_LIMIT = 1000
 
 /**
  *
@@ -98,7 +98,7 @@ const RouteTable = () => {
     RouteService.setRouteActive(project, route, checked)
     // }, 1000)
   }
-  console.log(installedRouteData)
+
   const installedRoutes = installedRouteData
     .map((el) => {
       if (!el.routes?.length) return []
