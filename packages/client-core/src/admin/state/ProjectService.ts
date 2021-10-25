@@ -30,3 +30,12 @@ export async function removeProject(id: string) {
   console.log('Remove project result', result)
   fetchAdminProjects()
 }
+
+export async function triggerReload() {
+  const result = await client.service('project-build').patch({ rebuild: true })
+  console.log('Remove project result', result)
+}
+// TODO
+// client.service('project-build').on('patched', (params) => {
+//   store.dispatch(ProjectAction.buildProgress(params.message))
+// })

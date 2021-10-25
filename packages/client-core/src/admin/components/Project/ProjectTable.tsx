@@ -15,7 +15,7 @@ import Paper from '@material-ui/core/Paper'
 import TablePagination from '@material-ui/core/TablePagination'
 import { useAuthState } from '../../../user/state/AuthState'
 import { PROJECT_PAGE_LIMIT, useProjectState } from '../../state/ProjectState'
-import { fetchAdminProjects, removeProject, uploadProject } from '../../state/ProjectService'
+import { fetchAdminProjects, removeProject, triggerReload, uploadProject } from '../../state/ProjectService'
 import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
@@ -203,6 +203,17 @@ const Projects = () => {
               onClick={() => setUploadProjectsModalOpen(true)}
             >
               {'Add Project'}
+            </Button>
+          </Grid>
+          <Grid item xs={6}>
+            <Button
+              className={styles['open-modal']}
+              type="button"
+              variant="contained"
+              color="primary"
+              onClick={triggerReload}
+            >
+              {'Rebuild'}
             </Button>
           </Grid>
         </Grid>

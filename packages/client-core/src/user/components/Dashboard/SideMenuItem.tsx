@@ -120,6 +120,22 @@ const SideMenuItem = (props: Props) => {
           </ListItem>
         </Link>
 
+        {allowedRoutes.projects && (
+          <Link to="/admin/projects" className={classes.textLink}>
+            <ListItem
+              classes={{ selected: classes.selected }}
+              selected={'/admin/projects' === pathname}
+              style={{ color: 'white' }}
+              button
+            >
+              <ListItemIcon>
+                <Code style={{ color: 'white' }} />
+              </ListItemIcon>
+              <ListItemText primary={t('user:dashboard.projects')} />
+            </ListItem>
+          </Link>
+        )}
+
         {allowedRoutes.routes && (
           <Link to="/admin/routes" className={classes.textLink}>
             <ListItem
@@ -128,9 +144,9 @@ const SideMenuItem = (props: Props) => {
               style={{ color: 'white' }}
               button
             >
-              <Shuffle>
-                <CalendarViewDay style={{ color: 'white' }} />
-              </Shuffle>
+              <ListItemIcon>
+                <Shuffle style={{ color: 'white' }} />
+              </ListItemIcon>
               <ListItemText primary={t('user:dashboard.routes')} />
             </ListItem>
           </Link>
@@ -318,23 +334,6 @@ const SideMenuItem = (props: Props) => {
                   <Accessibility style={{ color: 'white' }} />
                 </ListItemIcon>
                 <ListItemText primary={t('user:dashboard.avatars')} />
-              </ListItem>
-            </Link>
-          )}
-
-          {allowedRoutes.projects && (
-            <Link to="/admin/projects" className={classes.textLink}>
-              <ListItem
-                classes={{ selected: classes.selected }}
-                selected={'/admin/projects' === pathname}
-                className={classes.nested}
-                style={{ color: 'white' }}
-                button
-              >
-                <ListItemIcon>
-                  <Code style={{ color: 'white' }} />
-                </ListItemIcon>
-                <ListItemText primary={t('user:dashboard.projects')} />
               </ListItem>
             </Link>
           )}
