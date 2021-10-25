@@ -33,7 +33,7 @@ export const receptor = (action: UserActionType): void => {
           return layerUser != null && layerUser.id.value === newUser.id
         })
         if (idx === -1) {
-          s.layerUsers.merge([newUser])
+          s.layerUsers.set([...s.layerUsers.value, newUser])
         } else {
           s.layerUsers[idx].set(newUser)
         }

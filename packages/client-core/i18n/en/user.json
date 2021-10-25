@@ -239,6 +239,17 @@
     "confirmation": "Are you sure?",
     "canNotBeRemoved": "Active Avatar can not be removed",
     "remove": "Remove avatar"
+},
+"personMenu":{
+  "sendMessage":"Send Message",
+  "addAsFriend":"Add As Friend",
+  "trade":"Trade",
+  "pay":"Pay",
+  "mute":"Mute",
+  "block":"Block"
+},
+"inventoryMenu":{
+  "page":"Page"
 }
 
 }

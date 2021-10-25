@@ -47,7 +47,11 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       UserService.getLayerUsers(true)
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
       UserService.getLayerUsers(false)
-  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
+  }, [
+    selfUser?.instanceId.value,
+    userState.layerUsersUpdateNeeded.value,
+    userState.channelLayerUsersUpdateNeeded.value
+  ])
 
   useEffect(() => {
     AuthService.doLoginAuto(true)

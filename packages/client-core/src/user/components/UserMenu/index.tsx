@@ -1,6 +1,7 @@
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import LinkIcon from '@material-ui/icons/Link'
 import PersonIcon from '@material-ui/icons/Person'
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag'
 import SettingsIcon from '@material-ui/icons/Settings'
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -19,6 +20,7 @@ import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
 import LocationMenu from './menus/LocationMenu'
 import CreateLocationMenu from './menus/CreateLocationMenu'
+import InventoryMenu from './menus/InventoryMenu'
 import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
 
@@ -37,6 +39,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const dispatch = useDispatch()
 
   let menus = [
+    { id: Views.Inventory, iconNode: ShoppingBagIcon },
     { id: Views.Profile, iconNode: PersonIcon },
     { id: Views.Settings, iconNode: SettingsIcon },
     { id: Views.Share, iconNode: LinkIcon }
@@ -56,7 +59,8 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.AvatarUpload]: AvatarSelectMenu,
     [Views.Location]: LocationMenu,
     [Views.NewLocation]: CreateLocationMenu,
-    [Views.ReadyPlayer]: ReadyPlayerMenu
+    [Views.ReadyPlayer]: ReadyPlayerMenu,
+    [Views.Inventory]: InventoryMenu
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
@@ -106,6 +110,8 @@ const UserMenu = (props: UserMenuProps): any => {
   const handleRemoveAvatar = (keys: [string]): any => {
     return AuthService.removeAvatar(keys)
   }
+
+  const handleFetchInventoryItemList = () => {}
 
   const updateGraphicsSettings = (newSetting: any): void => {
     const setting = { ...graphics, ...newSetting }
@@ -206,6 +212,26 @@ const UserMenu = (props: UserMenuProps): any => {
           changeActiveMenu: changeActiveMenu,
           uploadAvatarModel: handleUploadAvatarModel,
           isPublicAvatar: false
+        }
+        break
+      case Views.Inventory:
+        args = {
+          changeActiveMenu: changeActiveMenu,
+          itemList: [
+            { id: '1', name: 'test1', image: '/itemPlate.png' },
+            { id: '2', name: 'test2', image: '/itemPlate.png' },
+            { id: '3', name: 'test3', image: '/itemPlate.png' },
+            { id: '4', name: 'test4', image: '/itemPlate.png' },
+            { id: '5', name: 'test5', image: '/itemPlate.png' },
+            { id: '6', name: 'test6', image: '/itemPlate.png' },
+            { id: '7', name: 'test7', image: '/noise.jpg' },
+            { id: '8', name: 'test8', image: '/noise.jpg' },
+            { id: '9', name: 'test9', image: '/noise.jpg' },
+            { id: '10', name: 'test10', image: '/noise.jpg' },
+            { id: '11', name: 'test11', image: '/hdr/city.jpg' },
+            { id: '12', name: 'test12', image: '/hdr/city.jpg' }
+          ],
+          fetchInventoryItemList: handleFetchInventoryItemList
         }
         break
       default:

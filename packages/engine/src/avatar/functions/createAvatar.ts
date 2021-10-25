@@ -102,7 +102,6 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     prevState: new AnimationState(),
     prevVelocity: new Vector3()
   })
-
   addComponent(entity, Object3DComponent, { value: tiltContainer })
 
   const filterData = new PhysX.PxQueryFilterData()

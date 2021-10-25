@@ -27,7 +27,7 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded === true) UserService.getLayerUsers(true)
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded === true)
       UserService.getLayerUsers(false)
-  }, [selfUser, userState.layerUsersUpdateNeeded, userState.channelLayerUsersUpdateNeeded])
+  }, [selfUser?.instanceId.value, userState.layerUsersUpdateNeeded, userState.channelLayerUsersUpdateNeeded])
 
   useEffect(() => {
     if ((Network.instance?.transport as any)?.channelType === 'channel') {

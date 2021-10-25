@@ -296,7 +296,7 @@ const Harmony = (props: Props): any => {
   }, [])
 
   useEffect(() => {
-    if (selfUser?.instanceId != null && MediaStreams.instance.channelType === 'instance') {
+    if (selfUser?.instanceId?.value != null && MediaStreams.instance.channelType === 'instance') {
       MediaStreams.instance.channelId = instanceChannel.id
       TransportService.updateChannelTypeState()
     }
@@ -304,7 +304,11 @@ const Harmony = (props: Props): any => {
       UserService.getLayerUsers(true)
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
       UserService.getLayerUsers(false)
-  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
+  }, [
+    selfUser?.instanceId?.value,
+    userState.layerUsersUpdateNeeded.value,
+    userState.channelLayerUsersUpdateNeeded.value
+  ])
 
   useEffect(() => {
     setActiveAVChannelId(transportState.channelId.value)

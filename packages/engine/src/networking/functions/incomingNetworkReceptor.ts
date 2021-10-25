@@ -26,7 +26,6 @@ export function incomingNetworkReceptor(action) {
         subscribedChatUpdates: []
       })
     })
-
     .when(NetworkWorldAction.destroyClient.matches, ({ userId }) => {
       for (const eid of world.getOwnedNetworkObjects(userId)) {
         const { networkId } = getComponent(eid, NetworkObjectComponent)
@@ -35,7 +34,6 @@ export function incomingNetworkReceptor(action) {
       if (!isClient || userId === Engine.userId) return
       world.clients.delete(userId)
     })
-
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
       const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
       const isOwnedByMe = a.userId === Engine.userId
@@ -46,7 +44,6 @@ export function incomingNetworkReceptor(action) {
       if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
       addComponent(entity, NetworkObjectComponent, a)
     })
-
     .when(NetworkWorldAction.destroyObject.matches, (a) => {
       const entity = world.getNetworkObject(a.networkId)
       if (entity === world.localClientEntity) return

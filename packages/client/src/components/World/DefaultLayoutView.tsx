@@ -12,7 +12,7 @@ import InstanceChat from '../InstanceChat'
 import MediaIconsBox from '../MediaIconsBox'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { usePartyState } from '@xrengine/client-core/src/social/state/PartyState'
-
+import PersonMenu from '@xrengine/client-core/src/user/components/PersonMenu'
 const goHome = () => (window.location.href = window.location.origin)
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
@@ -76,6 +76,7 @@ const DefaultLayoutView = (props: Props) => {
       <InteractableModal />
       {/* <RecordingApp /> */}
       <MediaIconsBox />
+      {/*<PersonMenu user={selfUser}/>*/}
       <UserMenu />
       <EmoteMenu />
       <InstanceChat />

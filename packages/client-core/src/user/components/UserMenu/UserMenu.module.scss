@@ -1400,3 +1400,127 @@
 .hideView{
     display:none;
 }
+
+.inventoryPanel {
+    position: absolute;
+    bottom: 75px;
+    padding: 0 30px;
+    border-radius: 5px;
+    background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
+    backdrop-filter: blur(50px);
+    width: 80%;
+    right: 100px;
+    box-shadow: 16px 16px 32px 0px #11111159;
+    color: black;
+    max-height: calc(100vh - 175px);
+    overflow: auto;
+    touch-action: auto;
+
+    &>.inventoryContainer{ margin-top: 20px; }
+    &>.controlContainer{ margin-bottom: 10px; }
+
+    .inventoryContainer{
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        height: auto;
+        place-content: space-around;
+
+        .itemPreviewWrapper{
+            width: 140px;
+            height: 100px;
+            cursor: pointer;
+            margin: 5px;
+            flex-grow: 0;
+            background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
+            box-shadow: 0px 2px 18px 0px #11111159;
+            position: relative;
+            
+            .itemName{
+                position: absolute;
+                bottom:10px;
+                left: 10px;
+                right: 10px;
+                font-style: normal;
+                font-weight: 500;
+                font-size: 16px;
+                display: flex;
+            }
+
+            &>div{
+                height:100% !important;
+            }
+
+            &>div>img{
+                height:100% !important;
+            }
+        }
+    }
+
+    .controlContainer {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+
+        .pageBlock {
+            width: 100%;
+            justify-content: space-between;
+            text-align: center;
+            padding: 0.5em 20px 0 20px;
+            top: 10px;
+            color: #FFFFFF;
+
+        }
+    }
+
+    .iconBlock {
+        position: relative;
+        color:#FFFFFF;
+        background: transparent;
+        border: none;
+        padding: 0;
+
+        svg {
+            position: relative;
+            z-index: 1;
+        }
+
+        &::before {
+            content: ' ';
+            position: absolute;;
+            width: 0px;
+            height: 0px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+        }
+        &:hover, &:focus {
+            color: #fff;
+
+            &::before {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        &.disabled {
+            color: grey;
+            cursor: initial;
+
+            &::before { content: none !important; }
+        }
+    }
+
+    @media screen and (min-width: 768px) {
+        width: 550px;
+        .itemContainer {
+            .itemPreviewWrapper {
+                width: 130px;
+                height: 130px;
+            }
+        }
+    }
+}

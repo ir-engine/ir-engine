@@ -7,6 +7,7 @@ import { NetworkWorldAction } from '../../networking/functions/NetworkWorldActio
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const respawnAvatar = (entity: Entity) => {
+  debugger
   const { position, rotation } = getComponent(entity, SpawnPoseComponent)
   const networkObject = getComponent(entity, NetworkObjectComponent)
   dispatchFrom(useWorld().hostId, () =>

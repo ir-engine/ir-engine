@@ -13,7 +13,8 @@ export const Views = {
   Avatar: 'Avatar',
   Location: 'Location',
   NewLocation: 'NewLocation',
-  ReadyPlayer: 'ReadyPlayer'
+  ReadyPlayer: 'ReadyPlayer',
+  Inventory: 'Inventory'
 }
 
 export interface UserMenuProps {
