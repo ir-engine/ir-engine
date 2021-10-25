@@ -40,13 +40,13 @@ export default async function XRSystem(world: World): Promise<System> {
       const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
 
       Engine.xrSession = session
-      Engine.xrRenderer.setReferenceSpaceType(referenceSpaceType)
-      Engine.xrRenderer.setSession(session)
+      Engine.xrManager.setReferenceSpaceType(referenceSpaceType)
+      Engine.xrManager.setSession(session)
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_SESSION })
 
-      Engine.xrRenderer.getCamera().layers.enableAll()
+      Engine.xrManager.getCamera().layers.enableAll()
 
-      Engine.xrRenderer.addEventListener('sessionend', async () => {
+      Engine.xrManager.addEventListener('sessionend', async () => {
         endXR()
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_END })
       })
@@ -58,7 +58,7 @@ export default async function XRSystem(world: World): Promise<System> {
   })
 
   return () => {
-    if (Engine.xrRenderer?.isPresenting) {
+    if (Engine.xrManager?.isPresenting) {
       const session = Engine.xrFrame.session
       for (const source of session.inputSources) {
         if (source.gamepad) {

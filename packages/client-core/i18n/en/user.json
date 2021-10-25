@@ -211,6 +211,7 @@
     "instance": "Instance",
     "locations": "Locations",
     "routes": "Routes",
+    "projects": "Projects",
     "invites": "Invites",
     "sessions": "Sessions",
     "groups": "Groups",

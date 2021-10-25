@@ -24,7 +24,6 @@ import {
 import { useSequilizeClient, useSequilizeModels } from '../../util/useSequilizeClient'
 
 import { StaticResourceModelType } from '../../media/static-resource/static-resource.model'
-import { CollectionModelType } from '../../entities/collection/collection.model'
 
 interface Data {}
 interface ServiceOptions {}
@@ -167,12 +166,12 @@ export class Scene implements ServiceMethods<Data> {
     const provider = useStorageProvider()
     const storage = provider.getStorage()
 
-    const project = await CollectionModel.findOne({
+    const project = (await CollectionModel.findOne({
       where: {
         sid: sceneId
         // userId: loggedInUser.userId
       }
-    })
+    })) as any
 
     if (!project) {
       return await Promise.reject(new BadRequest("Project not found Or you don't have access!"))
@@ -232,7 +231,7 @@ export class Scene implements ServiceMethods<Data> {
       })
       const savedEntities = await EntityModel.bulkCreate(entites, { transaction })
       const components: any = []
-      const componetTypeSet = new Set()
+      const componetTypeSet = new Set<any>()
       savedEntities.forEach((savedEntity: any, index: number) => {
         const entity = sceneEntitiesArray[index]
         entity.components.forEach((component: any) => {
@@ -274,7 +273,7 @@ export class Scene implements ServiceMethods<Data> {
       const tempOwnedFileKey = ownedFile.key
 
       try {
-        const [responseSuccess] = await provider.deleteResources([tempOwnedFileKey])
+        const responseSuccess = await provider.deleteResources([tempOwnedFileKey])
         console.log('Project temp Owned file removed result: ', responseSuccess)
       } catch (e) {
         console.log('Storage removal error')

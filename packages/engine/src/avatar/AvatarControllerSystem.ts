@@ -49,21 +49,17 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
       const avatar = getComponent(entity, AvatarComponent)
 
       // TODO: Temporarily make rig invisible until rig is fixed
-      avatar.modelContainer?.traverse((child) => {
-        if (child.visible) {
-          child.visible = false
-        }
-      })
+      if (avatar.modelContainer) {
+        avatar.modelContainer.visible = false
+      }
     }
 
     for (const entity of localXRInputQuery.exit(world)) {
       const avatar = getComponent(entity, AvatarComponent)
       // TODO: Temporarily make rig invisible until rig is fixed
-      avatar?.modelContainer?.traverse((child) => {
-        if (child.visible) {
-          child.visible = true
-        }
-      })
+      if (avatar.modelContainer) {
+        avatar.modelContainer.visible = true
+      }
     }
 
     for (const entity of localXRInputQuery(world)) {

@@ -1,7 +1,7 @@
-import { Avatar } from './Avatar'
+import { AvatarInterface } from './AvatarInterface'
 
 export type AvatarResult = {
-  data: Avatar[]
+  data: AvatarInterface[]
   total: number
   limit: number
   skip: number
