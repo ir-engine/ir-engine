@@ -130,7 +130,7 @@
     "eslint": "8.1.0",
     "mocha": "9.1.2",
     "ts-node": "10.4.0",
-    "typedoc": "0.22.5",
+    "typedoc": "0.22.7",
     "typescript": "4.4.4"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
