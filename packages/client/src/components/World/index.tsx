@@ -14,7 +14,10 @@ import { ProjectReactProps } from './ProjectReactProps'
 import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
+import { create3DLoadingScreen } from './loadingScene'
+
 const engineRendererCanvasId = 'engine-renderer-canvas'
+const loaderRendererCanvasId = 'loader-renderer-canvas'
 
 const defaultEngineInitializeOptions = {
   publicPath: location.origin,
@@ -49,7 +52,17 @@ const canvasStyle = {
   userSelect: 'none'
 } as React.CSSProperties
 
+const loaderCanvasStyle = {
+  zIndex: 9999,
+  width: '100%',
+  height: '100%',
+  position: 'absolute',
+  WebkitUserSelect: 'none',
+  userSelect: 'none'
+} as React.CSSProperties
+
 const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
+const loaderCanvas = <canvas id={loaderRendererCanvasId} style={loaderCanvasStyle} />
 
 interface Props {
   locationName: string
@@ -142,6 +155,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (): Promise<any> => {
+    create3DLoadingScreen(loaderRendererCanvasId)
     console.log('init', sceneId)
     setIsTeleporting(false)
 
@@ -216,6 +230,7 @@ export const EnginePage = (props: Props) => {
           />
         </Layout>
       )}
+      {loaderCanvas}
     </>
   )
 }
