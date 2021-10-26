@@ -15,9 +15,56 @@ import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
 import { ProjectManager } from '../../managers/ProjectManager'
 import { Folder } from '@styled-icons/fa-solid/Folder'
+import { VirtualizedList } from './VirtualizedList'
 
 function collectMenuProps({ item }) {
   return { item }
+}
+
+/**
+ *
+ * @author Robert Long
+ * @author Abhishek Pathak
+ * @param {any} label
+ * @param {IconComponent} IconComponent
+ * @param {any} rest
+ * @returns
+ */
+export function FileListItem({
+  label,
+  iconComponent: IconComponent,
+  onNameChanged = null,
+  isRenaming = false,
+  onDoubleClick,
+  onClick
+}) {
+  const inputref = useRef(null)
+  // const inputLabel = (
+  //   <MediaGridInputLabel placeholder={label} disabled={!isRenaming} onKeyDown={onNameChanged} ref={inputref} />
+  // )
+
+  useEffect(() => {
+    if (isRenaming) inputref.current.focus()
+  }, [isRenaming])
+  return (
+    <div onDoubleClick={onDoubleClick} onClick={onClick}>
+      <IconComponent size={'20px'} />
+      {label}
+    </div>
+  )
+}
+
+/**
+ *
+ *  @author Robert Long
+ */
+export const FileList = (styled as any).div`
+ width: 100%;
+ padding: 10px;
+`
+
+MediaGrid.defaultProps = {
+  minWidth: '100px'
 }
 
 /**
@@ -114,24 +161,24 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
   let content: JSX.Element
   if (item.type === 'folder') {
     content = (
-      <IconMediaGridItem
+      <FileListItem
         iconComponent={Folder}
         onDoubleClick={onClickItem}
+        onClick={null}
         label={item.label}
         isRenaming={renamingAsset}
         onNameChanged={onNameChanged}
-        {...rest}
       />
     )
   } else {
     content = (
-      <IconMediaGridItem
+      <FileListItem
         iconComponent={item.iconComponent}
+        onDoubleClick={null}
         onClick={onClickItem}
         label={item.label}
         isRenaming={renamingAsset}
         onNameChanged={onNameChanged}
-        {...rest}
       />
     )
   }
@@ -192,7 +239,8 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
 const LoadingItem = (styled as any).div`
   display: flex;
   flex-direction: column;
-  height: 100px;
+  height: 100%;
+  width: 100%;
   border-radius: 6px;
   background-color: rgba(128, 128, 128, 0.5);
   border: 2px solid transparent;
@@ -249,6 +297,8 @@ const MemoFileGridItem = memo(FileBrowserItem)
 export function FileBrowserGrid({
   isLoading,
   selectedItems,
+  scrollWindowWidth,
+  scrollWindowHeight,
   items,
   onSelect,
   moveContent,
@@ -258,36 +308,43 @@ export function FileBrowserGrid({
   const uniqueId = useRef(`FileGrid${lastId}`)
   const { t } = useTranslation()
 
-  // incrementig lastId
   useEffect(() => {
     lastId++
   }, [])
 
-  // creating callback function used if object get placed on viewport
+  const renderItem = (index, style) => {
+    const item = items[index]
+    if (!item) return
+    return (
+      <MemoFileGridItem
+        key={item.id}
+        contextMenuId={uniqueId.current + index}
+        item={item}
+        selected={selectedItems.indexOf(item) !== -1}
+        onClick={onSelect}
+        moveContent={moveContent}
+        deleteContent={deleteContent}
+        currentContent={currentContent}
+        style={style}
+      />
+    )
+  }
 
-  //returning view of AssetGridItems
+  // itemHeight = num rows / num cols
+
   return (
     <>
-      <VerticalScrollContainer flex>
-        <MediaGrid minWidth={'60px'}>
-          {isLoading ? (
-            <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>
-          ) : (
-            unique(items, 'id').map((item, index) => (
-              <MemoFileGridItem
-                key={item.id}
-                contextMenuId={uniqueId.current + index}
-                item={item}
-                selected={selectedItems.indexOf(item) !== -1}
-                onClick={onSelect}
-                moveContent={moveContent}
-                deleteContent={deleteContent}
-                currentContent={currentContent}
-              />
-            ))
-          )}
-        </MediaGrid>
-      </VerticalScrollContainer>
+      {isLoading ? (
+        <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>
+      ) : (
+        <VirtualizedList
+          numItems={items.length}
+          itemHeight={20}
+          renderItem={renderItem}
+          windowHeight={scrollWindowHeight}
+          ScrollWindow={FileList}
+        />
+      )}
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 import AWS from 'aws-sdk'
 import { PresignedPost } from 'aws-sdk/clients/s3'
 import S3BlobStore from 's3-blob-store'
@@ -97,13 +97,13 @@ export class S3Provider implements StorageProviderInterface {
     })
   }
 
-  listObjects = async (prefix: string): Promise<StorageListObjectInterface> => {
+  listObjects = async (prefix: string, recursive = false): Promise<StorageListObjectInterface> => {
     return new Promise((resolve, reject) =>
       this.provider.listObjectsV2(
         {
           Bucket: this.bucket,
           Prefix: prefix,
-          Delimiter: '/'
+          Delimiter: recursive ? undefined : '/'
         },
         (err, data) => {
           if (err) {
@@ -232,24 +232,71 @@ export class S3Provider implements StorageProviderInterface {
     })
   }
 
-  listFolderContent = async (folderName: string): Promise<any> => {
-    folderName = '/d923a320-d383-11eb-af5f-170c022909be/'
+  listFolderContent = async (folderName: string): Promise<FileContentType[]> => {
+    // console.log('folderName', folderName)
+    if (folderName.substr(0, 1) === '/') folderName = folderName.slice(1) // remove leading slash
     const folderContent = (await this.listObjects(folderName)).Contents
-    const returnCon = []
+    // console.log('folderContent', folderContent)
+    const np = new RegExp(`${folderName}${'(?<filename>.*)'}`)
+    const promises = []
     for (let i = 0; i < folderContent.length; i++) {
-      const np = new RegExp(`${folderName}${'(?<filename>.*)'}`)
-      const fileName = np.exec(folderContent[i].Key).groups.filename
-      const contentType = await this.getObjectContentType(folderContent[i].Key)
-      // const url = await this.getSignedUrl(folderContent[i].Key, 1000, {})
-      // console.log('URL Is:' + JSON.stringify(url))
-      const cont: FileBrowserContentType = {
-        url: 'https://localhost:3000/editor/new',
-        name: fileName,
-        type: contentType
-      }
-      returnCon.push(cont)
+      promises.push(
+        new Promise(async (resolve) => {
+          const key = folderContent[i].Key
+          const fileName = np.exec(key).groups.filename
+          const contentType = await this.getObjectContentType(key)
+          const url = `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
+          const cont: FileContentType = {
+            url: url,
+            name: fileName,
+            type: contentType
+          }
+          // console.log(cont)
+          resolve(cont)
+        })
+      )
     }
-    return returnCon
+    return await Promise.all(promises)
+  }
+
+  async moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null) {
+    const promises = []
+    promises.push(...(await this._moveObject(current, destination, isCopy, renameTo)))
+    await Promise.all(promises)
+    return
+  }
+
+  private async _moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null) {
+    const promises = []
+    const listResponse = await this.listObjects(current)
+
+    promises.push(
+      ...listResponse.Contents.map(async (file) => {
+        await this.provider.copyObject({
+          Bucket: this.bucket,
+          CopySource: `${this.bucket}/${file.Key}`,
+          Key: `${destination}${file.Key.replace(listResponse.Prefix, '')}`
+        })
+        // we have to do these one by one after the copy
+        if (!isCopy) {
+          await this.deleteResources([file.Key])
+        }
+      })
+    )
+
+    // recursive copy sub-folders
+    promises.push(
+      ...listResponse.CommonPrefixes.map(async (folder) =>
+        this._moveObject(
+          `${folder.Prefix}`,
+          `${destination}${folder.Prefix.replace(listResponse.Prefix, '')}`,
+          isCopy,
+          null
+        )
+      )
+    )
+
+    return promises
   }
 }
 export default S3Provider

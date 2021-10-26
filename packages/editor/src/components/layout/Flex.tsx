@@ -42,7 +42,6 @@ export const FlexRow = (styled as any).div`
  * @author Robert Long
  */
 export const VerticalScrollContainer = (styled as any)(FlexColumn)`
-  overflow-y: auto;
   min-height: 0;
 `
 

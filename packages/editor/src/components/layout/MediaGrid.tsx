@@ -245,7 +245,7 @@ export const MediaGrid = (styled as any).div`
   display: grid;
   grid-gap: ${(props) => props.gap};
   width: 100%;
-  grid-template-columns: repeat(auto-fill, minmax(${(props) => props.minWidth}, 1fr));
+  grid-template-columns: repeat(auto-fill, 100px);
   padding: ${(props) => props.gap};
 `
 

@@ -3,7 +3,8 @@ import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
 export const state = createState({
-  files: [] // as Array<FileInterface>
+  files: [], // as Array<FileInterface>
+  updateNeeded: false
 })
 
 store.receptors.push((action: FileBrowserActionType): any => {
@@ -14,7 +15,8 @@ store.receptors.push((action: FileBrowserActionType): any => {
         result = action.files
         console.log('action')
         return s.merge({
-          files: action.files
+          files: action.files,
+          updateNeeded: true
         })
     }
   }, action.type)
@@ -40,8 +42,9 @@ export const FileBrowserService = {
     console.log('Upload project result', files)
     dispatch(FileBrowserAction.filesFetched(files))
   },
-  moveContent: async (from, to, isCopy = false, renameTo = null) => {
-    return await client.service('file-browser').update(from, { destination: to, isCopy, renameTo })
+  moveContent: async (from, destination, isCopy = false, renameTo = null) => {
+    console.log(from, destination, isCopy, renameTo)
+    return await client.service('file-browser').update(from, { destination, isCopy, renameTo })
   },
   deleteContent: async (contentPath, type) => {
     return await client.service('file-browser').remove(contentPath, { query: { type } })

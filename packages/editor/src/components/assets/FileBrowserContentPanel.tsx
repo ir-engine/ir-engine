@@ -4,9 +4,6 @@ import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
 import { AssetPanelContentContainer } from './AssetsPanel'
 import { UploadFileType } from './sources/MyAssetsSource'
-import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
-import { getUrlFromId } from '../../functions/getUrlFromId'
-import { getContentType } from '../../functions/getContentType'
 import { NodeManager } from '../../managers/NodeManager'
 import FileBrowserGrid from './FileBrowserGrid'
 import { File } from '@styled-icons/fa-solid/File'
@@ -15,8 +12,8 @@ import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu
 import { ToolButton } from '../toolbar/ToolButton'
 import { ArrowBack } from '@styled-icons/boxicons-regular/ArrowBack'
 import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
-import { client } from '@xrengine/client-core/src/feathers'
 import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/state/FileBrowserService'
+import useElementResize from 'element-resize-event'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -24,8 +21,20 @@ import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/s
  * @constructor
  */
 
+let lastVal = null
+
 export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const { t } = useTranslation()
+  const panelRef = useRef(null)
+  const [scrollWindowHeight, setScrollWindowHeight] = useState(0)
+  const [scrollWindowWidth, setScrollWindowWidth] = useState(0)
+
+  useEffect(() => {
+    useElementResize(panelRef.current, () => {
+      setScrollWindowWidth(panelRef.current.clientWidth)
+      setScrollWindowHeight(panelRef.current.clientHeight)
+    })
+  }, [panelRef.current])
 
   const onSelect = (props) => {
     if (props.type !== 'folder') {
@@ -64,13 +73,14 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   useEffect(() => {
     setLoading(false)
-  }, [fileState.files.value])
+  }, [fileState.updateNeeded.value])
 
   useEffect(() => {
     onRefreshDirectory()
   }, [selectedDirectory])
 
   const addNewFolder = async () => {
+    if (isLoading) return
     await FileBrowserService.addNewFolder(selectedDirectory)
     onRefreshDirectory()
   }
@@ -92,16 +102,19 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   }
 
   const moveContent = async (from, to, isCopy = false, renameTo = null) => {
+    if (isLoading) return
     await FileBrowserService.moveContent(from, to, isCopy, renameTo)
     onRefreshDirectory()
   }
 
   const deleteContent = async ({ contentPath, type }) => {
+    if (isLoading) return
     await FileBrowserService.deleteContent(contentPath, type)
     onRefreshDirectory()
   }
 
   const pasteContent = async () => {
+    if (isLoading) return
     await FileBrowserService.moveContent(
       currentContentRef.current.itemid,
       selectedDirectory,
@@ -122,10 +135,12 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       </div>
 
       <ContextMenuTrigger id={'uniqueId_current'} holdToDisplay={-1}>
-        <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
+        <AssetsPanelContainer ref={panelRef} id="file-browser-panel" className={styles.assetsPanel}>
           <AssetPanelContentContainer>
             <FileBrowserGrid
               items={files}
+              scrollWindowWidth={scrollWindowWidth}
+              scrollWindowHeight={scrollWindowHeight}
               onSelect={onSelect}
               isLoading={isLoading}
               moveContent={moveContent}

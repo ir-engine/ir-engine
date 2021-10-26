@@ -9,7 +9,7 @@ import {
   StorageObjectInterface,
   StorageProviderInterface
 } from './storageprovider.interface'
-import { FileBrowserContentType } from '@xrengine/engine/src/common/types/FileBrowserContentType'
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
 const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 
@@ -99,28 +99,6 @@ export class LocalStorage implements StorageProviderInterface {
     )
   }
 
-  // /**
-  //  * @author Abhishek Pathak
-  //  * @param dir
-  //  * @returns
-  //  */
-  // createDirectory = async (dir: string) => {
-  //   let dirName = dir
-  //   const folderPath = path.join(appRootPath.path, 'packages', 'server', this.path)
-  //   let dirCount = 1
-  //   while (fs.existsSync(path.join(folderPath, dirName))) {
-  //     dirName = dir + dirCount
-  //     dirCount++
-  //   }
-  //   try {
-  //     await fs.promises.mkdir(path.join(folderPath, dirName), { recursive: true })
-  //   } catch (err) {
-  //     console.log('Error while:' + err)
-  //     return false
-  //   }
-  //   return true
-  // }
-
   /**
    * @author Abhishek Pathak
    * @param folderName
@@ -134,7 +112,7 @@ export class LocalStorage implements StorageProviderInterface {
       const regexx = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
       const query = regexx.exec(key)
       const url = this.getSignedUrl(key, 3600, null).url
-      const res: FileBrowserContentType = {
+      const res: FileContentType = {
         name: query.groups.name,
         type: query.groups.extension,
         url
@@ -145,7 +123,7 @@ export class LocalStorage implements StorageProviderInterface {
       const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
       const name = key.replace(`${folderName}`, '').split('/')[0]
       const url = this.getSignedUrl(key, 3600, null).url
-      const res: FileBrowserContentType = {
+      const res: FileContentType = {
         name,
         type: 'folder',
         url
@@ -156,55 +134,35 @@ export class LocalStorage implements StorageProviderInterface {
     return files
   }
 
-  // /**
-  //  * @author Abhishek Pathak
-  //  * @param current
-  //  * @param destination
-  //  * @param isCopy
-  //  * @param renameTo
-  //  * @returns
-  //  */
-  // moveContent = async (current: string, destination: string, isCopy: boolean, renameTo: string): Promise<boolean> => {
-  //   const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
-  //   let fileName = renameTo != null ? renameTo : path.basename(current)
-  //   let fileCount = 1
-  //   const file = fileName.split('.')
-  //   current = path.join(contentpath, current)
-  //   destination = path.join(contentpath, destination)
-  //   while (fs.existsSync(path.join(destination, fileName))) {
-  //     fileName = ''
-  //     for (let i = 0; i < file.length - 1; i++) fileName += file[i]
-  //     fileName = `${fileName}(${fileCount}).${file[file.length - 1]}`
-  //     fileCount++
-  //   }
-  //   try {
-  //     isCopy
-  //       ? await fs.promises.copyFile(current, path.join(destination, fileName))
-  //       : await fs.promises.rename(current, path.join(destination, fileName))
-  //   } catch (err) {
-  //     return false
-  //   }
-  //   return true
-  // }
-
-  // /**
-  //  * @author Abhishek Pathak
-  //  * @param contentPath
-  //  * @param type
-  //  * @returns
-  //  */
-  // deleteContent = async (contentPath, type): Promise<any> => {
-  //   try {
-  //     const content = path.join(appRootPath.path, 'packages', 'server', this.path, contentPath)
-  //     type === 'folder'
-  //       ? await fs.promises.rmdir(content, {
-  //           recursive: true
-  //         })
-  //       : await fs.promises.rm(content)
-  //   } catch {
-  //     return false
-  //   }
-  //   return true
-  // }
+  /**
+   * @author Abhishek Pathak
+   * @param current
+   * @param destination
+   * @param isCopy
+   * @param renameTo
+   * @returns
+   */
+  moveObject = async (current: string, destination: string, isCopy: boolean, renameTo: string): Promise<boolean> => {
+    const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
+    let fileName = renameTo != null ? renameTo : path.basename(current)
+    let fileCount = 1
+    const file = fileName.split('.')
+    current = path.join(contentpath, current)
+    destination = path.join(contentpath, destination)
+    while (fs.existsSync(path.join(destination, fileName))) {
+      fileName = ''
+      for (let i = 0; i < file.length - 1; i++) fileName += file[i]
+      fileName = `${fileName}(${fileCount}).${file[file.length - 1]}`
+      fileCount++
+    }
+    try {
+      isCopy
+        ? await fs.promises.copyFile(current, path.join(destination, fileName))
+        : await fs.promises.rename(current, path.join(destination, fileName))
+    } catch (err) {
+      return false
+    }
+    return true
+  }
 }
 export default LocalStorage

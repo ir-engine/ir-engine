@@ -1,3 +1,5 @@
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+
 export interface StorageObjectInterface {
   Key?: string
   Body: Buffer
@@ -5,7 +7,9 @@ export interface StorageObjectInterface {
 }
 
 export interface StorageListObjectInterface {
+  Prefix?: string
   Contents: { Key: string }[]
+  CommonPrefixes?: { Prefix: string }[]
 }
 
 export interface SignedURLResponse {
@@ -91,30 +95,18 @@ export interface StorageProviderInterface {
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
 
-  // /**
-  //  * Create a new Folder in Store
-  //  * @param dir
-  //  */
-  // createDirectory(dir): Promise<boolean>
-
   /**
    * List all the files/folders in the directory
    * @param folderName
    */
-  listFolderContent(folderName: string): Promise<any>
+  listFolderContent(folderName: string): Promise<FileContentType[]>
 
-  // /**
-  //  * Move content to/from a directory
-  //  * @param current
-  //  * @param destination
-  //  * @param isCopy
-  //  * @param isRename
-  //  */
-  // moveContent(current: string, destination: string, isCopy: boolean, isRename: string): Promise<any>
-
-  // /**
-  //  * Delete content using its path
-  //  * @param contentPath
-  //  */
-  // deleteContent(contentPath: string, type: string): Promise<any>
+  /**
+   * Moves a directory
+   * @param current
+   * @param destination
+   * @param isCopy
+   * @param isRename
+   */
+  moveObject(current: string, destination: string, isCopy: boolean, isRename: string): Promise<any>
 }
