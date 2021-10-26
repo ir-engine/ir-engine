@@ -55,7 +55,7 @@
     "styled-components": "5.3.1"
   },
   "devDependencies": {
-    "@types/node": "14.17.32",
+    "@types/node": "16.11.6",
     "@types/react": "17.0.33",
     "config": "3.3.6",
     "cross-env": "7.0.3",
