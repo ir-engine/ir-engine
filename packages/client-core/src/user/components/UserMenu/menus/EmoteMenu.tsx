@@ -46,7 +46,6 @@ const EmoteMenu = (props: any): any => {
         onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.KISS })
       }
     },
-
     {
       body: <img src="/static/Cry.svg" alt="Cry" />,
       containerProps: {
@@ -65,7 +64,6 @@ const EmoteMenu = (props: any): any => {
         onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_2 })
       }
     },
-
     {
       body: <img src="/static/victory.svg" alt="Dance 3" />,
       containerProps: {

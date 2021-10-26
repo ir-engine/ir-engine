@@ -1740,8 +1740,14 @@
             min-width: 0;
             background-color: transparent;
 
-            &:hover { transform: scale(1.2); }
+            &:hover { 
+                img {
+                    opacity: 1;
+                } 
+            }
+
             img {
+                opacity: 0.8;
                 display: block;
                 width: 100%;
             }
