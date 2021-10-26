@@ -15,6 +15,7 @@ import AlternateEmailIcon from '@material-ui/icons/AlternateEmail'
 import MailOutlineIcon from '@material-ui/icons/MailOutline'
 import EditIcon from '@material-ui/icons/Edit'
 import LinkIcon from '@material-ui/icons/Link'
+import CloseSnackbarComponent from '../buttons/CloseSnackbarComponent'
 import SubjectIcon from '@material-ui/icons/Subject'
 // import TwitterIcon from '@material-ui/icons/Twitter';
 // import InstagramIcon from '@material-ui/icons/Instagram';
@@ -43,11 +44,33 @@ const CreatorForm = ({ creatorData }: Props) => {
     const anchorOrigin: SnackbarOrigin = { horizontal: 'center', vertical: 'top' }
     switch (str) {
       case 'succes': {
-        enqueueSnackbar('Data saved successfully', { variant: 'success', anchorOrigin })
+        const succes = enqueueSnackbar('Data saved successfully', {
+          variant: 'success',
+          anchorOrigin,
+          action: [
+            <CloseSnackbarComponent
+              key="closeSnackbar"
+              handleClose={() => {
+                closeSnackbar(succes)
+              }}
+            />
+          ]
+        })
         break
       }
       case 'reject': {
-        enqueueSnackbar('This name is already taken', { variant: 'error', anchorOrigin })
+        const reject = enqueueSnackbar('This name is already taken', {
+          variant: 'error',
+          anchorOrigin,
+          action: [
+            <CloseSnackbarComponent
+              key="closeSnackbar"
+              handleClose={() => {
+                closeSnackbar(reject)
+              }}
+            />
+          ]
+        })
         break
       }
     }
