@@ -1,5 +1,5 @@
 import * as commonHooks from 'feathers-hooks-common'
-
+import createLocationIfNotExists from '@xrengine/server-core/src/hooks/create-location-if-not-exists'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
@@ -16,7 +16,7 @@ export default {
   after: {
     all: [],
     find: [],
-    get: [],
+    get: [createLocationIfNotExists()], // createLocationIfNotExists - is side effect...
     create: [],
     update: [],
     patch: [],
