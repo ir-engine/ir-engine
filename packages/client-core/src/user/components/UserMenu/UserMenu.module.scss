@@ -42,6 +42,10 @@
             border-radius: 50%;
             background-color: #5F5FF1;
 
+            @media (max-width: 500px) {
+                padding: 8px;
+            }
+
             svg{
                 color: white;
             }
@@ -1580,7 +1584,7 @@
     width: 40px;
     height: 70px;
     position: absolute;
-    left: 2.5px;
+    left: 2px;
     top: 192.7px;
     background-color: rgb(51 51 110 / 50%);
     transform: rotate(45deg);
@@ -1634,7 +1638,7 @@
     width: 40px;
     height: 70px;
     position: absolute;
-    right: 2.5px;
+    right: 2px;
     top: 192.7px;
     background-color: rgb(51 51 110 / 50%);
     transform: rotate(135deg);

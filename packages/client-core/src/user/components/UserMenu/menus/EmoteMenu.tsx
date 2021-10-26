@@ -29,24 +29,6 @@ const EmoteMenu = (props: any): any => {
 
   let [items, setItems] = useState([
     {
-      body: <img src="/static/Laugh.svg" alt="Laugh" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.LAUGH })
-      }
-    },
-    {
-      body: <img src="/static/Defeat.svg" alt="Defeat" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.DEFEAT })
-      }
-    },
-    {
-      body: <img src="/static/Wave.svg" alt="Wave" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.WAVE })
-      }
-    },
-    {
       body: <img src="/static/grinning.svg" alt="Dance 4" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })
@@ -88,6 +70,24 @@ const EmoteMenu = (props: any): any => {
       body: <img src="/static/victory.svg" alt="Dance 3" />,
       containerProps: {
         onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_3 })
+      }
+    },
+    {
+      body: <img src="/static/Laugh.svg" alt="Laugh" />,
+      containerProps: {
+        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.LAUGH })
+      }
+    },
+    {
+      body: <img src="/static/Defeat.svg" alt="Defeat" />,
+      containerProps: {
+        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.DEFEAT })
+      }
+    },
+    {
+      body: <img src="/static/Wave.svg" alt="Wave" />,
+      containerProps: {
+        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.WAVE })
       }
     },
     {
