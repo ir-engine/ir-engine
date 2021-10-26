@@ -1743,48 +1743,4 @@
             }
         }
     }
-
-    .itemContainer::before {
-        content: "";
-        width: 40px;
-        height: 70px;
-        position: absolute;
-        left: 2.5px;
-        top: 192.7px;
-        background-color: rgb(51 51 110 / 50%);
-        transform: rotate(45deg);
-        border-top-right-radius: 50px;
-        border-bottom-right-radius: 50px;
-        opacity: 1;
-    
-        @media (max-width: 360px) {
-            width: 40px;
-            height: 60px;
-            position: absolute;
-            left: -1px;
-            top: 159px;
-        }
-    }
-
-    .itemContainer::after {
-        content: "";
-        width: 40px;
-        height: 70px;
-        position: absolute;
-        right: 2.5px;
-        top: 192.7px;
-        background-color: rgb(51 51 110 / 50%);
-        transform: rotate(135deg);
-        border-top-right-radius: 50px;
-        border-bottom-right-radius: 50px;
-        opacity: 1;
-
-        @media (max-width: 360px) {
-            width: 40px;
-            height: 60px;
-            position: absolute;
-            right: -1px;
-            top: 159px;
-        }
-    }
 }
