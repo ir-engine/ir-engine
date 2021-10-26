@@ -21,7 +21,7 @@ const EmoteMenu = (props: any): any => {
 
   let [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
 
-  let menuPadding = window.innerWidth > 360 ? 15 : 10
+  let menuPadding = window.innerWidth > 360 ? 25 : 20
   let menuThickness = menuRadius > 170 ? 70 : 60
   let menuItemWidth = menuThickness - menuPadding
   let menuItemRadius = menuItemWidth / 2
