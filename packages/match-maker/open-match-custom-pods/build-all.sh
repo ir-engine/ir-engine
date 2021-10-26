@@ -1,15 +1,13 @@
 #!/bin/bash
-REGISTRY=xianizpua
+REGISTRY=lagunalabs
 
 ./build.sh director "$1"
-./build.sh frontend "$1"
 ./build.sh matchfunction "$1"
 
-#kubectl -n mm101-tutorial delete pod,svc --all
+#kubectl -n xrengine-matchmaking delete pod,svc --all
 
-if [ $2 = "push" ]
+if [[ $2 = "push" ]]
 then
-  docker push $REGISTRY/mm101-tutorial-director
-  docker push $REGISTRY/mm101-tutorial-frontend
-  docker push $REGISTRY/mm101-tutorial-matchfunction
+  docker push $REGISTRY/xrengine-matchmaking-director
+  docker push $REGISTRY/xrengine-matchmaking-matchfunction
 fi

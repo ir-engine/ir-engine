@@ -15,11 +15,11 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: mm101-tutorial-director
-  namespace: mm101-tutorial
+  name: xrengine-matchmaking-director
+  namespace: xrengine-matchmaking
 spec:
   containers:
-  - name: mm101-tutorial-director
-    image: REGISTRY_PLACEHOLDER/mm101-tutorial-director:latest
+  - name: xrengine-matchmaking-director
+    image: REGISTRY_PLACEHOLDER/xrengine-matchmaking-director:latest
     imagePullPolicy: Always
-  hostname: mm101-tutorial-director
+  hostname: xrengine-matchmaking-director

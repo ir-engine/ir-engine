@@ -19,10 +19,11 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
+	//"math/rand"
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"open-match.dev/open-match/pkg/pb"
 )
@@ -34,7 +35,7 @@ const (
 	// The endpoint for the Open Match Backend service.
 	omBackendEndpoint = "open-match-backend.open-match.svc.cluster.local:50505"
 	// The Host and Port for the Match Function service endpoint.
-	functionHostName       = "mm101-tutorial-matchfunction.mm101-tutorial"
+	functionHostName       = "xrengine-matchmaking-matchfunction.xrengine-matchmaking"
 	functionPort     int32 = 50502
 )
 
@@ -123,7 +124,8 @@ func assign(be pb.BackendServiceClient, matches []*pb.Match) error {
 		}
 
 		// TODO get gameserver ip or link
-		conn := fmt.Sprintf("%d.%d.%d.%d:2222", rand.Intn(256), rand.Intn(256), rand.Intn(256), rand.Intn(256))
+		conn := uuid.New().String()
+		// conn := fmt.Sprintf("%d.%d.%d.%d:2222", rand.Intn(256), rand.Intn(256), rand.Intn(256), rand.Intn(256))
 		req := &pb.AssignTicketsRequest{
 			Assignments: []*pb.AssignmentGroup{
 				{
