@@ -21,6 +21,7 @@ import LocationMenu from './menus/LocationMenu'
 import CreateLocationMenu from './menus/CreateLocationMenu'
 import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
+import EmoteMenu from './menus//EmoteMenu'
 
 type StateType = {
   currentActiveMenu: any
@@ -39,7 +40,8 @@ const UserMenu = (props: UserMenuProps): any => {
   let menus = [
     { id: Views.Profile, iconNode: PersonIcon },
     { id: Views.Settings, iconNode: SettingsIcon },
-    { id: Views.Share, iconNode: LinkIcon }
+    { id: Views.Share, iconNode: LinkIcon },
+    { id: Views.Emote, imageNode: '/static/EmoteIcon.svg' }
     //  { id: Views.Location, iconNode: FilterHdrIcon },
   ]
 
@@ -56,7 +58,8 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.AvatarUpload]: AvatarSelectMenu,
     [Views.Location]: LocationMenu,
     [Views.NewLocation]: CreateLocationMenu,
-    [Views.ReadyPlayer]: ReadyPlayerMenu
+    [Views.ReadyPlayer]: ReadyPlayerMenu,
+    [Views.Emote]: EmoteMenu
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
@@ -170,6 +173,13 @@ const UserMenu = (props: UserMenuProps): any => {
           enableSharing: enableSharing
         }
         break
+      case Views.Emote:
+        args = {
+          location: activeLocation,
+          changeActiveMenu,
+          updateLocationDetail
+        }
+        break
       case Views.Settings:
         args = {
           setting: userSetting,
@@ -234,7 +244,7 @@ const UserMenu = (props: UserMenuProps): any => {
                       currentActiveMenu && currentActiveMenu.id === menu.id ? styles.activeMenu : null
                     }`}
                   >
-                    <menu.iconNode className={styles.icon} />
+                    {menu.iconNode ? <menu.iconNode className={styles.icon} /> : <img src={menu.imageNode} />}
                   </span>
                 )
               })}
