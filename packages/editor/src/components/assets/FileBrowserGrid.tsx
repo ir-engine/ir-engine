@@ -16,6 +16,8 @@ import { SceneManager } from '../../managers/SceneManager'
 import { ProjectManager } from '../../managers/ProjectManager'
 import { Folder } from '@styled-icons/fa-solid/Folder'
 import { VirtualizedList } from './VirtualizedList'
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { FileDataType } from './FileDataType'
 
 function collectMenuProps({ item }) {
   return { item }
@@ -67,6 +69,15 @@ MediaGrid.defaultProps = {
   minWidth: '100px'
 }
 
+type FileBrowserItemType = {
+  contextMenuId: string
+  item: FileDataType
+  currentContent: any
+  deleteContent: any
+  onClick: any
+  moveContent: any
+}
+
 /**
  * FileBrowserItem used to create grid item view.
  *
@@ -77,7 +88,9 @@ MediaGrid.defaultProps = {
  * @param       {any} rest
  * @constructor
  */
-function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, onClick, moveContent, ...rest }) {
+
+function FileBrowserItem(props: FileBrowserItemType) {
+  const { contextMenuId, item, currentContent, deleteContent, onClick, moveContent } = props
   const { t } = useTranslation()
 
   const onClickItem = (e) => onClick(item)
@@ -114,26 +127,26 @@ function FileBrowserItem({ contextMenuId, item, currentContent, deleteContent, o
       ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
   }, [])
 
-  const copyURL = useCallback((_, trigger) => {
+  const copyURL = useCallback(() => {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(trigger.item.url)
+      navigator.clipboard.writeText(item.url)
     }
   }, [])
 
-  const openURL = useCallback((_, trigger) => {
-    window.open(trigger.item.url)
+  const openURL = useCallback(() => {
+    window.open(item.url)
   }, [])
 
-  const Copy = useCallback((_, trigger) => {
-    currentContent.current = { itemid: trigger.item.id, isCopy: true }
+  const Copy = useCallback(() => {
+    currentContent.current = { itemid: item.id, isCopy: true }
   }, [])
 
-  const Cut = useCallback((_, trigger) => {
-    currentContent.current = { itemid: trigger.item.id, isCopy: false }
+  const Cut = useCallback(() => {
+    currentContent.current = { itemid: item.id, isCopy: false }
   }, [])
 
-  const deleteContentCallback = (_, trigger) => {
-    deleteContent({ contentPath: trigger.item.id, type: trigger.item.type })
+  const deleteContentCallback = () => {
+    deleteContent({ contentPath: item.id, type: item.type })
   }
 
   const onNameChanged = (event) => {
@@ -279,14 +292,22 @@ FileBrowserItem.defaultProps = {
 let lastId = 0
 
 const MemoFileGridItem = memo(FileBrowserItem)
-
+type FileBrowserGridTypes = {
+  isLoading: boolean
+  scrollWindowHeight: number
+  items: FileDataType[]
+  onSelect: any
+  moveContent: any
+  deleteContent: any
+  currentContent: any
+}
 /**
  * FileBrowserGrid component used to render FileBrowser.
  *
  * @author Abhishek Pathak
  * @param       {Boolean} isLoading     [used to render loading if true]
  * @param       {any}  selectedItems [ array of items]
- * @param       {any}  items         [array of items to render AssetGrid]
+ * @param       {FileDataType}  items         [array of items to render AssetGrid]
  * @param       {any}  onSelect
  * @param       {any}  onLoadMore
  * @param       {Boolean} hasMore
@@ -294,17 +315,8 @@ const MemoFileGridItem = memo(FileBrowserItem)
  * @param       {any}  source
  * @constructor
  */
-export function FileBrowserGrid({
-  isLoading,
-  selectedItems,
-  scrollWindowWidth,
-  scrollWindowHeight,
-  items,
-  onSelect,
-  moveContent,
-  deleteContent,
-  currentContent
-}) {
+export function FileBrowserGrid(props: FileBrowserGridTypes) {
+  const { isLoading, scrollWindowHeight, items, onSelect, moveContent, deleteContent, currentContent } = props
   const uniqueId = useRef(`FileGrid${lastId}`)
   const { t } = useTranslation()
 
@@ -320,11 +332,12 @@ export function FileBrowserGrid({
         key={item.id}
         contextMenuId={uniqueId.current + index}
         item={item}
-        selected={selectedItems.indexOf(item) !== -1}
+        // selected={selectedItems.indexOf(item) !== -1}
         onClick={onSelect}
         moveContent={moveContent}
         deleteContent={deleteContent}
         currentContent={currentContent}
+        //@ts-ignore
         style={style}
       />
     )

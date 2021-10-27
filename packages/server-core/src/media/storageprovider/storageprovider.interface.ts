@@ -74,7 +74,7 @@ export interface StorageProviderInterface {
    * @param prefix
    * @returns {Promise<StorageListObjectInterface>}
    */
-  listObjects(prefix: string): Promise<StorageListObjectInterface>
+  listObjects(prefix: string, recursive?: boolean): Promise<StorageListObjectInterface>
 
   /**
    * Puts an object into the store

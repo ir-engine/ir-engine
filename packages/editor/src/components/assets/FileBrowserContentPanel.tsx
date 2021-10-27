@@ -14,6 +14,9 @@ import { ArrowBack } from '@styled-icons/boxicons-regular/ArrowBack'
 import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
 import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/state/FileBrowserService'
 import useElementResize from 'element-resize-event'
+import { Downgraded } from '@hookstate/core'
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { FileDataType } from './FileDataType'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -49,8 +52,9 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const [isLoading, setLoading] = useState(true)
   const [selectedDirectory, setSelectedDirectory] = useState('/')
   const fileState = useFileBrowserState()
+  const filesValue = fileState.files.attach(Downgraded).value
 
-  const files = fileState.files.value.map((file) => {
+  const files = fileState.files.value.map((file): FileDataType => {
     const nodeClass = UploadFileType[file.type]
     const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
     const iconComponent = nodeEditor
@@ -61,7 +65,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     const url = file.url
     return {
       description: url,
-      id: file.url,
+      id: file.key,
       label: file.name,
       nodeClass: nodeClass,
       url: url,
@@ -73,21 +77,22 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   useEffect(() => {
     setLoading(false)
-  }, [fileState.updateNeeded.value])
+  }, [filesValue])
 
   useEffect(() => {
     onRefreshDirectory()
+    console.log('selectedDirectory', selectedDirectory)
   }, [selectedDirectory])
 
   const addNewFolder = async () => {
     if (isLoading) return
-    await FileBrowserService.addNewFolder(selectedDirectory)
+    setLoading(true)
+    await FileBrowserService.addNewFolder(`${selectedDirectory}New_Folder`)
     onRefreshDirectory()
   }
 
   const onRefreshDirectory = () => {
     FileBrowserService.fetchFiles(selectedDirectory)
-    setLoading(true)
   }
 
   const onBackDirectory = () => {
@@ -103,18 +108,21 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   const moveContent = async (from, to, isCopy = false, renameTo = null) => {
     if (isLoading) return
+    setLoading(true)
     await FileBrowserService.moveContent(from, to, isCopy, renameTo)
     onRefreshDirectory()
   }
 
   const deleteContent = async ({ contentPath, type }) => {
     if (isLoading) return
+    setLoading(true)
     await FileBrowserService.deleteContent(contentPath, type)
     onRefreshDirectory()
   }
 
   const pasteContent = async () => {
     if (isLoading) return
+    setLoading(true)
     await FileBrowserService.moveContent(
       currentContentRef.current.itemid,
       selectedDirectory,
@@ -139,7 +147,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
           <AssetPanelContentContainer>
             <FileBrowserGrid
               items={files}
-              scrollWindowWidth={scrollWindowWidth}
               scrollWindowHeight={scrollWindowHeight}
               onSelect={onSelect}
               isLoading={isLoading}

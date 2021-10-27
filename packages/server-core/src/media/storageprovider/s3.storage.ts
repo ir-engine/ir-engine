@@ -233,25 +233,40 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   listFolderContent = async (folderName: string): Promise<FileContentType[]> => {
-    // console.log('folderName', folderName)
-    if (folderName.substr(0, 1) === '/') folderName = folderName.slice(1) // remove leading slash
-    const folderContent = (await this.listObjects(folderName)).Contents
+    const folderContent = await this.listObjects(folderName)
     // console.log('folderContent', folderContent)
     const np = new RegExp(`${folderName}${'(?<filename>.*)'}`)
     const promises = []
-    for (let i = 0; i < folderContent.length; i++) {
+    // Files
+    for (let i = 0; i < folderContent.Contents.length; i++) {
       promises.push(
         new Promise(async (resolve) => {
-          const key = folderContent[i].Key
+          const key = folderContent.Contents[i].Key
           const fileName = np.exec(key).groups.filename
           const contentType = await this.getObjectContentType(key)
           const url = `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
           const cont: FileContentType = {
-            url: url,
+            key,
+            url,
             name: fileName,
             type: contentType
           }
-          // console.log(cont)
+          resolve(cont)
+        })
+      )
+    }
+    // Folders
+    for (let i = 0; i < folderContent.CommonPrefixes.length; i++) {
+      promises.push(
+        new Promise(async (resolve) => {
+          const key = folderContent.CommonPrefixes[i].Prefix.slice(0, -1)
+          const url = `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
+          const cont: FileContentType = {
+            key,
+            url,
+            name: key.split('/').pop(),
+            type: 'folder'
+          }
           resolve(cont)
         })
       )

@@ -3,7 +3,6 @@ import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { Application } from '../../../declarations'
 import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
-import path from 'path'
 
 /**
  * A class for Managing files in FileBrowser
@@ -26,19 +25,21 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async get(id: Id, params?: Params): Promise<FileContentType[]> {
-    const result = await this.store.listFolderContent(`${id}`)
+  async get(directory: string, params?: Params): Promise<FileContentType[]> {
+    if (directory.substr(0, 1) === '/') directory = directory.slice(1) // remove leading slash
+    const result = await this.store.listFolderContent(directory)
     return result
   }
 
   /**
    * Create a directory
-   * @param data
+   * @param directory
    * @param params
    * @returns
    */
-  async create(data, params?: Params) {
-    return this.store.putObject({ Key: data.fileName, Body: Buffer.alloc(0), ContentType: null })
+  async create(directory, params?: Params) {
+    if (directory.substr(0, 1) === '/') directory = directory.slice(1) // remove leading slash
+    return this.store.putObject({ Key: directory + '/', Body: Buffer.alloc(0), ContentType: 'application/x-empty' })
   }
 
   /**
@@ -49,11 +50,13 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @returns
    */
   async update(from: string, { destination, isCopy, renameTo }, params?: Params) {
+    // TODO
+    throw new Error('[File Browser]: Temporarily disabled for instability. - TODO')
     return this.store.moveObject(from, destination, isCopy, renameTo)
   }
 
   /**
-   *
+   * No-op
    * @param id
    * @param data
    * @param params
@@ -67,6 +70,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @returns
    */
   async remove(path: string, params?: Params) {
-    return await this.store.deleteResources([path])
+    const dirs = await this.store.listObjects(path + '/', true)
+    return await this.store.deleteResources([path, ...dirs.Contents.map((a) => a.Key)])
   }
 }

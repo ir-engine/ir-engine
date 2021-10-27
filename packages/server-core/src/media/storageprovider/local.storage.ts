@@ -23,10 +23,10 @@ export class LocalStorage implements StorageProviderInterface {
     return { Body: result }
   }
 
-  listObjects = async (prefix: string, pattern?: string): Promise<StorageListObjectInterface> => {
+  listObjects = async (prefix: string, recursive = false): Promise<StorageListObjectInterface> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, prefix)
-    if (!fs.existsSync(filePath)) await fs.promises.mkdir(filePath, { recursive: true })
-    const globResult = glob.sync(path.join(filePath, pattern || '**/*.*'))
+    if (!fs.existsSync(filePath)) await fs.promises.mkdir(filePath, { recursive })
+    const globResult = glob.sync(path.join(filePath, '**/*.*'))
     return {
       Contents: globResult.map((result) => {
         return { Key: result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '') }
@@ -113,6 +113,7 @@ export class LocalStorage implements StorageProviderInterface {
       const query = regexx.exec(key)
       const url = this.getSignedUrl(key, 3600, null).url
       const res: FileContentType = {
+        key,
         name: query.groups.name,
         type: query.groups.extension,
         url
@@ -124,6 +125,7 @@ export class LocalStorage implements StorageProviderInterface {
       const name = key.replace(`${folderName}`, '').split('/')[0]
       const url = this.getSignedUrl(key, 3600, null).url
       const res: FileContentType = {
+        key,
         name,
         type: 'folder',
         url

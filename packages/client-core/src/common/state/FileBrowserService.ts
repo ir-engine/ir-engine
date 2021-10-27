@@ -1,9 +1,10 @@
 import { createState, useState } from '@hookstate/core'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
 export const state = createState({
-  files: [], // as Array<FileInterface>
+  files: [] as Array<FileContentType>,
   updateNeeded: false
 })
 
@@ -13,10 +14,8 @@ store.receptors.push((action: FileBrowserActionType): any => {
     switch (action.type) {
       case 'FILES_FETCHED':
         result = action.files
-        console.log('action')
         return s.merge({
-          files: action.files,
-          updateNeeded: true
+          files: action.files
         })
     }
   }, action.type)
@@ -39,18 +38,22 @@ export const FileBrowserService = {
   fetchFiles: async (directory) => {
     const dispatch = useDispatch()
     const files = await client.service('file-browser').get(directory)
-    console.log('Upload project result', files)
+    console.log('FileBrowserService.fetchFiles result', files)
     dispatch(FileBrowserAction.filesFetched(files))
   },
   moveContent: async (from, destination, isCopy = false, renameTo = null) => {
     console.log(from, destination, isCopy, renameTo)
-    return await client.service('file-browser').update(from, { destination, isCopy, renameTo })
+    console.warn('[File Browser]: Temporarily disabled for instability. - TODO')
+    // const result = await client.service('file-browser').update(from, { destination, isCopy, renameTo })
+    // console.log('FileBrowserService.moveContent result', result)
   },
   deleteContent: async (contentPath, type) => {
-    return await client.service('file-browser').remove(contentPath, { query: { type } })
+    const result = await client.service('file-browser').remove(contentPath, { query: { type } })
+    console.log('FileBrowserService.deleteContent result', result)
   },
-  addNewFolder: async (selectedDirectory) => {
-    return await client.service(`file-browser`).create({ fileName: `${selectedDirectory}NewFolder` })
+  addNewFolder: async (folderName) => {
+    const result = await client.service(`file-browser`).create(folderName)
+    console.log('FileBrowserService.addNewFolder result', result)
   }
 }
 
