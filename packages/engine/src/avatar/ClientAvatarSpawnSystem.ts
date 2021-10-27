@@ -1,17 +1,15 @@
-import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { CameraMode } from '../camera/types/CameraMode'
+import matches from 'ts-matches'
+import { AudioTagComponent } from '../audio/components/AudioTagComponent'
+import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
+import { Engine } from '../ecs/classes/Engine'
+import { System } from '../ecs/classes/System'
+import { World } from '../ecs/classes/World'
 import { addComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { createAvatar } from './functions/createAvatar'
-import { AudioTagComponent } from '../audio/components/AudioTagComponent'
-import { System } from '../ecs/classes/System'
-import { World } from '../ecs/classes/World'
-import { Engine } from '../ecs/classes/Engine'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
-import matches from 'ts-matches'
-import { Raycaster } from 'three'
 
 export default async function ClientAvatarSpawnSystem(world: World): Promise<System> {
   world.receptors.push((action) => {
@@ -24,19 +22,7 @@ export default async function ClientAvatarSpawnSystem(world: World): Promise<Sys
 
       if (spawnAction.userId === Engine.userId) {
         addComponent(entity, LocalInputTagComponent, {})
-        addComponent(entity, FollowCameraComponent, {
-          mode: CameraMode.ThirdPerson,
-          distance: 5,
-          zoomLevel: 5,
-          zoomVelocity: { value: 0 },
-          minDistance: 2,
-          maxDistance: 7,
-          theta: Math.PI,
-          phi: 0,
-          shoulderSide: true,
-          locked: true,
-          raycaster: new Raycaster()
-        })
+        addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
         addComponent(entity, PersistTagComponent, {})
       }
     })

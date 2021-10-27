@@ -20,7 +20,7 @@ import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
 import LocationMenu from './menus/LocationMenu'
 import CreateLocationMenu from './menus/CreateLocationMenu'
-import InventoryMenu from './menus/InventoryMenu'
+import InventoryMenu from '../Inventory/InventoryMenu'
 import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
 

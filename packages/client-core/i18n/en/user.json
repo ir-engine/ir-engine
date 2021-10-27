@@ -106,10 +106,11 @@
     },
     "share": {
       "lbl-share": "Share",
-      "ph-phoneEmail": "Phone Number / Email",
+      "ph-phoneEmail": "Invite by email or phone number",
       "lbl-phoneEmail": "Send to email or phone number",
       "lbl-copy": "Copy",
-      "title": "Location URL",
+      "lbl-send-invite": "Send Invite",
+      "title": "Share your Location URL with your team",
       "linkCopied": "Link copied to clipboard."
     },
     "setting": {
@@ -126,7 +127,7 @@
     "profile": {
       "lbl-profile": "Profile",
       "lbl-settings": "Settings",
-      "lbl-username": "Name",
+      "lbl-username": "Username",
       "inviteCode": "Invite Code",
       "youAreAn": "You are an",
       "youAreA": "You are a",
@@ -210,6 +211,7 @@
     "instance": "Instance",
     "locations": "Locations",
     "routes": "Routes",
+    "projects": "Projects",
     "invites": "Invites",
     "sessions": "Sessions",
     "groups": "Groups",
@@ -248,8 +250,11 @@
   "mute":"Mute",
   "block":"Block"
 },
-"inventoryMenu":{
-  "page":"Page"
+"inventory":{
+  "page":"Page",
+  "price":"Price",
+  "buyNow":"Buy Now",
+  "cancel":"Cancel"
 }
 
 }

@@ -84,7 +84,7 @@ function _addRig(
   rig.tpose.apply()
 
   if (!Object.keys(rig.chains).length || !Object.keys(rig.points).length) {
-    debugger
+    //debugger
   }
 
   return rig

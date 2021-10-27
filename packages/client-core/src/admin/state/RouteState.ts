@@ -3,8 +3,9 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { RouteActionType } from './RouteActions'
+import { store } from '../../store'
 
-export const ROUTE_PAGE_LIMIT = 100
+export const ROUTE_PAGE_LIMIT = 10000
 
 const state = createState({
   isLoggedIn: false,
@@ -33,7 +34,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: RouteActionType): any => {
+store.receptors.push((action: RouteActionType): any => {
   let result: any
   state.batch((s) => {
     switch (action.type) {
@@ -42,11 +43,10 @@ export const receptor = (action: RouteActionType): any => {
         return s.routes.merge({ routes: result, updateNeeded: false })
       case 'ADMIN_ROUTE_ACTIVE_RECEIVED':
         result = action.data.data
-        console.log('ADMIN_ROUTE_ACTIVE_RECEIVED')
         return s.routes.merge({ activeRoutes: result, updateNeeded: false })
     }
   }, action.type)
-}
+})
 
 export const accessRouteState = () => state
 

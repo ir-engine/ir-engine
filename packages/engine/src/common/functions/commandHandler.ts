@@ -20,7 +20,7 @@ import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 import { isBot } from './isBot'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessChatState } from '@xrengine/client-core/src/social/state/ChatState'
+// import { accessChatState } from '@xrengine/client-core/src/social/state/ChatState'
 import { Entity } from '../../ecs/classes/Entity'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
@@ -418,22 +418,20 @@ function handleFollowCommand(param: string, entity: Entity) {
 }
 
 function handleGetChatHistoryCommand() {
-  const chatState = accessChatState()
-  const channelState = chatState.channels
-  const channels = channelState.channels
-  const activeChannelMatch = Object.entries(channels).find(([, channel]) => channel.channelType === 'instance')
-  if (activeChannelMatch && activeChannelMatch.length > 0) {
-    const activeChannel = activeChannelMatch[1]
-    if (activeChannel === undefined) return
-    const messages = activeChannel.messages
-    if (messages === undefined) return
-
-    for (let i = 0; i < messages.length; i++) messages[i].text = removeMessageSystem(messages[i].text)
-
-    console.log('messages|' + JSON.stringify(messages))
-  } else {
-    console.warn("Couldn't get chat state")
-  }
+  // const chatState = accessChatState()
+  // const channelState = chatState.channels
+  // const channels = channelState.channels
+  // const activeChannelMatch = Object.entries(channels).find(([, channel]) => channel.channelType === 'instance')
+  // if (activeChannelMatch && activeChannelMatch.length > 0) {
+  //   const activeChannel = activeChannelMatch[1]
+  //   if (activeChannel === undefined) return
+  //   const messages = activeChannel.messages
+  //   if (messages === undefined) return
+  //   for (let i = 0; i < messages.length; i++) messages[i].text = removeMessageSystem(messages[i].text)
+  //   console.log('messages|' + JSON.stringify(messages))
+  // } else {
+  //   console.warn("Couldn't get chat state")
+  // }
 }
 
 function handleListAllUsersCommand(userId) {

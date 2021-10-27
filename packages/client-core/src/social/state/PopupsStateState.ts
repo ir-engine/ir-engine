@@ -3,6 +3,7 @@
  */
 
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { store } from '../../store'
 import { PopupsStateActionType } from './PopupsStateActions'
 
 const state = createState({
@@ -25,7 +26,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: PopupsStateActionType): any => {
+store.receptors.push((action: PopupsStateActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CHANGE_CREATOR_PAGE_STATE':
@@ -49,7 +50,7 @@ export const receptor = (action: PopupsStateActionType): any => {
         return s.popups.merge({ webxr: action.state, itemId: action.itemId })
     }
   }, action.type)
-}
+})
 
 export const accessPopupsStateState = () => state
 export const usePopupsStateState = () => useState(state)

@@ -121,7 +121,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   // Input
   registerSystem(SystemUpdateType.UPDATE, import('./xr/systems/XRSystem'))
   registerSystem(SystemUpdateType.UPDATE, import('./input/systems/ClientInputSystem'))
-  registerSystem(SystemUpdateType.UPDATE, import('./camera/systems/CameraSystem'))
   registerSystem(SystemUpdateType.UPDATE, import('./navigation/systems/AutopilotSystem'))
 
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
@@ -184,6 +183,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.PRE_RENDER, import('./networking/systems/MediaStreamSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./xrui/systems/XRUISystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./interaction/systems/InteractiveSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./camera/systems/CameraSystem'))
 
   // Audio Systems
   registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/AudioSystem'))

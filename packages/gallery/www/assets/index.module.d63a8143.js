@@ -1,0 +1,2 @@
+const o="_viewport_hgyko_19",t="_isIos_hgyko_27",n="_hideContentOnRecord_hgyko_34",e="_hideContent_hgyko_34",s="_plugintestControls_hgyko_53";var i={viewport:o,isIos:t,hideContentOnRecord:n,hideContent:e,plugintestControls:s};export{i as s};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXgubW9kdWxlLmQ2M2E4MTQzLmpzIiwic291cmNlcyI6W10sInNvdXJjZXNDb250ZW50IjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiJ9

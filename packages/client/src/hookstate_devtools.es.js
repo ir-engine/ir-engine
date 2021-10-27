@@ -997,7 +997,7 @@ function DevToolsInitializeInternal() {
                                         submitToMonitor(__assign(__assign({}, p), { type: "SET [" + p.path.join('/') + "]" }));
                                         if (breakpoint) {
                                             // tslint:disable-next-line: no-debugger
-                                            debugger;
+                                            
                                         }
                                     }
                                 }); }
@@ -1012,7 +1012,7 @@ function DevToolsInitializeInternal() {
                         submitToMonitor(__assign(__assign({}, p), { type: "SET [" + p.path.join('/') + "]" }));
                         if (breakpoint) {
                             // tslint:disable-next-line: no-debugger
-                            debugger;
+                            
                         }
                     }),
                     onDestroy: function () {

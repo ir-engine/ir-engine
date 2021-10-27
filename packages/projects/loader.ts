@@ -1,5 +1,5 @@
-import type { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { SystemModulePromise, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import type { ProjectPackageInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 
@@ -44,7 +44,8 @@ export const importPack = async (data: ProjectNodeArguments, isClient: boolean):
     react: []
   }
   try {
-    const projectManifest = (await import(`./projects/${data.packName}/manifest.json`)) as ProjectInterface
+    const projectManifest = (await import(`./projects/${data.packName}/package.json`))
+      .xrengine as ProjectPackageInterface
 
     console.info(`Got Project Manifest`, projectManifest)
 
