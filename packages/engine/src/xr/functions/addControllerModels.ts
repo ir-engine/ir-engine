@@ -11,7 +11,7 @@ import {
   XRInputSource
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'

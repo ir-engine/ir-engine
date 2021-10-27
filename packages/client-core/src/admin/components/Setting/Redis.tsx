@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
-import { Paper, Typography } from '@material-ui/core'
-import InputBase from '@material-ui/core/InputBase'
+import { Paper, Typography } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
 import { useStyles } from './styles'
 import Switch from '@material-ui/core/Switch'
 import { useAdminRedisSettingState } from '../../state/Setting/AdminRedisSettingService'

@@ -1,18 +1,19 @@
-import { sRGBEncoding } from 'three'
+import { sRGBEncoding, Quaternion, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
-import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { addDefaultControllerModels } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 
@@ -25,6 +26,10 @@ export default async function XRSystem(world: World): Promise<System> {
   const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
 
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
+
+  const quat = new Quaternion()
+  const quat2 = new Quaternion()
+  const vector3 = new Vector3()
 
   // TEMPORARY - precache controller model
   // TODO: remove this when IK system is in
@@ -99,6 +104,22 @@ export default async function XRSystem(world: World): Promise<System> {
       for (const entity of localXRControllerQuery.enter()) {
         addDefaultControllerModels(entity)
       }
+    }
+
+    for (const entity of localXRControllerQuery()) {
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+      const transform = getComponent(entity, TransformComponent)
+
+      xrInputSourceComponent.container.updateWorldMatrix(true, true)
+      xrInputSourceComponent.container.updateMatrixWorld(true)
+
+      quat.copy(transform.rotation).invert()
+      quat2.copy(Engine.camera.quaternion).premultiply(quat)
+      xrInputSourceComponent.head.quaternion.copy(quat2)
+
+      vector3.subVectors(Engine.camera.position, transform.position)
+      vector3.applyQuaternion(quat)
+      xrInputSourceComponent.head.position.copy(vector3)
     }
   }
   // TODO: add and remove controller models from grips

@@ -4,7 +4,7 @@ import Alert from '@material-ui/lab/Alert'
 import AlertTitle from '@material-ui/lab/AlertTitle'
 import { useAlertState } from '../state/AlertService'
 import { AlertService } from '../state/AlertService'
-import Box from '@material-ui/core/Box'
+import Box from '@mui/material/Box'
 import styles from './Common.module.scss'
 
 interface Props {}

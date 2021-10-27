@@ -35,9 +35,9 @@ const DialogComponent = (props: Props): any => {
 
   return (
     <Dialog open={isOpened.value} onClose={handleClose} aria-labelledby="xr-dialog" color="background">
-      <DialogTitle disableTypography className={styles.dialogTitle}>
+      <DialogTitle className={styles.dialogTitle}>
         <Typography variant="h6">{(content && content?.value?.title) ?? ''}</Typography>
-        <IconButton aria-label="close" className={styles.dialogCloseButton} onClick={handleClose}>
+        <IconButton aria-label="close" className={styles.dialogCloseButton} onClick={handleClose} size="large">
           <CloseIcon />
         </IconButton>
       </DialogTitle>

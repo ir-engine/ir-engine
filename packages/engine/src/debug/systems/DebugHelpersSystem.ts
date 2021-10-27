@@ -13,7 +13,7 @@ import {
   Vector3
 } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'

@@ -223,7 +223,6 @@ if (!Config.publicRuntimeConfig.offlineMode) {
         party.instanceId !== dbUser.instanceId &&
         accessInstanceConnectionState().instanceProvisioning.value === false
       ) {
-        const instance = await client.service('instance').get(party.instanceId)
         const updateUser = dbUser
         updateUser.partyId = party.id
         store.dispatch(PartyAction.patchedPartyUser(updateUser))

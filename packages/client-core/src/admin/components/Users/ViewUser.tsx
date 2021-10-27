@@ -19,7 +19,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import { useAuthState } from '../../../user/state/AuthService'
 import { UserService } from '../../state/UserService'
 import { useDispatch } from '../../../store'
-import InputBase from '@material-ui/core/InputBase'
+import InputBase from '@mui/material/InputBase'
 
 import { useUserStyles, useUserStyle } from './styles'
 import { useUserState } from '../../state/UserService'
@@ -236,7 +236,7 @@ const ViewUser = (props: Props) => {
                 <Grid item xs={4}>
                   <Avatar className={classes.large}>
                     {!userAdmin.avatarId ? (
-                      <Skeleton animation="wave" variant="circle" width={40} height={40} />
+                      <Skeleton animation="wave" variant="circular" width={40} height={40} />
                     ) : (
                       userAdmin.avatarId.charAt(0).toUpperCase()
                     )}

@@ -1,6 +1,6 @@
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
-import Tab from '@material-ui/core/Tab'
-import Tabs from '@material-ui/core/Tabs'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
 import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { useTranslation } from 'react-i18next'
@@ -16,7 +16,7 @@ import {
   useStyles
 } from './projectUtility'
 import Projects from '../components/projects/ProjectsPage'
-import { Person } from '@material-ui/icons'
+import { Person } from '@mui/icons-material'
 import {
   ProjectGridContainer,
   ProjectGridContent,
@@ -86,8 +86,26 @@ const ProjectsPage = () => {
             className={classes.tabs}
             classes={{ indicator: classes.indicator }}
           >
-            <Tab label={t('editor.projects.projectHeader')} {...tapId(0)} />
-            <Tab label={t('editor.projects.sceneHeader')} {...tapId(1)} />
+            <Tab
+              label={t('editor.projects.projectHeader')}
+              {...tapId(0)}
+              sx={{
+                '&.Mui-selected': {
+                  color: 'inherit',
+                  opacity: 1
+                }
+              }}
+            />
+            <Tab
+              label={t('editor.projects.sceneHeader')}
+              {...tapId(1)}
+              sx={{
+                '&.Mui-selected': {
+                  color: 'inherit',
+                  opacity: 1
+                }
+              }}
+            />
           </Tabs>
           <TabPanel value={currentPage} index={0}>
             <Projects showingScenes={false} />

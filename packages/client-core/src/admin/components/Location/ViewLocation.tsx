@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import Drawer from '@material-ui/core/Drawer'
+import Drawer from '@mui/material/Drawer'
 import { useLocationStyles, useLocationStyle } from './styles'
 import Paper from '@material-ui/core/Paper'
 import Container from '@material-ui/core/Container'

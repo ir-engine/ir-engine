@@ -1,16 +1,38 @@
-import createGeometry from '../functions/createGeometry'
+import createWorkerFunction from '../functions/createWorkerFunction'
 import fetchUsingCache from '../functions/fetchUsingCache'
 import isIntersectCircleCircle from '../functions/isIntersectCircleCircle'
 import { FeatureKey, TaskStatus, MapStateUnwrapped } from '../types'
 import { multiplyArray } from '../util'
+// @ts-ignore
+import createGeometryWorker from '../workers/geometryWorker.ts?worker'
+import { WorkerApi } from '../workers/geometryWorker'
+import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from '../styles'
+import { BufferGeometryLoader } from 'three'
+import { getHumanFriendlyFeatureKey } from '../helpers/KeyHelpers'
 
 const $array2 = Array(2)
+
+const createGeometry = createWorkerFunction<WorkerApi>(createGeometryWorker())
+
+const geometryLoader = new BufferGeometryLoader()
 
 /** using fetchUsingCache since createGeometry returns a promise */
 const createGeometryUsingCache = fetchUsingCache(async (state: MapStateUnwrapped, ...key: FeatureKey) => {
   const { feature, centerPoint, boundingCircleRadius } = state.transformedFeatureCache.get(key)
   const [layerName] = key
-  const geometry = await createGeometry(state.geometryCache.map.getKey(key), layerName, feature)
+  const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
+  const result = await createGeometry(feature, styles)
+
+  if (result === null) {
+    console.warn('Encountered an error while creating geometry.', getHumanFriendlyFeatureKey(key))
+  }
+
+  const {
+    geometry: { json }
+  } = result!
+
+  // Reconstitute the serialized geometry
+  const geometry = geometryLoader.parse(json)
   return {
     geometry,
     centerPoint,

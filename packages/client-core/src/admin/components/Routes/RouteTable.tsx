@@ -10,8 +10,8 @@ import { useAuthState } from '../../../user/state/AuthService'
 import { useRouteStyles, useRouteStyle } from './styles'
 import { useRouteState } from '../../state/RouteService'
 import { RouteService } from '../../state/RouteService'
-import { Checkbox } from '@material-ui/core'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import { Checkbox } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
 
 export interface RouteColumn {
   id: 'project' | 'route' | 'active'

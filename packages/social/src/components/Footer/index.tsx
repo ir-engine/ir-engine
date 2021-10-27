@@ -2,11 +2,11 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-// import WhatshotIcon from '@material-ui/icons/Whatshot';
+// import WhatshotIcon from '@mui/icons-material/Whatshot';
 
 // @ts-ignore
 import styles from './Footer.module.scss'
-import Avatar from '@material-ui/core/Avatar'
+import Avatar from '@mui/material/Avatar'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'

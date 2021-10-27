@@ -26,7 +26,7 @@ import { WebxrNativeService } from '@xrengine/client-core/src/social/state/Webxr
 import { useDispatch } from '@xrengine/client-core/src/store'
 // @ts-ignore
 import styles from './index.module.scss'
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 
 // import image from '/static/images/image.jpg'
 // import mockupIPhone from '/static/images/mockupIPhone.jpg'

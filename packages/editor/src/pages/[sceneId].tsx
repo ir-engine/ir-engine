@@ -1,8 +1,3 @@
-/**
- *Compoment to render existing project on the basis of projectId.
- *@Param :- projectId
- */
-
 import React, { lazy, Suspense, useEffect, useState } from 'react'
 
 // importing component EditorContainer.
@@ -12,23 +7,18 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 
-/**
- * Declaring Props interface having two props.
- *@authState can be of any type.
- *@doLoginAuto can be of type doLoginAuto component.
- *
- */
 interface Props {}
 
 /**
- * Function component providing project editor view.
+ * Scene editor
+ * @returns
  */
-const Project = (props: Props) => {
+
+const SceneEditor = (props: Props) => {
+  console.log(props)
   // initialising consts using props interface.
-  const dispatch = useDispatch()
   const authState = useAuthState()
   // initialising authUser.
   const authUser = authState.authUser
@@ -70,8 +60,7 @@ const Project = (props: Props) => {
         user?.id.value != null &&
         engineIsInitialized ? (
           <>
-            {/* @ts-ignore */}
-            <EditorContainer Engine={Engine} {...props} />
+            <EditorContainer {...props} />
           </>
         ) : null}
       </Suspense>
@@ -79,4 +68,4 @@ const Project = (props: Props) => {
   )
 }
 
-export default Project
+export default SceneEditor

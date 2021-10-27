@@ -1,6 +1,6 @@
-import IconButton from '@material-ui/core/IconButton'
-import Slider from '@material-ui/core/Slider'
-import Tooltip from '@material-ui/core/Tooltip'
+import IconButton from '@mui/material/IconButton'
+import Slider from '@mui/material/Slider'
+import Tooltip from '@mui/material/Tooltip'
 import {
   Launch,
   Mic,

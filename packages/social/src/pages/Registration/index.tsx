@@ -20,11 +20,12 @@ import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src
 import * as polyfill from 'credential-handler-polyfill'
 import styles from './Registration.module.scss'
 import { useTranslation } from 'react-i18next'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useSnackbar, SnackbarOrigin } from 'notistack'
 
 import { Link, useHistory, Redirect } from 'react-router-dom'
 import ChangedUserName from './ChangedUserName'
+import CloseSnackbarComponent from '../../components/buttons/CloseSnackbarComponent'
 
 const Registration = (props: any): any => {
   const {
@@ -96,11 +97,33 @@ const Registration = (props: any): any => {
   const callBacksFromUpdateUsername = (str: string) => {
     switch (str) {
       case 'succes': {
-        enqueueSnackbar('Data saved successfully', { variant: 'success', anchorOrigin })
+        const succes = enqueueSnackbar('Data saved successfully', {
+          variant: 'success',
+          anchorOrigin,
+          action: [
+            <CloseSnackbarComponent
+              key="closeSnackbar"
+              handleClose={() => {
+                closeSnackbar(succes)
+              }}
+            />
+          ]
+        })
         break
       }
       case 'reject': {
-        enqueueSnackbar('This name is already taken', { variant: 'error', anchorOrigin })
+        const reject = enqueueSnackbar('This name is already taken', {
+          variant: 'error',
+          anchorOrigin,
+          action: [
+            <CloseSnackbarComponent
+              key="closeSnackbar"
+              handleClose={() => {
+                closeSnackbar(reject)
+              }}
+            />
+          ]
+        })
         break
       }
     }

@@ -12,7 +12,7 @@ import Avatar from '@material-ui/core/Avatar'
 import { useAuthState } from '../../state/AuthService'
 
 import { useStylesForDashboard } from './styles'
-import SideMenu from './SideMenuItem'
+import DashboardMenuItem from './DashboardMenuItem'
 
 interface Props {
   children?: any
@@ -61,6 +61,7 @@ const Dashboard = ({ children }: Props) => {
             className={clsx(classes.menuButton, {
               [classes.hide]: open
             })}
+            size="large"
           >
             <Menu />
           </IconButton>
@@ -89,11 +90,11 @@ const Dashboard = ({ children }: Props) => {
         }}
       >
         <div className={classes.toolbar}>
-          <IconButton onClick={handleDrawerClose} style={{ color: '#fff' }}>
+          <IconButton onClick={handleDrawerClose} style={{ color: '#fff' }} size="large">
             {theme.direction === 'rtl' ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         </div>
-        <SideMenu />
+        <DashboardMenuItem />
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
