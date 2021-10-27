@@ -2,7 +2,7 @@ import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { LocationService } from '@xrengine/client-core/src/admin/state/LocationService'
-import { DockLayout, DockMode } from 'rc-dock'
+import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { Component } from 'react'
 import { DndProvider } from 'react-dnd'
@@ -327,9 +327,10 @@ const WorkspaceContainer = (styled as any).div`
  *Styled component used as dock container.
  *
  * @author Hanzla Mateen
+ * @author Abhishek Pathak
  * @type {type}
  */
-const DockContainer = (styled as any).div`
+export const DockContainer = (styled as any).div`
   .dock-panel {
     background: transparent;
     pointer-events: auto;
@@ -340,12 +341,13 @@ const DockContainer = (styled as any).div`
     position: relative;
     z-index: 99;
   }
-  .dock-panel[data-dockid="+3"] {
+  .dock-panel[data-dockid="+5"] {
     visibility: hidden;
     pointer-events: none;
   }
   .dock-divider {
     pointer-events: auto;
+    background:rgba(1,1,1,${(props) => props.dividerAlpha});
   }
   .dock {
     border-radius: 4px;
@@ -367,6 +369,12 @@ const DockContainer = (styled as any).div`
     background-color: #ffffff; 
   }
 `
+/**
+ * @author Abhishek Pathak
+ */
+DockContainer.defaultProps = {
+  dividerAlpha: 0
+}
 
 type EditorContainerProps = {
   t: any
@@ -1100,10 +1108,30 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     //   })
     // }
 
-    let defaultLayout = {
+    let defaultLayout: LayoutData = {
       dockbox: {
         mode: 'horizontal' as DockMode,
         children: [
+          {
+            mode: 'vertical' as DockMode,
+            size: 2,
+            children: [
+              {
+                tabs: [
+                  {
+                    id: 'fileBrowserPanel',
+                    title: (
+                      <PanelDragContainer>
+                        <PanelIcon as={Archive} size={12} />
+                        <PanelTitle>File Browser</PanelTitle>
+                      </PanelDragContainer>
+                    ),
+                    content: <FileBrowserPanel />
+                  }
+                ]
+              }
+            ]
+          },
           {
             mode: 'vertical' as DockMode,
             size: 8,
@@ -1148,16 +1176,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     id: 'assetsPanel',
                     title: 'Elements',
                     content: <AssetsPanel />
-                  },
-                  {
-                    id: 'fileBrowserPanel',
-                    title: (
-                      <PanelDragContainer>
-                        <PanelIcon as={Archive} size={12} />
-                        <PanelTitle>File Browser</PanelTitle>
-                      </PanelDragContainer>
-                    ),
-                    content: <FileBrowserPanel />
                   }
                 ]
               }

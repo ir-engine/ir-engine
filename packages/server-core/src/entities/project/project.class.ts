@@ -51,30 +51,34 @@ export class Project extends Service {
 
     for (const name of locallyInstalledProjects) {
       if (!data.find((e) => e.name === name)) {
-        const packageData = JSON.parse(
-          fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/projects/', name, 'package.json'), 'utf8')
-        ).xrengine as ProjectPackageInterface
+        try {
+          const packageData = JSON.parse(
+            fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/projects/', name, 'package.json'), 'utf8')
+          ).xrengine as ProjectPackageInterface
 
-        if (!packageData) {
-          console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
-          continue
+          if (!packageData) {
+            console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
+            continue
+          }
+
+          const dbEntryData: ProjectInterface = {
+            ...packageData,
+            name,
+            repositoryPath: getRemoteURLFromGitData(name)
+          }
+
+          console.warn('[Projects]: Found new locally installed project', name)
+          await super.create(dbEntryData)
+        } catch (e) {
+          console.log(e)
         }
-
-        const dbEntryData: ProjectInterface = {
-          ...packageData,
-          name,
-          repositoryPath: getRemoteURLFromGitData(name)
-        }
-
-        console.warn('[Projects]: Found new locally installed project', name)
-        super.create(dbEntryData)
       }
     }
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
         console.warn(`[Projects]: Project ${name} not found, assuming removed`)
-        super.remove(id)
+        await super.remove(id)
       }
     }
   }

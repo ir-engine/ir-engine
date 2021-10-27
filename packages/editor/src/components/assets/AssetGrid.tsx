@@ -9,8 +9,6 @@ import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import AssetTooltip from './AssetTooltip'
-import { ItemTypes } from '../../constants/AssetTypes'
-import AudioPreview from './AudioPreview'
 import Tooltip, { TooltipContainer } from '../layout/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
@@ -78,11 +76,6 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
   } else {
     //setting content as ImageMediaGridItem if all above cases are false
     content = <ImageMediaGridItem onClick={onClickItem} label={item.label} {...rest} />
-  }
-
-  if (item.type === ItemTypes.Audio) {
-    //setting content as AudioPreview component if item type is audio
-    content = <AudioPreview src={item.url}>{content}</AudioPreview>
   }
 
   const [_dragProps, drag, preview] = useDrag(() => ({
