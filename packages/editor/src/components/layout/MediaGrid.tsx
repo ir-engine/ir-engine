@@ -208,31 +208,19 @@ export function ImageMediaGridItem({ label, src, ...rest }: ImageMediaGridItemPr
  * @param {any} rest
  * @returns
  */
-export function IconMediaGridItem({
-  label,
-  iconComponent: IconComponent,
-  onNameChanged = null,
-  isRenaming = false,
-  ...rest
-}) {
-  const inputref = useRef(null)
-  const inputLabel = (
-    <MediaGridInputLabel placeholder={label} disabled={!isRenaming} onKeyDown={onNameChanged} ref={inputref} />
-  )
-
-  useEffect(() => {
-    if (isRenaming) inputref.current.focus()
-  }, [isRenaming])
+export function IconMediaGridItem({ label, iconComponent: IconComponent, ...rest }) {
   return (
     <>
       <MediaGridItemContainer {...rest}>
         <MediaGridItemContent>
           <MediaGridItemIconContainer>
-            <IconComponent size={'48%'} />
+            <IconComponent size={48} />
           </MediaGridItemIconContainer>
         </MediaGridItemContent>
       </MediaGridItemContainer>
-      <MediaGridItemLabelContainer>{inputLabel}</MediaGridItemLabelContainer>
+      <MediaGridItemLabelContainer>
+        <MediaGridItemLabel placeholder={label} />
+      </MediaGridItemLabelContainer>
     </>
   )
 }
@@ -245,7 +233,7 @@ export const MediaGrid = (styled as any).div`
   display: grid;
   grid-gap: ${(props) => props.gap};
   width: 100%;
-  grid-template-columns: repeat(auto-fill, 100px);
+  grid-template-columns: repeat(auto-fill, minmax(${(props) => props.minWidth}, 1fr));
   padding: ${(props) => props.gap};
 `
 
