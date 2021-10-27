@@ -1,7 +1,7 @@
 // === SETUP WEBXR === //
 
 import { Quaternion, Vector3 } from 'three'
-import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'

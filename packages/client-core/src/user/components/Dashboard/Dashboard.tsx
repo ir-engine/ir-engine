@@ -12,7 +12,7 @@ import Avatar from '@material-ui/core/Avatar'
 import { useAuthState } from '../../state/AuthState'
 
 import { useStylesForDashboard } from './styles'
-import SideMenu from './SideMenuItem'
+import DashboardMenuItem from './DashboardMenuItem'
 
 interface Props {
   children?: any
@@ -93,7 +93,7 @@ const Dashboard = ({ children }: Props) => {
             {theme.direction === 'rtl' ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         </div>
-        <SideMenu />
+        <DashboardMenuItem />
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
