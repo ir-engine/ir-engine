@@ -3,7 +3,7 @@ import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/Com
 import { Network } from '../classes/Network'
 import { World } from '../../ecs/classes/World'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { WorldStateModel } from '../schema/networkSchema'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { isClient } from '../../common/functions/isClient'
