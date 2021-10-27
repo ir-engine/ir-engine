@@ -28,6 +28,7 @@ async function createUIRootLayer<S extends State<any>>(
     containerElement
   )
 
+  options.autoRefresh = options.autoRefresh ?? true
   return new Ethereal.WebLayer3D(containerElement, options)
 }
 
