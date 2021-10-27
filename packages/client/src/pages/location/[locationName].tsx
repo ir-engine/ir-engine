@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Layout from '../../components/Layout/Layout'
 import DefaultLayoutView from '../../components/World/DefaultLayoutView'
 import World from '../../components/World/index'
@@ -6,7 +6,7 @@ import NetworkInstanceProvisioning from '../../components/World/NetworkInstanceP
 import { useTranslation } from 'react-i18next'
 
 interface Props {
-  // locationName: string
+  locationName: string
   allowDebug?: boolean
   history?: any
   showTouchpad?: boolean
@@ -17,7 +17,7 @@ interface Props {
   hideFullscreen?: boolean
 }
 
-const LocationPage = (props) => {
+const LocationPage = (props: Props) => {
   const { t } = useTranslation()
   const [sceneId, setSceneId] = useState('')
   const [isUserBanned, setIsUserBanned] = useState(true)
@@ -25,43 +25,50 @@ const LocationPage = (props) => {
   const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [loadingItemCount, setLoadingItemCount] = useState(99)
   const [isTeleporting, setIsTeleporting] = useState(false)
-  const [engineInit, setInitFunc] = useState(()=>{})
+  const [reinit, reinitEngine] = useState(false)
 
-  return <>
-  <NetworkInstanceProvisioning
+  const engineInit = () => {
+    reinitEngine(!reinit)
+  }
+
+  return (
+    <>
+      <NetworkInstanceProvisioning
         locationName={props.locationName}
         sceneId={sceneId}
         isUserBanned={isUserBanned}
         setIsValidLocation={setIsValidLocation}
       />
-  <World locationName={props.match.params.locationName} 
-    history={props.history}  
-    setSceneId={setSceneId} 
-    setUserBanned={setIsUserBanned} 
-    setLoadingItemCount={setLoadingItemCount}
-    setIsTeleporting={setIsTeleporting}
-    getEngineInitFunc={setInitFunc}
-  />
-  <Layout
-      pageTitle={t('location.locationName.pageTitle')}
-      harmonyOpen={harmonyOpen}
-      setHarmonyOpen={setHarmonyOpen}
-      theme={props.theme}
-      hideVideo={props.hideVideo}
-      hideFullscreen={props.hideFullscreen}
-    >
-      <DefaultLayoutView
-        loadingItemCount={loadingItemCount}
-        isValidLocation={isValidLocation}
-        allowDebug={props.allowDebug}
-        reinit={engineInit}
-        children={props.children}
-        showTouchpad={props.showTouchpad}
-        isTeleporting={isTeleporting}
+      <World
         locationName={props.locationName}
+        history={props.history}
+        setSceneId={setSceneId}
+        setUserBanned={setIsUserBanned}
+        setLoadingItemCount={setLoadingItemCount}
+        setIsTeleporting={setIsTeleporting}
+        reinit={reinit}
       />
-    </Layout>
-  </>
+      <Layout
+        pageTitle={t('location.locationName.pageTitle')}
+        harmonyOpen={harmonyOpen}
+        setHarmonyOpen={setHarmonyOpen}
+        theme={props.theme}
+        hideVideo={props.hideVideo}
+        hideFullscreen={props.hideFullscreen}
+      >
+        <DefaultLayoutView
+          loadingItemCount={loadingItemCount}
+          isValidLocation={isValidLocation}
+          allowDebug={props.allowDebug}
+          reinit={engineInit}
+          children={props.children}
+          showTouchpad={props.showTouchpad}
+          isTeleporting={isTeleporting}
+          locationName={props.locationName}
+        />
+      </Layout>
+    </>
+  )
 }
 
 export default LocationPage

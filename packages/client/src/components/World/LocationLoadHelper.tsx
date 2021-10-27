@@ -74,9 +74,9 @@ export const getSceneData = async (sceneId: string, isOffline: boolean): Promise
   return client.service(service).get(serviceId) as SceneData
 }
 
-const getFirstSpawnPointFromSceneData = (scene: SceneData)=>{
-  for (const entity of Object.values(scene.entities)){
-    if(entity.name != "spawn point") continue
+const getFirstSpawnPointFromSceneData = (scene: SceneData) => {
+  for (const entity of Object.values(scene.entities)) {
+    if (entity.name != 'spawn point') continue
 
     for (const component of entity.components) {
       if (component.type === 'transform') {
@@ -86,7 +86,7 @@ const getFirstSpawnPointFromSceneData = (scene: SceneData)=>{
   }
 
   console.warn('Could not find spawn point from scene data')
-  return {x:0,y:0,z:0}
+  return { x: 0, y: 0, z: 0 }
 }
 
 const createOfflineUser = (sceneData: SceneData) => {

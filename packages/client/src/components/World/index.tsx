@@ -55,6 +55,7 @@ interface Props {
   setLoadingItemCount?: any
   setIsTeleporting?: any
   getEngineInitFunc?: any
+  reinit?: any
 }
 
 export const EnginePage = (props: Props) => {
@@ -65,15 +66,21 @@ export const EnginePage = (props: Props) => {
   const [sceneId, setSceneId] = useState('')
   const locationState = useLocationState()
   const connectToInstanceServer = props.connectToInstanceServer !== undefined ? props.connectToInstanceServer : true
-  const setIsTeleporting = typeof props.setIsTeleporting === 'function' ? props.setIsTeleporting : ()=>{}
+  const setIsTeleporting = typeof props.setIsTeleporting === 'function' ? props.setIsTeleporting : () => {}
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
-    if(typeof props.setSceneId === 'function') props.setLoadingItemCount(loadingItemCount || 0)
+    if (typeof props.setSceneId === 'function') props.setLoadingItemCount(loadingItemCount || 0)
   }
 
   const engineCallbacks: EngineCallbacks = {
     onSceneLoadProgress,
     onSceneLoaded: () => onSceneLoadProgress(0)
+  }
+
+  const init = async (): Promise<any> => {
+    console.log('init', sceneId)
+    setIsTeleporting(false)
+    await initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks, connectToInstanceServer)
   }
 
   /**
@@ -106,7 +113,7 @@ export const EnginePage = (props: Props) => {
     if (sceneId === '' && locationState.currentLocation.location.sceneId.value) {
       const id = locationState.currentLocation.location.sceneId.value
       setSceneId(id)
-      if(typeof props.setSceneId === 'function') props.setSceneId(id)
+      if (typeof props.setSceneId === 'function') props.setSceneId(id)
     }
   }, [locationState.currentLocation.location.sceneId.value])
 
@@ -116,9 +123,8 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     if (sceneId) {
       init()
-      if(typeof props.getEngineInitFunc === 'function') props.getEngineInitFunc(init)
     }
-  }, [sceneId])
+  }, [sceneId, props.reinit])
 
   const checkForBan = (): void => {
     const selfUser = authState.user
@@ -128,13 +134,7 @@ export const EnginePage = (props: Props) => {
       selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
     setUserBanned(isUserBanned)
 
-    if(typeof props.setUserBanned === 'function') props.setUserBanned(isUserBanned)
-  }
-
-  const init = async (): Promise<any> => {
-    console.log('init', sceneId)
-    setIsTeleporting(false)
-    await initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks, connectToInstanceServer)
+    if (typeof props.setUserBanned === 'function') props.setUserBanned(isUserBanned)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
@@ -157,7 +157,7 @@ export const EnginePage = (props: Props) => {
 
   // Do not add/remove the canvas element after engine init
   // It will break internal references and prevent XR session to work properly
-  return (canvas)
+  return canvas
 }
 
 export default EnginePage
