@@ -1,5 +1,7 @@
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
-import { deepOrange } from '@material-ui/core/colors'
+import { Theme } from '@mui/material/styles'
+import makeStyles from '@mui/styles/makeStyles'
+import createStyles from '@mui/styles/createStyles'
+import { deepOrange } from '@mui/material/colors'
 
 const drawerWidth = 200
 
@@ -50,7 +52,7 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
         duration: theme.transitions.duration.leavingScreen
       }),
       overflowX: 'hidden',
-      width: `${theme.spacing(7) + 1}px !important`,
+      width: `calc(${theme.spacing(7)} + 1px) !important`,
       [theme.breakpoints.up('sm')]: {
         width: theme.spacing(9) + 1
       },
@@ -96,7 +98,7 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
       paddingLeft: '2rem !important'
     },
     mdFont: {
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '1rem'
       }
     }

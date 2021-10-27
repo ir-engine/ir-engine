@@ -1,11 +1,14 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 
 export const useUserStyles = makeStyles((theme: Theme) =>
   createStyles({
     large: {
       width: theme.spacing(14),
       height: theme.spacing(14),
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('lg')]: {
         width: '80px',
         height: '80px'
       }
@@ -21,7 +24,7 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       background: '#111',
       color: '#f1f1f1',
       backgroundColor: '#343b41',
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down('md')]: {
         height: '15vh'
       }
     },
@@ -137,26 +140,26 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       height: '200px',
       width: '460px',
       overflowY: 'scroll',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('lg')]: {
         width: '100%'
       }
     },
     headingFont: {
       width: '100%',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('lg')]: {
         fontSize: '1.6rem'
       },
-      [theme.breakpoints.between(100, 395)]: {
+      [theme.breakpoints.between(100, undefined)]: {
         fontSize: '1.4rem'
       }
     },
     typoFont: {
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('lg')]: {
         fontSize: '1.3rem'
       }
     },
     typoFontTitle: {
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '1.3rem'
       }
     }
@@ -194,10 +197,10 @@ export const useUserStyle = makeStyles((theme: Theme) =>
       marginRight: '25px',
       boxShadow:
         '0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%) !important',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('lg')]: {
         width: '120px'
       },
-      [theme.breakpoints.between(100, 335)]: {
+      [theme.breakpoints.between(100, undefined)]: {
         width: '80px'
       }
     },

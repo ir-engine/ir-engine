@@ -23,7 +23,7 @@ import Onboard from '@xrengine/social/src/components/OnBoard'
 import FeedOnboarding from '@xrengine/social/src/components/FeedOnboarding'
 // @ts-ignore
 import styles from './index.module.scss'
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 
 // import image from '/static/images/image.jpg'
 // import mockupIPhone from '/static/images/mockupIPhone.jpg'

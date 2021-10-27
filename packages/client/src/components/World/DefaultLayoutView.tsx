@@ -1,5 +1,5 @@
-import Button from '@material-ui/core/Button'
-import Snackbar from '@material-ui/core/Snackbar'
+import Button from '@mui/material/Button'
+import Snackbar from '@mui/material/Snackbar'
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import React, { Suspense, useEffect, useState } from 'react'

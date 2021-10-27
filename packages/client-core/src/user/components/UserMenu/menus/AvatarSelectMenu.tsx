@@ -1,6 +1,6 @@
 import React from 'react'
 import * as THREE from 'three'
-import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt, Help } from '@material-ui/icons'
+import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt, Help } from '@mui/icons-material'
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
