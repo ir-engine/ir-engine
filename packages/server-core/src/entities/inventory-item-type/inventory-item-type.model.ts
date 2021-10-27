@@ -12,15 +12,15 @@ export default (app: Application): any => {
         allowNull: false,
         // primaryKey: true,
         unique: true,
-        values: Object.keys(inventoryItemTypeEnum )
+        values: Object.keys(inventoryItemTypeEnum)
       },
-       inventoryItemTypeId : {
-         type: DataTypes.UUID,
-         defaultValue: DataTypes.UUIDV1,
-         allowNull: false,
-         primaryKey: true,
-         unique: true,
-       }
+      inventoryItemTypeId: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
     },
     {
       hooks: {
@@ -35,8 +35,8 @@ export default (app: Application): any => {
     }
   )
 
-  ;(inventoryItemType as any).associate = (models: any): void => { 
-    ;(inventoryItemType as any).hasMany(models.inventory_item, { foreignKey: 'inventoryItemTypeId', required: true})
+  ;(inventoryItemType as any).associate = (models: any): void => {
+    ;(inventoryItemType as any).hasMany(models.inventory_item, { foreignKey: 'inventoryItemTypeId', required: true })
   }
 
   return inventoryItemType

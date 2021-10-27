@@ -6,7 +6,7 @@ import userInventoryDocs from './user-inventory.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'user-inventory': UserInventory 
+    'user-inventory': UserInventory
   }
 }
 
@@ -23,7 +23,7 @@ export default (app: Application): any => {
    * @author DRC
    */
   const event = new UserInventory(options, app)
-  event.docs = userInventoryDocs 
+  event.docs = userInventoryDocs
   app.use('user-inventory', event)
 
   const service = app.service('user-inventory')

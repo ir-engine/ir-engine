@@ -13,7 +13,6 @@ import UserRole from './user-role/user-role.service'
 import UserSettings from './user-settings/user-settings.service'
 import UserInventory from './user-inventory/user-inventory.service'
 
-
 export default [
   UserRole,
   User,

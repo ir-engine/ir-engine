@@ -1,5 +1,5 @@
 export const inventoryItemType = {
-    scene: 'scene',
-    inventory: 'inventory',
-    project: 'project'
-  }
+  scene: 'scene',
+  inventory: 'inventory',
+  project: 'project'
+}

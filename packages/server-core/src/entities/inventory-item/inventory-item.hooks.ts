@@ -25,10 +25,10 @@ export default {
       addAssociations({
         models: [
           {
-            model: 'inventory-item-type',
+            model: 'inventory-item-type'
           },
           {
-            model: 'user',
+            model: 'user'
           }
         ]
       })
@@ -37,10 +37,10 @@ export default {
       addAssociations({
         models: [
           {
-            model: 'inventory-item-type',
+            model: 'inventory-item-type'
           },
           {
-            model: 'user',
+            model: 'user'
           }
         ]
       })

@@ -6,7 +6,7 @@ import inventoryTypeDocs from './inventory-item-type.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'inventory-item-type': InventoryItemType 
+    'inventory-item-type': InventoryItemType
   }
 }
 
@@ -23,7 +23,7 @@ export default (app: Application): any => {
    * @author DRC
    */
   const event = new InventoryItemType(options, app)
-  event.docs = inventoryTypeDocs 
+  event.docs = inventoryTypeDocs
   app.use('inventory-item-type', event)
 
   const service = app.service('inventory-item-type')

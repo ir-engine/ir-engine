@@ -15,10 +15,10 @@ export default (app: Application): any => {
       quantity: {
         type: DataTypes.INTEGER,
         defaultValue: 1,
-        allowNull: false,
+        allowNull: false
       },
       addedOn: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATE
       }
     },
     {
@@ -33,7 +33,7 @@ export default (app: Application): any => {
 
   ;(userInventory as any).assocate = (models: any): void => {
     ;(userInventory as any).belongsTo(models.inventory_item, { required: true, allowNull: false })
-    ;(userInventory as any).belongsTo(models.user, { required: true, allowNull: false})
+    ;(userInventory as any).belongsTo(models.user, { required: true, allowNull: false })
   }
 
   return userInventory

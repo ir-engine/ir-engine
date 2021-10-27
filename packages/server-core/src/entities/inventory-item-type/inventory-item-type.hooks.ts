@@ -4,20 +4,24 @@ import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 export default {
   before: {
     all: [],
-    find: [addAssociations({
-      models: [
-        {
-          model: 'inventory-item',
-        }
-      ]
-    })],
-    get: [addAssociations({
-      models: [
-        {
-          model: 'inventory-item',
-        }
-      ]
-    })],
+    find: [
+      addAssociations({
+        models: [
+          {
+            model: 'inventory-item'
+          }
+        ]
+      })
+    ],
+    get: [
+      addAssociations({
+        models: [
+          {
+            model: 'inventory-item'
+          }
+        ]
+      })
+    ],
     create: [],
     update: [disallow()],
     patch: [disallow()],

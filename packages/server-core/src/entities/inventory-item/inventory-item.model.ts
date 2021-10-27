@@ -70,11 +70,12 @@ export default (app: Application): any => {
     }
   )
 
-  
-
   ;(inventoryItem as any).associate = (models: any): void => {
     ;(inventoryItem as any).belongsTo(models.inventory_item_type, { foreignKey: 'inventoryItemTypeId', required: true })
-    ;(inventoryItem as any).belongsToMany(models.user, { through: models.user_inventory,foreignKey: 'inventoryItemId'})
+    ;(inventoryItem as any).belongsToMany(models.user, {
+      through: models.user_inventory,
+      foreignKey: 'inventoryItemId'
+    })
   }
   //A.belongsToMany(B, { through: 'C' });
 

@@ -4,6 +4,11 @@ import { userRelationshipTypeSeed } from './user-relationship-type/user-relation
 import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
 import { userInventorySeed } from './user-inventory/user-inventory.seed'
 
-export const userSeeds: Array<ServicesSeedConfig> = [userRoleSeed, userRelationshipTypeSeed, userSeed, userInventorySeed]
+export const userSeeds: Array<ServicesSeedConfig> = [
+  userRoleSeed,
+  userRelationshipTypeSeed,
+  userSeed,
+  userInventorySeed
+]
 
 export default userSeeds
