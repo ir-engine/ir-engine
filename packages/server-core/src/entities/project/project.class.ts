@@ -11,6 +11,9 @@ import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
+import templateProjectJson from './template-project.json'
+
+console.log(templateProjectJson)
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
@@ -90,14 +93,19 @@ export class Project extends Service {
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
-    fs.mkdirSync(projectLocalDirectory)
+    fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
+    console.log(path.resolve(projectLocalDirectory, '.git'))
 
-    const git = useGit(projectLocalDirectory)
+    const git = useGit(path.resolve(projectLocalDirectory, '.git'))
     try {
       await git.init(true)
     } catch (e) {
       console.warn(e)
     }
+
+    const packageData = Object.assign({}, templateProjectJson) as any
+    packageData.name = projectName
+    fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
   }
 
   /**
