@@ -28,7 +28,7 @@ interface Props {
   chatState?: any
   sceneId: any
   reinit: any
-  isUserBanned: any
+  isUserBanned: boolean
   setIsValidLocation: any
 }
 
