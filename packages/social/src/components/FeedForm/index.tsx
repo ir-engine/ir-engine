@@ -21,11 +21,11 @@ import { Share } from '@capacitor/share'
 import styles from './FeedForm.module.scss'
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
-import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 import Preloader from '@xrengine/social/src/components/Preloader'
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedService'
 
 interface Props {
   feed?: any

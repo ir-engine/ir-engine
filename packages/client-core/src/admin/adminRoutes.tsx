@@ -3,7 +3,7 @@ import { Switch, Redirect } from 'react-router-dom'
 import { useDispatch } from '../store'
 import PrivateRoute from '../Private'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { useAuthState } from '../user/state/AuthState'
+import { useAuthState } from '../user/state/AuthService'
 import { AuthService } from '../user/state/AuthService'
 
 const analytic = React.lazy(() => import('./pages/index'))

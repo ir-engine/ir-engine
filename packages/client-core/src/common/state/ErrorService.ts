@@ -1,4 +1,4 @@
-import { ErrorActionType } from './ErrorActions'
+import { ErrorActionType } from './ErrorService'
 
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { store } from '../../store'

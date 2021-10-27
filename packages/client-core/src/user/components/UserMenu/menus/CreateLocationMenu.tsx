@@ -15,7 +15,7 @@ import InputLabel from '@material-ui/core/InputLabel'
 import FormControl from '@material-ui/core/FormControl'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import { client } from '../../../../feathers'
-import { AlertAction } from '../../../../common/state/AlertActions'
+import { AlertAction } from '../../../../common/state/AlertService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 

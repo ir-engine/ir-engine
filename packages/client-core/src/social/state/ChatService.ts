@@ -6,7 +6,7 @@ import { AlertService } from '../../common/state/AlertService'
 
 import { Config } from '@xrengine/common/src/config'
 
-import { accessAuthState } from '../../user/state/AuthState'
+import { accessAuthState } from '../../user/state/AuthService'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'

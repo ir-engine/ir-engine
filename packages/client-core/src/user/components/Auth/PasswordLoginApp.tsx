@@ -9,10 +9,10 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import { CreatorService } from '../../../social/state/CreatorService'
-import { useCreatorState } from '../../../social/state/CreatorState'
+import { useCreatorState } from '../../../social/state/CreatorService'
 import { useDispatch } from '../../../store'
 import { AuthService } from '../../state/AuthService'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 import styles from './Auth.module.scss'
 
 const initialState = { email: '', password: '' }

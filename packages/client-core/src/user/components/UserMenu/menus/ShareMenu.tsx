@@ -9,7 +9,7 @@ import styles from '../UserMenu.module.scss'
 import { InviteService } from '../../../../social/state/InviteService'
 import { useDispatch } from '../../../../store'
 import { useTranslation } from 'react-i18next'
-import { useInviteState } from '../../../../social/state/InviteState'
+import { useInviteState } from '../../../../social/state/InviteService'
 
 interface Props {
   alertSuccess?: any

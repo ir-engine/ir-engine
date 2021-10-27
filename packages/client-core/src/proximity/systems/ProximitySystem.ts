@@ -7,7 +7,7 @@ import { getComponent, defineQuery } from '@xrengine/engine/src/ecs/functions/Co
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
 import { ProximityComponent } from '../components/ProximityComponent'
 import { ChatService } from '../../social/state/ChatService'
-import { accessAuthState } from '../../user/state/AuthState'
+import { accessAuthState } from '../../user/state/AuthService'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'

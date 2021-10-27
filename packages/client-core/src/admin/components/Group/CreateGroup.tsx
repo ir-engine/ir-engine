@@ -12,8 +12,8 @@ import { useDispatch } from '../../../store'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import { GroupService } from '../../state/GroupService'
 import TextField from '@material-ui/core/TextField'
-import { useScopeState } from '../../state/ScopeState'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useScopeState } from '../../state/ScopeService'
+import { useAuthState } from '../../../user/state/AuthService'
 import { ScopeService } from '../../state/ScopeService'
 
 interface Props {

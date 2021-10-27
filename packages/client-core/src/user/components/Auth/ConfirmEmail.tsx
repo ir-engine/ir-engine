@@ -7,7 +7,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
 import { useDispatch } from '../../../store'
 import { AuthService } from '../../state/AuthService'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 import styles from './Auth.module.scss'
 
 interface Props {}

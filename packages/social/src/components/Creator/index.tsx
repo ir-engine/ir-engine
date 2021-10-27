@@ -5,14 +5,14 @@ import Button from '@material-ui/core/Button'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import CreatorCard from '../CreatorCard'
 import Featured from '../Featured'
 import { useTranslation } from 'react-i18next'
 import AppFooter from '../Footer'
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedService'
 
 import styles from './Creator.module.scss'
 

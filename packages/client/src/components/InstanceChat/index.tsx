@@ -8,9 +8,9 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
 import { Message as MessageIcon, Send } from '@material-ui/icons'
-import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
+import { useChatState } from '@xrengine/client-core/src/social/state/ChatService'
 import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
@@ -20,7 +20,7 @@ import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 import defaultStyles from './InstanceChat.module.scss'
-import { useInstanceConnectionState } from '@xrengine/client-core/src/common/state/InstanceConnectionState'
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
 
 interface Props {
   styles?: any

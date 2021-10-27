@@ -18,8 +18,8 @@ import { LocationService } from '../state/LocationService'
 import styles from './Admin.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { useSceneState } from '../state/SceneState'
-import { useLocationState } from '../state/LocationState'
+import { useSceneState } from '../state/SceneService'
+import { useLocationState } from '../state/LocationService'
 
 import { Location } from '@xrengine/common/src/interfaces/Location'
 

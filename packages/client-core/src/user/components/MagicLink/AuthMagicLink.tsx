@@ -8,7 +8,7 @@ import Container from '@material-ui/core/Container'
 import ResetPassword from '../Auth/ResetPassword'
 import { VerifyEmail } from '../Auth/VerifyEmail'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 interface Props {
   auth: any
   type: string

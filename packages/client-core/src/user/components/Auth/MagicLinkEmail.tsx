@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom'
 import { Config } from '@xrengine/common/src/config'
 import styles from './Auth.module.scss'
 import { AuthService } from '../../state/AuthService'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {

@@ -5,15 +5,15 @@ import Typography from '@material-ui/core/Typography'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '../../../store'
-import { AlertAction } from '../../../common/state/AlertActions'
-import { DialogAction } from '../../../common/state/DialogActions'
+import { AlertAction } from '../../../common/state/AlertService'
+import { DialogAction } from '../../../common/state/DialogService'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
 import { AuthService } from '../../state/AuthService'
 import { ConnectionTexts } from './ConnectionTexts'
 import { useTranslation } from 'react-i18next'
 import styles from './ProfileConnections.module.scss'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 
 interface Props {
   auth?: any

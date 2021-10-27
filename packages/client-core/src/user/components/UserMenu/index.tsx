@@ -9,7 +9,7 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import React, { useState, useEffect } from 'react'
 import { useDispatch } from '../../../store'
 import { AlertService } from '../../../common/state/AlertService'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 import { AuthService } from '../../state/AuthService'
 import AvatarMenu from './menus/AvatarMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'

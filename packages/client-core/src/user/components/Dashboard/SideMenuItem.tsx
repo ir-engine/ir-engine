@@ -32,7 +32,7 @@ import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople'
 import ExpandLess from '@material-ui/icons/ExpandLess'
 import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 interface Props {
   authState?: any
   location: any

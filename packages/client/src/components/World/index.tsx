@@ -1,5 +1,5 @@
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationService'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'

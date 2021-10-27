@@ -1,6 +1,6 @@
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import React, { Suspense, useEffect, useState } from 'react'
 import NetworkDebug from '../NetworkDebug'
@@ -11,7 +11,7 @@ import { InteractableModal } from '@xrengine/client-core/src/world/components/In
 import InstanceChat from '../InstanceChat'
 import MediaIconsBox from '../MediaIconsBox'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import { usePartyState } from '@xrengine/client-core/src/social/state/PartyState'
+import { usePartyState } from '@xrengine/client-core/src/social/state/PartyService'
 
 const goHome = () => (window.location.href = window.location.origin)
 

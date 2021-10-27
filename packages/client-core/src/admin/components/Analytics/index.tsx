@@ -8,8 +8,8 @@ import Paper from '@material-ui/core/Paper'
 import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import { useAnalyticsState } from '../../state/AnalyticsState'
+import { useAuthState } from '../../../user/state/AuthService'
+import { useAnalyticsState } from '../../state/AnalyticsService'
 import { AnalyticsService } from '../../state/AnalyticsService'
 
 interface Props {

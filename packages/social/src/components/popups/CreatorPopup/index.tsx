@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import Creator from '../../Creator'
 import SharedModal from '../../SharedModal'

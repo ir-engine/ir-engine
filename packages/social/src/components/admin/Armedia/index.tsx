@@ -7,7 +7,7 @@ import { useARMediaStyles } from './styles'
 import SearchVideo from './SearchVideo'
 import MediaTable from './MediaTable'
 import MediaModel from './CreateVideo'
-import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaService'
 import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
 interface Props {

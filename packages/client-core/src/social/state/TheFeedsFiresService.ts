@@ -1,7 +1,7 @@
 import { AlertService } from '../../common/state/AlertService'
 import { client } from '../../feathers'
 import { useDispatch } from '../../store'
-import { TheFeedsAction } from './TheFeedsActions'
+import { TheFeedsAction } from './TheFeedsService'
 import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
 import { TheFeedsFires } from '@xrengine/server-core/src/socialmedia/feeds-fires/feeds-fires.class'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'

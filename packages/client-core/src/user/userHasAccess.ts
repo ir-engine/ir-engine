@@ -1,4 +1,4 @@
-import { useAuthState } from './state/AuthState'
+import { useAuthState } from './state/AuthService'
 
 export const userHasAccess = (scope: string) => {
   const hasScope = useAuthState().user?.scopes?.value?.find((r) => r.type === scope)

@@ -3,7 +3,7 @@ import AppBar from '@material-ui/core/AppBar'
 import Fab from '@material-ui/core/Fab'
 import { Forum, People, PersonAdd } from '@material-ui/icons'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
 import styles from './DrawerControls.module.scss'
 

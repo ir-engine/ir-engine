@@ -6,7 +6,7 @@ import React, { useEffect } from 'react'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 import ArMediaDashboard from '@xrengine/social/src/components/admin/Armedia'
 
-import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaService'
 import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 
 const ArMediaPage = () => {

@@ -3,7 +3,7 @@
  */
 import React, { useEffect } from 'react'
 import CreatorConsole from '@xrengine/social/src/components/admin/CreatorConsole'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 

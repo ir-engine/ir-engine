@@ -6,10 +6,10 @@ import { SnackbarProvider } from 'notistack'
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import AppFooter from '@xrengine/social/src/components/Footer'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
 // import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 
 import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
 

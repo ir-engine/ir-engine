@@ -2,7 +2,7 @@ import React from 'react'
 import Toast from './Toast'
 import styles from './toast.module.scss'
 import { useTranslation } from 'react-i18next'
-import { accessUserState } from '../../../user/state/UserState'
+import { accessUserState } from '../../../user/state/UserService'
 import { useState } from '@hookstate/core'
 
 const UserToast = () => {

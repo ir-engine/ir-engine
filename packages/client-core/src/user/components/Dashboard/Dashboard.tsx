@@ -9,7 +9,7 @@ import Typography from '@material-ui/core/Typography'
 import IconButton from '@material-ui/core/IconButton'
 import { ChevronLeft, ChevronRight, Menu } from '@material-ui/icons'
 import Avatar from '@material-ui/core/Avatar'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 
 import { useStylesForDashboard } from './styles'
 import SideMenu from './SideMenuItem'

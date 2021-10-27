@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
 import { useDispatch } from '../../../store'
-import { useContentPackState } from '../../state/ContentPackState'
+import { useContentPackState } from '../../state/ContentPackService'
 import styles from './ContentPack.module.scss'
 import { ContentPackService } from '../../state/ContentPackService'
 import { Add, Edit } from '@material-ui/icons'

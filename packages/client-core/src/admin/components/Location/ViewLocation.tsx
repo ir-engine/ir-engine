@@ -18,14 +18,14 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
 import FormGroup from '@material-ui/core/FormGroup'
 import Switch from '@material-ui/core/Switch'
-import { useSceneState } from '../../state/SceneState'
+import { useSceneState } from '../../state/SceneService'
 import { useDispatch } from '../../../store'
-import { useLocationState } from '../../state/LocationState'
+import { useLocationState } from '../../state/LocationService'
 import { validateUserForm } from '../Users/validation'
 import { LocationService } from '../../state/LocationService'
 import MuiAlert from '@material-ui/lab/Alert'
 import Snackbar from '@material-ui/core/Snackbar'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/state/AuthService'
 
 interface Props {
   openView: any

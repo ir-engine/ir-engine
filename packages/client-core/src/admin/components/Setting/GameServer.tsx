@@ -4,9 +4,9 @@ import Switch from '@material-ui/core/Switch'
 import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/state/AuthService'
 import { GameServerSettingService } from '../../state/Setting/GameServerSettingServices'
-import { useGameServerSettingState } from '../../state/Setting/GameServerSettingState'
+import { useGameServerSettingState } from '../../state/Setting/GameServerSettingService'
 
 interface gameServerProps {}
 

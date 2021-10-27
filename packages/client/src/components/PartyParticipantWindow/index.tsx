@@ -14,12 +14,12 @@ import {
   VolumeOff,
   VolumeUp
 } from '@material-ui/icons'
-import { useAppState } from '@xrengine/client-core/src/common/state/AppState'
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
+import { useAppState } from '@xrengine/client-core/src/common/state/AppService'
+import { useLocationState } from '@xrengine/client-core/src/social/state/LocationService'
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { useUserState } from '@xrengine/client-core/src/user/state/UserState'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/state/MediaStreamState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
+import { useUserState } from '@xrengine/client-core/src/user/state/UserService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/state/MediaStreamService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'

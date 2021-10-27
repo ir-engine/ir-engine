@@ -8,9 +8,9 @@ import { useTranslation } from 'react-i18next'
 import { Button, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedService'
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 
 import FeedCard from '../FeedCard'

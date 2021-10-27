@@ -7,7 +7,7 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import { InviteService } from '../../../social/state/InviteService'
 import { makeStyles, createStyles, Theme, useTheme } from '@material-ui/core/styles'
-import { useInviteState } from '../../../social/state/InviteState'
+import { useInviteState } from '../../../social/state/InviteService'
 import { useDispatch } from '../../../store'
 import { Delete } from '@material-ui/icons'
 import { useConfirm } from 'material-ui-confirm'
@@ -18,7 +18,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import LastPageIcon from '@material-ui/icons/LastPage'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
-import { INVITE_PAGE_LIMIT } from '../../../social/state/InviteState'
+import { INVITE_PAGE_LIMIT } from '../../../social/state/InviteService'
 
 interface Props {
   sentInvites?: any

@@ -3,11 +3,11 @@ import { Paper, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { useStyles } from './styles'
 import Switch from '@material-ui/core/Switch'
-import { useAdminRedisSettingState } from '../../state/Setting/AdminRedisSettingState'
+import { useAdminRedisSettingState } from '../../state/Setting/AdminRedisSettingService'
 import { AdminRedisSettingService } from '../../state/Setting/AdminRedisSettingService'
 
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/state/AuthService'
 
 interface Props {
   redisSettingState?: any

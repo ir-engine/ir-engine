@@ -16,9 +16,9 @@ import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import SimpleModal from '../SimpleModal'
 import { FeedCommentService } from '@xrengine/client-core/src/social/state/FeedCommentService'
-import { useFeedCommentsState } from '@xrengine/client-core/src/social/state/FeedCommentState'
+import { useFeedCommentsState } from '@xrengine/client-core/src/social/state/FeedCommentService'
 import PopupLogin from '../PopupLogin/PopupLogin'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {

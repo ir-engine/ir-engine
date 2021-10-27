@@ -6,9 +6,9 @@ import Switch from '@material-ui/core/Switch'
 import { Icon } from '@iconify/react'
 import IconButton from '@material-ui/core/IconButton'
 import { useDispatch } from '../../../store'
-import { useEmailSettingState } from '../../state/Setting/EmailSettingState'
+import { useEmailSettingState } from '../../state/Setting/EmailSettingService'
 import { EmailSettingService } from '../../state/Setting/EmailSettingServices'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/state/AuthService'
 
 interface emailProps {}
 

@@ -2,10 +2,10 @@ import React, { useEffect } from 'react'
 import { Paper, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
 import { ChargebeeSettingService } from '../../state/Setting/ChargebeeSettingServices'
-import { useChargebeeSettingState } from '../../state/Setting/ChargebeeSettingState'
+import { useChargebeeSettingState } from '../../state/Setting/ChargebeeSettingService'
 import { useDispatch } from '../../../store'
 import { useStyles } from './styles'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/state/AuthService'
 interface Props {}
 
 const ChargeBee = (props: Props) => {

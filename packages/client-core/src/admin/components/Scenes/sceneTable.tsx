@@ -16,10 +16,10 @@ import { sceneColumns, SceneData } from './variables'
 import TablePagination from '@material-ui/core/TablePagination'
 import { SceneService } from '../../state/SceneService'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import { useSceneState } from '../../state/SceneState'
+import { useAuthState } from '../../../user/state/AuthService'
+import { useSceneState } from '../../state/SceneService'
 import ViewScene from './ViewScene'
-import { SCENE_PAGE_LIMIT } from '../../state/SceneState'
+import { SCENE_PAGE_LIMIT } from '../../state/SceneService'
 
 interface Props {}
 

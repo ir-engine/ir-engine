@@ -7,11 +7,11 @@ import styles from './Header.module.scss'
 import Avatar from '@material-ui/core/Avatar'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 
 interface Props {
   logo?: string

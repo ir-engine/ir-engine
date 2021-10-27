@@ -27,7 +27,7 @@ import CreatorForm from '@xrengine/social/src/components/CreatorForm'
 import SharedModal from '@xrengine/client-core/src/admin/components/SharedModal'
 import CreatorCard from '@xrengine/social/src/components/CreatorCard'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
-import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/state/AdminState'
+import { ADMIN_PAGE_LIMIT } from '@xrengine/client-core/src/admin/state/AdminService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

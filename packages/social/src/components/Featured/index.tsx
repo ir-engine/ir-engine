@@ -12,10 +12,10 @@ import VisibilityIcon from '@material-ui/icons/Visibility'
 import WhatshotIcon from '@material-ui/icons/Whatshot'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedService'
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import styles from './Featured.module.scss'
 

@@ -10,13 +10,13 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Button from '@material-ui/core/Button'
 import { TableContainer, TableHead, TablePagination, TableRow } from '@material-ui/core'
 import { useDispatch } from '../../../store'
-import { useGroupState } from '../../state/GroupState'
+import { useGroupState } from '../../state/GroupService'
 import { GroupService } from '../../state/GroupService'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/state/AuthService'
 import { columns, Data } from './Variables'
 import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
-import { GROUP_PAGE_LIMIT } from '../../state/GroupState'
+import { GROUP_PAGE_LIMIT } from '../../state/GroupService'
 
 interface Props {}
 

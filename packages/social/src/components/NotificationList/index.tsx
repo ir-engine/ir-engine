@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography'
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import NotificationCard from '../NotificationCard'
 import { useTranslation } from 'react-i18next'

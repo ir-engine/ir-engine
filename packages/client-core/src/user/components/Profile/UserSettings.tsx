@@ -11,7 +11,7 @@ import React, { ChangeEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from '../../../store'
 import { AuthService } from '../../state/AuthService'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 import styles from './Profile.module.scss'
 
 interface Props {}

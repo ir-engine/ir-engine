@@ -20,8 +20,8 @@ import { LocationService } from '@xrengine/client-core/src/admin/state/LocationS
 import styles from './styles.module.scss'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { useSceneState } from '@xrengine/client-core/src/admin/state/SceneState'
-import { useLocationState } from '@xrengine/client-core/src/admin/state/LocationState'
+import { useSceneState } from '@xrengine/client-core/src/admin/state/SceneService'
+import { useLocationState } from '@xrengine/client-core/src/admin/state/LocationService'
 import { useParams } from 'react-router-dom'
 import { ScenesService } from '@xrengine/client-core/src/world/state/SceneService'
 

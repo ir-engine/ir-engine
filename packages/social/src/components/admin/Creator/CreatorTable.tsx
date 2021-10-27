@@ -16,8 +16,8 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import TablePagination from '@material-ui/core/TablePagination'
 import ViewCreator from './ViewCreator'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {}
 

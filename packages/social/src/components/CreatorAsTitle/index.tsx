@@ -9,7 +9,7 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import DeleteIcon from '@material-ui/icons/Delete'
 
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 
 interface Props {

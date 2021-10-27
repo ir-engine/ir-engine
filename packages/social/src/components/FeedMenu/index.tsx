@@ -11,7 +11,7 @@ import TheFeed from '../TheFeed'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedService'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'

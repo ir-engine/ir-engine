@@ -8,11 +8,11 @@ import TablePagination from '@material-ui/core/TablePagination'
 import TableRow from '@material-ui/core/TableRow'
 import { PartyService } from '../../state/PartyService'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/state/AuthService'
 import { PartyPropsTable, partyColumns, PartyData } from './variables'
 import { usePartyStyles, usePartyStyle } from './style'
-import { usePartyState } from '../../state/PartyState'
-import { PARTY_PAGE_LIMIT } from '../../state/PartyState'
+import { usePartyState } from '../../state/PartyService'
+import { PARTY_PAGE_LIMIT } from '../../state/PartyService'
 
 const PartyTable = (props: PartyPropsTable) => {
   const classes = usePartyStyle()

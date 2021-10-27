@@ -8,7 +8,7 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { TheFeedsService } from '@xrengine/client-core/src/social/state/TheFeedsService'
 import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import TheFeedsConsole from '@xrengine/social/src/components/admin/Feeds'
-import { useTheFeedsState } from '@xrengine/client-core/src/social/state/TheFeedsState'
+import { useTheFeedsState } from '@xrengine/client-core/src/social/state/TheFeedsService'
 
 // const thefeeds = '';
 // conts Feeds = '';

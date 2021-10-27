@@ -22,7 +22,7 @@ import SubjectIcon from '@material-ui/icons/Subject'
 
 import TextField from '@material-ui/core/TextField'
 
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { useTranslation } from 'react-i18next'

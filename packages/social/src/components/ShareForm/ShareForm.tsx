@@ -8,7 +8,7 @@ import { PopupsStateService } from '@xrengine/client-core/src/social/state/Popup
 import styles from './ShareForm.module.scss'
 import { Plugins } from '@capacitor/core'
 import { useTranslation } from 'react-i18next'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { Share } from '@capacitor/share'
 
 interface Props {}

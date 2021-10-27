@@ -1,6 +1,6 @@
 import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/state/AlertService'
-import { ErrorAction } from '../../common/state/ErrorActions'
+import { ErrorAction } from '../../common/state/ErrorService'
 import { client } from '../../feathers'
 
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'

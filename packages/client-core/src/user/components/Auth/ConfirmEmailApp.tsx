@@ -6,7 +6,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import { useDispatch } from '../../../store'
 import { AuthService } from '../../state/AuthService'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 import styles from '../Login/Login.module.scss'
 
 interface Props {

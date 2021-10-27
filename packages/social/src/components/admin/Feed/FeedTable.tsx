@@ -8,12 +8,12 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import { useFeedStyle, useFeedStyles } from './styles'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import Grid from '@material-ui/core/Grid'
 import CardData from './CardData'
 import ViewFeed from './ViewFeed'
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { useFeedState } from '@xrengine/client-core/src/social/state/FeedService'
 
 interface Props {
   feedState?: any

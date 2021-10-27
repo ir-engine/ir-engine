@@ -7,7 +7,7 @@ import TextField from '@material-ui/core/TextField'
 import classNames from 'classnames'
 import { AuthService } from '../../state/AuthService'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../state/AuthService'
 
 interface Props {
   avatarUrl: string

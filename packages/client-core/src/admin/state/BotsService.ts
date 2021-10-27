@@ -1,6 +1,6 @@
 import { useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { accessAuthState } from '../../user/state/AuthState'
+import { accessAuthState } from '../../user/state/AuthService'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'

@@ -4,9 +4,9 @@ import { Paper, Button, Typography } from '@material-ui/core'
 import Switch from '@material-ui/core/Switch'
 import InputBase from '@material-ui/core/InputBase'
 import { useDispatch } from '../../../store'
-import { useClientSettingState } from '../../state/Setting/ClientSettingState'
+import { useClientSettingState } from '../../state/Setting/ClientSettingService'
 import { ClientSettingService } from '../../state/Setting/ClientSettingServices'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/state/AuthService'
 
 interface clientProps {}
 

@@ -8,7 +8,7 @@ import { Button, CardMedia, Typography } from '@material-ui/core'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
 import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
-import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
+import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaService'
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 // import {  Plugins } from '@capacitor/core';
 import Preloader from '@xrengine/social/src/components/Preloader'

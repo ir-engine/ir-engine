@@ -4,9 +4,9 @@ import { Grid, Paper, Typography } from '@material-ui/core'
 import { InputBase } from '@material-ui/core'
 import Switch from '@material-ui/core/Switch'
 import { useDispatch } from '../../../store'
-import { useSettingAnalyticsState } from '../../state/Setting/SettingAnalyticsState'
+import { useSettingAnalyticsState } from '../../state/Setting/SettingAnalyticsService'
 import { SettingAnalyticsService } from '../../state/Setting/SettingAnalyticsService'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/state/AuthService'
 
 interface AnalyticsProps {}
 

@@ -12,7 +12,7 @@ import { Button, Typography } from '@material-ui/core'
 
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
 import { Link } from 'react-router-dom'
 
 const Transition = React.forwardRef(

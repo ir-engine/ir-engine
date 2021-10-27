@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import InputBase from '@material-ui/core/InputBase'
-import { useAdminAwsSettingState } from '../../state/Setting/AwsSettingState'
+import { useAdminAwsSettingState } from '../../state/Setting/AwsSettingServices'
 import { AwsSettingService } from '../../state/Setting/AwsSettingServices'
 import { useDispatch } from '../../../store'
 import { useStyles } from './styles'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/state/AuthService'
 
 interface Props {}
 

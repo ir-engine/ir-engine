@@ -1,7 +1,7 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/state/AlertService'
-import { accessAuthState } from '../../user/state/AuthState'
+import { accessAuthState } from '../../user/state/AuthService'
 
 import { createState, DevTools, useState, Downgraded } from '@hookstate/core'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'

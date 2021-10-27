@@ -19,7 +19,7 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 // import SimpleModal from '../SimpleModal';
 // @ts-ignore
 import styles from './CreatorCard.module.scss'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'

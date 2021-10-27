@@ -16,7 +16,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import LastPageIcon from '@material-ui/icons/LastPage'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
-import { INVITE_PAGE_LIMIT, useInviteState } from '../../../social/state/InviteState'
+import { INVITE_PAGE_LIMIT, useInviteState } from '../../../social/state/InviteService'
 
 interface Props {
   invites: any

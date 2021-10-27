@@ -4,7 +4,7 @@
 import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/state/AlertService'
 import { client } from '../../feathers'
-import { FeedAction } from './FeedActions'
+import { FeedAction } from './FeedService'
 import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 

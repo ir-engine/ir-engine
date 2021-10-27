@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateService'
 
 import WebXRPlugin from '../../WebXRPlugin'
 

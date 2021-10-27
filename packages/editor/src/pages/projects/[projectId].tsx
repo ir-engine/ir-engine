@@ -9,7 +9,7 @@ import React, { lazy, Suspense, useEffect, useState } from 'react'
 const EditorContainer = lazy(() => import('../../components/EditorContainer'))
 
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'

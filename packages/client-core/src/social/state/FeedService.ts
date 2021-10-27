@@ -4,7 +4,7 @@
 import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/state/AlertService'
 import { client } from '../../feathers'
-import { accessAuthState } from '../../user/state/AuthState'
+import { accessAuthState } from '../../user/state/AuthService'
 import { upload } from '../../util/upload'
 import { FeedShort, Feed, FeedResult } from '@xrengine/common/src/interfaces/Feed'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'

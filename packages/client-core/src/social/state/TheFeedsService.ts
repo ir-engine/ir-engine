@@ -109,7 +109,6 @@ export const TheFeedsService = {
 // Action
 export const TheFeedsAction = {
   thefeedsRetrieved: (thefeeds: TheFeeds[]) => {
-    // console.log('actions',thefeeds)
     return {
       type: 'THEFEEDS_RETRIEVED' as const,
       thefeeds: thefeeds

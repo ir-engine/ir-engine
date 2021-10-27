@@ -8,7 +8,7 @@ import TextField from '@material-ui/core/TextField'
 import MessageIcon from '@material-ui/icons/Message'
 import styles from './NewComment.module.scss'
 import { FeedCommentService } from '@xrengine/client-core/src/social/state/FeedCommentService'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import PopupLogin from '../PopupLogin/PopupLogin'
 import { useTranslation } from 'react-i18next'
 
