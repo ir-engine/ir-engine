@@ -40,7 +40,15 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
         }
       },
       dataLabels: {
-        enabled: false
+        enabled: false,
+        style: {
+          colors: ['white']
+        }
+      },
+      legend: {
+        labels: {
+          colors: ['white']
+        }
       },
       markers: {
         size: 0,
@@ -50,26 +58,34 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
         type: 'datetime',
         min: data[0].data[0] ? data[0].data[0][0] : new Date().setTime(new Date().getTime() - 60000),
         max: data[0].data[0] ? data[0].data[data[0].data.length - 1][0] : new Date().getTime(),
-        tickAmount: 6
+        tickAmount: 6,
+        labels: {
+          style: {
+            colors: 'white'
+          }
+        }
       },
       yaxis: {
         title: {
           text: 'Activities',
           style: {
             fontSize: '18px',
-            fontWeight: '400'
+            fontWeight: '400',
+            color: 'white'
           }
         },
         min: 0,
-        max: maxY
+        max: maxY,
+        labels: {
+          style: {
+            colors: ['white']
+          }
+        }
       },
       tooltip: {
         x: {
           format: 'dd MMM yyy'
         }
-      },
-      fill: {
-        colors: ['#F44336']
       },
       plotOptions: {
         bar: {
@@ -85,7 +101,9 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
           fontSize: '25px'
         }
       },
-      colors: ['#42570f', '#c2d6c5', '#d6d3c2', '#d6c2c2', '#c2cbd6', '	#c5c2d6']
+      theme: {
+        palette: 'palette1'
+      }
     }
   })
   return (

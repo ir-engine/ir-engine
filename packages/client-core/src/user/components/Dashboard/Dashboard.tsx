@@ -64,15 +64,17 @@ const Dashboard = ({ children }: Props) => {
           >
             <Menu />
           </IconButton>
-          <Typography variant="h6">Dashboard</Typography>
-          {admin?.name.value && (
-            <div className={classes.avatarPosition}>
-              <Avatar className={classes.orange}>{admin?.name?.value.charAt(0)?.toUpperCase()}</Avatar>
-              <Typography variant="h6" className={classes.marginLft}>
-                {admin?.name.value}
-              </Typography>
-            </div>
-          )}
+          <div className={classes.appBarHeadingContainer}>
+            <Typography variant="h6">Dashboard</Typography>
+            {admin?.name.value && (
+              <div className={classes.avatarPosition}>
+                <Avatar className={classes.orange}>{admin?.name?.value.charAt(0)?.toUpperCase()}</Avatar>
+                <Typography variant="h6" className={clsx(classes.marginLft, classes.appBarHeadingName)}>
+                  {admin?.name.value}
+                </Typography>
+              </div>
+            )}
+          </div>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -95,8 +97,12 @@ const Dashboard = ({ children }: Props) => {
         </div>
         <DashboardMenuItem />
       </Drawer>
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
+      <main
+        className={clsx(classes.content, {
+          [classes.contentWidthDrawerOpen]: open,
+          [classes.contentWidthDrawerClosed]: !open
+        })}
+      >
         <div>{children}</div>
       </main>
     </div>
