@@ -3,6 +3,10 @@ import { Application } from '../../../declarations'
 import { Project } from './project.class'
 import createModel from './project.model'
 import projectDocs from './project.docs'
+import { retriggerBuilderService } from './project-helper'
+import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
+import * as authentication from '@feathersjs/authentication'
+const { authenticate } = authentication.hooks
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -24,6 +28,20 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
+
+  app.use('project-build', {
+    patch: async ({ rebuild }, params) => {
+      if (rebuild) {
+        return await retriggerBuilderService(app)
+      }
+    }
+  })
+
+  app.service('project-build').hooks({
+    before: {
+      patch: [authenticate('jwt'), restrictUserRole('admin')]
+    }
+  })
 
   const service = app.service('project')
 

@@ -49,7 +49,7 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
     stop()
   })
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_SESSION, async (ev: any) => {
-    Engine.xrRenderer.setAnimationLoop(xrAnimationLoop)
+    Engine.xrManager.setAnimationLoop(xrAnimationLoop)
   })
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async (ev: any) => {
     start()

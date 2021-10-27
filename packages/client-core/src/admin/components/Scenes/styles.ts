@@ -1,4 +1,7 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 
 export const useSceneStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -113,22 +116,22 @@ export const useSceneStyles = makeStyles((theme: Theme) =>
     },
     headingFont: {
       width: '100%',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '1.6rem'
       },
-      [theme.breakpoints.between(100, 395)]: {
+      [theme.breakpoints.between(100, undefined)]: {
         fontSize: '1.4rem'
       }
     },
     typoFont: {
       width: '100%',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '1.3rem'
       }
     },
     typoFontsm: {
       width: '100%',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '1.05rem'
       }
     }

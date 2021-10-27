@@ -211,6 +211,7 @@
     "instance": "Instance",
     "locations": "Locations",
     "routes": "Routes",
+    "projects": "Projects",
     "invites": "Invites",
     "sessions": "Sessions",
     "groups": "Groups",
@@ -219,7 +220,8 @@
     "content": "Content Packs",
     "scenes": "Scenes",
     "avatars": "Avatars",
-    "bots": "Bots"
+    "bots": "Bots",
+    "setting": "Settings"
   },
   "avatar": {
     "title": "Upload Avatar",

@@ -7,7 +7,7 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { Engine } from '../../ecs/classes/Engine'
-import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { World } from '../../ecs/classes/World'
 

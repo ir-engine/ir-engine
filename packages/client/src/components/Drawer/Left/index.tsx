@@ -1,13 +1,13 @@
-import Avatar from '@material-ui/core/Avatar'
-import Button from '@material-ui/core/Button'
-import Divider from '@material-ui/core/Divider'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemText from '@material-ui/core/ListItemText'
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
-import TextField from '@material-ui/core/TextField'
-import { Add, ArrowLeft, Block, Delete, Edit, Forum, GroupAdd, SupervisorAccount } from '@material-ui/icons'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import ListItemText from '@mui/material/ListItemText'
+import SwipeableDrawer from '@mui/material/SwipeableDrawer'
+import TextField from '@mui/material/TextField'
+import { Add, ArrowLeft, Block, Delete, Edit, Forum, GroupAdd, SupervisorAccount } from '@mui/icons-material'
 import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
 import { useFriendState } from '@xrengine/client-core/src/social/state/FriendState'
 import { FriendService } from '@xrengine/client-core/src/social/state/FriendService'
@@ -764,6 +764,7 @@ const LeftDrawer = (props: Props): any => {
                   {selfGroupUser != null && selfGroupUser.groupUserRank === 'owner' && (
                     <Button
                       variant="contained"
+                      className={styles['gray']}
                       startIcon={<Edit />}
                       onClick={() => openGroupForm('update', selectedGroup)}
                     >

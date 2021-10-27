@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import IconButton from '@material-ui/core/IconButton'
-import Send from '@material-ui/icons/Send'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import IconButton from '@mui/material/IconButton'
+import Send from '@mui/icons-material/Send'
 import { ChatService } from '../../../social/state/ChatService'
 import { useDispatch } from '../../../store'
 import { useStyles } from './style'
@@ -45,7 +45,13 @@ const CreateMessage = () => {
         }}
         onChange={handleComposingMessageChange}
       />
-      <IconButton color="primary" className={classes.iconButton} aria-label="directions" onClick={packageMessage}>
+      <IconButton
+        color="primary"
+        className={classes.iconButton}
+        aria-label="directions"
+        onClick={packageMessage}
+        size="large"
+      >
         <Send />
       </IconButton>
     </Paper>
