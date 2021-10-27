@@ -175,7 +175,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
     const fileID = ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier]
     if (fileID) {
       const id = fileID
-      if (id) deleteAsset(id, globalThis.currentProjectID, this.ownedFileIdentifier)
+      if (id) deleteAsset(id, globalThis.currentSceneID, this.ownedFileIdentifier)
       delete ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier]
     }
   }

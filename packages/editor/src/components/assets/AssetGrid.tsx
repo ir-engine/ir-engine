@@ -204,7 +204,7 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
 
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
 
-    if (item.projectId && globalThis.currentProjectID !== item.projectId) {
+    if (item.projectId && globalThis.currentSceneID !== item.projectId) {
       ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
     }
   }, [])
@@ -219,7 +219,7 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
     }
 
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
-    if (item.projectId && globalThis.currentProjectID !== item.projectId)
+    if (item.projectId && globalThis.currentSceneID !== item.projectId)
       ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
   }, [])
 

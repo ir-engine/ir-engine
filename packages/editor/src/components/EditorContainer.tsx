@@ -460,9 +460,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
     const pathParams = this.state.pathParams
     const queryParams = this.state.queryParams
-    const projectId = pathParams.get('projectId')
+    const sceneId = pathParams.get('sceneId')
 
-    if (projectId === 'new') {
+    if (sceneId === 'new') {
       if (queryParams.has('template')) {
         this.loadProjectTemplate(queryParams.get('template'))
       } else if (queryParams.has('sceneId')) {
@@ -470,35 +470,34 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       } else {
         this.loadProjectTemplate(defaultTemplateUrl)
       }
-    } else if (projectId === 'tutorial') {
+    } else if (sceneId === 'tutorial') {
       this.loadProjectTemplate(tutorialTemplateUrl)
     } else {
-      this.loadProject(projectId)
+      this.loadProject(sceneId)
     }
   }
 
   componentDidUpdate(prevProps: EditorContainerProps) {
     if (this.props.location.pathname !== prevProps.location.pathname && !this.state.creatingProject) {
-      // const { projectId } = this.props.match.params;
-      const prevProjectId = prevProps.match.params.projectId
+      const prevSceneId = prevProps.match.params.sceneId
       const queryParams = new Map(new URLSearchParams(window.location.search).entries())
       this.setState({
         queryParams
       })
       const pathParams = this.state.pathParams
-      const projectId = pathParams.get('projectId')
+      const sceneId = pathParams.get('sceneId')
       let templateUrl = null
 
-      if (projectId === 'new' && !queryParams.has('sceneId')) {
+      if (sceneId === 'new' && !queryParams.has('sceneId')) {
         templateUrl = queryParams.get('template') || defaultTemplateUrl
-      } else if (projectId === 'tutorial') {
+      } else if (sceneId === 'tutorial') {
         templateUrl = tutorialTemplateUrl
       }
 
-      if (projectId === 'new' || projectId === 'tutorial') {
+      if (sceneId === 'new' || sceneId === 'tutorial') {
         this.loadProjectTemplate(templateUrl)
-      } else if (prevProjectId !== 'tutorial' && prevProjectId !== 'new') {
-        this.loadProject(projectId)
+      } else if (prevSceneId !== 'tutorial' && prevSceneId !== 'new') {
+        this.loadProject(sceneId)
       }
     }
   }
@@ -613,7 +612,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
-  async loadProject(projectId) {
+  async loadProject(sceneId) {
     this.setState({
       project: null,
       parentSceneId: null
@@ -627,9 +626,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     let project: SceneDetailInterface
 
     try {
-      project = await getScene(projectId)
+      project = await getScene(sceneId)
       ProjectManager.instance.ownedFileIds = JSON.parse(project.ownedFileIds)
-      globalThis.currentProjectID = project.scene_id
+      globalThis.currentSceneID = project.scene_id
 
       const projectIndex = project.scene_url.split('collection/')[1]
       const projectFile = await client.service(`collection`).get(projectIndex, {
@@ -834,10 +833,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     )
 
     SceneManager.instance.sceneModified = false
-    globalThis.currentProjectID = project.scene_id
+    globalThis.currentSceneID = project.scene_id
 
     const pathParams = this.state.pathParams
-    pathParams.set('projectId', project.scene_id)
+    pathParams.set('sceneId', project.scene_id)
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project, pathParams }, () => {
         this.props.history.replace(`/editor/${project.scene_id}`)
@@ -875,7 +874,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
       this.hideDialog()
       const pathParams = this.state.pathParams
-      pathParams.set('projectId', newProject.scene_id)
+      pathParams.set('sceneId', newProject.scene_id)
       this.setState({ pathParams: pathParams })
     } catch (error) {
       console.error(error)
@@ -1017,7 +1016,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
         this.setState({ project: newProject })
         const pathParams = this.state.pathParams
-        pathParams.set('projectId', newProject.scene_id)
+        pathParams.set('sceneId', newProject.scene_id)
         this.setState({ pathParams: pathParams })
       } else {
         await this.createProject()
@@ -1102,7 +1101,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     // let assigneeScene
     // if (locations) {
     //   locations.forEach((element) => {
-    //     if (element.sceneId === this.state.queryParams.get('projectId')) {
+    //     if (element.sceneId === this.state.queryParams.get('sceneId')) {
     //       assigneeScene = element
     //     }
     //   })

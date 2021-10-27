@@ -108,7 +108,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
 
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
 
-    if (item.projectId && globalThis.currentProjectID !== item.projectId) {
+    if (item.projectId && globalThis.currentSceneID !== item.projectId) {
       ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
     }
   }, [])
@@ -123,7 +123,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
     }
 
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
-    if (item.projectId && globalThis.currentProjectID !== item.projectId)
+    if (item.projectId && globalThis.currentSceneID !== item.projectId)
       ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
   }, [])
 
