@@ -12,7 +12,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess'
 import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
 import { useAuthState } from '../../state/AuthState'
-import { SidebarItems, SocialSidebarItems } from './SidebarItems'
+import { SidebarItems, SocialSidebarItems } from './DashboardItems'
 
 import { useTranslation } from 'react-i18next'
 
@@ -21,7 +21,7 @@ interface Props {
   location: any
 }
 
-const SideMenuItem = (props: Props) => {
+const DashboardMenuItem = (props: Props) => {
   const { location } = props
   const { pathname } = location
   const scopes = useAuthState().user?.scopes?.value || []
@@ -166,4 +166,4 @@ const SideMenuItem = (props: Props) => {
   )
 }
 
-export default withRouter(SideMenuItem)
+export default withRouter(DashboardMenuItem)
