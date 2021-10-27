@@ -179,7 +179,7 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
   }
 
-  if (isUserBanned) return <div className="banned">You have been banned from this location</div>
+  if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
 
   // Do not add/remove the canvas element after engine init
   // It will break internal references and prevent XR session to work properly
