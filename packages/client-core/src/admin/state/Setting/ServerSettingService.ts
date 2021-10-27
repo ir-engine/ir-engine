@@ -1,8 +1,34 @@
-import { ServerSettingAction } from './ServerSettingActions'
 import { client } from '../../../feathers'
 import { AlertService } from '../../../common/state/AlertService'
-import { useDispatch } from '../../../store'
+import { useDispatch, store } from '../../../store'
+import { ServerSettingResult } from '@xrengine/common/src/interfaces/ServerSettingResult'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
 
+//State
+const state = createState({
+  Server: {
+    server: [] as Array<ServerSetting>,
+    updateNeeded: true
+  }
+})
+
+store.receptors.push((action: ServerSettingActionType): any => {
+  let result
+  state.batch((s) => {
+    switch (action.type) {
+      case 'SETTING_SERVER_DISPLAY':
+        result = action.serverSettingResult
+        return s.Server.merge({ server: result.data, updateNeeded: false })
+    }
+  }, action.type)
+})
+
+export const accessServerSettingState = () => state
+
+export const useServerSettingState = () => useState(state) as any as typeof state
+
+//Service
 export const ServerSettingService = {
   fetchServerSettings: async (inDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
@@ -15,3 +41,14 @@ export const ServerSettingService = {
     }
   }
 }
+
+//Action
+export const ServerSettingAction = {
+  fetchedSeverInfo: (serverSettingResult: ServerSettingResult) => {
+    return {
+      type: 'SETTING_SERVER_DISPLAY' as const,
+      serverSettingResult: serverSettingResult
+    }
+  }
+}
+export type ServerSettingActionType = ReturnType<typeof ServerSettingAction[keyof typeof ServerSettingAction]>

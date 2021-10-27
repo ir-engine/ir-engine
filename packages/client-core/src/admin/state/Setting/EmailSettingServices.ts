@@ -1,8 +1,34 @@
-import { EmailSettingAction } from './EmailSettingActions'
 import { client } from '../../../feathers'
 import { AlertService } from '../../../common/state/AlertService'
-import { useDispatch } from '../../../store'
+import { useDispatch, store } from '../../../store'
+import { EmailSettingResult } from '@xrengine/common/src/interfaces/EmailSettingResult'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { EmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
 
+//State
+const state = createState({
+  Email: {
+    email: [] as Array<EmailSetting>,
+    updateNeeded: true
+  }
+})
+
+store.receptors.push((action: EmailSettingActionType): any => {
+  let result
+  state.batch((s) => {
+    switch (action.type) {
+      case 'EMAIL_SETTING_DISPLAY':
+        result = action.emailSettingResult
+        return s.Email.merge({ email: result.data, updateNeeded: false })
+    }
+  }, action.type)
+})
+
+export const accessEmailSettingState = () => state
+
+export const useEmailSettingState = () => useState(state) as any as typeof state
+
+//Service
 export const EmailSettingService = {
   fetchedEmailSettings: async (inDec?: 'increment' | 'dcrement') => {
     const dispatch = useDispatch()
@@ -15,3 +41,15 @@ export const EmailSettingService = {
     }
   }
 }
+
+//Action
+export const EmailSettingAction = {
+  fetchedEmail: (emailSettingResult: EmailSettingResult) => {
+    return {
+      type: 'EMAIL_SETTING_DISPLAY' as const,
+      emailSettingResult: emailSettingResult
+    }
+  }
+}
+
+export type EmailSettingActionType = ReturnType<typeof EmailSettingAction[keyof typeof EmailSettingAction]>

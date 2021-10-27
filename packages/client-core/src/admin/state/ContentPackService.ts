@@ -1,7 +1,34 @@
 import { useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { ContentPackAction } from './ContentPackActions'
+import _ from 'lodash'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { AdminContentPack } from '@xrengine/common/src/interfaces/AdminContentPack'
+import { store } from '../../store'
 
+//State
+const state = createState({
+  contentPacks: [] as Array<AdminContentPack>,
+  updateNeeded: true
+})
+
+store.receptors.push((action: ContentPackActionType): any => {
+  state.batch((s) => {
+    switch (action.type) {
+      case 'LOADED_CONTENT_PACKS':
+        return s.merge({ updateNeeded: false, contentPacks: action.contentPacks })
+      case 'CONTENT_PACK_CREATED':
+        return s.merge({ updateNeeded: true })
+      case 'CONTENT_PACK_PATCHED':
+        return s.merge({ updateNeeded: true })
+    }
+  }, action.type)
+})
+
+export const accessContentPackState = () => state
+
+export const useContentPackState = () => useState(state) as any as typeof state
+
+//Service
 export const ContentPackService = {
   uploadAvatars: (data: any) => {
     data.each(async (data) => {
@@ -79,3 +106,25 @@ export const ContentPackService = {
     data.each(async (data) => {})
   }
 }
+
+//Action
+export const ContentPackAction = {
+  loadedContentPacks: (contentPacks: AdminContentPack[]) => {
+    return {
+      type: 'LOADED_CONTENT_PACKS' as const,
+      contentPacks: contentPacks
+    }
+  },
+  createdContentPack: () => {
+    return {
+      type: 'CONTENT_PACK_CREATED' as const
+    }
+  },
+  patchedContentPack: () => {
+    return {
+      type: 'CONTENT_PACK_PATCHED' as const
+    }
+  }
+}
+
+export type ContentPackActionType = ReturnType<typeof ContentPackAction[keyof typeof ContentPackAction]>

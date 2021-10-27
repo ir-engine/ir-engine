@@ -1,8 +1,34 @@
-import { ClientSettingAction } from './ClientSettingActions'
 import { client } from '../../../feathers'
 import { AlertService } from '../../../common/state/AlertService'
-import { useDispatch } from '../../../store'
+import { useDispatch, store } from '../../../store'
+import { ClientSettingResult } from '@xrengine/common/src/interfaces/ClientSettingResult'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 
+//State
+const state = createState({
+  Client: {
+    client: [] as Array<ClientSetting>,
+    updateNeeded: true
+  }
+})
+
+store.receptors.push((action: ClientSettingActionType): any => {
+  let result
+  state.batch((s) => {
+    switch (action.type) {
+      case 'CLIENT_SETTING_DISPLAY':
+        result = action.clientSettingResult
+        return s.Client.merge({ client: result.data, updateNeeded: false })
+    }
+  }, action.type)
+})
+
+export const accessClientSettingState = () => state
+
+export const useClientSettingState = () => useState(state) as any as typeof state
+
+//Service
 export const ClientSettingService = {
   fetchedClientSettings: async (inDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
@@ -15,3 +41,15 @@ export const ClientSettingService = {
     }
   }
 }
+
+//Action
+export const ClientSettingAction = {
+  fetchedClient: (clientSettingResult: ClientSettingResult) => {
+    return {
+      type: 'CLIENT_SETTING_DISPLAY' as const,
+      clientSettingResult: clientSettingResult
+    }
+  }
+}
+
+export type ClientSettingActionType = ReturnType<typeof ClientSettingAction[keyof typeof ClientSettingAction]>

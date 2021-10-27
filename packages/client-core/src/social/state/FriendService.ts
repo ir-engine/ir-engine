@@ -1,11 +1,91 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { FriendAction } from './FriendActions'
 import { AlertService } from '../../common/state/AlertService'
 import { Config } from '@xrengine/common/src/config'
 import { UserAction } from '../../user/state/UserAction'
 import { accessAuthState } from '../../user/state/AuthState'
-import { accessFriendState } from './FriendState'
+import { User } from '@xrengine/common/src/interfaces/User'
+import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
+import { FriendResult } from '@xrengine/common/src/interfaces/FriendResult'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import _ from 'lodash'
+
+//State
+const state = createState({
+  friends: {
+    friends: [] as Array<User>,
+    total: 0,
+    limit: 5,
+    skip: 0
+  },
+  getFriendsInProgress: false,
+  updateNeeded: true
+})
+
+store.receptors.push((action: FriendActionType): any => {
+  let newValues, selfUser, otherUser, otherUserId
+  state.batch((s) => {
+    switch (action.type) {
+      case 'LOADED_FRIENDS':
+        newValues = action
+        if (s.updateNeeded.value === true) {
+          s.friends.friends.set(newValues.friends)
+        } else {
+          s.friends.friends.set([s.friends.friends.value, newValues.friends])
+        }
+        s.friends.skip.set(newValues.skip)
+        s.friends.limit.set(newValues.limit)
+        s.friends.total.set(newValues.total)
+        s.updateNeeded.set(false)
+        return s.getFriendsInProgress.set(false)
+
+      case 'CREATED_FRIEND':
+        newValues = action
+        const createdUserRelationship = newValues.userRelationship
+        s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
+      case 'PATCHED_FRIEND':
+        newValues = action
+        const patchedUserRelationship = newValues.userRelationship
+        selfUser = newValues.selfUser
+        otherUser =
+          patchedUserRelationship.userId === selfUser.id
+            ? patchedUserRelationship.relatedUser
+            : patchedUserRelationship.user
+
+        const patchedFriendIndex = s.friends.friends.value.findIndex((friendItem) => {
+          return friendItem != null && friendItem.id === otherUser.id
+        })
+        if (patchedFriendIndex === -1) {
+          return s.friends.friends.set([...s.friends.friends.value, otherUser])
+        } else {
+          return s.friends.friends[patchedFriendIndex].set(otherUser)
+        }
+
+      case 'REMOVED_FRIEND':
+        newValues = action
+        const removedUserRelationship = newValues.userRelationship
+        selfUser = newValues.selfUser
+        otherUserId =
+          removedUserRelationship.userId === selfUser.id
+            ? removedUserRelationship.relatedUserId
+            : removedUserRelationship.userId
+
+        const friendId = s.friends.friends.value.findIndex((friendItem) => {
+          return friendItem != null && friendItem.id === otherUserId
+        })
+
+        return s.friends.friends[friendId].set(none)
+      case 'FETCHING_FRIENDS':
+        return s.getFriendsInProgress.set(true)
+    }
+  }, action.type)
+})
+
+export const accessFriendState = () => state
+
+export const useFriendState = () => useState(state) as any as typeof state
+
+//Service
 export const FriendService = {
   // export function getUserRelationshipasync (userId: string) {
   // const dispatch = useDispatch(); {
@@ -154,3 +234,43 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     }
   })
 }
+
+//Action
+export const FriendAction = {
+  loadedFriends: (friendResult: FriendResult) => {
+    return {
+      type: 'LOADED_FRIENDS' as const,
+      friends: friendResult.data,
+      total: friendResult.total,
+      limit: friendResult.limit,
+      skip: friendResult.skip
+    }
+  },
+  createdFriend: (userRelationship: UserRelationship) => {
+    return {
+      type: 'CREATED_FRIEND' as const,
+      userRelationship: userRelationship
+    }
+  },
+  patchedFriend: (userRelationship: UserRelationship, selfUser: User) => {
+    return {
+      type: 'PATCHED_FRIEND' as const,
+      userRelationship: userRelationship,
+      selfUser: selfUser
+    }
+  },
+  removedFriend: (userRelationship: UserRelationship, selfUser: User) => {
+    return {
+      type: 'REMOVED_FRIEND' as const,
+      userRelationship: userRelationship,
+      selfUser: selfUser
+    }
+  },
+  fetchingFriends: () => {
+    return {
+      type: 'FETCHING_FRIENDS' as const
+    }
+  }
+}
+
+export type FriendActionType = ReturnType<typeof FriendAction[keyof typeof FriendAction]>

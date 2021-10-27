@@ -3,8 +3,26 @@ import { AlertService } from '../../common/state/AlertService'
 import { useDispatch } from '../../store'
 import { AuthService } from '../../user/state/AuthService'
 
-import {} from './RegistrationActions'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 
+//State
+const state = createState({
+  registration: {}
+})
+
+// store.receptors.push((action: RegistrationActionType): any => {
+//   /* state.merge((s)=>{
+//   switch (action.type) {
+//     default:
+//       return state
+//   }
+// },action.type)*/
+// })
+
+export const accessRegistrationState = () => state
+export const useRegistrationState = () => useState(state)
+
+//Service
 export const RegistrationService = {
   middlewareFromAddConnectionByEmail: async (emailPhone: string, id: string) => {
     const dispatch = useDispatch()
@@ -34,3 +52,8 @@ export const RegistrationService = {
     }
   }
 }
+
+//Action
+export const RegistrationAction = {}
+
+export type RegistrationActionType = ReturnType<typeof RegistrationAction[keyof typeof RegistrationAction]>

@@ -3,8 +3,29 @@
  */
 import { AlertService } from '../../common/state/AlertService'
 import { useDispatch } from '../../store'
-import { WebxrNativeAction } from './WebxrNativeActions'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { store } from '../../store'
 
+//State
+const state = createState({
+  webxrnative: null
+})
+
+store.receptors.push((action: WebxrNativeActionType): any => {
+  state.batch((s) => {
+    switch (action.type) {
+      case 'SET_WEBXRNATIVE':
+        return s.webxrnative.set(false)
+      case 'TOGGLE_WEBXRNATIVE':
+        return s.webxrnative.set(!s.webxrnative.value)
+    }
+  }, action.type)
+})
+
+export const accessWebxrNativeState = () => state
+export const useWebxrNativeState = () => useState(state)
+
+//Service
 export const WebxrNativeService = {
   getWebXrNative: () => {
     console.log('getWebXrNative Service')
@@ -31,3 +52,19 @@ export const WebxrNativeService = {
     }
   }
 }
+//Action
+
+export const WebxrNativeAction = {
+  setWebXrNative: () => {
+    return {
+      type: 'SET_WEBXRNATIVE' as const
+    }
+  },
+  tougleWebXrNative: () => {
+    return {
+      type: 'TOGGLE_WEBXRNATIVE' as const
+    }
+  }
+}
+
+export type WebxrNativeActionType = ReturnType<typeof WebxrNativeAction[keyof typeof WebxrNativeAction]>

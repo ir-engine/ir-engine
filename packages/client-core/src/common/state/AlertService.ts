@@ -1,6 +1,29 @@
 import { store, useDispatch } from '../../store'
-import { AlertAction } from './AlertActions'
 import { Config } from '@xrengine/common/src/config'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+
+//State
+const state = createState({
+  type: 'none',
+  message: ''
+})
+
+store.receptors.push((action: AlertActionType): any => {
+  state.batch((s) => {
+    switch (action.type) {
+      case 'SHOW_NOTIFICATION':
+        return s.merge({ type: action.alertType, message: action.message })
+      case 'HIDE_NOTIFICATION':
+        return s.merge({ type: action.alertType, message: action.message })
+      default:
+        break
+    }
+  }, action.alertType)
+})
+
+export const alertState = () => state
+
+export const useAlertState = () => useState(state) as any as typeof state
 
 let timerId: any
 
@@ -58,3 +81,24 @@ export const AlertService = {
     return dispatch(AlertAction.hideAlert())
   }
 }
+//Action
+export type AlertType = 'error' | 'success' | 'warning' | 'none'
+
+export const AlertAction = {
+  showAlert: (type: AlertType, message: string) => {
+    return {
+      type: 'SHOW_NOTIFICATION' as const,
+      alertType: type,
+      message
+    }
+  },
+  hideAlert: () => {
+    return {
+      type: 'HIDE_NOTIFICATION' as const,
+      alertType: 'none',
+      message: ''
+    }
+  }
+}
+
+export type AlertActionType = ReturnType<typeof AlertAction[keyof typeof AlertAction]>

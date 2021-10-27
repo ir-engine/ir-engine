@@ -2,17 +2,98 @@
 // import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-// TODO: Reenable me! But decoupled, maybe parties need to be in the client-networking lib
-import { PartyAction } from './PartyActions'
-
 import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../common/state/AlertService'
 import { UserAction } from '../../user/state/UserAction'
 import { accessAuthState } from '../../user/state/AuthState'
 import { ChatService } from './ChatService'
-import { accessPartyState } from './PartyState'
 import { accessInstanceConnectionState } from '../../common/state/InstanceConnectionState'
 
+import { Party } from '@xrengine/common/src/interfaces/Party'
+import { PartyResult } from '@xrengine/common/src/interfaces/PartyResult'
+import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import _ from 'lodash'
+
+//State
+const state = createState({
+  party: {} as Party,
+  updateNeeded: true
+})
+
+store.receptors.push((action: PartyActionType): any => {
+  let newValues, updateMap, partyUser, updateMapPartyUsers
+
+  state.batch((s) => {
+    switch (action.type) {
+      case 'LOADED_PARTY':
+        return s.merge({ party: action.party, updateNeeded: false })
+      case 'CREATED_PARTY':
+        return s.updateNeeded.set(true)
+      case 'REMOVED_PARTY':
+        updateMap = new Map()
+        return s.merge({ party: {}, updateNeeded: true })
+      case 'INVITED_PARTY_USER':
+        return s.updateNeeded.set(true)
+      case 'CREATED_PARTY_USER':
+        newValues = action
+        partyUser = newValues.partyUser
+        updateMap = _.cloneDeep(s.party.value)
+        if (updateMap != null) {
+          updateMapPartyUsers = updateMap.partyUsers
+          updateMapPartyUsers = Array.isArray(updateMapPartyUsers)
+            ? updateMapPartyUsers.find((pUser) => {
+                return pUser != null && pUser.id === partyUser.id
+              }) == null
+              ? updateMapPartyUsers.concat([partyUser])
+              : updateMap.partyUsers.map((pUser) => {
+                  return pUser != null && pUser.id === partyUser.id ? partyUser : pUser
+                })
+            : [partyUser]
+          updateMap.partyUsers = updateMapPartyUsers
+        }
+        return s.party.set(updateMap)
+
+      case 'PATCHED_PARTY_USER':
+        newValues = action
+        partyUser = newValues.partyUser
+        updateMap = _.cloneDeep(s.party.value)
+        if (updateMap != null) {
+          updateMapPartyUsers = updateMap.partyUsers
+          updateMapPartyUsers = Array.isArray(updateMapPartyUsers)
+            ? updateMapPartyUsers.find((pUser) => {
+                return pUser != null && pUser.id === partyUser.id
+              }) == null
+              ? updateMapPartyUsers.concat([partyUser])
+              : updateMap.partyUsers.map((pUser) => {
+                  return pUser != null && pUser.id === partyUser.id ? partyUser : pUser
+                })
+            : [partyUser]
+          updateMap.partyUsers = updateMapPartyUsers
+        }
+        return s.party.set(updateMap)
+
+      case 'REMOVED_PARTY_USER':
+        newValues = action
+        partyUser = newValues.partyUser
+        updateMap = _.cloneDeep(s.party.value)
+        if (updateMap != null) {
+          updateMapPartyUsers = updateMap.partyUsers
+          _.remove(updateMapPartyUsers, (pUser: PartyUser) => {
+            return pUser != null && partyUser.id === pUser.id
+          })
+        }
+        s.party.set(updateMap)
+        return s.updateNeeded.set(true)
+    }
+  }, action.type)
+})
+
+export const accessPartyState = () => state
+
+export const usePartyState = () => useState(state) as any as typeof state
+
+//Service
 export const PartyService = {
   getParty: async () => {
     const dispatch = useDispatch()
@@ -190,3 +271,62 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     store.dispatch(PartyAction.removedParty(params.party))
   })
 }
+
+//Action
+
+export const PartyAction = {
+  loadedParty: (partyResult: PartyResult) => {
+    return {
+      type: 'LOADED_PARTY' as const,
+      party: partyResult
+    }
+  },
+  createdParty: (party: Party) => {
+    return {
+      type: 'CREATED_PARTY' as const,
+      party: party
+    }
+  },
+  patchedParty: (party: Party) => {
+    return {
+      type: 'PATCHED_PARTY' as const,
+      party: party
+    }
+  },
+  removedParty: (party: Party) => {
+    return {
+      type: 'REMOVED_PARTY' as const,
+      party: party
+    }
+  },
+  invitedPartyUser: () => {
+    return {
+      type: 'INVITED_PARTY_USER' as const
+    }
+  },
+  leftParty: () => {
+    return {
+      type: 'LEFT_PARTY' as const
+    }
+  },
+  createdPartyUser: (partyUser: PartyUser) => {
+    return {
+      type: 'CREATED_PARTY_USER' as const,
+      partyUser: partyUser
+    }
+  },
+  patchedPartyUser: (partyUser: PartyUser) => {
+    return {
+      type: 'PATCHED_PARTY_USER' as const,
+      partyUser: partyUser
+    }
+  },
+  removedPartyUser: (partyUser: PartyUser) => {
+    return {
+      type: 'REMOVED_PARTY_USER' as const,
+      partyUser: partyUser
+    }
+  }
+}
+
+export type PartyActionType = ReturnType<typeof PartyAction[keyof typeof PartyAction]>

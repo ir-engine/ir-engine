@@ -2,13 +2,166 @@ import { Config } from '@xrengine/common/src/config'
 import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/state/AlertService'
 import { client } from '../../feathers'
-import { GroupAction } from './GroupActions'
 import { UserAction } from '../../user/state/UserAction'
 import { accessAuthState } from '../../user/state/AuthState'
 import { ChatService } from './ChatService'
 import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
-import { accessGroupState } from './GroupState'
+import { Group } from '@xrengine/common/src/interfaces/Group'
+import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
+import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import _ from 'lodash'
 
+//State
+const state = createState({
+  groups: {
+    groups: [] as Array<Group>,
+    total: 0,
+    limit: 5,
+    skip: 0
+  },
+  invitableGroups: {
+    groups: [] as Array<Group>,
+    total: 0,
+    limit: 5,
+    skip: 0
+  },
+  getInvitableGroupsInProgress: false,
+  getGroupsInProgress: false,
+  invitableUpdateNeeded: true,
+  updateNeeded: true,
+  closeDetails: ''
+})
+
+store.receptors.push((action: GroupActionType): any => {
+  let newValues,
+    updateMap,
+    updateMapGroups,
+    updateMapGroupsChild,
+    updateMapGroupUsers,
+    groupUser,
+    updateGroup,
+    groupIndex
+  state.batch((s) => {
+    switch (action.type) {
+      case 'LOADED_GROUPS':
+        newValues = action
+        if (s.updateNeeded.value === true) {
+          s.groups.groups.set(newValues.groups)
+        } else {
+          s.groups.groups.set([...s.groups.groups.value, ...newValues.groups])
+        }
+        s.groups.merge({ skip: newValues.skip, limit: newValues.limit, total: newValues.total })
+        s.updateNeeded.set(false)
+        return s.getGroupsInProgress.set(false)
+
+      case 'LOADED_INVITABLE_GROUPS':
+        newValues = action
+
+        if (s.updateNeeded.value === true) {
+          s.invitableGroups.groups.set(newValues.groups)
+        } else {
+          s.invitableGroups.groups.set([...s.invitableGroups.groups.value, ...newValues.groups])
+        }
+        s.invitableGroups.skip.set(newValues.skip)
+        s.invitableGroups.limit.set(newValues.limit)
+        s.invitableGroups.total.set(newValues.total)
+        return s.merge({ invitableUpdateNeeded: false, getInvitableGroupsInProgress: false })
+
+      case 'CREATED_GROUP':
+        newValues = action
+        return s.merge({ updateNeeded: true, invitableUpdateNeeded: true })
+      case 'PATCHED_GROUP':
+        newValues = action
+        updateGroup = newValues.group
+
+        groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+          return groupItem != null && groupItem.id === groupUser.groupId
+        })
+        if (groupIndex !== -1) {
+          return s.groups.groups[groupIndex].set(updateGroup)
+        }
+        return s
+      case 'REMOVED_GROUP':
+        s.updateNeeded.set(true)
+        return s.invitableUpdateNeeded.set(true)
+      case 'INVITED_GROUP_USER':
+        return s
+      // .set('updateNeeded', true)
+      case 'LEFT_GROUP':
+        return s.updateNeeded.set(true)
+      case 'FETCHING_GROUPS':
+        return s.getGroupsInProgress.set(true)
+      case 'FETCHING_INVITABLE_GROUPS':
+        return s.getInvitableGroupsInProgress.set(true)
+      case 'CREATED_GROUP_USER':
+        newValues = action
+        groupUser = newValues.groupUser
+        updateMap = s.groups.value
+        updateMapGroups = updateMap.groups
+        updateMapGroupsChild = _.find(updateMapGroups, (group) => {
+          return group != null && group.id === groupUser.groupId
+        })
+        if (updateMapGroupsChild != null) {
+          updateMapGroupUsers = updateMapGroupsChild.groupUsers
+          const match = updateMapGroupUsers.find((gUser) => {
+            return gUser != null && gUser.id === groupUser.id
+          })
+          updateMapGroupUsers = Array.isArray(updateMapGroupUsers)
+            ? match == null
+              ? updateMapGroupUsers.concat([groupUser])
+              : updateMapGroupUsers.map((gUser) => (gUser.id === groupUser.id ? groupUser : gUser))
+            : [groupUser]
+          updateMapGroupsChild.groupUsers = updateMapGroupUsers
+        }
+        return s.groups.groups.set(updateMapGroups)
+
+      case 'PATCHED_GROUP_USER':
+        newValues = action
+        groupUser = newValues.groupUser
+        updateMap = s.groups.value
+        updateMapGroups = updateMap.groups
+        updateMapGroupsChild = _.find(updateMapGroups, (group) => {
+          return group != null && group.id === groupUser.groupId
+        })
+        if (updateMapGroupsChild != null) {
+          updateMapGroupsChild.groupUsers = updateMapGroupsChild.groupUsers.map((gUser) =>
+            gUser.id === groupUser.id ? groupUser : gUser
+          )
+        }
+        s.groups.groups.set(updateMapGroups)
+
+      case 'REMOVED_GROUP_USER':
+        newValues = action
+        groupUser = newValues.groupUser
+        const self = newValues.self
+        updateMap = s.groups.value
+        updateMapGroups = updateMap.groups
+        updateMapGroupsChild = _.find(updateMapGroups, (group) => {
+          return group != null && group.id === groupUser.groupId
+        })
+        if (updateMapGroupsChild != null) {
+          updateMapGroupUsers = updateMapGroupsChild.groupUsers
+          _.findIndex(updateMapGroupUsers, (gUser: GroupUser) => groupUser.id === gUser.id)
+        }
+
+        let returned = s.groups.groups.set(updateMapGroups)
+        if (self === true) {
+          returned = s.merge({ closeDetails: groupUser.groupId, updateNeeded: true })
+        }
+        return returned
+
+      case 'REMOVE_CLOSE_GROUP_DETAIL':
+        return s.closeDetails.set('')
+    }
+  }, action.type)
+})
+
+export const accessGroupState = () => state
+
+export const useGroupState = () => useState(state) as any as typeof state
+
+//Service
 export const GroupService = {
   getGroups: async (skip?: number, limit?: number) => {
     const dispatch = useDispatch()
@@ -167,3 +320,89 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     store.dispatch(GroupAction.createdGroup(params.group))
   })
 }
+
+//Action
+export const GroupAction = {
+  loadedGroups: (groupResult: GroupResult) => {
+    return {
+      type: 'LOADED_GROUPS' as const,
+      groups: groupResult.data,
+      total: groupResult.total,
+      limit: groupResult.limit,
+      skip: groupResult.skip
+    }
+  },
+  createdGroup: (group: Group) => {
+    return {
+      type: 'CREATED_GROUP' as const,
+      group: group
+    }
+  },
+  patchedGroup: (group: Group) => {
+    return {
+      type: 'PATCHED_GROUP' as const,
+      group: group
+    }
+  },
+  removedGroup: (group: Group) => {
+    return {
+      type: 'REMOVED_GROUP' as const,
+      group: group
+    }
+  },
+  createdGroupUser: (groupUser: GroupUser) => {
+    return {
+      type: 'CREATED_GROUP_USER' as const,
+      groupUser: groupUser
+    }
+  },
+  patchedGroupUser: (groupUser: GroupUser) => {
+    return {
+      type: 'PATCHED_GROUP_USER' as const,
+      groupUser: groupUser
+    }
+  },
+  removedGroupUser: (groupUser: GroupUser, self: boolean) => {
+    return {
+      type: 'REMOVED_GROUP_USER' as const,
+      groupUser: groupUser,
+      self: self
+    }
+  },
+  invitedGroupUser: () => {
+    return {
+      type: 'INVITED_GROUP_USER' as const
+    }
+  },
+  leftGroup: () => {
+    return {
+      type: 'LEFT_GROUP' as const
+    }
+  },
+  fetchingGroups: () => {
+    return {
+      type: 'FETCHING_GROUPS' as const
+    }
+  },
+  loadedInvitableGroups: (groupResult: GroupResult) => {
+    return {
+      type: 'LOADED_INVITABLE_GROUPS' as const,
+      groups: groupResult.data,
+      total: groupResult.total,
+      limit: groupResult.limit,
+      skip: groupResult.skip
+    }
+  },
+  fetchingInvitableGroups: () => {
+    return {
+      type: 'FETCHING_INVITABLE_GROUPS' as const
+    }
+  },
+  removeCloseGroupDetail: () => {
+    return {
+      type: 'REMOVE_CLOSE_GROUP_DETAIL' as const
+    }
+  }
+}
+
+export type GroupActionType = ReturnType<typeof GroupAction[keyof typeof GroupAction]>

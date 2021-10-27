@@ -1,8 +1,34 @@
-import { SettingAnalyticsAction } from './SettingAnalyticsActions'
 import { client } from '../../../feathers'
 import { AlertService } from '../../../common/state/AlertService'
-import { useDispatch } from '../../../store'
+import { useDispatch, store } from '../../../store'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { SettingAnalytics } from '@xrengine/common/src/interfaces/SettingAnalytics'
+import { SettingAnalyticsResult } from '@xrengine/common/src/interfaces/SettingAnalyticsResult'
 
+//State
+const state = createState({
+  Analytics: {
+    analytics: [] as Array<SettingAnalytics>,
+    updateNeeded: true
+  }
+})
+
+store.receptors.push((action: SettingAnalyticsActionType): any => {
+  let result
+  state.batch((s) => {
+    switch (action.type) {
+      case 'SETTING_ANALYIS_DISPLAY':
+        result = action.settingAnalyticsResult
+        return s.Analytics.merge({ analytics: result.data, updateNeeded: false })
+    }
+  }, action.type)
+})
+
+export const accessSettingAnalyticsState = () => state
+
+export const useSettingAnalyticsState = () => useState(state) as any as typeof state
+
+//Service
 export const SettingAnalyticsService = {
   fetchSettingsAnalytics: async (inDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
@@ -15,3 +41,15 @@ export const SettingAnalyticsService = {
     }
   }
 }
+
+//Action
+export const SettingAnalyticsAction = {
+  fetchedAnalytics: (settingAnalyticsResult: SettingAnalyticsResult) => {
+    return {
+      type: 'SETTING_ANALYIS_DISPLAY' as const,
+      settingAnalyticsResult: settingAnalyticsResult
+    }
+  }
+}
+
+export type SettingAnalyticsActionType = ReturnType<typeof SettingAnalyticsAction[keyof typeof SettingAnalyticsAction]>

@@ -1,12 +1,12 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { InviteAction } from './InviteActions'
 import { Invite } from '@xrengine/common/src/interfaces/Invite'
 import { accessAuthState } from '../../user/state/AuthState'
-import { accessInviteState } from './InviteState'
 import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../common/state/AlertService'
 import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
+import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 
 const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
@@ -14,6 +14,87 @@ const phoneRegex = /^[0-9]{10}$/
 const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
 const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
+//State
+export const INVITE_PAGE_LIMIT = 10
+
+const state = createState({
+  receivedInvites: {
+    invites: [] as Array<Invite>,
+    skip: 0,
+    limit: 5,
+    total: 0
+  },
+  sentInvites: {
+    invites: [] as Array<Invite>,
+    skip: 0,
+    limit: 5,
+    total: 0
+  },
+  sentUpdateNeeded: true,
+  receivedUpdateNeeded: true,
+  getSentInvitesInProgress: false,
+  getReceivedInvitesInProgress: false,
+  targetObjectId: '',
+  targetObjectType: ''
+})
+
+store.receptors.push((action: InviteActionType): any => {
+  let newValues
+  state.batch((s) => {
+    switch (action.type) {
+      case 'INVITE_SENT':
+        return s.sentUpdateNeeded.set(true)
+      case 'SENT_INVITES_RETRIEVED':
+        newValues = action
+        s.sentInvites.merge({
+          invites: newValues.invites,
+          skip: newValues.skip,
+          limit: newValues.limit,
+          total: newValues.total
+        })
+        return s.merge({ sentUpdateNeeded: false, getSentInvitesInProgress: false })
+      case 'RECEIVED_INVITES_RETRIEVED':
+        newValues = action
+        const receivedInvites = s.receivedInvites.invites.value
+
+        if (receivedInvites === null || s.receivedUpdateNeeded.value === true) {
+          s.receivedInvites.invites.set(newValues.invites)
+        } else {
+          s.receivedInvites.invites.merge([...s.receivedInvites.invites.value, ...newValues.invites])
+        }
+        s.receivedInvites.merge({ skip: newValues.skip, limit: newValues.limit, total: newValues.total })
+        return s.merge({ receivedUpdateNeeded: false, getReceivedInvitesInProgress: false })
+      case 'CREATED_RECEIVED_INVITE':
+        return s.receivedUpdateNeeded.set(true)
+      case 'CREATED_SENT_INVITE':
+        return s.sentUpdateNeeded.set(true)
+      case 'REMOVED_RECEIVED_INVITE':
+        return s.receivedUpdateNeeded.set(true)
+      case 'REMOVED_SENT_INVITE':
+        return s.sentUpdateNeeded.set(true)
+      case 'ACCEPTED_INVITE':
+        return s.receivedUpdateNeeded.set(true)
+      case 'DECLINED_INVITE':
+        return s.receivedUpdateNeeded.set(true)
+      case 'INVITE_TARGET_SET':
+        newValues = action
+        return state.merge({
+          targetObjectId: newValues.targetObjectId || '',
+          targetObjectType: newValues.targetObjectType || ''
+        })
+      case 'FETCHING_SENT_INVITES':
+        return s.getSentInvitesInProgress.set(true)
+      case 'FETCHING_RECEIVED_INVITES':
+        return s.getReceivedInvitesInProgress.set(true)
+    }
+  }, action.type)
+})
+
+export const accessInviteState = () => state
+
+export const useInviteState = () => useState(state) as any as typeof state
+
+//Service
 export const InviteService = {
   sendInvite: async (data: any) => {
     const dispatch = useDispatch()
@@ -204,3 +285,80 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     }
   })
 }
+
+//Action
+export const InviteAction = {
+  sentInvite: (id: string) => {
+    return {
+      type: 'INVITE_SENT' as const,
+      id
+    }
+  },
+  retrievedSentInvites: (inviteResult: InviteResult) => {
+    return {
+      type: 'SENT_INVITES_RETRIEVED' as const,
+      invites: inviteResult.data,
+      total: inviteResult.total,
+      limit: inviteResult.limit,
+      skip: inviteResult.skip
+    }
+  },
+  retrievedReceivedInvites: (inviteResult: InviteResult) => {
+    return {
+      type: 'RECEIVED_INVITES_RETRIEVED' as const,
+      invites: inviteResult.data,
+      total: inviteResult.total,
+      limit: inviteResult.limit,
+      skip: inviteResult.skip
+    }
+  },
+  createdReceivedInvite: () => {
+    return {
+      type: 'CREATED_RECEIVED_INVITE' as const
+    }
+  },
+  removedReceivedInvite: () => {
+    return {
+      type: 'REMOVED_RECEIVED_INVITE' as const
+    }
+  },
+  createdSentInvite: () => {
+    return {
+      type: 'CREATED_SENT_INVITE' as const
+    }
+  },
+  removedSentInvite: () => {
+    return {
+      type: 'REMOVED_SENT_INVITE' as const
+    }
+  },
+  acceptedInvite: () => {
+    return {
+      type: 'ACCEPTED_INVITE' as const
+    }
+  },
+  declinedInvite: () => {
+    return {
+      type: 'DECLINED_INVITE' as const
+    }
+  },
+  setInviteTarget: (targetObjectType: string, targetObjectId: string) => {
+    return {
+      type: 'INVITE_TARGET_SET' as const,
+      targetObjectId: targetObjectId,
+      targetObjectType: targetObjectType
+    }
+  },
+  fetchingSentInvites: () => {
+    return {
+      type: 'FETCHING_SENT_INVITES' as const
+    }
+  },
+  fetchingReceivedInvites: () => {
+    return {
+      type: 'FETCHING_RECEIVED_INVITES' as const
+    }
+  }
+}
+
+export type InviteActionType = ReturnType<typeof InviteAction[keyof typeof InviteAction]>

@@ -1,9 +1,85 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { ScopeAction } from './ScopeActions'
 import { AlertService } from '../../common/state/AlertService'
-import { accessScopeState } from './ScopeState'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { AdminScopTypeResult } from '@xrengine/common/src/interfaces/AdminScopeTypeResult'
+import { AdminScopeResult } from '@xrengine/common/src/interfaces/AdminScopeResult'
+import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
 
+//State
+export const SCOPE_PAGE_LIMIT = 100
+
+const state = createState({
+  scope: {
+    scope: [] as Array<AdminScope>,
+    skip: 0,
+    limit: SCOPE_PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: Date.now()
+  },
+  scopeType: {
+    scopeType: [] as Array<AdminScopeType>,
+    skip: 0,
+    limit: SCOPE_PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: Date.now()
+  },
+  fetching: false
+})
+
+store.receptors.push((action: ScopeActionType): any => {
+  let result: any
+  state.batch((s) => {
+    switch (action.type) {
+      case 'SCOPE_FETCHING':
+        return s.merge({ fetching: true })
+      case 'SCOPE_ADMIN_RETRIEVED':
+        result = action.adminScopeResult
+        return s.scope.merge({
+          scope: result.data,
+          skip: result.skip,
+          limit: result.limit,
+          total: result.total,
+          retrieving: false,
+          fetched: true,
+          updateNeeded: false,
+          lastFetched: Date.now()
+        })
+      case 'ADD_SCOPE':
+        return s.scope.merge({ updateNeeded: true })
+      case 'UPDATE_SCOPE':
+        return s.scope.merge({ updateNeeded: true })
+
+      case 'REMOVE_SCOPE':
+        return s.scope.merge({ updateNeeded: true })
+      case 'SCOPE_TYPE_RETRIEVED':
+        result = action.adminScopTypeResult
+        return s.scopeType.merge({
+          scopeType: result.data,
+          skip: result.skip,
+          limit: result.limit,
+          total: result.total,
+          retrieving: false,
+          fetched: true,
+          updateNeeded: false,
+          lastFetched: Date.now()
+        })
+    }
+  }, action.type)
+})
+
+export const accessScopeState = () => state
+
+export const useScopeState = () => useState(state) as any as typeof state
+
+//Service
 export const ScopeService = {
   createScope: async (scopeItem: any) => {
     const dispatch = useDispatch()
@@ -87,3 +163,44 @@ export const ScopeService = {
     }
   }
 }
+
+//Action
+export const ScopeAction = {
+  fetchingScope: () => {
+    return {
+      type: 'SCOPE_FETCHING' as const
+    }
+  },
+  setAdminScope: (adminScopeResult: AdminScopeResult) => {
+    return {
+      type: 'SCOPE_ADMIN_RETRIEVED' as const,
+      adminScopeResult: adminScopeResult
+    }
+  },
+  addAdminScope: (adminScope: AdminScope) => {
+    return {
+      type: 'ADD_SCOPE' as const,
+      adminScope: adminScope
+    }
+  },
+  updateAdminScope: (adminScope: AdminScope) => {
+    return {
+      type: 'UPDATE_SCOPE' as const,
+      adminScope: adminScope
+    }
+  },
+  removeScopeItem: (id: string) => {
+    return {
+      type: 'REMOVE_SCOPE' as const,
+      id: id
+    }
+  },
+  getScopeType: (adminScopTypeResult: AdminScopTypeResult) => {
+    return {
+      type: 'SCOPE_TYPE_RETRIEVED',
+      adminScopTypeResult: adminScopTypeResult
+    }
+  }
+}
+
+export type ScopeActionType = ReturnType<typeof ScopeAction[keyof typeof ScopeAction]>

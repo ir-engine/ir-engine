@@ -4,10 +4,45 @@
 
 import { AlertService } from '../../common/state/AlertService'
 import { client } from '../../feathers'
-import { useDispatch } from '../../store'
+import { useDispatch, store } from '../../store'
 import { upload } from '../../util/upload'
-import { TheFeedsAction } from './TheFeedsActions'
+import { TheFeedsShort, TheFeeds } from '@xrengine/common/src/interfaces/Feeds'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 
+//State
+const state = createState({
+  thefeeds: [] as Array<TheFeeds>,
+  fetching: false
+})
+
+store.receptors.push((action: TheFeedsActionType): any => {
+  state.batch((s) => {
+    switch (action.type) {
+      case 'THEFEEDS_FETCH':
+        return s.fetching.set(true)
+      case 'THEFEEDS_RETRIEVED':
+        return s.merge({ thefeeds: action.thefeeds, fetching: false })
+      case 'ADD_THEFEEDS':
+        return s.thefeeds.set([...s.thefeeds.value, action.thefeeds])
+      case 'UPDATE_THEFEEDS':
+        return s.thefeeds.set(
+          s.thefeeds.value.map((thefeeds) => {
+            if (thefeeds.id === action.thefeeds.id) {
+              return { ...thefeeds, ...action.thefeeds }
+            }
+            return { ...thefeeds }
+          })
+        )
+      case 'REMOVE_THEFEEDS':
+        return s.thefeeds.set([...s.thefeeds.value.filter((thefeeds) => thefeeds.id !== action.thefeeds)])
+    }
+  }, action.type)
+})
+
+export const accessTheFeedsState = () => state
+export const useTheFeedsState = () => useState(state)
+
+//Service
 export const TheFeedsService = {
   getTheFeedsNew: async () => {
     const dispatch = useDispatch()
@@ -70,3 +105,52 @@ export const TheFeedsService = {
     }
   }
 }
+
+// Action
+export const TheFeedsAction = {
+  thefeedsRetrieved: (thefeeds: TheFeeds[]) => {
+    // console.log('actions',thefeeds)
+    return {
+      type: 'THEFEEDS_RETRIEVED' as const,
+      thefeeds: thefeeds
+    }
+  },
+  fetchingTheFeeds: () => {
+    return {
+      type: 'THEFEEDS_FETCH' as const
+    }
+  },
+  deleteTheFeeds: (thefeedsId: string) => {
+    return {
+      type: 'REMOVE_THEFEEDS' as const,
+      thefeeds: thefeedsId
+    }
+  },
+  addTheFeeds: (thefeeds: TheFeeds) => {
+    return {
+      type: 'ADD_THEFEEDS' as const,
+      thefeeds: thefeeds
+    }
+  },
+  updateTheFeedsInList: (thefeeds: TheFeeds) => {
+    return {
+      type: 'UPDATE_THEFEEDS' as const,
+      thefeeds: thefeeds
+    }
+  },
+  addTheFeedsFire: (thefeeds: string) => {
+    return {
+      type: 'ADD_THEFEEDS_FIRES' as const,
+      thefeeds: thefeeds
+    }
+  },
+  removeTheFeedsFire: (thefeeds: string) => {
+    return {
+      type: 'REMOVE_THEFEEDS_FIRES' as const,
+      thefeeds: thefeeds
+    }
+  }
+}
+//The code below is not in use END
+
+export type TheFeedsActionType = ReturnType<typeof TheFeedsAction[keyof typeof TheFeedsAction]>

@@ -8,10 +8,90 @@ import { store, useDispatch } from '../../store'
 import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
 import { MediaStreamService } from '../../media/state/MediaStreamService'
 import { accessAuthState } from '../../user/state/AuthState'
-import { InstanceConnectionAction } from './InstanceConnectionActions'
-import { accessInstanceConnectionState } from './InstanceConnectionState'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+
+//State
+const state = createState({
+  instance: {
+    ipAddress: '',
+    port: ''
+  },
+  socket: {},
+  locationId: '',
+  sceneId: '',
+  channelId: '',
+  instanceProvisioned: false,
+  connected: false,
+  readyToConnect: false,
+  updateNeeded: false,
+  instanceServerConnecting: false,
+  instanceProvisioning: false
+})
+
+let connectionSocket = null
+
+store.receptors.push((action: InstanceConnectionActionType): any => {
+  let newValues, newInstance
+  state.batch((s) => {
+    switch (action.type) {
+      case 'INSTANCE_SERVER_PROVISIONING':
+        newInstance = new Map(Object.entries(s.instance.value))
+        return s.merge({
+          instance: newInstance,
+          socket: {},
+          connected: false,
+          instanceProvisioned: false,
+          readyToConnect: false,
+          instanceProvisioning: true
+        })
+      case 'INSTANCE_SERVER_PROVISIONED':
+        newValues = action
+        return s.merge({
+          instance: { ipAddress: newValues.ipAddress, port: newValues.port },
+          locationId: newValues.locationId,
+          sceneId: newValues.sceneId,
+          instanceProvisioning: false,
+          instanceProvisioned: true,
+          readyToConnect: true,
+          updateNeeded: true,
+          connected: false
+        })
+      case 'INSTANCE_SERVER_CONNECTING':
+        return s.instanceServerConnecting.set(true)
+      case 'INSTANCE_SERVER_CONNECTED':
+        return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
+      case 'INSTANCE_SERVER_DISCONNECTED':
+        if (connectionSocket != null) (connectionSocket as any).close()
+        newInstance = new Map(Object.entries(s.instance.value))
+        return s.merge({
+          instance: newInstance,
+          socket: s.socket.value,
+          locationId: s.locationId.value,
+          sceneId: s.sceneId.value,
+          channelId: s.channelId.value,
+          instanceProvisioned: s.instanceProvisioned.value,
+          connected: s.connected.value,
+          readyToConnect: s.readyToConnect.value,
+          updateNeeded: s.updateNeeded.value,
+          instanceServerConnecting: s.instanceServerConnecting.value,
+          instanceProvisioning: s.instanceProvisioning.value
+        })
+      case 'SOCKET_CREATED':
+        if (connectionSocket != null) (connectionSocket as any).close()
+        connectionSocket = action.socket
+        return state
+    }
+  }, action.type)
+})
+
+export const accessInstanceConnectionState = () => state
+
+export const useInstanceConnectionState = () => useState(state) as any as typeof state
+
+//Service
 export const InstanceConnectionService = {
   provisionInstanceServer: async (locationId?: string, instanceId?: string, sceneId?: string) => {
     const dispatch = useDispatch()
@@ -122,3 +202,51 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       store.dispatch(InstanceConnectionAction.instanceServerProvisioned(params, params.locationId, params.sceneId))
   })
 }
+
+//Action
+
+export const InstanceConnectionAction = {
+  instanceServerProvisioning: () => {
+    return {
+      type: 'INSTANCE_SERVER_PROVISIONING' as const
+    }
+  },
+  instanceServerProvisioned: (
+    provisionResult: InstanceServerProvisionResult,
+    locationId: string | null,
+    sceneId: string | null
+  ) => {
+    return {
+      type: 'INSTANCE_SERVER_PROVISIONED' as const,
+      ipAddress: provisionResult.ipAddress,
+      port: provisionResult.port,
+      locationId: locationId,
+      sceneId: sceneId
+    }
+  },
+  instanceServerConnecting: () => {
+    return {
+      type: 'INSTANCE_SERVER_CONNECTING' as const
+    }
+  },
+  instanceServerConnected: () => {
+    return {
+      type: 'INSTANCE_SERVER_CONNECTED' as const
+    }
+  },
+  instanceServerDisconnected: () => {
+    return {
+      type: 'INSTANCE_SERVER_DISCONNECTED' as const
+    }
+  },
+  socketCreated: (socket: any) => {
+    return {
+      type: 'SOCKET_CREATED' as const,
+      socket: socket
+    }
+  }
+}
+
+export type InstanceConnectionActionType = ReturnType<
+  typeof InstanceConnectionAction[keyof typeof InstanceConnectionAction]
+>

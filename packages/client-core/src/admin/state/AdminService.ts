@@ -1,13 +1,32 @@
-import { VideoCreationForm, VideoUpdateForm, AdminAction } from './AdminActions'
-
 import axios from 'axios'
 import { Config } from '@xrengine/common/src/config'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/state/AlertService'
 import { PublicVideo, VideoAction } from '../../media/state/VideoActions'
 import { useAuthState } from '../../user/state/AuthState'
-import { useDispatch } from '../../store'
+import { useDispatch, store } from '../../store'
+import { createState, useState } from '@hookstate/core'
 
+//State
+export const ADMIN_PAGE_LIMIT = 100
+
+const state = createState({
+  data: {}
+})
+
+store.receptors.push((action: AdminActionType): any => {
+  state.batch((s) => {
+    switch (action.type) {
+      case 'VIDEO_CREATED':
+        return s.merge({ data: action.data })
+    }
+  }, action.type)
+})
+
+export const accessAdminState = () => state
+export const useAdminState = () => useState(state) as any as typeof state
+
+//Service
 export const AdminService = {
   createVideo: async (data: VideoCreationForm) => {
     const dispatch = useDispatch()
@@ -72,3 +91,75 @@ export const AdminService = {
     }
   }
 }
+
+//Action
+export interface VideoCreationForm {
+  name: string
+  description: string
+  url: string
+  metadata: object
+}
+
+export interface VideoUpdateForm {
+  id: string
+  name: string
+  description: string
+  url: string
+  metadata: object
+}
+
+export interface VideoCreatedResponse {
+  id: string
+  name: string
+  url: string
+  description: string
+  metadata: object
+  userId: string
+  mimeType: string
+  staticResourceType: string
+}
+
+export interface VideoUpdatedResponse {
+  id: string
+  name: string
+  url: string
+  description: string
+  metadata: object
+  userId: string
+  mimeType: string
+  staticResourceType: string
+}
+
+export interface VideoDeletedResponse {
+  id: string
+  name: string
+  url: string
+  description: string
+  metadata: object
+  userId: string
+  mimeType: string
+  staticResourceType: string
+}
+
+export const AdminAction = {
+  videoCreated: (data: VideoCreatedResponse) => {
+    return {
+      type: 'VIDEO_CREATED' as const,
+      data: data
+    }
+  },
+  videoUpdated: (data: VideoUpdatedResponse) => {
+    return {
+      type: 'VIDEO_UPDATED' as const,
+      data: data
+    }
+  },
+  videoDeleted: (data: VideoDeletedResponse) => {
+    return {
+      type: 'VIDEO_DELETED' as const,
+      data: data
+    }
+  }
+}
+
+export type AdminActionType = ReturnType<typeof AdminAction[keyof typeof AdminAction]>

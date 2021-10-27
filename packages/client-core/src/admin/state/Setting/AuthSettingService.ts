@@ -1,8 +1,48 @@
-import { AuthSettingAction } from './AuthSettingActions'
 import { client } from '../../../feathers'
 import { AlertService } from '../../../common/state/AlertService'
-import { useDispatch } from '../../../store'
+import { useDispatch, store } from '../../../store'
+import { AdminRedisSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
+import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { AdminAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
 
+//State
+const state = createState({
+  authSettings: {
+    authSettings: [] as Array<AdminAuthSetting>,
+    skip: 0,
+    limit: 100,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true
+  }
+})
+
+store.receptors.push((action: AuthSettingActionType): any => {
+  let result: any
+
+  state.batch((s) => {
+    switch (action.type) {
+      case 'ADMIN_AUTH_SETTING_FETCHED':
+        result = action.adminRedisSettingResult
+        return s.authSettings.merge({
+          authSettings: result.data,
+          skip: result.skip,
+          limit: result.limit,
+          total: result.total,
+          updateNeeded: false
+        })
+      case 'ADMIN_AUTH_SETTING_PATCHED':
+        return s.authSettings.updateNeeded.set(true)
+    }
+  }, action.type)
+})
+
+export const accessAdminAuthSettingState = () => state
+
+export const useAdminAuthSettingState = () => useState(state) as any as typeof state
+
+//Service
 export const AuthSettingService = {
   fetchAuthSetting: async () => {
     const dispatch = useDispatch()
@@ -28,3 +68,20 @@ export const AuthSettingService = {
     }
   }
 }
+
+//Action
+export const AuthSettingAction = {
+  authSettingRetrieved: (adminRedisSettingResult: AdminRedisSettingResult) => {
+    return {
+      type: 'ADMIN_AUTH_SETTING_FETCHED' as const,
+      adminRedisSettingResult: adminRedisSettingResult
+    }
+  },
+  authSettingPatched: (data: AdminRedisSettingResult) => {
+    return {
+      type: 'ADMIN_AUTH_SETTING_PATCHED' as const
+    }
+  }
+}
+
+export type AuthSettingActionType = ReturnType<typeof AuthSettingAction[keyof typeof AuthSettingAction]>
