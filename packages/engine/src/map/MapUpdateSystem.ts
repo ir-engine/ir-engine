@@ -25,7 +25,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
   const mapsQuery = defineQuery([MapComponent])
   const viewerQuery = defineQuery([AvatarComponent])
   const navMeshQuery = defineQuery([NavMeshComponent])
-  const phases = getPhases({ exclude: ['navigation'] })
+  const phases = await getPhases({ exclude: ['navigation'] })
   let previousViewerEntity: Entity
 
   return () => {

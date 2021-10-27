@@ -24,6 +24,10 @@
             height: 100%;
         }
 
+        @media (max-width: 500px) {
+            width: 40px;
+        }
+
         outline: none !important;
     }
 
@@ -34,8 +38,13 @@
         .materialIconBlock {
             padding: 1em;
             opacity: 0.8;
+            margin-right: 5px;
             border-radius: 50%;
             background-color: #5F5FF1;
+
+            @media (max-width: 500px) {
+                padding: 8px;
+            }
 
             svg{
                 color: white;
@@ -46,8 +55,8 @@
                 cursor: pointer;
             }
 
-            &:nth-child(1), &:nth-child(2), &:nth-child(3) {
-                margin-right: 5px;
+            &:last-child {
+                margin-right: 0px;
             }
         }
 
@@ -1575,7 +1584,7 @@
     width: 40px;
     height: 70px;
     position: absolute;
-    left: 2.5px;
+    left: 2px;
     top: 192.7px;
     background-color: rgb(51 51 110 / 50%);
     transform: rotate(45deg);
@@ -1629,7 +1638,7 @@
     width: 40px;
     height: 70px;
     position: absolute;
-    right: 2.5px;
+    right: 2px;
     top: 192.7px;
     background-color: rgb(51 51 110 / 50%);
     transform: rotate(135deg);
@@ -1680,3 +1689,68 @@
 }
 
 
+.emoteMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.1s ease-out;
+
+    .itemContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        border: solid 100px rgb(51 51 110 / 50%);
+        border-bottom-color: transparent;
+        opacity:0.9;
+        position:relative;
+        width:361.4px !important;
+        height:361.4px !important;
+        border-width: 70px !important;
+        left: -30px;
+
+        @media (max-width: 500px) {
+            left: 0;
+        }
+
+        @media (max-width: 360px) {
+            left: 0;
+            width:300px !important;
+            height:300px !important;
+            border-width: 60px !important;
+        }
+
+        .menuItemBlock {
+            position: relative;
+        }
+
+        .menuItem {
+            border-radius: 50%;
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            margin: 0;
+            padding: 0;
+            min-width: 0;
+            background-color: transparent;
+
+            &:hover { 
+                img {
+                    opacity: 1;
+                } 
+            }
+
+            img {
+                opacity: 0.8;
+                display: block;
+                width: 100%;
+            }
+        }
+    }
+}

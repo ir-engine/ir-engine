@@ -5,7 +5,6 @@ import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFe
 import React, { Suspense, useEffect, useState } from 'react'
 import NetworkDebug from '../NetworkDebug'
 import GameServerWarnings from './GameServerWarnings'
-import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
 import InstanceChat from '../InstanceChat'
@@ -78,7 +77,6 @@ const DefaultLayoutView = (props: Props) => {
       <MediaIconsBox />
       {/*<PersonMenu user={selfUser}/>*/}
       <UserMenu />
-      <EmoteMenu />
       <InstanceChat />
     </>
   )

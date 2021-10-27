@@ -1,12 +1,17 @@
 import { MapStateUnwrapped, FeatureKey, TaskStatus } from '../types'
-import createUsingCache from '../functions/createUsingCache'
-import transformFeature from '../functions/transformFeature'
+import fetchUsingCache from '../functions/fetchUsingCache'
+// @ts-ignore
+import createWorker from '../workers/transformFeatureWorker.ts?worker'
+import { WorkerApi } from '../workers/transformFeatureWorker'
+import createWorkerFunction from '../functions/createWorkerFunction'
+
+const transformFeature = createWorkerFunction<WorkerApi>(createWorker())
 
 export const name = 'transform feature'
-export const isAsyncPhase = false
+export const isAsyncPhase = true
 export const isCachingPhase = true
 
-const transformFeatureUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: FeatureKey) => {
+const transformFeatureUsingCache = fetchUsingCache((state: MapStateUnwrapped, ...key: FeatureKey) => {
   const [layerName] = key
   const feature = state.featureCache.get(key)
   if (feature.properties.transformed) {
@@ -28,7 +33,7 @@ export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status:
   return state.transformedFeatureTasks.set(key, status)
 }
 
-export function execTask(state: MapStateUnwrapped, key: FeatureKey) {
+export function startTask(state: MapStateUnwrapped, key: FeatureKey) {
   return transformFeatureUsingCache(state.transformedFeatureCache, key, state)
 }
 

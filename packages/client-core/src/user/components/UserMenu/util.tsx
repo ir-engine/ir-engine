@@ -12,6 +12,7 @@ export const Views = {
   AvatarUpload: 'AvatarUpload',
   Avatar: 'Avatar',
   Location: 'Location',
+  Emote: 'Emote',
   NewLocation: 'NewLocation',
   ReadyPlayer: 'ReadyPlayer',
   Inventory: 'Inventory'
