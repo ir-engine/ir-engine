@@ -69,7 +69,7 @@ interface Props {
 
 export const EnginePage = (props: Props) => {
   const { t } = useTranslation()
-  const [isUserBanned, setUserBanned] = useState(true)
+  const [isUserBanned, setUserBanned] = useState(false)
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isTeleporting, setIsTeleporting] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
