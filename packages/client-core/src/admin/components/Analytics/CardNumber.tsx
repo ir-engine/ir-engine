@@ -28,7 +28,7 @@ const CardNumber = ({ data }: any) => {
   const classes = useStyles()
 
   return (
-    <Card className={classes.root} style={{ background: `linear-gradient(to right, ${data.color1} , ${data.color2})` }}>
+    <Card className={classes.root} style={{ backgroundColor: '#323845' }}>
       <CardContent className="text-center">
         <Typography variant="h3" component="h3" className={classes.label}>
           <span>{data.number}</span>
