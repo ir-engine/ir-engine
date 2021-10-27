@@ -2,6 +2,7 @@
 import { Application as ExpressFeathers } from '@feathersjs/express'
 import * as x from '@feathersjs/feathers'
 import '@feathersjs/transport-commons'
+import { Request } from './src/k8s'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ServiceTypes {
@@ -13,8 +14,9 @@ export interface Models {}
 
 export type Application = ExpressFeathers<ServiceTypes> & {
   // Common
-  k8AgonesClient: any
-  k8DefaultClient: any
+  k8AgonesClient: Request
+  k8DefaultClient: Request
+  k8AppsClient: Request
   agonesSDK: any
   sync: any
 

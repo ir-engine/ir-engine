@@ -1,7 +1,7 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../classes/Network'
-import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { WorldStateModel } from '../schema/networkSchema'
 import { incomingNetworkReceptor } from '../functions/incomingNetworkReceptor'
 import { isEntityLocalClient } from '../functions/isEntityLocalClient'

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { StoryItem } from './StoryItem'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
-import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import styles from './Stories.module.scss'
 
 export function Stories({ stories }: any) {

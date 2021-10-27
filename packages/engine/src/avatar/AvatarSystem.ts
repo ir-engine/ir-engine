@@ -11,7 +11,7 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { XRInputSourceComponent } from './components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { World } from '../ecs/classes/World'
@@ -114,6 +114,12 @@ export default async function AvatarSystem(world: World): Promise<System> {
 
       xrInputSourceComponent.container.applyQuaternion(rotate180onY)
       object3DComponent.value.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
+    }
+
+    for (const entity of xrInputQuery.exit(world)) {
+      const xrInputComponent = getComponent(entity, XRInputSourceComponent)
+      xrInputComponent.container.removeFromParent()
+      xrInputComponent.head.removeFromParent()
     }
 
     for (const entity of xrHandsInputQuery.enter(world)) {

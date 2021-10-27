@@ -1,4 +1,7 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+
+import makeStyles from '@mui/styles/makeStyles'
+import createStyles from '@mui/styles/createStyles'
 
 const useStylesForBots = makeStyles((theme: Theme) =>
   createStyles({
@@ -142,7 +145,7 @@ const useStylesForBots = makeStyles((theme: Theme) =>
       width: '150px',
       boxShadow:
         '0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%) !important',
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down('md')]: {
         width: '80px',
         fontSize: '0.7rem'
       }
@@ -150,7 +153,7 @@ const useStylesForBots = makeStyles((theme: Theme) =>
     smFont: {
       fontSize: '20px',
       marginLeft: '10px',
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '15px'
       }
     }

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useHistory } from 'react-router-dom'
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { useTranslation } from 'react-i18next'
 
 export function ProfilePic({ src, username, size, border, href, ...props }: any) {

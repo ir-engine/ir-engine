@@ -3,9 +3,9 @@
  */
 import React from 'react'
 import styles from './SimpleModal.module.scss'
-import { Modal, Card } from '@material-ui/core'
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import { Modal, Card } from '@mui/material'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
 import CreatorAsTitle from '../CreatorAsTitle'
 import { useTranslation } from 'react-i18next'
 

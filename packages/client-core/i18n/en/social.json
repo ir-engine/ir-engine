@@ -71,7 +71,8 @@
         "users": "Users",
         "feeds": "Feeds",
         "arMedia": "Video Media",
-        "editor": "Editor"
+        "editor": "Editor",
+        "creator": "Creator"
     },
     "featured": {
         "empty-list": "No feeds for now ..."

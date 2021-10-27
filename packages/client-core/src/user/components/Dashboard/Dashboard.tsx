@@ -1,18 +1,18 @@
 import React from 'react'
 import clsx from 'clsx'
-import { useTheme } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import Typography from '@material-ui/core/Typography'
-import IconButton from '@material-ui/core/IconButton'
-import { ChevronLeft, ChevronRight, Menu } from '@material-ui/icons'
-import Avatar from '@material-ui/core/Avatar'
+import { useTheme } from '@mui/material/styles'
+import Drawer from '@mui/material/Drawer'
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+import CssBaseline from '@mui/material/CssBaseline'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
+import Avatar from '@mui/material/Avatar'
 import { useAuthState } from '../../state/AuthState'
 
 import { useStylesForDashboard } from './styles'
-import SideMenu from './SideMenuItem'
+import DashboardMenuItem from './DashboardMenuItem'
 
 interface Props {
   children?: any
@@ -61,6 +61,7 @@ const Dashboard = ({ children }: Props) => {
             className={clsx(classes.menuButton, {
               [classes.hide]: open
             })}
+            size="large"
           >
             <Menu />
           </IconButton>
@@ -89,11 +90,11 @@ const Dashboard = ({ children }: Props) => {
         }}
       >
         <div className={classes.toolbar}>
-          <IconButton onClick={handleDrawerClose} style={{ color: '#fff' }}>
+          <IconButton onClick={handleDrawerClose} style={{ color: '#fff' }} size="large">
             {theme.direction === 'rtl' ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         </div>
-        <SideMenu />
+        <DashboardMenuItem />
       </Drawer>
       <main className={classes.content}>
         <div className={classes.toolbar} />
