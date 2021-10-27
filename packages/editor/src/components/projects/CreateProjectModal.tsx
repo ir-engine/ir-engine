@@ -9,6 +9,7 @@ import InputLabel from '@material-ui/core/InputLabel'
 import Modal from '@material-ui/core/Modal'
 import TextField from '@material-ui/core/TextField'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import { ProjectService } from '@xrengine/client-core/src/admin/state/ProjectService'
 
 interface Props {
   open: boolean
@@ -36,7 +37,7 @@ export const CreateProjectModal = (props: Props): any => {
     try {
       if (projectName !== '') {
         setProcessing(true)
-        // await uploadProject(projectName)
+        await ProjectService.createProject(projectName)
         setProcessing(false)
         closeModal()
       }

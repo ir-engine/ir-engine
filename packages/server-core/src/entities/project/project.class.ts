@@ -83,6 +83,23 @@ export class Project extends Service {
     }
   }
 
+  async create(data: { name: string }, params: Params) {
+    // make alphanumeric period, underscore, dash
+    const projectName = data.name.replaceAll(' ', '-').replace(/[^\w\.\-]/g, '')
+    console.log(projectName)
+
+    const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+
+    fs.mkdirSync(projectLocalDirectory)
+
+    const git = useGit(projectLocalDirectory)
+    try {
+      await git.init(true)
+    } catch (e) {
+      console.warn(e)
+    }
+  }
+
   /**
    * 1. Clones the repo to the local FS
    * 2. If in production mode, uploads it to the storage provider
@@ -90,7 +107,8 @@ export class Project extends Service {
    * @param app
    * @returns
    */
-  async create(data: { url: string }, params: Params) {
+  // @ts-ignore
+  async update(data: { url: string }, params: Params) {
     const uploadPromises = []
 
     const urlParts = data.url.split('/')
@@ -116,9 +134,7 @@ export class Project extends Service {
     if (existingPackResult != null) await super.remove(existingPackResult.id, params)
 
     const git = useGit()
-    await new Promise((resolve) => {
-      git.clone(data.url, projectLocalDirectory, [], resolve)
-    })
+    await git.clone(data.url, projectLocalDirectory)
 
     // console.log('Installing project from ', data.uploadURL, 'with manifest.json', data)
 
