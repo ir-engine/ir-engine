@@ -76,15 +76,15 @@ const SideMenuItem = (props: Props) => {
         ).map((sidebarItem, index) => {
           return sidebarItem.title ? (
             sidebarItem.items.filter(Boolean).length > 0 ? (
-              <>
-                <Link to={sidebarItem.items[0].path} className={classes.textLink}>
+              <div key={index}>
+                <Link to={sidebarItem.items.filter(Boolean)[0].path} className={classes.textLink}>
                   <ListItem style={{ color: 'white' }} button onClick={() => sidebarItem.click()}>
                     <ListItemIcon>{sidebarItem.items[0].icon}</ListItemIcon>
                     <ListItemText primary={sidebarItem.title} />
                     {sidebarItem.open ? <ExpandLess /> : <ExpandMore />}
                   </ListItem>
                 </Link>
-                <Collapse key={index} in={sidebarItem.open} timeout="auto" unmountOnExit>
+                <Collapse in={sidebarItem.open} timeout="auto" unmountOnExit>
                   {sidebarItem.items.filter(Boolean).map((item, key) => {
                     return (
                       <Link key={key} to={item.path} className={classes.textLink}>
@@ -101,11 +101,9 @@ const SideMenuItem = (props: Props) => {
                     )
                   })}
                 </Collapse>
-              </>
-            ) : (
-              <></>
-            )
-          ) : (
+              </div>
+            ) : null
+          ) : sidebarItem.items.filter(Boolean).length > 0 ? (
             <Link key={index} to={sidebarItem.items[0].path} className={classes.textLink}>
               <ListItem
                 classes={{ selected: classes.selected }}
@@ -117,7 +115,7 @@ const SideMenuItem = (props: Props) => {
                 <ListItemText primary={t(sidebarItem.items[0].name)} />
               </ListItem>
             </Link>
-          )
+          ) : null
         })}
         {/* {Add the below to SidebarItems.tsx file when you need to enable them} */}
         {/* <Link to="/admin/sessions" className={classes.textLink}>
@@ -138,34 +136,32 @@ const SideMenuItem = (props: Props) => {
         </Link> */}
       </List>
       <Divider style={{ background: '#C0C0C0', marginTop: '2rem' }} />
-      <List>
-        {SocialSidebarItems().map((item) => {
-          return (
-            <>
-              <ListSubheader inset style={{ color: '#C0C0C0' }}>
-                {item.title}
-              </ListSubheader>
-              <List>
-                {item.items.filter(Boolean).map((socialItem, key) => {
-                  return (
-                    <Link key={key} style={{ textDecoration: 'none' }} to={socialItem.path}>
-                      <ListItem
-                        style={{ color: 'white' }}
-                        classes={{ selected: classes.selected }}
-                        selected={socialItem.path === pathname}
-                        button
-                      >
-                        <ListItemIcon>{socialItem.icon}</ListItemIcon>
-                        <ListItemText primary={t(socialItem.name)} />
-                      </ListItem>
-                    </Link>
-                  )
-                })}
-              </List>
-            </>
-          )
-        })}
-      </List>
+      {SocialSidebarItems().map((item, index) => {
+        return (
+          <List key={index}>
+            <ListSubheader inset style={{ color: '#C0C0C0' }}>
+              {item.title}
+            </ListSubheader>
+            <List>
+              {item.items.map((socialItem, key) => {
+                return (
+                  <Link key={key} style={{ textDecoration: 'none' }} to={socialItem.path}>
+                    <ListItem
+                      style={{ color: 'white' }}
+                      classes={{ selected: classes.selected }}
+                      selected={socialItem.path === pathname}
+                      button
+                    >
+                      <ListItemIcon>{socialItem.icon}</ListItemIcon>
+                      <ListItemText primary={t(socialItem.name)} />
+                    </ListItem>
+                  </Link>
+                )
+              })}
+            </List>
+          </List>
+        )
+      })}
     </>
   )
 }
