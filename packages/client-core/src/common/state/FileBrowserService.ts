@@ -4,8 +4,7 @@ import { store, useDispatch } from '../../store'
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
 export const state = createState({
-  files: [] as Array<FileContentType>,
-  updateNeeded: false
+  files: [] as Array<FileContentType>
 })
 
 store.receptors.push((action: FileBrowserActionType): any => {

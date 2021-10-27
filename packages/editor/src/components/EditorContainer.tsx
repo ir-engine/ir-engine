@@ -2,7 +2,7 @@ import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { LocationService } from '@xrengine/client-core/src/admin/state/LocationService'
-import { DockLayout, DockMode } from 'rc-dock'
+import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { Component } from 'react'
 import { DndProvider } from 'react-dnd'
@@ -341,7 +341,7 @@ export const DockContainer = (styled as any).div`
     position: relative;
     z-index: 99;
   }
-  .dock-panel[data-dockid="+3"] {
+  .dock-panel[data-dockid="+5"] {
     visibility: hidden;
     pointer-events: none;
   }
@@ -1108,10 +1108,30 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     //   })
     // }
 
-    let defaultLayout = {
+    let defaultLayout: LayoutData = {
       dockbox: {
         mode: 'horizontal' as DockMode,
         children: [
+          {
+            mode: 'vertical' as DockMode,
+            size: 2,
+            children: [
+              {
+                tabs: [
+                  {
+                    id: 'fileBrowserPanel',
+                    title: (
+                      <PanelDragContainer>
+                        <PanelIcon as={Archive} size={12} />
+                        <PanelTitle>File Browser</PanelTitle>
+                      </PanelDragContainer>
+                    ),
+                    content: <FileBrowserPanel />
+                  }
+                ]
+              }
+            ]
+          },
           {
             mode: 'vertical' as DockMode,
             size: 8,
@@ -1156,16 +1176,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     id: 'assetsPanel',
                     title: 'Elements',
                     content: <AssetsPanel />
-                  },
-                  {
-                    id: 'fileBrowserPanel',
-                    title: (
-                      <PanelDragContainer>
-                        <PanelIcon as={Archive} size={12} />
-                        <PanelTitle>File Browser</PanelTitle>
-                      </PanelDragContainer>
-                    ),
-                    content: <FileBrowserPanel />
                   }
                 ]
               }

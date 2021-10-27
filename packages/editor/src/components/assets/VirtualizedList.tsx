@@ -10,6 +10,7 @@ type Props = {
 
 export const VirtualizedList = (props: Props) => {
   const { numItems, itemHeight, renderItem, windowHeight, ScrollWindow } = props
+  // console.log(numItems, itemHeight, windowHeight)
   const [scrollTop, setScrollTop] = useState(0)
 
   const innerHeight = numItems * itemHeight

@@ -29,12 +29,12 @@ let lastVal = null
 export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const { t } = useTranslation()
   const panelRef = useRef(null)
-  const [scrollWindowHeight, setScrollWindowHeight] = useState(0)
-  const [scrollWindowWidth, setScrollWindowWidth] = useState(0)
+  // const [scrollWindowWidth, setScrollWindowWidth] = useState(0)
+  const [scrollWindowHeight, setScrollWindowHeight] = useState(750)
 
   useEffect(() => {
     useElementResize(panelRef.current, () => {
-      setScrollWindowWidth(panelRef.current.clientWidth)
+      // setScrollWindowWidth(panelRef.current.clientWidth)
       setScrollWindowHeight(panelRef.current.clientHeight)
     })
   }, [panelRef.current])
@@ -81,7 +81,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   useEffect(() => {
     onRefreshDirectory()
-    console.log('selectedDirectory', selectedDirectory)
   }, [selectedDirectory])
 
   const addNewFolder = async () => {

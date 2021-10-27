@@ -5,6 +5,7 @@ import fsStore from 'fs-blob-store'
 import glob from 'glob'
 import path from 'path'
 import {
+  BlobStore,
   StorageListObjectInterface,
   StorageObjectInterface,
   StorageProviderInterface
@@ -25,7 +26,7 @@ export class LocalStorage implements StorageProviderInterface {
 
   listObjects = async (prefix: string, recursive = false): Promise<StorageListObjectInterface> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, prefix)
-    if (!fs.existsSync(filePath)) await fs.promises.mkdir(filePath, { recursive })
+    if (!fs.existsSync(filePath)) return { Contents: [] }
     const globResult = glob.sync(path.join(filePath, '**/*.*'))
     return {
       Contents: globResult.map((result) => {
@@ -37,6 +38,13 @@ export class LocalStorage implements StorageProviderInterface {
   putObject = async (params: StorageObjectInterface): Promise<any> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, params.Key)
     const pathWithoutFileExec = keyPathRegex.exec(filePath)
+    if (filePath.substr(-1) === '/') {
+      if (!fs.existsSync(filePath)) {
+        await fs.promises.mkdir(filePath, { recursive: true })
+        return true
+      }
+      return false
+    }
     if (pathWithoutFileExec == null) throw new Error('Invalid file path in local putObject')
     const pathWithoutFile = pathWithoutFileExec[1]
     const pathWithoutFileExists = fs.existsSync(pathWithoutFile)
@@ -47,7 +55,7 @@ export class LocalStorage implements StorageProviderInterface {
   createInvalidation = async (): Promise<any> => Promise.resolve()
 
   getProvider = (): StorageProviderInterface => this
-  getStorage = (): any => fsStore(this.path)
+  getStorage = (): BlobStore => fsStore(this.path)
 
   checkObjectExistence = (key: string): Promise<any> => {
     return new Promise((resolve, reject) => {
