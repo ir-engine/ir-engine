@@ -469,11 +469,11 @@
             "deleteAsset": "Delete Asset"
         },
         "filebrowser":{
-            "addnewfolder":"Add New Folder",
-            "cutAsset":"Cut",
-            "copyAsset":"Copy",
-            "pasteAsset":"Paste",
-            "renameAsset":"Rename"
+            "addNewFolder": "Add New Folder",
+            "cutAsset": "Cut",
+            "copyAsset": "Copy",
+            "pasteAsset": "Paste",
+            "renameAsset": "Rename"
         }
         
     },

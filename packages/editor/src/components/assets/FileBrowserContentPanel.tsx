@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef, useReducer, createRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { AssetsPanelContainer } from '../layout/Flex'
-// @ts-ignore
 import styles from './styles.module.scss'
 import { AssetPanelContentContainer } from './AssetsPanel'
 import { UploadFileType } from './sources/MyAssetsSource'
@@ -15,7 +14,6 @@ import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
 import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/state/FileBrowserService'
 import useElementResize from 'element-resize-event'
 import { Downgraded } from '@hookstate/core'
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 import { FileDataType } from './FileDataType'
 
 /**
@@ -158,7 +156,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       </ContextMenuTrigger>
 
       <ContextMenu id={'uniqueId_current'} hideOnLeave={true}>
-        <MenuItem onClick={addNewFolder}>{t('editor:layout.filebrowser.addnewfolder')}</MenuItem>
+        <MenuItem onClick={addNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>
     </>
