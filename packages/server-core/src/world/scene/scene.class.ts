@@ -273,7 +273,7 @@ export class Scene implements ServiceMethods<Data> {
       const tempOwnedFileKey = ownedFile.key
 
       try {
-        const [responseSuccess] = await provider.deleteResources([tempOwnedFileKey])
+        const responseSuccess = await provider.deleteResources([tempOwnedFileKey])
         console.log('Project temp Owned file removed result: ', responseSuccess)
       } catch (e) {
         console.log('Storage removal error')

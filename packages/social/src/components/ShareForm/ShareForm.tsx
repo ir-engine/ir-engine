@@ -1,6 +1,7 @@
-import { Box, CardActionArea, CardActions, CardContent, CardMedia, makeStyles, Typography } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
-import Card from '@material-ui/core/Card'
+import { Box, CardActionArea, CardActions, CardContent, CardMedia, Typography } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
+import Button from '@mui/material/Button'
+import Card from '@mui/material/Card'
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 

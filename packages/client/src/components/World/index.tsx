@@ -71,7 +71,6 @@ export const EnginePage = (props: Props) => {
   const { t } = useTranslation()
   const [isUserBanned, setUserBanned] = useState(true)
   const [isValidLocation, setIsValidLocation] = useState(true)
-  const [isInXR, setIsInXR] = useState(false)
   const [isTeleporting, setIsTeleporting] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
@@ -128,7 +127,7 @@ export const EnginePage = (props: Props) => {
    * 4. Once we have the scene ID, initialise the engine
    */
   useEffect(() => {
-    if (sceneId !== '') {
+    if (sceneId) {
       init()
     }
   }, [sceneId])
@@ -178,18 +177,12 @@ export const EnginePage = (props: Props) => {
 
   const addUIEvents = () => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async () => {
-      setIsInXR(true)
-    })
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async () => {
-      setIsInXR(false)
-    })
   }
 
   if (isUserBanned) return <div className="banned">You have been banned from this location</div>
 
-  if (isInXR) return <></>
-
+  // Do not add/remove the canvas element after engine init
+  // It will break internal references and prevent XR session to work properly
   return (
     <>
       <NetworkInstanceProvisioning

@@ -71,8 +71,13 @@
         }
     }
 
-    &[class*=MuiDrawer-paperAnchorRight] {
-        background-color: rgb(155, 155, 155, 0.6);
+    & > [class*=MuiDrawer-paperAnchorRight] {
+        background-color: black;
+        color: white;
+
+        label {
+            color: white;
+        }
     }
 }
 

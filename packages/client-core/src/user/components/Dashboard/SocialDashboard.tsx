@@ -1,29 +1,31 @@
 import React from 'react'
 import clsx from 'clsx'
-import { createStyles, makeStyles, useTheme, Theme } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import List from '@material-ui/core/List'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import Typography from '@material-ui/core/Typography'
-import Divider from '@material-ui/core/Divider'
-import IconButton from '@material-ui/core/IconButton'
-import MenuIcon from '@material-ui/icons/Menu'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-import ViewModuleIcon from '@material-ui/icons/ViewModule'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import SuperviosorAccount from '@material-ui/icons/SupervisorAccount'
-// import DirectionRun from "@material-ui/icons/DirectionsRun";
-import DashboardIcon from '@material-ui/icons/Dashboard'
-// import NearMe from "@material-ui/icons/NearMe";
-// import { Forum, GroupAdd, DragIndicator, PersonAdd, CalendarViewDay } from '@material-ui/icons';
+import { useTheme, Theme } from '@mui/material/styles'
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
+import Drawer from '@mui/material/Drawer'
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+import List from '@mui/material/List'
+import CssBaseline from '@mui/material/CssBaseline'
+import Typography from '@mui/material/Typography'
+import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
+import MenuIcon from '@mui/icons-material/Menu'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import ViewModuleIcon from '@mui/icons-material/ViewModule'
+import ListItem from '@mui/material/ListItem'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import SuperviosorAccount from '@mui/icons-material/SupervisorAccount'
+// import DirectionRun from "@mui/icons-material/DirectionsRun";
+import DashboardIcon from '@mui/icons-material/Dashboard'
+// import NearMe from "@mui/icons-material/NearMe";
+// import { Forum, GroupAdd, DragIndicator, PersonAdd, CalendarViewDay } from '@mui/icons-material';
 import { Link } from 'react-router-dom'
-import Backdrop from '@material-ui/core/Backdrop'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import Backdrop from '@mui/material/Backdrop'
+import CircularProgress from '@mui/material/CircularProgress'
 import { useTranslation } from 'react-i18next'
 
 const drawerWidth = 200
@@ -143,6 +145,7 @@ export default function Dashboard({ children }) {
             className={clsx(classes.menuButton, {
               [classes.hide]: open
             })}
+            size="large"
           >
             <MenuIcon />
           </IconButton>
@@ -163,7 +166,7 @@ export default function Dashboard({ children }) {
         }}
       >
         <div className={classes.toolbar}>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton onClick={handleDrawerClose} size="large">
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </div>

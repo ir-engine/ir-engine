@@ -1,8 +1,8 @@
 import React from 'react'
-import IconButton from '@material-ui/core/IconButton'
-import InputBase from '@material-ui/core/InputBase'
-import Paper from '@material-ui/core/Paper'
-import SearchIcon from '@material-ui/icons/Search'
+import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+import SearchIcon from '@mui/icons-material/Search'
 import { useUserStyles } from './style'
 
 const SearchUser = () => {
@@ -11,7 +11,7 @@ const SearchUser = () => {
   return (
     <Paper component="form" className={classes.searchRoot}>
       <InputBase className={classes.input} placeholder={`Search for party`} inputProps={{ 'aria-label': 'party ' }} />
-      <IconButton type="submit" className={classes.iconButton} aria-label="search">
+      <IconButton type="submit" className={classes.iconButton} aria-label="search" size="large">
         <SearchIcon />
       </IconButton>
     </Paper>

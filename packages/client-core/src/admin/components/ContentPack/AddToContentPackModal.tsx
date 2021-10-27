@@ -4,20 +4,20 @@ import { useDispatch } from '../../../store'
 import { useContentPackState } from '../../state/ContentPackState'
 import styles from './ContentPack.module.scss'
 import { ContentPackService } from '../../state/ContentPackService'
-import { Add, Edit } from '@material-ui/icons'
-import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
-import Backdrop from '@material-ui/core/Backdrop'
-import Button from '@material-ui/core/Button'
-import Fade from '@material-ui/core/Fade'
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import Modal from '@material-ui/core/Modal'
-import Select from '@material-ui/core/Select'
-import TextField from '@material-ui/core/TextField'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import { Add, Edit } from '@mui/icons-material'
+import { ToggleButton, ToggleButtonGroup } from '@mui/material'
+import Backdrop from '@mui/material/Backdrop'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Modal from '@mui/material/Modal'
+import Select from '@mui/material/Select'
+import TextField from '@mui/material/TextField'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
+import CircularProgress from '@mui/material/CircularProgress'
 
 interface Props {
   open: boolean
@@ -184,7 +184,7 @@ const AddToContentPackModal = (props: Props): any => {
                   Adding {projects.length} {projects.length === 1 ? 'Project' : 'Projects'}
                 </div>
               )}
-              <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
+              <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose} size="large">
                 <CloseIcon />
               </IconButton>
             </div>

@@ -228,7 +228,7 @@ export { default as srcUserComponentsAuthRegisterApp } from './src/user/componen
 export { default as srcUserComponentsAuthResetPassword } from './src/user/components/Auth/ResetPassword'
 export { default as srcUserComponentsAuthSocialLogin } from './src/user/components/Auth/SocialLogin'
 export { default as srcUserComponentsDashboardDashboard } from './src/user/components/Dashboard/Dashboard'
-export { default as srcUserComponentsDashboardSideMenuItem } from './src/user/components/Dashboard/SideMenuItem'
+export { default as srcUserComponentsDashboardSideMenuItem } from './src/user/components/Dashboard/DashboardMenuItem'
 export { default as srcUserComponentsDashboardSocialDashboard } from './src/user/components/Dashboard/SocialDashboard'
 export { default as srcUserComponentsLoginIndex } from './src/user/components/Login/index'
 export { default as srcUserComponentsMagicLinkAuthMagicLink } from './src/user/components/MagicLink/AuthMagicLink'

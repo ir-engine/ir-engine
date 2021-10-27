@@ -1,3 +1,5 @@
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+
 export interface StorageObjectInterface {
   Key?: string
   Body: Buffer
@@ -5,7 +7,9 @@ export interface StorageObjectInterface {
 }
 
 export interface StorageListObjectInterface {
+  Prefix?: string
   Contents: { Key: string }[]
+  CommonPrefixes?: { Prefix: string }[]
 }
 
 export interface SignedURLResponse {
@@ -70,7 +74,7 @@ export interface StorageProviderInterface {
    * @param prefix
    * @returns {Promise<StorageListObjectInterface>}
    */
-  listObjects(prefix: string): Promise<StorageListObjectInterface>
+  listObjects(prefix: string, recursive?: boolean): Promise<StorageListObjectInterface>
 
   /**
    * Puts an object into the store
@@ -90,4 +94,19 @@ export interface StorageProviderInterface {
    * @param invalidationItems list of keys
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
+
+  /**
+   * List all the files/folders in the directory
+   * @param folderName
+   */
+  listFolderContent(folderName: string): Promise<FileContentType[]>
+
+  /**
+   * Moves a directory
+   * @param current
+   * @param destination
+   * @param isCopy
+   * @param isRename
+   */
+  moveObject(current: string, destination: string, isCopy: boolean, isRename: string): Promise<any>
 }

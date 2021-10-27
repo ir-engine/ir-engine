@@ -1,5 +1,7 @@
-import React from 'react'
+import { Folder } from '@styled-icons/fa-solid'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
+import Input from '../inputs/Input'
 
 /**
  *
@@ -123,6 +125,30 @@ const MediaGridItemLabel = (styled as any).div`
 
 /**
  *
+ * @author Abhishek Pathak
+ */
+const MediaGridInputLabel = (styled as any).input`
+  white-space: nowrap;
+  overflow: hidden;
+  width:auto;
+  text-overflow: ellipsis;
+  :disabled{
+    background:rgba(51, 170, 51, 0) ;
+    border-color:rgba(0,0,0,0);
+  }
+  :enabled{
+    color:black;
+  }
+  :hover{
+  overflow: visible;
+
+  }
+  text-align:center;
+  color:white;
+`
+
+/**
+ *
  * @author Robert Long
  * @param {any} label
  * @param {any} src
@@ -176,6 +202,7 @@ export function ImageMediaGridItem({ label, src, ...rest }: ImageMediaGridItemPr
 /**
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  * @param {any} label
  * @param {IconComponent} IconComponent
  * @param {any} rest
@@ -192,7 +219,7 @@ export function IconMediaGridItem({ label, iconComponent: IconComponent, ...rest
         </MediaGridItemContent>
       </MediaGridItemContainer>
       <MediaGridItemLabelContainer>
-        <MediaGridItemLabel>{label}</MediaGridItemLabel>
+        <MediaGridItemLabel placeholder={label} />
       </MediaGridItemLabelContainer>
     </>
   )
