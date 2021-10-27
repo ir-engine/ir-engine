@@ -6,15 +6,12 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { moveAvatar } from './functions/moveAvatar'
 import { detectUserInPortal } from './functions/detectUserInPortal'
 import { World } from '../ecs/classes/World'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
-import { dispatchFrom } from '../networking/functions/dispatchFrom'
-import { SpawnPoseComponent } from './components/SpawnPoseComponent'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
+import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -60,22 +57,6 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
       if (avatar.modelContainer) {
         avatar.modelContainer.visible = true
       }
-    }
-
-    for (const entity of localXRInputQuery(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const transform = getComponent(entity, TransformComponent)
-
-      xrInputSourceComponent.container.updateWorldMatrix(true, true)
-      xrInputSourceComponent.container.updateMatrixWorld(true)
-
-      quat.copy(transform.rotation).invert()
-      quat2.copy(Engine.camera.quaternion).premultiply(quat)
-      xrInputSourceComponent.head.quaternion.copy(quat2)
-
-      vector3.subVectors(Engine.camera.position, transform.position)
-      vector3.applyQuaternion(quat)
-      xrInputSourceComponent.head.position.copy(vector3)
     }
 
     for (const entity of controllerQuery(world)) {
