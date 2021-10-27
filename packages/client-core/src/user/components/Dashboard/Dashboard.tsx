@@ -51,7 +51,7 @@ const Dashboard = ({ children }: Props) => {
           [classes.appBarShift]: open
         })}
       >
-        <Toolbar>
+        <Toolbar className={classes.header}>
           <IconButton
             color="inherit"
             style={{ color: 'white' }}

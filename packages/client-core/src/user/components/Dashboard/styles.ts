@@ -8,6 +8,9 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
     root: {
       display: 'flex'
     },
+    header: {
+      height: '64px !important'
+    },
     appBar: {
       zIndex: theme.zIndex.drawer + 1,
       transition: theme.transitions.create(['width', 'margin'], {
