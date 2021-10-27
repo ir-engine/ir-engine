@@ -5,7 +5,7 @@ import Divider from '@material-ui/core/Divider'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import Avatar from '@material-ui/core/Avatar'
-import Chip from '@mui/material/Chip'
+import Chip from '@material-ui/core/Chip'
 import Button from '@material-ui/core/Button'
 import { useStyle, useStyles } from './style'
 

@@ -88,7 +88,7 @@ const UserList = ({ chatType }) => {
   return (
     <div>
       <List className={classes.root}>
-        {channelData && channelData.length > 0 ? (
+        {channelData &&
           channelData.map((el) => {
             return (
               <div key={el.id}>
@@ -106,32 +106,29 @@ const UserList = ({ chatType }) => {
                 <Divider variant="fullWidth" component="li" style={{ backgroundColor: '#15171B' }} />
               </div>
             )
-          })
-        ) : (
-          <Button
-            variant="contained"
-            color="secondary"
-            style={{ marginTop: '4rem', marginLeft: '4rem' }}
-            startIcon={<GroupAdd />}
-            onClick={() => openInviteModel(true)}
-          >
-            Invite
-          </Button>
-        )}
+          })}
       </List>
 
       {chatType === 'Group' ? (
         <Button
           variant="contained"
-          color="secondary"
-          style={{ marginBottom: '4rem', marginLeft: '4rem' }}
+          color="warning"
+          style={{ marginTop: '3rem', marginLeft: '4rem' }}
           startIcon={<GroupAdd />}
           onClick={() => toggleCreateGroupModel(true)}
         >
           Create Group
         </Button>
       ) : (
-        ''
+        <Button
+          variant="contained"
+          color="warning"
+          style={{ marginTop: '3rem', marginLeft: '4rem' }}
+          startIcon={<GroupAdd />}
+          onClick={() => openInviteModel(true)}
+        >
+          Invite
+        </Button>
       )}
 
       <InviteHarmony open={openInvite} handleClose={openInviteModel} />

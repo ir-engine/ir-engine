@@ -4,7 +4,7 @@ import SearchUser from './SearchUser'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
-import { useStyle, useUserStyles } from './style'
+import { useStyle, useUserStyles, CreateInput } from './style'
 import UserList from './UserList'
 import { useHistory } from 'react-router-dom'
 import queryString from 'querystring'
@@ -39,7 +39,7 @@ const LeftHarmony = () => {
         <SearchUser />
       </div>
       <div style={{ paddingLeft: '1rem', paddingTop: '0.5rem', paddingRight: '1rem' }}>
-        <Paper component="div" className={classes.createInput}>
+        <CreateInput>
           <FormControl fullWidth>
             <Select
               labelId="demo-controlled-open-select-label"
@@ -59,7 +59,7 @@ const LeftHarmony = () => {
               ))}
             </Select>
           </FormControl>
-        </Paper>
+        </CreateInput>
       </div>
       <UserList chatType={chatType} />
     </div>

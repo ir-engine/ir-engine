@@ -5,6 +5,8 @@ import createStyles from '@mui/styles/createStyles'
 import { styled, alpha } from '@mui/material/styles'
 import Menu, { MenuProps } from '@mui/material/Menu'
 
+const theme = createTheme()
+
 export const StyledMenu = styled((props: MenuProps) => (
   <Menu
     elevation={0}
@@ -43,7 +45,7 @@ export const StyledMenu = styled((props: MenuProps) => (
   }
 }))
 
-export const useStyles = makeStyles((theme: Theme) =>
+export const useStyles = makeStyles(() =>
   createStyles({
     rightRoot: {
       backgroundColor: '#1f252d',

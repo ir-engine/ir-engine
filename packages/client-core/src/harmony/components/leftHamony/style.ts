@@ -2,6 +2,13 @@ import { Theme } from '@mui/material/styles'
 
 import makeStyles from '@mui/styles/makeStyles'
 import createStyles from '@mui/styles/createStyles'
+import { styled } from '@mui/material/styles'
+import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+// import { createTheme } from "@mui/material/styles"
+
+// const theme = createTheme();
 
 export const useUserStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -19,13 +26,6 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       border: '1px solid #23282c',
       color: '#f1f1f1 !important'
     },
-    searchRoot: {
-      padding: '2px 20px',
-      display: 'flex',
-      alignItems: 'center',
-      width: '100%',
-      background: '#343b41'
-    },
     inline: {
       display: 'inline'
     },
@@ -40,15 +40,6 @@ export const useUserStyles = makeStyles((theme: Theme) =>
     },
     selectEmpty: {
       marginTop: theme.spacing(2)
-    },
-    input: {
-      marginLeft: theme.spacing(1),
-      flex: 1,
-      color: '#f1f1f1'
-    },
-    iconButton: {
-      padding: 10,
-      color: '#f1f1f1'
     },
     saveBtn: {
       marginLeft: 'auto',
@@ -113,3 +104,33 @@ export const useStyle = makeStyles({
     overflow: 'hidden'
   }
 })
+
+export const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: '2px 20px',
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  background: '#343b41'
+}))
+
+export const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  marginLeft: theme.spacing(1),
+  flex: 1,
+  color: '#f1f1f1'
+}))
+
+export const StyledIconButton = styled(IconButton)(({ theme }) => ({
+  padding: 10,
+  color: '#f1f1f1'
+}))
+
+export const CreateInput = styled(Paper)(({ theme }) => ({
+  padding: '2px 4px',
+  display: 'flex',
+  alignItems: 'center',
+  marginTop: '10px',
+  marginBottom: '3rem',
+  background: '#343b41',
+  border: '1px solid #23282c',
+  color: '#f1f1f1 !important'
+}))

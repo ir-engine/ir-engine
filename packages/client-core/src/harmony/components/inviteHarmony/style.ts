@@ -3,6 +3,8 @@ import { Theme } from '@mui/material/styles'
 import makeStyles from '@mui/styles/makeStyles'
 import createStyles from '@mui/styles/createStyles'
 
+// const theme = createTheme();
+
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     indicator: {
