@@ -100,27 +100,27 @@ export function assembleScene(scene: any, contentPack: string): any {
   }
 }
 
-export function assembleProject(project: any, contentPack: string): Promise<any> {
+export function assembleProject(project: ProjectInterface, contentPack: string): Promise<any> {
   console.log('assembleProject', project, contentPack)
   return new Promise(async (resolve, reject) => {
     try {
-      const manifest = await axios.get(project.storageProviderManifest, getAxiosConfig())
+      const manifest = await axios.get<Buffer>(project.storageProviderPath, getAxiosConfig())
       const data = JSON.parse(manifest.data.toString())
       const files = data.files
       const uploadPromises = []
       uploadPromises.push(
         storageProvider.putObject({
           Body: manifest.data,
-          ContentType: getContentType(project.storageProviderManifest),
+          ContentType: getContentType(project.storageProviderPath),
           Key: `content-pack/${contentPack}/project/${project.name}/manifest.json`
         })
       )
       files.forEach((file) => {
         const path = file.replace('./', '')
-        const subFileLink = project.storageProviderManifest.replace('manifest.json', path)
+        const subFileLink = project.storageProviderPath.replace('manifest.json', path)
         uploadPromises.push(
           new Promise(async (resolve) => {
-            const fileResult = await axios.get(subFileLink, getAxiosConfig())
+            const fileResult = await axios.get<Buffer>(subFileLink, getAxiosConfig())
             await storageProvider.putObject({
               Body: fileResult.data,
               ContentType: getContentType(path),
@@ -182,7 +182,7 @@ export async function populateScene(
     type: 'scene'
   })
   if (thumbnailUrl != null) {
-    const thumbnailResult = await axios.get(thumbnailUrl, getAxiosConfig())
+    const thumbnailResult = await axios.get<Buffer>(thumbnailUrl, getAxiosConfig())
     // TODO: add project id here too
     const thumbnailKey = `${sceneId}/${getThumbnailKey(thumbnailUrl)}`
     await storageProvider.putObject({
@@ -222,7 +222,7 @@ export async function populateScene(
           component.props[key] = rootPackUrl + value
           // Insert Download/S3 upload
           const contentType = getContentType(component.props[key])
-          const downloadResult = await axios.get(component.props[key], getAxiosConfig('json'))
+          const downloadResult = await axios.get<Buffer>(component.props[key], getAxiosConfig('json'))
           await storageProvider.putObject({
             Body: downloadResult.data,
             ContentType: contentType,
@@ -242,7 +242,7 @@ export async function populateScene(
 
 export async function populateAvatar(avatar: any, app: Application): Promise<any> {
   const avatarPromise = new Promise(async (resolve) => {
-    const avatarResult = await axios.get(avatar.avatar, getAxiosConfig())
+    const avatarResult = await axios.get<Buffer>(avatar.avatar, getAxiosConfig())
     const avatarKey = getAvatarLinkKey(avatar.avatar)
     await storageProvider.putObject({
       Body: avatarResult.data,
@@ -265,7 +265,7 @@ export async function populateAvatar(avatar: any, app: Application): Promise<any
     resolve(true)
   })
   const thumbnailPromise = new Promise(async (resolve) => {
-    const thumbnailResult = await axios.get(avatar.thumbnail, getAxiosConfig())
+    const thumbnailResult = await axios.get<Buffer>(avatar.thumbnail, getAxiosConfig())
     const thumbnailKey = getAvatarLinkKey(avatar.thumbnail)
     await storageProvider.putObject({
       Body: thumbnailResult.data,
@@ -303,7 +303,7 @@ export async function uploadAvatar(avatar: any, thumbnail: any, contentPack: str
   }
   const avatarUploadPromise = new Promise(async (resolve, reject) => {
     try {
-      const avatarResult = await axios.get(avatar.url, getAxiosConfig())
+      const avatarResult = await axios.get<Buffer>(avatar.url, getAxiosConfig())
       await storageProvider.putObject({
         Body: avatarResult.data,
         ContentType: mimeType.lookup(avatar.url) as string,
@@ -317,7 +317,7 @@ export async function uploadAvatar(avatar: any, thumbnail: any, contentPack: str
   })
   const avatarThumbnailUploadPromise = new Promise(async (resolve, reject) => {
     try {
-      const avatarThumbnailResult = await axios.get(thumbnail.url, getAxiosConfig())
+      const avatarThumbnailResult = await axios.get<Buffer>(thumbnail.url, getAxiosConfig())
       await storageProvider.putObject({
         Body: avatarThumbnailResult.data,
         ContentType: mimeType.lookup(thumbnail.url) as string,
@@ -390,26 +390,4 @@ export async function populateProject(
   //   params
   // )
   // await Promise.all(uploadPromises)
-  if (app.k8DefaultClient) {
-    try {
-      console.log('Attempting to reload k8s clients!')
-      const restartClientsResponse = await app.k8DefaultClient.patch(
-        `deployment/${config.server.releaseName}-builder-xrengine-builder`,
-        {
-          spec: {
-            template: {
-              metadata: {
-                annotations: {
-                  'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
-                }
-              }
-            }
-          }
-        }
-      )
-      console.log('restartClientsResponse', restartClientsResponse)
-    } catch (e) {
-      console.log(e)
-    }
-  }
 }

@@ -42,7 +42,7 @@ const App = (): any => {
         />
       </Helmet>
       <ThemeProvider theme={theme}>
-        <SnackbarProvider maxSnack={3}>
+        <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
           <GlobalStyle />
           <RouterComp />
         </SnackbarProvider>

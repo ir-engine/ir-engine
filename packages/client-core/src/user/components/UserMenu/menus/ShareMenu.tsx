@@ -24,9 +24,7 @@ const ShareMenu = (props: Props): any => {
   const dispatch = useDispatch()
   const inviteState = useInviteState()
   const copyLinkToClipboard = () => {
-    refLink.current.select()
-    document.execCommand('copy')
-    refLink.current.setSelectionRange(0, 0) // deselect
+    navigator.clipboard.writeText(refLink.current.value)
     props.alertSuccess(t('user:usermenu.share.linkCopied'))
   }
 

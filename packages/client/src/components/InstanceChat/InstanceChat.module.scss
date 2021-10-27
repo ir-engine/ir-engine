@@ -7,17 +7,36 @@
   align-items: center;
   color: #000;
   z-index: 20;
+
+  @media (max-width: 450px) {
+    margin: 5px 10px 20px;
+  }
+
   &:hover {
     cursor: pointer;
   }
   svg{
+    color: black;
     margin: 0 2.5px 0 2.5px ;
   }
   button {
+    width: 48px;
     height: 48px;
+    background-color: white;
+    opacity: 0.8;
+
+    &:hover {
+      opacity: 1;
+      background-color: white;
+    }
+
+    @media (max-width: 450px) {
+      width: 40px;
+      height: 40px;
+    }
   }
   .chatBadge{
-    border-radius:50px;
+    border-radius: 50%;
   }
 
 }
@@ -129,7 +148,11 @@
       height: 100%;
     }
 
-
+    @media (max-width: 450px) {
+      width: 92vw;
+      margin: 16px;
+      height: 100%;
+    }
   }
 
   ul {

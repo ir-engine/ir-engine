@@ -9,7 +9,8 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
-import { getFilesRecursive } from '../../util/fsHelperFunctions'
+import { deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
+import appRootPath from 'app-root-path'
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
@@ -44,29 +45,40 @@ export class Project extends Service {
     console.log(dbEntries)
 
     const locallyInstalledProjects = fs
-      .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
+      .readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/'), { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
 
     for (const name of locallyInstalledProjects) {
       if (!data.find((e) => e.name === name)) {
-        const packageData = JSON.parse(
-          fs.readFileSync(path.resolve(__dirname, '../../../../projects/projects/', name, 'package.json'), 'utf8')
-        ).xrengine as ProjectPackageInterface
+        try {
+          const packageData = JSON.parse(
+            fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/projects/', name, 'package.json'), 'utf8')
+          ).xrengine as ProjectPackageInterface
 
-        if (!packageData) {
-          console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
-          continue
+          if (!packageData) {
+            console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
+            continue
+          }
+
+          const dbEntryData: ProjectInterface = {
+            ...packageData,
+            name,
+            repositoryPath: getRemoteURLFromGitData(name)
+          }
+
+          console.warn('[Projects]: Found new locally installed project', name)
+          await super.create(dbEntryData)
+        } catch (e) {
+          console.log(e)
         }
+      }
+    }
 
-        const dbEntryData: ProjectInterface = {
-          ...packageData,
-          name,
-          repositoryPath: getRemoteURLFromGitData(name)
-        }
-
-        console.log('[Projects]: Found new locally installed project', name)
-        super.create(dbEntryData)
+    for (const { name, id } of data) {
+      if (!locallyInstalledProjects.includes(name)) {
+        console.warn(`[Projects]: Project ${name} not found, assuming removed`)
+        await super.remove(id)
       }
     }
   }
@@ -85,13 +97,15 @@ export class Project extends Service {
     let projectName = urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
     if (projectName.substr(-4) === '.git') projectName = projectName.slice(0, -4)
+    if (projectName.substr(-1) === '/') projectName = projectName.slice(0, -1)
 
-    const projectLocalDirectory = path.resolve(__dirname, `../../../../projects/projects/${projectName}/`)
+    const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
     // remove existing
     if (fs.existsSync(projectLocalDirectory)) {
+      // disable accidental deletion of projects for local development
       if (isDev) throw new Error('Cannot create project - already exists')
-      fs.rmSync(projectLocalDirectory)
+      deleteFolderRecursive(projectLocalDirectory)
     }
 
     const existingPackResult = await this.Model.findOne({
@@ -99,7 +113,7 @@ export class Project extends Service {
         name: projectName
       }
     })
-    if (existingPackResult != null) await this.remove(existingPackResult.id, params)
+    if (existingPackResult != null) await super.remove(existingPackResult.id, params)
 
     const git = useGit()
     await new Promise((resolve) => {
@@ -119,7 +133,7 @@ export class Project extends Service {
             await storageProvider.putObject({
               Body: fileResult,
               ContentType: getContentType(file),
-              Key: `project/${projectName}/${filePathRelative}`
+              Key: `projects/${projectName}/${filePathRelative}`
             })
           } catch (e) {}
           resolve(true)
@@ -136,23 +150,23 @@ export class Project extends Service {
     const dbEntryData: ProjectInterface = {
       ...packageData,
       name: projectName,
-      storageProviderPath: `https://${storageProvider.cacheDomain}/project/${projectName}/`,
+      storageProviderPath: `https://${storageProvider.cacheDomain}/projects/${projectName}/`,
       repositoryPath: data.url
     }
 
     await Promise.all([...uploadPromises, super.create(dbEntryData, params)])
-    // TODO: trigger re-build
   }
 
   async remove(id: Id, params: Params) {
+    console.log('remove', id)
     try {
-      if (!isDev) await super.remove(id, params)
-      // TODO: trigger re-build
+      if (!isDev) {
+        await super.remove(id, params)
+      }
     } catch (e) {
       console.log(`[Projects]: failed to remove project ${id}`, e)
-      return false
+      return e
     }
-    return true
   }
 
   /**
@@ -167,7 +181,7 @@ export class Project extends Service {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     const entry = data.find((e) => e.name === name)
 
-    const metadataPath = path.resolve(__dirname, `../../../../projects/projects/${name}/package.json`)
+    const metadataPath = path.resolve(appRootPath.path, `packages/projects/projects/${name}/package.json`)
     if (fs.existsSync(metadataPath)) {
       try {
         const json: ProjectPackageInterface = JSON.parse(fs.readFileSync(metadataPath, 'utf8')).xrengine
@@ -178,7 +192,7 @@ export class Project extends Service {
           }
         }
       } catch (e) {
-        console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
+        console.warn('[getProjects]: Failed to read package.json for project', name, 'with error', e)
         return
       }
     }
@@ -196,25 +210,25 @@ export class Project extends Service {
   // TODO: remove this entire function when nodes reference file browser
   async find(params: Params) {
     const entries = (await super.find(params)) as any
-    entries.data = await Promise.all(
-      entries.data.map(async (entries) => {
+    entries.data = entries.data
+      .map((entry) => {
         try {
           const json: ProjectPackageInterface = JSON.parse(
             fs.readFileSync(
-              path.resolve(__dirname, '../../../../projects/projects/' + entries.name + '/package.json'),
+              path.resolve(appRootPath.path, `packages/projects/projects/${entry.name}/package.json`),
               'utf8'
             )
           ).xrengine
           return {
             ...json,
-            ...entries
+            ...entry
           }
         } catch (e) {
-          console.warn('[getProjects]: Failed to read manifest.json for project', name, 'with error', e)
+          console.warn('[getProjects]: Failed to read package.json for project', entry.name, 'with error', e)
           return
         }
       })
-    )
+      .filter((entry) => !!entry)
     return entries
   }
 }
