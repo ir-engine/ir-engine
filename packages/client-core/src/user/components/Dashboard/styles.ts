@@ -79,10 +79,11 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
     },
     content: {
       top: '64px',
+      overflow: 'auto',
       position: 'relative',
       padding: theme.spacing(3),
       backgroundColor: '#15171B',
-      minHeight: '100vh'
+      height: 'calc(100vh - 64px)'
     },
     contentWidthDrawerOpen: {
       width: `calc(100vw - ${drawerWidth}px)`
