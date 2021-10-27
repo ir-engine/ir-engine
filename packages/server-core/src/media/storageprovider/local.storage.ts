@@ -55,14 +55,13 @@ export class LocalStorage implements StorageProviderInterface {
   createInvalidation = async (): Promise<any> => Promise.resolve()
 
   getProvider = (): StorageProviderInterface => this
-  getStorage = (): BlobStore => fsStore(this.path)
+  getStorage = (): BlobStore => fsStore(path.join(appRootPath.path, 'packages', 'server', this.path))
 
   checkObjectExistence = (key: string): Promise<any> => {
     return new Promise((resolve, reject) => {
       const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, key)
       const exists = fs.existsSync(filePath)
-      if (exists) reject(new Error('Pack already exists'))
-      else resolve(null)
+      resolve(exists)
     })
   }
 
@@ -78,6 +77,7 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   deleteResources(keys: string[]): Promise<any> {
+    //Currently Not able to delete dir
     const blobs = this.getStorage()
 
     return Promise.all(
@@ -96,11 +96,8 @@ export class LocalStorage implements StorageProviderInterface {
                   resolve(false)
                   return
                 }
-
                 resolve(true)
               })
-
-            resolve(true)
           })
         })
       })
