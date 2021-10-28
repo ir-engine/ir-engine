@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import Card from './CardNumber'
+
 import clsx from 'clsx'
-import ToggleButton from '@material-ui/lab/ToggleButton'
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
-import Paper from '@material-ui/core/Paper'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import { Theme } from '@mui/material/styles'
+import makeStyles from '@mui/styles/makeStyles'
+import createStyles from '@mui/styles/createStyles'
+import Paper from '@mui/material/Paper'
 import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
 import { useDispatch } from '../../../store'
@@ -37,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
       color: 'white',
       borderColor: 'white',
       fontSize: '0.875rem',
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '0.6rem'
       }
     },

@@ -69,7 +69,8 @@ store.receptors.push((action: ChatActionType): any => {
         if (!channel) {
           s.channels.updateNeeded.set(true)
         } else {
-          channel.Messages[channel.Messages.length].set(action.message)
+          if (!channel.Messages.length) channel.Messages.set([action.message])
+          else channel.Messages[channel.Messages.length].set(action.message)
         }
 
         s.updateMessageScroll.set(true)
