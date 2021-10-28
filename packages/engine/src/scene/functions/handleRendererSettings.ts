@@ -20,6 +20,7 @@ export type RenderSettingsProps = {
   toneMapping: ToneMapping
   toneMappingExposure: number
   shadowMapType: ShadowMapType
+  useSimpleMaterial: boolean
 }
 
 export const configureCSM = (directionalLights: DirectionalLight[], remove?: boolean): void => {
@@ -62,6 +63,7 @@ export const handleRendererSettings = (args: RenderSettingsProps, reset?: boolea
     return
   }
 
+  Engine.useSimpleMaterials = args.useSimpleMaterial
   Engine.renderer.toneMapping = args.toneMapping
   Engine.renderer.toneMappingExposure = args.toneMappingExposure
 

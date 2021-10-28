@@ -114,79 +114,51 @@ const KernelSizeSelect = [
   }
 ]
 interface Props {
+  effectKey?: string
+  propKey?: string
+  params?: any
   value?: any
   onChangeFunction?: any
-  op?: any
-  getProp?: any
 }
 
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 export const PostProcessingProperties = (props: Props) => {
-  const { value, op, onChangeFunction, getProp } = props
   const onPropertyValueChanged = (event) => {
-    let address = ''
-    op.forEach((element, id) => {
-      if (id < op.length - 1) address += element + '.'
-      else address += element
-    })
-    onChangeFunction(address, event)
+    props.onChangeFunction(event, props.effectKey, props.propKey)
   }
-
-  const getPropertyValue = () => {
-    const val = getProp(op)
-    return val
-  }
-
-  if (value.keys === '') return <></>
 
   let renderVal = <></>
-  switch (value.propertyType) {
+  switch (props.params.propertyType) {
     case PostProcessingPropertyTypes.Number:
       renderVal = (
-        <>
-          <CompoundNumericInput
-            min={value.min}
-            max={value.max}
-            step={value.step}
-            value={getPropertyValue()}
-            onChange={onPropertyValueChanged}
-          />
-        </>
+        <CompoundNumericInput
+          min={props.params.min}
+          max={props.params.max}
+          step={props.params.step}
+          value={props.value}
+          onChange={onPropertyValueChanged}
+        />
       )
       break
 
     case PostProcessingPropertyTypes.Boolean:
-      renderVal = (
-        <>
-          <BooleanInput onChange={onPropertyValueChanged} value={getPropertyValue()} />{' '}
-        </>
-      )
+      renderVal = <BooleanInput onChange={onPropertyValueChanged} value={props.value} />
       break
+
     case PostProcessingPropertyTypes.BlendFunction:
-      renderVal = (
-        <>
-          <SelectInput options={BlendFunctionSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
-        </>
-      )
+      renderVal = <SelectInput options={BlendFunctionSelect} onChange={onPropertyValueChanged} value={props.value} />
       break
 
     case PostProcessingPropertyTypes.Color:
-      renderVal = (
-        <>
-          <ColorInput value={getPropertyValue()} onChange={onPropertyValueChanged} isValueAsInteger={true} />
-        </>
-      )
+      renderVal = <ColorInput value={props.value} onChange={onPropertyValueChanged} isValueAsInteger={true} />
       break
 
     case PostProcessingPropertyTypes.KernelSize:
-      renderVal = (
-        <>
-          <SelectInput options={KernelSizeSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
-        </>
-      )
+      renderVal = <SelectInput options={KernelSizeSelect} onChange={onPropertyValueChanged} value={props.value} />
       break
+
     default:
       renderVal = <>Can't Determine type of property</>
   }
@@ -199,7 +171,7 @@ export const PostProcessingProperties = (props: Props) => {
         alignItems: 'center'
       }}
     >
-      <InputGroup name={value.name} label={value.name}>
+      <InputGroup name={props.params.name} label={props.params.name}>
         {renderVal}
       </InputGroup>
     </div>

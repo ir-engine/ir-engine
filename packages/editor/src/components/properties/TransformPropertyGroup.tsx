@@ -5,7 +5,6 @@ import Vector3Input from '../inputs/Vector3Input'
 import EulerInput from '../inputs/EulerInput'
 import { withTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
 import EditorEvents from '../../constants/EditorEvents'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -44,20 +43,8 @@ export class TransformPropertyGroup extends Component<TransformPropertyGroupProp
   }
 
   //function to handle changes in property and force update
-  onObjectsChanged = (objects, property) => {
-    for (let i = 0; i < objects.length; i++) {
-      if (
-        objects[i] === this.props.node &&
-        (property === 'position' ||
-          property === 'rotation' ||
-          property === 'scale' ||
-          property === 'matrix' ||
-          property == null)
-      ) {
-        this.forceUpdate()
-        return
-      }
-    }
+  onObjectsChanged = () => {
+    this.forceUpdate()
   }
 
   //function to handle the position properties

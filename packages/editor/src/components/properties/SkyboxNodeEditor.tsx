@@ -1,4 +1,6 @@
 import { Cloud } from '@styled-icons/fa-solid/Cloud'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
 import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
 import i18n from 'i18next'
 import React, { Component } from 'react'
@@ -24,20 +26,20 @@ const radiansToHours = (rads) => rads * 24
  */
 const SkyOption = [
   {
-    label: 'color',
-    value: SkyTypeEnum.color
+    label: 'Color',
+    value: SkyTypeEnum.COLOR
   },
   {
-    label: 'skybox',
-    value: SkyTypeEnum.skybox
+    label: 'Skybox',
+    value: SkyTypeEnum.SKYBOX
   },
   {
-    label: 'cubemap',
-    value: SkyTypeEnum.cubemap
+    label: 'Cubemap',
+    value: SkyTypeEnum.CUBEMAP
   },
   {
-    label: 'equirectangular',
-    value: SkyTypeEnum.equirectangular
+    label: 'Equirectangular',
+    value: SkyTypeEnum.EQUIRECTANGULAR
   }
 ]
 
@@ -48,7 +50,7 @@ const SkyOption = [
  * @type {Object}
  */
 type SkyboxNodeEditorProps = {
-  node?: object
+  node?: any
   t: Function
 }
 
@@ -65,37 +67,58 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
 
   //function to handle changes in turbidity Property
   onChangeTurbidity = (turbidity) => {
-    CommandManager.instance.setPropertyOnSelection('turbidity', turbidity)
+    // CommandManager.instance.setPropertyOnSelection('turbidity', turbidity)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.turbidity = turbidity
+    this.forceUpdate()
   }
 
   //function to handle changes in rayleigh property
   onChangeRayleigh = (rayleigh) => {
-    CommandManager.instance.setPropertyOnSelection('rayleigh', rayleigh)
+    // CommandManager.instance.setPropertyOnSelection('rayleigh', rayleigh)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.rayleigh = rayleigh
+    this.forceUpdate()
   }
 
   //function to handle the changes in luminance property
   onChangeLuminance = (luminance) => {
-    CommandManager.instance.setPropertyOnSelection('luminance', luminance)
+    // CommandManager.instance.setPropertyOnSelection('luminance', luminance)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.luminance = luminance
+    this.forceUpdate()
   }
 
   //function to handle the changes in mieCoefficient property
   onChangeMieCoefficient = (mieCoefficient) => {
-    CommandManager.instance.setPropertyOnSelection('mieCoefficient', mieCoefficient)
+    // CommandManager.instance.setPropertyOnSelection('mieCoefficient', mieCoefficient)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.mieCoefficient = mieCoefficient
+    this.forceUpdate()
   }
 
   //function to handle the changes in mieDirectionalG property
   onChangeMieDirectionalG = (mieDirectionalG) => {
-    CommandManager.instance.setPropertyOnSelection('mieDirectionalG', mieDirectionalG)
+    // CommandManager.instance.setPropertyOnSelection('mieDirectionalG', mieDirectionalG)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.mieDirectionalG = mieDirectionalG
+    this.forceUpdate()
   }
 
   //function to handle the changes in inclination
   onChangeInclination = (inclination) => {
-    CommandManager.instance.setPropertyOnSelection('inclination', inclination)
+    // CommandManager.instance.setPropertyOnSelection('inclination', inclination)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.inclination = inclination
+    this.forceUpdate()
   }
 
   //function to handle changes azimuth
   onChangeAzimuth = (azimuth) => {
-    CommandManager.instance.setPropertyOnSelection('azimuth', azimuth)
+    // CommandManager.instance.setPropertyOnSelection('azimuth', azimuth)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.azimuth = azimuth
+    this.forceUpdate()
   }
 
   //function to handle changes in distance property
@@ -105,21 +128,33 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
 
   //function to handle the changes skyType
   onChangeSkyOption = (backgroundType) => {
-    CommandManager.instance.setPropertyOnSelection('backgroundType', backgroundType)
+    // CommandManager.instance.setPropertyOnSelection('backgroundType', backgroundType)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.backgroundType = backgroundType
+    this.forceUpdate()
   }
 
   //function to handle the changes backgroundPath
   onChangeEquirectangularPathOption = (path) => {
-    CommandManager.instance.setPropertyOnSelection('equirectangularPath', path)
+    // CommandManager.instance.setPropertyOnSelection('equirectangularPath', path)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.equirectangularPath = path
+    this.forceUpdate()
   }
 
   onChangeCubemapPathOption = (path) => {
-    CommandManager.instance.setPropertyOnSelection('cubemapPath', path)
+    // CommandManager.instance.setPropertyOnSelection('cubemapPath', path)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.cubemapPath = path
+    this.forceUpdate()
   }
 
   //function to handle the changes backgroundPath
   onChangeColorOption = (backgroundColor) => {
-    CommandManager.instance.setPropertyOnSelection('backgroundColor', backgroundColor)
+    // CommandManager.instance.setPropertyOnSelection('backgroundColor', backgroundColor)
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
+    skyboxComponent.backgroundColor = backgroundColor
+    this.forceUpdate()
   }
 
   //creating editor view for skybox setting
@@ -200,7 +235,7 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
     <>
       <InputGroup name="Color" label={this.props.t('editor:properties.skybox.lbl-color')}>
         <ColorInput
-          value={(node as any).backgroundColor ? (node as any).backgroundColor : 0x000000}
+          value={node.backgroundColor}
           onChange={this.onChangeColorOption}
           isValueAsInteger={true}
         />
@@ -211,11 +246,11 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
   // creating editor view for skybox Properties
   renderSkyBoxProps = (node) => {
     switch (node.backgroundType) {
-      case SkyTypeEnum.equirectangular as any:
+      case SkyTypeEnum.EQUIRECTANGULAR as any:
         return this.renderTextureSettings((node as any).equirectangularPath, this.onChangeEquirectangularPathOption)
-      case SkyTypeEnum.cubemap as any:
+      case SkyTypeEnum.CUBEMAP as any:
         return this.renderTextureSettings((node as any).cubemapPath, this.onChangeCubemapPathOption)
-      case SkyTypeEnum.color as any:
+      case SkyTypeEnum.COLOR as any:
         return this.renderColorSettings(node)
       default:
         return this.renderSkyboxSettings(node)
@@ -225,13 +260,13 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
   // rendering editor view for SkyboxNode
   render() {
     SkyboxNodeEditor.description = this.props.t('editor:properties.skybox.description')
-    const node = this.props.node as any
+    const skyboxComponent = getComponent(this.props.node.eid, SkyboxComponent)
     return (
       <NodeEditor description={SkyboxNodeEditor.description} {...this.props}>
         <InputGroup name="Sky Type" label={this.props.t('editor:properties.skybox.lbl-skyType')}>
-          <SelectInput options={SkyOption} value={(node as any).backgroundType} onChange={this.onChangeSkyOption} />
+          <SelectInput options={SkyOption} value={skyboxComponent.backgroundType} onChange={this.onChangeSkyOption} />
         </InputGroup>
-        {this.renderSkyBoxProps(node)}
+        {this.renderSkyBoxProps(skyboxComponent)}
       </NodeEditor>
     )
   }

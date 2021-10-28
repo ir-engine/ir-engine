@@ -11,7 +11,6 @@ import getIntersectingNode from '../functions/getIntersectingNode'
 import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import isEmptyObject from '../functions/isEmptyObject'
 import { ControlManager } from './ControlManager'
-import resizeShadowCameraFrustum from '../functions/resizeShadowCameraFrustum'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
@@ -19,6 +18,7 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import PostProcessingNode from '../nodes/PostProcessingNode'
 import { Renderer } from '../renderer/Renderer'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 
 export class SceneManager {
   static instance: SceneManager
@@ -95,23 +95,13 @@ export class SceneManager {
     this.thumbnailRenderer = new ThumbnailRenderer()
     window.addEventListener('resize', this.onResize)
 
-    // this.scene.traverse((node) => {
-    //   if (node.isNode) {
-    //     if (node.name === 'Post Processing') {
-    //       this.postProcessingNode = node
-    //     }
-
-    //     node.onChange()
-    //   }
-    // })
-
     ControlManager.instance.initControls()
     this.grid.setSize(ControlManager.instance.editorControls.translationSnap)
 
     this.disableUpdate = false
     CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
 
-    this.renderer.configureEffectComposer()
+    configureEffectComposer()
 
     // if (error) return error
   }

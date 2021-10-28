@@ -1,4 +1,4 @@
-import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
+import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -37,8 +37,6 @@ const sceneObjectQuery = defineQuery([Object3DComponent])
 const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
 export default async function SceneObjectSystem(world: World): Promise<System> {
-  SceneOptions.instance = new SceneOptions()
-
   return () => {
     for (const entity of sceneObjectQuery.enter()) {
       const object3DComponent = getComponent(entity, Object3DComponent)
@@ -66,7 +64,7 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
           obj.castShadow = shadowComponent.castShadow
         }
 
-        if (Engine.simpleMaterials) {
+        if (Engine.useSimpleMaterials) {
           // || Engine.isHMD) {
           if (obj.material instanceof MeshStandardMaterial) {
             const prevMaterial = obj.material

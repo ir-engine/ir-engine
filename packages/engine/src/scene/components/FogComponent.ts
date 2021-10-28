@@ -101,7 +101,7 @@ export class FogData implements ComponentData {
       return this.scene.fog.density
     }
 
-    return 0
+    return 0.00025
   }
 
   set density(density: number) {
@@ -112,7 +112,11 @@ export class FogData implements ComponentData {
 
   serialize(): object {
     return {
-
+      type: this.type,
+      color: this.color,
+      density: this.density,
+      near: this.near,
+      far: this.far
     }
   }
 
@@ -121,4 +125,4 @@ export class FogData implements ComponentData {
   }
 }
 
-export const FogComponent = createMappedComponent<FogData>('FogComponent')
+export const FogComponent = createMappedComponent<FogData>(ComponentNames.FOG)

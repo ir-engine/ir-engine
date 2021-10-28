@@ -1,7 +1,8 @@
 import Checkbox from '@material-ui/core/Checkbox'
-import { Rainbow } from '@styled-icons/fa-solid/Rainbow'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
+import { PostProcessingComponent, PostProcessingData } from '@xrengine/engine/src/scene/components/PostProcessingComponent'
 import React from 'react'
-import { CommandManager } from '../../managers/CommandManager'
 import NodeEditor from './NodeEditor'
 import { PostProcessingProperties } from './PostProcessingProperties'
 
@@ -10,7 +11,7 @@ import { PostProcessingProperties } from './PostProcessingProperties'
  * @type {Object}
  */
 type PostProcessingNodeEditorPropTypes = {
-  node?: object
+  node?: any
 }
 
 export enum PostProcessingPropertyTypes {
@@ -146,8 +147,7 @@ const EffectsOptions = {
     intensity: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: 'Intensity',
-      min: -1,
-      max: 1,
+      min: 0,
       step: 0.01
     },
     fade: {
@@ -278,9 +278,9 @@ const EffectsOptions = {
     hue: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: 'Hue',
-      min: -1,
-      max: 1,
-      step: 0.01
+      min: 0,
+      max: 360,
+      step: 0.1
     },
     saturation: {
       propertyType: PostProcessingPropertyTypes.Number,
@@ -294,8 +294,8 @@ const EffectsOptions = {
     bits: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: 'Bits',
-      min: -1,
-      max: 1,
+      min: -5,
+      max: 32,
       step: 0.01
     }
   },
@@ -305,55 +305,68 @@ const EffectsOptions = {
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropTypes) => {
-  const onChangeCheckBox = (e, key) =>
-    CommandManager.instance.setPropertyOnSelection('postProcessingOptions.' + key + '.isActive', e.target.checked)
+export class PostProcessingNodeEditor extends React.Component<PostProcessingNodeEditorPropTypes> {
+  static description = 'For applying Post Processing effects to you scene'
 
-  const onChangeNodeSetting = (key, op) => {
-    CommandManager.instance.setPropertyOnSelection('postProcessingOptions.' + key, op)
+  toggleEffect = (e, key) => {
+    // CommandManager.instance.setPropertyOnSelection('postProcessingOptions.' + key + '.isActive', e.target.checked)
+    const postProcessingComponent = getComponent(this.props.node.eid, PostProcessingComponent)
+    ;(postProcessingComponent[key] as any).active = e.target.checked
+    this.forceUpdate()
+
+    configureEffectComposer()
   }
 
-  const getPropertyValue = (arr: []) => {
-    return (props.node as any).getPropertyValue(arr)
+  onChangeNodeSetting = (value, effectKey, propKey) => {
+    // CommandManager.instance.setPropertyOnSelection('postProcessingOptions.' + key, op)
+    const postProcessingComponent = getComponent(this.props.node.eid, PostProcessingComponent)
+    ;(postProcessingComponent[effectKey] as any)[propKey] = value
+    this.forceUpdate()
   }
 
-  const renderEffectsTypes = (id) => {
-    const effectOptions = EffectsOptions[id]
-    const item = Object.values(effectOptions).map((value, index) => {
-      const op = [id, Object.keys(effectOptions)[index]]
-      return (
+  renderEffectsTypes = (component, effectKey) => {
+    const effectOptions = EffectsOptions[effectKey]
+    const keys = Object.keys(effectOptions)
+
+    const items = []
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+      items.push(
         <PostProcessingProperties
-          key={id + index}
-          value={value}
-          op={op}
-          onChangeFunction={onChangeNodeSetting}
-          getProp={getPropertyValue}
+          key={i}
+          effectKey={effectKey}
+          propKey={key}
+          params={effectOptions[key]}
+          value={component[effectKey][key]}
+          onChangeFunction={this.onChangeNodeSetting}
         />
       )
-    })
-    return <>{item}</>
+    }
+    return <>{items}</>
   }
 
-  const renderEffects = (node) => {
-    const items = Object.keys(EffectsOptions).map((key) => {
+  renderEffects = (component: PostProcessingData) => {
+    return Object.keys(EffectsOptions).map((key) => {
+      if (!component[key]) return null
+
       return (
         <div key={key}>
-          <Checkbox onChange={(e) => onChangeCheckBox(e, key)} checked={node.postProcessingOptions[key].isActive} />
+          <Checkbox onChange={(e) => this.toggleEffect(e, key)} checked={component[key].active} />
           {key}
-          {node.postProcessingOptions[key].isActive && <div>{renderEffectsTypes(key)}</div>}
+          {component[key].active && <div>{this.renderEffectsTypes(component, key)}</div>}
         </div>
       )
     })
-    return <div>{items}</div>
   }
 
-  const node = props.node
-  return (
-    <NodeEditor description={PostProcessingNodeEditor.description} {...props}>
-      {renderEffects(node)}
-    </NodeEditor>
-  )
+  render() {
+    const postProcessingComponent = getComponent(this.props.node.eid, PostProcessingComponent)
+    return (
+      <NodeEditor description={PostProcessingNodeEditor.description} {...this.props}>
+        {this.renderEffects(postProcessingComponent)}
+      </NodeEditor>
+    )
+  }
 }
-PostProcessingNodeEditor.iconComponent = Rainbow
-PostProcessingNodeEditor.description = 'For applying Post Processing effects to you scene'
+
 export default PostProcessingNodeEditor

@@ -11,7 +11,6 @@ export type HemisphereLightDataProps = {
 
 export class HemisphereLightData implements ComponentData {
   static legacyComponentName = ComponentNames.HEMISPHERE_LIGHT
-  static nodeName = 'Hemisphere Light'
   static metadata: [
     {
       name: 'skyColor',
@@ -92,4 +91,4 @@ export class HemisphereLightData implements ComponentData {
   }
 }
 
-export const HemisphereLightComponent = createMappedComponent<HemisphereLightData>('HemisphereLightComponent')
+export const HemisphereLightComponent = createMappedComponent<HemisphereLightData>(ComponentNames.HEMISPHERE_LIGHT)

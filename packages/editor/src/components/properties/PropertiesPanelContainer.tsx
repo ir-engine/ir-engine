@@ -1,13 +1,17 @@
 import React, { Component } from 'react'
-import DefaultNodeEditor from './DefaultNodeEditor'
 import styled from 'styled-components'
 import TransformPropertyGroup from './TransformPropertyGroup'
-import InputGroup from '../inputs/InputGroup'
 import { withTranslation } from 'react-i18next'
-import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { NodeManager } from '../../managers/NodeManager'
 import EntityMetadataEditor from './EntityMetadataEditor'
+import { addComponent, getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import EditorEvents from '../../constants/EditorEvents'
+import { ComponentNames } from '@xrengine/engine/src/common/constants/ComponentNames'
+import { ComponentMeta } from '@xrengine/engine/src/common/constants/Object3DClassMap'
+import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.
@@ -30,48 +34,6 @@ const PropertiesHeader = (styled as any).div`
   background-color: ${(props) => props.theme.panel2};
   border: none !important;
   padding-bottom: 0 !important;
-`
-
-/**
- * NameInputGroupContainer used to provides styles and contains NameInputGroup and VisibleInputGroup.
- *
- *  @author Robert Long
- *  @type {Styled Component}
- */
-const NameInputGroupContainer = (styled as any).div`
-  display: flex;
-  flex-flow: row wrap;
-  align-items: flex-start;
-  padding: 8px 0;
-`
-/**
- * Styled component used to provide styles for visiblity checkbox.
- *
- * @author Robert Long
- */
-const VisibleInputGroup = (styled as any)(InputGroup)`
-  display: flex;
-  flex: 0;
-
-  & > label {
-    width: auto !important;
-    padding-right: 8px;
-  }
-`
-
-/**
- * Styled component used to provide styles for visiblity checkbox.
- *
- * @author Robert Long
- */
-const PersistInputGroup = (styled as any)(InputGroup)`
- display: flex;
- flex: 0;
-
- & > label {
-   width: auto !important;
-   padding-right: 8px;
- }
 `
 
 /**
@@ -108,62 +70,61 @@ const NoNodeSelectedMessage = (styled as any).div`
  * @extends Component
  */
 class PropertiesPanelContainer extends Component<{ t: Function }> {
-  //setting the props and state
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      selected: CommandManager.instance.selected
-    }
-  }
-
-  // adding listeners when component get mounted
   componentDidMount() {
     CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
-    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
-  // removing listeners when components get unmounted
   componentWillUnmount() {
     CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
-    CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
-  // updating state when selection of element get changed
   onSelectionChanged = () => {
-    this.setState({ selected: CommandManager.instance.selected })
+    this.forceUpdate()
   }
 
-  //function to handle the changes object properties
-  onObjectsChanged = (objects, property) => {
-    const selected = CommandManager.instance.selected
+  onSelectComponent = (value) => {
+    const componentMeta = ComponentMeta[value]
 
-    if (property === 'position' || property === 'rotation' || property === 'scale' || property === 'matrix') {
-      return
+    if (!componentMeta || !componentMeta.component) return
+
+    const selected = CommandManager.instance.selected
+    const activeNode = selected[selected.length - 1]
+
+    if (componentMeta.object3d) {
+      const object3dComponent = getComponent(activeNode.eid, Object3DComponent)
+      addComponent(activeNode.eid, componentMeta.component, new componentMeta.componentData(object3dComponent, {}))
+    } else {
+      addComponent(activeNode.eid, componentMeta.component, new componentMeta.componentData({}))
     }
 
-    for (let i = 0; i < objects.length; i++) {
-      if (selected.indexOf(objects[i]) !== -1) {
-        this.setState({ selected: CommandManager.instance.selected })
-        return
+    this.forceUpdate()
+  }
+
+  renderAddComponent = (activeNode, components) => {
+    const componentNames = Array.isArray(components) ? components.map((c) => c._name) : []
+
+    const systemComponents = []
+    const keys = Object.keys(ComponentMeta)
+    for (let i = 0; i < keys.length; i++) {
+      if (ComponentMeta[keys[i]].order < 0 && !componentNames.includes(keys[i])) {
+        systemComponents.push({
+          label: keys[i],
+          value: keys[i]
+        })
       }
     }
+
+    return (
+      <InputGroup name="Add Component">
+        <SelectInput
+          options={systemComponents}
+          onChange={this.onSelectComponent}
+          placeholder={this.props.t('editor:properties.addComponent')}
+        />
+      </InputGroup>
+    )
   }
 
-  // function to handle the changes property visible
-  onChangeVisible = (value) => {
-    CommandManager.instance.setPropertyOnSelection('visible', value)
-  }
-
-  onChangeBakeStatic = (value) => {
-    CommandManager.instance.setPropertyOnSelection('includeInCubemapBake', value)
-  }
-
-  onChangePersist = (value) => {
-    CommandManager.instance.setPropertyOnSelection('persist', value)
-  }
-
-  //rendering editor views for customization of element properties
   render() {
     const selected = CommandManager.instance.selected
 
@@ -171,33 +132,40 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
 
     if (selected.length === 0) {
       content = <NoNodeSelectedMessage>{this.props.t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
+
     } else {
       const activeNode = selected[selected.length - 1]
-      const NodeEditor = NodeManager.instance.getEditorFromNode(activeNode) || DefaultNodeEditor
+      const components = getAllComponents(activeNode.eid)
 
-      const multiEdit = selected.length > 1
+      let NodeEditors = []
+      for (let i = 0; i < components.length; i++) {
+        if (components[i]._name === ComponentNames.NAME) continue
+        if (components[i]._name === ComponentNames.VISIBILE) continue
+        if (components[i]._name === ComponentNames.TRANSFORM) continue
+
+        const editor = NodeManager.instance.getEditorFromClass(components[i]._name)
+        if (editor) NodeEditors.push(editor)
+      }
 
       let showNodeEditor = true
-
       for (let i = 0; i < selected.length - 1; i++) {
-        if (NodeManager.instance.getEditorFromNode(selected[i]) !== NodeEditor) {
+        if (NodeEditors.includes(NodeManager.instance.getEditorFromClass(selected[i]))) {
           showNodeEditor = false
           break
         }
       }
 
       let nodeEditor
-
       if (showNodeEditor) {
-        nodeEditor = <NodeEditor multiEdit={multiEdit} node={activeNode} />
+        nodeEditor = NodeEditors.map((Editor, i) => <Editor multiEdit={selected.length > 1} node={activeNode} key={i} />)
       } else {
         nodeEditor = (
           <NoNodeSelectedMessage>{this.props.t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
         )
       }
 
-      const disableTransform = selected.some((node) => node.disableTransform)
-      const haveStaticTags = selected.some((node) => node.haveStaticTags)
+      const disableTransform = selected.some((node) => !node.parentNode)
+      // const haveStaticTags = selected.some((node) => node.haveStaticTags)
 
       content = (
         <StyledNodeEditor>
@@ -224,11 +192,17 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
             {!disableTransform && <TransformPropertyGroup node={activeNode} />}
           </PropertiesHeader>
           {nodeEditor}
+          {!activeNode.parentNode && (    // Currently it is available for Scene node only
+            this.renderAddComponent(activeNode, components)
+          )}
+
         </StyledNodeEditor>
       )
     }
 
-    return <PropertiesPanelContent>{content}</PropertiesPanelContent>
+    return <PropertiesPanelContent>
+      {content}
+    </PropertiesPanelContent>
   }
 }
 

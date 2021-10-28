@@ -11,12 +11,14 @@ import NameInputGroup from './NameInputGroup'
 const EntityMetadataEditor = (props) => {
   const [isVisible, setVisible] = useState(true)
   const [isPersist, setPersist] = useState(false)
-  const [includeInCubemapBake, setIncludeInCubemapBake] = useState(false)
+  const [includeInCubeMapBake, setIncludeInCubeMapBake] = useState(false)
   const { t } = useTranslation()
 
   useEffect(() => {
     const visibleComponent = getComponent(props.node.eid, VisibleComponent)
-    setVisible(visibleComponent.visible)
+    if (visibleComponent) {
+      setVisible(visibleComponent.visible)
+    }
   }, [props.node])
 
   const onChangeVisible = (value) => {
@@ -32,7 +34,7 @@ const EntityMetadataEditor = (props) => {
   }
 
   const onChangeIncludeInBake = (value) => {
-    setIncludeInCubemapBake(value)
+    setIncludeInCubeMapBake(value)
     const visibleComponent = getComponent(props.node.eid, VisibleComponent)
     visibleComponent.includeInCubeMapBake = value
   }
@@ -44,7 +46,7 @@ const EntityMetadataEditor = (props) => {
         <BooleanInput value={isVisible} onChange={onChangeVisible} />
       </InputGroup>
       <InputGroup name="Bake Static" label="Bake Static">
-        <BooleanInput value={includeInCubemapBake} onChange={onChangeIncludeInBake} />
+        <BooleanInput value={includeInCubeMapBake} onChange={onChangeIncludeInBake} />
       </InputGroup>
       <InputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
         <BooleanInput value={isPersist} onChange={onChangePersist} />

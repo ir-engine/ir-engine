@@ -20,7 +20,6 @@ import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterN
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
 import PostProcessingNodeEditor from '../components/properties/PostProcessingNodeEditor'
-import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
@@ -36,12 +35,9 @@ import AudioNode from '../nodes/AudioNode'
 import BoxColliderNode from '../nodes/BoxColliderNode'
 import CameraPropertiesNode from '../nodes/CameraPropertiesNode'
 import CloudsNode from '../nodes/CloudsNode'
-import CubemapBakeNode from '../nodes/CubemapBakeNode'
 import ProjectNode from '../nodes/ProjectNode'
 import DirectionalLightNode from '../nodes/DirectionalLightNode'
-import GroundPlaneNode from '../nodes/GroundPlaneNode'
 import GroupNode from '../nodes/GroupNode'
-import HemisphereLightNode from '../nodes/HemisphereLightNode'
 import ImageNode from '../nodes/ImageNode'
 import InteriorNode from '../nodes/InteriorNode'
 import LinkNode from '../nodes/LinkNode'
@@ -52,11 +48,7 @@ import OceanNode from '../nodes/OceanNode'
 import ParticleEmitterNode from '../nodes/ParticleEmitterNode'
 import PointLightNode from '../nodes/PointLightNode'
 import PortalNode from '../nodes/PortalNode'
-import PostProcessingNode from '../nodes/PostProcessingNode'
 import SceneNode from '../nodes/SceneNode'
-import ScenePreviewCameraNode from '../nodes/ScenePreviewCameraNode'
-import SkyboxNode from '../nodes/SkyboxNode'
-import SpawnPointNode from '../nodes/SpawnPointNode'
 import SplineNode from '../nodes/SplineNode'
 import SpotLightNode from '../nodes/SpotLightNode'
 import SystemNode from '../nodes/SystemNode'
@@ -64,6 +56,18 @@ import TriggerVolumeNode from '../nodes/TriggerVolumeNode'
 import VideoNode from '../nodes/VideoNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
+import { ComponentNames } from '@xrengine/engine/src/common/constants/ComponentNames'
+import { Certificate } from '@styled-icons/fa-solid/Certificate'
+import { StyledIcon } from '@styled-icons/styled-icon';
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Camera, Cloud, Globe, Rainbow, SquareFull, StreetView } from '@styled-icons/fa-solid'
+import SceneMetaDataEditor from '../components/properties/SceneMetaDataEditor'
+import EnvMapEditor from '../components/properties/EnvMapEditor'
+import FogEditor from '../components/properties/FogEditor'
+import AudioSettingsEditor from '../components/properties/AudioSettingsEditor'
+import RenderSettingsEditor from '../components/properties/RenderSettingsEditor'
+
 
 export class NodeManager {
   static instance: NodeManager
@@ -150,36 +154,69 @@ export class NodeManager {
 
 export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(ProjectNode, ProjectNodeEditor)
-  NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
+  NodeManager.instance.registerNode(ComponentNames.MT_DATA, SceneMetaDataEditor)
+  NodeManager.instance.registerNode(ComponentNames.ENVMAP, EnvMapEditor)
+  NodeManager.instance.registerNode(ComponentNames.FOG, FogEditor)
+  NodeManager.instance.registerNode(ComponentNames.AUDIO_SETTINGS, AudioSettingsEditor)
+  NodeManager.instance.registerNode(ComponentNames.RENDERER_SETTINGS, RenderSettingsEditor)
   NodeManager.instance.registerNode(GroupNode, GroupNodeEditor)
   NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
-  NodeManager.instance.registerNode(GroundPlaneNode, GroundPlaneNodeEditor)
+  NodeManager.instance.registerNode(ComponentNames.GROUND_PLANE, GroundPlaneNodeEditor)
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
   NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
   NodeManager.instance.registerNode(AmbientLightNode, AmbientLightNodeEditor)
   NodeManager.instance.registerNode(DirectionalLightNode, DirectionalLightNodeEditor)
-  NodeManager.instance.registerNode(HemisphereLightNode, HemisphereLightNodeEditor)
+  NodeManager.instance.registerNode(ComponentNames.HEMISPHERE_LIGHT, HemisphereLightNodeEditor)
   NodeManager.instance.registerNode(SpotLightNode, SpotLightNodeEditor)
   NodeManager.instance.registerNode(PointLightNode, PointLightNodeEditor)
-  NodeManager.instance.registerNode(SpawnPointNode, SpawnPointNodeEditor)
-  NodeManager.instance.registerNode(SkyboxNode, SkyboxNodeEditor)
+  NodeManager.instance.registerNode(ComponentNames.SPAWN_POINT, SpawnPointNodeEditor)
+  NodeManager.instance.registerNode(ComponentNames.SKYBOX, SkyboxNodeEditor)
   NodeManager.instance.registerNode(ImageNode, ImageNodeEditor)
   NodeManager.instance.registerNode(MetadataNode, MetadataNodeEditor)
   NodeManager.instance.registerNode(VideoNode, VideoNodeEditor)
   NodeManager.instance.registerNode(VolumetricNode, VolumetricNodeEditor)
   NodeManager.instance.registerNode(AudioNode, AudioNodeEditor)
-  NodeManager.instance.registerNode(PostProcessingNode, PostProcessingNodeEditor)
+  NodeManager.instance.registerNode(ComponentNames.POSTPROCESSING, PostProcessingNodeEditor)
   NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
   NodeManager.instance.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
   NodeManager.instance.registerNode(LinkNode, LinkNodeEditor)
-  NodeManager.instance.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor)
+  NodeManager.instance.registerNode(ComponentNames.SCENE_PREVIEW_CAMERA, ScenePreviewCameraNodeEditor)
   NodeManager.instance.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
   NodeManager.instance.registerNode(SplineNode, SplineNodeEditor)
   NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
   NodeManager.instance.registerNode(MapNode, MapNodeEditor)
-  NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
+  NodeManager.instance.registerNode(ComponentNames.CUBEMAP_BAKE, CubemapBakeNodeEditor)
   NodeManager.instance.registerNode(CloudsNode, CloudsNodeEditor)
   NodeManager.instance.registerNode(OceanNode, OceanNodeEditor)
   NodeManager.instance.registerNode(WaterNode, WaterNodeEditor)
   NodeManager.instance.registerNode(InteriorNode, InteriorNodeEditor)
+}
+
+export const ComponentIcon: {
+  [key in ComponentNames]?: StyledIcon
+} = {
+  [ComponentNames.SCENE_PREVIEW_CAMERA]: Camera,
+  [ComponentNames.SKYBOX]: Cloud,
+  [ComponentNames.GROUND_PLANE]: SquareFull,
+  [ComponentNames.SPAWN_POINT]: StreetView,
+  [ComponentNames.POSTPROCESSING]: Rainbow,
+  [ComponentNames.HEMISPHERE_LIGHT]: Certificate,
+  [ComponentNames.RENDERER_SETTINGS]: Globe,
+  [ComponentNames.ENVMAP]: Globe,
+  [ComponentNames.FOG]: Globe,
+  [ComponentNames.AUDIO_SETTINGS]: Globe,
+
+}
+
+export const getComponentIcon = (entity: Entity): StyledIcon => {
+  const components = getAllComponents(entity)
+
+  for (let i = 0; i < components.length; i++) {
+    const iconComponent = ComponentIcon[components[i]._name]
+    if (iconComponent) {
+      return iconComponent
+    }
+  }
+
+  return null
 }

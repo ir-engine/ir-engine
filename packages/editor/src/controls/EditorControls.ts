@@ -27,6 +27,9 @@ import { TransformSpace } from '../constants/TransformSpace'
 import getIntersectingNode from '../functions/getIntersectingNode'
 import { EditorInputs, EditorMapping, Fly } from './input-mappings'
 import { SceneManager } from '../managers/SceneManager'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 export const SnapMode = {
   Disabled: 'Disabled',
@@ -257,7 +260,8 @@ export default class EditorControls extends EventEmitter {
       this.transformMode !== TransformMode.Grab &&
       this.transformMode !== TransformMode.Placement
     if (selectedTransformRoots.length > 0 && this.transformMode !== TransformMode.Disabled) {
-      const lastSelectedObject = selected[selected.length - 1]
+
+      const lastTransform = getComponent(selected[selected.length - 1].eid, TransformComponent)
       if (
         this.selectionChanged ||
         this.transformModeChanged ||
@@ -265,11 +269,12 @@ export default class EditorControls extends EventEmitter {
         this.transformPropertyChanged
       ) {
         if (this.transformPivot === TransformPivot.Selection) {
-          lastSelectedObject.getWorldPosition(SceneManager.instance.transformGizmo.position)
+          lastTransform.obj3d.getWorldPosition(SceneManager.instance.transformGizmo.position)
         } else {
           this.selectionBoundingBox.makeEmpty()
           for (let i = 0; i < selectedTransformRoots.length; i++) {
-            this.selectionBoundingBox.expandByObject(selectedTransformRoots[i])
+            const object3dComponent = getComponent(selectedTransformRoots[i].eid, Object3DComponent)
+            this.selectionBoundingBox.expandByObject(object3dComponent.value)
           }
           if (this.transformPivot === TransformPivot.Center) {
             this.selectionBoundingBox.getCenter(SceneManager.instance.transformGizmo.position)
@@ -289,7 +294,7 @@ export default class EditorControls extends EventEmitter {
         this.transformPropertyChanged
       ) {
         if (this.transformSpace === TransformSpace.LocalSelection) {
-          lastSelectedObject.getWorldQuaternion(SceneManager.instance.transformGizmo.quaternion)
+          lastTransform.obj3d.getWorldQuaternion(SceneManager.instance.transformGizmo.quaternion)
         } else {
           SceneManager.instance.transformGizmo.rotation.set(0, 0, 0)
         }
@@ -298,6 +303,7 @@ export default class EditorControls extends EventEmitter {
       if ((this.transformModeChanged || this.transformSpaceChanged) && this.transformMode === TransformMode.Scale) {
         SceneManager.instance.transformGizmo.setLocalScaleHandlesVisible(this.transformSpace !== TransformSpace.World)
       }
+
       SceneManager.instance.transformGizmo.visible = true
     } else {
       SceneManager.instance.transformGizmo.visible = false

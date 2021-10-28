@@ -118,6 +118,7 @@
         "title": "Properties",
         "lbl-visible": "Visible",
         "multipleNodeSelected": "Multiple Nodes of different types selected",
+        "addComponent": "+ Component",
         "noNodeSelected": "No node selected",
         "ambientLight": {
             "description": "A light which illuminates all objects in your scene.",

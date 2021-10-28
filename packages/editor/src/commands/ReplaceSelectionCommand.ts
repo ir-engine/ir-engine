@@ -60,7 +60,7 @@ export default class ReplaceSelectionCommand extends Command {
     for (let i = 0; i < prevSelected.length; i++) {
       const object = CommandManager.instance.selected[i]
 
-      if (object.isNode && !objects.includes(object)) {
+      if (!objects.includes(object) && typeof object.onDeselect === 'function') {
         object.onDeselect()
       }
     }
@@ -73,7 +73,7 @@ export default class ReplaceSelectionCommand extends Command {
 
       CommandManager.instance.selected.push(object)
 
-      if (object.isNode && !prevSelected.includes(object)) {
+      if (!prevSelected.includes(object) && typeof object.onSelect === 'function') {
         object.onSelect()
       }
     }

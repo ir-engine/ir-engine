@@ -1,4 +1,4 @@
-import { Object3D } from 'three'
+import { ColorRepresentation, Object3D, Texture } from 'three'
 import {
   BlendFunction,
   BloomEffect,
@@ -15,51 +15,129 @@ import {
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 import { FXAAEffect } from '../../renderer/effects/FXAAEffect'
 
-/**
- * @author Shaw & Abhishek Pathak <abhi.pathak401@gmail.com>
- */
-
-export const effectType = {
-  FXAAEffect: {
-    effect: FXAAEffect
-  },
-  OutlineEffect: {
-    effect: OutlineEffect
-  },
-  SSAOEffect: {
-    effect: SSAOEffect
-  },
-  DepthOfFieldEffect: {
-    effect: DepthOfFieldEffect
-  },
-  BloomEffect: {
-    effect: BloomEffect
-  },
-  ToneMappingEffect: {
-    effect: ToneMappingEffect
-  },
-  BrightnessContrastEffect: {
-    effect: BrightnessContrastEffect
-  },
-  HueSaturationEffect: {
-    effect: HueSaturationEffect
-  },
-
-  ColorDepthEffect: {
-    effect: ColorDepthEffect
-  },
-  LinearTosRGBEffect: {
-    effect: LinearTosRGBEffect
-  }
+export enum Effects {
+  FXAAEffect = 'FXAAEffect',
+  OutlineEffect = 'OutlineEffect',
+  SSAOEffect = 'SSAOEffect',
+  DepthOfFieldEffect = 'DepthOfFieldEffect',
+  BloomEffect = 'BloomEffect',
+  ToneMappingEffect = 'ToneMappingEffect',
+  BrightnessContrastEffect = 'BrightnessContrastEffect',
+  HueSaturationEffect = 'HueSaturationEffect',
+  ColorDepthEffect = 'ColorDepthEffect',
+  LinearTosRGBEffect = 'LinearTosRGBEffect',
 }
 
-export const defaultPostProcessingSchema = {
-  FXAAEffect: {
-    isActive: true,
+export type EffectType = {
+  EffectClass: any
+}
+
+export const EffectMap = new Map<Effects, EffectType>()
+EffectMap.set(Effects.FXAAEffect, { EffectClass: FXAAEffect })
+EffectMap.set(Effects.OutlineEffect, { EffectClass: OutlineEffect })
+EffectMap.set(Effects.SSAOEffect, { EffectClass: SSAOEffect })
+EffectMap.set(Effects.DepthOfFieldEffect, { EffectClass: DepthOfFieldEffect })
+EffectMap.set(Effects.BloomEffect, { EffectClass: BloomEffect })
+EffectMap.set(Effects.ToneMappingEffect, { EffectClass: ToneMappingEffect })
+EffectMap.set(Effects.BrightnessContrastEffect, { EffectClass: BrightnessContrastEffect })
+EffectMap.set(Effects.HueSaturationEffect, { EffectClass: HueSaturationEffect })
+EffectMap.set(Effects.ColorDepthEffect, { EffectClass: ColorDepthEffect })
+EffectMap.set(Effects.LinearTosRGBEffect, { EffectClass: LinearTosRGBEffect })
+
+export type EffectProps = {
+  active: boolean
+  blendFunction?: BlendFunction
+}
+
+export type FXAAEffectProps = EffectProps
+
+export type OutlineEffectProps = EffectProps & {
+  patternTexture: Texture | null
+  edgeStrength: number
+  pulseSpeed: number
+  visibleEdgeColor: ColorRepresentation
+  hiddenEdgeColor: ColorRepresentation
+  resolutionScale: number
+  width: number
+  height: number
+  kernelSize: number
+  blur: boolean
+  xRay: boolean
+}
+
+export type SSAOEffectProps = EffectProps & {
+  distanceScaling: boolean
+  depthAwareUpsampling: boolean
+  samples: number
+  rings: number
+  distanceThreshold: number // Render up to a distance of ~20 world units
+  distanceFalloff: number // with an additional ~2.5 units of falloff.
+  minRadiusScale: number
+  bias: number
+  radius: number
+  intensity: number
+  fade: number
+}
+
+export type DepthOfFieldEffectProps = EffectProps & {
+  focusDistance: number
+  focalLength: number
+  bokehScale: number
+}
+
+export type BloomEffectProps = EffectProps & {
+  kernelSize: number
+  luminanceThreshold: number
+  luminanceSmoothing: number
+  intensity: number
+}
+
+export type ToneMappingEffectProps = EffectProps & {
+  adaptive: boolean
+  resolution: number
+  middleGrey: number
+  maxLuminance: number
+  averageLuminance: number
+  adaptationRate: number
+}
+
+export type BrightnessContrastEffectProps = EffectProps & {
+  brightness: number
+  contrast: number
+}
+
+export type HueSaturationEffectProps = EffectProps & {
+  hue: number
+  saturation: number
+}
+
+export type ColorDepthEffectProps = EffectProps & {
+  bits: number
+}
+
+export type LinearTosRGBEffectProps = EffectProps
+
+export type EffectPropsSchema = {
+  [Effects.FXAAEffect]: FXAAEffectProps
+  [Effects.OutlineEffect]: OutlineEffectProps
+  [Effects.SSAOEffect]: SSAOEffectProps
+  [Effects.DepthOfFieldEffect]: DepthOfFieldEffectProps
+  [Effects.BloomEffect]: BloomEffectProps
+  [Effects.ToneMappingEffect]: ToneMappingEffectProps
+  [Effects.BrightnessContrastEffect]: BrightnessContrastEffectProps
+  [Effects.HueSaturationEffect]: HueSaturationEffectProps
+  [Effects.ColorDepthEffect]: ColorDepthEffectProps
+  [Effects.LinearTosRGBEffect]: LinearTosRGBEffectProps
+}
+
+
+export const defaultPostProcessingSchema: EffectPropsSchema = {
+  [Effects.FXAAEffect]: {
+    active: true,
     blendFunction: BlendFunction.NORMAL
   },
-  OutlineEffect: {
-    isActive: true,
+  [Effects.OutlineEffect]: {
+    active: true,
     blendFunction: BlendFunction.SCREEN,
     patternTexture: null,
     edgeStrength: 1.0,
@@ -73,8 +151,8 @@ export const defaultPostProcessingSchema = {
     blur: false,
     xRay: true
   },
-  SSAOEffect: {
-    isActive: false,
+  [Effects.SSAOEffect]: {
+    active: false,
     blendFunction: BlendFunction.MULTIPLY,
     distanceScaling: true,
     depthAwareUpsampling: true,
@@ -88,23 +166,23 @@ export const defaultPostProcessingSchema = {
     intensity: 2,
     fade: 0.05
   },
-  DepthOfFieldEffect: {
-    isActive: false,
+  [Effects.DepthOfFieldEffect]: {
+    active: false,
     blendFunction: BlendFunction.NORMAL,
     focusDistance: 0.02,
     focalLength: 0.5,
     bokehScale: 1
   },
-  BloomEffect: {
-    isActive: true,
+  [Effects.BloomEffect]: {
+    active: true,
     blendFunction: BlendFunction.SCREEN,
     kernelSize: KernelSize.MEDIUM,
     luminanceThreshold: 1.0,
     luminanceSmoothing: 0.1,
     intensity: 0.2
   },
-  ToneMappingEffect: {
-    isActive: false,
+  [Effects.ToneMappingEffect]: {
+    active: false,
     blendFunction: BlendFunction.NORMAL,
     adaptive: true,
     resolution: 512,
@@ -113,22 +191,22 @@ export const defaultPostProcessingSchema = {
     averageLuminance: 1.0,
     adaptationRate: 2.0
   },
-  BrightnessContrastEffect: {
-    isActive: false,
+  [Effects.BrightnessContrastEffect]: {
+    active: false,
     brightness: 0.05,
     contrast: 0.1
   },
-  HueSaturationEffect: {
-    isActive: false,
+  [Effects.HueSaturationEffect]: {
+    active: false,
     hue: 0,
     saturation: -0.15
   },
-  ColorDepthEffect: {
-    isActive: false,
+  [Effects.ColorDepthEffect]: {
+    active: false,
     bits: 16
   },
-  LinearTosRGBEffect: {
-    isActive: false
+  [Effects.LinearTosRGBEffect]: {
+    active: false
   }
 }
 

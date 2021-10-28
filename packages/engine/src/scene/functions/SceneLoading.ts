@@ -1,5 +1,5 @@
 import { DirectionalLight } from 'three'
-import { Object3DClassMap } from '../../common/constants/Object3DClassMap'
+import { ComponentMeta, ComponentMetaType } from '../../common/constants/Object3DClassMap'
 import { ComponentRegisterFunction } from '../../common/functions/ComponentRegisterFunction'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
@@ -14,6 +14,7 @@ import { configureCSM, handleRendererSettings } from '../functions/handleRendere
 import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { SceneOptions } from '../systems/SceneObjectSystem'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -53,6 +54,7 @@ export class WorldScene {
     // reset renderer settings for if we are teleporting and the new scene does not have an override
     configureCSM(null!, true)
     handleRendererSettings(null!, true)
+    SceneOptions.instance = new SceneOptions()
 
     Object.keys(scene.entities).forEach((key) => {
       this.loadComponents(scene.entities[key], params)
@@ -120,24 +122,37 @@ export class WorldScene {
 
     addComponent(entity, NameComponent, { name: sceneEntity.name })
 
-    sceneEntity.components.forEach((component) => {
-      component.data.sceneEntityId = sceneEntity.entityId
-
-      // remove '-1', '-2' etc suffixes
-      component.sanitizedName = component.name.replace(/(-\d+)|(\s)/g, '')
-
-      if (Object3DClassMap[component.sanitizedName]) {
-        let objClass = Object3DClassMap[component.sanitizedName]
-        if (objClass.client || objClass.server) {
-          if (isClient) addComponent(entity, Object3DComponent, { value: new objClass.client() })
-          if (!isClient) addComponent(entity, Object3DComponent, { value: new objClass.server() })
-        } else {
-          addComponent(entity, Object3DComponent, { value: new objClass() })
-        }
+    sceneEntity.components.sort((a, b) => {
+      if (!a.sanitizedName) {
+        // remove '-1', '-2' etc suffixes
+        a.sanitizedName = a.name.replace(/(-\d+)|(\s)/g, '')
       }
+
+      if (!b.sanitizedName) {
+        b.sanitizedName = b.name.replace(/(-\d+)|(\s)/g, '')
+      }
+
+      if (!ComponentMeta[a.sanitizedName] || !ComponentMeta[b.sanitizedName]) return false
+
+      return ComponentMeta[a.sanitizedName].order < ComponentMeta[b.sanitizedName].order
     })
 
+    for (let i = sceneEntity.components.length - 1; i >= 0; i--) {
+      let componentMetaData = ComponentMeta[sceneEntity.components[i].sanitizedName] as ComponentMetaType
+      if (!componentMetaData || !componentMetaData.object3d) continue
+
+      if (componentMetaData.object3d.client || componentMetaData.object3d.server) {
+        if (isClient) addComponent(entity, Object3DComponent, { value: new componentMetaData.object3d.client() })
+        if (!isClient) addComponent(entity, Object3DComponent, { value: new componentMetaData.object3d.server() })
+      } else {
+        addComponent(entity, Object3DComponent, { value: new componentMetaData.object3d() })
+      }
+
+      break
+    }
+
     sceneEntity.components.forEach((component) => {
+      component.data.sceneEntityId = sceneEntity.entityId
       this.loadComponent(entity, component, sceneProperty)
     })
   }

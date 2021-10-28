@@ -35,8 +35,8 @@ export class GroundPlaneData implements ComponentData {
 
   constructor(obj3d: Mesh, props: GroundPlaneDataProps) {
     this.obj3d = obj3d
-    if (!this.obj3d.geometry) this.obj3d.geometry = new CircleBufferGeometry(1000, 32)
-    if (!this.obj3d.material) this.obj3d.material = new MeshStandardMaterial({
+    this.obj3d.geometry = new CircleBufferGeometry(1000, 32)
+    this.obj3d.material = new MeshStandardMaterial({
       color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
       roughness: 0
     })
@@ -64,6 +64,8 @@ export class GroundPlaneData implements ComponentData {
     this.color = typeof props.color === 'string' ? new Color(props.color) : props.color
     this.receiveShadow =  props.receiveShadow ?? false
     this.walkable = props.walkable ?? false
+
+    this.obj3d.updateMatrix()
   }
 
   obj3d: Mesh
@@ -109,4 +111,4 @@ export class GroundPlaneData implements ComponentData {
   }
 }
 
-export const GroundPlaneComponent = createMappedComponent<GroundPlaneData>('GroundPlaneComponent')
+export const GroundPlaneComponent = createMappedComponent<GroundPlaneData>(ComponentNames.GROUND_PLANE)

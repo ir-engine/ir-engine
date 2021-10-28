@@ -2,11 +2,7 @@ import {
   BackSide,
   BoxBufferGeometry,
   CubeCamera,
-  CubeTexture,
-  DepthModes,
-  MathUtils,
   Mesh,
-  NeverDepth,
   Object3D,
   RGBAFormat,
   Scene,
@@ -19,6 +15,7 @@ import {
   WebGLRenderer
 } from 'three'
 import { PMREMGenerator } from 'three'
+import { setSkyDirection } from '../functions/setSkyDirection'
 
 /**
  * @author zz85 / https://github.com/zz85
@@ -294,6 +291,8 @@ export class Sky extends Object3D {
     const z = Math.sin(phi) * Math.cos(theta)
     this._material.uniforms.sunPosition.value.set(x, y, z)
     this.sky.scale.setScalar(distance)
+
+    setSkyDirection(this._material.uniforms.sunPosition.value)
   }
 
   generateSkybox(renderer: WebGLRenderer) {

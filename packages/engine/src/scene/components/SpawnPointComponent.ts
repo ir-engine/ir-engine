@@ -49,4 +49,4 @@ export class SpawnPointData implements ComponentData {
   }
 }
 
-export const SpawnPointComponent = createMappedComponent<SpawnPointData>('SpawnPointComponent')
+export const SpawnPointComponent = createMappedComponent<SpawnPointData>(ComponentNames.SPAWN_POINT)

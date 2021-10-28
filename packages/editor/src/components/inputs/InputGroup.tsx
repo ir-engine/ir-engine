@@ -109,7 +109,7 @@ interface InputGroupProp {
 export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProp) {
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
-      <label>{label}:</label>
+      {label && <label>{label}:</label>}
       <InputGroupContent>
         {children}
         {info && <InputGroupInfo info={info} />}

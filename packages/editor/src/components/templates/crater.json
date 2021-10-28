@@ -42,12 +42,6 @@
           }
         },
         {
-          "name": "simple-materials",
-          "props": {
-            "simpleMaterials": false
-          }
-        },
-        {
           "name": "renderer-settings",
           "props": {
             "LODs": {
@@ -59,7 +53,8 @@
             "csm": true,
             "toneMapping": 1,
             "toneMappingExposure": 0.8,
-            "shadowMapType": 2
+            "shadowMapType": 2,
+            "useSimpleMaterials": false
           }
         },
         {

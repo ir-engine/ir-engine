@@ -1,4 +1,8 @@
-export const DEFAULT_LOD_DISTANCES = {
+export type LODType = {
+  [key: number]: number
+}
+
+export const DEFAULT_LOD_DISTANCES: LODType = {
   '0': 5,
   '1': 15,
   '2': 30

@@ -213,7 +213,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
-    updatesPerSecond: 60
+    tickRate: 60
   })
 
   // Scene Systems

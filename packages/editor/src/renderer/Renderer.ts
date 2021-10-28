@@ -1,11 +1,8 @@
 import {
   MeshBasicMaterial,
   MeshNormalMaterial,
-  NearestFilter,
-  RGBFormat,
   WebGLInfo,
   WebGLRenderer,
-  WebGLRenderTarget
 } from 'three'
 import { CommandManager } from '../managers/CommandManager'
 import EditorCommands from '../constants/EditorCommands'
@@ -14,26 +11,16 @@ import PostProcessingNode from '../nodes/PostProcessingNode'
 import ScenePreviewCameraNode from '../nodes/ScenePreviewCameraNode'
 import makeRenderer from './makeRenderer'
 import { SceneManager } from '../managers/SceneManager'
-import { EffectComposer as PostProcessingEffectComposer } from 'postprocessing'
 import EditorEvents from '../constants/EditorEvents'
-
-import {
-  BlendFunction,
-  EffectComposer,
-  DepthOfFieldEffect,
-  OutlineEffect,
-  DepthDownsamplingPass,
-  EffectPass,
-  NormalPass,
-  RenderPass,
-  SSAOEffect,
-  TextureEffect
-} from 'postprocessing'
-import { effectType } from '@xrengine/engine/src/scene/classes/PostProcessing'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
+import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
+import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PostProcessingComponent } from '@xrengine/engine/src/scene/components/PostProcessingComponent'
 
 export class Renderer {
   canvas: HTMLCanvasElement
@@ -41,9 +28,6 @@ export class Renderer {
   renderMode: RenderModesType
   screenshotRenderer: WebGLRenderer
   onUpdateStats: (info: WebGLInfo) => void
-  effectComposer: PostProcessingEffectComposer
-  outlineEffect: OutlineEffect
-  renderPass: RenderPass
   PostProcessingNode: PostProcessingNode
 
   constructor(canvas) {
@@ -76,9 +60,13 @@ export class Renderer {
     // Engine.csm = csm;
 
     CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), () => {
-      if (this.outlineEffect) {
+      const components = getAllComponentsOfType(PostProcessingComponent)
+      if (!Array.isArray(components) || components.length <= 0) return
+      const postProcessingComponent = components[0]
+
+      if (postProcessingComponent[Effects.OutlineEffect] && postProcessingComponent[Effects.OutlineEffect].effect) {
         const meshes = this.filterMeshes(CommandManager.instance.selectedTransformRoots)
-        this.outlineEffect.selection.set(meshes)
+        postProcessingComponent[Effects.OutlineEffect].effect.selection.set(meshes)
       }
     })
   }
@@ -86,8 +74,8 @@ export class Renderer {
   update(dt, _time) {
     this.webglRenderer.info.reset()
     // Engine.csm.update();
-    this.effectComposer
-      ? this.effectComposer.render(dt)
+    Engine.effectComposer
+      ? Engine.effectComposer.render(dt)
       : this.webglRenderer.render(SceneManager.instance.scene as any, SceneManager.instance.camera)
 
     if (this.onUpdateStats) {
@@ -95,66 +83,6 @@ export class Renderer {
       renderStat.fps = 1 / dt
       renderStat.frameTime = dt * 1000
       this.onUpdateStats(this.webglRenderer.info)
-    }
-  }
-
-  configureEffectComposer(remove: boolean = false): void {
-    if (remove) {
-      this.effectComposer = null
-      return
-    }
-
-    const { scene, camera, postProcessingNode } = SceneManager.instance
-
-    if (!this.effectComposer) this.effectComposer = new EffectComposer(this.webglRenderer)
-    else this.effectComposer.removeAllPasses()
-
-    this.renderPass = new RenderPass(scene, camera)
-    this.effectComposer.addPass(this.renderPass)
-
-    const normalPass = new NormalPass(scene, camera, {
-      renderTarget: new WebGLRenderTarget(1, 1, {
-        minFilter: NearestFilter,
-        magFilter: NearestFilter,
-        format: RGBFormat,
-        stencilBuffer: false
-      })
-    })
-
-    const depthDownsamplingPass = new DepthDownsamplingPass({
-      normalBuffer: normalPass.texture,
-      resolutionScale: 0.5
-    })
-
-    const normalDepthBuffer = depthDownsamplingPass.texture
-
-    const passes: any[] = []
-
-    if (postProcessingNode) {
-      Object.keys(postProcessingNode.postProcessingOptions).forEach((key: any) => {
-        const pass = postProcessingNode.postProcessingOptions[key]
-        const effect = effectType[key].effect
-
-        if (pass.isActive)
-          if (effect === SSAOEffect) {
-            passes.push(new effect(camera, normalPass.texture, { ...pass, normalDepthBuffer }))
-          } else if (effect === DepthOfFieldEffect) passes.push(new effect(camera, pass))
-          else if (effect === OutlineEffect) {
-            const eff = new effect(scene, camera, pass)
-            passes.push(eff)
-            this.outlineEffect = eff
-          } else passes.push(new effect(pass))
-      })
-    }
-
-    if (passes.length) {
-      const textureEffect = new TextureEffect({
-        blendFunction: BlendFunction.SKIP,
-        texture: depthDownsamplingPass.texture
-      })
-
-      this.effectComposer.addPass(depthDownsamplingPass)
-      this.effectComposer.addPass(new EffectPass(camera, ...passes, textureEffect))
     }
   }
 
@@ -173,28 +101,32 @@ export class Renderer {
 
   changeRenderMode(mode: RenderModesType) {
     this.renderMode = mode
+    const renderPass = Engine.effectComposer.passes[0]
+
+    if (!renderPass) return
+
     switch (mode) {
       case RenderModes.UNLIT:
         this.enableShadows(false)
-        this.renderPass.overrideMaterial = null
+        renderPass.overrideMaterial = null
         break
       case RenderModes.LIT:
         this.enableShadows(false)
-        this.renderPass.overrideMaterial = null
+        renderPass.overrideMaterial = null
         break
       case RenderModes.SHADOW:
         this.enableShadows(true)
-        this.renderPass.overrideMaterial = null
+        renderPass.overrideMaterial = null
         break
       case RenderModes.WIREFRAME:
         this.enableShadows(false)
-        this.renderPass.overrideMaterial = new MeshBasicMaterial({
+        renderPass.overrideMaterial = new MeshBasicMaterial({
           wireframe: true
         })
         break
       case RenderModes.NORMALS:
         this.enableShadows(false)
-        this.renderPass.overrideMaterial = new MeshNormalMaterial()
+        renderPass.overrideMaterial = new MeshNormalMaterial()
         break
     }
 
@@ -210,7 +142,7 @@ export class Renderer {
     this.webglRenderer.setSize(containerEl.offsetWidth, containerEl.offsetHeight, false)
     // Engine.csm.updateFrustums();
 
-    this.configureEffectComposer()
+    configureEffectComposer()
   }
 
   takeScreenshot = async (width = 1920, height = 1080) => {
@@ -268,7 +200,7 @@ export class Renderer {
   dispose() {
     this.webglRenderer.dispose()
     this.screenshotRenderer.dispose()
-    this.effectComposer?.dispose()
+    Engine.effectComposer?.dispose()
   }
 }
 
@@ -280,7 +212,7 @@ type EngineRendererProps = {
 
 // TODO: Probably moved to engine package or will be replaced by already available WebGLRenderSystem
 export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
-  // new EngineRenderer(props)
+  new EngineRenderer(props)
 
   // await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   // EngineRenderer.instance.dispatchSettingsChangeEvent()

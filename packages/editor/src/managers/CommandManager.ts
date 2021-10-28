@@ -29,6 +29,7 @@ import VolumetricNode from '../nodes/VolumetricNode'
 import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
 import { ProjectManager } from './ProjectManager'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -137,23 +138,22 @@ export class CommandManager extends EventEmitter {
     const traverse = (curObject) => {
       if (
         objects.indexOf(curObject) !== -1 &&
-        !(filterUnremovable && !curObject.parent) &&
+        !(filterUnremovable && !curObject.parentNode) &&
         !(filterUntransformable && curObject.disableTransform)
       ) {
         target.push(curObject)
         return
       }
 
-      const children = curObject.children
-
-      for (let i = 0; i < children.length; i++) {
-        if (children[i].isNode) {
-          traverse(children[i])
+      if (curObject.children) {
+        for (let i = 0; i < curObject.children.length; i++) {
+          traverse(curObject.children[i])
         }
       }
     }
 
-    traverse(SceneManager.instance.scene)
+    const world = useWorld()
+    traverse(world.entityTree.rootNode)
 
     return target
   }

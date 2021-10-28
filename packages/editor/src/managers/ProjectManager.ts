@@ -70,7 +70,9 @@ export class ProjectManager {
     const tasks = [loadEnvironmentMap(), ErrorIcon.load(), TransformGizmo.load()]
 
     for (const NodeConstructor of NodeManager.instance.nodeTypes) {
-      tasks.push(NodeConstructor.load())
+      if (typeof NodeConstructor.load === 'function') {
+        tasks.push(NodeConstructor.load())
+      }
     }
 
     await Promise.all(tasks)
@@ -86,7 +88,7 @@ export class ProjectManager {
    * @return {Promise}             [scene to render]
    */
   async loadProject(projectFile) {
-    await ProjectManager.instance.init()
+    await this.init()
 
     CommandManager.instance.removeListener(
       EditorEvents.OBJECTS_CHANGED.toString(),

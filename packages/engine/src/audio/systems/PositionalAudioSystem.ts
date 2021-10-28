@@ -7,7 +7,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
-import { PositionalAudioSettingsComponent } from '../../scene/components/AudioSettingsComponent'
+import { AudioSettingsData, AudioSettingsComponent } from '../../scene/components/AudioSettingsComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 import { AudioTagComponent } from '../components/AudioTagComponent'
@@ -31,7 +31,7 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
   const positionalAudioQuery = defineQuery([PositionalAudioComponent, TransformComponent])
   const avatarAudioQuery = defineQuery([AudioTagComponent, AvatarComponent])
   const audioQuery = defineQuery([AudioTagComponent])
-  const settingsQuery = defineQuery([PositionalAudioSettingsComponent])
+  const globalAudioSettingQuery = defineQuery([AudioSettingsComponent])
 
   const avatarAudioStream: Map<Entity, any> = new Map()
 
@@ -41,6 +41,7 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
   let audioContextSuspended = true
   let startSuspendedContexts = false
   let suspendPositionalAudio = false
+  let audioSettingsComponent: AudioSettingsData
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS, () => {
     startSuspendedContexts = true
@@ -52,23 +53,14 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
     suspendPositionalAudio = true
   })
 
-  let positionalAudioSettings: ReturnType<typeof PositionalAudioSettingsComponent.get>
-
-  const applyMediaAudioSettings = (positionalAudio, setVolume = true) => {
-    if (positionalAudioSettings.usePositionalAudio == false) {
-      return
-    }
-    positionalAudio.setDistanceModel(positionalAudioSettings.mediaDistanceModel)
-    positionalAudio.setMaxDistance(positionalAudioSettings.mediaMaxDistance)
-    positionalAudio.setRefDistance(positionalAudioSettings.mediaRefDistance)
-    positionalAudio.setRolloffFactor(positionalAudioSettings.mediaRolloffFactor)
-    if (setVolume) positionalAudio.setVolume(positionalAudioSettings.mediaVolume)
-  }
-
   return () => {
+    for (const entity of globalAudioSettingQuery()) {
+      audioSettingsComponent = getComponent(entity, AudioSettingsComponent)
+    }
+
     if (startSuspendedContexts) {
       for (const entity of avatarAudioQuery()) {
-        const audio = positionalAudioSettings?.usePositionalAudio
+        const audio = audioSettingsComponent?.usePositionalAudio
           ? getComponent(entity, PositionalAudioComponent)
           : getComponent(entity, AudioComponent)
         if (audio?.value?.context?.state === 'suspended') audio.value.context.resume()
@@ -78,16 +70,12 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
 
     if (suspendPositionalAudio) {
       for (const entity of avatarAudioQuery()) {
-        const audio = positionalAudioSettings?.usePositionalAudio
+        const audio = audioSettingsComponent?.usePositionalAudio
           ? getComponent(entity, PositionalAudioComponent)
           : getComponent(entity, AudioComponent)
         audio.value.context.suspend()
       }
       suspendPositionalAudio = false
-    }
-
-    for (const entity of settingsQuery.enter()) {
-      positionalAudioSettings = getComponent(entity, PositionalAudioSettingsComponent)
     }
 
     for (const entity of audioQuery.exit()) {
@@ -106,13 +94,17 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
           avatarAudioStream.delete(entity)
         }
       }
-      if (positionalAudioSettings?.usePositionalAudio) {
+      if (audioSettingsComponent?.usePositionalAudio) {
         const positionalAudio = addComponent(entity, PositionalAudioComponent, {
           value: new PositionalAudio(Engine.audioListener)
         })
         positionalAudio.value.matrixAutoUpdate = false
-        applyMediaAudioSettings(positionalAudio.value)
-        if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
+        positionalAudio.value.setDistanceModel(audioSettingsComponent.mediaDistanceModel)
+        positionalAudio.value.setMaxDistance(audioSettingsComponent.mediaMaxDistance)
+        positionalAudio.value.setRefDistance(audioSettingsComponent.mediaRefDistance)
+        positionalAudio.value.setRolloffFactor(audioSettingsComponent.mediaRolloffFactor)
+        positionalAudio.value.setVolume(audioSettingsComponent.mediaVolume)
+        Engine.scene.add(positionalAudio.value)
       } else {
         const audio = addComponent(entity, AudioComponent, { value: new AudioObject<GainNode>(Engine.audioListener) })
         if (audio != null) Engine.scene.add(audio.value)

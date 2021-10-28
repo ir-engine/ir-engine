@@ -24,6 +24,7 @@ import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { getComponentIcon } from '../../managers/NodeManager'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -752,7 +753,7 @@ function* treeWalker(collapsedNodes, treeObject) {
       isCollapsed,
       depth,
       object,
-      iconComponent: null,
+      iconComponent: getComponentIcon(object.eid),
       selected: CommandManager.instance.selected.indexOf(object) !== -1,
       active:
         CommandManager.instance.selected.length > 0 &&

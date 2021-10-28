@@ -1,3 +1,10 @@
+export enum SkyTypeEnum {
+  COLOR = 'color',
+  CUBEMAP = 'cubemap',
+  EQUIRECTANGULAR = 'equirectangular',
+  SKYBOX = 'skybox'
+}
+
 export type SkyBoxShaderProps = {
   turbidity: number
   rayleigh: number
@@ -6,13 +13,7 @@ export type SkyBoxShaderProps = {
   mieDirectionalG: number
   inclination: number
   azimuth: number
-}
-
-export enum SkyTypeEnum {
-  'color',
-  'cubemap',
-  'equirectangular',
-  'skybox'
+  backgroundType: SkyTypeEnum
 }
 
 export type SceneBackgroundProps = {
@@ -22,3 +23,5 @@ export type SceneBackgroundProps = {
   backgroundType: SkyTypeEnum
   skyboxProps: SkyBoxShaderProps
 }
+
+export type SkyboxArgs = SkyBoxShaderProps | SceneBackgroundProps

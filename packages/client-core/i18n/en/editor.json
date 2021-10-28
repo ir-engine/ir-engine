@@ -118,6 +118,7 @@
         "title": "Properties",
         "lbl-visible": "Visible",
         "lbl-persist": "Persist",
+        "addComponent": "+ Component",
         "multipleNodeSelected": "Multiple Nodes of different types selected",
         "noNodeSelected": "No node selected",
         "ambientLight": {
@@ -475,7 +476,6 @@
             "pasteAsset": "Paste",
             "renameAsset": "Rename"
         }
-        
     },
     "hierarchy": {
         "lbl-rename": "Rename",

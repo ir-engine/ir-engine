@@ -10,13 +10,13 @@ export class ScenePreviewCameraData implements ComponentData {
     this.activeCamera = activeCamera
 
     this.obj3d = obj3d
-    this.obj3d.fov = 80
-    this.obj3d.aspect = 16/9
-    this.obj3d.near = 0.2
-    this.obj3d.far = 8000
+    this.obj3d.name = 'Scene Preview Camera'
+    this.obj3d.fov = activeCamera.fov
+    this.obj3d.aspect = activeCamera.aspect
+    this.obj3d.near = activeCamera.near
+    this.obj3d.far = activeCamera.far
 
     this.helper = new CameraHelper(this.obj3d)
-    this.helper.layers.set(1)
   }
 
   activeCamera: PerspectiveCamera
@@ -24,15 +24,8 @@ export class ScenePreviewCameraData implements ComponentData {
   helper: CameraHelper
 
   setFromViewport() {
-    if (!this.obj3d || !this.obj3d.parent) return
-
-    const matrix = new Matrix4()
-      .copy(this.obj3d.parent.matrixWorld)
-      .invert()
-      .multiply(this.activeCamera.matrixWorld)
-    matrix.decompose(this.obj3d.position, this.obj3d.quaternion, this.obj3d.scale)
-    // CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
-    // CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+    if (!this.obj3d) return
+    this.activeCamera.matrix.decompose(this.obj3d.position, this.obj3d.quaternion, this.obj3d.scale)
   }
 
   serialize(): object {
@@ -48,4 +41,4 @@ export class ScenePreviewCameraData implements ComponentData {
   }
 }
 
-export const ScenePreviewCameraTagComponent = createMappedComponent<ScenePreviewCameraData>('ScenePreviewCameraTagComponent')
+export const ScenePreviewCameraTagComponent = createMappedComponent<ScenePreviewCameraData>(ComponentNames.SCENE_PREVIEW_CAMERA)

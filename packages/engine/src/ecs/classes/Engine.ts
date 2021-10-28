@@ -12,7 +12,7 @@ import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineEvents } from './EngineEvents'
 import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
-import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
+import { EffectComposerWithSchema } from '../../renderer/interfaces/EffectComposeWithSchema'
 import { OrthographicCamera } from 'three'
 import { World } from '../classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -140,7 +140,7 @@ export class Engine {
   static publicPath: string
 
   static workers = [] as any[]
-  static simpleMaterials = false
+  static useSimpleMaterials = false
 
   static hasEngaged = false
   static mouseInputEnabled = true

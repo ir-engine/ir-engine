@@ -8,21 +8,19 @@ import { createParticleEmitterObject } from "../../particles/functions/particleH
 import { ColliderComponent } from "../../physics/components/ColliderComponent"
 import { CollisionComponent } from "../../physics/components/CollisionComponent"
 import { getAllShapesFromObject3D, createBody, createCollider } from "../../physics/functions/createCollider"
-import { EngineRenderer } from "../../renderer/WebGLRendererSystem"
 import { Clouds } from "../../scene/classes/Clouds"
 import Image from "../../scene/classes/Image"
 import { Interior } from "../../scene/classes/Interior"
 import { Ocean } from "../../scene/classes/Ocean"
 import { Water } from "../../scene/classes/Water"
 import { AmbientLightComponent, AmbientLightData } from "../../scene/components/AmbientLightComponent"
-import { PositionalAudioSettingsComponent } from "../../scene/components/AudioSettingsComponent"
+import { AudioSettingsComponent, AudioSettingsData } from "../../scene/components/AudioSettingsComponent"
 import { DirectionalLightComponent, DirectionalLightData } from "../../scene/components/DirectionalLightComponent"
 import { FogComponent, FogData } from "../../scene/components/FogComponent"
 import { HemisphereLightData, HemisphereLightComponent } from "../../scene/components/HemisphereLightComponent"
 import { ImageComponent, ImageData } from "../../scene/components/ImageComponent"
 import { InteriorComponent, InteriorData } from "../../scene/components/InteriorComponent"
 import { Object3DComponent } from "../../scene/components/Object3DComponent"
-import { PersistTagComponent, PersistTagData } from "../../scene/components/PersistTagComponent"
 import { PointLightComponent, PointLightData } from "../../scene/components/PointLightComponent"
 import { ScenePreviewCameraData, ScenePreviewCameraTagComponent } from "../../scene/components/ScenePreviewCameraComponent"
 import { ShadowComponent, ShadowData } from "../../scene/components/ShadowComponent"
@@ -37,13 +35,10 @@ import { createGround } from "../../scene/functions/createGround"
 import { createMap } from "../../scene/functions/createMap"
 import { createAudio, createMediaServer, createVideo, createVolumetric } from "../../scene/functions/createMedia"
 import { createPortal } from "../../scene/functions/createPortal"
-import { createSkybox } from "../../scene/functions/createSkybox"
-import { handleRendererSettings } from "../../scene/functions/handleRendererSettings"
 import { loadGLTFModel } from "../../scene/functions/loadGLTFModel"
 import { loadModelAnimation } from "../../scene/functions/loadModelAnimation"
 import { SceneLoadParams, WorldScene } from "../../scene/functions/SceneLoading"
 import { setCameraProperties } from "../../scene/functions/setCameraProperties"
-import { setEnvMap } from "../../scene/functions/setEnvMap"
 import { BoxColliderProps } from "../../scene/interfaces/BoxColliderProps"
 import { SceneDataComponent } from "../../scene/interfaces/SceneDataComponent"
 import { TransformComponent, TransformData } from "../../transform/components/TransformComponent"
@@ -51,6 +46,13 @@ import { ComponentNames } from "../constants/ComponentNames"
 import { isClient } from "./isClient"
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { SkyboxComponent, SkyboxData, SkyboxDataProps } from "../../scene/components/SkyboxComponent"
+import { Sky } from "../../scene/classes/Sky"
+import { RenderSettingsComponent, RenderSettingsData } from "../../scene/components/RenderSettingsComponent"
+import { EnvMapComponent, EnvMapData } from "../../scene/components/EnvMapComponent"
+import { PostProcessingComponent, PostProcessingData } from "../../scene/components/PostProcessingComponent"
+import PostProcessing from "../../scene/classes/PostProcessing"
+import { configureEffectComposer } from "../../renderer/functions/configureEffectComposer"
 
 type RegisterFunctionParams = {
   world: World,
@@ -148,11 +150,6 @@ export const ComponentRegisterFunction: ComponentRegisterType = {
 
   [ComponentNames.FLOOR_PLAN]: (params: RegisterFunctionParams): void => {},
 
-  // TODO: Needs to be moved
-  [ComponentNames.SIMPLE_MATERIALS]: (params: RegisterFunctionParams): void => {
-    Engine.simpleMaterials = params.component.data.simpleMaterials
-  },
-
   // TODO: Not converted
   [ComponentNames.GLTF_MODEL]: (params: RegisterFunctionParams): void => {
     if (!params.worldScene) {
@@ -179,7 +176,7 @@ export const ComponentRegisterFunction: ComponentRegisterType = {
   },
 
   [ComponentNames.GROUND_PLANE]: (params: RegisterFunctionParams): void => {
-    createGround(params.entity, params.component.data, isClient)
+    createGround(params.entity, params.component.data, params.sceneProperty?.isEditor)
   },
 
   [ComponentNames.IMAGE]: (params: RegisterFunctionParams): void => {
@@ -252,19 +249,30 @@ export const ComponentRegisterFunction: ComponentRegisterType = {
     )
   },
 
-  // TODO: to be converted
   [ComponentNames.SKYBOX]: (params: RegisterFunctionParams): void => {
-    createSkybox(params.entity, params.component.data as any)
+    const object3dComponent = getComponent(params.entity, Object3DComponent)
+
+    addComponent<SkyboxData, {}>(
+      params.entity,
+      SkyboxComponent,
+      new SkyboxData(object3dComponent.value as Sky, params.component.data as SkyboxDataProps)
+    )
   },
 
-  // TODO: to be converted
   [ComponentNames.AUDIO_SETTINGS]: (params: RegisterFunctionParams): void => {
-    addComponent(params.entity, PositionalAudioSettingsComponent, params.component.data)
+    addComponent<AudioSettingsData, {}>(
+      params.entity,
+      AudioSettingsComponent,
+      new AudioSettingsData(params.component.data)
+    )
   },
 
-  // TODO: to be converted
   [ComponentNames.RENDERER_SETTINGS]: (params: RegisterFunctionParams): void => {
-    handleRendererSettings(params.component.data)
+    addComponent<RenderSettingsData, {}>(
+      params.entity,
+      RenderSettingsComponent,
+      new RenderSettingsData(params.component.data)
+    )
 
     if (params.sceneProperty) {
       params.sceneProperty.isCSMEnabled = params.component.data.csm
@@ -404,7 +412,17 @@ export const ComponentRegisterFunction: ComponentRegisterType = {
   },
 
   [ComponentNames.POSTPROCESSING]: (params: RegisterFunctionParams): void => {
-    // EngineRenderer.instance?.configurePostProcessing(params.component.data.options)
+    const object3DComponent = getComponent(params.entity, Object3DComponent)
+
+    addComponent<PostProcessingData, {}>(
+      params.entity,
+      PostProcessingComponent,
+      new PostProcessingData(object3DComponent.value as PostProcessing, params.component.data.options)
+    )
+
+    if (!params.sceneProperty?.isEditor) {
+      configureEffectComposer()
+    }
   },
 
   [ComponentNames.CAMERA_PROPERTIES]: (params: RegisterFunctionParams): void => {
@@ -420,11 +438,11 @@ export const ComponentRegisterFunction: ComponentRegisterType = {
   },
 
   [ComponentNames.ENVMAP]: (params: RegisterFunctionParams): void => {
-    setEnvMap(params.entity, params.component.data)
-  },
-
-  [ComponentNames.PERSIST]: (params: RegisterFunctionParams): void => {
-    if (isClient) addComponent<PersistTagData, {}>(params.entity, PersistTagComponent, new PersistTagData())
+    addComponent<EnvMapData, {}>(
+      params.entity,
+      EnvMapComponent,
+      new EnvMapData(params.component.data)
+    )
   },
 
   [ComponentNames.PORTAL]: (params: RegisterFunctionParams): void => {
@@ -432,8 +450,6 @@ export const ComponentRegisterFunction: ComponentRegisterType = {
   },
 
   /* intentionally empty - these are only for the editor */
-  [ComponentNames.INCLUDE_IN_CUBEMAP_BAKE]: (params: RegisterFunctionParams): void => { },
-  [ComponentNames.CUBEMAP_BAKE]: (params: RegisterFunctionParams): void => { },
   [ComponentNames.GROUP]: (params: RegisterFunctionParams): void => { },
   [ComponentNames.PROJECT]: (params: RegisterFunctionParams): void => { },  // loaded prior to engine init
 
@@ -449,5 +465,8 @@ export const ComponentRegisterFunction: ComponentRegisterType = {
     }
   },
 
-  [ComponentNames.MESH_COLLIDER]: (params: RegisterFunctionParams): void => { }
+  [ComponentNames.MESH_COLLIDER]: (params: RegisterFunctionParams): void => { },
+  [ComponentNames.NAME]: (params: RegisterFunctionParams): void => { },
+  [ComponentNames.CUBEMAP_BAKE]: (params: RegisterFunctionParams): void => { },
+  [ComponentNames.ENTITY_METADATA]: (params: RegisterFunctionParams): void => { },
 }
