@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import { Button } from './Button'
 import Hidden from '../layout/Hidden'
 let nextId = 0
@@ -34,43 +34,24 @@ type FileInputState = {
  * @author Robert Long
  * @type {Object}
  */
-export class FileInput extends Component<FileInputProps, FileInputState> {
-  /**
-   * constructor used to initilize FileInput component.
-   *
-   * @author Robert Long
-   * @param {Object} props
-   */
-  constructor(props) {
-    super(props)
-    this.state = {
-      id: `file-input-${nextId++}`
-    }
-  }
+const FileInput = (props: FileInputProps) => {
+  const [id, setId] = useState(`file-input-${nextId++}`)
 
-  /**
-   * onChange trigger Change method for FileInput Component.
-   *
-   * @author Robert Long
-   * @param  {Object} e.target.file
-   * @return {Object}   e
-   */
-  onChange = (e) => {
-    this.props.onChange(e.target.files, e)
+  const onChange = (e) => {
+    props.onChange(e.target.files, e)
   }
 
   //creating view for FileInput
-  render() {
-    const { label, onChange, ...rest } = this.props as any
-    return (
-      <div>
-        <Button as="label" htmlFor={this.state.id}>
-          {label}
-        </Button>
-        <Hidden as="input" {...rest} id={this.state.id} type="file" onChange={this.onChange} />
-      </div>
-    )
-  }
+  const { label, ...rest } = props
+
+  return (
+    <div>
+      <Button as="label" htmlFor={id}>
+        {label}
+      </Button>
+      <Hidden as="input" {...rest} id={id} type="file" onChange={onChange} />
+    </div>
+  )
 }
 
 export default FileInput
