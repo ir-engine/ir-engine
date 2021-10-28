@@ -5,7 +5,8 @@ import { NavigateNext, NavigateBefore } from '@material-ui/icons'
 import styles from './Inventory.module.scss'
 import { useTranslation } from 'react-i18next'
 import { LazyImage } from '../../../common/components/LazyImage'
-
+import { InventoryService } from '../../state/InventoryService'
+import { useAuthState } from '../../../user/state/AuthState'
 const InventoryMenu = (props: any): any => {
   const MAX_ITEMS_PER_PAGE = 9
   const MIN_ITEMS_PER_PAGE = 6
@@ -17,6 +18,7 @@ const InventoryMenu = (props: any): any => {
   const [itemPerPage, setItemPerPage] = useState(getItemPerPage())
   const [selectedItemId, setSelectedItemId] = useState('')
   const [isItemLoaded, setItemLoaded] = useState(false)
+  const selfUser = useAuthState().user
 
   useEffect((() => {
     function handleResize() {
@@ -42,6 +44,8 @@ const InventoryMenu = (props: any): any => {
   }, [props.itemList])
 
   const loadNextItems = (e) => {
+    InventoryService.getUserInventory(selfUser.id?.value || '')
+
     e.preventDefault()
     if ((page + 1) * itemPerPage >= props.itemList.length) return
     setPage(page + 1)

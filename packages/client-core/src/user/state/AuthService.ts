@@ -225,7 +225,7 @@ export const AuthService = {
       window.location.href = redirectUrl
     }
   },
-  loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string): any => {
+  loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
     const dispatch = useDispatch()
     {
       try {
