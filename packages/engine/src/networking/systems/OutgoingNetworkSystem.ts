@@ -163,9 +163,6 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
       vel
     )
   ) {
-    // @ts-ignore
-    // console.log(TransformComponent.position.x[entity],TransformComponent.position.z[entity])
-
     outgoingNetworkState.pose.push({
       networkId: networkObject.networkId,
       position: transformComponent.position.toArray(),
@@ -182,8 +179,6 @@ export const queueUnchangedPosesServer = (world: World) => {
   const ents = networkTransformsQuery(world)
   for (let i = 0; i < ents.length; i++) {
     queueEntityTransform(world, ents[i])
-    // const velC = getComponent(ents[i], VelocityComponent)
-    // console.log(velC)
   }
 
   // todo: forward updates for remotely owned objects
