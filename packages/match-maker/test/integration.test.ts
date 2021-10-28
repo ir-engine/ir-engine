@@ -2,7 +2,8 @@ import assert from 'assert'
 import { createTicket, deleteTicket, getTicket, getTicketsAssignment } from '../src/functions'
 import { OpenMatchTicket } from '../src/interfaces'
 
-describe('frontend service', () => {
+// this tests use real open match services
+describe.skip('open-match frontend service', () => {
   it('creates ticket', async () => {
     const ticket = await createTicket('mode.battleroyale')
     assert(ticket.id)
@@ -18,18 +19,15 @@ describe('frontend service', () => {
 
   it('deletes ticket', async () => {
     const result = await createTicket('mode.battleroyale')
-    const deleteResult = await deleteTicket(result.id)
+    assert(result.id, 'Ticket creation is failed')
+    await deleteTicket(result.id)
 
-    try {
-      const ticket = await getTicket(result.id)
-      assert(!ticket?.id)
-    } catch (e) {
-      assert(e.isAxiosError)
-      assert(e.response.status && e.response.status === 404)
-    }
+    const ticket = await getTicket(result.id)
+    assert(!ticket?.id)
   })
 
   it('sets assignment', async function () {
+    // @ts-ignore
     this.timeout(6000)
 
     // 1. create enough tickets

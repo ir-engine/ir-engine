@@ -1,5 +1,5 @@
 interface OpenMatchTicket {
-  id?: 'string'
+  id?: string
   assignment?: OpenMatchTicketAssignment
   search_fields?: OpenMatchSearchFields
   extensions?: OpenMatchExtensions

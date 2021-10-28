@@ -1,17 +1,38 @@
 {
   "compilerOptions": {
-    "outDir": "./lib",
-    "module": "ES2020", // or commonjs
-    "target": "ES2019",
+    "target": "esnext",
     "lib": [
-      "ES2019",
-      "DOM",
-      "ES2020"
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "WebWorker"
     ],
-    "moduleResolution": "Node",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "module": "CommonJS",
+    "strict": false,
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "jsx": "react",
+    "isolatedModules": false,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
     "declaration": true,
-    "strict": true
+    "outDir": "./lib"
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "exclude": [
+    "**/node_modules/**",
+    "tests old/*"
+  ],
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+  ]
 }

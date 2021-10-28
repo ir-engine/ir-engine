@@ -7,7 +7,7 @@ import {
 import axios from 'axios'
 import { IncomingMessage } from 'http'
 
-const FRONTEND_SERVICE_URL = 'http://localhost:51504/v1/frontendservice'
+export const FRONTEND_SERVICE_URL = 'http://localhost:51504/v1/frontendservice'
 const axiosInstance = axios.create({
   baseURL: FRONTEND_SERVICE_URL
 })
@@ -64,7 +64,7 @@ function getTicketsAssignment(ticketId: string): Promise<OpenMatchTicketAssignme
     .then((response) => (response as OpenMatchTicketAssignmentResponse).result.assignment)
 }
 
-function getTicket(ticketId: string): Promise<OpenMatchTicket> {
+function getTicket(ticketId: string): Promise<OpenMatchTicket | void> {
   return axiosInstance
     .get(`/tickets/${ticketId}`)
     .then((r) => r.data)
@@ -72,11 +72,22 @@ function getTicket(ticketId: string): Promise<OpenMatchTicket> {
     .then((result) => {
       return result as OpenMatchTicket
     })
+    .catch((e) => {
+      if (axios.isAxiosError(e)) {
+        if (e.response?.status === 404) {
+          // we expect 404 if ticket not found, just return nothing
+          return
+        }
+      }
+      // otherwise throw further
+      throw e
+    })
 }
 
 function deleteTicket(ticketId: string): Promise<void> {
   return axiosInstance
     .delete(`/tickets/${ticketId}`)
+    .then((r) => r.data)
     .then(checkForApiErrorResponse)
     .then((result) => {})
 }
