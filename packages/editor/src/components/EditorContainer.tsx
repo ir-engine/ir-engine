@@ -49,6 +49,7 @@ import { ProjectManager } from '../managers/ProjectManager'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { client } from '@xrengine/client-core/src/feathers'
 import { upload } from '@xrengine/client-core/src/util/upload'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 const maxUploadSize = 25
 
@@ -703,7 +704,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   setDebuginfo = () => {
-    const gl = SceneManager.instance.renderer.webglRenderer.getContext()
+    const gl = Engine.renderer.getContext()
 
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
 

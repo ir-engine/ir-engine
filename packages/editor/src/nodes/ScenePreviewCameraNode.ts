@@ -3,6 +3,7 @@ import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import EditorNodeMixin from './EditorNodeMixin'
 import { SceneManager } from '../managers/SceneManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export default class ScenePreviewCameraNode extends EditorNodeMixin(PerspectiveCamera) {
   static legacyComponentName = 'scene-preview-camera'
@@ -20,7 +21,7 @@ export default class ScenePreviewCameraNode extends EditorNodeMixin(PerspectiveC
     const matrix = new Matrix4()
       .copy(this.parent.matrixWorld)
       .invert()
-      .multiply(SceneManager.instance.camera.matrixWorld)
+      .multiply(Engine.camera.matrixWorld)
     matrix.decompose(this.position, this.rotation, this.scale)
     CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
     CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)

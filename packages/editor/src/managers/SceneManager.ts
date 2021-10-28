@@ -31,7 +31,6 @@ export class SceneManager {
   renderer: Renderer
   scene: Scene
   sceneModified: boolean
-  camera: PerspectiveCamera
   audioListener: AudioListener
   grid: EditorInfiniteGridHelper
   raycaster: Raycaster
@@ -76,21 +75,21 @@ export class SceneManager {
 
     this.sceneModified = false
 
-    this.camera = Engine.camera as PerspectiveCamera
+    Engine.camera = Engine.camera as PerspectiveCamera
 
     this.scene.add(this.grid)
     this.scene.add(this.transformGizmo)
 
 
     this.audioListener = new AudioListener()
-    this.camera.add(this.audioListener)
-    this.camera.layers.enable(1)
-    this.camera.name = 'Camera'
+    Engine.camera.add(this.audioListener)
+    Engine.camera.layers.enable(1)
+    Engine.camera.name = 'Camera'
 
-    this.camera.position.set(0, 5, 10)
-    this.camera.lookAt(new Vector3())
+    Engine.camera.position.set(0, 5, 10)
+    Engine.camera.lookAt(new Vector3())
 
-    this.scene.add(this.camera)
+    this.scene.add(Engine.camera)
 
     this.thumbnailRenderer = new ThumbnailRenderer()
     window.addEventListener('resize', this.onResize)
@@ -226,7 +225,7 @@ export class SceneManager {
    * @param target
    */
   getScreenSpaceSpawnPosition(screenSpacePosition, target) {
-    this.raycaster.setFromCamera(screenSpacePosition, this.camera)
+    this.raycaster.setFromCamera(screenSpacePosition, Engine.camera)
     const results = this.raycaster.intersectObject(this.scene as any, true)
     const result = getIntersectingNode(results, this.scene)
 

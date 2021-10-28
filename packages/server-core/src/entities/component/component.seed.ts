@@ -135,14 +135,6 @@ export const componentSeed = {
       entityId: entitySeed.templates.find((template) => template.id === '1B698482-C15A-4CEC-9247-03873520DF70').id
     },
     {
-      id: '08cc03c2-24e9-11eb-bc2e-e7e742fb069f',
-      data: {},
-      createdAt: '2020-11-12 13:14:45',
-      updatedAt: '2020-11-12 13:14:45',
-      type: 'walkable',
-      entityId: entitySeed.templates.find((template) => template.id === '1B698482-C15A-4CEC-9247-03873520DF70').id
-    },
-    {
       id: '08cc03c3-24e9-11eb-bc2e-e7e742fb069f',
       data: { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
       createdAt: '2020-11-12 13:14:45',
@@ -182,6 +174,14 @@ export const componentSeed = {
       createdAt: '2020-11-12 13:14:45',
       updatedAt: '2020-11-12 13:14:45',
       type: 'postprocessing',
+      entityId: entitySeed.templates.find((template) => template.id === '1B698484-C15A-4CEC-9247-03873520DF70').id
+    },
+    {
+      id: '09cc03c3-24f0-11eb-bc2e-e7e742fb069f',
+      data: { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } },
+      createdAt: '2020-11-12 13:14:45',
+      updatedAt: '2020-11-12 13:14:45',
+      type: 'transform',
       entityId: entitySeed.templates.find((template) => template.id === '1B698484-C15A-4CEC-9247-03873520DF70').id
     },
     {

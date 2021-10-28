@@ -30,6 +30,7 @@ import { SceneManager } from '../managers/SceneManager'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export const SnapMode = {
   Disabled: 'Disabled',
@@ -699,8 +700,8 @@ export default class EditorControls extends EventEmitter {
     if (
       (excludeObjects && excludeObjects.indexOf(object) !== -1) ||
       (excludeLayers && excludeLayers.test(object.layers)) ||
-      (SceneManager.instance.renderer.webglRenderer.batchManager &&
-        SceneManager.instance.renderer.webglRenderer.batchManager.batches.indexOf(object) !== -1) ||
+      (Engine.renderer.batchManager &&
+        Engine.renderer.batchManager.batches.indexOf(object) !== -1) ||
       !object.visible
     ) {
       return

@@ -1,6 +1,7 @@
 import {
   MeshBasicMaterial,
   MeshNormalMaterial,
+  PerspectiveCamera,
   WebGLInfo,
   WebGLRenderer,
 } from 'three'
@@ -24,7 +25,6 @@ import { PostProcessingComponent } from '@xrengine/engine/src/scene/components/P
 
 export class Renderer {
   canvas: HTMLCanvasElement
-  webglRenderer: WebGLRenderer
   renderMode: RenderModesType
   screenshotRenderer: WebGLRenderer
   onUpdateStats: (info: WebGLInfo) => void
@@ -41,7 +41,6 @@ export class Renderer {
     )
     renderer.setPixelRatio(window.devicePixelRatio)
     renderer.info.autoReset = false
-    this.webglRenderer = renderer
     Engine.renderer = renderer
 
     this.screenshotRenderer = makeRenderer(1920, 1080)
@@ -72,26 +71,26 @@ export class Renderer {
   }
 
   update(dt, _time) {
-    this.webglRenderer.info.reset()
+    Engine.renderer.info.reset()
     // Engine.csm.update();
     Engine.effectComposer
       ? Engine.effectComposer.render(dt)
-      : this.webglRenderer.render(SceneManager.instance.scene as any, SceneManager.instance.camera)
+      : Engine.renderer.render(SceneManager.instance.scene as any, Engine.camera)
 
     if (this.onUpdateStats) {
-      const renderStat = this.webglRenderer.info.render as any
+      const renderStat = Engine.renderer.info.render as any
       renderStat.fps = 1 / dt
       renderStat.frameTime = dt * 1000
-      this.onUpdateStats(this.webglRenderer.info)
+      this.onUpdateStats(Engine.renderer.info)
     }
   }
 
   get isShadowMapEnabled() {
-    return this.webglRenderer.shadowMap.enabled
+    return Engine.renderer.shadowMap.enabled
   }
 
   enableShadows(status: boolean): void {
-    this.webglRenderer.shadowMap.enabled = status
+    Engine.renderer.shadowMap.enabled = status
     SceneManager.instance.scene.traverse((object) => {
       if (object.setShadowsEnabled) {
         object.setShadowsEnabled(this.enableShadows)
@@ -134,12 +133,13 @@ export class Renderer {
   }
 
   onResize = () => {
-    const camera = SceneManager.instance.camera
+    const camera = Engine.camera as PerspectiveCamera
     const canvas = this.canvas
     const containerEl = canvas.parentElement.parentElement
     camera.aspect = containerEl.offsetWidth / containerEl.offsetHeight
+
     camera.updateProjectionMatrix()
-    this.webglRenderer.setSize(containerEl.offsetWidth, containerEl.offsetHeight, false)
+    Engine.renderer.setSize(containerEl.offsetWidth, containerEl.offsetHeight, false)
     // Engine.csm.updateFrustums();
 
     configureEffectComposer()
@@ -147,13 +147,13 @@ export class Renderer {
 
   takeScreenshot = async (width = 1920, height = 1080) => {
     const { screenshotRenderer } = this
-    const originalRenderer = this.webglRenderer
-    this.webglRenderer = screenshotRenderer
+    const originalRenderer = Engine.renderer
+    Engine.renderer = screenshotRenderer
     SceneManager.instance.disableUpdate = true
     let scenePreviewCamera = SceneManager.instance.scene.findNodeByType(ScenePreviewCameraNode)
     if (!scenePreviewCamera) {
       scenePreviewCamera = new ScenePreviewCameraNode()
-      SceneManager.instance.camera.matrix.decompose(
+      Engine.camera.matrix.decompose(
         scenePreviewCamera.position,
         scenePreviewCamera.rotation,
         scenePreviewCamera.scale
@@ -171,7 +171,7 @@ export class Renderer {
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.enable(1)
     SceneManager.instance.disableUpdate = false
-    this.webglRenderer = originalRenderer
+    Engine.renderer = originalRenderer
     return blob
   }
 
@@ -198,7 +198,7 @@ export class Renderer {
   }
 
   dispose() {
-    this.webglRenderer.dispose()
+    Engine.renderer.dispose()
     this.screenshotRenderer.dispose()
     Engine.effectComposer?.dispose()
   }
