@@ -62,7 +62,7 @@ export function FileListItem({
  */
 export const FileList = (styled as any).div`
  width: 100%;
- padding: 10px;
+ padding-bottom: 60px;
 `
 
 MediaGrid.defaultProps = {

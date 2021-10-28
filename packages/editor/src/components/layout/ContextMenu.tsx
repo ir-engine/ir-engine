@@ -40,7 +40,7 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
 
   .react-contextmenu-wrapper{
     height:100%;
-width:100%;
+    width:100%;
   }
 
   .react-contextmenu.react-contextmenu--visible {
