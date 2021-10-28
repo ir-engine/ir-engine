@@ -164,6 +164,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/TriggerSystem'))
   registerSystemWithArgs(SystemUpdateType.FIXED_LATE, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
   })
@@ -244,6 +245,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/TriggerSystem'))
   registerSystemWithArgs(SystemUpdateType.FIXED_LATE, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
   })
