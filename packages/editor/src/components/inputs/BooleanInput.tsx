@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import Input from './Input'
 import styled from 'styled-components'
 import { Check } from '@styled-icons/fa-solid'
@@ -58,39 +58,27 @@ interface BooleanInputProp {
  * BooleanInput component used to provide view for checkbox.
  *
  * @author Robert Long
- * @type {class component}
+ * @type {functional component}
  */
-export class BooleanInput extends Component<BooleanInputProp, {}> {
+const BooleanInput = (props: BooleanInputProp) => {
   //initializing checkboxId for BooleanInput
-  constructor(props) {
-    super(props)
-    this.checkboxId = `boolean-input-${uniqueId++}`
-  }
-  static defaultProps = {
-    value: false,
-    onChange: () => {}
-  }
-
-  // declaring checkboxId
-  checkboxId: string
+  let [checkboxId, SetCheckboxId] = useState(`boolean-input-${uniqueId++}`)
 
   // function handling changes in BooleanInput
-  onChange = (e) => {
-    ;(this.props as any).onChange(e.target.checked)
+  const onChange = (e) => {
+    props?.onChange(e.target.checked)
   }
 
-  render() {
-    //initializing variables using props of component
-    const { value, onChange, ...rest } = this.props as any
+  //initializing variables using props of component
+  const { value, ...rest } = props
 
-    // returing view for BooleanInput component
-    return (
-      <div>
-        <StyledBooleanInput {...rest} id={this.checkboxId} type="checkbox" checked={value} onChange={this.onChange} />
-        <BooleanInputLabel htmlFor={this.checkboxId}>{value && <BooleanCheck size={12} />}</BooleanInputLabel>
-      </div>
-    )
-  }
+  // returing view for BooleanInput component
+  return (
+    <div>
+      <StyledBooleanInput {...rest} id={checkboxId} type="checkbox" checked={props.value} onChange={onChange} />
+      <BooleanInputLabel htmlFor={checkboxId}>{value && <BooleanCheck size={12} />}</BooleanInputLabel>
+    </div>
+  )
 }
 
 export default BooleanInput
