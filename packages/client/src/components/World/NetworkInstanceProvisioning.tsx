@@ -27,13 +27,13 @@ interface Props {
   children?: any
   chatState?: any
   sceneId: any
-  reinit: any
+  //reinit: any
   isUserBanned: any
   setIsValidLocation: any
 }
 
 export const NetworkInstanceProvisioning = (props: Props) => {
-  const { sceneId, reinit, isUserBanned, setIsValidLocation } = props
+  const { sceneId, isUserBanned, setIsValidLocation } = props
 
   const authState = useAuthState()
   const selfUser = authState.user
