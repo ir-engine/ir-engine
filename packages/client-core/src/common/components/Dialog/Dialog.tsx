@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { useDispatch } from '../../../store'
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
-import Typography from '@material-ui/core/Typography'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
+import Typography from '@mui/material/Typography'
 import { useDialogState } from '../../state/DialogState'
 import { DialogAction } from '../../state/DialogActions'
 import { useHistory } from 'react-router-dom'
@@ -35,9 +35,9 @@ const DialogComponent = (props: Props): any => {
 
   return (
     <Dialog open={isOpened.value} onClose={handleClose} aria-labelledby="xr-dialog" color="background">
-      <DialogTitle disableTypography className={styles.dialogTitle}>
+      <DialogTitle className={styles.dialogTitle}>
         <Typography variant="h6">{(content && content?.value?.title) ?? ''}</Typography>
-        <IconButton aria-label="close" className={styles.dialogCloseButton} onClick={handleClose}>
+        <IconButton aria-label="close" className={styles.dialogCloseButton} onClick={handleClose} size="large">
           <CloseIcon />
         </IconButton>
       </DialogTitle>

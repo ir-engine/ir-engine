@@ -1,7 +1,7 @@
-import Checkbox from '@material-ui/core/Checkbox'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { PostProcessingComponent, PostProcessingData } from '@xrengine/engine/src/scene/components/PostProcessingComponent'
+import Checkbox from '@mui/material/Checkbox'
 import React from 'react'
 import NodeEditor from './NodeEditor'
 import { PostProcessingProperties } from './PostProcessingProperties'

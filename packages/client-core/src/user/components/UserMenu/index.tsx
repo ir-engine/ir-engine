@@ -1,7 +1,7 @@
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
-import LinkIcon from '@material-ui/icons/Link'
-import PersonIcon from '@material-ui/icons/Person'
-import SettingsIcon from '@material-ui/icons/Settings'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+import LinkIcon from '@mui/icons-material/Link'
+import PersonIcon from '@mui/icons-material/Person'
+import SettingsIcon from '@mui/icons-material/Settings'
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'

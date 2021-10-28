@@ -38,6 +38,12 @@
 
 .group-form {
     margin: 1em;
+    color: white;
+
+    div,
+    label {
+        color: white !important;
+    }
 }
 
 .title {
@@ -77,6 +83,7 @@
 
 .details-container {
     @include flex-collapse;
+    color: white;
 
     .deleteConfirm {
         display: flex;
@@ -87,16 +94,16 @@
             &:first-child {
                 margin-right: 10px;
             }
-
-            &.background-red {
-                background-color: #ef5350;
-                color: white;
-            }
         }
     }
 
     & > .list-container {
         overflow-y: auto;
+    }
+
+    .groupUserDeleteInit {
+        background-color: #ef5350;
+        color: white;
     }
 
     .groupUserDeleteInit,
@@ -138,4 +145,13 @@
 .backButton {
     width: 40px !important;
     background-color: rgba(206, 206, 206, 0.1);
+}
+
+.background-red {
+    background-color: #ef5350;
+    color: white;
+}
+
+.gray {
+    background-color: gray;
 }

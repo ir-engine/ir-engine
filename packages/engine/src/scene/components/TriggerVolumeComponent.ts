@@ -22,6 +22,7 @@ export class TriggerVolumeData implements ComponentData {
 
     this.obj3d.userData = {
       type: 'box',
+      isTrigger: true,
       collisionLayer: CollisionGroups.Trigger,
       collisionMask: CollisionGroups.Default
     }
@@ -49,6 +50,7 @@ export class TriggerVolumeData implements ComponentData {
     if (showHelper && !this.helper) {
       this.helper = new BoxHelper(this.obj3d, 0xffff00)
       this.helper.layers.set(1)
+      this.obj3d.scale.multiplyScalar(2) // engine uses half-extents for box size, to be compatible with gltf and threejs
       this.obj3d.add(this.helper)
     }
 

@@ -1,6 +1,6 @@
 import React from 'react'
-import Grid from '@material-ui/core/Grid'
-import Button from '@material-ui/core/Button'
+import Grid from '@mui/material/Grid'
+import Button from '@mui/material/Button'
 import Search from './SearchLocation'
 import { useLocationStyles } from './styles'
 import LocationTable from './LocationTable'

@@ -3,12 +3,12 @@
  */
 import React, { useState } from 'react'
 
-import Typography from '@material-ui/core/Typography'
-import Avatar from '@material-ui/core/Avatar'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import WhatshotIcon from '@material-ui/icons/Whatshot'
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
+import Typography from '@mui/material/Typography'
+import Avatar from '@mui/material/Avatar'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import WhatshotIcon from '@mui/icons-material/Whatshot'
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 
 import styles from './CommentCard.module.scss'
 import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'

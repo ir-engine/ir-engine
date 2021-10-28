@@ -1,4 +1,4 @@
-import AppBar from '@material-ui/core/AppBar'
+import AppBar from '@mui/material/AppBar'
 import React from 'react'
 
 interface Props {

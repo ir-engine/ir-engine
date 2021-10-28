@@ -96,8 +96,11 @@ export function createVideo(entity, props: VideoDataProps): void {
 export const createVolumetric = (entity, props: VolumetricDataProps) => {
   const container = new UpdateableObject3D()
   const worker = new DracosisPlayerWorker()
-  // const resourceUrl = "https://172.160.10.156:3000/static/volumetric/liam.drcs";
   const resourceUrl = props.src
+  let isBuffering = false
+  let timer: any
+  let isPlayed = false
+  let preProgress = 0
   DracosisSequence = new DracosisPlayer({
     scene: container,
     renderer: Engine.renderer,
@@ -108,7 +111,29 @@ export const createVolumetric = (entity, props: VolumetricDataProps) => {
     loop: props.loop,
     autoplay: props.autoPlay,
     scale: 1,
-    frameRate: 25
+    frameRate: 25,
+    onMeshBuffering: (progress) => {
+      console.warn('BUFFERING!!', progress)
+      if (progress == preProgress) return
+      preProgress = progress
+      if (!isBuffering) {
+        DracosisSequence.paused = true
+        if (timer) clearTimeout(timer)
+        timer = setTimeout(() => {
+          if (isPlayed) {
+            DracosisSequence.play()
+            preProgress = 0
+          }
+        }, 500)
+      }
+      isBuffering = true
+    },
+    onFrameShow: () => {
+      if (isBuffering) {
+        DracosisSequence.paused = false
+      }
+      isBuffering = false
+    }
   })
 
   container.update = () => {
@@ -125,8 +150,19 @@ export const createVolumetric = (entity, props: VolumetricDataProps) => {
 
   addComponent(entity, RenderedComponent, {})
 
-  //temporary code
-  DracosisSequence.play()
+  container.execute = (key) => {
+    console.log('Volumetric Execute: ', key)
+    if (key == 'play') {
+      container.visible = true
+      DracosisSequence.play()
+      isPlayed = true
+    } else if (key == 'paused') {
+      DracosisSequence.paused = true
+    } else if (key == 'stop') {
+      container.visible = false
+      DracosisSequence.paused = true
+    }
+  }
 
   addObject3DComponent(entity, container, props)
   if (props.interactable) {

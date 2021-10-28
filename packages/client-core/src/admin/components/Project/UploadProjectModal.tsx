@@ -3,14 +3,14 @@ import React, { useState } from 'react'
 import styles from './Projects.module.scss'
 import { uploadProject } from '../../state/ProjectService'
 import { useDispatch } from '../../../store'
-import Backdrop from '@material-ui/core/Backdrop'
-import Button from '@material-ui/core/Button'
-import Fade from '@material-ui/core/Fade'
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
-import Modal from '@material-ui/core/Modal'
-import TextField from '@material-ui/core/TextField'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import Backdrop from '@mui/material/Backdrop'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import Modal from '@mui/material/Modal'
+import TextField from '@mui/material/TextField'
+import CircularProgress from '@mui/material/CircularProgress'
 
 interface Props {
   open: boolean
@@ -76,22 +76,22 @@ const AddToContentPackModal = (props: Props): any => {
             })}
           >
             {processing === false && createOrPatch === 'patch' && (
-              <div>
-                <FormControl>
-                  <div>
-                    <InputLabel id="urlSelect">URL</InputLabel>
-                    <TextField
-                      className={styles['pack-select']}
-                      id="urlSelect"
-                      value={projectURL}
-                      onChange={(e) => setProjectURL(e.target.value)}
-                    />
-                  </div>
+              <FormControl>
+                <div className={styles.inputConatiner}>
+                  <TextField
+                    className={styles['pack-select']}
+                    id="urlSelect"
+                    value={projectURL}
+                    placeholder={'URL'}
+                    onChange={(e) => setProjectURL(e.target.value)}
+                  />
+                </div>
+                <div className={styles.buttonConatiner}>
                   <Button type="submit" variant="contained" color="primary" onClick={tryUploadProject}>
                     Upload Project
                   </Button>
-                </FormControl>
-              </div>
+                </div>
+              </FormControl>
             )}
             {processing === true && (
               <div className={styles.processing}>
