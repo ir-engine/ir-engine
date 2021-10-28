@@ -1,11 +1,11 @@
 import React from 'react'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import Divider from '@material-ui/core/Divider'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import Avatar from '@material-ui/core/Avatar'
-import Chip from '@material-ui/core/Chip'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import Divider from '@mui/material/Divider'
+import ListItemText from '@mui/material/ListItemText'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import Avatar from '@mui/material/Avatar'
+import Chip from '@mui/material/Chip'
 import { useStyle, useStyles } from './style'
 
 const SentInvites = () => {
@@ -62,7 +62,7 @@ const SentInvites = () => {
                   <Avatar>{el.name.slice(0, 1).toLocaleUpperCase()}</Avatar>
                 </ListItemAvatar>
                 <ListItemText
-                  style={{ backgroundColor: '#43484F' }}
+                  style={{ backgroundColor: '#43484F', color: '#f1f1f1' }}
                   primary={el.name}
                   secondary={<React.Fragment>{el.description}</React.Fragment>}
                 />

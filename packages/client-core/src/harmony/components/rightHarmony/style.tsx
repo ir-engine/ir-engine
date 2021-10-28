@@ -5,7 +5,7 @@ import createStyles from '@mui/styles/createStyles'
 import { styled, alpha } from '@mui/material/styles'
 import Menu, { MenuProps } from '@mui/material/Menu'
 
-const theme = createTheme()
+// const theme = createTheme()
 
 export const StyledMenu = styled((props: MenuProps) => (
   <Menu
@@ -98,7 +98,7 @@ export const useStyles = makeStyles(() =>
       margin: 'auto'
     },
     input: {
-      marginLeft: theme.spacing(1),
+      // marginLeft: theme.spacing(1),
       flex: 1
     },
     inputEdit: {

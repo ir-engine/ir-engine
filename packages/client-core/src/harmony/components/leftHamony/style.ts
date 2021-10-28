@@ -58,7 +58,8 @@ export const useUserStyles = makeStyles((theme: Theme) =>
     },
     container: {
       marginTop: '30%',
-      background: 'transparent'
+      background: 'transparent',
+      color: '#f1f1f1'
     },
     texAlign: {
       textAlign: 'center',

@@ -2,6 +2,9 @@ import { Theme } from '@mui/material/styles'
 
 import makeStyles from '@mui/styles/makeStyles'
 import createStyles from '@mui/styles/createStyles'
+import { styled } from '@mui/material/styles'
+import List from '@mui/material/List'
+import Button from '@mui/material/Button'
 
 // const theme = createTheme();
 
@@ -42,7 +45,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       border: '1px solid #FF8C00',
       margin: 'auto 5px',
       background: 'transparent',
-      width: '8rem'
+      width: '12rem'
     },
     button: {
       display: 'block',
@@ -126,3 +129,17 @@ export const useStyle = makeStyles({
     color: '#f1f1f1'
   }
 })
+
+export const RootList = styled(List)(({ theme }) => ({
+  width: '100%',
+  backgroundColor: '#43484F',
+  position: 'relative'
+}))
+
+export const AcceptInviteBtn = styled(Button)(({ theme }) => ({
+  margin: 'auto 5px',
+  background: 'transparent',
+  border: '0.5px solid #3A4149',
+  color: '#f1f1f1 !important',
+  width: '12rem'
+}))
