@@ -40,7 +40,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const dispatch = useDispatch()
 
   let menus = [
-    { id: Views.Inventory, iconNode: ShoppingBagIcon },
+    { id: Views.Inventory, imageNode: '/static/inventory.svg' },
     { id: Views.Profile, iconNode: PersonIcon },
     { id: Views.Settings, iconNode: SettingsIcon },
     { id: Views.Share, iconNode: LinkIcon },
