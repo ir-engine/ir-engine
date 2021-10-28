@@ -100,7 +100,7 @@
     "c8": "7.10.0",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
-    "esbuild": "0.13.9",
+    "esbuild": "0.13.10",
     "eslint": "8.1.0",
     "mocha": "9.1.2",
     "rollup": "2.58.3",
