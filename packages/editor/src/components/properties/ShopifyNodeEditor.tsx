@@ -1,4 +1,4 @@
-import { Cube } from '@styled-icons/fa-solid/Cube'
+import { ShoppingCart } from '@styled-icons/fa-solid/ShoppingCart'
 import i18n from 'i18next'
 import React, { Component, Fragment } from 'react'
 import { withTranslation } from 'react-i18next'
@@ -88,6 +88,8 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
 
   //initializing description and will appears on the editor view
   static description = i18n.t('editor:properties.shopify.description')
+  //initializing iconComponent with image name
+  static iconComponent = ShoppingCart
 
   //Shopify UI Controls
   onChangeShopifyDomain = (domain) => {
@@ -107,6 +109,10 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
   }
 
   //Interactive UI Controls
+  // function to handle changes in interactable property
+  onChangeInteractable = (interactable) => {
+    CommandManager.instance.setPropertyOnSelection('interactable', interactable)
+  }
 
   // function to handle changes in interactionType property
   onChangeInteractionType = (interactionType) => {
@@ -414,6 +420,10 @@ export class ShopifyNodeEditor extends Component<ShopifyNodeEditorProps, Shopify
           />
         </InputGroup>
         {this.renderPropertiesFields(node)}
+        <InputGroup name="Interactable" label={this.props.t('editor:properties.model.lbl-interactable')}>
+          <BooleanInput value={node.interactable} onChange={this.onChangeInteractable} />
+        </InputGroup>
+        {this.renderInteractableDependantFields(node)}
       </NodeEditor>
     )
   }

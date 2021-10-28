@@ -1,22 +1,10 @@
-import { Box3, Sphere, PropertyBinding } from 'three'
 import Shopify from '@xrengine/engine/src/scene/classes/Shopify'
 import EditorNodeMixin from './EditorNodeMixin'
-import { setStaticMode, StaticModes } from '../functions/StaticMode'
-import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
-import { makeCollidersInvisible } from '@xrengine/engine/src/physics/functions/parseModelColliders'
-import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { RethrownError } from '../functions/errors'
-import { resolveMedia } from '../functions/resolveMedia'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
-import { CacheManager } from '../managers/CacheManager'
 import { SceneManager } from '../managers/SceneManager'
-import { ControlManager } from '../managers/ControlManager'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { delay } from '@xrengine/engine/src/common/functions/delay'
 import axios from 'axios'
-import Image, { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+import { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 
 import ModelNode from './ModelNode'
 import VideoNode from './VideoNode'
@@ -451,7 +439,6 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
     } else if (this.extendType == 'video') {
       extend = {
         src: this.extendNode.src,
-        interactable: this.extendNode.interactable,
         isLivestream: this.extendNode.isLivestream,
         controls: this.extendNode.controls,
         autoPlay: this.extendNode.autoPlay,
@@ -479,6 +466,11 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
       }
     }
 
+    let shopifyJsonStr = ''
+    if (this.shopifyProductItems && this.shopifyProductItems.length > 0) {
+      shopifyJsonStr = JSON.stringify(this.shopifyProductItems)
+    }
+
     const components = {
       'gltf-shopify': {
         shopifyProducts: this.shopifyProducts,
@@ -500,7 +492,8 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
         payloadBuyUrl: this.payloadBuyUrl,
         payloadLearnMoreUrl: this.payloadLearnMoreUrl,
         payloadHtmlContent: this.payloadHtmlContent,
-        payloadModelUrl: this._canonicalUrl
+        payloadModelUrl: this._canonicalUrl,
+        payloadJson: shopifyJsonStr
       }
     }
     return await super.serialize(projectID, components)

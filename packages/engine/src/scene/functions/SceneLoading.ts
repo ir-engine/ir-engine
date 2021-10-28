@@ -223,6 +223,7 @@ export class WorldScene {
         break
 
       case 'interact':
+        console.log(component.data)
         if (component.data.interactable) addComponent(entity, InteractableComponent, { data: component.data })
         break
 
