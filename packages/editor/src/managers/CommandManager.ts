@@ -45,7 +45,7 @@ export type CommandParamsType =
   | LoadMaterialSlotCommandParams
 
 export class CommandManager extends EventEmitter {
-  static instance: CommandManager
+  static instance: CommandManager = new CommandManager()
 
   commands: {
     [key: string]: typeof Command
@@ -54,10 +54,6 @@ export class CommandManager extends EventEmitter {
   selected: any[] = []
   selectedTransformRoots: any[] = []
   history: History
-
-  static buildCommandManager() {
-    this.instance = new CommandManager()
-  }
 
   constructor() {
     super()

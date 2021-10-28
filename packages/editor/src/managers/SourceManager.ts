@@ -6,15 +6,11 @@ import ElementsSource from '../components/assets/sources/ElementsSource'
 import { MyAssetsSource } from '../components/assets/sources/MyAssetsSource'
 
 export class SourceManager {
-  static instance: SourceManager
+  static instance: SourceManager = new SourceManager()
 
   sources: BaseSource[]
 
   defaultUploadSource: BaseSource
-
-  static buildSourceManager() {
-    this.instance = new SourceManager()
-  }
 
   constructor() {
     this.sources = []

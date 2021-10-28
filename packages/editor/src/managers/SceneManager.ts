@@ -21,7 +21,7 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import PostProcessingNode from '../nodes/PostProcessingNode'
 
 export class SceneManager {
-  static instance: SceneManager
+  static instance: SceneManager = new SceneManager()
 
   static DefaultExportOptions = {
     combineMeshes: true,
@@ -44,11 +44,7 @@ export class SceneManager {
   transformGizmo: TransformGizmo
   postProcessingNode: PostProcessingNode
 
-  static buildSceneManager() {
-    this.instance = new SceneManager()
-  }
-
-  constructor() {
+  async initializeScene(projectFile: any): Promise<Error[] | void> {
     this.renderer = null
     this.sceneModified = false
     this.raycaster = new Raycaster()
@@ -63,10 +59,6 @@ export class SceneManager {
 
     this.centerScreenSpace = new Vector2()
     this.clock = new Clock()
-    this.disableUpdate = true
-  }
-
-  async initializeScene(projectFile: any): Promise<Error[] | void> {
     this.disableUpdate = true
 
     // remove existing scene
