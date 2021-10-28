@@ -138,9 +138,9 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
   const { outgoingNetworkState, previousNetworkState } = world
 
   const networkObject = getComponent(entity, NetworkObjectComponent)
-  if (!networkObject) return
-
   const transformComponent = getComponent(entity, TransformComponent)
+
+  if (!networkObject || !transformComponent) return world
 
   let vel = undefined! as number[]
   let angVel = undefined
@@ -150,6 +150,7 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
       vel = [0]
     else vel = velC.velocity.toArray()
   }
+
   if (
     // if there is no previous state (first frame)
     previousNetworkState === undefined ||
@@ -162,6 +163,9 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
       vel
     )
   ) {
+    // @ts-ignore
+    // console.log(TransformComponent.position.x[entity],TransformComponent.position.z[entity])
+
     outgoingNetworkState.pose.push({
       networkId: networkObject.networkId,
       position: transformComponent.position.toArray(),
@@ -178,6 +182,8 @@ export const queueUnchangedPosesServer = (world: World) => {
   const ents = networkTransformsQuery(world)
   for (let i = 0; i < ents.length; i++) {
     queueEntityTransform(world, ents[i])
+    // const velC = getComponent(ents[i], VelocityComponent)
+    // console.log(velC)
   }
 
   // todo: forward updates for remotely owned objects
