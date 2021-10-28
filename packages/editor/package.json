@@ -57,7 +57,7 @@
     "@xrengine/realitypacks": "^0.4.8",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
-    "autoprefixer": "10.3.7",
+    "autoprefixer": "10.4.0",
     "axios": "0.24.0",
     "classnames": "2.3.1",
     "credential-handler-polyfill": "2.2.1",
