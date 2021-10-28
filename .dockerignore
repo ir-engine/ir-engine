@@ -2,6 +2,7 @@ aws/
 .git/
 *docker-compose*
 node_modules
+kubectl
 lib/
 packages/client/dist
 packages/native-plugin-example
@@ -13,6 +14,8 @@ vendor/
 packages/**/node_modules
 package-lock.json
 packages/**/package-lock.json
+packages/bot
+packages/social
 
 
 kubernetes/**

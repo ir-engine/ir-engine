@@ -2,14 +2,6 @@ set -e
 set -x
 
 apt-get -y update
-#apt-cache madison snapd
-#apt-get install -y snapd
-
-#systemctl restart snapd
-
-#snap install kubectl --classic
-
-#snap install helm --classic
 
 #install Docker
 apt-get -y install apt-transport-https ca-certificates curl gnupg lsb-release
