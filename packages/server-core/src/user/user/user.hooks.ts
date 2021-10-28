@@ -38,6 +38,14 @@ export default {
           },
           {
             model: 'scope'
+          },
+          {
+            model: 'inventory-item',
+            include: [
+              {
+                model: 'inventory-item-type'
+              }
+            ]
           }
         ]
       })
@@ -62,6 +70,14 @@ export default {
           },
           {
             model: 'scope'
+          },
+          {
+            model: 'inventory-item',
+            include: [
+              {
+                model: 'inventory-item-type'
+              }
+            ]
           }
         ]
       })
@@ -88,6 +104,14 @@ export default {
           },
           {
             model: 'scope'
+          },
+          {
+            model: 'inventory-item',
+            include: [
+              {
+                model: 'inventory-item-type'
+              }
+            ]
           }
         ]
       }),

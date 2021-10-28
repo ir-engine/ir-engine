@@ -11,6 +11,7 @@ import UserRelationship from './user-relationship/user-relationship.service'
 import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
 import UserRole from './user-role/user-role.service'
 import UserSettings from './user-settings/user-settings.service'
+import UserInventory from './user-inventory/user-inventory.service'
 
 export default [
   UserRole,
@@ -19,6 +20,7 @@ export default [
   IdentityProvider,
   UserRelationshipType,
   UserRelationship,
+  UserInventory,
   AcceptInvite,
   Auth,
   Login,

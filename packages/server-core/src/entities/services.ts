@@ -5,5 +5,17 @@ import Component from './component/component.service'
 import Entity from './entity/entity.service'
 import ContentPack from './content-pack/content-pack.service'
 import Project from './project/project.service'
+import InventoryItemType from './inventory-item-type/inventory-item-type.service'
+import InventoryItem from './inventory-item/inventory-item.service'
 
-export default [CollectionType, ComponentType, Entity, Collection, Component, ContentPack, Project]
+export default [
+  CollectionType,
+  ComponentType,
+  InventoryItem,
+  InventoryItemType,
+  Entity,
+  Collection,
+  Component,
+  ContentPack,
+  Project
+]
