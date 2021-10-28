@@ -38,14 +38,22 @@ export const useStyles = makeStyles((theme: Theme) =>
       background: 'transparent',
       border: '0.5px solid #3A4149',
       color: '#f1f1f1 !important',
-      width: '8rem'
+      width: '8rem',
+      [theme.breakpoints.down('md')]: {
+        fontSize: '0.8rem',
+        width: '5rem'
+      }
     },
     rejectedBtn: {
       color: '#FF8C00',
       border: '1px solid #FF8C00',
       margin: 'auto 5px',
       background: 'transparent',
-      width: '12rem'
+      width: '12rem',
+      [theme.breakpoints.down('md')]: {
+        fontSize: '0.7rem',
+        width: '4rem'
+      }
     },
     button: {
       display: 'block',
@@ -106,6 +114,25 @@ export const useStyles = makeStyles((theme: Theme) =>
       '&::-webkit-scrollbar-thumb:hover': {
         background: '#f1f1f1'
       }
+    },
+    btnContainer: {
+      display: 'flex',
+      alignSelf: 'center',
+      position: 'absolute',
+      top: '1rem',
+      right: '2rem',
+      [theme.breakpoints.down('md')]: {
+        right: '0.5rem'
+      }
+    },
+    accepted: {
+      position: 'absolute',
+      top: '1rem',
+      right: '2rem',
+      color: '#f1f1f1',
+      [theme.breakpoints.down('md')]: {
+        right: '0.5rem'
+      }
     }
   })
 )
@@ -141,5 +168,9 @@ export const AcceptInviteBtn = styled(Button)(({ theme }) => ({
   background: 'transparent',
   border: '0.5px solid #3A4149',
   color: '#f1f1f1 !important',
-  width: '12rem'
+  width: '12rem',
+  [theme.breakpoints.down('md')]: {
+    fontSize: '0.7rem',
+    width: '4rem'
+  }
 }))

@@ -64,20 +64,12 @@ const SentInvites = () => {
                 <ListItemText
                   style={{ backgroundColor: '#43484F', color: '#f1f1f1' }}
                   primary={el.name}
-                  secondary={<React.Fragment>{el.description}</React.Fragment>}
+                  // secondary={<React.Fragment>{el.description}</React.Fragment>}
                 />
                 {el.accepted ? (
-                  <Chip
-                    label="accepted"
-                    variant="outlined"
-                    style={{ position: 'absolute', top: '1rem', right: '2rem', color: '#f1f1f1' }}
-                  />
+                  <Chip label="accepted" variant="outlined" className={classes.accepted} />
                 ) : (
-                  <Chip
-                    label="pending"
-                    variant="outlined"
-                    style={{ position: 'absolute', top: '1rem', right: '2rem', color: '#f1f1f1' }}
-                  />
+                  <Chip label="pending" variant="outlined" className={classes.accepted} />
                 )}
               </ListItem>
 

@@ -148,7 +148,7 @@ export default function MessageList(props: Props) {
                         primary={message?.sender?.name}
                         secondary={
                           <React.Fragment>
-                            {message.text}
+                            <span style={{ color: '#f1f1f1' }}>{message.text}</span>
                             <Typography
                               sx={{ display: 'inline', marginLeft: '20px', fontSize: '9px' }}
                               component="span"

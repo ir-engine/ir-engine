@@ -1,5 +1,4 @@
 import React from 'react'
-import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import Divider from '@mui/material/Divider'
 import ListItemText from '@mui/material/ListItemText'
@@ -88,21 +87,15 @@ const ReceivedInvites = () => {
                 <ListItemText
                   style={{ backgroundColor: '#43484F', color: '#f1f1f1' }}
                   primary={el.name}
-                  secondary={<React.Fragment>{el.description}</React.Fragment>}
+                  // secondary={<React.Fragment>{el.description}</React.Fragment>}
                 />
                 {el.accepted ? (
-                  <Chip
-                    label="accepted"
-                    variant="outlined"
-                    style={{ position: 'absolute', top: '1rem', right: '2rem', color: '#f1f1f1' }}
-                  />
+                  <Chip label="accepted" variant="outlined" className={classes.accepted} />
                 ) : (
-                  <div
-                    style={{ display: 'flex', alignSelf: 'center', position: 'absolute', top: '1rem', right: '2rem' }}
-                  >
-                    <AcceptInviteBtn variant="contained">Accept Invite</AcceptInviteBtn>
+                  <div className={classes.btnContainer}>
+                    <AcceptInviteBtn variant="contained">Accept</AcceptInviteBtn>
                     <Button variant="contained" className={classes.rejectedBtn}>
-                      Reject Invite
+                      Reject
                     </Button>
                   </div>
                 )}

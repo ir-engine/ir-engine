@@ -89,6 +89,16 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       '&:hover': {
         background: 'rgba(0,0,0,0.9)'
       }
+    },
+    createBtn: {
+      marginTop: '3rem',
+      marginLeft: '4rem',
+      [theme.breakpoints.down('md')]: {
+        marginLeft: '1rem',
+        marginTop: '2rem',
+        fontSize: '0.8rem',
+        width: '10rem'
+      }
     }
   })
 )

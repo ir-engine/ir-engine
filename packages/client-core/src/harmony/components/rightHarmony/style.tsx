@@ -45,7 +45,7 @@ export const StyledMenu = styled((props: MenuProps) => (
   }
 }))
 
-export const useStyles = makeStyles(() =>
+export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     rightRoot: {
       backgroundColor: '#1f252d',
@@ -95,10 +95,13 @@ export const useStyles = makeStyles(() =>
     },
     firstMessagePlaceholder: {
       fontSize: '3em',
-      margin: 'auto'
+      margin: 'auto',
+      [theme.breakpoints.down('md')]: {
+        fontSize: '1.2rem'
+      }
     },
     input: {
-      // marginLeft: theme.spacing(1),
+      marginLeft: theme.spacing(1),
       flex: 1
     },
     inputEdit: {

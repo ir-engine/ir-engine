@@ -113,7 +113,7 @@ const UserList = ({ chatType }) => {
         <Button
           variant="contained"
           color="warning"
-          style={{ marginTop: '3rem', marginLeft: '4rem' }}
+          className={classes.createBtn}
           startIcon={<GroupAdd />}
           onClick={() => toggleCreateGroupModel(true)}
         >
@@ -123,7 +123,7 @@ const UserList = ({ chatType }) => {
         <Button
           variant="contained"
           color="warning"
-          style={{ marginTop: '3rem', marginLeft: '4rem' }}
+          className={classes.createBtn}
           startIcon={<GroupAdd />}
           onClick={() => openInviteModel(true)}
         >
