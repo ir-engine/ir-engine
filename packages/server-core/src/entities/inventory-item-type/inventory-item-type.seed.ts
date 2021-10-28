@@ -1,7 +1,7 @@
 import { inventoryItemType } from './inventoryItemType'
 
 export const inventoryItemTypeSeed = {
-  path: 'inventory-type',
+  path: 'inventory-item-type',
   randomize: false,
   templates: [
     { type: inventoryItemType.scene },
