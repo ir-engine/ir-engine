@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 import { GroupActionType } from './GroupActions'
 import { Group } from '@xrengine/common/src/interfaces/Group'
+import { store } from '../../store'
 
 const state = createState({
   groups: {
@@ -24,7 +25,7 @@ const state = createState({
   closeDetails: ''
 })
 
-export const receptor = (action: GroupActionType): any => {
+store.receptors.push((action: GroupActionType): any => {
   let newValues,
     updateMap,
     updateMapGroups,
@@ -32,7 +33,8 @@ export const receptor = (action: GroupActionType): any => {
     updateMapGroupUsers,
     groupUser,
     updateGroup,
-    groupIndex
+    groupIndex,
+    groupUserIndex
   state.batch((s) => {
     switch (action.type) {
       case 'LOADED_GROUPS':
@@ -88,65 +90,77 @@ export const receptor = (action: GroupActionType): any => {
       case 'CREATED_GROUP_USER':
         newValues = action
         groupUser = newValues.groupUser
-        updateMap = s.groups.value
-        updateMapGroups = updateMap.groups
-        updateMapGroupsChild = _.find(updateMapGroups, (group) => {
-          return group != null && group.id === groupUser.groupId
+        groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+          return groupItem != null && groupItem.id === groupUser.groupId
         })
-        if (updateMapGroupsChild != null) {
-          updateMapGroupUsers = updateMapGroupsChild.groupUsers
-          const match = updateMapGroupUsers.find((gUser) => {
-            return gUser != null && gUser.id === groupUser.id
+        if (groupIndex !== -1) {
+          const group = s.groups.groups[groupIndex]
+          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+            return groupUserItem != null && groupUserItem.id === groupUser.id
           })
-          updateMapGroupUsers = Array.isArray(updateMapGroupUsers)
-            ? match == null
-              ? updateMapGroupUsers.concat([groupUser])
-              : updateMapGroupUsers.map((gUser) => (gUser.id === groupUser.id ? groupUser : gUser))
-            : [groupUser]
-          updateMapGroupsChild.groupUsers = updateMapGroupUsers
+          if (groupUserIndex !== -1) {
+            group.groupUsers[groupUserIndex].set(groupUser)
+          } else {
+            group.groupUsers.merge(groupUser)
+          }
         }
-        return s.groups.groups.set(updateMapGroups)
 
       case 'PATCHED_GROUP_USER':
         newValues = action
         groupUser = newValues.groupUser
-        updateMap = s.groups.value
-        updateMapGroups = updateMap.groups
-        updateMapGroupsChild = _.find(updateMapGroups, (group) => {
-          return group != null && group.id === groupUser.groupId
+        groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+          return groupItem != null && groupItem.id === groupUser.groupId
         })
-        if (updateMapGroupsChild != null) {
-          updateMapGroupsChild.groupUsers = updateMapGroupsChild.groupUsers.map((gUser) =>
-            gUser.id === groupUser.id ? groupUser : gUser
-          )
+        if (groupIndex !== -1) {
+          const group = s.groups.groups[groupIndex]
+          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+            return groupUserItem != null && groupUserItem.id === groupUser.id
+          })
+          if (groupUserIndex !== -1) {
+            group.groupUsers[groupUserIndex].set(groupUser)
+          } else {
+            group.groupUsers.merge(groupUser)
+          }
         }
-        s.groups.groups.set(updateMapGroups)
+        // updateMap = s.groups.value
+        // updateMapGroups = updateMap.groups
+        // updateMapGroupsChild = _.find(updateMapGroups, (group) => {
+        //   return group != null && group.id === groupUser.groupId
+        // })
+        // if (updateMapGroupsChild != null) {
+        //   updateMapGroupsChild.groupUsers = updateMapGroupsChild.groupUsers.map((gUser) =>
+        //     gUser.id === groupUser.id ? groupUser : gUser
+        //   )
+        // }
+        // s.groups.groups.set(updateMapGroups)
+        return s
 
       case 'REMOVED_GROUP_USER':
         newValues = action
         groupUser = newValues.groupUser
         const self = newValues.self
-        updateMap = s.groups.value
-        updateMapGroups = updateMap.groups
-        updateMapGroupsChild = _.find(updateMapGroups, (group) => {
-          return group != null && group.id === groupUser.groupId
+        groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+          return groupItem != null && groupItem.id === groupUser.groupId
         })
-        if (updateMapGroupsChild != null) {
-          updateMapGroupUsers = updateMapGroupsChild.groupUsers
-          _.findIndex(updateMapGroupUsers, (gUser: GroupUser) => groupUser.id === gUser.id)
+        if (groupIndex !== -1) {
+          const group = s.groups.groups[groupIndex]
+          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+            return groupUserItem != null && groupUserItem.id === groupUser.id
+          })
+          if (groupUserIndex !== -1) {
+            group.groupUsers.merge({
+              [groupUserIndex]: none
+            })
+          }
         }
 
-        let returned = s.groups.groups.set(updateMapGroups)
-        if (self === true) {
-          returned = s.merge({ closeDetails: groupUser.groupId, updateNeeded: true })
-        }
-        return returned
+        return self === true ? s.merge({ closeDetails: groupUser.groupId, updateNeeded: true }) : s
 
       case 'REMOVE_CLOSE_GROUP_DETAIL':
         return s.closeDetails.set('')
     }
   }, action.type)
-}
+})
 
 export const accessGroupState = () => state
 

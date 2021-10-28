@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
 
 import WebXRPlugin from '../../WebXRPlugin'

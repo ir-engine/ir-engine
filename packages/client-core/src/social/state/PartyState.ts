@@ -4,18 +4,20 @@ import { PartyActionType } from './PartyActions'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 import _ from 'lodash'
 import { Party } from '@xrengine/common/src/interfaces/Party'
+import { store } from '../../store'
 
 const state = createState({
   party: {} as Party,
   updateNeeded: true
 })
 
-export const receptor = (action: PartyActionType): any => {
+store.receptors.push((action: PartyActionType): any => {
   let newValues, updateMap, partyUser, updateMapPartyUsers
 
   state.batch((s) => {
     switch (action.type) {
       case 'LOADED_PARTY':
+        console.log('party loaded', action.party)
         return s.merge({ party: action.party, updateNeeded: false })
       case 'CREATED_PARTY':
         return s.updateNeeded.set(true)
@@ -27,6 +29,7 @@ export const receptor = (action: PartyActionType): any => {
       case 'CREATED_PARTY_USER':
         newValues = action
         partyUser = newValues.partyUser
+        console.log('created party user', partyUser)
         updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
           updateMapPartyUsers = updateMap.partyUsers
@@ -46,6 +49,7 @@ export const receptor = (action: PartyActionType): any => {
       case 'PATCHED_PARTY_USER':
         newValues = action
         partyUser = newValues.partyUser
+        console.log('patched partyUser', partyUser)
         updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
           updateMapPartyUsers = updateMap.partyUsers
@@ -76,7 +80,7 @@ export const receptor = (action: PartyActionType): any => {
         return s.updateNeeded.set(true)
     }
   }, action.type)
-}
+})
 
 export const accessPartyState = () => state
 

@@ -64,17 +64,11 @@ export const ContentPackService = {
     const result = await client.service('content-pack').patch(null, data)
     dispatch(ContentPackAction.patchedContentPack())
   },
-  addRealityPacksToContentPack: async (data: any) => {
+  addProjectToContentPack: async (data: any) => {
     const dispatch = useDispatch()
     const result = await client.service('content-pack').patch(null, data)
     console.log('Patch content-pack with reality-pack(s) result', result)
     dispatch(ContentPackAction.patchedContentPack())
-  },
-  uploadRealityPack: async (data: any) => {
-    const dispatch = useDispatch()
-    const result = await client.service('upload-reality-pack').create(data)
-    console.log('Upload reality-pack result', result)
-    dispatch(ContentPackAction.postRealityPack())
   },
   downloadContentPack: async (url: string) => {
     await client.service('content-pack').update(null, {

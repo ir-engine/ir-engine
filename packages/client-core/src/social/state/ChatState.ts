@@ -7,6 +7,7 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { store } from '../../store'
 
 // TODO: find existing interfaces for these or move these to @xrengine/common/src/interfaces
 
@@ -28,7 +29,7 @@ const state = createState({
   instanceChannelFetched: false
 })
 
-export const receptor = (action: ChatActionType): any => {
+store.receptors.push((action: ChatActionType): any => {
   state.batch((s) => {
     switch (action!.type) {
       case 'LOADED_CHANNELS':
@@ -68,7 +69,8 @@ export const receptor = (action: ChatActionType): any => {
         if (!channel) {
           s.channels.updateNeeded.set(true)
         } else {
-          channel.Messages[channel.Messages.length].set(action.message)
+          if (!channel.Messages.length) channel.Messages.set([action.message])
+          else channel.Messages[channel.Messages.length].set(action.message)
         }
 
         s.updateMessageScroll.set(true)
@@ -186,7 +188,7 @@ export const receptor = (action: ChatActionType): any => {
       }
     }
   }, action.type)
-}
+})
 
 export const accessChatState = () => state
 

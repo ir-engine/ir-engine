@@ -1,13 +1,13 @@
 import React, { FunctionComponent } from 'react'
 import { CommonInteractiveData } from '@xrengine/engine/src/interaction/interfaces/CommonInteractiveData'
 import styles from './OpenLink.module.scss'
-import Dialog from '@material-ui/core/Dialog'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
-import Typography from '@material-ui/core/Typography'
-import CloseIcon from '@material-ui/icons/Close'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import CloseIcon from '@mui/icons-material/Close'
 import { useTranslation } from 'react-i18next'
 
 export type OpenLinkProps = {
@@ -36,7 +36,7 @@ export const OpenLink: FunctionComponent<OpenLinkProps> = ({ onClose, data }: Op
       }}
       BackdropProps={{ style: { backgroundColor: 'transparent' } }}
     >
-      <DialogTitle disableTypography className={styles.dialogTitle}>
+      <DialogTitle className={styles.dialogTitle}>
         <IconButton
           aria-label="close"
           className={styles.dialogCloseButton}
@@ -46,6 +46,7 @@ export const OpenLink: FunctionComponent<OpenLinkProps> = ({ onClose, data }: Op
               onClose()
             }
           }}
+          size="large"
         >
           <CloseIcon />
         </IconButton>

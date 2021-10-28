@@ -1,17 +1,38 @@
-import createGeometry from '../functions/createGeometry'
-import { MAX_CACHED_FEATURES, Store } from '../functions/createStore'
+import createWorkerFunction from '../functions/createWorkerFunction'
 import fetchUsingCache from '../functions/fetchUsingCache'
 import isIntersectCircleCircle from '../functions/isIntersectCircleCircle'
-import { FeatureKey, TaskStatus } from '../types'
+import { FeatureKey, TaskStatus, MapStateUnwrapped } from '../types'
 import { multiplyArray } from '../util'
+// @ts-ignore
+import createGeometryWorker from '../workers/geometryWorker.ts?worker'
+import { WorkerApi } from '../workers/geometryWorker'
+import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from '../styles'
+import { BufferGeometryLoader } from 'three'
+import { getHumanFriendlyFeatureKey } from '../helpers/KeyHelpers'
 
 const $array2 = Array(2)
 
+const createGeometry = createWorkerFunction<WorkerApi>(createGeometryWorker())
+
+const geometryLoader = new BufferGeometryLoader()
+
 /** using fetchUsingCache since createGeometry returns a promise */
-const createGeometryUsingCache = fetchUsingCache(async (store: Store, ...key: FeatureKey) => {
-  const { feature, centerPoint, boundingCircleRadius } = store.transformedFeatureCache.get(key)
+const createGeometryUsingCache = fetchUsingCache(async (state: MapStateUnwrapped, ...key: FeatureKey) => {
+  const { feature, centerPoint, boundingCircleRadius } = state.transformedFeatureCache.get(key)
   const [layerName] = key
-  const geometry = await createGeometry(store.geometryCache.map.getKey(key), layerName, feature)
+  const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
+  const result = await createGeometry(feature, styles)
+
+  if (result === null) {
+    console.warn('Encountered an error while creating geometry.', getHumanFriendlyFeatureKey(key))
+  }
+
+  const {
+    geometry: { json }
+  } = result!
+
+  // Reconstitute the serialized geometry
+  const geometry = geometryLoader.parse(json)
   return {
     geometry,
     centerPoint,
@@ -23,31 +44,36 @@ export const name = 'create geometry'
 export const isAsyncPhase = true
 export const isCachingPhase = true
 
-export function* getTaskKeys(store: Store) {
-  const viewerPositionScaled = multiplyArray(store.viewerPosition, 1 / store.scale, $array2) as [number, number]
-  for (const key of store.transformedFeatureCache.keys()) {
-    const { centerPoint, boundingCircleRadius } = store.transformedFeatureCache.get(key)
-    if (isIntersectCircleCircle(centerPoint, boundingCircleRadius, viewerPositionScaled, store.minimumSceneRadius)) {
+export function* getTaskKeys(state: MapStateUnwrapped) {
+  const viewerPositionScaled = multiplyArray(state.viewerPosition, 1 / state.scale, $array2) as [number, number]
+  for (const key of state.transformedFeatureCache.keys()) {
+    const { centerPoint, boundingCircleRadius } = state.transformedFeatureCache.get(key)
+    if (isIntersectCircleCircle(centerPoint, boundingCircleRadius, viewerPositionScaled, state.minimumSceneRadius)) {
       yield key
     }
   }
 }
 
-export function getTaskStatus(store: Store, key: FeatureKey) {
-  return store.geometryTasks.get(key)
+export function getTaskStatus(state: MapStateUnwrapped, key: FeatureKey) {
+  return state.geometryTasks.get(key)
 }
 
-export function setTaskStatus(store: Store, key: FeatureKey, status: TaskStatus) {
-  return store.geometryTasks.set(key, status)
+export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status: TaskStatus) {
+  return state.geometryTasks.set(key, status)
 }
 
-export function startTask(store: Store, key: FeatureKey) {
-  return createGeometryUsingCache(store.geometryCache, key, store)
+export function startTask(state: MapStateUnwrapped, key: FeatureKey) {
+  return createGeometryUsingCache(state.geometryCache, key, state)
 }
 
-export function cleanup(store: Store) {
-  for (const [key, value] of store.geometryCache.evictLeastRecentlyUsedItems()) {
-    store.geometryCache.delete(key)
+export function cleanup(state: MapStateUnwrapped) {
+  for (const [key, value] of state.geometryCache.evictLeastRecentlyUsedItems()) {
+    state.geometryCache.delete(key)
     value.geometry.dispose()
   }
+}
+
+export function reset(state: MapStateUnwrapped) {
+  state.geometryTasks.clear()
+  state.geometryCache.clear()
 }

@@ -2,8 +2,6 @@
 import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
@@ -28,7 +26,7 @@ import { WebxrNativeService } from '@xrengine/client-core/src/social/state/Webxr
 import { useDispatch } from '@xrengine/client-core/src/store'
 // @ts-ignore
 import styles from './index.module.scss'
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 
 // import image from '/static/images/image.jpg'
 // import mockupIPhone from '/static/images/mockupIPhone.jpg'

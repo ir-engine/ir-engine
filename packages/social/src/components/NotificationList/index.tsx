@@ -1,10 +1,10 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import NotificationCard from '../NotificationCard'

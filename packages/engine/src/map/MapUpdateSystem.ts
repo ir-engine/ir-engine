@@ -1,31 +1,32 @@
 import { System } from '../ecs/classes/System'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { fromMetersFromCenter } from './functions/UnitConversionFunctions'
+import { fromMetersFromCenter, LongLat } from './functions/UnitConversionFunctions'
 import { addChildFast, multiplyArray, setPosition, vector3ToArray2 } from './util'
-import { Object3D, Vector3 } from 'three'
+import { Vector3 } from 'three'
 import { Entity } from '../ecs/classes/Entity'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getComponent, defineQuery } from '../ecs/functions/ComponentFunctions'
 import { World } from '../ecs/classes/World'
-import actuateLazy from './functions/actuateLazy'
-import getPhases from './functions/getPhases'
 import isIntersectCircleCircle from './functions/isIntersectCircleCircle'
-import { MAX_CACHED_FEATURES } from './functions/createStore'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { NavMeshComponent } from '../navigation/component/NavMeshComponent'
+import { accessMapState } from './MapReceptor'
+import { Downgraded } from '@hookstate/core'
+import { getPhases, startPhases, resetPhases } from './functions/PhaseFunctions'
 
 const $vector3 = new Vector3()
 
 /** Track where the viewer was the last time we kicked off a new set of map contruction tasks */
 const $previousViewerPosition = new Vector3()
+const $previousMapCenterPoint: LongLat = Array(2)
 
 export default async function MapUpdateSystem(world: World): Promise<System> {
   const mapsQuery = defineQuery([MapComponent])
   const viewerQuery = defineQuery([AvatarComponent])
   const navMeshQuery = defineQuery([NavMeshComponent])
+  const phases = await getPhases({ exclude: ['navigation'] })
   let previousViewerEntity: Entity
-  let shouldUpdateChildren = true
 
   return () => {
     const viewerEntity = viewerQuery(world)[0]
@@ -33,10 +34,10 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     const mapEntity = mapEntities[0]
     const navPlaneEntity = navMeshQuery(world)[0]
     // Sanity checks
-    if (!mapEntity || !viewerEntity) return
+    if (!mapEntity || !viewerEntity) return world
     if (mapEntities.length > 1) console.warn('Not supported: More than one map!')
-    const mapComponent = getComponent(mapEntity, MapComponent)
-    const mapScale = getComponent(mapEntity, TransformComponent).scale.x
+    const mapState = accessMapState().attach(Downgraded).get()
+    const mapScale = mapState.scale
     const object3dComponent = getComponent(mapEntity, Object3DComponent)
     const viewerTransform = getComponent(viewerEntity, TransformComponent)
     const viewerPosition = vector3ToArray2(viewerTransform.position)
@@ -54,26 +55,41 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     const viewerPositionDeltaNormalScale = vector3ToArray2($vector3)
     const viewerDistanceFromCenter = Math.hypot(...viewerPositionDeltaNormalScale)
 
-    if (viewerDistanceFromCenter >= mapComponent.triggerRefreshRadius) {
-      mapComponent.center = fromMetersFromCenter(viewerPositionDeltaNormalScale, mapComponent.center)
-      mapComponent.viewerPosition = viewerPosition
-      actuateLazy(mapComponent, getPhases({ exclude: ['navigation'] }))
+    const wasRefreshTriggered = viewerDistanceFromCenter >= mapState.triggerRefreshRadius
+    const wasMapCenterUpdated =
+      typeof $previousMapCenterPoint[0] !== 'undefined' &&
+      typeof $previousMapCenterPoint[1] !== 'undefined' &&
+      ($previousMapCenterPoint[0] !== mapState.center[0] || $previousMapCenterPoint[1] !== mapState.center[1])
+
+    if (wasMapCenterUpdated) {
+      mapState.viewerPosition[0] = $previousViewerPosition[0] = 0
+      mapState.viewerPosition[1] = $previousViewerPosition[1] = 0
+      viewerTransform.position.set(0, 0, 0)
+      resetPhases(mapState, phases)
+    }
+
+    if (wasRefreshTriggered || wasMapCenterUpdated) {
+      mapState.center = fromMetersFromCenter(viewerPositionDeltaNormalScale, mapState.center)
+      mapState.viewerPosition = viewerPosition
+      startPhases(mapState, phases)
 
       $previousViewerPosition.copy(viewerTransform.position)
       $previousViewerPosition.y = 0
-      shouldUpdateChildren = true
     }
 
-    if (shouldUpdateChildren) {
+    $previousMapCenterPoint[0] = mapState.center[0]
+    $previousMapCenterPoint[1] = mapState.center[1]
+
+    if (mapState.needsUpdate) {
       // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
       const subSceneChildren = []
-      for (const key of mapComponent.completeObjects.keys()) {
-        const object = mapComponent.completeObjects.get(key)
+      for (const key of mapState.completeObjects.keys()) {
+        const object = mapState.completeObjects.get(key)
         if (object.mesh) {
           if (
             isIntersectCircleCircle(
               viewerPositionScaled,
-              mapComponent.minimumSceneRadius,
+              mapState.minimumSceneRadius,
               object.centerPoint,
               object.boundingCircleRadius
             ) &&
@@ -86,12 +102,12 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
           }
         }
       }
-      for (const label of mapComponent.labelCache.values()) {
+      for (const label of mapState.labelCache.values()) {
         if (label.mesh) {
           if (
             isIntersectCircleCircle(
               viewerPositionScaled,
-              mapComponent.labelRadius,
+              mapState.labelRadius,
               label.centerPoint,
               label.boundingCircleRadius
             )
@@ -104,16 +120,16 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
         }
       }
       navigationRaycastTarget.children.length = 0
-      for (const key of mapComponent.completeObjects.keys()) {
+      for (const key of mapState.completeObjects.keys()) {
         const layerName = key[0]
         if (layerName === 'landuse_fallback') {
-          const { mesh, centerPoint } = mapComponent.completeObjects.get(key)
+          const { mesh, centerPoint } = mapState.completeObjects.get(key)
           setPosition(mesh, centerPoint)
 
           addChildFast(navigationRaycastTarget, mesh)
         }
       }
-      for (const helpers of mapComponent.helpersCache.values()) {
+      for (const helpers of mapState.helpersCache.values()) {
         if (helpers.tileNavMesh) {
           addChildFast(object3dComponent.value, helpers.tileNavMesh, subSceneChildren)
         }
@@ -121,17 +137,17 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
 
       // Update (sub)scene
       object3dComponent.value.children = subSceneChildren
-      shouldUpdateChildren = false
+      mapState.needsUpdate = false
     }
 
     // Update labels
     if (Math.round(world.fixedElapsedTime / world.fixedDelta) % 20 === 0) {
-      for (const label of mapComponent.labelCache.values()) {
+      for (const label of mapState.labelCache.values()) {
         if (label.mesh) {
           if (
             isIntersectCircleCircle(
               viewerPositionScaled,
-              mapComponent.labelRadius,
+              mapState.labelRadius,
               label.centerPoint,
               label.boundingCircleRadius
             )

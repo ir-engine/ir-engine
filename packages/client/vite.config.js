@@ -1,10 +1,27 @@
 import fs from 'fs'
+import fsExtra from 'fs-extra'
 import path from 'path'
 import { defineConfig, loadEnv } from 'vite'
 import config from "config"
 import inject from '@rollup/plugin-inject'
 import OptimizationPersist from './scripts/viteoptimizeplugin'
 import PkgConfig from 'vite-plugin-package-config'
+
+const copyProjectDependencies = () => {
+  const projects = fs
+    .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name)
+  for (const project of projects) {
+    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'public')
+    if(fs.existsSync(staticPath)) {
+      fsExtra.copySync(staticPath, path.resolve(__dirname, `public/projects`, project))
+    }
+  }
+}
+
+// this will copy all files in each installed project's "/static" folder to the "/public/projects" folder
+copyProjectDependencies()
 
 const getDependenciesToOptimize = () => {
   if(!fs.existsSync(path.resolve(__dirname, `./optimizeDeps.json`))) {
@@ -66,7 +83,7 @@ export default defineConfig((command) => {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
-        "ts-matches":"@xrengine/common/src/libs/ts-matches/matches.ts"
+        "@mui/styled-engine": "@mui/styled-engine-sc"
       }
     },
     build: {

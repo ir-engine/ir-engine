@@ -3,7 +3,7 @@ import { Engine } from '../../../src/ecs/classes/Engine'
 import { engineTestSetup } from '../../util/setupEngine'
 import assert, { strictEqual } from 'assert'
 import { Network } from '../../../src/networking/classes/Network'
-import OutgoingNetworkSystem, { forwardIncomingActionsFromOthersIfHost, queueAllOutgoingPoses, rerouteActions, rerouteOutgoingActionsBoundForSelf } from '../../../src/networking/systems/OutgoingNetworkSystem'
+import OutgoingNetworkSystem, { forwardIncomingActionsFromOthersIfHost, queueAllOutgoingPoses, queueUnchangedPosesClient, queueUnchangedPosesServer, rerouteActions, rerouteOutgoingActionsBoundForSelf } from '../../../src/networking/systems/OutgoingNetworkSystem'
 import { createWorld, World } from '../../../src/ecs/classes/World'
 import { Action, ActionRecipients } from '../../../src/networking/interfaces/Action'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -187,6 +187,100 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
   })
 
+  describe('queueUnchangedPosesServer', () => {
+    it('should queue all state changes on server', () => {
+      
+      /* mock */
+      const world = createWorld()
+      Engine.currentWorld = world
+
+      world.outgoingNetworkState = {
+        tick: 0,
+        time: Date.now(),
+        pose: [],
+        controllerPose: [],
+        handsPose: []
+      }
+
+      // make this engine user the host (world.isHosting === true)
+      Engine.userId = world.hostId
+
+      for (let i = 0; i < 2; i++) {
+        const entity = createEntity()
+        const transform = addComponent(entity, TransformComponent, {
+          position: new Vector3(1,2,3),
+          rotation: new Quaternion(),
+          scale: new Vector3(),
+        })
+        const networkObject = addComponent(entity, NetworkObjectComponent, {
+          // remote owner
+          userId: '1' as UserId,
+          networkId: 0 as NetworkId,
+          prefab: '',
+          parameters: {},
+        })
+      }
+
+      /* run */
+      queueUnchangedPosesServer(world)
+
+      /* assert */
+      // verify all poses were queued
+      const { outgoingNetworkState } = world
+      strictEqual(outgoingNetworkState.pose.length, 2)
+    })
+  })
+
+  describe('queueUnchangedPosesClient', () => {
+    it('should queue only client avatar state changes on client', () => {
+      
+      /* mock */
+      const world = createWorld()
+      Engine.currentWorld = world
+
+      world.outgoingNetworkState = {
+        tick: 0,
+        time: Date.now(),
+        pose: [],
+        controllerPose: [],
+        handsPose: []
+      }
+
+      // client is not host (world.isHosting === false)
+      Engine.userId = '0' as UserId
+
+      for (let i = 0; i < 2; i++) {
+        const entity = createEntity()
+
+        // make first entity the client's entity
+        if (i === 0) {
+          world.localClientEntity = entity
+        }
+
+        const transform = addComponent(entity, TransformComponent, {
+          position: new Vector3(1,2,3),
+          rotation: new Quaternion(),
+          scale: new Vector3(),
+        })
+        const networkObject = addComponent(entity, NetworkObjectComponent, {
+          // remote owner
+          userId: i as unknown as UserId,
+          networkId: 0 as NetworkId,
+          prefab: '',
+          parameters: {},
+        })
+      }
+
+
+      /* run */
+      queueUnchangedPosesClient(world)
+
+      /* assert */
+      // verify only 1 client pose was queued
+      const { outgoingNetworkState } = world
+      strictEqual(outgoingNetworkState.pose.length, 1)
+    })
+  })
 })
 
 describe('OutgoingNetworkSystem Integration Tests', async () => {
@@ -235,4 +329,5 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
     strictEqual(data0.pose[0].position[1], 2)
     strictEqual(data0.pose[0].position[2], 3)
   })
+
 })

@@ -6,6 +6,10 @@
       "dom",
       "dom.iterable"
     ],
+    "baseUrl": ".",
+    "paths": {
+      "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"]
+    },
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -37,5 +41,5 @@
   "include": [
     "./**/*.ts",
     "./**/*.tsx"
-, "../social/src/components/admin/ADMIN_FETCH_AR_MEDIA.ts"  ]
+  ]
 }

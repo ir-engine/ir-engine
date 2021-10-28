@@ -1,15 +1,15 @@
 import React, { forwardRef, useState } from 'react'
-import Dialog from '@material-ui/core/Dialog'
-import Slide from '@material-ui/core/Slide'
-import { TransitionProps } from '@material-ui/core/transitions'
+import Dialog from '@mui/material/Dialog'
+import Slide from '@mui/material/Slide'
+import { TransitionProps } from '@mui/material/transitions'
 import { useTranslation } from 'react-i18next'
 
 // @ts-ignore
 import styles from './TermsandPolicy.module.scss'
-import DialogContent from '@material-ui/core/DialogContent/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText/DialogContentText'
-import { Button, Typography } from '@material-ui/core'
-import { bindActionCreators, Dispatch } from 'redux'
+import DialogContent from '@mui/material/DialogContent/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText/DialogContentText'
+import { Button, Typography } from '@mui/material'
+
 import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'

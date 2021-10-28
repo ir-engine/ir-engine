@@ -21,8 +21,8 @@ jobs:
             node_modules
             */*/node_modules
             package-lock.json
-          key: ${{ runner.os }}-branch-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-branch-build-${{ hashFiles('**/package.json') }}
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
       - run: npm run test:packages
-      - run: npm run build-docker
+      - run: npm run build-client

@@ -44,16 +44,28 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
   useEffect(() => {
     // mount
     const size = window.innerHeight * 0.15
-    const bottom = window.innerHeight * 0.1
+    const bottom = window.innerHeight * 0.14
 
-    const stickLeft = nipplejs.create({
+    let stickLeft = nipplejs.create({
       zone: leftContainer.current,
       mode: 'static',
-      position: { left: '40%', bottom: bottom + 'px' },
+      position: { left: '50%', bottom: bottom + 'px' },
       color: 'white',
       size: size,
+      restOpacity: 1,
       dynamicPage: true
     })
+
+    if (document.getElementById('joystick')?.childNodes[0]) {
+      document.getElementById('joystick').childNodes[0].lastChild.style.opacity = 1
+      document.getElementById('joystick').childNodes[0].lastChild.style.background = 'rgba(255, 255, 255, 0.8)'
+      document.getElementById('joystick').childNodes[0].lastChild.style.boxShadow = '0px 4px 4px rgba(0, 0, 0, 0.25)'
+
+      document.getElementById('joystick').childNodes[0].firstChild.style.opacity = 1
+      document.getElementById('joystick').childNodes[0].firstChild.style.background = 'rgba(255, 255, 255, 0.5)'
+      document.getElementById('joystick').childNodes[0].firstChild.style.boxShadow = '0px 4px 4px rgba(0, 0, 0, 0.25)'
+    }
+
     const targetElement = stickLeft[0].ui.el
     targetElement.addEventListener('touchstart', (ev) => {
       enableInput({ mouse: false })
@@ -104,7 +116,7 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
 
   return (
     <>
-      <div className={styles.stickLeft} ref={leftContainer} />
+      <div id="joystick" className={styles.stickLeft} ref={leftContainer} />
       <div className={styles.controlButtonContainer}>{buttons}</div>
     </>
   )

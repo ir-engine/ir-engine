@@ -174,10 +174,10 @@ export class EngineRenderer {
     Engine.renderer.physicallyCorrectLights = true
     Engine.renderer.outputEncoding = sRGBEncoding
 
-    Engine.xrRenderer = renderer.xr
+    Engine.xrManager = renderer.xr
     //@ts-ignore
     renderer.xr.cameraAutoUpdate = false
-    Engine.xrRenderer.enabled = true
+    Engine.xrManager.enabled = true
 
     window.addEventListener('resize', this.onResize, false)
     this.onResize()
@@ -285,7 +285,7 @@ export class EngineRenderer {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if (Engine.xrRenderer.isPresenting) {
+    if (Engine.xrManager.isPresenting) {
       Engine.csm?.update()
       Engine.renderer.render(Engine.scene, Engine.camera)
     } else {

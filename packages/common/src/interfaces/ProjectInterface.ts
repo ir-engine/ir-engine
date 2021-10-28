@@ -1,13 +1,19 @@
-// TODO: rename to projects
-
-export interface ProjectInterface {
-  name: string
-  version: string
+export interface ProjectPackageInterface {
   thumbnail: string
-  assets: string[]
-  scenes: string[]
-  scripts: string[]
-  routes: {
-    [route: string]: string
-  }
+  routes: string[]
+  // TODO: remove these when file browser is in
+  clientReactEntryPoint: string
+  moduleEntryPoints: string[]
+}
+
+export interface ProjectInterface extends ProjectPackageInterface {
+  id?: string
+  name: string
+  // version: string
+  thumbnail: string
+  storageProviderPath?: string // does not exist in local dev
+  repositoryPath: string
+  // assets: string[]
+  // scenes: string[]
+  // scripts: string[]
 }

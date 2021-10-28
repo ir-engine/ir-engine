@@ -1,6 +1,7 @@
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { ClientSettingActionType } from './ClientSettingActions'
 import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
+import { store } from '../../../store'
 
 const state = createState({
   Client: {
@@ -9,7 +10,7 @@ const state = createState({
   }
 })
 
-export const receptor = (action: ClientSettingActionType): any => {
+store.receptors.push((action: ClientSettingActionType): any => {
   let result
   state.batch((s) => {
     switch (action.type) {
@@ -18,7 +19,7 @@ export const receptor = (action: ClientSettingActionType): any => {
         return s.Client.merge({ client: result.data, updateNeeded: false })
     }
   }, action.type)
-}
+})
 
 export const accessClientSettingState = () => state
 

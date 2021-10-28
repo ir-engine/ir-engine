@@ -1,5 +1,5 @@
 import { AlertService } from '../../common/state/AlertService'
-import { bindActionCreators } from 'redux'
+
 import { useDispatch } from '../../store'
 import { AuthService } from '../../user/state/AuthService'
 
@@ -18,7 +18,7 @@ export const RegistrationService = {
         //console.log(id)
         const dispatch = useDispatch()
         const promise = new Promise((resolve, reject) => {
-          bindActionCreators(AuthService.addConnectionByEmail, dispatch)(emailPhone, id)
+          AuthService.addConnectionByEmail(emailPhone, id)
           resolve(true)
         })
 

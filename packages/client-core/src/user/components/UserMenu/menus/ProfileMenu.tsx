@@ -1,8 +1,8 @@
-import Button from '@material-ui/core/Button'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
+import Button from '@mui/material/Button'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
 import { useAuthState } from '../../../../user/state/AuthState'
 import { AuthService } from '../../../../user/state/AuthService'
 import React, { useEffect, useState } from 'react'
@@ -155,11 +155,13 @@ const ProfileMenu = (props: Props): any => {
             )}
           </div>
           <div className={styles.headerBlock}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              {t('user:usermenu.profile.lbl-username')}
+            </Typography>
             <span className={styles.inputBlock}>
               <TextField
                 margin="none"
                 size="small"
-                label={t('user:usermenu.profile.lbl-username')}
                 name="username"
                 variant="outlined"
                 value={username || ''}
@@ -250,11 +252,11 @@ const ProfileMenu = (props: Props): any => {
                   {t('user:usermenu.profile.connectSocial')}
                 </Typography>
                 <div className={styles.socialContainer}>
-                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
                   <a href="#" id="google" onClick={handleOAuthServiceClick}>
                     <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
+                  </a>
+                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
+                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                   </a>
                   <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
                     <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />

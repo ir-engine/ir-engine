@@ -1,31 +1,31 @@
 import React from 'react'
-import InputBase from '@material-ui/core/InputBase'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
-import DeleteIcon from '@material-ui/icons/Delete'
-import List from '@material-ui/core/List'
-import { Dispatch, bindActionCreators } from 'redux'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import ListItemText from '@material-ui/core/ListItemText'
+import InputBase from '@mui/material/InputBase'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from '@mui/icons-material/Delete'
+import List from '@mui/material/List'
+
+import ListItem from '@mui/material/ListItem'
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
+import ListItemText from '@mui/material/ListItemText'
 import { useStylesForBots as useStyles, useStyle } from './styles'
-import CardContent from '@material-ui/core/CardContent'
-import Grid from '@material-ui/core/Grid'
-import Card from '@material-ui/core/Card'
-import Typography from '@material-ui/core/Typography'
-import Paper from '@material-ui/core/Paper'
-import { Autorenew, Face, Save } from '@material-ui/icons'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
+import CardContent from '@mui/material/CardContent'
+import Grid from '@mui/material/Grid'
+import Card from '@mui/material/Card'
+import Typography from '@mui/material/Typography'
+import Paper from '@mui/material/Paper'
+import { Autorenew, Face, Save } from '@mui/icons-material'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
 
 import { InstanceService } from '../../state/InstanceService'
 import { useInstanceState } from '../../state/InstanceState'
 import { LocationService } from '../../state/LocationService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/state/AuthState'
-import MuiAlert from '@material-ui/lab/Alert'
-import Snackbar from '@material-ui/core/Snackbar'
+import MuiAlert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
 import { BotService } from '../../state/BotsService'
 import { useLocationState } from '../../state/LocationState'
 import { validateForm } from './validation'
@@ -243,7 +243,7 @@ const CreateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminLocations}>
+                <IconButton onClick={fetchAdminLocations} size="large">
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>
@@ -280,7 +280,7 @@ const CreateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminInstances}>
+                <IconButton onClick={fetchAdminInstances} size="large">
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>
@@ -337,7 +337,7 @@ const CreateBot = (props: Props) => {
                   <ListItem>
                     <ListItemText primary={`${i + 1}. /${el.name} --> ${el.description} `} />
                     <ListItemSecondaryAction>
-                      <IconButton edge="end" aria-label="delete">
+                      <IconButton edge="end" aria-label="delete" size="large">
                         <DeleteIcon style={{ color: '#fff' }} />
                       </IconButton>
                     </ListItemSecondaryAction>

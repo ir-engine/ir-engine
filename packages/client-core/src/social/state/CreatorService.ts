@@ -4,10 +4,10 @@
 import { AlertService } from '../../common/state/AlertService'
 import { client } from '../../feathers'
 import { Creator } from '@xrengine/common/src/interfaces/Creator'
-import { upload } from '../../../util/upload'
-import { Dispatch, bindActionCreators } from 'redux'
+import { upload } from '../../util/upload'
 
 import { CreatorAction } from './CreatorActions'
+import { useDispatch } from '../../store'
 
 export const CreatorService = {
   createCreator: async (creator?: Creator) => {
@@ -155,8 +155,8 @@ export const CreatorService = {
       try {
         const follow = await client.service('block-creator').remove({ blokedCreatorId })
         if (follow) {
-          bindActionCreators(CreatorService.getBlockedList, dispatch)(follow)
-          bindActionCreators(CreatorService.getCreators, dispatch)()
+          CreatorService.getBlockedList(follow)
+          CreatorService.getCreators()
         }
       } catch (err) {
         console.log(err)

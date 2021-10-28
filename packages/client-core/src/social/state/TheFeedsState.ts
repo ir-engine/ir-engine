@@ -8,13 +8,14 @@
 import { TheFeedsShort, TheFeeds } from '@xrengine/common/src/interfaces/Feeds'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { TheFeedsActionType } from './TheFeedsActions'
+import { store } from '../../store'
 
 const state = createState({
   thefeeds: [] as Array<TheFeeds>,
   fetching: false
 })
 
-export const receptor = (action: TheFeedsActionType): any => {
+store.receptors.push((action: TheFeedsActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'THEFEEDS_FETCH':
@@ -36,7 +37,7 @@ export const receptor = (action: TheFeedsActionType): any => {
         return s.thefeeds.set([...s.thefeeds.value.filter((thefeeds) => thefeeds.id !== action.thefeeds)])
     }
   }, action.type)
-}
+})
 
 export const accessTheFeedsState = () => state
 export const useTheFeedsState = () => useState(state)

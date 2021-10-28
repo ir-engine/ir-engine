@@ -1,43 +1,48 @@
-import { FeatureKey, TaskStatus } from '../types'
+import { FeatureKey, TaskStatus, MapStateUnwrapped } from '../types'
 import createUsingCache from '../functions/createUsingCache'
 import createCompleteObject from '../functions/createCompleteObject'
-import { Store } from '../functions/createStore'
 
 export const name = 'create complete object'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 
-const createCompleteObjectUsingCache = createUsingCache((store: Store, ...key: FeatureKey) => {
+const createCompleteObjectUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: FeatureKey) => {
   const [layerName] = key
 
-  const feature = store.featureCache.get(key)
-  const geometry = store.geometryCache.get(key)
-  return createCompleteObject(layerName, geometry, feature)
+  const feature = state.featureCache.get(key)
+  const geometry = state.geometryCache.get(key)
+  const retval = createCompleteObject(layerName, geometry, feature)
+  return retval
 })
 
-export function* getTaskKeys(store: Store) {
-  for (const key of store.featureCache.keys()) {
-    const geometry = store.geometryCache.get(key)
+export function* getTaskKeys(state: MapStateUnwrapped) {
+  for (const key of state.featureCache.keys()) {
+    const geometry = state.geometryCache.get(key)
     if (geometry) {
       yield key
     }
   }
 }
 
-export function getTaskStatus(store: Store, key: FeatureKey) {
-  return store.completeObjectsTasks.get(key)
+export function getTaskStatus(state: MapStateUnwrapped, key: FeatureKey) {
+  return state.completeObjectsTasks.get(key)
 }
-export function setTaskStatus(store: Store, key: FeatureKey, status: TaskStatus) {
-  return store.completeObjectsTasks.set(key, status)
-}
-
-export function execTask(store: Store, key: FeatureKey) {
-  return createCompleteObjectUsingCache(store.completeObjects, key, store)
+export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status: TaskStatus) {
+  return state.completeObjectsTasks.set(key, status)
 }
 
-export function cleanup(store: Store) {
-  for (const [key, value] of store.completeObjects.evictLeastRecentlyUsedItems()) {
-    store.completeObjectsTasks.delete(key)
+export function execTask(state: MapStateUnwrapped, key: FeatureKey) {
+  return createCompleteObjectUsingCache(state.completeObjects, key, state)
+}
+
+export function cleanup(state: MapStateUnwrapped) {
+  for (const [key, value] of state.completeObjects.evictLeastRecentlyUsedItems()) {
+    state.completeObjectsTasks.delete(key)
     value.mesh.geometry.dispose()
   }
+}
+
+export function reset(state: MapStateUnwrapped) {
+  state.completeObjectsTasks.clear()
+  state.completeObjects.clear()
 }

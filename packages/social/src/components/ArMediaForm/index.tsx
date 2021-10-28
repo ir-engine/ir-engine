@@ -3,13 +3,13 @@
  */
 import React, { useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { bindActionCreators, Dispatch } from 'redux'
+
 import { useTranslation } from 'react-i18next'
 
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import { FormControl, InputLabel, MenuItem, Select, Typography, Card } from '@material-ui/core'
-import BackupIcon from '@material-ui/icons/Backup'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import { FormControl, InputLabel, MenuItem, Select, Typography, Card } from '@mui/material'
+import BackupIcon from '@mui/icons-material/Backup'
 
 import styles from './ArMediaForm.module.scss'
 

@@ -45,8 +45,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
-    background: rgba(0,0,0,0.2);
+    color: black;
+    background: white;
     width: 50px;
     height: 50px;
     cursor: pointer;
@@ -57,22 +57,13 @@
     border-radius: 50%;
     border: none;
     padding: 0;
-    &::before {
-        content: " ";
-        position: absolute;
-        width: 50px;
-        height: 50px;
-        display: block;
-        transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-        background: #5f5ff1;
-        top: 0;
-        left: 0;
-        z-index: -1;
-        border-radius: 50%;
-        transform: scale(0);
+    opacity: 0.8;
+    &:hover { opacity: 1; }
+    @media (max-width: 450px) {
+        width: 40px;
+        height: 40px; 
+        left: 10px;
     }
-    &:hover { &::before { transform: scale(1); } }
-    @media (max-width: 450px) { left: 10px; }
 }
 
 .locationUserMenu {
@@ -101,7 +92,6 @@
 
     @media (max-width: 768px) {
         flex-direction: row;
-        top: 60px;
         overflow-x: auto;
         max-width: 100vw;
         padding: 20px;
@@ -164,8 +154,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
-    background: rgba(0,0,0,0.2);
+    color: black;
+    background: white;
     width: 50px;
     height: 50px;
     cursor: pointer;
@@ -176,20 +166,16 @@
     border: none;
     padding: 0;
     border-radius: 50%;
-    &::before {
-        content: " ";
-        position: absolute;
-        width: 50px;
-        height: 50px;
-        display: block;
-        transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-        background: #5f5ff1;
-        top: 0;
-        left: 0;
-        z-index: -1;
-        transform: scale(0);
-        border-radius: 50%;
+    opacity: 0.8;
+    &:hover { opacity: 1; }
+
+    svg {
+        color: black;
     }
-    &:hover { &::before { transform: scale(1); } }
-    @media (max-width: 450px) { left: 10px; }
+    @media (max-width: 450px) { 
+        width: 40px;
+        height: 40px; 
+        left: 10px; 
+        bottom: 70px; 
+    }
 }

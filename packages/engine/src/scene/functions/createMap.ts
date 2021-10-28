@@ -4,20 +4,18 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { MapComponent } from '../../map/MapComponent'
 import { Group } from 'three'
-import getPhases from '../../map/functions/getPhases'
-import actuateEager from '../../map/functions/actuateEager'
-import createStore from '../../map/functions/createStore'
 import { Engine } from '../../ecs/classes/Engine'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+import { MapAction, mapReducer } from '../../map/MapReceptor'
+import { MapComponent } from '../../map/MapComponent'
+import { getPhases, startPhases } from '../../map/functions/PhaseFunctions'
 
 export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   // TODO: handle "navigator.geolocation.getCurrentPosition" rejection?
   const center = await getStartCoords(args)
 
-  const store = createStore(center, [0, 0], 40, 800, args.scale?.x || 1, args)
-  addComponent(entity, MapComponent, store)
+  addComponent(entity, MapComponent, {})
 
   const mapObject3D = new Group()
   const navigationRaycastTarget = new Group()
@@ -31,9 +29,10 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     addComponent(entity, DebugNavMeshComponent, { object3d: new Group() })
   }
 
-  await actuateEager(store, getPhases({ exclude: ['navigation'] }))
+  const state = mapReducer(null, MapAction.initialize(center, args.scale?.x))
+  await startPhases(state, await getPhases({ exclude: ['navigation'] }))
 
-  navigationRaycastTarget.scale.setScalar(store.scale)
+  navigationRaycastTarget.scale.setScalar(state.scale)
   Engine.scene.add(navigationRaycastTarget)
 
   addComponent(entity, NavMeshComponent, {

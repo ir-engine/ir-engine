@@ -1,12 +1,11 @@
-import { Object3D, BoxBufferGeometry, Material, DefaultLoadingManager } from 'three'
+import { Object3D, BoxBufferGeometry, Material } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
 import { getStartCoords } from '@xrengine/engine/src/map'
 import { MapProps } from '@xrengine/engine/src/map/MapProps'
-import actuateEager from '@xrengine/engine/src/map/functions/actuateEager'
-import getPhases from '@xrengine/engine/src/map/functions/getPhases'
-import createStore from '@xrengine/engine/src/map/functions/createStore'
+import { getPhases, startPhases } from '@xrengine/engine/src/map/functions/PhaseFunctions'
 import { addChildFast, setPosition } from '@xrengine/engine/src/map/util'
+import { MapAction, mapReducer } from '@xrengine/engine/src/map/MapReceptor'
 
 const PROPS_THAT_REFRESH_MAP_ON_CHANGE = ['startLatitude', 'startLongitude', 'useDeviceGeolocation']
 
@@ -54,18 +53,21 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   async addMap() {
     console.log('creating map')
     const args = this.getProps()
-    const center = await getStartCoords(this.getProps())
-    const store = createStore(center, [0, 0], Infinity, 1200, args.scale.x, args)
+    const center = await getStartCoords(args)
     const subSceneChildren = []
     const subScene = this as unknown as Object3D
-    await actuateEager(store, getPhases({ exclude: ['navigation'] }))
-    for (const object of store.completeObjects.values()) {
+
+    const state = mapReducer(null, MapAction.initialize(center, args.scale?.x))
+
+    await startPhases(state, await getPhases({ exclude: ['navigation'] }))
+
+    for (const object of state.completeObjects.values()) {
       if (object.mesh) {
         setPosition(object.mesh, object.centerPoint)
         addChildFast(subScene, object.mesh, subSceneChildren)
       }
     }
-    for (const object of store.labelCache.values()) {
+    for (const object of state.labelCache.values()) {
       if (object.mesh) {
         setPosition(object.mesh, object.centerPoint)
         addChildFast(subScene, object.mesh, subSceneChildren)

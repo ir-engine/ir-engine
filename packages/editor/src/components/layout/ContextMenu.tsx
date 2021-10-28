@@ -21,6 +21,7 @@ export const ContextMenuTrigger = _ContextMenuTrigger
 /**
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  */
 export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
   .react-contextmenu {
@@ -35,6 +36,11 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
     pointer-events: none;
     text-align: left;
     box-shadow: ${(props) => props.theme.shadow30};
+  }
+
+  .react-contextmenu-wrapper{
+    height:100%;
+width:100%;
   }
 
   .react-contextmenu.react-contextmenu--visible {
