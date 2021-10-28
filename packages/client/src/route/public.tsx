@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import CircularProgress from '@mui/material/CircularProgress'
 import { getCustomRoutes } from './getCustomRoutes'
 import ErrorBoundary from '../components/ErrorBoundary'
 import { useTranslation } from 'react-i18next'

@@ -13,8 +13,8 @@ import {
   Vector3,
   WebGLRenderer
 } from 'three'
-import VideocamIcon from '@material-ui/icons/Videocam'
-import FlipCameraIosIcon from '@material-ui/icons/FlipCameraIos'
+import VideocamIcon from '@mui/icons-material/Videocam'
+import FlipCameraIosIcon from '@mui/icons-material/FlipCameraIos'
 import Player from 'volumetric/web/decoder/Player'
 // @ts-ignore
 import PlayerWorker from 'volumetric/web/decoder/workerFunction.ts?worker'

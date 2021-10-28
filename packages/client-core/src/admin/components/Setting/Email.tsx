@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
-import { Grid, Typography, Paper, Divider, Button } from '@material-ui/core'
+import { Grid, Typography, Paper, Divider, Button } from '@mui/material'
 import { useStyles } from './styles'
-import InputBase from '@material-ui/core/InputBase'
-import Switch from '@material-ui/core/Switch'
+import InputBase from '@mui/material/InputBase'
+import Switch from '@mui/material/Switch'
 import { Icon } from '@iconify/react'
-import IconButton from '@material-ui/core/IconButton'
+import IconButton from '@mui/material/IconButton'
 import { useDispatch } from '../../../store'
 import { useEmailSettingState } from '../../state/Setting/EmailSettingState'
 import { EmailSettingService } from '../../state/Setting/EmailSettingServices'
@@ -103,7 +103,7 @@ const Email = (props: emailProps) => {
                     disabled
                     style={{ color: '#fff' }}
                   />
-                  <IconButton>
+                  <IconButton size="large">
                     <Icon icon="ic:baseline-visibility-off" color="orange" />
                   </IconButton>
                 </Paper>

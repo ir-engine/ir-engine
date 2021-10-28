@@ -25,7 +25,7 @@ export class AnimationManager {
         resolve([])
       }
       getLoader().load(
-        Engine.publicPath + '/models/avatars/Animations.glb',
+        Engine.publicPath + '/default_assets/Animations.glb',
         (gltf) => {
           gltf.scene.traverse((child) => {
             if (child.type === 'SkinnedMesh' && !this._defaultSkeleton) {
@@ -59,7 +59,7 @@ export class AnimationManager {
         resolve(new Group())
       }
       getLoader().load(
-        Engine.publicPath + '/models/avatars/Razer1.glb',
+        Engine.publicPath + '/default_assets/Allison.glb',
         (gltf) => {
           this._defaultModel = gltf.scene
           this._defaultModel.traverse((obj: Mesh) => {
