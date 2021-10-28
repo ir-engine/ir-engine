@@ -10,6 +10,9 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
     root: {
       display: 'flex'
     },
+    header: {
+      height: '64px !important'
+    },
     appBar: {
       zIndex: theme.zIndex.drawer + 1,
       transition: theme.transitions.create(['width', 'margin'], {
@@ -60,17 +63,38 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
     },
     toolbar: {
       display: 'flex',
+      flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-end',
       padding: theme.spacing(0, 1),
       // necessary for content to be below app bar
       ...theme.mixins.toolbar
     },
+    appBarHeadingContainer: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    },
+    appBarHeadingName: {
+      ['@media (max-width:500px)']: {
+        display: 'none'
+      }
+    },
     content: {
-      flexGrow: 1,
+      top: '64px',
+      overflow: 'auto',
+      position: 'relative',
       padding: theme.spacing(3),
       backgroundColor: '#15171B',
-      minHeight: '100vh'
+      height: 'calc(100vh - 64px)'
+    },
+    contentWidthDrawerOpen: {
+      width: `calc(100vw - ${drawerWidth}px)`
+    },
+    contentWidthDrawerClosed: {
+      width: `calc(100vw - ${theme.spacing(7) + 1}px)`
     },
     backdrop: {
       zIndex: theme.zIndex.drawer + 1,
