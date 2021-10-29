@@ -59,10 +59,10 @@ interface Vector2InputProp {
 const Vector2Input = (props: Vector2InputProp) => {
   const id = uniqueId++
   let newValue = new Vector2()
-  let [uniformEnabled, SetUniformEnabled] = useState(props.uniformScaling)
+  let [uniformEnabled, setUniformEnabled] = useState(props.uniformScaling)
 
   const onToggleUniform = () => {
-    SetUniformEnabled(!uniformEnabled)
+    setUniformEnabled(!uniformEnabled)
   }
 
   const onChange = (field, fieldValue) => {

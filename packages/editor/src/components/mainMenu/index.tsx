@@ -18,12 +18,12 @@ interface MainMenuProp {
 }
 
 const MainMenu = (props: MainMenuProp) => {
-  let [isMenuOpen, SetMenuOpen] = useState(false)
+  let [isMenuOpen, setMenuOpen] = useState(false)
   const t = props.t
 
   const toggleMenu = (e) => {
     if (isMenuOpen) {
-      SetMenuOpen(!isMenuOpen)
+      setMenuOpen(!isMenuOpen)
       return
     }
 
@@ -35,10 +35,10 @@ const MainMenu = (props: MainMenuProp) => {
       id: 'menu'
     })
 
-    SetMenuOpen(true)
+    setMenuOpen(true)
   }
 
-  const hideMenu = () => SetMenuOpen(false)
+  const hideMenu = () => setMenuOpen(false)
 
   const renderMenu = (command: Command) => {
     if (!command.subCommnads || command.subCommnads.length === 0) {

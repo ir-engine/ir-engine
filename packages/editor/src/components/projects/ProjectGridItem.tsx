@@ -115,7 +115,7 @@ const Col = styled.div`
  *
  * @author Robert Long
  */
-export const ProjectGridItem = ({ onClickExisting, contextMenuId, project }) => {
+const ProjectGridItem = (onClickExisting: Function, contextMenuId: string, project: any) => {
   const onShowMenu = (event) => {
     event.preventDefault()
     event.stopPropagation()
@@ -135,7 +135,7 @@ export const ProjectGridItem = ({ onClickExisting, contextMenuId, project }) => 
   const content = (
     <>
       <ThumbnailContainer>
-        {(project.thumbnailUrl ?? project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
+        {(project.thumbnailUrl || project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
       </ThumbnailContainer>
       <TitleContainer>
         <Col>

@@ -100,8 +100,8 @@ interface NumericInputProp {
  * @author Robert Long
  */
 const NumericInput = (props: NumericInputProp) => {
-  let [tempValue, SetTempValue] = useState(null)
-  let [focused, SetFocused] = useState(false)
+  let [tempValue, setTempValue] = useState(null)
+  let [focused, setFocused] = useState(false)
   let inputEl = useRef(null)
 
   const handleStep = (event, direction, focus = true) => {
@@ -120,14 +120,14 @@ const NumericInput = (props: NumericInputProp) => {
       onChange(finalValue)
     }
 
-    SetTempValue(
+    setTempValue(
       roundedValue.toLocaleString('fullwide', {
         useGrouping: false,
         minimumFractionDigits: 0,
         maximumFractionDigits: Math.abs(Math.log10(precision)) + 1
       })
     )
-    SetFocused(focus)
+    setFocused(focus)
   }
 
   const increment = () => {
@@ -165,8 +165,8 @@ const NumericInput = (props: NumericInputProp) => {
 
     const tempValue = event.target.value
 
-    SetTempValue(tempValue)
-    SetFocused(true)
+    setTempValue(tempValue)
+    setFocused(true)
 
     const parsedValue = parseFloat(tempValue)
 
@@ -181,14 +181,14 @@ const NumericInput = (props: NumericInputProp) => {
   const handleFocus = () => {
     const { value, convertFrom, precision } = props
 
-    SetTempValue(
+    setTempValue(
       convertFrom(value).toLocaleString('fullwide', {
         useGrouping: false,
         minimumFractionDigits: 0,
         maximumFractionDigits: Math.abs(Math.log10(precision)) + 1
       })
     )
-    SetFocused(true)
+    setFocused(true)
 
     inputEl.current.select()
   }
@@ -196,8 +196,8 @@ const NumericInput = (props: NumericInputProp) => {
   const handleBlur = () => {
     const { value, onCommit, onChange } = props
 
-    SetTempValue(null)
-    SetFocused(false)
+    setTempValue(null)
+    setFocused(false)
 
     if (onCommit) {
       onCommit(value)
