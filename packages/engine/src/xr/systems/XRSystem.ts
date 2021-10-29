@@ -14,7 +14,7 @@ import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { addDefaultControllerModels } from '../functions/addControllerModels'
+import { initializeXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 
 /**
@@ -32,8 +32,6 @@ export default async function XRSystem(world: World): Promise<System> {
   const vector3 = new Vector3()
 
   // TEMPORARY - precache controller model
-  // TODO: remove this when IK system is in
-  await AssetLoader.loadAsync({ url: '/default_assets/controllers/valve_controller_knu_1_0_right.glb' })
   // Cache hand models
   await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left.glb' })
   await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right.glb' })
@@ -102,7 +100,7 @@ export default async function XRSystem(world: World): Promise<System> {
 
     if (Engine.xrControllerModel) {
       for (const entity of localXRControllerQuery.enter()) {
-        addDefaultControllerModels(entity)
+        initializeXRInputs(entity)
       }
     }
 

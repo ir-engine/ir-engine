@@ -6,106 +6,97 @@ import {
   LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
-  MeshPhongMaterial,
   RingGeometry,
   XRInputSource
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { SkeletonUtils } from '../../avatar/SkeletonUtils'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 
-const initController = (controller: any, left: boolean) => {
-  if (controller.userData.mesh) {
-    return
-  }
+const remapXRControllers = (xrInputSourceComponent: XRInputSourceComponentType) => {
+  // Try to map controllers to correct hand
+  // Internally inputSources and controllers are connected using same index
+  const session = Engine.xrManager.getSession()
 
-  const controller3DModel = AssetLoader.getFromCache('/default_assets/controllers/valve_controller_knu_1_0_right.glb')
-    .scene.children[2]
-
-  const controllerMesh = controller3DModel.clone()
-
-  controllerMesh.position.z = -0.12
-  controllerMesh.material = new MeshPhongMaterial()
-  controller.add(controllerMesh)
-  controller.userData.mesh = controllerMesh
-  if (left) {
-    controller.userData.mesh.scale.set(-1, 1, 1)
+  for (let i = 0; i < 2; i++) {
+    const inputSource = session.inputSources[i]
+    const controller = Engine.xrManager.getController(i)
+    const grip = Engine.xrManager.getControllerGrip(i)
+    if (inputSource.handedness === 'left') {
+      xrInputSourceComponent.controllerLeft = controller
+      xrInputSourceComponent.controllerGripLeft = grip
+    } else if (inputSource.handedness === 'right') {
+      xrInputSourceComponent.controllerRight = controller
+      xrInputSourceComponent.controllerGripRight = grip
+    } else {
+      console.warn('Could not determine xr input source handedness', i)
+    }
   }
 }
 
-export const addDefaultControllerModels = (entity: Entity) => {
+export const initializeXRInputs = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-  const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
 
-  controllers.forEach((controller: any) => {
-    if (controller.userData.eventListnerAdded) {
+  remapXRControllers(xrInputSourceComponent)
+
+  const session = Engine.xrManager.getSession()
+  const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
+  const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
+
+  controllers.forEach((controller: any, i) => {
+    if (controller.userData.initialized) {
       return
     }
-
-    controller.userData.eventListnerAdded = true
+    controller.userData.initialized = true
 
     controller.addEventListener('connected', (ev) => {
+      remapXRControllers(xrInputSourceComponent)
+
       const xrInputSource = ev.data as XRInputSource
 
       if (xrInputSource.targetRayMode !== 'tracked-pointer' && xrInputSource.targetRayMode !== 'gaze') {
         return
       }
 
-      if (controller.targetRay) {
-        controller.targetRay.visible = true
-      } else {
+      if (!controller.targetRay) {
         const targetRay = createController(ev.data)
         controller.add(targetRay)
         controller.targetRay = targetRay
       }
-
-      controller.userData.xrInputSource = xrInputSource
     })
 
-    controller.addEventListener('disconnected', (ev) => {
-      if (controller?.targetRay) {
-        controller.targetRay.visible = false
-      }
-    })
+    const inputSource = session.inputSources[i]
+    const targetRay = createController(inputSource)
+    if (targetRay) {
+      controller.add(targetRay)
+      controller.targetRay = targetRay
+    }
   })
 
-  const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
-
   controllersGrip.forEach((controller: any) => {
-    if (controller.userData.eventListnerAdded) {
+    if (controller.userData.initialized) {
       return
     }
 
-    controller.userData.eventListnerAdded = true
-
-    // TODO: For some reason this event only fires when picking up the controller again on Oculus Quest 2
-    controller.addEventListener('connected', (ev) => {
-      const xrInputSource = ev.data as XRInputSource
-
-      if (xrInputSource.targetRayMode !== 'tracked-pointer' || !xrInputSource.gamepad) {
-        return
-      }
-
-      if (controller.userData.mesh) {
-        if (xrInputSource.handedness === 'left') {
-          controller.userData.mesh.scale.set(-1, 1, 1)
-        } else {
-          controller.userData.mesh.scale.setScalar(1)
-        }
-      }
-
-      controller.userData.xrInputSource = xrInputSource
-    })
-
-    // TODO: Should call this function inside above event to get correct mapping
-    initController(controller, controller === xrInputSourceComponent.controllerGripLeft)
+    controller.userData.initialized = true
+    const handedness = controller === xrInputSourceComponent.controllerGripLeft ? 'left' : 'right'
+    const winding = handedness == 'left' ? 1 : -1
+    //initController(controller, controller === xrInputSourceComponent.controllerGripLeft)
+    initializeHandModel(controller, handedness)
+    controller.userData.mesh.rotation.x = Math.PI * 0.25
+    controller.userData.mesh.rotation.y = Math.PI * 0.5 * winding
+    controller.userData.mesh.rotation.z = Math.PI * 0.02 * -winding
   })
 }
 
 export const initializeHandModel = (controller: any, handedness: string) => {
-  const handMesh = AssetLoader.getFromCache(`/models/webxr/controllers/hands/${handedness}.glb`)?.scene?.children[0]
+  const handMesh = SkeletonUtils.clone(
+    AssetLoader.getFromCache(`/default_assets/controllers/hands/${handedness}.glb`)?.scene?.children[0]
+  )
 
   if (!handMesh) {
     console.error(`Could not load ${handedness} hand mesh`)
@@ -122,9 +113,9 @@ export const initializeHandModel = (controller: any, handedness: string) => {
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
-const createController = (data) => {
+const createController = (inputSource) => {
   let geometry, material
-  switch (data.targetRayMode) {
+  switch (inputSource.targetRayMode) {
     case 'tracked-pointer':
       geometry = new BufferGeometry()
       geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 0, 0, -1], 3))
