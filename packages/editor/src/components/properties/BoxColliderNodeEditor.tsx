@@ -48,11 +48,8 @@ const BoxColliderNodeEditor = (props: BoxColliderNodeEditorProps) => {
     CommandManager.instance.setPropertyOnSelection('isTrigger', isTrigger)
   }
 
-  //rendering view to cusomize box collider element
-  BoxColliderNodeEditor.description = props.t('editor:properties.boxCollider.description')
-
   return (
-    <NodeEditor {...props} description={BoxColliderNodeEditor.description}>
+    <NodeEditor {...props} description={props.t('editor:properties.boxCollider.description')}>
       <InputGroup name="Trigger" label={props.t('editor:properties.boxCollider.lbl-isTrigger')}>
         <BooleanInput value={props.node?.isTrigger} onChange={onChangeTrigger} />
       </InputGroup>

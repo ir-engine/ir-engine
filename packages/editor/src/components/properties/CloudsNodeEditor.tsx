@@ -29,11 +29,8 @@ const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
     }
   }
 
-  //rendering view
-  CloudsNodeEditor.description = props.t('editor:properties.clouds.description')
-
   return (
-    <NodeEditor {...props} description={CloudsNodeEditor.description}>
+    <NodeEditor {...props} description={props.t('editor:properties.clouds.description')}>
       <InputGroup name="Image" label={props.t('editor:properties.clouds.lbl-image')}>
         <ImageInput value={props.node.texture} onChange={onChangeProperty('texture')} />
       </InputGroup>
