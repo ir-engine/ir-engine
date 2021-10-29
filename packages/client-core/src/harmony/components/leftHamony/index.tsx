@@ -1,9 +1,9 @@
 import React from 'react'
-import Paper from '@material-ui/core/Paper'
+import Paper from '@mui/material/Paper'
 import SearchUser from './SearchUser'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
 import { useStyle, useUserStyles } from './style'
 import UserList from './UserList'
 

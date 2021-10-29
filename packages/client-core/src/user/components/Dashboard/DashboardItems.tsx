@@ -15,10 +15,10 @@ import {
   Toys,
   Casino,
   Shuffle
-} from '@material-ui/icons'
-import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue'
-import ViewModuleIcon from '@material-ui/icons/ViewModule'
-import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople'
+} from '@mui/icons-material'
+import RemoveFromQueueIcon from '@mui/icons-material/RemoveFromQueue'
+import ViewModuleIcon from '@mui/icons-material/ViewModule'
+import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople'
 
 export const SidebarItems = (
   allowedRoutes,

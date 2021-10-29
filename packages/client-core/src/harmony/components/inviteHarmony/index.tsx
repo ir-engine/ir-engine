@@ -1,5 +1,5 @@
 import React from 'react'
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
+import SwipeableDrawer from '@mui/material/SwipeableDrawer'
 import { useStyle, useStyles } from './style'
 
 const InviteHarmony = ({ open, handleClose }) => {

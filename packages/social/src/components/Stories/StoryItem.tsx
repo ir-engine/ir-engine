@@ -1,5 +1,5 @@
 import React from 'react'
-import Avatar from '@material-ui/core/Avatar'
+import Avatar from '@mui/material/Avatar'
 import { useTranslation } from 'react-i18next'
 
 import styles from './Stories.module.scss'

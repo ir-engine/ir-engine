@@ -33,10 +33,10 @@ export default async function XRSystem(world: World): Promise<System> {
 
   // TEMPORARY - precache controller model
   // TODO: remove this when IK system is in
-  await AssetLoader.loadAsync({ url: '/models/webxr/controllers/valve_controller_knu_1_0_right.glb' })
+  await AssetLoader.loadAsync({ url: '/default_assets/controllers/valve_controller_knu_1_0_right.glb' })
   // Cache hand models
-  await AssetLoader.loadAsync({ url: '/models/webxr/controllers/hands/left.glb' })
-  await AssetLoader.loadAsync({ url: '/models/webxr/controllers/hands/right.glb' })
+  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left.glb' })
+  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right.glb' })
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
     Engine.renderer.outputEncoding = sRGBEncoding

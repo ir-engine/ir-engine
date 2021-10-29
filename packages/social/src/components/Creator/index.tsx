@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 

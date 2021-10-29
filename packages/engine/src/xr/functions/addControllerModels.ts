@@ -21,7 +21,7 @@ const initController = (controller: any, left: boolean) => {
     return
   }
 
-  const controller3DModel = AssetLoader.getFromCache('/models/webxr/controllers/valve_controller_knu_1_0_right.glb')
+  const controller3DModel = AssetLoader.getFromCache('/default_assets/controllers/valve_controller_knu_1_0_right.glb')
     .scene.children[2]
 
   const controllerMesh = controller3DModel.clone()
