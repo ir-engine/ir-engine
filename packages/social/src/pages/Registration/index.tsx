@@ -1,8 +1,8 @@
-import Button from '@material-ui/core/Button'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
+import Button from '@mui/material/Button'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
@@ -20,11 +20,12 @@ import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src
 import * as polyfill from 'credential-handler-polyfill'
 import styles from './Registration.module.scss'
 import { useTranslation } from 'react-i18next'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useSnackbar, SnackbarOrigin } from 'notistack'
 
 import { Link, useHistory, Redirect } from 'react-router-dom'
 import ChangedUserName from './ChangedUserName'
+import CloseSnackbarComponent from '../../components/buttons/CloseSnackbarComponent'
 
 const Registration = (props: any): any => {
   const {
@@ -96,11 +97,33 @@ const Registration = (props: any): any => {
   const callBacksFromUpdateUsername = (str: string) => {
     switch (str) {
       case 'succes': {
-        enqueueSnackbar('Data saved successfully', { variant: 'success', anchorOrigin })
+        const succes = enqueueSnackbar('Data saved successfully', {
+          variant: 'success',
+          anchorOrigin,
+          action: [
+            <CloseSnackbarComponent
+              key="closeSnackbar"
+              handleClose={() => {
+                closeSnackbar(succes)
+              }}
+            />
+          ]
+        })
         break
       }
       case 'reject': {
-        enqueueSnackbar('This name is already taken', { variant: 'error', anchorOrigin })
+        const reject = enqueueSnackbar('This name is already taken', {
+          variant: 'error',
+          anchorOrigin,
+          action: [
+            <CloseSnackbarComponent
+              key="closeSnackbar"
+              handleClose={() => {
+                closeSnackbar(reject)
+              }}
+            />
+          ]
+        })
         break
       }
     }

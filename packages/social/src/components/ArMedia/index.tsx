@@ -4,8 +4,8 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { Button, CardMedia, Typography } from '@material-ui/core'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import { Button, CardMedia, Typography } from '@mui/material'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
 import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
 import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaService'

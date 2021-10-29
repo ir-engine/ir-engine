@@ -1,26 +1,26 @@
 import React from 'react'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
 import { useStyle, useStylesForBots as useStyles } from './styles'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import Paper from '@material-ui/core/Paper'
-import FormControl from '@material-ui/core/FormControl'
-import InputBase from '@material-ui/core/InputBase'
-import { Save, Autorenew } from '@material-ui/icons'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import FormControl from '@mui/material/FormControl'
+import InputBase from '@mui/material/InputBase'
+import { Save, Autorenew } from '@mui/icons-material'
 import { useLocationState } from '../../state/LocationService'
 import { useInstanceState } from '../../state/InstanceService'
 import { useDispatch } from '../../../store'
 import { validateForm } from './validation'
-import MuiAlert from '@material-ui/lab/Alert'
-import Snackbar from '@material-ui/core/Snackbar'
+import MuiAlert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
 import { BotService } from '../../state/BotsService'
 import { useAuthState } from '../../../user/state/AuthService'
-import Grid from '@material-ui/core/Grid'
-import IconButton from '@material-ui/core/IconButton'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
 import { InstanceService } from '../../state/InstanceService'
 import { LocationService } from '../../state/LocationService'
 
@@ -223,7 +223,7 @@ const UpdateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminLocations}>
+                <IconButton onClick={fetchAdminLocations} size="large">
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>
@@ -264,7 +264,7 @@ const UpdateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminInstances}>
+                <IconButton onClick={fetchAdminInstances} size="large">
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>

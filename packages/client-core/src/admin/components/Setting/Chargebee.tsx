@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
-import { Paper, Typography } from '@material-ui/core'
-import InputBase from '@material-ui/core/InputBase'
+import { Paper, Typography } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
 import { ChargebeeSettingService } from '../../state/Setting/ChargebeeSettingServices'
 import { useChargebeeSettingState } from '../../state/Setting/ChargebeeSettingService'
 import { useDispatch } from '../../../store'

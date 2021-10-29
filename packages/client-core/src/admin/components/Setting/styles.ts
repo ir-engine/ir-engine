@@ -1,4 +1,7 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -111,14 +114,14 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     invisible: {
       display: 'none',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('lg')]: {
         display: 'inline-block',
         marginBottom: '3rem'
       }
     },
     visible: {
       display: 'inline-block',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('lg')]: {
         display: 'none'
       }
     }

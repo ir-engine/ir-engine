@@ -1,5 +1,5 @@
-import Fab from '@material-ui/core/Fab'
-import { CallEnd, VideoCall } from '@material-ui/icons'
+import Fab from '@mui/material/Fab'
+import { CallEnd, VideoCall } from '@mui/icons-material'
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { useLocationState } from '@xrengine/client-core/src/social/state/LocationService'
 import {

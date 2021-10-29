@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Mic, MicOff, Videocam, VideocamOff } from '@material-ui/icons'
-import FaceIcon from '@material-ui/icons/Face'
+import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
+import FaceIcon from '@mui/icons-material/Face'
 import styles from './MediaIconsBox.module.scss'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import {

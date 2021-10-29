@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import NodeEditor from './NodeEditor'
-import TimelineIcon from '@material-ui/icons/Timeline'
+import TimelineIcon from '@mui/icons-material/Timeline'
 import i18n from 'i18next'
 import { useTranslation, withTranslation } from 'react-i18next'
 import { PropertiesPanelButton } from '../inputs/Button'

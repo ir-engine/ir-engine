@@ -1,24 +1,24 @@
 import React from 'react'
-import Grid from '@material-ui/core/Grid'
-import Card from '@material-ui/core/Card'
-import CardActionArea from '@material-ui/core/CardActionArea'
-import CardActions from '@material-ui/core/CardActions'
-import CardContent from '@material-ui/core/CardContent'
-import CardMedia from '@material-ui/core/CardMedia'
-import VisibilityIcon from '@material-ui/icons/Visibility'
-import BookmarkIcon from '@material-ui/icons/Bookmark'
-import WhatshotIcon from '@material-ui/icons/Whatshot'
-import Typography from '@material-ui/core/Typography'
-import TagsIcon from '@material-ui/icons/LabelImportant'
-import Chip from '@material-ui/core/Chip'
-import Paper from '@material-ui/core/Paper'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
-import IconButton from '@material-ui/core/IconButton'
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
-import Grow from '@material-ui/core/Grow'
-import Popper from '@material-ui/core/Popper'
-import MenuItem from '@material-ui/core/MenuItem'
-import MenuList from '@material-ui/core/MenuList'
+import Grid from '@mui/material/Grid'
+import Card from '@mui/material/Card'
+import CardActionArea from '@mui/material/CardActionArea'
+import CardActions from '@mui/material/CardActions'
+import CardContent from '@mui/material/CardContent'
+import CardMedia from '@mui/material/CardMedia'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import BookmarkIcon from '@mui/icons-material/Bookmark'
+import WhatshotIcon from '@mui/icons-material/Whatshot'
+import Typography from '@mui/material/Typography'
+import TagsIcon from '@mui/icons-material/LabelImportant'
+import Chip from '@mui/material/Chip'
+import Paper from '@mui/material/Paper'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import IconButton from '@mui/material/IconButton'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+import Grow from '@mui/material/Grow'
+import Popper from '@mui/material/Popper'
+import MenuItem from '@mui/material/MenuItem'
+import MenuList from '@mui/material/MenuList'
 import { useFeedStyles } from './styles'
 
 interface Props {
@@ -119,6 +119,7 @@ const CardData = (props: Props) => {
                   aria-controls={open ? 'menu-list-grow' : undefined}
                   aria-haspopup="true"
                   onClick={handleToggle}
+                  size="large"
                 >
                   <MoreVertIcon className={classes.spanDange} />
                 </IconButton>

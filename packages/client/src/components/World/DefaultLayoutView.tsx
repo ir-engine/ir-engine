@@ -1,11 +1,10 @@
-import Button from '@material-ui/core/Button'
-import Snackbar from '@material-ui/core/Snackbar'
+import Button from '@mui/material/Button'
+import Snackbar from '@mui/material/Snackbar'
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import React, { Suspense, useEffect, useState } from 'react'
 import NetworkDebug from '../NetworkDebug'
 import GameServerWarnings from './GameServerWarnings'
-import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
 import InstanceChat from '../InstanceChat'
@@ -77,7 +76,6 @@ const DefaultLayoutView = (props: Props) => {
       {/* <RecordingApp /> */}
       <MediaIconsBox />
       <UserMenu />
-      <EmoteMenu />
       <InstanceChat />
     </>
   )

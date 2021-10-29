@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@material-ui/styles'
+import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
 import { AppAction } from '@xrengine/client-core/src/common/state/AppService'
@@ -14,6 +14,11 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
 import Harmony from './Harmony'
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -85,67 +90,69 @@ const Layout = (props: Props): any => {
   // TODO: Uncomment alerts when we can fix issues
 
   return (
-    <ThemeProvider theme={theme}>
-      <section>
-        <Helmet>
-          <title>
-            {siteTitle} | {pageTitle}
-          </title>
-        </Helmet>
-        <Harmony />
-        {/* <Harmony
-          isHarmonyPage={true}
-          setHarmonyOpen={setHarmonyOpen}
-          setDetailsType={setDetailsType}
-          setGroupFormOpen={setGroupFormOpen}
-          setGroupFormMode={setGroupFormMode}
-          setGroupForm={setGroupForm}
-          setSelectedUser={setSelectedUser}
-          setSelectedGroup={setSelectedGroup}
-          setLeftDrawerOpen={setLeftDrawerOpen}
-          setRightDrawerOpen={setRightDrawerOpen}
-        /> */}
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <section>
+          <Helmet>
+            <title>
+              {siteTitle} | {pageTitle}
+            </title>
+          </Helmet>
+          <Harmony />
+          {/* <Harmony
+            isHarmonyPage={true}
+            setHarmonyOpen={setHarmonyOpen}
+            setDetailsType={setDetailsType}
+            setGroupFormOpen={setGroupFormOpen}
+            setGroupFormMode={setGroupFormMode}
+            setGroupForm={setGroupForm}
+            setSelectedUser={setSelectedUser}
+            setSelectedGroup={setSelectedGroup}
+            setLeftDrawerOpen={setLeftDrawerOpen}
+            setRightDrawerOpen={setRightDrawerOpen}
+          /> */}
 
-        <Fragment>
-          <UIDialog />
-          <Alerts />
-          {childrenWithProps}
-        </Fragment>
-        {authUser?.accessToken?.value != null &&
-          authUser.accessToken.value.length > 0 &&
-          user?.id?.value != null &&
-          user.id.value.length > 0 && (
-            <Fragment>
-              <LeftDrawer
-                harmony={true}
-                detailsType={detailsType}
-                setDetailsType={setDetailsType}
-                groupFormOpen={groupFormOpen}
-                setGroupFormOpen={setGroupFormOpen}
-                groupFormMode={groupFormMode}
-                setGroupFormMode={setGroupFormMode}
-                groupForm={groupForm}
-                setGroupForm={setGroupForm}
-                selectedUser={selectedUser}
-                setSelectedUser={setSelectedUser}
-                selectedGroup={selectedGroup}
-                setSelectedGroup={setSelectedGroup}
-                openBottomDrawer={bottomDrawerOpen}
-                leftDrawerOpen={leftDrawerOpen}
-                setLeftDrawerOpen={setLeftDrawerOpen}
-                setRightDrawerOpen={setRightDrawerOpen}
-                setBottomDrawerOpen={setBottomDrawerOpen}
-              />
-            </Fragment>
-          )}
-        {/* {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && ( */}
-        <Fragment>
-          {/* <InviteHarmony /> */}
-          <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
-        </Fragment>
-        {/* )} */}
-      </section>
-    </ThemeProvider>
+          <Fragment>
+            <UIDialog />
+            <Alerts />
+            {childrenWithProps}
+          </Fragment>
+          {authUser?.accessToken?.value != null &&
+            authUser.accessToken.value.length > 0 &&
+            user?.id?.value != null &&
+            user.id.value.length > 0 && (
+              <Fragment>
+                <LeftDrawer
+                  harmony={true}
+                  detailsType={detailsType}
+                  setDetailsType={setDetailsType}
+                  groupFormOpen={groupFormOpen}
+                  setGroupFormOpen={setGroupFormOpen}
+                  groupFormMode={groupFormMode}
+                  setGroupFormMode={setGroupFormMode}
+                  groupForm={groupForm}
+                  setGroupForm={setGroupForm}
+                  selectedUser={selectedUser}
+                  setSelectedUser={setSelectedUser}
+                  selectedGroup={selectedGroup}
+                  setSelectedGroup={setSelectedGroup}
+                  openBottomDrawer={bottomDrawerOpen}
+                  leftDrawerOpen={leftDrawerOpen}
+                  setLeftDrawerOpen={setLeftDrawerOpen}
+                  setRightDrawerOpen={setRightDrawerOpen}
+                  setBottomDrawerOpen={setBottomDrawerOpen}
+                />
+              </Fragment>
+            )}
+          {/* {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && ( */}
+          <Fragment>
+            {/* <InviteHarmony /> */}
+            <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
+          </Fragment>
+          {/* )} */}
+        </section>
+      </ThemeProvider>
+    </StyledEngineProvider>
   )
 }
 

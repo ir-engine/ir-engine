@@ -1,9 +1,9 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { Card, CardContent, CardMedia, Typography, Avatar } from '@material-ui/core'
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
-import PersonPinIcon from '@material-ui/icons/PersonPin'
+import { Card, CardContent, CardMedia, Typography, Avatar } from '@mui/material'
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
+import PersonPinIcon from '@mui/icons-material/PersonPin'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 

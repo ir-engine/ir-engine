@@ -1,10 +1,10 @@
-import Button from '@material-ui/core/Button'
-import Container from '@material-ui/core/Container'
-import Grid from '@material-ui/core/Grid'
-import IconButton from '@material-ui/core/IconButton'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import OutlinedInput from '@material-ui/core/OutlinedInput'
-import { Visibility, VisibilityOff } from '@material-ui/icons'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import InputAdornment from '@mui/material/InputAdornment'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
@@ -95,6 +95,7 @@ export const PasswordLoginApp = (props: Props): any => {
                       onClick={handleClickShowPassword}
                       onMouseDown={handleMouseDownPassword}
                       color="secondary"
+                      size="large"
                     >
                       {showPassword ? <Visibility /> : <VisibilityOff />}
                     </IconButton>

@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import IconButton from '@material-ui/core/IconButton'
-import Call from '@material-ui/icons/Call'
-import MoreHoriz from '@material-ui/icons/MoreHoriz'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import IconButton from '@mui/material/IconButton'
+import Call from '@mui/icons-material/Call'
+import MoreHoriz from '@mui/icons-material/MoreHoriz'
 import { useStyle, useStyles } from './style'
 import InviteHarmony from '../inviteHarmony'
-import Person from '@material-ui/icons/Person'
-import ListItemText from '@material-ui/core/ListItemText'
+import Person from '@mui/icons-material/Person'
+import ListItemText from '@mui/material/ListItemText'
 import { useDispatch } from '../../../store'
 import { ChatService } from '../../../social/state/ChatService'
 import { useChatState } from '../../../social/state/ChatService'
@@ -83,10 +83,10 @@ export default function RightHarmony() {
           />
         )}
         <div style={{ marginRight: '1.5rem' }}>
-          <IconButton>
+          <IconButton size="large">
             <Call className={classes.whiteIcon} />
           </IconButton>
-          <IconButton onClick={() => openInviteModel(true)}>
+          <IconButton onClick={() => openInviteModel(true)} size="large">
             <MoreHoriz className={classes.whiteIcon} />
           </IconButton>
         </div>

@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react'
 // @ts-ignore
 import styles from './Header.module.scss'
-import Avatar from '@material-ui/core/Avatar'
+import Avatar from '@mui/material/Avatar'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
 import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
@@ -30,8 +30,9 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
   const creatorState = useCreatorState()
 
   useEffect(() => {
+    // fixThis
     setCreator(
-      creatorState.creators.fetchingCurrentCreator.value === false && creatorState.creators.currentCreator.value
+      creatorState.creators.fetchingCurrentCreator.value === false ? false : creatorState.creators.currentCreator.value
     )
   }, [])
 

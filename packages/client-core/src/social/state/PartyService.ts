@@ -16,6 +16,7 @@ import { createState, DevTools, useState, none, Downgraded } from '@hookstate/co
 import _ from 'lodash'
 
 //State
+
 const state = createState({
   party: {} as Party,
   updateNeeded: true
@@ -27,6 +28,7 @@ store.receptors.push((action: PartyActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'LOADED_PARTY':
+        console.log('party loaded', action.party)
         return s.merge({ party: action.party, updateNeeded: false })
       case 'CREATED_PARTY':
         return s.updateNeeded.set(true)
@@ -38,6 +40,7 @@ store.receptors.push((action: PartyActionType): any => {
       case 'CREATED_PARTY_USER':
         newValues = action
         partyUser = newValues.partyUser
+        console.log('created party user', partyUser)
         updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
           updateMapPartyUsers = updateMap.partyUsers
@@ -57,6 +60,7 @@ store.receptors.push((action: PartyActionType): any => {
       case 'PATCHED_PARTY_USER':
         newValues = action
         partyUser = newValues.partyUser
+        console.log('patched partyUser', partyUser)
         updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
           updateMapPartyUsers = updateMap.partyUsers
@@ -223,7 +227,6 @@ if (!Config.publicRuntimeConfig.offlineMode) {
         party.instanceId !== dbUser.instanceId &&
         accessInstanceConnectionState().instanceProvisioning.value === false
       ) {
-        const instance = await client.service('instance').get(party.instanceId)
         const updateUser = dbUser
         updateUser.partyId = party.id
         store.dispatch(PartyAction.patchedPartyUser(updateUser))

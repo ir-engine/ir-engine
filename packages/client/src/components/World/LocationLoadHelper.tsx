@@ -22,8 +22,7 @@ import { getPacksFromSceneData } from '@xrengine/projects/loader'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import React from 'react'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
@@ -75,44 +74,61 @@ export const getSceneData = async (sceneId: string, isOffline: boolean): Promise
   return client.service(service).get(serviceId) as SceneData
 }
 
-const createOfflineUser = () => {
+const getFirstSpawnPointFromSceneData = (scene: SceneData) => {
+  for (const entity of Object.values(scene.entities)) {
+    if (entity.name != 'spawn point') continue
+
+    for (const component of entity.components) {
+      if (component.type === 'transform') {
+        return component.props.position
+      }
+    }
+  }
+
+  console.warn('Could not find spawn point from scene data')
+  return { x: 0, y: 0, z: 0 }
+}
+
+const createOfflineUser = (sceneData: SceneData) => {
   const avatarDetail = {
     thumbnailURL: '',
     avatarURL: '',
     avatarId: ''
   } as any
 
+  const spawnPos = getFirstSpawnPointFromSceneData(sceneData)
+
   const userId = 'user' as UserId
   const parameters = {
-    position: new Vector3(0.18393396470500378, 0, 0.2599274866972079),
+    position: new Vector3().copy(spawnPos),
     rotation: new Quaternion()
   }
+
+  const world = useWorld()
+  world.hostId = userId as any
 
   // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
-  const world = useWorld()
-  dispatchFrom(world.hostId, () => NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }))
-  dispatchFrom(world.hostId, () => NetworkWorldAction.spawnAvatar({ userId, parameters }))
+  dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }) as any)
+  dispatchLocal(NetworkWorldAction.spawnAvatar({ userId, parameters }) as any)
 }
 
 export const initEngine = async (
   sceneId: string,
   initOptions: InitializeOptions,
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
-  engineCallbacks?: EngineCallbacks
+  engineCallbacks?: EngineCallbacks,
+  connectToInstanceServer: boolean = true
 ): Promise<any> => {
   // 1.
-  const isOffline = false // TODO
-  const sceneData = await getSceneData(sceneId, isOffline)
+  const sceneData = await getSceneData(sceneId, false)
 
   const packs = await getPacksFromSceneData(sceneData, true)
 
   for (const system of packs.systems) {
     initOptions.systems?.push(system)
   }
-
-  const projectReactComponents = packs.react.map((c) => React.lazy(() => c))
 
   // 2. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
@@ -127,7 +143,7 @@ export const initEngine = async (
   }
 
   // 3. Connect to server
-  if (!isOffline) {
+  if (connectToInstanceServer) {
     const didConnect = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
@@ -150,7 +166,7 @@ export const initEngine = async (
   store.dispatch(AppAction.setAppLoaded(true))
 
   // 5. Join to new world
-  if (!isOffline) {
+  if (connectToInstanceServer) {
     // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
     let spawnTransform
     if (newSpawnPos) {
@@ -163,8 +179,8 @@ export const initEngine = async (
     )
   }
 
-  if (isOffline) {
-    createOfflineUser()
+  if (!connectToInstanceServer) {
+    createOfflineUser(sceneData)
   }
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
@@ -179,8 +195,6 @@ export const initEngine = async (
   if (typeof engineCallbacks?.onSuccess === 'function') {
     engineCallbacks.onSuccess()
   }
-
-  return projectReactComponents
 }
 
 export const teleportToLocation = async (

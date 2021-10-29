@@ -392,18 +392,12 @@
         },
         "triggereVolume": {
             "description": "Sets a property on the target object on enter and leave.",
-            "lbl-target": "Target",
-            "lbl-enterComponent": "Enter Component",
-            "lbl-enterProperty": "Enter Property",
-            "lbl-entervalue": "Enter Value",
-            "lbl-leaveComponent": "Leave Component",
-            "lbl-leaveProperty": "Leave Property",
-            "lbl-leaveValue": "Leave Value",
+            "lbl-target": "Object",
+            "lbl-onenter": "On Enter",
+            "lbl-onexit": "On Exit",
             "lbl-showHelper": "Show Helper Mesh",
             "ph-errorNode": "Error missing node.",
-            "ph-selectNode": "Select node...",
-            "ph-selectComponent": "Select component...",
-            "ph-selectProperty": "Select property..."
+            "ph-selectNode": "Select node..."
         },
         "video": {
             "description": "Dynamically loads a video.",
@@ -467,7 +461,15 @@
             "copyURL": "Copy URL",
             "openInNewTab": "Open URL in New Tab",
             "deleteAsset": "Delete Asset"
+        },
+        "filebrowser":{
+            "addNewFolder": "Add New Folder",
+            "cutAsset": "Cut",
+            "copyAsset": "Copy",
+            "pasteAsset": "Paste",
+            "renameAsset": "Rename"
         }
+        
     },
     "hierarchy": {
         "lbl-rename": "Rename",

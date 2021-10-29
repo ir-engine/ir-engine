@@ -7,7 +7,7 @@ import SignIn from '../../../user/components/Auth/Login'
 import Dropdown from '../../../user/components/Profile/ProfileDropdown'
 import { useTranslation } from 'react-i18next'
 import styles from './NavUserWidget.module.scss'
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 
 interface Props {
   login?: boolean

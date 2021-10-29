@@ -4,9 +4,9 @@
 import React from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { Typography, CardHeader, Avatar, IconButton } from '@material-ui/core'
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
-import DeleteIcon from '@material-ui/icons/Delete'
+import { Typography, CardHeader, Avatar, IconButton } from '@mui/material'
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
 import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateService'
@@ -56,7 +56,7 @@ const CreatorAsTitle = ({ creator }: any) => {
               <VerifiedUserIcon htmlColor="#007AFF" style={{ fontSize: '13px', margin: '0 0 0 5px' }} />
             )}
           </Typography>
-          <IconButton aria-label="delete" color="primary" onClick={() => removeBlockedUser(creator.id)}>
+          <IconButton aria-label="delete" color="primary" onClick={() => removeBlockedUser(creator.id)} size="large">
             <DeleteIcon />
           </IconButton>
         </div>

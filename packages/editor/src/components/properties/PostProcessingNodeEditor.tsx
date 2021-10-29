@@ -1,4 +1,4 @@
-import Checkbox from '@material-ui/core/Checkbox'
+import Checkbox from '@mui/material/Checkbox'
 import { Rainbow } from '@styled-icons/fa-solid/Rainbow'
 import React from 'react'
 import { CommandManager } from '../../managers/CommandManager'

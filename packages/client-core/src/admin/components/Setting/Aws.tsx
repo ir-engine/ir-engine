@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
-import { Grid, Paper, Button, Typography } from '@material-ui/core'
-import InputBase from '@material-ui/core/InputBase'
+import { Grid, Paper, Button, Typography } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
 import { useAdminAwsSettingState } from '../../state/Setting/AwsSettingServices'
 import { AwsSettingService } from '../../state/Setting/AwsSettingServices'
 import { useDispatch } from '../../../store'

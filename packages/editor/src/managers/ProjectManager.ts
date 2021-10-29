@@ -20,7 +20,6 @@ export class ProjectManager {
 
   ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
   currentOwnedFileIds: {}
-
   static buildProjectManager(settings?: any) {
     this.instance = new ProjectManager(settings)
   }
@@ -70,6 +69,7 @@ export class ProjectManager {
    */
   async loadProject(projectFile) {
     await ProjectManager.instance.init()
+
     CommandManager.instance.removeListener(
       EditorEvents.OBJECTS_CHANGED.toString(),
       SceneManager.instance.onEmitSceneModified

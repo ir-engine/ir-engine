@@ -1,5 +1,5 @@
-import CircularProgress from '@material-ui/core/CircularProgress'
-import { ArrowBack } from '@material-ui/icons'
+import CircularProgress from '@mui/material/CircularProgress'
+import { ArrowBack } from '@mui/icons-material'
 import { Config } from '@xrengine/common/src/config'
 import {
   MAX_ALLOWED_TRIANGLES,

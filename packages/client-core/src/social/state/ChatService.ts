@@ -31,6 +31,8 @@ import { Party } from '@xrengine/common/src/interfaces/Party'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 //State
+
+// TODO: find existing interfaces for these or move these to @xrengine/common/src/interfaces
 const state = createState({
   channels: {
     channels: [] as Channel[],
@@ -89,7 +91,8 @@ store.receptors.push((action: ChatActionType): any => {
         if (!channel) {
           s.channels.updateNeeded.set(true)
         } else {
-          channel.Messages[channel.Messages.length].set(action.message)
+          if (!channel.Messages.length) channel.Messages.set([action.message])
+          else channel.Messages[channel.Messages.length].set(action.message)
         }
 
         s.updateMessageScroll.set(true)
