@@ -7,13 +7,18 @@ import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
+
+type MapNodeEditorProps = {
+  node?: any
+  t: Function
+}
+
 /**
  * [BoxColliderNodeEditor is used to provide properties to customize box collider element]
  * @type {[component class]}
  */
 
-export function MapNodeEditor(props: { node?: any; t: any }) {
-  console.log('Props are', props)
+export function MapNodeEditor(props: MapNodeEditorProps) {
   const { node, t } = props
 
   const onChangeStartLatitude = (payload) => {

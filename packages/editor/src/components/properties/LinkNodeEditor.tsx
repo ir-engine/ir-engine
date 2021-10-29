@@ -19,30 +19,25 @@ type LinkNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export class LinkNodeEditor extends Component<LinkNodeEditorProps, {}> {
-  // initializing iconComponent image name
-  static iconComponent = Link
-
-  //initializing description and will appears on LinkNodeEditor view
-  static description = i18n.t('editor:properties.link.description')
-
+const LinkNodeEditor = (props: LinkNodeEditorProps) => {
   //function to handle change in href property of LinkNode
-  onChangeHref = (href) => {
+  const onChangeHref = (href) => {
     CommandManager.instance.setPropertyOnSelection('href', href)
   }
 
   //rendering view of editor for properties of LinkNode
-  render() {
-    LinkNodeEditor.description = this.props.t('editor:properties.link.description')
-    const node = this.props.node
-    return (
-      <NodeEditor description={LinkNodeEditor.description} {...this.props}>
-        <InputGroup name="Url" label={this.props.t('editor:properties.link.lbl-url')}>
-          <StringInput value={node.href} onChange={this.onChangeHref} />
-        </InputGroup>
-      </NodeEditor>
-    )
-  }
+  const node = props.node
+
+  return (
+    <NodeEditor description={LinkNodeEditor.description} {...props}>
+      <InputGroup name="Url" label={props.t('editor:properties.link.lbl-url')}>
+        <StringInput value={node.href} onChange={onChangeHref} />
+      </InputGroup>
+    </NodeEditor>
+  )
 }
+
+LinkNodeEditor.iconComponent = Link
+LinkNodeEditor.description = i18n.t('editor:properties.link.description')
 
 export default withTranslation()(LinkNodeEditor)
