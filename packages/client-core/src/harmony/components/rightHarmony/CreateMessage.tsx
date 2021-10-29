@@ -33,7 +33,7 @@ const CreateMessage = () => {
     <Paper component="form" className={classes.root}>
       <InputBase
         className={classes.input}
-        placeholder="Type.........."
+        placeholder="Type message.........."
         name="newMessage"
         id="newMessage"
         value={composingMessage}
@@ -53,7 +53,7 @@ const CreateMessage = () => {
         onClick={packageMessage}
         size="large"
       >
-        <Send />
+        <Send className={classes.whiteIcon} />
       </IconButton>
     </Paper>
   )

@@ -5,6 +5,7 @@ import createStyles from '@mui/styles/createStyles'
 import { styled } from '@mui/material/styles'
 import List from '@mui/material/List'
 import Button from '@mui/material/Button'
+import Paper from '@mui/material/Paper'
 
 // const theme = createTheme();
 
@@ -23,7 +24,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       color: '#f1f1f1'
     },
     createInviteBtn: {
-      padding: '30px',
+      padding: '15px',
       position: 'fixed',
       bottom: '3rem',
       right: '2.5rem',
@@ -173,4 +174,15 @@ export const AcceptInviteBtn = styled(Button)(({ theme }) => ({
     fontSize: '0.7rem',
     width: '4rem'
   }
+}))
+
+export const CreateInput = styled(Paper)(({ theme }) => ({
+  padding: '2px 4px',
+  display: 'flex',
+  alignItems: 'center',
+  marginTop: '10px',
+  marginBottom: '3rem',
+  background: '#343b41',
+  border: '1px solid #23282c',
+  color: '#f1f1f1 !important'
 }))

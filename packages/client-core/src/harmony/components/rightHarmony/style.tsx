@@ -91,7 +91,10 @@ export const useStyles = makeStyles((theme: Theme) =>
       padding: '2px 4px',
       display: 'flex',
       alignItems: 'center',
-      width: '75vw'
+      width: '75vw',
+      background: '#343b41',
+      color: '#f1f1f1',
+      border: '1px solid rgba(255, 255, 255, 0.16)'
     },
     firstMessagePlaceholder: {
       fontSize: '3em',
@@ -102,7 +105,8 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     input: {
       marginLeft: theme.spacing(1),
-      flex: 1
+      flex: 1,
+      color: '#f1f1f1'
     },
     inputEdit: {
       borderRadius: '5px',

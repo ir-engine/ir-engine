@@ -101,7 +101,7 @@ const ReceivedInvites = () => {
                 )}
               </ListItem>
 
-              <Divider variant="fullWidth" component="li" style={{ backgroundColor: '#15171B' }} />
+              <Divider variant="fullWidth" component="li" style={{ backgroundColor: 'rgba(255, 255, 255, 0.16)' }} />
             </div>
           )
         })}
