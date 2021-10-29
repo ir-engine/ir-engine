@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import BooleanInput from '../inputs/BooleanInput'
@@ -20,16 +20,10 @@ type BoxColliderNodeEditorProps = {
  * @author Robert Long
  * @type {[component class]}
  */
-export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps, { options: any }> {
-  //initializing props and state
-  constructor(props) {
-    super(props)
-    this.state = {
-      options: []
-    }
-  }
+const BoxColliderNodeEditor = (props: BoxColliderNodeEditorProps) => {
+  let [options, setOptions] = useState([])
 
-  componentDidMount() {
+  useEffect(() => {
     const options = []
     const sceneNode = SceneManager.instance.scene
     sceneNode.traverse((o) => {
@@ -37,40 +31,36 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
       }
     })
-    this.setState({ options })
-  }
-  //defining iconComponent with component name
-  static iconComponent = HandPaper
-
-  //defining description and shows this description in NodeEditor  with title of elementt,
-  // available to add in scene in assets.
-  static description = i18n.t('editor:properties.boxCollider.description')
+    setOptions(options)
+  }, [])
 
   // function to handle changes in payloadName property
-  onChangeRole = (role) => {
+  const onChangeRole = (role) => {
     CommandManager.instance.setPropertyOnSelection('role', role)
   }
 
   //function to handle the changes in target
-  onChangeTarget = (target) => {
+  const onChangeTarget = (target) => {
     CommandManager.instance.setPropertyOnSelection('target', target)
   }
   // function to handle the changes on trigger property
-  onChangeTrigger = (isTrigger) => {
+  const onChangeTrigger = (isTrigger) => {
     CommandManager.instance.setPropertyOnSelection('isTrigger', isTrigger)
   }
 
   //rendering view to cusomize box collider element
-  render() {
-    BoxColliderNodeEditor.description = this.props.t('editor:properties.boxCollider.description')
-    return (
-      <NodeEditor {...this.props} description={BoxColliderNodeEditor.description}>
-        <InputGroup name="Trigger" label={this.props.t('editor:properties.boxCollider.lbl-isTrigger')}>
-          <BooleanInput value={(this.props.node as any).isTrigger} onChange={this.onChangeTrigger} />
-        </InputGroup>
-      </NodeEditor>
-    )
-  }
+  BoxColliderNodeEditor.description = props.t('editor:properties.boxCollider.description')
+
+  return (
+    <NodeEditor {...props} description={BoxColliderNodeEditor.description}>
+      <InputGroup name="Trigger" label={props.t('editor:properties.boxCollider.lbl-isTrigger')}>
+        <BooleanInput value={props.node?.isTrigger} onChange={onChangeTrigger} />
+      </InputGroup>
+    </NodeEditor>
+  )
 }
+
+BoxColliderNodeEditor.iconComponent = HandPaper
+BoxColliderNodeEditor.description = i18n.t('editor:properties.boxCollider.description')
 
 export default withTranslation()(BoxColliderNodeEditor)
