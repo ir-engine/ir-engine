@@ -108,5 +108,5 @@ export interface StorageProviderInterface {
    * @param isCopy
    * @param isRename
    */
-  moveObject(current: string, destination: string, isCopy: boolean, isRename: string): Promise<any>
+  moveObject(current: string, destination: string, isCopy?: boolean, isRename?: string): Promise<any>
 }
