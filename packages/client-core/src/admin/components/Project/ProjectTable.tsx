@@ -156,8 +156,9 @@ const Projects = () => {
     await ProjectService.removeProject(projectToRemove.id!)
   }
 
-  const tryReuploadProjects = async (row) => {
+  const tryReuploadProjects = async (row: ProjectInterface) => {
     try {
+      if (!row.repositoryPath) return
       const existingProjects = adminProjects.value.find((projects) => projects.name === row.name)!
       await ProjectService.uploadProject(existingProjects.repositoryPath)
     } catch (err) {
@@ -246,6 +247,7 @@ const Projects = () => {
                       {user.userRole.value === 'admin' && (
                         <Button
                           className={styles.checkbox}
+                          disabled={row.repositoryPath === null}
                           onClick={(e) => tryReuploadProjects(row)}
                           name="stereoscopic"
                           color="primary"

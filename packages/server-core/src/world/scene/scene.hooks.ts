@@ -47,10 +47,10 @@ export default {
     find: [],
     get: [],
     create: [
-      attachOwnerIdInBody('userId'),
-      mapSceneSaveData(),
-      validateCollectionData(),
-      generateSceneCollection({ type: collectionType.scene })
+      // attachOwnerIdInBody('userId'),
+      // mapSceneSaveData(),
+      // validateCollectionData(),
+      // generateSceneCollection({ type: collectionType.scene })
     ],
     update: [disallow()],
     patch: [attachOwnerIdInBody('userId'), mapProjectIdToQuery(), mapSceneSaveData(), validateCollectionData()],

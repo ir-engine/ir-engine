@@ -1,9 +1,12 @@
 import { Application } from '../../../declarations'
-import { Scene } from './scene.class'
+import { Scene } from './scenenew.class'
 import projectDocs from './scene.docs'
 import createModel from './scene.model'
 import hooks from './scene.hooks'
 import createAssetModel from './asset.model'
+import appRootPath from 'app-root-path'
+import fs from 'fs'
+import path from 'path'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -11,6 +14,27 @@ declare module '../../../declarations' {
   }
   interface Models {
     scene: ReturnType<typeof createModel>
+  }
+}
+
+const getScenesForProject = (app: Application) => {
+  return async function ({ projectName }, params) {
+    const project = await app.service('project').get(projectName, params)
+    if (!project.data) throw new Error(`No project named ${projectName} exists`)
+
+    const newSceneJsonPath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}`)
+
+    const files = fs
+      .readdirSync(newSceneJsonPath, { withFileTypes: true })
+      .filter((dirent) => !dirent.isDirectory())
+      .map((dirent) => dirent.name)
+      .filter((name) => name.endsWith('.scene.json'))
+
+    const sceneData = files.map((name) => JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath, name), 'utf8')))
+
+    return {
+      data: sceneData
+    }
   }
 }
 
@@ -31,6 +55,10 @@ export default (app: Application) => {
   event.docs = projectDocs
 
   app.use('scene', event)
+
+  app.use('scenes', {
+    get: getScenesForProject(app)
+  })
 
   /**
    * Get our initialized service so that we can register hooks

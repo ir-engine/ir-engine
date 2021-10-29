@@ -9,18 +9,14 @@ import InputLabel from '@mui/material/InputLabel'
 import Modal from '@mui/material/Modal'
 import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
-import { ProjectService } from '@xrengine/client-core/src/admin/state/ProjectService'
-
 interface Props {
   open: boolean
   handleClose: any
-  scenes?: any
-  avatars?: any
-  projects?: any
+  createProject: (name: string) => Promise<void>
 }
 
 export const CreateProjectModal = (props: Props): any => {
-  const { open, handleClose, scenes } = props
+  const { open, handleClose, createProject } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
@@ -33,11 +29,11 @@ export const CreateProjectModal = (props: Props): any => {
     }, 3000)
   }
 
-  const createProject = async () => {
+  const onCreateProject = async () => {
     try {
       if (projectName !== '') {
         setProcessing(true)
-        await ProjectService.createProject(projectName)
+        await createProject(projectName)
         setProcessing(false)
         closeModal()
       }
@@ -85,7 +81,7 @@ export const CreateProjectModal = (props: Props): any => {
                       onChange={(e) => setProjectName(e.target.value)}
                     />
                   </div>
-                  <Button type="submit" variant="contained" color="primary" onClick={createProject}>
+                  <Button type="submit" variant="contained" color="primary" onClick={onCreateProject}>
                     Create Project
                   </Button>
                 </FormControl>

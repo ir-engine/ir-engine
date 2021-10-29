@@ -5,20 +5,36 @@ import { accessSceneState } from './SceneState'
 
 export const SceneService = {
   fetchAdminScenes: async (incDec?: 'increment' | 'decrement' | 'all') => {
-    const dispatch = useDispatch()
-    const adminScene = accessSceneState()
-    const skip = adminScene.scenes.skip.value
-    const limit = adminScene.scenes.limit.value
-    const scenes = await client.service('collection').find({
-      query: {
-        $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-        $limit: incDec === 'all' ? 1000 : limit,
-        $sort: {
-          name: 1
-        }
-      }
-    })
-    dispatch(SceneAction.collectionsFetched(scenes))
+    console.warn('deprecated - use fetchProjectScenes')
+    // const dispatch = useDispatch()
+    // const adminScene = accessSceneState()
+    // const skip = adminScene.scenes.skip.value
+    // const limit = adminScene.scenes.limit.value
+    // const scenes = await client.service('collection').find({
+    //   query: {
+    //     $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+    //     $limit: incDec === 'all' ? 1000 : limit,
+    //     $sort: {
+    //       name: 1
+    //     }
+    //   }
+    // })
+    // dispatch(SceneAction.scenesFetched(scenes))
   },
-  deleteScene: async (sceneId: string) => {}
+
+  fetchProjectScenes: async (projectName: string) => {
+    const dispatch = useDispatch()
+    const scenes = await client.service('scenes').find({ query: { projectName } })
+    dispatch(SceneAction.scenesFetched(scenes))
+  },
+
+  deleteScene: async (sceneId: string) => {},
+
+  createScene: async (projectName: string, sceneName: string) => {
+    const dispatch = useDispatch()
+    const result = await client.service('scene').create({ projectName, sceneName })
+    console.log('Upload project result', result)
+    dispatch(SceneAction.sceneCreated())
+    SceneService.fetchProjectScenes(projectName)
+  }
 }

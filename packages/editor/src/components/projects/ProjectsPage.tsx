@@ -17,14 +17,19 @@ import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { getProjects } from '../../functions/projectFunctions'
 import { CreateProjectModal } from './CreateProjectModal'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { ProjectService } from '@xrengine/client-core/src/admin/state/ProjectService'
+import { SceneService } from '@xrengine/client-core/src/admin/state/SceneService'
 
 type Props = {
-  showingScenes: boolean
+  currentProject: ProjectInterface
+  setCurrentProject: any
 }
 
 const contextMenuId = 'project-menu'
+
 const ProjectsPage = (props: Props) => {
-  const { showingScenes } = props
+  const { currentProject, setCurrentProject } = props
 
   const router = useHistory()
   const [projects, setProjects] = useState([]) // constant projects initialized with an empty array.
@@ -37,31 +42,33 @@ const ProjectsPage = (props: Props) => {
 
   const { t } = useTranslation()
   const [createProjectsModalOpen, setCreateProjectsModalOpen] = useState(false)
-  const idKey = showingScenes ? 'scene_id' : 'project_id'
+
+  const fetchItems = async () => {
+    setLoading(true)
+    try {
+      const data = await (currentProject ? getScenes(currentProject.name) : getProjects())
+      console.log(data)
+      setProjects(data ?? [])
+      setLoading(false)
+    } catch (error) {
+      console.error(error)
+      if (error.response && error.response.status === 401) {
+        // User has an invalid auth token. Prompt them to login again.
+        // return (this.props as any).history.push("/", { from: "/projects" });
+        return router.push('/editor')
+      }
+      setError(error)
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    fetchItems()
+  }, [currentProject])
 
   useEffect(() => {
     if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
-      const data = showingScenes ? getScenes() : getProjects()
-      data
-        .then((p) => {
-          setProjects(
-            p.map((project) => ({
-              ...project,
-              url: `/editor/${project[idKey]}`
-            }))
-          )
-          setLoading(false)
-        })
-        .catch((error) => {
-          console.error(error)
-          if (error.response && error.response.status === 401) {
-            // User has an invalid auth token. Prompt them to login again.
-            // return (this.props as any).history.push("/", { from: "/projects" });
-            return router.push('/editor')
-          }
-          setError(error)
-          setLoading(false)
-        })
+      fetchItems()
     }
   }, [authUser.accessToken.value])
 
@@ -70,15 +77,13 @@ const ProjectsPage = (props: Props) => {
    */
   const onDeleteProject = async (project) => {
     try {
-      if (showingScenes) {
-        // calling api to delete project on the basis of project_id.
-        await deleteScene(project[idKey])
-        // setting projects after removing deleted project.
-        setProjects(projects.filter((p) => p[idKey] !== project[idKey]))
+      if (currentProject) {
+        await deleteScene(project.scene_id)
+        fetchItems()
       } else {
       }
     } catch (error) {
-      console.log(`Error deleting ${showingScenes ? 'scene' : 'project'}, ${error}`)
+      console.log(`Error deleting ${currentProject ? 'scene' : 'project'}, ${error}`)
     }
   }
 
@@ -90,10 +95,23 @@ const ProjectsPage = (props: Props) => {
    *function to adding a route to the router object.
    */
   const onClickNew = () => {
-    if (showingScenes) {
-      router.push('/editor/new')
+    setCreateProjectsModalOpen(true)
+  }
+
+  const onClickExisting = (project) => {
+    if (currentProject) {
+      router.push(`/editor/${project.scene_id}`)
     } else {
-      setCreateProjectsModalOpen(true)
+      setCurrentProject(project)
+    }
+  }
+
+  const onCreateProject = async (name) => {
+    console.log('onCreateProject', name)
+    if (currentProject) {
+      await SceneService.createScene(currentProject.name, name)
+    } else {
+      await ProjectService.createProject(name)
     }
   }
 
@@ -136,7 +154,7 @@ const ProjectsPage = (props: Props) => {
     <>
       {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
         <main>
-          {projects.length === 0 && !loading ? (
+          {!currentProject && projects.length === 0 && !loading ? (
             <StyledProjectsSection flex={0}>
               <WelcomeContainer>
                 <h1>{t('editor.projects.welcomeMsg')}</h1>
@@ -151,7 +169,9 @@ const ProjectsPage = (props: Props) => {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button onClick={onClickNew}>{t('editor.projects.lbl-newProject')}</Button>
+                    <Button onClick={onClickNew}>
+                      {t(`editor.projects.lbl-new${currentProject ? 'Scene' : 'Project'}`)}
+                    </Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
                 <ProjectGridContent>
@@ -160,8 +180,9 @@ const ProjectsPage = (props: Props) => {
                     <ProjectGrid
                       loading={loading}
                       projects={projects}
+                      onClickExisting={onClickExisting}
                       onClickNew={onClickNew}
-                      newProjectLabel={t('editor.projects.lbl-newProject')}
+                      newProjectLabel={t(`editor.projects.lbl-new${currentProject ? 'Scene' : 'Project'}`)}
                       contextMenuId={contextMenuId}
                     />
                   )}
@@ -170,7 +191,11 @@ const ProjectsPage = (props: Props) => {
             </StyledProjectsContainer>
           </StyledProjectsSection>
           <ProjectContextMenu />
-          <CreateProjectModal open={createProjectsModalOpen} handleClose={() => setCreateProjectsModalOpen(false)} />
+          <CreateProjectModal
+            createProject={onCreateProject}
+            open={createProjectsModalOpen}
+            handleClose={() => setCreateProjectsModalOpen(false)}
+          />
         </main>
       )}
     </>

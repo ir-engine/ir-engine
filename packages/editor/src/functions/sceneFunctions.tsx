@@ -14,9 +14,10 @@ import { client } from '@xrengine/client-core/src/feathers'
  *
  * @return {Promise}
  */
-export const getScenes = async (): Promise<SceneDetailInterface[]> => {
+export const getScenes = async (projectName: string): Promise<SceneDetailInterface[]> => {
   try {
-    return await client.service('scene').find()
+    const { data } = await client.service('scenes').get({ projectName })
+    return data
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)
@@ -29,9 +30,9 @@ export const getScenes = async (): Promise<SceneDetailInterface[]> => {
  * @param projectId
  * @returns
  */
-export const getScene = async (projectId): Promise<SceneDetailInterface> => {
+export const getScene = async (projectName: string, sceneName: string): Promise<SceneDetailInterface> => {
   try {
-    return await client.service('scene').get(projectId)
+    return await client.service('scene').get({ projectName, sceneName })
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)

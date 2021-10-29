@@ -17,7 +17,7 @@ console.log(templateProjectJson)
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
-  if (!data) return
+  if (!data?.remote) return null
   return data.remote.origin.url
 }
 
