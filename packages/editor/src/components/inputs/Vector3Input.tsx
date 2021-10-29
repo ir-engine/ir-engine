@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
 import { Vector3 } from 'three'
@@ -60,99 +60,78 @@ interface Vector3InputState {
  *
  * @author Robert Long
  */
-export class Vector3Input extends Component<Vector3InputProp, Vector3InputState> {
-  static defaultProps = {
-    value: new Vector3(),
-    hideLabels: false,
-    onChange: () => {}
+const Vector3Input = (props: Vector3InputProp) => {
+  const id = uniqueId++
+  let newValue = new Vector3()
+  let [uniformEnabled, SetUniformEnabled] = useState(props.uniformScaling)
+  let [hideLabels, SetHideLabels] = useState(props.hideLabels ?? false)
+
+  const onToggleUniform = () => {
+    SetUniformEnabled(!uniformEnabled)
   }
 
-  constructor(props) {
-    super(props)
+  const onChange = (field, fieldValue) => {
+    const { value, onChange } = props
 
-    this.id = uniqueId++
-
-    this.newValue = new Vector3()
-
-    this.state = {
-      uniformEnabled: props.uniformScaling,
-      hideLabels: props.hideLabels ?? false
-    }
-  }
-
-  id: number
-  newValue: Vector3
-  hideLabels: boolean
-
-  onToggleUniform = () => {
-    this.setState({ uniformEnabled: !this.state.uniformEnabled })
-  }
-
-  onChange = (field, fieldValue) => {
-    const value = this.props.value
-
-    if (this.state.uniformEnabled) {
-      this.newValue.set(fieldValue, fieldValue, fieldValue)
+    if (uniformEnabled) {
+      newValue.set(fieldValue, fieldValue, fieldValue)
     } else {
       const x = value ? value.x : 0
       const y = value ? value.y : 0
       const z = value ? value.z : 0
 
-      this.newValue.x = field === 'x' ? fieldValue : x
-      this.newValue.y = field === 'y' ? fieldValue : y
-      this.newValue.z = field === 'z' ? fieldValue : z
+      newValue.x = field === 'x' ? fieldValue : x
+      newValue.y = field === 'y' ? fieldValue : y
+      newValue.z = field === 'z' ? fieldValue : z
     }
 
-    if (typeof this.props.onChange === 'function') {
-      this.props.onChange(this.newValue)
+    if (typeof onChange === 'function') {
+      onChange(newValue)
     }
   }
 
-  onChangeX = (x) => this.onChange('x', x)
+  const onChangeX = (x) => onChange('x', x)
 
-  onChangeY = (y) => this.onChange('y', y)
+  const onChangeY = (y) => onChange('y', y)
 
-  onChangeZ = (z) => this.onChange('z', z)
+  const onChangeZ = (z) => onChange('z', z)
 
-  render() {
-    const { uniformScaling, hideLabels, value, onChange, ...rest } = this.props
-    const { uniformEnabled } = this.state
-    const vx = value ? value.x : 0
-    const vy = value ? value.y : 0
-    const vz = value ? value.z : 0
-    const checkboxId = 'uniform-button-' + this.id
+  const { uniformScaling, value, ...rest } = props
+  const vx = value ? value.x : 0
+  const vy = value ? value.y : 0
+  const vz = value ? value.z : 0
+  const checkboxId = 'uniform-button-' + id
 
-    return (
-      <Vector3InputContainer>
-        {uniformScaling && (
-          <UniformButtonContainer>
-            <Hidden
-              as="input"
-              id={checkboxId}
-              type="checkbox"
-              checked={uniformEnabled}
-              onChange={this.onToggleUniform}
-            />
-            <label title="Uniform Scale" htmlFor={checkboxId}>
-              {uniformEnabled ? <Link /> : <Unlink />}
-            </label>
-          </UniformButtonContainer>
-        )}
-        <Vector3Scrubber {...rest} tag="div" value={vx} onChange={this.onChangeX}>
-          {!hideLabels && <div>X:</div>}
-        </Vector3Scrubber>
-        <NumericInput {...rest} value={vx} onChange={this.onChangeX} />
-        <Vector3Scrubber {...rest} tag="div" value={vy} onChange={this.onChangeY}>
-          {!hideLabels && <div>Y:</div>}
-        </Vector3Scrubber>
-        <NumericInput {...rest} value={vy} onChange={this.onChangeY} />
-        <Vector3Scrubber {...rest} tag="div" value={vz} onChange={this.onChangeZ}>
-          {!hideLabels && <div>Z:</div>}
-        </Vector3Scrubber>
-        <NumericInput {...rest} value={vz} onChange={this.onChangeZ} />
-      </Vector3InputContainer>
-    )
-  }
+  return (
+    <Vector3InputContainer>
+      {uniformScaling && (
+        <UniformButtonContainer>
+          <Hidden as="input" id={checkboxId} type="checkbox" checked={uniformEnabled} onChange={onToggleUniform} />
+          <label title="Uniform Scale" htmlFor={checkboxId}>
+            {uniformEnabled ? <Link /> : <Unlink />}
+          </label>
+        </UniformButtonContainer>
+      )}
+      <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX}>
+        {!hideLabels && <div>X:</div>}
+      </Vector3Scrubber>
+      <NumericInput {...rest} value={vx} onChange={onChangeX} />
+      <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY}>
+        {!hideLabels && <div>Y:</div>}
+      </Vector3Scrubber>
+      <NumericInput {...rest} value={vy} onChange={onChangeY} />
+      <Vector3Scrubber {...rest} tag="div" value={vz} onChange={onChangeZ}>
+        {!hideLabels && <div>Z:</div>}
+      </Vector3Scrubber>
+      <NumericInput {...rest} value={vz} onChange={onChangeZ} />
+    </Vector3InputContainer>
+  )
+}
+
+Vector3Input.defaultProps = {
+  value: new Vector3(),
+  hideLabels: false,
+  onChange: () => {}
 }
 
 export default Vector3Input

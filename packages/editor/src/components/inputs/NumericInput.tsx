@@ -102,7 +102,7 @@ interface NumericInputProp {
 const NumericInput = (props: NumericInputProp) => {
   let [tempValue, SetTempValue] = useState(null)
   let [focused, SetFocused] = useState(false)
-  let inputEl = useRef()
+  let inputEl = useRef(null)
 
   const handleStep = (event, direction, focus = true) => {
     const { smallStep, mediumStep, largeStep, min, max, precision, convertTo, onChange, onCommit } = props

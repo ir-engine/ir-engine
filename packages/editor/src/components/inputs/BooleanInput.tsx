@@ -82,3 +82,8 @@ const BooleanInput = (props: BooleanInputProp) => {
 }
 
 export default BooleanInput
+
+BooleanInput.defaultProps = {
+  value: false,
+  onChange: () => {}
+}
