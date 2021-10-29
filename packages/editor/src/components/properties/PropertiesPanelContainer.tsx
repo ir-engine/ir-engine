@@ -63,13 +63,17 @@ const NoNodeSelectedMessage = (styled as any).div`
   height: 100%;
 `
 
+type PropertiesPanelContainerProps = {
+  t: Function
+}
+
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  *
  * @author Robert Long
  * @extends Component
  */
-export const PropertiesPanelContainer = (t: Function) => {
+export const PropertiesPanelContainer = (props: PropertiesPanelContainerProps) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])
@@ -123,7 +127,7 @@ export const PropertiesPanelContainer = (t: Function) => {
         <SelectInput
           options={systemComponents}
           onChange={onSelectComponent}
-          placeholder={t('editor:properties.addComponent')}
+          placeholder={props.t('editor:properties.addComponent')}
         />
       </InputGroup>
     )
@@ -134,7 +138,7 @@ export const PropertiesPanelContainer = (t: Function) => {
   let content
 
   if (selected.length === 0) {
-    content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
+    content = <NoNodeSelectedMessage>{props.t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
   } else {
     const activeNode = selected[selected.length - 1]
     const components = getAllComponents(activeNode.eid)
@@ -161,7 +165,7 @@ export const PropertiesPanelContainer = (t: Function) => {
     if (showNodeEditor) {
       nodeEditor = NodeEditors.map((Editor, i) => <Editor multiEdit={selected.length > 1} node={activeNode} key={i} />)
     } else {
-      nodeEditor = <NoNodeSelectedMessage>{t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
+      nodeEditor = <NoNodeSelectedMessage>{props.t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
     }
 
     const disableTransform = selected.some((node) => !node.parentNode)
@@ -174,7 +178,7 @@ export const PropertiesPanelContainer = (t: Function) => {
               <NameInputGroup node={activeNode} />
               {activeNode.nodeName !== 'Scene' && (
                 <>
-                  <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
+                  <VisibleInputGroup name="Visible" label={props.t('editor:properties.lbl-visible')}>
                     <BooleanInput value={activeNode.visible} onChange={onChangeVisible} />
                   </VisibleInputGroup>
                   {haveStaticTags && (
@@ -185,7 +189,7 @@ export const PropertiesPanelContainer = (t: Function) => {
                 </>
               )}
             </NameInputGroupContainer>
-            <PersistInputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
+            <PersistInputGroup name="Persist" label={props.t('editor:properties.lbl-persist')}>
               <BooleanInput value={activeNode.persist} onChange={onChangePersist} />
             </PersistInputGroup> */}
           <EntityMetadataEditor node={activeNode} />
