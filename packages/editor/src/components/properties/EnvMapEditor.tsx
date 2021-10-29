@@ -1,5 +1,5 @@
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import { Color } from 'three'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -49,72 +49,83 @@ const EnvMapTextureOptions = [
  * @param       props
  * @constructor
  */
-export class EnvMapEditor extends React.Component<{node: any}> {
-  onChangeEnvmapSourceType = (envMapSourceType) => {
-    const envMapComponent = getComponent(this.props.node.eid, EnvMapComponent)
+const EnvMapEditor = (node: any) => {
+  const [, updateState] = useState()
+
+  const forceUpdate = useCallback(() => updateState({}), [])
+
+  const onChangeEnvmapSourceType = (envMapSourceType) => {
+    const envMapComponent = getComponent(node.eid, EnvMapComponent)
     envMapComponent.envMapSourceType = envMapSourceType
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeEnvmapTextureType = (envMapTextureType) => {
-    const envMapComponent = getComponent(this.props.node.eid, EnvMapComponent)
+  const onChangeEnvmapTextureType = (envMapTextureType) => {
+    const envMapComponent = getComponent(node.eid, EnvMapComponent)
     envMapComponent.envMapTextureType = envMapTextureType
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeEnvmapColorSource = (envMapSourceColor) => {
-    const envMapComponent = getComponent(this.props.node.eid, EnvMapComponent)
+  const onChangeEnvmapColorSource = (envMapSourceColor) => {
+    const envMapComponent = getComponent(node.eid, EnvMapComponent)
     envMapComponent.envMapSourceColor = envMapSourceColor
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeEnvmapURLSource = (envMapSourceURL) => {
-    const envMapComponent = getComponent(this.props.node.eid, EnvMapComponent)
+  const onChangeEnvmapURLSource = (envMapSourceURL) => {
+    const envMapComponent = getComponent(node.eid, EnvMapComponent)
     envMapComponent.envMapSourceURL = envMapSourceURL
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeEnvmapIntensity = (envMapIntensity) => {
-    const envMapComponent = getComponent(this.props.node.eid, EnvMapComponent)
+  const onChangeEnvmapIntensity = (envMapIntensity) => {
+    const envMapComponent = getComponent(node.eid, EnvMapComponent)
     envMapComponent.envMapIntensity = envMapIntensity
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  render() {
-    const envMapComponent = getComponent(this.props.node.eid, EnvMapComponent)
+  const envMapComponent = getComponent(node.eid, EnvMapComponent)
 
-    return (
-      <NodeEditor {...this.props}>
-        <InputGroup name="Envmap Source" label="Envmap Source">
-          <SelectInput options={EnvMapSourceOptions} value={envMapComponent.envMapSourceType} onChange={this.onChangeEnvmapSourceType} />
+  return (
+    <NodeEditor node={node}>
+      <InputGroup name="Envmap Source" label="Envmap Source">
+        <SelectInput
+          options={EnvMapSourceOptions}
+          value={envMapComponent.envMapSourceType}
+          onChange={onChangeEnvmapSourceType}
+        />
+      </InputGroup>
+      {envMapComponent.envMapSourceType === EnvMapSourceType.Color && (
+        <InputGroup name="EnvMapColor" label="EnvMap Color">
+          <ColorInput value={new Color(envMapComponent.envMapSourceColor)} onChange={onChangeEnvmapColorSource} />
         </InputGroup>
-        {envMapComponent.envMapSourceType === EnvMapSourceType.Color && (
-          <InputGroup name="EnvMapColor" label="EnvMap Color">
-            <ColorInput value={new Color(envMapComponent.envMapSourceColor)} onChange={this.onChangeEnvmapColorSource} />
+      )}
+      {envMapComponent.envMapSourceType === EnvMapSourceType.Texture && (
+        <div>
+          <InputGroup name="Texture Type" label="Texture Type">
+            <SelectInput
+              options={EnvMapTextureOptions}
+              value={envMapComponent.envMapTextureType}
+              onChange={onChangeEnvmapTextureType}
+            />
           </InputGroup>
-        )}
-        {envMapComponent.envMapSourceType === EnvMapSourceType.Texture && (
-          <div>
-            <InputGroup name="Texture Type" label="Texture Type">
-              <SelectInput
-                options={EnvMapTextureOptions}
-                value={envMapComponent.envMapTextureType}
-                onChange={this.onChangeEnvmapTextureType}
-              />
-            </InputGroup>
-            <InputGroup name="Texture URL" label="Texture URL">
-              <ImageInput value={envMapComponent.envMapSourceURL} onChange={this.onChangeEnvmapURLSource} />
-              {envMapComponent.errorInEnvmapURL && <div>Error Loading From URL </div>}
-            </InputGroup>
-          </div>
-        )}
+          <InputGroup name="Texture URL" label="Texture URL">
+            <ImageInput value={envMapComponent.envMapSourceURL} onChange={onChangeEnvmapURLSource} />
+            {envMapComponent.errorInEnvmapURL && <div>Error Loading From URL </div>}
+          </InputGroup>
+        </div>
+      )}
 
-        <InputGroup name="EnvMap Intensity" label="EnvMap Intensity">
-          <CompoundNumericInput min={0} max={20} value={envMapComponent.envMapIntensity} onChange={this.onChangeEnvmapIntensity} />
-        </InputGroup>
-      </NodeEditor>
-    )
-  }
+      <InputGroup name="EnvMap Intensity" label="EnvMap Intensity">
+        <CompoundNumericInput
+          min={0}
+          max={20}
+          value={envMapComponent.envMapIntensity}
+          onChange={onChangeEnvmapIntensity}
+        />
+      </InputGroup>
+    </NodeEditor>
+  )
 }
 
 export default EnvMapEditor

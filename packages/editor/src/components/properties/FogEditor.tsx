@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -9,14 +9,13 @@ import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import { withTranslation } from 'react-i18next'
 
-
 /**
  * FogTypeOptions array containing fogType options.
  *
  * @author Robert Long
  * @type {Array}
  */
- const FogTypeOptions = [
+const FogTypeOptions = [
   {
     label: 'Disabled',
     value: FogType.Disabled
@@ -38,90 +37,92 @@ import { withTranslation } from 'react-i18next'
  * @param       props
  * @constructor
  */
-export class FogEditor extends React.Component<{node: any, t: Function}> {
-  onChangeFogType = (fogType) => {
-    const fogComponent = getComponent(this.props.node.eid, FogComponent)
+const FogEditor = (node: any, t: Function) => {
+  const [, updateState] = useState()
+
+  const forceUpdate = useCallback(() => updateState({}), [])
+
+  const onChangeFogType = (fogType) => {
+    const fogComponent = getComponent(node.eid, FogComponent)
     fogComponent.type = fogType
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeFogDensity = (density) => {
-    const fogComponent = getComponent(this.props.node.eid, FogComponent)
+  const onChangeFogDensity = (density) => {
+    const fogComponent = getComponent(node.eid, FogComponent)
     fogComponent.density = density
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeFogColor = (color) => {
-    const fogComponent = getComponent(this.props.node.eid, FogComponent)
+  const onChangeFogColor = (color) => {
+    const fogComponent = getComponent(node.eid, FogComponent)
     fogComponent.color = color
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeFogNearDistance = (near) => {
-    const fogComponent = getComponent(this.props.node.eid, FogComponent)
+  const onChangeFogNearDistance = (near) => {
+    const fogComponent = getComponent(node.eid, FogComponent)
     fogComponent.near = near
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeFogFarDistance = (far) => {
-    const fogComponent = getComponent(this.props.node.eid, FogComponent)
+  const onChangeFogFarDistance = (far) => {
+    const fogComponent = getComponent(node.eid, FogComponent)
     fogComponent.far = far
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  render() {
-    const fogComponent = getComponent(this.props.node.eid, FogComponent)
+  const fogComponent = getComponent(node.eid, FogComponent)
 
-    return (
-      <NodeEditor {...this.props}>
-        <InputGroup name="Fog Type" label={this.props.t('editor:properties.scene.lbl-fogType')}>
-          <SelectInput options={FogTypeOptions} value={fogComponent.type} onChange={this.onChangeFogType} />
+  return (
+    <NodeEditor node={node}>
+      <InputGroup name="Fog Type" label={t('editor:properties.scene.lbl-fogType')}>
+        <SelectInput options={FogTypeOptions} value={fogComponent.type} onChange={onChangeFogType} />
+      </InputGroup>
+      {fogComponent.type !== FogType.Disabled && (
+        <InputGroup name="Fog Color" label={t('editor:properties.scene.lbl-fogColor')}>
+          <ColorInput value={fogComponent.color} onChange={onChangeFogColor} />
         </InputGroup>
-        {fogComponent.type !== FogType.Disabled && (
-          <InputGroup name="Fog Color" label={this.props.t('editor:properties.scene.lbl-fogColor')}>
-            <ColorInput value={fogComponent.color} onChange={this.onChangeFogColor} />
-          </InputGroup>
-        )}
-        {fogComponent.type === FogType.Linear && (
-          <>
-            <NumericInputGroup
-              name="Fog Near Distance"
-              label={this.props.t('editor:properties.scene.lbl-forNearDistance')}
-              smallStep={0.1}
-              mediumStep={1}
-              largeStep={10}
-              min={0}
-              value={fogComponent.near}
-              onChange={this.onChangeFogNearDistance}
-            />
-            <NumericInputGroup
-              name="Fog Far Distance"
-              label={this.props.t('editor:properties.scene.lbl-fogFarDistance')}
-              smallStep={1}
-              mediumStep={100}
-              largeStep={1000}
-              min={0}
-              value={fogComponent.far}
-              onChange={this.onChangeFogFarDistance}
-            />
-          </>
-        )}
-        {fogComponent.type === FogType.Exponential && (
+      )}
+      {fogComponent.type === FogType.Linear && (
+        <>
           <NumericInputGroup
-            name="Fog Density"
-            label={this.props.t('editor:properties.scene.lbl-fogDensity')}
-            smallStep={0.01}
-            mediumStep={0.1}
-            largeStep={0.25}
+            name="Fog Near Distance"
+            label={t('editor:properties.scene.lbl-forNearDistance')}
+            smallStep={0.1}
+            mediumStep={1}
+            largeStep={10}
             min={0}
-            value={fogComponent.density}
-            onChange={this.onChangeFogDensity}
-            displayPrecision={0.00001}
+            value={fogComponent.near}
+            onChange={onChangeFogNearDistance}
           />
-        )}
-      </NodeEditor>
-    )
-  }
+          <NumericInputGroup
+            name="Fog Far Distance"
+            label={t('editor:properties.scene.lbl-fogFarDistance')}
+            smallStep={1}
+            mediumStep={100}
+            largeStep={1000}
+            min={0}
+            value={fogComponent.far}
+            onChange={onChangeFogFarDistance}
+          />
+        </>
+      )}
+      {fogComponent.type === FogType.Exponential && (
+        <NumericInputGroup
+          name="Fog Density"
+          label={t('editor:properties.scene.lbl-fogDensity')}
+          smallStep={0.01}
+          mediumStep={0.1}
+          largeStep={0.25}
+          min={0}
+          value={fogComponent.density}
+          onChange={onChangeFogDensity}
+          displayPrecision={0.00001}
+        />
+      )}
+    </NodeEditor>
+  )
 }
 
 export default withTranslation()(FogEditor)
