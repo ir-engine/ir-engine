@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react'
 import EditorContainer from '../components/EditorContainer'
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
@@ -13,7 +14,6 @@ interface Props {}
  */
 
 const SceneEditor = (props: Props) => {
-  console.log(props)
   // initialising consts using props interface.
   const authState = useAuthState()
   // initialising authUser.
@@ -52,13 +52,9 @@ const SceneEditor = (props: Props) => {
     hasMounted && (
       <Suspense fallback={React.Fragment}>
         {authUser?.accessToken.value != null &&
-        authUser.accessToken.value.length > 0 &&
-        user?.id.value != null &&
-        engineIsInitialized ? (
-          <>
-            <EditorContainer {...props} />
-          </>
-        ) : null}
+          authUser.accessToken.value.length > 0 &&
+          user?.id.value != null &&
+          engineIsInitialized && <EditorContainer {...props} />}
       </Suspense>
     )
   )

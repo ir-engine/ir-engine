@@ -15,7 +15,7 @@ import Paper from '@mui/material/Paper'
 import TablePagination from '@mui/material/TablePagination'
 import { useAuthState } from '../../../user/state/AuthState'
 import { PROJECT_PAGE_LIMIT, useProjectState } from '../../state/ProjectState'
-import { fetchAdminProjects, removeProject, triggerReload, uploadProject } from '../../state/ProjectService'
+import { ProjectService } from '../../state/ProjectService'
 import styles from './Projects.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
@@ -153,13 +153,13 @@ const Projects = () => {
 
   const onRemoveProject = async (e: any, row: any) => {
     const projectToRemove = adminProjects.value.find((project) => project.name === row.name)!
-    await removeProject(projectToRemove.id!)
+    await ProjectService.removeProject(projectToRemove.id!)
   }
 
   const tryReuploadProjects = async (row) => {
     try {
       const existingProjects = adminProjects.value.find((projects) => projects.name === row.name)!
-      await uploadProject(existingProjects.repositoryPath)
+      await ProjectService.uploadProject(existingProjects.repositoryPath)
     } catch (err) {
       console.log(err)
     }
@@ -171,7 +171,7 @@ const Projects = () => {
 
   useEffect(() => {
     if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
-      fetchAdminProjects()
+      ProjectService.fetchAdminProjects()
     }
   }, [adminProjectState.updateNeeded.value])
 
@@ -211,7 +211,7 @@ const Projects = () => {
               type="button"
               variant="contained"
               color="primary"
-              onClick={triggerReload}
+              onClick={ProjectService.triggerReload}
             >
               {'Rebuild'}
             </Button>

@@ -1,8 +1,6 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import styles from './Projects.module.scss'
-import { ProjectService } from '../../state/ProjectService'
-import { useDispatch } from '../../../store'
+import styles from '@xrengine/client-core/src/admin/components/Project/Projects.module.scss'
 import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'
@@ -11,6 +9,7 @@ import InputLabel from '@mui/material/InputLabel'
 import Modal from '@mui/material/Modal'
 import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
+import { ProjectService } from '@xrengine/client-core/src/admin/state/ProjectService'
 
 interface Props {
   open: boolean
@@ -20,14 +19,13 @@ interface Props {
   projects?: any
 }
 
-const AddToContentPackModal = (props: Props): any => {
+export const CreateProjectModal = (props: Props): any => {
   const { open, handleClose, scenes } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
-  const [createOrPatch, setCreateOrPatch] = useState('patch')
-  const [projectURL, setProjectURL] = useState('')
-  const dispatch = useDispatch()
+  const [projectName, setProjectName] = useState('')
+
   const showError = (err: string) => {
     setError(err)
     setTimeout(() => {
@@ -35,11 +33,11 @@ const AddToContentPackModal = (props: Props): any => {
     }, 3000)
   }
 
-  const tryUploadProject = async () => {
+  const createProject = async () => {
     try {
-      if (projectURL !== '') {
+      if (projectName !== '') {
         setProcessing(true)
-        await ProjectService.uploadProject(projectURL)
+        await ProjectService.createProject(projectName)
         setProcessing(false)
         closeModal()
       }
@@ -50,7 +48,7 @@ const AddToContentPackModal = (props: Props): any => {
   }
 
   const closeModal = () => {
-    setProjectURL('')
+    setProjectName('')
     handleClose()
   }
 
@@ -75,23 +73,23 @@ const AddToContentPackModal = (props: Props): any => {
               [styles['modal-content']]: true
             })}
           >
-            {processing === false && createOrPatch === 'patch' && (
-              <FormControl>
-                <div className={styles.inputConatiner}>
-                  <TextField
-                    className={styles['pack-select']}
-                    id="urlSelect"
-                    value={projectURL}
-                    placeholder={'URL'}
-                    onChange={(e) => setProjectURL(e.target.value)}
-                  />
-                </div>
-                <div className={styles.buttonConatiner}>
-                  <Button type="submit" variant="contained" color="primary" onClick={tryUploadProject}>
-                    Upload Project
+            {processing === false && (
+              <div>
+                <FormControl>
+                  <div>
+                    <InputLabel id="nameSelect">Name</InputLabel>
+                    <TextField
+                      className={styles['pack-select']}
+                      id="nameSelect"
+                      value={projectName}
+                      onChange={(e) => setProjectName(e.target.value)}
+                    />
+                  </div>
+                  <Button type="submit" variant="contained" color="primary" onClick={createProject}>
+                    Create Project
                   </Button>
-                </div>
-              </FormControl>
+                </FormControl>
+              </div>
             )}
             {processing === true && (
               <div className={styles.processing}>
@@ -106,5 +104,3 @@ const AddToContentPackModal = (props: Props): any => {
     </div>
   )
 }
-
-export default AddToContentPackModal

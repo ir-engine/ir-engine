@@ -11,6 +11,11 @@ export const ProjectAction = {
     return {
       type: 'PROJECT_POSTED' as const
     }
+  },
+  createdProject: () => {
+    return {
+      type: 'PROJECT_CREATED' as const
+    }
   }
   // TODO
   // buildProgress: (message: string) => {

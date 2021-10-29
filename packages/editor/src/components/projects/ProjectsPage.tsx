@@ -16,6 +16,7 @@ import { useHistory } from 'react-router-dom'
 import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from '../../pages/projectUtility'
 import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
 import { getProjects } from '../../functions/projectFunctions'
+import { CreateProjectModal } from './CreateProjectModal'
 
 type Props = {
   showingScenes: boolean
@@ -35,8 +36,8 @@ const ProjectsPage = (props: Props) => {
   const user = authState.user // user initialized by getting value from authState object.
 
   const { t } = useTranslation()
+  const [createProjectsModalOpen, setCreateProjectsModalOpen] = useState(false)
   const idKey = showingScenes ? 'scene_id' : 'project_id'
-  const newProjectPath = showingScenes ? '/editor/new' : '/project/new'
 
   useEffect(() => {
     if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
@@ -81,19 +82,19 @@ const ProjectsPage = (props: Props) => {
     }
   }
 
-  const onAddNew = () => {
-    if (showingScenes) {
-      routeTo('/editor/new')
-    } else {
-      // TODO
-    }
+  const openTutorial = () => {
+    router.push('/editor/tutorial')
   }
 
   /**
    *function to adding a route to the router object.
    */
-  const routeTo = (route: string) => () => {
-    router.push(route)
+  const onClickNew = () => {
+    if (showingScenes) {
+      router.push('/editor/new')
+    } else {
+      setCreateProjectsModalOpen(true)
+    }
   }
 
   /**
@@ -140,9 +141,7 @@ const ProjectsPage = (props: Props) => {
               <WelcomeContainer>
                 <h1>{t('editor.projects.welcomeMsg')}</h1>
                 <h2>{t('editor.projects.description')}</h2>
-                <MediumButton onClick={routeTo('/editor/tutorial')}>
-                  {t('editor.projects.lbl-startTutorial')}
-                </MediumButton>
+                <MediumButton onClick={openTutorial}>{t('editor.projects.lbl-startTutorial')}</MediumButton>
               </WelcomeContainer>
             </StyledProjectsSection>
           ) : null}
@@ -152,7 +151,7 @@ const ProjectsPage = (props: Props) => {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button onClick={routeTo(newProjectPath)}>{t('editor.projects.lbl-newProject')}</Button>
+                    <Button onClick={onClickNew}>{t('editor.projects.lbl-newProject')}</Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
                 <ProjectGridContent>
@@ -161,7 +160,7 @@ const ProjectsPage = (props: Props) => {
                     <ProjectGrid
                       loading={loading}
                       projects={projects}
-                      newProjectPath={newProjectPath}
+                      onClickNew={onClickNew}
                       newProjectLabel={t('editor.projects.lbl-newProject')}
                       contextMenuId={contextMenuId}
                     />
@@ -171,6 +170,7 @@ const ProjectsPage = (props: Props) => {
             </StyledProjectsContainer>
           </StyledProjectsSection>
           <ProjectContextMenu />
+          <CreateProjectModal open={createProjectsModalOpen} handleClose={() => setCreateProjectsModalOpen(false)} />
         </main>
       )}
     </>

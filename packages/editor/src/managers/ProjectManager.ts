@@ -10,7 +10,7 @@ import { NodeManager } from './NodeManager'
 import { SceneManager } from './SceneManager'
 
 export class ProjectManager {
-  static instance: ProjectManager
+  static instance: ProjectManager = new ProjectManager()
 
   settings: any
   project: any
@@ -20,9 +20,6 @@ export class ProjectManager {
 
   ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
   currentOwnedFileIds: {}
-  static buildProjectManager(settings?: any) {
-    this.instance = new ProjectManager(settings)
-  }
 
   constructor(settings = {}) {
     this.settings = settings

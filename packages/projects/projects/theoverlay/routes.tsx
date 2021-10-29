@@ -4,7 +4,6 @@ import { Route, Redirect } from 'react-router-dom'
 const $ = React.lazy(() => import('@xrengine/client/src/pages/index'))
 const $login = React.lazy(() => import('@xrengine/client/src/pages/login'))
 const $harmony = React.lazy(() => import('@xrengine/client/src/pages/harmony/index'))
-const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 const $location = React.lazy(() => import('@xrengine/client/src/pages/location/location'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
 const $editor = React.lazy(() => import('@xrengine/client/src/pages/editor/editor'))
@@ -17,8 +16,6 @@ export default function (route: string) {
       return [<Route key={'/login'} path={'/login'} component={$login} />]
     case '/harmony':
       return [<Route key={'/harmony'} path={'/harmony'} component={$harmony} />]
-    case '/admin':
-      return [<Route key={'/admin'} path={'/admin'} component={$admin} />]
     case '/location':
       return [<Route key={'/location'} path={'/location'} component={$location} />]
     case '/auth':

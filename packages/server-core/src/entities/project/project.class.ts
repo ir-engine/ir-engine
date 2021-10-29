@@ -11,6 +11,9 @@ import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
+import templateProjectJson from './template-project.json'
+
+console.log(templateProjectJson)
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
@@ -83,6 +86,28 @@ export class Project extends Service {
     }
   }
 
+  async create(data: { name: string }, params: Params) {
+    // make alphanumeric period, underscore, dash
+    const projectName = data.name.replaceAll(' ', '-').replace(/[^\w\.\-]/g, '')
+    console.log(projectName)
+
+    const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+
+    fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
+    console.log(path.resolve(projectLocalDirectory, '.git'))
+
+    const git = useGit(path.resolve(projectLocalDirectory, '.git'))
+    try {
+      await git.init(true)
+    } catch (e) {
+      console.warn(e)
+    }
+
+    const packageData = Object.assign({}, templateProjectJson) as any
+    packageData.name = projectName
+    fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
+  }
+
   /**
    * 1. Clones the repo to the local FS
    * 2. If in production mode, uploads it to the storage provider
@@ -90,7 +115,8 @@ export class Project extends Service {
    * @param app
    * @returns
    */
-  async create(data: { url: string }, params: Params) {
+  // @ts-ignore
+  async update(data: { url: string }, params: Params) {
     const uploadPromises = []
 
     const urlParts = data.url.split('/')
@@ -116,9 +142,7 @@ export class Project extends Service {
     if (existingPackResult != null) await super.remove(existingPackResult.id, params)
 
     const git = useGit()
-    await new Promise((resolve) => {
-      git.clone(data.url, projectLocalDirectory, [], resolve)
-    })
+    await git.clone(data.url, projectLocalDirectory)
 
     // console.log('Installing project from ', data.uploadURL, 'with manifest.json', data)
 
