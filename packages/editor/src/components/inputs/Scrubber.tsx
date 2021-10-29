@@ -59,11 +59,11 @@ type ScrubberProp = {
  * @author Robert Long
  */
 const Scrubber = (props: ScrubberProp) => {
-  let [isDragging, SetIsDragging] = useState(false)
-  let [startValue, SetStartValue] = useState(null)
-  let [delta, SetDelta] = useState(null)
-  let [mouseX, SetMouseX] = useState(null)
-  let [mouseY, SetMouseY] = useState(null)
+  let [isDragging, setIsDragging] = useState(false)
+  let [startValue, setStartValue] = useState(null)
+  let [delta, setDelta] = useState(null)
+  let [mouseX, setMouseX] = useState(null)
+  let [mouseY, setMouseY] = useState(null)
   const scrubberEl = useRef(null)
 
   const handleMouseMove = (event) => {
@@ -80,9 +80,9 @@ const Scrubber = (props: ScrubberProp) => {
       const finalValue = convertTo(roundedValue)
       onChange(finalValue)
 
-      SetDelta(nextDelta)
-      SetMouseX(mX)
-      SetMouseY(mY)
+      setDelta(nextDelta)
+      setMouseX(mX)
+      setMouseY(mY)
     }
   }
 
@@ -90,11 +90,11 @@ const Scrubber = (props: ScrubberProp) => {
     const { onCommit, onChange, value } = props
 
     if (isDragging) {
-      SetIsDragging(false)
-      SetStartValue(null)
-      SetDelta(null)
-      SetMouseX(null)
-      SetMouseY(null)
+      setIsDragging(false)
+      setStartValue(null)
+      setDelta(null)
+      setMouseX(null)
+      setMouseY(null)
 
       if (onCommit) {
         onCommit(value)
@@ -117,11 +117,11 @@ const Scrubber = (props: ScrubberProp) => {
   const handleMouseDown = (event) => {
     const { convertFrom, value } = props
 
-    SetIsDragging(true)
-    SetStartValue(convertFrom(value))
-    SetDelta(0)
-    SetMouseX(event.clientX)
-    SetMouseY(event.clientY)
+    setIsDragging(true)
+    setStartValue(convertFrom(value))
+    setDelta(0)
+    setMouseX(event.clientX)
+    setMouseY(event.clientY)
 
     scrubberEl?.current?.requestPointerLock()
 

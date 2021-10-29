@@ -115,8 +115,8 @@ const Col = styled.div`
  *
  * @author Robert Long
  */
-export class ProjectGridItem extends Component<{ contextMenuId: string; project: any }> {
-  onShowMenu = (event) => {
+const ProjectGridItem = (contextMenuId: string, project: any) => {
+  const onShowMenu = (event) => {
     event.preventDefault()
     event.stopPropagation()
 
@@ -125,49 +125,45 @@ export class ProjectGridItem extends Component<{ contextMenuId: string; project:
     showMenu({
       position: { x, y },
       target: event.currentTarget,
-      id: this.props.contextMenuId,
+      id: contextMenuId,
       data: {
-        project: this.props.project
+        project: project
       }
     })
   }
 
-  render() {
-    const { project, contextMenuId } = this.props as any
+  const content = (
+    <>
+      <ThumbnailContainer>
+        {(project.thumbnailUrl || project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
+      </ThumbnailContainer>
+      <TitleContainer>
+        <Col>
+          <h3>{project.name}</h3>
+        </Col>
+        {contextMenuId && (
+          <MenuButton onClick={onShowMenu}>
+            <EllipsisV />
+          </MenuButton>
+        )}
+      </TitleContainer>
+    </>
+  )
 
-    const content = (
-      <>
-        <ThumbnailContainer>
-          {(project.thumbnailUrl ?? project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
-        </ThumbnailContainer>
-        <TitleContainer>
-          <Col>
-            <h3>{project.name}</h3>
-          </Col>
-          {contextMenuId && (
-            <MenuButton onClick={this.onShowMenu}>
-              <EllipsisV />
-            </MenuButton>
-          )}
-        </TitleContainer>
-      </>
-    )
-
-    if (contextMenuId) {
-      return (
-        <StyledProjectGridItem as="a" href={project.url}>
-          <StyledContextMenuTrigger id={contextMenuId} project={project} collect={collectMenuProps} holdToDisplay={-1}>
-            {content}
-          </StyledContextMenuTrigger>
-        </StyledProjectGridItem>
-      )
-    } else {
-      return (
-        <StyledProjectGridItem as="a" href={project.url}>
+  if (contextMenuId) {
+    return (
+      <StyledProjectGridItem as="a" href={project.url}>
+        <StyledContextMenuTrigger id={contextMenuId} project={project} collect={collectMenuProps} holdToDisplay={-1}>
           {content}
-        </StyledProjectGridItem>
-      )
-    }
+        </StyledContextMenuTrigger>
+      </StyledProjectGridItem>
+    )
+  } else {
+    return (
+      <StyledProjectGridItem as="a" href={project.url}>
+        {content}
+      </StyledProjectGridItem>
+    )
   }
 }
 
