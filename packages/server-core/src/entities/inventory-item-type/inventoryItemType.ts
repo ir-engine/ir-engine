@@ -1,5 +1,6 @@
 export const inventoryItemType = {
-  scene: 'scene',
-  inventory: 'inventory',
-  project: 'project'
+  player: 'player',
+  weapon: 'weapon',
+  ammo: 'ammo',
+  skill: 'skill'
 }
