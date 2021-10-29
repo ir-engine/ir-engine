@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
 import { Vector2 } from 'three'
@@ -56,88 +56,67 @@ interface Vector2InputProp {
  *
  * @author Robert Long
  */
-export class Vector2Input extends Component<Vector2InputProp, StateType> {
-  static defaultProps = {
-    value: new Vector2(),
-    onChange: () => {}
+const Vector2Input = (props: Vector2InputProp) => {
+  const id = uniqueId++
+  let newValue = new Vector2()
+  let [uniformEnabled, SetUniformEnabled] = useState(props.uniformScaling)
+
+  const onToggleUniform = () => {
+    SetUniformEnabled(!uniformEnabled)
   }
 
-  constructor(props) {
-    super(props)
+  const onChange = (field, fieldValue) => {
+    const { value, onChange } = props
 
-    this.id = uniqueId++
-
-    this.newValue = new Vector2()
-
-    this.state = {
-      ...this.state,
-      uniformEnabled: props.uniformScaling
-    }
-  }
-
-  id: number
-  newValue: Vector2
-
-  onToggleUniform = () => {
-    this.setState({ uniformEnabled: !this.state.uniformEnabled })
-  }
-
-  onChange = (field, fieldValue) => {
-    const value = this.props.value
-
-    if (this.state.uniformEnabled) {
-      this.newValue.set(fieldValue, fieldValue)
+    if (uniformEnabled) {
+      newValue.set(fieldValue, fieldValue)
     } else {
       const x = value ? value.x : 0
       const y = value ? value.y : 0
 
-      this.newValue.x = field === 'x' ? fieldValue : x
-      this.newValue.y = field === 'y' ? fieldValue : y
+      newValue.x = field === 'x' ? fieldValue : x
+      newValue.y = field === 'y' ? fieldValue : y
     }
 
-    if (typeof this.props.onChange === 'function') {
-      this.props.onChange(this.newValue)
+    if (typeof onChange === 'function') {
+      onChange(newValue)
     }
   }
 
-  onChangeX = (x) => this.onChange('x', x)
+  const onChangeX = (x) => onChange('x', x)
 
-  onChangeY = (y) => this.onChange('y', y)
+  const onChangeY = (y) => onChange('y', y)
 
-  render() {
-    const { uniformScaling, value, onChange, ...rest } = this.props
-    const { uniformEnabled } = this.state
-    const vx = value ? value.x : 0
-    const vy = value ? value.y : 0
-    const checkboxId = 'uniform-button-' + this.id
+  const { uniformScaling, value, ...rest } = props
+  const vx = value ? value.x : 0
+  const vy = value ? value.y : 0
+  const checkboxId = 'uniform-button-' + id
 
-    return (
-      <Vector2InputContainer>
-        {uniformScaling && (
-          <UniformButtonContainer>
-            <Hidden
-              as="input"
-              id={checkboxId}
-              type="checkbox"
-              checked={uniformEnabled}
-              onChange={this.onToggleUniform}
-            />
-            <label title="Uniform Scale" htmlFor={checkboxId}>
-              {uniformEnabled ? <Link /> : <Unlink />}
-            </label>
-          </UniformButtonContainer>
-        )}
-        <Vector2Scrubber {...rest} tag="div" value={vx} onChange={this.onChangeX}>
-          X:
-        </Vector2Scrubber>
-        <NumericInput {...rest} value={vx} onChange={this.onChangeX} />
-        <Vector2Scrubber {...rest} tag="div" value={vy} onChange={this.onChangeY}>
-          Y:
-        </Vector2Scrubber>
-        <NumericInput {...rest} value={vy} onChange={this.onChangeY} />
-      </Vector2InputContainer>
-    )
-  }
+  return (
+    <Vector2InputContainer>
+      {uniformScaling && (
+        <UniformButtonContainer>
+          <Hidden as="input" id={checkboxId} type="checkbox" checked={uniformEnabled} onChange={onToggleUniform} />
+          <label title="Uniform Scale" htmlFor={checkboxId}>
+            {uniformEnabled ? <Link /> : <Unlink />}
+          </label>
+        </UniformButtonContainer>
+      )}
+      <Vector2Scrubber {...rest} tag="div" value={vx} onChange={onChangeX}>
+        X:
+      </Vector2Scrubber>
+      <NumericInput {...rest} value={vx} onChange={onChangeX} />
+      <Vector2Scrubber {...rest} tag="div" value={vy} onChange={onChangeY}>
+        Y:
+      </Vector2Scrubber>
+      <NumericInput {...rest} value={vy} onChange={onChangeY} />
+    </Vector2InputContainer>
+  )
+}
+
+Vector2Input.defaultProps = {
+  value: new Vector2(),
+  onChange: () => {}
 }
 
 export default Vector2Input
