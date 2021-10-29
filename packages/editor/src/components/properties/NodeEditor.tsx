@@ -15,15 +15,14 @@ type NodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export class NodeEditor extends Component<NodeEditorProps, {}> {
-  render() {
-    const { node, description, children } = this.props as any
-    return (
-      <PropertyGroup name={node.nodeName} description={description}>
-        {children}
-      </PropertyGroup>
-    )
-  }
+const NodeEditor = (props: NodeEditorProps) => {
+  const { node, description, children } = props
+
+  return (
+    <PropertyGroup name={node.nodeName} description={description}>
+      {children}
+    </PropertyGroup>
+  )
 }
 
 export default NodeEditor

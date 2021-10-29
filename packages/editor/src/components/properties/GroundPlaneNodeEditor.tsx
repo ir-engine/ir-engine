@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState, useCallback } from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
@@ -27,55 +27,53 @@ type GroundPlaneNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export class GroundPlaneNodeEditor extends Component<GroundPlaneNodeEditorProps, {}> {
-  // setting icon component name
-  static iconComponent = SquareFull
+const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
+  const [, updateState] = useState()
 
-  // setting description will show on properties container
-  static description = i18n.t('editor:properties.groundPlane.description')
+  const forceUpdate = useCallback(() => updateState({}), [])
 
   //function handles the changes in color property
-  onChangeColor = (color) => {
+  const onChangeColor = (color) => {
     // CommandManager.instance.setPropertyOnSelection('color', color)
-    const groundPlaneComponent = getComponent(this.props.node.eid, GroundPlaneComponent)
+    const groundPlaneComponent = getComponent(props.node.eid, GroundPlaneComponent)
     groundPlaneComponent.color = color
-    this.forceUpdate()
+    forceUpdate()
   }
 
   //function handles the changes for receiveShadow property
-  onChangeReceiveShadow = (receiveShadow) => {
+  const onChangeReceiveShadow = (receiveShadow) => {
     // CommandManager.instance.setPropertyOnSelection('receiveShadow', receiveShadow)
-    const groundPlaneComponent = getComponent(this.props.node.eid, GroundPlaneComponent)
+    const groundPlaneComponent = getComponent(props.node.eid, GroundPlaneComponent)
     groundPlaneComponent.receiveShadow = receiveShadow
-    this.forceUpdate()
+    forceUpdate()
   }
 
   // function handles the changes in walkable property
-  onChangeWalkable = (walkable) => {
+  const onChangeWalkable = (walkable) => {
     // CommandManager.instance.setPropertyOnSelection('walkable', walkable)
-    const groundPlaneComponent = getComponent(this.props.node.eid, GroundPlaneComponent)
+    const groundPlaneComponent = getComponent(props.node.eid, GroundPlaneComponent)
     groundPlaneComponent.walkable = walkable
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  //rendering GroundPlaneNode node customization view
-  render() {
-    GroundPlaneNodeEditor.description = this.props.t('editor:properties.groundPlane.description')
-    const groundPlaneComponent = getComponent(this.props.node.eid, GroundPlaneComponent)
-    return (
-      <NodeEditor {...this.props} description={GroundPlaneNodeEditor.description}>
-        <InputGroup name="Color" label={this.props.t('editor:properties.groundPlane.lbl-color')}>
-          <ColorInput value={groundPlaneComponent.color} onChange={this.onChangeColor} />
-        </InputGroup>
-        <InputGroup name="Receive Shadow" label={this.props.t('editor:properties.groundPlane.lbl-receiveShadow')}>
-          <BooleanInput value={groundPlaneComponent.receiveShadow} onChange={this.onChangeReceiveShadow} />
-        </InputGroup>
-        <InputGroup name="Walkable" label={this.props.t('editor:properties.groundPlane.lbl-walkable')}>
-          <BooleanInput value={groundPlaneComponent.walkable} onChange={this.onChangeWalkable} />
-        </InputGroup>
-      </NodeEditor>
-    )
-  }
+  const groundPlaneComponent = getComponent(props.node.eid, GroundPlaneComponent)
+
+  return (
+    <NodeEditor {...props} description={GroundPlaneNodeEditor.description}>
+      <InputGroup name="Color" label={props.t('editor:properties.groundPlane.lbl-color')}>
+        <ColorInput value={groundPlaneComponent.color} onChange={onChangeColor} />
+      </InputGroup>
+      <InputGroup name="Receive Shadow" label={props.t('editor:properties.groundPlane.lbl-receiveShadow')}>
+        <BooleanInput value={groundPlaneComponent.receiveShadow} onChange={onChangeReceiveShadow} />
+      </InputGroup>
+      <InputGroup name="Walkable" label={props.t('editor:properties.groundPlane.lbl-walkable')}>
+        <BooleanInput value={groundPlaneComponent.walkable} onChange={onChangeWalkable} />
+      </InputGroup>
+    </NodeEditor>
+  )
 }
+
+GroundPlaneNodeEditor.iconComponent = SquareFull
+GroundPlaneNodeEditor.description = i18n.t('editor:properties.groundPlane.description')
 
 export default withTranslation()(GroundPlaneNodeEditor)
