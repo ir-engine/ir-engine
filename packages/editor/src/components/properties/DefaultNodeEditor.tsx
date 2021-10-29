@@ -10,7 +10,7 @@ type DefaultNodeEditorProps = {
  *
  * @author Robert Long
  */
-const DefaultNodeEditor = (props: DefaultNodeEditorProps) => {
+export const DefaultNodeEditor = (props: DefaultNodeEditorProps) => {
   return <NodeEditor {...props} />
 }
 

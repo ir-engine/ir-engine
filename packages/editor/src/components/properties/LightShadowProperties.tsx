@@ -48,7 +48,7 @@ type LightShadowPropertiesProps = {
  * @author Robert Long
  * @type {[class component]}
  */
-const LightShadowProperties = (props: LightShadowPropertiesProps) => {
+export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   // function to handle the change in shadowMapResolution propery
   const onChangeShadowMapResolution = (shadowMapResolution) => {
     CommandManager.instance.setPropertyOnSelection('shadowMapResolution', shadowMapResolution)

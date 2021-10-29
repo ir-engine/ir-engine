@@ -49,7 +49,7 @@ const EnvMapTextureOptions = [
  * @param       props
  * @constructor
  */
-const EnvMapEditor = (node: any) => {
+export const EnvMapEditor = (node: any) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

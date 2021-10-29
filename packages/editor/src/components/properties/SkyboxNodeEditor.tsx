@@ -60,7 +60,7 @@ type SkyboxNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
+export const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

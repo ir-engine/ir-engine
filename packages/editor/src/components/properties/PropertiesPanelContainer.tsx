@@ -69,7 +69,7 @@ const NoNodeSelectedMessage = (styled as any).div`
  * @author Robert Long
  * @extends Component
  */
-const PropertiesPanelContainer = (t: Function) => {
+export const PropertiesPanelContainer = (t: Function) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

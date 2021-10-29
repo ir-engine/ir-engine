@@ -23,7 +23,7 @@ type NameInputGroupState = {
  * @author Robert Long
  * @type {class component}
  */
-const NameInputGroup = (props: Types) => {
+export const NameInputGroup = (props: Types) => {
   const getNameFromComponent = () => {
     const nameComponent = getComponent(props.node.eid, NameComponent)
     return nameComponent.name

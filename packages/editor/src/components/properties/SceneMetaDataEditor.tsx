@@ -13,7 +13,7 @@ import { MetaDataComponent } from '@xrengine/engine/src/scene/components/MetaDat
  * @param       props
  * @constructor
  */
-const SceneMetaDataEditor = (props: { node: any; t: Function }) => {
+export const SceneMetaDataEditor = (props: { node: any; t: Function }) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

@@ -60,11 +60,11 @@ interface Vector3InputState {
  *
  * @author Robert Long
  */
-const Vector3Input = (props: Vector3InputProp) => {
+export const Vector3Input = (props: Vector3InputProp) => {
   const id = uniqueId++
-  let newValue = new Vector3()
-  let [uniformEnabled, setUniformEnabled] = useState(props.uniformScaling)
-  let [hideLabels, setHideLabels] = useState(props.hideLabels ?? false)
+  const newValue = new Vector3()
+  const [uniformEnabled, setUniformEnabled] = useState(props.uniformScaling)
+  const [hideLabels, setHideLabels] = useState(props.hideLabels ?? false)
 
   const onToggleUniform = () => {
     setUniformEnabled(!uniformEnabled)

@@ -26,7 +26,7 @@ type TransformPropertyGroupProps = {
  * @author Robert Long
  * @type {class component}
  */
-const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
+export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

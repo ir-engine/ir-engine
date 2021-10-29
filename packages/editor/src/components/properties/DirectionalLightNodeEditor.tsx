@@ -27,7 +27,7 @@ type DirectionalLightNodeEditorProps = {
  *  @author Robert Long
  *  @type {Component class}
  */
-const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProps) => {
+export const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProps) => {
   //function to handle changes in color property
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelection('color', color)

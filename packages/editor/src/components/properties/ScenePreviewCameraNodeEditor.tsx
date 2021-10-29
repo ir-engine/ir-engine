@@ -27,7 +27,7 @@ type ScenePreviewCameraNodeEditorProps = {
  * @author Robert Long
  * @type {Class component}
  */
-const ScenePreviewCameraNodeEditor = (props: ScenePreviewCameraNodeEditorProps) => {
+export const ScenePreviewCameraNodeEditor = (props: ScenePreviewCameraNodeEditorProps) => {
   useEffect(() => {
     const component = getComponent(props.node.eid, ScenePreviewCameraTagComponent)
     SceneManager.instance.scene.add(component.helper)

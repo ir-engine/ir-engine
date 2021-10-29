@@ -19,7 +19,7 @@ type LinkNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const LinkNodeEditor = (props: LinkNodeEditorProps) => {
+export const LinkNodeEditor = (props: LinkNodeEditorProps) => {
   //function to handle change in href property of LinkNode
   const onChangeHref = (href) => {
     CommandManager.instance.setPropertyOnSelection('href', href)

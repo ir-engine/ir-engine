@@ -37,7 +37,7 @@ const FogTypeOptions = [
  * @param       props
  * @constructor
  */
-const FogEditor = (node: any, t: Function) => {
+export const FogEditor = (node: any, t: Function) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

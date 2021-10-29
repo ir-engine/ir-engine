@@ -85,7 +85,7 @@ const ShadowTypeOptions = [
  * @param       props
  * @constructor
  */
-const RenderSettingsEditor = (props) => {
+export const RenderSettingsEditor = (props) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

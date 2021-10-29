@@ -22,7 +22,7 @@ type CloudsNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
+export const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
   const onChangeProperty = (name: string) => {
     return (value) => {
       CommandManager.instance.setPropertyOnSelection(name, value)

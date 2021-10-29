@@ -28,7 +28,7 @@ type ToolBarState = {
  *
  * @author Robert Long
  */
-const ToolBar = (props: ToolBarProps) => {
+export const ToolBar = (props: ToolBarProps) => {
   let [editorInitialized, setEditInitialized] = useState(false)
   const [, updateState] = useState()
 

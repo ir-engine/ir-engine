@@ -32,7 +32,7 @@ type ParticleEmitterNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps) => {
+export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps) => {
   //function used to reflect the change in any property of ParticleEmitterNodeEditor
   const updateParticles = () => {
     for (const node of CommandManager.instance.selected) {

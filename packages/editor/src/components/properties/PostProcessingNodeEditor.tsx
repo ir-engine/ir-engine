@@ -308,7 +308,7 @@ const EffectsOptions = {
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropTypes) => {
+export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropTypes) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

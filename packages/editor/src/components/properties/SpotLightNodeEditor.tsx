@@ -30,7 +30,7 @@ type SpotLightNodeEditorProps = {
  *  @author Robert Long
  *  @type {class component}
  */
-const SpotLightNodeEditor = (props: SpotLightNodeEditorProps) => {
+export const SpotLightNodeEditor = (props: SpotLightNodeEditorProps) => {
   //function to handle the changes in color property
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelection('color', color)

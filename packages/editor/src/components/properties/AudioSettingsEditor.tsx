@@ -10,7 +10,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import { DistanceModelOptions, DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
 
-const AudioSettingsEditor = (node: any, t: Function) => {
+export const AudioSettingsEditor = (node: any, t: Function) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

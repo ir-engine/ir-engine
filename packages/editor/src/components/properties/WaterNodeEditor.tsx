@@ -17,7 +17,7 @@ type WaterNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const WaterNodeEditor = (props: WaterNodeEditorProps) => {
+export const WaterNodeEditor = (props: WaterNodeEditorProps) => {
   const onChangeProperty = (name: string) => {
     return (value) => {
       CommandManager.instance.setPropertyOnSelection(name, value)

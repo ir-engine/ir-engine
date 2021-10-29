@@ -115,7 +115,7 @@ const Col = styled.div`
  *
  * @author Robert Long
  */
-const ProjectGridItem = (contextMenuId: string, project: any) => {
+export const ProjectGridItem = (contextMenuId: string, project: any) => {
   const onShowMenu = (event) => {
     event.preventDefault()
     event.stopPropagation()

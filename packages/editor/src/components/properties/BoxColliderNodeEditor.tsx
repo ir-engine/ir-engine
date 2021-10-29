@@ -20,7 +20,7 @@ type BoxColliderNodeEditorProps = {
  * @author Robert Long
  * @type {[component class]}
  */
-const BoxColliderNodeEditor = (props: BoxColliderNodeEditorProps) => {
+export const BoxColliderNodeEditor = (props: BoxColliderNodeEditorProps) => {
   let [options, setOptions] = useState([])
 
   useEffect(() => {
