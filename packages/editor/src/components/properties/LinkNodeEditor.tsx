@@ -1,5 +1,5 @@
 import { Link } from '@styled-icons/fa-solid/Link'
-import React, { Component } from 'react'
+import React from 'react'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'

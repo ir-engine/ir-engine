@@ -1,8 +1,11 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
-import { PostProcessingComponent, PostProcessingData } from '@xrengine/engine/src/scene/components/PostProcessingComponent'
+import {
+  PostProcessingComponent,
+  PostProcessingData
+} from '@xrengine/engine/src/scene/components/PostProcessingComponent'
 import Checkbox from '@mui/material/Checkbox'
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import NodeEditor from './NodeEditor'
 import { PostProcessingProperties } from './PostProcessingProperties'
 
@@ -305,26 +308,27 @@ const EffectsOptions = {
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-export class PostProcessingNodeEditor extends React.Component<PostProcessingNodeEditorPropTypes> {
-  static description = 'For applying Post Processing effects to you scene'
+const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropTypes) => {
+  const [, updateState] = useState()
 
-  toggleEffect = (e, key) => {
+  const forceUpdate = useCallback(() => updateState({}), [])
+
+  const toggleEffect = (e, key) => {
     // CommandManager.instance.setPropertyOnSelection('postProcessingOptions.' + key + '.isActive', e.target.checked)
-    const postProcessingComponent = getComponent(this.props.node.eid, PostProcessingComponent)
+    const postProcessingComponent = getComponent(props.node.eid, PostProcessingComponent)
     ;(postProcessingComponent[key] as any).active = e.target.checked
-    this.forceUpdate()
-
+    forceUpdate()
     configureEffectComposer()
   }
 
-  onChangeNodeSetting = (value, effectKey, propKey) => {
+  const onChangeNodeSetting = (value, effectKey, propKey) => {
     // CommandManager.instance.setPropertyOnSelection('postProcessingOptions.' + key, op)
-    const postProcessingComponent = getComponent(this.props.node.eid, PostProcessingComponent)
+    const postProcessingComponent = getComponent(props.node.eid, PostProcessingComponent)
     ;(postProcessingComponent[effectKey] as any)[propKey] = value
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  renderEffectsTypes = (component, effectKey) => {
+  const renderEffectsTypes = (component, effectKey) => {
     const effectOptions = EffectsOptions[effectKey]
     const keys = Object.keys(effectOptions)
 
@@ -338,35 +342,35 @@ export class PostProcessingNodeEditor extends React.Component<PostProcessingNode
           propKey={key}
           params={effectOptions[key]}
           value={component[effectKey][key]}
-          onChangeFunction={this.onChangeNodeSetting}
+          onChangeFunction={onChangeNodeSetting}
         />
       )
     }
     return <>{items}</>
   }
 
-  renderEffects = (component: PostProcessingData) => {
+  const renderEffects = (component: PostProcessingData) => {
     return Object.keys(EffectsOptions).map((key) => {
       if (!component[key]) return null
 
       return (
         <div key={key}>
-          <Checkbox onChange={(e) => this.toggleEffect(e, key)} checked={component[key].active} />
+          <Checkbox onChange={(e) => toggleEffect(e, key)} checked={component[key].active} />
           {key}
-          {component[key].active && <div>{this.renderEffectsTypes(component, key)}</div>}
+          {component[key].active && <div>{renderEffectsTypes(component, key)}</div>}
         </div>
       )
     })
   }
 
-  render() {
-    const postProcessingComponent = getComponent(this.props.node.eid, PostProcessingComponent)
-    return (
-      <NodeEditor description={PostProcessingNodeEditor.description} {...this.props}>
-        {this.renderEffects(postProcessingComponent)}
-      </NodeEditor>
-    )
-  }
+  const postProcessingComponent = getComponent(props.node.eid, PostProcessingComponent)
+  return (
+    <NodeEditor description={PostProcessingNodeEditor.description} {...props}>
+      {renderEffects(postProcessingComponent)}
+    </NodeEditor>
+  )
 }
+
+PostProcessingNodeEditor.description = 'For applying Post Processing effects to you scene'
 
 export default PostProcessingNodeEditor

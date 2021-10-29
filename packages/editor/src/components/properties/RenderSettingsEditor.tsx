@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
@@ -8,8 +8,17 @@ import { RenderSettingsComponent } from '@xrengine/engine/src/scene/components/R
 import Vector3Input from '../inputs/Vector3Input'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
-import { NoToneMapping, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, BasicShadowMap, PCFShadowMap, PCFSoftShadowMap, VSMShadowMap } from 'three'
-
+import {
+  NoToneMapping,
+  LinearToneMapping,
+  ReinhardToneMapping,
+  CineonToneMapping,
+  ACESFilmicToneMapping,
+  BasicShadowMap,
+  PCFShadowMap,
+  PCFSoftShadowMap,
+  VSMShadowMap
+} from 'three'
 
 /**
  * ToneMappingOptions array containing tone mapping type options.
@@ -17,7 +26,7 @@ import { NoToneMapping, LinearToneMapping, ReinhardToneMapping, CineonToneMappin
  * @author Josh Field
  * @type {Array}
  */
- const ToneMappingOptions = [
+const ToneMappingOptions = [
   {
     label: 'No Tone Mapping',
     value: NoToneMapping
@@ -76,119 +85,132 @@ const ShadowTypeOptions = [
  * @param       props
  * @constructor
  */
-export class RenderSettingsEditor extends React.Component<{node: any, t: Function}> {
-  onChangeUseSimpleMaterials = (useSimpleMaterial) => {
-    const renderSettingsComponent = getComponent(this.props.node.eid, RenderSettingsComponent)
+const RenderSettingsEditor = (props) => {
+  const [, updateState] = useState()
+
+  const forceUpdate = useCallback(() => updateState({}), [])
+
+  const onChangeUseSimpleMaterials = (useSimpleMaterial) => {
+    const renderSettingsComponent = getComponent(props.node.eid, RenderSettingsComponent)
     renderSettingsComponent.useSimpleMaterial = useSimpleMaterial
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeLODs = (LODs) => {
-    const renderSettingsComponent = getComponent(this.props.node.eid, RenderSettingsComponent)
+  const onChangeLODs = (LODs) => {
+    const renderSettingsComponent = getComponent(props.node.eid, RenderSettingsComponent)
     renderSettingsComponent.LODs = LODs
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeOverrideRendererettings = (overrideRendererSettings) => {
-    const renderSettingsComponent = getComponent(this.props.node.eid, RenderSettingsComponent)
+  const onChangeOverrideRendererettings = (overrideRendererSettings) => {
+    const renderSettingsComponent = getComponent(props.node.eid, RenderSettingsComponent)
     renderSettingsComponent.overrideRendererSettings = overrideRendererSettings
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeUseCSM = (csm) => {
-    const renderSettingsComponent = getComponent(this.props.node.eid, RenderSettingsComponent)
+  const onChangeUseCSM = (csm) => {
+    const renderSettingsComponent = getComponent(props.node.eid, RenderSettingsComponent)
     renderSettingsComponent.csm = csm
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeUseToneMapping = (toneMapping) => {
-    const renderSettingsComponent = getComponent(this.props.node.eid, RenderSettingsComponent)
+  const onChangeUseToneMapping = (toneMapping) => {
+    const renderSettingsComponent = getComponent(props.node.eid, RenderSettingsComponent)
     renderSettingsComponent.toneMapping = toneMapping
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeUseToneMappingExposure = (toneMappingExposure) => {
-    const renderSettingsComponent = getComponent(this.props.node.eid, RenderSettingsComponent)
+  const onChangeUseToneMappingExposure = (toneMappingExposure) => {
+    const renderSettingsComponent = getComponent(props.node.eid, RenderSettingsComponent)
     renderSettingsComponent.toneMappingExposure = toneMappingExposure
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  onChangeUseShadowMapType = (shadowMapType) => {
-    const renderSettingsComponent = getComponent(this.props.node.eid, RenderSettingsComponent)
+  const onChangeUseShadowMapType = (shadowMapType) => {
+    const renderSettingsComponent = getComponent(props.node.eid, RenderSettingsComponent)
     renderSettingsComponent.shadowMapType = shadowMapType
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  render() {
-    const renderSettingsComponent = getComponent(this.props.node.eid, RenderSettingsComponent)
+  const renderSettingsComponent = getComponent(props.node.eid, RenderSettingsComponent)
 
-    return (
-      <NodeEditor {...this.props}>
-        <InputGroup
-          name="Use Simple Materials"
-          label={this.props.t('editor:properties.scene.lbl-simpleMaterials')}
-          info={this.props.t('editor:properties.scene.info-simpleMaterials')}
-        >
-          <BooleanInput value={renderSettingsComponent.useSimpleMaterial} onChange={this.onChangeUseSimpleMaterials} />
-        </InputGroup>
-        <InputGroup
-          name="LODs"
-          label={this.props.t('editor:properties.scene.lbl-lods')}
-          info={this.props.t('editor:properties.scene.info-lods')}
-        >
-          <Vector3Input
-            hideLabels
-            value={renderSettingsComponent.LODs}
-            smallStep={0.01}
-            mediumStep={0.1}
-            largeStep={1}
-            onChange={this.onChangeLODs}
-          />
-        </InputGroup>
-        <InputGroup name="Override Renderer Settings" label={this.props.t('editor:properties.scene.lbl-rendererSettings')}>
-          <BooleanInput value={renderSettingsComponent.overrideRendererSettings} onChange={this.onChangeOverrideRendererettings} />
-        </InputGroup>
-        {renderSettingsComponent.overrideRendererSettings && (
-          <>
-            <InputGroup
-              name="Use Cascading Shadow Maps"
-              label={this.props.t('editor:properties.scene.lbl-csm')}
-              info={this.props.t('editor:properties.scene.info-csm')}
-            >
-              <BooleanInput value={renderSettingsComponent.csm} onChange={this.onChangeUseCSM} />
-            </InputGroup>
-            <InputGroup
-              name="Tone Mapping"
-              label={this.props.t('editor:properties.scene.lbl-toneMapping')}
-              info={this.props.t('editor:properties.scene.info-toneMapping')}
-            >
-              <SelectInput options={ToneMappingOptions} value={renderSettingsComponent.toneMapping} onChange={this.onChangeUseToneMapping} />
-            </InputGroup>
-            <InputGroup
-              name="Tone Mapping Exposure"
-              label={this.props.t('editor:properties.scene.lbl-toneMappingExposure')}
-              info={this.props.t('editor:properties.scene.info-toneMappingExposure')}
-            >
-              <CompoundNumericInput
-                min={0}
-                max={10}
-                step={0.1}
-                value={renderSettingsComponent.toneMappingExposure}
-                onChange={this.onChangeUseToneMappingExposure}
-              />
-            </InputGroup>
-            <InputGroup
-              name="Shadow Map Type"
-              label={this.props.t('editor:properties.scene.lbl-shadowMapType')}
-              info={this.props.t('editor:properties.scene.info-shadowMapType')}
-            >
-              <SelectInput options={ShadowTypeOptions} value={renderSettingsComponent.shadowMapType} onChange={this.onChangeUseShadowMapType} />
-            </InputGroup>
-          </>
-        )}
-      </NodeEditor>
-    )
-  }
+  return (
+    <NodeEditor {...props}>
+      <InputGroup
+        name="Use Simple Materials"
+        label={props.t('editor:properties.scene.lbl-simpleMaterials')}
+        info={props.t('editor:properties.scene.info-simpleMaterials')}
+      >
+        <BooleanInput value={renderSettingsComponent.useSimpleMaterial} onChange={onChangeUseSimpleMaterials} />
+      </InputGroup>
+      <InputGroup
+        name="LODs"
+        label={props.t('editor:properties.scene.lbl-lods')}
+        info={props.t('editor:properties.scene.info-lods')}
+      >
+        <Vector3Input
+          hideLabels
+          value={renderSettingsComponent.LODs}
+          smallStep={0.01}
+          mediumStep={0.1}
+          largeStep={1}
+          onChange={onChangeLODs}
+        />
+      </InputGroup>
+      <InputGroup name="Override Renderer Settings" label={props.t('editor:properties.scene.lbl-rendererSettings')}>
+        <BooleanInput
+          value={renderSettingsComponent.overrideRendererSettings}
+          onChange={onChangeOverrideRendererettings}
+        />
+      </InputGroup>
+      {renderSettingsComponent.overrideRendererSettings && (
+        <>
+          <InputGroup
+            name="Use Cascading Shadow Maps"
+            label={props.t('editor:properties.scene.lbl-csm')}
+            info={props.t('editor:properties.scene.info-csm')}
+          >
+            <BooleanInput value={renderSettingsComponent.csm} onChange={onChangeUseCSM} />
+          </InputGroup>
+          <InputGroup
+            name="Tone Mapping"
+            label={props.t('editor:properties.scene.lbl-toneMapping')}
+            info={props.t('editor:properties.scene.info-toneMapping')}
+          >
+            <SelectInput
+              options={ToneMappingOptions}
+              value={renderSettingsComponent.toneMapping}
+              onChange={onChangeUseToneMapping}
+            />
+          </InputGroup>
+          <InputGroup
+            name="Tone Mapping Exposure"
+            label={props.t('editor:properties.scene.lbl-toneMappingExposure')}
+            info={props.t('editor:properties.scene.info-toneMappingExposure')}
+          >
+            <CompoundNumericInput
+              min={0}
+              max={10}
+              step={0.1}
+              value={renderSettingsComponent.toneMappingExposure}
+              onChange={onChangeUseToneMappingExposure}
+            />
+          </InputGroup>
+          <InputGroup
+            name="Shadow Map Type"
+            label={props.t('editor:properties.scene.lbl-shadowMapType')}
+            info={props.t('editor:properties.scene.info-shadowMapType')}
+          >
+            <SelectInput
+              options={ShadowTypeOptions}
+              value={renderSettingsComponent.shadowMapType}
+              onChange={onChangeUseShadowMapType}
+            />
+          </InputGroup>
+        </>
+      )}
+    </NodeEditor>
+  )
 }
 
 export default withTranslation()(RenderSettingsEditor)

@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import EditorEvents from '../../constants/EditorEvents'
 import MainMenu from '../mainMenu'
 import GridTool from './tools/GridTool'
@@ -28,54 +28,43 @@ type ToolBarState = {
  *
  * @author Robert Long
  */
-export class ToolBar extends Component<ToolBarProps, ToolBarState> {
-  constructor(props) {
-    super(props)
+const ToolBar = (props: ToolBarProps) => {
+  let [editorInitialized, setEditInitialized] = useState(false)
+  const [, updateState] = useState()
 
-    this.state = {
-      editorInitialized: false
-    }
+  const forceUpdate = useCallback(() => updateState({}), [])
+
+  const onRendererInitialized = () => {
+    setEditInitialized(true)
+    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onRendererInitialized)
   }
 
-  componentDidMount() {
-    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.onRendererInitialized)
-    CommandManager.instance.addListener(EditorEvents.SETTINGS_CHANGED.toString(), this.onForceUpdate)
+  useEffect(() => {
+    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onRendererInitialized)
+    CommandManager.instance.addListener(EditorEvents.SETTINGS_CHANGED.toString(), forceUpdate)
+  }, [])
+
+  useEffect(() => {
+    CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), forceUpdate)
+  }, null)
+
+  if (!editorInitialized) {
+    return <div className={styles.toolbarContainer} />
   }
 
-  componentWillUnmount() {
-    CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), this.onForceUpdate)
-  }
-
-  onRendererInitialized = () => {
-    this.setState({ editorInitialized: true })
-    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.onRendererInitialized)
-  }
-
-  onForceUpdate = () => {
-    this.forceUpdate()
-  }
-
-  render() {
-    const { editorInitialized } = this.state as any
-
-    if (!editorInitialized) {
-      return <div className={styles.toolbarContainer} />
-    }
-
-    return (
-      <div className={styles.toolbarContainer}>
-        <MainMenu commands={this.props.menu} />
-        <TransformTool />
-        <TransformSpaceTool />
-        <TransformPivotTool />
-        <TransformSnapTool />
-        <GridTool />
-        <RenderModeTool />
-        <PlayModeTool />
-        <StatsTool />
-      </div>
-    )
-  }
+  return (
+    <div className={styles.toolbarContainer}>
+      <MainMenu commands={props.menu} />
+      <TransformTool />
+      <TransformSpaceTool />
+      <TransformPivotTool />
+      <TransformSnapTool />
+      <GridTool />
+      <RenderModeTool />
+      <PlayModeTool />
+      <StatsTool />
+    </div>
+  )
 }
 
 export default ToolBar

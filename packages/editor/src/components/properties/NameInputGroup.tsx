@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import { withTranslation } from 'react-i18next'

@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import TransformPropertyGroup from './TransformPropertyGroup'
 import { withTranslation } from 'react-i18next'
@@ -31,7 +31,7 @@ const StyledNodeEditor = (styled as any).div`
  * @author Robert Long
  */
 const PropertiesHeader = (styled as any).div`
-  background-color: ${(props) => props.theme.panel2};
+  background-color: ${(props) => theme.panel2};
   border: none !important;
   padding-bottom: 0 !important;
 `
@@ -69,20 +69,24 @@ const NoNodeSelectedMessage = (styled as any).div`
  * @author Robert Long
  * @extends Component
  */
-class PropertiesPanelContainer extends Component<{ t: Function }> {
-  componentDidMount() {
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
+const PropertiesPanelContainer = (t: Function) => {
+  const [, updateState] = useState()
+
+  const forceUpdate = useCallback(() => updateState({}), [])
+
+  const onSelectionChanged = () => {
+    forceUpdate()
   }
 
-  componentWillUnmount() {
-    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
-  }
+  useEffect(() => {
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
+  }, [])
 
-  onSelectionChanged = () => {
-    this.forceUpdate()
-  }
+  useEffect(() => {
+    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
+  }, null)
 
-  onSelectComponent = (value) => {
+  const onSelectComponent = (value) => {
     const componentMeta = ComponentMeta[value]
 
     if (!componentMeta || !componentMeta.component) return
@@ -97,10 +101,10 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
       addComponent(activeNode.eid, componentMeta.component, new componentMeta.componentData({}))
     }
 
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  renderAddComponent = (activeNode, components) => {
+  const renderAddComponent = (activeNode, components) => {
     const componentNames = Array.isArray(components) ? components.map((c) => c._name) : []
 
     const systemComponents = []
@@ -118,92 +122,83 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
       <InputGroup name="Add Component">
         <SelectInput
           options={systemComponents}
-          onChange={this.onSelectComponent}
-          placeholder={this.props.t('editor:properties.addComponent')}
+          onChange={onSelectComponent}
+          placeholder={t('editor:properties.addComponent')}
         />
       </InputGroup>
     )
   }
 
-  render() {
-    const selected = CommandManager.instance.selected
+  const selected = CommandManager.instance.selected
 
-    let content
+  let content
 
-    if (selected.length === 0) {
-      content = <NoNodeSelectedMessage>{this.props.t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
+  if (selected.length === 0) {
+    content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
+  } else {
+    const activeNode = selected[selected.length - 1]
+    const components = getAllComponents(activeNode.eid)
 
+    let NodeEditors = []
+    for (let i = 0; i < components.length; i++) {
+      if (components[i]._name === ComponentNames.NAME) continue
+      if (components[i]._name === ComponentNames.VISIBILE) continue
+      if (components[i]._name === ComponentNames.TRANSFORM) continue
+
+      const editor = NodeManager.instance.getEditorFromClass(components[i]._name)
+      if (editor) NodeEditors.push(editor)
+    }
+
+    let showNodeEditor = true
+    for (let i = 0; i < selected.length - 1; i++) {
+      if (NodeEditors.includes(NodeManager.instance.getEditorFromClass(selected[i]))) {
+        showNodeEditor = false
+        break
+      }
+    }
+
+    let nodeEditor
+    if (showNodeEditor) {
+      nodeEditor = NodeEditors.map((Editor, i) => <Editor multiEdit={selected.length > 1} node={activeNode} key={i} />)
     } else {
-      const activeNode = selected[selected.length - 1]
-      const components = getAllComponents(activeNode.eid)
+      nodeEditor = <NoNodeSelectedMessage>{t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
+    }
 
-      let NodeEditors = []
-      for (let i = 0; i < components.length; i++) {
-        if (components[i]._name === ComponentNames.NAME) continue
-        if (components[i]._name === ComponentNames.VISIBILE) continue
-        if (components[i]._name === ComponentNames.TRANSFORM) continue
+    const disableTransform = selected.some((node) => !node.parentNode)
+    // const haveStaticTags = selected.some((node) => node.haveStaticTags)
 
-        const editor = NodeManager.instance.getEditorFromClass(components[i]._name)
-        if (editor) NodeEditors.push(editor)
-      }
-
-      let showNodeEditor = true
-      for (let i = 0; i < selected.length - 1; i++) {
-        if (NodeEditors.includes(NodeManager.instance.getEditorFromClass(selected[i]))) {
-          showNodeEditor = false
-          break
-        }
-      }
-
-      let nodeEditor
-      if (showNodeEditor) {
-        nodeEditor = NodeEditors.map((Editor, i) => <Editor multiEdit={selected.length > 1} node={activeNode} key={i} />)
-      } else {
-        nodeEditor = (
-          <NoNodeSelectedMessage>{this.props.t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
-        )
-      }
-
-      const disableTransform = selected.some((node) => !node.parentNode)
-      // const haveStaticTags = selected.some((node) => node.haveStaticTags)
-
-      content = (
-        <StyledNodeEditor>
-          <PropertiesHeader>
-            {/* <NameInputGroupContainer>
+    content = (
+      <StyledNodeEditor>
+        <PropertiesHeader>
+          {/* <NameInputGroupContainer>
               <NameInputGroup node={activeNode} />
               {activeNode.nodeName !== 'Scene' && (
                 <>
-                  <VisibleInputGroup name="Visible" label={this.props.t('editor:properties.lbl-visible')}>
-                    <BooleanInput value={activeNode.visible} onChange={this.onChangeVisible} />
+                  <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
+                    <BooleanInput value={activeNode.visible} onChange={onChangeVisible} />
                   </VisibleInputGroup>
                   {haveStaticTags && (
                     <VisibleInputGroup name="Bake Static" label="Bake Static">
-                      <BooleanInput value={activeNode.includeInCubemapBake} onChange={this.onChangeBakeStatic} />
+                      <BooleanInput value={activeNode.includeInCubemapBake} onChange={onChangeBakeStatic} />
                     </VisibleInputGroup>
                   )}
                 </>
               )}
             </NameInputGroupContainer>
-            <PersistInputGroup name="Persist" label={this.props.t('editor:properties.lbl-persist')}>
-              <BooleanInput value={activeNode.persist} onChange={this.onChangePersist} />
+            <PersistInputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
+              <BooleanInput value={activeNode.persist} onChange={onChangePersist} />
             </PersistInputGroup> */}
-            <EntityMetadataEditor node={activeNode} />
-            {!disableTransform && <TransformPropertyGroup node={activeNode} />}
-          </PropertiesHeader>
-          {nodeEditor}
-          {!activeNode.parentNode && (    // Currently it is available for Scene node only
-            this.renderAddComponent(activeNode, components)
-          )}
-
-        </StyledNodeEditor>
-      )
-    }
-
-    return <PropertiesPanelContent>
-      {content}
-    </PropertiesPanelContent>
+          <EntityMetadataEditor node={activeNode} />
+          {!disableTransform && <TransformPropertyGroup node={activeNode} />}
+        </PropertiesHeader>
+        {nodeEditor}
+        {!activeNode.parentNode && // Currently it is available for Scene node only
+          renderAddComponent(activeNode, components)}
+      </StyledNodeEditor>
+    )
   }
+
+  return <PropertiesPanelContent>{content}</PropertiesPanelContent>
 }
 
 export default withTranslation()(PropertiesPanelContainer)

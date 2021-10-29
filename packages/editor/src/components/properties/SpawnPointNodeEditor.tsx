@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import { StreetView } from '@styled-icons/fa-solid/StreetView'
 import i18n from 'i18next'
@@ -21,16 +21,12 @@ type SpawnPointNodeEditorProps = {
  * @author Robert Long
  * @type {Class component}
  */
-export class SpawnPointNodeEditor extends Component<SpawnPointNodeEditorProps, {}> {
+const SpawnPointNodeEditor = (props: SpawnPointNodeEditorProps) => {
   // initializing iconComponent icon name
-  static iconComponent = StreetView
-
-  // initializing description and will appear on the editor view
-  static description = i18n.t('editor:properties.spawnPoint.description')
-  render() {
-    SpawnPointNodeEditor.description = this.props.t('editor:properties.spawnPoint.description')
-    return <NodeEditor description={SpawnPointNodeEditor.description} {...this.props} />
-  }
+  return <NodeEditor description={SpawnPointNodeEditor.description} {...props} />
 }
+
+SpawnPointNodeEditor.iconComponent = StreetView
+SpawnPointNodeEditor.description = i18n.t('editor:properties.spawnPoint.description')
 
 export default withTranslation()(SpawnPointNodeEditor)

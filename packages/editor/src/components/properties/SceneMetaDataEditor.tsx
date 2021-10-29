@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -13,24 +13,26 @@ import { MetaDataComponent } from '@xrengine/engine/src/scene/components/MetaDat
  * @param       props
  * @constructor
  */
-export class SceneMetaDataEditor extends React.Component<{node: any, t: Function}> {
-  onChangeMetaData = (meta_data) => {
-    const metaDataComponent = getComponent(this.props.node.eid, MetaDataComponent)
+const SceneMetaDataEditor = (props: { node: any; t: Function }) => {
+  const [, updateState] = useState()
+
+  const forceUpdate = useCallback(() => updateState({}), [])
+
+  const onChangeMetaData = (meta_data) => {
+    const metaDataComponent = getComponent(props.node.eid, MetaDataComponent)
     metaDataComponent.meta_data = meta_data
-    this.forceUpdate()
+    forceUpdate()
   }
 
-  render() {
-    const metaDataComponent = getComponent(this.props.node.eid, MetaDataComponent)
+  const metaDataComponent = getComponent(props.node.eid, MetaDataComponent)
 
-    return (
-      <NodeEditor {...this.props}>
-        <InputGroup name="Metadata" label="Metadata">
-          <StringInput value={metaDataComponent.meta_data} onChange={this.onChangeMetaData} />
-        </InputGroup>
-      </NodeEditor>
-    )
-  }
+  return (
+    <NodeEditor {...props}>
+      <InputGroup name="Metadata" label="Metadata">
+        <StringInput value={metaDataComponent.meta_data} onChange={onChangeMetaData} />
+      </InputGroup>
+    </NodeEditor>
+  )
 }
 
 export default withTranslation()(SceneMetaDataEditor)

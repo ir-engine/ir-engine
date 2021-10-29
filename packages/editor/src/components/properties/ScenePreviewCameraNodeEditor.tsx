@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useEffect } from 'react'
 import NodeEditor from './NodeEditor'
 import { Camera } from '@styled-icons/fa-solid/Camera'
 import { PropertiesPanelButton } from '../inputs/Button'
@@ -8,7 +8,6 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCameraComponent'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorEvents from '../../constants/EditorEvents'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { SceneManager } from '../../managers/SceneManager'
 
 /**
@@ -28,39 +27,33 @@ type ScenePreviewCameraNodeEditorProps = {
  * @author Robert Long
  * @type {Class component}
  */
-export class ScenePreviewCameraNodeEditor extends Component<ScenePreviewCameraNodeEditorProps, {}> {
-  // setting iconComponent as icon name
-  static iconComponent = Camera
-
-  // setting description for ScenePreviewCameraNode and will appear on editor view
-  static description = i18n.t('editor:properties.sceneCamera.description')
-
-  componentDidMount() {
-    const component = getComponent(this.props.node.eid, ScenePreviewCameraTagComponent)
+const ScenePreviewCameraNodeEditor = (props: ScenePreviewCameraNodeEditorProps) => {
+  useEffect(() => {
+    const component = getComponent(props.node.eid, ScenePreviewCameraTagComponent)
     SceneManager.instance.scene.add(component.helper)
-  }
+  }, [])
 
-  componentWillUnmount() {
-    const component = getComponent(this.props.node.eid, ScenePreviewCameraTagComponent)
+  useEffect(() => {
+    const component = getComponent(props.node.eid, ScenePreviewCameraTagComponent)
     SceneManager.instance.scene.remove(component.helper)
-  }
+  }, null)
 
-  onSetFromViewport = () => {
-    const component = getComponent(this.props.node.eid, ScenePreviewCameraTagComponent)
+  const onSetFromViewport = () => {
+    const component = getComponent(props.node.eid, ScenePreviewCameraTagComponent)
     component.setFromViewport()
     CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED)
   }
 
-  render() {
-    ScenePreviewCameraNodeEditor.description = this.props.t('editor:properties.sceneCamera.description')
-    return (
-      <NodeEditor {...this.props} description={ScenePreviewCameraNodeEditor.description}>
-        <PropertiesPanelButton onClick={this.onSetFromViewport}>
-          {this.props.t('editor:properties.sceneCamera.lbl-setFromViewPort')}
-        </PropertiesPanelButton>
-      </NodeEditor>
-    )
-  }
+  return (
+    <NodeEditor {...props} description={ScenePreviewCameraNodeEditor.description}>
+      <PropertiesPanelButton onClick={onSetFromViewport}>
+        {props.t('editor:properties.sceneCamera.lbl-setFromViewPort')}
+      </PropertiesPanelButton>
+    </NodeEditor>
+  )
 }
+
+ScenePreviewCameraNodeEditor.iconComponent = Camera
+ScenePreviewCameraNodeEditor.description = i18n.t('editor:properties.sceneCamera.description')
 
 export default withTranslation()(ScenePreviewCameraNodeEditor)

@@ -17,31 +17,17 @@ type WaterNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export class WaterNodeEditor extends Component<WaterNodeEditorProps> {
-  constructor(props: WaterNodeEditorProps) {
-    super(props)
-    this.props = props
-  }
-
-  //setting iconComponent name
-  static iconComponent = Water
-
-  //setting description and will appears on editor view
-  static description = i18n.t('editor:properties.water.description')
-
-  declare props: WaterNodeEditorProps
-
-  onChangeProperty = (name: string) => {
+const WaterNodeEditor = (props: WaterNodeEditorProps) => {
+  const onChangeProperty = (name: string) => {
     return (value) => {
       CommandManager.instance.setPropertyOnSelection(name, value)
     }
   }
 
-  //rendering view
-  render() {
-    WaterNodeEditor.description = this.props.t('editor:properties.water.description')
-    return <NodeEditor {...this.props} description={WaterNodeEditor.description}></NodeEditor>
-  }
+  return <NodeEditor {...props} description={WaterNodeEditor.description}></NodeEditor>
 }
+
+WaterNodeEditor.iconComponent = Water
+WaterNodeEditor.description = i18n.t('editor:properties.water.description')
 
 export default withTranslation()(WaterNodeEditor)
