@@ -115,7 +115,7 @@ const Col = styled.div`
  *
  * @author Robert Long
  */
-const ProjectGridItem = (onClickExisting: Function, contextMenuId: string, project: any) => {
+export const ProjectGridItem = (onClickExisting: Function, contextMenuId: string, project: any) => {
   const onShowMenu = (event) => {
     event.preventDefault()
     event.stopPropagation()

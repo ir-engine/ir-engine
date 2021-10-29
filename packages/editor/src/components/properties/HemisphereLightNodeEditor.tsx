@@ -18,7 +18,7 @@ type HemisphereLightNodeEditorProps = {
  * @author Robert Long
  * @type {class Compoment}
  */
-const HemisphereLightNodeEditor = (props: HemisphereLightNodeEditorProps) => {
+export const HemisphereLightNodeEditor = (props: HemisphereLightNodeEditorProps) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

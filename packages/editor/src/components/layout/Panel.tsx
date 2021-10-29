@@ -82,7 +82,7 @@ export const PanelContent = (styled as any).div`
  *
  *  @author Robert Long
  */
-const Panel = (props) => {
+export const Panel = (props) => {
   const { icon, title, children, toolbarContent, ...rest } = props
 
   return (

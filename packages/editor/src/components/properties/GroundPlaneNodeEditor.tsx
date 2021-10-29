@@ -26,7 +26,7 @@ type GroundPlaneNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
+export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
   const [, updateState] = useState()
 
   const forceUpdate = useCallback(() => updateState({}), [])

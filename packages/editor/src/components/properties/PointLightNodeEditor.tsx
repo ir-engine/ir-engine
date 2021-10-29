@@ -23,7 +23,7 @@ type PointLightNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const PointLightNodeEditor = (props: PointLightNodeEditorProps) => {
+export const PointLightNodeEditor = (props: PointLightNodeEditorProps) => {
   //function to handle changes in color property
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelection('color', color)

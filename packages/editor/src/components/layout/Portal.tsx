@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom'
  *
  * @author Robert Long
  */
-const Portal = (props) => {
+export const Portal = (props) => {
   let el = document.createElement('div')
 
   useEffect(() => {

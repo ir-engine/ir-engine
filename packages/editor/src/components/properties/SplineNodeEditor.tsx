@@ -24,7 +24,7 @@ type SplineNodeEditorProps = {
  * @constructor
  */
 
-const SplineNodeEditor = (props: SplineNodeEditorProps) => {
+export const SplineNodeEditor = (props: SplineNodeEditorProps) => {
   const onAddNode = () => {
     props.node?.onAddNodeToSpline()
   }

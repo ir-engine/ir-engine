@@ -14,7 +14,7 @@ type GroupNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const GroupNodeEditor = (props: GroupNodeEditorProps) => {
+export const GroupNodeEditor = (props: GroupNodeEditorProps) => {
   return <NodeEditor {...props} description={GroupNodeEditor.description} />
 }
 

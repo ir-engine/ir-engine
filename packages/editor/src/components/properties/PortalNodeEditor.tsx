@@ -44,7 +44,7 @@ type PortalNodeEditorStates = {
  * @author Josh Field <github.com/HexaField>
  * @type {class component}
  */
-const PortalNodeEditor = (props: PortalNodeEditorProps) => {
+export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
   let [portals, setPortals] = useState([])
   let [entityId, setEntityId] = useState('')
 

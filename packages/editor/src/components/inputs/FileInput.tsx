@@ -34,7 +34,7 @@ type FileInputState = {
  * @author Robert Long
  * @type {Object}
  */
-const FileInput = (props: FileInputProps) => {
+export const FileInput = (props: FileInputProps) => {
   const [id, setId] = useState(`file-input-${nextId++}`)
 
   const onChange = (e) => {

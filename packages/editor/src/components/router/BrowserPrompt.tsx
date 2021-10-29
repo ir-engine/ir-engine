@@ -7,7 +7,7 @@ type BrowserPromptProps = {
  *
  * @author Robert Long
  */
-const BrowserPrompt = (props: BrowserPromptProps) => {
+export const BrowserPrompt = (props: BrowserPromptProps) => {
   const onBeforeUnload = (e) => {
     const dialogText = props.message
     e.returnValue = dialogText

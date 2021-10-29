@@ -21,7 +21,7 @@ type SpawnPointNodeEditorProps = {
  * @author Robert Long
  * @type {Class component}
  */
-const SpawnPointNodeEditor = (props: SpawnPointNodeEditorProps) => {
+export const SpawnPointNodeEditor = (props: SpawnPointNodeEditorProps) => {
   // initializing iconComponent icon name
   return <NodeEditor description={SpawnPointNodeEditor.description} {...props} />
 }

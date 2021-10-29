@@ -26,7 +26,7 @@ type EulerInputProps = {
  * @author Robert Long
  * @type {Object}
  */
-const EulerInput = (props: EulerInputProps) => {
+export const EulerInput = (props: EulerInputProps) => {
   const onChange = (x, y, z) => {
     props.onChange(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD))
   }

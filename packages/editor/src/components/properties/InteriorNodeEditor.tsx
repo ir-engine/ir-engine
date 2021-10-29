@@ -21,7 +21,7 @@ type InteriorNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const InteriorNodeEditor = (props: InteriorNodeEditorProps) => {
+export const InteriorNodeEditor = (props: InteriorNodeEditorProps) => {
   const onChangeProperty = (name: string) => {
     return (value) => {
       CommandManager.instance.setPropertyOnSelection(name, value)

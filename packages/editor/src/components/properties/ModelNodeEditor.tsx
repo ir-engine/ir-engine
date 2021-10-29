@@ -55,7 +55,7 @@ type ModelNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const ModelNodeEditor = (props: ModelNodeEditorProps) => {
+export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
   let [options, setOptions] = useState([])
 
   useEffect(() => {

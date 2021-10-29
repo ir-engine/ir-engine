@@ -29,12 +29,7 @@ type Types = {
  * @author Robert Long
  * @type {class component}
  */
-const NameInputGroup = (props: Types) => {
-  const setNameToComponent = (name) => {
-    const nameComponent = getComponent(props.node.eid, NameComponent)
-    nameComponent.name = name
-  }
-
+export const NameInputGroup = (props: Types) => {
   let [name, setName] = useState(props.node.name)
   let [focusedNode, setFocusedNode] = useState(null)
 

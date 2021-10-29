@@ -22,7 +22,7 @@ type OceanNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const OceanNodeEditor = (props: OceanNodeEditorProps) => {
+export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
   const onChangeProperty = (name) => {
     return (value) => {
       CommandManager.instance.setPropertyOnSelection(name, value)

@@ -68,7 +68,7 @@ const systemUpdateTypes = [
  * @constructor
  */
 
-const ProjectNodeEditor = (props: ProjectNodeEditorProps) => {
+export const ProjectNodeEditor = (props: ProjectNodeEditorProps) => {
   let [projects, setProjects] = useState([])
 
   const getProjects = async () => {

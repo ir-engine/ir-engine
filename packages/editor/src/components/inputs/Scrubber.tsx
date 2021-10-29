@@ -59,11 +59,11 @@ type ScrubberProp = {
  * @author Robert Long
  */
 const Scrubber = (props: ScrubberProp) => {
-  let [isDragging, setIsDragging] = useState(false)
-  let [startValue, setStartValue] = useState(null)
-  let [delta, setDelta] = useState(null)
-  let [mouseX, setMouseX] = useState(null)
-  let [mouseY, setMouseY] = useState(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startValue, setStartValue] = useState(null)
+  const [delta, setDelta] = useState(null)
+  const [mouseX, setMouseX] = useState(null)
+  const [mouseY, setMouseY] = useState(null)
   const scrubberEl = useRef(null)
 
   const handleMouseMove = (event) => {

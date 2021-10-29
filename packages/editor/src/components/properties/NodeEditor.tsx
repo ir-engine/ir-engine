@@ -15,7 +15,7 @@ type NodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-const NodeEditor = (props: NodeEditorProps) => {
+export const NodeEditor = (props: NodeEditorProps) => {
   const { node, description, children } = props
 
   return (

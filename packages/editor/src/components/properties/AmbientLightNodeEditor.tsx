@@ -22,7 +22,7 @@ type AmbientLightNodeEditorProps = {
  * @author Robert Long
  * @type {[component class]}
  */
-const AmbientLightNodeEditor = (props: AmbientLightNodeEditorProps) => {
+export const AmbientLightNodeEditor = (props: AmbientLightNodeEditorProps) => {
   const node = props.node
 
   // used to change the color property of selected scene, when we change color property of ambient light

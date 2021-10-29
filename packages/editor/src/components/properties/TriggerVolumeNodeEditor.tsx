@@ -30,7 +30,7 @@ type TriggerVolumeNodeEditorState = {
  * @author Robert Long
  * @type {class component}
  */
-const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => {
+export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => {
   //initializing props and state
   let [options, setOptions] = useState([])
 

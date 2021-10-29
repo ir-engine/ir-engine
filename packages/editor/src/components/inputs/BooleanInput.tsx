@@ -60,9 +60,9 @@ interface BooleanInputProp {
  * @author Robert Long
  * @type {functional component}
  */
-const BooleanInput = (props: BooleanInputProp) => {
+export const BooleanInput = (props: BooleanInputProp) => {
   //initializing checkboxId for BooleanInput
-  let [checkboxId, setCheckboxId] = useState(`boolean-input-${uniqueId++}`)
+  const [checkboxId, setCheckboxId] = useState(`boolean-input-${uniqueId++}`)
 
   // function handling changes in BooleanInput
   const onChange = (e) => {
