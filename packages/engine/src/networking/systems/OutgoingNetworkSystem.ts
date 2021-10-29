@@ -138,6 +138,7 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
   const { outgoingNetworkState, previousNetworkState } = world
 
   const networkObject = getComponent(entity, NetworkObjectComponent)
+  if (!networkObject) return
 
   const transformComponent = getComponent(entity, TransformComponent)
 

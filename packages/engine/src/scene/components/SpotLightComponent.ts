@@ -2,6 +2,7 @@ import { Color, SpotLight, Vector2, SpotLightHelper } from 'three'
 import { ComponentNames } from '../../common/constants/ComponentNames'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { ComponentData } from '../../common/classes/ComponentData'
+import { addIsHelperFlag } from '../functions/addIsHelperFlag'
 
 export type SpotLightDataProps = {
   color?: Color,
@@ -24,6 +25,8 @@ export class SpotLightData implements ComponentData {
     this.helper = new SpotLightHelper(this.obj3d)
     this.helper.visible = false
     this.obj3d.add(this.helper)
+
+    addIsHelperFlag(this.helper)
 
     if (props) {
       if (props.color) {

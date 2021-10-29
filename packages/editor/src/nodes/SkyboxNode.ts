@@ -1,3 +1,4 @@
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Sky } from '@xrengine/engine/src/scene/classes/Sky'
 import { SceneBackgroundProps, SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
 import { Color, CubeTextureLoader, Mesh, PMREMGenerator, sRGBEncoding, TextureLoader } from 'three'
@@ -129,13 +130,13 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         new TextureLoader().load(this.equirectangularPath, (texture) => {
           texture.encoding = sRGBEncoding
           SceneManager.instance.scene.background = new PMREMGenerator(
-            SceneManager.instance.renderer.webglRenderer
+            Engine.renderer
           ).fromEquirectangular(texture).texture
         })
         break
       default:
         ;(this.sky as Mesh).visible = true
-        SceneManager.instance.scene.background = this.generateSkybox(SceneManager.instance.renderer.webglRenderer)
+        SceneManager.instance.scene.background = this.generateSkybox(Engine.renderer)
         console.log('setUpBackground', SceneManager.instance.scene.background)
         break
     }

@@ -2,6 +2,7 @@ import { Color, DirectionalLight, Vector2, CameraHelper } from 'three'
 import { ComponentNames } from '../../common/constants/ComponentNames'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { ComponentData } from '../../common/classes/ComponentData'
+import { addIsHelperFlag } from '../functions/addIsHelperFlag'
 
 export type DirectionalLightDataProps = {
   color?: Color,
@@ -23,6 +24,8 @@ export class DirectionalLightData implements ComponentData {
     this.cameraHelper = new CameraHelper(this.obj3d.shadow.camera)
     this.cameraHelper.visible = false
     this.obj3d.add(this.cameraHelper)
+
+    addIsHelperFlag(this.cameraHelper)
 
     if (props) {
       if (props.color) {

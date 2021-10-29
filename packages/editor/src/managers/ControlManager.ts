@@ -30,7 +30,7 @@ export class ControlManager {
   }
 
   initControls() {
-    this.inputManager = new InputManager(SceneManager.instance.renderer.canvas)
+    this.inputManager = new InputManager(SceneManager.instance.canvas)
     this.flyControls = new FlyControls(Engine.camera as any, this.inputManager)
     this.editorControls = new EditorControls(Engine.camera, this.inputManager, this.flyControls)
     this.playModeControls = new PlayModeControls(this.inputManager, this.editorControls, this.flyControls)

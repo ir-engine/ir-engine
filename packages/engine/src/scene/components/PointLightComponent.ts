@@ -2,6 +2,7 @@ import { Color, PointLight, Vector2, PointLightHelper, Mesh, IcosahedronBufferGe
 import { ComponentNames } from '../../common/constants/ComponentNames'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { ComponentData } from '../../common/classes/ComponentData'
+import { addIsHelperFlag } from '../functions/addIsHelperFlag'
 
 export type PointLightDataProps = {
   color?: Color,
@@ -22,6 +23,8 @@ export class PointLightData implements ComponentData {
     this.helper = new PointLightHelper(this.obj3d)
     this.helper.visible = false
     this.obj3d.add(this.helper)
+
+    addIsHelperFlag(this.helper)
 
     this.lightDistanceHelper = new Mesh(
       new IcosahedronBufferGeometry(1, 2),
