@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 /**
@@ -82,21 +82,19 @@ export const PanelContent = (styled as any).div`
  *
  *  @author Robert Long
  */
-export class Panel extends Component {
-  render() {
-    const { icon, title, children, toolbarContent, ...rest } = this.props as any
+const Panel = (props) => {
+  const { icon, title, children, toolbarContent, ...rest } = props
 
-    return (
-      <PanelContainer {...rest}>
-        <PanelToolbar className="toolbar">
-          {icon && <PanelIcon as={icon} size={12} />}
-          <PanelTitle>{title}</PanelTitle>
-          {toolbarContent}
-        </PanelToolbar>
-        <PanelContent>{children}</PanelContent>
-      </PanelContainer>
-    )
-  }
+  return (
+    <PanelContainer {...rest}>
+      <PanelToolbar className="toolbar">
+        {icon && <PanelIcon as={icon} size={12} />}
+        <PanelTitle>{title}</PanelTitle>
+        {toolbarContent}
+      </PanelToolbar>
+      <PanelContent>{children}</PanelContent>
+    </PanelContainer>
+  )
 }
 
 export default Panel
