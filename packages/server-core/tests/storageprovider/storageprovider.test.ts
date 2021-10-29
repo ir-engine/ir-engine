@@ -38,13 +38,19 @@ describe('Storage Provider test', () => {
 
     it("should return valid object url",async function (){
         const fileKey=path.join(testFolderName,testFileName)
-        const url=(await useStorageProvider().getSignedUrl(fileKey,200,{})).url
+        const url=(await useStorageProvider().getSignedUrl(fileKey,2000,{})).url
         const httpAgent=new https.Agent({
             rejectUnauthorized:false,
         })
-        const res=( fetch(url,{agent:httpAgent}))
-        assert.ok((await res).ok)
-        
+        let res
+        try{
+            res=await ( fetch(url,{agent:httpAgent}))
+        }catch(err){
+            console.log(err)
+        }
+        if(!res)
+            console.log("Make sure server is running")
+        assert.ok(res?.ok)
     })
 
     it("should delete object",async function (){
