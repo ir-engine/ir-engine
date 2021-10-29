@@ -1,5 +1,5 @@
 import i18n from 'i18next'
-import { PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, AudioListener, PropertyBinding } from 'three'
+import { PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, AudioListener, PropertyBinding, WebGLInfo, WebGLRenderer, MeshBasicMaterial, MeshNormalMaterial } from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
 import { generateImageFileThumbnail, generateVideoFileThumbnail } from '../functions/thumbnails'
@@ -16,9 +16,20 @@ import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExpor
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import PostProcessingNode from '../nodes/PostProcessingNode'
-import { Renderer } from '../renderer/Renderer'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { getAllComponentsOfType, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
+import { PostProcessingComponent } from '@xrengine/engine/src/scene/components/PostProcessingComponent'
+import { getCanvasBlob } from '../functions/thumbnails'
+import ScenePreviewCameraNode from '../nodes/ScenePreviewCameraNode'
+import makeRenderer from '../renderer/makeRenderer'
+import { RenderModes, RenderModesType } from '../constants/RenderModes'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { System } from '@xrengine/engine/src/ecs/classes/System'
 
 export class SceneManager {
   static instance: SceneManager
@@ -28,7 +39,6 @@ export class SceneManager {
     removeUnusedObjects: true
   }
 
-  renderer: Renderer
   scene: Scene
   sceneModified: boolean
   audioListener: AudioListener
@@ -40,18 +50,24 @@ export class SceneManager {
   rafId: number
   transformGizmo: TransformGizmo
   postProcessingNode: PostProcessingNode
+  canvas: HTMLCanvasElement
+  onUpdateStats: (info: WebGLInfo) => void
+  screenshotRenderer: WebGLRenderer
+  renderMode: RenderModesType
 
   static buildSceneManager() {
     this.instance = new SceneManager()
   }
 
   constructor() {
-    this.renderer = null
     this.sceneModified = false
     this.raycaster = new Raycaster()
 
     this.centerScreenSpace = new Vector2()
     this.disableUpdate = true
+
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, this.initEffectComposer)
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
   }
 
   async initializeScene(projectFile: any): Promise<Error[] | void> {
@@ -99,10 +115,6 @@ export class SceneManager {
 
     this.disableUpdate = false
     CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
-
-    configureEffectComposer()
-
-    // if (error) return error
   }
 
   /**
@@ -115,7 +127,37 @@ export class SceneManager {
   }
 
   createRenderer(canvas: HTMLCanvasElement): void {
-    this.renderer = new Renderer(canvas)
+    this.canvas = canvas
+    const renderer = makeRenderer(
+      canvas.parentElement.parentElement.offsetWidth,
+      canvas.parentElement.parentElement.offsetHeight,
+      {
+        canvas
+      }
+    )
+    renderer.setPixelRatio(window.devicePixelRatio)
+    renderer.info.autoReset = false
+    Engine.renderer = renderer
+
+    this.screenshotRenderer = makeRenderer(1920, 1080)
+
+    /** @todo */
+    // Cascaded shadow maps
+    // const csm = new CSM({
+    //   cascades: 4,
+    //   lightIntensity: 1,
+    //   shadowMapSize: 2048,
+    //   maxFar: 100,
+    //   camera: camera,
+    //   parent: SceneManager.instance.scene
+    // });
+    // csm.fade = true;
+    // Engine.csm = csm;
+  }
+
+  initEffectComposer() {
+    configureEffectComposer()
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, this.initEffectComposer)
   }
 
   /**
@@ -127,7 +169,33 @@ export class SceneManager {
    * @return {Promise}        [generated screenshot according to height and width]
    */
   async takeScreenshot(width?: number, height?: number): Promise<any> {
-    return this.renderer.takeScreenshot(width, height)
+    const { screenshotRenderer } = this
+    const originalRenderer = Engine.renderer
+    Engine.renderer = screenshotRenderer
+    SceneManager.instance.disableUpdate = true
+    let scenePreviewCamera = Engine.scene.findNodeByType(ScenePreviewCameraNode)
+    if (!scenePreviewCamera) {
+      scenePreviewCamera = new ScenePreviewCameraNode()
+      Engine.camera.matrix.decompose(
+        scenePreviewCamera.position,
+        scenePreviewCamera.rotation,
+        scenePreviewCamera.scale
+      )
+      CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, [scenePreviewCamera])
+    }
+    const prevAspect = scenePreviewCamera.aspect
+    scenePreviewCamera.aspect = width / height
+    scenePreviewCamera.updateProjectionMatrix()
+    scenePreviewCamera.layers.disable(1)
+    screenshotRenderer.setSize(width, height, true)
+    screenshotRenderer.render(SceneManager.instance.scene as any, scenePreviewCamera)
+    const blob = await getCanvasBlob(screenshotRenderer.domElement)
+    scenePreviewCamera.aspect = prevAspect
+    scenePreviewCamera.updateProjectionMatrix()
+    scenePreviewCamera.layers.enable(1)
+    SceneManager.instance.disableUpdate = false
+    Engine.renderer = originalRenderer
+    return blob
   }
 
   /**
@@ -170,9 +238,47 @@ export class SceneManager {
    */
   onResize = () => {
     ControlManager.instance.inputManager.onResize()
-    this.renderer.onResize()
+    const camera = Engine.camera as PerspectiveCamera
+    const canvas = this.canvas
+    const containerEl = canvas.parentElement.parentElement
+    camera.aspect = containerEl.offsetWidth / containerEl.offsetHeight
+
+    camera.updateProjectionMatrix()
+    Engine.renderer.setSize(containerEl.offsetWidth, containerEl.offsetHeight, false)
+    // Engine.csm.updateFrustums();
+
+    configureEffectComposer()
     CommandManager.instance.emit('resize')
   }
+
+  updateOutlinePassSelection(): any[] {
+    const components = getAllComponentsOfType(PostProcessingComponent)
+    if (!Array.isArray(components) || components.length <= 0) return
+
+    const postProcessingComponent = components[0]
+    if (!postProcessingComponent[Effects.OutlineEffect] || !postProcessingComponent[Effects.OutlineEffect].effect) {
+      return
+    }
+
+    const meshes = []
+    for (let i = 0; i < CommandManager.instance.selectedTransformRoots.length; i++) {
+      const entityNode = CommandManager.instance.selectedTransformRoots[i]
+      const object3dComponent = getComponent(entityNode.eid, Object3DComponent)
+
+      object3dComponent.value.traverse((child: any) => {
+        if (!child.disableOutline && !child.isHelper &&
+          (child.isMesh || child.isLine || child.isSprite || child.isPoints)
+        ) {
+          meshes.push(child)
+        }
+      })
+    }
+
+    postProcessingComponent[Effects.OutlineEffect].effect.selection.set(meshes)
+
+    return meshes
+  }
+
 
   /**
    * Function getSpawnPosition provides the postion of object inside scene.
@@ -210,7 +316,7 @@ export class SceneManager {
    * @returns
    */
   getCursorSpawnPosition(mousePos, target) {
-    const rect = this.renderer.canvas.getBoundingClientRect()
+    const rect = this.canvas.getBoundingClientRect()
     const position = new Vector2()
     position.x = ((mousePos.x - rect.left) / rect.width) * 2 - 1
     position.y = ((mousePos.y - rect.top) / rect.height) * -2 + 1
@@ -349,7 +455,7 @@ export class SceneManager {
       ControlManager.instance.inputManager.update(delta, time)
 
       // this.scene.traverse((node) => {
-      //   if (this.renderer.isShadowMapEnabled && node.isDirectionalLight) {
+      //   if (Engine.renderer.shadowMap.enabled && node.isDirectionalLight) {
       //     resizeShadowCameraFrustum(node, this.scene)
       //   }
 
@@ -361,8 +467,88 @@ export class SceneManager {
       ControlManager.instance.flyControls.update(delta)
       ControlManager.instance.editorControls.update()
 
-      this.renderer.update(delta, time)
+      Engine.renderer.info.reset()
+      // Engine.csm.update();
+      Engine.effectComposer
+        ? Engine.effectComposer.render(delta)
+        : Engine.renderer.render(Engine.scene as any, Engine.camera)
+
+      if (this.onUpdateStats) {
+        const renderStat = Engine.renderer.info.render as any
+        renderStat.fps = 1 / delta
+        renderStat.frameTime = delta * 1000
+        this.onUpdateStats(Engine.renderer.info)
+      }
+
       ControlManager.instance.inputManager.reset()
     }
+  }
+
+  enableShadows(status: boolean): void {
+    Engine.renderer.shadowMap.enabled = status
+    SceneManager.instance.scene.traverse((object) => {
+      if (object.setShadowsEnabled) {
+        object.setShadowsEnabled(this.enableShadows)
+      }
+    })
+  }
+
+  changeRenderMode(mode: RenderModesType) {
+    this.renderMode = mode
+    const renderPass = Engine.effectComposer.passes[0]
+
+    if (!renderPass) return
+
+    switch (mode) {
+      case RenderModes.UNLIT:
+        this.enableShadows(false)
+        renderPass.overrideMaterial = null
+        break
+      case RenderModes.LIT:
+        this.enableShadows(false)
+        renderPass.overrideMaterial = null
+        break
+      case RenderModes.SHADOW:
+        this.enableShadows(true)
+        renderPass.overrideMaterial = null
+        break
+      case RenderModes.WIREFRAME:
+        this.enableShadows(false)
+        renderPass.overrideMaterial = new MeshBasicMaterial({
+          wireframe: true
+        })
+        break
+      case RenderModes.NORMALS:
+        this.enableShadows(false)
+        renderPass.overrideMaterial = new MeshNormalMaterial()
+        break
+    }
+
+    CommandManager.instance.emitEvent(EditorEvents.RENDER_MODE_CHANGED)
+  }
+
+  dispose() {
+    Engine.renderer.dispose()
+    this.screenshotRenderer.dispose()
+    Engine.effectComposer?.dispose()
+    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
+  }
+}
+
+type EngineRendererProps = {
+  canvas: HTMLCanvasElement
+  enabled: boolean
+}
+
+
+// TODO: Probably moved to engine package or will be replaced by already available WebGLRenderSystem
+export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
+  new EngineRenderer(props)
+
+  // await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
+  // EngineRenderer.instance.dispatchSettingsChangeEvent()
+
+  return () => {
+    if (props.enabled) SceneManager.instance.update(world.delta, world.elapsedTime)
   }
 }

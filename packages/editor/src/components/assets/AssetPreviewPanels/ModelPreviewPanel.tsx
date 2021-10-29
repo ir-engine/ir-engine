@@ -79,7 +79,7 @@ export const ModelPreviewPanel = (props) => {
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
     ProjectManager.instance.init()
-    SceneManager.instance.initializeRenderer(assestPanelRef.current)
+    SceneManager.instance.createRenderer(assestPanelRef.current)
     renderScene()
     return () => {
       if (ControlManager.instance.editorControls) {
@@ -87,9 +87,6 @@ export const ModelPreviewPanel = (props) => {
           EditorEvents.FLY_MODE_CHANGED.toString(),
           onFlyModeChanged
         )
-      }
-      if (SceneManager.instance.renderer) {
-        SceneManager.instance.renderer.dispose()
       }
       ProjectManager.instance.dispose()
     }

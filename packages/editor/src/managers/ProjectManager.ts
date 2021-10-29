@@ -44,7 +44,7 @@ export class ProjectManager {
       publicPath: location.origin,
       systems: [
         {
-          systemModulePromise: import('../renderer/Renderer'),
+          systemModulePromise: import('./SceneManager'),
           type: SystemUpdateType.PRE_RENDER,
           args: { enabled: true }
         }
@@ -129,9 +129,6 @@ export class ProjectManager {
 
   dispose() {
     CacheManager.clearCaches()
-
-    if (SceneManager.instance.renderer) {
-      SceneManager.instance.renderer.dispose()
-    }
+    SceneManager.instance.dispose()
   }
 }

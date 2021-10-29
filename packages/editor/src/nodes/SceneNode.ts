@@ -1,4 +1,5 @@
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
@@ -191,7 +192,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   async setUpEnvironmentMapTexture() {
-    const pmremGenerator = new PMREMGenerator(SceneManager.instance.renderer.webglRenderer)
+    const pmremGenerator = new PMREMGenerator(Engine.renderer)
     switch (this.envMapTextureType) {
       case EnvMapTextureType.Equirectangular:
         try {
@@ -284,7 +285,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       data[i + 1] = Math.floor(col.g * 255)
       data[i + 2] = Math.floor(col.b * 255)
     }
-    const pmren = new PMREMGenerator(SceneManager.instance.renderer.webglRenderer)
+    const pmren = new PMREMGenerator(Engine.renderer)
     const texture = new DataTexture(data, resolution, resolution, RGBFormat)
     texture.encoding = sRGBEncoding
     this.environment = pmren.fromEquirectangular(texture).texture

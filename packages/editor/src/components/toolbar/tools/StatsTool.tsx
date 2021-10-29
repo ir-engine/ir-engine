@@ -17,7 +17,7 @@ const StatsTool = () => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    SceneManager.instance.renderer.onUpdateStats = (info) => {
+    SceneManager.instance.onUpdateStats = (info) => {
       if (info.render.frame % 3 === 0) {
         setInfo({
           geometries: info.memory.geometries,
@@ -33,7 +33,7 @@ const StatsTool = () => {
     }
 
     return () => {
-      SceneManager.instance.renderer.onUpdateStats = undefined
+      SceneManager.instance.onUpdateStats = undefined
     }
   }, [])
 
