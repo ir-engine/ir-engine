@@ -28,7 +28,7 @@ const StyledNodeEditor = (styled as any).div`
  * @author Robert Long
  */
 const PropertiesHeader = (styled as any).div`
-  background-color: ${(props) => props.theme.panel2};
+  background-color: ${(props) => theme.panel2};
   border: none !important;
   padding-bottom: 0 !important;
 `
@@ -169,16 +169,15 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
     const selected = CommandManager.instance.selected
 
     let content
+    let activeNode
+    let showNodeEditor = true
+    const multiEdit = selected.length > 1
 
     if (selected.length === 0) {
       content = <NoNodeSelectedMessage>{this.props.t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
     } else {
-      const activeNode = selected[selected.length - 1]
+      activeNode = selected[selected.length - 1]
       const NodeEditor = NodeManager.instance.getEditorFromNode(activeNode) || DefaultNodeEditor
-
-      const multiEdit = selected.length > 1
-
-      let showNodeEditor = true
 
       for (let i = 0; i < selected.length - 1; i++) {
         if (NodeManager.instance.getEditorFromNode(selected[i]) !== NodeEditor) {
@@ -186,49 +185,47 @@ class PropertiesPanelContainer extends Component<{ t: Function }> {
           break
         }
       }
+    }
 
-      let nodeEditor
+    let nodeEditor
 
-      if (showNodeEditor) {
-        nodeEditor = <NodeEditor multiEdit={multiEdit} node={activeNode} />
-      } else {
-        nodeEditor = (
-          <NoNodeSelectedMessage>{this.props.t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
-        )
-      }
-
-      const disableTransform = selected.some((node) => node.disableTransform)
-      const haveStaticTags = selected.some((node) => node.haveStaticTags)
-
-      content = (
-        <StyledNodeEditor>
-          <PropertiesHeader>
-            <NameInputGroupContainer>
-              <NameInputGroup node={activeNode} />
-              {activeNode.nodeName !== 'Scene' && (
-                <>
-                  <VisibleInputGroup name="Visible" label={this.props.t('editor:properties.lbl-visible')}>
-                    <BooleanInput value={activeNode.visible} onChange={this.onChangeVisible} />
-                  </VisibleInputGroup>
-                  {haveStaticTags && (
-                    <VisibleInputGroup name="Bake Static" label="Bake Static">
-                      <BooleanInput value={activeNode.includeInCubemapBake} onChange={this.onChangeBakeStatic} />
-                    </VisibleInputGroup>
-                  )}
-                </>
-              )}
-            </NameInputGroupContainer>
-            <PersistInputGroup name="Persist" label={this.props.t('editor:properties.lbl-persist')}>
-              <BooleanInput value={activeNode.persist} onChange={this.onChangePersist} />
-            </PersistInputGroup>
-            {!disableTransform && <TransformPropertyGroup node={activeNode} />}
-          </PropertiesHeader>
-          {nodeEditor}
-        </StyledNodeEditor>
+    if (showNodeEditor) {
+      nodeEditor = <NodeEditor multiEdit={multiEdit} node={activeNode} />
+    } else {
+      nodeEditor = (
+        <NoNodeSelectedMessage>{this.props.t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
       )
     }
 
-    return <PropertiesPanelContent>{content}</PropertiesPanelContent>
+    const disableTransform = selected.some((node) => node.disableTransform)
+    const haveStaticTags = selected.some((node) => node.haveStaticTags)
+
+    content = (
+      <StyledNodeEditor>
+        <PropertiesHeader>
+          <NameInputGroupContainer>
+            <NameInputGroup node={activeNode} />
+            {activeNode.nodeName !== 'Scene' && (
+              <>
+                <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
+                  <BooleanInput value={activeNode.visible} onChange={onChangeVisible} />
+                </VisibleInputGroup>
+                {haveStaticTags && (
+                  <VisibleInputGroup name="Bake Static" label="Bake Static">
+                    <BooleanInput value={activeNode.includeInCubemapBake} onChange={onChangeBakeStatic} />
+                  </VisibleInputGroup>
+                )}
+              </>
+            )}
+          </NameInputGroupContainer>
+          <PersistInputGroup name="Persist" label={this.props.t('editor:properties.lbl-persist')}>
+            <BooleanInput value={activeNode.persist} onChange={this.onChangePersist} />
+          </PersistInputGroup>
+          {!disableTransform && <TransformPropertyGroup node={activeNode} />}
+        </PropertiesHeader>
+        {nodeEditor}
+      </StyledNodeEditor>
+    )
   }
 }
 

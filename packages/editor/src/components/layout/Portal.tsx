@@ -11,17 +11,17 @@ const Portal = (props) => {
 
   useEffect(() => {
     document.body.appendChild(el)
-  }, [])
 
-  useEffect(() => {
-    try {
-      if (el) {
-        document.body.removeChild(el)
+    return () => {
+      try {
+        if (el) {
+          document.body.removeChild(el)
+        }
+      } catch (err) {
+        console.warn(`Error removing Portal element: ${err}`)
       }
-    } catch (err) {
-      console.warn(`Error removing Portal element: ${err}`)
     }
-  }, null)
+  }, [])
 
   return createPortal(props.children, el)
 }
