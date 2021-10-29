@@ -135,6 +135,14 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (Math.abs(newVelocity.y) > 1) newVelocity.y /= Math.abs(newVelocity.y)
   if (Math.abs(newVelocity.z) > 1) newVelocity.z /= Math.abs(newVelocity.z)
 
+  // min velocity of 0.001
+  if (Math.abs(velocity.velocity.x) < 0.001) velocity.velocity.x = 0
+  if (Math.abs(velocity.velocity.y) < 0.001) velocity.velocity.y = 0
+  if (Math.abs(velocity.velocity.z) < 0.001) velocity.velocity.z = 0
+  if (Math.abs(newVelocity.x) < 0.001) newVelocity.x = 0
+  if (Math.abs(newVelocity.y) < 0.001) newVelocity.y = 0
+  if (Math.abs(newVelocity.z) < 0.001) newVelocity.z = 0
+
   const displacement = {
     x: newVelocity.x,
     y: velocity.velocity.y,
