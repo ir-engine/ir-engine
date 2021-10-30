@@ -7,8 +7,7 @@ LABEL=$2
 PRIVATE_ECR=$3
 REGION=$4
 
-echo $PRIVATE_ECR
-if [[ $PRIVATE_ECR == "true" ]]
+if [ $PRIVATE_ECR == "true" ]
 then
   aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $ECR_URL
 else

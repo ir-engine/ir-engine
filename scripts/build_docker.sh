@@ -10,8 +10,7 @@ REGION=$4
 docker container prune --force
 docker image prune --force
 
-echo $PRIVATE_ECR
-if [[ $PRIVATE_ECR == "true" ]]
+if [ $PRIVATE_ECR == "true" ]
 then
   aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $ECR_URL
 else
