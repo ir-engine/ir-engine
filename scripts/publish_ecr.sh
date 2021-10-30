@@ -8,8 +8,7 @@ LABEL=$3
 REGION=$4
 PRIVATE_ECR=$5
 
-echo $PRIVATE_ECR
-if [[ $PRIVATE_ECR == "true" ]]
+if [ $PRIVATE_ECR == "true" ]
 then
   aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $ECR_URL
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME --region us-east-1 --public false
