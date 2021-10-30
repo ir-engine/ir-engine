@@ -7,7 +7,10 @@ import createAssetModel from './asset.model'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { getCachedAsset } from '../../media/storageprovider/storageProviderUtils'
 
+const sceneSuffix = '.scene.json'
 declare module '../../../declarations' {
   interface ServiceTypes {
     scene: Scene
@@ -18,7 +21,7 @@ declare module '../../../declarations' {
 }
 
 const getScenesForProject = (app: Application) => {
-  return async function ({ projectName }, params) {
+  return async function ({ projectName, metadataOnly }, params) {
     const project = await app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
@@ -28,9 +31,19 @@ const getScenesForProject = (app: Application) => {
       .readdirSync(newSceneJsonPath, { withFileTypes: true })
       .filter((dirent) => !dirent.isDirectory())
       .map((dirent) => dirent.name)
-      .filter((name) => name.endsWith('.scene.json'))
+      .filter((name) => name.endsWith(sceneSuffix))
+      .map((name) => name.slice(0, -sceneSuffix.length))
 
-    const sceneData = files.map((name) => JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath, name), 'utf8')))
+    const sceneData: SceneDetailInterface[] = files.map((name) => {
+      const sceneThumbnailPath = getCachedAsset(`/${projectName}/${name}.thumbnail.png`)
+      return {
+        name,
+        thumbnailUrl: sceneThumbnailPath,
+        scene:
+          metadataOnly &&
+          (JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath, name + sceneSuffix), 'utf8')) as SceneJson)
+      }
+    })
 
     return {
       data: sceneData

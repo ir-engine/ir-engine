@@ -22,19 +22,18 @@ export const SceneService = {
     // dispatch(SceneAction.scenesFetched(scenes))
   },
 
-  fetchProjectScenes: async (projectName: string) => {
+  deleteScene: async (sceneId: string) => {},
+
+  getScene: async (projectName: string) => {
     const dispatch = useDispatch()
-    const scenes = await client.service('scenes').find({ query: { projectName } })
+    const scenes = await client.service('scenes').get({ projectName })
     dispatch(SceneAction.scenesFetched(scenes))
   },
-
-  deleteScene: async (sceneId: string) => {},
 
   createScene: async (projectName: string, sceneName: string) => {
     const dispatch = useDispatch()
     const result = await client.service('scene').create({ projectName, sceneName })
     console.log('Upload project result', result)
     dispatch(SceneAction.sceneCreated())
-    SceneService.fetchProjectScenes(projectName)
   }
 }

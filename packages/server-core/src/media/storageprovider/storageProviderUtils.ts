@@ -16,3 +16,8 @@ export const getFileKeysRecursive = async (path: string) => {
   }
   return files
 }
+
+export const getCachedAsset = (path: string) => {
+  console.log(storageProvider.cacheDomain, path)
+  return path && storageProvider.cacheDomain ? new URL(path, 'https://' + storageProvider.cacheDomain).href : ''
+}

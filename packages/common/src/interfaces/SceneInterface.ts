@@ -5,15 +5,15 @@ export interface SceneJson {
   version: number
 }
 
-export interface SceneInterface extends SceneJson {
-  id: string
-  user_id: string
-  isPublic: boolean
-  name: string
-  sidsid: string
-  type: string
-  url: string
-}
+// export interface SceneInterface extends SceneJson {
+//   id: string
+//   user_id: string
+//   isPublic: boolean
+//   name: string
+//   sidsid: string
+//   type: string
+//   url: string
+// }
 
 // TODO
 export interface SceneDetailData {
@@ -27,12 +27,12 @@ export interface SceneDetailData {
 
 export interface SceneDetailInterface {
   name: string
-  parent_scene: SceneDetailData
-  scene_id: string
-  scene_url: string
-  scene: SceneDetailData
   thumbnailUrl: string
-  ownedFileIds: string
+  scene?: SceneJson
+  // parent_scene: SceneDetailData
+  // scene_id: string
+  // scene_url: string
+  // ownedFileIds: string
 }
 
 export interface SceneSaveInterface {

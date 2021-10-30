@@ -7,30 +7,16 @@ import {
 } from './scene-helper'
 import { Application } from '../../../declarations'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import {
-  SceneDetailInterface,
-  SceneInterface,
-  SceneSaveInterface
-} from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneDetailInterface, SceneJson, SceneSaveInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import fs from 'fs'
 import path from 'path'
 import appRootPath from 'app-root-path'
+import { getCachedAsset } from '../../media/storageprovider/storageProviderUtils'
+import { cleanString } from '../../util/cleanString'
 
 interface Data {}
 interface ServiceOptions {}
-
-interface PatchData {
-  // scene: SceneSaveInterface
-  userId: string
-  ownedFileId: string
-  name: string
-  thumbnailOwnedFileId: {
-    file_id: string
-    file_token: string
-  }
-  ownedFileIds: string // as stringified JSON ??
-}
 
 export class Scene implements ServiceMethods<Data> {
   app: Application
@@ -45,10 +31,10 @@ export class Scene implements ServiceMethods<Data> {
   async setup() {}
 
   async find(params: Params): Promise<any> {
-    console.log('find scene', params, params.query.projectName)
+    throw new Error('scene.find is not supported')
   }
 
-  async get({ projectName, sceneName }, params?: Params): Promise<SceneDetailInterface> {
+  async get({ projectName, sceneName, metadataOnly }, params?: Params): Promise<SceneDetailInterface> {
     console.log('get scene', projectName, sceneName)
 
     const project = await this.app.service('project').get(projectName, params)
@@ -61,7 +47,13 @@ export class Scene implements ServiceMethods<Data> {
     if (!fs.existsSync(newSceneJsonPath))
       throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
 
-    const sceneData = JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8'))
+    const sceneThumbnailPath = getCachedAsset(`/${projectName}/${sceneName}.thumbnail.png`)
+
+    const sceneData: SceneDetailInterface = {
+      name: sceneName,
+      thumbnailUrl: sceneThumbnailPath,
+      scene: metadataOnly && (JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')) as SceneJson)
+    }
     console.log(sceneData)
 
     return sceneData
@@ -69,14 +61,14 @@ export class Scene implements ServiceMethods<Data> {
 
   async create({ projectName, sceneName }, params: Params): Promise<any> {
     console.log('create new scene', projectName, sceneName)
-    console.log(projectName)
+    const name = cleanString(sceneName)
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
     const newSceneJsonPath = path.resolve(
       appRootPath.path,
-      `packages/projects/projects/${projectName}/${sceneName}.scene.json`
+      `packages/projects/projects/${projectName}/${name}.scene.json`
     )
     if (!fs.existsSync(newSceneJsonPath)) {
       fs.writeFileSync(path.resolve(newSceneJsonPath), JSON.stringify({}, null, 2))
@@ -87,7 +79,7 @@ export class Scene implements ServiceMethods<Data> {
     return data
   }
 
-  async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}
+  // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}
 
-  async remove(id: NullableId, params?: Params): Promise<Data> {}
+  // async remove(id: NullableId, params?: Params): Promise<Data> {}
 }

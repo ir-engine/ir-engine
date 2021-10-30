@@ -12,6 +12,7 @@ import { useGit } from '../../util/gitHelperFunctions'
 import { deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
 import templateProjectJson from './template-project.json'
+import { cleanString } from '../../util/cleanString'
 
 console.log(templateProjectJson)
 
@@ -88,7 +89,7 @@ export class Project extends Service {
 
   async create(data: { name: string }, params: Params) {
     // make alphanumeric period, underscore, dash
-    const projectName = data.name.replaceAll(' ', '-').replace(/[^\w\.\-]/g, '')
+    const projectName = cleanString(data.name)
     console.log(projectName)
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)

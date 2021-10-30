@@ -1,9 +1,5 @@
 import i18n from 'i18next'
-import {
-  SceneDetailInterface,
-  SceneInterface,
-  SceneSaveInterface
-} from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneDetailInterface, SceneSaveInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { upload } from '@xrengine/client-core/src/util/upload'
 import { ProjectManager } from '../managers/ProjectManager'
 import { SceneManager } from '../managers/SceneManager'
@@ -16,7 +12,7 @@ import { client } from '@xrengine/client-core/src/feathers'
  */
 export const getScenes = async (projectName: string): Promise<SceneDetailInterface[]> => {
   try {
-    const { data } = await client.service('scenes').get({ projectName })
+    const { data } = await client.service('scenes').get({ projectName, metadataOnly: true })
     return data
   } catch (error) {
     console.log('Error in Getting Project:' + error)
@@ -32,7 +28,7 @@ export const getScenes = async (projectName: string): Promise<SceneDetailInterfa
  */
 export const getScene = async (projectName: string, sceneName: string): Promise<SceneDetailInterface> => {
   try {
-    return await client.service('scene').get({ projectName, sceneName })
+    return await client.service('scene').get({ projectName, sceneName, metadataOnly: true })
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)
