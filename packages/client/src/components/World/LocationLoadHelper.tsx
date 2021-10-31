@@ -54,12 +54,12 @@ export type EngineCallbacks = {
   onSuccess?: Function
 }
 
-export const getSceneData = async (sceneId: string, isOffline: boolean): Promise<SceneData> => {
+export const getSceneData = async (sceneName: string, isOffline: boolean): Promise<SceneData> => {
   if (isOffline) {
-    return testScenes[sceneId] || testScenes.test
+    return testScenes[sceneName] || testScenes.test
   }
 
-  const sceneResult = await client.service('scene').get(sceneId)
+  const sceneResult = await client.service('scene').get(sceneName)
   store.dispatch(SceneAction.setCurrentScene(sceneResult))
 
   const sceneUrl = sceneResult.scene_url
@@ -115,14 +115,14 @@ const createOfflineUser = (sceneData: SceneData) => {
 }
 
 export const initEngine = async (
-  sceneId: string,
+  sceneName: string,
   initOptions: InitializeOptions,
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
   engineCallbacks?: EngineCallbacks,
   connectToInstanceServer: boolean = true
 ): Promise<any> => {
   // 1.
-  const sceneData = await getSceneData(sceneId, false)
+  const sceneData = await getSceneData(sceneName, false)
 
   const packs = await getPacksFromSceneData(sceneData, true)
 

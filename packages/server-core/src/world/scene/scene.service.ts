@@ -1,9 +1,7 @@
 import { Application } from '../../../declarations'
 import { Scene } from './scenenew.class'
 import projectDocs from './scene.docs'
-import createModel from './scene.model'
 import hooks from './scene.hooks'
-import createAssetModel from './asset.model'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
@@ -14,9 +12,6 @@ const sceneSuffix = '.scene.json'
 declare module '../../../declarations' {
   interface ServiceTypes {
     scene: Scene
-  }
-  interface Models {
-    scene: ReturnType<typeof createModel>
   }
 }
 
@@ -52,19 +47,12 @@ export const getScenesForProject = (app: Application) => {
 }
 
 export default (app: Application) => {
-  createAssetModel(app)
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
-
   /**
    * Initialize our service with any options it requires and docs
    *
    * @author Vyacheslav Solovjov
    */
-  const event = new Scene(options, app)
+  const event = new Scene(app)
   event.docs = projectDocs
 
   app.use('scene', event)

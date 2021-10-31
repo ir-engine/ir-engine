@@ -1,30 +1,17 @@
-import { Params, NullableId, ServiceMethods } from '@feathersjs/feathers'
-import {
-  mapSceneDetailData,
-  defaultSceneImport,
-  readJSONFromBlobStore,
-  mapSceneTemplateDetailData
-} from './scene-helper'
+import { Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { SceneDetailInterface, SceneJson, SceneSaveInterface } from '@xrengine/common/src/interfaces/SceneInterface'
-
+import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import fs from 'fs'
 import path from 'path'
 import appRootPath from 'app-root-path'
 import { getCachedAsset } from '../../media/storageprovider/storageProviderUtils'
 import { cleanString } from '../../util/cleanString'
 
-interface Data {}
-interface ServiceOptions {}
-
-export class Scene implements ServiceMethods<Data> {
+export class Scene implements ServiceMethods<any> {
   app: Application
-  options: ServiceOptions
   docs: any
 
-  constructor(options: ServiceOptions = {}, app: Application) {
-    this.options = options
+  constructor(app: Application) {
     this.app = app
   }
 
@@ -52,9 +39,7 @@ export class Scene implements ServiceMethods<Data> {
     const sceneData: SceneDetailInterface = {
       name: sceneName,
       thumbnailUrl: sceneThumbnailPath,
-      scene: metadataOnly
-        ? undefined
-        : (JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')) as SceneJson)
+      scene: metadataOnly ? undefined : JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8'))
     }
 
     return {
@@ -77,8 +62,20 @@ export class Scene implements ServiceMethods<Data> {
     }
   }
 
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
+  async update(projectName: string, { sceneName, sceneData }, params?: Params): Promise<any> {
+    const project = await this.app.service('project').get(projectName, params)
+    if (!project.data) throw new Error(`No project named ${projectName} exists`)
+
+    const newSceneJsonPath = path.resolve(
+      appRootPath.path,
+      `packages/projects/projects/${projectName}/${sceneName}.scene.json`
+    )
+
+    if (fs.existsSync(newSceneJsonPath)) {
+      fs.writeFileSync(path.resolve(newSceneJsonPath), JSON.stringify(sceneData, null, 2))
+    } else {
+      throw new Error(`No scene named ${sceneName} exist in project ${projectName}`)
+    }
   }
 
   // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}
