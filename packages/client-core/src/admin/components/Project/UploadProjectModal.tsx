@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
 import styles from './Projects.module.scss'
-import { uploadProject } from '../../state/ProjectService'
+import { uploadProject } from '../../services/ProjectService'
 import { useDispatch } from '../../../store'
 import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'

@@ -23,9 +23,9 @@ import SubjectIcon from '@mui/icons-material/Subject'
 
 import TextField from '@mui/material/TextField'
 
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {

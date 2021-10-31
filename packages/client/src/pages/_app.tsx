@@ -1,6 +1,6 @@
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import { Config } from '@xrengine/common/src/config'
-import { AuthAction } from '@xrengine/client-core/src/user/state/AuthService'
+import { AuthAction } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { theme } from '@xrengine/client-core/src/theme'
 import React, { useCallback, useEffect } from 'react'

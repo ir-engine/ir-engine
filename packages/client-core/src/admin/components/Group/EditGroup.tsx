@@ -10,10 +10,10 @@ import { formValid } from './validation'
 
 import { useDispatch } from '../../../store'
 import Autocomplete from '@mui/material/Autocomplete'
-import { ScopeService } from '../../state/ScopeService'
-import { useScopeState } from '../../state/ScopeService'
-import { useAuthState } from '../../../user/state/AuthService'
-import { GroupService } from '../../state/GroupService'
+import { ScopeService } from '../../services/ScopeService'
+import { useScopeState } from '../../services/ScopeService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { GroupService } from '../../services/GroupService'
 import { useGroupStyles, useGroupStyle } from './styles'
 
 interface Props {

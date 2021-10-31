@@ -26,15 +26,15 @@ import CreatorAsTitle from '../CreatorAsTitle'
 // @ts-ignore
 import styles from './FeedCard.module.scss'
 import SimpleModal from '../SimpleModal'
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
 
-import { FeedFiresService } from '@xrengine/client-core/src/social/state/FeedFiresService'
-import { FeedLikesService } from '../../state/FeedLikesService'
+import { FeedFiresService } from '@xrengine/client-core/src/social/services/FeedFiresService'
+import { FeedLikesService } from '../../services/FeedLikesService'
 
 import { useTranslation } from 'react-i18next'
 
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
-import { FeedReportsService } from '../../state/FeedReportsService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { FeedReportsService } from '../../services/FeedReportsService'
 import { Share } from '@capacitor/share'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'

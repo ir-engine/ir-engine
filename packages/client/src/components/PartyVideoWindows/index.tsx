@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import styles from './PartyVideoWindows.module.scss'
 import PartyParticipantWindow from '../PartyParticipantWindow'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
-import { useUserState } from '@xrengine/client-core/src/user/state/UserService'
-import { UserService } from '@xrengine/client-core/src/user/state/UserService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { UserService } from '@xrengine/client-core/src/user/services/UserService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { State, Downgraded } from '@hookstate/core'
 import { User } from '@xrengine/common/src/interfaces/User'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/state/MediaStreamService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 
 interface Props {}
 

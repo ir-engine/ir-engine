@@ -4,8 +4,8 @@
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { TheFeedsService } from '@xrengine/client-core/src/social/state/TheFeedsService'
-import { useTheFeedsState } from '@xrengine/client-core/src/social/state/TheFeedsService'
+import { TheFeedsService } from '@xrengine/client-core/src/social/services/TheFeedsService'
+import { useTheFeedsState } from '@xrengine/client-core/src/social/services/TheFeedsService'
 
 import TheFeedsCard from '../TheFeedsCard'
 

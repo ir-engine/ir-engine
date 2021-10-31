@@ -25,22 +25,22 @@ import {
   PhoneIphone,
   SupervisedUserCircle
 } from '@mui/icons-material'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
-import { useFriendState } from '@xrengine/client-core/src/social/state/FriendService'
-import { FriendService } from '@xrengine/client-core/src/social/state/FriendService'
-import { useGroupState } from '@xrengine/client-core/src/social/state/GroupService'
-import { GroupService } from '@xrengine/client-core/src/social/state/GroupService'
-import { InviteService } from '@xrengine/client-core/src/social/state/InviteService'
-import { useInviteState } from '@xrengine/client-core/src/social/state/InviteService'
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationService'
-import { LocationService } from '@xrengine/client-core/src/social/state/LocationService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
+import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
+import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
+import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
+import { useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { usePartyState } from '@xrengine/client-core/src/social/state/PartyService'
+import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import styles from './Right.module.scss'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 interface Props {
   rightDrawerOpen?: any

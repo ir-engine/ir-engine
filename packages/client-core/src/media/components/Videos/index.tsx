@@ -2,9 +2,9 @@ import React, { useEffect } from 'react'
 import styles from './Videos.module.scss'
 import Button from '@mui/material/Button'
 import { useDispatch } from '../../../store'
-import { PublicVideo } from '../../state/VideoService'
-import { useVideoState } from '../../state/VideoService'
-import { VideoService } from '../../state/VideoService'
+import { PublicVideo } from '../../services/VideoActions'
+import { useVideoState } from '../../services/VideoStatece'
+import { VideoService } from '../../services/VideoService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {}

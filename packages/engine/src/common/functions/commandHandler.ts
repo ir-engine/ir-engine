@@ -20,7 +20,7 @@ import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 import { isBot } from './isBot'
 import { Engine } from '../../ecs/classes/Engine'
-// import { accessChatState } from '@xrengine/client-core/src/social/state/ChatService'
+// import { accessChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { Entity } from '../../ecs/classes/Entity'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 

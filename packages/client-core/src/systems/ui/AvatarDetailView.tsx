@@ -1,6 +1,6 @@
 import React from 'react'
 import { createState } from '@hookstate/core'
-import { useUserState } from '../../user/state/UserService'
+import { useUserState } from '../../user/services/UserService'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 

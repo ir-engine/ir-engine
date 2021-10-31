@@ -1,5 +1,5 @@
 // import {Stories} from '@xrengine/social/src/components/Stories';
-import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/state/AuthService'
+import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import React, { useEffect, useState } from 'react'
 
@@ -18,10 +18,10 @@ import ArMediaPopup from '@xrengine/social/src/components/popups/ArMediaPopup'
 import FeedFormPopup from '@xrengine/social/src/components/popups/FeedFormPopup'
 import SharedFormPopup from '@xrengine/social/src/components/popups/SharedFormPopup'
 import WebXRStart from '@xrengine/social/src/components/popups/WebXR'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
-import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeService'
-import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/services/WebxrNativeService'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/services/WebxrNativeService'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 // @ts-ignore
@@ -34,7 +34,7 @@ import Splash from '@xrengine/social/src/components/Splash'
 import TermsAndPolicy from '@xrengine/social/src/components/TermsandPolicy'
 import Blocked from '@xrengine/social/src/components/Blocked'
 // import { WebXRStart } from '../components/popups/WebXR'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Redirect } from 'react-router-dom'
 
 import App from './App'

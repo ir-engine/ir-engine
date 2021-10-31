@@ -19,10 +19,10 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 // import SimpleModal from '../SimpleModal';
 // @ts-ignore
 import styles from './CreatorCard.module.scss'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material'
 import SimpleModal from '../SimpleModal'
 

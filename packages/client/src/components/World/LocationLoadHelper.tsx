@@ -1,10 +1,10 @@
-import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/state/AppService'
+import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/services/AppService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { Config } from '@xrengine/common/src/config'
-import { LocationService } from '@xrengine/client-core/src/social/state/LocationService'
+import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { store } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { SceneAction } from '@xrengine/client-core/src/world/state/SceneService'
+import { SceneAction } from '@xrengine/client-core/src/world/services/SceneService'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -23,7 +23,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 

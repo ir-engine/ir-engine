@@ -5,11 +5,11 @@ import Card from '@mui/material/Card'
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import styles from './ShareForm.module.scss'
 import { Plugins } from '@capacitor/core'
 import { useTranslation } from 'react-i18next'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import { Share } from '@capacitor/share'
 
 interface Props {}

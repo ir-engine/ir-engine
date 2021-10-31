@@ -14,7 +14,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from '../../pages/projectUtility'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { getProjects } from '../../functions/projectFunctions'
 
 type Props = {

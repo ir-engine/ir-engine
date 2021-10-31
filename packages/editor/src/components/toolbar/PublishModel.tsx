@@ -15,15 +15,15 @@ import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { LocationService } from '@xrengine/client-core/src/admin/state/LocationService'
+import { LocationService } from '@xrengine/client-core/src/admin/services/LocationService'
 
 import styles from './styles.module.scss'
 import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { useSceneState } from '@xrengine/client-core/src/admin/state/SceneService'
-import { useLocationState } from '@xrengine/client-core/src/admin/state/LocationService'
+import { useSceneState } from '@xrengine/client-core/src/admin/services/SceneService'
+import { useLocationState } from '@xrengine/client-core/src/admin/services/LocationService'
 import { useParams } from 'react-router-dom'
-import { ScenesService } from '@xrengine/client-core/src/world/state/SceneService'
+import { ScenesService } from '@xrengine/client-core/src/world/services/SceneService'
 
 interface Props {
   open: boolean

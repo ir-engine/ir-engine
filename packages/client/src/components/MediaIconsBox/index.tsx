@@ -12,7 +12,7 @@ import {
   pauseProducer,
   resumeProducer
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import {
   startFaceTracking,
   startLipsyncTracking,
@@ -23,11 +23,11 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { useChatState } from '@xrengine/client-core/src/social/state/ChatService'
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationService'
-import { useChannelConnectionState } from '@xrengine/client-core/src/common/state/ChannelConnectionService'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/state/MediaStreamService'
-import { MediaStreamService } from '@xrengine/client-core/src/media/state/MediaStreamService'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 
 const MediaIconsBox = (props) => {
   const [xrSupported, setXRSupported] = useState(false)

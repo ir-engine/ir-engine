@@ -11,9 +11,9 @@ import Container from '@mui/material/Container'
 import styles from './Admin.module.scss'
 import VideoModal from './VideoModal'
 import { useHistory } from 'react-router-dom'
-import { useVideoState } from '../../media/state/VideoService'
-import { useAuthState } from '../../user/state/AuthService'
-import { AdminService } from '../state/AdminService'
+import { useVideoState } from '../../media/services/VideoService'
+import { useAuthState } from '../../user/services/AuthService'
+import { AdminService } from '../services/AdminService'
 
 interface Props {}
 

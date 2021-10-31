@@ -12,9 +12,9 @@ import InputBase from '@mui/material/InputBase'
 import IconButton from '@mui/material/IconButton'
 import { Icon } from '@iconify/react'
 import { useDispatch } from '../../../store'
-import { useServerSettingState } from '../../state/Setting/ServerSettingService'
-import { ServerSettingService } from '../../state/Setting/ServerSettingService'
-import { useAuthState } from '../../../user/state/AuthService'
+import { useServerSettingState } from '../../services/Setting/ServerSettingService'
+import { ServerSettingService } from '../../services/Setting/ServerSettingService'
+import { useAuthState } from '../../../user/services/AuthService'
 
 interface serverProps {
   fetchServerSettings?: any

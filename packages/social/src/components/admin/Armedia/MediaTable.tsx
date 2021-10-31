@@ -16,7 +16,7 @@ import Typography from '@mui/material/Typography'
 import ViewMedia from './ViewMedia'
 import { useARMediaStyles } from './styles'
 import Grid from '@mui/material/Grid'
-import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
+import { ArMediaService } from '@xrengine/client-core/src/social/services/ArMediaService'
 import { ArMedia } from '@xrengine/common/src/interfaces/ArMedia'
 
 interface Props {

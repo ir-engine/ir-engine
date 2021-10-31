@@ -10,11 +10,11 @@ import DialogActions from '@mui/material/DialogActions'
 import { formValid } from './validation'
 import { useDispatch } from '../../../store'
 import Autocomplete from '@mui/material/Autocomplete'
-import { GroupService } from '../../state/GroupService'
+import { GroupService } from '../../services/GroupService'
 import TextField from '@mui/material/TextField'
-import { useScopeState } from '../../state/ScopeService'
-import { useAuthState } from '../../../user/state/AuthService'
-import { ScopeService } from '../../state/ScopeService'
+import { useScopeState } from '../../services/ScopeService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { ScopeService } from '../../services/ScopeService'
 
 interface Props {
   open: boolean

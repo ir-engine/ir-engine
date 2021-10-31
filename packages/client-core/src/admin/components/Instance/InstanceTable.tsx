@@ -6,13 +6,13 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
-import { useAuthState } from '../../../user/state/AuthService'
-import { InstanceService } from '../../state/InstanceService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { InstanceService } from '../../services/InstanceService'
 import { useDispatch } from '../../../store'
 import { instanceColumns, InstanceData } from './variables'
-import { useInstanceState } from '../../state/InstanceService'
+import { useInstanceState } from '../../services/InstanceService'
 import { useInstanceStyle, useInstanceStyles } from './styles'
-import { INSTNCE_PAGE_LIMIT } from '../../state/InstanceService'
+import { INSTNCE_PAGE_LIMIT } from '../../services/InstanceService'
 
 interface Props {
   fetchAdminState?: any

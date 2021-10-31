@@ -7,7 +7,7 @@ import { DialogActions } from '@mui/material'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { validateCreatorForm } from './validation'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 
 interface Props {
   adminCreator: any

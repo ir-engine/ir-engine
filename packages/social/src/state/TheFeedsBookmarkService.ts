@@ -1,7 +1,7 @@
 /**
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
-import { AlertService } from '@xrengine/client-core/src/common/state/AlertService'
+import { AlertService } from '@xrengine/client-core/src/common/services/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { TheFeedsBookmarkAction } from './TheFeedsBookmarkActions'

@@ -18,11 +18,11 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import Switch from '@mui/material/Switch'
 import { useTranslation } from 'react-i18next'
-import { useLocationState } from '../../state/LocationService'
-import { useSceneState } from '../../state/SceneService'
-import { LocationService } from '../../state/LocationService'
+import { useLocationState } from '../../services/LocationService'
+import { useSceneState } from '../../services/SceneService'
+import { LocationService } from '../../services/LocationService'
 import { validateUserForm } from '../Users/validation'
-import { useAlertState } from '../../../common/state/AlertService'
+import { useAlertState } from '../../../common/services/AlertService'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />

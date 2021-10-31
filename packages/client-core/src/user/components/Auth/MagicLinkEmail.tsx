@@ -10,8 +10,8 @@ import Checkbox from '@mui/material/Checkbox'
 import { Link } from 'react-router-dom'
 import { Config } from '@xrengine/common/src/config'
 import styles from './Auth.module.scss'
-import { AuthService } from '../../state/AuthService'
-import { useAuthState } from '../../state/AuthService'
+import { AuthService } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {

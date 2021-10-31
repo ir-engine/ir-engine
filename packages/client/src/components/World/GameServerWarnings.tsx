@@ -4,9 +4,9 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 type GameServerWarningsProps = {
   isTeleporting: boolean

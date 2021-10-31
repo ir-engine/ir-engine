@@ -6,10 +6,10 @@ import Button from '@mui/material/Button'
 import { Send, FileCopy } from '@mui/icons-material'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import styles from '../UserMenu.module.scss'
-import { InviteService } from '../../../../social/state/InviteService'
+import { InviteService } from '../../../../social/services/InviteService'
 import { useDispatch } from '../../../../store'
 import { useTranslation } from 'react-i18next'
-import { useInviteState } from '../../../../social/state/InviteService'
+import { useInviteState } from '../../../../social/services/InviteService'
 
 interface Props {
   alertSuccess?: any

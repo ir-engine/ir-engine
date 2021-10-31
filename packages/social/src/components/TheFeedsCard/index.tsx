@@ -14,8 +14,8 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorService'
-import { TheFeedsFiresService } from '@xrengine/client-core/src/social/state/TheFeedsFiresService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { TheFeedsFiresService } from '@xrengine/client-core/src/social/services/TheFeedsFiresService'
 import CreatorAsTitle from '../CreatorAsTitle'
 import styles from './TheFeedsCard.module.scss'
 
