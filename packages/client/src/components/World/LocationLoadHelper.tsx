@@ -4,7 +4,6 @@ import { Config } from '@xrengine/common/src/config'
 import { LocationService } from '@xrengine/client-core/src/social/state/LocationService'
 import { store } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { SceneAction } from '@xrengine/client-core/src/world/state/ScreenActions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -54,24 +53,16 @@ export type EngineCallbacks = {
   onSuccess?: Function
 }
 
-export const getSceneData = async (sceneName: string, isOffline: boolean): Promise<SceneData> => {
+export const getSceneData = async (scene: string, isOffline: boolean): Promise<SceneData> => {
   if (isOffline) {
-    return testScenes[sceneName] || testScenes.test
+    return testScenes[scene] || testScenes.test
   }
 
-  const sceneResult = await client.service('scene').get(sceneName)
-  store.dispatch(SceneAction.setCurrentScene(sceneResult))
+  const [projectName, sceneName] = scene.split('/')
 
-  const sceneUrl = sceneResult.scene_url
-  const regexResult = sceneUrl.match(projectRegex)
-
-  let service, serviceId
-  if (regexResult) {
-    service = regexResult[1]
-    serviceId = regexResult[2]
-  }
-
-  return client.service(service).get(serviceId) as SceneData
+  const sceneResult = await client.service('scene').get({ projectName, sceneName })
+  console.log(sceneResult)
+  return sceneResult.data.scene
 }
 
 const getFirstSpawnPointFromSceneData = (scene: SceneData) => {

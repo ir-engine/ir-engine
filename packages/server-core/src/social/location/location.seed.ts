@@ -11,7 +11,7 @@ export const locationSeed = {
       name: 'Test',
       slugifiedName: 'test',
       maxUsersPerInstance: 30,
-      sceneId: 'j9o2NLiD',
+      sceneId: 'theoverlay/default',
       location_settings: locationSettingsSeed.templates.find(
         (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'
       ),
