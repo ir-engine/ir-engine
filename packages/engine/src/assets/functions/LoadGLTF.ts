@@ -83,6 +83,14 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
 export async function LoadInstancedGLTF(url: string): Promise<LoadGLTFResultInterface> {
   // TODO: Add support for loading local files by usind NodeIO for local files
   const io = new WebIO().registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
+
+  // How to do this? This is failing with wasm errors on draco import
+  // const { default: draco3dgltf } = await import('draco3dgltf');
+  // let DRACO_DECODER = await draco3dgltf.createDecoderModule()
+  // io.registerDependencies({
+  //   'draco3d.decoder': DRACO_DECODER,
+  // });
+
   const doc = await io.read(url)
 
   await doc.transform(instance())
