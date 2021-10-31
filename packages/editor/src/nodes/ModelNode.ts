@@ -12,9 +12,7 @@ import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from '../managers/CacheManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { delay } from '@xrengine/engine/src/common/functions/delay'
+import { LoadInstancedGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -105,6 +103,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   isValidURL = false
   matrixAutoUpdate = false
   animations = []
+  isUsingGPUInstancing = false
 
   constructor() {
     super()
@@ -123,7 +122,12 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
-    const loadPromise = CacheManager.gltfCache.get(src)
+    let loadPromise = null
+    if (this.isUsingGPUInstancing) {
+      loadPromise = LoadInstancedGLTF(src)
+    } else {
+      loadPromise = CacheManager.gltfCache.get(src)
+    }
     const { scene, json, animations } = await loadPromise
     this.gltfJson = json
     const clonedScene = cloneObject3D(scene)
