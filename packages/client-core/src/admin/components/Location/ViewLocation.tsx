@@ -25,7 +25,7 @@ import { validateUserForm } from '../Users/validation'
 import { LocationService } from '../../state/LocationService'
 import MuiAlert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
-import { useAuthState } from '../../../user/state/SceneService'
+import { useAuthState } from '../../../user/state/AuthService'
 
 interface Props {
   openView: any

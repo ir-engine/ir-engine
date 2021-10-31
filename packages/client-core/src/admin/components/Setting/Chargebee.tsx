@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
-import { ChargebeeSettingService } from '../../state/Setting/ChargebeeSettingServices'
+import { ChargebeeSettingService } from '../../state/Setting/ChargebeeSettingService'
 import { useChargebeeSettingState } from '../../state/Setting/ChargebeeSettingService'
 import { useDispatch } from '../../../store'
 import { useStyles } from './styles'

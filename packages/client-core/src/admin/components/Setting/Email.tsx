@@ -6,8 +6,8 @@ import Switch from '@mui/material/Switch'
 import { Icon } from '@iconify/react'
 import IconButton from '@mui/material/IconButton'
 import { useDispatch } from '../../../store'
-import { useEmailSettingState } from '../../state/Setting/EmailSettingServices'
-import { EmailSettingService } from '../../state/Setting/EmailSettingServices'
+import { useEmailSettingState } from '../../state/Setting/EmailSettingService'
+import { EmailSettingService } from '../../state/Setting/EmailSettingService'
 import { useAuthState } from '../../../user/state/AuthService'
 
 interface emailProps {}

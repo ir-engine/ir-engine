@@ -5,7 +5,7 @@ import Switch from '@mui/material/Switch'
 import InputBase from '@mui/material/InputBase'
 import { useDispatch } from '../../../store'
 import { useClientSettingState } from '../../state/Setting/ClientSettingService'
-import { ClientSettingService } from '../../state/Setting/ClientSettingServices'
+import { ClientSettingService } from '../../state/Setting/ClientSettingService'
 import { useAuthState } from '../../../user/state/AuthService'
 
 interface clientProps {}

@@ -5,7 +5,7 @@ import { Grid, Paper, Button, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/state/AuthService'
-import { GameServerSettingService } from '../../state/Setting/GameServerSettingServices'
+import { GameServerSettingService } from '../../state/Setting/GameServerSettingService'
 import { useGameServerSettingState } from '../../state/Setting/GameServerSettingService'
 
 interface gameServerProps {}
