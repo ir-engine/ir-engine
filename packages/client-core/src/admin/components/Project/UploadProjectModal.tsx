@@ -76,22 +76,22 @@ const AddToContentPackModal = (props: Props): any => {
             })}
           >
             {processing === false && createOrPatch === 'patch' && (
-              <div>
-                <FormControl>
-                  <div>
-                    <InputLabel id="urlSelect">URL</InputLabel>
-                    <TextField
-                      className={styles['pack-select']}
-                      id="urlSelect"
-                      value={projectURL}
-                      onChange={(e) => setProjectURL(e.target.value)}
-                    />
-                  </div>
+              <FormControl>
+                <div className={styles.inputConatiner}>
+                  <TextField
+                    className={styles['pack-select']}
+                    id="urlSelect"
+                    value={projectURL}
+                    placeholder={'URL'}
+                    onChange={(e) => setProjectURL(e.target.value)}
+                  />
+                </div>
+                <div className={styles.buttonConatiner}>
                   <Button type="submit" variant="contained" color="primary" onClick={tryUploadProject}>
                     Upload Project
                   </Button>
-                </FormControl>
-              </div>
+                </div>
+              </FormControl>
             )}
             {processing === true && (
               <div className={styles.processing}>

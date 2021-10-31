@@ -7,7 +7,7 @@ export interface Location {
   maxUsersPerInstance: number
   sceneId: string
   locationSettingsId: string
-  location_settings: LocationSettings
+  locationSettings: LocationSettings
   isLobby: boolean
   isFeatured: boolean
 }
@@ -21,7 +21,7 @@ export const LocationSeed: Location = {
   locationSettingsId: '',
   isLobby: false,
   isFeatured: false,
-  location_settings: {
+  locationSettings: {
     id: '',
     locationId: '',
     instanceMediaChatEnabled: false,
