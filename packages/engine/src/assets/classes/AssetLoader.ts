@@ -7,6 +7,9 @@ import { Entity } from '../../ecs/classes/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { Engine } from '../../ecs/classes/Engine'
 import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
+import { NodeIO, WebIO } from '@gltf-transform/core'
+import { instance } from '@gltf-transform/functions'
+import { DracoMeshCompression, KHRONOS_EXTENSIONS } from '@gltf-transform/extensions'
 
 export const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
   const replacedMaterials = new Map()
@@ -195,6 +198,55 @@ export class AssetLoader {
     onError = (event: ErrorEvent | Error) => {}
   ) {
     load(params, onLoad, onProgress, onError)
+  }
+
+  static async loadInstancedGLTF(
+    params: AssetLoaderParamType,
+    onLoad = (response: any) => {},
+    onProgress = (request: ProgressEvent) => {},
+    onError = (event: ErrorEvent | Error) => {}
+  ) {
+    if (!params.url) {
+      onError(new Error('URL is empty'))
+      return
+    }
+    const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
+
+    if (AssetLoader.Cache.has(url)) {
+      onLoad(AssetLoader.Cache.get(url))
+    }
+
+    const assetType = getAssetType(url)
+    const assetClass = getAssetClass(url)
+
+    const loader = getGLTFLoader()
+
+    // TODO: Add support for loading local files by usind NodeIO for local files
+    const io = new WebIO().registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
+    const doc = await io.read(url)
+
+    await doc.transform(instance())
+
+    let buffer = io.writeBinary(doc)
+
+    loader.parse(
+      buffer,
+      null,
+      (asset) => {
+        if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
+          loadExtentions(asset)
+        }
+
+        if (assetClass === AssetClass.Model) {
+          processModelAsset(asset.scene, params)
+        }
+
+        AssetLoader.Cache.set(url, asset)
+
+        onLoad(asset)
+      },
+      onError
+    )
   }
 
   static async loadAsync(params: AssetLoaderParamType) {
