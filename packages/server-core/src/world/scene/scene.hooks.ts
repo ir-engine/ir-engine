@@ -54,7 +54,9 @@ export default {
     ],
     update: [disallow()],
     patch: [attachOwnerIdInBody('userId'), mapProjectIdToQuery(), mapSceneSaveData(), validateCollectionData()],
-    remove: [attachOwnerIdInQuery('userId'), setResourceIdFromProject(), removeRelatedResources()]
+    remove: [
+      /*attachOwnerIdInQuery('userId'), setResourceIdFromProject(), removeRelatedResources()*/
+    ]
   },
 
   after: {

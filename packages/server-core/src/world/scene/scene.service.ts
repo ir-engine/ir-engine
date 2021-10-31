@@ -20,7 +20,7 @@ declare module '../../../declarations' {
   }
 }
 
-const getScenesForProject = (app: Application) => {
+export const getScenesForProject = (app: Application) => {
   return async function ({ projectName, metadataOnly }, params) {
     const project = await app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
@@ -39,9 +39,9 @@ const getScenesForProject = (app: Application) => {
       return {
         name,
         thumbnailUrl: sceneThumbnailPath,
-        scene:
-          metadataOnly &&
-          (JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath, name + sceneSuffix), 'utf8')) as SceneJson)
+        scene: metadataOnly
+          ? undefined
+          : (JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath, name + sceneSuffix), 'utf8')) as SceneJson)
       }
     })
 

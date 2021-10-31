@@ -99,7 +99,7 @@ export default (app: Application): void => {
             try {
               await app.service('content-pack').update(null, {
                 manifestUrl: config.server.defaultContentPackURL
-              })
+              } as any)
             } catch (err) {
               console.log('Error downloading initial content pack')
               console.error(err)

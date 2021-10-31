@@ -21,7 +21,7 @@ import {
   SceneInterface,
   SceneSaveInterface
 } from '@xrengine/common/src/interfaces/SceneInterface'
-import { useSequilizeClient, useSequilizeModels } from '../../util/useSequilizeClient'
+import { useSequelizeClient, useSequelizeModels } from '../../util/useSequilizeClient'
 
 import { StaticResourceModelType } from '../../media/static-resource/static-resource.model'
 
@@ -156,8 +156,8 @@ export class Scene implements ServiceMethods<Data> {
 
   async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const seqeulizeClient = useSequilizeClient(this.app)
-    const models = useSequilizeModels(this.app)
+    const seqeulizeClient = useSequelizeClient(this.app)
+    const models = useSequelizeModels(this.app)
     const CollectionModel = models.collection
     const EntityModel = models.entity
     const StaticResourceModel = models.static_resource

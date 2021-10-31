@@ -34,9 +34,8 @@ export class Scene implements ServiceMethods<Data> {
     throw new Error('scene.find is not supported')
   }
 
-  async get({ projectName, sceneName, metadataOnly }, params?: Params): Promise<SceneDetailInterface> {
-    console.log('get scene', projectName, sceneName)
-
+  // @ts-ignore
+  async get({ projectName, sceneName, metadataOnly }, params?: Params): Promise<{ data: SceneDetailInterface }> {
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
@@ -44,6 +43,7 @@ export class Scene implements ServiceMethods<Data> {
       appRootPath.path,
       `packages/projects/projects/${projectName}/${sceneName}.scene.json`
     )
+
     if (!fs.existsSync(newSceneJsonPath))
       throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
 
@@ -52,15 +52,17 @@ export class Scene implements ServiceMethods<Data> {
     const sceneData: SceneDetailInterface = {
       name: sceneName,
       thumbnailUrl: sceneThumbnailPath,
-      scene: metadataOnly && (JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')) as SceneJson)
+      scene: metadataOnly
+        ? undefined
+        : (JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')) as SceneJson)
     }
-    console.log(sceneData)
 
-    return sceneData
+    return {
+      data: sceneData
+    }
   }
 
-  async create({ projectName, sceneName }, params: Params): Promise<any> {
-    console.log('create new scene', projectName, sceneName)
+  async create({ projectName, sceneName }, params?: Params): Promise<any> {
     const name = cleanString(sceneName)
 
     const project = await this.app.service('project').get(projectName, params)
@@ -81,5 +83,18 @@ export class Scene implements ServiceMethods<Data> {
 
   // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}
 
-  // async remove(id: NullableId, params?: Params): Promise<Data> {}
+  // @ts-ignore
+  async remove({ projectName, sceneName }, params?: Params): Promise<any> {
+    const name = cleanString(sceneName)
+
+    if (projectName === 'theoverlay') return
+
+    const project = await this.app.service('project').get(projectName, params)
+    if (!project.data) throw new Error(`No project named ${projectName} exists`)
+
+    const sceneJsonPath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/${name}.scene.json`)
+    if (fs.existsSync(sceneJsonPath)) {
+      fs.rmSync(path.resolve(sceneJsonPath))
+    }
+  }
 }

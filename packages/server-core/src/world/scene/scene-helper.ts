@@ -62,7 +62,7 @@ export function mapSceneDetailData(project: any): SceneDetailInterface {
     scene: mapSceneData(project.scene, project.sid),
     thumbnailUrl: project?.thumbnail_owned_file?.url,
     ownedFileIds: project?.ownedFileIds
-  }
+  } as any
   return _proj
 }
 
