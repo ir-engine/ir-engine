@@ -28,9 +28,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const node = await super.deserialize(json)
     loadAsync(
       (async () => {
-        const { src, envMapOverride, textureOverride, matrixAutoUpdate } = json.components.find(
+        const { src, envMapOverride, textureOverride, matrixAutoUpdate, isUsingGPUInstancing } = json.components.find(
           (c) => c.name === 'gltf-model'
         ).props
+
+        node.isUsingGPUInstancing = isUsingGPUInstancing
 
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
@@ -124,8 +126,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   async loadGLTF(src) {
     let loadPromise = null
     if (this.isUsingGPUInstancing) {
+      console.log('instanced')
+      // TODO: Look into how to support caching for this
       loadPromise = LoadInstancedGLTF(src)
     } else {
+      console.log('non-instanced')
       loadPromise = CacheManager.gltfCache.get(src)
     }
     const { scene, json, animations } = await loadPromise
@@ -262,7 +267,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
         textureOverride: this.textureOverride,
-        matrixAutoUpdate: this.matrixAutoUpdate
+        matrixAutoUpdate: this.matrixAutoUpdate,
+        isUsingGPUInstancing: this.isUsingGPUInstancing
       },
       shadow: {
         cast: this.castShadow,
