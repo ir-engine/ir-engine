@@ -1,7 +1,6 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
-import { getContentType } from '../content-pack/content-pack-helper'
 import { ProjectInterface, ProjectPackageInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import fs from 'fs'
 import path from 'path'
@@ -13,6 +12,7 @@ import { deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFun
 import appRootPath from 'app-root-path'
 import templateProjectJson from './template-project.json'
 import { cleanString } from '../../util/cleanString'
+import { getContentType } from '../../util/fileUtils'
 
 console.log(templateProjectJson)
 

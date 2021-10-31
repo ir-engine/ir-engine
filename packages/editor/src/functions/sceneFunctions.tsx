@@ -118,9 +118,9 @@ export const createScene = async (
  * @param  {any}  sceneId
  * @return {Promise}
  */
-export const deleteScene = async (sceneId): Promise<any> => {
+export const deleteScene = async (projectName, sceneName): Promise<any> => {
   try {
-    await client.service('scene').remove(sceneId)
+    await client.service('scene').remove({ projectName, sceneName })
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)

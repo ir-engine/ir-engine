@@ -78,7 +78,7 @@ const ProjectsPage = (props: Props) => {
   const onDeleteProject = async (project) => {
     try {
       if (currentProject) {
-        await deleteScene(project.scene_id)
+        await deleteScene(currentProject.name, project.name)
         fetchItems()
       } else {
       }
@@ -100,7 +100,7 @@ const ProjectsPage = (props: Props) => {
 
   const onClickExisting = (project) => {
     if (currentProject) {
-      router.push(`/editor/${project.scene_id}`)
+      router.push(`/editor/${project.name}`)
     } else {
       setCurrentProject(project)
     }
