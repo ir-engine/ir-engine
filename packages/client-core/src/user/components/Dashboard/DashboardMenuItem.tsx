@@ -34,7 +34,6 @@ const DashboardMenuItem = (props: Props) => {
     bot: false,
     scene: false,
     party: false,
-    contentPacks: false,
     groups: false,
     instance: false,
     invite: false,

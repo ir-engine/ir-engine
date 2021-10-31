@@ -17,7 +17,6 @@ import { useAuthState } from '../../../user/state/AuthState'
 import { PROJECT_PAGE_LIMIT, useProjectState } from '../../state/ProjectState'
 import { ProjectService } from '../../state/ProjectService'
 import styles from './Projects.module.scss'
-import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
@@ -117,7 +116,6 @@ const Projects = () => {
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
-  const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [uploadProjectsModalOpen, setUploadProjectsModalOpen] = useState(false)
   const [selectedProjects, setSelectedProjects] = useState<ProjectInterface[]>([])
   const [dimensions, setDimensions] = useState({
@@ -287,11 +285,6 @@ const Projects = () => {
             className={styles.tablePagination}
           />
         </div> */}
-        <AddToContentPackModal
-          open={addToContentPackModalOpen}
-          projects={selectedProjects}
-          handleClose={() => setAddToContentPackModalOpen(false)}
-        />
         <UploadProjectModal open={uploadProjectsModalOpen} handleClose={() => setUploadProjectsModalOpen(false)} />
       </Paper>
     </div>

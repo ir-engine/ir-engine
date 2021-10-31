@@ -20,7 +20,7 @@ interface Props {
   projects?: any
 }
 
-const AddToContentPackModal = (props: Props): any => {
+const UploadProjectModal = (props: Props): any => {
   const { open, handleClose, scenes } = props
 
   const [processing, setProcessing] = useState(false)
@@ -107,4 +107,4 @@ const AddToContentPackModal = (props: Props): any => {
   )
 }
 
-export default AddToContentPackModal
+export default UploadProjectModal

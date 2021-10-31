@@ -15,7 +15,6 @@ import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/state/AuthState'
 import { AVATAR_PAGE_LIMIT } from '../../state/AvatarState'
 import styles from './Avatars.module.scss'
-import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { useAvatarState } from '../../state/AvatarState'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { AuthService } from '../../../user/state/AuthService'
@@ -40,8 +39,7 @@ const Avatars = (props: Props) => {
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'key', numeric: false, disablePadding: false, label: 'Key' },
-    { id: 'addToContentPack', numeric: false, disablePadding: false, label: 'Add to Content Pack' }
+    { id: 'key', numeric: false, disablePadding: false, label: 'Key' }
   ]
 
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -123,7 +121,6 @@ const Avatars = (props: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
-  const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedAvatars, setSelectedAvatars] = useState([])
   const [avatarSelectMenuOpen, setAvatarSelectMenuOpen] = useState(false)
   const [dimensions, setDimensions] = useState({
@@ -221,17 +218,6 @@ const Avatars = (props: Props) => {
               Upload Avatar
             </Button>
           </Grid>
-          <Grid item xs={6}>
-            <Button
-              className={styles['open-modal']}
-              type="button"
-              variant="contained"
-              color="primary"
-              onClick={() => setAddToContentPackModalOpen(true)}
-            >
-              {dimensions.width <= 768 ? '+ Pack' : 'Add to Content Pack'}
-            </Button>
-          </Grid>
         </Grid>
         <TableContainer className={styles.tableContainer}>
           <Table stickyHeader aria-labelledby="tableTitle" size={'medium'} aria-label="enhanced table">
@@ -300,11 +286,6 @@ const Avatars = (props: Props) => {
             className={styles.tablePagination}
           />
         </div>
-        <AddToContentPackModal
-          open={addToContentPackModalOpen}
-          avatars={selectedAvatars}
-          handleClose={() => setAddToContentPackModalOpen(false)}
-        />
         {avatarSelectMenuOpen && (
           <AvatarSelectMenu
             changeActiveMenu={() => setAvatarSelectMenuOpen(false)}
