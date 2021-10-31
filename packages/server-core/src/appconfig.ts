@@ -78,8 +78,7 @@ const server = {
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
   local: process.env.LOCAL === 'true',
-  releaseName: process.env.RELEASE_NAME,
-  defaultContentPackURL: process.env.DEFAULT_CONTENT_PACK_URL
+  releaseName: process.env.RELEASE_NAME
 }
 const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL || url.format(obj)

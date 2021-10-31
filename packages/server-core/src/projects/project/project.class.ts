@@ -1,7 +1,6 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
-import { getContentType } from '../content-pack/content-pack-helper'
 import { ProjectInterface, ProjectPackageInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import fs from 'fs'
 import path from 'path'
@@ -12,12 +11,14 @@ import { useGit } from '../../util/gitHelperFunctions'
 import { deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
 import templateProjectJson from './template-project.json'
+import { cleanString } from '../../util/cleanString'
+import { getContentType } from '../../util/fileUtils'
 
 console.log(templateProjectJson)
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
-  if (!data) return
+  if (!data?.remote) return null
   return data.remote.origin.url
 }
 
@@ -86,9 +87,9 @@ export class Project extends Service {
     }
   }
 
-  async create(data: { name: string }, params: Params) {
+  async create(data: { name: string }, params?: Params) {
     // make alphanumeric period, underscore, dash
-    const projectName = data.name.replaceAll(' ', '-').replace(/[^\w\.\-]/g, '')
+    const projectName = cleanString(data.name)
     console.log(projectName)
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
@@ -106,6 +107,13 @@ export class Project extends Service {
     const packageData = Object.assign({}, templateProjectJson) as any
     packageData.name = projectName
     fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
+
+    const dbEntryData: ProjectInterface = {
+      ...packageData,
+      repositoryPath: null
+    }
+
+    await super.create(dbEntryData)
   }
 
   /**
@@ -181,12 +189,10 @@ export class Project extends Service {
     await Promise.all([...uploadPromises, super.create(dbEntryData, params)])
   }
 
-  async remove(id: Id, params: Params) {
+  async remove(id: Id, params?: Params) {
     console.log('remove', id)
     try {
-      if (!isDev) {
-        await super.remove(id, params)
-      }
+      await super.remove(id, params)
     } catch (e) {
       console.log(`[Projects]: failed to remove project ${id}`, e)
       return e
@@ -201,9 +207,10 @@ export class Project extends Service {
    * @returns
    */
   // TODO: remove this entire function when nodes reference file browser
-  async get(name: string, params: Params): Promise<{ data: ProjectInterface }> {
+  async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     const entry = data.find((e) => e.name === name)
+    if (!entry) return
 
     const metadataPath = path.resolve(appRootPath.path, `packages/projects/projects/${name}/package.json`)
     if (fs.existsSync(metadataPath)) {

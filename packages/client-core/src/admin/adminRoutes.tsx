@@ -8,7 +8,6 @@ import { AuthService } from '../user/state/AuthService'
 
 const analytic = React.lazy(() => import('./pages/index'))
 const avatars = React.lazy(() => import('./pages/avatars'))
-const contentPacks = React.lazy(() => import('./pages/content-packs'))
 const groups = React.lazy(() => import('./pages/groups'))
 const instance = React.lazy(() => import('./pages/instance'))
 const invites = React.lazy(() => import('./pages/invites'))
@@ -36,7 +35,6 @@ const ProtectedRoutes = (props: Props) => {
     bot: false,
     scene: false,
     party: false,
-    contentPacks: false,
     groups: false,
     instance: false,
     invite: false,
@@ -82,7 +80,6 @@ const ProtectedRoutes = (props: Props) => {
         <Switch>
           <PrivateRoute exact path="/admin" component={analytic} />
           <PrivateRoute exact path="/admin/avatars" component={avatars} />
-          <PrivateRoute exact path="/admin/content-packs" component={contentPacks} />
           <PrivateRoute exact path="/admin/groups" component={groups} />
           <PrivateRoute exact path="/admin/instance" component={instance} />
           <PrivateRoute exact path="/admin/invites" component={invites} />

@@ -11,7 +11,7 @@ export class ServerSetting extends Service {
   }
 
   async find(params: Params): Promise<any> {
-    const serverSetting = await super.find()
+    const serverSetting = (await super.find()) as any
     const data = serverSetting.data.map((el) => {
       return {
         ...el,

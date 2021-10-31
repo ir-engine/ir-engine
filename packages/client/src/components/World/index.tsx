@@ -63,7 +63,7 @@ export const EnginePage = (props: Props) => {
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
   const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-  const [sceneId, setSceneId] = useState('')
+  const [scene, setScene] = useState('')
   const locationState = useLocationState()
   const connectToInstanceServer = props.connectToInstanceServer !== undefined ? props.connectToInstanceServer : true
   const setIsTeleporting = typeof props.setIsTeleporting === 'function' ? props.setIsTeleporting : () => {}
@@ -78,9 +78,9 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (): Promise<any> => {
-    console.log('init', sceneId)
+    console.log('init', scene)
     setIsTeleporting(false)
-    await initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks, connectToInstanceServer)
+    await initEngine(scene, engineInitializeOptions, newSpawnPos, engineCallbacks, connectToInstanceServer)
   }
 
   /**
@@ -110,9 +110,9 @@ export const EnginePage = (props: Props) => {
    * 3. Once we have the location data, set the scene ID
    */
   useEffect(() => {
-    if (sceneId === '' && locationState.currentLocation.location.sceneId.value) {
+    if (scene === '' && locationState.currentLocation.location.sceneId.value) {
       const id = locationState.currentLocation.location.sceneId.value
-      setSceneId(id)
+      setScene(id)
       if (typeof props.setSceneId === 'function') props.setSceneId(id)
     }
   }, [locationState.currentLocation.location.sceneId.value])
@@ -121,10 +121,10 @@ export const EnginePage = (props: Props) => {
    * 4. Once we have the scene ID, initialise the engine
    */
   useEffect(() => {
-    if (sceneId) {
+    if (scene) {
       init()
     }
-  }, [sceneId, props.reinit])
+  }, [scene, props.reinit])
 
   const checkForBan = (): void => {
     const selfUser = authState.user

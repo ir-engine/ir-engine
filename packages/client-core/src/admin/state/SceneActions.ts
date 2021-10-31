@@ -1,9 +1,15 @@
-import { SceneDataResult } from '@xrengine/common/src/interfaces/SceneDataResult'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
+
 export const SceneAction = {
-  collectionsFetched: (sceneDataResult: SceneDataResult) => {
+  scenesFetched: (sceneData: SceneData[]) => {
     return {
-      type: 'ADMIN_SCENES_RETRIEVED',
-      sceneDataResult: sceneDataResult
+      type: 'ADMIN_SCENES_RETRIEVED' as const,
+      sceneData: sceneData
+    }
+  },
+  sceneCreated: () => {
+    return {
+      type: 'ADMIN_SCENE_CREATED' as const
     }
   }
 }

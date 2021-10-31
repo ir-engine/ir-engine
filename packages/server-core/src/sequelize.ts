@@ -95,21 +95,8 @@ export default (app: Application): void => {
           return sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
         })
         .then(async () => {
-          if (forceRefresh === true && urlRegex.test(config.server.defaultContentPackURL)) {
-            try {
-              await app.service('content-pack').update(null, {
-                manifestUrl: config.server.defaultContentPackURL
-              })
-            } catch (err) {
-              console.log('Error downloading initial content pack')
-              console.error(err)
-            }
-            promiseResolve()
-            return Promise.resolve()
-          } else {
-            promiseResolve()
-            return Promise.resolve()
-          }
+          promiseResolve()
+          return Promise.resolve()
         })
         .catch((err) => {
           console.log('Sequelize sync error')

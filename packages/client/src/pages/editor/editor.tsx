@@ -18,7 +18,7 @@ const EditorProtectedRoutes = () => {
     <>
       {isSceneAllowed ? (
         <Switch>
-          <Route exact path="/editor/:sceneId" component={sceneEditor} />
+          <Route exact path="/editor/:projectName/:sceneName" component={sceneEditor} />
           <Route exact path="/editor" component={editor} />
         </Switch>
       ) : (

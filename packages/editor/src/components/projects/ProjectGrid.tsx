@@ -84,6 +84,7 @@ const StyledProjectGrid = (styled as any).div`
 
 interface ProjectGridProp {
   projects?: any
+  onClickExisting?: any
   onClickNew?: any
   newProjectLabel?: any
   contextMenuId?: any
@@ -101,12 +102,20 @@ interface ProjectGridProp {
  * @param {any} loading
  * @returns
  */
-export function ProjectGrid({ projects, onClickNew, newProjectLabel, contextMenuId, loading }: ProjectGridProp) {
+export function ProjectGrid({
+  projects,
+  onClickExisting,
+  onClickNew,
+  newProjectLabel,
+  contextMenuId,
+  loading
+}: ProjectGridProp) {
   return (
     <StyledProjectGrid>
       {onClickNew && !loading && <NewProjectGridItem onClickNew={onClickNew} label={newProjectLabel} />}
       {projects.map((project) => (
         <ProjectGridItem
+          onClickExisting={onClickExisting}
           key={project.project_id || project.id || project.name}
           project={project}
           contextMenuId={contextMenuId}

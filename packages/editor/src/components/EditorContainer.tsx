@@ -4,7 +4,7 @@ import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { LocationService } from '@xrengine/client-core/src/admin/state/LocationService'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
-import React, { Component, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation, withTranslation } from 'react-i18next'
@@ -27,13 +27,8 @@ import defaultTemplateUrl from './templates/crater.json'
 import tutorialTemplateUrl from './templates/tutorial.json'
 import ToolBar from './toolbar/ToolBar'
 import ViewportPanelContainer from './viewport/ViewportPanelContainer'
-import PerformanceCheckDialog from './dialogs/PerformanceCheckDialog'
-import PublishDialog from './dialogs/PublishDialog'
-import PublishedSceneDialog from './dialogs/PublishedSceneDialog'
-import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
-import configs from './configs'
 import { accessLocationState } from '@xrengine/client-core/src/admin/state/LocationState'
 import { accessSceneState } from '@xrengine/client-core/src/admin/state/SceneState'
 import { SceneService } from '@xrengine/client-core/src/admin/state/SceneService'
@@ -41,258 +36,12 @@ import { CommandManager } from '../managers/CommandManager'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import { SceneManager } from '../managers/SceneManager'
-import { ControlManager } from '../managers/ControlManager'
-import { NodeManager, registerPredefinedNodes } from '../managers/NodeManager'
-import { registerPredefinedSources, SourceManager } from '../managers/SourceManager'
+import { registerPredefinedNodes } from '../managers/NodeManager'
+import { registerPredefinedSources } from '../managers/SourceManager'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { client } from '@xrengine/client-core/src/feathers'
-import { upload } from '@xrengine/client-core/src/util/upload'
-
-const maxUploadSize = 25
-
-/**
- * getSceneUrl used to create url for the scene.
- *
- * @author Robert Long
- * @param  {any} sceneId
- * @return {string}         [url]
- */
-export const getSceneUrl = (sceneId): string => `${configs.APP_URL}/scenes/${sceneId}`
-
-/**
- * publishProject is used to publish project, firstly we save the project the publish.
- *
- * @author Robert Long
- * @param  {any}  project
- * @param  {any}  showDialog
- * @param  {any}  hideDialog
- * @return {Promise}            [returns published project data]
- */
-export const publishProject = async (project, showDialog, hideDialog?): Promise<any> => {
-  let screenshotUrl
-  try {
-    const scene = SceneManager.instance.scene
-
-    const abortController = new AbortController()
-    const signal = abortController.signal
-
-    // Save the scene if it has been modified.
-    if (SceneManager.instance.sceneModified) {
-      showDialog(ProgressDialog, {
-        title: i18n.t('editor:saving'),
-        message: i18n.t('editor:savingMsg'),
-        cancelable: true,
-        onCancel: () => {
-          abortController.abort()
-        }
-      })
-      // saving project.
-      project = await saveScene(project.scene_id, signal)
-
-      if (signal.aborted) {
-        const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
-        error['aborted'] = true
-        throw error
-      }
-    }
-
-    showDialog(ProgressDialog, {
-      title: i18n.t('editor:generateScreenshot'),
-      message: i18n.t('editor:generateScreenshotMsg')
-    })
-
-    // Wait for 5ms so that the ProgressDialog shows up.
-    await new Promise((resolve) => setTimeout(resolve, 5))
-
-    // Take a screenshot of the scene from the current camera position to use as the thumbnail
-    const screenshot = await SceneManager.instance.takeScreenshot()
-    console.log('Screenshot is')
-    console.log(screenshot)
-    const { blob: screenshotBlob, cameraTransform: screenshotCameraTransform } = screenshot
-    console.log('screenshotBlob is')
-    console.log(screenshotBlob)
-
-    screenshotUrl = URL.createObjectURL(screenshotBlob)
-
-    console.log('Screenshot url is', screenshotUrl)
-
-    if (signal.aborted) {
-      const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
-      error['aborted'] = true
-      throw error
-    }
-
-    let { name } = scene.metadata
-
-    name = (project.scene && project.scene.name) || name || SceneManager.instance.scene.name
-
-    // Display the publish dialog and wait for the user to submit / cancel
-    const publishParams: any = await new Promise((resolve) => {
-      showDialog(PublishDialog, {
-        screenshotUrl,
-        initialSceneParams: {
-          name
-        },
-        onCancel: () => resolve(null),
-        onPublish: resolve
-      })
-    })
-
-    // User clicked cancel
-    if (!publishParams) {
-      URL.revokeObjectURL(screenshotUrl)
-      hideDialog()
-      const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
-      error['aborted'] = true
-      throw error
-    }
-
-    // Update the scene with the metadata from the publishDialog
-    scene.setMetadata({
-      name: publishParams.name,
-      previewCameraTransform: screenshotCameraTransform
-    })
-
-    showDialog(ProgressDialog, {
-      title: i18n.t('editor:publishingScene'),
-      message: i18n.t('editor:publishingSceneMsg'),
-      cancelable: true,
-      onCancel: () => {
-        abortController.abort()
-      }
-    })
-
-    // Clone the existing scene, process it for exporting, and then export as a glb blob
-    const { glbBlob, chunks } = await SceneManager.instance.exportScene({ scores: true })
-
-    if (signal.aborted) {
-      const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
-      error['aborted'] = true
-      throw error
-    }
-
-    const performanceCheckResult = await new Promise((resolve) => {
-      showDialog(PerformanceCheckDialog, {
-        chunks,
-        onCancel: () => resolve(false),
-        onConfirm: () => resolve(true)
-      })
-    })
-
-    if (!performanceCheckResult) {
-      const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
-      error['aborted'] = true
-      throw error
-    }
-
-    // Serialize Editor scene
-    const serializedScene = await SceneManager.instance.scene.serialize(project.scene_id)
-    const sceneBlob = new Blob([JSON.stringify(serializedScene)], { type: 'application/json' })
-
-    showDialog(ProgressDialog, {
-      title: i18n.t('editor:publishingScene'),
-      message: i18n.t('editor:publishingSceneMsg'),
-      cancelable: true,
-      onCancel: () => {
-        abortController.abort()
-      }
-    })
-
-    const size = glbBlob.size / 1024 / 1024
-    const maxSize = maxUploadSize
-    if (size > maxSize) {
-      throw new Error(i18n.t('editor:errors.sceneTooLarge', { size: size.toFixed(2), maxSize }))
-    }
-
-    showDialog(ProgressDialog, {
-      title: i18n.t('editor:publishingScene'),
-      message: i18n.t('editor:uploadingThumbnailMsg'),
-      cancelable: true,
-      onCancel: () => {
-        abortController.abort()
-      }
-    })
-
-    // Upload the screenshot file
-    const {
-      file_id: screenshotId,
-      meta: { access_token: screenshotToken }
-    } = (await upload(screenshotBlob, undefined, abortController.signal)) as any
-
-    if (signal.aborted) {
-      const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
-      error['aborted'] = true
-      throw error
-    }
-
-    const {
-      file_id: glbId,
-      meta: { access_token: glbToken }
-    }: any = await upload(glbBlob, (uploadProgress) => {
-      showDialog(
-        ProgressDialog,
-        {
-          title: i18n.t('editor:publishingScene'),
-          message: i18n.t('editor:uploadingSceneMsg', { percentage: Math.floor(uploadProgress * 100) }),
-          onCancel: () => {
-            abortController.abort()
-          }
-        },
-        abortController.signal
-      )
-    })
-
-    if (signal.aborted) {
-      const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
-      error['aborted'] = true
-      throw error
-    }
-
-    const {
-      file_id: sceneFileId,
-      meta: { access_token: sceneFileToken }
-    } = (await upload(sceneBlob, undefined, abortController.signal)) as any
-
-    if (signal.aborted) {
-      const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
-      error['aborted'] = true
-      throw error
-    }
-
-    const sceneParams = {
-      screenshot_file_id: screenshotId,
-      screenshot_file_token: screenshotToken,
-      model_file_id: glbId,
-      model_file_token: glbToken,
-      scene_file_id: sceneFileId,
-      scene_file_token: sceneFileToken,
-      name: publishParams.name
-    }
-
-    try {
-      project = await client.service(`/publish-scene/${project.scene_id}`).create({ scene: sceneParams })
-    } catch (error) {
-      throw new Error(error)
-    }
-
-    showDialog(PublishedSceneDialog, {
-      sceneName: sceneParams.name,
-      screenshotUrl,
-      sceneUrl: getSceneUrl(project.scene.scene_id),
-      onConfirm: () => {
-        hideDialog()
-      }
-    })
-  } finally {
-    if (screenshotUrl) {
-      URL.revokeObjectURL(screenshotUrl)
-    }
-  }
-
-  return project
-}
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -377,10 +126,8 @@ DockContainer.defaultProps = {
 }
 
 type EditorContainerProps = {
-  t: any
-  match: any
-  location: any
-  history: any
+  projectName: string
+  sceneName: string
 }
 
 /**
@@ -393,8 +140,6 @@ const EditorContainer = (props: EditorContainerProps) => {
   const [editorReady, setEditorReady] = useState(false)
   const [project, setProject] = useState(null)
   const [parentSceneId, setParentSceneId] = useState(null)
-  const [pathParams, setPathParams] = useState(new Map(Object.entries(props.match.params)))
-  const [queryParams, setQueryParams] = useState(new Map(new URLSearchParams(window.location.search).entries()))
   const [settingsContext, setSettingsContext] = useState({
     settings: defaultSettings,
     updateSetting: (...props) => {}
@@ -444,10 +189,11 @@ const EditorContainer = (props: EditorContainerProps) => {
       if (accessLocationState().locationTypes.updateNeeded.value === true) {
         LocationService.fetchLocationTypes()
       }
-      const sceneId = pathParams.get('sceneId') as string
-      setSceneId(sceneId)
 
-      if (sceneId === 'new') {
+      const { projectName, sceneName } = props
+      setSceneId(projectName + '/' + sceneName)
+
+      if (sceneName === 'new') {
         if (queryParams.has('template')) {
           loadProjectTemplate(queryParams.get('template'))
         } else if (queryParams.has('sceneId')) {
@@ -844,7 +590,7 @@ const EditorContainer = (props: EditorContainerProps) => {
       updateModifiedState()
 
       hideDialog()
-      pathParams.set('sceneId', newProject.scene_id)
+
       setSceneId(newProject.scene_id)
     } catch (error) {
       console.error(error)
@@ -983,7 +729,7 @@ const EditorContainer = (props: EditorContainerProps) => {
         const newProject = await saveScene(project.scene_id, abortController.signal)
 
         setProject(newProject)
-        pathParams.set('sceneId', newProject.scene_id)
+
         setSceneId(newProject.scene_id)
       } else {
         await createProject()

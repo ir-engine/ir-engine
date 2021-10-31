@@ -45,6 +45,8 @@ const SceneEditor = (props: Props) => {
     AuthService.doLoginAuto(true)
   }, [])
 
+  console.log(props)
+
   /**
    * validating user and rendering EditorContainer component.
    */

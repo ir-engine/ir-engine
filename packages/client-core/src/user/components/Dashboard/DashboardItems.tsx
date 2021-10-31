@@ -123,11 +123,6 @@ export const SidebarItems = (
         name: 'user:dashboard.avatars',
         path: '/admin/avatars',
         icon: <Accessibility style={{ color: 'white' }} />
-      },
-      allowedRoutes.contentPacks && {
-        name: 'user:dashboard.content',
-        path: '/admin/content-packs',
-        icon: <PhotoAlbum style={{ color: 'white' }} />
       }
     ]
   },

@@ -23,6 +23,7 @@ import {
   ProjectGridHeader,
   ProjectGridHeaderRow
 } from '../components/projects/ProjectGrid'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 /**
  *Component to render the existing projects in grids with a grid to add new project.
@@ -32,17 +33,13 @@ import {
 const ProjectsPage = () => {
   const classes = useStyles()
 
-  const [currentPage, setCurrentPage] = React.useState(0)
+  const [currentProject, setCurrentProject] = useState<ProjectInterface>(null)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
 
   const authState = useAuthState()
   const authUser = authState.authUser // authUser initialized by getting property from authState object.
 
   const { t } = useTranslation()
-
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setCurrentPage(newValue)
-  }
 
   /**
    * Rendering view for projects page, if user is not login yet then showing login view.
@@ -77,42 +74,7 @@ const ProjectsPage = () => {
       )}
       {authUser && (
         <div className={classes.root}>
-          <Tabs
-            value={currentPage}
-            onChange={handleChange}
-            indicatorColor="primary"
-            aria-label="scrollable auto tabs example"
-            orientation="vertical"
-            className={classes.tabs}
-            classes={{ indicator: classes.indicator }}
-          >
-            <Tab
-              label={t('editor.projects.projectHeader')}
-              {...tapId(0)}
-              sx={{
-                '&.Mui-selected': {
-                  color: 'inherit',
-                  opacity: 1
-                }
-              }}
-            />
-            <Tab
-              label={t('editor.projects.sceneHeader')}
-              {...tapId(1)}
-              sx={{
-                '&.Mui-selected': {
-                  color: 'inherit',
-                  opacity: 1
-                }
-              }}
-            />
-          </Tabs>
-          <TabPanel value={currentPage} index={0}>
-            <Projects showingScenes={false} />
-          </TabPanel>
-          <TabPanel value={currentPage} index={1}>
-            <Projects showingScenes={true} />
-          </TabPanel>
+          <Projects setCurrentProject={setCurrentProject} currentProject={currentProject} />
         </div>
       )}
       {profileMenuOpen && (
