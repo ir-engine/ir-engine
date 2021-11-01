@@ -40,6 +40,76 @@ const avatarHeight = 1.8
 const capsuleHeight = avatarHeight - avatarRadius * 2
 export const avatarHalfHeight = avatarHeight / 2
 
+const { defineProperties } = Object
+
+const createVector3Proxy = (store, entity) =>
+  defineProperties(new Vector3(), {
+    _eid: { value: entity },
+    _store: { value: store },
+    x: {
+      get() {
+        return this._store.x[this._eid]
+      },
+      set(n) {
+        return (this._store.x[this._eid] = n)
+      }
+    },
+    y: {
+      get() {
+        return this._store.y[this._eid]
+      },
+      set(n) {
+        return (this._store.y[this._eid] = n)
+      }
+    },
+    z: {
+      get() {
+        return this._store.z[this._eid]
+      },
+      set(n) {
+        return (this._store.z[this._eid] = n)
+      }
+    }
+  })
+
+const createQuaternionProxy = (store, entity) =>
+  defineProperties(new Quaternion(), {
+    _eid: { value: entity },
+    _store: { value: store },
+    _x: {
+      get() {
+        return this._store.x[this._eid]
+      },
+      set(n) {
+        return (this._store.x[this._eid] = n)
+      }
+    },
+    _y: {
+      get() {
+        return this._store.y[this._eid]
+      },
+      set(n) {
+        return (this._store.y[this._eid] = n)
+      }
+    },
+    _z: {
+      get() {
+        return this._store.z[this._eid]
+      },
+      set(n) {
+        return (this._store.z[this._eid] = n)
+      }
+    },
+    _w: {
+      get() {
+        return this._store.w[this._eid]
+      },
+      set(n) {
+        return (this._store.w[this._eid] = n)
+      }
+    }
+  })
+
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
   const world = useWorld()
   const userId = spawnAction.userId
@@ -55,14 +125,21 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
         timer: 0
       })
   }
-  const transform = addComponent(entity, TransformComponent, {
-    position: new Vector3().copy(spawnAction.parameters.position),
-    rotation: new Quaternion().copy(spawnAction.parameters.rotation),
-    scale: new Vector3(1, 1, 1)
-  })
+
+  const position = createVector3Proxy(TransformComponent.position, entity).copy(spawnAction.parameters.position)
+
+  const rotation = createQuaternionProxy(TransformComponent.rotation, entity).copy(spawnAction.parameters.rotation)
+
+  // todo: figure out why scale makes avatar disappear
+  // const scale = createVector3Proxy(TransformComponent.scale, entity)
+  const scale = new Vector3().copy(new Vector3(1, 1, 1))
+
+  const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
+
+  const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
 
   addComponent(entity, VelocityComponent, {
-    velocity: new Vector3()
+    velocity
   })
 
   // The visuals group is centered for easy actor tilting
