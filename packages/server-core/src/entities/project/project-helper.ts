@@ -1,7 +1,18 @@
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 
 export const retriggerBuilderService = async (app: Application) => {
+  try {
+    // invalidate cache for all installed projects
+    const files = await getFileKeysRecursive(`projects`)
+    await useStorageProvider().createInvalidation(files)
+  } catch (e) {
+    console.log('[Project Rebuild]: Failed to invalidate cache with error', e)
+  }
+
+  // trigger k8s to re-run the builder service
   if (app.k8AppsClient) {
     try {
       console.log('Attempting to reload k8s clients!')
