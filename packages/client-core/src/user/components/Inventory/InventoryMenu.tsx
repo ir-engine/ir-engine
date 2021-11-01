@@ -45,7 +45,7 @@ const InventoryMenu = (props: any): any => {
 
   const loadNextItems = (e) => {
     InventoryService.getUserInventory(selfUser.id?.value || '')
-
+    InventoryService.getInventoryType()
     e.preventDefault()
     if ((page + 1) * itemPerPage >= props.itemList.length) return
     setPage(page + 1)
