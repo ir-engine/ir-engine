@@ -1,8 +1,7 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react'
 import EditorContainer from '../components/EditorContainer'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 

@@ -2,7 +2,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import React, { useState } from 'react'
 import {
   ProfileButton,

@@ -6,13 +6,13 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
-import { PartyService } from '../../state/PartyService'
+import { PartyService } from '../../services/PartyService'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/services/AuthService'
 import { PartyPropsTable, partyColumns, PartyData } from './variables'
 import { usePartyStyles, usePartyStyle } from './style'
-import { usePartyState } from '../../state/PartyState'
-import { PARTY_PAGE_LIMIT } from '../../state/PartyState'
+import { usePartyState } from '../../services/PartyService'
+import { PARTY_PAGE_LIMIT } from '../../services/PartyService'
 
 const PartyTable = (props: PartyPropsTable) => {
   const classes = usePartyStyle()

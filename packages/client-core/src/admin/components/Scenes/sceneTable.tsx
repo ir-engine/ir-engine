@@ -14,12 +14,12 @@ import DialogTitle from '@mui/material/DialogTitle'
 import { useSceneStyles, useSceneStyle } from './styles'
 import { sceneColumns, SceneData } from './variables'
 import TablePagination from '@mui/material/TablePagination'
-import { SceneService } from '../../state/SceneService'
+import { SceneService } from '../../services/SceneService'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import { useSceneState } from '../../state/SceneState'
+import { useAuthState } from '../../../user/services/AuthService'
+import { useSceneState } from '../../services/SceneService'
 import ViewScene from './ViewScene'
-import { SCENE_PAGE_LIMIT } from '../../state/SceneState'
+import { SCENE_PAGE_LIMIT } from '../../services/SceneService'
 
 interface Props {}
 

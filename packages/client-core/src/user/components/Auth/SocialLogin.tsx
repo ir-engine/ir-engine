@@ -7,7 +7,7 @@ import FacebookIcon from '@mui/icons-material/Facebook'
 import LinkedinIcon from '@mui/icons-material/LinkedIn'
 import TwitterIcon from '@mui/icons-material/Twitter'
 import styles from './Auth.module.scss'
-import { AuthService } from '../../state/AuthService'
+import { AuthService } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from '../../../store'
 

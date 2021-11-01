@@ -4,7 +4,7 @@ const editor = React.lazy(() => import('@xrengine/editor/src/pages/projects'))
 //@ts-ignore
 const projectEditor = React.lazy(() => import('@xrengine/editor/src/pages/[projectName]'))
 import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDialog'
 
 const EditorProtectedRoutes = () => {

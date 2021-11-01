@@ -10,7 +10,7 @@ import { validateCreatorForm } from './validation'
 import { useCreatorStyle, useCreatorStyles } from './styles'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 
 interface Props {
   open: boolean

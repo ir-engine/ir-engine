@@ -11,11 +11,12 @@ import TableSortLabel from '@mui/material/TableSortLabel'
 import Paper from '@mui/material/Paper'
 import TablePagination from '@mui/material/TablePagination'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../../state/AdminState'
-import { SceneService } from '../../state/SceneService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { ADMIN_PAGE_LIMIT } from '../../services/AdminService'
+import { SceneService } from '../../services/SceneService'
 import styles from './Scenes.module.scss'
-import { useSceneState } from '../../state/SceneState'
+import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
+import { useSceneState } from '../../services/SceneService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

@@ -19,7 +19,7 @@ import Typography from '@mui/material/Typography'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import moment from 'moment'
 import React, { useState } from 'react'
-import { ChatService } from '../../../social/state/ChatService'
+import { ChatService } from '../../../social/services/ChatService'
 import { useDispatch } from '../../../store'
 import { StyledMenu, useStyle, useStyles } from './style'
 

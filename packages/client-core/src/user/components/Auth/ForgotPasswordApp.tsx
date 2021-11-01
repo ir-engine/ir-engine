@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import { useDispatch } from '../../../store'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AuthService } from '../../state/AuthService'
+import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
 
 interface Props {
