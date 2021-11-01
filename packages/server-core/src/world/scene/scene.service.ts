@@ -1,14 +1,12 @@
 import { Application } from '../../../declarations'
-import { Scene } from './scenenew.class'
+import { getSceneData, Scene } from './scenenew.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
-import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { getCachedAsset } from '../../media/storageprovider/storageProviderUtils'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
-const sceneSuffix = '.scene.json'
 declare module '../../../declarations' {
   interface ServiceTypes {
     scene: Scene
@@ -26,19 +24,12 @@ export const getScenesForProject = (app: Application) => {
       .readdirSync(newSceneJsonPath, { withFileTypes: true })
       .filter((dirent) => !dirent.isDirectory())
       .map((dirent) => dirent.name)
-      .filter((name) => name.endsWith(sceneSuffix))
-      .map((name) => name.slice(0, -sceneSuffix.length))
+      .filter((name) => name.endsWith('.scene.json'))
+      .map((name) => name.slice(0, -'.scene.json'.length))
 
-    const sceneData: SceneDetailInterface[] = files.map((name) => {
-      const sceneThumbnailPath = getCachedAsset(`/${projectName}/${name}.thumbnail.png`)
-      return {
-        name,
-        thumbnailUrl: sceneThumbnailPath,
-        scene: metadataOnly
-          ? undefined
-          : (JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath, name + sceneSuffix), 'utf8')) as SceneJson)
-      }
-    })
+    const sceneData: SceneDetailInterface[] = files.map((sceneName) =>
+      getSceneData(projectName, sceneName, metadataOnly)
+    )
 
     return {
       data: sceneData

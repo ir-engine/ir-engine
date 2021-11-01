@@ -52,30 +52,63 @@ export class Project extends Service {
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
 
-    for (const name of locallyInstalledProjects) {
-      if (!data.find((e) => e.name === name)) {
+    const promises = []
+
+    for (const projectName of locallyInstalledProjects) {
+      const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
+      if (!data.find((e) => e.name === projectName)) {
         try {
-          const packageData = JSON.parse(
-            fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/projects/', name, 'package.json'), 'utf8')
-          ).xrengine as ProjectPackageInterface
+          const packageData = JSON.parse(fs.readFileSync(path.resolve(projectPath, 'package.json'), 'utf8'))
+            .xrengine as ProjectPackageInterface
 
           if (!packageData) {
-            console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
+            console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${projectName}, aborting.`)
             continue
           }
 
           const dbEntryData: ProjectInterface = {
             ...packageData,
-            name,
-            repositoryPath: getRemoteURLFromGitData(name)
+            name: projectName,
+            repositoryPath: getRemoteURLFromGitData(projectName)
           }
 
-          console.warn('[Projects]: Found new locally installed project', name)
+          console.warn('[Projects]: Found new locally installed project', projectName)
           await super.create(dbEntryData)
         } catch (e) {
           console.log(e)
         }
       }
+
+      promises.push(
+        new Promise(async (resolve) => {
+          // remove exiting storage provider files
+          const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+          if (existingFiles.length) {
+            await Promise.all([
+              storageProvider.deleteResources(existingFiles),
+              storageProvider.createInvalidation(existingFiles)
+            ])
+          }
+          // upload new files to storage provider
+          const files = getFilesRecursive(projectPath)
+          await Promise.all(
+            files.map((file: string) => {
+              new Promise(async (resolve) => {
+                try {
+                  const fileResult = fs.readFileSync(file)
+                  const filePathRelative = file.slice(projectPath.length)
+                  await storageProvider.putObject({
+                    Body: fileResult,
+                    ContentType: getContentType(file),
+                    Key: `projects/${projectName}/${filePathRelative}`
+                  })
+                } catch (e) {}
+                resolve(true)
+              })
+            })
+          )
+        })
+      )
     }
 
     for (const { name, id } of data) {

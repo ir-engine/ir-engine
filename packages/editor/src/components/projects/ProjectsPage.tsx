@@ -18,8 +18,8 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { getProjects } from '../../functions/projectFunctions'
 import { CreateProjectModal } from './CreateProjectModal'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectService } from '@xrengine/client-core/src/admin/state/ProjectService'
-import { SceneService } from '@xrengine/client-core/src/admin/state/SceneService'
+import { ProjectService } from '@xrengine/client-core/src/admin/services/ProjectService'
+import { SceneService } from '@xrengine/client-core/src/admin/services/SceneService'
 
 const contextMenuId = 'project-menu'
 
