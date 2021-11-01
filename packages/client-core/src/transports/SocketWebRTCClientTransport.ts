@@ -61,7 +61,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   sendActions(actions: Set<Action>) {
     if (actions.size === 0) return
     // TODO: should we be checking for existence of `emit` here ??
-    this.instanceSocket.emit(MessageTypes.ActionData.toString(), /*encode(*/ Array.from(actions)) //)
+    if (this.instanceSocket.emit) {
+      this.instanceSocket.emit(MessageTypes.ActionData.toString(), /*encode(*/ Array.from(actions)) //)
+    }
   }
 
   /**
