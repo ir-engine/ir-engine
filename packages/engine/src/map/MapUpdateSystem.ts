@@ -2,7 +2,7 @@ import { System } from '../ecs/classes/System'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { fromMetersFromCenter, LongLat } from './functions/UnitConversionFunctions'
-import { addChildFast, multiplyArray, setPosition, vector3ToArray2 } from './util'
+import { addChildFast, multiplyArray, setPosition, vectorToArray } from './util'
 import { Vector3 } from 'three'
 import { Entity } from '../ecs/classes/Entity'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
@@ -16,6 +16,7 @@ import { Downgraded } from '@hookstate/core'
 import { getPhases, startPhases, resetPhases } from './functions/PhaseFunctions'
 
 const $vector3 = new Vector3()
+const $normalScaleViewerPositionDelta = new Array(2) as [number, number]
 
 /** Track where the viewer was the last time we kicked off a new set of map contruction tasks */
 const $previousViewerPosition = new Vector3()
@@ -40,7 +41,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     const mapScale = mapState.scale
     const object3dComponent = getComponent(mapEntity, Object3DComponent)
     const viewerTransform = getComponent(viewerEntity, TransformComponent)
-    const viewerPosition = vector3ToArray2(viewerTransform.position)
+    const viewerPosition = vectorToArray(viewerTransform.position)
     const viewerPositionScaled = multiplyArray(viewerPosition, 1 / mapScale)
     const navigationRaycastTarget = getComponent(navPlaneEntity, NavMeshComponent).navTarget
 
@@ -52,10 +53,10 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     // Find how far the viewer has travelled since last update, in real-world scale (scale=1)
     // TODO only compare x, z components of positions
     $vector3.subVectors(viewerTransform.position, $previousViewerPosition).divideScalar(mapScale)
-    const [viewerPositionDeltaNormalScaleX, viewerPositionDeltaNormalScaleZ] = vector3ToArray2($vector3)
+    vectorToArray($vector3, $normalScaleViewerPositionDelta)
     const viewerDistanceFromCenterSquared =
-      viewerPositionDeltaNormalScaleX * viewerPositionDeltaNormalScaleX +
-      viewerPositionDeltaNormalScaleZ * viewerPositionDeltaNormalScaleZ
+      $normalScaleViewerPositionDelta[0] * $normalScaleViewerPositionDelta[0] +
+      $normalScaleViewerPositionDelta[1] * $normalScaleViewerPositionDelta[1]
 
     const wasRefreshTriggered =
       viewerDistanceFromCenterSquared >= mapState.triggerRefreshRadius * mapState.triggerRefreshRadius
@@ -72,10 +73,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     }
 
     if (wasRefreshTriggered || wasMapCenterUpdated) {
-      mapState.center = fromMetersFromCenter(
-        [viewerPositionDeltaNormalScaleX, viewerPositionDeltaNormalScaleZ],
-        mapState.center
-      )
+      mapState.center = fromMetersFromCenter($normalScaleViewerPositionDelta, mapState.center)
       mapState.viewerPosition = viewerPosition
       startPhases(mapState, phases)
 
