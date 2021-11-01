@@ -52,10 +52,13 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     // Find how far the viewer has travelled since last update, in real-world scale (scale=1)
     // TODO only compare x, z components of positions
     $vector3.subVectors(viewerTransform.position, $previousViewerPosition).divideScalar(mapScale)
-    const viewerPositionDeltaNormalScale = vector3ToArray2($vector3)
-    const viewerDistanceFromCenter = Math.hypot(...viewerPositionDeltaNormalScale)
+    const [viewerPositionDeltaNormalScaleX, viewerPositionDeltaNormalScaleZ] = vector3ToArray2($vector3)
+    const viewerDistanceFromCenterSquared =
+      viewerPositionDeltaNormalScaleX * viewerPositionDeltaNormalScaleX +
+      viewerPositionDeltaNormalScaleZ * viewerPositionDeltaNormalScaleZ
 
-    const wasRefreshTriggered = viewerDistanceFromCenter >= mapState.triggerRefreshRadius
+    const wasRefreshTriggered =
+      viewerDistanceFromCenterSquared >= mapState.triggerRefreshRadius * mapState.triggerRefreshRadius
     const wasMapCenterUpdated =
       typeof $previousMapCenterPoint[0] !== 'undefined' &&
       typeof $previousMapCenterPoint[1] !== 'undefined' &&
@@ -69,7 +72,10 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     }
 
     if (wasRefreshTriggered || wasMapCenterUpdated) {
-      mapState.center = fromMetersFromCenter(viewerPositionDeltaNormalScale, mapState.center)
+      mapState.center = fromMetersFromCenter(
+        [viewerPositionDeltaNormalScaleX, viewerPositionDeltaNormalScaleZ],
+        mapState.center
+      )
       mapState.viewerPosition = viewerPosition
       startPhases(mapState, phases)
 
