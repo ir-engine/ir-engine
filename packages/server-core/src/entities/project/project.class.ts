@@ -11,6 +11,7 @@ import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
@@ -110,7 +111,7 @@ export class Project extends Service {
 
     // remove existing files in storage provider
     try {
-      const existingFiles = await getFilesRecursive(`projects/${projectName}`)
+      const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
       if (existingFiles.length) {
         Promise.all([storageProvider.deleteResources(existingFiles), storageProvider.createInvalidation(existingFiles)])
       }
