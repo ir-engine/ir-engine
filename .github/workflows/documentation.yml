@@ -7,6 +7,17 @@ on:
     branches: [dev]
 
 jobs:
+  secrets-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check-secrets.outputs.ok }}
+    steps:
+      - name: check for secrets needed to run workflows
+        id: check-secrets
+        run: |
+          if [ ${{ secrets.DOCUMENTATION_BUILD_ENABLED }} == 'true' ]; then
+            echo "::set-output name=ok::enabled"
+          fi
   # checks:
   #   if: github.event_name != 'push'
   #   runs-on: ubuntu-latest
@@ -24,7 +35,9 @@ jobs:
   #         npm install --production=false --legacy-peer-deps
   #         npm run build
   gh-release:
-    if: github.event_name != 'pull_request'
+    needs:
+      - secrets-gate
+    if: ${{ needs.secrets-gate.outputs.ok == 'enabled' }} && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

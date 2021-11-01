@@ -28,7 +28,7 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Build Docker Image
-        run: bash scripts/build_docker_builder.sh prod $DOCKER_LABEL
+        run: bash scripts/build_docker_builder.sh prod $DOCKER_LABEL $PRIVATE_ECR $AWS_REGION
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.PROD_REPO_NAME }}
@@ -37,7 +37,7 @@ jobs:
       - name: npm-install 'cli' and 'aws-sdk'
         run: npm install cli aws-sdk
       - name: Publish to Elastic Container Registry
-        run: bash scripts/publish_ecr_builder.sh prod $GITHUB_SHA $DOCKER_LABEL $AWS_REGION
+        run: bash scripts/publish_ecr_builder.sh prod $GITHUB_SHA $DOCKER_LABEL $PRIVATE_ECR $AWS_REGION
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.PROD_REPO_NAME }}
@@ -50,7 +50,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
       - name: Job succeeded
-        if: always()
+        if: ${{ secrets.SEND_FINISHED_WEBHOOK }} === "true"
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6 # Not needed with a .ruby-version file
