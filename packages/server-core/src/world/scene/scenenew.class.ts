@@ -34,7 +34,7 @@ export class Scene implements ServiceMethods<any> {
     if (!fs.existsSync(newSceneJsonPath))
       throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
 
-    const sceneThumbnailPath = getCachedAsset(`/${projectName}/${sceneName}.thumbnail.png`)
+    const sceneThumbnailPath = getCachedAsset(`/${projectName}/${sceneName}.thumbnail.jpeg`)
 
     const sceneData: SceneDetailInterface = {
       name: sceneName,

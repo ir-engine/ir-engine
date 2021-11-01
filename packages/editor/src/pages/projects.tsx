@@ -1,6 +1,4 @@
 import ClickAwayListener from '@mui/material/ClickAwayListener'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
 import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { useTranslation } from 'react-i18next'
@@ -11,8 +9,6 @@ import {
   StyledProjectsContainer,
   StyledProjectsHeader,
   StyledProjectsSection,
-  TabPanel,
-  tapId,
   useStyles
 } from './projectUtility'
 import Projects from '../components/projects/ProjectsPage'
@@ -23,7 +19,6 @@ import {
   ProjectGridHeader,
   ProjectGridHeaderRow
 } from '../components/projects/ProjectGrid'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 /**
  *Component to render the existing projects in grids with a grid to add new project.
@@ -33,7 +28,6 @@ import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterfa
 const ProjectsPage = () => {
   const classes = useStyles()
 
-  const [currentProject, setCurrentProject] = useState<ProjectInterface>(null)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
 
   const authState = useAuthState()
@@ -74,7 +68,7 @@ const ProjectsPage = () => {
       )}
       {authUser && (
         <div className={classes.root}>
-          <Projects setCurrentProject={setCurrentProject} currentProject={currentProject} />
+          <Projects />
         </div>
       )}
       {profileMenuOpen && (

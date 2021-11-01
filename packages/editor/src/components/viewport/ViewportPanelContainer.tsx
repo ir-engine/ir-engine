@@ -151,10 +151,12 @@ export function ViewportPanelContainer() {
     <div
       className={styles.viewportContainer}
       style={{
-        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent'
+        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent',
+        backgroundColor: 'grey'
       }}
       ref={dropRef}
     >
+      <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine black.png" />
       <canvas className={styles.viewportCanvas} ref={canvasRef} tabIndex={-1} id="viewport-canvas" />
       <div className={styles.controlsText}>{controlsText}</div>
       <AssetDropZone afterUpload={onAfterUploadAssets} />

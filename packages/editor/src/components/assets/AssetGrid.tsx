@@ -203,10 +203,6 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
     SceneManager.instance.getSpawnPosition(node.position)
 
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
-
-    if (item.projectId && globalThis.currentSceneID !== item.projectId) {
-      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
-    }
   }, [])
   //creating callback function used when we choose placeObjectAtOrigin option from context menu of AssetGridItem
   const placeObjectAtOrigin = useCallback((_, trigger) => {
@@ -219,8 +215,6 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
     }
 
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
-    if (item.projectId && globalThis.currentSceneID !== item.projectId)
-      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
   }, [])
 
   const copyURL = useCallback((_, trigger) => {

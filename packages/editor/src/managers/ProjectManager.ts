@@ -18,9 +18,6 @@ export class ProjectManager {
   initializing: boolean
   initialized: boolean
 
-  ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
-  currentOwnedFileIds: {}
-
   constructor(settings = {}) {
     this.settings = settings
     this.project = null
@@ -29,9 +26,6 @@ export class ProjectManager {
 
     this.initializing = false
     this.initialized = false
-
-    this.ownedFileIds = {}
-    this.currentOwnedFileIds = {}
   }
 
   /**

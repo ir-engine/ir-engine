@@ -21,16 +21,9 @@ import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterfa
 import { ProjectService } from '@xrengine/client-core/src/admin/state/ProjectService'
 import { SceneService } from '@xrengine/client-core/src/admin/state/SceneService'
 
-type Props = {
-  currentProject: ProjectInterface
-  setCurrentProject: any
-}
-
 const contextMenuId = 'project-menu'
 
-const ProjectsPage = (props: Props) => {
-  const { currentProject, setCurrentProject } = props
-
+const ProjectsPage = () => {
   const router = useHistory()
   const [projects, setProjects] = useState([]) // constant projects initialized with an empty array.
   const [loading, setLoading] = useState(false) // constant loading initialized with false.
@@ -46,7 +39,7 @@ const ProjectsPage = (props: Props) => {
   const fetchItems = async () => {
     setLoading(true)
     try {
-      const data = await (currentProject ? getScenes(currentProject.name) : getProjects())
+      const data = await getProjects()
       console.log(data)
       setProjects(data ?? [])
       setLoading(false)
@@ -63,10 +56,6 @@ const ProjectsPage = (props: Props) => {
   }
 
   useEffect(() => {
-    fetchItems()
-  }, [currentProject])
-
-  useEffect(() => {
     if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
       fetchItems()
     }
@@ -77,18 +66,14 @@ const ProjectsPage = (props: Props) => {
    */
   const onDeleteProject = async (project) => {
     try {
-      if (currentProject) {
-        await deleteScene(currentProject.name, project.name)
-        fetchItems()
-      } else {
-      }
+      // TODO
     } catch (error) {
-      console.log(`Error deleting ${currentProject ? 'scene' : 'project'}, ${error}`)
+      console.log(`Error deleting project ${error}`)
     }
   }
 
   const openTutorial = () => {
-    router.push('/editor/tutorial')
+    // router.push('/editor/tutorial')
   }
 
   /**
@@ -99,20 +84,12 @@ const ProjectsPage = (props: Props) => {
   }
 
   const onClickExisting = (project) => {
-    if (currentProject) {
-      router.push(`/editor/${project.name}`)
-    } else {
-      setCurrentProject(project)
-    }
+    router.push(`/editor/${project.name}`)
   }
 
   const onCreateProject = async (name) => {
     console.log('onCreateProject', name)
-    if (currentProject) {
-      await SceneService.createScene(currentProject.name, name)
-    } else {
-      await ProjectService.createProject(name)
-    }
+    await ProjectService.createProject(name)
   }
 
   /**
@@ -154,7 +131,7 @@ const ProjectsPage = (props: Props) => {
     <>
       {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
         <main>
-          {!currentProject && projects.length === 0 && !loading ? (
+          {projects.length < 2 && !loading ? (
             <StyledProjectsSection flex={0}>
               <WelcomeContainer>
                 <h1>{t('editor.projects.welcomeMsg')}</h1>
@@ -169,9 +146,7 @@ const ProjectsPage = (props: Props) => {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button onClick={onClickNew}>
-                      {t(`editor.projects.lbl-new${currentProject ? 'Scene' : 'Project'}`)}
-                    </Button>
+                    <Button onClick={onClickNew}>{t(`editor.projects.lbl-newProject`)}</Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
                 <ProjectGridContent>
@@ -182,7 +157,7 @@ const ProjectsPage = (props: Props) => {
                       projects={projects}
                       onClickExisting={onClickExisting}
                       onClickNew={onClickNew}
-                      newProjectLabel={t(`editor.projects.lbl-new${currentProject ? 'Scene' : 'Project'}`)}
+                      newProjectLabel={t(`editor.projects.lbl-newProject`)}
                       contextMenuId={contextMenuId}
                     />
                   )}

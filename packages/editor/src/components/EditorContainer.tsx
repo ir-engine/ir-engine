@@ -1,5 +1,5 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
-import { withRouter } from 'react-router-dom'
+import { RouteComponentProps, withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { LocationService } from '@xrengine/client-core/src/admin/state/LocationService'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
@@ -27,7 +27,7 @@ import defaultTemplateUrl from './templates/crater.json'
 import tutorialTemplateUrl from './templates/tutorial.json'
 import ToolBar from './toolbar/ToolBar'
 import ViewportPanelContainer from './viewport/ViewportPanelContainer'
-import FileBrowserPanel from './assets/FileBrowserPanel'
+import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import { accessLocationState } from '@xrengine/client-core/src/admin/state/LocationState'
 import { accessSceneState } from '@xrengine/client-core/src/admin/state/SceneState'
@@ -42,6 +42,7 @@ import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { client } from '@xrengine/client-core/src/feathers'
+import ScenesPanel from './assets/ScenesPanel'
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -135,10 +136,11 @@ type EditorContainerProps = {
  *
  *  @author Robert Long
  */
-const EditorContainer = (props: EditorContainerProps) => {
+const EditorContainer = (props: RouteComponentProps<any>) => {
+  const { projectName } = props.match.params
+
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)
-  const [project, setProject] = useState(null)
   const [parentSceneId, setParentSceneId] = useState(null)
   const [settingsContext, setSettingsContext] = useState({
     settings: defaultSettings,
@@ -180,32 +182,7 @@ const EditorContainer = (props: EditorContainerProps) => {
         updateSetting
       })
 
-      if (accessLocationState().locations.updateNeeded.value === true) {
-        LocationService.fetchAdminLocations()
-      }
-      if (accessSceneState().scenes.updateNeeded.value === true) {
-        SceneService.fetchAdminScenes()
-      }
-      if (accessLocationState().locationTypes.updateNeeded.value === true) {
-        LocationService.fetchLocationTypes()
-      }
-
-      const { projectName, sceneName } = props
-      setSceneId(projectName + '/' + sceneName)
-
-      if (sceneName === 'new') {
-        if (queryParams.has('template')) {
-          loadProjectTemplate(queryParams.get('template'))
-        } else if (queryParams.has('sceneId')) {
-          loadScene(queryParams.get('sceneId'))
-        } else {
-          loadProjectTemplate(defaultTemplateUrl)
-        }
-      } else if (sceneId === 'tutorial') {
-        loadProjectTemplate(tutorialTemplateUrl)
-      } else {
-        loadProject(sceneId)
-      }
+      loadProject(projectName)
     })
   }, [])
 
@@ -218,121 +195,34 @@ const EditorContainer = (props: EditorContainerProps) => {
     }
   }, [])
 
-  useEffect(() => {
-    if (!editorReady) return
-    const prevSceneId = props.match.params.sceneId
-    if (sceneId !== prevSceneId && !creatingProject) {
-      const queryParams = new Map(new URLSearchParams(window.location.search).entries())
-      setQueryParams(queryParams)
-      const sceneId = pathParams.get('sceneId')
-      let templateUrl = null
-
-      if (sceneId === 'new' && !queryParams.has('sceneId')) {
-        templateUrl = queryParams.get('template') || defaultTemplateUrl
-      } else if (sceneId === 'tutorial') {
-        templateUrl = tutorialTemplateUrl
-      }
-
-      if (sceneId === 'new' || sceneId === 'tutorial') {
-        loadProjectTemplate(templateUrl)
-      } else if (prevSceneId !== 'tutorial' && prevSceneId !== 'new') {
-        loadProject(sceneId)
-      }
-    }
-  }, [editorReady, sceneId])
-
-  const loadProjectTemplate = async (templateFile) => {
-    setProject(null)
-    setParentSceneId(null)
-
-    showDialog(ProgressDialog, {
-      title: t('editor:loading'), // "Loading Project",
-      message: t('editor:loadingMsg')
-    })
-
-    try {
-      if (templateFile.metadata) {
-        delete templateFile.metadata.sceneUrl
-        delete templateFile.metadata.sceneId
-      }
-
-      await ProjectManager.instance.loadProject(templateFile)
-
-      hideDialog()
-    } catch (error) {
-      console.error(error)
-
-      showDialog(ErrorDialog, {
-        title: t('editor:loadingError'),
-        message: error.message || t('editor:loadingErrorMsg'),
-        error
-      })
-    }
-  }
-
-  const loadScene = async (sceneId) => {
-    setProject(null)
-    setParentSceneId(sceneId)
-
-    showDialog(ProgressDialog, {
-      title: t('editor:loading'),
-      message: t('editor:loadingMsg')
-    })
-
-    try {
-      const scene: any = await getScene(sceneId)
-      console.warn('loadScene:scene', scene)
-      const projectFile = scene.data
-
-      await ProjectManager.instance.loadProject(projectFile)
-
-      hideDialog()
-    } catch (error) {
-      console.error(error)
-
-      showDialog(ErrorDialog, {
-        title: t('editor:loadingError'),
-        message: error.message || t('editor:loadingErrorMsg'),
-        error
-      })
-    }
-  }
-
   const importProject = async (projectFile) => {
-    setProject(null)
-    setParentSceneId(null)
-
-    showDialog(ProgressDialog, {
-      title: t('editor:loading'),
-      message: t('editor:loadingMsg')
-    })
-
-    try {
-      await ProjectManager.instance.loadProject(projectFile)
-
-      SceneManager.instance.sceneModified = true
-      updateModifiedState()
-
-      hideDialog()
-    } catch (error) {
-      console.error(error)
-
-      showDialog(ErrorDialog, {
-        title: t('editor:loadingError'),
-        message: error.message || t('editor:loadingErrorMsg'),
-        error
-      })
-    } finally {
-      if (project) {
-        setProject(project)
-      }
-    }
+    // TODO
+    // setProject(null)
+    // setParentSceneId(null)
+    // showDialog(ProgressDialog, {
+    //   title: t('editor:loading'),
+    //   message: t('editor:loadingMsg')
+    // })
+    // try {
+    //   await ProjectManager.instance.loadProject(projectFile)
+    //   SceneManager.instance.sceneModified = true
+    //   updateModifiedState()
+    //   hideDialog()
+    // } catch (error) {
+    //   console.error(error)
+    //   showDialog(ErrorDialog, {
+    //     title: t('editor:loadingError'),
+    //     message: error.message || t('editor:loadingErrorMsg'),
+    //     error
+    //   })
+    // } finally {
+    //   if (project) {
+    //     setProject(project)
+    //   }
+    // }
   }
 
   const loadProject = async (sceneId) => {
-    setProject(null)
-    setParentSceneId(null)
-
     showDialog(ProgressDialog, {
       title: t('editor:loading'),
       message: t('editor:loadingMsg')
@@ -493,83 +383,69 @@ const EditorContainer = (props: EditorContainerProps) => {
    */
 
   const createProject = async () => {
-    showDialog(ProgressDialog, {
-      title: t('editor:generateScreenshot'),
-      message: t('editor:generateScreenshotMsg')
-    })
-
-    // Wait for 5ms so that the ProgressDialog shows up.
-    await new Promise((resolve) => setTimeout(resolve, 5))
-
-    const blob = await SceneManager.instance.takeScreenshot(512, 320)
-
-    const result: any = (await new Promise((resolve) => {
-      showDialog(SaveNewProjectDialog, {
-        thumbnailUrl: URL.createObjectURL(blob),
-        initialName: SceneManager.instance.scene.name,
-        onConfirm: resolve,
-        onCancel: resolve
-      })
-    })) as any
-
-    if (!result) {
-      hideDialog()
-      return null
-    }
-
-    const abortController = new AbortController()
-
-    showDialog(ProgressDialog, {
-      title: t('editor:saving'),
-      message: t('editor:savingMsg'),
-      cancelable: true,
-      onCancel: () => {
-        abortController.abort()
-        hideDialog()
-      }
-    })
-
-    CommandManager.instance.executeCommand(EditorCommands.MODIFY_PROPERTY, SceneManager.instance.scene, {
-      properties: { name: result.name }
-    })
-    SceneManager.instance.scene.setMetadata({ name: result.name })
-
-    const project = await createScene(
-      SceneManager.instance.scene,
-      parentSceneId,
-      blob,
-      abortController.signal,
-      showDialog,
-      hideDialog
-    )
-
-    SceneManager.instance.sceneModified = false
-    globalThis.currentSceneID = project.scene_id
-
-    pathParams.set('sceneId', project.scene_id)
-    setSceneId(project.scene_id)
-
-    updateModifiedState(() => {
-      setCreatingProject(true)
-      setProject(project)
-    })
-
-    return project
+    // showDialog(ProgressDialog, {
+    //   title: t('editor:generateScreenshot'),
+    //   message: t('editor:generateScreenshotMsg')
+    // })
+    // // Wait for 5ms so that the ProgressDialog shows up.
+    // await new Promise((resolve) => setTimeout(resolve, 5))
+    // const blob = await SceneManager.instance.takeScreenshot(512, 320)
+    // const result: any = (await new Promise((resolve) => {
+    //   showDialog(SaveNewProjectDialog, {
+    //     thumbnailUrl: URL.createObjectURL(blob),
+    //     initialName: SceneManager.instance.scene.name,
+    //     onConfirm: resolve,
+    //     onCancel: resolve
+    //   })
+    // })) as any
+    // if (!result) {
+    //   hideDialog()
+    //   return null
+    // }
+    // const abortController = new AbortController()
+    // showDialog(ProgressDialog, {
+    //   title: t('editor:saving'),
+    //   message: t('editor:savingMsg'),
+    //   cancelable: true,
+    //   onCancel: () => {
+    //     abortController.abort()
+    //     hideDialog()
+    //   }
+    // })
+    // CommandManager.instance.executeCommand(EditorCommands.MODIFY_PROPERTY, SceneManager.instance.scene, {
+    //   properties: { name: result.name }
+    // })
+    // SceneManager.instance.scene.setMetadata({ name: result.name })
+    // const project = await createScene(
+    //   SceneManager.instance.scene,
+    //   parentSceneId,
+    //   blob,
+    //   abortController.signal,
+    //   showDialog,
+    //   hideDialog
+    // )
+    // SceneManager.instance.sceneModified = false
+    // setSceneId(project.scene_id)
+    // updateModifiedState(() => {
+    //   setCreatingProject(true)
+    //   setProject(project)
+    // })
+    // return project
   }
 
-  useEffect(() => {
-    if (creatingProject) {
-      props.history.replace(`/editor/${project.scene_id}`)
-      setCreatingProject(false)
-    }
-  }, [creatingProject, project])
+  // useEffect(() => {
+  //   if (creatingProject) {
+  //     props.history.replace(`/editor/${project.scene_id}`)
+  //     setCreatingProject(false)
+  //   }
+  // }, [creatingProject, project])
 
   const onNewProject = async () => {
-    props.history.push('/editor/new')
+    // props.history.push('/editor/new')
   }
 
   const onOpenProject = () => {
-    props.history.push('/editor')
+    // props.history.push('/editor')
   }
 
   const onDuplicateProject = async () => {
@@ -764,14 +640,24 @@ const EditorContainer = (props: EditorContainerProps) => {
             {
               tabs: [
                 {
-                  id: 'fileBrowserPanel',
+                  id: 'scenePanel',
                   title: (
                     <PanelDragContainer>
                       <PanelIcon as={Archive} size={12} />
-                      <PanelTitle>File Browser</PanelTitle>
+                      <PanelTitle>Scenes</PanelTitle>
                     </PanelDragContainer>
                   ),
-                  content: <FileBrowserPanel />
+                  content: <ScenesPanel projectName={projectName} />
+                },
+                {
+                  id: 'filesPanel',
+                  title: (
+                    <PanelDragContainer>
+                      <PanelIcon as={Archive} size={12} />
+                      <PanelTitle>Files</PanelTitle>
+                    </PanelDragContainer>
+                  ),
+                  content: <ProjectBrowserPanel />
                 }
               ]
             }

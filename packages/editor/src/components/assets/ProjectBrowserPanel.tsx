@@ -10,7 +10,7 @@ import { DockContainer } from '../EditorContainer'
  * @constructor
  */
 
-export default function FileBrowserPanel() {
+export default function ProjectBrowserPanel() {
   const assetsPreviewPanelRef = React.useRef()
 
   const onLayoutChangedCallback = () => {
@@ -27,11 +27,16 @@ export default function FileBrowserPanel() {
       children: [
         {
           size: 7,
-          tabs: [
+          mode: 'horizontal' as DockMode,
+          children: [
             {
-              id: 'projectFilesPanel',
-              title: 'Project Files',
-              content: <FileBrowserContentPanel onSelectionChanged={onSelectionChanged} />
+              tabs: [
+                {
+                  id: 'filesPanel',
+                  title: 'Project Files',
+                  content: <FileBrowserContentPanel onSelectionChanged={onSelectionChanged} />
+                }
+              ]
             }
           ]
         },
