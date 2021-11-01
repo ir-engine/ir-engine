@@ -1,7 +1,7 @@
 import Fab from '@mui/material/Fab'
 import { CallEnd, VideoCall } from '@mui/icons-material'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import {
   configureMediaTransports,
   endVideoChat

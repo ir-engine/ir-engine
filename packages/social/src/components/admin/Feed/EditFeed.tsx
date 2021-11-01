@@ -16,7 +16,7 @@ import { validateFeedForm } from './validation'
 import { Save } from '@mui/icons-material'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
 
 interface Props {
   adminFeed: any

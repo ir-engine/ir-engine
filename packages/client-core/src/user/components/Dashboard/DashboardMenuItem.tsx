@@ -11,7 +11,7 @@ import ListSubheader from '@mui/material/ListSubheader'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import Collapse from '@mui/material/Collapse'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../services/AuthService'
 import { SidebarItems, SocialSidebarItems } from './DashboardItems'
 
 import { useTranslation } from 'react-i18next'

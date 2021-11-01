@@ -3,7 +3,7 @@ import Paper from '@mui/material/Paper'
 import InputBase from '@mui/material/InputBase'
 import IconButton from '@mui/material/IconButton'
 import Send from '@mui/icons-material/Send'
-import { ChatService } from '../../../social/state/ChatService'
+import { ChatService } from '../../../social/services/ChatService'
 import { useDispatch } from '../../../store'
 import { useStyles } from './style'
 

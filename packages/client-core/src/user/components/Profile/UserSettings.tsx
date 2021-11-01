@@ -10,8 +10,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import React, { ChangeEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from '../../../store'
-import { AuthService } from '../../state/AuthService'
-import { useAuthState } from '../../state/AuthState'
+import { AuthService } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
 import styles from './Profile.module.scss'
 
 interface Props {}

@@ -1,9 +1,9 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { AlertService } from '@xrengine/client-core/src/common/state/AlertService'
+import { AlertService } from '@xrengine/client-core/src/common/services/AlertService'
 import { client } from '@xrengine/client-core/src/feathers'
-import { FeedAction } from '@xrengine/client-core/src/social/state/FeedActions'
+import { FeedAction } from '@xrengine/client-core/src/social/services/FeedActions'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
 export const FeedBookmarkService = {
