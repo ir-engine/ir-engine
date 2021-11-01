@@ -101,11 +101,21 @@ export class Project extends Service {
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
-    // remove existing
+    // remove existing files in fs
     if (fs.existsSync(projectLocalDirectory)) {
       // disable accidental deletion of projects for local development
       if (isDev) throw new Error('Cannot create project - already exists')
       deleteFolderRecursive(projectLocalDirectory)
+    }
+
+    // remove existing files in storage provider
+    try {
+      const existingFiles = await getFilesRecursive(`projects/${projectName}`)
+      if (existingFiles.length) {
+        Promise.all([storageProvider.deleteResources(existingFiles), storageProvider.createInvalidation(existingFiles)])
+      }
+    } catch (e) {
+      console.log('[project.class]: Failed to invalidate cache with error', e)
     }
 
     const existingPackResult = await this.Model.findOne({
