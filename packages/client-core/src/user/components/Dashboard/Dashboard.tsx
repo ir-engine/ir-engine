@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../services/AuthService'
 
 import { useStylesForDashboard } from './styles'
 import DashboardMenuItem from './DashboardMenuItem'

@@ -18,14 +18,14 @@ import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import FormGroup from '@mui/material/FormGroup'
 import Switch from '@mui/material/Switch'
-import { useSceneState } from '../../state/SceneState'
+import { useSceneState } from '../../services/SceneService'
 import { useDispatch } from '../../../store'
-import { useLocationState } from '../../state/LocationState'
+import { useLocationState } from '../../services/LocationService'
 import { validateUserForm } from '../Users/validation'
-import { LocationService } from '../../state/LocationService'
+import { LocationService } from '../../services/LocationService'
 import MuiAlert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/services/AuthService'
 
 interface Props {
   openView: any

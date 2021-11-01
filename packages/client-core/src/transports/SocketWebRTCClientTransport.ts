@@ -19,7 +19,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { MediaStreamService } from '../media/state/MediaStreamService'
+import { MediaStreamService } from '../media/services/MediaStreamService'
 // import { encode, decode } from 'msgpackr'
 
 export class SocketWebRTCClientTransport implements NetworkTransport {

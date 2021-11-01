@@ -1,6 +1,6 @@
 import React from 'react'
 import BotsCore from '../../components/Bots'
-import { AuthService } from '../../../user/state/AuthService'
+import { AuthService } from '../../../user/services/AuthService'
 import { useDispatch } from '../../../store'
 
 interface Props {}

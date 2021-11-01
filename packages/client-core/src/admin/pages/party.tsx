@@ -1,5 +1,5 @@
 import PartyCore from '../components/Party'
-import { AuthService } from '../../user/state/AuthService'
+import { AuthService } from '../../user/services/AuthService'
 import React from 'react'
 import { useDispatch } from '../../store'
 

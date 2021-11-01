@@ -5,7 +5,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import { InviteService } from '../../../social/state/InviteService'
+import { InviteService } from '../../../social/services/InviteService'
 import { Theme, useTheme } from '@mui/material/styles'
 import createStyles from '@mui/styles/createStyles'
 import makeStyles from '@mui/styles/makeStyles'
@@ -18,7 +18,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import LastPageIcon from '@mui/icons-material/LastPage'
 import TableFooter from '@mui/material/TableFooter'
 import TablePagination from '@mui/material/TablePagination'
-import { INVITE_PAGE_LIMIT, useInviteState } from '../../../social/state/InviteState'
+import { INVITE_PAGE_LIMIT, useInviteState } from '../../../social/services/InviteService'
 
 interface Props {
   invites: any
