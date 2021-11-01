@@ -4,6 +4,17 @@ on:
     branches:
       [master]
 jobs:
+  secrets-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check-secrets.outputs.ok }}
+    steps:
+      - name: check for secrets needed to run workflows
+        id: check-secrets
+        run: |
+          if [ ${{ secrets.SEND_FINISHED_WEBHOOK }} == 'true' ]; then
+            echo "::set-output name=ok::enabled"
+          fi
   prod-deploy:
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +61,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
       - name: Job succeeded
-        if: ${{ secrets.SEND_FINISHED_WEBHOOK }} === "true"
+        if: ${{ needs.secrets-gate.outputs.ok == 'enabled' }}
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6 # Not needed with a .ruby-version file
