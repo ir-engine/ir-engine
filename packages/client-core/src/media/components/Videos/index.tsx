@@ -3,7 +3,7 @@ import styles from './Videos.module.scss'
 import Button from '@mui/material/Button'
 import { useDispatch } from '../../../store'
 import { PublicVideo } from '../../services/VideoActions'
-import { useVideoState } from '../../services/VideoStatece'
+import { useVideoState } from '../../services/VideoService'
 import { VideoService } from '../../services/VideoService'
 import { useTranslation } from 'react-i18next'
 
