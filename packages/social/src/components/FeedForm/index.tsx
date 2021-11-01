@@ -19,13 +19,13 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 // @ts-ignore
 import styles from './FeedForm.module.scss'
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
-import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
-import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/services/WebxrNativeService'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/services/WebxrNativeService'
 import Preloader from '@xrengine/social/src/components/Preloader'
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { useFeedState } from '@xrengine/client-core/src/social/services/FeedService'
 
 interface Props {
   feed?: any

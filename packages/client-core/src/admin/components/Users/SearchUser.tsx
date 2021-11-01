@@ -4,7 +4,7 @@ import Paper from '@mui/material/Paper'
 import SearchIcon from '@mui/icons-material/Search'
 import React from 'react'
 import { useDispatch } from '../../../store'
-import { UserService } from '../../state/UserService'
+import { UserService } from '../../services/UserService'
 import { useUserStyles } from './styles'
 
 interface Props {}

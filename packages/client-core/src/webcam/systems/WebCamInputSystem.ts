@@ -7,8 +7,8 @@ import {
   defineQuery
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { isEntityLocalClient } from '@xrengine/engine/src/networking/functions/isEntityLocalClient'
-import { ChatService } from '../../social/state/ChatService'
-import { accessAuthState } from '../../user/state/AuthState'
+import { ChatService } from '../../social/services/ChatService'
+import { accessAuthState } from '../../user/services/AuthService'
 import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
 
 export default async function WebCamInputSystem(world: World): Promise<System> {

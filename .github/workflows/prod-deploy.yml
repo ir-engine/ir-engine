@@ -28,7 +28,7 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Build Docker Image
-        run: bash scripts/build_docker_builder.sh prod $DOCKER_LABEL $AWS_REGION
+        run: bash scripts/build_docker_builder.sh prod $DOCKER_LABEL
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.PROD_REPO_NAME }}

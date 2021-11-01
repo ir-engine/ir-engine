@@ -109,7 +109,8 @@ export default defineConfig((command) => {
   if(process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true') {
     returned.server.https = {
       key: fs.readFileSync('../../certs/key.pem'),
-      cert: fs.readFileSync('../../certs/cert.pem')
+      cert: fs.readFileSync('../../certs/cert.pem'),
+      maxSessionMemory: 100
     }
   }
   if (command.command === 'build' && process.env.VITE_LOCAL_BUILD !== 'true') {

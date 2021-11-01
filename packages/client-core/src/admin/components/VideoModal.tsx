@@ -7,7 +7,7 @@ import Modal from '@mui/material/Modal'
 import TextField from '@mui/material/TextField'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '../../store'
-import { AdminService } from '../state/AdminService'
+import { AdminService } from '../services/AdminService'
 import styles from './Admin.module.scss'
 
 interface Props {

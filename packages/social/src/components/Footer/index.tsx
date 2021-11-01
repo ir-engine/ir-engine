@@ -8,13 +8,13 @@ import React, { useEffect } from 'react'
 import styles from './Footer.module.scss'
 import Avatar from '@mui/material/Avatar'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 // import IndexPage from "@xrengine/social/pages/login";
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import ViewMode from '../ViewMode/ViewMode'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
 interface Props {
   setView?: any

@@ -13,7 +13,7 @@ import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
 import ResetPassword from '../../../user/components/Auth/ResetPassword'
-import { AuthService } from '../../state/AuthService'
+import { AuthService } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
