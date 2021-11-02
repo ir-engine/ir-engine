@@ -1,11 +1,12 @@
-import i18n from 'i18next'
 import Command, { CommandParams } from './Command'
 import { serializeObject3DArray } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { NodeManager } from '../managers/NodeManager'
-import { SceneManager } from '../managers/SceneManager'
+import { TreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent, removeAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 export interface RemoveObjectCommandParams extends CommandParams {
   /** Whether to deselect object or not */
@@ -13,6 +14,8 @@ export interface RemoveObjectCommandParams extends CommandParams {
 }
 
 export default class RemoveObjectsCommand extends Command {
+  undoObjects: any[]
+
   oldParents: any[]
 
   oldBefores: any[]
@@ -24,56 +27,44 @@ export default class RemoveObjectsCommand extends Command {
   constructor(objects?: any | any[], params?: RemoveObjectCommandParams) {
     super(objects, params)
 
-    this.affectedObjects = []
+    this.affectedObjects = Array.isArray(objects) ? objects : [objects]
     this.oldParents = []
     this.oldBefores = []
+    this.undoObjects = []
     this.oldNodes = NodeManager.instance.getCopy()
     this.oldSelection = CommandManager.instance.selected.slice(0)
     this.deselectObject = params.deselectObject
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
+    for (let i = this.affectedObjects.length - 1; i >= 0; i--) {
+      const object = this.affectedObjects[i]
+      this.undoObjects.push(object)
+      this.oldParents.push(object.parentNode)
+      this.oldBefores.push(object.parentNode.children[object.parentNode.children.indexOf(object) + 1])
     }
-
-    // Sort objects, parents, and befores with a depth first search so that undo adds nodes in the correct order
-    SceneManager.instance.scene.traverse((object) => {
-      if (objects.indexOf(object) !== -1) {
-        this.affectedObjects.push(object)
-        this.oldParents.push(object.parent)
-        if (object.parent) {
-          const siblings = object.parent.children
-          const index = siblings.indexOf(object)
-          if (index + 1 < siblings.length) {
-            this.oldBefores.push(siblings[index + 1])
-          } else {
-            this.oldBefores.push(undefined)
-          }
-        }
-      }
-    })
   }
 
   execute() {
     this.emitBeforeExecuteEvent()
 
-    const removeObjectsRoots = []
-    CommandManager.instance.getRootObjects(this.affectedObjects, removeObjectsRoots)
+    const removeObjectsRoots = CommandManager.instance.getRootObjects(this.affectedObjects)
 
     for (let i = 0; i < removeObjectsRoots.length; i++) {
-      const object = removeObjectsRoots[i]
+      const object = removeObjectsRoots[i] as TreeNode
 
-      if (object.parent === null) return null // avoid deleting the camera or scene
+      if (!object.parentNode) return  // Avoid deleting root object
 
-      object.traverse((child) => {
-        if (child.isNode) {
-          child.onRemove()
-          if (!NodeManager.instance.remove(child)) {
-            throw new Error(i18n.t('editor:errors.removeObject'))
-          }
-        }
-      })
+      const obj3d = getComponent(object.eid, Object3DComponent)
 
-      object.parent.remove(object)
+      if (obj3d) {
+        // obj3d.value.traverse((child: any) => {
+        //   if (child.onRemove) child.onRemove()
+        // })
+
+        obj3d.value.parent.remove(obj3d.value)
+      }
+
+      removeAllComponents(object.eid)
+      object.removeFromParent()
 
       if (this.deselectObject) {
         CommandManager.instance.executeCommand(EditorCommands.REMOVE_FROM_SELECTION, object, {
@@ -86,14 +77,12 @@ export default class RemoveObjectsCommand extends Command {
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.affectedObjects, {
+    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.undoObjects, {
       parents: this.oldParents,
       befores: this.oldBefores,
       isObjectSelected: this.isSelected,
       useUniqueName: false
     })
-
-    NodeManager.instance.fill(this.oldNodes)
 
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
   }

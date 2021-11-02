@@ -30,6 +30,8 @@ import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { TransformSpace } from '../constants/TransformSpace'
 
 export class SceneManager {
   static instance: SceneManager
@@ -301,9 +303,11 @@ export class SceneManager {
   reparentToSceneAtCursorPosition(objects, mousePos) {
     const newPosition = new Vector3()
     this.getCursorSpawnPosition(mousePos, newPosition)
-    CommandManager.instance.executeCommand(EditorCommands.REPARENT, objects, {
-      parents: this.scene,
-      positions: newPosition
+    const world = useWorld()
+    CommandManager.instance.executeCommand(EditorCommands.REPARENT, objects, { parents: world.entityTree.rootNode })
+    CommandManager.instance.executeCommand(EditorCommands.POSITION, objects, {
+      positions: newPosition,
+      space: TransformSpace.Local
     })
   }
 

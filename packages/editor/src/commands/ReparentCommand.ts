@@ -1,13 +1,15 @@
 import i18n from 'i18next'
 import Command, { CommandParams } from './Command'
 import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
-import reverseDepthFirstTraverse from '../functions/reverseDepthFirstTraverse'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { Matrix4 } from 'three'
-import { SceneManager } from '../managers/SceneManager'
-import { TransformSpace } from '../constants/TransformSpace'
+import { TreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export interface ReparentCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -37,7 +39,7 @@ export default class ReparentCommand extends Command {
   constructor(objects?: any | any[], params?: ReparentCommandParams) {
     super(objects, params)
 
-    this.affectedObjects = []
+    this.affectedObjects = Array.isArray(objects) ? objects : [objects]
     this.undoObjects = []
     this.newParents = Array.isArray(params.parents) ? params.parents : [params.parents]
     this.newBefores = Array.isArray(params.befores) ? params.befores : [params.befores]
@@ -46,71 +48,29 @@ export default class ReparentCommand extends Command {
     this.oldBefores = []
     this.oldSelection = CommandManager.instance.selected.slice(0)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
+    for (let i = this.affectedObjects.length - 1; i >= 0; i--) {
+      const object = this.affectedObjects[i]
+      this.undoObjects.push(object)
+      this.oldParents.push(object.parentNode)
+      this.oldBefores.push(object.parentNode.children[object.parentNode.children.indexOf(object) + 1])
     }
-
-    this.oldPositions = objects.map((o) => o.position.clone())
-
-    SceneManager.instance.scene.traverse((object) => {
-      if (objects.indexOf(object) !== -1) {
-        this.affectedObjects.push(object)
-      }
-    })
-
-    // Sort objects, parents, and befores with a depth first search so that undo adds nodes in the correct order
-    reverseDepthFirstTraverse(SceneManager.instance.scene, (object) => {
-      if (objects.indexOf(object) !== -1) {
-        this.undoObjects.push(object)
-        this.oldParents.push(object.parent)
-        if (object.parent) {
-          const siblings = object.parent.children
-          const index = siblings.indexOf(object)
-          if (index + 1 < siblings.length) {
-            this.oldBefores.push(siblings[index + 1])
-          } else {
-            this.oldBefores.push(undefined)
-          }
-        }
-      }
-    })
   }
 
   execute() {
     this.emitBeforeExecuteEvent()
-
     this.reparent(this.affectedObjects, this.newParents, this.newBefores)
-
-    if (this.newPositions) {
-      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, {
-        positions: this.newPositions,
-        space: TransformSpace.Local
-      })
-    }
-
+    CommandManager.instance.updateTransformRoots()
     this.emitAfterExecuteEvent()
   }
 
   undo() {
     this.isSelected = false
-    this.shouldEmitEvent = false
-    this.reparent(this.affectedObjects, this.oldParents, this.oldBefores)
+    this.reparent(this.undoObjects, this.oldParents, this.oldBefores)
+
     this.shouldEmitEvent = true
     this.isSelected = true
 
-    if (this.newPositions) {
-      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, {
-        positions: this.oldPositions,
-        space: TransformSpace.Local,
-        shouldEmitEvent: false
-      })
-    }
-
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection, {
-      shouldGizmoUpdate: false
-    })
-
-    CommandManager.instance.updateTransformRoots()
+    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
     this.emitAfterExecuteEvent()
   }
 
@@ -135,11 +95,13 @@ export default class ReparentCommand extends Command {
     }
   }
 
-  reparent(objects?: any[], parents?: any, before?: any): void {
+  reparent(objects?: TreeNode[], parents?: any, before?: any): void {
+    const world = useWorld()
+
     for (let i = 0; i < objects.length; i++) {
       const object = objects[i]
 
-      if (!object.parent) {
+      if (!object.parentNode) {
         throw new Error(i18n.t('editor:errors.noParent', { node: object.nodeName || object.type, name: object.name }))
       }
 
@@ -149,36 +111,41 @@ export default class ReparentCommand extends Command {
         throw new Error(i18n.t('editor:errors.undefinedParent'))
       }
 
-      if (newParent !== object.parent) {
-        // Maintain world position when reparenting.
-        newParent.updateMatrixWorld()
+      const obj3d = getComponent(object.eid, Object3DComponent)
+      const parentObj3d = getComponent(newParent.eid, Object3DComponent)
+      const parentObj = world.entityTree.rootNode === newParent
+        ? Engine.scene
+        : parentObj3d ? parentObj3d.value : obj3d.value.parent
 
+      // If parent is different then maintain world position of the object when reparenting.
+      if (newParent !== object.parentNode) {
         const tempMatrix1 = new Matrix4()
-        tempMatrix1.copy(newParent.matrixWorld).invert()
+        tempMatrix1.copy(parentObj.matrixWorld).invert()
 
-        object.parent.updateMatrixWorld()
-        tempMatrix1.multiply(object.parent.matrixWorld)
+        obj3d.value.parent.updateMatrixWorld()
+        tempMatrix1.multiply(obj3d.value.parent.matrixWorld)
 
-        object.applyMatrix(tempMatrix1)
-
-        object.updateWorldMatrix(false, false)
+        obj3d.value.applyMatrix4(tempMatrix1)
       }
 
-      const objectIndex = object.parent.children.indexOf(object)
-      object.parent.children.splice(objectIndex, 1)
+      // Remove from parent in threejs scene
+      const objectIndex = obj3d.value.parent.children.indexOf(obj3d.value)
+      obj3d.value.parent.children.splice(objectIndex, 1)
 
+      // Add to new parent in threejs scene
       const newBefore = Array.isArray(before) ? before[i] : before
-
       if (newBefore) {
-        const newObjectIndex = newParent.children.indexOf(newBefore)
-        newParent.children.splice(newObjectIndex, 0, object)
+        const beforeObj3d = getComponent(newBefore.eid, Object3DComponent)
+        const index = parentObj.children.indexOf(beforeObj3d.value)
+        parentObj.children.splice(index, 0, obj3d.value)
       } else {
-        newParent.children.push(object)
+        parentObj.children.push(obj3d.value)
       }
 
-      object.parent = newParent
-
-      object.updateMatrixWorld(true)
+      // Reparent in Entity Tree
+      const newObjectIndex = newBefore && newParent.children ? newParent.children.indexOf(newBefore) : undefined
+      object.reparent(newParent, newObjectIndex)
+      obj3d.value.parent = parentObj
     }
 
     if (this.isSelected) {
@@ -187,7 +154,5 @@ export default class ReparentCommand extends Command {
         shouldGizmoUpdate: false
       })
     }
-
-    CommandManager.instance.updateTransformRoots()
   }
 }

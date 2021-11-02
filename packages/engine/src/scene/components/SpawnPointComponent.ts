@@ -21,6 +21,7 @@ export class SpawnPointData implements ComponentData {
 
   constructor(obj3d: Object3D, showHelper: boolean = false) {
     this.obj3d = obj3d
+    this.obj3d.name = 'Spawn Point'
 
     if (showHelper) {
       this.initComponent()

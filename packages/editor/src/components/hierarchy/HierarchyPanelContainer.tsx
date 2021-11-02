@@ -1,20 +1,14 @@
 import React, { useState, useEffect, useCallback, memo, Fragment } from 'react'
 import styled from 'styled-components'
-import DefaultNodeEditor from '../properties/DefaultNodeEditor'
-import { ContextMenu, MenuItem, ContextMenuTrigger } from '../layout/ContextMenu'
-import { useDrag, useDrop } from 'react-dnd'
-import { getEmptyImage } from 'react-dnd-html5-backend'
+import { ContextMenu, MenuItem } from '../layout/ContextMenu'
+import { useDrop } from 'react-dnd'
 import { FixedSizeList, areEqual } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { addAssetOnDrop } from '../dnd'
-import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
-import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
 import useUpload from '../assets/useUpload'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import NodeIssuesIcon from './NodeIssuesIcon'
 import { useTranslation } from 'react-i18next'
 import { cmdOrCtrlString } from '../../functions/utils'
-import traverseEarlyOut from '../../functions/traverseEarlyOut'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
@@ -22,9 +16,8 @@ import { SceneManager } from '../../managers/SceneManager'
 import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { getComponentIcon } from '../../managers/NodeManager'
+import { getNodeElId, isAncestor, HierarchyTreeNode } from './TreeNode'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -38,16 +31,7 @@ const uploadOptions = {
   accepts: AllFileTypes
 }
 
-/**
- * function provides node menu properties.
- *
- * @author Robert Long
- * @param  {object} node
- * @return {object}
- */
-function collectNodeMenuProps({ node }) {
-  return node
-}
+
 
 /**
  * PanelContainer used as wrapper element for   penal content.
@@ -66,39 +50,6 @@ const PanelContainer = (styled as any).div`
   color: ${(props) => props.theme.text2};
 `
 
-/**
- * TreeDepthContainer used to provide the styles for hierarchy tree.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const TreeDepthContainer = (styled as any).li``
-
-/**
- * treeNodeBackgroundColor function used to provide background color for tree nodes.
- *
- * @author Robert Long
- * @param  {boolean} root
- * @param  {boolean} selected
- * @param  {boolean} active
- * @param  {object} theme
- * @return {string}
- */
-function treeNodeBackgroundColor({ root, selected, active, theme }) {
-  if (selected) {
-    if (active) {
-      return theme.bluePressed
-    } else {
-      return theme.selected
-    }
-  } else {
-    if (root) {
-      return theme.panel2
-    } else {
-      return theme.panel
-    }
-  }
-}
 
 /**
  * getNodeKey function used to get object id at given index.
@@ -112,612 +63,13 @@ function getNodeKey(index, data) {
   return data.nodes[index].object.id
 }
 
-/**
- * getNodeElId function provides id for node.
- *
- * @author Robert Long
- * @param  {object} node
- * @return {string}
- */
-function getNodeElId(node) {
-  return 'hierarchy-node-' + node.id
-}
-
-/**
- * TreeNodeContainer used to provide styles to node tree.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const TreeNodeContainer = (styled as any).div`
-  display: flex;
-  flex-direction: column;
-  outline: none;
-  overflow: hidden;
-
-  background-color: ${treeNodeBackgroundColor};
-  border-bottom: ${(props) => (props.root ? props.theme.borderStyle : 'none')};
-
-  color: ${(props) => (props.selected || props.focused ? props.theme.text : props.theme.text2)};
-
-  :hover,
-  :focus {
-    background-color: ${(props) => (props.selected ? props.theme.blueHover : props.theme.hover)};
-    color: ${(props) => props.theme.text};
-  }
-
-  :active {
-    background-color: ${(props) => props.theme.bluePressed};
-    color: ${(props) => props.theme.text};
-  }
-`
-
-/**
- * TreeNodeSelectTarget used to provide styles for node inside hierarchy container.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const TreeNodeSelectTarget = (styled as any).div`
-  display: flex;
-  flex: 1;
-  padding: 2px 4px 2px 0;
-`
-
-/**
- * TreeNodeLabelContainer used to provide styles for label text on hierarchy node.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const TreeNodeLabelContainer = (styled as any).div`
-  display: flex;
-  flex: 1;
-`
-
-/**
- * TreeNodeContent used to provide styles for container element of TreeNodeIcon TreeNodeLabel.
- *
- * @author Robert Long
- * @type {Styled Component}
- */
-const TreeNodeContent = (styled as any).div`
-  outline: none;
-  display: flex;
-  padding-right: 8px;
-  padding-left: ${(props) => props.depth * 8 + 2 + 'px'};
-`
-
-/**
- * TreeNodeToggle creates element used to toggle node.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const TreeNodeToggle = (styled as any).div`
-  padding: 2px 4px;
-  margin: 0 4px;
-
-  :hover {
-    color: ${(props) => props.theme.text};
-    background-color: ${(props) => props.theme.hover2};
-    border-radius: 3px;
-  }
-`
-
-/**
- * TreeNodeLeafSpacer used to create space between leaf node.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const TreeNodeLeafSpacer = (styled as any).div`
-  width: 20px;
-`
-
-/**
- * TreeNodeIcon used provide style for icon inside tree node.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const TreeNodeIcon = (styled as any).div`
-  width: 12px;
-  height: 12px;
-  margin: 2px 4px;
-`
-
-/**
- * TreeNodeLabel used to provide styles for label content of tree node.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const TreeNodeLabel = (styled as any).div`
-  background-color: ${(props) => (props.isOver && props.canDrop ? 'rgba(255, 255, 255, 0.3)' : 'transparent')};
-  color: ${(props) => (props.isOver && props.canDrop ? props.theme.text : 'inherit')};
-  border-radius: 4px;
-  padding: 0 2px;
-`
-
-/**
- * borderStyle function used to provide styles for border.
- *
- * @author Robert Long
- * @param  {Boolean} isOver
- * @param  {Boolean}  canDrop
- * @param  {string}  position
- * @return {string}
- */
-function borderStyle({ isOver, canDrop, position }) {
-  if (isOver && canDrop) {
-    return `border-${position === 'before' ? 'top' : 'bottom'}: 2px solid rgba(255, 255, 255, 0.3)`
-  } else {
-    return ''
-  }
-}
-
-/**
- * TreeNodeDropTarget used to provide styles to drop target node.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const TreeNodeDropTarget = (styled as any).div`
-  height: 4px;
-  box-sizing: content-box;
-  ${borderStyle};
-  margin-left: ${(props) => (props.depth > 0 ? props.depth * 8 + 20 : 0)}px;
-`
-
-/**
- * TreeNodeRenameInput used to provides styles for rename input of node.
- *
- * @author Robert Long
- * @type {Styled Component}
- */
-const TreeNodeRenameInput = (styled as any).input`
-  position: absolute;
-  top: -3px;
-  background-color: ${(props) => props.theme.inputBackground};
-  color: ${(props) => props.theme.text};
-  border: ${(props) => props.theme.borderStyle};
-  padding: 2px 4px;
-`
-
-/**
- * TreeNodeRenameInputContainer used to provide styles for rename input container of tree node.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const TreeNodeRenameInputContainer = (styled as any).div`
-  position: relative;
-  height: 15px;
-`
-
-/**
- * isAncestor used to check if object contains leaf nodes or not.
- *
- * @author Robert Long
- * @param  {object}  object
- * @param  {object}  otherObject
- * @return {Boolean}
- */
-function isAncestor(object, otherObject) {
-  return !traverseEarlyOut(object, (child) => child !== otherObject)
-}
-
-/**
- * TreeNode function provides tree node hierarchy view.
- *
- * @author Robert Long
- * @param       {number} index
- * @param       {object} data
- * @param       {object} renamingNode
- * @param       {function} onToggle
- * @param       {function} onKeyDown
- * @param       {function} onMouseDown
- * @param       {function} onClick
- * @param       {function} onChangeName
- * @param       {function} onRenameSubmit
- * @param       {function} onUpload
- * @param       {object} style
- * @constructor
- */
-function TreeNode({
-  index,
-  data: { nodes, renamingNode, onToggle, onKeyDown, onMouseDown, onClick, onChangeName, onRenameSubmit, onUpload },
-  style
-}) {
-  //initializing node from nodes array at specific index
-  const node = nodes[index]
-
-  //initializing variables using node.
-  const { isLeaf, object, depth, selected, active, iconComponent, isCollapsed, childIndex, lastChild } = node
-
-  //callback function to handle click on node of hierarchy panel
-  const onClickToggle = useCallback(
-    (e) => {
-      e.stopPropagation()
-
-      if (onToggle) {
-        onToggle(e, node)
-      }
-    },
-    [onToggle, node]
-  )
-
-  //callback function used to handle KeyDown event on node
-  const onNodeKeyDown = useCallback(
-    (e) => {
-      e.stopPropagation()
-
-      if (onKeyDown) {
-        onKeyDown(e, node)
-      }
-    },
-    [onKeyDown, node]
-  )
-
-  /**
-   * onKeyDownNameInput callback function to handle key down event on name input.
-   *
-   * @author Robert Long
-   * @type {function}
-   */
-  const onKeyDownNameInput = useCallback(
-    (e) => {
-      if (e.key === 'Escape') {
-        onRenameSubmit(node, null)
-      } else if (e.key === 'Enter') {
-        onRenameSubmit(node, e.target.value)
-      }
-    },
-    [onRenameSubmit, node]
-  )
-
-  /**
-   * onClickNode callback function used to hanlde click node inside hierarchy panel.
-   *
-   * @author Robert Long
-   * @type {function}
-   */
-  const onClickNode = useCallback(
-    (e) => {
-      onClick(e, node)
-    },
-    [node, onClick]
-  )
-
-  /**
-   * onMouseDownNode callback function used to handle mouse down event on node.
-   *
-   * @author Robert Long
-   * @type {function}
-   */
-  const onMouseDownNode = useCallback(
-    (e) => {
-      onMouseDown(e, node)
-    },
-    [node, onMouseDown]
-  )
-
-  /**
-   * onChangeNodeName callback function used to handle change in name of node.
-   *
-   * @author Robert Long
-   * @type {function}
-   */
-  const onChangeNodeName = useCallback(
-    (e) => {
-      onChangeName(node, e.target.value)
-    },
-    [node, onChangeName]
-  )
-
-  /**
-   * onSubmitNodeName callback function to handle submit or rename nade input.
-   *
-   * @author Robert Long
-   * @type {function}
-   */
-  const onSubmitNodeName = useCallback(
-    (e) => {
-      onRenameSubmit(node, e.target.value)
-    },
-    [onRenameSubmit, node]
-  )
-
-  /**
-   * initializing renaming setting renaming true if renamingNode id equals node id.
-   *
-   * @author Robert Long
-   * @type {boolean}
-   */
-  const renaming = renamingNode && renamingNode.id === node.id
-
-  //initializing _dragProps, drag, preview
-  const [_dragProps, drag, preview] = useDrag({
-    type: ItemTypes.Node,
-    item() {
-      const multiple = CommandManager.instance.selected.length > 1
-      return {
-        type: ItemTypes.Node,
-        multiple,
-        value: multiple ? CommandManager.instance.selected : CommandManager.instance.selected[0]
-      }
-    },
-    canDrag() {
-      return !CommandManager.instance.selected.some((selectedObj) => !selectedObj.parent)
-    },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging()
-    })
-  })
-
-  //calling preview function with change in property
-  useEffect(() => {
-    preview(getEmptyImage(), { captureDraggingState: true })
-  }, [preview])
-
-  //initializing canDropBefore and isOverBefore
-  const [{ canDropBefore, isOverBefore }, beforeDropTarget] = useDrop({
-    //initializing accept type with array containing node itemTypes, file ItemTypes and asset types
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
-
-    //function used to drop items
-    drop(item: any) {
-      //check if item contain files
-      if (item.files) {
-        //uploading files then adding as media to the editor
-        onUpload(item.files).then((assets) => {
-          if (assets) {
-            for (const asset of assets) {
-              CommandManager.instance.addMedia({ url: asset.url }, object.parent, object)
-            }
-          }
-        })
-        return
-      }
-
-      //check if addAssetOnDrop returns true then return
-      if (addAssetOnDrop(item, object.parent, object)) {
-        return
-      } else {
-        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
-          parents: object.parent,
-          befores: object
-        })
-      }
-    },
-    canDrop(item, monitor) {
-      //used to check item that item is dropable or not
-
-      //check if monitor is over or object is not parent element
-      if (!monitor.isOver() || !object.parent) {
-        return false
-      }
-
-      //check item is asset
-      if (isAsset(item)) {
-        return true
-      }
-
-      //check if item type is equals to node
-      if (item.type === ItemTypes.Node) {
-        return (
-          object.parent &&
-          !(item.multiple
-            ? item.value.some((otherObject) => isAncestor(otherObject, object))
-            : isAncestor(item.value, object))
-        )
-      }
-
-      return true
-    },
-    collect: (monitor) => ({
-      canDropBefore: monitor.canDrop(),
-      isOverBefore: monitor.isOver()
-    })
-  })
-
-  /**
-   * initializing variable using useDrop.
-   *
-   * @author Robert Long
-   */
-  const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
-    // initializing accept with array containing types
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
-    drop(item: any) {
-      // initializing next and is true if not last child and object parent contains children property and contain childIndex
-      const next = !lastChild && object.parent.children[childIndex + 1]
-
-      //check if item contains files
-      if (item.files) {
-        //uploading files then adding assets to editor media
-        onUpload(item.files).then((assets) => {
-          if (assets) {
-            for (const asset of assets) {
-              CommandManager.instance.addMedia({ url: asset.url }, object.parent, next)
-            }
-          }
-        })
-        return
-      }
-
-      if (addAssetOnDrop(item, object.parent, next)) {
-        return
-      } else {
-        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
-          parents: object.parent,
-          befores: next
-        })
-      }
-    },
-
-    /**
-     * canDrop used to check item is dropable or not.
-     *
-     * @author Robert Long
-     * @param  {object} item
-     * @param  {object} monitor
-     * @return {boolean}
-     */
-    canDrop(item, monitor) {
-      if (!monitor.isOver() || !object.parent) {
-        return false
-      }
-
-      // check if item is asset
-      if (isAsset(item)) {
-        return true
-      }
-
-      //check if item is of node type
-      if (item.type === ItemTypes.Node) {
-        return (
-          object.parent &&
-          !(item.multiple
-            ? item.value.some((otherObject) => isAncestor(otherObject, object))
-            : isAncestor(item.value, object))
-        )
-      }
-
-      return true
-    },
-    collect: (monitor) => ({
-      canDropAfter: monitor.canDrop(),
-      isOverAfter: monitor.isOver()
-    })
-  })
-
-  const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
-    //initializing accept with array containing types
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
-    drop(item: any) {
-      // check if item contain files
-      if (item.files) {
-        //uploading files then adding assets to editor media
-        onUpload(item.files).then((assets) => {
-          if (assets) {
-            for (const asset of assets) {
-              CommandManager.instance.addMedia({ url: asset.url }, object)
-            }
-          }
-        })
-        return
-      }
-
-      if (addAssetOnDrop(item, object)) {
-        return
-      } else {
-        CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: object })
-      }
-    },
-    canDrop(item, monitor) {
-      // check if monitor is not over
-      if (!monitor.isOver()) {
-        return false
-      }
-
-      //check item is asset
-      if (isAsset(item)) {
-        return true
-      }
-
-      // check if item is of node type
-      if (item.type === ItemTypes.Node) {
-        return !(item.multiple
-          ? item.value.some((otherObject) => isAncestor(otherObject, object))
-          : isAncestor(item.value, object))
-      }
-
-      return true
-    },
-    collect: (monitor) => ({
-      canDropOn: monitor.canDrop(),
-      isOverOn: monitor.isOver()
-    })
-  })
-
-  const nameComponent = getComponent(object.eid, NameComponent)
-
-  //returning tree view for hierarchy panel
-  return (
-    <TreeDepthContainer style={style}>
-      <ContextMenuTrigger holdToDisplay={-1} id="hierarchy-node-menu" node={node} collect={collectNodeMenuProps}>
-        <TreeNodeContainer
-          ref={drag}
-          id={getNodeElId(node)}
-          onMouseDown={onMouseDownNode}
-          onClick={onClickNode}
-          tabIndex="0"
-          onKeyDown={onNodeKeyDown}
-          root={depth === 0}
-          selected={selected}
-          active={active}
-        >
-          <TreeNodeDropTarget
-            ref={beforeDropTarget}
-            depth={depth}
-            position="before"
-            canDrop={canDropBefore}
-            isOver={isOverBefore}
-          />
-          <TreeNodeContent depth={depth} ref={onDropTarget}>
-            {isLeaf ? (
-              <TreeNodeLeafSpacer />
-            ) : (
-              <TreeNodeToggle collapsed={isCollapsed} onClick={onClickToggle}>
-                {isCollapsed ? <CaretRight size={12} /> : <CaretDown size={12} />}
-              </TreeNodeToggle>
-            )}
-
-            <TreeNodeSelectTarget>
-              <TreeNodeIcon as={iconComponent} />
-              <TreeNodeLabelContainer>
-                {renaming ? (
-                  <TreeNodeRenameInputContainer>
-                    <TreeNodeRenameInput
-                      type="text"
-                      onChange={onChangeNodeName}
-                      onKeyDown={onKeyDownNameInput}
-                      onBlur={onSubmitNodeName}
-                      value={renamingNode.name}
-                      autoFocus
-                    />
-                  </TreeNodeRenameInputContainer>
-                ) : (
-                  <TreeNodeLabel canDrop={canDropOn} isOver={isOverOn}>
-                    {nameComponent.name}
-                  </TreeNodeLabel>
-                )}
-              </TreeNodeLabelContainer>
-              {node.object.issues && node.object.issues.length > 0 && <NodeIssuesIcon node={node.object} />}
-            </TreeNodeSelectTarget>
-          </TreeNodeContent>
-
-          <TreeNodeDropTarget
-            depth={depth}
-            ref={afterDropTarget}
-            position="after"
-            canDrop={canDropAfter}
-            isOver={isOverAfter}
-          />
-        </TreeNodeContainer>
-      </ContextMenuTrigger>
-    </TreeDepthContainer>
-  )
-}
 
 /**
  * initializing MemoTreeNode.
  *
  * @author Robert Long
  */
-const MemoTreeNode = memo(TreeNode, areEqual)
+const MemoTreeNode = memo(HierarchyTreeNode, areEqual)
 
 /**
  * treeWalker function used to handle tree.
@@ -771,7 +123,7 @@ function* treeWalker(collapsedNodes, treeObject) {
             depth: depth + 1,
             object: child,
             childIndex: i,
-            lastChild: i === 0
+            lastChild: i === object.children.length - 1
           })
         // }
       }
@@ -1053,7 +405,7 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onDeleteNode = useCallback((e, node) => {
+  const onDeleteNode = useCallback((_, node) => {
     let objs = node.selected ? CommandManager.instance.selected : node.object
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REMOVE_OBJECTS, objs)
   }, [])
@@ -1064,7 +416,7 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onDuplicateNode = useCallback((e, node) => {
+  const onDuplicateNode = useCallback((_, node) => {
     let objs = node.selected ? CommandManager.instance.selected : node.object
     CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, objs)
   }, [])
@@ -1075,7 +427,7 @@ export default function HierarchyPanel() {
    * @author Robert Long
    * @type {function}
    */
-  const onGroupNodes = useCallback((e, node) => {
+  const onGroupNodes = useCallback((_, node) => {
     const objs = node.selected ? CommandManager.instance.selected : node.object
     CommandManager.instance.executeCommandWithHistory(EditorCommands.GROUP, objs)
   }, [])
@@ -1087,10 +439,10 @@ export default function HierarchyPanel() {
    * @type {function}
    */
   const onRenameNode = useCallback(
-    (e, node) => {
+    (_, node) => {
       setRenamingNode({ id: node.id, name: node.object.name })
     },
-    [setRenamingNode]
+    []
   )
 
   /**
@@ -1103,7 +455,7 @@ export default function HierarchyPanel() {
     (node, name) => {
       setRenamingNode({ id: node.id, name })
     },
-    [setRenamingNode]
+    []
   )
 
   /**
@@ -1150,8 +502,9 @@ export default function HierarchyPanel() {
         return
       }
 
+      const world = useWorld()
       CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
-        parents: SceneManager.instance.scene
+        parents: world.entityTree.rootNode
       })
     },
     canDrop(item, monitor) {

@@ -31,7 +31,7 @@ const StyledNodeEditor = (styled as any).div`
  * @author Robert Long
  */
 const PropertiesHeader = (styled as any).div`
-  background-color: ${(props) => theme.panel2};
+  background-color: ${(props) => props.theme.panel2};
   border: none !important;
   padding-bottom: 0 !important;
 `
@@ -74,9 +74,11 @@ type PropertiesPanelContainerProps = {
  * @extends Component
  */
 export const PropertiesPanelContainer = (props: PropertiesPanelContainerProps) => {
-  const [, updateState] = useState()
+  const [, updateState] = useState<any>()
 
-  const forceUpdate = useCallback(() => updateState({}), [])
+  const forceUpdate = useCallback(() => {
+    updateState({})
+  }, [])
 
   const onSelectionChanged = () => {
     forceUpdate()
@@ -84,11 +86,11 @@ export const PropertiesPanelContainer = (props: PropertiesPanelContainerProps) =
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-  }, [])
 
-  useEffect(() => {
-    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-  }, null)
+    return () => {
+      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
+    }
+  }, [])
 
   const onSelectComponent = (value) => {
     const componentMeta = ComponentMeta[value]

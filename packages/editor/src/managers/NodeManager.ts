@@ -62,6 +62,7 @@ import { StyledIcon } from '@styled-icons/styled-icon';
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Camera, Cloud, Globe, Rainbow, SquareFull, StreetView } from '@styled-icons/fa-solid'
+import { Cubes } from '@styled-icons/fa-solid/Cubes'
 import SceneMetaDataEditor from '../components/properties/SceneMetaDataEditor'
 import EnvMapEditor from '../components/properties/EnvMapEditor'
 import FogEditor from '../components/properties/FogEditor'
@@ -159,7 +160,7 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(ComponentNames.FOG, FogEditor)
   NodeManager.instance.registerNode(ComponentNames.AUDIO_SETTINGS, AudioSettingsEditor)
   NodeManager.instance.registerNode(ComponentNames.RENDERER_SETTINGS, RenderSettingsEditor)
-  NodeManager.instance.registerNode(GroupNode, GroupNodeEditor)
+  NodeManager.instance.registerNode(ComponentNames.GROUP, GroupNodeEditor)
   NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
   NodeManager.instance.registerNode(ComponentNames.GROUND_PLANE, GroundPlaneNodeEditor)
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
@@ -205,7 +206,6 @@ export const ComponentIcon: {
   [ComponentNames.ENVMAP]: Globe,
   [ComponentNames.FOG]: Globe,
   [ComponentNames.AUDIO_SETTINGS]: Globe,
-
 }
 
 export const getComponentIcon = (entity: Entity): StyledIcon => {
@@ -218,5 +218,5 @@ export const getComponentIcon = (entity: Entity): StyledIcon => {
     }
   }
 
-  return null
+  return Cubes
 }

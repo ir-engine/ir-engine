@@ -23,6 +23,7 @@ export class PostProcessingData implements ComponentData {
 
   constructor(obj3d: PostProcessing, props: PostProcessingDataProps) {
     this.obj3d = obj3d
+    this.obj3d.name = 'Post Processing'
 
     this.normalPass = new NormalPass(Engine.scene, Engine.camera, {
       renderTarget: new WebGLRenderTarget(1, 1, {

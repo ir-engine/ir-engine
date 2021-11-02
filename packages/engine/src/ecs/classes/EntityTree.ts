@@ -9,7 +9,6 @@ import { Entity } from "./Entity"
 export default class EntityTree {
   rootNode: TreeNode
 
-
   constructor() {
     this.rootNode = new TreeNode(0 as Entity)
   }
@@ -47,6 +46,16 @@ export default class EntityTree {
       let result = this.findNodeFromEid(eid, node.children[i])
 
       if (result) return result
+    }
+  }
+
+  traverse(cb: (node: TreeNode) => void, node: TreeNode = this.rootNode): void {
+    cb(node)
+
+    if (!node.children) return
+
+    for (let i = 0; i < node.children.length; i++) {
+      this.traverse(cb, node.children[i])
     }
   }
 }

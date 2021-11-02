@@ -1,11 +1,15 @@
 import Command, { CommandParams } from './Command'
 import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
-import reverseDepthFirstTraverse from '../functions/reverseDepthFirstTraverse'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
-import GroupNode from '../nodes/GroupNode'
-import { SceneManager } from '../managers/SceneManager'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { Object3D } from 'three'
+import { TreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { TransformComponent, TransformData } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 export interface GroupCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -26,16 +30,12 @@ export default class GroupCommand extends Command {
 
   oldBefores: any[]
 
-  groupNode: any
+  groupNode: TreeNode
 
   constructor(objects?: any | any[], params?: GroupCommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
-
-    this.affectedObjects = []
+    this.affectedObjects = Array.isArray(objects) ? objects : [objects]
     this.undoObjects = []
     this.groupParent = params.parents
     this.groupBefore = params.befores
@@ -43,35 +43,24 @@ export default class GroupCommand extends Command {
     this.oldBefores = []
     this.oldSelection = CommandManager.instance.selected.slice(0)
 
-    SceneManager.instance.scene.traverse((object) => {
-      if (objects.indexOf(object) !== -1) {
-        this.affectedObjects.push(object)
-      }
-    })
-
-    // Sort objects, parents, and befores with a reverse depth first search so that undo adds nodes in the correct order
-    reverseDepthFirstTraverse(SceneManager.instance.scene, (object) => {
-      if (objects.indexOf(object) !== -1) {
-        this.undoObjects.push(object)
-        this.oldParents.push(object.parent)
-        if (object.parent) {
-          const siblings = object.parent.children
-          const index = siblings.indexOf(object)
-          if (index + 1 < siblings.length) {
-            this.oldBefores.push(siblings[index + 1])
-          } else {
-            this.oldBefores.push(undefined)
-          }
-        }
-      }
-    })
-    this.groupNode = null
+    for (let i = this.affectedObjects.length - 1; i >= 0; i--) {
+      const object = this.affectedObjects[i]
+      this.undoObjects.push(object)
+      this.oldParents.push(object.parentNode)
+      this.oldBefores.push(object.parentNode.children[object.parentNode.children.indexOf(object) + 1])
+    }
   }
 
   execute() {
     this.emitBeforeExecuteEvent()
 
-    this.groupNode = new GroupNode(this)
+    const groupEntity = createEntity()
+    addComponent(groupEntity, NameComponent, { name: 'Group' })
+    const obj3d = addComponent(groupEntity, Object3DComponent, { value: new Object3D() })
+    addComponent<TransformData, {}>(groupEntity, TransformComponent, new TransformData(obj3d.value))
+
+    this.groupNode = new TreeNode(groupEntity)
+
     CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.groupNode, {
       parents: this.groupParent,
       befores: this.groupBefore,

@@ -27,7 +27,7 @@ type TransformPropertyGroupProps = {
  * @type {class component}
  */
 export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
-  const [, updateState] = useState()
+  const [, updateState] = useState<any>()
 
   const forceUpdate = useCallback(() => updateState({}), [])
 
@@ -37,11 +37,11 @@ export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectsChanged)
-  }, [])
 
-  useEffect(() => {
-    CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectsChanged)
-  }, null)
+    return () => {
+      CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectsChanged)
+    }
+  }, [])
 
   //function to handle the position properties
   const onChangePosition = (value) => {

@@ -76,12 +76,7 @@ export function ViewportPanelContainer() {
       const mousePos = monitor.getClientOffset()
 
       if (item.type === ItemTypes.Node) {
-        if (item.multiple) {
-          SceneManager.instance.reparentToSceneAtCursorPosition(item.value, mousePos)
-        } else {
-          SceneManager.instance.reparentToSceneAtCursorPosition([item.value], mousePos)
-        }
-
+        SceneManager.instance.reparentToSceneAtCursorPosition(item.value, mousePos)
         return
       }
       addAssetAtCursorPositionOnDrop(item, mousePos)
