@@ -19,6 +19,7 @@ import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExpor
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import PostProcessingNode from '../nodes/PostProcessingNode'
+import { NodeManager } from './NodeManager'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()
@@ -65,6 +66,8 @@ export class SceneManager {
     if (this.scene) {
       CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.scene)
     }
+
+    NodeManager.instance.nodes = [this.scene]
 
     // getting scene data
     const [scene, error] = await SceneNode.loadProject(projectFile)
@@ -138,7 +141,7 @@ export class SceneManager {
    * @param  {any}  height
    * @return {Promise}        [generated screenshot according to height and width]
    */
-  async takeScreenshot(width?: number, height?: number): Promise<any> {
+  async takeScreenshot(width?: number, height?: number) {
     return this.renderer.takeScreenshot(width, height)
   }
 

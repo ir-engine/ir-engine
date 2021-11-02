@@ -4,7 +4,7 @@ import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { LocationService } from '@xrengine/client-core/src/admin/services/LocationService'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation, withTranslation } from 'react-i18next'
@@ -138,7 +138,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
 
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)
-  const [parentSceneId, setParentSceneId] = useState(null)
   const [settingsContext, setSettingsContext] = useState({
     settings: defaultSettings,
     updateSetting: (...props) => {}
@@ -147,7 +146,7 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   const [DialogComponent, setDialogComponent] = useState(null)
   const [dialogProps, setDialogProps] = useState<any>({})
   const [modified, setModified] = useState(false)
-  const [sceneId, setSceneId] = useState('')
+  const [sceneName, setSceneName] = useState(null)
 
   const initializeEditor = async () => {
     await Promise.all([ProjectManager.instance.init()])
@@ -178,8 +177,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
         settings,
         updateSetting
       })
-
-      loadProject(projectName)
     })
   }, [])
 
@@ -219,28 +216,17 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     // }
   }
 
-  const loadProject = async (sceneId) => {
+  const loadScene = async (sceneName) => {
     showDialog(ProgressDialog, {
       title: t('editor:loading'),
       message: t('editor:loadingMsg')
     })
-
-    let project: SceneDetailInterface
-
+    setSceneName(null)
     try {
-      project = await getScene(sceneId)
-      ProjectManager.instance.ownedFileIds = JSON.parse(project.ownedFileIds)
-      globalThis.currentSceneID = project.scene_id
-
-      const projectIndex = project.scene_url.split('collection/')[1]
-      const projectFile = await client.service(`collection`).get(projectIndex, {
-        headers: {
-          'content-type': 'application/json'
-        }
-      })
-
-      await ProjectManager.instance.loadProject(projectFile)
-
+      const project = (await getScene(projectName, sceneName, false)) as SceneDetailInterface
+      console.log(project)
+      await ProjectManager.instance.loadProject(project.scene)
+      setSceneName(sceneName)
       hideDialog()
     } catch (error) {
       console.error(error)
@@ -250,10 +236,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
         message: error.message || t('editor:loadingErrorMsg'),
         error
       })
-    } finally {
-      if (project) {
-        setProject(project)
-      }
     }
   }
 
@@ -446,33 +428,30 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   }
 
   const onDuplicateProject = async () => {
-    const abortController = new AbortController()
-    showDialog(ProgressDialog, {
-      title: t('editor:duplicating'),
-      message: t('editor:duplicatingMsg'),
-      cancelable: true,
-      onCancel: () => {
-        abortController.abort()
-        hideDialog()
-      }
-    })
-    await new Promise((resolve) => setTimeout(resolve, 5))
-    try {
-      const newProject = await createProject()
-      SceneManager.instance.sceneModified = false
-      updateModifiedState()
-
-      hideDialog()
-
-      setSceneId(newProject.scene_id)
-    } catch (error) {
-      console.error(error)
-
-      showDialog(ErrorDialog, {
-        title: t('editor:savingError'),
-        message: error.message || t('editor:savingErrorMsg')
-      })
-    }
+    // const abortController = new AbortController()
+    // showDialog(ProgressDialog, {
+    //   title: t('editor:duplicating'),
+    //   message: t('editor:duplicatingMsg'),
+    //   cancelable: true,
+    //   onCancel: () => {
+    //     abortController.abort()
+    //     hideDialog()
+    //   }
+    // })
+    // await new Promise((resolve) => setTimeout(resolve, 5))
+    // try {
+    //   const newProject = await createProject()
+    //   SceneManager.instance.sceneModified = false
+    //   updateModifiedState()
+    //   hideDialog()
+    //   setSceneId(newProject.scene_id)
+    // } catch (error) {
+    //   console.error(error)
+    //   showDialog(ErrorDialog, {
+    //     title: t('editor:savingError'),
+    //     message: error.message || t('editor:savingErrorMsg')
+    //   })
+    // }
   }
 
   const onExportProject = async () => {
@@ -526,62 +505,56 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   }
 
   const onImportLegacyProject = async () => {
-    const confirm = await new Promise((resolve) => {
-      showDialog(ConfirmDialog, {
-        title: t('editor:importLegacy'),
-        message: t('editor:importLegacyMsg'),
-        onConfirm: () => resolve(true),
-        onCancel: () => resolve(false)
-      })
-    })
-
-    hideDialog()
-
-    if (!confirm) return
-
-    const el = document.createElement('input')
-    el.type = 'file'
-    el.accept = '.world'
-    el.style.display = 'none'
-    el.onchange = () => {
-      if (el.files.length > 0) {
-        const fileReader: any = new FileReader()
-        fileReader.onload = () => {
-          const json = JSON.parse((fileReader as any).result)
-
-          if (json.metadata) {
-            delete json.metadata.sceneUrl
-            delete json.metadata.sceneId
-          }
-
-          importProject(json)
-        }
-        fileReader.readAsText(el.files[0])
-      }
-    }
-    el.click()
+    // const confirm = await new Promise((resolve) => {
+    //   showDialog(ConfirmDialog, {
+    //     title: t('editor:importLegacy'),
+    //     message: t('editor:importLegacyMsg'),
+    //     onConfirm: () => resolve(true),
+    //     onCancel: () => resolve(false)
+    //   })
+    // })
+    // hideDialog()
+    // if (!confirm) return
+    // const el = document.createElement('input')
+    // el.type = 'file'
+    // el.accept = '.world'
+    // el.style.display = 'none'
+    // el.onchange = () => {
+    //   if (el.files.length > 0) {
+    //     const fileReader: any = new FileReader()
+    //     fileReader.onload = () => {
+    //       const json = JSON.parse((fileReader as any).result)
+    //       if (json.metadata) {
+    //         delete json.metadata.sceneUrl
+    //         delete json.metadata.sceneId
+    //       }
+    //       importProject(json)
+    //     }
+    //     fileReader.readAsText(el.files[0])
+    //   }
+    // }
+    // el.click()
   }
 
   const onExportLegacyProject = async () => {
-    const projectFile = await SceneManager.instance.scene.serialize(project.scene_id)
-
-    if (projectFile.metadata) {
-      delete projectFile.metadata.sceneUrl
-      delete projectFile.metadata.sceneId
-    }
-
-    const projectJson = JSON.stringify(projectFile)
-    const projectBlob = new Blob([projectJson])
-    const el = document.createElement('a')
-    const fileName = SceneManager.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
-    el.download = fileName + '.world'
-    el.href = URL.createObjectURL(projectBlob)
-    document.body.appendChild(el)
-    el.click()
-    document.body.removeChild(el)
+    // const projectFile = await SceneManager.instance.scene.serialize(project.scene_id)
+    // if (projectFile.metadata) {
+    //   delete projectFile.metadata.sceneUrl
+    //   delete projectFile.metadata.sceneId
+    // }
+    // const projectJson = JSON.stringify(projectFile)
+    // const projectBlob = new Blob([projectJson])
+    // const el = document.createElement('a')
+    // const fileName = SceneManager.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
+    // el.download = fileName + '.world'
+    // el.href = URL.createObjectURL(projectBlob)
+    // document.body.appendChild(el)
+    // el.click()
+    // document.body.removeChild(el)
   }
 
   const onSaveProject = async () => {
+    if (!sceneName) return
     const abortController = new AbortController()
 
     showDialog(ProgressDialog, {
@@ -598,16 +571,9 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     await new Promise((resolve) => setTimeout(resolve, 5))
 
     try {
-      if (project) {
-        const newProject = await saveScene(project.scene_id, abortController.signal)
+      await saveScene(projectName, sceneName, abortController.signal)
 
-        setProject(newProject)
-
-        setSceneId(newProject.scene_id)
-      } else {
-        await createProject()
-      }
-
+      await new Promise((resolve) => setTimeout(resolve, 500))
       SceneManager.instance.sceneModified = false
       updateModifiedState()
 
@@ -644,7 +610,7 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
                       <PanelTitle>Scenes</PanelTitle>
                     </PanelDragContainer>
                   ),
-                  content: <ScenesPanel projectName={projectName} />
+                  content: <ScenesPanel loadScene={loadScene} projectName={projectName} />
                 },
                 {
                   id: 'filesPanel',

@@ -40,6 +40,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return false
   }
   static async loadProject(json) {
+    console.log(json)
     const { root, metadata, entities } = json
     let scene = null
     const dependencies = []
@@ -439,7 +440,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
     return this
   }
-  async serialize(projectId): Promise<any> {
+  async serialize(projectId): Promise<SceneJson> {
     const sceneJson: SceneJson = {
       version: 4,
       root: this.uuid,

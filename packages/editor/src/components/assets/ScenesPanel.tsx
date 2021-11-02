@@ -15,7 +15,7 @@ import { getScenes } from '../../functions/sceneFunctions'
 
 const contextMenuId = 'scenes-menu'
 
-export default function ScenesPanel({ projectName }) {
+export default function ScenesPanel({ projectName, loadScene }) {
   const { t } = useTranslation()
   const panelRef = useRef(null)
   const [loading, setLoading] = useState(true)
@@ -38,7 +38,10 @@ export default function ScenesPanel({ projectName }) {
     fetchItems()
   }, [])
 
-  const onClickExisting = (project) => {}
+  const onClickExisting = (scene) => {
+    console.log(scene)
+    loadScene(scene.name)
+  }
 
   useEffect(() => {
     setLoading(false)

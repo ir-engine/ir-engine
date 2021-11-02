@@ -35,7 +35,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   cubemapBakeSettings: CubemapBakeSettings
   centerBall: Mesh
   currentEnvMap: WebGLCubeRenderTarget
-  ownedFileIdentifier: string
+  ownedFileIdentifier = 'envMapOwnedFileId'
 
   constructor() {
     super()
@@ -57,7 +57,6 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       metalness: 1
     })
     this.add(this.gizmo)
-    this.ownedFileIdentifier = 'envMapOwnedFileId'
     SceneManager.instance.scene.registerEnvironmentMapNode(this)
   }
 
@@ -172,12 +171,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   onRemove() {
     this.currentEnvMap?.dispose()
     SceneManager.instance.scene.unregisterEnvironmentMapNode(this)
-    const fileID = ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier]
-    if (fileID) {
-      const id = fileID
-      if (id) deleteAsset(id, globalThis.currentSceneID, this.ownedFileIdentifier)
-      delete ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier]
-    }
+    // todo - remove generated asset
   }
 
   async uploadBakeToServer(projectID: any, rt: WebGLCubeRenderTarget) {
@@ -190,11 +184,6 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
     )
     console.log('uploadBakeToServer', value)
     this.cubemapBakeSettings.envMapOrigin = value.origin
-    const {
-      file_id: fileId,
-      meta: { access_token: fileToken }
-    } = value
-    ProjectManager.instance.ownedFileIds[this.ownedFileIdentifier] = fileId
   }
 
   setEnvMap() {

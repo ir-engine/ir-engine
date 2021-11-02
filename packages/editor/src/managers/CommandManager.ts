@@ -28,7 +28,6 @@ import ImageNode from '../nodes/ImageNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
-import { ProjectManager } from './ProjectManager'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -287,7 +286,6 @@ export class CommandManager extends EventEmitter {
     SceneManager.instance.getSpawnPosition(node.position)
     this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, { parents: parent, befores: before })
 
-    ProjectManager.instance.currentOwnedFileIds[name] = id
     CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)
     return node
   }

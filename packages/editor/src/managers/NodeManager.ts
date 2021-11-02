@@ -64,10 +64,9 @@ import TriggerVolumeNode from '../nodes/TriggerVolumeNode'
 import VideoNode from '../nodes/VideoNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
-import { SceneManager } from './SceneManager'
 
 export class NodeManager {
-  static instance: NodeManager = new NodeManager(SceneManager.instance.scene)
+  static instance: NodeManager = new NodeManager()
 
   nodes: any[]
 
@@ -75,11 +74,11 @@ export class NodeManager {
 
   nodeEditors: Map<any, any>
 
-  constructor(scene: SceneNode) {
+  constructor() {
     this.nodeTypes = new Set()
     this.nodeEditors = new Map()
 
-    this.nodes = [scene]
+    this.nodes = []
   }
 
   /**

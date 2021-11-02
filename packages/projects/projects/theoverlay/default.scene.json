@@ -10,13 +10,13 @@
       "components": [
         {
           "name": "mtdata",
-          "data": {
+          "props": {
             "meta_data": ""
           }
         },
         {
           "name": "fog",
-          "data": {
+          "props": {
             "type": "disabled",
             "color": "#ffffff",
             "near": 0.0025,
@@ -26,7 +26,7 @@
         },
         {
           "name": "audio-settings",
-          "data": {
+          "props": {
             "avatarDistanceModel": "inverse",
             "avatarRolloffFactor": 2,
             "avatarRefDistance": 1,
@@ -43,13 +43,13 @@
         },
         {
           "name": "simple-materials",
-          "data": {
+          "props": {
             "simpleMaterials": false
           }
         },
         {
           "name": "renderer-settings",
-          "data": {
+          "props": {
             "LODs": {
               "x": 5,
               "y": 15,
@@ -64,7 +64,7 @@
         },
         {
           "name": "envmap",
-          "data": {
+          "props": {
             "type": 1,
             "envMapIntensity": 1,
             "envMapTextureType": 0,
@@ -78,7 +78,7 @@
       "components": [
         {
           "name": "transform",
-          "data": {
+          "props": {
             "position": {
               "x": 0,
               "y": 5,
@@ -98,13 +98,13 @@
         },
         {
           "name": "visible",
-          "data": {
+          "props": {
             "visible": true
           }
         },
         {
           "name": "scene-preview-camera",
-          "data": {}
+          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -115,7 +115,7 @@
       "components": [
         {
           "name": "transform",
-          "data": {
+          "props": {
             "position": {
               "x": 0,
               "y": 0,
@@ -135,13 +135,13 @@
         },
         {
           "name": "visible",
-          "data": {
+          "props": {
             "visible": true
           }
         },
         {
           "name": "skybox",
-          "data": {
+          "props": {
             "backgroundColor": "#000000",
             "equirectangularPath": "/hdr/city.jpg",
             "cubemapPath": "/hdr/cubemap/Bridge2/",
@@ -153,8 +153,7 @@
               "mieCoefficient": 0.004999999999999893,
               "mieDirectionalG": 0.99,
               "inclination": 0.10471975511965978,
-              "azimuth": 0.16666666666666666,
-              "distance": 1
+              "azimuth": 0.16666666666666666
             }
           }
         }
@@ -167,7 +166,7 @@
       "components": [
         {
           "name": "transform",
-          "data": {
+          "props": {
             "position": {
               "x": 0,
               "y": 0,
@@ -187,25 +186,25 @@
         },
         {
           "name": "visible",
-          "data": {
+          "props": {
             "visible": true
           }
         },
         {
           "name": "ground-plane",
-          "data": {
+          "props": {
             "color": "#7ed321"
           }
         },
         {
           "name": "shadow",
-          "data": {
+          "props": {
             "receive": true
           }
         },
         {
           "name": "walkable",
-          "data": {}
+          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -216,7 +215,7 @@
       "components": [
         {
           "name": "transform",
-          "data": {
+          "props": {
             "position": {
               "x": 0,
               "y": 0,
@@ -236,13 +235,13 @@
         },
         {
           "name": "visible",
-          "data": {
+          "props": {
             "visible": true
           }
         },
         {
           "name": "spawn-point",
-          "data": {}
+          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -253,7 +252,7 @@
       "components": [
         {
           "name": "transform",
-          "data": {
+          "props": {
             "position": {
               "x": 0,
               "y": 0,
@@ -273,13 +272,13 @@
         },
         {
           "name": "visible",
-          "data": {
+          "props": {
             "visible": false
           }
         },
         {
           "name": "postprocessing",
-          "data": {
+          "props": {
             "options": {
               "FXAAEffect": {
                 "isActive": true,
@@ -369,7 +368,7 @@
       "components": [
         {
           "name": "transform",
-          "data": {
+          "props": {
             "position": {
               "x": 0,
               "y": 10,
@@ -389,13 +388,13 @@
         },
         {
           "name": "visible",
-          "data": {
+          "props": {
             "visible": true
           }
         },
         {
           "name": "hemisphere-light",
-          "data": {
+          "props": {
             "skyColor": "#ffffff",
             "groundColor": "#ffffff",
             "intensity": 1
@@ -410,7 +409,7 @@
       "components": [
         {
           "name": "transform",
-          "data": {
+          "props": {
             "position": {
               "x": 0,
               "y": 10,
@@ -430,13 +429,13 @@
         },
         {
           "name": "visible",
-          "data": {
+          "props": {
             "visible": true
           }
         },
         {
           "name": "directional-light",
-          "data": {
+          "props": {
             "color": "#ffffff",
             "intensity": 1,
             "castShadow": true,

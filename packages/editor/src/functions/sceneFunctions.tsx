@@ -26,9 +26,14 @@ export const getScenes = async (projectName: string): Promise<SceneDetailInterfa
  * @param projectId
  * @returns
  */
-export const getScene = async (projectName: string, sceneName: string): Promise<SceneDetailInterface> => {
+export const getScene = async (
+  projectName: string,
+  sceneName: string,
+  metadataOnly = true
+): Promise<SceneDetailInterface> => {
   try {
-    return await client.service('scene').get({ projectName, sceneName, metadataOnly: true })
+    const { data } = await client.service('scene').get({ projectName, sceneName, metadataOnly })
+    return data
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)
@@ -87,7 +92,6 @@ export const createScene = async (
       file_id: thumbnailFileId,
       file_token: thumbnailFileToken
     },
-    ownedFileIds: {},
     scene_file_id: projectFileId,
     scene_file_token: projectFileToken
   }
@@ -95,13 +99,6 @@ export const createScene = async (
   if (parentSceneId) {
     sceneData['parent_scene_id'] = parentSceneId
   }
-  ProjectManager.instance.ownedFileIds = Object.assign(
-    {},
-    ProjectManager.instance.ownedFileIds,
-    ProjectManager.instance.currentOwnedFileIds
-  )
-  sceneData.ownedFileIds = Object.assign({}, sceneData.ownedFileIds, ProjectManager.instance.ownedFileIds)
-  ProjectManager.instance.currentOwnedFileIds = {}
 
   try {
     return (await client.service('scene').create({ scene: sceneData })) as SceneDetailInterface
@@ -133,63 +130,29 @@ export const deleteScene = async (projectName, sceneName): Promise<any> => {
  *
  * @author Robert Long
  * @author Abhishek Pathak
- * @param  {any}  projectId
+ * @param  {any}  sceneName
  * @param  {any}  signal
  * @return {Promise}
  */
-export const saveScene = async (projectId, signal): Promise<SceneDetailInterface> => {
+export const saveScene = async (projectName: string, sceneName: string, signal) => {
   if (signal.aborted) {
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const thumbnailBlob = await SceneManager.instance.takeScreenshot(512, 320) // Fixed blob undefined
-
-  if (signal.aborted) {
-    throw new Error(i18n.t('editor:errors.saveProjectAborted'))
-  }
-
-  const {
-    file_id: thumbnailFileId,
-    meta: { access_token: thumbnailFileToken }
-  } = (await upload(thumbnailBlob, undefined, signal, 'thumbnailOwnedFileId', projectId)) as any
+  const thumbnailBlob = await SceneManager.instance.takeScreenshot(512, 320)
+  const thumbnailBuffer = await thumbnailBlob.arrayBuffer()
 
   if (signal.aborted) {
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
   const sceneNode = SceneManager.instance.scene
-  const serializedScene = await sceneNode.serialize(projectId)
-  const projectBlob = new Blob([JSON.stringify(serializedScene)], { type: 'application/json' })
-  const {
-    file_id: projectFileId,
-    meta: { access_token: projectFileToken }
-  } = (await upload(projectBlob, undefined, signal)) as any
-
-  if (signal.aborted) {
-    throw new Error(i18n.t('editor:errors.saveProjectAborted'))
-  }
-
-  ProjectManager.instance.ownedFileIds = {
-    ...ProjectManager.instance.ownedFileIds,
-    ...ProjectManager.instance.currentOwnedFileIds
-  }
-
-  ProjectManager.instance.currentOwnedFileIds = {}
-
-  const scene: SceneSaveInterface = {
-    name: sceneNode.name,
-    scene_id: sceneNode.metadata?.sceneId!,
-    thumbnailOwnedFileId: {
-      file_id: thumbnailFileId,
-      file_token: thumbnailFileToken
-    },
-    ownedFileIds: ProjectManager.instance.ownedFileIds,
-    scene_file_id: projectFileId,
-    scene_file_token: projectFileToken
-  }
+  const sceneData = await sceneNode.serialize(sceneName)
 
   try {
-    return (await client.service('scene').patch(projectId, { scene })) as SceneDetailInterface
+    return (await client
+      .service('scene')
+      .update(projectName, { sceneName, sceneData, thumbnailBuffer })) as SceneDetailInterface
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)

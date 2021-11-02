@@ -30,20 +30,6 @@ export const useSceneState = () => useState(state) as any as typeof state
 export const SceneService = {
   fetchAdminScenes: async (incDec?: 'increment' | 'decrement' | 'all') => {
     console.warn('deprecated - use fetchProjectScenes')
-    // const dispatch = useDispatch()
-    // const adminScene = accessSceneState()
-    // const skip = adminScene.scenes.skip.value
-    // const limit = adminScene.scenes.limit.value
-    // const scenes = await client.service('collection').find({
-    //   query: {
-    //     $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-    //     $limit: incDec === 'all' ? 1000 : limit,
-    //     $sort: {
-    //       name: 1
-    //     }
-    //   }
-    // })
-    // dispatch(SceneAction.scenesFetched(scenes))
   },
 
   deleteScene: async (sceneId: string) => {},

@@ -23,6 +23,41 @@ const getRemoteURLFromGitData = (project) => {
 
 const storageProvider = useStorageProvider()
 
+/**
+ * For local development flow only
+ * Updates the local storage provider with the project's current files
+ * @param projectName
+ */
+export const updateLocalProject = async (projectName) => {
+  const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
+  // remove exiting storage provider files
+  const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+  if (existingFiles.length) {
+    await Promise.all([
+      storageProvider.deleteResources(existingFiles),
+      storageProvider.createInvalidation(existingFiles)
+    ])
+  }
+  // upload new files to storage provider
+  const files = getFilesRecursive(projectPath)
+  await Promise.all(
+    files.map((file: string) => {
+      new Promise(async (resolve) => {
+        try {
+          const fileResult = fs.readFileSync(file)
+          const filePathRelative = file.slice(projectPath.length)
+          await storageProvider.putObject({
+            Body: fileResult,
+            ContentType: getContentType(file),
+            Key: `projects/${projectName}/${filePathRelative}`
+          })
+        } catch (e) {}
+        resolve(true)
+      })
+    })
+  )
+}
+
 export class Project extends Service {
   app: Application
   docs: any
@@ -79,36 +114,7 @@ export class Project extends Service {
         }
       }
 
-      promises.push(
-        new Promise(async (resolve) => {
-          // remove exiting storage provider files
-          const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
-          if (existingFiles.length) {
-            await Promise.all([
-              storageProvider.deleteResources(existingFiles),
-              storageProvider.createInvalidation(existingFiles)
-            ])
-          }
-          // upload new files to storage provider
-          const files = getFilesRecursive(projectPath)
-          await Promise.all(
-            files.map((file: string) => {
-              new Promise(async (resolve) => {
-                try {
-                  const fileResult = fs.readFileSync(file)
-                  const filePathRelative = file.slice(projectPath.length)
-                  await storageProvider.putObject({
-                    Body: fileResult,
-                    ContentType: getContentType(file),
-                    Key: `projects/${projectName}/${filePathRelative}`
-                  })
-                } catch (e) {}
-                resolve(true)
-              })
-            })
-          )
-        })
-      )
+      promises.push(updateLocalProject(projectName))
     }
 
     for (const { name, id } of data) {

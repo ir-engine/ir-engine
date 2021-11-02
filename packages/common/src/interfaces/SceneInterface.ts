@@ -32,7 +32,6 @@ export interface SceneDetailInterface {
   // parent_scene: SceneDetailData
   // scene_id: string
   // scene_url: string
-  // ownedFileIds: string
 }
 
 export interface SceneSaveInterface {
@@ -42,7 +41,6 @@ export interface SceneSaveInterface {
     file_id: string
     file_token: string
   }
-  ownedFileIds: {}
   scene_file_id: string
   scene_file_token: string
 }
