@@ -20,6 +20,7 @@ bash ./scripts/publish_ecr.sh $RELEASE_NAME ${TAG}__${START_TIME} $DOCKER_LABEL 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 DEPLOY_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 if [ $PUBLISH_DOCKERHUB == 'true' ]
+then
   bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL
 fi
 bash ./scripts/cleanup_builder.sh ${TAG}__${START_TIME} $DOCKER_LABEL
