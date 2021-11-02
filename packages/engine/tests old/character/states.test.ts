@@ -19,8 +19,8 @@ import { NetworkSchema } from "../../../src/networking/interfaces/NetworkSchema"
 import { NetworkTransport } from "../../../src/networking/interfaces/NetworkTransport";
 import { ClientNetworkStateSystem } from "../../../src/networking/systems/ClientNetworkStateSystem";
 import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
-import { State } from "../../../src/state/components/State";
-import { StateSystem } from "../../../src/state/systems/StateSystem";
+import { State } from "../../../src/services/components/State";
+import { StateSystem } from "../../../src/services/systems/StateSystem";
 import { CharacterAnimations } from "../../../src/character/CharacterAnimations";
 import { CharacterComponent } from "../../../src/character/components/CharacterComponent";
 import { DefaultNetworkSchema } from "../../../src/networking/templates/DefaultNetworkSchema";

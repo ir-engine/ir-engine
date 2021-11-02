@@ -6,10 +6,10 @@ import Button from '@mui/material/Button'
 import { Send, FileCopy } from '@mui/icons-material'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import styles from '../UserMenu.module.scss'
-import { InviteService } from '../../../../social/state/InviteService'
+import { InviteService } from '../../../../social/services/InviteService'
 import { useDispatch } from '../../../../store'
 import { useTranslation } from 'react-i18next'
-import { useInviteState } from '../../../../social/state/InviteState'
+import { useInviteState } from '../../../../social/services/InviteService'
 
 interface Props {
   alertSuccess?: any
@@ -83,6 +83,7 @@ const ShareMenu = (props: Props): any => {
         />
         <TextField
           className={styles.emailField}
+          style={{ color: '#fff' }}
           size="small"
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           variant="outlined"
@@ -90,13 +91,13 @@ const ShareMenu = (props: Props): any => {
           onChange={(e) => handleChang(e)}
         />
         <div className={styles.sendInviteContainer}>
-          <Button className={styles.sendInvite} onClick={packageInvite}>
+          <Button className={styles.sendInvite} style={{ color: '#fff' }} onClick={packageInvite}>
             {t('user:usermenu.share.lbl-send-invite')}
           </Button>
         </div>
         {isShareAvailable ? (
           <div className={styles.shareBtnContainer}>
-            <Button className={styles.shareBtn} onClick={shareOnApps}>
+            <Button className={styles.shareBtn} style={{ color: '#fff' }} onClick={shareOnApps}>
               {t('user:usermenu.share.lbl-share')}
             </Button>
           </div>

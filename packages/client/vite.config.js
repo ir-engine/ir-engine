@@ -23,11 +23,29 @@ const copyProjectDependencies = () => {
 // this will copy all files in each installed project's "/static" folder to the "/public/projects" folder
 copyProjectDependencies()
 
+
 const getDependenciesToOptimize = () => {
-  if(!fs.existsSync(path.resolve(__dirname, `./optimizeDeps.json`))) {
-    fs.writeFileSync(path.resolve(__dirname, `./optimizeDeps.json`), JSON.stringify({ dependencies: [] }))
+  const jsonPath = path.resolve(__dirname, `./optimizeDeps.json`)
+
+  // catch stale imports
+  if(fs.existsSync(jsonPath)) {
+    const pkg = fsExtra.readJSONSync(jsonPath)
+    for (let i = 0; i < pkg.dependencies.length; i++) {
+      const dep = pkg.dependencies[i]
+      const p = path.resolve(__dirname, '../../../node_modules/', dep)
+      if (!fs.existsSync(p)) {
+        fsExtra.removeSync(jsonPath)
+        console.log('stale dependency found. regenerating dependencies')
+        break
+      }
+    }
   }
-  const { dependencies } = JSON.parse(fs.readFileSync(path.resolve(__dirname, `./optimizeDeps.json`), 'utf8'))
+
+  if(!fs.existsSync(jsonPath)) {
+    fs.writeFileSync(jsonPath, JSON.stringify({ dependencies: [] }))
+  }
+
+  const { dependencies } = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
   const defaultDeps = JSON.parse(fs.readFileSync(path.resolve(__dirname, `./defaultDeps.json`), 'utf8'))
   return [...dependencies, ...defaultDeps.dependencies]
 }

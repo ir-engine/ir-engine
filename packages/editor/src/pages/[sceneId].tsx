@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect } from 'react'
 import EditorContainer from '../components/EditorContainer'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 
 interface Props {}
 

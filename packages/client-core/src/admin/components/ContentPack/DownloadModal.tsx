@@ -8,7 +8,7 @@ import classNames from 'classnames'
 import React, { useState } from 'react'
 import { useDispatch } from '../../../store'
 import styles from './ContentPack.module.scss'
-import { ContentPackService } from '../../state/ContentPackService'
+import { ContentPackService } from '../../services/ContentPackService'
 
 interface Props {
   open: boolean

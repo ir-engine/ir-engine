@@ -8,9 +8,9 @@ import { Typography, CardHeader, Avatar, IconButton } from '@mui/material'
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 import DeleteIcon from '@mui/icons-material/Delete'
 
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 
 interface Props {
   creator?: any

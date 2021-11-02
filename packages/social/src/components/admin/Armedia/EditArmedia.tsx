@@ -21,7 +21,7 @@ import { validateARMediaForm } from './validation'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
 import Card from '@mui/material/Card'
-import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
+import { ArMediaService } from '@xrengine/client-core/src/social/services/ArMediaService'
 
 interface Props {
   mediaAdmin: any

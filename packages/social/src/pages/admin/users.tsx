@@ -3,8 +3,8 @@
  */
 import React, { useEffect } from 'react'
 import CreatorConsole from '@xrengine/social/src/components/admin/CreatorConsole'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 import Dashboard from '@xrengine/social/src/components/Dashboard'
 
 const UsersPage = () => {

@@ -15,7 +15,7 @@ import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import { client } from '../../../../feathers'
-import { AlertAction } from '../../../../common/state/AlertActions'
+import { AlertAction } from '../../../../common/services/AlertService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 

@@ -1,5 +1,5 @@
 import RoutesConsole from '../components/Routes'
-import { AuthService } from '../../user/state/AuthService'
+import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
 import { useDispatch } from '../../store'
 
