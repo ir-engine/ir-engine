@@ -23,7 +23,7 @@ function stringifyArray(array: any[]) {
 export default class ArrayKeyedMap<KeySource extends any[], Value> implements IArrayKeyedMap<KeySource, Value> {
   /** ordered by time last used, ascending */
   map = new Map<string, Value>()
-  keySources = new Map<string, KeySource>()
+  keySources = new Set<KeySource>()
   defaultValue: Value
 
   constructor(iterable: Iterable<[KeySource, Value]> = [], options: Options<Value> = {}) {
@@ -35,17 +35,17 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
     }
   }
 
-  addKey(key: string, keySource: KeySource) {
-    this.keySources.set(key, keySource)
+  addKey(keySource: KeySource) {
+    this.keySources.add(keySource)
   }
 
-  getKeySource(key: string): KeySource | undefined {
-    return this.keySources.get(key)
+  getKeySource(key: string) {
+    return key.split(',')
   }
 
   set(keySource: KeySource, value: Value) {
     const key = stringifyArray(keySource)
-    this.addKey(key, keySource)
+    this.addKey(keySource)
     this.map.set(key, value)
     return this
   }
@@ -66,8 +66,8 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
   }
 
   *keys(): Generator<KeySource> {
-    for (const key of this.map.keys()) {
-      yield this.getKeySource(key)!
+    for (const key of this.keySources.values()) {
+      yield key
     }
   }
 
