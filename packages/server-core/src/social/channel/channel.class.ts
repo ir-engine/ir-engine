@@ -71,6 +71,9 @@ export class Channel extends Service {
                 model: (this.app.service('user') as any).Model
               }
             ]
+          },
+          {
+            model: this.app.service('message').Model
           }
         ],
         where: {

@@ -65,7 +65,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Update package repo to GitHub Packages
         run: npm run update-name-gh-package
-      - name: Run get add
+      - name: Run git add
         run: git add .
       - name: Commit changes
         run: git commit -m 'GH Packages'
