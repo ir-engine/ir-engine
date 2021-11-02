@@ -1,6 +1,11 @@
 {
   "publicRuntimeConfig": {
-    "title": "The Overlay",
+    "title": "XREngine",
+    "favicon32px": "/favicon-32x32.png",
+    "favicon16px": "/favicon-16x16.png",
+    "icon192px": "https://xrengine-static-resources.s3.us-west-1.amazonaws.com/test/guinea-pig.jpg",
+    "icon512px": "https://xrengine-static-resources.s3.us-west-1.amazonaws.com/test/guinea-pig.jpg",
+    "webmanifestLink": "/site.webmanifest",
     "siteTitle": "The Overlay",
     "siteDescription": "Connected Worlds for Everyone",
     "dev": false,
