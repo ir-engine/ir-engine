@@ -135,6 +135,7 @@ const Harmony = (props: Props): any => {
   const channels = channelState.channels.value
   const channelConnectionState = useChannelConnectionState()
   const channelEntries = Object.values(channels).filter((channel) => !!channel)!
+  console.log('YYYYYYYYYYYYYYYY', channelEntries)
   const instanceChannel = channelEntries.find((entry) => entry.instanceId != null)!
   const targetObject = chatState.targetObject
   const targetObjectType = chatState.targetObjectType

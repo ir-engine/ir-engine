@@ -5,6 +5,8 @@ import createStyles from '@mui/styles/createStyles'
 import { styled, alpha } from '@mui/material/styles'
 import Menu, { MenuProps } from '@mui/material/Menu'
 
+// const theme = createTheme()
+
 export const StyledMenu = styled((props: MenuProps) => (
   <Menu
     elevation={0}
@@ -89,15 +91,22 @@ export const useStyles = makeStyles((theme: Theme) =>
       padding: '2px 4px',
       display: 'flex',
       alignItems: 'center',
-      width: '75vw'
+      width: '75vw',
+      background: '#343b41',
+      color: '#f1f1f1',
+      border: '1px solid rgba(255, 255, 255, 0.16)'
     },
     firstMessagePlaceholder: {
       fontSize: '3em',
-      margin: 'auto'
+      margin: 'auto',
+      [theme.breakpoints.down('md')]: {
+        fontSize: '1.2rem'
+      }
     },
     input: {
       marginLeft: theme.spacing(1),
-      flex: 1
+      flex: 1,
+      color: '#f1f1f1'
     },
     inputEdit: {
       borderRadius: '5px',
