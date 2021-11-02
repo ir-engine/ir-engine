@@ -8,7 +8,7 @@ const state = createState({
   error: ''
 })
 
-export function receptor(action: VideoActionType): any {
+store.receptors.push((action: VideoActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'VIDEOS_FETCHED_SUCCESS': {
@@ -24,7 +24,7 @@ export function receptor(action: VideoActionType): any {
         return s.merge({ error: action.message })
     }
   }, action.type)
-}
+})
 
 export const accessVideoState = () => state
 
