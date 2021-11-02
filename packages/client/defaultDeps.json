@@ -254,6 +254,8 @@
     "nipplejs",
     "react-material-ui-form-validator",
     "use-http",
-    "yup"
+    "yup",
+    "oauth-1.0a",
+    "crypto-js"
   ]
 }

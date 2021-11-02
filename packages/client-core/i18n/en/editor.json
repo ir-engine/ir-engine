@@ -209,6 +209,29 @@
             "lbl-interactionText": "Interaction Text",
             "lbl-interactionType": "Interaction Type"
         },
+        "woocommerce" : {
+            "description": "A Media object of a scene loaded from Wordpress Woocommerce",
+            "lbl-domain": "Site Domain",
+            "lbl-consumerKey": "Consumer Key",
+            "lbl-consumerSecret": "Consumer Secret",
+            "lbl-products": "Products",
+            "lbl-productItems": "Media",
+            "error-url": "Error Loading From URL",
+            "lbl-loopAnimation": "Loop Animation",
+            "lbl-isAvatar": "Is Avatar",
+            "lbl-collidable": "Collidable",
+            "lbl-walkable": "Walkable",
+            "lbl-castShadow": "Cast Shadow",
+            "lbl-receiveShadow": "Receive Shadow",
+            "lbl-interactable": "Interactable",
+            "lbl-name": "Name",
+            "lbl-url": "Model Url",
+            "lbl-buy": "Buy Url",
+            "lbl-learnMore": "Learn More Url",
+            "lbl-htmlContent": "Html Content",
+            "lbl-interactionText": "Interaction Text",
+            "lbl-interactionType": "Interaction Type"
+        },
         "group": {
             "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
         },

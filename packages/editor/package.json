@@ -102,7 +102,9 @@
     "uuid": "8.3.2",
     "video-react": "0.14.1",
     "volumetric": "0.2.28",
-    "yup": "0.32.11"
+    "yup": "0.32.11",
+    "oauth-1.0a": "^2.2.6",
+    "crypto-js": "^4.1.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "21.0.1",
