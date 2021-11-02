@@ -61,51 +61,45 @@ export const createScene = async (
   showDialog,
   hideDialog
 ): Promise<SceneDetailInterface> => {
-  if (signal.aborted) {
-    throw new Error(i18n.t('editor:errors.saveProjectAborted'))
-  }
-
-  // uploading thumbnail providing file_id and meta
-  const {
-    file_id: thumbnailFileId,
-    meta: { access_token: thumbnailFileToken }
-  } = (await upload(thumbnailBlob, undefined, signal, 'thumbnailOwnedFileId')) as any
-
-  if (signal.aborted) {
-    throw new Error(i18n.t('editor:errors.saveProjectAborted'))
-  }
-
-  const serializedScene = await scene.serialize()
-  const projectBlob = new Blob([JSON.stringify(serializedScene)], { type: 'application/json' })
-  const {
-    file_id: projectFileId,
-    meta: { access_token: projectFileToken }
-  } = (await upload(projectBlob, undefined, signal)) as any
-
-  if (signal.aborted) {
-    throw new Error(i18n.t('editor:errors.saveProjectAborted'))
-  }
-
-  const sceneData = {
-    name: scene.name,
-    thumbnailOwnedFileId: {
-      file_id: thumbnailFileId,
-      file_token: thumbnailFileToken
-    },
-    scene_file_id: projectFileId,
-    scene_file_token: projectFileToken
-  }
-
-  if (parentSceneId) {
-    sceneData['parent_scene_id'] = parentSceneId
-  }
-
-  try {
-    return (await client.service('scene').create({ scene: sceneData })) as SceneDetailInterface
-  } catch (error) {
-    console.log('Error in Getting Project:' + error)
-    throw new Error(error)
-  }
+  // TODO
+  // if (signal.aborted) {
+  //   throw new Error(i18n.t('editor:errors.saveProjectAborted'))
+  // }
+  // // uploading thumbnail providing file_id and meta
+  // const {
+  //   file_id: thumbnailFileId,
+  //   meta: { access_token: thumbnailFileToken }
+  // } = (await upload(thumbnailBlob, undefined, signal, 'thumbnailOwnedFileId')) as any
+  // if (signal.aborted) {
+  //   throw new Error(i18n.t('editor:errors.saveProjectAborted'))
+  // }
+  // const serializedScene = await scene.serialize()
+  // const projectBlob = new Blob([JSON.stringify(serializedScene)], { type: 'application/json' })
+  // const {
+  //   file_id: projectFileId,
+  //   meta: { access_token: projectFileToken }
+  // } = (await upload(projectBlob, undefined, signal)) as any
+  // if (signal.aborted) {
+  //   throw new Error(i18n.t('editor:errors.saveProjectAborted'))
+  // }
+  // const sceneData = {
+  //   name: scene.name,
+  //   thumbnailOwnedFileId: {
+  //     file_id: thumbnailFileId,
+  //     file_token: thumbnailFileToken
+  //   },
+  //   scene_file_id: projectFileId,
+  //   scene_file_token: projectFileToken
+  // }
+  // if (parentSceneId) {
+  //   sceneData['parent_scene_id'] = parentSceneId
+  // }
+  // try {
+  //   return (await client.service('scene').create({ scene: sceneData })) as SceneDetailInterface
+  // } catch (error) {
+  //   console.log('Error in Getting Project:' + error)
+  //   throw new Error(error)
+  // }
 }
 
 /**
@@ -116,13 +110,13 @@ export const createScene = async (
  * @return {Promise}
  */
 export const deleteScene = async (projectName, sceneName): Promise<any> => {
-  try {
-    await client.service('scene').remove({ projectName, sceneName })
-  } catch (error) {
-    console.log('Error in Getting Project:' + error)
-    throw new Error(error)
-  }
-  return true
+  // try {
+  //   await client.service('scene').remove({ projectName, sceneName })
+  // } catch (error) {
+  //   console.log('Error in Getting Project:' + error)
+  //   throw new Error(error)
+  // }
+  // return true
 }
 
 /**

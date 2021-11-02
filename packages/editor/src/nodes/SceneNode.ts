@@ -440,7 +440,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
     return this
   }
-  async serialize(projectId): Promise<SceneJson> {
+  // @ts-ignore
+  async serialize(sceneId): Promise<SceneJson> {
     const sceneJson: SceneJson = {
       version: 4,
       root: this.uuid,
@@ -502,7 +503,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             },
             {
               name: 'envmap',
-              props: await this.getEnvMapProps(projectId)
+              props: await this.getEnvMapProps(sceneId)
             }
           ]
         }
@@ -513,7 +514,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       if (!child.isNode || child === this) {
         return
       }
-      const entityJson = await child.serialize(projectId)
+      const entityJson = await child.serialize(sceneId)
       entityJson.parent = child.parent.uuid
       let index = 0
       for (const sibling of child.parent.children) {

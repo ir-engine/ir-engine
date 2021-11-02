@@ -1,10 +1,9 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
-import { LocationService } from '@xrengine/client-core/src/admin/services/LocationService'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation, withTranslation } from 'react-i18next'
@@ -18,13 +17,10 @@ import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import ExportProjectDialog from './dialogs/ExportProjectDialog'
 import { ProgressDialog } from './dialogs/ProgressDialog'
-import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
 import DragLayer from './dnd/DragLayer'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
-import defaultTemplateUrl from './templates/crater.json'
-import tutorialTemplateUrl from './templates/tutorial.json'
 import ToolBar from './toolbar/ToolBar'
 import ViewportPanelContainer from './viewport/ViewportPanelContainer'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
@@ -37,8 +33,6 @@ import { registerPredefinedNodes } from '../managers/NodeManager'
 import { registerPredefinedSources } from '../managers/SourceManager'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
-import { client } from '@xrengine/client-core/src/feathers'
 import ScenesPanel from './assets/ScenesPanel'
 
 /**
@@ -189,31 +183,25 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     }
   }, [])
 
-  const importProject = async (projectFile) => {
-    // TODO
-    // setProject(null)
-    // setParentSceneId(null)
-    // showDialog(ProgressDialog, {
-    //   title: t('editor:loading'),
-    //   message: t('editor:loadingMsg')
-    // })
-    // try {
-    //   await ProjectManager.instance.loadProject(projectFile)
-    //   SceneManager.instance.sceneModified = true
-    //   updateModifiedState()
-    //   hideDialog()
-    // } catch (error) {
-    //   console.error(error)
-    //   showDialog(ErrorDialog, {
-    //     title: t('editor:loadingError'),
-    //     message: error.message || t('editor:loadingErrorMsg'),
-    //     error
-    //   })
-    // } finally {
-    //   if (project) {
-    //     setProject(project)
-    //   }
-    // }
+  const importScene = async (projectFile) => {
+    showDialog(ProgressDialog, {
+      title: t('editor:loading'),
+      message: t('editor:loadingMsg')
+    })
+    setSceneName(null)
+    try {
+      await ProjectManager.instance.loadProject(projectFile)
+      SceneManager.instance.sceneModified = true
+      updateModifiedState()
+      hideDialog()
+    } catch (error) {
+      console.error(error)
+      showDialog(ErrorDialog, {
+        title: t('editor:loadingError'),
+        message: error.message || t('editor:loadingErrorMsg'),
+        error
+      })
+    }
   }
 
   const loadScene = async (sceneName) => {
@@ -223,8 +211,7 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     })
     setSceneName(null)
     try {
-      const project = (await getScene(projectName, sceneName, false)) as SceneDetailInterface
-      console.log(project)
+      const project = await getScene(projectName, sceneName, false)
       await ProjectManager.instance.loadProject(project.scene)
       setSceneName(sceneName)
       hideDialog()
@@ -263,7 +250,7 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
       },
       {
         name: t('editor:menubar.saveAs'),
-        action: onDuplicateProject
+        action: onSaveAs
       },
       {
         name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
@@ -271,11 +258,11 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
       },
       {
         name: t('editor:menubar.importProject'),
-        action: onImportLegacyProject
+        action: onImportScene
       },
       {
         name: t('editor:menubar.exportProject'),
-        action: onExportLegacyProject
+        action: onExportScene
       },
       {
         name: t('editor:menubar.quit'),
@@ -357,101 +344,47 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     })
   }
 
-  /**
-   *  Project Actions
-   */
-
-  const createProject = async () => {
-    // showDialog(ProgressDialog, {
-    //   title: t('editor:generateScreenshot'),
-    //   message: t('editor:generateScreenshotMsg')
-    // })
-    // // Wait for 5ms so that the ProgressDialog shows up.
-    // await new Promise((resolve) => setTimeout(resolve, 5))
-    // const blob = await SceneManager.instance.takeScreenshot(512, 320)
-    // const result: any = (await new Promise((resolve) => {
-    //   showDialog(SaveNewProjectDialog, {
-    //     thumbnailUrl: URL.createObjectURL(blob),
-    //     initialName: SceneManager.instance.scene.name,
-    //     onConfirm: resolve,
-    //     onCancel: resolve
-    //   })
-    // })) as any
-    // if (!result) {
-    //   hideDialog()
-    //   return null
-    // }
-    // const abortController = new AbortController()
-    // showDialog(ProgressDialog, {
-    //   title: t('editor:saving'),
-    //   message: t('editor:savingMsg'),
-    //   cancelable: true,
-    //   onCancel: () => {
-    //     abortController.abort()
-    //     hideDialog()
-    //   }
-    // })
-    // CommandManager.instance.executeCommand(EditorCommands.MODIFY_PROPERTY, SceneManager.instance.scene, {
-    //   properties: { name: result.name }
-    // })
-    // SceneManager.instance.scene.setMetadata({ name: result.name })
-    // const project = await createScene(
-    //   SceneManager.instance.scene,
-    //   parentSceneId,
-    //   blob,
-    //   abortController.signal,
-    //   showDialog,
-    //   hideDialog
-    // )
-    // SceneManager.instance.sceneModified = false
-    // setSceneId(project.scene_id)
-    // updateModifiedState(() => {
-    //   setCreatingProject(true)
-    //   setProject(project)
-    // })
-    // return project
-  }
-
-  // useEffect(() => {
-  //   if (creatingProject) {
-  //     props.history.replace(`/editor/${project.scene_id}`)
-  //     setCreatingProject(false)
-  //   }
-  // }, [creatingProject, project])
-
+  // todo
   const onNewProject = async () => {
     // props.history.push('/editor/new')
   }
 
+  // todo
   const onOpenProject = () => {
     // props.history.push('/editor')
   }
 
-  const onDuplicateProject = async () => {
-    // const abortController = new AbortController()
-    // showDialog(ProgressDialog, {
-    //   title: t('editor:duplicating'),
-    //   message: t('editor:duplicatingMsg'),
-    //   cancelable: true,
-    //   onCancel: () => {
-    //     abortController.abort()
-    //     hideDialog()
-    //   }
-    // })
-    // await new Promise((resolve) => setTimeout(resolve, 5))
-    // try {
-    //   const newProject = await createProject()
-    //   SceneManager.instance.sceneModified = false
-    //   updateModifiedState()
-    //   hideDialog()
-    //   setSceneId(newProject.scene_id)
-    // } catch (error) {
-    //   console.error(error)
-    //   showDialog(ErrorDialog, {
-    //     title: t('editor:savingError'),
-    //     message: error.message || t('editor:savingErrorMsg')
-    //   })
-    // }
+  const onSaveAs = async () => {
+    /**
+     * @todo
+     * - open a dialog to get name & tempalte
+     * - create scene on backend
+     * - load new scene
+     */
+
+    const abortController = new AbortController()
+    showDialog(ProgressDialog, {
+      title: t('editor:duplicating'),
+      message: t('editor:duplicatingMsg'),
+      cancelable: true,
+      onCancel: () => {
+        abortController.abort()
+        hideDialog()
+      }
+    })
+    await new Promise((resolve) => setTimeout(resolve, 5))
+    try {
+      const newProject = await createScene()
+      SceneManager.instance.sceneModified = false
+      updateModifiedState()
+      hideDialog()
+    } catch (error) {
+      console.error(error)
+      showDialog(ErrorDialog, {
+        title: t('editor:savingError'),
+        message: error.message || t('editor:savingErrorMsg')
+      })
+    }
   }
 
   const onExportProject = async () => {
@@ -504,53 +437,45 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     }
   }
 
-  const onImportLegacyProject = async () => {
-    // const confirm = await new Promise((resolve) => {
-    //   showDialog(ConfirmDialog, {
-    //     title: t('editor:importLegacy'),
-    //     message: t('editor:importLegacyMsg'),
-    //     onConfirm: () => resolve(true),
-    //     onCancel: () => resolve(false)
-    //   })
-    // })
-    // hideDialog()
-    // if (!confirm) return
-    // const el = document.createElement('input')
-    // el.type = 'file'
-    // el.accept = '.world'
-    // el.style.display = 'none'
-    // el.onchange = () => {
-    //   if (el.files.length > 0) {
-    //     const fileReader: any = new FileReader()
-    //     fileReader.onload = () => {
-    //       const json = JSON.parse((fileReader as any).result)
-    //       if (json.metadata) {
-    //         delete json.metadata.sceneUrl
-    //         delete json.metadata.sceneId
-    //       }
-    //       importProject(json)
-    //     }
-    //     fileReader.readAsText(el.files[0])
-    //   }
-    // }
-    // el.click()
+  const onImportScene = async () => {
+    const confirm = await new Promise((resolve) => {
+      showDialog(ConfirmDialog, {
+        title: t('editor:importLegacy'),
+        message: t('editor:importLegacyMsg'),
+        onConfirm: () => resolve(true),
+        onCancel: () => resolve(false)
+      })
+    })
+    hideDialog()
+    if (!confirm) return
+    const el = document.createElement('input')
+    el.type = 'file'
+    el.accept = '.world'
+    el.style.display = 'none'
+    el.onchange = () => {
+      if (el.files.length > 0) {
+        const fileReader: any = new FileReader()
+        fileReader.onload = () => {
+          const json = JSON.parse((fileReader as any).result)
+          importScene(json)
+        }
+        fileReader.readAsText(el.files[0])
+      }
+    }
+    el.click()
   }
 
-  const onExportLegacyProject = async () => {
-    // const projectFile = await SceneManager.instance.scene.serialize(project.scene_id)
-    // if (projectFile.metadata) {
-    //   delete projectFile.metadata.sceneUrl
-    //   delete projectFile.metadata.sceneId
-    // }
-    // const projectJson = JSON.stringify(projectFile)
-    // const projectBlob = new Blob([projectJson])
-    // const el = document.createElement('a')
-    // const fileName = SceneManager.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
-    // el.download = fileName + '.world'
-    // el.href = URL.createObjectURL(projectBlob)
-    // document.body.appendChild(el)
-    // el.click()
-    // document.body.removeChild(el)
+  const onExportScene = async () => {
+    const projectFile = await SceneManager.instance.scene.serialize(sceneName)
+    const projectJson = JSON.stringify(projectFile)
+    const projectBlob = new Blob([projectJson])
+    const el = document.createElement('a')
+    const fileName = SceneManager.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
+    el.download = fileName + '.world'
+    el.href = URL.createObjectURL(projectBlob)
+    document.body.appendChild(el)
+    el.click()
+    document.body.removeChild(el)
   }
 
   const onSaveProject = async () => {
@@ -572,8 +497,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
 
     try {
       await saveScene(projectName, sceneName, abortController.signal)
-
-      await new Promise((resolve) => setTimeout(resolve, 500))
       SceneManager.instance.sceneModified = false
       updateModifiedState()
 

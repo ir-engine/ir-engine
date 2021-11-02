@@ -1,7 +1,6 @@
 export interface SceneJson {
   entities: { [uuid: string]: any }
   root: string
-  metadata: string
   version: number
 }
 
