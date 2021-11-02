@@ -7,7 +7,7 @@ import { useStyle, useStyles } from './style'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
-import { useGroupState } from '@xrengine/client-core/src/social/state/GroupState'
+import { useGroupState } from '../../../social/services/GroupService'
 
 const GroupTab = () => {
   const classes = useStyles()

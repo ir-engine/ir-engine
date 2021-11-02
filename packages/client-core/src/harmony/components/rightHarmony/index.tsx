@@ -13,7 +13,6 @@ import { useChatState } from '../../../social/services/ChatService'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useUserState } from '../../../user/services/UserService'
 import { ChatAction } from '../../../social/services/ChatService'
-import { useChannelConnectionState } from '@xrengine/client-core/src/common/state/ChannelConnectionState'
 import { store } from '@xrengine/client-core/src/store'
 
 import CreateMessage from './CreateMessage'
@@ -34,7 +33,6 @@ export default function RightHarmony() {
   const chatState = useChatState()
   const channelState = chatState.channels
   const channels = channelState.channels.value
-  const channelConnectionState = useChannelConnectionState()
   const channelEntries = Object.values(channels).filter((channel) => !!channel)!
   const channelRef = useRef(channels)
 

@@ -8,7 +8,7 @@ import Paper from '@mui/material/Paper'
 import InputBase from '@mui/material/InputBase'
 import { useStyle, useUserStyles } from './style'
 import { validateUserForm } from '../../../admin/components/Users/validation'
-import { GroupService } from '@xrengine/client-core/src/social/state/GroupService'
+import { GroupService } from '../../../social/services/GroupService'
 
 const GreateGroup = ({ open, handleClose }) => {
   const classex = useStyle()
