@@ -46,6 +46,12 @@ jobs:
           AWS_SECRET: ${{ secrets.AWS_SECRET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+      - name: Space debug
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Build Docker Image
         run: bash scripts/build_docker_builder.sh prod $DOCKER_LABEL $PRIVATE_ECR $AWS_REGION
         env:
