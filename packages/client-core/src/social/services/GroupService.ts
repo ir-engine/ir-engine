@@ -49,27 +49,54 @@ store.receptors.push((action: GroupActionType): any => {
       case 'LOADED_GROUPS':
         newValues = action
         if (s.updateNeeded.value === true) {
-          s.groups.groups.set(newValues.groups)
+          return s.merge({
+            groups: {
+              groups: newValues.groups,
+              skip: newValues.skip,
+              limit: newValues.limit,
+              total: newValues.total
+            },
+            updateNeeded: false,
+            getGroupsInProgress: false
+          })
         } else {
-          s.groups.groups.set([...s.groups.groups.value, ...newValues.groups])
+          return s.merge({
+            groups: {
+              groups: [...s.groups.groups.value, ...newValues.groups],
+              skip: newValues.skip,
+              limit: newValues.limit,
+              total: newValues.total
+            },
+            updateNeeded: false,
+            getGroupsInProgress: false
+          })
         }
-        s.groups.merge({ skip: newValues.skip, limit: newValues.limit, total: newValues.total })
-        s.updateNeeded.set(false)
-        return s.getGroupsInProgress.set(false)
-
       case 'LOADED_INVITABLE_GROUPS':
         newValues = action
 
         if (s.updateNeeded.value === true) {
-          s.invitableGroups.groups.set(newValues.groups)
+          return s.merge({
+            invitableGroups: {
+              groups: newValues.groups,
+              skip: newValues.skip,
+              limit: newValues.limit,
+              total: newValues.total
+            },
+            invitableUpdateNeeded: false,
+            getInvitableGroupsInProgress: false
+          })
         } else {
-          s.invitableGroups.groups.set([...s.invitableGroups.groups.value, ...newValues.groups])
+          return s.merge({
+            invitableGroups: {
+              groups: [...s.invitableGroups.groups.value, ...newValues.groups],
+              skip: newValues.skip,
+              limit: newValues.limit,
+              total: newValues.total
+            },
+            invitableUpdateNeeded: false,
+            getInvitableGroupsInProgress: false
+          })
         }
-        s.invitableGroups.skip.set(newValues.skip)
-        s.invitableGroups.limit.set(newValues.limit)
-        s.invitableGroups.total.set(newValues.total)
-        return s.merge({ invitableUpdateNeeded: false, getInvitableGroupsInProgress: false })
-
       case 'CREATED_GROUP':
         newValues = action
         return s.merge({ updateNeeded: true, invitableUpdateNeeded: true })
@@ -81,21 +108,33 @@ store.receptors.push((action: GroupActionType): any => {
           return groupItem != null && groupItem.id === groupUser.groupId
         })
         if (groupIndex !== -1) {
-          return s.groups.groups[groupIndex].set(updateGroup)
+          return s.merge({
+            groups: {
+              groups[groupIndex]: updateGroup
+            }
+          })
         }
         return s
       case 'REMOVED_GROUP':
-        s.updateNeeded.set(true)
-        return s.invitableUpdateNeeded.set(true)
+        return s.merge({
+          updateNeeded: true,
+          invitableUpdateNeeded: true
+        })
       case 'INVITED_GROUP_USER':
         return s
       // .set('updateNeeded', true)
       case 'LEFT_GROUP':
-        return s.updateNeeded.set(true)
+        return s.merge({
+          updateNeeded: true
+        })
       case 'FETCHING_GROUPS':
-        return s.getGroupsInProgress.set(true)
+        return s.merge({
+          getGroupsInProgress: true
+        })
       case 'FETCHING_INVITABLE_GROUPS':
-        return s.getInvitableGroupsInProgress.set(true)
+        return s.merge({
+          getInvitableGroupsInProgress: true
+        })
       case 'CREATED_GROUP_USER':
         newValues = action
         groupUser = newValues.groupUser
@@ -108,12 +147,25 @@ store.receptors.push((action: GroupActionType): any => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {
-            group.groupUsers[groupUserIndex].set(groupUser)
+            return s.merge({
+              groups: {
+                groups[groupIndex]: {
+                  groupUsers[groupUserIndex]:
+                    groupUser
+                }
+              }
+            })
           } else {
-            group.groupUsers.merge(groupUser)
+            return s.merge({
+              groups: {
+                groups[groupIndex]: {
+                  groupUsers:
+                    groupUser
+                }
+              }
+            })
           }
         }
-
       case 'PATCHED_GROUP_USER':
         newValues = action
         groupUser = newValues.groupUser
@@ -126,9 +178,23 @@ store.receptors.push((action: GroupActionType): any => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {
-            group.groupUsers[groupUserIndex].set(groupUser)
+            return s.merge({
+              groups: {
+                groups[groupIndex]: {
+                  groupUsers[groupUserIndex]:
+                    groupUser
+                }
+              }
+            })
           } else {
-            group.groupUsers.merge(groupUser)
+            return s.merge({
+              groups: {
+                groups[groupIndex]: {
+                  groupUsers:
+                    groupUser
+                }
+              }
+            })
           }
         }
         // updateMap = s.groups.value
@@ -157,8 +223,12 @@ store.receptors.push((action: GroupActionType): any => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {
-            group.groupUsers.merge({
-              [groupUserIndex]: none
+            s.merge({
+              groups: {
+                groups[groupIndex]: {
+                  groupUsers[groupUserIndex]: none
+                }
+              }
             })
           }
         }
@@ -166,7 +236,9 @@ store.receptors.push((action: GroupActionType): any => {
         return self === true ? s.merge({ closeDetails: groupUser.groupId, updateNeeded: true }) : s
 
       case 'REMOVE_CLOSE_GROUP_DETAIL':
-        return s.closeDetails.set('')
+        return s.merge({
+          closeDetails: ''
+        })
     }
   }, action.type)
 })
@@ -215,10 +287,10 @@ export const GroupService = {
     {
       const patch = {}
       if (values.name != null) {
-        ;(patch as any).name = values.name
+        ; (patch as any).name = values.name
       }
       if (values.description != null) {
-        ;(patch as any).description = values.description
+        ; (patch as any).description = values.description
       }
       try {
         await client.service('group').patch(values.id, patch)

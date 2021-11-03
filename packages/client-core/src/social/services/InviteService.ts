@@ -43,39 +43,72 @@ store.receptors.push((action: InviteActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'INVITE_SENT':
-        return s.sentUpdateNeeded.set(true)
+        return s.merge({
+          sentUpdateNeeded: true
+        })
       case 'SENT_INVITES_RETRIEVED':
         newValues = action
-        s.sentInvites.merge({
-          invites: newValues.invites,
-          skip: newValues.skip,
-          limit: newValues.limit,
-          total: newValues.total
+        return s.merge({
+          sentInvites: {
+            invites: newValues.invites,
+            skip: newValues.skip,
+            limit: newValues.limit,
+            total: newValues.total
+          },
+          sentUpdateNeeded: false,
+          getSentInvitesInProgress: false
         })
-        return s.merge({ sentUpdateNeeded: false, getSentInvitesInProgress: false })
       case 'RECEIVED_INVITES_RETRIEVED':
         newValues = action
         const receivedInvites = s.receivedInvites.invites.value
 
         if (receivedInvites === null || s.receivedUpdateNeeded.value === true) {
-          s.receivedInvites.invites.set(newValues.invites)
+          return s.merge({
+            receivedInvites: {
+              invites: newValues.invites,
+              skip: newValues.skip,
+              limit: newValues.limit,
+              total: newValues.total
+            },
+            receivedUpdateNeeded: false,
+            getReceivedInvitesInProgress: false
+          })
         } else {
-          s.receivedInvites.invites.merge([...s.receivedInvites.invites.value, ...newValues.invites])
+          return s.merge({
+            receivedInvites: {
+              invites: [...s.receivedInvites.invites.value, ...newValues.invites],
+              skip: newValues.skip,
+              limit: newValues.limit,
+              total: newValues.total
+            },
+            receivedUpdateNeeded: false,
+            getReceivedInvitesInProgress: false
+          })
         }
-        s.receivedInvites.merge({ skip: newValues.skip, limit: newValues.limit, total: newValues.total })
-        return s.merge({ receivedUpdateNeeded: false, getReceivedInvitesInProgress: false })
       case 'CREATED_RECEIVED_INVITE':
-        return s.receivedUpdateNeeded.set(true)
+        return s.merge({
+          receivedUpdateNeeded: true
+        })
       case 'CREATED_SENT_INVITE':
-        return s.sentUpdateNeeded.set(true)
+        return s.merge({
+          sentUpdateNeeded: true
+        })
       case 'REMOVED_RECEIVED_INVITE':
-        return s.receivedUpdateNeeded.set(true)
+        return s.merge({
+          receivedUpdateNeeded: true
+        })
       case 'REMOVED_SENT_INVITE':
-        return s.sentUpdateNeeded.set(true)
+        return s.merge({
+          sentUpdateNeeded: true
+        })
       case 'ACCEPTED_INVITE':
-        return s.receivedUpdateNeeded.set(true)
+        return s.merge({
+          receivedUpdateNeeded: true
+        })
       case 'DECLINED_INVITE':
-        return s.receivedUpdateNeeded.set(true)
+        return s.merge({
+          receivedUpdateNeeded: true
+        })
       case 'INVITE_TARGET_SET':
         newValues = action
         return state.merge({
@@ -83,9 +116,13 @@ store.receptors.push((action: InviteActionType): any => {
           targetObjectType: newValues.targetObjectType || ''
         })
       case 'FETCHING_SENT_INVITES':
-        return s.getSentInvitesInProgress.set(true)
+        return s.merge({
+          getSentInvitesInProgress: true
+        })
       case 'FETCHING_RECEIVED_INVITES':
-        return s.getReceivedInvitesInProgress.set(true)
+        return s.merge({
+          getReceivedInvitesInProgress: true
+        })
     }
   }, action.type)
 })
