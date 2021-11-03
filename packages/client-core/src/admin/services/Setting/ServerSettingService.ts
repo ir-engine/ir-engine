@@ -17,12 +17,12 @@ store.receptors.push((action: ServerSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'SETTING_SERVER_DISPLAY':
-<<<<<<< HEAD
-        result = action.serverSettingResult
-        return s.merge({ Server: { server: result.data, updateNeeded: false } })
-=======
-        return s.Server.merge({ server: action.serverSettingResult.data, updateNeeded: false })
->>>>>>> dev
+        return s.merge({
+          Server: {
+            server: action.serverSettingResult.data,
+            updateNeeded: false
+          }
+        })
     }
   }, action.type)
 })

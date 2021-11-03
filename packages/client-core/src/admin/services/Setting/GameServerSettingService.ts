@@ -17,12 +17,12 @@ store.receptors.push((action: GameServerSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'GAME_SERVER_SETTING_DISPLAY':
-<<<<<<< HEAD
-        result = action.gameServerSettingResult
-        return s.merge({ gameServer: { gameserver: result.data, updateNeeded: false } })
-=======
-        return s.gameServer.merge({ gameserver: action.gameServerSettingResult.data, updateNeeded: false })
->>>>>>> dev
+        return s.merge({
+          gameServer: {
+            gameserver: action.gameServerSettingResult.data,
+            updateNeeded: false
+          }
+        })
     }
   }, action.type)
 })

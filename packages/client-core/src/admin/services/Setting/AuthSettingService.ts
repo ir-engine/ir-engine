@@ -22,25 +22,15 @@ store.receptors.push((action: AuthSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_AUTH_SETTING_FETCHED':
-<<<<<<< HEAD
-        result = action.adminRedisSettingResult
         return s.merge({
           authSettings: {
             ...s.authSettings.value,
-            authSettings: result.data,
-            skip: result.skip,
-            limit: result.limit,
-            total: result.total,
+            authSettings: action.adminRedisSettingResult.data,
+            skip: action.adminRedisSettingResult.skip,
+            limit: action.adminRedisSettingResult.limit,
+            total: action.adminRedisSettingResult.total,
             updateNeeded: false
           }
-=======
-        return s.authSettings.merge({
-          authSettings: action.adminRedisSettingResult.data,
-          skip: action.adminRedisSettingResult.skip,
-          limit: action.adminRedisSettingResult.limit,
-          total: action.adminRedisSettingResult.total,
-          updateNeeded: false
->>>>>>> dev
         })
       case 'ADMIN_AUTH_SETTING_PATCHED':
         return s.merge({

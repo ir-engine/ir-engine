@@ -17,12 +17,12 @@ store.receptors.push((action: EmailSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'EMAIL_SETTING_DISPLAY':
-<<<<<<< HEAD
-        result = action.emailSettingResult
-        return s.merge({ Email: { email: result.data, updateNeeded: false } })
-=======
-        return s.Email.merge({ email: action.emailSettingResult.data, updateNeeded: false })
->>>>>>> dev
+        return s.merge({
+          Email: {
+            email: action.emailSettingResult.data,
+            updateNeeded: false
+          }
+        })
     }
   }, action.type)
 })

@@ -16,12 +16,12 @@ store.receptors.push((action: ChargebeeSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CHARGEBEE_SETTING_DISPLAY':
-<<<<<<< HEAD
-        result = action.chargebeeSettingResult
-        return s.merge({ Chargebee: { chargebee: result.data, updateNeeded: false } })
-=======
-        return s.Chargebee.merge({ chargebee: action.chargebeeSettingResult.data, updateNeeded: false })
->>>>>>> dev
+        return s.merge({
+          Chargebee: {
+            chargebee: action.chargebeeSettingResult.data,
+            updateNeeded: false
+          }
+        })
     }
   }, action.type)
 })
