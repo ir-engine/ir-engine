@@ -86,7 +86,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
 
     if (mapState.needsUpdate) {
       // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
-      const subSceneChildren = []
+      object3dComponent.value.children.length = 0
       for (const key of mapState.completeObjects.keys()) {
         const object = mapState.completeObjects.get(key)
         if (object.mesh) {
@@ -100,7 +100,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
             key[0] !== 'landuse_fallback'
           ) {
             setPosition(object.mesh, object.centerPoint)
-            addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
+            addChildFast(object3dComponent.value, object.mesh)
           } else {
             object.mesh.parent = null
           }
@@ -117,7 +117,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
             )
           ) {
             setPosition(label.mesh, label.centerPoint)
-            addChildFast(object3dComponent.value, label.mesh, subSceneChildren)
+            addChildFast(object3dComponent.value, label.mesh)
           } else {
             label.mesh.parent = null
           }
@@ -135,12 +135,11 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
       }
       for (const helpers of mapState.helpersCache.values()) {
         if (helpers.tileNavMesh) {
-          addChildFast(object3dComponent.value, helpers.tileNavMesh, subSceneChildren)
+          addChildFast(object3dComponent.value, helpers.tileNavMesh)
         }
       }
 
       // Update (sub)scene
-      object3dComponent.value.children = subSceneChildren
       mapState.needsUpdate = false
     }
 
