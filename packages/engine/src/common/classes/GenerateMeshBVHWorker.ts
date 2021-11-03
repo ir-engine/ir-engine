@@ -1,4 +1,5 @@
 import { Box3, BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'three'
+// @ts-ignore
 import { MeshBVH } from 'three-mesh-bvh'
 import { isClient } from '../functions/isClient'
 import Worker from 'web-worker'
