@@ -91,8 +91,8 @@ store.receptors.push((action: ChatActionType): any => {
         if (!channel) {
           s.channels.updateNeeded.set(true)
         } else {
-          if (!channel.Messages.length) channel.Messages.set([action.message])
-          else channel.Messages[channel.Messages.length].set(action.message)
+          if (!channel.messages.length) channel.messages.set([action.message])
+          else channel.messages[channel.messages.length].set(action.message)
         }
 
         s.updateMessageScroll.set(true)
@@ -119,9 +119,9 @@ store.receptors.push((action: ChatActionType): any => {
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
         if (channel) {
           for (const m of action.messages) {
-            const message = channel.Messages.find((m2) => m2.id.value === m.id)
+            const message = channel.messages.find((m2) => m2.id.value === m.id)
             if (message) message.set(m)
-            else channel.Messages[channel.Messages.length].set(m)
+            else channel.messages[channel.messages.length].set(m)
           }
         }
 
@@ -132,8 +132,8 @@ store.receptors.push((action: ChatActionType): any => {
         const channelId = action.message.channelId
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
         if (channel) {
-          const messageIdx = channel.Messages.findIndex((m) => m.id.value === action.message.id)
-          if (messageIdx > -1) channel.Messages.merge({ [messageIdx]: none })
+          const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
+          if (messageIdx > -1) channel.messages.merge({ [messageIdx]: none })
         } else {
           s.channels.updateNeeded.set(true)
         }
@@ -145,8 +145,8 @@ store.receptors.push((action: ChatActionType): any => {
         const channelId = action.message.channelId
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
         if (channel) {
-          const messageIdx = channel.Messages.findIndex((m) => m.id.value === action.message.id)
-          if (messageIdx > -1) channel.Messages[messageIdx].set(action.message)
+          const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
+          if (messageIdx > -1) channel.messages[messageIdx].set(action.message)
         } else {
           s.channels.updateNeeded.set(true)
         }
@@ -260,12 +260,13 @@ export const ChatService = {
         await waitForClientAuthenticated()
         const chatState = accessChatState().value
         const data = {
-          targetObjectId: chatState.targetObject.id || null,
-          targetObjectType: chatState.targetObjectType || null,
+          targetObjectId: chatState.targetObject.id || values.targetObjectId || null,
+          targetObjectType: chatState.targetObjectType || values.targetObjectType || null,
           text: values.text
         }
         if (data.targetObjectId === null || data.targetObjectType === null) {
-          console.log('invalid data, something is null: ' + data)
+          console.log('invalid data, something is null: ')
+          console.log(data)
           return
         }
         await client.service('message').create(data)
