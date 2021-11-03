@@ -29,20 +29,36 @@ store.receptors.push((action: FriendActionType): any => {
       case 'LOADED_FRIENDS':
         newValues = action
         if (s.updateNeeded.value === true) {
-          s.friends.friends.set(newValues.friends)
+          return s.merge({
+            friends: {
+              friends: newValues.friends,
+              skip: newValues.skip,
+              limit: newValues.limit,
+              total: newValues.total,
+            },
+            updateNeeded: false,
+            getFriendsInProgress: false
+          })
         } else {
-          s.friends.friends.set([s.friends.friends.value, newValues.friends])
+          return s.merge({
+            friends: {
+              friends: [s.friends.friends.value, newValues.friends],
+              skip: newValues.skip,
+              limit: newValues.limit,
+              total: newValues.total,
+            },
+            updateNeeded: false,
+            getFriendsInProgress: false
+          })
         }
-        s.friends.skip.set(newValues.skip)
-        s.friends.limit.set(newValues.limit)
-        s.friends.total.set(newValues.total)
-        s.updateNeeded.set(false)
-        return s.getFriendsInProgress.set(false)
-
       case 'CREATED_FRIEND':
         newValues = action
         const createdUserRelationship = newValues.userRelationship
-        s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
+        return s.merge({
+          friends: {
+            friends: [...s.friends.friends.value, createdUserRelationship],
+          },
+        })
       case 'PATCHED_FRIEND':
         newValues = action
         const patchedUserRelationship = newValues.userRelationship
@@ -56,11 +72,18 @@ store.receptors.push((action: FriendActionType): any => {
           return friendItem != null && friendItem.id === otherUser.id
         })
         if (patchedFriendIndex === -1) {
-          return s.friends.friends.set([...s.friends.friends.value, otherUser])
+          return s.merge({
+            friends: {
+              friends: [...s.friends.friends.value, otherUser],
+            },
+          })
         } else {
-          return s.friends.friends[patchedFriendIndex].set(otherUser)
+          return s.merge({
+            friends: {
+              friends[patchedFriendIndex]: otherUser,
+            },
+          })
         }
-
       case 'REMOVED_FRIEND':
         newValues = action
         const removedUserRelationship = newValues.userRelationship
@@ -74,9 +97,15 @@ store.receptors.push((action: FriendActionType): any => {
           return friendItem != null && friendItem.id === otherUserId
         })
 
-        return s.friends.friends[friendId].set(none)
+        return s.merge({
+          friends: {
+            friends[friendId]: none,
+          },
+        })
       case 'FETCHING_FRIENDS':
-        return s.getFriendsInProgress.set(true)
+        return s.merge({
+          getFriendsInProgress: true
+        })
     }
   }, action.type)
 })
