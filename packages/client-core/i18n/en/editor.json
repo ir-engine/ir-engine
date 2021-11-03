@@ -209,6 +209,29 @@
             "lbl-interactionText": "Interaction Text",
             "lbl-interactionType": "Interaction Type"
         },
+        "instagram": {
+            "description": "A 3D model of a scene loaded from a GLTF file from Instagram Products 3D Media.",
+            "lbl-instagramDomain": "Instagram Domain",
+            "lbl-instagramAccessToken": "Instagram Access Token",
+            "lbl-instagramProducts": "Instagram Products",
+            "lbl-textureOverride": "Override Texture",
+            "error-url": "Error Loading From URL",
+            "lbl-loopAnimation": "Loop Animation",
+            "lbl-isAvatar": "Is Avatar",
+            "lbl-collidable": "Collidable",
+            "lbl-walkable": "Walkable",
+            "lbl-castShadow": "Cast Shadow",
+            "lbl-receiveShadcow": "Receive Shadow",
+            "lbl-interactable": "Interactable",
+            "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+            "lbl-name": "Name",
+            "lbl-url": "Model Url",
+            "lbl-buy": "Buy Url",
+            "lbl-learnMore": "Learn More Url",
+            "lbl-htmlContent": "Html Content",
+            "lbl-interactionText": "Interaction Text",
+            "lbl-interactionType": "Interaction Type"
+        },
         "group": {
             "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
         },

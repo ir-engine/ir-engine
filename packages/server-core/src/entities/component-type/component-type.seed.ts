@@ -17,6 +17,7 @@ export const componentTypeSeed = {
     { type: 'fog' },
     { type: 'geometry' },
     { type: 'gltf-model' },
+    { type: 'gltf-instagram' },
     { type: 'ground' },
     { type: 'ground-plane' },
     { type: 'hand-controls' },

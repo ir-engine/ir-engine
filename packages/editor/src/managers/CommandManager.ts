@@ -23,6 +23,7 @@ import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/
 import LoadMaterialSlotCommand, { LoadMaterialSlotCommandParams } from '../commands/LoadMaterialSlotMultipleCommand'
 import isInputSelected from '../functions/isInputSelected'
 import ModelNode from '../nodes/ModelNode'
+import InstagramNode from '../nodes/InstagramNode'
 import VideoNode from '../nodes/VideoNode'
 import ImageNode from '../nodes/ImageNode'
 import VolumetricNode from '../nodes/VolumetricNode'
@@ -272,6 +273,11 @@ export class CommandManager extends EventEmitter {
       node = new ModelNode()
       node.initialScale = 'fit'
       await node.load(url)
+      // Added for instagram
+      // } else if (contentType.startsWith('instagram/gltf')) {
+      //   node = new InstagramNode()
+      //   node.initialScale = 'fit'
+      //   await node.load(url)
     } else if (contentType.startsWith('video/') || hostname === 'www.twitch.tv') {
       node = new VideoNode()
       await node.load(url)
