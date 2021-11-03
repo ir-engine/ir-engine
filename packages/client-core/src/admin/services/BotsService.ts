@@ -1,10 +1,7 @@
 import { useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { createState, useState } from '@hookstate/core'
 import { store } from '../../store'
 import { AdminBotResult } from '@xrengine/common/src/interfaces/AdminBotResult'
 import { AdminBot, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
@@ -13,12 +10,6 @@ import { AdminBot, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
 export const BOTS_PAGE_LIMIT = 100
 
 const state = createState({
-  isLoggedIn: false,
-  isProcessing: false,
-  error: '',
-  authUser: AuthUserSeed,
-  user: UserSeed,
-  identityProvider: IdentityProviderSeed,
   bots: {
     bots: [] as Array<AdminBot>,
     skip: 0,
@@ -42,14 +33,11 @@ const state = createState({
 })
 
 store.receptors.push((action: BotsActionType): void => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'BOT_ADMIN_DISPLAY':
-        result = action.bots
-        s.merge({ error: '' })
         return s.bots.merge({
-          bots: result.data,
+          bots: action.bots.data,
           retrieving: false,
           fetched: true,
           updateNeeded: false,

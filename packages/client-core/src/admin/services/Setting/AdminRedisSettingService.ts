@@ -16,12 +16,10 @@ const state = createState({
 })
 
 store.receptors.push((action: AdminRedisSettingActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_REDIS_SETTING_FETCHED':
-        result = action.adminRedisSettingResult
-        return s.redisSettings.merge({ redisSettings: result.data, updateNeeded: false })
+        return s.redisSettings.merge({ redisSettings: action.adminRedisSettingResult.data, updateNeeded: false })
     }
   }, action.type)
 })

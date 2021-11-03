@@ -11,7 +11,6 @@ import TableCell from '@mui/material/TableCell'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import Paper from '@mui/material/Paper'
 import TablePagination from '@mui/material/TablePagination'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import styles from './Avatars.module.scss'
@@ -31,11 +30,10 @@ interface Props {
 
 const Avatars = (props: Props) => {
   const adminAvatarState = useAvatarState()
-  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
-  const adminAvatars = adminAvatarState.avatars.avatars
-  const adminAvatarCount = adminAvatarState.avatars.total
+  const adminAvatars = adminAvatarState.avatars
+  const adminAvatarCount = adminAvatarState.total
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
