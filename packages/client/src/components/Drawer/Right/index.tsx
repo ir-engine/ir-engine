@@ -1,18 +1,18 @@
-import Avatar from '@material-ui/core/Avatar'
-import Button from '@material-ui/core/Button'
-import Divider from '@material-ui/core/Divider'
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemText from '@material-ui/core/ListItemText'
-import MenuItem from '@material-ui/core/MenuItem'
-import Select from '@material-ui/core/Select'
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
-import Tab from '@material-ui/core/Tab'
-import Tabs from '@material-ui/core/Tabs'
-import TextField from '@material-ui/core/TextField'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import ListItemText from '@mui/material/ListItemText'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import SwipeableDrawer from '@mui/material/SwipeableDrawer'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
+import TextField from '@mui/material/TextField'
 import {
   AccountCircle,
   Add,
@@ -24,23 +24,23 @@ import {
   Mail,
   PhoneIphone,
   SupervisedUserCircle
-} from '@material-ui/icons'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { useFriendState } from '@xrengine/client-core/src/social/state/FriendState'
-import { FriendService } from '@xrengine/client-core/src/social/state/FriendService'
-import { useGroupState } from '@xrengine/client-core/src/social/state/GroupState'
-import { GroupService } from '@xrengine/client-core/src/social/state/GroupService'
-import { InviteService } from '@xrengine/client-core/src/social/state/InviteService'
-import { useInviteState } from '@xrengine/client-core/src/social/state/InviteState'
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
-import { LocationService } from '@xrengine/client-core/src/social/state/LocationService'
+} from '@mui/icons-material'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
+import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
+import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
+import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
+import { useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { usePartyState } from '@xrengine/client-core/src/social/state/PartyState'
+import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import styles from './Right.module.scss'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 interface Props {
   rightDrawerOpen?: any
@@ -545,21 +545,21 @@ const Invites = (props: Props): any => {
         {/*        <Typography>Scenes</Typography>*/}
         {/*    </AccordionSummary>*/}
         {/*    <AccordionDetails className={styles['list-container']}>*/}
-        {/*        <GridList*/}
+        {/*        <ImageList*/}
         {/*            cellHeight={160}*/}
         {/*            className={styles['location-grid']}*/}
         {/*            cols={4}*/}
         {/*        >*/}
         {/*            {locations.map((location) => {*/}
-        {/*                return <GridListTile*/}
+        {/*                return <ImageListItem*/}
         {/*                    key={location.id}*/}
         {/*                    cols={1}*/}
         {/*                    onClick={() => provisionInstance(location)}*/}
         {/*                >*/}
         {/*                    <div>{location.name}</div>*/}
-        {/*                </GridListTile>;*/}
+        {/*                </ImageListItem>;*/}
         {/*            })}*/}
-        {/*        </GridList>*/}
+        {/*        </ImageList>*/}
         {/*    </AccordionDetails>*/}
         {/*</Accordion>*/}
       </SwipeableDrawer>

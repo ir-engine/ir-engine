@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-import Button from '@material-ui/core/Button'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import Button from '@mui/material/Button'
 import { useDispatch } from '../../../store'
 import styles from './Profile.module.scss'
-import TextField from '@material-ui/core/TextField'
+import TextField from '@mui/material/TextField'
 import classNames from 'classnames'
-import { AuthService } from '../../state/AuthService'
+import { AuthService } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../services/AuthService'
 
 interface Props {
   avatarUrl: string

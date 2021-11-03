@@ -4,11 +4,11 @@
 import React, { useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import TextField from '@material-ui/core/TextField'
-import MessageIcon from '@material-ui/icons/Message'
+import TextField from '@mui/material/TextField'
+import MessageIcon from '@mui/icons-material/Message'
 import styles from './NewComment.module.scss'
-import { FeedCommentService } from '@xrengine/client-core/src/social/state/FeedCommentService'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { FeedCommentService } from '@xrengine/client-core/src/social/services/FeedCommentService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import PopupLogin from '../PopupLogin/PopupLogin'
 import { useTranslation } from 'react-i18next'
 

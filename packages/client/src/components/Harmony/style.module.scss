@@ -645,6 +645,7 @@ $mobileControllButtonsSize: 3em;
 [class*='MuiAccordionSummary-expandIcon'] {
     padding: 6px;
     background-color: gray;
+    border-radius: 20px;
 
     &:hover {
         background-color: lighten(gray, 10%)

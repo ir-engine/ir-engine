@@ -1,9 +1,9 @@
 import { useLocation, withRouter } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
-import { AuthService } from '../../state/AuthService'
-import { useAuthState } from '../../state/AuthState'
+import { AuthService } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
 import { useDispatch } from '../../../store'
-import Container from '@material-ui/core/Container'
+import Container from '@mui/material/Container'
 import { useTranslation } from 'react-i18next'
 
 const LinkedinCallbackComponent = (props): any => {

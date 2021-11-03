@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
-import Avatar from '@material-ui/core/Avatar'
-import Typography from '@material-ui/core/Typography'
+import Avatar from '@mui/material/Avatar'
+import Typography from '@mui/material/Typography'
 import styles from './Avatar.module.scss'
 
 const LetterAvatars = (): any => {

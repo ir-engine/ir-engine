@@ -1,4 +1,7 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 
 export const useLocationStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -8,7 +11,7 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       width: '100%',
       background: 'rgb(58, 65, 73)',
       color: '#f1f1f1 !important',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '0.7rem'
       }
     },
@@ -23,7 +26,7 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
     },
     marginBottm: {
       marginBottom: '15px',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         marginBottom: '0'
       }
     },
@@ -32,7 +35,7 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
     },
     marginTpM: {
       marginTop: '10%',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         marginTop: '2.5rem'
       }
     },
@@ -40,7 +43,6 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       padding: '2px 4px',
       display: 'flex',
       alignItems: 'center',
-      //width: "45vw",
       marginTop: '10px',
       marginBottom: '15px',
       background: '#343b41',
@@ -102,7 +104,7 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       background: '#111',
       color: '#f1f1f1',
       backgroundColor: '#343b41',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         height: '10vh'
       }
     },
@@ -110,7 +112,7 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       margin: '50px auto',
       width: '300px',
       textAlign: 'center',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         margin: '10px auto'
       }
     },
@@ -136,7 +138,7 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
     },
     pdl: {
       paddingLeft: '1rem',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         paddingLeft: '0'
       }
     },
@@ -144,23 +146,23 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       padding: '2px'
     },
     typoFont: {
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '1.5rem',
         paddingLeft: '1rem'
       }
     },
     headingFont: {
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '1.6rem'
       },
-      [theme.breakpoints.between(100, 395)]: {
+      [theme.breakpoints.between(100, undefined)]: {
         fontSize: '1.4rem'
       }
     },
     spacing: {
       paddingLeft: '2.5rem',
       marginTop: '5%',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         paddingLeft: '1rem'
       }
     },
@@ -178,10 +180,10 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       marginRight: '25px',
       boxShadow:
         '0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%) !important',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         width: '120px'
       },
-      [theme.breakpoints.between(100, 335)]: {
+      [theme.breakpoints.between(100, undefined)]: {
         width: '100px'
       }
     },
@@ -190,7 +192,7 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
     },
     pdlarge: {
       paddingLeft: '3rem',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         paddingLeft: '2rem'
       }
     },
@@ -207,7 +209,7 @@ export const useLocationStyle = makeStyles((theme: Theme) =>
       backgroundColor: '#43484F',
       color: '#f1f1f1',
       overflow: 'hidden',
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         overflowY: 'scroll'
       }
     },

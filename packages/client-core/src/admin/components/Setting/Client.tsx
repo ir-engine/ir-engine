@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import { useStyles } from './styles'
-import { Paper, Button, Typography } from '@material-ui/core'
-import Switch from '@material-ui/core/Switch'
-import InputBase from '@material-ui/core/InputBase'
+import { Paper, Button, Typography } from '@mui/material'
+import Switch from '@mui/material/Switch'
+import InputBase from '@mui/material/InputBase'
 import { useDispatch } from '../../../store'
-import { useClientSettingState } from '../../state/Setting/ClientSettingState'
-import { ClientSettingService } from '../../state/Setting/ClientSettingServices'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useClientSettingState } from '../../services/Setting/ClientSettingService'
+import { ClientSettingService } from '../../services/Setting/ClientSettingService'
+import { useAuthState } from '../../../user/services/AuthService'
 
 interface clientProps {}
 

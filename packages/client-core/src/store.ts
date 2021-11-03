@@ -14,11 +14,9 @@ declare global {
 }
 
 export const store = {
-  stateModules: {} as { [module: string]: any },
-
-  stateModulesMissingReceptor: [],
   receptors: [] as Function[],
 
+  // stateModules: {} as { [module: string]: any },
   // registerStateModules(stateModules: { [module: string]: any }) {
   //   Object.assign(store.stateModules, stateModules)
   //   store.receptors.push(
@@ -33,7 +31,7 @@ export const store = {
   // },
 
   dispatch(action: { type: string; [key: string]: any }) {
-    // console.log(action)
+    console.log(action)
     for (const r of store.receptors) r(action)
   }
 }
@@ -42,12 +40,12 @@ export function useDispatch() {
   return store.dispatch
 }
 
-// const userStateModules = import.meta.globEager('./user/state/*State.ts')
-// const commonStateModules = import.meta.globEager('./common/state/*State.ts')
-// const adminStateModules = import.meta.globEager('./admin/state/*State.ts')
-// const adminSettingStateModules = import.meta.globEager('./admin/state/Setting/*State.ts')
-// const socialStateModules = import.meta.globEager('./social/state/*State.ts')
-// const mediaStateModules = import.meta.globEager('./media/state/*State.ts')
+// const userStateModules = import.meta.globEager('./user/services/*State.ts')
+// const commonStateModules = import.meta.globEager('./common/services/*State.ts')
+// const adminStateModules = import.meta.globEager('./admin/services/*State.ts')
+// const adminSettingStateModules = import.meta.globEager('./admin/services/Setting/*State.ts')
+// const socialStateModules = import.meta.globEager('./social/services/*State.ts')
+// const mediaStateModules = import.meta.globEager('./media/services/*State.ts')
 
 // store.registerStateModules(userStateModules)
 // store.registerStateModules(commonStateModules)

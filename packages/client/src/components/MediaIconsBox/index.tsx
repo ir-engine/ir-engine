@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Mic, MicOff, Videocam, VideocamOff } from '@material-ui/icons'
-import FaceIcon from '@material-ui/icons/Face'
+import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
+import FaceIcon from '@mui/icons-material/Face'
 import styles from './MediaIconsBox.module.scss'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import {
@@ -12,7 +12,7 @@ import {
   pauseProducer,
   resumeProducer
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import {
   startFaceTracking,
   startLipsyncTracking,
@@ -23,11 +23,11 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
-import { useChannelConnectionState } from '@xrengine/client-core/src/common/state/ChannelConnectionState'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/state/MediaStreamState'
-import { MediaStreamService } from '@xrengine/client-core/src/media/state/MediaStreamService'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 
 const MediaIconsBox = (props) => {
   const [xrSupported, setXRSupported] = useState(false)
@@ -43,11 +43,11 @@ const MediaIconsBox = (props) => {
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useChannelConnectionState()
   const mediastream = useMediaStreamState()
-  const videoEnabled = currentLocation?.location_settings?.value
-    ? currentLocation?.location_settings?.videoEnabled?.value
+  const videoEnabled = currentLocation?.locationSettings?.value
+    ? currentLocation?.locationSettings?.videoEnabled?.value
     : false
-  const instanceMediaChatEnabled = currentLocation?.location_settings?.value
-    ? currentLocation?.location_settings?.instanceMediaChatEnabled?.value
+  const instanceMediaChatEnabled = currentLocation?.locationSettings?.value
+    ? currentLocation?.locationSettings?.instanceMediaChatEnabled?.value
     : false
 
   const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
@@ -74,7 +74,7 @@ const MediaIconsBox = (props) => {
 
   const handleFaceClick = async () => {
     const partyId =
-      currentLocation?.location_settings?.instanceMediaChatEnabled?.value === true
+      currentLocation?.locationSettings?.instanceMediaChatEnabled?.value === true
         ? 'instance'
         : user.partyId?.value || 'instance'
     if (isFaceTrackingEnabled.value) {

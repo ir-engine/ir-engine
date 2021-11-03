@@ -1,12 +1,11 @@
-import Button from '@material-ui/core/Button'
-import CardMedia from '@material-ui/core/CardMedia'
-import Typography from '@material-ui/core/Typography'
+import Button from '@mui/material/Button'
+import CardMedia from '@mui/material/CardMedia'
+import Typography from '@mui/material/Typography'
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import { useDispatch } from '../../../store'
-import { AuthService } from '../../state/AuthService'
-import { useAuthState } from '../../state/AuthState'
+import { AuthService, useAuthState } from '../../services/AuthService'
 import styles from '../Login/Login.module.scss'
 
 interface Props {

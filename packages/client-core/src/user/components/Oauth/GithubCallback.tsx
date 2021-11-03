@@ -1,8 +1,8 @@
 import { useLocation, withRouter } from 'react-router-dom'
 import React, { useState, useEffect } from 'react'
-import { AuthService } from '../../state/AuthService'
-import Container from '@material-ui/core/Container'
-import { useAuthState } from '../../state/AuthState'
+import { AuthService } from '../../services/AuthService'
+import Container from '@mui/material/Container'
+import { useAuthState } from '../../services/AuthService'
 import { useDispatch } from '../../../store'
 import { useTranslation } from 'react-i18next'
 
