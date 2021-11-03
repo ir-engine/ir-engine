@@ -93,7 +93,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
           if (
             isIntersectCircleCircle(
               viewerPositionScaled,
-              mapState.minimumSceneRadius,
+              mapState.minimumSceneRadius * mapState.scale,
               object.centerPoint,
               object.boundingCircleRadius
             ) &&
@@ -111,7 +111,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
           if (
             isIntersectCircleCircle(
               viewerPositionScaled,
-              mapState.labelRadius,
+              mapState.labelRadius * mapState.scale,
               label.centerPoint,
               label.boundingCircleRadius
             )
@@ -150,7 +150,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
           if (
             isIntersectCircleCircle(
               viewerPositionScaled,
-              mapState.labelRadius,
+              mapState.labelRadius * mapState.scale,
               label.centerPoint,
               label.boundingCircleRadius
             )
