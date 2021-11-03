@@ -47,14 +47,18 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           instanceProvisioning: true
         })
       case 'CHANNEL_SERVER_PROVISIONED':
-        s.instance.ipAddress.set(action.ipAddress)
-        s.instance.port.set(action.port)
-        s.channelId.set(action.channelId!)
-        s.instanceProvisioning.set(false)
-        s.instanceProvisioned.set(true)
-        s.readyToConnect.set(true)
-        s.updateNeeded.set(true)
-        return s.connected.set(false)
+        return s.merge({
+          instance: {
+            ipAddress: action.ipAddress,
+            port: action.port
+          },
+          channelId: action.channelId!,
+          instanceProvisioning: false,
+          instanceProvisioned: true,
+          readyToConnect: true,
+          updateNeeded: true,
+          connected: false
+        })
       case 'CHANNEL_SERVER_CONNECTING':
         return s.instanceServerConnecting.set(true)
       case 'CHANNEL_SERVER_CONNECTED':

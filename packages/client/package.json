@@ -90,6 +90,7 @@
     "styled-components": "5.3.3",
     "three": "0.133.1",
     "uuid": "8.3.2",
+    "vite-plugin-html": "^2.1.1",
     "webxr-native": "0.3.0"
   },
   "devDependencies": {

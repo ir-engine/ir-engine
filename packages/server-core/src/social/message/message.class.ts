@@ -28,6 +28,7 @@ export class Message extends Service {
     const targetObjectId = data.targetObjectId
     const targetObjectType = data.targetObjectType
     const channelModel = (this.app.service('channel') as any).Model
+    console.log(data)
 
     if (targetObjectType === 'user') {
       const targetUser = await this.app.service('user').get(targetObjectId)

@@ -264,6 +264,10 @@ export const ChatService = {
           targetObjectType: chatState.targetObjectType || null,
           text: values.text
         }
+        if (data.targetObjectId === null || data.targetObjectType === null) {
+          console.log('invalid data, something is null: ' + data)
+          return
+        }
         await client.service('message').create(data)
       } catch (err) {
         console.error(err)
