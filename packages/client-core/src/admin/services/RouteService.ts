@@ -44,10 +44,22 @@ store.receptors.push((action: RouteActionType): any => {
     switch (action.type) {
       case 'ADMIN_ROUTE_INSTALLED_RECEIVED':
         result = action.data.data
-        return s.routes.merge({ routes: result, updateNeeded: false })
+        return s.merge({
+          routes: {
+            ...s.routes.value,
+            routes: result,
+            updateNeeded: false
+          }
+        })
       case 'ADMIN_ROUTE_ACTIVE_RECEIVED':
         result = action.data.data
-        return s.routes.merge({ activeRoutes: result, updateNeeded: false })
+        return s.merge({
+          routes: {
+            ...s.routes.value,
+            activeRoutes: result,
+            updateNeeded: false
+          }
+        })
     }
   }, action.type)
 })

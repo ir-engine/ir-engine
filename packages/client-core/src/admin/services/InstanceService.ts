@@ -42,15 +42,17 @@ store.receptors.push((action: InstanceActionType): any => {
     switch (action.type) {
       case 'INSTANCES_RETRIEVED':
         result = action.instanceResult
-        return s.instances.merge({
-          instances: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        return s.merge({
+          instances: {
+            instances: result.data,
+            skip: result.skip,
+            limit: result.limit,
+            total: result.total,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
       case 'INSTANCE_REMOVED_ROW':
         result = action.instance

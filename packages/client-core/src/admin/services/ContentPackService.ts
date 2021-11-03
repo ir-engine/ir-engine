@@ -103,7 +103,7 @@ export const ContentPackService = {
     })
   },
   uploadScenes: (data: any) => {
-    data.each(async (data) => {})
+    data.each(async (data) => { })
   }
 }
 

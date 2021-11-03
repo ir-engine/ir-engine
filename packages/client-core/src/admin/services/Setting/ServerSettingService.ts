@@ -19,7 +19,7 @@ store.receptors.push((action: ServerSettingActionType): any => {
     switch (action.type) {
       case 'SETTING_SERVER_DISPLAY':
         result = action.serverSettingResult
-        return s.Server.merge({ server: result.data, updateNeeded: false })
+        return s.merge({ Server: { server: result.data, updateNeeded: false } })
     }
   }, action.type)
 })

@@ -22,7 +22,7 @@ store.receptors.push((action: AwsSettingActionType): any => {
     switch (action.type) {
       case 'ADMIN_AWS_SETTING_FETCHED':
         result = action.adminRedisSettingResult
-        return s.awsSettings.merge({ awsSettings: result.data, updateNeeded: false })
+        return s.merge({ awsSettings: { awsSettings: result.data, updateNeeded: false } })
     }
   }, action.type)
 })

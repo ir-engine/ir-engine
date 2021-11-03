@@ -19,7 +19,7 @@ store.receptors.push((action: ClientSettingActionType): any => {
     switch (action.type) {
       case 'CLIENT_SETTING_DISPLAY':
         result = action.clientSettingResult
-        return s.Client.merge({ client: result.data, updateNeeded: false })
+        return s.merge({ Client: { client: result.data, updateNeeded: false } })
     }
   }, action.type)
 })

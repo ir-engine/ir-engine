@@ -60,7 +60,9 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           connected: false
         })
       case 'CHANNEL_SERVER_CONNECTING':
-        return s.instanceServerConnecting.set(true)
+        return s.merge({
+          instanceServerConnecting: true
+        })
       case 'CHANNEL_SERVER_CONNECTED':
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'CHANNEL_SERVER_DISCONNECTED':
@@ -153,7 +155,7 @@ export const ChannelConnectionService = {
             !(
               currentLocation?.location_settings?.locationType?.value === 'showroom' &&
               user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
-                null
+              null
             ),
           isHarmonyPage: isHarmonyPage
         })
@@ -162,7 +164,7 @@ export const ChannelConnectionService = {
         console.log(error)
       }
 
-      ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
+      ; (Network.instance.transport as SocketWebRTCClientTransport).left = false
       EngineEvents.instance.addEventListener(
         MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
         MediaStreamService.triggerUpdateConsumers

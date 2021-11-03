@@ -38,9 +38,7 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'INSTANCE_SERVER_PROVISIONING':
-        newInstance = new Map(Object.entries(s.instance.value))
         return s.merge({
-          instance: newInstance,
           socket: {},
           connected: false,
           instanceProvisioned: false,
@@ -60,14 +58,19 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
           connected: false
         })
       case 'INSTANCE_SERVER_CONNECTING':
-        return s.instanceServerConnecting.set(true)
+        return s.merge({
+          instanceServerConnecting: true
+        })
       case 'INSTANCE_SERVER_CONNECTED':
-        return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
+        return s.merge({
+          connected: true,
+          instanceServerConnecting: false,
+          updateNeeded: false,
+          readyToConnect: false
+        })
       case 'INSTANCE_SERVER_DISCONNECTED':
         if (connectionSocket != null) (connectionSocket as any).close()
-        newInstance = new Map(Object.entries(s.instance.value))
         return s.merge({
-          instance: newInstance,
           socket: s.socket.value,
           locationId: s.locationId.value,
           sceneId: s.sceneId.value,
@@ -176,7 +179,7 @@ export const InstanceConnectionService = {
           console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
         }
 
-        ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
+        ; (Network.instance.transport as SocketWebRTCClientTransport).left = false
         EngineEvents.instance.addEventListener(
           MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
           MediaStreamService.triggerUpdateConsumers

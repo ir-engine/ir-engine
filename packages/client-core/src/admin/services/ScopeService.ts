@@ -42,34 +42,52 @@ store.receptors.push((action: ScopeActionType): any => {
         return s.merge({ fetching: true })
       case 'SCOPE_ADMIN_RETRIEVED':
         result = action.adminScopeResult
-        return s.scope.merge({
-          scope: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        return s.merge({
+          scope: {
+            scope: result.data,
+            skip: result.skip,
+            limit: result.limit,
+            total: result.total,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
       case 'ADD_SCOPE':
-        return s.scope.merge({ updateNeeded: true })
+        return s.merge({
+          scope: {
+            ...s.scope.value,
+            updateNeeded: true
+          }
+        })
       case 'UPDATE_SCOPE':
-        return s.scope.merge({ updateNeeded: true })
-
+        return s.merge({
+          scope: {
+            ...s.scope.value,
+            updateNeeded: true
+          }
+        })
       case 'REMOVE_SCOPE':
-        return s.scope.merge({ updateNeeded: true })
+        return s.merge({
+          scope: {
+            ...s.scope.value,
+            updateNeeded: true
+          }
+        })
       case 'SCOPE_TYPE_RETRIEVED':
         result = action.adminScopTypeResult
-        return s.scopeType.merge({
-          scopeType: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        return s.merge({
+          scopeType: {
+            scopeType: result.data,
+            skip: result.skip,
+            limit: result.limit,
+            total: result.total,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
     }
   }, action.type)

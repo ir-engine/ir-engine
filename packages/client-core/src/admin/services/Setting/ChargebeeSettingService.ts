@@ -18,7 +18,7 @@ store.receptors.push((action: ChargebeeSettingActionType): any => {
     switch (action.type) {
       case 'CHARGEBEE_SETTING_DISPLAY':
         result = action.chargebeeSettingResult
-        return s.Chargebee.merge({ chargebee: result.data, updateNeeded: false })
+        return s.merge({ Chargebee: { chargebee: result.data, updateNeeded: false } })
     }
   }, action.type)
 })

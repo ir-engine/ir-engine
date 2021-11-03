@@ -19,7 +19,7 @@ store.receptors.push((action: SettingAnalyticsActionType): any => {
     switch (action.type) {
       case 'SETTING_ANALYIS_DISPLAY':
         result = action.settingAnalyticsResult
-        return s.Analytics.merge({ analytics: result.data, updateNeeded: false })
+        return s.merge({ Analytics: { analytics: result.data, updateNeeded: false } })
     }
   }, action.type)
 })

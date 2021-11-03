@@ -17,15 +17,28 @@ store.receptors.push((action: MediaStreamActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CAM_VIDEO_CHANGED':
-        return s.isCamVideoEnabled.set(action.isEnable)
+        return s.merge({
+          isCamVideoEnabled: action.isEnable
+        })
       case 'CAM_AUDIO_CHANGED':
-        return s.isCamAudioEnabled.set(action.isEnable)
+        return s.merge({
+          isCamAudioEnabled: action.isEnable
+        })
       case 'FACE_TRACKING_CHANGED':
-        return s.isFaceTrackingEnabled.set(action.isEnable)
+        return s.merge({
+          isFaceTrackingEnabled: action.isEnable
+        })
       case 'CONSUMERS_CHANGED':
-        return s.consumers.consumers.set(action.consumers)
+        return s.merge({
+          consumers: {
+            ...s.consumers.value,
+            consumers: action.consumers
+          }
+        })
       case 'NEARBY_LAYER_USERS_CHANGED':
-        return s.nearbyLayerUsers.set(action.users.map((user) => user.id))
+        return s.merge({
+          nearbyLayerUsers: action.users.map((user) => user.id)
+        })
     }
   }, action.type)
 })

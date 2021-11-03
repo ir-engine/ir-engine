@@ -39,9 +39,20 @@ store.receptors.push((action: PartyActionType): any => {
     switch (action.type) {
       case 'PARTY_ADMIN_DISPLAYED':
         result = action.data
-        return s.parties.merge({ parties: result.data, updateNeeded: false })
+        return s.merge({
+          parties: {
+            ...s.parties.value,
+            parties: result.data,
+            updateNeeded: false
+          }
+        })
       case 'PARTY_ADMIN_CREATED':
-        return s.parties.merge({ updateNeeded: true })
+        return s.merge({
+          parties: {
+            ...s.parties.value,
+            updateNeeded: true
+          }
+        })
     }
   }, action.type)
 })

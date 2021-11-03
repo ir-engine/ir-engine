@@ -46,18 +46,27 @@ store.receptors.push((action: LocationActionType): any => {
     switch (action.type) {
       case 'ADMIN_LOCATIONS_RETRIEVED':
         result = action.locations
-        return s.locations.merge({
-          locations: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        return s.merge({
+          locations: {
+            ...s.locations.value,
+            locations: result.data,
+            skip: result.skip,
+            limit: result.limit,
+            total: result.total,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
       case 'ADMIN_LOCATION_CREATED':
-        return s.locations.merge({ updateNeeded: true, created: true })
+        return s.merge({
+          locations: {
+            ...s.locations.value,
+            updateNeeded: true,
+            created: true
+          }
+        })
       case 'ADMIN_LOCATION_PATCHED':
         const locationsList = state.locations.locations.value
         for (let i = 0; i < locationsList.length; i++) {
@@ -68,14 +77,29 @@ store.receptors.push((action: LocationActionType): any => {
             locationsList[i].isLobby = false
           }
         }
-        return s.locations.merge({ locations: locationsList })
+        return s.merge({
+          locations: {
+            ...s.locations.value,
+            locations: locationsList
+          }
+        })
 
       case 'ADMIN_LOCATION_REMOVED':
-        return s.locations.merge({ updateNeeded: true })
+        return s.merge({
+          locations: {
+            ...s.locations.value,
+            updateNeeded: true
+          }
+        })
 
       case 'ADMIN_LOCATION_TYPES_RETRIEVED':
         result = action.locationTypesResult
-        return s.locationTypes.set({ locationTypes: result.data, updateNeeded: false })
+        return s.merge({
+          locationTypes: {
+            locationTypes: result.data,
+            updateNeeded: false
+          }
+        })
     }
   }, action.type)
 })

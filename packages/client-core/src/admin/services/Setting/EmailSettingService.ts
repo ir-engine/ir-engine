@@ -19,7 +19,7 @@ store.receptors.push((action: EmailSettingActionType): any => {
     switch (action.type) {
       case 'EMAIL_SETTING_DISPLAY':
         result = action.emailSettingResult
-        return s.Email.merge({ email: result.data, updateNeeded: false })
+        return s.merge({ Email: { email: result.data, updateNeeded: false } })
     }
   }, action.type)
 })

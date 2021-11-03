@@ -36,21 +36,39 @@ store.receptors.push((action: GroupActionType): any => {
         return s.merge({ fetching: true })
       case 'GROUP_ADMIN_RETRIEVED':
         result = action.list
-        return s.group.merge({
-          group: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        return s.merge({
+          group: {
+            ...s.group.value,
+            group: result.data,
+            skip: result.skip,
+            limit: result.limit,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
       case 'ADD_GROUP':
-        return s.group.merge({ updateNeeded: true })
+        return s.merge({
+          group: {
+            ...s.group.value,
+            updateNeeded: true
+          }
+        })
       case 'GROUP_ADMIN_UPDATE':
-        return s.group.merge({ updateNeeded: true })
+        return s.merge({
+          group: {
+            ...s.group.value,
+            updateNeeded: true
+          }
+        })
       case 'GROUP_ADMIN_DELETE':
-        return s.group.merge({ updateNeeded: true })
+        return s.merge({
+          group: {
+            ...s.group.value,
+            updateNeeded: true
+          }
+        })
     }
   }, action.type)
 })

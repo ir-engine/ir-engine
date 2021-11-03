@@ -61,59 +61,109 @@ store.receptors.push((action: UserActionType): any => {
     switch (action.type) {
       case 'ADMIN_LOADED_USERS':
         result = action.userResult
-        return s.users.merge({
-          users: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        return s.merge({
+          users: {
+            users: result.data,
+            skip: result.skip,
+            limit: result.limit,
+            total: result.total,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
       case 'USER_ROLE_RETRIEVED':
         result = action.types
-        return s.userRole.merge({ userRole: result.data, updateNeeded: false })
+        return s.merge({
+          userRole: {
+            ...s.userRole.value,
+            userRole: result.data,
+            updateNeeded: false
+          }
+        })
       case 'USER_ROLE_CREATED':
-        return s.userRole.merge({ updateNeeded: true })
+        return s.merge({
+          userRole: {
+            ...s.userRole.value,
+            updateNeeded: true
+          }
+        })
       case 'USER_ADMIN_REMOVED':
         result = action.data
         let userRemove = [...s.users.users.value]
         userRemove = userRemove.filter((user) => user.id !== result.id)
-        return s.users.merge({ users: userRemove, updateNeeded: true })
+        return s.merge({
+          users: {
+            ...s.users.value,
+            users: userRemove,
+            updateNeeded: true
+          }
+        })
       case 'USER_ADMIN_CREATED':
         result = action.user
-        return s.users.merge({ updateNeeded: true })
+        return s.merge({
+          users: {
+            ...s.users.value,
+            updateNeeded: true
+          }
+        })
       case 'USER_ADMIN_PATCHED':
         result = action.user
-        return s.users.merge({ updateNeeded: true })
+        return s.merge({
+          users: {
+            ...s.users.value,
+            updateNeeded: true
+          }
+        })
       case 'USER_ROLE_UPDATED':
-        return s.users.merge({ updateNeeded: true })
+        return s.merge({
+          users: {
+            ...s.users.value,
+            updateNeeded: true
+          }
+        })
       case 'USER_SEARCH_ADMIN':
         result = action.userResult
-        return s.users.merge({
-          users: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        return s.merge({
+          users: {
+            users: result.data,
+            skip: result.skip,
+            limit: result.limit,
+            total: result.total,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
       case 'SINGLE_USER_ADMIN_LOADED':
         result = action.data
-        return s.singleUser.merge({ singleUser: result, retrieving: false, fetched: true, updateNeeded: false })
+        return s.merge({
+          singleUser: {
+            singleUser: result,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false
+          }
+        })
       case 'STATIC_RESOURCE_RETRIEVED':
         result = action.staticResource
-        return s.staticResource.merge({
-          staticResource: result.data,
-          retrieving: false,
-          updateNeeded: false,
-          fetched: true
+        return s.merge({
+          staticResource: {
+            staticResource: result.data,
+            retrieving: false,
+            updateNeeded: false,
+            fetched: true
+          }
         })
       case 'SINGLE_USER_ADMIN_REFETCH':
-        return s.singleUser.merge({ updateNeeded: true })
+        return s.merge({
+          singleUser: {
+            ...s.singleUser.value,
+            updateNeeded: true
+          }
+        })
     }
   }, action.type)
 })
@@ -263,7 +313,7 @@ export const UserService = {
       }
     }
   },
-  refetchSingleUserAdmin: async () => {}
+  refetchSingleUserAdmin: async () => { }
 }
 
 //Action

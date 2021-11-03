@@ -35,15 +35,17 @@ store.receptors.push((action: SceneActionType): any => {
     switch (action.type) {
       case 'ADMIN_SCENES_RETRIEVED':
         result = action.sceneDataResult
-        return s.scenes.merge({
-          scenes: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        return s.merge({
+          scenes: {
+            scenes: result.data,
+            skip: result.skip,
+            limit: result.limit,
+            total: result.total,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
     }
   }, action.type)
@@ -71,7 +73,7 @@ export const SceneService = {
     })
     dispatch(SceneAction.collectionsFetched(scenes))
   },
-  deleteScene: async (sceneId: string) => {}
+  deleteScene: async (sceneId: string) => { }
 }
 
 //Action

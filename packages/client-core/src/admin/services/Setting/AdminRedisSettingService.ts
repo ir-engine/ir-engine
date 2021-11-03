@@ -21,7 +21,13 @@ store.receptors.push((action: AdminRedisSettingActionType): any => {
     switch (action.type) {
       case 'ADMIN_REDIS_SETTING_FETCHED':
         result = action.adminRedisSettingResult
-        return s.redisSettings.merge({ redisSettings: result.data, updateNeeded: false })
+        return s.merge({
+          redisSettings: {
+            ...s.redisSettings.value,
+            redisSettings: result.data,
+            updateNeeded: false
+          }
+        })
     }
   }, action.type)
 })

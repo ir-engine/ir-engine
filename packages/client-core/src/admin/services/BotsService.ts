@@ -48,23 +48,51 @@ store.receptors.push((action: BotsActionType): void => {
       case 'BOT_ADMIN_DISPLAY':
         result = action.bots
         s.merge({ error: '' })
-        return s.bots.merge({
-          bots: result.data,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        return s.merge({
+          bots: {
+            ...s.bots.value,
+            bots: result.data,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
       case 'BOT_ADMIN_CREATE':
-        return s.bots.merge({ updateNeeded: true })
+        return s.merge({
+          bots: {
+            ...s.bots.value,
+            updateNeeded: true
+          }
+        })
       case 'BOT_COMMAND_ADMIN_CREATE':
-        return s.bots.merge({ updateNeeded: true })
+        return s.merge({
+          bots: {
+            ...s.bots.value,
+            updateNeeded: true
+          }
+        })
       case 'BOT_ADMIN_REMOVE':
-        return s.bots.merge({ updateNeeded: true })
+        return s.merge({
+          bots: {
+            ...s.bots.value,
+            updateNeeded: true
+          }
+        })
       case 'BOT_COMMAND_ADMIN_REMOVE':
-        return s.bots.merge({ updateNeeded: true })
+        return s.merge({
+          bots: {
+            ...s.bots.value,
+            updateNeeded: true
+          }
+        })
       case 'BOT_ADMIN_UPDATE':
-        return s.bots.merge({ updateNeeded: true })
+        return s.merge({
+          bots: {
+            ...s.bots.value,
+            updateNeeded: true
+          }
+        })
     }
   }, action.type)
 })

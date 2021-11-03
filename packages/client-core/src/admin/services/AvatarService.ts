@@ -39,15 +39,17 @@ store.receptors.push((action: AvatarActionType): any => {
       case 'AVATARS_RETRIEVED':
         result = action.avatars
 
-        s.avatars.merge({
-          avatars: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        s.merge({
+          avatars: {
+            avatars: result.data,
+            skip: result.skip,
+            limit: result.limit,
+            total: result.total,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
     }
   }, action.type)
