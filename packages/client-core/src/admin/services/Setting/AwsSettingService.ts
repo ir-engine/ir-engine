@@ -17,12 +17,15 @@ const state = createState({
 })
 
 store.receptors.push((action: AwsSettingActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_AWS_SETTING_FETCHED':
+<<<<<<< HEAD
         result = action.adminRedisSettingResult
         return s.merge({ awsSettings: { awsSettings: result.data, updateNeeded: false } })
+=======
+        return s.awsSettings.merge({ awsSettings: action.adminAWSSettingResult.data, updateNeeded: false })
+>>>>>>> dev
     }
   }, action.type)
 })
@@ -48,10 +51,11 @@ export const AwsSettingService = {
 
 //Action
 export const AwsSettingAction = {
-  awsSettingRetrieved: (adminRedisSettingResult: AdminRedisSettingResult) => {
+  // TODO: add interface
+  awsSettingRetrieved: (adminAWSSettingResult: any) => {
     return {
       type: 'ADMIN_AWS_SETTING_FETCHED' as const,
-      adminRedisSettingResult: adminRedisSettingResult
+      adminAWSSettingResult: adminAWSSettingResult
     }
   }
 }

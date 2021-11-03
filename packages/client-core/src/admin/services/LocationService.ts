@@ -3,10 +3,7 @@ import { AlertService } from '../../common/services/AlertService'
 import { ErrorAction } from '../../common/services/ErrorService'
 import { client } from '../../feathers'
 
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { createState, useState } from '@hookstate/core'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
 
@@ -17,12 +14,6 @@ import { LocationTypesResult } from '@xrengine/common/src/interfaces/LocationTyp
 export const LOCATION_PAGE_LIMIT = 100
 
 const state = createState({
-  isLoggedIn: false,
-  isProcessing: false,
-  error: '',
-  authUser: AuthUserSeed,
-  user: UserSeed,
-  identityProvider: IdentityProviderSeed,
   locations: {
     locations: [] as Array<Location>,
     skip: 0,
@@ -41,18 +32,16 @@ const state = createState({
 })
 
 store.receptors.push((action: LocationActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_LOCATIONS_RETRIEVED':
-        result = action.locations
         return s.merge({
           locations: {
             ...s.locations.value,
-            locations: result.data,
-            skip: result.skip,
-            limit: result.limit,
-            total: result.total,
+            locations: action.locations.data,
+            skip: action.locations.skip,
+            limit: action.locations.limit,
+            total: action.locations.total,
             retrieving: false,
             fetched: true,
             updateNeeded: false,
@@ -93,10 +82,9 @@ store.receptors.push((action: LocationActionType): any => {
         })
 
       case 'ADMIN_LOCATION_TYPES_RETRIEVED':
-        result = action.locationTypesResult
         return s.merge({
           locationTypes: {
-            locationTypes: result.data,
+            locationTypes: action.locationTypesResult.data,
             updateNeeded: false
           }
         })

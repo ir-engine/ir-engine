@@ -167,9 +167,9 @@ export const InstanceConnectionService = {
             channelType: channelType,
             channelId: channelId,
             videoEnabled:
-              currentLocation?.location_settings?.videoEnabled?.value === true ||
+              currentLocation?.locationSettings?.videoEnabled?.value === true ||
               !(
-                currentLocation?.location_settings?.locationType?.value === 'showroom' &&
+                currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
                 user.locationAdmins?.value?.find(
                   (locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value
                 ) == null

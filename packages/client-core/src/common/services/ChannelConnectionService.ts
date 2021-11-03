@@ -52,7 +52,7 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
             ipAddress: action.ipAddress,
             port: action.port
           },
-          channelId: action.channelId,
+          channelId: action.channelId!,
           instanceProvisioning: false,
           instanceProvisioned: true,
           readyToConnect: true,
@@ -151,9 +151,9 @@ export const ChannelConnectionService = {
           channelType: instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel',
           channelId: channelId,
           videoEnabled:
-            currentLocation?.location_settings?.videoEnabled?.value === true ||
+            currentLocation?.locationSettings?.videoEnabled?.value === true ||
             !(
-              currentLocation?.location_settings?.locationType?.value === 'showroom' &&
+              currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
               user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
               null
             ),

@@ -18,12 +18,6 @@ import { InstanceResult } from '@xrengine/common/src/interfaces/InstanceResult'
 export const INSTNCE_PAGE_LIMIT = 100
 
 const state = createState({
-  isLoggedIn: false,
-  isProcessing: false,
-  error: '',
-  authUser: AuthUserSeed,
-  user: UserSeed,
-  identityProvider: IdentityProviderSeed,
   instances: {
     instances: [] as Array<Instance>,
     skip: 0,
@@ -37,17 +31,15 @@ const state = createState({
 })
 
 store.receptors.push((action: InstanceActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'INSTANCES_RETRIEVED':
-        result = action.instanceResult
         return s.merge({
           instances: {
-            instances: result.data,
-            skip: result.skip,
-            limit: result.limit,
-            total: result.total,
+            instances: action.instanceResult.data,
+            skip: action.instanceResult.skip,
+            limit: action.instanceResult.limit,
+            total: action.instanceResult.total,
             retrieving: false,
             fetched: true,
             updateNeeded: false,
@@ -55,10 +47,9 @@ store.receptors.push((action: InstanceActionType): any => {
           }
         })
       case 'INSTANCE_REMOVED_ROW':
-        result = action.instance
         let instance = state.instances.value
         let instanceList = instance.instances
-        instanceList = instanceList.filter((instance) => instance.id !== result.id)
+        instanceList = instanceList.filter((instance) => instance.id !== action.instance.id)
         instance.instances = instanceList
         s.merge({ instances: instance })
     }

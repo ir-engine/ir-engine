@@ -14,12 +14,15 @@ const state = createState({
 })
 
 store.receptors.push((action: ServerSettingActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'SETTING_SERVER_DISPLAY':
+<<<<<<< HEAD
         result = action.serverSettingResult
         return s.merge({ Server: { server: result.data, updateNeeded: false } })
+=======
+        return s.Server.merge({ server: action.serverSettingResult.data, updateNeeded: false })
+>>>>>>> dev
     }
   }, action.type)
 })

@@ -2,7 +2,7 @@ import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
 import { EmailSettingResult } from '@xrengine/common/src/interfaces/EmailSettingResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { EmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
 
 //State
@@ -14,12 +14,15 @@ const state = createState({
 })
 
 store.receptors.push((action: EmailSettingActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'EMAIL_SETTING_DISPLAY':
+<<<<<<< HEAD
         result = action.emailSettingResult
         return s.merge({ Email: { email: result.data, updateNeeded: false } })
+=======
+        return s.Email.merge({ email: action.emailSettingResult.data, updateNeeded: false })
+>>>>>>> dev
     }
   }, action.type)
 })
