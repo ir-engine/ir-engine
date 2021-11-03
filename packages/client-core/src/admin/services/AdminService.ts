@@ -6,6 +6,13 @@ import { PublicVideo, VideoAction } from '../../media/services/VideoService'
 import { useAuthState } from '../../user/services/AuthService'
 import { useDispatch, store } from '../../store'
 import { createState, useState } from '@hookstate/core'
+import {
+  VideoCreationForm,
+  VideoUpdateForm,
+  VideoCreatedResponse,
+  VideoUpdatedResponse,
+  VideoDeletedResponse
+} from '@xrengine/common/src/interfaces/AdminService'
 
 //State
 export const ADMIN_PAGE_LIMIT = 100
@@ -38,7 +45,7 @@ export const AdminService = {
           Authorization: 'Bearer ' + token
         }
       })
-      const result = res.data
+      const result = res.data as VideoCreatedResponse
       AlertService.dispatchAlertSuccess('Video uploaded')
       dispatch(AdminAction.videoCreated(result))
     } catch (err) {
@@ -90,55 +97,6 @@ export const AdminService = {
         .catch(() => dispatch(VideoAction.videosFetchedError('Failed to fetch videos')))
     }
   }
-}
-
-//Action
-export interface VideoCreationForm {
-  name: string
-  description: string
-  url: string
-  metadata: object
-}
-
-export interface VideoUpdateForm {
-  id: string
-  name: string
-  description: string
-  url: string
-  metadata: object
-}
-
-export interface VideoCreatedResponse {
-  id: string
-  name: string
-  url: string
-  description: string
-  metadata: object
-  userId: string
-  mimeType: string
-  staticResourceType: string
-}
-
-export interface VideoUpdatedResponse {
-  id: string
-  name: string
-  url: string
-  description: string
-  metadata: object
-  userId: string
-  mimeType: string
-  staticResourceType: string
-}
-
-export interface VideoDeletedResponse {
-  id: string
-  name: string
-  url: string
-  description: string
-  metadata: object
-  userId: string
-  mimeType: string
-  staticResourceType: string
 }
 
 export const AdminAction = {
