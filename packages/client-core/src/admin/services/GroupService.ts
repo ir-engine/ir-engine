@@ -29,17 +29,15 @@ export const state = createState({
 })
 
 store.receptors.push((action: GroupActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'GROUP_FETCHING':
         return s.merge({ fetching: true })
       case 'GROUP_ADMIN_RETRIEVED':
-        result = action.list
         return s.group.merge({
-          group: result.data,
-          skip: result.skip,
-          limit: result.limit,
+          group: action.list.data,
+          skip: action.list.skip,
+          limit: action.list.limit,
           retrieving: false,
           fetched: true,
           updateNeeded: false,

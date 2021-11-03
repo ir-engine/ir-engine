@@ -12,12 +12,6 @@ import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 export const ROUTE_PAGE_LIMIT = 10000
 
 const state = createState({
-  isLoggedIn: false,
-  isProcessing: false,
-  error: '',
-  authUser: AuthUserSeed,
-  user: UserSeed,
-  identityProvider: IdentityProviderSeed,
   routes: {
     routes: [] as {
       id: string
@@ -39,15 +33,12 @@ const state = createState({
 })
 
 store.receptors.push((action: RouteActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_ROUTE_INSTALLED_RECEIVED':
-        result = action.data.data
-        return s.routes.merge({ routes: result, updateNeeded: false })
+        return s.routes.merge({ routes: action.data.data, updateNeeded: false })
       case 'ADMIN_ROUTE_ACTIVE_RECEIVED':
-        result = action.data.data
-        return s.routes.merge({ activeRoutes: result, updateNeeded: false })
+        return s.routes.merge({ activeRoutes: action.data.data, updateNeeded: false })
     }
   }, action.type)
 })
