@@ -8,7 +8,7 @@ export const state = createState({
   channelId: ''
 })
 
-export function receptor(action: TransportActionType): any {
+store.receptors.push((action: TransportActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CHANNEL_TYPE_CHANGED':
@@ -16,7 +16,7 @@ export function receptor(action: TransportActionType): any {
         return s.channelId.set(action.channelId)
     }
   }, action.type)
-}
+})
 
 export const accessTransportStreamState = () => state
 export const useTransportStreamState = () => useState(state)

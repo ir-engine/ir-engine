@@ -52,7 +52,7 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
             ipAddress: action.ipAddress,
             port: action.port
           },
-          channelId: action.channelId!,
+          channelId: action.channelId,
           instanceProvisioning: false,
           instanceProvisioned: true,
           readyToConnect: true,
@@ -92,20 +92,9 @@ export const useChannelConnectionState = () => useState(state) as any as typeof 
 
 //Service
 export const ChannelConnectionService = {
-  provisionChannelServer: async (instanceId?: string, channelId?: string) => {
+  provisionChannelServer: async (channelId?: string) => {
     store.dispatch(ChannelConnectionAction.channelServerProvisioning())
     const token = accessAuthState().authUser.accessToken.value
-    if (instanceId != null) {
-      const instance = await client.service('instance').find({
-        query: {
-          id: instanceId,
-          ended: false
-        }
-      })
-      if (instance.total === 0) {
-        instanceId = undefined
-      }
-    }
     const provisionResult = await client.service('instance-provision').find({
       query: {
         channelId: channelId,
@@ -157,7 +146,7 @@ export const ChannelConnectionService = {
           user: user,
           sceneId: sceneId,
           startVideo: videoActive,
-          channelType: instanceChannel && channelId === instanceChannel[0] ? 'instance' : 'channel',
+          channelType: instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel',
           channelId: channelId,
           videoEnabled:
             currentLocation?.location_settings?.videoEnabled?.value === true ||
@@ -179,7 +168,8 @@ export const ChannelConnectionService = {
         MediaStreamService.triggerUpdateConsumers
       )
 
-      MediaStreams.instance.channelType = instanceChannel && channelId === instanceChannel[0] ? 'instance' : 'channel'
+      MediaStreams.instance.channelType =
+        instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
       MediaStreams.instance.channelId = channelId
       store.dispatch(ChannelConnectionAction.channelServerConnected())
     } catch (err) {
