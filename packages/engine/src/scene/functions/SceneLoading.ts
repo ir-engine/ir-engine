@@ -1,20 +1,14 @@
 import { DirectionalLight } from 'three'
-import { ComponentMeta, ComponentMetaType } from '../../common/constants/Object3DClassMap'
-import { ComponentRegisterFunction } from '../../common/functions/ComponentRegisterFunction'
-import { isClient } from '../../common/functions/isClient'
+import { DefautSceneEntityShape, EntityComponentDataType, getShapeOfEntity } from '../../common/constants/Object3DClassMap'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { Entity } from '../../ecs/classes/Entity'
 import EntityTree from '../../ecs/classes/EntityTree'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { NameComponent } from '../components/NameComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
 import { configureCSM, handleRendererSettings } from '../functions/handleRendererSettings'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
-import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { SceneOptions } from '../systems/SceneObjectSystem'
+import { ComponentNames } from '../../common/constants/ComponentNames'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -102,59 +96,24 @@ export class WorldScene {
     })
   }
 
-  loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: SceneLoadParams): void => {
-    if (!component.sanitizedName) {
-      // remove '-1', '-2' etc suffixes
-      component.sanitizedName = component.name.replace(/(-\d+)|(\s)/g, '')
-    }
-
-    if (ComponentRegisterFunction[component.sanitizedName]) {
-      ComponentRegisterFunction[component.sanitizedName]({ world: useWorld(), worldScene: this, entity, component, sceneProperty })
-    } else {
-      console.warn("Couldn't load Component", component.sanitizedName)
-    }
-  }
-
   loadComponents = (sceneEntity: any, sceneProperty: SceneLoadParams): void => {
     const entity = createEntity()
-
     this.entityMap[sceneEntity.entityId] = entity
 
-    addComponent(entity, NameComponent, { name: sceneEntity.name })
-
-    sceneEntity.components.sort((a, b) => {
-      if (!a.sanitizedName) {
-        // remove '-1', '-2' etc suffixes
-        a.sanitizedName = a.name.replace(/(-\d+)|(\s)/g, '')
-      }
-
-      if (!b.sanitizedName) {
-        b.sanitizedName = b.name.replace(/(-\d+)|(\s)/g, '')
-      }
-
-      if (!ComponentMeta[a.sanitizedName] || !ComponentMeta[b.sanitizedName]) return false
-
-      return ComponentMeta[a.sanitizedName].order < ComponentMeta[b.sanitizedName].order
+    const components = {} as EntityComponentDataType
+    const componentNames = sceneEntity.components.map(comp => {
+      // remove '-1', '-2' etc suffixes
+      const name = comp.name.replace(/(-\d+)|(\s)/g, '')
+      components[name] = comp.data
+      return comp.name
     })
 
-    for (let i = sceneEntity.components.length - 1; i >= 0; i--) {
-      let componentMetaData = ComponentMeta[sceneEntity.components[i].sanitizedName] as ComponentMetaType
-      if (!componentMetaData || !componentMetaData.object3d) continue
+    components[ComponentNames.NAME] = { name: sceneEntity.name }
 
-      if (componentMetaData.object3d.client || componentMetaData.object3d.server) {
-        if (isClient) addComponent(entity, Object3DComponent, { value: new componentMetaData.object3d.client() })
-        if (!isClient) addComponent(entity, Object3DComponent, { value: new componentMetaData.object3d.server() })
-      } else {
-        addComponent(entity, Object3DComponent, { value: new componentMetaData.object3d() })
-      }
+    const entityShape = getShapeOfEntity(componentNames)
 
-      break
-    }
-
-    sceneEntity.components.forEach((component) => {
-      component.data.sceneEntityId = sceneEntity.entityId
-      this.loadComponent(entity, component, sceneProperty)
-    })
+    if (entityShape) entityShape.create(entity, components, { sceneProperty })
+    else DefautSceneEntityShape.create(entity, components)
   }
 
   static load = (scene: SceneData, onProgress?: Function, params?: SceneLoadParams): Promise<void> => {

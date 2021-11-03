@@ -1,9 +1,21 @@
 import { Object3D, Group } from 'three'
+import { ComponentData } from '../../common/classes/ComponentData'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-// TOOD: Will act as tag component to indicate the entity has Object3D instance of Three js library
-export type Object3DComponentType = {
-  value: Object3D | Group,
+export class Object3DData implements ComponentData {
+  value: Object3D | Group
+
+  constructor(obj3d: Object3D | Group) {
+    this.value = obj3d
+  }
+
+  serialize(): object {
+    return {}
+  }
+
+  serializeToJSON(): string {
+    return JSON.stringify(this.serialize())
+  }
 }
 
-export const Object3DComponent = createMappedComponent<Object3DComponentType>('Object3DComponent')
+export const Object3DComponent = createMappedComponent<Object3DData>('Object3DComponent')

@@ -8,7 +8,7 @@ import EntityMetadataEditor from './EntityMetadataEditor'
 import { addComponent, getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import EditorEvents from '../../constants/EditorEvents'
 import { ComponentNames } from '@xrengine/engine/src/common/constants/ComponentNames'
-import { ComponentMeta } from '@xrengine/engine/src/common/constants/Object3DClassMap'
+import { ComponentMeta, SceneEntityComponents } from '@xrengine/engine/src/common/constants/Object3DClassMap'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -93,33 +93,34 @@ export const PropertiesPanelContainer = (props: PropertiesPanelContainerProps) =
   }, [])
 
   const onSelectComponent = (value) => {
-    const componentMeta = ComponentMeta[value]
+    console.debug('Adding ' + value + ' component')
+    // const componentMeta = ComponentMeta[value]
 
-    if (!componentMeta || !componentMeta.component) return
+    // if (!componentMeta || !componentMeta.component) return
 
-    const selected = CommandManager.instance.selected
-    const activeNode = selected[selected.length - 1]
+    // const selected = CommandManager.instance.selected
+    // const activeNode = selected[selected.length - 1]
 
-    if (componentMeta.object3d) {
-      const object3dComponent = getComponent(activeNode.eid, Object3DComponent)
-      addComponent(activeNode.eid, componentMeta.component, new componentMeta.componentData(object3dComponent, {}))
-    } else {
-      addComponent(activeNode.eid, componentMeta.component, new componentMeta.componentData({}))
-    }
+    // if (componentMeta.object3d) {
+    //   const object3dComponent = getComponent(activeNode.eid, Object3DComponent)
+    //   addComponent(activeNode.eid, componentMeta.component, new componentMeta.componentData(object3dComponent, {}))
+    // } else {
+    //   addComponent(activeNode.eid, componentMeta.component, new componentMeta.componentData({}))
+    // }
 
     forceUpdate()
   }
 
-  const renderAddComponent = (activeNode, components) => {
+  const renderAddComponent = (components) => {
     const componentNames = Array.isArray(components) ? components.map((c) => c._name) : []
 
     const systemComponents = []
-    const keys = Object.keys(ComponentMeta)
-    for (let i = 0; i < keys.length; i++) {
-      if (ComponentMeta[keys[i]].order < 0 && !componentNames.includes(keys[i])) {
+    for (let i = 0; i < SceneEntityComponents.length; i++) {
+      const comp = SceneEntityComponents[i]
+      if (!componentNames.includes(comp)) {
         systemComponents.push({
-          label: keys[i],
-          value: keys[i]
+          label: comp,
+          value: comp
         })
       }
     }
@@ -199,7 +200,7 @@ export const PropertiesPanelContainer = (props: PropertiesPanelContainerProps) =
         </PropertiesHeader>
         {nodeEditor}
         {!activeNode.parentNode && // Currently it is available for Scene node only
-          renderAddComponent(activeNode, components)}
+          renderAddComponent(components)}
       </StyledNodeEditor>
     )
   }

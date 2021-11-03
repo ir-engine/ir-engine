@@ -1,10 +1,10 @@
 import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, Object3D, PerspectiveCamera, PointLight, SpotLight } from "three"
+import { Entity } from "../../ecs/classes/Entity"
 import { MappedComponent } from "../../ecs/functions/ComponentFunctions"
 import { MapComponent } from "../../map/MapComponent"
 import { ParticleEmitterComponent } from "../../particles/components/ParticleEmitter"
 import AudioSource from "../../scene/classes/AudioSource"
 import Image from "../../scene/classes/Image"
-import { Interior } from "../../scene/classes/Interior"
 import PostProcessing from "../../scene/classes/PostProcessing"
 import { Sky } from "../../scene/classes/Sky"
 import Video from "../../scene/classes/Video"
@@ -33,8 +33,87 @@ import { Userdata, UserdataComponent } from "../../scene/components/UserdataComp
 import { VideoComponent, VideoData } from "../../scene/components/VideoComponent"
 import { VisibleComponent, VisibleData } from "../../scene/components/VisibleComponent"
 import { VolumetricComponent, VolumetricData } from "../../scene/components/VolumetricComponent"
+import { createCubemapBakeEntity } from "../../scene/functions/createCubemapBakeEntity"
+import { createDefaultEntity } from "../../scene/functions/createDefaultEntity"
+import { createGroundPlaneEntity } from "../../scene/functions/createGroundPlaneEntity"
+import { createHemisphereLightEntity } from "../../scene/functions/createHemisphereLightEntity"
+import { createPostprocessingEntity } from "../../scene/functions/createPostprocessingEntity"
+import { createSceneEntity } from "../../scene/functions/createSceneEntity"
+import { createScenePreviewCameraEntity } from "../../scene/functions/createScenePreviewCameraEntity"
+import { createSkyboxEntity } from "../../scene/functions/createSkyboxEntity"
+import { createSpawnPointEntity } from "../../scene/functions/createSpawnPointEntity"
+import { SceneLoadParams, WorldScene } from "../../scene/functions/SceneLoading"
 import { TransformComponent, TransformData } from "../../transform/components/TransformComponent"
 import { ComponentNames } from "./ComponentNames"
+
+export type EntityCreateFunctionProps = {
+  sceneProperty?: SceneLoadParams
+  worldScene?: WorldScene
+}
+export type EntityComponentDataType = { [key in ComponentNames]: any }
+export type EntityCreateFunctionType = (entity: Entity, componentData: EntityComponentDataType, props?: EntityCreateFunctionProps) => void
+
+export type SceneEntityShapeConfigType = {
+  shapes: ComponentNames | ComponentNames[],
+  partialMatch?: boolean
+  create: EntityCreateFunctionType
+}
+
+export const DefautSceneEntityShape: SceneEntityShapeConfigType = {
+  shapes: ComponentNames.TRANSFORM,
+  create: createDefaultEntity
+}
+
+export const SceneEntityShapes: SceneEntityShapeConfigType[] = [
+  {
+    shapes: [ComponentNames.RENDERER_SETTINGS, ComponentNames.ENVMAP, ComponentNames.FOG, ComponentNames.MT_DATA, ComponentNames.AUDIO_SETTINGS],
+    partialMatch: true,
+    create: createSceneEntity
+  }, {
+    shapes: ComponentNames.SKYBOX,
+    create: createSkyboxEntity
+  }, {
+    shapes: ComponentNames.SCENE_PREVIEW_CAMERA,
+    create: createScenePreviewCameraEntity
+  }, {
+    shapes: ComponentNames.CUBEMAP_BAKE,
+    create: createCubemapBakeEntity
+  }, {
+    shapes: ComponentNames.GROUND_PLANE,
+    create: createGroundPlaneEntity
+  }, {
+    shapes: ComponentNames.SPAWN_POINT,
+    create: createSpawnPointEntity
+  }, {
+    shapes: ComponentNames.POSTPROCESSING,
+    create: createPostprocessingEntity
+  }, {
+    shapes: ComponentNames.HEMISPHERE_LIGHT,
+    create: createHemisphereLightEntity
+  }
+]
+
+export const getShapeOfEntity = (componentNames: string[]): SceneEntityShapeConfigType | undefined => {
+  for (let i = 0; i < SceneEntityShapes.length; i++) {
+    const shapeConfig = SceneEntityShapes[i]
+
+    if (Array.isArray(shapeConfig.shapes)) {
+      const result = shapeConfig.shapes.filter(s => componentNames.includes(s))
+      if (shapeConfig.partialMatch && result.length > 0) return shapeConfig
+      else if (result.length === shapeConfig.shapes.length) return shapeConfig
+    } else {
+      if (componentNames.includes(shapeConfig.shapes)) return shapeConfig
+    }
+  }
+}
+
+export const SceneEntityComponents = [
+  ComponentNames.MT_DATA,
+  ComponentNames.RENDERER_SETTINGS,
+  ComponentNames.AUDIO_SETTINGS,
+  ComponentNames.FOG,
+  ComponentNames.ENVMAP
+]
 
 export type ComponentMetaType = {
   order: number
@@ -46,6 +125,8 @@ export type ComponentMetaType = {
   componentData?: any
 }
 
+
+// TODO: Will be removed
 export const ComponentMeta: { [key in ComponentNames]: ComponentMetaType } = {
   [ComponentNames.MT_DATA]: {
     order: -6,
