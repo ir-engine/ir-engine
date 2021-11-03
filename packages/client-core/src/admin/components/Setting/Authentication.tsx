@@ -23,7 +23,7 @@ const initialState = {
 const Account = (props: Props) => {
   const classes = useStyles()
   const authSettingState = useAdminAuthSettingState()
-  const [authSetting] = authSettingState?.authSettings?.authSettings?.value || []
+  const [authSetting] = authSettingState?.authSettings?.value || []
   const id = authSetting?.id
   const dispatch = useDispatch()
   const [state, setState] = React.useState(initialState)
@@ -68,7 +68,7 @@ const Account = (props: Props) => {
   const user = authState.user
 
   useEffect(() => {
-    if (user?.id?.value != null && authSettingState.authSettings.updateNeeded.value) {
+    if (user?.id?.value != null && authSettingState.updateNeeded.value) {
       AuthSettingService.fetchAuthSetting()
     }
   }, [authState.user?.id?.value])
@@ -84,7 +84,7 @@ const Account = (props: Props) => {
       setState(temp)
       setHoldAuth(temp)
     }
-  }, [authSettingState?.authSettings?.updateNeeded?.value])
+  }, [authSettingState?.updateNeeded?.value])
 
   const handleSubmit = () => {
     const auth = Object.keys(state).map((prop) => ({ [prop]: state[prop] }))

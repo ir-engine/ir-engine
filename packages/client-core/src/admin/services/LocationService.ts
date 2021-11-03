@@ -14,28 +14,23 @@ import { LocationTypesResult } from '@xrengine/common/src/interfaces/LocationTyp
 export const LOCATION_PAGE_LIMIT = 100
 
 const state = createState({
-  locations: {
-    locations: [] as Array<Location>,
-    skip: 0,
-    limit: LOCATION_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    created: false,
-    lastFetched: Date.now()
-  },
-  locationTypes: {
-    locationTypes: [] as Array<LocationType>,
-    updateNeeded: true
-  }
+  locations: [] as Array<Location>,
+  skip: 0,
+  limit: LOCATION_PAGE_LIMIT,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true,
+  created: false,
+  lastFetched: Date.now(),
+  locationTypes: [] as Array<LocationType>
 })
 
 store.receptors.push((action: LocationActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_LOCATIONS_RETRIEVED':
-        return s.locations.merge({
+        return s.merge({
           locations: action.locations.data,
           skip: action.locations.skip,
           limit: action.locations.limit,
@@ -46,9 +41,9 @@ store.receptors.push((action: LocationActionType): any => {
           lastFetched: Date.now()
         })
       case 'ADMIN_LOCATION_CREATED':
-        return s.locations.merge({ updateNeeded: true, created: true })
+        return s.merge({ updateNeeded: true, created: true })
       case 'ADMIN_LOCATION_PATCHED':
-        const locationsList = state.locations.locations.value
+        const locationsList = state.locations.value
         for (let i = 0; i < locationsList.length; i++) {
           if (locationsList[i].id === action.location.id) {
             locationsList[i] = action.location
@@ -57,13 +52,12 @@ store.receptors.push((action: LocationActionType): any => {
             locationsList[i].isLobby = false
           }
         }
-        return s.locations.merge({ locations: locationsList })
+        return s.merge({ locations: locationsList })
 
       case 'ADMIN_LOCATION_REMOVED':
-        return s.locations.merge({ updateNeeded: true })
-
+        return s.merge({ updateNeeded: true })
       case 'ADMIN_LOCATION_TYPES_RETRIEVED':
-        return s.locationTypes.set({ locationTypes: action.locationTypesResult.data, updateNeeded: false })
+        return s.merge({ locationTypes: action.locationTypesResult.data, updateNeeded: false })
     }
   }, action.type)
 })
@@ -121,8 +115,8 @@ export const LocationService = {
             $sort: {
               name: 1
             },
-            $skip: accessLocationState().locations.skip.value,
-            $limit: accessLocationState().locations.limit.value,
+            $skip: accessLocationState().skip.value,
+            $limit: accessLocationState().limit.value,
             adminnedLocations: true
           }
         })
