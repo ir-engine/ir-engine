@@ -1,6 +1,12 @@
-export default function* evictLeastRecentlyUsedItems<K, V>(cache: Map<K, V>, maxSize: number): Generator<[K, V]> {
+import { IBox, IParametricMap } from '../types'
+
+export default function* evictLeastRecentlyUsedItems<K extends IBox, V>(
+  cache: IParametricMap<K, V>,
+  maxSize: number,
+  keys = cache.keys()
+): Generator<[K, V]> {
   let cachedItemCount = cache.size
-  for (const key of cache.keys()) {
+  for (const key of keys) {
     if (cachedItemCount > maxSize) {
       const value = cache.get(key)
       cachedItemCount--

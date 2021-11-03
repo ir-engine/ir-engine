@@ -54,12 +54,12 @@ export function* getTaskKeys(state: MapStateUnwrapped) {
   }
 }
 
-export function getTaskStatus(state: MapStateUnwrapped, key: FeatureKey) {
-  return state.geometryTasks.get(key)
+export function getTaskStatus(state: MapStateUnwrapped, keyHash: string) {
+  return state.geometryTasks.get(keyHash)
 }
 
-export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status: TaskStatus) {
-  return state.geometryTasks.set(key, status)
+export function setTaskStatus(state: MapStateUnwrapped, keyHash: string, status: TaskStatus) {
+  return state.geometryTasks.set(keyHash, status)
 }
 
 export function startTask(state: MapStateUnwrapped, key: FeatureKey) {
@@ -67,8 +67,8 @@ export function startTask(state: MapStateUnwrapped, key: FeatureKey) {
 }
 
 export function cleanup(state: MapStateUnwrapped) {
-  for (const [key, value] of state.geometryCache.evictLeastRecentlyUsedItems()) {
-    state.geometryCache.delete(key)
+  for (const [keyHash, value] of state.geometryCache.evictLeastRecentlyUsedItems()) {
+    state.geometryCache.delete(keyHash)
     value.geometry.dispose()
   }
 }

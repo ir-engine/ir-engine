@@ -1,8 +1,9 @@
+// TODO delete file
 import evictLeastRecentlyUsedItems from '../functions/evictLeastRecentlyUsedItems'
-import { IArrayKeyedMap } from '../types'
+import { IParametricMap } from '../types'
 import ArrayKeyedMap from './ArrayKeyedMap'
 
-export default class MapCache<Key extends any[], Value> implements IArrayKeyedMap<Key, Value> {
+export default class MapCache<Key extends any[], Value> implements IParametricMap<Key, Value> {
   /** ordered by time last used, ascending */
   map = new ArrayKeyedMap<Key, Value>()
   maxSize: number
@@ -27,7 +28,7 @@ export default class MapCache<Key extends any[], Value> implements IArrayKeyedMa
 
   get(key: Key) {
     const value = this.map.get(key)
-    if (value) {
+    if (value !== undefined) {
       this.updateLastUsedTime(key, value)
     }
     return value

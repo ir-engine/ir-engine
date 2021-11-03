@@ -24,11 +24,11 @@ export function* getTaskKeys(state: MapStateUnwrapped) {
   }
 }
 
-export function getTaskStatus(state: MapStateUnwrapped, key: FeatureKey) {
-  return state.completeObjectsTasks.get(key)
+export function getTaskStatus(state: MapStateUnwrapped, keyHash: string) {
+  return state.completeObjectsTasks.get(keyHash)
 }
-export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status: TaskStatus) {
-  return state.completeObjectsTasks.set(key, status)
+export function setTaskStatus(state: MapStateUnwrapped, keyHash: string, status: TaskStatus) {
+  return state.completeObjectsTasks.set(keyHash, status)
 }
 
 export function execTask(state: MapStateUnwrapped, key: FeatureKey) {

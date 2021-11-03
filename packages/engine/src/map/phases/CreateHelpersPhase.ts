@@ -20,11 +20,11 @@ export function getTaskKeys(state: MapStateUnwrapped) {
   return state.tileNavMeshCache.keys()
 }
 
-export function getTaskStatus(state: MapStateUnwrapped, key: TileKey) {
-  return state.helpersTasks.get(key)
+export function getTaskStatus(state: MapStateUnwrapped, keyHash: string) {
+  return state.helpersTasks.get(keyHash)
 }
-export function setTaskStatus(state: MapStateUnwrapped, key: TileKey, status: TaskStatus) {
-  return state.tileNavMeshTasks.set(key, status)
+export function setTaskStatus(state: MapStateUnwrapped, keyHash: string, status: TaskStatus) {
+  return state.tileNavMeshTasks.set(keyHash, status)
 }
 
 export function execTask(state: MapStateUnwrapped, key: TileKey) {

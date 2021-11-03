@@ -2,6 +2,7 @@ import { TaskStatus } from '../types'
 import { ICachingPhase, IPhase, ISyncPhase, MapStateUnwrapped } from '../types'
 import checkKey from './checkKey'
 import { isClient } from '../../common/functions/isClient'
+import stringifyArray from '../functions/stringifyArray'
 
 // Random Thought: Monads like https://github.com/monet/monet.js/blob/master/docs/FREE.md could be useful here.
 type FeatureId = 'navigation'
@@ -67,23 +68,18 @@ export function resetPhases(state: MapStateUnwrapped, phases: readonly IPhase<an
 }
 
 export async function startPhases(state: MapStateUnwrapped, phases: readonly IPhase<any, any>[]) {
+  // TODO remove
   const results = [] as any[]
   let result: any
+
   for (const phase of phases) {
     const keys = phase.getTaskKeys(state)
-    if (process.env.NODE_ENV === 'development') {
-      if (!keys[Symbol.iterator]) {
-        throw new Error('task keys are not iterable!')
-      }
-    }
     if (phase.isCachingPhase || phase.isAsyncPhase) {
       const promises = [] as Promise<any>[]
       let promise: Promise<any>
       for (const key of keys) {
-        if (process.env.NODE_ENV === 'development') {
-          checkKey(key)
-        }
-        if (phase.getTaskStatus(state, key) === TaskStatus.NOT_STARTED) {
+        const keyHash = stringifyArray(key)
+        if (phase.getTaskStatus(state, keyHash) === TaskStatus.NOT_STARTED) {
           if (phase.isAsyncPhase) {
             promise = phase.startTask(state, key)
             promises.push(promise)
@@ -91,7 +87,7 @@ export async function startPhases(state: MapStateUnwrapped, phases: readonly IPh
             result = (phase as ICachingPhase<any, any>).execTask(state, key)
             results.push(result)
           }
-          ;(phase as ICachingPhase<any, any>).setTaskStatus(state, key, TaskStatus.STARTED)
+          ;(phase as ICachingPhase<any, any>).setTaskStatus(state, keyHash, TaskStatus.STARTED)
         }
       }
       results.push(...(await Promise.all(promises)))

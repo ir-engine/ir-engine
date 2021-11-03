@@ -23,11 +23,11 @@ export function* getTaskKeys(state: MapStateUnwrapped) {
   }
 }
 
-export function getTaskStatus(state: MapStateUnwrapped, key: FeatureKey) {
-  return state.labelTasks.get(key)
+export function getTaskStatus(state: MapStateUnwrapped, keyHash: string) {
+  return state.labelTasks.get(keyHash)
 }
-export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status: TaskStatus) {
-  return state.labelTasks.set(key, status)
+export function setTaskStatus(state: MapStateUnwrapped, keyHash: string, status: TaskStatus) {
+  return state.labelTasks.set(keyHash, status)
 }
 
 const createLabelUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: FeatureKey) => {

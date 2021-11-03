@@ -1,26 +1,13 @@
-import { IArrayKeyedMap } from '../types'
+// TODO delete file
+import { IParametricMap } from '../types'
+// TODO(perf) would something like megahash help?
 // import HashMap from 'megahash'
 
 interface Options<Value> {
   defaultValue?: Value
 }
 
-function stringifyArray(array: any[]) {
-  switch (array.length) {
-    case 1:
-      return array[0]
-    case 2:
-      return array[0] + ',' + array[1]
-    case 3:
-      return array[0] + ',' + array[1] + ',' + array[2]
-    case 4:
-      return array[0] + ',' + array[1] + ',' + array[2] + ',' + array[3]
-    default:
-      return array.join(',')
-  }
-}
-
-export default class ArrayKeyedMap<KeySource extends any[], Value> implements IArrayKeyedMap<KeySource, Value> {
+export default class ArrayKeyedMap<KeySource extends any[], Value> implements IParametricMap<KeySource, Value> {
   /** ordered by time last used, ascending */
   map = new Map<string, Value>()
   keySources = new Set<KeySource>()

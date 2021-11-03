@@ -2,6 +2,24 @@ import { Feature, LineString, MultiLineString, MultiPolygon, Polygon } from 'geo
 import { BufferGeometry, InstancedBufferGeometry, Mesh } from 'three'
 import { _MapStateUnwrapped } from './MapReceptor'
 
+/** a container for primative values */
+export interface IBox {
+  valueOf(): string
+  [index: number]: any
+}
+
+export interface IParametricMap<Key extends IBox, Value> {
+  set(key: Key, value: Value): IParametricMap<Key, Value>
+
+  get(key: Key): Value
+
+  delete(key: Key): boolean
+
+  keys(): Iterable<Key>
+
+  size: number
+}
+
 export type MapStateUnwrapped = _MapStateUnwrapped
 
 /**
@@ -81,16 +99,6 @@ export interface MapHelpers {
 
 export type TileKey = [number, number]
 export type FeatureKey = [ILayerName, number, number, string]
-
-export interface IArrayKeyedMap<Key extends any[], Value> {
-  set(keySource: Key, value: Value): IArrayKeyedMap<Key, Value>
-
-  get(key: Key): Value
-
-  delete(key: Key): boolean
-
-  keys(): Iterable<Key>
-}
 
 export enum TaskStatus {
   NOT_STARTED = 0,
