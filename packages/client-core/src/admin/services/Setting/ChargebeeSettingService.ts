@@ -13,12 +13,10 @@ const state = createState({
 })
 
 store.receptors.push((action: ChargebeeSettingActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'CHARGEBEE_SETTING_DISPLAY':
-        result = action.chargebeeSettingResult
-        return s.Chargebee.merge({ chargebee: result.data, updateNeeded: false })
+        return s.Chargebee.merge({ chargebee: action.chargebeeSettingResult.data, updateNeeded: false })
     }
   }, action.type)
 })

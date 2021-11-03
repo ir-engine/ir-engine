@@ -227,8 +227,8 @@ const Harmony = (props: Props): any => {
   const videoEnabled =
     isHarmonyPage === true
       ? true
-      : currentLocation?.location_settings?.value
-      ? currentLocation?.location_settings?.videoEnabled?.value
+      : currentLocation?.locationSettings?.value
+      ? currentLocation?.locationSettings?.videoEnabled?.value
       : false
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
@@ -321,7 +321,7 @@ const Harmony = (props: Props): any => {
 
   useEffect(() => {
     if (channelConnectionState.connected.value === false && channelAwaitingProvision?.id?.length > 0) {
-      ChannelConnectionService.provisionChannelServer(null, channelAwaitingProvision.id)
+      ChannelConnectionService.provisionChannelServer(channelAwaitingProvision.id)
       if (channelAwaitingProvision?.audio === true) setProducerStarting('audio')
       if (channelAwaitingProvision?.video === true) setProducerStarting('video')
       setChannelAwaitingProvision({
@@ -654,13 +654,11 @@ const Harmony = (props: Props): any => {
   const handleStartCall = async (e?: any) => {
     if (e?.stopPropagation) e.stopPropagation()
     setCallStartedFromButton(true)
-    const channel = channels[targetChannelId]
-    const channelType = channel.instanceId != null ? 'instance' : 'channel'
     TransportService.updateChannelTypeState()
     await endVideoChat({})
     await leave(false)
     setActiveAVChannelId(targetChannelId)
-    ChannelConnectionService.provisionChannelServer(null, targetChannelId)
+    ChannelConnectionService.provisionChannelServer(targetChannelId)
   }
 
   const endCall = async () => {
@@ -848,7 +846,7 @@ const Harmony = (props: Props): any => {
         channelConnectionState.instanceServerConnecting.value === false &&
         channelConnectionState.connected.value === false
       ) {
-        ChannelConnectionService.provisionChannelServer(null, instanceChannel.id)
+        ChannelConnectionService.provisionChannelServer(instanceChannel.id)
       }
     }
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS })

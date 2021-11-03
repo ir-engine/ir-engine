@@ -81,9 +81,9 @@ const LocationModal = (props: Props): any => {
       setName(location.name)
       setSceneId(location.sceneId || '')
       setMaxUsers(location.maxUsersPerInstance)
-      setVideoEnabled(location.location_settings.videoEnabled)
-      setInstanceMediaChatEnabled(location.location_settings.instanceMediaChatEnabled)
-      setLocationType(location.location_settings.locationType)
+      setVideoEnabled(location.locationSettings.videoEnabled)
+      setInstanceMediaChatEnabled(location.locationSettings.instanceMediaChatEnabled)
+      setLocationType(location.locationSettings.locationType)
       setState({
         lobby: location.isLobby,
         feature: location.isFeatured

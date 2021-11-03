@@ -11,13 +11,11 @@ const state = createState({
 })
 
 store.receptors.push((action: SceneActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_SCENES_RETRIEVED':
-        result = action.sceneData
         return s.merge({
-          scenes: result
+          scenes: action.sceneData
         })
     }
   }, action.type)
