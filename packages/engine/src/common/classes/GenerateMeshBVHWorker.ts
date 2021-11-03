@@ -1,5 +1,4 @@
 import { Box3, BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'three'
-//@ts-ignore
 import { MeshBVH } from 'three-mesh-bvh'
 import { isClient } from '../functions/isClient'
 import Worker from 'web-worker'
@@ -45,7 +44,7 @@ export class GenerateMeshBVHWorker {
           // MeshBVH uses generated index instead of default geometry index
           geometry.setIndex(new BufferAttribute(serialized.index, 1))
 
-          const bvh = MeshBVH.deserialize(serialized, geometry, false)
+          const bvh = MeshBVH.deserialize(serialized, geometry)
           const boundsOptions = Object.assign(
             {
               setBoundingBox: true
