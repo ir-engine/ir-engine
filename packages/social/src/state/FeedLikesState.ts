@@ -16,6 +16,7 @@ store.receptors.push((action: FeedLikesActionType): any => {
       case 'FEED_LIKES_FETCH':
         return s.merge({
           feedLikes: {
+            ...s.feedLikes.value,
             fetching: true
           }
         })

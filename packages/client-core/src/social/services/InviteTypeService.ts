@@ -33,6 +33,7 @@ store.receptors.push((action: InviteTypeActionType): any => {
         } else {
           return s.merge({
             inviteTypeData: {
+              ...s.inviteTypeData.value,
               skip: newValues.skip,
               limit: newValues.limit,
               total: newValues.total

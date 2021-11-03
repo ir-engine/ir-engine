@@ -36,31 +36,52 @@ store.receptors.push((action: ArMediaActionType): any => {
     let result: any
     switch (action.type) {
       case 'ARMEDIA_FETCHING':
-        return s.fetching.set(true)
+        return s.merge({
+          fetching: true
+        })
       case 'ARMEDIA_ADMIN_RETRIEVED':
         result = action.list
-        return s.arMedia.merge({
-          arMedia: result.data,
-          skip: result.skip,
-          total: result.total,
-          limit: result.limit,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
+        return s.merge({
+          arMedia: {
+            arMedia: result.data,
+            skip: result.skip,
+            total: result.total,
+            limit: result.limit,
+            retrieving: false,
+            fetched: true,
+            updateNeeded: false,
+            lastFetched: Date.now()
+          }
         })
       case 'ARMEDIA_RETRIEVED':
         return s.merge({ list: action.list, fetching: false })
       case 'ADD_ARMEDIA':
-        return s.arMedia.updateNeeded.set(true)
+        return s.merge({
+          arMedia: {
+            ...s.arMedia.value,
+            updateNeeded: true
+          }
+        })
       case 'REMOVE_ARMEDIA':
-        return s.arMedia.updateNeeded.set(true)
+        return s.merge({
+          arMedia: {
+            ...s.arMedia.value,
+            updateNeeded: true
+          }
+        })
       case 'ARMEDIA_FETCHING_ITEM':
-        return s.fetchingItem.set(true)
+        return s.merge({
+          fetchingItem: true
+        })
       case 'ARMEDIA_RETRIEVED_ITEM':
         return s.merge({ item: action.item, fetchingItem: false })
       case 'UPDATE_AR_MEDIA':
-        return s.arMedia.updateNeeded.set(true)
+        return s.merge({
+          arMedia: {
+            ...s.arMedia.value,
+            updateNeeded: true
+          }
+        })
     }
   }, action.type)
 })

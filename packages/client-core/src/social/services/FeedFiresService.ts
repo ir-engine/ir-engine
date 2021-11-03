@@ -20,9 +20,19 @@ store.receptors.push((action: FeedFiresActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'FEED_FIRES_FETCH':
-        return s.feedFires.fetching.set(true)
+        return s.merge({
+          feedFires: {
+            ...s.feedFires.value,
+            fetching: true
+          }
+        })
       case 'FEED_FIRES_RETRIEVED':
-        return s.feedFires.merge({ feedFires: action.feedFires, fetching: false })
+        return s.merge({
+          feedFires: {
+            feedFires: action.feedFires,
+            fetching: false
+          }
+        })
     }
   }, action.type)
 })

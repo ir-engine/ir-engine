@@ -31,46 +31,110 @@ store.receptors.push((action: CreatorActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'SET_STATE_CREATORS':
-        return s.creators.splashTimeout.set(action.splashTimeout)
-      case 'CURRENT_CREATOR_FETCH':
-        return s.creators.fetchingCurrentCreator.set(true)
-      case 'CURRENT_CREATOR_RETRIEVED':
-        return s.creators.merge({
-          currentCreator: action.creator,
-          creators: s.creators.creators?.value.map((creator) => {
-            if (creator.id === action.creator.id) {
-              return { ...action.creator }
-            }
-            return { ...creator }
-          }),
-          fetchingCurrentCreator: false
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            splashTimeout: action.splashTimeout
+          }
         })
-
+      case 'CURRENT_CREATOR_FETCH':
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            fetchingCurrentCreator: true
+          }
+        })
+      case 'CURRENT_CREATOR_RETRIEVED':
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            currentCreator: action.creator,
+            creators: s.creators.creators?.value.map((creator) => {
+              if (creator.id === action.creator.id) {
+                return { ...action.creator }
+              }
+              return { ...creator }
+            }),
+            fetchingCurrentCreator: false
+          }
+        })
       case 'CREATOR_FETCH':
-        return s.creators.merge({ fetchingCreator: true, creator: { id: '', name: '', username: '' } })
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            fetchingCreator: true,
+            creator: { id: '', name: '', username: '' }
+          }
+        })
       case 'CREATOR_RETRIEVED':
-        return s.creators.merge({ creator: action.creator, fetchingCreator: false })
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            creator: action.creator,
+            fetchingCreator: false
+          }
+        })
       case 'CREATORS_FETCH':
-        return s.creators.merge({ fetchingCreators: true, creators: [] })
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            fetchingCreators: true,
+            creators: []
+          }
+        })
       case 'CREATORS_RETRIEVED':
-        return s.creators.merge({ creators: action.creators, fetchingCreators: false })
-
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            creators: action.creators,
+            fetchingCreators: false
+          }
+        })
       case 'CREATOR_NOTIFICATION_LIST_RETRIEVED':
-        return s.creators.merge({ currentCreatorNotifications: action.notifications, fetching: false })
-
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            currentCreatorNotifications: action.notifications,
+            fetching: false
+          }
+        })
       case 'SET_CREATOR_AS_FOLLOWED':
-        return s.creators.creator.followed.set(true)
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            creator: {
+              ...s.creators.creator.value,
+              followed: true
+            }
+          }
+        })
       case 'SET_CREATOR_NOT_FOLLOWED':
-        return s.creators.creator.followed.set(false)
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            creator: {
+              ...s.creators.creator.value,
+              followed: false
+            }
+          }
+        })
       case 'SET_CREATOR_AS_BLOCKED':
         const newCreators = [...s.creators.creators.value]
         const idBlockedCreator = newCreators.findIndex(
           (item) => item.id === (action as { type: string; creatorId: string }).creatorId
         )
         newCreators.splice(idBlockedCreator, 1)
-        s.creators.creator.blocked.set(true)
-        return s.creators.creators.set(newCreators)
 
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            creator: {
+              ...s.creators.creator.value,
+              blocked: true
+            },
+            creators: newCreators
+          }
+        })
       case 'SET_CREATOR_AS_UN_BLOCKED':
         // вместо этого сделать запрос
         const blocked = [...s.creators.blocked.value]
@@ -79,15 +143,34 @@ store.receptors.push((action: CreatorActionType): any => {
             blockedCreator.userId === (action as { type: string; blokedCreatorId: string }).blokedCreatorId
         )
         blocked.splice(unBlockedCreatorId, 1)
-        return s.creators.blocked.set(blocked)
 
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            blocked: blocked
+          }
+        })
       case 'CREATOR_BLOCKED_RETRIEVED':
-        return s.creators.blocked.set(action.creators)
-
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            blocked: action.creators
+          }
+        })
       case 'CREATOR_FOLLOWERS_RETRIEVED':
-        return s.creators.followers.set(action.creators)
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            followers: action.creators
+          }
+        })
       case 'CREATOR_FOLLOWING_RETRIEVED':
-        return s.creators.following.set(action.creators)
+        return s.merge({
+          creators: {
+            ...s.creators.value,
+            following: action.creators
+          }
+        })
     }
   }, action.type)
 })
@@ -108,9 +191,9 @@ export const CreatorService = {
           creator != null
             ? creator
             : {
-                name: creator?.name || 'User' + userNumber,
-                username: creator?.username || 'user_' + userNumber
-              }
+              name: creator?.name || 'User' + userNumber,
+              username: creator?.username || 'user_' + userNumber
+            }
 
         const creatorResponse = await client.service('creator').create(creatorInfo)
         dispatch(CreatorAction.creatorLoggedRetrieved(creatorResponse))

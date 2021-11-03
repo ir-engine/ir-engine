@@ -55,15 +55,16 @@ store.receptors.push((action: ChatActionType): any => {
   state.batch((s) => {
     switch (action!.type) {
       case 'LOADED_CHANNELS':
-        s.channels.merge({
-          limit: action.limit,
-          skip: action.skip,
-          total: action.total,
-          updateNeeded: false,
-          channels: action.channels
+        return s.merge({
+          channels: {
+            ...s.channels.value,
+            limit: action.limit,
+            skip: action.skip,
+            total: action.total,
+            updateNeeded: false,
+            channels: action.channels
+          }
         })
-        return
-
       case 'LOADED_CHANNEL': {
         const idx =
           (typeof action.channel.id === 'string' &&
@@ -73,13 +74,15 @@ store.receptors.push((action: ChatActionType): any => {
 
         if (action.channelType === 'instance') {
           // TODO: WHYYY ARE WE DOING ALL THIS??
-          s.channels.fetchingInstanceChannel.set(false)
           s.merge({
+            channels: {
+              ...s.channels.value,
+              fetchingInstanceChannel: false
+            },
             instanceChannelFetched: true,
             instanceChannelFetching: false
           })
         }
-
         return
       }
 
@@ -105,10 +108,10 @@ store.receptors.push((action: ChatActionType): any => {
                 ? channel.user1
                 : channel.user2
               : channelType === 'group'
-              ? channel.group
-              : channelType === 'instance'
-              ? channel.instance
-              : channel.party
+                ? channel.group
+                : channelType === 'instance'
+                  ? channel.instance
+                  : channel.party
           s.merge({ targetChannelId: channelId, targetObjectType: channelType, targetObject: targetObject.value })
         }
         return

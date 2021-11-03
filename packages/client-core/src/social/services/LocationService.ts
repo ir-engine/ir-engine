@@ -44,9 +44,9 @@ store.receptors.push((action: LocationActionType): any => {
         })
       case 'LOCATION_RETRIEVED':
         let bannedUsers = [] as UserId[]
-        ;(action.location as any)?.location_bans?.forEach((ban) => {
-          bannedUsers.push(ban.userId)
-        })
+          ; (action.location as any)?.location_bans?.forEach((ban) => {
+            bannedUsers.push(ban.userId)
+          })
         bannedUsers = [...new Set(bannedUsers)]
         return s.merge({
           currentLocation: {

@@ -56,6 +56,7 @@ store.receptors.push((action: FriendActionType): any => {
         const createdUserRelationship = newValues.userRelationship
         return s.merge({
           friends: {
+            ...s.friends.value,
             friends: [...s.friends.friends.value, createdUserRelationship],
           },
         })
@@ -74,12 +75,14 @@ store.receptors.push((action: FriendActionType): any => {
         if (patchedFriendIndex === -1) {
           return s.merge({
             friends: {
+              ...s.friends.value,
               friends: [...s.friends.friends.value, otherUser],
             },
           })
         } else {
           return s.merge({
             friends: {
+              ...s.friends.value,
               friends[patchedFriendIndex]: otherUser,
             },
           })
@@ -99,6 +102,7 @@ store.receptors.push((action: FriendActionType): any => {
 
         return s.merge({
           friends: {
+            ...s.friends.value,
             friends[friendId]: none,
           },
         })

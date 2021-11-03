@@ -19,7 +19,10 @@ store.receptors.push((action: WebxrNativeActionType): any => {
           webxrnative: false
         })
       case 'TOGGLE_WEBXRNATIVE':
-        return s.merge({ webxrnative: !s.webxrnative.value })
+        return s.merge({
+          webxrnative:
+            !s.webxrnative.value
+        })
     }
   }, action.type)
 })

@@ -21,24 +21,28 @@ store.receptors.push((action: TheFeedsFiresActionType): any => {
       case 'THEFEEDS_FIRES_FETCH':
         return s.merge({
           thefeedsFires: {
+            ...s.thefeedsFires.value,
             fetching: true
           }
         })
       case 'THEFEEDS_FIRES_RETRIEVED':
         return s.merge({
           thefeedsFires: {
+            ...s.thefeedsFires.value,
             fetcthefeedsFireshing: action.thefeedsFires
           }
         })
       case 'ADD_THEFEEDS_FIRES':
         return s.merge({
           thefeedsFires: {
+            ...s.thefeedsFires.value,
             thefeedsFires: [...s.thefeedsFires.thefeedsFires, action.thefeedsFire]
           }
         })
       case 'REMOVE_THEFEEDS_FIRES':
         return s.merge({
           thefeedsFires: {
+            ...s.thefeedsFires.value,
             thefeedsFires: s.thefeedsFires.thefeedsFires.value.filter((i) => i.id !== action.thefeedsFireId)
           }
         })

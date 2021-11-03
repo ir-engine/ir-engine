@@ -110,6 +110,7 @@ store.receptors.push((action: GroupActionType): any => {
         if (groupIndex !== -1) {
           return s.merge({
             groups: {
+              ...s.groups.value,
               groups[groupIndex]: updateGroup
             }
           })
@@ -149,6 +150,7 @@ store.receptors.push((action: GroupActionType): any => {
           if (groupUserIndex !== -1) {
             return s.merge({
               groups: {
+                ...s.groups.value,
                 groups[groupIndex]: {
                   groupUsers[groupUserIndex]:
                     groupUser
@@ -158,6 +160,7 @@ store.receptors.push((action: GroupActionType): any => {
           } else {
             return s.merge({
               groups: {
+                ...s.groups.value,
                 groups[groupIndex]: {
                   groupUsers:
                     groupUser
@@ -189,6 +192,7 @@ store.receptors.push((action: GroupActionType): any => {
           } else {
             return s.merge({
               groups: {
+                ...s.groups.value,
                 groups[groupIndex]: {
                   groupUsers:
                     groupUser
@@ -225,6 +229,7 @@ store.receptors.push((action: GroupActionType): any => {
           if (groupUserIndex !== -1) {
             s.merge({
               groups: {
+                ...s.groups.value,
                 groups[groupIndex]: {
                   groupUsers[groupUserIndex]: none
                 }

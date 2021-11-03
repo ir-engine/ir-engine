@@ -30,12 +30,14 @@ store.receptors.push((action: TheFeedsBookmarkActionType): any => {
       case 'ADD_THEFEEDS_BOOKMARK':
         return s.merge({
           thefeedsbookmark: {
+            ...s.thefeedsbookmark.value,
             thefeeds: [...s.thefeedsbookmark.thefeeds, action.thefeeds]
           }
         })
       case 'REMOVE_THEFEEDS_BOOKMARK':
         return s.merge({
           thefeedsbookmark: {
+            ...s.thefeedsbookmark.value,
             thefeeds: [
               ...s.thefeedsbookmark.thefeeds.value.filter((thefeeds) => thefeeds.id !== action.thefeedId)
             ]

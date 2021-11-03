@@ -32,6 +32,7 @@ store.receptors.push((action: PopupsStateActionType): any => {
       case 'CHANGE_CREATOR_PAGE_STATE':
         return s.merge({
           popups: {
+            ...s.popups.value,
             creatorPage: action.state,
             creatorId: action.id
           }
@@ -39,23 +40,29 @@ store.receptors.push((action: PopupsStateActionType): any => {
       case 'CHANGE_CREATOR_FORM_STATE':
         return s.merge({
           popups: {
+            ...s.popups.value,
             creatorForm: action.state
           }
         })
       case 'CHANGE_FEED_PAGE_STATE':
         return s.merge({
           popups: {
+            ...s.popups.value,
             feedPage: action.state,
             feedId: action.id
           }
         })
       case 'CHANGE_ARMEDIA_CHOOSE_STATE':
         return s.merge({
-          popups: { arMedia: action.state }
+          popups: {
+            ...s.popups.value,
+            arMedia: action.state
+          }
         })
       case 'CHANGE_NEW_FEED_PAGE_STATE':
         return s.merge({
           popups: {
+            ...s.popups.value,
             shareFeedPage: action.state,
             videoPath: action.id,
             fPath: action.fPath,
@@ -65,6 +72,7 @@ store.receptors.push((action: PopupsStateActionType): any => {
       case 'CHANGE_SHARE_FORM_STATE':
         return s.merge({
           popups: {
+            ...s.popups.value,
             shareForm: action.state,
             videoUrl: action.id,
             imgSrc: action.imgSrc
@@ -73,6 +81,7 @@ store.receptors.push((action: PopupsStateActionType): any => {
       case 'CHANGE_WEB_XR_STATE':
         return s.merge({
           popups: {
+            ...s.popups.value,
             webxr: action.state,
             itemId: action.itemId
           }
