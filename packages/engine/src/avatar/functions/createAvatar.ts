@@ -34,81 +34,12 @@ import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
 const capsuleHeight = avatarHeight - avatarRadius * 2
 export const avatarHalfHeight = avatarHeight / 2
-
-const { defineProperties } = Object
-
-const createVector3Proxy = (store, entity) =>
-  defineProperties(new Vector3(), {
-    _eid: { value: entity },
-    _store: { value: store },
-    x: {
-      get() {
-        return this._store.x[this._eid]
-      },
-      set(n) {
-        return (this._store.x[this._eid] = n)
-      }
-    },
-    y: {
-      get() {
-        return this._store.y[this._eid]
-      },
-      set(n) {
-        return (this._store.y[this._eid] = n)
-      }
-    },
-    z: {
-      get() {
-        return this._store.z[this._eid]
-      },
-      set(n) {
-        return (this._store.z[this._eid] = n)
-      }
-    }
-  })
-
-const createQuaternionProxy = (store, entity) =>
-  defineProperties(new Quaternion(), {
-    _eid: { value: entity },
-    _store: { value: store },
-    _x: {
-      get() {
-        return this._store.x[this._eid]
-      },
-      set(n) {
-        return (this._store.x[this._eid] = n)
-      }
-    },
-    _y: {
-      get() {
-        return this._store.y[this._eid]
-      },
-      set(n) {
-        return (this._store.y[this._eid] = n)
-      }
-    },
-    _z: {
-      get() {
-        return this._store.z[this._eid]
-      },
-      set(n) {
-        return (this._store.z[this._eid] = n)
-      }
-    },
-    _w: {
-      get() {
-        return this._store.w[this._eid]
-      },
-      set(n) {
-        return (this._store.w[this._eid] = n)
-      }
-    }
-  })
 
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
   const world = useWorld()
