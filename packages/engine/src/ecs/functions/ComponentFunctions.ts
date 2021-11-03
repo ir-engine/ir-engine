@@ -62,7 +62,7 @@ export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = b
 
   ComponentMap.set(name, component)
 
-  return component as MappedComponent<T, S>
+  return component as T & MappedComponent<T, S>
 }
 
 export type SoAProxy<S extends bitECS.ISchema> = {
