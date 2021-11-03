@@ -28,11 +28,19 @@ store.receptors.push((action: TheFeedsBookmarkActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADD_THEFEEDS_BOOKMARK':
-        return s.thefeedsbookmark.thefeeds.set([...s.thefeedsbookmark.thefeeds, action.thefeeds])
+        return s.merge({
+          thefeedsbookmark: {
+            thefeeds: [...s.thefeedsbookmark.thefeeds, action.thefeeds]
+          }
+        })
       case 'REMOVE_THEFEEDS_BOOKMARK':
-        return s.thefeedsbookmark.thefeeds.set([
-          ...s.thefeedsbookmark.thefeeds.value.filter((thefeeds) => thefeeds.id !== action.thefeedId)
-        ])
+        return s.merge({
+          thefeedsbookmark: {
+            thefeeds: [
+              ...s.thefeedsbookmark.thefeeds.value.filter((thefeeds) => thefeeds.id !== action.thefeedId)
+            ]
+          }
+        })
     }
   }, action.type)
 })

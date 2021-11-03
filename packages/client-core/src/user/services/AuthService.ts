@@ -73,7 +73,7 @@ store.receptors.push((action: AuthActionType): void => {
       case 'LOGOUT_USER':
         return s.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
       case 'DID_VERIFY_EMAIL':
-        return s.identityProvider.merge({ isVerified: action.result })
+        return s.merge({ identityProvider: { isVerified: action.result } })
 
       case 'LOADED_USER_DATA':
         return s.merge({ user: action.user })
@@ -89,19 +89,19 @@ store.receptors.push((action: AuthActionType): void => {
         return state
       }
       case 'AVATAR_UPDATED': {
-        return s.user.merge({ avatarUrl: action.url })
+        return s.merge({ user: { avatarUrl: action.url } })
       }
       case 'USERNAME_UPDATED': {
-        return s.user.merge({ name: action.name })
+        return s.merge({ user: { name: action.name } })
       }
       case 'USERAVATARID_UPDATED': {
-        return s.user.merge({ avatarId: action.avatarId })
+        return s.merge({ user: { avatarId: action.avatarId } })
       }
       case 'USER_UPDATED': {
         return s.merge({ user: action.user })
       }
       case 'UPDATE_USER_SETTINGS': {
-        return s.user.merge({ user_setting: action.data })
+        return s.merge({ user: { user_setting: action.data } })
       }
       case 'AVATAR_FETCHED': {
         const resources = action.avatarList
@@ -257,33 +257,33 @@ export const AuthService = {
       }
 
       dispatch(AuthAction.actionProcessing(true))
-      ;(client as any)
-        .authenticate({
-          strategy: 'local',
-          email: form.email,
-          password: form.password
-        })
-        .then((res: any) => {
-          const authUser = resolveAuthUser(res)
+        ; (client as any)
+          .authenticate({
+            strategy: 'local',
+            email: form.email,
+            password: form.password
+          })
+          .then((res: any) => {
+            const authUser = resolveAuthUser(res)
 
-          if (!authUser.identityProvider.isVerified) {
-            ;(client as any).logout()
+            if (!authUser.identityProvider.isVerified) {
+              ; (client as any).logout()
 
-            dispatch(AuthAction.registerUserByEmailSuccess(authUser.identityProvider))
-            window.location.href = '/auth/confirm'
-            return
-          }
+              dispatch(AuthAction.registerUserByEmailSuccess(authUser.identityProvider))
+              window.location.href = '/auth/confirm'
+              return
+            }
 
-          dispatch(AuthAction.loginUserSuccess(authUser))
-          AuthService.loadUserData(authUser.identityProvider.userId).then(() => (window.location.href = '/'))
-        })
-        .catch((err: any) => {
-          console.log(err)
+            dispatch(AuthAction.loginUserSuccess(authUser))
+            AuthService.loadUserData(authUser.identityProvider.userId).then(() => (window.location.href = '/'))
+          })
+          .catch((err: any) => {
+            console.log(err)
 
-          dispatch(AuthAction.loginUserError('Failed to login'))
-          AlertService.dispatchAlertError(err.message)
-        })
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
+            dispatch(AuthAction.loginUserError('Failed to login'))
+            AlertService.dispatchAlertError(err.message)
+          })
+          .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
   },
   loginUserByXRWallet: async (wallet: any) => {
@@ -324,9 +324,8 @@ export const AuthService = {
       } as any
       if (queryString.instanceId && queryString.instanceId.length > 0)
         redirectObject.instanceId = queryString.instanceId
-      let redirectUrl = `${
-        Config.publicRuntimeConfig.apiServer
-      }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
+      let redirectUrl = `${Config.publicRuntimeConfig.apiServer
+        }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
 
       window.location.href = redirectUrl
     }
@@ -361,14 +360,14 @@ export const AuthService = {
     const dispatch = useDispatch()
     {
       dispatch(AuthAction.actionProcessing(true))
-      ;(client as any)
-        .logout()
-        .then(() => dispatch(AuthAction.didLogout()))
-        .catch(() => dispatch(AuthAction.didLogout()))
-        .finally(() => {
-          dispatch(AuthAction.actionProcessing(false))
-          AuthService.doLoginAuto(true, true)
-        })
+        ; (client as any)
+          .logout()
+          .then(() => dispatch(AuthAction.didLogout()))
+          .catch(() => dispatch(AuthAction.didLogout()))
+          .finally(() => {
+            dispatch(AuthAction.actionProcessing(false))
+            AuthService.doLoginAuto(true, true)
+          })
     }
   },
   registerUserByEmail: (form: EmailRegistrationForm) => {
@@ -714,11 +713,11 @@ export const AuthService = {
       const modelOperation =
         modelURL.local === true
           ? axios.post(`${Config.publicRuntimeConfig.apiServer}/media`, modelData, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: 'Bearer ' + token
-              }
-            })
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: 'Bearer ' + token
+            }
+          })
           : axios.post(modelURL.url, modelData)
       return modelOperation
         .then(async (res) => {
@@ -759,11 +758,11 @@ export const AuthService = {
           const thumbnailOperation =
             thumbnailURL.local === true
               ? axios.post(`${Config.publicRuntimeConfig.apiServer}/media`, thumbnailData, {
-                  headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: 'Bearer ' + token
-                  }
-                })
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                  Authorization: 'Bearer ' + token
+                }
+              })
               : axios.post(thumbnailURL.url, thumbnailData)
           await thumbnailOperation
             .then((res) => {
@@ -771,29 +770,29 @@ export const AuthService = {
               Promise.all([
                 existingModel.total > 0
                   ? client.service('static-resource').patch(existingModel.data[0].id, {
-                      url: modelCloudfrontURL,
-                      key: modelURL.fields.Key
-                    })
+                    url: modelCloudfrontURL,
+                    key: modelURL.fields.Key
+                  })
                   : client.service('static-resource').create({
-                      name,
-                      staticResourceType: 'avatar',
-                      url: modelCloudfrontURL,
-                      key: modelURL.fields.Key,
-                      userId: isPublicAvatar ? null : selfUser.id.value
-                    }),
+                    name,
+                    staticResourceType: 'avatar',
+                    url: modelCloudfrontURL,
+                    key: modelURL.fields.Key,
+                    userId: isPublicAvatar ? null : selfUser.id.value
+                  }),
                 existingThumbnail.total > 0
                   ? client.service('static-resource').patch(existingThumbnail.data[0].id, {
-                      url: thumbnailCloudfrontURL,
-                      key: thumbnailURL.fields.Key
-                    })
+                    url: thumbnailCloudfrontURL,
+                    key: thumbnailURL.fields.Key
+                  })
                   : client.service('static-resource').create({
-                      name,
-                      staticResourceType: 'user-thumbnail',
-                      url: thumbnailCloudfrontURL,
-                      mimeType: 'image/png',
-                      key: thumbnailURL.fields.Key,
-                      userId: isPublicAvatar ? null : selfUser.id.value
-                    })
+                    name,
+                    staticResourceType: 'user-thumbnail',
+                    url: thumbnailCloudfrontURL,
+                    mimeType: 'image/png',
+                    key: thumbnailURL.fields.Key,
+                    userId: isPublicAvatar ? null : selfUser.id.value
+                  })
               ])
                 .then((_) => {
                   if (isPublicAvatar !== true) {

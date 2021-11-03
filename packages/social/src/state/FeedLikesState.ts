@@ -14,9 +14,18 @@ store.receptors.push((action: FeedLikesActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'FEED_LIKES_FETCH':
-        return s.feedLikes.fetching.set(true)
+        return s.merge({
+          feedLikes: {
+            fetching: true
+          }
+        })
       case 'FEED_LIKES_RETRIEVED':
-        return s.feedLikes.merge({ feedLikes: action.feedLikes, fetching: false })
+        return s.merge({
+          feedLikes: {
+            feedLikes: action.feedLikes,
+            fetching: false
+          }
+        })
     }
   }, action.type)
 })

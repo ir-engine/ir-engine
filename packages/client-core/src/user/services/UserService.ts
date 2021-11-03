@@ -25,7 +25,7 @@ store.receptors.push((action: UserActionType): void => {
       case 'ADMIN_LOADED_USERS':
         return s.merge({ users: action.users, updateNeeded: false })
       case 'CHANGED_RELATION':
-        return s.updateNeeded.set(true)
+        return s.merge({ updateNeeded: true })
       case 'CLEAR_LAYER_USERS':
         return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
       case 'LOADED_LAYER_USERS':
@@ -36,18 +36,25 @@ store.receptors.push((action: UserActionType): void => {
           return layerUser != null && layerUser.id.value === newUser.id
         })
         if (idx === -1) {
-          s.layerUsers.merge([newUser])
+          return s.merge({
+            layerUsers: [newUser],
+            layerUsersUpdateNeeded: true
+          })
         } else {
-          s.layerUsers[idx].set(newUser)
+          return s.merge({
+            layerUsers[idx]: newUser,
+            layerUsersUpdateNeeded: true
+          })
         }
-        return s.layerUsersUpdateNeeded.set(true)
       }
       case 'REMOVED_LAYER_USER': {
         const layerUsers = s.layerUsers
         const idx = layerUsers.findIndex((layerUser) => {
           return layerUser != null && layerUser.value.id === action.user.id
         })
-        return s.layerUsers[idx].set(none)
+        return s.merge({
+          layerUsers[idx]: none
+        })
       }
       case 'CLEAR_CHANNEL_LAYER_USERS':
         return s.merge({
@@ -65,20 +72,25 @@ store.receptors.push((action: UserActionType): void => {
           return layerUser != null && layerUser.value.id === newUser.id
         })
         if (idx === -1) {
-          s.channelLayerUsers.merge([newUser])
+          return s.merge({
+            channelLayerUsers: [newUser],
+            channelLayerUsersUpdateNeeded: true
+          })
         } else {
-          s.channelLayerUsers[idx].set(newUser)
+          return s.merge({
+            channelLayerUsers[idx]: newUser,
+            channelLayerUsersUpdateNeeded: true
+          })
         }
-        return s.channelLayerUsersUpdateNeeded.set(true)
       }
       case 'REMOVED_CHANNEL_LAYER_USER':
         const newUser = action.user
         const idx = s.channelLayerUsers.findIndex((layerUser) => {
           return layerUser != null && layerUser.value.id === newUser.id
         })
-        return s.channelLayerUsers[idx].set(none)
+        return s.merge({ channelLayerUsers[idx]: none })
       case 'USER_TOAST':
-        return s.toastMessages.merge([action.message])
+        return s.merge({ toastMessages: [action.message] })
     }
   }, action.type)
 })

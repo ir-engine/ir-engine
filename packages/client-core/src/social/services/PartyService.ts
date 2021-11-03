@@ -31,12 +31,16 @@ store.receptors.push((action: PartyActionType): any => {
         console.log('party loaded', action.party)
         return s.merge({ party: action.party, updateNeeded: false })
       case 'CREATED_PARTY':
-        return s.updateNeeded.set(true)
+        return s.merge({
+          updateNeeded: true
+        })
       case 'REMOVED_PARTY':
         updateMap = new Map()
         return s.merge({ party: {}, updateNeeded: true })
       case 'INVITED_PARTY_USER':
-        return s.updateNeeded.set(true)
+        return s.merge({
+          updateNeeded: true
+        })
       case 'CREATED_PARTY_USER':
         newValues = action
         partyUser = newValues.partyUser
@@ -46,16 +50,18 @@ store.receptors.push((action: PartyActionType): any => {
           updateMapPartyUsers = updateMap.partyUsers
           updateMapPartyUsers = Array.isArray(updateMapPartyUsers)
             ? updateMapPartyUsers.find((pUser) => {
-                return pUser != null && pUser.id === partyUser.id
-              }) == null
+              return pUser != null && pUser.id === partyUser.id
+            }) == null
               ? updateMapPartyUsers.concat([partyUser])
               : updateMap.partyUsers.map((pUser) => {
-                  return pUser != null && pUser.id === partyUser.id ? partyUser : pUser
-                })
+                return pUser != null && pUser.id === partyUser.id ? partyUser : pUser
+              })
             : [partyUser]
           updateMap.partyUsers = updateMapPartyUsers
         }
-        return s.party.set(updateMap)
+        return s.merge({
+          party: updateMap
+        })
 
       case 'PATCHED_PARTY_USER':
         newValues = action
@@ -66,16 +72,18 @@ store.receptors.push((action: PartyActionType): any => {
           updateMapPartyUsers = updateMap.partyUsers
           updateMapPartyUsers = Array.isArray(updateMapPartyUsers)
             ? updateMapPartyUsers.find((pUser) => {
-                return pUser != null && pUser.id === partyUser.id
-              }) == null
+              return pUser != null && pUser.id === partyUser.id
+            }) == null
               ? updateMapPartyUsers.concat([partyUser])
               : updateMap.partyUsers.map((pUser) => {
-                  return pUser != null && pUser.id === partyUser.id ? partyUser : pUser
-                })
+                return pUser != null && pUser.id === partyUser.id ? partyUser : pUser
+              })
             : [partyUser]
           updateMap.partyUsers = updateMapPartyUsers
         }
-        return s.party.set(updateMap)
+        return s.merge({
+          party: updateMap
+        })
 
       case 'REMOVED_PARTY_USER':
         newValues = action
@@ -87,8 +95,10 @@ store.receptors.push((action: PartyActionType): any => {
             return pUser != null && partyUser.id === pUser.id
           })
         }
-        s.party.set(updateMap)
-        return s.updateNeeded.set(true)
+        return s.merge({
+          party: updateMap,
+          updateNeeded: true
+        })
     }
   }, action.type)
 })
@@ -119,37 +129,37 @@ export const PartyService = {
     const userId = accessAuthState().user.id.value
     console.log('USERID: ', userId)
     if ((client as any).io && socketId === undefined) {
-      ;(client as any).io.emit('request-user-id', ({ id }: { id: number }) => {
+      ; (client as any).io.emit('request-user-id', ({ id }: { id: number }) => {
         console.log('Socket-ID received: ', id)
         socketId = id
       })
-      ;(client as any).io.on('message-party', (data: any) => {
-        console.warn('Message received, data: ', data)
-      })
-      ;(window as any).joinParty = (userId: number, partyId: number) => {
-        ;(client as any).io.emit(
-          'join-party',
-          {
+        ; (client as any).io.on('message-party', (data: any) => {
+          console.warn('Message received, data: ', data)
+        })
+        ; (window as any).joinParty = (userId: number, partyId: number) => {
+          ; (client as any).io.emit(
+            'join-party',
+            {
+              userId,
+              partyId
+            },
+            (res) => {
+              console.log('Join response: ', res)
+            }
+          )
+        }
+        ; (window as any).messageParty = (userId: number, partyId: number, message: string) => {
+          ; (client as any).io.emit('message-party-request', {
             userId,
-            partyId
-          },
-          (res) => {
-            console.log('Join response: ', res)
-          }
-        )
-      }
-      ;(window as any).messageParty = (userId: number, partyId: number, message: string) => {
-        ;(client as any).io.emit('message-party-request', {
-          userId,
-          partyId,
-          message
-        })
-      }
-      ;(window as any).partyInit = (userId: number) => {
-        ;(client as any).io.emit('party-init', { userId }, (response: any) => {
-          response ? console.log('Init success', response) : console.log('Init failed')
-        })
-      }
+            partyId,
+            message
+          })
+        }
+        ; (window as any).partyInit = (userId: number) => {
+          ; (client as any).io.emit('party-init', { userId }, (response: any) => {
+            response ? console.log('Init success', response) : console.log('Init failed')
+          })
+        }
     } else {
       console.log('Your socket id is: ', socketId)
     }

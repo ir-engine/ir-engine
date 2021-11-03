@@ -30,24 +30,53 @@ store.receptors.push((action: PopupsStateActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CHANGE_CREATOR_PAGE_STATE':
-        return s.popups.merge({ creatorPage: action.state, creatorId: action.id })
+        return s.merge({
+          popups: {
+            creatorPage: action.state,
+            creatorId: action.id
+          }
+        })
       case 'CHANGE_CREATOR_FORM_STATE':
-        return s.popups.creatorForm.set(action.state)
+        return s.merge({
+          popups: {
+            creatorForm: action.state
+          }
+        })
       case 'CHANGE_FEED_PAGE_STATE':
-        return s.popups.merge({ feedPage: action.state, feedId: action.id })
+        return s.merge({
+          popups: {
+            feedPage: action.state,
+            feedId: action.id
+          }
+        })
       case 'CHANGE_ARMEDIA_CHOOSE_STATE':
-        return s.popups.arMedia.set(action.state)
+        return s.merge({
+          popups: { arMedia: action.state }
+        })
       case 'CHANGE_NEW_FEED_PAGE_STATE':
-        return s.popups.merge({
-          shareFeedPage: action.state,
-          videoPath: action.id,
-          fPath: action.fPath,
-          nameId: action.nameId
+        return s.merge({
+          popups: {
+            shareFeedPage: action.state,
+            videoPath: action.id,
+            fPath: action.fPath,
+            nameId: action.nameId
+          }
         })
       case 'CHANGE_SHARE_FORM_STATE':
-        return s.popups.merge({ shareForm: action.state, videoUrl: action.id, imgSrc: action.imgSrc })
+        return s.merge({
+          popups: {
+            shareForm: action.state,
+            videoUrl: action.id,
+            imgSrc: action.imgSrc
+          }
+        })
       case 'CHANGE_WEB_XR_STATE':
-        return s.popups.merge({ webxr: action.state, itemId: action.itemId })
+        return s.merge({
+          popups: {
+            webxr: action.state,
+            itemId: action.itemId
+          }
+        })
     }
   }, action.type)
 })

@@ -15,9 +15,11 @@ store.receptors.push((action: WebxrNativeActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'SET_WEBXRNATIVE':
-        return s.webxrnative.set(false)
+        return s.merge({
+          webxrnative: false
+        })
       case 'TOGGLE_WEBXRNATIVE':
-        return s.webxrnative.set(!s.webxrnative.value)
+        return s.merge({ webxrnative: !s.webxrnative.value })
     }
   }, action.type)
 })

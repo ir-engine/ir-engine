@@ -22,11 +22,23 @@ store.receptors.push((action: InviteTypeActionType): any => {
       case 'LOAD_INVITE_TYPE':
         newValues = action
         if (newValues.invitesType != null) {
-          s.inviteTypeData.invitesType.merge([newValues.invitesType])
+          return s.merge({
+            inviteTypeData: {
+              invitesType: [newValues.invitesType],
+              skip: newValues.skip,
+              limit: newValues.limit,
+              total: newValues.total
+            }
+          })
+        } else {
+          return s.merge({
+            inviteTypeData: {
+              skip: newValues.skip,
+              limit: newValues.limit,
+              total: newValues.total
+            }
+          })
         }
-        s.inviteTypeData.skip.set(newValues.skip)
-        s.inviteTypeData.limit.set(newValues.limit)
-        return s.inviteTypeData.total.set(newValues.total)
     }
   }, action.type)
 })

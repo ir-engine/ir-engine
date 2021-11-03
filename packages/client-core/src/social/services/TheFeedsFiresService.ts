@@ -19,15 +19,29 @@ store.receptors.push((action: TheFeedsFiresActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'THEFEEDS_FIRES_FETCH':
-        return s.thefeedsFires.fetching.set(true)
+        return s.merge({
+          thefeedsFires: {
+            fetching: true
+          }
+        })
       case 'THEFEEDS_FIRES_RETRIEVED':
-        return s.thefeedsFires.thefeedsFires.set(action.thefeedsFires)
+        return s.merge({
+          thefeedsFires: {
+            fetcthefeedsFireshing: action.thefeedsFires
+          }
+        })
       case 'ADD_THEFEEDS_FIRES':
-        return s.thefeedsFires.thefeedsFires.set([...s.thefeedsFires.thefeedsFires, action.thefeedsFire])
+        return s.merge({
+          thefeedsFires: {
+            thefeedsFires: [...s.thefeedsFires.thefeedsFires, action.thefeedsFire]
+          }
+        })
       case 'REMOVE_THEFEEDS_FIRES':
-        return s.thefeedsFires.thefeedsFires.set(
-          s.thefeedsFires.thefeedsFires.value.filter((i) => i.id !== action.thefeedsFireId)
-        )
+        return s.merge({
+          thefeedsFires: {
+            thefeedsFires: s.thefeedsFires.thefeedsFires.value.filter((i) => i.id !== action.thefeedsFireId)
+          }
+        })
     }
   }, action.type)
 })
