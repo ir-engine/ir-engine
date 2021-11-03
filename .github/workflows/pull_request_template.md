@@ -3,7 +3,7 @@
 A summary of changes being made in this PR
 
 ## Checklist
-- [ ] Pre-commit checks pass `npm run check`
+- [ ] Pre-push checks pass `npm run check`
   - [ ] Linter passing via `npm run lint`
   - [ ] Unit & Integration tests passing via `npm run test:packages`
   - [ ] Docker build process passing via `npm run build-client`
