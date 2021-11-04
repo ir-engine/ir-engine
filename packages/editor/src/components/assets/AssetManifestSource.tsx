@@ -4,6 +4,7 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import ImageNode from '../../nodes/ImageNode'
 import VideoNode from '../../nodes/VideoNode'
 import ModelNode from '../../nodes/ModelNode'
+import AudioNode from '../../nodes/AudioNode'
 import VolumetricNode from '../../nodes/VolumetricNode'
 import { NodeManager } from '../../managers/NodeManager'
 

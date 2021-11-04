@@ -5,12 +5,13 @@ import { resolveMedia } from '../functions/resolveMedia'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { CacheManager } from '../managers/CacheManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = 'image'
   static nodeName = 'Image'
   static initialElementProps = {
-    src: new URL('/editor/dot.png', location as any).href
+    src: Engine.publicPath + '/editor/dot.png'
   }
   static async deserialize(json, loadAsync, onError) {
     const node = await super.deserialize(json)

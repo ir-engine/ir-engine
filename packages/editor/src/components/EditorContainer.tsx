@@ -12,7 +12,6 @@ import styled from 'styled-components'
 import { createScene, getScene, saveScene } from '../functions/sceneFunctions'
 import AssetsPanel from './assets/AssetsPanel'
 import { DialogContextProvider } from './contexts/DialogContext'
-import { defaultSettings, SettingsContextProvider } from './contexts/SettingsContext'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import ExportProjectDialog from './dialogs/ExportProjectDialog'
@@ -117,11 +116,6 @@ DockContainer.defaultProps = {
   dividerAlpha: 0
 }
 
-type EditorContainerProps = {
-  projectName: string
-  sceneName: string
-}
-
 /**
  * EditorContainer class used for creating container for Editor
  *
@@ -132,10 +126,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
 
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)
-  const [settingsContext, setSettingsContext] = useState({
-    settings: defaultSettings,
-    updateSetting: (...props) => {}
-  })
   const [creatingProject, setCreatingProject] = useState(null)
   const [DialogComponent, setDialogComponent] = useState(null)
   const [dialogProps, setDialogProps] = useState<any>({})
@@ -147,13 +137,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   }
 
   useEffect(() => {
-    let settings = defaultSettings
-    const storedSettings = localStorage.getItem('editor-settings')
-    if (storedSettings) {
-      settings = JSON.parse(storedSettings)
-    }
-
-    ProjectManager.instance.settings = settings
     CacheManager.init()
 
     registerPredefinedNodes()
@@ -166,11 +149,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
       CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
       CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), onSaveProject)
-
-      setSettingsContext({
-        settings,
-        updateSetting
-      })
     })
   }, [])
 
@@ -329,21 +307,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     updateModifiedState()
   }
 
-  const updateSetting = (key, value) => {
-    const newSettings = Object.assign(settingsContext.settings, { [key]: value })
-    localStorage.setItem('editor-settings', JSON.stringify(newSettings))
-    ProjectManager.instance.settings = newSettings
-    CommandManager.instance.emitEvent(EditorEvents.SETTINGS_CHANGED)
-
-    setDialogComponent(DialogComponent)
-    // setDialogProps(dialogProps)
-
-    setSettingsContext({
-      settings: newSettings,
-      updateSetting
-    })
-  }
-
   // todo
   const onNewProject = async () => {
     // props.history.push('/editor/new')
@@ -374,7 +337,7 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     })
     await new Promise((resolve) => setTimeout(resolve, 5))
     try {
-      const newProject = await createScene()
+      // const newProject = await createScene()
       SceneManager.instance.sceneModified = false
       updateModifiedState()
       hideDialog()
@@ -604,35 +567,33 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
 
   return (
     <StyledEditorContainer id="editor-container">
-      <SettingsContextProvider value={settingsContext}>
-        <DialogContextProvider value={dialogContext}>
-          <DndProvider backend={HTML5Backend}>
-            <DragLayer />
-            {toolbarMenu && <ToolBar menu={toolbarMenu} />}
-            <WorkspaceContainer>
-              <ViewportPanelContainer />
-              <DockContainer>
-                <DockLayout
-                  defaultLayout={defaultLayout}
-                  style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
-                />
-              </DockContainer>
-            </WorkspaceContainer>
-            <Modal
-              ariaHideApp={false}
-              isOpen={!!DialogComponent}
-              onRequestClose={hideDialog}
-              shouldCloseOnOverlayClick={false}
-              className="Modal"
-              overlayClassName="Overlay"
-            >
-              {DialogComponent && dialogProps && (
-                <DialogComponent onConfirm={hideDialog} onCancel={hideDialog} {...dialogProps} />
-              )}
-            </Modal>
-          </DndProvider>
-        </DialogContextProvider>
-      </SettingsContextProvider>
+      <DialogContextProvider value={dialogContext}>
+        <DndProvider backend={HTML5Backend}>
+          <DragLayer />
+          {toolbarMenu && <ToolBar menu={toolbarMenu} />}
+          <WorkspaceContainer>
+            <ViewportPanelContainer />
+            <DockContainer>
+              <DockLayout
+                defaultLayout={defaultLayout}
+                style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+              />
+            </DockContainer>
+          </WorkspaceContainer>
+          <Modal
+            ariaHideApp={false}
+            isOpen={!!DialogComponent}
+            onRequestClose={hideDialog}
+            shouldCloseOnOverlayClick={false}
+            className="Modal"
+            overlayClassName="Overlay"
+          >
+            {DialogComponent && dialogProps && (
+              <DialogComponent onConfirm={hideDialog} onCancel={hideDialog} {...dialogProps} />
+            )}
+          </Modal>
+        </DndProvider>
+      </DialogContextProvider>
     </StyledEditorContainer>
   )
 }

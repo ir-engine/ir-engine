@@ -105,7 +105,7 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
   //creating view for AssetGrid using ContextMenuTrigger and tooltip component
   return (
     <div ref={drag}>
-      <ContextMenuTrigger id={contextMenuId} item={item} collect={collectMenuProps} holdToDisplay={-1}>
+      <ContextMenuTrigger id={contextMenuId} collect={collectMenuProps} holdToDisplay={-1}>
         <Tooltip renderContent={renderTooltip} disabled={disableTooltip}>
           {content}
         </Tooltip>

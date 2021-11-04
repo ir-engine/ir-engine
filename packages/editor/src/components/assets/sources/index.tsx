@@ -15,6 +15,7 @@ export type SearchResult = {
 export class BaseSource extends EventEmitter {
   id: string
   name: string
+  component: any
   iconComponent: any
   assetPanelComponent: any
   requiresAuthentication: boolean

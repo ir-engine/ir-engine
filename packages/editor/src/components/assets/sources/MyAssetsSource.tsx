@@ -39,7 +39,7 @@ export const UploadFileType = {
 }
 
 export class MyAssetsSource extends BaseSource {
-  component: typeof UploadSourcePanel
+  declare component: typeof UploadSourcePanel
   tags: { label: string; value: string }[]
   searchLegalCopy: string
   privacyPolicyUrl: string

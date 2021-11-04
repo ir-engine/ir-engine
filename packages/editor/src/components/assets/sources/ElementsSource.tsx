@@ -15,7 +15,7 @@ import { CommandManager } from '../../../managers/CommandManager'
  * @type {class component}
  */
 export class ElementsSource extends BaseSource {
-  component: typeof MediaSourcePanel
+  declare component: typeof MediaSourcePanel
   disableUrl: boolean
 
   //initializing variables for this component
@@ -43,9 +43,6 @@ export class ElementsSource extends BaseSource {
   // function to hanlde the search and to call API if there is any change in search input.
   async search(params): Promise<SearchResult> {
     let results = Array.from<any>(NodeManager.instance.nodeTypes).reduce((acc: any, nodeType: any) => {
-      if (!nodeType.canAddNode()) {
-        return acc
-      }
       if (nodeType.hideInElementsPanel) {
         return acc
       }

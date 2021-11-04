@@ -20,6 +20,7 @@ import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import PostProcessingNode from '../nodes/PostProcessingNode'
 import { NodeManager } from './NodeManager'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()
@@ -45,7 +46,7 @@ export class SceneManager {
   transformGizmo: TransformGizmo
   postProcessingNode: PostProcessingNode
 
-  async initializeScene(projectFile: any): Promise<Error[] | void> {
+  async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
     this.renderer = null
     this.sceneModified = false
     this.raycaster = new Raycaster()

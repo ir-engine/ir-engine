@@ -1,40 +1,44 @@
 import Mousetrap from 'mousetrap'
 import isInputSelected from '../functions/isInputSelected'
-const _globalCallbacks = {}
-const _originalStopCallback = Mousetrap.prototype.stopCallback
-Mousetrap.prototype.stopCallback = function (e, element, combo, sequence) {
-  const self = this
-  if (self.paused) {
-    return true
-  }
-  if (_globalCallbacks[combo] || _globalCallbacks[sequence]) {
-    return false
-  }
-  return _originalStopCallback.call(self, e, element, combo)
-}
-Mousetrap.prototype.bindGlobal = function (keys, callback, action) {
-  const self = this
-  self.bind(keys, callback, action)
-  if (keys instanceof Array) {
-    for (let i = 0; i < keys.length; i++) {
-      _globalCallbacks[keys[i]] = true
+if (Mousetrap.prototype) {
+  console.log(Mousetrap)
+  const _globalCallbacks = {}
+  const _originalStopCallback = Mousetrap.prototype.stopCallback
+  Mousetrap.prototype.stopCallback = function (e, element, combo, sequence) {
+    const self = this
+    if (self.paused) {
+      return true
     }
-    return
-  }
-  _globalCallbacks[keys] = true
-}
-Mousetrap.prototype.unbindGlobal = function (keys, callback, action) {
-  const self = this
-  self.unbind(keys, callback, action)
-  if (keys instanceof Array) {
-    for (let i = 0; i < keys.length; i++) {
-      delete _globalCallbacks[keys[i]]
+    if (_globalCallbacks[combo] || _globalCallbacks[sequence]) {
+      return false
     }
-    return
+    return _originalStopCallback.call(self, e, element, combo)
   }
-  delete _globalCallbacks[keys]
+  Mousetrap.prototype.bindGlobal = function (keys, callback, action) {
+    const self = this
+    self.bind(keys, callback, action)
+    if (keys instanceof Array) {
+      for (let i = 0; i < keys.length; i++) {
+        _globalCallbacks[keys[i]] = true
+      }
+      return
+    }
+    _globalCallbacks[keys] = true
+  }
+  Mousetrap.prototype.unbindGlobal = function (keys, callback, action) {
+    const self = this
+    self.unbind(keys, callback, action)
+    if (keys instanceof Array) {
+      for (let i = 0; i < keys.length; i++) {
+        delete _globalCallbacks[keys[i]]
+      }
+      return
+    }
+    delete _globalCallbacks[keys]
+  }
+
+  Mousetrap.init()
 }
-Mousetrap.init()
 function initializeValue(source, initialState, state, resetKeys, value, reset, resetPosition = true) {
   if (!source) return
   for (const sourceKey in source) {
@@ -132,8 +136,7 @@ const SPECIAL_ALIASES = {
   command: 'meta',
   return: 'enter',
   escape: 'esc',
-  plus: '+',
-  mod: /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'meta' : 'control'
+  plus: '+'
 }
 export default class InputManager {
   canvas: any

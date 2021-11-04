@@ -8,18 +8,17 @@ import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
 import { NodeManager } from './NodeManager'
 import { SceneManager } from './SceneManager'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 export class ProjectManager {
   static instance: ProjectManager = new ProjectManager()
 
-  settings: any
   project: any
   projectLoaded: boolean
   initializing: boolean
   initialized: boolean
 
-  constructor(settings = {}) {
-    this.settings = settings
+  constructor() {
     this.project = null
 
     this.projectLoaded = false
@@ -58,7 +57,7 @@ export class ProjectManager {
    * @param  {any}  projectFile [contains scene data]
    * @return {Promise}             [scene to render]
    */
-  async loadProject(projectFile) {
+  async loadProject(projectFile: SceneJson) {
     await ProjectManager.instance.init()
 
     CommandManager.instance.removeListener(
