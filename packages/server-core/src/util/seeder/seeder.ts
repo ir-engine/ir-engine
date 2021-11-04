@@ -38,7 +38,6 @@ export default class Seeder {
       // if (!cfg.path) {
       //   throw new Error('You must include the path of every service you want to seed.')
       // }
-      console.log('\n\n\n', cfg, '\n\n\n')
 
       if (!cfg.template && !cfg.templates) {
         throw new Error('You must specify a template or array of templates for seeded objects.')

@@ -4,16 +4,23 @@ import path from 'path'
 import appRootPath from 'app-root-path'
 import { deleteFolderRecursive } from './util/fsHelperFunctions'
 
+const defaultProjectName = 'default-project'
+const defaultSceneName = 'default'
 const newProjectName = 'test_project_name'
 const newSceneName = 'test_scene_name'
+
 const params = { isInternal: true }
 let defaultSceneData
 
 describe('Scene Service', () => {
 
+  before(async () => {
+    await new Promise(resolve => setTimeout(resolve, 3000))
+  })
+
   it("should have default test scene", async function () {
     const { data } = await app.service('scenes').get({ 
-      projectName: 'theoverlay',
+      projectName: defaultProjectName,
       metadataOnly: false
     })
     defaultSceneData = data[0]
@@ -23,8 +30,8 @@ describe('Scene Service', () => {
 
   it("should get default scene data", async function() {
     const { data } = await app.service('scene').get({ 
-      projectName: 'theoverlay',
-      sceneName: 'default',
+      projectName: defaultProjectName,
+      sceneName: defaultSceneName,
       metadataOnly: false
     })
     const entities = Object.values(data.scene.entities)
@@ -50,7 +57,7 @@ describe('Scene Service', () => {
       metadataOnly: false
     }, params)
     assert.strictEqual(data.name, newSceneName)
-    assert.strictEqual(Object.keys(data.scene).length, 0)
+    assert.deepEqual(data.scene, defaultSceneData.scene)
   })
 
   it("should save scene", async function() {

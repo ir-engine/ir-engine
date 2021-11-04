@@ -14,6 +14,7 @@ import templateProjectJson from './template-project.json'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import config from '../../appconfig'
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
@@ -22,6 +23,8 @@ const getRemoteURLFromGitData = (project) => {
 }
 
 const storageProvider = useStorageProvider()
+export const getStorageProviderPath = (projectName: string) =>
+  `https://${storageProvider.cacheDomain}/projects/${projectName}/`
 
 /**
  * Updates the local storage provider with the project's current files
@@ -64,12 +67,8 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
-
     if (isDev) {
-      // TODO: find a better solution than a timeout for this
-      setTimeout(() => {
-        this._fetchDevLocalProjects()
-      }, 3000)
+      this._fetchDevLocalProjects()
     }
   }
 
@@ -103,6 +102,7 @@ export class Project extends Service {
           const dbEntryData: ProjectInterface = {
             ...packageData,
             name: projectName,
+            storageProviderPath: getStorageProviderPath(projectName),
             repositoryPath: getRemoteURLFromGitData(projectName)
           }
 
@@ -198,7 +198,7 @@ export class Project extends Service {
     const dbEntryData: ProjectInterface = {
       ...packageData,
       name: projectName,
-      storageProviderPath: `https://${storageProvider.cacheDomain}/projects/${projectName}/`,
+      storageProviderPath: getStorageProviderPath(projectName),
       repositoryPath: data.url
     }
 
