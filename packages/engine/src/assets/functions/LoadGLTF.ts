@@ -6,9 +6,7 @@ import { GLTFInstancingExtension } from '../classes/GLTFInstancingExtension'
 import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
-import { WebIO } from '@gltf-transform/core'
-import { instance } from '@gltf-transform/functions'
-import { DracoMeshCompression, KHRONOS_EXTENSIONS } from '@gltf-transform/extensions'
+import { instanceGLTF } from './transformGLTF'
 
 /**
  * Interface for result of the GLTF Asset load.
@@ -81,38 +79,7 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
  * @returns a promise of {@link LoadGLTFResultInterface}.
  */
 export async function LoadInstancedGLTF(url: string): Promise<LoadGLTFResultInterface> {
-  const io = new WebIO().registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
-
-  let dracoDecoderModule = null
-  await dracoLoader.getDecoderModule().then(function (module) {
-    dracoDecoderModule = module.decoder
-  })
-
-  let dracoEncoderModule = null
-  await dracoLoader.getEncoderModule().then(function (module) {
-    dracoEncoderModule = module.encoder
-  })
-
-  io.registerDependencies({
-    'draco3d.decoder': dracoDecoderModule,
-    'draco3d.encoder': dracoEncoderModule
-  })
-
-  const doc = await io.read(url)
-
-  await doc.transform(instance())
-
-  // Remove draco mesh compression after transformation, as the output file is not going to be writtren to file
-  let extensions = doc.getRoot().listExtensionsRequired()
-  for (let index = 0; index < extensions.length; index++) {
-    const extension = extensions[index]
-    if (extension.extensionName === 'KHR_draco_mesh_compression') {
-      extension.dispose()
-    }
-  }
-
-  let buffer = io.writeBinary(doc)
-
+  let buffer = await instanceGLTF(url)
   return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
     getLoader().parse(
       buffer,

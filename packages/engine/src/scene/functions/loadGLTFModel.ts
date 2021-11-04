@@ -188,51 +188,26 @@ export const loadGLTFModel = (
   component: SceneDataComponent,
   sceneProperty: ScenePropertyType
 ) => {
-  if (component.props.isUsingGPUInstancing) {
-    console.log('instanced loading')
-    sceneLoader.loaders.push(
-      new Promise<void>((resolve, reject) => {
-        AssetLoader.loadInstancedGLTF(
-          {
-            url: component.data.src,
-            entity
-          },
-          (res) => {
-            parseGLTFModel(sceneLoader, entity, component, sceneProperty, res.scene)
-            sceneLoader._onModelLoaded()
-            resolve()
-          },
-          null!,
-          (err) => {
-            console.log('[SCENE-LOADING]:', err)
-            sceneLoader._onModelLoaded()
-            reject(err)
-          }
-        )
-      })
-    )
-  } else {
-    console.log('non instanced loading')
-    sceneLoader.loaders.push(
-      new Promise<void>((resolve, reject) => {
-        AssetLoader.load(
-          {
-            url: component.data.src,
-            entity
-          },
-          (res) => {
-            parseGLTFModel(sceneLoader, entity, component, sceneProperty, res.scene)
-            sceneLoader._onModelLoaded()
-            resolve()
-          },
-          null!,
-          (err) => {
-            console.log('[SCENE-LOADING]:', err)
-            sceneLoader._onModelLoaded()
-            reject(err)
-          }
-        )
-      })
-    )
-  }
+  sceneLoader.loaders.push(
+    new Promise<void>((resolve, reject) => {
+      AssetLoader.load(
+        {
+          url: component.data.src,
+          entity
+        },
+        (res) => {
+          parseGLTFModel(sceneLoader, entity, component, sceneProperty, res.scene)
+          sceneLoader._onModelLoaded()
+          resolve()
+        },
+        null!,
+        (err) => {
+          console.log('[SCENE-LOADING]:', err)
+          sceneLoader._onModelLoaded()
+          reject(err)
+        },
+        component.props.isUsingGPUInstancing
+      )
+    })
+  )
 }
