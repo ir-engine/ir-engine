@@ -156,7 +156,7 @@ store.receptors.push((action: ChatActionType) => {
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
 
         if (channel) {
-          channel.set(action.channel)
+          channel.merge(action.channel)
         } else {
           s.channels.channels[s.channels.channels.length].set(action.channel)
         }
@@ -169,7 +169,7 @@ store.receptors.push((action: ChatActionType) => {
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
 
         if (channel) {
-          channel.set(action.channel)
+          channel.merge(action.channel)
         } else {
           s.channels.channels[s.channels.channels.length].set(action.channel)
         }

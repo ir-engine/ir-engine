@@ -24,18 +24,27 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
   const channelLayerUsers = userState.channelLayerUsers
 
   useEffect(() => {
-    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded === true) UserService.getLayerUsers(true)
-    if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded === true)
-      UserService.getLayerUsers(false)
-  }, [selfUser, userState.layerUsersUpdateNeeded, userState.channelLayerUsersUpdateNeeded])
-
-  useEffect(() => {
     if ((Network.instance?.transport as any)?.channelType === 'channel') {
       setDisplayedUsers(channelLayerUsers.filter((user) => user.id !== selfUser.id.value))
     } else {
       setDisplayedUsers(layerUsers.filter((user) => nearbyLayerUsers.includes(user.id)))
     }
   }, [layerUsers, channelLayerUsers])
+
+  // useEffect(() => {
+  //   console.log('nearbyLayerUsers changed in PartyVideoWindows', nearbyLayerUsers, Array.isArray(nearbyLayerUsers))
+  //   if ((Network.instance?.transport as any)?.channelType === 'instance') {
+  //     // console.log('Updating displayed layer users', nearbyLayerUsers, layerUsers)
+  //     // const nearbyClone =JSON.parse(JSON.stringify(nearbyLayerUsers))
+  //     // console.log('nearbyClone', nearbyClone)
+  //     const layerUserCopy = JSON.parse(JSON.stringify(layerUsers))
+  //     console.log('layerUsers', layerUsers, 'layerUserCopy', layerUserCopy)
+  //     const filtered = layerUserCopy
+  //     console.log('filtered', filtered)
+  //     // setDisplayedUsers(filtered)
+  //     setDisplayedUsers(filtered)
+  //   }
+  // }, [nearbyLayerUsers])
 
   const [expanded, setExpanded] = useState(true)
 

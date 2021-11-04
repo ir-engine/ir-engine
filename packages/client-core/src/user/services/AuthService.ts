@@ -1032,7 +1032,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     }
 
     if (selfUser.id.value === user.id) {
-      store.dispatch(UserAction.clearLayerUsers())
+      if (selfUser.instanceId.value !== user.instanceId) store.dispatch(UserAction.clearLayerUsers())
       if (selfUser.channelInstanceId.value !== user.channelInstanceId)
         store.dispatch(UserAction.clearChannelLayerUsers())
       store.dispatch(AuthAction.userUpdated(user))

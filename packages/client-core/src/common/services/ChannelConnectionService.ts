@@ -62,7 +62,7 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'CHANNEL_SERVER_DISCONNECTED':
         if (connectionSocket != null) (connectionSocket as any).close()
-        return
+        return s.merge({ connected: false, instanceProvisioned: false })
       case 'SOCKET_CREATED':
         if (connectionSocket != null) (connectionSocket as any).close()
         connectionSocket = action.socket
