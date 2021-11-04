@@ -6,6 +6,7 @@ import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { EngineCallbacks, initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
@@ -61,8 +62,6 @@ interface Props {
 export const EnginePage = (props: Props) => {
   const { t } = useTranslation()
   const [isUserBanned, setUserBanned] = useState(false)
-  const [isValidLocation, setIsValidLocation] = useState(true)
-  const [isTeleporting, setIsTeleporting] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
   const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
