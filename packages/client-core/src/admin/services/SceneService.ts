@@ -1,9 +1,6 @@
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { createState, useState } from '@hookstate/core'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { SceneDataResult } from '@xrengine/common/src/interfaces/SceneDataResult'
 
@@ -11,12 +8,6 @@ import { SceneDataResult } from '@xrengine/common/src/interfaces/SceneDataResult
 export const SCENE_PAGE_LIMIT = 100
 
 const state = createState({
-  isLoggedIn: false,
-  isProcessing: false,
-  error: '',
-  authUser: AuthUserSeed,
-  user: UserSeed,
-  identityProvider: IdentityProviderSeed,
   scenes: {
     scenes: [] as Array<SceneData>,
     skip: 0,
@@ -30,16 +21,14 @@ const state = createState({
 })
 
 store.receptors.push((action: SceneActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_SCENES_RETRIEVED':
-        result = action.sceneDataResult
         return s.scenes.merge({
-          scenes: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
+          scenes: action.sceneDataResult.data,
+          skip: action.sceneDataResult.skip,
+          limit: action.sceneDataResult.limit,
+          total: action.sceneDataResult.total,
           retrieving: false,
           fetched: true,
           updateNeeded: false,

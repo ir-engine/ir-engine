@@ -20,7 +20,6 @@ const state = createState({
     ipAddress: '',
     port: ''
   },
-  socket: {},
   locationId: '',
   sceneId: '',
   channelId: '',
@@ -39,45 +38,35 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
     switch (action.type) {
       case 'CHANNEL_SERVER_PROVISIONING':
         return s.merge({
-          instance: s.instance.value,
-          socket: {},
           connected: false,
           instanceProvisioned: false,
           readyToConnect: false,
           instanceProvisioning: true
         })
       case 'CHANNEL_SERVER_PROVISIONED':
-        s.instance.ipAddress.set(action.ipAddress)
-        s.instance.port.set(action.port)
-        s.channelId.set(action.channelId!)
-        s.instanceProvisioning.set(false)
-        s.instanceProvisioned.set(true)
-        s.readyToConnect.set(true)
-        s.updateNeeded.set(true)
-        return s.connected.set(false)
+        return s.merge({
+          instance: {
+            ipAddress: action.ipAddress,
+            port: action.port
+          },
+          channelId: action.channelId!,
+          instanceProvisioning: false,
+          instanceProvisioned: true,
+          readyToConnect: true,
+          updateNeeded: true,
+          connected: false
+        })
       case 'CHANNEL_SERVER_CONNECTING':
         return s.instanceServerConnecting.set(true)
       case 'CHANNEL_SERVER_CONNECTED':
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'CHANNEL_SERVER_DISCONNECTED':
         if (connectionSocket != null) (connectionSocket as any).close()
-        return s.merge({
-          instance: s.instance.value,
-          socket: s.socket.value,
-          locationId: s.locationId.value,
-          sceneId: s.sceneId.value,
-          channelId: s.channelId.value,
-          instanceProvisioned: s.instanceProvisioned.value,
-          connected: s.connected.value,
-          readyToConnect: s.readyToConnect.value,
-          updateNeeded: s.updateNeeded.value,
-          instanceServerConnecting: s.instanceServerConnecting.value,
-          instanceProvisioning: s.instanceProvisioning.value
-        })
+        return
       case 'SOCKET_CREATED':
         if (connectionSocket != null) (connectionSocket as any).close()
         connectionSocket = action.socket
-        return state
+        return
     }
   }, action.type)
 })
@@ -88,20 +77,9 @@ export const useChannelConnectionState = () => useState(state) as any as typeof 
 
 //Service
 export const ChannelConnectionService = {
-  provisionChannelServer: async (instanceId?: string, channelId?: string) => {
+  provisionChannelServer: async (channelId?: string) => {
     store.dispatch(ChannelConnectionAction.channelServerProvisioning())
     const token = accessAuthState().authUser.accessToken.value
-    if (instanceId != null) {
-      const instance = await client.service('instance').find({
-        query: {
-          id: instanceId,
-          ended: false
-        }
-      })
-      if (instance.total === 0) {
-        instanceId = undefined
-      }
-    }
     const provisionResult = await client.service('instance-provision').find({
       query: {
         channelId: channelId,
@@ -153,12 +131,12 @@ export const ChannelConnectionService = {
           user: user,
           sceneId: sceneId,
           startVideo: videoActive,
-          channelType: instanceChannel && channelId === instanceChannel[0] ? 'instance' : 'channel',
+          channelType: instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel',
           channelId: channelId,
           videoEnabled:
-            currentLocation?.location_settings?.videoEnabled?.value === true ||
+            currentLocation?.locationSettings?.videoEnabled?.value === true ||
             !(
-              currentLocation?.location_settings?.locationType?.value === 'showroom' &&
+              currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
               user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
                 null
             ),
@@ -175,7 +153,8 @@ export const ChannelConnectionService = {
         MediaStreamService.triggerUpdateConsumers
       )
 
-      MediaStreams.instance.channelType = instanceChannel && channelId === instanceChannel[0] ? 'instance' : 'channel'
+      MediaStreams.instance.channelType =
+        instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
       MediaStreams.instance.channelId = channelId
       store.dispatch(ChannelConnectionAction.channelServerConnected())
     } catch (err) {

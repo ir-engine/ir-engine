@@ -59,7 +59,7 @@ const LocationPage = (props: Props) => {
         <DefaultLayoutView
           loadingItemCount={loadingItemCount}
           isValidLocation={isValidLocation}
-          allowDebug={props.allowDebug}
+          allowDebug={true}
           reinit={engineInit}
           children={props.children}
           showTouchpad={props.showTouchpad}

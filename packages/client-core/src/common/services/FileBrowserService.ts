@@ -8,11 +8,9 @@ export const state = createState({
 })
 
 store.receptors.push((action: FileBrowserActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'FILES_FETCHED':
-        result = action.files
         return s.merge({
           files: action.files
         })

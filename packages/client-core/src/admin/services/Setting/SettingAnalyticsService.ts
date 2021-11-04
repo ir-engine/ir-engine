@@ -14,12 +14,10 @@ const state = createState({
 })
 
 store.receptors.push((action: SettingAnalyticsActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'SETTING_ANALYIS_DISPLAY':
-        result = action.settingAnalyticsResult
-        return s.Analytics.merge({ analytics: result.data, updateNeeded: false })
+        return s.Analytics.merge({ analytics: action.settingAnalyticsResult.data, updateNeeded: false })
     }
   }, action.type)
 })

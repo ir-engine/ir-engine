@@ -1,7 +1,7 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 import { AdminScopTypeResult } from '@xrengine/common/src/interfaces/AdminScopeTypeResult'
 import { AdminScopeResult } from '@xrengine/common/src/interfaces/AdminScopeResult'
@@ -35,18 +35,16 @@ const state = createState({
 })
 
 store.receptors.push((action: ScopeActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'SCOPE_FETCHING':
         return s.merge({ fetching: true })
       case 'SCOPE_ADMIN_RETRIEVED':
-        result = action.adminScopeResult
         return s.scope.merge({
-          scope: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
+          scope: action.adminScopeResult.data,
+          skip: action.adminScopeResult.skip,
+          limit: action.adminScopeResult.limit,
+          total: action.adminScopeResult.total,
           retrieving: false,
           fetched: true,
           updateNeeded: false,
@@ -60,12 +58,11 @@ store.receptors.push((action: ScopeActionType): any => {
       case 'REMOVE_SCOPE':
         return s.scope.merge({ updateNeeded: true })
       case 'SCOPE_TYPE_RETRIEVED':
-        result = action.adminScopTypeResult
         return s.scopeType.merge({
-          scopeType: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
+          scopeType: action.adminScopeTypeResult.data,
+          skip: action.adminScopeTypeResult.skip,
+          limit: action.adminScopeTypeResult.limit,
+          total: action.adminScopeTypeResult.total,
           retrieving: false,
           fetched: true,
           updateNeeded: false,
@@ -195,10 +192,10 @@ export const ScopeAction = {
       id: id
     }
   },
-  getScopeType: (adminScopTypeResult: AdminScopTypeResult) => {
+  getScopeType: (adminScopeTypeResult: AdminScopTypeResult) => {
     return {
-      type: 'SCOPE_TYPE_RETRIEVED',
-      adminScopTypeResult: adminScopTypeResult
+      type: 'SCOPE_TYPE_RETRIEVED' as const,
+      adminScopeTypeResult: adminScopeTypeResult
     }
   }
 }
