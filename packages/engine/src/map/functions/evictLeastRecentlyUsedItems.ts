@@ -1,6 +1,6 @@
-import { IBox, IParametricMap } from '../types'
+import { ITuple, IParametricMap } from '../types'
 
-export default function* evictLeastRecentlyUsedItems<K extends IBox, V>(
+export default function* evictLeastRecentlyUsedItems<K extends ITuple, V>(
   cache: IParametricMap<K, V>,
   maxSize: number,
   keys = cache.keys()

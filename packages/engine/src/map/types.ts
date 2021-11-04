@@ -2,13 +2,20 @@ import { Feature, LineString, MultiLineString, MultiPolygon, Polygon } from 'geo
 import { BufferGeometry, InstancedBufferGeometry, Mesh } from 'three'
 import { _MapStateUnwrapped } from './MapReceptor'
 
-/** a container for primative values */
-export interface IBox {
-  valueOf(): string
-  [index: number]: any
+import type _TileKey from './classes/TileKey'
+export type TileKey = _TileKey
+import type _FeatureKey from './classes/FeatureKey'
+export type FeatureKey = _FeatureKey
+
+export interface ITuple {
+  hash: string
+  [0]: any
+  [1]: any
+  [2]?: any
+  [3]?: any
 }
 
-export interface IParametricMap<Key extends IBox, Value> {
+export interface IParametricMap<Key extends ITuple, Value> {
   set(key: Key, value: Value): IParametricMap<Key, Value>
 
   get(key: Key): Value
@@ -97,8 +104,8 @@ export interface MapHelpers {
   tileNavMesh: Mesh
 }
 
-export type TileKey = [number, number]
-export type FeatureKey = [ILayerName, number, number, string]
+// export type TileKey = [number, number]
+// export type FeatureKey = [ILayerName, number, number, string]
 
 export enum TaskStatus {
   NOT_STARTED = 0,

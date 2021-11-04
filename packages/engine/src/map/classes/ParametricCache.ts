@@ -1,19 +1,20 @@
 import evictLeastRecentlyUsedItems from '../functions/evictLeastRecentlyUsedItems'
-import { IBox, IParametricMap } from '../types'
-import Hash from './Hash'
+import { ITuple, IParametricMap } from '../types'
+import HashMap from './HashMap'
+import HashSet from './HashSet'
 
-export default class ParametricCache<Key extends IBox, Value> implements IParametricMap<Key, Value> {
-  hash = new Hash<Value>()
+export default class ParametricCache<Key extends ITuple, Value> implements IParametricMap<Key, Value> {
+  map = new HashMap<Key, Value>()
   maxSize: number
-  _keys = new Map<string, Key>()
+  _keys = new HashSet<Key>()
   constructor(maxSize: number) {
     this.maxSize = maxSize
   }
 
   updateLastUsedTime(key: Key) {
     // ensuring time-last-used order
-    this._keys.delete(key.valueOf())
-    this._keys.set(key.valueOf(), key)
+    this._keys.delete(key)
+    this._keys.add(key)
   }
 
   set(key: Key, value: Value) {
@@ -23,12 +24,12 @@ export default class ParametricCache<Key extends IBox, Value> implements IParame
   }
 
   setWithoutAffectingLastUsedTime(key: Key, value: Value) {
-    this._keys.set(key.valueOf(), key)
-    this.hash.set(key.valueOf(), value)
+    this._keys.add(key)
+    this.map.set(key, value)
   }
 
   get(key: Key) {
-    const value = this.hash.get(key.valueOf())
+    const value = this.map.get(key)
     if (value !== undefined) {
       this.updateLastUsedTime(key)
     }
@@ -36,12 +37,12 @@ export default class ParametricCache<Key extends IBox, Value> implements IParame
   }
 
   getWithoutEffectingLastUsedTime(key: Key) {
-    return this.hash.get(key.valueOf())
+    return this.map.get(key)
   }
 
   delete(key: Key) {
-    this._keys.delete(key.valueOf())
-    return this.hash.delete(key.valueOf())
+    this._keys.delete(key)
+    return this.map.delete(key)
   }
 
   *evictLeastRecentlyUsedItems(): Generator<[Key, Value]> {
@@ -56,20 +57,21 @@ export default class ParametricCache<Key extends IBox, Value> implements IParame
       yield key
       count++
       // Stopgap for until I figure out why this generator doesn't finish
+      // TODO still an issue?
       if (count > maxCount) break
     }
   }
 
   values() {
-    return this.hash.values()
+    return this.map.values()
   }
 
   clear() {
     this._keys.clear()
-    this.hash.clear()
+    this.map.clear()
   }
 
   get size() {
-    return this.hash.map.size
+    return this.map.map.size
   }
 }
