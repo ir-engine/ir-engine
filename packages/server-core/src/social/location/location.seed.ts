@@ -1,4 +1,3 @@
-import config from '../../appconfig'
 import { locationSettingsSeed } from '../location-settings/location-settings.seed'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
@@ -11,7 +10,7 @@ export const locationSeed = {
       name: 'Test',
       slugifiedName: 'test',
       maxUsersPerInstance: 30,
-      sceneId: 'theoverlay/default',
+      sceneId: 'default-project/default',
       location_settings: locationSettingsSeed.templates.find(
         (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'
       ),

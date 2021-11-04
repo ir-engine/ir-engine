@@ -98,7 +98,7 @@ export class Scene implements ServiceMethods<any> {
   async remove({ projectName, sceneName }, params?: Params): Promise<any> {
     const name = cleanString(sceneName)
 
-    if (projectName === 'theoverlay') return
+    if (projectName === 'default-project') return
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)

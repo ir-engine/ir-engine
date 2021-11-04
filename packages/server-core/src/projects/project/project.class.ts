@@ -67,7 +67,8 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
-    if (isDev) {
+    console.log('isDev', isDev)
+    if (isDev && !config.db.forceRefresh) {
       this._fetchDevLocalProjects()
     }
   }

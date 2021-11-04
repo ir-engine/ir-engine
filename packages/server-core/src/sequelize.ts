@@ -97,7 +97,7 @@ export default (app: Application): void => {
         .then(async () => {
           promiseResolve()
           return Promise.resolve().then(() => {
-            process.exit(0)
+            if (config.db.forceRefresh) process.exit(0)
           })
         })
         .catch((err) => {
