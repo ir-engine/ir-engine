@@ -37,20 +37,20 @@ import {
   ThreeDRotation,
   Videocam
 } from '@mui/icons-material'
-import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
-import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
-import { ChatAction } from '@xrengine/client-core/src/social/state/ChatActions'
-import { useFriendState } from '@xrengine/client-core/src/social/state/FriendState'
-import { FriendService } from '@xrengine/client-core/src/social/state/FriendService'
-import { useGroupState } from '@xrengine/client-core/src/social/state/GroupState'
-import { GroupService } from '@xrengine/client-core/src/social/state/GroupService'
-import { InviteService } from '@xrengine/client-core/src/social/state/InviteService'
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
-import { usePartyState } from '@xrengine/client-core/src/social/state/PartyState'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatAction } from '@xrengine/client-core/src/social/services/ChatService'
+import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
+import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
+import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
+import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { useUserState } from '@xrengine/client-core/src/user/state/UserState'
-import { UserService } from '@xrengine/client-core/src/user/state/UserService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { UserService } from '@xrengine/client-core/src/user/services/UserService'
 import PartyParticipantWindow from '../../components/PartyParticipantWindow'
 import { Group as GroupType } from '@xrengine/common/src/interfaces/Group'
 import { Message } from '@xrengine/common/src/interfaces/Message'
@@ -76,12 +76,12 @@ import styles from './style.module.scss'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { store } from '@xrengine/client-core/src/store'
-import { ChannelConnectionService } from '@xrengine/client-core/src/common/state/ChannelConnectionService'
-import { MediaStreamService } from '@xrengine/client-core/src/media/state/MediaStreamService'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/state/MediaStreamState'
-import { TransportService } from '@xrengine/client-core/src/common/state/TransportService'
-import { useTransportStreamState } from '@xrengine/client-core/src/common/state/TransportState'
-import { useChannelConnectionState } from '@xrengine/client-core/src/common/state/ChannelConnectionState'
+import { ChannelConnectionService } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { TransportService } from '@xrengine/client-core/src/common/services/TransportService'
+import { useTransportStreamState } from '@xrengine/client-core/src/common/services/TransportService'
+import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -227,8 +227,8 @@ const Harmony = (props: Props): any => {
   const videoEnabled =
     isHarmonyPage === true
       ? true
-      : currentLocation?.location_settings?.value
-      ? currentLocation?.location_settings?.videoEnabled?.value
+      : currentLocation?.locationSettings?.value
+      ? currentLocation?.locationSettings?.videoEnabled?.value
       : false
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
@@ -321,7 +321,7 @@ const Harmony = (props: Props): any => {
 
   useEffect(() => {
     if (channelConnectionState.connected.value === false && channelAwaitingProvision?.id?.length > 0) {
-      ChannelConnectionService.provisionChannelServer(null, channelAwaitingProvision.id)
+      ChannelConnectionService.provisionChannelServer(channelAwaitingProvision.id)
       if (channelAwaitingProvision?.audio === true) setProducerStarting('audio')
       if (channelAwaitingProvision?.video === true) setProducerStarting('video')
       setChannelAwaitingProvision({
@@ -654,13 +654,11 @@ const Harmony = (props: Props): any => {
   const handleStartCall = async (e?: any) => {
     if (e?.stopPropagation) e.stopPropagation()
     setCallStartedFromButton(true)
-    const channel = channels[targetChannelId]
-    const channelType = channel.instanceId != null ? 'instance' : 'channel'
     TransportService.updateChannelTypeState()
     await endVideoChat({})
     await leave(false)
     setActiveAVChannelId(targetChannelId)
-    ChannelConnectionService.provisionChannelServer(null, targetChannelId)
+    ChannelConnectionService.provisionChannelServer(targetChannelId)
   }
 
   const endCall = async () => {
@@ -848,7 +846,7 @@ const Harmony = (props: Props): any => {
         channelConnectionState.instanceServerConnecting.value === false &&
         channelConnectionState.connected.value === false
       ) {
-        ChannelConnectionService.provisionChannelServer(null, instanceChannel.id)
+        ChannelConnectionService.provisionChannelServer(instanceChannel.id)
       }
     }
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS })

@@ -3,7 +3,8 @@ import Paper from '@mui/material/Paper'
 import InputBase from '@mui/material/InputBase'
 import IconButton from '@mui/material/IconButton'
 import Send from '@mui/icons-material/Send'
-import { ChatService } from '../../../social/state/ChatService'
+import { ChatService } from '../../../social/services/ChatService'
+import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
 import { useDispatch } from '../../../store'
 import { useStyles } from './style'
 
@@ -32,7 +33,7 @@ const CreateMessage = () => {
     <Paper component="form" className={classes.root}>
       <InputBase
         className={classes.input}
-        placeholder="Type.........."
+        placeholder="Type message.........."
         name="newMessage"
         id="newMessage"
         value={composingMessage}
@@ -52,7 +53,7 @@ const CreateMessage = () => {
         onClick={packageMessage}
         size="large"
       >
-        <Send />
+        <Send className={classes.whiteIcon} />
       </IconButton>
     </Paper>
   )

@@ -16,7 +16,7 @@ import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
 import PhotoCamera from '@mui/icons-material/PhotoCamera'
 import { validateARMediaForm } from './validation'
-import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
+import { ArMediaService } from '@xrengine/client-core/src/social/services/ArMediaService'
 
 interface Props {
   open: boolean

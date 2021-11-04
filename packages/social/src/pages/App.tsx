@@ -6,12 +6,12 @@ import { SnackbarProvider } from 'notistack'
 import AppHeader from '@xrengine/social/src/components/Header'
 import FeedMenu from '@xrengine/social/src/components/FeedMenu'
 import AppFooter from '@xrengine/social/src/components/Footer'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
 // import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { useWebxrNativeState } from '@xrengine/client-core/src/social/state/WebxrNativeState'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/services/WebxrNativeService'
 
-import { WebxrNativeService } from '@xrengine/client-core/src/social/state/WebxrNativeService'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/services/WebxrNativeService'
 
 import CreatorPopup from '@xrengine/social/src/components/popups/CreatorPopup'
 import FeedPopup from '@xrengine/social/src/components/popups/FeedPopup'
@@ -35,7 +35,7 @@ import WebXRStart from '../components/popups/WebXR'
 import { useHistory } from 'react-router-dom'
 import TemporarySolution from './TemporarySolution'
 
-import { CreatorAction } from '@xrengine/client-core/src/social/state/CreatorActions'
+import { CreatorAction } from '@xrengine/client-core/src/social/services/CreatorActions'
 
 interface Props {}
 

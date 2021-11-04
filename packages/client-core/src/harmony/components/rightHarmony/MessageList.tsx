@@ -1,3 +1,4 @@
+import React, { useState } from 'react'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -19,7 +20,7 @@ import Typography from '@mui/material/Typography'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import moment from 'moment'
 import React, { useState } from 'react'
-import { ChatService } from '../../../social/state/ChatService'
+import { ChatService } from '../../../social/services/ChatService'
 import { useDispatch } from '../../../store'
 import { StyledMenu, useStyle, useStyles } from './style'
 
@@ -147,7 +148,7 @@ export default function MessageList(props: Props) {
                         primary={message?.sender?.name}
                         secondary={
                           <React.Fragment>
-                            {message.text}
+                            <span style={{ color: '#f1f1f1' }}>{message.text}</span>
                             <Typography
                               sx={{ display: 'inline', marginLeft: '20px', fontSize: '9px' }}
                               component="span"

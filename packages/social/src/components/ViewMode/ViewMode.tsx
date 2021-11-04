@@ -3,9 +3,9 @@ import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import Slide from '@mui/material/Slide'
 import { TransitionProps } from '@mui/material/transitions'
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
 import { Box, CardMedia, Typography } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 import { useTranslation } from 'react-i18next'
@@ -14,7 +14,7 @@ import StepWizard from 'react-step-wizard'
 //
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 
 // @ts-ignore
 import classes from './ViewMode.module.scss'

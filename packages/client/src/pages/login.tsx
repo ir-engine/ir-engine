@@ -1,5 +1,5 @@
 import { EmptyLayout } from '@xrengine/client-core/src/common/components/Layout/EmptyLayout'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import React, { useEffect } from 'react'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { useTranslation } from 'react-i18next'
@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 interface Props {}
 
 export const IndexPage = (props: Props): any => {
+  // const dispatch = useDispatch()
   const { t } = useTranslation()
 
   useEffect(() => {

@@ -11,7 +11,7 @@ import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu
 import { ToolButton } from '../toolbar/ToolButton'
 import { ArrowBack } from '@styled-icons/boxicons-regular/ArrowBack'
 import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
-import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/state/FileBrowserService'
+import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import useElementResize from 'element-resize-event'
 import { Downgraded } from '@hookstate/core'
 import { FileDataType } from './FileDataType'

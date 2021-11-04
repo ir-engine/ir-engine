@@ -39,7 +39,15 @@ const UserGraph = ({ data /* see data tab */ }) => {
         }
       },
       dataLabels: {
-        enabled: false
+        enabled: false,
+        style: {
+          colors: ['white']
+        }
+      },
+      legend: {
+        labels: {
+          colors: ['white']
+        }
       },
       markers: {
         size: 0,
@@ -49,18 +57,29 @@ const UserGraph = ({ data /* see data tab */ }) => {
         type: 'datetime',
         min: data[0].data[0] ? data[0].data[0][0] : new Date().setTime(new Date().getTime() - 60000),
         max: data[0].data[0] ? data[0].data[data[0].data.length - 1][0] : new Date().getTime(),
-        tickAmount: 6
+        tickAmount: 6,
+        labels: {
+          style: {
+            colors: 'white'
+          }
+        }
       },
       yaxis: {
         title: {
           text: 'Users',
           style: {
             fontSize: '18px',
-            fontWeight: '400'
+            fontWeight: '400',
+            color: 'white'
           }
         },
         min: 0,
-        max: maxY
+        max: maxY,
+        labels: {
+          style: {
+            colors: ['white']
+          }
+        }
       },
       tooltip: {
         x: {
@@ -84,7 +103,9 @@ const UserGraph = ({ data /* see data tab */ }) => {
           fontSize: '25px'
         }
       },
-      colors: ['#56b5a6', '#ffbc00']
+      theme: {
+        palette: 'palette1'
+      }
     }
   })
   return (
