@@ -168,7 +168,7 @@ export const useGroupStyle = makeStyles({
     color: '#f1f1f1'
   },
   container: {
-    maxHeight: '80vh'
+    maxHeight: '73vh'
   },
   selectPaper: {
     background: '#343b41',

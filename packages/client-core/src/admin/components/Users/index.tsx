@@ -27,11 +27,11 @@ const Users = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={classes.marginBottom}>
-        <Grid item xs={9}>
+      <Grid container spacing={1} className={classes.marginBottom}>
+        <Grid item md={9} xs={7}>
           <SearchUser />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item md={3} xs={5}>
           <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
             Create New User
           </Button>
