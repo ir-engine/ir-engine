@@ -1,10 +1,10 @@
-import { useCallback, useContext } from 'react'
+import React, { useCallback, useContext } from 'react'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { ProgressDialog } from '../dialogs/ProgressDialog'
-import { DialogContext } from '../contexts/DialogContext'
 import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { SourceManager } from '../../managers/SourceManager'
+import { useDialog } from '../hooks/useDialog'
 
 /**
  * useUpload used to upload asset file.
@@ -17,7 +17,7 @@ export default function useUpload(options: any = {}) {
   const { t } = useTranslation()
 
   // initializing showDialog, hideDialog using dialogContext
-  const { showDialog, hideDialog } = useContext(DialogContext)
+  const [DialogComponent, setDialogComponent] = useDialog()
 
   // initializing multiple if options contains multiple.
   const multiple = options.multiple === undefined ? false : options.multiple
@@ -62,51 +62,57 @@ export default function useUpload(options: any = {}) {
           }
         }
         const abortController = new AbortController()
-        showDialog(ProgressDialog, {
-          title: t('editor:asset.useUpload.progressTitle'),
-          message: t('editor:asset.useUpload.progressMsg', { uploaded: 0, total: files.length, percentage: 0 }),
-          cancelable: true,
-          onCancel: () => {
-            abortController.abort()
-            hideDialog()
-          }
-        })
+        setDialogComponent(
+          <ProgressDialog
+            title={t('editor:asset.useUpload.progressTitle')}
+            message={t('editor:asset.useUpload.progressMsg', { uploaded: 0, total: files.length, percentage: 0 })}
+            cancelable={true}
+            onCancel={() => {
+              abortController.abort()
+              setDialogComponent(null)
+            }}
+          />
+        )
 
         //uploading files and showing ProgressDialog
         assets = await source.upload(
           files,
           (item, total, progress) => {
-            showDialog(ProgressDialog, {
-              title: t('editor:asset.useUpload.progressTitle'),
-              message: t('editor:asset.useUpload.progressMsg', {
-                uploaded: item,
-                total,
-                percentage: Math.round(progress * 100)
-              }),
-              cancelable: true,
-              onCancel: () => {
-                abortController.abort()
-                hideDialog()
-              }
-            })
+            setDialogComponent(
+              <ProgressDialog
+                title={t('editor:asset.useUpload.progressTitle')}
+                message={t('editor:asset.useUpload.progressMsg', {
+                  uploaded: item,
+                  total,
+                  percentage: Math.round(progress * 100)
+                })}
+                cancelable={true}
+                onCancel={() => {
+                  abortController.abort()
+                  setDialogComponent(null)
+                }}
+              />
+            )
           },
           abortController.signal
         )
-        hideDialog()
+        setDialogComponent(null)
       } catch (error) {
         console.error(error)
-        showDialog(ErrorDialog, {
-          title: t('editor:asset.useUpload.uploadError'),
-          message: t('editor:asset.useUpload.uploadErrorMsg', {
-            message: error.message || t('editor:asset.useUpload.uploadErrorDefaultMsg')
-          }),
-          error
-        })
+        setDialogComponent(
+          <ErrorDialog
+            title={t('editor:asset.useUpload.uploadError')}
+            message={t('editor:asset.useUpload.uploadErrorMsg', {
+              message: error.message || t('editor:asset.useUpload.uploadErrorDefaultMsg')
+            })}
+            error={error}
+          />
+        )
         return null
       }
       return assets
     },
-    [showDialog, hideDialog, source, multiple, accepts]
+    [source, multiple, accepts]
   )
   return onUpload
 }

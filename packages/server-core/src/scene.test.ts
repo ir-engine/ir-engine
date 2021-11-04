@@ -41,17 +41,16 @@ describe('Scene Service', () => {
   })
 
   it("should add new scene", async function() {
-    await app.service('scene').create({ 
-      projectName: newProjectName,
+    await app.service('scene').update(newProjectName, {
       sceneName: newSceneName
     }, params)
     const { data } = await app.service('scene').get({
       projectName: newProjectName,
       sceneName: newSceneName,
-      metadataOnly: true
+      metadataOnly: false
     }, params)
     assert.strictEqual(data.name, newSceneName)
-    assert.strictEqual(data.scene, undefined)
+    assert.strictEqual(Object.keys(data.scene).length, 0)
   })
 
   it("should save scene", async function() {

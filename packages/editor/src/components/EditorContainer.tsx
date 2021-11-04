@@ -32,6 +32,9 @@ import { registerPredefinedSources } from '../managers/SourceManager'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import ScenesPanel from './assets/ScenesPanel'
+import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
+import { DialogContext, useDialog } from './hooks/useDialog'
+import { saveProject } from '../functions/projectFunctions'
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -134,8 +137,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   const [DialogComponent, setDialogComponent] = useState(null)
   const [modified, setModified] = useState(false)
   const [sceneName, setSceneName] = useState(null)
-  console.log('DialogComponent', DialogComponent)
-
   const initializeEditor = async () => {
     await Promise.all([ProjectManager.instance.init()])
   }
@@ -151,13 +152,13 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
       CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
       CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
-      CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), onSaveProject)
+      CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
     })
   }, [])
 
   useEffect(() => {
     return () => {
-      CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), onSaveProject)
+      CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
       CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
       CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       ProjectManager.instance.dispose()
@@ -225,7 +226,7 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
       {
         name: t('editor:menubar.saveProject'),
         hotkey: `${cmdOrCtrlString} + S`,
-        action: onSaveProject
+        action: onSaveScene
       },
       {
         name: t('editor:menubar.saveAs'),
@@ -242,10 +243,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
       {
         name: t('editor:menubar.exportProject'),
         action: onExportScene
-      },
-      {
-        name: t('editor:menubar.quit'),
-        action: onOpenProject
       }
     ]
   }
@@ -292,40 +289,27 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     updateModifiedState()
   }
 
-  // todo
-  const onNewProject = async () => {
-    // props.history.push('/editor/new')
-  }
-
-  // todo
-  const onOpenProject = () => {
-    // props.history.push('/editor')
-  }
+  const onNewProject = async () => {}
 
   const onSaveAs = async () => {
-    /**
-     * @todo
-     * - open a dialog to get name & tempalte
-     * - create scene on backend
-     * - load new scene
-     */
-
     const abortController = new AbortController()
-    setDialogComponent(
-      <ProgressDialog
-        title={t('editor:duplicating')}
-        message={t('editor:duplicatingMsg')}
-        cancelable={true}
-        onCancel={() => {
-          abortController.abort()
-          setDialogComponent(null)
-        }}
-      />
-    )
-    await new Promise((resolve) => setTimeout(resolve, 5))
     try {
-      // const newProject = await createScene()
-      SceneManager.instance.sceneModified = false
+      if (sceneName || modified) {
+        const blob = await SceneManager.instance.takeScreenshot(512, 320)
+        const result: { name: string } = (await new Promise((resolve) => {
+          setDialogComponent(
+            <SaveNewProjectDialog
+              thumbnailUrl={URL.createObjectURL(blob)}
+              initialName={SceneManager.instance.scene.name}
+              onConfirm={resolve}
+              onCancel={resolve}
+            />
+          )
+        })) as any
+        await saveScene(projectName, result.name, blob, abortController.signal)
+        SceneManager.instance.sceneModified = false
+      }
+      await saveProject(projectName)
       updateModifiedState()
       setDialogComponent(null)
     } catch (error) {
@@ -436,8 +420,13 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     document.body.removeChild(el)
   }
 
-  const onSaveProject = async () => {
-    if (!sceneName) return
+  const onSaveScene = async () => {
+    if (!sceneName) {
+      if (modified) {
+        onSaveAs()
+      }
+      return
+    }
     const abortController = new AbortController()
 
     setDialogComponent(
@@ -455,8 +444,11 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     // Wait for 5ms so that the ProgressDialog shows up.
     await new Promise((resolve) => setTimeout(resolve, 5))
 
+    const blob = await SceneManager.instance.takeScreenshot(512, 320)
+
     try {
-      await saveScene(projectName, sceneName, abortController.signal)
+      await saveScene(projectName, sceneName, blob, abortController.signal)
+      await saveProject(projectName)
       SceneManager.instance.sceneModified = false
       updateModifiedState()
 
@@ -561,29 +553,31 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   }
   return (
     <StyledEditorContainer id="editor-container">
-      <DndProvider backend={HTML5Backend}>
-        <DragLayer />
-        <ToolBar editorReady={editorReady} menu={toolbarMenu} />
-        <WorkspaceContainer>
-          <ViewportPanelContainer />
-          <DockContainer>
-            <DockLayout
-              defaultLayout={defaultLayout}
-              style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
-            />
-          </DockContainer>
-        </WorkspaceContainer>
-        <Modal
-          ariaHideApp={false}
-          isOpen={!!DialogComponent}
-          onRequestClose={() => setDialogComponent(null)}
-          shouldCloseOnOverlayClick={false}
-          className="Modal"
-          overlayClassName="Overlay"
-        >
-          {DialogComponent}
-        </Modal>
-      </DndProvider>
+      <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
+        <DndProvider backend={HTML5Backend}>
+          <DragLayer />
+          <ToolBar editorReady={editorReady} menu={toolbarMenu} />
+          <WorkspaceContainer>
+            <ViewportPanelContainer />
+            <DockContainer>
+              <DockLayout
+                defaultLayout={defaultLayout}
+                style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+              />
+            </DockContainer>
+          </WorkspaceContainer>
+          <Modal
+            ariaHideApp={false}
+            isOpen={!!DialogComponent}
+            onRequestClose={() => setDialogComponent(null)}
+            shouldCloseOnOverlayClick={false}
+            className="Modal"
+            overlayClassName="Overlay"
+          >
+            {DialogComponent}
+          </Modal>
+        </DndProvider>
+      </DialogContext.Provider>
     </StyledEditorContainer>
   )
 }

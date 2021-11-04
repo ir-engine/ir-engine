@@ -15,7 +15,7 @@ export default (app: Application): void => {
     console.log('Starting app')
 
     const sequelize = new Sequelize({
-      ...config.db,
+      ...(config.db as any),
       logging: forceRefresh ? console.log : false,
       define: {
         freezeTableName: true
@@ -96,7 +96,9 @@ export default (app: Application): void => {
         })
         .then(async () => {
           promiseResolve()
-          return Promise.resolve()
+          return Promise.resolve().then(() => {
+            process.exit(0)
+          })
         })
         .catch((err) => {
           console.log('Sequelize sync error')

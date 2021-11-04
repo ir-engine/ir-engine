@@ -36,13 +36,6 @@ export const SceneService = {
     const dispatch = useDispatch()
     const scenes = await client.service('scenes').get({ projectName })
     dispatch(SceneAction.scenesFetched(scenes))
-  },
-
-  createScene: async (projectName: string, sceneName: string) => {
-    const dispatch = useDispatch()
-    const result = await client.service('scene').create({ projectName, sceneName })
-    console.log('Upload project result', result)
-    dispatch(SceneAction.sceneCreated())
   }
 }
 

@@ -24,12 +24,10 @@ const getRemoteURLFromGitData = (project) => {
 const storageProvider = useStorageProvider()
 
 /**
- * For local development flow only
  * Updates the local storage provider with the project's current files
  * @param projectName
  */
-export const updateLocalProject = async (projectName) => {
-  const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
+export const uploadLocalProjectToProvider = async (projectName) => {
   // remove exiting storage provider files
   const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
   if (existingFiles.length) {
@@ -39,6 +37,7 @@ export const updateLocalProject = async (projectName) => {
     ])
   }
   // upload new files to storage provider
+  const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
   const files = getFilesRecursive(projectPath)
   await Promise.all(
     files.map((file: string) => {
@@ -114,7 +113,7 @@ export class Project extends Service {
         }
       }
 
-      promises.push(updateLocalProject(projectName))
+      promises.push(uploadLocalProjectToProvider(projectName))
     }
 
     for (const { name, id } of data) {
@@ -163,8 +162,6 @@ export class Project extends Service {
    */
   // @ts-ignore
   async update(data: { url: string }, params: Params) {
-    const uploadPromises = []
-
     const urlParts = data.url.split('/')
     let projectName = urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
@@ -180,16 +177,6 @@ export class Project extends Service {
       deleteFolderRecursive(projectLocalDirectory)
     }
 
-    // remove existing files in storage provider
-    try {
-      const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
-      if (existingFiles.length) {
-        Promise.all([storageProvider.deleteResources(existingFiles), storageProvider.createInvalidation(existingFiles)])
-      }
-    } catch (e) {
-      console.log('[project.class]: Failed to invalidate cache with error', e)
-    }
-
     const existingPackResult = await this.Model.findOne({
       where: {
         name: projectName
@@ -200,26 +187,7 @@ export class Project extends Service {
     const git = useGit()
     await git.clone(data.url, projectLocalDirectory)
 
-    // console.log('Installing project from ', data.uploadURL, 'with manifest.json', data)
-
-    // upload files - TODO: replace with git integration
-    const files = getFilesRecursive(projectLocalDirectory)
-    files.forEach((file: string) => {
-      uploadPromises.push(
-        new Promise(async (resolve) => {
-          try {
-            const fileResult = fs.readFileSync(file)
-            const filePathRelative = file.slice(projectLocalDirectory.length)
-            await storageProvider.putObject({
-              Body: fileResult,
-              ContentType: getContentType(file),
-              Key: `projects/${projectName}/${filePathRelative}`
-            })
-          } catch (e) {}
-          resolve(true)
-        })
-      )
-    })
+    await uploadLocalProjectToProvider(projectName)
 
     // TODO: populate avatars & scenes
 
@@ -234,7 +202,16 @@ export class Project extends Service {
       repositoryPath: data.url
     }
 
-    await Promise.all([...uploadPromises, super.create(dbEntryData, params)])
+    await super.create(dbEntryData, params)
+  }
+
+  /**
+   * 1. uploads project to the storage provider
+   * @param app
+   * @returns
+   */
+  async patch(projectName: string, params?: Params) {
+    await uploadLocalProjectToProvider(projectName)
   }
 
   async remove(id: Id, params?: Params) {

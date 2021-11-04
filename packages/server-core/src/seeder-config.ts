@@ -10,6 +10,7 @@ import { scopeSeeds } from './scope/seeder-config'
 import { settingSeeds } from './setting/seeder-config'
 import { analyticsSeeds } from './analytics/seeder-config'
 import { routeSeeds } from './route/seeder-config'
+import { projectSeeds } from './projects/seeder-config'
 
 export const seeds: Array<ServicesSeedConfig> = [
   ...mediaSeeds,
@@ -22,7 +23,8 @@ export const seeds: Array<ServicesSeedConfig> = [
   ...scopeSeeds,
   ...settingSeeds,
   ...analyticsSeeds,
-  ...routeSeeds
+  ...routeSeeds,
+  ...projectSeeds
 ]
 
 export default seeds

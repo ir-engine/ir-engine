@@ -6,8 +6,9 @@ import path from 'path'
 import appRootPath from 'app-root-path'
 import { getCachedAsset } from '../../media/storageprovider/storageProviderUtils'
 import { cleanString } from '../../util/cleanString'
-import { updateLocalProject } from '../../projects/project/project.class'
+import { uploadLocalProjectToProvider } from '../../projects/project/project.class'
 import { isDev } from '@xrengine/common/src/utils/isDev'
+import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
 export const getSceneData = (projectName, sceneName, metadataOnly) => {
   const newSceneJsonPath = path.resolve(
@@ -30,8 +31,8 @@ export const getSceneData = (projectName, sceneName, metadataOnly) => {
 
 interface UpdateParams {
   sceneName: string
-  sceneData: SceneJson
-  thumbnailBuffer: Buffer
+  sceneData?: SceneJson
+  thumbnailBuffer?: Buffer
 }
 
 export class Scene implements ServiceMethods<any> {
@@ -60,21 +61,6 @@ export class Scene implements ServiceMethods<any> {
     }
   }
 
-  async create({ projectName, sceneName }, params?: Params): Promise<any> {
-    const name = cleanString(sceneName)
-
-    const project = await this.app.service('project').get(projectName, params)
-    if (!project.data) throw new Error(`No project named ${projectName} exists`)
-
-    const newSceneJsonPath = path.resolve(
-      appRootPath.path,
-      `packages/projects/projects/${projectName}/${name}.scene.json`
-    )
-    if (!fs.existsSync(newSceneJsonPath)) {
-      fs.writeFileSync(path.resolve(newSceneJsonPath), JSON.stringify({}, null, 2))
-    }
-  }
-
   async update(projectName: string, data: UpdateParams, params?: Params): Promise<any> {
     const { sceneName, sceneData, thumbnailBuffer } = data
 
@@ -94,18 +80,14 @@ export class Scene implements ServiceMethods<any> {
       fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer)
     }
 
-    if (fs.existsSync(newSceneJsonPath)) {
-      fs.writeFileSync(path.resolve(newSceneJsonPath), JSON.stringify(sceneData, null, 2))
-    } else {
-      throw new Error(`No scene named ${sceneName} exist in project ${projectName}`)
-    }
+    fs.writeFileSync(path.resolve(newSceneJsonPath), JSON.stringify(sceneData ?? defaultSceneSeed, null, 2))
 
     /**
      * For local development flow only
      * Updates the local storage provider with the project's current files
      */
     if (isDev) {
-      await updateLocalProject(projectName)
+      await uploadLocalProjectToProvider(projectName)
     }
   }
 
