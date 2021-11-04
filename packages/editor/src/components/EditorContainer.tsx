@@ -116,6 +116,11 @@ DockContainer.defaultProps = {
   dividerAlpha: 0
 }
 
+type EditorContainerProps = {
+  projectName: string
+  sceneName: string
+}
+
 /**
  * EditorContainer class used for creating container for Editor
  *
@@ -144,7 +149,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
 
     initializeEditor().then(() => {
       setEditorReady(true)
-
       CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
       CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
@@ -564,13 +568,12 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
       ]
     }
   }
-
   return (
     <StyledEditorContainer id="editor-container">
       <DialogContextProvider value={dialogContext}>
         <DndProvider backend={HTML5Backend}>
           <DragLayer />
-          {toolbarMenu && <ToolBar menu={toolbarMenu} />}
+          <ToolBar editorReady={editorReady} menu={toolbarMenu} />
           <WorkspaceContainer>
             <ViewportPanelContainer />
             <DockContainer>
