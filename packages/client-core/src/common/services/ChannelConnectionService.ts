@@ -20,7 +20,6 @@ const state = createState({
     ipAddress: '',
     port: ''
   },
-  socket: {},
   locationId: '',
   sceneId: '',
   channelId: '',
@@ -39,8 +38,6 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
     switch (action.type) {
       case 'CHANNEL_SERVER_PROVISIONING':
         return s.merge({
-          instance: s.instance.value,
-          socket: {},
           connected: false,
           instanceProvisioned: false,
           readyToConnect: false,
@@ -65,23 +62,11 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'CHANNEL_SERVER_DISCONNECTED':
         if (connectionSocket != null) (connectionSocket as any).close()
-        return s.merge({
-          instance: s.instance.value,
-          socket: s.socket.value,
-          locationId: s.locationId.value,
-          sceneId: s.sceneId.value,
-          channelId: s.channelId.value,
-          instanceProvisioned: s.instanceProvisioned.value,
-          connected: s.connected.value,
-          readyToConnect: s.readyToConnect.value,
-          updateNeeded: s.updateNeeded.value,
-          instanceServerConnecting: s.instanceServerConnecting.value,
-          instanceProvisioning: s.instanceProvisioning.value
-        })
+        return
       case 'SOCKET_CREATED':
         if (connectionSocket != null) (connectionSocket as any).close()
         connectionSocket = action.socket
-        return state
+        return
     }
   }, action.type)
 })
