@@ -11,7 +11,6 @@ import Modal from 'react-modal'
 import styled from 'styled-components'
 import { createScene, getScene, saveScene } from '../functions/sceneFunctions'
 import AssetsPanel from './assets/AssetsPanel'
-import { DialogContextProvider } from './contexts/DialogContext'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import ExportProjectDialog from './dialogs/ExportProjectDialog'
@@ -133,9 +132,9 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   const [editorReady, setEditorReady] = useState(false)
   const [creatingProject, setCreatingProject] = useState(null)
   const [DialogComponent, setDialogComponent] = useState(null)
-  const [dialogProps, setDialogProps] = useState<any>({})
   const [modified, setModified] = useState(false)
   const [sceneName, setSceneName] = useState(null)
+  console.log('DialogComponent', DialogComponent)
 
   const initializeEditor = async () => {
     await Promise.all([ProjectManager.instance.init()])
@@ -166,45 +165,43 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   }, [])
 
   const importScene = async (projectFile) => {
-    showDialog(ProgressDialog, {
-      title: t('editor:loading'),
-      message: t('editor:loadingMsg')
-    })
+    setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     setSceneName(null)
     try {
       await ProjectManager.instance.loadProject(projectFile)
       SceneManager.instance.sceneModified = true
       updateModifiedState()
-      hideDialog()
+      setDialogComponent(null)
     } catch (error) {
       console.error(error)
-      showDialog(ErrorDialog, {
-        title: t('editor:loadingError'),
-        message: error.message || t('editor:loadingErrorMsg'),
-        error
-      })
+      setDialogComponent(
+        <ErrorDialog
+          title={t('editor:loadingError')}
+          message={error.message || t('editor:loadingErrorMsg')}
+          error={error}
+        />
+      )
     }
   }
 
   const loadScene = async (sceneName) => {
-    showDialog(ProgressDialog, {
-      title: t('editor:loading'),
-      message: t('editor:loadingMsg')
-    })
+    setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     setSceneName(null)
     try {
       const project = await getScene(projectName, sceneName, false)
       await ProjectManager.instance.loadProject(project.scene)
       setSceneName(sceneName)
-      hideDialog()
+      setDialogComponent(null)
     } catch (error) {
       console.error(error)
 
-      showDialog(ErrorDialog, {
-        title: t('editor:loadingError'),
-        message: error.message || t('editor:loadingErrorMsg'),
-        error
-      })
+      setDialogComponent(
+        <ErrorDialog
+          title={t('editor:loadingError')}
+          message={error.message || t('editor:loadingErrorMsg')}
+          error={error}
+        />
+      )
     }
   }
 
@@ -270,41 +267,25 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   }
 
   /**
-   *  Dialog Context
-   */
-
-  const showDialog = (DialogComponent, newDialogProps) => {
-    setDialogComponent(DialogComponent)
-    setDialogProps(newDialogProps)
-  }
-
-  const hideDialog = () => {
-    setDialogComponent(null)
-    setDialogProps({})
-  }
-
-  const dialogContext = {
-    showDialog: showDialog,
-    hideDialog: hideDialog
-  }
-
-  /**
    * Scene Event Handlers
    */
 
   const onEditorError = (error) => {
+    console.log(error)
     if (error['aborted']) {
-      hideDialog()
+      setDialogComponent(null)
       return
     }
 
     console.error(error)
 
-    showDialog(ErrorDialog, {
-      title: error.title || t('editor:error'),
-      message: error.message || t('editor:errorMsg'),
-      error
-    })
+    setDialogComponent(
+      <ErrorDialog
+        title={error.title || t('editor:error')}
+        message={error.message || t('editor:errorMsg')}
+        error={error}
+      />
+    )
   }
 
   const onProjectLoaded = () => {
@@ -330,57 +311,63 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
      */
 
     const abortController = new AbortController()
-    showDialog(ProgressDialog, {
-      title: t('editor:duplicating'),
-      message: t('editor:duplicatingMsg'),
-      cancelable: true,
-      onCancel: () => {
-        abortController.abort()
-        hideDialog()
-      }
-    })
+    setDialogComponent(
+      <ProgressDialog
+        title={t('editor:duplicating')}
+        message={t('editor:duplicatingMsg')}
+        cancelable={true}
+        onCancel={() => {
+          abortController.abort()
+          setDialogComponent(null)
+        }}
+      />
+    )
     await new Promise((resolve) => setTimeout(resolve, 5))
     try {
       // const newProject = await createScene()
       SceneManager.instance.sceneModified = false
       updateModifiedState()
-      hideDialog()
+      setDialogComponent(null)
     } catch (error) {
       console.error(error)
-      showDialog(ErrorDialog, {
-        title: t('editor:savingError'),
-        message: error.message || t('editor:savingErrorMsg')
-      })
+      setDialogComponent(
+        <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
+      )
     }
   }
 
   const onExportProject = async () => {
+    if (!sceneName) return
     const options = await new Promise((resolve) => {
-      showDialog(ExportProjectDialog, {
-        defaultOptions: Object.assign({}, SceneManager.DefaultExportOptions),
-        onConfirm: resolve,
-        onCancel: resolve
-      })
+      setDialogComponent(
+        <ExportProjectDialog
+          defaultOptions={Object.assign({}, SceneManager.DefaultExportOptions)}
+          onConfirm={resolve}
+          onCancel={resolve}
+        />
+      )
     })
 
     if (!options) {
-      hideDialog()
+      setDialogComponent(null)
       return
     }
 
     const abortController = new AbortController()
 
-    showDialog(ProgressDialog, {
-      title: t('editor:exporting'),
-      message: t('editor:exportingMsg'),
-      cancelable: true,
-      onCancel: () => abortController.abort()
-    })
+    setDialogComponent(
+      <ProgressDialog
+        title={t('editor:exporting')}
+        message={t('editor:exportingMsg')}
+        cancelable={true}
+        onCancel={() => abortController.abort()}
+      />
+    )
 
     try {
       const { glbBlob } = await SceneManager.instance.exportScene(options)
 
-      hideDialog()
+      setDialogComponent(null)
 
       const el = document.createElement('a')
       el.download = SceneManager.instance.scene.name + '.glb'
@@ -390,30 +377,34 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
       document.body.removeChild(el)
     } catch (error) {
       if (error['aborted']) {
-        hideDialog()
+        setDialogComponent(null)
         return
       }
 
       console.error(error)
 
-      showDialog(ErrorDialog, {
-        title: t('editor:exportingError'),
-        message: error.message || t('editor:exportingErrorMsg'),
-        error
-      })
+      setDialogComponent(
+        <ErrorDialog
+          title={t('editor:exportingError')}
+          message={error.message || t('editor:exportingErrorMsg')}
+          error={error}
+        />
+      )
     }
   }
 
   const onImportScene = async () => {
     const confirm = await new Promise((resolve) => {
-      showDialog(ConfirmDialog, {
-        title: t('editor:importLegacy'),
-        message: t('editor:importLegacyMsg'),
-        onConfirm: () => resolve(true),
-        onCancel: () => resolve(false)
-      })
+      setDialogComponent(
+        <ConfirmDialog
+          title={t('editor:importLegacy')}
+          message={t('editor:importLegacyMsg')}
+          onConfirm={() => resolve(true)}
+          onCancel={() => resolve(false)}
+        />
+      )
     })
-    hideDialog()
+    setDialogComponent(null)
     if (!confirm) return
     const el = document.createElement('input')
     el.type = 'file'
@@ -449,15 +440,17 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     if (!sceneName) return
     const abortController = new AbortController()
 
-    showDialog(ProgressDialog, {
-      title: t('editor:saving'),
-      message: t('editor:savingMsg'),
-      cancelable: true,
-      onCancel: () => {
-        abortController.abort()
-        hideDialog()
-      }
-    })
+    setDialogComponent(
+      <ProgressDialog
+        title={t('editor:saving')}
+        message={t('editor:savingMsg')}
+        cancelable={true}
+        onCancel={() => {
+          abortController.abort()
+          setDialogComponent(null)
+        }}
+      />
+    )
 
     // Wait for 5ms so that the ProgressDialog shows up.
     await new Promise((resolve) => setTimeout(resolve, 5))
@@ -467,19 +460,17 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
       SceneManager.instance.sceneModified = false
       updateModifiedState()
 
-      hideDialog()
+      setDialogComponent(null)
     } catch (error) {
       console.error(error)
 
-      showDialog(ErrorDialog, {
-        title: t('editor:savingError'),
-        message: error.message || t('editor:savingErrorMsg')
-      })
+      setDialogComponent(
+        <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
+      )
     }
   }
 
   const toolbarMenu = generateToolbarMenu()
-
   if (!editorReady) return <></>
 
   let defaultLayout: LayoutData = {
@@ -570,33 +561,29 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   }
   return (
     <StyledEditorContainer id="editor-container">
-      <DialogContextProvider value={dialogContext}>
-        <DndProvider backend={HTML5Backend}>
-          <DragLayer />
-          <ToolBar editorReady={editorReady} menu={toolbarMenu} />
-          <WorkspaceContainer>
-            <ViewportPanelContainer />
-            <DockContainer>
-              <DockLayout
-                defaultLayout={defaultLayout}
-                style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
-              />
-            </DockContainer>
-          </WorkspaceContainer>
-          <Modal
-            ariaHideApp={false}
-            isOpen={!!DialogComponent}
-            onRequestClose={hideDialog}
-            shouldCloseOnOverlayClick={false}
-            className="Modal"
-            overlayClassName="Overlay"
-          >
-            {DialogComponent && dialogProps && (
-              <DialogComponent onConfirm={hideDialog} onCancel={hideDialog} {...dialogProps} />
-            )}
-          </Modal>
-        </DndProvider>
-      </DialogContextProvider>
+      <DndProvider backend={HTML5Backend}>
+        <DragLayer />
+        <ToolBar editorReady={editorReady} menu={toolbarMenu} />
+        <WorkspaceContainer>
+          <ViewportPanelContainer />
+          <DockContainer>
+            <DockLayout
+              defaultLayout={defaultLayout}
+              style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+            />
+          </DockContainer>
+        </WorkspaceContainer>
+        <Modal
+          ariaHideApp={false}
+          isOpen={!!DialogComponent}
+          onRequestClose={() => setDialogComponent(null)}
+          shouldCloseOnOverlayClick={false}
+          className="Modal"
+          overlayClassName="Overlay"
+        >
+          {DialogComponent}
+        </Modal>
+      </DndProvider>
     </StyledEditorContainer>
   )
 }
