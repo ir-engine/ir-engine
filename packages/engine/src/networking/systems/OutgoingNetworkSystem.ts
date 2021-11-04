@@ -204,14 +204,14 @@ export const queueUnchangedControllerPoses = (world: World) => {
 
     const headPosePosition = xrInputs.head.position.toArray()
     const headPoseRotation = xrInputs.head.quaternion.toArray()
-    const leftRayPosition = xrInputs.controllerLeft.position.toArray()
-    const leftRayRotation = xrInputs.controllerLeft.quaternion.toArray()
-    const rightRayPosition = xrInputs.controllerRight.position.toArray()
-    const rightRayRotation = xrInputs.controllerRight.quaternion.toArray()
-    const leftGripPosition = xrInputs.controllerGripLeft.position.toArray()
-    const leftGripRotation = xrInputs.controllerGripLeft.quaternion.toArray()
-    const rightGripPosition = xrInputs.controllerGripRight.position.toArray()
-    const rightGripRotation = xrInputs.controllerGripRight.quaternion.toArray()
+    const leftRayPosition = xrInputs.controllerLeft.parent?.position.toArray() || []
+    const leftRayRotation = xrInputs.controllerLeft.parent?.quaternion.toArray() || []
+    const rightRayPosition = xrInputs.controllerRight.parent?.position.toArray() || []
+    const rightRayRotation = xrInputs.controllerRight.parent?.quaternion.toArray() || []
+    const leftGripPosition = xrInputs.controllerGripLeft.parent?.position.toArray() || []
+    const leftGripRotation = xrInputs.controllerGripLeft.parent?.quaternion.toArray() || []
+    const rightGripPosition = xrInputs.controllerGripRight.parent?.position.toArray() || []
+    const rightGripRotation = xrInputs.controllerGripRight.parent?.quaternion.toArray() || []
 
     if (
       // if there is no previous state (first frame)

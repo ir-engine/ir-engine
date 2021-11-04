@@ -16,6 +16,7 @@ import { XRReferenceSpaceType } from '../../input/types/WebXR'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { initializeXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
+import { updateXRControllerAnimations } from '../functions/controllerAnimation'
 
 /**
  * System for XR session and input handling
@@ -26,6 +27,7 @@ export default async function XRSystem(world: World): Promise<System> {
   const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
 
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
+  const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
   const quat = new Quaternion()
   const quat2 = new Quaternion()
@@ -35,6 +37,8 @@ export default async function XRSystem(world: World): Promise<System> {
   // Cache hand models
   await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left.glb' })
   await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right.glb' })
+  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left_controller.glb' })
+  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right_controller.glb' })
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
     Engine.renderer.outputEncoding = sRGBEncoding
@@ -102,6 +106,12 @@ export default async function XRSystem(world: World): Promise<System> {
       for (const entity of localXRControllerQuery.enter()) {
         initializeXRInputs(entity)
       }
+    }
+
+    //XR Controller mesh animation update
+    for (const entity of xrControllerQuery()) {
+      const inputSource = getComponent(entity, XRInputSourceComponent)
+      updateXRControllerAnimations(inputSource)
     }
 
     for (const entity of localXRControllerQuery()) {
