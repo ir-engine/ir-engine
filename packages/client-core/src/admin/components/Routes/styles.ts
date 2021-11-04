@@ -10,7 +10,7 @@ export const useRouteStyle = makeStyles({
     //background: "#fff"
   },
   container: {
-    maxHeight: '80vh'
+    maxHeight: '73vh'
   },
   actionStyle: {
     textDecoration: 'none',

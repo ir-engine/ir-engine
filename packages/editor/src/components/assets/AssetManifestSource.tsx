@@ -5,6 +5,7 @@ import ImageNode from '../../nodes/ImageNode'
 import VideoNode from '../../nodes/VideoNode'
 import ModelNode from '../../nodes/ModelNode'
 import AudioNode from '../../nodes/AudioNode'
+import ShopifyNode from '../../nodes/ShopifyNode'
 import VolumetricNode from '../../nodes/VolumetricNode'
 import { NodeManager } from '../../managers/NodeManager'
 
@@ -28,7 +29,8 @@ const assetTypeToNodeClass = {
   [ItemTypes.Image]: ImageNode,
   [ItemTypes.Video]: VideoNode,
   [ItemTypes.Volumetric]: VolumetricNode,
-  [ItemTypes.Model]: ModelNode
+  [ItemTypes.Model]: ModelNode,
+  [ItemTypes.Shopify]: ShopifyNode
 }
 
 /**
