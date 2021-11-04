@@ -25,7 +25,10 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import {
+  ChannelConnectionService,
+  useChannelConnectionState
+} from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 
@@ -95,7 +98,10 @@ const MediaIconsBox = (props) => {
       (Network.instance.transport as any).channelType !== 'instance'
     ) {
       await endVideoChat({})
-      if ((Network.instance.transport as any).channelSocket?.connected === true) await leave(false)
+      if ((Network.instance.transport as any).channelSocket?.connected === true) {
+        await leave(false)
+        await ChannelConnectionService.provisionChannelServer(instanceChannel.id)
+      }
     }
   }
   const handleMicClick = async () => {
