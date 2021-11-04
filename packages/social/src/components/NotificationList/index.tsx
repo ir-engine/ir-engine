@@ -1,12 +1,12 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 import NotificationCard from '../NotificationCard'
 import { useTranslation } from 'react-i18next'
 

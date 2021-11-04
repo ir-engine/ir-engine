@@ -1,13 +1,13 @@
 import React, { useEffect, useState, FunctionComponent, Suspense } from 'react'
 import { CommonInteractiveData } from '@xrengine/engine/src/interaction/interfaces/CommonInteractiveData'
 import styles from './style.module.scss'
-import Dialog from '@material-ui/core/Dialog'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
-import Typography from '@material-ui/core/Typography'
-import CloseIcon from '@material-ui/icons/Close'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import CloseIcon from '@mui/icons-material/Close'
 import { useTranslation } from 'react-i18next'
 import { OpenLink } from '../OpenLink'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -72,7 +72,7 @@ export const InteractableModal: FunctionComponent = () => {
           }}
           BackdropProps={{ style: { backgroundColor: 'transparent' } }}
         >
-          <DialogTitle disableTypography className={styles.dialogTitle}>
+          <DialogTitle className={styles.dialogTitle}>
             <IconButton
               aria-label="close"
               className={styles.dialogCloseButton}
@@ -82,6 +82,7 @@ export const InteractableModal: FunctionComponent = () => {
                 setInputEnabled(true)
                 setObjectActivated(false)
               }}
+              size="large"
             >
               <CloseIcon />
             </IconButton>

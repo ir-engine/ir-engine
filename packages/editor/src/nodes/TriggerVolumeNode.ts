@@ -1,14 +1,6 @@
 import { Material, BoxBufferGeometry, Object3D, Mesh, BoxHelper, Vector3 } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
-const requiredProperties = [
-  'target',
-  'enterComponent',
-  'enterProperty',
-  'enterValue',
-  'leaveComponent',
-  'leaveProperty',
-  'leaveValue'
-]
+const requiredProperties = ['target', 'onEnter', 'onExit', 'showHelper']
 export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'trigger-volume'
   static nodeName = 'Trigger Volume'
@@ -18,29 +10,22 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
     const node = await super.deserialize(json)
     const props = json.components.find((c) => c.name === 'trigger-volume').props
     node.target = props.target
-    node.enterComponent = props.enterComponent
-    node.enterProperty = props.enterProperty
-    node.enterValue = props.enterValue
-    node.leaveComponent = props.leaveComponent
-    node.leaveProperty = props.leaveProperty
-    node.leaveValue = props.leaveValue
+    node.onEnter = props.onEnter
+    node.onExit = props.onExit
     node.showHelper = props.showHelper
     return node
   }
   constructor() {
     super()
     const boxMesh = new Mesh(TriggerVolumeNode._geometry, TriggerVolumeNode._material)
+    boxMesh.scale.multiplyScalar(2) // engine uses half-extents for box size, to be compatible with gltf and threejs
     const box = new BoxHelper(boxMesh, 0xffff00)
     box.layers.set(1)
     this.helper = box
     this.add(box)
     this.target = null
-    this.enterComponent = null
-    this.enterProperty = null
-    this.enterValue = null
-    this.leaveComponent = null
-    this.leaveProperty = null
-    this.leaveValue = null
+    this.onEnter = ''
+    this.onExit = ''
     this.showHelper = false
   }
   copy(source, recursive = true) {
@@ -55,12 +40,8 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
       }
     }
     this.target = source.target
-    this.enterComponent = source.enterComponent
-    this.enterProperty = source.enterProperty
-    this.enterValue = source.enterValue
-    this.leaveComponent = source.leaveComponent
-    this.leaveProperty = source.leaveProperty
-    this.leaveValue = source.leaveValue
+    this.onEnter = source.onEnter
+    this.onExit = source.onExit
     this.showHelper = source.showHelper
     return this
   }
@@ -68,12 +49,8 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
     return await super.serialize(projectID, {
       'trigger-volume': {
         target: this.target,
-        enterComponent: this.enterComponent,
-        enterProperty: this.enterProperty,
-        enterValue: this.enterValue,
-        leaveComponent: this.leaveComponent,
-        leaveProperty: this.leaveProperty,
-        leaveValue: this.leaveValue,
+        onEnter: this.onEnter,
+        onExit: this.onExit,
         showHelper: this.showHelper
       }
     })
@@ -92,12 +69,8 @@ export default class TriggerVolumeNode extends EditorNodeMixin(Object3D) {
     this.addGLTFComponent('trigger-volume', {
       size: { x: scale.x, y: scale.y, z: scale.z },
       target: this.gltfIndexForUUID(this.target),
-      enterComponent: this.enterComponent,
-      enterProperty: this.enterProperty,
-      enterValue: this.enterValue,
-      leaveComponent: this.leaveComponent,
-      leaveProperty: this.leaveProperty,
-      leaveValue: this.leaveValue,
+      onEnter: this.onEnter,
+      onExit: this.onExit,
       showHelper: this.showHelper
     })
   }

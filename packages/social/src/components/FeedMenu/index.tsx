@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 import React, { useRef, useState, useEffect } from 'react'
 
 import Creators from '../Creators'
@@ -10,8 +10,8 @@ import TheFeed from '../TheFeed'
 // import TipsAndTricks from '../TipsAndTricks'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
+import { useFeedState } from '@xrengine/client-core/src/social/services/FeedService'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'

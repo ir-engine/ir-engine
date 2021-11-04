@@ -5,18 +5,18 @@ import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Typography } from '@material-ui/core'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import { Button, Typography } from '@mui/material'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 
-import { useFeedState } from '@xrengine/client-core/src/social/state/FeedState'
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/state/PopupsStateState'
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { useFeedState } from '@xrengine/client-core/src/social/services/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 
 import FeedCard from '../FeedCard'
 import Featured from '../Featured'
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
-import Popover from '@material-ui/core/Popover'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+import Popover from '@mui/material/Popover'
 
 import styles from './Feed.module.scss'
 

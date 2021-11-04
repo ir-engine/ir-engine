@@ -4,12 +4,12 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { Button, CardMedia, Typography } from '@material-ui/core'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import { Button, CardMedia, Typography } from '@mui/material'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
-import { ArMediaService } from '@xrengine/client-core/src/social/state/ArMediaService'
-import { useArMediaState } from '@xrengine/client-core/src/social/state/ArMediaState'
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { ArMediaService } from '@xrengine/client-core/src/social/services/ArMediaService'
+import { useArMediaState } from '@xrengine/client-core/src/social/services/ArMediaService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 // import {  Plugins } from '@capacitor/core';
 import Preloader from '@xrengine/social/src/components/Preloader'
 

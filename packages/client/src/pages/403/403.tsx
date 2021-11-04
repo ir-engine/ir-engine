@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import { Button } from '@material-ui/core'
+import { Button } from '@mui/material'
 import { useStyle, useStyles } from './style'
 
 const UnauthorisedPage = (props) => {

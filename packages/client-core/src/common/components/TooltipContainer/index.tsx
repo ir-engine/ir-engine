@@ -1,10 +1,10 @@
 import React from 'react'
 import styles from './ToolTipContainer.module.scss'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import Snackbar from '@material-ui/core/Snackbar'
+import Snackbar from '@mui/material/Snackbar'
 
-import TouchApp from '@material-ui/icons/TouchApp'
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline'
+import TouchApp from '@mui/icons-material/TouchApp'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import { useTranslation } from 'react-i18next'
 
 interface Props {

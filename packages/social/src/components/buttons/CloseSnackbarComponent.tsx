@@ -1,5 +1,5 @@
 import React from 'react'
-import HighlightOff from '@material-ui/icons/HighlightOff'
+import HighlightOff from '@mui/icons-material/HighlightOff'
 
 const CloseSnackbarComponent = ({ handleClose }) => {
   return <HighlightOff style={{ cursor: 'pointer' }} onClick={handleClose} />

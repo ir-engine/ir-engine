@@ -1,6 +1,6 @@
 import React from 'react'
 import NavUserWidget from '../NavUserWidget'
-import AppBar from '@material-ui/core/AppBar'
+import AppBar from '@mui/material/AppBar'
 import styles from './NavMenu.module.scss'
 
 interface Props {

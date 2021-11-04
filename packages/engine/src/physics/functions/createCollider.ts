@@ -199,14 +199,18 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   return shape
 }
 
-export const createBody = (entity: Entity, bodyOptions: BodyOptions, shapes: PhysX.PxShape[] = []) => {
-  const { position, rotation } = getComponent(entity, TransformComponent)
+export const createBody = (entity: Entity, bodyOptions: any, shapes: PhysX.PxShape[] = []) => {
+  const { rotation } = getComponent(entity, TransformComponent)
+  let rot = rotation
+  if (bodyOptions.type !== 'ground') {
+    rot = new Quaternion()
+  }
   return useWorld().physics.addBody({
     shapes,
     type: bodyOptions.bodyType ?? BodyType.STATIC,
     transform: {
-      translation: position,
-      rotation
+      translation: new Vector3(0, 0, 0),
+      rotation: rot
     },
     userData: {
       entity

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
-import { Dashboard } from '@material-ui/icons'
+import { Dashboard } from '@mui/icons-material'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import ProjectNode from '../../nodes/ProjectNode'

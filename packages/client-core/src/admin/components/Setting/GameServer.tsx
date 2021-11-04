@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import { useStyles } from './styles'
-import Switch from '@material-ui/core/Switch'
-import { Grid, Paper, Button, Typography } from '@material-ui/core'
-import InputBase from '@material-ui/core/InputBase'
+import Switch from '@mui/material/Switch'
+import { Grid, Paper, Button, Typography } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import { GameServerSettingService } from '../../state/Setting/GameServerSettingServices'
-import { useGameServerSettingState } from '../../state/Setting/GameServerSettingState'
+import { useAuthState } from '../../../user/services/AuthService'
+import { GameServerSettingService } from '../../services/Setting/GameServerSettingService'
+import { useGameServerSettingState } from '../../services/Setting/GameServerSettingService'
 
 interface gameServerProps {}
 
