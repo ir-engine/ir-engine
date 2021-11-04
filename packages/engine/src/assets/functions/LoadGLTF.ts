@@ -78,7 +78,7 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
  * @param url URL of the asset.
  * @returns a promise of {@link LoadGLTFResultInterface}.
  */
-export async function LoadInstancedGLTF(url: string): Promise<LoadGLTFResultInterface> {
+export async function loadInstancedGLTF(url: string): Promise<LoadGLTFResultInterface> {
   let buffer = await instanceGLTF(url)
   return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
     getLoader().parse(
