@@ -1,7 +1,7 @@
 import assert from 'assert'
 import ArrayKeyedMap from '../../../src/map/classes/ArrayKeyedMap'
 
-describe.only('HashMap', () => {
+describe('HashMap', () => {
   it('can store and look up values using an array as a key', () => {
     const sut = new ArrayKeyedMap()
 

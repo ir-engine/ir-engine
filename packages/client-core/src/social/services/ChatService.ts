@@ -51,19 +51,17 @@ const state = createState({
   instanceChannelFetched: false
 })
 
-store.receptors.push((action: ChatActionType): any => {
+store.receptors.push((action: ChatActionType) => {
   state.batch((s) => {
-    switch (action!.type) {
+    switch (action.type) {
       case 'LOADED_CHANNELS':
-        s.channels.merge({
+        return s.channels.merge({
           limit: action.limit,
           skip: action.skip,
           total: action.total,
           updateNeeded: false,
           channels: action.channels
         })
-        return
-
       case 'LOADED_CHANNEL': {
         const idx =
           (typeof action.channel.id === 'string' &&
@@ -79,7 +77,6 @@ store.receptors.push((action: ChatActionType): any => {
             instanceChannelFetching: false
           })
         }
-
         return
       }
 
@@ -186,6 +183,7 @@ store.receptors.push((action: ChatActionType): any => {
         if (channelIdx > -1) {
           s.channels.channels[channelIdx].set(none)
         }
+        return
       }
 
       case 'CHAT_TARGET_SET':
@@ -387,6 +385,27 @@ export const ChatService = {
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('message').on('created', (params) => {
     const selfUser = accessAuthState().user.value
+    const { message } = params
+    if (message != undefined && message.text != undefined) {
+      if (isPlayerLocal(message.senderId)) {
+        if (handleCommand(message.text, Engine.defaultWorld.localClientEntity, message.senderId)) return
+        else {
+          const system = getChatMessageSystem(message.text)
+          if (system !== 'none') {
+            message.text = removeMessageSystem(message.text)
+            if (!isBot(window) && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
+          }
+        }
+      } else {
+        const system = getChatMessageSystem(message.text)
+        if (system !== 'none') {
+          message.text = removeMessageSystem(message.text)
+          if (!isBot(window) && !Engine.isBot && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system))
+            return
+        } else if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
+      }
+    }
+
     const msg = ChatAction.createdMessage(params.message, selfUser)
     if (msg != undefined) store.dispatch(msg)
   })
@@ -432,26 +451,6 @@ export const ChatAction = {
     }
   },
   createdMessage: (message: Message, selfUser: User) => {
-    if (message != undefined && message.text != undefined) {
-      if (isPlayerLocal(message.senderId)) {
-        if (handleCommand(message.text, Engine.defaultWorld.localClientEntity, message.senderId)) return
-        else {
-          const system = getChatMessageSystem(message.text)
-          if (system !== 'none') {
-            message.text = removeMessageSystem(message.text)
-            if (!isBot(window) && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
-          }
-        }
-      } else {
-        const system = getChatMessageSystem(message.text)
-        if (system !== 'none') {
-          message.text = removeMessageSystem(message.text)
-          if (!isBot(window) && !Engine.isBot && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system))
-            return
-        } else if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
-      }
-    }
-
     return {
       type: 'CREATED_MESSAGE' as const,
       message: message,

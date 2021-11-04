@@ -33,17 +33,15 @@ const state = createState({
 
 store.receptors.push((action: ArMediaActionType): any => {
   state.batch((s) => {
-    let result: any
     switch (action.type) {
       case 'ARMEDIA_FETCHING':
         return s.fetching.set(true)
       case 'ARMEDIA_ADMIN_RETRIEVED':
-        result = action.list
         return s.arMedia.merge({
-          arMedia: result.data,
-          skip: result.skip,
-          total: result.total,
-          limit: result.limit,
+          arMedia: action.list.data,
+          skip: action.list.skip,
+          total: action.list.total,
+          limit: action.list.limit,
           retrieving: false,
           fetched: true,
           updateNeeded: false,
@@ -174,7 +172,7 @@ export const ArMediaService = {
 
 //Action
 export const ArMediaAction = {
-  setAdminArMedia: (list: ArMediaResult[]) => {
+  setAdminArMedia: (list: ArMediaResult) => {
     return {
       type: 'ARMEDIA_ADMIN_RETRIEVED' as const,
       list
