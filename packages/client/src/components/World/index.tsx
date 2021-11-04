@@ -1,11 +1,12 @@
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { EngineCallbacks, initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
@@ -59,7 +60,8 @@ interface Props {
 }
 
 export const EnginePage = (props: Props) => {
-  const [isUserBanned, setUserBanned] = useState(true)
+  const { t } = useTranslation()
+  const [isUserBanned, setUserBanned] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
   const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
@@ -153,7 +155,7 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
   }
 
-  if (isUserBanned) return <div className="banned">You have been banned from this location</div>
+  if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
 
   // Do not add/remove the canvas element after engine init
   // It will break internal references and prevent XR session to work properly

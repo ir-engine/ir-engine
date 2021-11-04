@@ -12,7 +12,7 @@ import Paper from '@mui/material/Paper'
 import InputBase from '@mui/material/InputBase'
 import PhotoCamera from '@mui/icons-material/PhotoCamera'
 import { validateFeedForm } from './validation'
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
 
 interface Props {
   open: boolean

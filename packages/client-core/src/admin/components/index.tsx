@@ -23,16 +23,16 @@ import { useHistory } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { useAuthState } from '../../user/state/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../state/AdminState'
-import { useLocationState } from '../state/LocationState'
-import { SceneService } from '../state/SceneService'
-import { UserService } from '../state/UserService'
-import { InstanceService } from '../state/InstanceService'
-import { useUserState } from '../state/UserState'
-import { useInstanceState } from '../state/InstanceState'
-import { LocationService } from '../state/LocationService'
-import { useSceneState } from '../state/SceneState'
+import { useAuthState } from '../../user/services/AuthService'
+import { ADMIN_PAGE_LIMIT } from '../services/AdminService'
+import { useLocationState } from '../services/LocationService'
+import { SceneService } from '../services/SceneService'
+import { UserService } from '../services/UserService'
+import { InstanceService } from '../services/InstanceService'
+import { useUserState } from '../services/UserService'
+import { useInstanceState } from '../services/InstanceService'
+import { LocationService } from '../services/LocationService'
+import { useSceneState } from '../services/SceneService'
 import Grid from '@mui/material/Grid'
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
@@ -236,13 +236,13 @@ const AdminConsole = (props: Props) => {
       name: location.name,
       sceneId: location.sceneId,
       maxUsersPerInstance: location.maxUsersPerInstance,
-      type: location.location_settings?.locationType,
+      type: location.locationSettings?.locationType,
       tags: {
         isFeatured: location?.isFeatured,
         isLobby: location?.isLobby
       },
-      instanceMediaChatEnabled: location.location_settings?.instanceMediaChatEnabled?.toString(),
-      videoEnabled: location.location_settings?.videoEnabled?.toString()
+      instanceMediaChatEnabled: location.locationSettings?.instanceMediaChatEnabled?.toString(),
+      videoEnabled: location.locationSettings?.videoEnabled?.toString()
     }
   })
 

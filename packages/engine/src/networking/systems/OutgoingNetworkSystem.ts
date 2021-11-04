@@ -138,9 +138,9 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
   const { outgoingNetworkState, previousNetworkState } = world
 
   const networkObject = getComponent(entity, NetworkObjectComponent)
-  if (!networkObject) return
-
   const transformComponent = getComponent(entity, TransformComponent)
+
+  if (!networkObject || !transformComponent) return world
 
   let vel = undefined! as number[]
   let angVel = undefined
@@ -150,6 +150,7 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
       vel = [0]
     else vel = velC.velocity.toArray()
   }
+
   if (
     // if there is no previous state (first frame)
     previousNetworkState === undefined ||

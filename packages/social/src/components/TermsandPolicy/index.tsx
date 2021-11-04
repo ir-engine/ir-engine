@@ -10,9 +10,9 @@ import DialogContent from '@mui/material/DialogContent/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText/DialogContentText'
 import { Button, Typography } from '@mui/material'
 
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
 import { Link } from 'react-router-dom'
 
 const Transition = React.forwardRef(

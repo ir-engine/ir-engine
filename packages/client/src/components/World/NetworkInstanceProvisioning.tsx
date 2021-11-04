@@ -1,9 +1,9 @@
-import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/state/AppActions'
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
-import { UserService } from '@xrengine/client-core/src/user/state/UserService'
-import { useUserState } from '@xrengine/client-core/src/user/state/UserState'
+import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { UserService } from '@xrengine/client-core/src/user/services/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
@@ -12,10 +12,10 @@ import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import url from 'url'
 import { retriveLocationByName } from './LocationLoadHelper'
-import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
-import { useInstanceConnectionState } from '@xrengine/client-core/src/common/state/InstanceConnectionState'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
-import { ChannelConnectionService } from '@xrengine/client-core/src/common/state/ChannelConnectionService'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { ChannelConnectionService } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 
 interface Props {
   locationName: string
@@ -28,7 +28,7 @@ interface Props {
   chatState?: any
   sceneId: any
   //reinit: any
-  isUserBanned: any
+  isUserBanned: boolean
   setIsValidLocation: any
 }
 
@@ -107,7 +107,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
-      ChannelConnectionService.provisionChannelServer(null!, instanceChannel?.id)
+      ChannelConnectionService.provisionChannelServer(instanceChannel?.id)
     }
   }, [chatState.instanceChannelFetched.value])
 

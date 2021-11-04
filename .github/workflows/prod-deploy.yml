@@ -4,7 +4,32 @@ on:
     branches:
       [master]
 jobs:
+  secrets-gate-run:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check-secrets-run.outputs.ok }}
+    steps:
+      - name: check for secrets needed to run workflows
+        id: check-secrets-run
+        run: |
+          if [ ${{ secrets.DEPLOYMENTS_ENABLED }} == 'true' ]; then
+            echo "::set-output name=ok::enabled"
+          fi
+  secrets-gate-webhook:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check-secrets-webhook.outputs.ok }}
+    steps:
+      - name: check for secrets needed to run workflows
+        id: check-secrets-webhook
+        run: |
+          if [ ${{ secrets.SEND_FINISHED_WEBHOOK }} == 'true' ]; then
+            echo "::set-output name=ok::enabled"
+          fi
   prod-deploy:
+    needs:
+      - secrets-gate-run
+    if: ${{ needs.secrets-gate-run.outputs.ok == 'enabled' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -28,29 +53,27 @@ jobs:
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Build Docker Image
-        run: bash scripts/build_docker_builder.sh prod $DOCKER_LABEL $AWS_REGION
+        run: bash scripts/build_docker_builder.sh prod $DOCKER_LABEL $PRIVATE_ECR $AWS_REGION
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.PROD_REPO_NAME }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_URL: ${{ secrets.ECR_URL }}
+          PRIVATE_ECR: ${{ secrets.PRIVATE_ECR }}
       - name: npm-install 'cli' and 'aws-sdk'
         run: npm install cli aws-sdk
       - name: Publish to Elastic Container Registry
-        run: bash scripts/publish_ecr_builder.sh prod $GITHUB_SHA $DOCKER_LABEL $AWS_REGION
+        run: bash scripts/publish_ecr_builder.sh prod $GITHUB_SHA $DOCKER_LABEL $PRIVATE_ECR $AWS_REGION
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.PROD_REPO_NAME }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_URL: ${{ secrets.ECR_URL }}
+          PRIVATE_ECR: ${{ secrets.PRIVATE_ECR }}
       - name: Deploy to EKS
         run: bash scripts/deploy_builder.sh prod $GITHUB_SHA
-        env:
-          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
       - name: Job succeeded
-        if: always()
+        if: ${{ needs.secrets-gate-webhook.outputs.ok == 'enabled' }}
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6 # Not needed with a .ruby-version file

@@ -1,7 +1,7 @@
 import { client } from '@xrengine/client-core/src/feathers'
 import { FeedLikesAction } from './FeedLikesActions'
-import { FeedAction } from '@xrengine/client-core/src/social/state/FeedActions'
-import { AlertService } from '@xrengine/client-core/src/common/state/AlertService'
+import { FeedAction } from '@xrengine/client-core/src/social/services/FeedService'
+import { AlertService } from '@xrengine/client-core/src/common/services/AlertService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
 export const FeedLikesService = {

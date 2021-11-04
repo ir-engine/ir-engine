@@ -11,9 +11,9 @@ import Paper from '@mui/material/Paper'
 import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import { useAnalyticsState } from '../../state/AnalyticsState'
-import { AnalyticsService } from '../../state/AnalyticsService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { useAnalyticsState } from '../../services/AnalyticsService'
+import { AnalyticsService } from '../../services/AnalyticsService'
 
 interface Props {
   adminGroupState?: any
