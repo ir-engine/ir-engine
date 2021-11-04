@@ -77,7 +77,7 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       color: '#ff9966'
     },
     container: {
-      maxHeight: '80vh'
+      maxHeight: '73vh'
     },
     redBorder: {
       border: '1px solid red',

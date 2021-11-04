@@ -50,7 +50,13 @@ const useStylesForBots = makeStyles((theme: Theme) =>
       transform: 'scale(0.8)'
     },
     title: {
-      fontSize: 20
+      fontSize: 20,
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      [theme.breakpoints.down('sm')]: {
+        fontSize: 14
+      }
     },
     pos: {
       marginBottom: 12
@@ -59,10 +65,15 @@ const useStylesForBots = makeStyles((theme: Theme) =>
       height: '50px',
       background: '#343b41',
       color: '#fff',
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
       borderBottom: '1px solid #23282c',
       borderRadius: '0px',
-      paddingTop: '8px',
-      paddingLeft: '20px'
+      paddingLeft: '20px',
+      [theme.breakpoints.down('md')]: {
+        paddingLeft: '5px'
+      }
     },
     alterContainer: {
       background: '#343b41',
@@ -150,11 +161,18 @@ const useStylesForBots = makeStyles((theme: Theme) =>
         fontSize: '0.7rem'
       }
     },
+    saveBtnIcon: {
+      marginRight: '10px',
+      [theme.breakpoints.down('md')]: {
+        marginRight: '5px'
+      }
+    },
     smFont: {
       fontSize: '20px',
       marginLeft: '10px',
       [theme.breakpoints.down('md')]: {
-        fontSize: '15px'
+        fontSize: '14px',
+        marginLeft: '5px'
       }
     }
   })
