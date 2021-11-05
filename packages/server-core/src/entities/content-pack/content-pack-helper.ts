@@ -104,6 +104,7 @@ export function assembleProject(project: ProjectInterface, contentPack: string):
   console.log('assembleProject', project, contentPack)
   return new Promise(async (resolve, reject) => {
     try {
+      // @ts-ignore
       const manifest = await axios.get<Buffer>(project.storageProviderPath, getAxiosConfig())
       const data = JSON.parse(manifest.data.toString())
       const files = data.files
@@ -111,12 +112,14 @@ export function assembleProject(project: ProjectInterface, contentPack: string):
       uploadPromises.push(
         storageProvider.putObject({
           Body: manifest.data,
+          // @ts-ignore
           ContentType: getContentType(project.storageProviderPath),
           Key: `content-pack/${contentPack}/project/${project.name}/manifest.json`
         })
       )
       files.forEach((file) => {
         const path = file.replace('./', '')
+        // @ts-ignore
         const subFileLink = project.storageProviderPath.replace('manifest.json', path)
         uploadPromises.push(
           new Promise(async (resolve) => {
