@@ -1,5 +1,7 @@
 import * as authentication from '@feathersjs/authentication'
 import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
+import matchmakingRestrictMultipleQueueing from '@xrengine/server-core/src/hooks/matchmaking-restrict-multiple-queueing'
+import matchmakingSaveTicket from '@xrengine/server-core/src/hooks/matchmaking-save-ticket'
 import * as commonHooks from 'feathers-hooks-common'
 
 // Don't remove this comment. It's needed to format import lines nicely.
@@ -12,7 +14,8 @@ export default {
     find: [],
     get: [],
     create: [
-      commonHooks.iff(commonHooks.isProvider('external'), authenticate('jwt') as any, setLoggedInUser('userId') as any)
+      commonHooks.iff(commonHooks.isProvider('external'), authenticate('jwt') as any, setLoggedInUser('userId') as any),
+      matchmakingRestrictMultipleQueueing()
       // addUUID()
     ],
     update: [commonHooks.disallow()],
@@ -24,7 +27,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [matchmakingSaveTicket()],
     update: [],
     patch: [],
     remove: []

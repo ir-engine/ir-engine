@@ -1,9 +1,9 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import { BadRequest } from '@feathersjs/errors'
+import { BadRequest, NotFound } from "@feathersjs/errors";
 import { Application } from '../../../declarations'
 // import { createTicket, deleteTicket, getTicket } from 'xrengine-matchmaking/src/functions'
 import { createTicket, deleteTicket, getTicket } from '../../../../match-maker/src/functions'
-import { OpenMatchTicket, OpenMatchTicketAssignment } from '@xrengine/engine/tests/mathmaker/interfaces'
+import { OpenMatchTicket, OpenMatchTicketAssignment } from '../../../../match-maker/src/interfaces'
 
 interface Data {}
 
@@ -43,7 +43,12 @@ export class MatchTicket implements ServiceMethods<Data> {
     if (typeof id !== 'string' || id.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
-    return getTicket(String(id))
+    const ticket = getTicket(String(id))
+
+    if (!ticket) {
+      throw new NotFound()
+    }
+    return ticket as OpenMatchTicket
   }
 
   async create(data: unknown, params?: Params): Promise<OpenMatchTicket | OpenMatchTicket[]> {

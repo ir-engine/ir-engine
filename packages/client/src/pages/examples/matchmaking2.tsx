@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { client } from '@xrengine/client-core/src/feathers'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { OpenMatchTicketAssignment } from '@xrengine/engine/tests/mathmaker/interfaces'
 import { Link } from 'react-router-dom'
 
@@ -19,8 +19,19 @@ const Page = () => {
   }, [])
 
   async function newTicket() {
-    const ticket = await ticketsService.create({ gamemode: 'mode.demo' })
+    let ticket
+    try {
+      ticket = await ticketsService.create({ gamemode: 'mode.demo' })
+    } catch (e) {
+      alert('You already searching for game')
+      const matchUser = (await client.service('match-user').find()).data[0]
+      console.log('matchUser', matchUser)
+      ticket = { id: matchUser.ticketId }
+    }
     console.log('ticket', ticket)
+    if (ticketsIds.includes(ticket.id)) {
+      return
+    }
     setTicketsIds([...ticketsIds, ticket.id])
 
     getAssignment(ticket.id).then((assignment) => {})

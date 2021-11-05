@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { client } from '@xrengine/client-core/src/feathers'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { OpenMatchTicket, OpenMatchTicketAssignment } from '@xrengine/engine/tests/mathmaker/interfaces'
 import { useHistory } from 'react-router-dom'
 
@@ -29,12 +29,25 @@ const Page = () => {
 
   async function newTicket(gamemode) {
     setStatus('...')
-    const ticket = await ticketsService.create({ gamemode })
-    console.log('ticket', ticket)
-    setTicket(ticket)
+    let serverTicket
+    try {
+      serverTicket = await ticketsService.create({ gamemode })
+    } catch (e) {
+      alert('You already searching for game')
+      const matchUser = (await client.service('match-user').find()).data[0]
+      console.log('matchUser', matchUser)
+      serverTicket = await ticketsService.get(matchUser.ticketId)
+      gamemode = serverTicket.search_fields.tags[0]
+    }
+    console.log('ticket', serverTicket)
+    if (ticket && ticket.id === serverTicket.id) {
+      return
+    }
+
+    setTicket(serverTicket)
     setStatus('Searching more players for ' + gamemode + '.')
 
-    getAssignment(ticket.id).then((assignment) => {
+    getAssignment(serverTicket.id).then((assignment) => {
       setConnection(assignment.connection)
       setStatus('Found!')
     })
