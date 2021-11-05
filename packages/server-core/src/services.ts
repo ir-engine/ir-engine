@@ -3,7 +3,7 @@ import AnalyticsServices from './analytics/services'
 import EntityServices from './entities/services'
 import MediaServices from './media/services'
 import NetworkingServices from './networking/services'
-import PaymentServices from './payments/services'
+// import PaymentServices from './payments/services';
 import SocialServices from './social/services'
 import SocialMediaServices from './socialmedia/services'
 import UserServices from './user/services'
@@ -21,7 +21,7 @@ export default (app: Application): void => {
     ...WorldServices,
     ...EntityServices,
     ...NetworkingServices,
-    ...PaymentServices,
+    // ...PaymentServices,
     ...SocialServices,
     ...SocialMediaServices,
     ...BotService,

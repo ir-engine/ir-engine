@@ -1,6 +1,7 @@
 import { HookContext } from '@feathersjs/feathers'
 import { hooks } from '@feathersjs/authentication'
 import dauria from 'dauria'
+import removeOwnedFile from '@xrengine/server-core/src/hooks/remove-owned-file'
 import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
@@ -31,7 +32,7 @@ export default {
     ],
     update: [authenticate('jwt')],
     patch: [authenticate('jwt'), replaceThumbnailLink()],
-    remove: [authenticate('jwt'), attachOwnerIdInQuery('userId')]
+    remove: [authenticate('jwt'), attachOwnerIdInQuery('userId'), removeOwnedFile()]
   },
 
   after: {

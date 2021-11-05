@@ -15,7 +15,6 @@ export default (app: Application): any => {
       },
       user_id: {
         type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
         allowNull: false
       },
       isPublic: {

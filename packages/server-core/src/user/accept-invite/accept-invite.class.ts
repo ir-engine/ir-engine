@@ -121,9 +121,9 @@ export class AcceptInvite implements ServiceMethods<Data> {
             }
           })
 
-          if ((relationshipToPatch as any).data.length > 0)
+          if (relationshipToPatch.data.length > 0)
             await this.app.service('user-relationship').patch(
-              (relationshipToPatch as any).data[0].id,
+              relationshipToPatch.data[0].id,
               {
                 userRelationshipType: invite.inviteType
               },
@@ -146,7 +146,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             }
           })
 
-          if ((existingGroupUser as any).total === 0) {
+          if (existingGroupUser.total === 0) {
             paramsCopy.skipAuth = true
             await this.app.service('group-user').create(
               {
@@ -177,7 +177,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             }
           })
 
-          if ((existingPartyUser as any).total === 0) {
+          if (existingPartyUser.total === 0) {
             paramsCopy.skipAuth = true
             await this.app.service('party-user').create(
               {
@@ -226,9 +226,9 @@ export class AcceptInvite implements ServiceMethods<Data> {
             }
           })
 
-          if ((relationshipToPatch as any).data.length > 0)
+          if (relationshipToPatch.data.length > 0)
             await this.app.service('user-relationship').patch(
-              (relationshipToPatch as any).data[0].id,
+              relationshipToPatch.data[0].id,
               {
                 userRelationshipType: invite.inviteType
               },
@@ -250,7 +250,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             }
           })
 
-          if ((existingGroupUser as any).total === 0) {
+          if (existingGroupUser.total === 0) {
             paramsCopy.skipAuth = true
             await this.app.service('group-user').create(
               {
@@ -282,7 +282,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             }
           })
 
-          if ((existingPartyUser as any).total === 0) {
+          if (existingPartyUser.total === 0) {
             paramsCopy.skipAuth = true
             await this.app.service('party-user').create(
               {

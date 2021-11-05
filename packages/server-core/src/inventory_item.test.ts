@@ -8,7 +8,7 @@ describe('Check Inventory Item', () => {
     const service = await app.service('inventory-item')
     assert.ok(service, 'Registered the service');
   })
-  /*
+
   // Creating an item in inventory item
    it('should create an inventory item', async () => {
      const item = await app.service('inventory-item').create(
@@ -28,5 +28,5 @@ describe('Check Inventory Item', () => {
      const item = await app.service('inventory-item').remove('33c49a60-3b39-11ec-956d-bd63c686b264');
      assert.ok(item, "Inventory Item is deleted");
    })
-   */
+
 })

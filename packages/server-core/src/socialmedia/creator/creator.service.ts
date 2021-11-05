@@ -22,7 +22,6 @@ export default function (app: Application): void {
   // Initialize our service with any options it requires
   const creator = new Creator(options, app)
   creator.docs = creatorDocs
-  //@ts-ignore
   app.use('creator', creator)
 
   // Get our initialized service so that we can register hooks
