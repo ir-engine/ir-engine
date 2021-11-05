@@ -157,7 +157,7 @@
   .body {
     .avatars-container,
     .scenes-container,
-    .reality-packs-container {
+    .projects-container {
       .header {
         font-size: 1.5em;
       }
@@ -261,4 +261,11 @@
     margin-left: 5px;
     font-size: 1.5em;
   }
+}
+
+.open-modal {
+  height: 50px;
+  margin: auto 5px;
+  background: rgb(58, 65, 73);
+  color: #f1f1f1 !important;
 }

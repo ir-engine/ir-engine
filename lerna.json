@@ -1,8 +1,9 @@
 {
   "packages": [
-    "packages/*"
+    "packages/*",
+    "packages/projects/projects/*"
   ],
-  "version": "0.4.8",
+  "version": "0.4.10",
   "npmClient": "npm",
   "useWorkspaces": true,
   "hoist": true,

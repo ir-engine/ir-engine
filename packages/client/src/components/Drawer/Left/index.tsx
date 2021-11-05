@@ -1,36 +1,32 @@
-import Avatar from '@material-ui/core/Avatar'
-import Button from '@material-ui/core/Button'
-import Divider from '@material-ui/core/Divider'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemText from '@material-ui/core/ListItemText'
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
-import TextField from '@material-ui/core/TextField'
-import { Add, ArrowLeft, Block, Delete, Edit, Forum, GroupAdd, SupervisorAccount } from '@material-ui/icons'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import { useFriendState } from '@xrengine/client-core/src/social/reducers/friend/FriendState'
-import { FriendService } from '@xrengine/client-core/src/social/reducers/friend/FriendService'
-import { useGroupState } from '@xrengine/client-core/src/social/reducers/group/GroupState'
-import { GroupService } from '@xrengine/client-core/src/social/reducers/group/GroupService'
-import { InviteService } from '@xrengine/client-core/src/social/reducers/invite/InviteService'
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { LocationService } from '@xrengine/client-core/src/social/reducers/location/LocationService'
-import { usePartyState } from '@xrengine/client-core/src/social/reducers/party/PartyState'
-import { PartyService } from '@xrengine/client-core/src/social/reducers/party/PartyService'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { Downgraded } from '@hookstate/core'
-import { UserService } from '@xrengine/client-core/src/user/store/UserService'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import ListItemText from '@mui/material/ListItemText'
+import SwipeableDrawer from '@mui/material/SwipeableDrawer'
+import TextField from '@mui/material/TextField'
+import { Add, ArrowLeft, Block, Delete, Edit, Forum, GroupAdd, SupervisorAccount } from '@mui/icons-material'
+import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
+import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
+import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
+import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
+import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
+import { PartyService } from '@xrengine/client-core/src/social/services/PartyService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { UserService } from '@xrengine/client-core/src/user/services/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { Group as GroupType } from '@xrengine/common/src/interfaces/Group'
-import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import styles from './Left.module.scss'
-import { GroupAction } from '@xrengine/client-core/src/social/reducers/group/GroupActions'
+import { GroupAction } from '@xrengine/client-core/src/social/services/GroupService'
 
 interface Props {
   harmony?: boolean
@@ -118,16 +114,16 @@ const LeftDrawer = (props: Props): any => {
       selectedGroup.id && selectedGroup.id.length > 0
         ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === user.id.value)
         : {}
-    const partyUsers = party && party?.partyUsers?.value ? party.partyUsers.value : []
+    const partyUsers = party && party?.partyUsers && party?.partyUsers?.value ? party.partyUsers.value : []
     const selfPartyUser =
       party && party?.partyUsers?.value
-        ? party?.partyUsers?.value.find((partyUser) => partyUser.userId === user.id.value)
-        : {}
+        ? party?.partyUsers?.value?.find((partyUser) => partyUser.user.id === user.id.value)
+        : null
     const currentLocation = useLocationState().currentLocation.location.value
 
     useEffect(() => {
       if (friendState.updateNeeded.value === true && friendState.getFriendsInProgress.value !== true) {
-        dispatch(FriendService.getFriends('', 0))
+        FriendService.getFriends('', 0)
       }
       /* if (selectedUser.id?.length > 0 && friendState.get('closeDetails') === selectedUser.id) {
         closeDetails()
@@ -137,7 +133,7 @@ const LeftDrawer = (props: Props): any => {
 
     useEffect(() => {
       if (groupState.updateNeeded.value === true && groupState.getGroupsInProgress.value !== true) {
-        dispatch(GroupService.getGroups(0))
+        GroupService.getGroups(0)
       }
       if (selectedGroup?.id.length > 0 && groupState.closeDetails.value === selectedGroup.id) {
         closeDetails()
@@ -147,16 +143,9 @@ const LeftDrawer = (props: Props): any => {
 
     useEffect(() => {
       if (partyState.updateNeeded.value === true) {
-        dispatch(PartyService.getParty())
+        PartyService.getParty()
       }
     }, [partyState.updateNeeded.value])
-
-    useEffect(() => {
-      if (user.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
-        dispatch(UserService.getLayerUsers(true))
-      if (user.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
-        dispatch(UserService.getLayerUsers(false))
-    }, [user, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
     const showFriendDeleteConfirm = (e, friendId) => {
       e.preventDefault()
@@ -171,14 +160,14 @@ const LeftDrawer = (props: Props): any => {
     const confirmFriendDelete = (e, friendId) => {
       e.preventDefault()
       setFriendDeletePending('')
-      dispatch(FriendService.unfriend(friendId))
+      FriendService.unfriend(friendId)
       closeDetails()
       setLeftDrawerOpen(false)
     }
 
     const nextFriendsPage = (): void => {
       if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
-        dispatch(FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value))
+        FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value)
       }
     }
 
@@ -195,17 +184,18 @@ const LeftDrawer = (props: Props): any => {
     const confirmGroupDelete = (e, groupId) => {
       e.preventDefault()
       setGroupDeletePending('')
-      dispatch(GroupService.removeGroup(groupId))
+      GroupService.removeGroup(groupId)
       setSelectedGroup(initialGroupForm)
       setDetailsType('')
       setLeftDrawerOpen(false)
     }
 
+    /*
     const showLocationBanConfirm = (e, userId) => {
       e.preventDefault()
       setLocationBanPending(userId)
     }
-
+  
     const cancelLocationBan = (e) => {
       e.preventDefault()
       setLocationBanPending('')
@@ -215,12 +205,12 @@ const LeftDrawer = (props: Props): any => {
       e.preventDefault()
       console.log('Confirming location ban')
       setLocationBanPending('')
-      dispatch(LocationService.banUserFromLocation(userId, currentLocation.id))
-    }
+      LocationService.banUserFromLocation(userId, currentLocation.id)
+    } */
 
     const nextGroupsPage = (): void => {
       if (groupSubState.skip.value + groupSubState.limit.value < groupSubState.total.value) {
-        dispatch(GroupService.getGroups(groupSubState.skip.value + groupSubState.limit.value))
+        GroupService.getGroups(groupSubState.skip.value + groupSubState.limit.value)
       }
     }
 
@@ -238,7 +228,7 @@ const LeftDrawer = (props: Props): any => {
       e.preventDefault()
       const groupUser = _.find(selectedGroup.groupUsers, (groupUser) => groupUser.id === groupUserId)
       setGroupUserDeletePending('')
-      dispatch(GroupService.removeGroupUser(groupUserId))
+      GroupService.removeGroupUser(groupUserId)
       if (groupUser.userId === user.id.value) {
         setSelectedGroup(initialGroupForm)
         setDetailsType('')
@@ -259,7 +249,7 @@ const LeftDrawer = (props: Props): any => {
     const confirmPartyDelete = (e, partyId) => {
       e.preventDefault()
       setPartyDeletePending(false)
-      dispatch(PartyService.removeParty(partyId))
+      PartyService.removeParty(partyId)
       setLeftDrawerOpen(false)
     }
 
@@ -277,8 +267,8 @@ const LeftDrawer = (props: Props): any => {
       e.preventDefault()
       const partyUser = _.find(partyUsers, (pUser) => pUser.id === partyUserId)
       setPartyUserDeletePending('')
-      dispatch(PartyService.removePartyUser(partyUserId))
-      if (partyUser.userId === user.id.value) setLeftDrawerOpen(false)
+      PartyService.removePartyUser(partyUserId)
+      if (partyUser && partyUser.user.id === user.id.value) setLeftDrawerOpen(false)
     }
 
     const showTransferPartyOwnerConfirm = (e, partyUserId) => {
@@ -294,7 +284,7 @@ const LeftDrawer = (props: Props): any => {
     const confirmTransferPartyOwner = (e, partyUserId) => {
       e.preventDefault()
       setPartyTransferOwnerPending('')
-      dispatch(PartyService.transferPartyOwner(partyUserId))
+      PartyService.transferPartyOwner(partyUserId)
     }
 
     const handleChange = (event: any, newValue: number): void => {
@@ -355,9 +345,9 @@ const LeftDrawer = (props: Props): any => {
 
       if (groupFormMode === 'create') {
         delete form.id
-        dispatch(GroupService.createGroup(form))
+        GroupService.createGroup(form)
       } else {
-        dispatch(GroupService.patchGroup(form))
+        GroupService.patchGroup(form)
       }
       setLeftDrawerOpen(false)
       setGroupFormOpen(false)
@@ -365,7 +355,7 @@ const LeftDrawer = (props: Props): any => {
     }
 
     const createNewParty = (): void => {
-      dispatch(PartyService.createParty())
+      PartyService.createParty()
     }
 
     const onListScroll = (e): void => {
@@ -379,7 +369,7 @@ const LeftDrawer = (props: Props): any => {
     }
 
     const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
-      dispatch(InviteService.updateInviteTarget(targetObjectType, targetObjectId))
+      InviteService.updateInviteTarget(targetObjectType, targetObjectId)
       setLeftDrawerOpen(false)
       setRightDrawerOpen(true)
     }
@@ -389,8 +379,8 @@ const LeftDrawer = (props: Props): any => {
       if (harmony !== true) setBottomDrawerOpen(true)
       // else if (harmony === true) setHarmonyOpen(true);
       setTimeout(() => {
-        dispatch(ChatService.updateChatTarget(targetObjectType, targetObject))
-        dispatch(ChatService.updateMessageScrollInit(true))
+        ChatService.updateChatTarget(targetObjectType, targetObject)
+        ChatService.updateMessageScrollInit(true)
       }, 100)
     }
 
@@ -547,7 +537,7 @@ const LeftDrawer = (props: Props): any => {
                     >
                       Chat
                     </Button>
-                    {(selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
+                    {selfPartyUser?.isOwner === true && (
                       <Button
                         variant="contained"
                         color="secondary"
@@ -557,7 +547,7 @@ const LeftDrawer = (props: Props): any => {
                         Invite
                       </Button>
                     )}
-                    {partyDeletePending !== true && (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
+                    {partyDeletePending !== true && selfPartyUser?.isOwner === true && (
                       <Button
                         variant="contained"
                         className={styles['background-red']}
@@ -601,32 +591,30 @@ const LeftDrawer = (props: Props): any => {
                   >
                     {partyUsers &&
                       partyUsers.length > 0 &&
-                      partyUsers
-                        .sort((a, b) => a.name - b.name)
+                      [...partyUsers]
+                        .sort((a, b) => (a?.user?.name || '')?.localeCompare(b?.user?.name || ''))
                         .map((partyUser) => {
                           return (
                             <ListItem key={partyUser.id}>
                               <ListItemAvatar>
                                 <Avatar src={partyUser.user.avatarUrl} />
                               </ListItemAvatar>
-                              {user.id.value === partyUser.userId &&
-                                (partyUser.isOwner === true || partyUser.isOwner === 1) && (
-                                  <ListItemText primary={partyUser.user.name + ' (you, owner)'} />
-                                )}
-                              {user.id.value === partyUser.userId &&
-                                partyUser.isOwner !== true &&
-                                partyUser.isOwner !== 1 && <ListItemText primary={partyUser.user.name + ' (you)'} />}
-                              {user.id.value !== partyUser.userId &&
-                                (partyUser.isOwner === true || partyUser.isOwner === 1) && (
-                                  <ListItemText primary={partyUser.user.name + ' (owner)'} />
-                                )}
-                              {user.id.value !== partyUser.userId &&
-                                partyUser.isOwner !== true &&
-                                partyUser.isOwner !== 1 && <ListItemText primary={partyUser.user.name} />}
+                              {user.id.value === partyUser.id && partyUser.isOwner === true && (
+                                <ListItemText primary={partyUser.user.name + ' (you, owner)'} />
+                              )}
+                              {user.id.value === partyUser.id && partyUser.isOwner !== true && (
+                                <ListItemText primary={partyUser.user.name + ' (you)'} />
+                              )}
+                              {user.id.value !== partyUser.id && partyUser.isOwner === true && (
+                                <ListItemText primary={partyUser.user.name + ' (owner)'} />
+                              )}
+                              {user.id.value !== partyUser.id && partyUser.isOwner !== true && (
+                                <ListItemText primary={partyUser.user.name} />
+                              )}
                               {partyUserDeletePending !== partyUser.id &&
                                 partyTransferOwnerPending !== partyUser.id &&
-                                (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                user.id.value !== partyUser.userId && (
+                                selfPartyUser?.isOwner === true &&
+                                user.id.value !== partyUser.id && (
                                   <Button
                                     variant="contained"
                                     className={styles.groupUserMakeOwnerInit}
@@ -656,8 +644,8 @@ const LeftDrawer = (props: Props): any => {
                               )}
                               {partyTransferOwnerPending !== partyUser.id &&
                                 partyUserDeletePending !== partyUser.id &&
-                                (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) &&
-                                user.id.value !== partyUser.userId && (
+                                selfPartyUser?.isOwner === true &&
+                                user.id.value !== partyUser.id && (
                                   <Button
                                     className={styles.groupUserDeleteInit}
                                     onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}
@@ -665,7 +653,7 @@ const LeftDrawer = (props: Props): any => {
                                     <Delete />
                                   </Button>
                                 )}
-                              {partyUserDeletePending !== partyUser.id && user.id.value === partyUser.userId && (
+                              {partyUserDeletePending !== partyUser.id && user.id.value === partyUser.id && (
                                 <Button
                                   className={styles.groupUserDeleteInit}
                                   onClick={(e) => showPartyUserDeleteConfirm(e, partyUser.id)}
@@ -675,7 +663,7 @@ const LeftDrawer = (props: Props): any => {
                               )}
                               {partyTransferOwnerPending !== partyUser.id && partyUserDeletePending === partyUser.id && (
                                 <div className={styles.userConfirmButtons}>
-                                  {user.id.value !== partyUser.userId && (
+                                  {user.id.value !== partyUser.id && (
                                     <Button
                                       variant="contained"
                                       color="primary"
@@ -684,7 +672,7 @@ const LeftDrawer = (props: Props): any => {
                                       Remove User
                                     </Button>
                                   )}
-                                  {user.id.value === partyUser.userId && (
+                                  {user.id.value === partyUser.id && (
                                     <Button
                                       variant="contained"
                                       color="primary"
@@ -769,6 +757,7 @@ const LeftDrawer = (props: Props): any => {
                   {selfGroupUser != null && selfGroupUser.groupUserRank === 'owner' && (
                     <Button
                       variant="contained"
+                      className={styles['gray']}
                       startIcon={<Edit />}
                       onClick={() => openGroupForm('update', selectedGroup)}
                     >

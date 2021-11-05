@@ -1,32 +1,35 @@
 import { Config } from '@xrengine/common/src/config'
 import React, { useEffect, useState } from 'react'
 import Search from './Search'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import Paper from '@material-ui/core/Paper'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import TableSortLabel from '@mui/material/TableSortLabel'
+import Paper from '@mui/material/Paper'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import { useDispatch } from '../../store'
+
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
 // import CreateInstance from './Instance/CreateInstance'
-import { Delete, Edit } from '@material-ui/icons'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Slide from '@material-ui/core/Slide'
-import { TransitionProps } from '@material-ui/core/transitions'
-import { useAuthState } from '../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../reducers/admin/AdminState'
-import { useInstanceState } from '../reducers/admin/instance/InstanceState'
-import { InstanceService } from '../reducers/admin/instance/InstanceService'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { Delete, Edit } from '@mui/icons-material'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
+import Slide from '@mui/material/Slide'
+import { TransitionProps } from '@mui/material/transitions'
+import { useAuthState } from '../../user/services/AuthService'
+import { ADMIN_PAGE_LIMIT } from '../services/AdminService'
+import { useInstanceState } from '../services/InstanceService'
+import { InstanceService } from '../services/InstanceService'
+import { Theme } from '@mui/material/styles'
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
+import { InstanceSeed } from '@xrengine/common/src/interfaces/Instance'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -60,15 +63,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function InstanceConsole(props: Props) {
   const classes = useStyles()
-  const initialInstance = {
-    id: '',
-    ipAddress: '',
-    currentUsers: 0,
-    locationId: ''
-  }
+
   const adminInstanceState = useInstanceState()
   const user = useAuthState().user
-  const [selectedInstance, setSelectedInstance] = useState(initialInstance)
+  const [selectedInstance, setSelectedInstance] = useState(InstanceSeed)
   const [instanceCreateOpen, setInstanceCreateOpen] = useState(false)
   const [instanceModalOpen, setInstanceModalOpen] = useState(false)
   const adminInstances = adminInstanceState.instances.instances
@@ -165,7 +163,7 @@ function InstanceConsole(props: Props) {
   const [dense, setDense] = React.useState(false)
   const [rowsPerPage, setRowsPerPage] = React.useState(ADMIN_PAGE_LIMIT)
   const [refetch, setRefetch] = React.useState(false)
-  const [instanceEdit, setInstanceEdit] = React.useState(initialInstance)
+  const [instanceEdit, setInstanceEdit] = React.useState(InstanceSeed)
   const [instanceEditing, setInstanceEditing] = React.useState(false)
   const [open, setOpen] = React.useState(false)
   const [instanceId, setInstanceId] = React.useState('')
@@ -190,22 +188,26 @@ function InstanceConsole(props: Props) {
   }
 
   const handleInstanceClick = (event: React.MouseEvent<unknown>, id: string) => {
-    const selected = adminInstances.value.find((instance) => instance.id === id)
-    setSelectedInstance(selected)
-    setInstanceModalOpen(true)
+    const selected = adminInstances.value.find((instance) => instance.id.toString() === id)
+    if (selected !== undefined) {
+      setSelectedInstance(selected)
+      setInstanceModalOpen(true)
+    }
   }
 
   const handleInstanceUpdateClick = (id: string) => {
-    const selected = adminInstances.value.find((instance) => instance.id === id)
-    setInstanceEdit(selected)
-    setInstanceCreateOpen(true)
-    setInstanceEditing(true)
+    const selected = adminInstances.value.find((instance) => instance.id.toString() === id)
+    if (selected !== undefined) {
+      setInstanceEdit(selected)
+      setInstanceCreateOpen(true)
+      setInstanceEditing(true)
+    }
   }
 
   const handleInstanceClose = (e: any): void => {
     console.log('handleInstanceClosed')
     setInstanceModalOpen(false)
-    setSelectedInstance(initialInstance)
+    setSelectedInstance(InstanceSeed)
   }
 
   const handleCreateInstanceClose = (e: any): void => {
@@ -215,7 +217,7 @@ function InstanceConsole(props: Props) {
 
   useEffect(() => {
     if (user?.id.value != null && (adminInstanceState.instances.updateNeeded.value === true || refetch === true)) {
-      dispatch(InstanceService.fetchAdminInstances())
+      InstanceService.fetchAdminInstances()
     }
     setRefetch(false)
   }, [useAuthState(), adminInstanceState.instances.updateNeeded.value, refetch])

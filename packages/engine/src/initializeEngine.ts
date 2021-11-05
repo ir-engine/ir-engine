@@ -88,6 +88,8 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
 const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
   Engine.scene = new Scene()
 
+  // Had to add this to make mocha tests pass
+  Network.instance ||= new Network()
   Network.instance.isInitialized = true
 
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
@@ -119,13 +121,12 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   // Input
   registerSystem(SystemUpdateType.UPDATE, import('./xr/systems/XRSystem'))
   registerSystem(SystemUpdateType.UPDATE, import('./input/systems/ClientInputSystem'))
-  registerSystem(SystemUpdateType.UPDATE, import('./camera/systems/CameraSystem'))
   registerSystem(SystemUpdateType.UPDATE, import('./navigation/systems/AutopilotSystem'))
 
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
 
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
-    updatesPerSecond: 60
+    tickRate: 60
   })
 
   /**
@@ -163,6 +164,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/TriggerSystem'))
   registerSystemWithArgs(SystemUpdateType.FIXED_LATE, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
   })
@@ -182,6 +184,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.PRE_RENDER, import('./networking/systems/MediaStreamSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./xrui/systems/XRUISystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./interaction/systems/InteractiveSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./camera/systems/CameraSystem'))
 
   // Audio Systems
   registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/AudioSystem'))
@@ -226,7 +229,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
 
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
-    updatesPerSecond: 60
+    tickRate: 60
   })
   // Network Incoming Systems
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/IncomingNetworkSystem'))
@@ -242,6 +245,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/TriggerSystem'))
   registerSystemWithArgs(SystemUpdateType.FIXED_LATE, import('./physics/systems/PhysicsSystem'), {
     simulationEnabled: options.physics.simulationEnabled
   })

@@ -2,28 +2,28 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
 
-import Card from '@material-ui/core/Card'
-import CardMedia from '@material-ui/core/CardMedia'
-import Typography from '@material-ui/core/Typography'
-import CardContent from '@material-ui/core/CardContent'
-import Button from '@material-ui/core/Button'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import Card from '@mui/material/Card'
+import CardMedia from '@mui/material/CardMedia'
+import Typography from '@mui/material/Typography'
+import CardContent from '@mui/material/CardContent'
+import Button from '@mui/material/Button'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
-// import TwitterIcon from '@material-ui/icons/Twitter';
-// import InstagramIcon from '@material-ui/icons/Instagram';
-// import TitleIcon from '@material-ui/icons/Title';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+// import TwitterIcon from '@mui/icons-material/Twitter';
+// import InstagramIcon from '@mui/icons-material/Instagram';
+// import TitleIcon from '@mui/icons-material/Title';
 // import SimpleModal from '../SimpleModal';
 // @ts-ignore
 import styles from './CreatorCard.module.scss'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material'
 import SimpleModal from '../SimpleModal'
 
 interface Props {
@@ -69,7 +69,7 @@ const CreatorCard = ({ creator }: Props) => {
 
   const currentCreator = creatorState.creators.currentCreator?.id?.value
   useEffect(() => {
-    dispatch(CreatorService.getBlockedList(currentCreator))
+    CreatorService.getBlockedList(currentCreator)
   }, [])
 
   const blackList = creatorState.creators.blocked.value
@@ -77,13 +77,13 @@ const CreatorCard = ({ creator }: Props) => {
   const isBlockedByMe = blackList?.some(checkId)
 
   const handleBlockCreator = (creatorId) => {
-    dispatch(CreatorService.blockCreator(creatorId))
+    CreatorService.blockCreator(creatorId)
     setOpenBlock(false)
-    dispatch(PopupsStateService.updateCreatorPageState(false))
+    PopupsStateService.updateCreatorPageState(false)
   }
 
   const handleBlockedList = (creatorId) => {
-    dispatch(CreatorService.getBlockedList(creatorId))
+    CreatorService.getBlockedList(creatorId)
     setOpenFiredModal(true)
     setCreatorsType('blocked')
   }
@@ -109,8 +109,8 @@ const CreatorCard = ({ creator }: Props) => {
       aria-controls="owner-menu"
       aria-haspopup="true"
       onClick={() => {
-        dispatch(PopupsStateService.updateCreatorFormState(true))
-        dispatch(FeedService.clearCreatorFeatured())
+        PopupsStateService.updateCreatorFormState(true)
+        FeedService.clearCreatorFeatured()
       }}
     >
       <MoreHorizIcon />
@@ -130,7 +130,7 @@ const CreatorCard = ({ creator }: Props) => {
             variant="text"
             className={styles.backButton}
             onClick={() => {
-              dispatch(PopupsStateService.updateCreatorPageState(false))
+              PopupsStateService.updateCreatorPageState(false)
             }}
           >
             <ArrowBackIosIcon />

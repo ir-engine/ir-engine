@@ -1,7 +1,7 @@
 import React from 'react'
-import { InputBase, IconButton } from '@material-ui/core'
-import Paper from '@material-ui/core/Paper'
-import SearchIcon from '@material-ui/icons/Search'
+import { InputBase, IconButton } from '@mui/material'
+import Paper from '@mui/material/Paper'
+import SearchIcon from '@mui/icons-material/Search'
 import { useFeedStyles } from './styles'
 
 const SearchFeed = () => {
@@ -15,7 +15,7 @@ const SearchFeed = () => {
         inputProps={{ 'aria-label': 'search for media' }}
         // onChange={handleChange}
       />
-      <IconButton type="submit" className={classes.iconButton} arial-label="search">
+      <IconButton type="submit" className={classes.iconButton} arial-label="search" size="large">
         <SearchIcon />
       </IconButton>
     </Paper>

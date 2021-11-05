@@ -1,22 +1,22 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import Drawer from '@material-ui/core/Drawer'
-import Button from '@material-ui/core/Button'
-import CloudUploadIcon from '@material-ui/icons/CloudUpload'
-import DialogActions from '@material-ui/core/DialogActions'
-import Container from '@material-ui/core/Container'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import Drawer from '@mui/material/Drawer'
+import Button from '@mui/material/Button'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import DialogActions from '@mui/material/DialogActions'
+import Container from '@mui/material/Container'
+import DialogTitle from '@mui/material/DialogTitle'
 import { useARMediaStyles, useARMediaStyle } from './styles'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import PhotoCamera from '@material-ui/icons/PhotoCamera'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
+import PhotoCamera from '@mui/icons-material/PhotoCamera'
 import { validateARMediaForm } from './validation'
-import { ArMediaService } from '../../../reducers/arMedia/ArMediaService'
+import { ArMediaService } from '@xrengine/client-core/src/social/services/ArMediaService'
 
 interface Props {
   open: boolean
@@ -100,7 +100,7 @@ const CreateVideo = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateARMediaForm(state, state.formErrors)) {
-      dispatch(ArMediaService.createArMedia({ type, title }, { manifest, audio, dracosis, preview }))
+      ArMediaService.createArMedia({ type, title }, { manifest, audio, dracosis, preview })
       closeViewModel(false)
       setState({
         ...state,

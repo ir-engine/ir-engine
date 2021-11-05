@@ -2,16 +2,16 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
 import VideoRecorder from 'react-video-recorder'
-import Button from '@material-ui/core/Button'
-import Card from '@material-ui/core/Card'
-import CardMedia from '@material-ui/core/CardMedia'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import BackupIcon from '@material-ui/icons/Backup'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import Button from '@mui/material/Button'
+import Card from '@mui/material/Card'
+import CardMedia from '@mui/material/CardMedia'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import BackupIcon from '@mui/icons-material/Backup'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
 import { Capacitor, Plugins } from '@capacitor/core'
 import { Http, HttpResponse } from '@capacitor-community/http'
@@ -19,13 +19,13 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 // @ts-ignore
 import styles from './FeedForm.module.scss'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
-import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
-import { useWebxrNativeState } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeState'
-import { WebxrNativeService } from '@xrengine/social/src/reducers/webxr_native/WebxrNativeService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/services/WebxrNativeService'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/services/WebxrNativeService'
 import Preloader from '@xrengine/social/src/components/Preloader'
-import { useFeedState } from '../../reducers/feed/FeedState'
+import { useFeedState } from '@xrengine/client-core/src/social/services/FeedService'
 
 interface Props {
   feed?: any
@@ -81,9 +81,9 @@ const FeedForm = ({ feed }: Props) => {
     }
 
     if (feed) {
-      dispatch(FeedService.updateFeedAsAdmin(feed.id, newFeed))
+      FeedService.updateFeedAsAdmin(feed.id, newFeed)
     } else {
-      const feedMediaLinks = await dispatch(FeedService.createFeed(newFeed))
+      const feedMediaLinks = await FeedService.createFeed(newFeed)
       // @ts-ignore
       // updateShareFormState(true, feedMediaLinks.video, feedMediaLinks.preview);
     }
@@ -99,10 +99,10 @@ const FeedForm = ({ feed }: Props) => {
     // }, 2000);
 
     if (webxrRecorderActivity) {
-      dispatch(WebxrNativeService.changeWebXrNative())
+      WebxrNativeService.changeWebXrNative()
     }
     XRPlugin.deleteVideo({ videoDir: videoDir })
-    dispatch(PopupsStateService.updateNewFeedPageState(false, null, null, null))
+    PopupsStateService.updateNewFeedPageState(false, null, null, null)
   }
 
   const dataURItoBlob = (dataURI) => {
@@ -250,9 +250,9 @@ const FeedForm = ({ feed }: Props) => {
   }, [])
 
   const closePopUp = () => {
-    dispatch(PopupsStateService.updateNewFeedPageState(false, null, null, null))
+    PopupsStateService.updateNewFeedPageState(false, null, null, null)
     if (webxrRecorderActivity) {
-      dispatch(WebxrNativeService.changeWebXrNative())
+      WebxrNativeService.changeWebXrNative()
     }
     XRPlugin.deleteVideo({ videoDir: videoDir })
   }

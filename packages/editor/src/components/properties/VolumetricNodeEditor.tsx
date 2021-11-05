@@ -23,13 +23,13 @@ export function VolumetricNodeEditor(props) {
   VolumetricNodeEditor.description = t('editor:properties.volumetric.description')
 
   //function to handle the change in src property
-  const onChangeSrc = useSetPropertySelected('src')
+  const onChangeSrc = useSetPropertySelected('srcUrl')
 
   //returning editor view
   return (
     <NodeEditor description={VolumetricNodeEditor.description} {...props}>
       <InputGroup name="Volumetric" label={t('editor:properties.volumetric.lbl-volumetric')}>
-        <VolumetricInput value={node.src} onChange={onChangeSrc} />
+        <VolumetricInput value={node.srcUrl} onChange={onChangeSrc} />
       </InputGroup>
       <AudioSourceProperties {...props} />
     </NodeEditor>

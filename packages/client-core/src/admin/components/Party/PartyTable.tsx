@@ -1,19 +1,18 @@
 import React from 'react'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TablePagination from '@material-ui/core/TablePagination'
-import TableRow from '@material-ui/core/TableRow'
-import { PartyService } from '../../reducers/admin/party/PartyService'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TablePagination from '@mui/material/TablePagination'
+import TableRow from '@mui/material/TableRow'
+import { PartyService } from '../../services/PartyService'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/services/AuthService'
 import { PartyPropsTable, partyColumns, PartyData } from './variables'
 import { usePartyStyles, usePartyStyle } from './style'
-import { usePartyState } from '../../reducers/admin/party/PartyState'
-import { PARTY_PAGE_LIMIT } from '../../reducers/admin/party/PartyState'
+import { usePartyState } from '../../services/PartyService'
+import { PARTY_PAGE_LIMIT } from '../../services/PartyService'
 
 const PartyTable = (props: PartyPropsTable) => {
   const classes = usePartyStyle()
@@ -27,18 +26,18 @@ const PartyTable = (props: PartyPropsTable) => {
   const user = authState.user
   const adminPartyState = usePartyState()
   const adminParty = adminPartyState.parties
-  const adminPartyData = adminParty.parties?.data?.value ? adminParty.parties?.data?.value : []
+  const adminPartyData = adminParty.parties?.value || []
   const adminPartyCount = adminParty.total
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(PartyService.fetchAdminParty(incDec))
+    PartyService.fetchAdminParty(incDec)
     setPage(newPage)
   }
 
   React.useEffect(() => {
     if (user?.id?.value && adminParty.updateNeeded.value === true) {
-      dispatch(PartyService.fetchAdminParty())
+      PartyService.fetchAdminParty()
     }
   }, [authState.user?.id?.value, adminPartyState.parties.updateNeeded.value])
 
@@ -66,13 +65,13 @@ const PartyTable = (props: PartyPropsTable) => {
     setPage(0)
   }
 
-  const rows = adminPartyData.map((el) =>
-    createData(
+  const rows = adminPartyData?.map((el) => {
+    return createData(
       el.id,
-      el.instance?.ipAddress || <span className={classes.spanNone}>None</span>,
-      el.location?.name || <span className={classes.spanNone}>None</span>
+      el?.instance?.ipAddress || `<span className={classes.spanNone}>None</span>`,
+      el.location?.name || `<span className={classes.spanNone}>None</span>`
     )
-  )
+  })
 
   return (
     <div className={classes.root}>

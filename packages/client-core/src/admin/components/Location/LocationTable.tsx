@@ -1,34 +1,33 @@
 import React, { ReactElement, useEffect } from 'react'
-import { LocationService } from '../../reducers/admin/location/LocationService'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
+import { LocationService } from '../../services/LocationService'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
 import { useLocationStyles, useLocationStyle } from './styles'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { useLocationState } from '../../reducers/admin/location/LocationState'
-import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
-import { useUserState } from '../../reducers/admin/user/UserState'
-import { SceneService } from '../../reducers/admin/scene/SceneService'
-import { useSceneState } from '../../reducers/admin/scene/SceneState'
-import { UserService } from '../../reducers/admin/user/UserService'
-import { InstanceService } from '../../reducers/admin/instance/InstanceService'
-import { useErrorState } from '../../../common/reducers/error/ErrorState'
-import { connect, useDispatch } from 'react-redux'
+import { useAuthState } from '../../../user/services/AuthService'
+import { useLocationState } from '../../services/LocationService'
+import { useInstanceState } from '../../services/InstanceService'
+import { useUserState } from '../../services/UserService'
+import { SceneService } from '../../services/SceneService'
+import { useSceneState } from '../../services/SceneService'
+import { UserService } from '../../services/UserService'
+import { InstanceService } from '../../services/InstanceService'
+import { useErrorState } from '../../../common/services/ErrorService'
+import { useDispatch } from '../../../store'
 import { useTranslation } from 'react-i18next'
 import { locationColumns, LocationProps } from './variable'
-import Chip from '@material-ui/core/Chip'
-import Avatar from '@material-ui/core/Avatar'
-import TablePagination from '@material-ui/core/TablePagination'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Button from '@material-ui/core/Button'
+import Chip from '@mui/material/Chip'
+import Avatar from '@mui/material/Avatar'
+import TablePagination from '@mui/material/TablePagination'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
+import Button from '@mui/material/Button'
 import ViewLocation from './ViewLocation'
-import { LOCATION_PAGE_LIMIT } from '../../reducers/admin/location/LocationState'
+import { LOCATION_PAGE_LIMIT } from '../../services/LocationService'
 
 const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
@@ -53,7 +52,7 @@ const LocationTable = (props: LocationProps) => {
   const adminUserState = useUserState()
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(LocationService.fetchAdminLocations(incDec))
+    LocationService.fetchAdminLocations(incDec)
     setPage(newPage)
   }
 
@@ -64,19 +63,19 @@ const LocationTable = (props: LocationProps) => {
 
   useEffect(() => {
     if (user?.id?.value !== null && adminLocationState.locations.updateNeeded.value && !adminScopeReadErrMsg?.value) {
-      dispatch(LocationService.fetchAdminLocations())
+      LocationService.fetchAdminLocations()
     }
     if (user?.id.value != null && adminSceneState.scenes.updateNeeded.value === true) {
-      dispatch(SceneService.fetchAdminScenes('all'))
+      SceneService.fetchAdminScenes('all')
     }
     if (user?.id.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
-      dispatch(LocationService.fetchLocationTypes())
+      LocationService.fetchLocationTypes()
     }
     if (user?.id.value != null && adminUserState.users.updateNeeded.value === true) {
-      dispatch(UserService.fetchUsersAsAdmin())
+      UserService.fetchUsersAsAdmin()
     }
     if (user?.id.value != null && adminInstanceState.instances.updateNeeded.value === true) {
-      dispatch(InstanceService.fetchAdminInstances())
+      InstanceService.fetchAdminInstances()
     }
   }, [
     authState.user?.id?.value,
@@ -240,7 +239,7 @@ const LocationTable = (props: LocationProps) => {
           <Button
             className={classes.spanDange}
             onClick={async () => {
-              await dispatch(LocationService.removeLocation(locationId))
+              await LocationService.removeLocation(locationId)
               setPopConfirmOpen(false)
             }}
             autoFocus

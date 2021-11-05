@@ -1,13 +1,12 @@
 import React, { useEffect } from 'react'
 import { useStyles } from './styles'
-import { Grid, Paper, Typography } from '@material-ui/core'
-import { InputBase } from '@material-ui/core'
-import Switch from '@material-ui/core/Switch'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useSettingAnalyticsState } from '../../reducers/admin/Setting/analytics/SettingAnalyticsState'
-import { SettingAnalyticsService } from '../../reducers/admin/Setting/analytics/SettingAnalyticsService'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { Grid, Paper, Typography } from '@mui/material'
+import { InputBase } from '@mui/material'
+import Switch from '@mui/material/Switch'
+import { useDispatch } from '../../../store'
+import { useSettingAnalyticsState } from '../../services/Setting/SettingAnalyticsService'
+import { SettingAnalyticsService } from '../../services/Setting/SettingAnalyticsService'
+import { useAuthState } from '../../../user/services/AuthService'
 
 interface AnalyticsProps {}
 
@@ -29,7 +28,7 @@ const Analytics = (props: AnalyticsProps) => {
 
   useEffect(() => {
     if (user?.id?.value != null && settingAnalyticsState.Analytics.updateNeeded.value === true) {
-      dispatch(SettingAnalyticsService.fetchSettingsAnalytics())
+      SettingAnalyticsService.fetchSettingsAnalytics()
     }
   }, [authState])
 

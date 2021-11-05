@@ -2,20 +2,20 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>, Gleb Ordinsky
  */
 import { Plugins } from '@capacitor/core'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import CardMedia from '@material-ui/core/CardMedia'
-import Typography from '@material-ui/core/Typography'
-import TelegramIcon from '@material-ui/icons/Telegram'
-import VisibilityIcon from '@material-ui/icons/Visibility'
-import WhatshotIcon from '@material-ui/icons/Whatshot'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardMedia from '@mui/material/CardMedia'
+import Typography from '@mui/material/Typography'
+import TelegramIcon from '@mui/icons-material/Telegram'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import WhatshotIcon from '@mui/icons-material/Whatshot'
 import { Feed } from '@xrengine/common/src/interfaces/Feed'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { TheFeedsFiresService } from '../../reducers/thefeedsFires/TheFeedsFiresService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { TheFeedsFiresService } from '@xrengine/client-core/src/social/services/TheFeedsFiresService'
 import CreatorAsTitle from '../CreatorAsTitle'
 import styles from './TheFeedsCard.module.scss'
 
@@ -33,18 +33,18 @@ const TheFeedsCard = (props: Props): any => {
   const [thefeedsFiresCreators, setThefeedsFiresCreators] = useState(null)
 
   const handleAddFireClick = (feedId) => {
-    dispatch(TheFeedsFiresService.addFireToTheFeeds(feedId))
+    TheFeedsFiresService.addFireToTheFeeds(feedId)
     setFiredCount(firedCount + 1)
     setFired(true)
   }
   const handleRemoveFireClick = (feedId) => {
-    dispatch(TheFeedsFiresService.removeFireToTheFeeds(feedId))
+    TheFeedsFiresService.removeFireToTheFeeds(feedId)
     setFiredCount(firedCount - 1)
     setFired(false)
   }
 
   useEffect(() => {
-    dispatch(TheFeedsFiresService.getTheFeedsFires(feed.id, setThefeedsFiresCreators))
+    TheFeedsFiresService.getTheFeedsFires(feed.id, setThefeedsFiresCreators)
   }, [])
 
   const { t } = useTranslation()

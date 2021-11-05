@@ -1,12 +1,12 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 import NotificationCard from '../NotificationCard'
 import { useTranslation } from 'react-i18next'
 
@@ -20,10 +20,9 @@ const NotificationList = ({ creatorsState }: Props) => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(CreatorService.getCreatorNotificationList())
+    CreatorService.getCreatorNotificationList()
   }, [])
-  const notificationList =
-    creatorsState && creatorsState.get('creators') ? creatorsState.get('currentCreatorNotifications') : null
+  const notificationList = creatorsState && creatorsState.creators ? creatorsState.currentCreatorNotifications : null
   return (
     <section className={styles.notificationsContainer}>
       <Typography variant="h2">{t('social:notification.activity')}</Typography>

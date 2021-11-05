@@ -10,7 +10,7 @@ declare module '../../../declarations' {
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),

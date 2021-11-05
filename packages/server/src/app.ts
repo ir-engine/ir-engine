@@ -23,6 +23,7 @@ import { Application } from '@xrengine/server-core/declarations'
 
 const emitter = new EventEmitter()
 
+// @ts-ignore
 const app = express(feathers()) as Application
 
 app.set('nextReadyEmitter', emitter)
@@ -142,6 +143,14 @@ if (config.server.enabled) {
       app.k8DefaultClient = api({
         endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/api/v1',
+        auth: {
+          caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
+          token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
+        }
+      })
+      app.k8AppsClient = api({
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
+        version: '/apis/apps/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
           token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')

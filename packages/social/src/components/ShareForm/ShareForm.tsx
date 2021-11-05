@@ -1,14 +1,15 @@
-import { Box, CardActionArea, CardActions, CardContent, CardMedia, makeStyles, Typography } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
-import Card from '@material-ui/core/Card'
+import { Box, CardActionArea, CardActions, CardContent, CardMedia, Typography } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
+import Button from '@mui/material/Button'
+import Card from '@mui/material/Card'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import styles from './ShareForm.module.scss'
 import { Plugins } from '@capacitor/core'
 import { useTranslation } from 'react-i18next'
-import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import { Share } from '@capacitor/share'
 
 interface Props {}
@@ -42,8 +43,8 @@ const ShareForm = (props: Props) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const closePopUps = () => {
-    dispatch(PopupsStateService.updateShareFormState(false))
-    dispatch(PopupsStateService.updateNewFeedPageState(false))
+    PopupsStateService.updateShareFormState(false)
+    PopupsStateService.updateNewFeedPageState(false)
   }
 
   const shareVia = () => {

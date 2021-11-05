@@ -1,0 +1,229 @@
+.admin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  flex-wrap: wrap;
+}
+
+.paper-modal {
+  padding: 16px 32px 24px;
+  box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
+  background-color: #fff;
+  max-width: 80%;
+  max-height: 90%;
+  overflow-y: scroll;
+}
+
+.inputConatiner {
+  width: 100%;
+  margin-bottom: 15px;
+
+  :global(.MuiFormControl-root) {
+    width: 100%;
+  }
+}
+
+.buttonConatiner{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.info-icon {
+  color: white !important;
+  opacity: 0.54;
+
+  &:hover {
+    opacity: 0.75;
+  }
+}
+.avatar {
+  margin: 7px;
+  background-color: #3f51b5;
+}
+.form {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.submit {
+  margin: 14px 0 !important;
+}
+.delete {
+  color: white !important;
+  background-color: red !important;
+}
+.MuiButton-contained.facebook {
+  background-color: #4267B2;
+  color: white;
+}
+.MuiButton-contained.google {
+  background-color: red;
+  color: white;
+}
+.MuiButton-contained.github {
+  background-color: grey;
+  color: white;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .close {
+    left: 95%;
+    &:hover {
+      color: red;
+    }
+  }
+}
+
+.grid {
+  //max-height: 1000px;
+}
+
+.thead {
+  .trow {
+    .tcell {
+      color: lighten(white, 0.80);
+      background-color: #343b41;
+    }
+
+    .tcellSelectable {
+      .currentUser{
+        color: lighten(white, 0.80);
+        background-color: #4267B2;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        &:hover {
+          background-color: #145cee;;
+          cursor: pointer;
+        }
+       }
+    }
+  }
+
+  .trowHover {
+    cursor: pointer;
+
+    .tcell {
+      color: lighten(white, 0.80);
+      background-color: black;
+    }
+  }
+}
+
+.tableContainer {
+  flex-grow: 1;
+  width: 100%;
+  background-color: #43484F;
+  //color: #f1f1f1 !important;
+
+  * {
+    color: #f1f1f1 !important;
+  }
+}
+.tablePagination {
+  min-height: 55px;
+}
+
+.adminRoot {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #15171B !important;
+  color: #fff !important;
+}
+
+.instanceUsersHeader {
+  color: black;
+  font-size: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paper {
+  padding: 16px 32px 24px;
+  box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
+  background-color: #fff;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+
+  @media (max-width: 768px) {
+    width: 90%;
+  }
+}
+
+.tableFooter {
+  background-color: #343b41;
+
+  * {
+    color: #f1f1f1 !important;
+  }
+}
+.createLocation {
+  height: 50px;
+  margin: auto 5px;
+  width: 100%;
+}
+.locationModalButtons {
+  justify-content: space-between;
+}
+
+.pack-select {
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: red;
+  font-size: 1.5em;
+  margin-top: 10px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .title {
+    font-size: 1.5em;
+  }
+
+  .closeButton {
+    &:hover {
+      cursor: pointer;
+      color: red;
+    }
+  }
+}
+
+.checkbox {
+  margin: 0px; 
+  padding: 0px;
+  color: white;
+}
+
+.open-modal {
+  height: 50px;
+  margin: auto 5px;
+  width: 100%;
+  background: rgb(58, 65, 73);
+  color: #f1f1f1 !important;
+}
+
+.marginBottom {
+  margin-bottom: 10px;
+}

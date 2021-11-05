@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
-import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Container from '@mui/material/Container'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '../../../store'
 
 interface Props {
   auth: any
@@ -20,7 +20,7 @@ export const VerifyEmail = (props: Props): any => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(AuthService.verifyEmail(token))
+    AuthService.verifyEmail(token)
   }, [])
 
   return (

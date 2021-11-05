@@ -2,7 +2,7 @@ import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../../../declarations'
 // import Location from './location.model'
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const instance = sequelizeClient.define(
     'instance',

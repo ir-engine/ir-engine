@@ -8,9 +8,12 @@ declare module '../../../declarations' {
   interface ServiceTypes {
     'collection-type': CollectionType
   }
+  interface Models {
+    collection_type: ReturnType<typeof createModel>
+  }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),

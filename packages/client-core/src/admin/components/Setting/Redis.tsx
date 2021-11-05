@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
-import { Paper, Typography } from '@material-ui/core'
-import InputBase from '@material-ui/core/InputBase'
+import { Paper, Typography } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
 import { useStyles } from './styles'
-import Switch from '@material-ui/core/Switch'
-import { useAdminRedisSettingState } from '../../reducers/admin/Setting/redis/AdminRedisSettingState'
-import { AdminRedisSettingService } from '../../reducers/admin/Setting/redis/AdminRedisSettingService'
+import Switch from '@mui/material/Switch'
+import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'
+import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSettingService'
 
-import { connect, useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/services/AuthService'
 
 interface Props {
   redisSettingState?: any
@@ -26,7 +26,7 @@ const Redis = (props: Props) => {
   const user = authState.user
   useEffect(() => {
     if (user?.id?.value != null && redisSettingState?.redisSettings?.updateNeeded?.value) {
-      dispatch(AdminRedisSettingService.fetchRedisSetting())
+      AdminRedisSettingService.fetchRedisSetting()
     }
   }, [authState])
 

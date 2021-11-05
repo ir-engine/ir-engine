@@ -1,7 +1,55 @@
-  import fs from 'fs';
-import { defineConfig, loadEnv } from 'vite';
-import config from "config";
+import fs from 'fs'
+import fsExtra from 'fs-extra'
+import path from 'path'
+import { defineConfig, loadEnv } from 'vite'
+import config from "config"
 import inject from '@rollup/plugin-inject'
+import OptimizationPersist from './scripts/viteoptimizeplugin'
+import PkgConfig from 'vite-plugin-package-config'
+import { injectHtml } from 'vite-plugin-html'
+
+const copyProjectDependencies = () => {
+  const projects = fs
+    .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name)
+  for (const project of projects) {
+    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'public')
+    if(fs.existsSync(staticPath)) {
+      fsExtra.copySync(staticPath, path.resolve(__dirname, `public/projects`, project))
+    }
+  }
+}
+
+// this will copy all files in each installed project's "/static" folder to the "/public/projects" folder
+copyProjectDependencies()
+
+
+const getDependenciesToOptimize = () => {
+  const jsonPath = path.resolve(__dirname, `./optimizeDeps.json`)
+
+  // catch stale imports
+  if(fs.existsSync(jsonPath)) {
+    const pkg = fsExtra.readJSONSync(jsonPath)
+    for (let i = 0; i < pkg.dependencies.length; i++) {
+      const dep = pkg.dependencies[i]
+      const p = path.resolve(__dirname, '../../../node_modules/', dep)
+      if (!fs.existsSync(p)) {
+        fsExtra.removeSync(jsonPath)
+        console.log('stale dependency found. regenerating dependencies')
+        break
+      }
+    }
+  }
+
+  if(!fs.existsSync(jsonPath)) {
+    fs.writeFileSync(jsonPath, JSON.stringify({ dependencies: [] }))
+  }
+
+  const { dependencies } = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
+  const defaultDeps = JSON.parse(fs.readFileSync(path.resolve(__dirname, `./defaultDeps.json`), 'utf8'))
+  return [...dependencies, ...defaultDeps.dependencies]
+}
 
 const replaceEnvs = (obj, env) => {
   let result = {};
@@ -40,9 +88,23 @@ export default defineConfig((command) => {
 
   const returned = {
     optimizeDeps: {
-      include: ['@xrengine/realitypacks']
+      include: getDependenciesToOptimize()
     },
-    plugins: [],
+    plugins: [
+      PkgConfig(),
+      OptimizationPersist(),
+        injectHtml({
+          data: {
+            title: runtime.title || 'XRENGINE',
+            appleTouchIcon: runtime.appleTouchIcon || '/apple-touch-icon.png',
+            favicon32px: runtime.favicon32px || '/favicon-32x32.png',
+            favicon16px: runtime.favicon16px || '/favicon-16x16.png',
+            icon192px: runtime.icon192px || '/android-chrome-192x192.png',
+            icon512px: runtime.icon512px || '/android-chrome-512x512.png',
+            webmanifestLink: runtime.webmanifestLink || '/site.webmanifest'
+          }
+        })
+    ],
     server: {
       host: true,
     },
@@ -51,7 +113,8 @@ export default defineConfig((command) => {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
-        "ts-matches":"@xrengine/common/src/libs/ts-matches/matches.ts"
+        "ts-matches":"@xrengine/common/src/libs/ts-matches/matches.ts",
+        "@mui/styled-engine": "@mui/styled-engine-sc"
       }
     },
     build: {
@@ -76,7 +139,8 @@ export default defineConfig((command) => {
   if(process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true') {
     returned.server.https = {
       key: fs.readFileSync('../../certs/key.pem'),
-      cert: fs.readFileSync('../../certs/cert.pem')
+      cert: fs.readFileSync('../../certs/cert.pem'),
+      maxSessionMemory: 100
     }
   }
   if (command.command === 'build' && process.env.VITE_LOCAL_BUILD !== 'true') {

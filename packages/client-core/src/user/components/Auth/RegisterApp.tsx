@@ -1,15 +1,14 @@
 import React, { useRef, useState } from 'react'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
-import Container from '@material-ui/core/Container'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { AuthService } from '../../reducers/auth/AuthService'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import Container from '@mui/material/Container'
+import { useDispatch } from '../../../store'
+import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
-import OutlinedInput from '@material-ui/core/OutlinedInput'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import IconButton from '@material-ui/core/IconButton'
-import { Visibility, VisibilityOff } from '@material-ui/icons'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import InputAdornment from '@mui/material/InputAdornment'
+import IconButton from '@mui/material/IconButton'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 
 interface Props {}
@@ -100,6 +99,7 @@ const SignUp = (props: Props): any => {
                       onClick={handleClickShowPassword}
                       onMouseDown={handleMouseDownPassword}
                       color="secondary"
+                      size="large"
                     >
                       {values.showPassword ? <Visibility /> : <VisibilityOff />}
                     </IconButton>
@@ -127,6 +127,7 @@ const SignUp = (props: Props): any => {
                       onClick={handleClickShowPasswordConfirm}
                       onMouseDown={handleMouseDownPassword}
                       color="secondary"
+                      size="large"
                     >
                       {values.showPasswordConfirm ? <Visibility /> : <VisibilityOff />}
                     </IconButton>

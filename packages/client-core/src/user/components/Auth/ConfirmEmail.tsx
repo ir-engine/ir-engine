@@ -1,16 +1,14 @@
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import Typography from '@mui/material/Typography'
 import React from 'react'
-import Button from '@material-ui/core/Button'
-import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { AuthService } from '../../reducers/auth/AuthService'
-import { useAuthState } from '../../reducers/auth/AuthState'
-import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
-import styles from './Auth.module.scss'
 import { Trans, useTranslation } from 'react-i18next'
+import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
+import { useDispatch } from '../../../store'
+import { AuthService } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
+import styles from './Auth.module.scss'
 
 interface Props {}
 
@@ -23,7 +21,7 @@ const ConfirmEmail = (props: Props): any => {
 
     const identityProvider = auth.identityProvider
 
-    dispatch(AuthService.resendVerificationEmail(identityProvider.token.value))
+    AuthService.resendVerificationEmail(identityProvider.token.value)
   }
 
   return (

@@ -1,43 +1,47 @@
-import Button from '@material-ui/core/Button'
-import MenuItem from '@material-ui/core/MenuItem'
-import Paper from '@material-ui/core/Paper'
-import Select from '@material-ui/core/Select'
-import Tab from '@material-ui/core/Tab'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TablePagination from '@material-ui/core/TablePagination'
-import TableRow from '@material-ui/core/TableRow'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import Tabs from '@material-ui/core/Tabs'
-import Avatar from '@material-ui/core/Avatar'
-import Chip from '@material-ui/core/Chip'
-import FormControl from '@material-ui/core/FormControl'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import Button from '@mui/material/Button'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import Select from '@mui/material/Select'
+import Tab from '@mui/material/Tab'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TablePagination from '@mui/material/TablePagination'
+import TableRow from '@mui/material/TableRow'
+import TableSortLabel from '@mui/material/TableSortLabel'
+import Tabs from '@mui/material/Tabs'
+import Avatar from '@mui/material/Avatar'
+import Chip from '@mui/material/Chip'
+import FormControl from '@mui/material/FormControl'
+import { Theme } from '@mui/material/styles'
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 import { Config } from '@xrengine/common/src/config'
 import { useHistory } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { useAuthState } from '../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../reducers/admin/AdminState'
-import { useLocationState } from '../reducers/admin/location/LocationState'
-import { SceneService } from '../reducers/admin/scene/SceneService'
-import { UserService } from '../reducers/admin/user/UserService'
-import { InstanceService } from '../reducers/admin/instance/InstanceService'
-import { useUserState } from './../reducers/admin/user/UserState'
-import { useInstanceState } from './../reducers/admin/instance/InstanceState'
-import { LocationService } from '../reducers/admin/location/LocationService'
-import { useSceneState } from './../reducers/admin/scene/SceneState'
-import Grid from '@material-ui/core/Grid'
+import { useAuthState } from '../../user/services/AuthService'
+import { ADMIN_PAGE_LIMIT } from '../services/AdminService'
+import { useLocationState } from '../services/LocationService'
+import { SceneService } from '../services/SceneService'
+import { UserService } from '../services/UserService'
+import { InstanceService } from '../services/InstanceService'
+import { useUserState } from '../services/UserService'
+import { useInstanceState } from '../services/InstanceService'
+import { LocationService } from '../services/LocationService'
+import { useSceneState } from '../services/SceneService'
+import Grid from '@mui/material/Grid'
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
 import LocationModal from './LocationModal'
 import Search from './Search'
 import { useTranslation } from 'react-i18next'
+import { InstanceSeed } from '@xrengine/common/src/interfaces/Instance'
+
+import { LocationSeed } from '@xrengine/common/src/interfaces/Location'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -154,32 +158,13 @@ const AdminConsole = (props: Props) => {
   const router = useHistory()
   const adminInstanceState = useInstanceState()
   const authState = useAuthState()
-  const initialLocation = {
-    id: null,
-    name: '',
-    maxUsersPerInstance: 10,
-    sceneId: null,
-    locationSettingsId: null,
-    location_setting: {
-      instanceMediaChatEnabled: false,
-      videoEnabled: false,
-      locationType: 'private'
-    }
-  }
-
-  const initialInstance = {
-    id: '',
-    ipAddress: '',
-    currentUsers: 0,
-    locationId: ''
-  }
 
   const user = authState.user
   const [locationModalOpen, setLocationModalOpen] = useState(false)
   const [instanceModalOpen, setInstanceModalOpen] = useState(false)
   const [locationEditing, setLocationEditing] = useState(false)
-  const [selectedLocation, setSelectedLocation] = useState(initialLocation)
-  const [selectedInstance, setSelectedInstance] = useState(initialInstance)
+  const [selectedLocation, setSelectedLocation] = useState(LocationSeed)
+  const [selectedInstance, setSelectedInstance] = useState(InstanceSeed)
   const adminSceneState = useSceneState()
   const adminScenes = adminSceneState.scenes.scenes
 
@@ -251,13 +236,13 @@ const AdminConsole = (props: Props) => {
       name: location.name,
       sceneId: location.sceneId,
       maxUsersPerInstance: location.maxUsersPerInstance,
-      type: location?.location_setting?.locationType,
+      type: location.locationSettings?.locationType,
       tags: {
         isFeatured: location?.isFeatured,
         isLobby: location?.isLobby
       },
-      instanceMediaChatEnabled: location?.location_setting?.instanceMediaChatEnabled?.toString(),
-      videoEnabled: location?.location_setting?.videoEnabled?.toString()
+      instanceMediaChatEnabled: location.locationSettings?.instanceMediaChatEnabled?.toString(),
+      videoEnabled: location.locationSettings?.videoEnabled?.toString()
     }
   })
 
@@ -267,7 +252,7 @@ const AdminConsole = (props: Props) => {
       ipAddress: instance.ipAddress,
       currentUsers: instance.currentUsers,
       locationId: instance.locationId,
-      gsId: instance.gameserver_subdomain_provision?.gs_id,
+      gsId: instance?.gameserver_subdomain_provision?.gs_id,
       serverAddress:
         instance.gameserver_subdomain_provision != null
           ? `https://${instance.gameserver_subdomain_provision.gs_number}.${Config.publicRuntimeConfig.gameserverDomain}`
@@ -292,34 +277,38 @@ const AdminConsole = (props: Props) => {
 
   const handleLocationClick = (event: React.MouseEvent<unknown>, id: string) => {
     const selected = adminLocations.value.find((location) => location.id === id)
-    setSelectedLocation(selected)
-    setLocationEditing(true)
-    setLocationModalOpen(true)
+    if (selected !== undefined) {
+      setSelectedLocation(selected)
+      setLocationEditing(true)
+      setLocationModalOpen(true)
+    }
   }
 
   const openModalCreate = () => {
-    setSelectedLocation(initialLocation)
+    setSelectedLocation(LocationSeed)
     setLocationEditing(false)
     setLocationModalOpen(true)
   }
 
   const handleInstanceClick = (event: React.MouseEvent<unknown>, id: string) => {
-    const selected = adminInstances.value.find((instance) => instance.id === id)
-    setSelectedInstance(selected)
-    setInstanceModalOpen(true)
+    const selected = adminInstances.value.find((instance) => instance.id.toString() === id)
+    if (selected !== undefined) {
+      setSelectedInstance(selected)
+      setInstanceModalOpen(true)
+    }
   }
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     switch (selectedTab) {
       case 'locations':
-        dispatch(LocationService.fetchAdminLocations(incDec))
+        LocationService.fetchAdminLocations(incDec)
         break
       case 'users':
-        dispatch(UserService.fetchUsersAsAdmin(incDec))
+        UserService.fetchUsersAsAdmin(incDec)
         break
       case 'instances':
-        dispatch(InstanceService.fetchAdminInstances(incDec))
+        InstanceService.fetchAdminInstances(incDec)
         break
     }
     setPage(newPage)
@@ -333,13 +322,13 @@ const AdminConsole = (props: Props) => {
   const handleLocationClose = (e: any): void => {
     setLocationEditing(false)
     setLocationModalOpen(false)
-    setSelectedLocation(initialLocation)
+    setSelectedLocation(LocationSeed)
   }
 
   const handleInstanceClose = (e: any): void => {
     console.log('handleInstanceClosed')
     setInstanceModalOpen(false)
-    setSelectedInstance(initialInstance)
+    setSelectedInstance(InstanceSeed)
   }
 
   const handleTabChange = (e: any, newValue: string) => {
@@ -386,19 +375,19 @@ const AdminConsole = (props: Props) => {
 
   useEffect(() => {
     if (user?.id?.value != null && adminLocationState.locations.updateNeeded.value === true) {
-      dispatch(LocationService.fetchAdminLocations())
+      LocationService.fetchAdminLocations()
     }
     if (user?.id?.value != null && adminSceneState.scenes.updateNeeded.value === true) {
-      dispatch(SceneService.fetchAdminScenes())
+      SceneService.fetchAdminScenes()
     }
     if (user?.id?.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
-      dispatch(LocationService.fetchLocationTypes())
+      LocationService.fetchLocationTypes()
     }
     if (user?.id?.value != null && adminUserState.users.updateNeeded.value === true) {
-      dispatch(UserService.fetchUsersAsAdmin())
+      UserService.fetchUsersAsAdmin()
     }
     if (user?.id?.value != null && adminInstanceState.instances.updateNeeded.value === true) {
-      dispatch(InstanceService.fetchAdminInstances())
+      InstanceService.fetchAdminInstances()
     }
   }, [
     authState.user?.id?.value,

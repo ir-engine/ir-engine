@@ -16,11 +16,11 @@ import assert from 'assert'
 describe('Scene Loader', () => {
 
   // force close until we can reset the engine properly
-  after(async () => {
-    setTimeout(() => process.exit(0), 1000)
-  })
+  // after(async () => {
+  //   setTimeout(() => process.exit(0), 1000)
+  // })
 
-  it('Can load gltf metadata', async () => {
+  it.skip('Can load gltf metadata', async () => {
 
     const mockComponentData = { data: { src: '' } } as any
     const CustomComponent = createMappedComponent<{ value: number}>('CustomComponent')
@@ -34,9 +34,9 @@ describe('Scene Loader', () => {
     const number = Math.random()
     const mesh = new Mesh()
     mesh.userData = {
-      'realitypack.entity': entityName,
-      'realitypack.box-collider.isTrigger': true,
-      'realitypack.CustomComponent.value': number
+      'project.entity': entityName,
+      'project.box-collider.isTrigger': true,
+      'project.CustomComponent.value': number
     }
     const colliderQuery = defineQuery([NameComponent, TransformComponent, Object3DComponent, CustomComponent, ColliderComponent])
   
@@ -58,8 +58,8 @@ describe('Scene Loader', () => {
     const entityName = 'physics test entity'
     const parentGroup = new Group()
     parentGroup.userData = {
-      'realitypack.entity': entityName,
-      'realitypack.collider.bodyType': 0,
+      'project.entity': entityName,
+      'project.collider.bodyType': 0,
     }
 
     const mesh = new Mesh()

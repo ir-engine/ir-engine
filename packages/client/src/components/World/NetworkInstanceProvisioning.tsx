@@ -1,22 +1,21 @@
-import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/reducers/app/AppActions'
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { UserService } from '@xrengine/client-core/src/user/store/UserService'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { UserService } from '@xrengine/client-core/src/user/services/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import querystring from 'querystring'
 import React, { useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import url from 'url'
-import { useInstanceConnectionState } from '../../reducers/instanceConnection/InstanceConnectionState'
-import { InstanceConnectionService } from '../../reducers/instanceConnection/InstanceConnectionService'
 import { retriveLocationByName } from './LocationLoadHelper'
-import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
-import { ChannelConnectionService } from '../../reducers/channelConnection/ChannelConnectionService'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { ChannelConnectionService } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 
 interface Props {
   locationName: string
@@ -28,13 +27,13 @@ interface Props {
   children?: any
   chatState?: any
   sceneId: any
-  reinit: any
-  isUserBanned: any
+  //reinit: any
+  isUserBanned: boolean
   setIsValidLocation: any
 }
 
 export const NetworkInstanceProvisioning = (props: Props) => {
-  const { sceneId, reinit, isUserBanned, setIsValidLocation } = props
+  const { sceneId, isUserBanned, setIsValidLocation } = props
 
   const authState = useAuthState()
   const selfUser = authState.user
@@ -44,19 +43,16 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const locationState = useLocationState()
   const instanceConnectionState = useInstanceConnectionState()
   useEffect(() => {
-    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
-      dispatch(UserService.getLayerUsers(true))
-    if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
-      dispatch(UserService.getLayerUsers(false))
-  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
+    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
+  }, [selfUser, userState.layerUsersUpdateNeeded.value])
 
   useEffect(() => {
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
       if (!ev.instance) return
 
       await shutdownEngine()
-      dispatch(InstanceConnectionService.resetInstanceServer())
+      InstanceConnectionService.resetInstanceServer()
 
       if (!isUserBanned) {
         retriveLocationByName(authState, props.locationName, history)
@@ -82,9 +78,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           instanceId = query.instanceId
         }
 
-        dispatch(
-          InstanceConnectionService.provisionInstanceServer(currentLocation.id.value, instanceId || undefined, sceneId)
-        )
+        InstanceConnectionService.provisionInstanceServer(currentLocation.id.value, instanceId || undefined, sceneId)
       }
     } else {
       if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
@@ -110,7 +104,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
-      ChannelConnectionService.provisionChannelServer(null!, instanceChannel?.id)
+      ChannelConnectionService.provisionChannelServer(instanceChannel?.id)
     }
   }, [chatState.instanceChannelFetched.value])
 

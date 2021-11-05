@@ -3,22 +3,22 @@
  */
 import React, { useState } from 'react'
 
-import Typography from '@material-ui/core/Typography'
-import Avatar from '@material-ui/core/Avatar'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import WhatshotIcon from '@material-ui/icons/Whatshot'
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
+import Typography from '@mui/material/Typography'
+import Avatar from '@mui/material/Avatar'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import WhatshotIcon from '@mui/icons-material/Whatshot'
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 
 import styles from './CommentCard.module.scss'
 import { CommentInterface } from '@xrengine/common/src/interfaces/Comment'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
 import SimpleModal from '../SimpleModal'
-import { FeedCommentService } from '../../reducers/feedComment/FeedCommentService'
-import { useFeedCommentsState } from '../../reducers/feedComment/FeedCommentState'
+import { FeedCommentService } from '@xrengine/client-core/src/social/services/FeedCommentService'
+import { useFeedCommentsState } from '@xrengine/client-core/src/social/services/FeedCommentService'
 import PopupLogin from '../PopupLogin/PopupLogin'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
@@ -30,14 +30,14 @@ const CommentCard = ({ comment }: Props) => {
   const [openFiredModal, setOpenFiredModal] = useState(false)
   const dispatch = useDispatch()
   const handleAddFireClick = (feedId) => {
-    dispatch(FeedCommentService.addFireToFeedComment(feedId))
+    FeedCommentService.addFireToFeedComment(feedId)
   }
   const handleRemoveFireClick = (feedId) => {
-    dispatch(FeedCommentService.removeFireToFeedComment(feedId))
+    FeedCommentService.removeFireToFeedComment(feedId)
   }
   const feedCommentsState = useFeedCommentsState()
   const handleGetCommentFiredUsers = (id) => {
-    dispatch(FeedCommentService.getCommentFires(id))
+    FeedCommentService.getCommentFires(id)
     setOpenFiredModal(true)
   }
   const [buttonPopup, setButtonPopup] = useState(false)

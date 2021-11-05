@@ -1,29 +1,29 @@
-import Backdrop from '@material-ui/core/Backdrop'
-import Button from '@material-ui/core/Button'
-import Fade from '@material-ui/core/Fade'
-import FormControl from '@material-ui/core/FormControl'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import FormGroup from '@material-ui/core/FormGroup'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import Modal from '@material-ui/core/Modal'
-import Select from '@material-ui/core/Select'
-import Switch from '@material-ui/core/Switch'
-import TextField from '@material-ui/core/TextField'
-import Checkbox from '@material-ui/core/Checkbox'
+import Backdrop from '@mui/material/Backdrop'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormGroup from '@mui/material/FormGroup'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Modal from '@mui/material/Modal'
+import Select from '@mui/material/Select'
+import Switch from '@mui/material/Switch'
+import TextField from '@mui/material/TextField'
+import Checkbox from '@mui/material/Checkbox'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { LocationService } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { LocationService } from '@xrengine/client-core/src/admin/services/LocationService'
 
 import styles from './styles.module.scss'
-import Tooltip from '@material-ui/core/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { useSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
-import { useLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
+import { useSceneState } from '@xrengine/client-core/src/admin/services/SceneService'
+import { useLocationState } from '@xrengine/client-core/src/admin/services/LocationService'
 import { useParams } from 'react-router-dom'
-import { ScenesService } from '@xrengine/client-core/src/world/reducers/scenes/SceneService'
+import { ScenesService } from '@xrengine/client-core/src/world/services/SceneService'
 
 interface Props {
   open: boolean
@@ -76,9 +76,9 @@ const LocationModal = (props: Props): any => {
     }
 
     if (editing === true) {
-      dispatch(LocationService.patchLocation(location.id, submission))
+      LocationService.patchLocation(location.id, submission)
     } else {
-      dispatch(ScenesService.createPublishProject(submission))
+      ScenesService.createPublishProject(submission)
       //   createLocation(submission)
     }
 
@@ -86,7 +86,7 @@ const LocationModal = (props: Props): any => {
   }
 
   const deleteLocation = () => {
-    dispatch(LocationService.removeLocation(location.id))
+    LocationService.removeLocation(location.id)
     handleClose()
   }
 

@@ -1,17 +1,16 @@
-import Backdrop from '@material-ui/core/Backdrop'
-import Button from '@material-ui/core/Button'
-import Fade from '@material-ui/core/Fade'
-import Modal from '@material-ui/core/Modal'
+import Backdrop from '@mui/material/Backdrop'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import Modal from '@mui/material/Modal'
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '../../../store'
 import styles from './ContentPack.module.scss'
-import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
-import { Done } from '@material-ui/icons'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import { ContentPackService } from '../../services/ContentPackService'
+import { Done } from '@mui/icons-material'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
+import CircularProgress from '@mui/material/CircularProgress'
 
 interface Props {
   contentPack: any
@@ -44,7 +43,7 @@ const ContentPackDetailsModal = (props: Props): any => {
   const getContentPack = async () => {
     try {
       setProcessing(true)
-      await dispatch(ContentPackService.downloadContentPack(contentPack.url))
+      await ContentPackService.downloadContentPack(contentPack.url)
       setProcessing(false)
       showSuccess()
     } catch (err) {
@@ -87,7 +86,7 @@ const ContentPackDetailsModal = (props: Props): any => {
               <div className={styles['title']}>
                 {contentPack.name} (v{contentPack.data?.version})
               </div>
-              <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
+              <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose} size="large">
                 <CloseIcon />
               </IconButton>
             </div>
@@ -119,13 +118,13 @@ const ContentPackDetailsModal = (props: Props): any => {
                   })}
                 </div>
               </div>
-              <div className={styles['reality-packs-container']}>
-                <div className={styles['header']}>Reality Packs</div>
+              <div className={styles['projects-container']}>
+                <div className={styles['header']}>Projects</div>
                 <div className={styles['container']}>
-                  {contentPack.data?.realityPacks?.map((realityPack) => {
+                  {contentPack.data?.projects?.map((project) => {
                     return (
-                      <div key={realityPack.name} className={styles['scene']}>
-                        <div className={styles['name']}>{realityPack.name}</div>
+                      <div key={project.name} className={styles['scene']}>
+                        <div className={styles['name']}>{project.name}</div>
                       </div>
                     )
                   })}

@@ -1,5 +1,7 @@
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
-import { deepOrange } from '@material-ui/core/colors'
+import { Theme } from '@mui/material/styles'
+import makeStyles from '@mui/styles/makeStyles'
+import createStyles from '@mui/styles/createStyles'
+import { deepOrange } from '@mui/material/colors'
 
 const drawerWidth = 200
 
@@ -7,6 +9,9 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       display: 'flex'
+    },
+    header: {
+      height: '64px !important'
     },
     appBar: {
       zIndex: theme.zIndex.drawer + 1,
@@ -50,7 +55,7 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
         duration: theme.transitions.duration.leavingScreen
       }),
       overflowX: 'hidden',
-      width: `${theme.spacing(7) + 1}px !important`,
+      width: `calc(${theme.spacing(7)} + 1px) !important`,
       [theme.breakpoints.up('sm')]: {
         width: theme.spacing(9) + 1
       },
@@ -58,17 +63,38 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
     },
     toolbar: {
       display: 'flex',
+      flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-end',
       padding: theme.spacing(0, 1),
       // necessary for content to be below app bar
       ...theme.mixins.toolbar
     },
+    appBarHeadingContainer: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    },
+    appBarHeadingName: {
+      ['@media (max-width:500px)']: {
+        display: 'none'
+      }
+    },
     content: {
-      flexGrow: 1,
+      top: '64px',
+      overflow: 'auto',
+      position: 'relative',
       padding: theme.spacing(3),
       backgroundColor: '#15171B',
-      minHeight: '100vh'
+      height: 'calc(100vh - 64px)'
+    },
+    contentWidthDrawerOpen: {
+      width: `calc(100vw - ${drawerWidth}px)`
+    },
+    contentWidthDrawerClosed: {
+      width: `calc(100vw - ${theme.spacing(7) + 1}px)`
     },
     backdrop: {
       zIndex: theme.zIndex.drawer + 1,
@@ -96,7 +122,7 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
       paddingLeft: '2rem !important'
     },
     mdFont: {
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '1rem'
       }
     }

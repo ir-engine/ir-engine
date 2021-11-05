@@ -1,4 +1,6 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+import makeStyles from '@mui/styles/makeStyles'
+import createStyles from '@mui/styles/createStyles'
 export const useInstanceStyles = makeStyles((theme: Theme) =>
   createStyles({
     marginBottm: {
@@ -55,7 +57,7 @@ export const useInstanceStyle = makeStyles({
     width: '100%'
   },
   container: {
-    maxHeight: '80vh'
+    maxHeight: '73vh'
   },
   actionStyle: {
     textDecoration: 'none',

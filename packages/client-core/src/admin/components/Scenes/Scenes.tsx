@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from 'react'
-import Button from '@material-ui/core/Button'
-import Checkbox from '@material-ui/core/Checkbox'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import Paper from '@material-ui/core/Paper'
-import TablePagination from '@material-ui/core/TablePagination'
-import { connect, useDispatch } from 'react-redux'
-
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../../reducers/admin/AdminState'
-import { SceneService } from '../../reducers/admin/scene/SceneService'
-import { LocationService } from '../../reducers/admin/location/LocationService'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import TableSortLabel from '@mui/material/TableSortLabel'
+import Paper from '@mui/material/Paper'
+import TablePagination from '@mui/material/TablePagination'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/services/AuthService'
+import { ADMIN_PAGE_LIMIT } from '../../services/AdminService'
+import { SceneService } from '../../services/SceneService'
 import styles from './Scenes.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
-import { useSceneState } from '../../reducers/admin/scene/SceneState'
+import { useSceneState } from '../../services/SceneService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -140,7 +138,7 @@ const Scenes = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(SceneService.fetchAdminScenes(incDec))
+    SceneService.fetchAdminScenes(incDec)
     setPage(newPage)
   }
 
@@ -170,7 +168,7 @@ const Scenes = (props: Props) => {
 
   useEffect(() => {
     if (user?.id.value != null && (adminSceneState.scenes.updateNeeded.value === true || refetch === true)) {
-      dispatch(SceneService.fetchAdminScenes())
+      SceneService.fetchAdminScenes()
     }
     setRefetch(false)
   }, [authState.user?.id?.value, adminSceneState.scenes.updateNeeded.value, refetch])

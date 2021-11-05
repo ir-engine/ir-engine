@@ -12,7 +12,7 @@ export function getNearbyUsers(userId: UserId, maxMediaUsers = 8): Array<NearbyU
   const otherUsers = [] as UserId[]
   for (const [otherUserId] of Engine.defaultWorld.clients) {
     if (userId === otherUserId) continue
-    otherUsers.push(userId)
+    otherUsers.push(otherUserId)
   }
   if (userAvatar != null) {
     const userPosition = getComponent(userAvatar, TransformComponent).position

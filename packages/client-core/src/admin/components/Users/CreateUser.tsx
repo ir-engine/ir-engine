@@ -1,29 +1,29 @@
 import React from 'react'
-import Drawer from '@material-ui/core/Drawer'
-import Button from '@material-ui/core/Button'
-import { UserService } from '../../reducers/admin/user/UserService'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import DialogContentText from '@material-ui/core/DialogContentText'
+import Drawer from '@mui/material/Drawer'
+import Button from '@mui/material/Button'
+import { UserService } from '../../services/UserService'
+import { useDispatch } from '../../../store'
+import DialogContentText from '@mui/material/DialogContentText'
 import CreateUserRole from './CreateUserRole'
-import DialogActions from '@material-ui/core/DialogActions'
-import Container from '@material-ui/core/Container'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogActions from '@mui/material/DialogActions'
+import Container from '@mui/material/Container'
+import DialogTitle from '@mui/material/DialogTitle'
 import { validateUserForm } from './validation'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import Snackbar from '@material-ui/core/Snackbar'
-import MuiAlert from '@material-ui/lab/Alert'
+import { useAuthState } from '../../../user/services/AuthService'
+import Snackbar from '@mui/material/Snackbar'
+import MuiAlert from '@mui/material/Alert'
 import { useUserStyles, useUserStyle } from './styles'
-import { useUserState } from '../../reducers/admin/user/UserState'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-import TextField from '@material-ui/core/TextField'
-import { ScopeService } from '../../reducers/admin/scope/ScopeService'
-import { useScopeState } from '../../reducers/admin/scope/ScopeState'
+import { useUserState } from '../../services/UserService'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
+import Autocomplete from '@mui/material/Autocomplete'
+import TextField from '@mui/material/TextField'
+import { ScopeService } from '../../services/ScopeService'
+import { useScopeState } from '../../services/ScopeService'
+import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -46,7 +46,7 @@ const CreateUser = (props: Props) => {
     name: '',
     avatar: '',
     userRole: '',
-    scopeType: [],
+    scopeType: [] as Array<AdminScopeType>,
     formErrors: {
       name: '',
       avatar: '',
@@ -70,15 +70,15 @@ const CreateUser = (props: Props) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      await dispatch(UserService.fetchUserRole())
+      await UserService.fetchUserRole()
     }
     const role = userRole ? userRole.updateNeeded.value : false
     if (role === true && user.id.value) fetchData()
     if (user.id.value && staticResource.updateNeeded.value) {
-      dispatch(UserService.fetchStaticResource())
+      UserService.fetchStaticResource()
     }
     if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      dispatch(ScopeService.getScopeTypeService())
+      ScopeService.getScopeTypeService()
     }
   }, [adminScopeState.scopeType.updateNeeded.value, user])
 
@@ -139,7 +139,7 @@ const CreateUser = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      dispatch(UserService.createUser(data))
+      UserService.createUser(data)
       closeViewModel(false)
       setState({
         ...state,
@@ -222,8 +222,8 @@ const CreateUser = (props: Props) => {
                   <em>Select user role</em>
                 </MenuItem>
                 {userRoleData.map((el) => (
-                  <MenuItem value={el.role} key={el.role}>
-                    {el.role}
+                  <MenuItem value={el?.userRole || ''} key={el?.userRole || ''}>
+                    {el?.userRole || ''}
                   </MenuItem>
                 ))}
               </Select>

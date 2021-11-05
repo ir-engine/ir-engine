@@ -1,27 +1,27 @@
 import React, { useState } from 'react'
-import Badge from '@material-ui/core/Badge'
-import InputBase from '@material-ui/core/InputBase'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import IconButton from '@material-ui/core/IconButton'
-import ClearIcon from '@material-ui/icons/Clear'
-import PhotoCamera from '@material-ui/icons/PhotoCamera'
-import CloudUploadIcon from '@material-ui/icons/CloudUpload'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Container from '@material-ui/core/Container'
+import Badge from '@mui/material/Badge'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
+import IconButton from '@mui/material/IconButton'
+import ClearIcon from '@mui/icons-material/Clear'
+import PhotoCamera from '@mui/icons-material/PhotoCamera'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import DialogTitle from '@mui/material/DialogTitle'
+import Container from '@mui/material/Container'
 import { useARMediaStyle, useARMediaStyles, useStylePlayer } from './styles'
-import Paper from '@material-ui/core/Paper'
-import Button from '@material-ui/core/Button'
+import Paper from '@mui/material/Paper'
+import Button from '@mui/material/Button'
 import AudioPlayer from 'material-ui-audio-player'
 import { useTranslation } from 'react-i18next'
-import { Save } from '@material-ui/icons'
+import { Save } from '@mui/icons-material'
 import { validateARMediaForm } from './validation'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import InsertDriveFile from '@material-ui/icons/InsertDriveFile'
-import Card from '@material-ui/core/Card'
-import { ArMediaService } from '../../../reducers/arMedia/ArMediaService'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
+import InsertDriveFile from '@mui/icons-material/InsertDriveFile'
+import Card from '@mui/material/Card'
+import { ArMediaService } from '@xrengine/client-core/src/social/services/ArMediaService'
 
 interface Props {
   mediaAdmin: any
@@ -102,7 +102,7 @@ const EditArMedia = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateARMediaForm(state, state.formErrors)) {
-      dispatch(ArMediaService.updateArMedia({ type, title }, { manifest, audio, dracosis, preview }, mediaAdmin.id))
+      ArMediaService.updateArMedia({ type, title }, { manifest, audio, dracosis, preview }, mediaAdmin.id)
       //   closeViewModel(false)
       //   setState({
       //     ...state,
@@ -195,6 +195,7 @@ const EditArMedia = (props: Props) => {
                     })
                   }
                   className={classes.spanDange}
+                  size="large"
                 >
                   <ClearIcon />
                 </IconButton>
@@ -237,6 +238,7 @@ const EditArMedia = (props: Props) => {
                     })
                   }
                   className={classes.spanDange}
+                  size="large"
                 >
                   <ClearIcon style={{ fontWeight: 'bold' }} />
                 </IconButton>
@@ -286,6 +288,7 @@ const EditArMedia = (props: Props) => {
                     })
                   }
                   className={classes.spanDange}
+                  size="large"
                 >
                   <ClearIcon style={{ fontWeight: 'bold' }} />
                 </IconButton>
@@ -327,6 +330,7 @@ const EditArMedia = (props: Props) => {
                     })
                   }
                   className={classes.spanDange}
+                  size="large"
                 >
                   <ClearIcon style={{ fontWeight: 'bold' }} />
                 </IconButton>

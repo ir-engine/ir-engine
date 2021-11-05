@@ -1,34 +1,25 @@
 import React, { useEffect } from 'react'
-import Backdrop from '@material-ui/core/Backdrop'
-import Button from '@material-ui/core/Button'
-import Fade from '@material-ui/core/Fade'
-import FormGroup from '@material-ui/core/FormGroup'
-import Modal from '@material-ui/core/Modal'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
+import Backdrop from '@mui/material/Backdrop'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import FormGroup from '@mui/material/FormGroup'
+import Modal from '@mui/material/Modal'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import classNames from 'classnames'
 import styles from '../Admin.module.scss'
-import { InviteService } from '../../../social/reducers/invite/InviteService'
-import { InviteTypeService } from '../../../social/reducers/inviteType/InviteTypeService'
-import { useInviteTypeState } from '../../../social/reducers/inviteType/InviteTypeState'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { InviteService } from '../../../social/services/InviteService'
+import { InviteTypeService } from '../../../social/services/InviteTypeService'
+import { useInviteTypeState } from '../../../social/services/InviteTypeService'
+import { useDispatch } from '../../../store'
 import { Dropdown } from 'semantic-ui-react'
-import Snackbar from '@material-ui/core/Snackbar'
+import Snackbar from '@mui/material/Snackbar'
 import _ from 'lodash'
-import Grid from '@material-ui/core/Grid'
-import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
+import Grid from '@mui/material/Grid'
+import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator'
 import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import Container from '@material-ui/core/Container'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
+import makeStyles from '@mui/styles/makeStyles'
 interface Props {
   open: boolean
   handleClose: any
@@ -115,7 +106,13 @@ const InviteModel = (props: Props) => {
     setOpenWarning(false)
   }
 
-  const currencies = []
+  interface Currency {
+    value: string
+    label: string
+  }
+
+  const currencies: Currency[] = []
+
   const provide = [
     {
       value: 'email',
@@ -180,7 +177,7 @@ const InviteModel = (props: Props) => {
       targetObjectId: targetUser[0]
     }
     if (token && currency && targetUser) {
-      await dispatch(InviteService.sendInvite(data))
+      await InviteService.sendInvite(data)
       refreshData()
       handleClose()
     } else {
@@ -198,7 +195,13 @@ const InviteModel = (props: Props) => {
     })
   }
 
-  const stateOptions = []
+  interface StateOption {
+    key: string
+    text: string
+    value: string
+  }
+
+  const stateOptions: StateOption[] = []
   users.forEach((el) => {
     stateOptions.push({
       key: el.id,
@@ -209,7 +212,7 @@ const InviteModel = (props: Props) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await dispatch(InviteTypeService.retrieveInvites())
+      await InviteTypeService.retrieveInvites()
     }
     fetchData()
   }, [])

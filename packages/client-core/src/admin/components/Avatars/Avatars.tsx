@@ -1,26 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import Grid from '@material-ui/core/Grid'
-import Button from '@material-ui/core/Button'
-import Checkbox from '@material-ui/core/Checkbox'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import Paper from '@material-ui/core/Paper'
-import TablePagination from '@material-ui/core/TablePagination'
-import { connect, useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { AVATAR_PAGE_LIMIT } from '../../reducers/admin/avatar/AvatarState'
-import { LocationService } from '../../reducers/admin/location/LocationService'
+import Grid from '@mui/material/Grid'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import TableSortLabel from '@mui/material/TableSortLabel'
+import Paper from '@mui/material/Paper'
+import TablePagination from '@mui/material/TablePagination'
+import { useAuthState } from '../../../user/services/AuthService'
+import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
-import { useAvatarState } from '../../reducers/admin/avatar/AvatarState'
+import { useAvatarState } from '../../services/AvatarService'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
-import { AuthService } from '../../../user/reducers/auth/AuthService'
-import { AvatarService } from '../../reducers/admin/avatar/AvatarService'
+import { AuthService } from '../../../user/services/AuthService'
+import { AvatarService } from '../../services/AvatarService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -32,11 +30,10 @@ interface Props {
 
 const Avatars = (props: Props) => {
   const adminAvatarState = useAvatarState()
-  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
-  const adminAvatars = adminAvatarState.avatars.avatars
-  const adminAvatarCount = adminAvatarState.avatars.total
+  const adminAvatars = adminAvatarState.avatars
+  const adminAvatarCount = adminAvatarState.total
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
@@ -149,7 +146,7 @@ const Avatars = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(AvatarService.fetchAdminAvatars(incDec))
+    AvatarService.fetchAdminAvatars(incDec)
     setPage(newPage)
   }
 
@@ -183,7 +180,7 @@ const Avatars = (props: Props) => {
 
   useEffect(() => {
     if (user?.id.value != null && (adminAvatarState.avatars.updateNeeded.value === true || refetch === true)) {
-      dispatch(AvatarService.fetchAdminAvatars())
+      AvatarService.fetchAdminAvatars()
     }
     setRefetch(false)
   }, [authState.user?.id?.value, adminAvatarState.avatars.updateNeeded.value, refetch])
@@ -204,7 +201,7 @@ const Avatars = (props: Props) => {
   }
 
   const uploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
-    dispatch(AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar))
+    AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar)
   }
 
   return (

@@ -3,7 +3,7 @@ import { Group, Object3D, Quaternion, Vector3 } from 'three'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
+import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -15,16 +15,47 @@ import { initializeHandModel } from './addControllerModels'
 
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
+const assignControllerAndGrip = (xrManager, controller, grip, i): void => {
+  xrManager.getController(i).add(controller)
+  xrManager.getControllerGrip(i).add(grip)
+}
+
+/**
+ * Map input source controller groups to correct index
+ * @author Mohsen Heydari <github.com/mohsenheydari>
+ * @param xrInput
+ * @returns {void}
+ */
+
+export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
+  const xrm = Engine.xrManager
+  const session = xrm.getSession()
+
+  for (let i = 0; i < 2; i++) {
+    const j = 1 - i
+    const inputSource = session.inputSources[i]
+    if (!inputSource) {
+      console.log('No xr input source available for index', i)
+      continue
+    }
+    if (inputSource.handedness === 'left') {
+      assignControllerAndGrip(xrm, xrInput.controllerLeft, xrInput.controllerGripLeft, i)
+      assignControllerAndGrip(xrm, xrInput.controllerRight, xrInput.controllerGripRight, j)
+    } else if (inputSource.handedness === 'right') {
+      assignControllerAndGrip(xrm, xrInput.controllerLeft, xrInput.controllerGripLeft, j)
+      assignControllerAndGrip(xrm, xrInput.controllerRight, xrInput.controllerGripRight, i)
+    } else {
+      console.warn('Could not determine xr input source handedness', i)
+    }
+  }
+}
+
 /**
  * @author Josh Field <github.com/HexaField>
  * @returns {void}
  */
 
 export const startWebXR = (): void => {
-  const controllerLeft = Engine.xrRenderer.getController(0)
-  const controllerRight = Engine.xrRenderer.getController(1)
-  const controllerGripLeft = Engine.xrRenderer.getControllerGrip(0)
-  const controllerGripRight = Engine.xrRenderer.getControllerGrip(1)
   const container = new Group()
 
   Engine.scene.remove(Engine.camera)
@@ -35,14 +66,26 @@ export const startWebXR = (): void => {
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
 
-  addComponent(world.localClientEntity, XRInputSourceComponent, {
+  const inputData = {
     head,
     container,
-    controllerLeft,
-    controllerRight,
-    controllerGripLeft,
-    controllerGripRight
-  })
+    controllerLeft: new Group(),
+    controllerRight: new Group(),
+    controllerGripLeft: new Group(),
+    controllerGripRight: new Group()
+  }
+
+  // Default mapping
+  assignControllerAndGrip(Engine.xrManager, inputData.controllerLeft, inputData.controllerGripLeft, 0)
+  assignControllerAndGrip(Engine.xrManager, inputData.controllerRight, inputData.controllerGripRight, 1)
+
+  // Map input sources
+  // Sometimes the input sources are not available immidiately
+  setTimeout(() => {
+    mapXRControllers(inputData)
+  }, 1000)
+
+  addComponent(world.localClientEntity, XRInputSourceComponent, inputData)
 
   bindXRHandEvents()
   dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ userId: Engine.userId, enabled: true }))
@@ -56,6 +99,7 @@ export const startWebXR = (): void => {
 export const endXR = (): void => {
   Engine.xrSession.end()
   Engine.xrSession = null!
+  Engine.xrManager.setSession(null)
   Engine.scene.add(Engine.camera)
 
   addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
@@ -72,7 +116,7 @@ export const endXR = (): void => {
 
 export const bindXRHandEvents = () => {
   const world = useWorld()
-  const hands = [Engine.xrRenderer.getHand(0), Engine.xrRenderer.getHand(1)]
+  const hands = [Engine.xrManager.getHand(0), Engine.xrManager.getHand(1)]
   let eventSent = false
 
   hands.forEach((controller: any) => {
@@ -172,7 +216,6 @@ export const getHandTransform = (
   entity: Entity,
   hand: ParityValue = ParityValue.NONE
 ): { position: Vector3; rotation: Quaternion } => {
-  const avatar = getComponent(entity, AvatarComponent)
   const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {

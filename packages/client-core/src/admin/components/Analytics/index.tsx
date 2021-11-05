@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import Card from './CardNumber'
-import Grid from '@material-ui/core/Grid'
-import ToggleButton from '@material-ui/lab/ToggleButton'
-import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup'
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
-import Paper from '@material-ui/core/Paper'
+
+import clsx from 'clsx'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import { Theme } from '@mui/material/styles'
+import makeStyles from '@mui/styles/makeStyles'
+import createStyles from '@mui/styles/createStyles'
+import Paper from '@mui/material/Paper'
 import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
-import { connect, useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { useAnalyticsState } from '@xrengine/client-core/src/admin/reducers/admin/analytics/AnalyticsState'
-import { AnalyticsService } from '../../reducers/admin/analytics/AnalyticsService'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/services/AuthService'
+import { useAnalyticsState } from '../../services/AnalyticsService'
+import { AnalyticsService } from '../../services/AnalyticsService'
 
 interface Props {
   adminGroupState?: any
@@ -27,15 +30,37 @@ const useStyles = makeStyles((theme: Theme) =>
       textAlign: 'center',
       color: theme.palette.text.secondary,
       height: '35rem',
-      width: '99.9%'
+      width: '99.9%',
+      backgroundColor: '#323845'
     },
     mtopp: {
       marginTop: '20px'
     },
     btn: {
+      color: 'white',
+      borderColor: 'white',
       fontSize: '0.875rem',
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '0.6rem'
+      }
+    },
+    btnSelected: {
+      color: 'white !important',
+      borderColor: 'white',
+      backgroundColor: '#0000004d !important'
+    },
+    dashboardCardsContainer: {
+      display: 'grid',
+      gridGap: '10px',
+      gridTemplateColumns: '1fr 1fr 1fr 1fr',
+      ['@media (max-width: 900px)']: {
+        gridTemplateColumns: '1fr 1fr 1fr'
+      },
+      ['@media (max-width: 700px)']: {
+        gridTemplateColumns: '1fr 1fr'
+      },
+      ['@media (max-width: 500px)']: {
+        gridTemplateColumns: '1fr'
       }
     }
   })
@@ -121,14 +146,14 @@ const Analytics = (props: Props) => {
 
   useEffect(() => {
     if (refetch === true) {
-      dispatch(AnalyticsService.fetchActiveParties())
-      dispatch(AnalyticsService.fetchInstanceUsers())
-      dispatch(AnalyticsService.fetchChannelUsers())
-      dispatch(AnalyticsService.fetchActiveLocations())
-      dispatch(AnalyticsService.fetchActiveScenes())
-      dispatch(AnalyticsService.fetchActiveInstances())
-      dispatch(AnalyticsService.fetchDailyUsers())
-      dispatch(AnalyticsService.fetchDailyNewUsers())
+      AnalyticsService.fetchActiveParties()
+      AnalyticsService.fetchInstanceUsers()
+      AnalyticsService.fetchChannelUsers()
+      AnalyticsService.fetchActiveLocations()
+      AnalyticsService.fetchActiveScenes()
+      AnalyticsService.fetchActiveInstances()
+      AnalyticsService.fetchDailyUsers()
+      AnalyticsService.fetchDailyNewUsers()
     }
     setRefetch(false)
   }, [refetch])
@@ -147,48 +172,68 @@ const Analytics = (props: Props) => {
   const data = [
     {
       number: activeParties[activeParties.length - 1] ? activeParties[activeParties.length - 1][1] : 0,
-      label: 'Active Parties'
+      label: 'Active Parties',
+      color1: '#2c519d',
+      color2: '#31288f'
     },
     {
       number: activeLocations[activeLocations.length - 1] ? activeLocations[activeLocations.length - 1][1] : 0,
-      label: 'Active Locations'
+      label: 'Active Locations',
+      color1: '#77b2e9',
+      color2: '#458bcc'
     },
     {
       number: activeScenes[activeScenes.length - 1] ? activeScenes[activeScenes.length - 1][1] : 0,
-      label: 'Active Scenes'
+      label: 'Active Scenes',
+      color1: '#e3b76c',
+      color2: '#df9b26'
     },
     {
       number: activeInstances[activeInstances.length - 1] ? activeInstances[activeInstances.length - 1][1] : 0,
-      label: 'Active Instances'
+      label: 'Active Instances',
+      color1: '#ed7d7e',
+      color2: '#c95859'
     },
     {
       number: dailyUsers[dailyUsers.length - 1] ? dailyUsers[dailyUsers.length - 1][1] : 0,
-      label: 'Users Today'
+      label: 'Users Today',
+      color1: '#53a7cd',
+      color2: '#24779c'
     },
     {
       number: dailyNewUsers[dailyNewUsers.length - 1] ? dailyNewUsers[dailyNewUsers.length - 1][1] : 0,
-      label: 'New Users Today'
+      label: 'New Users Today',
+      color1: '#9771d3',
+      color2: '#6945a1'
     }
   ]
 
   return (
-    <div>
-      <Grid container spacing={3}>
+    <>
+      <div className={classes.dashboardCardsContainer}>
         {data.map((el) => {
-          return (
-            <Grid item xs={12} sm={6} lg={3} key={el.label}>
-              <Card data={el} />
-            </Grid>
-          )
+          return <Card key={el.label} data={el} />
         })}
-      </Grid>
+      </div>
       <div className={classes.mtopp}>
         <Paper className={classes.paper}>
           <ToggleButtonGroup value={graphSelector} exclusive color="primary" aria-label="outlined primary button group">
-            <ToggleButton className={classes.btn} value="activity" onClick={() => setGraphSelector('activity')}>
+            <ToggleButton
+              className={clsx(classes.btn, {
+                [classes.btnSelected]: graphSelector === 'activity'
+              })}
+              value="activity"
+              onClick={() => setGraphSelector('activity')}
+            >
               Activity
             </ToggleButton>
-            <ToggleButton className={classes.btn} value="users" onClick={() => setGraphSelector('users')}>
+            <ToggleButton
+              className={clsx(classes.btn, {
+                [classes.btnSelected]: graphSelector === 'users'
+              })}
+              value="users"
+              onClick={() => setGraphSelector('users')}
+            >
               Users
             </ToggleButton>
           </ToggleButtonGroup>
@@ -199,7 +244,7 @@ const Analytics = (props: Props) => {
       {/*<div className={classes.mtopp}>*/}
       {/*  <ApiLinks />*/}
       {/*</div>*/}
-    </div>
+    </>
   )
 }
 

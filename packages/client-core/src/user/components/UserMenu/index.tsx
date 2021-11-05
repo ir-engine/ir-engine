@@ -1,18 +1,16 @@
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
-import LinkIcon from '@material-ui/icons/Link'
-import PersonIcon from '@material-ui/icons/Person'
-import SettingsIcon from '@material-ui/icons/Settings'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+import LinkIcon from '@mui/icons-material/Link'
+import PersonIcon from '@mui/icons-material/Person'
+import SettingsIcon from '@mui/icons-material/Settings'
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
-// import { provisionInstanceServer } from "@xrengine/client-networking/src/reducers/instanceConnection/service";
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import React, { useState, useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { AlertService } from '../../../common/reducers/alert/AlertService'
-import { useAuthState } from '../../reducers/auth/AuthState'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { useDispatch } from '../../../store'
+import { AlertService } from '../../../common/services/AlertService'
+import { useAuthState } from '../../services/AuthService'
+import { AuthService } from '../../services/AuthService'
 import AvatarMenu from './menus/AvatarMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
@@ -23,6 +21,7 @@ import LocationMenu from './menus/LocationMenu'
 import CreateLocationMenu from './menus/CreateLocationMenu'
 import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
+import EmoteMenu from './menus//EmoteMenu'
 
 type StateType = {
   currentActiveMenu: any
@@ -41,7 +40,8 @@ const UserMenu = (props: UserMenuProps): any => {
   let menus = [
     { id: Views.Profile, iconNode: PersonIcon },
     { id: Views.Settings, iconNode: SettingsIcon },
-    { id: Views.Share, iconNode: LinkIcon }
+    { id: Views.Share, iconNode: LinkIcon },
+    { id: Views.Emote, imageNode: '/static/EmoteIcon.svg' }
     //  { id: Views.Location, iconNode: FilterHdrIcon },
   ]
 
@@ -58,7 +58,8 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.AvatarUpload]: AvatarSelectMenu,
     [Views.Location]: LocationMenu,
     [Views.NewLocation]: CreateLocationMenu,
-    [Views.ReadyPlayer]: ReadyPlayerMenu
+    [Views.ReadyPlayer]: ReadyPlayerMenu,
+    [Views.Emote]: EmoteMenu
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
@@ -87,26 +88,26 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (selfUser?.value) {
-      dispatch(AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL))
+      AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL)
     }
   }
 
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSetting, ...newSetting }
     setUserSetting(setting)
-    dispatch(AuthService.updateUserSettings(selfUser.user_setting.id.value, setting))
+    AuthService.updateUserSettings(selfUser.user_setting.id.value, setting)
   }
 
   const handleFetchAvatarList = (): any => {
-    return dispatch(AuthService.fetchAvatarList())
+    return AuthService.fetchAvatarList()
   }
 
   const handleUploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
-    return dispatch(AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar))
+    return AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar)
   }
 
   const handleRemoveAvatar = (keys: [string]): any => {
-    return dispatch(AuthService.removeAvatar(keys))
+    return AuthService.removeAvatar(keys)
   }
 
   const updateGraphicsSettings = (newSetting: any): void => {
@@ -147,7 +148,7 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   const alertSuccess = (message) => {
-    dispatch(AlertService.alertSuccess(message))
+    AlertService.alertSuccess(message)
   }
 
   const renderMenuPanel = () => {
@@ -170,6 +171,13 @@ const UserMenu = (props: UserMenuProps): any => {
           avatarList: avatarList,
           avatarId: selfUser?.avatarId?.value,
           enableSharing: enableSharing
+        }
+        break
+      case Views.Emote:
+        args = {
+          location: activeLocation,
+          changeActiveMenu,
+          updateLocationDetail
         }
         break
       case Views.Settings:
@@ -236,7 +244,7 @@ const UserMenu = (props: UserMenuProps): any => {
                       currentActiveMenu && currentActiveMenu.id === menu.id ? styles.activeMenu : null
                     }`}
                   >
-                    <menu.iconNode className={styles.icon} />
+                    {menu.iconNode ? <menu.iconNode className={styles.icon} /> : <img src={menu.imageNode} />}
                   </span>
                 )
               })}

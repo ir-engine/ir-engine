@@ -113,13 +113,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
             )
           }
 
-          const relationshipToPatch = await this.app.service('user-relationship').find({
+          const relationshipToPatch = (await this.app.service('user-relationship').find({
             query: {
               userRelationshipType: 'requested',
               userId: inviteeIdentityProvider.userId,
               relatedUserId: invite.userId
             }
-          })
+          })) as any
 
           if (relationshipToPatch.data.length > 0)
             await this.app.service('user-relationship').patch(
@@ -138,13 +138,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
           const { query, ...paramsCopy } = params
 
-          const existingGroupUser = await this.app.service('group-user').find({
+          const existingGroupUser = (await this.app.service('group-user').find({
             query: {
               userId: inviteeIdentityProvider.userId,
               groupId: invite.targetObjectId,
               groupUserRank: 'user'
             }
-          })
+          })) as any
 
           if (existingGroupUser.total === 0) {
             paramsCopy.skipAuth = true
@@ -169,13 +169,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
           const { query, ...paramsCopy } = params
 
-          const existingPartyUser = await this.app.service('party-user').find({
+          const existingPartyUser = (await this.app.service('party-user').find({
             query: {
               userId: inviteeIdentityProvider.userId,
               partyId: invite.targetObjectId,
               isOwner: false
             }
-          })
+          })) as any
 
           if (existingPartyUser.total === 0) {
             paramsCopy.skipAuth = true
@@ -218,13 +218,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
             )
           }
 
-          const relationshipToPatch = await this.app.service('user-relationship').find({
+          const relationshipToPatch = (await this.app.service('user-relationship').find({
             query: {
               userRelationshipType: 'requested',
               userId: invite.inviteeId,
               relatedUserId: invite.userId
             }
-          })
+          })) as any
 
           if (relationshipToPatch.data.length > 0)
             await this.app.service('user-relationship').patch(
@@ -243,12 +243,12 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
           const { query, ...paramsCopy } = params
 
-          const existingGroupUser = await this.app.service('group-user').find({
+          const existingGroupUser = (await this.app.service('group-user').find({
             query: {
               userId: invite.inviteeId,
               groupId: invite.targetObjectId
             }
-          })
+          })) as any
 
           if (existingGroupUser.total === 0) {
             paramsCopy.skipAuth = true
@@ -274,13 +274,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
           const { query, ...paramsCopy } = params
 
-          const existingPartyUser = await this.app.service('party-user').find({
+          const existingPartyUser = (await this.app.service('party-user').find({
             query: {
               userId: invite.inviteeId,
               partyId: invite.targetObjectId,
               isOwner: false
             }
-          })
+          })) as any
 
           if (existingPartyUser.total === 0) {
             paramsCopy.skipAuth = true

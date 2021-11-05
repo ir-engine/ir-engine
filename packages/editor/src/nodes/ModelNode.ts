@@ -5,13 +5,16 @@ import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import { makeCollidersInvisible } from '@xrengine/engine/src/physics/functions/parseModelColliders'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { RethrownError } from '@xrengine/engine/src/scene/functions/errors'
-import { resolveMedia } from '@xrengine/engine/src/scene/functions/resolveMedia'
+import { RethrownError } from '@xrengine/client-core/src/util/errors'
+import { resolveMedia } from '../functions/resolveMedia'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from '../managers/CacheManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { delay } from '@xrengine/engine/src/common/functions/delay'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -27,14 +30,24 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const node = await super.deserialize(json)
     loadAsync(
       (async () => {
-        const { src, envMapOverride, textureOverride } = json.components.find((c) => c.name === 'gltf-model').props
+        const { src, envMapOverride, textureOverride, matrixAutoUpdate } = json.components.find(
+          (c) => c.name === 'gltf-model'
+        ).props
 
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
-        if (textureOverride)
-          SceneManager.instance.scene.traverse((obj) => {
-            if (obj.uuid === textureOverride) node.textureOverride = obj.uuid
+        if (typeof matrixAutoUpdate !== undefined) node.matrixAutoUpdate = matrixAutoUpdate
+        if (textureOverride) {
+          // Using this to pass texture override uuid to event callback instead of creating a new variable
+          node.textureOverride = textureOverride
+          CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), () => {
+            SceneManager.instance.scene.traverse((obj) => {
+              if (obj.uuid === node.textureOverride) {
+                node.textureOverride = obj.uuid
+              }
+            })
           })
+        }
 
         node.collidable = !!json.components.find((c) => c.name === 'collidable')
         node.walkable = !!json.components.find((c) => c.name === 'walkable')
@@ -90,7 +103,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   boundingSphere = new Sphere()
   gltfJson = null
   isValidURL = false
-  isUpdateDataMatrix = true
+  matrixAutoUpdate = false
   animations = []
 
   constructor() {
@@ -245,7 +258,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
         textureOverride: this.textureOverride,
-        matrixAutoUpdate: this.isUpdateDataMatrix
+        matrixAutoUpdate: this.matrixAutoUpdate
       },
       shadow: {
         cast: this.castShadow,

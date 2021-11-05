@@ -1,4 +1,4 @@
-import { Mesh, Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
+import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
@@ -25,8 +25,10 @@ import { InputValue } from '../input/interfaces/InputValue'
 import { InputAlias } from '../input/types/InputAlias'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
+import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
@@ -39,6 +41,27 @@ const getParityFromInputValue = (key: InputAlias): ParityValue => {
       return ParityValue.RIGHT
     default:
       return ParityValue.NONE
+  }
+}
+
+const grip = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number): void => {
+  switch (inputValue.lifecycleState) {
+    case LifecycleValue.Started: {
+      if (inputKey == BaseInput.GRIP_LEFT) {
+        addComponent(entity, XRLGripButtonComponent, {})
+      } else {
+        addComponent(entity, XRRGripButtonComponent, {})
+      }
+      break
+    }
+    case LifecycleValue.Ended: {
+      if (inputKey == BaseInput.GRIP_LEFT) {
+        removeComponent(entity, XRLGripButtonComponent)
+      } else {
+        removeComponent(entity, XRRGripButtonComponent)
+      }
+      break
+    }
   }
 }
 
@@ -143,6 +166,8 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   inputValue: InputValue,
   delta: number
 ): void => {
+  // debugger
+  // console.log("change cam", inputValue, delta)
   const value = inputValue.value[0]
   const scrollDelta = Math.sign(value - lastScrollValue)
   lastScrollValue = value
@@ -409,14 +434,14 @@ const gamepadLook: InputBehaviorType = (entity: Entity): void => {
   }
 }
 
-export const clickNavMesh: InputBehaviorType = (entity, inputKey, inputValue): void => {
+export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputValue): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Ended) {
     return
   }
   const input = getComponent(entity, InputComponent)
   const coords = input.data.get(BaseInput.SCREENXY)?.value
   if (coords) {
-    // addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
+    addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
   }
 }
 
@@ -444,6 +469,8 @@ export const createAvatarInput = () => {
   map.set(GamepadButtons.B, BaseInput.JUMP)
   map.set(GamepadButtons.LTrigger, BaseInput.GRAB_LEFT)
   map.set(GamepadButtons.RTrigger, BaseInput.GRAB_RIGHT)
+  map.set(GamepadButtons.LBumper, BaseInput.GRIP_LEFT)
+  map.set(GamepadButtons.RBumper, BaseInput.GRIP_RIGHT)
   map.set(GamepadButtons.DPad1, BaseInput.FORWARD)
   map.set(GamepadButtons.DPad2, BaseInput.BACKWARD)
   map.set(GamepadButtons.DPad3, BaseInput.LEFT)
@@ -501,6 +528,9 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.GRAB_LEFT, interact)
   map.set(BaseInput.GRAB_RIGHT, interact)
 
+  map.set(BaseInput.GRIP_LEFT, grip)
+  map.set(BaseInput.GRIP_RIGHT, grip)
+
   map.set(BaseInput.JUMP, setLocalMovementDirection)
   map.set(BaseInput.WALK, setWalking)
   map.set(BaseInput.FORWARD, setLocalMovementDirection)
@@ -525,7 +555,7 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.SWITCH_SHOULDER_SIDE, switchShoulderSide)
   map.set(BaseInput.CAMERA_SCROLL, throttle(changeCameraDistanceByDelta, 30, { leading: true, trailing: false }))
 
-  map.set(BaseInput.PRIMARY, clickNavMesh)
+  map.set(BaseInput.PRIMARY, handlePrimaryButton)
 
   return map
 }

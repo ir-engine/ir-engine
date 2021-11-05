@@ -31,6 +31,7 @@ import { IKObj } from '../../ikrig/components/IKObj'
 import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
 import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { ArmatureType } from '../../ikrig/enums/ArmatureType'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export const setAvatar = (entity, avatarId, avatarURL) => {
   const avatar = getComponent(entity, AvatarComponent)
@@ -67,6 +68,8 @@ export const setAvatarLayer = (obj: Object3D) => {
 }
 
 const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
+  const world = useWorld()
+
   const avatar = getComponent(entity, AvatarComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
@@ -137,7 +140,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   }
 
   // advance animation for a frame to eliminate potential t-pose
-  animationComponent.mixer.update(1 / 60)
+  animationComponent.mixer.update(world.delta)
 
   loadGrowingEffectObject(entity, materialList)
 }

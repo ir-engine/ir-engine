@@ -1,28 +1,29 @@
 import React, { useState, useEffect } from 'react'
-import Fade from '@material-ui/core/Fade'
-import Modal from '@material-ui/core/Modal'
+import Fade from '@mui/material/Fade'
+import Modal from '@mui/material/Modal'
 import styles from '../Admin.module.scss'
-import Backdrop from '@material-ui/core/Backdrop'
+import Backdrop from '@mui/material/Backdrop'
 import classNames from 'classnames'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-import TextField from '@material-ui/core/TextField'
-import { LocationService } from '../../reducers/admin/location/LocationService'
-import { connect, useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { PartyService } from '../../reducers/admin/party/PartyService'
-import { InstanceService } from '../../reducers/admin/instance/InstanceService'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogActions from '@material-ui/core/DialogActions'
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
+import Autocomplete from '@mui/material/Autocomplete'
+import TextField from '@mui/material/TextField'
+import { LocationService } from '../../services/LocationService'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/services/AuthService'
+import { PartyService } from '../../services/PartyService'
+import { InstanceService } from '../../services/InstanceService'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
 import { PartyProps } from './variables'
 import { usePartyStyle } from './style'
-import { useLocationState } from '../../reducers/admin/location/LocationState'
-import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
+import { useLocationState } from '../../services/LocationService'
+import { useInstanceState } from '../../services/InstanceService'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 const CreateParty = (props: PartyProps) => {
   const classes = usePartyStyle()
-
+  CreateParty
   const { open, handleClose } = props
 
   const [location, setLocation] = useState('')
@@ -38,11 +39,11 @@ const CreateParty = (props: PartyProps) => {
 
   useEffect(() => {
     if (user?.id.value != null && adminLocationState.locations.updateNeeded.value === true) {
-      dispatch(LocationService.fetchAdminLocations())
+      LocationService.fetchAdminLocations()
     }
 
     if (user.id.value && adminInstances.updateNeeded.value) {
-      dispatch(InstanceService.fetchAdminInstances())
+      InstanceService.fetchAdminInstances()
     }
   }, [
     authState.user?.id?.value,
@@ -55,7 +56,7 @@ const CreateParty = (props: PartyProps) => {
     getOptionLabel: (option: any) => option.name
   }
 
-  const data = []
+  const data: Instance[] = []
   instanceData.value.forEach((element) => {
     data.push(element)
   })

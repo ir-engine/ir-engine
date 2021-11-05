@@ -30,7 +30,7 @@ import { now } from "../../src/common/functions/now";
 import { PhysicsSystem } from "../../src/physics/systems/PhysicsSystem";
 import { RaycastResult } from "collision/RaycastResult";
 import { Body } from 'cannon-es';
-import { StateSystem } from "../../src/state/systems/StateSystem";
+import { StateSystem } from "../../src/services/systems/StateSystem";
 import { InputAlias } from "../../src/input/types/InputAlias";
 import { ClientInputModel } from "../../src/networking/schema/networkSchema";
 import { ServerNetworkOutgoingSystem } from "../../src/networking/systems/ServerNetworkOutgoingSystem";

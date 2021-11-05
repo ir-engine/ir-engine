@@ -1,19 +1,19 @@
 import React from 'react'
-import Container from '@material-ui/core/Container'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import Button from '@material-ui/core/Button'
-import DialogActions from '@material-ui/core/DialogActions'
-import TextField from '@material-ui/core/TextField'
+import Container from '@mui/material/Container'
+import DialogTitle from '@mui/material/DialogTitle'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import Button from '@mui/material/Button'
+import DialogActions from '@mui/material/DialogActions'
+import TextField from '@mui/material/TextField'
 import { formValid } from './validation'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-import { ScopeService } from '../../reducers/admin/scope/ScopeService'
-import { useScopeState } from '../../reducers/admin/scope/ScopeState'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { GroupService } from '../../reducers/admin/group/GroupService'
+
+import { useDispatch } from '../../../store'
+import Autocomplete from '@mui/material/Autocomplete'
+import { ScopeService } from '../../services/ScopeService'
+import { useScopeState } from '../../services/ScopeService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { GroupService } from '../../services/GroupService'
 import { useGroupStyles, useGroupStyle } from './styles'
 
 interface Props {
@@ -44,7 +44,7 @@ const EditGroup = (props: Props) => {
 
   React.useEffect(() => {
     if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      dispatch(ScopeService.getScopeTypeService())
+      ScopeService.getScopeTypeService()
     }
   }, [adminScopeState.scopeType.updateNeeded.value, user])
 
@@ -79,7 +79,7 @@ const EditGroup = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
-      dispatch(GroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeType }))
+      GroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeType })
       setState({
         ...state,
         name: '',

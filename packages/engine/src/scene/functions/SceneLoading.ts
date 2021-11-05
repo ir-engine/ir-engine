@@ -197,11 +197,33 @@ export class WorldScene {
         loadGLTFModel(this, entity, component, sceneProperty)
         break
 
+      case 'gltf-shopify':
+        if (component.data && component.data.extend) {
+          if (component.data.extendType == 'video') {
+            // if livestream, server will send the video info to the client
+            if (isClient) {
+              createVideo(entity, component.data.extend)
+            } else {
+              createMediaServer(entity, component.data.extend)
+            }
+          } else if (component.data.extendType == 'image') {
+            addObject3DComponent(entity, new Image(), component.data.extend)
+          } else if (component.data.extendType == 'model') {
+            Object.keys(component.data.extend).forEach((key) => {
+              component.data[key] = component.data.extend[key]
+            })
+            console.log(component.data)
+            loadGLTFModel(this, entity, component, sceneProperty)
+          }
+        }
+        break
+
       case 'loop-animation':
         loadModelAnimation(entity, component)
         break
 
       case 'interact':
+        console.log(component.data)
         if (component.data.interactable) addComponent(entity, InteractableComponent, { data: component.data })
         break
 
@@ -394,7 +416,7 @@ export class WorldScene {
       case 'includeInCubemapBake':
       case 'cubemapbake':
       case 'group':
-      case 'realitypack': // loaded prior to engine init
+      case 'project': // loaded prior to engine init
         break
 
       case 'visible':

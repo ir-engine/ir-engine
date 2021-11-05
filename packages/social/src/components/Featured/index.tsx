@@ -3,21 +3,20 @@
  */
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { Typography } from '@material-ui/core'
-import Card from '@material-ui/core/Card'
-import CardMedia from '@material-ui/core/CardMedia'
-import VisibilityIcon from '@material-ui/icons/Visibility'
-import WhatshotIcon from '@material-ui/icons/Whatshot'
-import FavoriteIcon from '@material-ui/icons/Favorite'
+import { Typography } from '@mui/material'
+import Card from '@mui/material/Card'
+import CardMedia from '@mui/material/CardMedia'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import WhatshotIcon from '@mui/icons-material/Whatshot'
+import FavoriteIcon from '@mui/icons-material/Favorite'
 
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useFeedState } from '../../reducers/feed/FeedState'
-import { FeedService } from '../../reducers/feed/FeedService'
-import { usePopupsStateState } from '../../reducers/popupsState/PopupsStateState'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useFeedState } from '@xrengine/client-core/src/social/services/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import styles from './Featured.module.scss'
 
 interface Props {
@@ -34,12 +33,12 @@ const Featured = ({ type, creatorId, thisData }: any) => {
   // useEffect(() => {
   //   if (auth.user.id.value) {
   //     if (type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired') {
-  //       dispatch(FeedService.getFeeds(type, creatorId))
+  //       FeedService.getFeeds(type, creatorId)
   //     } else {
   //       const userIdentityType = auth.authUser?.identityProvider?.type?.value ?? 'guest'
   //       userIdentityType !== 'guest'
-  //         ? dispatch(FeedService.getFeeds('featured'))
-  //         : dispatch(FeedService.getFeeds('featuredGuest'))
+  //         ? FeedService.getFeeds('featured')
+  //         : FeedService.getFeeds('featuredGuest')
   //     }
   //   }
   // }, [type, creatorId])
@@ -153,13 +152,13 @@ const Featured = ({ type, creatorId, thisData }: any) => {
                 image={item.previewUrl}
                 onClick={() => {
                   if (popupsState.popups.creatorPage?.value === true && popupsState.popups.feedPage?.value === true) {
-                    dispatch(PopupsStateService.updateFeedPageState(false))
+                    PopupsStateService.updateFeedPageState(false)
                     const intervalDelay = setTimeout(() => {
                       clearInterval(intervalDelay)
-                      dispatch(PopupsStateService.updateFeedPageState(true, item.id))
+                      PopupsStateService.updateFeedPageState(true, item.id)
                     }, 100)
                   } else {
-                    dispatch(PopupsStateService.updateFeedPageState(true, item.id))
+                    PopupsStateService.updateFeedPageState(true, item.id)
                   }
                 }}
               />

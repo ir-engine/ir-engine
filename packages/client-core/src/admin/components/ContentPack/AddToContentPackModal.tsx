@@ -1,35 +1,34 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useContentPackState } from '../../reducers/contentPack/ContentPackState'
+import { useDispatch } from '../../../store'
+import { useContentPackState } from '../../services/ContentPackService'
 import styles from './ContentPack.module.scss'
-import { ContentPackService } from '../../reducers/contentPack/ContentPackService'
-import { Add, Edit } from '@material-ui/icons'
-import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
-import Backdrop from '@material-ui/core/Backdrop'
-import Button from '@material-ui/core/Button'
-import Fade from '@material-ui/core/Fade'
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import Modal from '@material-ui/core/Modal'
-import Select from '@material-ui/core/Select'
-import TextField from '@material-ui/core/TextField'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import { ContentPackService } from '../../services/ContentPackService'
+import { Add, Edit } from '@mui/icons-material'
+import { ToggleButton, ToggleButtonGroup } from '@mui/material'
+import Backdrop from '@mui/material/Backdrop'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Modal from '@mui/material/Modal'
+import Select from '@mui/material/Select'
+import TextField from '@mui/material/TextField'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
+import CircularProgress from '@mui/material/CircularProgress'
 
 interface Props {
   open: boolean
   handleClose: any
   scenes?: any
   avatars?: any
-  realityPacks?: any
+  projects?: any
 }
 
 const AddToContentPackModal = (props: Props): any => {
-  const { open, handleClose, avatars, scenes, realityPacks } = props
+  const { open, handleClose, avatars, scenes, projects } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
@@ -38,7 +37,6 @@ const AddToContentPackModal = (props: Props): any => {
   const [newContentPackName, setNewContentPackName] = useState('')
   const contentPackState = useContentPackState()
   const contentPacks = contentPackState.contentPacks
-  const dispatch = useDispatch()
   const showError = (err: string) => {
     setError(err)
     setTimeout(() => {
@@ -56,15 +54,14 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       if (contentPackName !== '') {
         setProcessing(true)
-        await dispatch(
-          ContentPackService.addScenesToContentPack({
-            scenes: scenes,
-            contentPack: contentPackName
-          })
-        )
-        setProcessing(false)
-        window.location.href = '/admin/content-packs'
-        closeModal()
+        ContentPackService.addScenesToContentPack({
+          scenes: scenes,
+          contentPack: contentPackName
+        }).then(() => {
+          setProcessing(false)
+          window.location.href = '/admin/content-packs'
+          closeModal()
+        })
       } else
         throw new Error(
           createOrPatch === 'patch'
@@ -77,19 +74,18 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
-  const addCurrentAvatarsToContentPack = async () => {
+  const addCurrentAvatarsToContentPack = () => {
     try {
       setProcessing(true)
       if (contentPackName !== '') {
-        await dispatch(
-          ContentPackService.addAvatarsToContentPack({
-            avatars: avatars,
-            contentPack: contentPackName
-          })
-        )
-        setProcessing(false)
-        window.location.href = '/admin/content-packs'
-        closeModal()
+        ContentPackService.addAvatarsToContentPack({
+          avatars: avatars,
+          contentPack: contentPackName
+        }).then(() => {
+          setProcessing(false)
+          window.location.href = '/admin/content-packs'
+          closeModal()
+        })
       } else throw new Error('Existing content pack must be selected')
     } catch (err) {
       setProcessing(false)
@@ -97,19 +93,18 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
-  const addCurrentRealityPacksToContentPack = async () => {
+  const addCurrentProjectToContentPack = () => {
     try {
       setProcessing(true)
       if (contentPackName !== '') {
-        await dispatch(
-          ContentPackService.addRealityPacksToContentPack({
-            realityPacks: realityPacks,
-            contentPack: contentPackName
-          })
-        )
-        setProcessing(false)
-        window.location.href = '/admin/content-packs'
-        closeModal()
+        ContentPackService.addProjectToContentPack({
+          projects,
+          contentPack: contentPackName
+        }).then(() => {
+          setProcessing(false)
+          window.location.href = '/admin/content-packs'
+          closeModal()
+        })
       } else throw new Error('Existing content pack must be selected')
     } catch (err) {
       setProcessing(false)
@@ -117,34 +112,21 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
-  const createNewContentPack = async () => {
+  const createNewContentPack = () => {
     try {
       setProcessing(true)
       if (newContentPackName !== '') {
         if (scenes != null)
-          await dispatch(
-            ContentPackService.createContentPack({
-              scenes: scenes,
-              contentPack: newContentPackName
-            })
-          )
-        else if (avatars != null)
-          await dispatch(
-            ContentPackService.createContentPack({
-              avatars: avatars,
-              contentPack: newContentPackName
-            })
-          )
-        else if (realityPacks != null)
-          await dispatch(
-            ContentPackService.createContentPack({
-              realityPacks: realityPacks,
-              contentPack: newContentPackName
-            })
-          )
-        setProcessing(false)
-        window.location.href = '/admin/content-packs'
-        closeModal()
+          ContentPackService.createContentPack({
+            scenes,
+            avatars,
+            projects,
+            contentPack: newContentPackName
+          }).then(() => {
+            setProcessing(false)
+            window.location.href = '/admin/content-packs'
+            closeModal()
+          })
       } else throw new Error('New content pack name required')
     } catch (err) {
       setProcessing(false)
@@ -160,7 +142,7 @@ const AddToContentPackModal = (props: Props): any => {
 
   useEffect(() => {
     if (contentPackState.updateNeeded.value === true) {
-      dispatch(ContentPackService.fetchContentPacks())
+      ContentPackService.fetchContentPacks()
     }
   }, [contentPackState.updateNeeded.value])
 
@@ -197,12 +179,12 @@ const AddToContentPackModal = (props: Props): any => {
                   Adding {avatars.length} {avatars.length === 1 ? 'Avatar' : 'Avatars'}
                 </div>
               )}
-              {realityPacks && (
+              {projects && (
                 <div className={styles['title']}>
-                  Adding {realityPacks.length} {realityPacks.length === 1 ? 'Reality Pack' : 'Reality Packs'}
+                  Adding {projects.length} {projects.length === 1 ? 'Project' : 'Projects'}
                 </div>
               )}
-              <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
+              <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose} size="large">
                 <CloseIcon />
               </IconButton>
             </div>
@@ -245,8 +227,8 @@ const AddToContentPackModal = (props: Props): any => {
                     onClick={
                       scenes != null
                         ? addCurrentScenesToContentPack
-                        : realityPacks != null
-                        ? addCurrentRealityPacksToContentPack
+                        : projects != null
+                        ? addCurrentProjectToContentPack
                         : addCurrentAvatarsToContentPack
                     }
                   >

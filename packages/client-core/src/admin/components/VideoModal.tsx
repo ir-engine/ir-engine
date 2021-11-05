@@ -1,14 +1,13 @@
-import Backdrop from '@material-ui/core/Backdrop'
-import Button from '@material-ui/core/Button'
-import Checkbox from '@material-ui/core/Checkbox'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Grid from '@material-ui/core/Grid'
-import Modal from '@material-ui/core/Modal'
-import TextField from '@material-ui/core/TextField'
+import Backdrop from '@mui/material/Backdrop'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
+import Modal from '@mui/material/Modal'
+import TextField from '@mui/material/TextField'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { AdminService } from '../reducers/admin/AdminService'
+import { useDispatch } from '../../store'
+import { AdminService } from '../services/AdminService'
 import styles from './Admin.module.scss'
 
 interface Props {
@@ -88,16 +87,16 @@ const VideoModal = (props: Props): any => {
 
     if (props.mode === 'create') {
       delete form.id
-      dispatch(AdminService.createVideo(form as any))
+      AdminService.createVideo(form as any)
       props.handleClose()
     } else {
-      dispatch(AdminService.updateVideo(form as any))
+      AdminService.updateVideo(form as any)
       props.handleClose()
     }
   }
 
   const deleteVideo = (id: string): void => {
-    dispatch(AdminService.deleteVideo(id))
+    AdminService.deleteVideo(id)
     props.handleClose()
   }
 

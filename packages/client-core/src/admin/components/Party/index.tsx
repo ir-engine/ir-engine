@@ -1,9 +1,10 @@
 import React from 'react'
-import Grid from '@material-ui/core/Grid'
+import Grid from '@mui/material/Grid'
 import styles from '../Admin.module.scss'
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 import Search from './SearchParty'
-import { makeStyles, Theme } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+import makeStyles from '@mui/styles/makeStyles'
 import PartyTable from './PartyTable'
 import CreateParty from './CreateParty'
 import { usePartyStyles } from './style'
@@ -41,7 +42,12 @@ const Party = () => {
           <Search />
         </Grid>
         <Grid item xs={3}>
-          <Button className={`${classx.typoFont} ${classes.createBtn}`} type="submit" variant="contained">
+          <Button
+            className={`${classx.typoFont} ${classes.createBtn}`}
+            type="submit"
+            variant="contained"
+            onClick={() => openModalCreate()}
+          >
             Create New Party
           </Button>
         </Grid>

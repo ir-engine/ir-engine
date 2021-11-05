@@ -151,6 +151,14 @@ export const createApp = (): Application => {
             token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
           }
         })
+        app.k8AppsClient = api({
+          endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
+          version: '/apis/apps/v1',
+          auth: {
+            caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
+            token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
+          }
+        })
       }
 
       if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {

@@ -1,20 +1,24 @@
-import { ThemeProvider } from '@material-ui/styles'
+import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
-import { AppAction } from '@xrengine/client-core/src/common/reducers/app/AppActions'
-import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import { AppAction } from '@xrengine/client-core/src/common/services/AppService'
+import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { theme } from '@xrengine/client-core/src/theme'
 import { Config } from '@xrengine/common/src/config'
 import { Helmet } from 'react-helmet'
 import React, { Fragment, useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 // import Harmony from '.'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
 import Harmony from './Harmony'
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -79,73 +83,76 @@ const Layout = (props: Props): any => {
       window.addEventListener('touchend', initialClickListener)
     }
 
-    dispatch(AuthService.doLoginAuto(true))
+    AuthService.doLoginAuto(true)
   }, [])
 
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
 
   return (
-    <ThemeProvider theme={theme}>
-      <section>
-        <Helmet>
-          <title>
-            {siteTitle} | {pageTitle}
-          </title>
-        </Helmet>
-        <Harmony />
-        {/* <Harmony
-          isHarmonyPage={true}
-          setHarmonyOpen={setHarmonyOpen}
-          setDetailsType={setDetailsType}
-          setGroupFormOpen={setGroupFormOpen}
-          setGroupFormMode={setGroupFormMode}
-          setGroupForm={setGroupForm}
-          setSelectedUser={setSelectedUser}
-          setSelectedGroup={setSelectedGroup}
-          setLeftDrawerOpen={setLeftDrawerOpen}
-          setRightDrawerOpen={setRightDrawerOpen}
-        /> */}
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <section>
+          <Helmet>
+            <title>
+              {siteTitle} | {pageTitle}
+            </title>
+          </Helmet>
+          <Harmony />
+          {/* <Harmony
+            isHarmonyPage={true}
+            setHarmonyOpen={setHarmonyOpen}
+            setDetailsType={setDetailsType}
+            setGroupFormOpen={setGroupFormOpen}
+            setGroupFormMode={setGroupFormMode}
+            setGroupForm={setGroupForm}
+            setSelectedUser={setSelectedUser}
+            setSelectedGroup={setSelectedGroup}
+            setLeftDrawerOpen={setLeftDrawerOpen}
+            setRightDrawerOpen={setRightDrawerOpen}
+          /> */}
 
-        <Fragment>
-          <UIDialog />
-          <Alerts />
-          {childrenWithProps}
-        </Fragment>
-        {authUser?.accessToken?.value != null &&
-          authUser.accessToken.value.length > 0 &&
-          user?.id?.value != null &&
-          user.id.value.length > 0 && (
-            <Fragment>
-              <LeftDrawer
-                harmony={true}
-                detailsType={detailsType}
-                setDetailsType={setDetailsType}
-                groupFormOpen={groupFormOpen}
-                setGroupFormOpen={setGroupFormOpen}
-                groupFormMode={groupFormMode}
-                setGroupFormMode={setGroupFormMode}
-                groupForm={groupForm}
-                setGroupForm={setGroupForm}
-                selectedUser={selectedUser}
-                setSelectedUser={setSelectedUser}
-                selectedGroup={selectedGroup}
-                setSelectedGroup={setSelectedGroup}
-                openBottomDrawer={bottomDrawerOpen}
-                leftDrawerOpen={leftDrawerOpen}
-                setLeftDrawerOpen={setLeftDrawerOpen}
-                setRightDrawerOpen={setRightDrawerOpen}
-                setBottomDrawerOpen={setBottomDrawerOpen}
-              />
-            </Fragment>
-          )}
-        {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
           <Fragment>
+            <UIDialog />
+            <Alerts />
+            {childrenWithProps}
+          </Fragment>
+          {authUser?.accessToken?.value != null &&
+            authUser.accessToken.value.length > 0 &&
+            user?.id?.value != null &&
+            user.id.value.length > 0 && (
+              <Fragment>
+                <LeftDrawer
+                  harmony={true}
+                  detailsType={detailsType}
+                  setDetailsType={setDetailsType}
+                  groupFormOpen={groupFormOpen}
+                  setGroupFormOpen={setGroupFormOpen}
+                  groupFormMode={groupFormMode}
+                  setGroupFormMode={setGroupFormMode}
+                  groupForm={groupForm}
+                  setGroupForm={setGroupForm}
+                  selectedUser={selectedUser}
+                  setSelectedUser={setSelectedUser}
+                  selectedGroup={selectedGroup}
+                  setSelectedGroup={setSelectedGroup}
+                  openBottomDrawer={bottomDrawerOpen}
+                  leftDrawerOpen={leftDrawerOpen}
+                  setLeftDrawerOpen={setLeftDrawerOpen}
+                  setRightDrawerOpen={setRightDrawerOpen}
+                  setBottomDrawerOpen={setBottomDrawerOpen}
+                />
+              </Fragment>
+            )}
+          {/* {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && ( */}
+          <Fragment>
+            {/* <InviteHarmony /> */}
             <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
           </Fragment>
-        )}
-      </section>
-    </ThemeProvider>
+          {/* )} */}
+        </section>
+      </ThemeProvider>
+    </StyledEngineProvider>
   )
 }
 

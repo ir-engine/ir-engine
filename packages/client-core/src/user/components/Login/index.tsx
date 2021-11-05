@@ -1,20 +1,19 @@
 import React, { useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import CardMedia from '@material-ui/core/CardMedia'
+import { useDispatch } from '../../../store'
+import CardMedia from '@mui/material/CardMedia'
 import { Google } from '@styled-icons/bootstrap/Google'
 import { Facebook } from '@styled-icons/bootstrap/Facebook'
-import Fab from '@material-ui/core/Fab'
+import Fab from '@mui/material/Fab'
 import styles from './Login.module.scss'
 import { Config } from '@xrengine/common/src/config'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
 import ResetPassword from '../../../user/components/Auth/ResetPassword'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
@@ -48,16 +47,16 @@ const FlatSignIn = (props: Props) => {
 
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('google'))
+    AuthService.loginUserByOAuth('google')
   }
 
   const handleFacebookLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('facebook'))
+    AuthService.loginUserByOAuth('facebook')
   }
 
   const handleResetPassword = (token: string, password: string): any => {
-    dispatch(AuthService.resetPassword(token, password))
+    AuthService.resetPassword(token, password)
   }
 
   let component = null

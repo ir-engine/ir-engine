@@ -1,12 +1,10 @@
 import React from 'react'
-import IconButton from '@material-ui/core/IconButton'
-import InputBase from '@material-ui/core/InputBase'
-import Paper from '@material-ui/core/Paper'
-import MenuIcon from '@material-ui/icons/Menu'
-import SearchIcon from '@material-ui/icons/Search'
+import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+import MenuIcon from '@mui/icons-material/Menu'
+import SearchIcon from '@mui/icons-material/Search'
 import { useLocationStyles } from './styles'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
 
 interface Props {}
 
@@ -25,7 +23,7 @@ const SearchLocation = (props: Props) => {
         inputProps={{ 'aria-label': 'search for location ' }}
         //onChange={handleChange}
       />
-      <IconButton type="submit" className={classes.iconButton} aria-label="search">
+      <IconButton type="submit" className={classes.iconButton} aria-label="search" size="large">
         <SearchIcon />
       </IconButton>
     </Paper>

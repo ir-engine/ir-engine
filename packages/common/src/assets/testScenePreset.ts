@@ -11,7 +11,7 @@ export const testScenePreset = {
   isPublic: true,
   createdAt: '2020-11-11T23:54:59.000Z',
   updatedAt: '2021-04-02T00:35:15.000Z',
-  type: 'project',
+  type: 'scene',
   thumbnailOwnedFileId: 'd0828450-24e4-11eb-8630-81b209daf73a',
   userId: null,
   locationId: null,

@@ -8,6 +8,7 @@ import { MouseInput, GamepadButtons, TouchInputs } from '../enums/InputEnums'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { NumericalType } from '../../common/types/NumericalTypes'
+import normalizeWheel from '../functions/normalizeWheel'
 
 let prevTouchPosition: [number, number] = [0, 0]
 let lastTap = Date.now()
@@ -322,7 +323,12 @@ export const handleMouseWheel = (event: WheelEvent): void => {
 
   if (event?.target !== EngineRenderer.instance.canvas) return
 
-  const value = event?.deltaY
+  let normalizedValues = normalizeWheel(event)
+  console.log(normalizedValues)
+  console.log(event.deltaY)
+  const value = normalizedValues?.spinY
+  console.log('final', value)
+  // debugger
 
   if (!Engine.inputState.has(MouseInput.MouseScroll)) {
     Engine.inputState.set(MouseInput.MouseScroll, {

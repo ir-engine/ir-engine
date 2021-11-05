@@ -1,31 +1,32 @@
-import Backdrop from '@material-ui/core/Backdrop'
-import Button from '@material-ui/core/Button'
-import Fade from '@material-ui/core/Fade'
-import FormControl from '@material-ui/core/FormControl'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import FormGroup from '@material-ui/core/FormGroup'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import Modal from '@material-ui/core/Modal'
-import Select from '@material-ui/core/Select'
-import Switch from '@material-ui/core/Switch'
-import TextField from '@material-ui/core/TextField'
-import Checkbox from '@material-ui/core/Checkbox'
+import Backdrop from '@mui/material/Backdrop'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormGroup from '@mui/material/FormGroup'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Modal from '@mui/material/Modal'
+import Select from '@mui/material/Select'
+import Switch from '@mui/material/Switch'
+import TextField from '@mui/material/TextField'
+import Checkbox from '@mui/material/Checkbox'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { LocationService } from '../reducers/admin/location/LocationService'
+import { useDispatch } from '../../store'
+import { LocationService } from '../services/LocationService'
 import styles from './Admin.module.scss'
-import Tooltip from '@material-ui/core/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { useSceneState } from '../reducers/admin/scene/SceneState'
-import { useLocationState } from '../reducers/admin/location/LocationState'
+import { useSceneState } from '../services/SceneService'
+import { useLocationState } from '../services/LocationService'
+
+import { Location } from '@xrengine/common/src/interfaces/Location'
 
 interface Props {
   open: boolean
   handleClose: any
-  location: any
+  location: Location
   editing: boolean
 }
 
@@ -62,16 +63,16 @@ const LocationModal = (props: Props): any => {
     }
 
     if (editing === true) {
-      dispatch(LocationService.patchLocation(location.id, submission))
+      LocationService.patchLocation(location.id, submission)
     } else {
-      dispatch(LocationService.createLocation(submission))
+      LocationService.createLocation(submission)
     }
 
     handleClose()
   }
 
   const deleteLocation = () => {
-    dispatch(LocationService.removeLocation(location.id))
+    LocationService.removeLocation(location.id)
     handleClose()
   }
 
@@ -80,12 +81,12 @@ const LocationModal = (props: Props): any => {
       setName(location.name)
       setSceneId(location.sceneId || '')
       setMaxUsers(location.maxUsersPerInstance)
-      setVideoEnabled(location.location_setting.videoEnabled)
-      setInstanceMediaChatEnabled(location.location_setting.instanceMediaChatEnabled)
-      setLocationType(location.location_setting.locationType)
+      setVideoEnabled(location.locationSettings.videoEnabled)
+      setInstanceMediaChatEnabled(location.locationSettings.instanceMediaChatEnabled)
+      setLocationType(location.locationSettings.locationType)
       setState({
         lobby: location.isLobby,
-        feature: location.isFeature
+        feature: location.isFeatured
       })
     } else {
       setName('')

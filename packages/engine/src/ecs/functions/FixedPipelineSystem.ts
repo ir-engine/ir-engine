@@ -7,12 +7,12 @@ import { System } from '../classes/System'
  * @author Josh Field <github.com/hexafield>
  * @author Gheric Speiginer <github.com/speigg>
  */
-export default async function FixedPipelineSystem(world: World, args: { updatesPerSecond: number }): Promise<System> {
+export default async function FixedPipelineSystem(world: World, args: { tickRate: number }): Promise<System> {
   let accumulator = 0
 
-  const timestep = 1 / args.updatesPerSecond
+  const timestep = 1 / args.tickRate
   const limit = timestep * 1000
-  const updatesLimit = args.updatesPerSecond
+  const updatesLimit = args.tickRate
 
   return () => {
     world.fixedDelta = timestep
