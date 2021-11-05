@@ -273,6 +273,7 @@ export class Scene implements ServiceMethods<Data> {
       const tempOwnedFileKey = ownedFile.key
 
       try {
+        // @ts-ignore
         const responseSuccess = await provider.deleteResources([tempOwnedFileKey])
         console.log('Project temp Owned file removed result: ', responseSuccess)
       } catch (e) {
@@ -287,6 +288,7 @@ export class Scene implements ServiceMethods<Data> {
             id: ownedFile.id
           }
         },
+        // @ts-ignore
         { transaction }
       )
     })

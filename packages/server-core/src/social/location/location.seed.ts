@@ -5,6 +5,7 @@ export const locationSeed = {
   randomize: false,
   path: 'location',
   templates: [
+    // @ts-ignore
     {
       id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61',
       name: 'Test',
