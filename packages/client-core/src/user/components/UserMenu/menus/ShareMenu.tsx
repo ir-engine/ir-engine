@@ -83,6 +83,7 @@ const ShareMenu = (props: Props): any => {
         />
         <TextField
           className={styles.emailField}
+          style={{ color: '#fff' }}
           size="small"
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           variant="outlined"
@@ -90,13 +91,13 @@ const ShareMenu = (props: Props): any => {
           onChange={(e) => handleChang(e)}
         />
         <div className={styles.sendInviteContainer}>
-          <Button className={styles.sendInvite} onClick={packageInvite}>
+          <Button className={styles.sendInvite} style={{ color: '#fff' }} onClick={packageInvite}>
             {t('user:usermenu.share.lbl-send-invite')}
           </Button>
         </div>
         {isShareAvailable ? (
           <div className={styles.shareBtnContainer}>
-            <Button className={styles.shareBtn} onClick={shareOnApps}>
+            <Button className={styles.shareBtn} style={{ color: '#fff' }} onClick={shareOnApps}>
               {t('user:usermenu.share.lbl-share')}
             </Button>
           </div>

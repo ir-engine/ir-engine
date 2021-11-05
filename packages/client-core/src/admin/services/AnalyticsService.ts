@@ -7,87 +7,78 @@ import { AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnaly
 export const ANALYTICS_PAGE_LIMIT = 100
 
 const state = createState({
-  activeInstances: [],
-  activeParties: [],
-  instanceUsers: [],
-  channelUsers: [],
-  activeLocations: [],
-  activeScenes: [],
-  dailyUsers: [],
-  dailyNewUsers: []
+  activeInstances: [] as Array<any>,
+  activeParties: [] as Array<any>,
+  instanceUsers: [] as Array<any>,
+  channelUsers: [] as Array<any>,
+  activeLocations: [] as Array<any>,
+  activeScenes: [] as Array<any>,
+  dailyUsers: [] as Array<any>,
+  dailyNewUsers: [] as Array<any>
 })
 
 store.receptors.push((action: AnalyticsActionType): any => {
-  let result: any, updateMap: any, date: Date
   state.batch((s) => {
     switch (action.type) {
       case 'ACTIVE_INSTANCES_FETCHED':
-        result = action.analytics
         return s.merge({
-          activeInstances: result.data
+          activeInstances: action.analytics.data
             .map((item) => {
               return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
       case 'ACTIVE_PARTIES_FETCHED':
-        result = action.analytics
         return s.merge({
-          activeParties: result.data
+          activeParties: action.analytics.data
             .map((item) => {
               return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
       case 'ACTIVE_LOCATIONS_FETCHED':
-        result = action.analytics
         return s.merge({
-          activeLocations: result.data
+          activeLocations: action.analytics.data
             .map((item) => {
               return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
       case 'ACTIVE_SCENES_FETCHED':
-        result = action.analytics
         return s.merge({
-          activeScenes: result.data
+          activeScenes: action.analytics.data
             .map((item) => {
               return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
       case 'CHANNEL_USERS_FETCHED':
-        result = action.analytics
         return s.merge({
-          channelUsers: result.data
+          channelUsers: action.analytics.data
             .map((item) => {
               return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
       case 'INSTANCE_USERS_FETCHED':
-        result = action.analytics
         return s.merge({
-          instanceUsers: result.data
+          instanceUsers: action.analytics.data
             .map((item) => {
               return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
       case 'DAILY_NEW_USERS_FETCHED':
-        result = action.analytics
         return s.merge({
-          dailyNewUsers: result.data
+          dailyNewUsers: action.analytics.data
             .map((item) => {
               return [new Date(item.createdAt).getTime(), item.count]
             })
             .reverse()
         })
       case 'DAILY_USERS_FETCHED':
-        result = action.analytics
         return s.merge({
-          dailyUsers: result.data
+          dailyUsers: action.analytics.data
             .map((item) => {
               return [new Date(item.createdAt).getTime(), item.count]
             })

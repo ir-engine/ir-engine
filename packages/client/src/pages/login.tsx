@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 interface Props {}
 
 export const IndexPage = (props: Props): any => {
+  // const dispatch = useDispatch()
   const { t } = useTranslation()
 
   useEffect(() => {

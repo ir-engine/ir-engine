@@ -12,11 +12,9 @@ export const state = createState({
 })
 
 store.receptors.push((action: ProjectActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'PROJECTS_RETRIEVED':
-        result = action.projectResult
         return s.merge({
           projects: action.projectResult,
           updateNeeded: false
