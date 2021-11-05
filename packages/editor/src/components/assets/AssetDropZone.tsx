@@ -45,18 +45,16 @@ interface AssetDropZoneProp {
  * @param       {any} uploadOptions
  * @constructor
  */
-export function AssetDropZone({ afterUpload, uploadOptions }: AssetDropZoneProp) {
+export function AssetDropZone({ afterUpload }: AssetDropZoneProp) {
   const { t } = useTranslation()
 
-  const onUpload = useUpload(uploadOptions)
+  const onUpload = useUpload()
 
   const [{ canDrop, isOver, isDragging }, onDropTarget] = useDrop({
     accept: [ItemTypes.File],
     drop(item: any) {
       onUpload(item.files).then((assets) => {
         if (assets) {
-          // SourceManager.instance.setSource(SourceManager.instance.defaultUploadSource.id);
-
           if (afterUpload) {
             afterUpload(assets)
           }

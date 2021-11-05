@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
 import { AssetPanelContentContainer } from './AssetsPanel'
-import { UploadFileType } from './sources/MyAssetsSource'
+import AudioNode from '../../nodes/AudioNode'
+import ImageNode from '../../nodes/ImageNode'
+import ModelNode from '../../nodes/ModelNode'
+import VideoNode from '../../nodes/VideoNode'
 import { NodeManager } from '../../managers/NodeManager'
 import FileBrowserGrid from './FileBrowserGrid'
 import { File } from '@styled-icons/fa-solid/File'
@@ -17,12 +20,33 @@ import { Downgraded } from '@hookstate/core'
 import { FileDataType } from './FileDataType'
 
 /**
+ * @author Abhishek Pathak
+ */
+
+export const UploadFileType = {
+  gltf: ModelNode,
+  'gltf-binary': ModelNode,
+  glb: ModelNode,
+  png: ImageNode,
+  jpeg: ImageNode,
+  mp4: VideoNode,
+  mpeg: AudioNode,
+  mp3: AudioNode,
+  'model/gltf-binary': ModelNode,
+  'model/gltf': ModelNode,
+  'model/glb': ModelNode,
+  'image/png': ImageNode,
+  'image/jpeg': ImageNode,
+  'application/pdf': null,
+  'video/mp4': VideoNode,
+  'audio/mpeg': AudioNode,
+  'audio/mp3': AudioNode
+}
+/**
  * FileBrowserPanel used to render view for AssetsPanel.
  * @author Abhishek Pathak
  * @constructor
  */
-
-let lastVal = null
 
 export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const { t } = useTranslation()

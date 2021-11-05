@@ -32,13 +32,15 @@ export const getStorageProviderPath = (projectName: string) =>
  */
 export const uploadLocalProjectToProvider = async (projectName) => {
   // remove exiting storage provider files
-  const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
-  if (existingFiles.length) {
-    await Promise.all([
-      storageProvider.deleteResources(existingFiles),
-      storageProvider.createInvalidation(existingFiles)
-    ])
-  }
+  try {
+    const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+    if (existingFiles.length) {
+      await Promise.all([
+        storageProvider.deleteResources(existingFiles),
+        storageProvider.createInvalidation(existingFiles)
+      ])
+    }
+  } catch (e) {}
   // upload new files to storage provider
   const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
   const files = getFilesRecursive(projectPath)
@@ -51,7 +53,7 @@ export const uploadLocalProjectToProvider = async (projectName) => {
           await storageProvider.putObject({
             Body: fileResult,
             ContentType: getContentType(file),
-            Key: `projects/${projectName}/${filePathRelative}`
+            Key: `projects/${projectName}${filePathRelative}`
           })
         } catch (e) {}
         resolve(true)
@@ -67,7 +69,6 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
-    console.log('isDev', isDev)
     if (isDev && !config.db.forceRefresh) {
       this._fetchDevLocalProjects()
     }
@@ -81,8 +82,14 @@ export class Project extends Service {
     const data: ProjectInterface[] = dbEntries.data
     console.log(dbEntries)
 
+    const projectsRootFolder = path.resolve(appRootPath.path, 'packages/projects/projects/')
+
+    if (!fs.existsSync(projectsRootFolder)) {
+      fs.mkdirSync(projectsRootFolder, { recursive: true })
+    }
+
     const locallyInstalledProjects = fs
-      .readdirSync(path.resolve(appRootPath.path, 'packages/projects/projects/'), { withFileTypes: true })
+      .readdirSync(projectsRootFolder, { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
 

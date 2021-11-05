@@ -3,33 +3,26 @@ import ErrorDialog from '../dialogs/ErrorDialog'
 import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { SourceManager } from '../../managers/SourceManager'
 import { useDialog } from '../hooks/useDialog'
 
-/**
- * useUpload used to upload asset file.
- *
- * @author Robert Long
- * @param  {object} options
- * @return {any}         [assets]
- */
-export default function useUpload(options: any = {}) {
+//todo
+const upload = (files: any): any => {
+  console.log(files)
+}
+
+type Props = {
+  multiple?: boolean
+  accepts?: string[]
+}
+
+export default function useUpload(options: Props = {}) {
   const { t } = useTranslation()
 
-  // initializing showDialog, hideDialog using dialogContext
   const [DialogComponent, setDialogComponent] = useDialog()
 
-  // initializing multiple if options contains multiple.
-  const multiple = options.multiple === undefined ? false : options.multiple
-
-  // initializing source if options contains source else use Source manager's defaultUploadSource
-  const source = options.source || SourceManager.instance.defaultUploadSource
-
-  //initializing accepts options using options.accepts
-  //if options.accepts is not empty else set all types
+  const multiple = !!options.multiple
   const accepts = options.accepts || AllFileTypes
 
-  //function callback used when upload asset files.
   const onUpload = useCallback(
     //initailizing files by using assets files after upload.
     async (files) => {
@@ -75,27 +68,28 @@ export default function useUpload(options: any = {}) {
         )
 
         //uploading files and showing ProgressDialog
-        assets = await source.upload(
-          files,
-          (item, total, progress) => {
-            setDialogComponent(
-              <ProgressDialog
-                title={t('editor:asset.useUpload.progressTitle')}
-                message={t('editor:asset.useUpload.progressMsg', {
-                  uploaded: item,
-                  total,
-                  percentage: Math.round(progress * 100)
-                })}
-                cancelable={true}
-                onCancel={() => {
-                  abortController.abort()
-                  setDialogComponent(null)
-                }}
-              />
-            )
-          },
-          abortController.signal
-        )
+        // assets = await upload(
+        //   files,
+        //   (item, total, progress) => {
+        //     setDialogComponent(
+        //       <ProgressDialog
+        //         title={t('editor:asset.useUpload.progressTitle')}
+        //         message={t('editor:asset.useUpload.progressMsg', {
+        //           uploaded: item,
+        //           total,
+        //           percentage: Math.round(progress * 100)
+        //         })}
+        //         cancelable={true}
+        //         onCancel={() => {
+        //           abortController.abort()
+        //           setDialogComponent(null)
+        //         }}
+        //       />
+        //     )
+        //   },
+        //   abortController.signal
+        // )
+        assets = await upload(files)
         setDialogComponent(null)
       } catch (error) {
         console.error(error)
@@ -112,7 +106,7 @@ export default function useUpload(options: any = {}) {
       }
       return assets
     },
-    [source, multiple, accepts]
+    [multiple, accepts]
   )
   return onUpload
 }

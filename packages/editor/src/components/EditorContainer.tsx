@@ -9,7 +9,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation, withTranslation } from 'react-i18next'
 import Modal from 'react-modal'
 import styled from 'styled-components'
-import { createScene, getScene, saveScene } from '../functions/sceneFunctions'
+import { getScene, saveScene } from '../functions/sceneFunctions'
 import AssetsPanel from './assets/AssetsPanel'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
@@ -24,11 +24,9 @@ import ViewportPanelContainer from './viewport/ViewportPanelContainer'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import { CommandManager } from '../managers/CommandManager'
-import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import { SceneManager } from '../managers/SceneManager'
 import { registerPredefinedNodes } from '../managers/NodeManager'
-import { registerPredefinedSources } from '../managers/SourceManager'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import ScenesPanel from './assets/ScenesPanel'
@@ -145,7 +143,6 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     CacheManager.init()
 
     registerPredefinedNodes()
-    registerPredefinedSources()
 
     initializeEditor().then(() => {
       setEditorReady(true)
@@ -190,6 +187,28 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
     setSceneName(null)
     try {
       const project = await getScene(projectName, sceneName, false)
+      await ProjectManager.instance.loadProject(project.scene)
+      setSceneName(sceneName)
+      setDialogComponent(null)
+    } catch (error) {
+      console.error(error)
+
+      setDialogComponent(
+        <ErrorDialog
+          title={t('editor:loadingError')}
+          message={error.message || t('editor:loadingErrorMsg')}
+          error={error}
+        />
+      )
+    }
+  }
+
+  const newScene = async () => {
+    setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
+    setSceneName(null)
+    try {
+      // TODO: replace with better template functionality
+      const project = await getScene('default-project', 'default', false)
       await ProjectManager.instance.loadProject(project.scene)
       setSceneName(sceneName)
       setDialogComponent(null)
@@ -483,7 +502,7 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
                       <PanelTitle>Scenes</PanelTitle>
                     </PanelDragContainer>
                   ),
-                  content: <ScenesPanel loadScene={loadScene} projectName={projectName} />
+                  content: <ScenesPanel newScene={newScene} loadScene={loadScene} projectName={projectName} />
                 },
                 {
                   id: 'filesPanel',

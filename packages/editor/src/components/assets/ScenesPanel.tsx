@@ -15,7 +15,7 @@ import { getScenes } from '../../functions/sceneFunctions'
 
 const contextMenuId = 'scenes-menu'
 
-export default function ScenesPanel({ projectName, loadScene }) {
+export default function ScenesPanel({ projectName, loadScene, newScene }) {
   const { t } = useTranslation()
   const panelRef = useRef(null)
   const [loading, setLoading] = useState(true)
@@ -39,7 +39,6 @@ export default function ScenesPanel({ projectName, loadScene }) {
   }, [])
 
   const onClickExisting = (scene) => {
-    console.log(scene)
     loadScene(scene.name)
   }
 
@@ -54,6 +53,7 @@ export default function ScenesPanel({ projectName, loadScene }) {
           <ProjectGrid
             loading={loading}
             projects={scenes}
+            onClickNew={newScene}
             onClickExisting={onClickExisting}
             contextMenuId={contextMenuId}
           />

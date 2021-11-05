@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useEffect, memo } from 'react'
 import PropTypes from 'prop-types'
-import InfiniteScroll from 'react-infinite-scroller'
 import styled from 'styled-components'
 import { VerticalScrollContainer } from '../layout/Flex'
 import { MediaGrid, ImageMediaGridItem, VideoMediaGridItem, IconMediaGridItem } from '../layout/MediaGrid'
@@ -14,8 +13,27 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
-import { ProjectManager } from '../../managers/ProjectManager'
+import { NodeManager } from '../../managers/NodeManager'
+import { ItemTypes } from '../../constants/AssetTypes'
 
+const getNodes = (params?) => {
+  return Array.from<any>(NodeManager.instance.nodeTypes).reduce((acc: any, nodeType: any) => {
+    if (nodeType.hideInElementsPanel) {
+      return acc
+    }
+    const nodeEditor = NodeManager.instance.getEditorFromClass(nodeType)
+    acc.push({
+      id: nodeType.nodeName,
+      iconComponent: nodeEditor.WrappedComponent ? nodeEditor.WrappedComponent.iconComponent : nodeEditor.iconComponent,
+      label: nodeType.nodeName,
+      description: nodeEditor.WrappedComponent ? nodeEditor.WrappedComponent.description : nodeEditor.description,
+      type: ItemTypes.Element,
+      nodeClass: nodeType,
+      initialProps: nodeType.initialElementProps
+    })
+    return acc
+  }, [])
+}
 /**
  * AssetGridTooltipContainer used to provide styles for tooltip shown if we hover the object.
  *
@@ -181,9 +199,12 @@ const MemoAssetGridItem = memo(AssetGridItem)
  * @param       {any}  source
  * @constructor
  */
-export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMore, hasMore, tooltip, source }) {
+export function AssetGrid({ onSelect, tooltip }) {
   const uniqueId = useRef(`AssetGrid${lastId}`)
   const { t } = useTranslation()
+
+  const items = getNodes()
+  console.log(items)
 
   // incrementig lastId
   useEffect(() => {
@@ -204,6 +225,7 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
 
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
   }, [])
+
   //creating callback function used when we choose placeObjectAtOrigin option from context menu of AssetGridItem
   const placeObjectAtOrigin = useCallback((_, trigger) => {
     const item = trigger.item
@@ -217,77 +239,30 @@ export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMor
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
   }, [])
 
-  const copyURL = useCallback((_, trigger) => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(trigger.item.url)
-    }
-  }, [])
-
-  const openURL = useCallback((_, trigger) => {
-    window.open(trigger.item.url)
-  }, [])
-
-  const onDelete = useCallback(
-    (_, trigger) => {
-      //source.delete(trigger.item)
-    },
-    [source]
-  )
-
   //returning view of AssetGridItems
   return (
     <>
       <VerticalScrollContainer flex>
-        <InfiniteScroll pageStart={0} loadMore={onLoadMore} hasMore={hasMore} threshold={100} useWindow={false}>
-          <MediaGrid>
-            {unique(items, 'id').map((item) => (
-              <MemoAssetGridItem
-                key={item.id}
-                tooltipComponent={tooltip}
-                disableTooltip={false}
-                contextMenuId={uniqueId.current}
-                item={item}
-                selected={selectedItems.indexOf(item) !== -1}
-                onClick={onSelect}
-              />
-            ))}
-            {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
-          </MediaGrid>
-        </InfiniteScroll>
+        <MediaGrid>
+          {unique(items, 'id').map((item) => (
+            <MemoAssetGridItem
+              key={item.id}
+              tooltipComponent={tooltip}
+              disableTooltip={false}
+              contextMenuId={uniqueId.current}
+              item={item}
+              // selected={selectedItems.indexOf(item) !== -1}
+              onClick={onSelect}
+            />
+          ))}
+        </MediaGrid>
       </VerticalScrollContainer>
       <ContextMenu id={uniqueId.current}>
         <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
         <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-        {!source.disableUrl && <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>}
-        {!source.disableUrl && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
-        {source.delete && <MenuItem onClick={onDelete}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>}
       </ContextMenu>
     </>
   )
-}
-
-//creating propTypes for asset grid
-AssetGrid.propTypes = {
-  source: PropTypes.object,
-  tooltip: PropTypes.func,
-  isLoading: PropTypes.bool,
-  onSelect: PropTypes.func,
-  onLoadMore: PropTypes.func.isRequired,
-  hasMore: PropTypes.bool,
-  selectedItems: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.any.isRequired,
-      label: PropTypes.string,
-      thumbnailUrl: PropTypes.string
-    })
-  ).isRequired,
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.any.isRequired,
-      label: PropTypes.string,
-      thumbnailUrl: PropTypes.string
-    })
-  ).isRequired
 }
 
 // creating default properties for AssetGrid

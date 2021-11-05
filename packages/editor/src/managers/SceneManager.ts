@@ -106,6 +106,7 @@ export class SceneManager {
    * @param  {any} canvas [ contains canvas data ]
    */
   initializeRenderer(canvas: HTMLCanvasElement): void {
+    if (this.renderer) return
     try {
       this.renderer = new Renderer(canvas)
 

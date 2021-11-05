@@ -64,6 +64,7 @@ export class Scene implements ServiceMethods<any> {
 
   async update(projectName: string, data: UpdateParams, params?: Params): Promise<any> {
     const { sceneName, sceneData, thumbnailBuffer } = data
+    console.log('[scene.update]:', projectName, data)
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)

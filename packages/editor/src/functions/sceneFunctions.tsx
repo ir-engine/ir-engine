@@ -1,7 +1,5 @@
 import i18n from 'i18next'
-import { SceneDetailInterface, SceneSaveInterface } from '@xrengine/common/src/interfaces/SceneInterface'
-import { upload } from '@xrengine/client-core/src/util/upload'
-import { ProjectManager } from '../managers/ProjectManager'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { SceneManager } from '../managers/SceneManager'
 import { client } from '@xrengine/client-core/src/feathers'
 
@@ -39,8 +37,6 @@ export const getScene = async (
     throw new Error(error)
   }
 }
-
-export const createScene = async (scene, thumbnailBlob, signal): Promise<SceneDetailInterface> => {}
 
 /**
  * deleteScene used to delete project using projectId.
