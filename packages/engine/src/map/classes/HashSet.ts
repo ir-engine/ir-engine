@@ -7,11 +7,11 @@ export default class HashSet<Value extends ITuple> {
   }
 
   constructor(iterable: Iterable<Value> = []) {
+    this._size = 0
     this.map = {}
     for (const value of iterable) {
       this.map[value.hash] = value
     }
-    this._size = 0
   }
 
   add(value: Value) {
@@ -31,8 +31,10 @@ export default class HashSet<Value extends ITuple> {
     return has
   }
 
-  values() {
-    return Object.values(this.map)
+  *values() {
+    for (const key in this.map) {
+      yield this.map[key]
+    }
   }
   keys() {
     return this.values()
