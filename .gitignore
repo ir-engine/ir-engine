@@ -163,6 +163,7 @@ certs/
 /packages/engine/src/index.ts
 /packages/projects/index.ts
 /packages/server-core/src/index.ts
+/packages/gallery/www
 
 /packages/client/public/projects/*
 /packages/projects/projects/*

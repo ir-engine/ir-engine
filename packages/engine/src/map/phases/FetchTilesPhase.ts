@@ -23,7 +23,7 @@ export function setTaskStatus(state: MapStateUnwrapped, key: TileKey, status: Ta
 }
 
 export function startTask(state: MapStateUnwrapped, key: TileKey) {
-  return fetchVectorTileUsingCache(state.tileCache, key)
+  return fetchVectorTileUsingCache(state.tileCache, state, key)
 }
 
 export function cleanup(state: MapStateUnwrapped) {
