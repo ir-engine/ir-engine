@@ -51,9 +51,9 @@ export interface StorageProviderInterface {
 
   /**
    * Gets the provider
-   * @returns {StorageProviderInterface}
+   * @returns {any}
    */
-  getProvider(): StorageProviderInterface
+  getProvider(): any
 
   /**
    *
