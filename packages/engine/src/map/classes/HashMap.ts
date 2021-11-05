@@ -8,13 +8,17 @@ interface Options<Value> {
 }
 
 export default class HashMap<Key extends ITuple, Value> {
-  map: Map<Key['hash'], Value>
+  _size: number
+  map: {
+    [key: string]: Value
+  }
   defaultValue: Value
 
   constructor(iterable: Iterable<[Key, Value]> = [], options: Options<Value> = {}) {
-    this.map = new Map()
+    this.map = {}
+    this._size = 0
     for (const [key, value] of iterable) {
-      this.map.set(key.hash, value)
+      this.map[key.hash] = value
     }
     if (typeof options.defaultValue !== 'undefined') {
       this.defaultValue = options.defaultValue
@@ -22,35 +26,46 @@ export default class HashMap<Key extends ITuple, Value> {
   }
 
   set(key: Key, value: Value) {
-    this.map.set(key.hash, value)
+    this.map[key.hash] = value
     return this
   }
 
+  has(key: Key) {
+    return this.map.hasOwnProperty(key.hash)
+  }
+
   get(key: Key) {
-    if (this.map.has(key.hash)) {
-      return this.map.get(key.hash)!
+    if (this.has(key)) {
+      return this.map[key.hash]
     } else {
       return this.defaultValue
     }
   }
 
   delete(key: Key) {
-    return this.map.delete(key.hash)
+    const has = this.has(key)
+    delete this.map[key.hash]
+    this._size--
+    return has
   }
 
-  keyHashes() {
-    return this.map.keys()
+  *keyHashes() {
+    for (const key in this.map) {
+      yield key
+    }
   }
 
-  values() {
-    return this.map.values()
+  *values() {
+    for (const key in this.map) {
+      yield this.map[key]
+    }
   }
 
   clear() {
-    this.map.clear()
+    this.map = {}
   }
 
   get size() {
-    return this.map.size
+    return this._size
   }
 }
