@@ -6,7 +6,7 @@ Projects are git repositories that act as containers for assets, scenes and scri
 
 ## Structure
 
-The project.json of a Project has a field "xrengine" which contains information such as the thumbnail, as well as the entry points to load modules from.
+The project.json of a Project has a field "xrengine" which contains information such as the thumbnail, as well as the entry points to load modules from. The name field in the package.json should match the name of the repository.
 
 ## Local Development Flow
 

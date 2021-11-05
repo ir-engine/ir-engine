@@ -41,6 +41,7 @@ export default (app: Application): void => {
    */
 
   service.publish('created', async (data): Promise<any> => {
+    data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
     try {
       // const channel = await (app.service('channel') as any).Model.findOne({
       //   where: {
@@ -98,6 +99,7 @@ export default (app: Application): void => {
    * @author Vyacheslav Solovjov
    */
   service.publish('patched', async (data): Promise<any> => {
+    data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
     try {
       // const channel = await (app.service('channel') as any).Model.findOne({
       //   where: {
@@ -158,6 +160,7 @@ export default (app: Application): void => {
    */
 
   service.publish('removed', async (data): Promise<any> => {
+    data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
     try {
       // const channel = await (app.service('channel') as any).Model.findOne({
       //   where: {

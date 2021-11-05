@@ -1,6 +1,6 @@
 import React from 'react'
-import Grid from '@material-ui/core/Grid'
-import Button from '@material-ui/core/Button'
+import Grid from '@mui/material/Grid'
+import Button from '@mui/material/Button'
 import UserModel from './CreateUser'
 import UserTable from './UserTable'
 import SearchUser from './SearchUser'
@@ -27,11 +27,11 @@ const Users = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={classes.marginBottom}>
-        <Grid item xs={9}>
+      <Grid container spacing={1} className={classes.marginBottom}>
+        <Grid item md={9} xs={7}>
           <SearchUser />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item md={3} xs={5}>
           <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
             Create New User
           </Button>

@@ -19,13 +19,23 @@ import EditorEvents from '../../../constants/EditorEvents'
  */
 
 export const UploadFileType = {
-  'model/gltf': ModelNode,
+  gltf: ModelNode,
+  'gltf-binary': ModelNode,
+  glb: ModelNode,
+  png: ImageNode,
+  jpeg: ImageNode,
+  mp4: VideoNode,
+  mpeg: AudioNode,
+  mp3: AudioNode,
   'model/gltf-binary': ModelNode,
+  'model/gltf': ModelNode,
+  'model/glb': ModelNode,
   'image/png': ImageNode,
   'image/jpeg': ImageNode,
   'application/pdf': null,
   'video/mp4': VideoNode,
-  'audio/mpeg': AudioNode
+  'audio/mpeg': AudioNode,
+  'audio/mp3': AudioNode
 }
 
 export class MyAssetsSource extends BaseSource {

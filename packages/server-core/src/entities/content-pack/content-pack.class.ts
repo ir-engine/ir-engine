@@ -13,9 +13,23 @@ import {
 } from './content-pack-helper'
 import config from '../../appconfig'
 import axios from 'axios'
-import { StorageListObjectInterface, StorageObjectInterface } from '../..'
+import {
+  StorageListObjectInterface,
+  StorageObjectInterface
+} from '../../media/storageprovider/storageprovider.interface'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
-interface Data {}
+interface Data {
+  scenes?: SceneData[]
+  contentPack?: any
+  avatars?: Array<{
+    thumbnail: string
+    avatar: AvatarInterface
+  }>
+  projects?: ProjectInterface[]
+}
 
 interface ServiceOptions {}
 const storageProvider = useStorageProvider()
@@ -60,7 +74,8 @@ export class ContentPack implements ServiceMethods<Data> {
 
   async setup() {}
 
-  async find(params?: Params): Promise<any[] | Paginated<any>> {
+  // @ts-ignore
+  async find(params?: Params) {
     const result = (await new Promise((resolve, reject) => {
       storageProvider
         .listObjects('content-pack')
@@ -101,11 +116,11 @@ export class ContentPack implements ServiceMethods<Data> {
 
   async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
-      return await Promise.all(data.map((current) => this.create(current, params)))
+      return (await Promise.all(data.map((current) => this.create(current, params)))) as any
     }
 
     let uploadPromises = []
-    const { scenes, contentPack, avatars, projects } = data as any
+    const { scenes, contentPack, avatars, projects } = data
     await storageProvider.checkObjectExistence(getManifestKey(contentPack))
     const body = {
       version: 1,
@@ -134,7 +149,7 @@ export class ContentPack implements ServiceMethods<Data> {
             if (thumbnailFind.total > 0) {
               const thumbnail = thumbnailFind.data[0]
               const url = thumbnail.url
-              const thumbnailDownload = await axios.get(url, getAxiosConfig())
+              const thumbnailDownload = await axios.get<Buffer>(url, getAxiosConfig())
               await storageProvider.putObject({
                 Body: thumbnailDownload.data,
                 ContentType: 'jpeg',
@@ -206,14 +221,17 @@ export class ContentPack implements ServiceMethods<Data> {
   async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     const manifestUrl = (data as any).manifestUrl
     const manifestResult = await axios.get(manifestUrl, getAxiosConfig('json'))
-    const { avatars, scenes, projects } = manifestResult.data
+    const { avatars, scenes, projects } = manifestResult.data as Data
     const promises = []
     for (const index in scenes) {
       const scene = scenes[index]
-      const sceneResult = await axios.get(scene.worldFile, getAxiosConfig('json'))
+      // @ts-ignore
+      const sceneResult = await axios.get<Buffer>(scene.worldFile, getAxiosConfig('json'))
+      // @ts-ignore
       promises.push(populateScene(scene.sid, sceneResult.data, manifestUrl, this.app, scene.thumbnail))
     }
     for (const index in avatars) promises.push(populateAvatar(avatars[index], this.app))
+    // @ts-ignore
     for (const index in projects) promises.push(populateProject(projects[index].manifest, this.app, params))
     await Promise.all(promises)
     return data
@@ -246,7 +264,7 @@ export class ContentPack implements ServiceMethods<Data> {
             if (thumbnailFind.total > 0) {
               const thumbnail = thumbnailFind.data[0]
               const url = thumbnail.url
-              const thumbnailDownload = await axios.get(url, getAxiosConfig())
+              const thumbnailDownload = await axios.get<Buffer>(url, getAxiosConfig())
               const thumbnailKey = getThumbnailKey(contentPack, url)
               await storageProvider.putObject({
                 Body: thumbnailDownload.data,
@@ -325,6 +343,7 @@ export class ContentPack implements ServiceMethods<Data> {
   }
 
   async remove(id: NullableId, params?: Params): Promise<Data> {
+    // @ts-ignore
     return { id }
   }
 }

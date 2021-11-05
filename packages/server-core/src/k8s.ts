@@ -567,7 +567,7 @@ export class Request {
     const promise = new Promise((resolve, reject) => {
       const options = this.getRequestOptions(url, { json: body })
 
-      options.headers['Content-Type'] = 'application/json-patch+json'
+      options.headers['Content-Type'] = _options?.contentType ?? 'application/json-patch+json'
 
       if (_options && _options.headers) {
         for (const key in _options.headers) {

@@ -231,7 +231,7 @@ export class Location extends Service {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
-      // eslint-disable-next-line prefer-const
+      // @ts-ignore
       let { location_settings, ...locationData } = data
       const loggedInUser = extractLoggedInUserFromParams(params)
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
@@ -288,7 +288,7 @@ export class Location extends Service {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
-      // eslint-disable-next-line prefer-const
+      // @ts-ignore
       let { location_settings, ...locationData } = data
 
       const old = await this.Model.findOne({

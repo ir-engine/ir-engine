@@ -59,7 +59,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
 
     const state = mapReducer(null, MapAction.initialize(center, args.scale?.x))
 
-    await startPhases(state, getPhases({ exclude: ['navigation'] }))
+    await startPhases(state, await getPhases({ exclude: ['navigation'] }))
 
     for (const object of state.completeObjects.values()) {
       if (object.mesh) {

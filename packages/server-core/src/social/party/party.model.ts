@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../../../declarations'
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const Party = sequelizeClient.define(
     'party',
@@ -14,7 +14,7 @@ export default (app: Application): any => {
       },
       name: {
         type: DataTypes.STRING,
-        allowNull: false
+        defaultValue: ''
       }
     },
     {

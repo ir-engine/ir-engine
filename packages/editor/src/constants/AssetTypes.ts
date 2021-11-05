@@ -4,12 +4,28 @@ import { NativeTypes } from 'react-dnd-html5-backend'
  * ItemTypes object containing types of items used.
  *
  * @author Robert Long
+ * @author Abhishek Pathak
  * @type {Object}
  */
 export const ItemTypes = {
   File: NativeTypes.FILE,
+  FileBrowserContent: [
+    'png',
+    'jpeg',
+    'gltf',
+    'mp4',
+    'mpeg',
+    NativeTypes.FILE,
+    'folder',
+    'image/png',
+    'image/jpeg',
+    'video/mp4',
+    'audio/mpeg',
+    'model/gltf'
+  ],
   Node: 'Node',
   Model: 'Model',
+  Shopify: 'Shopify',
   Image: 'Image',
   Video: 'Video',
   Audio: 'Audio',
@@ -25,6 +41,7 @@ export const ItemTypes = {
  */
 export const AssetTypes = [
   ItemTypes.Model,
+  ItemTypes.Shopify,
   ItemTypes.Image,
   ItemTypes.Video,
   ItemTypes.Audio,

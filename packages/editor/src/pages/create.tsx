@@ -1,5 +1,4 @@
 import React, { Suspense } from 'react'
-import { store, useDispatch } from '../../store'
 
 /**
  * Exporting component by dynamicaly loaded component.

@@ -1,15 +1,15 @@
 import React, { useRef } from 'react'
-import Typography from '@material-ui/core/Typography'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Send, FileCopy } from '@material-ui/icons'
+import Typography from '@mui/material/Typography'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
+import { Send, FileCopy } from '@mui/icons-material'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import styles from '../UserMenu.module.scss'
-import { InviteService } from '../../../../social/state/InviteService'
+import { InviteService } from '../../../../social/services/InviteService'
 import { useDispatch } from '../../../../store'
 import { useTranslation } from 'react-i18next'
-import { useInviteState } from '../../../../social/state/InviteState'
+import { useInviteState } from '../../../../social/services/InviteService'
 
 interface Props {
   alertSuccess?: any
@@ -24,9 +24,7 @@ const ShareMenu = (props: Props): any => {
   const dispatch = useDispatch()
   const inviteState = useInviteState()
   const copyLinkToClipboard = () => {
-    refLink.current.select()
-    document.execCommand('copy')
-    refLink.current.setSelectionRange(0, 0) // deselect
+    navigator.clipboard.writeText(refLink.current.value)
     props.alertSuccess(t('user:usermenu.share.linkCopied'))
   }
 
@@ -85,6 +83,7 @@ const ShareMenu = (props: Props): any => {
         />
         <TextField
           className={styles.emailField}
+          style={{ color: '#fff' }}
           size="small"
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           variant="outlined"
@@ -92,13 +91,13 @@ const ShareMenu = (props: Props): any => {
           onChange={(e) => handleChang(e)}
         />
         <div className={styles.sendInviteContainer}>
-          <Button className={styles.sendInvite} onClick={packageInvite}>
+          <Button className={styles.sendInvite} style={{ color: '#fff' }} onClick={packageInvite}>
             {t('user:usermenu.share.lbl-send-invite')}
           </Button>
         </div>
         {isShareAvailable ? (
           <div className={styles.shareBtnContainer}>
-            <Button className={styles.shareBtn} onClick={shareOnApps}>
+            <Button className={styles.shareBtn} style={{ color: '#fff' }} onClick={shareOnApps}>
               {t('user:usermenu.share.lbl-share')}
             </Button>
           </div>

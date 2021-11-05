@@ -1,9 +1,9 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Button from '@material-ui/core/Button'
-import CardMedia from '@material-ui/core/CardMedia'
-import Typography from '@material-ui/core/Typography'
+import Button from '@mui/material/Button'
+import CardMedia from '@mui/material/CardMedia'
+import Typography from '@mui/material/Typography'
 import { useHistory } from 'react-router-dom'
 import React, { useState } from 'react'
 import styles from './OnBoarding.module.scss'
