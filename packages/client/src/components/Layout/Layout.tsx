@@ -1,14 +1,14 @@
-import { Forum, FullscreenExit, People, ZoomOutMap, Refresh } from '@material-ui/icons'
-import { ThemeProvider } from '@material-ui/styles'
+import { Forum, FullscreenExit, People, ZoomOutMap, Refresh } from '@mui/icons-material'
+import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
-import { AppAction } from '@xrengine/client-core/src/common/state/AppActions'
-import { useAppState } from '@xrengine/client-core/src/common/state/AppState'
+import { AppAction } from '@xrengine/client-core/src/common/services/AppService'
+import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
 import { Config } from '@xrengine/common/src/config'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
@@ -24,6 +24,11 @@ import styles from './Layout.module.scss'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -129,110 +134,112 @@ const Layout = (props: Props): any => {
   return (
     <>
       <FullScreen handle={handle} onChange={reportChange}>
-        <ThemeProvider theme={props.theme ?? defaultTheme}>
-          <section>
-            <Helmet>
-              <title>
-                {siteTitle} | {pageTitle}
-              </title>
-            </Helmet>
-            <header>
-              {path === '/login' && <NavMenu login={login} />}
-              {!props.hideVideo && props.harmonyOpen !== true && (
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={props.theme ?? defaultTheme}>
+            <section>
+              <Helmet>
+                <title>
+                  {siteTitle} | {pageTitle}
+                </title>
+              </Helmet>
+              <header>
+                {path === '/login' && <NavMenu login={login} />}
+                {!props.hideVideo && props.harmonyOpen !== true && (
+                  <>
+                    <section className={styles.locationUserMenu}>
+                      {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
+                      <PartyVideoWindows />
+                    </section>
+                    <UserToast />
+                  </>
+                )}
+              </header>
+
+              {!iOS() && (
                 <>
-                  <section className={styles.locationUserMenu}>
-                    {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
-                    <PartyVideoWindows />
-                  </section>
-                  <UserToast />
+                  {props.hideFullscreen ? null : fullScreenActive && props.harmonyOpen !== true ? (
+                    <button type="button" className={styles.fullScreen} onClick={handle.exit}>
+                      <FullscreenExit />
+                    </button>
+                  ) : (
+                    <button type="button" className={styles.fullScreen} onClick={handle.enter}>
+                      <ZoomOutMap />
+                    </button>
+                  )}
                 </>
               )}
-            </header>
 
-            {!iOS() && (
-              <>
-                {props.hideFullscreen ? null : fullScreenActive && props.harmonyOpen !== true ? (
-                  <button type="button" className={styles.fullScreen} onClick={handle.exit}>
-                    <FullscreenExit />
-                  </button>
-                ) : (
-                  <button type="button" className={styles.fullScreen} onClick={handle.enter}>
-                    <ZoomOutMap />
-                  </button>
+              <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
+                <Refresh />
+              </button>
+
+              <Harmony
+                setHarmonyOpen={props.setHarmonyOpen}
+                setDetailsType={setDetailsType}
+                setGroupFormOpen={setGroupFormOpen}
+                setGroupFormMode={setGroupFormMode}
+                setGroupForm={setGroupForm}
+                setSelectedUser={setSelectedUser}
+                setSelectedGroup={setSelectedGroup}
+                setLeftDrawerOpen={setLeftDrawerOpen}
+                setRightDrawerOpen={setRightDrawerOpen}
+                harmonyHidden={props.harmonyOpen === false}
+              />
+              <Fragment>
+                <UIDialog />
+                <Alerts />
+                {children}
+              </Fragment>
+              {authUser?.accessToken?.value != null &&
+                authUser.accessToken.value.length > 0 &&
+                user?.id?.value != null &&
+                user.id.value.length > 0 && (
+                  <Fragment>
+                    <LeftDrawer
+                      harmony={true}
+                      detailsType={detailsType}
+                      setDetailsType={setDetailsType}
+                      groupFormOpen={groupFormOpen}
+                      setGroupFormOpen={setGroupFormOpen}
+                      groupFormMode={groupFormMode}
+                      setGroupFormMode={setGroupFormMode}
+                      groupForm={groupForm}
+                      setGroupForm={setGroupForm}
+                      selectedUser={selectedUser}
+                      setSelectedUser={setSelectedUser}
+                      selectedGroup={selectedGroup}
+                      setSelectedGroup={setSelectedGroup}
+                      openBottomDrawer={bottomDrawerOpen}
+                      leftDrawerOpen={leftDrawerOpen}
+                      setLeftDrawerOpen={setLeftDrawerOpen}
+                      setRightDrawerOpen={setRightDrawerOpen}
+                      setBottomDrawerOpen={setBottomDrawerOpen}
+                    />
+                  </Fragment>
                 )}
-              </>
-            )}
-
-            <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
-              <Refresh />
-            </button>
-
-            <Harmony
-              setHarmonyOpen={props.setHarmonyOpen}
-              setDetailsType={setDetailsType}
-              setGroupFormOpen={setGroupFormOpen}
-              setGroupFormMode={setGroupFormMode}
-              setGroupForm={setGroupForm}
-              setSelectedUser={setSelectedUser}
-              setSelectedGroup={setSelectedGroup}
-              setLeftDrawerOpen={setLeftDrawerOpen}
-              setRightDrawerOpen={setRightDrawerOpen}
-              harmonyHidden={props.harmonyOpen === false}
-            />
-            <Fragment>
-              <UIDialog />
-              <Alerts />
-              {children}
-            </Fragment>
-            {authUser?.accessToken?.value != null &&
-              authUser.accessToken.value.length > 0 &&
-              user?.id?.value != null &&
-              user.id.value.length > 0 && (
-                <Fragment>
-                  <LeftDrawer
-                    harmony={true}
-                    detailsType={detailsType}
-                    setDetailsType={setDetailsType}
-                    groupFormOpen={groupFormOpen}
-                    setGroupFormOpen={setGroupFormOpen}
-                    groupFormMode={groupFormMode}
-                    setGroupFormMode={setGroupFormMode}
-                    groupForm={groupForm}
-                    setGroupForm={setGroupForm}
-                    selectedUser={selectedUser}
-                    setSelectedUser={setSelectedUser}
-                    selectedGroup={selectedGroup}
-                    setSelectedGroup={setSelectedGroup}
-                    openBottomDrawer={bottomDrawerOpen}
-                    leftDrawerOpen={leftDrawerOpen}
-                    setLeftDrawerOpen={setLeftDrawerOpen}
-                    setRightDrawerOpen={setRightDrawerOpen}
-                    setBottomDrawerOpen={setBottomDrawerOpen}
-                  />
-                </Fragment>
-              )}
-            {authUser?.accessToken?.value != null &&
-              authUser.accessToken.value.length > 0 &&
-              user?.id?.value != null &&
-              user.id.value.length > 0 && (
-                <Fragment>
-                  <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
-                </Fragment>
-              )}
-            {/*{authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&*/}
-            {/*  <Fragment>*/}
-            {/*    <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} />*/}
-            {/*  </Fragment>*/}
-            {/*}*/}
-            <footer>
-              {user?.userRole.value !== 'guest' && props.harmonyOpen === false && (
-                <div className={styles['harmony-toggle']} onClick={() => openHarmony()}>
-                  <Forum />
-                </div>
-              )}
-            </footer>
-          </section>
-        </ThemeProvider>
+              {authUser?.accessToken?.value != null &&
+                authUser.accessToken.value.length > 0 &&
+                user?.id?.value != null &&
+                user.id.value.length > 0 && (
+                  <Fragment>
+                    <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
+                  </Fragment>
+                )}
+              {/*{authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&*/}
+              {/*  <Fragment>*/}
+              {/*    <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} />*/}
+              {/*  </Fragment>*/}
+              {/*}*/}
+              <footer>
+                {user?.userRole.value !== 'guest' && props.harmonyOpen === false && (
+                  <div className={styles['harmony-toggle']} onClick={() => openHarmony()}>
+                    <Forum />
+                  </div>
+                )}
+              </footer>
+            </section>
+          </ThemeProvider>
+        </StyledEngineProvider>
       </FullScreen>
     </>
   )

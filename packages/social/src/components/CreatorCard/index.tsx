@@ -5,25 +5,25 @@ import React, { useEffect, useState } from 'react'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 
-import Card from '@material-ui/core/Card'
-import CardMedia from '@material-ui/core/CardMedia'
-import Typography from '@material-ui/core/Typography'
-import CardContent from '@material-ui/core/CardContent'
-import Button from '@material-ui/core/Button'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import Card from '@mui/material/Card'
+import CardMedia from '@mui/material/CardMedia'
+import Typography from '@mui/material/Typography'
+import CardContent from '@mui/material/CardContent'
+import Button from '@mui/material/Button'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
-// import TwitterIcon from '@material-ui/icons/Twitter';
-// import InstagramIcon from '@material-ui/icons/Instagram';
-// import TitleIcon from '@material-ui/icons/Title';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+// import TwitterIcon from '@mui/icons-material/Twitter';
+// import InstagramIcon from '@mui/icons-material/Instagram';
+// import TitleIcon from '@mui/icons-material/Title';
 // import SimpleModal from '../SimpleModal';
 // @ts-ignore
 import styles from './CreatorCard.module.scss'
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
-import { FeedService } from '@xrengine/client-core/src/social/state/FeedService'
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@material-ui/core'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material'
 import SimpleModal from '../SimpleModal'
 
 interface Props {

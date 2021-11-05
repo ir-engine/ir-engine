@@ -1,20 +1,37 @@
 import React from 'react'
-import Paper from '@material-ui/core/Paper'
+import Paper from '@mui/material/Paper'
 import SearchUser from './SearchUser'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import { useStyle, useUserStyles } from './style'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
+import { useStyle, useUserStyles, CreateInput } from './style'
 import UserList from './UserList'
+import { useHistory } from 'react-router-dom'
+import queryString from 'querystring'
 
 const LeftHarmony = () => {
   const classes = useUserStyles()
   const classx = useStyle()
-  const [chatType, setChatType] = React.useState('Party')
+  const history = useHistory()
+  const persed = queryString.parse(location.search)
+  const [chatType, setChatType] = React.useState(persed['?channel'] ? persed['?channel'] : 'Party')
 
   const handleChangeType = (event) => {
     setChatType(event.target.value)
+    history.push({
+      pathname: '/harmony',
+      search: `?channel=${event.target.value}`
+    })
   }
+
+  React.useEffect(() => {
+    if (!persed['?channel']) {
+      history.push({
+        pathname: '/harmony',
+        search: `?channel=Party`
+      })
+    }
+  }, [persed['?channel']])
 
   return (
     <div>
@@ -22,7 +39,7 @@ const LeftHarmony = () => {
         <SearchUser />
       </div>
       <div style={{ paddingLeft: '1rem', paddingTop: '0.5rem', paddingRight: '1rem' }}>
-        <Paper component="div" className={classes.createInput}>
+        <CreateInput>
           <FormControl fullWidth>
             <Select
               labelId="demo-controlled-open-select-label"
@@ -42,7 +59,7 @@ const LeftHarmony = () => {
               ))}
             </Select>
           </FormControl>
-        </Paper>
+        </CreateInput>
       </div>
       <UserList chatType={chatType} />
     </div>

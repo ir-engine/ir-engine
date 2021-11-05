@@ -11,7 +11,7 @@ export class Authentication extends Service {
   }
 
   async find(params: Params): Promise<any> {
-    const auth = await super.find()
+    const auth = (await super.find()) as any
     const data = auth.data.map((el) => {
       return {
         ...el,

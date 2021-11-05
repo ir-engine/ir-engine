@@ -1,11 +1,11 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
 import styles from './AlertModals.module.scss'
-import Backdrop from '@material-ui/core/Backdrop'
-import Fade from '@material-ui/core/Fade'
-import Modal from '@material-ui/core/Modal'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
+import Backdrop from '@mui/material/Backdrop'
+import Fade from '@mui/material/Fade'
+import Modal from '@mui/material/Modal'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
 
 export interface WarningRetryModalProps {
   open: boolean
@@ -95,7 +95,12 @@ const WarningRetryModal = ({
             <div className={styles['modal-header']}>
               <div />
               <div className={styles['title']}>{title}</div>
-              <IconButton aria-label="close" className={styles.closeButton} onClick={handleCloseButtonClick}>
+              <IconButton
+                aria-label="close"
+                className={styles.closeButton}
+                onClick={handleCloseButtonClick}
+                size="large"
+              >
                 <CloseIcon />
               </IconButton>
             </div>

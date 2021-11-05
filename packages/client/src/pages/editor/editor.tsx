@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { Route, Switch } from 'react-router-dom'
-const editorProject = React.lazy(() => import('@xrengine/editor/src/pages/projects'))
+const editor = React.lazy(() => import('@xrengine/editor/src/pages/projects'))
 //@ts-ignore
-const editorProjID = React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))
+const sceneEditor = React.lazy(() => import('@xrengine/editor/src/pages/[sceneId]'))
 import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDialog'
 
 const EditorProtectedRoutes = () => {
@@ -18,8 +18,8 @@ const EditorProtectedRoutes = () => {
     <>
       {isSceneAllowed ? (
         <Switch>
-          <Route exact path="/editor/:projectId" component={editorProjID} />
-          <Route exact path="/editor" component={editorProject} />
+          <Route exact path="/editor/:sceneId" component={sceneEditor} />
+          <Route exact path="/editor" component={editor} />
         </Switch>
       ) : (
         <FormDialog />

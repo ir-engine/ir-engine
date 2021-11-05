@@ -34,6 +34,7 @@ import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -55,14 +56,21 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
         timer: 0
       })
   }
-  const transform = addComponent(entity, TransformComponent, {
-    position: new Vector3().copy(spawnAction.parameters.position),
-    rotation: new Quaternion().copy(spawnAction.parameters.rotation),
-    scale: new Vector3(1, 1, 1)
-  })
+
+  const position = createVector3Proxy(TransformComponent.position, entity).copy(spawnAction.parameters.position)
+
+  const rotation = createQuaternionProxy(TransformComponent.rotation, entity).copy(spawnAction.parameters.rotation)
+
+  // todo: figure out why scale makes avatar disappear
+  // const scale = createVector3Proxy(TransformComponent.scale, entity)
+  const scale = new Vector3().copy(new Vector3(1, 1, 1))
+
+  const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
+
+  const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
 
   addComponent(entity, VelocityComponent, {
-    velocity: new Vector3()
+    velocity
   })
 
   // The visuals group is centered for easy actor tilting

@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
-import { Grid, Paper, Button, Typography } from '@material-ui/core'
-import InputBase from '@material-ui/core/InputBase'
+import { Grid, Paper, Button, Typography } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
 import { useStyles } from './styles'
-import { useAuthState } from '../../../user/state/AuthState'
-import { useAdminAuthSettingState } from '../../state/Setting/AuthSettingState'
-import { AuthSettingService } from '../../state/Setting/AuthSettingService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
+import { AuthSettingService } from '../../services/Setting/AuthSettingService'
 import { useDispatch } from '../../../store'
-import Switch from '@material-ui/core/Switch'
-import IconButton from '@material-ui/core/IconButton'
+import Switch from '@mui/material/Switch'
+import IconButton from '@mui/material/IconButton'
 import { Icon } from '@iconify/react'
 
 interface Props {}
@@ -192,7 +192,7 @@ const Account = (props: Props) => {
                 className={classes.input}
                 type={showPassword.password.secret ? 'text' : 'password'}
               />
-              <IconButton onClick={() => handleShowPassword('password-secret')}>
+              <IconButton onClick={() => handleShowPassword('password-secret')} size="large">
                 <Icon
                   icon={showPassword.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                   color="orange"
@@ -237,7 +237,7 @@ const Account = (props: Props) => {
                     className={classes.input}
                     type={showPassword.facebook.key ? 'text' : 'password'}
                   />
-                  <IconButton onClick={() => handleShowPassword('facebook-key')}>
+                  <IconButton onClick={() => handleShowPassword('facebook-key')} size="large">
                     <Icon
                       icon={showPassword.facebook.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                       color="orange"
@@ -254,7 +254,7 @@ const Account = (props: Props) => {
                     className={classes.input}
                     type={showPassword.facebook.secret ? 'text' : 'password'}
                   />
-                  <IconButton onClick={() => handleShowPassword('facebook-secret')}>
+                  <IconButton onClick={() => handleShowPassword('facebook-secret')} size="large">
                     <Icon
                       icon={showPassword.facebook.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                       color="orange"
@@ -286,7 +286,7 @@ const Account = (props: Props) => {
                     className={classes.input}
                     type={showPassword.github.key ? 'text' : 'password'}
                   />
-                  <IconButton onClick={() => handleShowPassword('github-key')}>
+                  <IconButton onClick={() => handleShowPassword('github-key')} size="large">
                     <Icon
                       icon={showPassword.github.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                       color="orange"
@@ -303,7 +303,7 @@ const Account = (props: Props) => {
                     className={classes.input}
                     type={showPassword.github.secret ? 'text' : 'password'}
                   />
-                  <IconButton onClick={() => handleShowPassword('github-secret')}>
+                  <IconButton onClick={() => handleShowPassword('github-secret')} size="large">
                     <Icon
                       icon={showPassword.github.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                       color="orange"
@@ -339,7 +339,7 @@ const Account = (props: Props) => {
                     className={classes.input}
                   />
 
-                  <IconButton onClick={() => handleShowPassword('google-key')}>
+                  <IconButton onClick={() => handleShowPassword('google-key')} size="large">
                     <Icon
                       icon={showPassword.google.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                       color="orange"
@@ -356,7 +356,7 @@ const Account = (props: Props) => {
                     className={classes.input}
                     type={showPassword.google.secret ? 'text' : 'password'}
                   />
-                  <IconButton onClick={() => handleShowPassword('google-secret')}>
+                  <IconButton onClick={() => handleShowPassword('google-secret')} size="large">
                     <Icon
                       icon={showPassword.google.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                       color="orange"
@@ -390,7 +390,7 @@ const Account = (props: Props) => {
                     className={classes.input}
                     type={showPassword.linkedin.key ? 'text' : 'password'}
                   />
-                  <IconButton onClick={() => handleShowPassword('linkedin-key')}>
+                  <IconButton onClick={() => handleShowPassword('linkedin-key')} size="large">
                     <Icon
                       icon={showPassword.linkedin.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                       color="orange"
@@ -407,7 +407,7 @@ const Account = (props: Props) => {
                     className={classes.input}
                     type={showPassword.linkedin.secret ? 'text' : 'password'}
                   />
-                  <IconButton onClick={() => handleShowPassword('linkedin-secret')}>
+                  <IconButton onClick={() => handleShowPassword('linkedin-secret')} size="large">
                     <Icon
                       icon={showPassword.linkedin.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                       color="orange"
@@ -440,7 +440,7 @@ const Account = (props: Props) => {
                     className={classes.input}
                     type={showPassword.twitter.key ? 'text' : 'password'}
                   />
-                  <IconButton onClick={() => handleShowPassword('twitter-key')}>
+                  <IconButton onClick={() => handleShowPassword('twitter-key')} size="large">
                     <Icon
                       icon={showPassword.twitter.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                       color="orange"
@@ -457,7 +457,7 @@ const Account = (props: Props) => {
                     className={classes.input}
                     type={showPassword.twitter.secret ? 'text' : 'password'}
                   />
-                  <IconButton onClick={() => handleShowPassword('twitter-secret')}>
+                  <IconButton onClick={() => handleShowPassword('twitter-secret')} size="large">
                     <Icon
                       icon={showPassword.twitter.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
                       color="orange"

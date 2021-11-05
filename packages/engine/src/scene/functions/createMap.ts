@@ -30,7 +30,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   }
 
   const state = mapReducer(null, MapAction.initialize(center, args.scale?.x))
-  await startPhases(state, getPhases({ exclude: ['navigation'] }))
+  await startPhases(state, await getPhases({ exclude: ['navigation'] }))
 
   navigationRaycastTarget.scale.setScalar(state.scale)
   Engine.scene.add(navigationRaycastTarget)

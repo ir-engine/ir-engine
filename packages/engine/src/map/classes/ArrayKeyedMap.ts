@@ -1,7 +1,23 @@
 import { IArrayKeyedMap } from '../types'
+// import HashMap from 'megahash'
 
 interface Options<Value> {
   defaultValue?: Value
+}
+
+function stringifyArray(array: any[]) {
+  switch (array.length) {
+    case 1:
+      return array[0]
+    case 2:
+      return array[0] + ',' + array[1]
+    case 3:
+      return array[0] + ',' + array[1] + ',' + array[2]
+    case 4:
+      return array[0] + ',' + array[1] + ',' + array[2] + ',' + array[3]
+    default:
+      return array.join(',')
+  }
 }
 
 export default class ArrayKeyedMap<KeySource extends any[], Value> implements IArrayKeyedMap<KeySource, Value> {
@@ -19,10 +35,8 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
     }
   }
 
-  getKey(source: KeySource) {
-    const key = source.join(',')
-    this.keySources.set(key, source)
-    return key
+  addKey(key: string, keySource: KeySource) {
+    this.keySources.set(key, keySource)
   }
 
   getKeySource(key: string): KeySource | undefined {
@@ -30,24 +44,23 @@ export default class ArrayKeyedMap<KeySource extends any[], Value> implements IA
   }
 
   set(keySource: KeySource, value: Value) {
-    // Update cache, ensuring time-last-used order
-    const key = this.getKey(keySource)
+    const key = stringifyArray(keySource)
+    this.addKey(key, keySource)
     this.map.set(key, value)
     return this
   }
 
   get(key: KeySource) {
-    const stringKey = this.getKey(key)
-    const value = this.map.get(stringKey)
-    if (typeof value === 'undefined') {
-      return this.defaultValue
+    const stringKey = stringifyArray(key)
+    if (this.map.has(stringKey)) {
+      return this.map.get(stringKey)!
     } else {
-      return value
+      return this.defaultValue
     }
   }
 
   delete(key: KeySource) {
-    const stringKey = this.getKey(key)
+    const stringKey = stringifyArray(key)
     this.keySources.delete(stringKey)
     return this.map.delete(stringKey)
   }
