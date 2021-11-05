@@ -15,9 +15,16 @@ export default class FeatureKey implements ITuple {
     this._hash = `${this._layerId},${this._tileX},${this._tileY},${this._indexInTile}`
   }
 
+  get length() {
+    return 4
+  }
+
   get hash() {
     return this._hash
   }
+
+  // Make typescript happy
+  [n: number]: any
 
   get 0() {
     return this._layerId
@@ -30,5 +37,16 @@ export default class FeatureKey implements ITuple {
   }
   get 3() {
     return this._indexInTile
+  }
+
+  toString() {
+    return this.hash
+  }
+
+  *[Symbol.iterator]() {
+    yield this[0]
+    yield this[1]
+    yield this[2]
+    yield this[2]
   }
 }

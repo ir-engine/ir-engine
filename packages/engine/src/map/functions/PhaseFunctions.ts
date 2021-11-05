@@ -2,7 +2,6 @@ import { TaskStatus } from '../types'
 import { ICachingPhase, IPhase, ISyncPhase, MapStateUnwrapped } from '../types'
 import checkKey from './checkKey'
 import { isClient } from '../../common/functions/isClient'
-import stringifyArray from '../functions/stringifyArray'
 
 // Random Thought: Monads like https://github.com/monet/monet.js/blob/master/docs/FREE.md could be useful here.
 type FeatureId = 'navigation'
@@ -73,13 +72,17 @@ export async function startPhases(state: MapStateUnwrapped, phases: readonly IPh
   let result: any
 
   for (const phase of phases) {
+    // console.log("starting phase", phase.name)
     const keys = phase.getTaskKeys(state)
     if (phase.isCachingPhase || phase.isAsyncPhase) {
+      // TODO remove
       const promises = [] as Promise<any>[]
       let promise: Promise<any>
       for (const key of keys) {
-        const keyHash = stringifyArray(key)
-        if (phase.getTaskStatus(state, keyHash) === TaskStatus.NOT_STARTED) {
+        const taskStatus = phase.getTaskStatus(state, key)
+        // console.log(`task key: ${key} status: ${taskStatus === TaskStatus.STARTED ? 'started' : 'not started'}`)
+        if (taskStatus === TaskStatus.NOT_STARTED) {
+          // console.log("starting task for", phase.name)
           if (phase.isAsyncPhase) {
             promise = phase.startTask(state, key)
             promises.push(promise)
@@ -87,12 +90,14 @@ export async function startPhases(state: MapStateUnwrapped, phases: readonly IPh
             result = (phase as ICachingPhase<any, any>).execTask(state, key)
             results.push(result)
           }
-          ;(phase as ICachingPhase<any, any>).setTaskStatus(state, keyHash, TaskStatus.STARTED)
+          ;(phase as ICachingPhase<any, any>).setTaskStatus(state, key, TaskStatus.STARTED)
         }
       }
       results.push(...(await Promise.all(promises)))
     } else {
       for (const key of keys) {
+        // console.log(`task key: ${key}`)
+        // console.log("starting task", phase.name)
         result = (phase as ISyncPhase<any, any>).execTask(state, key)
         results.push(result)
       }

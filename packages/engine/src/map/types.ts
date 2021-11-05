@@ -8,11 +8,17 @@ import type _FeatureKey from './classes/FeatureKey'
 export type FeatureKey = _FeatureKey
 
 export interface ITuple {
-  hash: string
-  [0]: any
-  [1]: any
-  [2]?: any
-  [3]?: any
+  readonly hash: string
+
+  readonly [n: number]: any
+
+  readonly length: number
+
+  [Symbol.iterator](): Iterator<any>
+}
+
+export type ToArray<T> = Array<any> & {
+  [Property in keyof T]: T[Property]
 }
 
 export interface IParametricMap<Key extends ITuple, Value> {

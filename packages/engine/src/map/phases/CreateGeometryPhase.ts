@@ -17,7 +17,7 @@ const createGeometry = createWorkerFunction<WorkerApi>(createGeometryWorker())
 const geometryLoader = new BufferGeometryLoader()
 
 /** using fetchUsingCache since createGeometry returns a promise */
-const createGeometryUsingCache = fetchUsingCache(async (state: MapStateUnwrapped, ...key: FeatureKey) => {
+const createGeometryUsingCache = fetchUsingCache(async (state: MapStateUnwrapped, key: FeatureKey) => {
   const { feature, centerPoint, boundingCircleRadius } = state.transformedFeatureCache.get(key)
   const [layerName] = key
   const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
@@ -54,16 +54,16 @@ export function* getTaskKeys(state: MapStateUnwrapped) {
   }
 }
 
-export function getTaskStatus(state: MapStateUnwrapped, keyHash: string) {
-  return state.geometryTasks.get(keyHash)
+export function getTaskStatus(state: MapStateUnwrapped, key: FeatureKey) {
+  return state.geometryTasks.get(key)
 }
 
-export function setTaskStatus(state: MapStateUnwrapped, keyHash: string, status: TaskStatus) {
-  return state.geometryTasks.set(keyHash, status)
+export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status: TaskStatus) {
+  return state.geometryTasks.set(key, status)
 }
 
 export function startTask(state: MapStateUnwrapped, key: FeatureKey) {
-  return createGeometryUsingCache(state.geometryCache, key, state)
+  return createGeometryUsingCache(state.geometryCache, state, key)
 }
 
 export function cleanup(state: MapStateUnwrapped) {

@@ -18,6 +18,7 @@ import FeatureCache from './classes/FeatureCache'
 import { MultiPolygon } from 'polygon-clipping'
 import MutableNavMesh from './classes/MutableNavMesh'
 import { LongLat } from './functions/UnitConversionFunctions'
+import HashSet from './classes/HashSet'
 
 const state = createState({
   center: [0, 0],
@@ -40,14 +41,14 @@ const state = createState({
   completeObjects: new FeatureCache<MapDerivedFeatureComplete>(MAX_CACHED_FEATURES),
   labelTasks: new HashMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   labelCache: new FeatureCache<MapFeatureLabel>(MAX_CACHED_FEATURES),
-  tileNavMeshTasks: new HashMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
+  tileNavMeshTasks: new HashMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   tileNavMeshCache: new TileCache<MultiPolygon>(MAX_CACHED_TILES),
-  helpersTasks: new HashMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
+  helpersTasks: new HashMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   helpersCache: new TileCache<MapHelpers>(MAX_CACHED_TILES),
-  tileMeta: new HashMap<TileKey, { cachedFeatureKeyHashes: Set<string> }>([], {
-    defaultValue: { cachedFeatureKeyHashes: new Set() }
+  tileMeta: new HashMap<TileKey, { cachedFeatureKeys: HashSet<FeatureKey> }>([], {
+    defaultValue: { cachedFeatureKeys: new HashSet() }
   }),
-  featureMeta: new HashMap<FeatureKey, { tileKeyHash: string }>(),
+  featureMeta: new HashMap<FeatureKey, { tileKey: TileKey }>(),
   navMesh: new MutableNavMesh(),
   needsUpdate: false
 })

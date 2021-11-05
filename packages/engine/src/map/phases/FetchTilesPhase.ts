@@ -15,15 +15,15 @@ export function getTaskKeys(state: MapStateUnwrapped) {
   return createSurroundingTileIterator(state.center, state.minimumSceneRadius, TILE_ZOOM)
 }
 
-export function getTaskStatus(state: MapStateUnwrapped, key: string) {
+export function getTaskStatus(state: MapStateUnwrapped, key: TileKey) {
   return state.fetchTilesTasks.get(key)
 }
-export function setTaskStatus(state: MapStateUnwrapped, key: string, status: TaskStatus) {
+export function setTaskStatus(state: MapStateUnwrapped, key: TileKey, status: TaskStatus) {
   return state.fetchTilesTasks.set(key, status)
 }
 
 export function startTask(state: MapStateUnwrapped, key: TileKey) {
-  return fetchVectorTileUsingCache(state.tileCache, key)
+  return fetchVectorTileUsingCache(state.tileCache, state, key)
 }
 
 export function cleanup(state: MapStateUnwrapped) {

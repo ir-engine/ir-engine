@@ -85,15 +85,15 @@ export function getTaskKeys(state: MapStateUnwrapped) {
   return createSurroundingTileIterator(state.center, state.navMeshRadius, TILE_ZOOM)
 }
 
-export function getTaskStatus(state: MapStateUnwrapped, keyHash: string) {
-  return state.tileNavMeshTasks.get(keyHash)
+export function getTaskStatus(state: MapStateUnwrapped, key: TileKey) {
+  return state.tileNavMeshTasks.get(key)
 }
-export function setTaskStatus(state: MapStateUnwrapped, keyHash: string, status: TaskStatus) {
-  return state.tileNavMeshTasks.set(keyHash, status)
+export function setTaskStatus(state: MapStateUnwrapped, key: TileKey, status: TaskStatus) {
+  return state.tileNavMeshTasks.set(key, status)
 }
 
 export function execTask(state: MapStateUnwrapped, key: TileKey) {
-  return createNavMeshUsingCache(state.tileNavMeshCache, key, state)
+  return createNavMeshUsingCache(state.tileNavMeshCache, state, key)
 }
 
 export function cleanup(state: MapStateUnwrapped) {

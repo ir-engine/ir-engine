@@ -45,10 +45,8 @@ export default class ParametricCache<Key extends ITuple, Value> implements IPara
     return this.map.delete(key)
   }
 
-  *evictLeastRecentlyUsedItems(): Generator<[Key, Value]> {
-    for (const [key, value] of evictLeastRecentlyUsedItems(this, this.maxSize)) {
-      yield [key!, value]
-    }
+  evictLeastRecentlyUsedItems(): Generator<[Key, Value]> {
+    return evictLeastRecentlyUsedItems(this, this.maxSize)
   }
 
   *keys(maxCount = this.maxSize) {

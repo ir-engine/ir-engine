@@ -1,10 +1,12 @@
 import { Config } from '@xrengine/common/src/config'
+import TileKey from '../classes/TileKey'
 import { TILE_ZOOM } from '../constants'
 import { VectorTile } from '../types'
 import { vectors } from '../vectors'
 import getMapboxUrl from './getMapboxUrl'
 
-export default async function fetchVectorTile(x: number, y: number): Promise<VectorTile> {
+export default async function fetchVectorTile(_: any, key: TileKey): Promise<VectorTile> {
+  const [x, y] = key
   const url = getMapboxUrl(
     'mapbox.mapbox-streets-v8',
     x,
