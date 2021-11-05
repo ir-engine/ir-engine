@@ -147,13 +147,6 @@ const LeftDrawer = (props: Props): any => {
       }
     }, [partyState.updateNeeded.value])
 
-    useEffect(() => {
-      if (user.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
-        UserService.getLayerUsers(true)
-      if (user.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
-        UserService.getLayerUsers(false)
-    }, [user, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
-
     const showFriendDeleteConfirm = (e, friendId) => {
       e.preventDefault()
       setFriendDeletePending(friendId)

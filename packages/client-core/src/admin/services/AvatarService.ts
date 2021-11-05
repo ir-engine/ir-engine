@@ -1,10 +1,7 @@
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { createState, useState } from '@hookstate/core'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
@@ -14,36 +11,25 @@ import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
 export const AVATAR_PAGE_LIMIT = 100
 
 const state = createState({
-  isLoggedIn: false,
-  isProcessing: false,
-  error: '',
-  authUser: AuthUserSeed,
-  user: UserSeed,
-  identityProvider: IdentityProviderSeed,
-  avatars: {
-    avatars: [] as Array<AvatarInterface>,
-    skip: 0,
-    limit: AVATAR_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    lastFetched: Date.now()
-  }
+  avatars: [] as Array<AvatarInterface>,
+  skip: 0,
+  limit: AVATAR_PAGE_LIMIT,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true,
+  lastFetched: Date.now()
 })
 
 store.receptors.push((action: AvatarActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'AVATARS_RETRIEVED':
-        result = action.avatars
-
-        s.avatars.merge({
-          avatars: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
+        s.merge({
+          avatars: action.avatars.data,
+          skip: action.avatars.skip,
+          limit: action.avatars.limit,
+          total: action.avatars.total,
           retrieving: false,
           fetched: true,
           updateNeeded: false,
@@ -62,7 +48,7 @@ export const AvatarService = {
   fetchAdminAvatars: async (incDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
     {
-      const adminAvatarState = accessAvatarState().avatars
+      const adminAvatarState = accessAvatarState()
       const limit = adminAvatarState.limit.value
       const skip = adminAvatarState.skip.value
       const avatars = await client.service('static-resource').find({

@@ -6,6 +6,7 @@ import config from "config"
 import inject from '@rollup/plugin-inject'
 import OptimizationPersist from './scripts/viteoptimizeplugin'
 import PkgConfig from 'vite-plugin-package-config'
+import { injectHtml } from 'vite-plugin-html'
 
 const copyProjectDependencies = () => {
   const projects = fs
@@ -91,7 +92,18 @@ export default defineConfig((command) => {
     },
     plugins: [
       PkgConfig(),
-      OptimizationPersist()
+      OptimizationPersist(),
+        injectHtml({
+          data: {
+            title: runtime.title || 'XRENGINE',
+            appleTouchIcon: runtime.appleTouchIcon || '/apple-touch-icon.png',
+            favicon32px: runtime.favicon32px || '/favicon-32x32.png',
+            favicon16px: runtime.favicon16px || '/favicon-16x16.png',
+            icon192px: runtime.icon192px || '/android-chrome-192x192.png',
+            icon512px: runtime.icon512px || '/android-chrome-512x512.png',
+            webmanifestLink: runtime.webmanifestLink || '/site.webmanifest'
+          }
+        })
     ],
     server: {
       host: true,

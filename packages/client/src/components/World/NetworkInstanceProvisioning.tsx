@@ -28,7 +28,7 @@ interface Props {
   chatState?: any
   sceneId: any
   //reinit: any
-  isUserBanned: any
+  isUserBanned: boolean
   setIsValidLocation: any
 }
 
@@ -43,11 +43,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const locationState = useLocationState()
   const instanceConnectionState = useInstanceConnectionState()
   useEffect(() => {
-    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
-      UserService.getLayerUsers(true)
-    if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
-      UserService.getLayerUsers(false)
-  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
+    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
+  }, [selfUser, userState.layerUsersUpdateNeeded.value])
 
   useEffect(() => {
     AuthService.doLoginAuto(true)
@@ -107,7 +104,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
-      ChannelConnectionService.provisionChannelServer(null!, instanceChannel?.id)
+      ChannelConnectionService.provisionChannelServer(instanceChannel?.id)
     }
   }, [chatState.instanceChannelFetched.value])
 

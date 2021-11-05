@@ -292,8 +292,8 @@ const BottomDrawer = (props: Props): any => {
           <div className={styles['list-container']}>
             <List ref={messageRef as any} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
               {activeChannel != null &&
-                activeChannel.Messages.value &&
-                [...activeChannel.Messages.value]
+                activeChannel.messages.value &&
+                [...activeChannel.messages.value]
                   .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                   .map((message) => {
                     return (

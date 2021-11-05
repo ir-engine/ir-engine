@@ -8,7 +8,7 @@ const state = createState({
   error: ''
 })
 
-export function receptor(action: VideoActionType): any {
+store.receptors.push((action: VideoActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'VIDEOS_FETCHED_SUCCESS': {
@@ -16,7 +16,7 @@ export function receptor(action: VideoActionType): any {
         const currentVideos = state.videos.value
         const bothVideoSets = [...currentVideos, ...action.videos]
         const uniqueVideos = Array.from(new Set(bothVideoSets.map((a) => a.id))).map((id) => {
-          return bothVideoSets.find((a) => a.id === id)
+          return bothVideoSets.find((a) => a.id === id)!
         })
         return s.merge({ videos: uniqueVideos })
       }
@@ -24,7 +24,7 @@ export function receptor(action: VideoActionType): any {
         return s.merge({ error: action.message })
     }
   }, action.type)
-}
+})
 
 export const accessVideoState = () => state
 

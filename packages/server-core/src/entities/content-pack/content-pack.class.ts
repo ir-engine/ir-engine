@@ -74,6 +74,7 @@ export class ContentPack implements ServiceMethods<Data> {
 
   async setup() {}
 
+  // @ts-ignore
   async find(params?: Params) {
     const result = (await new Promise((resolve, reject) => {
       storageProvider
@@ -224,10 +225,13 @@ export class ContentPack implements ServiceMethods<Data> {
     const promises = []
     for (const index in scenes) {
       const scene = scenes[index]
+      // @ts-ignore
       const sceneResult = await axios.get<Buffer>(scene.worldFile, getAxiosConfig('json'))
+      // @ts-ignore
       promises.push(populateScene(scene.sid, sceneResult.data, manifestUrl, this.app, scene.thumbnail))
     }
     for (const index in avatars) promises.push(populateAvatar(avatars[index], this.app))
+    // @ts-ignore
     for (const index in projects) promises.push(populateProject(projects[index].manifest, this.app, params))
     await Promise.all(promises)
     return data
@@ -339,6 +343,7 @@ export class ContentPack implements ServiceMethods<Data> {
   }
 
   async remove(id: NullableId, params?: Params): Promise<Data> {
+    // @ts-ignore
     return { id }
   }
 }

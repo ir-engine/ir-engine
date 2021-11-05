@@ -16,12 +16,6 @@ import { UserRoleResult } from '@xrengine/common/src/interfaces/UserRoleResult'
 export const USER_PAGE_LIMIT = 100
 
 const state = createState({
-  isLoggedIn: false,
-  isProcessing: false,
-  error: '',
-  authUser: AuthUserSeed,
-  user: UserSeed,
-  identityProvider: IdentityProviderSeed,
   users: {
     users: [] as Array<User>,
     skip: 0,
@@ -56,58 +50,49 @@ const state = createState({
 })
 
 store.receptors.push((action: UserActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_LOADED_USERS':
-        result = action.userResult
         return s.users.merge({
-          users: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
+          users: action.userResult.data,
+          skip: action.userResult.skip,
+          limit: action.userResult.limit,
+          total: action.userResult.total,
           retrieving: false,
           fetched: true,
           updateNeeded: false,
           lastFetched: Date.now()
         })
       case 'USER_ROLE_RETRIEVED':
-        result = action.types
-        return s.userRole.merge({ userRole: result.data, updateNeeded: false })
+        return s.userRole.merge({ userRole: action.types.data, updateNeeded: false })
       case 'USER_ROLE_CREATED':
         return s.userRole.merge({ updateNeeded: true })
       case 'USER_ADMIN_REMOVED':
-        result = action.data
         let userRemove = [...s.users.users.value]
-        userRemove = userRemove.filter((user) => user.id !== result.id)
+        userRemove = userRemove.filter((user) => user.id !== action.data.id)
         return s.users.merge({ users: userRemove, updateNeeded: true })
       case 'USER_ADMIN_CREATED':
-        result = action.user
         return s.users.merge({ updateNeeded: true })
       case 'USER_ADMIN_PATCHED':
-        result = action.user
         return s.users.merge({ updateNeeded: true })
       case 'USER_ROLE_UPDATED':
         return s.users.merge({ updateNeeded: true })
       case 'USER_SEARCH_ADMIN':
-        result = action.userResult
         return s.users.merge({
-          users: result.data,
-          skip: result.skip,
-          limit: result.limit,
-          total: result.total,
+          users: action.userResult.data,
+          skip: action.userResult.skip,
+          limit: action.userResult.limit,
+          total: action.userResult.total,
           retrieving: false,
           fetched: true,
           updateNeeded: false,
           lastFetched: Date.now()
         })
       case 'SINGLE_USER_ADMIN_LOADED':
-        result = action.data
-        return s.singleUser.merge({ singleUser: result, retrieving: false, fetched: true, updateNeeded: false })
+        return s.singleUser.merge({ singleUser: action.data, retrieving: false, fetched: true, updateNeeded: false })
       case 'STATIC_RESOURCE_RETRIEVED':
-        result = action.staticResource
         return s.staticResource.merge({
-          staticResource: result.data,
+          staticResource: action.staticResource.data,
           retrieving: false,
           updateNeeded: false,
           fetched: true
@@ -131,7 +116,7 @@ export const UserService = {
       const skip = userState.users.skip.value
       const limit = userState.users.limit.value
       try {
-        if (userState.userRole.userRole.findIndex((r) => r.role.value === 'admin') !== -1) {
+        if (userState.userRole.userRole.findIndex((r) => r.userRole.value === 'admin') !== -1) {
           const users = await client.service('user').find({
             query: {
               $sort: {

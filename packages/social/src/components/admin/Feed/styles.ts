@@ -256,6 +256,6 @@ export const useFeedStyle = makeStyles({
     padding: '2rem'
   },
   container: {
-    maxHeight: '80vh'
+    maxHeight: '73vh'
   }
 })

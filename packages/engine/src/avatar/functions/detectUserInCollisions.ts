@@ -14,17 +14,17 @@ export const detectUserInCollisions = (entity: Entity): void => {
   const collisions = getComponent(entity, CollisionComponent).collisions
   //Trigger
   if (collisions.length != 0) {
-    console.log(collisions)
+    // console.log(collisions)
     collisions.forEach((collision: any) => {
       if (collision.bodyOther && collision.bodyOther.userData && collision.bodyOther.userData.entity) {
         const triggerEntity = collision.bodyOther.userData.entity
         if (collision.type == CollisionEvents.TRIGGER_START) {
           addComponent(triggerEntity, TriggerDetectedComponent, {})
-          console.log('Add TriggerDetectedComponent', triggerEntity)
+          // console.log('Add TriggerDetectedComponent', triggerEntity)
         } else if (!collision.type || collision.type == CollisionEvents.TRIGGER_END) {
           if (getComponent(triggerEntity, TriggerDetectedComponent)) {
             removeComponent(triggerEntity, TriggerDetectedComponent)
-            console.log('Remove TriggerDetectedComponent', triggerEntity)
+            // console.log('Remove TriggerDetectedComponent', triggerEntity)
           }
         }
       }
