@@ -93,12 +93,12 @@ export class InstagramNodeEditor extends Component<InstagramNodeEditorProps, Ins
     })
   }
 
-  onChangeInstagramDomain = (domain) => {
-    CommandManager.instance.setPropertyOnSelection('instagramDomain', domain)
+  onChangeInstagramUsername = (username) => {
+    CommandManager.instance.setPropertyOnSelection('instagramUsername', username)
   }
 
-  onChangeInstagramToken = (token) => {
-    CommandManager.instance.setPropertyOnSelection('instagramToken', token)
+  onChangeInstagramPassword = (password) => {
+    CommandManager.instance.setPropertyOnSelection('instagramPassword', password)
   }
 
   onChangeInstagramProducts = (id) => {
@@ -288,13 +288,13 @@ export class InstagramNodeEditor extends Component<InstagramNodeEditorProps, Ins
     const node = this.props.node as any
     return (
       <NodeEditor description={InstagramNodeEditor.description} {...this.props}>
-        <InputGroup name="Instagram Domain" label={this.props.t('editor:properties.instagram.lbl-instagramDomain')}>
-          <StringInput value={node.instagramDomain} onChange={this.onChangeInstagramDomain} />
+        <InputGroup name="Instagram Username" label={this.props.t('editor:properties.instagram.lbl-instagramUsername')}>
+          <StringInput value={node.instagramUsername} onChange={this.onChangeInstagramUsername} />
         </InputGroup>
-        <InputGroup name="Instagram Token" label={this.props.t('editor:properties.instagram.lbl-instagramToken')}>
-          <StringInput value={node.instagramToken} onChange={this.onChangeInstagramToken} />
+        <InputGroup name="Instagram Password" label={this.props.t('editor:properties.instagram.lbl-instagramPassword')}>
+          <StringInput type="password" value={node.instagramPassword} onChange={this.onChangeInstagramPassword} />
         </InputGroup>
-        <InputGroup name="Instagram Domain" label={this.props.t('editor:properties.instagram.lbl-instagramDomain')}>
+        <InputGroup name="Instagram Username" label={this.props.t('editor:properties.instagram.lbl-instagramUsername')}>
           <SelectInput
             options={node.instagramProducts}
             value={node.instagramProductId}

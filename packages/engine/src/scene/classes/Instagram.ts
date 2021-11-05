@@ -5,8 +5,8 @@ import cloneObject3D from '../../scene/functions/cloneObject3D'
 export default class Instagram extends Object3D {
   model: any
   instagramProducts: any
-  _instagramDomain: any
-  _instagramToken: any
+  _instagramUsername: any
+  _instagramPassword: any
   _instagramProductId: any
   _src: any
   _castShadow: boolean
@@ -21,8 +21,8 @@ export default class Instagram extends Object3D {
     this.model = null
     this.instagramProducts = []
     this._src = null
-    this._instagramDomain = ''
-    this._instagramToken = ''
+    this._instagramUsername = ''
+    this._instagramPassword = ''
     this._castShadow = false
     this._receiveShadow = false
     // Use index instead of references to AnimationClips to simplify animation cloning / track name remapping
@@ -30,17 +30,17 @@ export default class Instagram extends Object3D {
     this.animationMixer = null
     this.activeClipAction = null
   }
-  get instagramDomain() {
-    return this._instagramDomain
+  get instagramUsername() {
+    return this._instagramUsername
   }
-  set instagramDomain(value) {
-    this._instagramDomain = value
+  set instagramUsername(value) {
+    this._instagramUsername = value
   }
-  get instagramToken() {
-    return this._instagramToken
+  get instagramPassword() {
+    return this._instagramPassword
   }
-  set instagramToken(value) {
-    this._instagramToken = value
+  set instagramPassword(value) {
+    this._instagramPassword = value
   }
   get instagramProductId() {
     return this._instagramProductId

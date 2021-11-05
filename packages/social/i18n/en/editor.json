@@ -196,8 +196,8 @@
         },
         "instagram": {
             "description": "A 3D model of a scene loaded from a GLTF file from Instagram Products 3D Media.",
-            "lbl-instagramDomain": "Instagram Domain",
-            "lbl-instagramAccessToken": "Instagram Access Token",
+            "lbl-instagramUsername": "Instagram User Name",
+            "lbl-instagramPassword": "Instagram Password",
             "lbl-instagramProducts": "Instagram Products",
             "error-url": "Error Loading From URL",
             "lbl-loopAnimation": "Loop Animation",

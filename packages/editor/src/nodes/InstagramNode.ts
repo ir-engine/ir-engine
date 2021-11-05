@@ -23,9 +23,9 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
   static initialElementProps = {
     initialScale: 'fit',
     src: '',
-    instagramDomain: '',
+    instagramUsername: '',
     instagramProducts: [],
-    instagramToken: '',
+    instagramPassword: '',
     instagramProductId: ''
   }
 
@@ -40,16 +40,16 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
           envMapOverride,
           textureOverride,
           instagramProducts,
-          instagramDomain,
-          instagramToken,
+          instagramUsername,
+          instagramPassword,
           instagramProductId
         } = json.components.find((c) => c.name === 'gltf-instagram').props
         debugger
         await node.load(src, onError)
 
         if (instagramProducts) node.instagramProducts = instagramProducts
-        if (instagramDomain) node._instagramDomain = instagramDomain
-        if (instagramToken) node._instagramToken = instagramToken
+        if (instagramUsername) node._instagramUsername = instagramUsername
+        if (instagramPassword) node._instagramPassword = instagramPassword
         if (instagramProductId) node._instagramProductId = instagramProductId
 
         if (envMapOverride) node.envMapOverride = envMapOverride
@@ -135,19 +135,19 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
     this.load(value).catch(console.error)
   }
 
-  get instagramDomain() {
-    return this._instagramDomain
+  get instagramUsername() {
+    return this._instagramUsername
   }
-  set instagramDomain(value) {
-    this._instagramDomain = value
+  set instagramUsername(value) {
+    this._instagramUsername = value
     this.getInstagramProduction()
   }
 
-  get instagramToken() {
-    return this._instagramToken
+  get instagramPassword() {
+    return this._instagramPassword
   }
-  set instagramToken(value) {
-    this._instagramToken = value
+  set instagramPassword(value) {
+    this._instagramPassword = value
     this.getInstagramProduction()
   }
 
@@ -165,10 +165,16 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
   }
 
   async getInstagramProduction() {
-    if (!this.instagramDomain || this.instagramDomain == '' || !this.instagramToken || this.instagramToken == '') return
+    if (
+      !this.instagramUsername ||
+      this.instagramUsername == '' ||
+      !this.instagramPassword ||
+      this.instagramPassword == ''
+    )
+      return
     try {
       const res = await axios.post(
-        `${this.instagramDomain}/api/2021-07/graphql.json`,
+        `${this.instagramUsername}/api/2021-07/graphql.json`,
         {
           query: `
             query {
@@ -183,7 +189,9 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
             }
         `
         },
-        { headers: { 'X-Instagram-Storefront-Access-Token': this.instagramToken, 'Content-Type': 'application/json' } }
+        {
+          headers: { 'X-Instagram-Storefront-Access-Token': this.instagramPassword, 'Content-Type': 'application/json' }
+        }
       )
       if (!res || !res.data) return
       const productData: any = res.data
@@ -245,7 +253,7 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
             },
             {
               headers: {
-                'X-Instagram-Storefront-Access-Token': this.instagramToken,
+                'X-Instagram-Storefront-Access-Token': this.instagramPassword,
                 'Content-Type': 'application/json'
               }
             }
@@ -420,8 +428,8 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
     const components = {
       'gltf-instagram': {
         instagramProducts: this.instagramProducts,
-        instagramDomain: this._instagramDomain,
-        instagramToken: this._instagramToken,
+        instagramUsername: this._instagramUsername,
+        instagramPassword: this._instagramPassword,
         instagramProductId: this._instagramProductId,
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
@@ -473,9 +481,9 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
     }
     this.collidable = source.collidable
     this.textureOverride = source.textureOverride
-    this.instagramDomain = source.instagramDomain
+    this.instagramUsername = source.instagramUsername
     this.instagramProducts = source.instagramProducts
-    this.instagramToken = source.instagramToken
+    this.instagramPassword = source.instagramPassword
     this.instagramProductId = source.instagramProductId
     this.walkable = source.walkable
     return this
