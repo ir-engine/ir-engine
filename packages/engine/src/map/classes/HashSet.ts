@@ -1,30 +1,38 @@
 import { ITuple } from '../types'
 
 export default class HashSet<Value extends ITuple> {
-  map: Map<Value['hash'], Value>
+  _size: number
+  map: {
+    [key: string]: Value
+  }
 
   constructor(iterable: Iterable<Value> = []) {
-    this.map = new Map()
+    this.map = {}
     for (const value of iterable) {
-      this.map.set(value.hash, value)
+      this.map[value.hash] = value
     }
+    this._size = 0
   }
 
   add(value: Value) {
-    this.map.set(value.hash, value)
+    this.map[value.hash] = value
+    this._size++
     return this
   }
 
   has(value: Value) {
-    return this.map.has(value.hash)
+    return this.map.hasOwnProperty(value.hash)
   }
 
   delete(value: Value) {
-    return this.map.delete(value.hash)
+    const has = this.has(value)
+    delete this.map[value.hash]
+    this._size--
+    return has
   }
 
   values() {
-    return this.map.values()
+    return Object.values(this.map)
   }
   keys() {
     return this.values()
@@ -34,10 +42,10 @@ export default class HashSet<Value extends ITuple> {
   }
 
   clear() {
-    this.map.clear()
+    this.map = {}
   }
 
   get size() {
-    return this.map.size
+    return this._size
   }
 }
