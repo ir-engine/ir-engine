@@ -54,7 +54,7 @@
     "cleanup-tests": "node tests/cleanup-tests.js",
     "test": "npm run test:e2e && npm run test:packages",
     "test:e2e": "mocha",
-    "test:packages": "npm run dev-docker && c8 lerna run test",
+    "test:packages": "c8 lerna run test",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",

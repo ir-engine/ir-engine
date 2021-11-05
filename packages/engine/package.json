@@ -25,7 +25,7 @@
     "check-errors": "tsc --noemit",
     "dev": "vite",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production vite build --config vite.build.js",
-    "test": "c8 mocha tests --recursive --jobs 2 --timeout 10000",
+    "test": "mocha tests --recursive --jobs 2 --timeout 10000",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
