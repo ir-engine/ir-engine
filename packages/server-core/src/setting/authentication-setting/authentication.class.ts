@@ -12,7 +12,7 @@ export class Authentication extends Service {
 
   async find(params: Params): Promise<any> {
     const auth = await super.find()
-    const data = auth.data.map((el) => {
+    const data = (auth as any).data.map((el) => {
       return {
         ...el,
         authStrategies: JSON.parse(JSON.parse(el.authStrategies)),
@@ -32,9 +32,9 @@ export class Authentication extends Service {
       }
     })
     return {
-      total: auth.total,
-      limit: auth.limit,
-      skip: auth.skip,
+      total: (auth as any).total,
+      limit: (auth as any).limit,
+      skip: (auth as any).skip,
       data
     }
   }

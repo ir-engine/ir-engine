@@ -12,7 +12,7 @@ export class ServerSetting extends Service {
 
   async find(params: Params): Promise<any> {
     const serverSetting = await super.find()
-    const data = serverSetting.data.map((el) => {
+    const data = (serverSetting as any).data.map((el) => {
       return {
         ...el,
         hub: JSON.parse(JSON.parse(el.hub))
@@ -20,9 +20,9 @@ export class ServerSetting extends Service {
     })
 
     return {
-      total: serverSetting.total,
-      limit: serverSetting.limit,
-      skip: serverSetting.skip,
+      total: (serverSetting as any).total,
+      limit: (serverSetting as any).limit,
+      skip: (serverSetting as any).skip,
       data
     }
   }

@@ -1,7 +1,6 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
-import { getContentType } from '../content-pack/content-pack-helper'
 import { ProjectInterface, ProjectPackageInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import fs from 'fs'
 import path from 'path'
@@ -118,7 +117,7 @@ export class Project extends Service {
             const filePathRelative = file.slice(projectLocalDirectory.length)
             await storageProvider.putObject({
               Body: fileResult,
-              ContentType: getContentType(file),
+              ContentType: file,
               Key: `project/${projectName}/${filePathRelative}`
             })
           } catch (e) {}

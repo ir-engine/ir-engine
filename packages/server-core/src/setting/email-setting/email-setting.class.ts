@@ -12,7 +12,7 @@ export class EmailSetting extends Service {
 
   async find(params: Params): Promise<any> {
     const emailSetting = await super.find()
-    const data = emailSetting.data.map((el) => {
+    const data = (emailSetting as any).data.map((el) => {
       return {
         ...el,
         smtp: {
@@ -24,9 +24,9 @@ export class EmailSetting extends Service {
     })
 
     return {
-      total: emailSetting.total,
-      limit: emailSetting.limit,
-      skip: emailSetting.skip,
+      total: (emailSetting as any).total,
+      limit: (emailSetting as any).limit,
+      skip: (emailSetting as any).skip,
       data
     }
   }

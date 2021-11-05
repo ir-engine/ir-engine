@@ -3,7 +3,7 @@ module.exports = {
   parallel: true,
   spec: ['**/*.test.ts'],
   require: [
-    'tests/mocha.env', // init env here
+    'tests/mocha.env', // init env here : DRC
     'ts-node/register'
   ],
   extension: [
