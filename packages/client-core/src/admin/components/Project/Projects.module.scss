@@ -15,6 +15,22 @@
   overflow-y: scroll;
 }
 
+.inputConatiner {
+  width: 100%;
+  margin-bottom: 15px;
+
+  :global(.MuiFormControl-root) {
+    width: 100%;
+  }
+}
+
+.buttonConatiner{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .info-icon {
   color: white !important;
   opacity: 0.54;

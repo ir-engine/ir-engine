@@ -4,12 +4,10 @@
   "version": "0.2.5",
   "homepage": "xrengine.io",
   "private": true,
-  "workspaces": {
-    "packages": [
-      "packages/*",
-      "packages/projects/projects/*"
-    ]
-  },
+  "workspaces": [
+    "packages/*",
+    "packages/projects/projects/*"
+  ],
   "keywords": [
     "three",
     "three.js",
@@ -147,6 +145,8 @@
   },
   "dependencies": {
     "@iconify/react": "3.0.1",
-    "depcheck": "1.4.2"
+    "@mui/styles": "5.0.2",
+    "depcheck": "1.4.2",
+    "react-dnd": "^14.0.4"
   }
 }

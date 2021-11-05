@@ -195,6 +195,28 @@
             "lbl-interactionText": "Interaction Text",
             "lbl-interactionType": "Interaction Type"
         },
+        "shopify": {
+            "description": "A 3D object of a scene loaded from Shopify Products Media.",
+            "lbl-shopifyDomain": "Shopify Domain",
+            "lbl-shopifyAccessToken": "Shopify Access Token",
+            "lbl-shopifyProducts": "Shopify Products",
+            "lbl-shopifyProductItems": "Shopify Media",
+            "error-url": "Error Loading From URL",
+            "lbl-loopAnimation": "Loop Animation",
+            "lbl-isAvatar": "Is Avatar",
+            "lbl-collidable": "Collidable",
+            "lbl-walkable": "Walkable",
+            "lbl-castShadow": "Cast Shadow",
+            "lbl-receiveShadow": "Receive Shadow",
+            "lbl-interactable": "Interactable",
+            "lbl-name": "Name",
+            "lbl-url": "Model Url",
+            "lbl-buy": "Buy Url",
+            "lbl-learnMore": "Learn More Url",
+            "lbl-htmlContent": "Html Content",
+            "lbl-interactionText": "Interaction Text",
+            "lbl-interactionType": "Interaction Type"
+        },
         "group": {
             "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
         },
@@ -505,6 +527,9 @@
             "ph-search": "Search assets..."
         },
         "modelSourcePanel": {
+            "ph-search": "Search models..."
+        },
+        "shopifySourcePanel": {
             "ph-search": "Search models..."
         },
         "useUpload": {

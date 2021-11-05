@@ -210,6 +210,30 @@
             "lbl-interactionText": "Interaction Text",
             "lbl-interactionType": "Interaction Type"
         },
+        "shopify": {
+            "description": "A 3D object of a scene loaded from Shopify Products Media.",
+            "lbl-shopifyDomain": "Shopify Domain",
+            "lbl-shopifyAccessToken": "Shopify Access Token",
+            "lbl-shopifyProducts": "Shopify Products",
+            "lbl-shopifyProductItems": "Shopify Media",
+            "lbl-textureOverride": "Override Texture",
+            "error-url": "Error Loading From URL",
+            "lbl-loopAnimation": "Loop Animation",
+            "lbl-isAvatar": "Is Avatar",
+            "lbl-collidable": "Collidable",
+            "lbl-walkable": "Walkable",
+            "lbl-castShadow": "Cast Shadow",
+            "lbl-receiveShadow": "Receive Shadow",
+            "lbl-interactable": "Interactable",
+            "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
+            "lbl-name": "Name",
+            "lbl-url": "Model Url",
+            "lbl-buy": "Buy Url",
+            "lbl-learnMore": "Learn More Url",
+            "lbl-htmlContent": "Html Content",
+            "lbl-interactionText": "Interaction Text",
+            "lbl-interactionType": "Interaction Type"
+        },
         "group": {
             "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
         },
@@ -393,18 +417,12 @@
         },
         "triggereVolume": {
             "description": "Sets a property on the target object on enter and leave.",
-            "lbl-target": "Target",
-            "lbl-enterComponent": "Enter Component",
-            "lbl-enterProperty": "Enter Property",
-            "lbl-entervalue": "Enter Value",
-            "lbl-leaveComponent": "Leave Component",
-            "lbl-leaveProperty": "Leave Property",
-            "lbl-leaveValue": "Leave Value",
+            "lbl-target": "Object",
+            "lbl-onenter": "On Enter",
+            "lbl-onexit": "On Exit",
             "lbl-showHelper": "Show Helper Mesh",
             "ph-errorNode": "Error missing node.",
-            "ph-selectNode": "Select node...",
-            "ph-selectComponent": "Select component...",
-            "ph-selectProperty": "Select property..."
+            "ph-selectNode": "Select node..."
         },
         "video": {
             "description": "Dynamically loads a video.",
@@ -468,7 +486,15 @@
             "copyURL": "Copy URL",
             "openInNewTab": "Open URL in New Tab",
             "deleteAsset": "Delete Asset"
+        },
+        "filebrowser":{
+            "addNewFolder": "Add New Folder",
+            "cutAsset": "Cut",
+            "copyAsset": "Copy",
+            "pasteAsset": "Paste",
+            "renameAsset": "Rename"
         }
+        
     },
     "hierarchy": {
         "lbl-rename": "Rename",

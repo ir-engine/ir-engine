@@ -1,4 +1,7 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 
 export const useFeedStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -253,6 +256,6 @@ export const useFeedStyle = makeStyles({
     padding: '2rem'
   },
   container: {
-    maxHeight: '80vh'
+    maxHeight: '73vh'
   }
 })

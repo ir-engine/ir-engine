@@ -5,7 +5,21 @@ on:
     types: [created]
 
 jobs:
+  secrets-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check-secrets.outputs.ok }}
+    steps:
+      - name: check for secrets needed to run workflows
+        id: check-secrets
+        run: |
+          if [ ${{ secrets.PUBLISH_NPM_PACKAGES_ENABLED }} == 'true' ]; then
+            echo "::set-output name=ok::enabled"
+          fi
   publish-npm:
+    needs:
+      - secrets-gate
+    if: ${{ needs.secrets-gate.outputs.ok == 'enabled' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -51,7 +65,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Update package repo to GitHub Packages
         run: npm run update-name-gh-package
-      - name: Run get add
+      - name: Run git add
         run: git add .
       - name: Commit changes
         run: git commit -m 'GH Packages'

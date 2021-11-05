@@ -1,15 +1,16 @@
-import Avatar from '@material-ui/core/Avatar'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemText from '@material-ui/core/ListItemText'
-import TextField from '@material-ui/core/TextField'
-import Face from '@material-ui/icons/Face'
-import Person from '@material-ui/icons/Person'
+import React, { useState } from 'react'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import ListItemText from '@mui/material/ListItemText'
+import TextField from '@mui/material/TextField'
+import Face from '@mui/icons-material/Face'
+import Person from '@mui/icons-material/Person'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import ReplyIcon from '@mui/icons-material/Reply'
@@ -19,7 +20,7 @@ import Typography from '@mui/material/Typography'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import moment from 'moment'
 import React, { useState } from 'react'
-import { ChatService } from '../../../social/state/ChatService'
+import { ChatService } from '../../../social/services/ChatService'
 import { useDispatch } from '../../../store'
 import { StyledMenu, useStyle, useStyles } from './style'
 
@@ -147,7 +148,7 @@ export default function MessageList(props: Props) {
                         primary={message?.sender?.name}
                         secondary={
                           <React.Fragment>
-                            {message.text}
+                            <span style={{ color: '#f1f1f1' }}>{message.text}</span>
                             <Typography
                               sx={{ display: 'inline', marginLeft: '20px', fontSize: '9px' }}
                               component="span"

@@ -5,26 +5,27 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useHistory } from 'react-router-dom'
 
-import { CardMedia, Typography, Button } from '@material-ui/core'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import { CardMedia, Typography, Button } from '@mui/material'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useSnackbar, SnackbarOrigin } from 'notistack'
 
 import styles from './CreatorForm.module.scss'
-import AccountCircle from '@material-ui/icons/AccountCircle'
-import AlternateEmailIcon from '@material-ui/icons/AlternateEmail'
-import MailOutlineIcon from '@material-ui/icons/MailOutline'
-import EditIcon from '@material-ui/icons/Edit'
-import LinkIcon from '@material-ui/icons/Link'
-import SubjectIcon from '@material-ui/icons/Subject'
-// import TwitterIcon from '@material-ui/icons/Twitter';
-// import InstagramIcon from '@material-ui/icons/Instagram';
-// import TitleIcon from '@material-ui/icons/Title';
+import AccountCircle from '@mui/icons-material/AccountCircle'
+import AlternateEmailIcon from '@mui/icons-material/AlternateEmail'
+import MailOutlineIcon from '@mui/icons-material/MailOutline'
+import EditIcon from '@mui/icons-material/Edit'
+import LinkIcon from '@mui/icons-material/Link'
+import CloseSnackbarComponent from '../buttons/CloseSnackbarComponent'
+import SubjectIcon from '@mui/icons-material/Subject'
+// import TwitterIcon from '@mui/icons-material/Twitter';
+// import InstagramIcon from '@mui/icons-material/Instagram';
+// import TitleIcon from '@mui/icons-material/Title';
 
-import TextField from '@material-ui/core/TextField'
+import TextField from '@mui/material/TextField'
 
-import { useCreatorState } from '@xrengine/client-core/src/social/state/CreatorState'
-import { CreatorService } from '@xrengine/client-core/src/social/state/CreatorService'
-import { PopupsStateService } from '@xrengine/client-core/src/social/state/PopupsStateService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
@@ -43,11 +44,33 @@ const CreatorForm = ({ creatorData }: Props) => {
     const anchorOrigin: SnackbarOrigin = { horizontal: 'center', vertical: 'top' }
     switch (str) {
       case 'succes': {
-        enqueueSnackbar('Data saved successfully', { variant: 'success', anchorOrigin })
+        const succes = enqueueSnackbar('Data saved successfully', {
+          variant: 'success',
+          anchorOrigin,
+          action: [
+            <CloseSnackbarComponent
+              key="closeSnackbar"
+              handleClose={() => {
+                closeSnackbar(succes)
+              }}
+            />
+          ]
+        })
         break
       }
       case 'reject': {
-        enqueueSnackbar('This name is already taken', { variant: 'error', anchorOrigin })
+        const reject = enqueueSnackbar('This name is already taken', {
+          variant: 'error',
+          anchorOrigin,
+          action: [
+            <CloseSnackbarComponent
+              key="closeSnackbar"
+              handleClose={() => {
+                closeSnackbar(reject)
+              }}
+            />
+          ]
+        })
         break
       }
     }

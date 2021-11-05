@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
-import { Paper, Typography } from '@material-ui/core'
-import InputBase from '@material-ui/core/InputBase'
+import { Paper, Typography } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
 import { useStyles } from './styles'
-import Switch from '@material-ui/core/Switch'
-import { useAdminRedisSettingState } from '../../state/Setting/AdminRedisSettingState'
-import { AdminRedisSettingService } from '../../state/Setting/AdminRedisSettingService'
+import Switch from '@mui/material/Switch'
+import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'
+import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSettingService'
 
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/services/AuthService'
 
 interface Props {
   redisSettingState?: any

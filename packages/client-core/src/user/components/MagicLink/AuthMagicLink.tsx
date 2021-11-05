@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react'
 import { useLocation, withRouter } from 'react-router-dom'
-import { AuthService } from '../../state/AuthService'
+import { AuthService } from '../../services/AuthService'
 import { useDispatch } from '../../../store'
-import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import Container from '@mui/material/Container'
 import ResetPassword from '../Auth/ResetPassword'
 import { VerifyEmail } from '../Auth/VerifyEmail'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '../../state/AuthState'
+import { useAuthState } from '../../services/AuthService'
 interface Props {
   auth: any
   type: string

@@ -11,6 +11,7 @@ import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
@@ -51,30 +52,34 @@ export class Project extends Service {
 
     for (const name of locallyInstalledProjects) {
       if (!data.find((e) => e.name === name)) {
-        const packageData = JSON.parse(
-          fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/projects/', name, 'package.json'), 'utf8')
-        ).xrengine as ProjectPackageInterface
+        try {
+          const packageData = JSON.parse(
+            fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/projects/', name, 'package.json'), 'utf8')
+          ).xrengine as ProjectPackageInterface
 
-        if (!packageData) {
-          console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
-          continue
+          if (!packageData) {
+            console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${name}, aborting.`)
+            continue
+          }
+
+          const dbEntryData: ProjectInterface = {
+            ...packageData,
+            name,
+            repositoryPath: getRemoteURLFromGitData(name)
+          }
+
+          console.warn('[Projects]: Found new locally installed project', name)
+          await super.create(dbEntryData)
+        } catch (e) {
+          console.log(e)
         }
-
-        const dbEntryData: ProjectInterface = {
-          ...packageData,
-          name,
-          repositoryPath: getRemoteURLFromGitData(name)
-        }
-
-        console.warn('[Projects]: Found new locally installed project', name)
-        super.create(dbEntryData)
       }
     }
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
         console.warn(`[Projects]: Project ${name} not found, assuming removed`)
-        super.remove(id)
+        await super.remove(id)
       }
     }
   }
@@ -97,11 +102,21 @@ export class Project extends Service {
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
-    // remove existing
+    // remove existing files in fs
     if (fs.existsSync(projectLocalDirectory)) {
       // disable accidental deletion of projects for local development
       if (isDev) throw new Error('Cannot create project - already exists')
       deleteFolderRecursive(projectLocalDirectory)
+    }
+
+    // remove existing files in storage provider
+    try {
+      const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+      if (existingFiles.length) {
+        Promise.all([storageProvider.deleteResources(existingFiles), storageProvider.createInvalidation(existingFiles)])
+      }
+    } catch (e) {
+      console.log('[project.class]: Failed to invalidate cache with error', e)
     }
 
     const existingPackResult = await this.Model.findOne({

@@ -19,7 +19,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { MediaStreamService } from '../media/state/MediaStreamService'
+import { MediaStreamService } from '../media/services/MediaStreamService'
 // import { encode, decode } from 'msgpackr'
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
@@ -61,7 +61,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   sendActions(actions: Set<Action>) {
     if (actions.size === 0) return
     // TODO: should we be checking for existence of `emit` here ??
-    this.instanceSocket.emit(MessageTypes.ActionData.toString(), /*encode(*/ Array.from(actions)) //)
+    if (this.instanceSocket.emit) {
+      this.instanceSocket.emit(MessageTypes.ActionData.toString(), /*encode(*/ Array.from(actions)) //)
+    }
   }
 
   /**
@@ -238,7 +240,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       })
 
       socket.on('disconnect', async () => {
-        console.log(`DICONNECT from port ${port}`)
+        console.log(`DISCONNECT from port ${port}`)
         if ((socket as any).instance === true)
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED })
         if ((socket as any).instance !== true)

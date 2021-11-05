@@ -6,9 +6,10 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { params, app } = context
+    console.log(params.query)
     const loggedInUser = extractLoggedInUserFromParams(params)
     const userId = loggedInUser.userId
-    if (params.query.channelId == null) {
+    if (!params.query.channelId) {
       throw new BadRequest('Must provide a channel ID')
     }
     const channel = await app.service('channel').get(params.query.channelId)

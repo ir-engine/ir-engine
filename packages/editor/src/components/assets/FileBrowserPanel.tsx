@@ -2,6 +2,7 @@ import React from 'react'
 import DockLayout, { DockMode } from 'rc-dock'
 import FileBrowserContentPanel from './FileBrowserContentPanel'
 import { AssetsPreviewPanel } from './AssetsPreviewPanel'
+import { DockContainer } from '../EditorContainer'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
@@ -25,7 +26,7 @@ export default function FileBrowserPanel() {
       mode: 'vertical' as DockMode,
       children: [
         {
-          size: 5,
+          size: 7,
           tabs: [
             {
               id: 'projectFilesPanel',
@@ -35,7 +36,7 @@ export default function FileBrowserPanel() {
           ]
         },
         {
-          size: 5,
+          size: 3,
           tabs: [{ id: 'previewPanel', title: 'Preview', content: <AssetsPreviewPanel ref={assetsPreviewPanelRef} /> }]
         }
       ]
@@ -44,11 +45,14 @@ export default function FileBrowserPanel() {
 
   return (
     <>
-      <DockLayout
-        defaultLayout={defaultLayout}
-        style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
-        onLayoutChange={onLayoutChangedCallback}
-      />
+      {console.log('Rendering File Browser Panel PARENT')}
+      <DockContainer dividerAlpha={0.3}>
+        <DockLayout
+          defaultLayout={defaultLayout}
+          style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
+          onLayoutChange={onLayoutChangedCallback}
+        />
+      </DockContainer>
     </>
   )
 }

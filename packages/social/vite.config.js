@@ -51,6 +51,7 @@ export default defineConfig(() => {
             alias: {
                 "socket.io-client": "socket.io-client/dist/socket.io.js",
                 "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
+                "@mui/styled-engine": "@mui/styled-engine-sc"
             }
         },
         define: {

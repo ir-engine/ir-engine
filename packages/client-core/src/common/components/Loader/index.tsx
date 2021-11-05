@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { GeneralStateList } from '../../state/AppActions'
-import { useAppState } from '../../state/AppState'
+import { GeneralStateList } from '../../services/AppService'
+import { useAppState } from '../../services/AppService'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
 import LottieLoader from './LottieLoader'
