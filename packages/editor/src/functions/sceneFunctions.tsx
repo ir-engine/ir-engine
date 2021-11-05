@@ -76,7 +76,7 @@ export const saveScene = async (projectName: string, sceneName: string, thumbnai
   }
 
   const sceneNode = SceneManager.instance.scene
-  const sceneData = await sceneNode.serialize(sceneName)
+  const sceneData = await sceneNode.serialize(projectName)
 
   try {
     return (await client

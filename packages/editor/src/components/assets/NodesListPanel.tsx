@@ -14,7 +14,7 @@ import { SceneManager } from '../../managers/SceneManager'
  * @param       {object} source
  * @constructor
  */
-export function MediaSourcePanel() {
+export function NodesListPanel() {
   const spawnGrabbedObject = useCallback((object) => {
     if (ControlManager.instance.editorControls.transformMode === TransformMode.Placement) {
       CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
@@ -56,4 +56,4 @@ export function MediaSourcePanel() {
   )
 }
 
-export default MediaSourcePanel
+export default NodesListPanel

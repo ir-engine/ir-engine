@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { FlexColumn, FlexRow } from '../layout/Flex'
 import AssetDropZone from './AssetDropZone'
 import styles from './styles.module.scss'
-import MediaSourcePanel from './MediaSourcePanel'
+import NodesListPanel from './NodesListPanel'
 
 /**
  * AssetsPanelContainer used as container element for asset penal.
@@ -86,7 +86,7 @@ export const AssetPanelContentContainer = (styled as any)(FlexRow)`
 export default function AssetsPanel() {
   return (
     <AssetsPanelContainer id="assets-panel" className={styles.assetsPanel}>
-      <MediaSourcePanel />
+      <NodesListPanel />
       <AssetDropZone />
     </AssetsPanelContainer>
   )

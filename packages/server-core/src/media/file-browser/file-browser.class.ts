@@ -67,6 +67,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    */
   async patch(path: string, data: PatchParams, params?: Params) {
+    console.log(path, data)
     return await this.store.putObject({
       Key: path,
       Body: data.body,

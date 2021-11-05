@@ -4,6 +4,7 @@ import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { useDialog } from '../hooks/useDialog'
+import { uploadProjectAsset } from '../../functions/assetFunctions'
 
 //todo
 const upload = (files: any): any => {
@@ -89,7 +90,7 @@ export default function useUpload(options: Props = {}) {
         //   },
         //   abortController.signal
         // )
-        assets = await upload(files)
+        assets = await uploadProjectAsset(files)
         setDialogComponent(null)
       } catch (error) {
         console.error(error)
