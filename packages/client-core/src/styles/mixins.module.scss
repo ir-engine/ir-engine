@@ -1,11 +1,116 @@
-@mixin admin-create-button-styling() {
-  color: lighten(white, 0.80);
-  background-color: #4267B2;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  
-  &:hover {
-    background-color: #145cee;;
-    cursor: pointer;
+@import "./variables.module.scss";
+
+@mixin panel-popup-container-styling() {
+  position: absolute;
+  bottom: 75px;
+  padding: 0 30px;
+  border-radius: 5px;
+  background: #ffffffe8;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 16px 16px 32px 0px #11111159;
+  color: black;
+  max-height: calc(100vh - 175px);
+  overflow: auto;
+  width: 360px;
+  z-index: 1400;
+  touch-action: auto;
+}
+
+@mixin icon-block-styling() {
+  position: relative;
+  color: white;
+  border: none;
+  padding: 0;
+
+  svg {
+    position: relative;
+    z-index: 1;
+  }
+
+  &::before {
+    content: ' ';
+    position: absolute;;
+    width: 0px;
+    height: 0px;
+    border-radius: 20px;
+    background: $PurpleButtonColor;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+  }
+  &:hover, &:focus {
+    color: #fff;
+
+    &::before {
+      width: 35px;
+      height: 35px;
+    }
+  }
+
+  &.disabled {
+    color: grey;
+    cursor: initial;
+
+    &::before { content: none !important; }
+  }
+}
+
+@mixin material-icon-block-styling() {
+  margin-left: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  flex-grow: 0;
+  position: relative;
+
+  &::before {
+    content: ' ';
+    position: absolute;;
+    width: 0px;
+    height: 0px;
+    border-radius: 20px;
+    background: $PrimaryGreenColor;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+  }
+  &:hover, &:focus {
+    svg { color: #fff; z-index: 1; }
+    &::before { width: 35px; height: 35px; }
+  }
+}
+
+@mixin selected-avatar() {
+  &::before {
+    content: "✓";
+    position: absolute;
+    background: $SelectedGreenColor;
+    height: 20px;
+    width: 20px;
+    top: 5px;
+    right: 5px;
+    text-align: center;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+  }
+}
+
+@mixin active-avatar() {
+  &::after {
+    content: "✓";
+    position: absolute;
+    background: $PurpleButtonColor;
+    height: 20px;
+    width: 20px;
+    top: 5px;
+    right: 5px;
+    text-align: center;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
   }
 }
