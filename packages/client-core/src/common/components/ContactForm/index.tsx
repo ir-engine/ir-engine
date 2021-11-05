@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import emailjs from 'emailjs-com'
 import styles from './ContactForm.module.scss'
 import { withTranslation } from 'react-i18next'
-import Dialog from '@material-ui/core/Dialog'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
 
 export class ContactForm extends Component {
   state = {

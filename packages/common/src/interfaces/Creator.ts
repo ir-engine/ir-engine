@@ -23,3 +23,17 @@ export interface Creator extends CreatorShort {
   bio?: string
   twitter?: string
 }
+
+export interface CreatorNotification {
+  id: string
+  type: string
+  previewUrl?: string
+  creator_username?: string
+  avatar?: string
+  comment_text?: string
+  feedId?: string
+  creatorAuthorId?: string
+  commentId?: string
+  creatorViewerId?: string
+  createdAt?: string
+}

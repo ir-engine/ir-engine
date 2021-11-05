@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react'
 import styles from './Videos.module.scss'
-import Button from '@material-ui/core/Button'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { PublicVideo } from '../video/VideoActions'
-import { useVideoState } from '../video/VideoState'
-import { VideoService } from '../video/VideoService'
+import Button from '@mui/material/Button'
+import { useDispatch } from '../../../store'
+import { PublicVideo } from '../../services/VideoActions'
+import { useVideoState } from '../../services/VideoService'
+import { VideoService } from '../../services/VideoService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {}
@@ -16,7 +15,7 @@ export const VideoList = (props: Props): any => {
   const videos = useVideoState()
 
   useEffect(() => {
-    dispatch(VideoService.fetchPublicVideos())
+    VideoService.fetchPublicVideos()
   }, [])
   return (
     <div>

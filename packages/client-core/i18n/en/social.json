@@ -71,7 +71,8 @@
         "users": "Users",
         "feeds": "Feeds",
         "arMedia": "Video Media",
-        "editor": "Editor"
+        "editor": "Editor",
+        "creator": "Creator"
     },
     "featured": {
         "empty-list": "No feeds for now ..."
@@ -196,20 +197,5 @@
         "logIn": "Log in",
         "LogInTo": "Log in to",
         "continueAsGuest": "Continue as guest"
-    },
-    "profile": {
-        "lbl-username": "Username",
-        "youAreA": "You are a",
-        "youAreAn": "You are an",
-        "logout": "Log out",
-        "inviteCode": "Invite Code",
-        "connectPhone": "Connect your email or phone number",
-        "ph-phoneEmail": "Phone Number / Email",
-        "phoneEmailError": "Valid Email or Phone number is required",
-        "or": "Or",
-        "lbl-wallet": "Login with Wallet",
-        "loginWithReadyPlayerMe": "Login with ready player me",
-        "connectSocial": "Or connect with social accounts",
-        "createOne": "If you don’t have an account, a new one will be created for you."
     }
 }

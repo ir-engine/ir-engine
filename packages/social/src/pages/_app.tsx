@@ -1,19 +1,23 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Provider, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { BrowserRouter } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
-import { ThemeProvider } from 'styled-components'
-import { configureStore } from '@xrengine/client-core/src/store'
+import { Theme, StyledEngineProvider } from '@mui/material/styles'
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
-import GlobalStyle from '@xrengine/editor/src/components/GlobalStyle'
+import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import theme from '../../theme'
 import { Config } from '@xrengine/common/src/config'
 import { SnackbarProvider } from 'notistack'
-import { AuthAction } from '@xrengine/client-core/src/user/reducers/auth/AuthAction'
+import { AuthAction } from '@xrengine/client-core/src/user/services/AuthService'
 import RouterComp from '../router'
-import reducers from '../reducers'
 import './styles.scss'
 import AppUrlListener from '../components/AppDeepLink'
+import { ThemeProvider } from 'styled-components'
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const App = (): any => {
   const dispatch = useDispatch()
@@ -43,24 +47,24 @@ const App = (): any => {
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
       </Helmet>
-      <ThemeProvider theme={theme}>
-        <SnackbarProvider maxSnack={3}>
-          <GlobalStyle />
-          <RouterComp />
-        </SnackbarProvider>
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
+            <GlobalStyle />
+            <RouterComp />
+          </SnackbarProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </>
   )
 }
 
 const StoreProvider = () => {
   return (
-    <Provider store={configureStore(reducers)}>
-      <BrowserRouter>
-        <AppUrlListener></AppUrlListener>
-        <App />
-      </BrowserRouter>
-    </Provider>
+    <BrowserRouter>
+      <AppUrlListener></AppUrlListener>
+      <App />
+    </BrowserRouter>
   )
 }
 

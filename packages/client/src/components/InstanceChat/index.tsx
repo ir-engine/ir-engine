@@ -1,29 +1,26 @@
-import Avatar from '@material-ui/core/Avatar'
-import Badge from '@material-ui/core/Badge'
-import Button from '@material-ui/core/Button'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import Fab from '@material-ui/core/Fab'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemText from '@material-ui/core/ListItemText'
-import TextField from '@material-ui/core/TextField'
-import { Message as MessageIcon, Send } from '@material-ui/icons'
-import { useChatState } from '@xrengine/client-core/src/social/reducers/chat/ChatState'
-import { ChatService } from '@xrengine/client-core/src/social/reducers/chat/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { User } from '@xrengine/common/src/interfaces/User'
+import Avatar from '@mui/material/Avatar'
+import Badge from '@mui/material/Badge'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Fab from '@mui/material/Fab'
+import ListItem from '@mui/material/ListItem'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import ListItemText from '@mui/material/ListItemText'
+import TextField from '@mui/material/TextField'
+import { Message as MessageIcon, Send } from '@mui/icons-material'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useInstanceConnectionState } from '../../reducers/instanceConnection/InstanceConnectionState'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 import defaultStyles from './InstanceChat.module.scss'
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 interface Props {
   styles?: any
@@ -64,9 +61,9 @@ const InstanceChat = (props: Props): any => {
       instanceConnectionState.connected.value === true &&
       channelState.fetchingInstanceChannel.value !== true
     ) {
-      dispatch(ChatService.getInstanceChannel())
+      ChatService.getInstanceChannel()
     }
-  }, [user?.instanceId?.value])
+  }, [user?.instanceId?.value, instanceConnectionState.connected?.value, channelState.fetchingInstanceChannel.value])
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
@@ -168,9 +165,11 @@ const InstanceChat = (props: Props): any => {
                     let chatMessage = message.text
 
                     if (system !== 'none') {
-                      if ((isClient && isBot(window)) || system === '[jl_system]')
+                      if ((isClient && isBot(window)) || system === 'jl_system') {
                         chatMessage = removeMessageSystem(message.text)
-                      else return undefined
+                      } else {
+                        return undefined
+                      }
                     }
                     return (
                       <ListItem
@@ -230,9 +229,11 @@ const InstanceChat = (props: Props): any => {
                   if (e.key === 'Enter' && e.ctrlKey) {
                     e.preventDefault()
                     const selectionStart = (e.target as HTMLInputElement).selectionStart
-                    setCursorPosition(selectionStart)
+                    setCursorPosition(selectionStart || 0)
                     setComposingMessage(
-                      composingMessage.substring(0, selectionStart) + '\n' + composingMessage.substring(selectionStart)
+                      composingMessage.substring(0, selectionStart || 0) +
+                        '\n' +
+                        composingMessage.substring(selectionStart || 0)
                     )
                     !isMultiline && setIsMultiline(true)
                   } else if (e.key === 'Enter' && !e.ctrlKey) {
@@ -257,7 +258,7 @@ const InstanceChat = (props: Props): any => {
           invisible={!unreadMessages}
           anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
-          <Fab className={styles['chatBadge']} color="primary" onClick={() => toggleChatWindow()}>
+          <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
             {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
           </Fab>
         </Badge>

@@ -1,15 +1,15 @@
 import React from 'react'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
-import Container from '@material-ui/core/Container'
-import GitHubIcon from '@material-ui/icons/GitHub'
-import FacebookIcon from '@material-ui/icons/Facebook'
-import LinkedinIcon from '@material-ui/icons/LinkedIn'
-import TwitterIcon from '@material-ui/icons/Twitter'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import Container from '@mui/material/Container'
+import GitHubIcon from '@mui/icons-material/GitHub'
+import FacebookIcon from '@mui/icons-material/Facebook'
+import LinkedinIcon from '@mui/icons-material/LinkedIn'
+import TwitterIcon from '@mui/icons-material/Twitter'
 import styles from './Auth.module.scss'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '../../../store'
 
 interface Props {
   auth?: any
@@ -27,27 +27,27 @@ const SocialLogin = (props: Props): any => {
   const dispatch = useDispatch()
   const handleGithubLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('github'))
+    AuthService.loginUserByOAuth('github')
   }
 
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('google'))
+    AuthService.loginUserByOAuth('google')
   }
 
   const handleFacebookLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('facebook'))
+    AuthService.loginUserByOAuth('facebook')
   }
 
   const handleLinkedinLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('linkedin2'))
+    AuthService.loginUserByOAuth('linkedin2')
   }
 
   const handleTwitterLogin = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.loginUserByOAuth('twitter'))
+    AuthService.loginUserByOAuth('twitter')
   }
 
   const githubButton = enableGithubSocial ? (
@@ -124,7 +124,7 @@ const SocialLogin = (props: Props): any => {
   return (
     <Container component="main" maxWidth="xs">
       <div className={styles.paper}>
-        <Grid container justify="center" spacing={2}>
+        <Grid container justifyContent="center" spacing={2}>
           {githubButton}
           {facebookButton}
           {googleButton}

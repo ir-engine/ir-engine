@@ -1,14 +1,14 @@
 import React from 'react'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import Divider from '@material-ui/core/Divider'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import Avatar from '@material-ui/core/Avatar'
-import ViewCompactIcon from '@material-ui/icons/ViewCompact'
-import SportsEsportsIcon from '@material-ui/icons/SportsEsports'
-import MailOutlineIcon from '@material-ui/icons/MailOutline'
-import LockIcon from '@material-ui/icons/Lock'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
+import Divider from '@mui/material/Divider'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import Avatar from '@mui/material/Avatar'
+import ViewCompactIcon from '@mui/icons-material/ViewCompact'
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
+import MailOutlineIcon from '@mui/icons-material/MailOutline'
+import LockIcon from '@mui/icons-material/Lock'
 import { Icon } from '@iconify/react'
 import { useStyles } from './styles'
 
@@ -44,7 +44,7 @@ const settings = ({
           className={analyticsFocused ? `${classes.autoFocused}` : `${classes.notFocused}`}
         >
           <ListItemAvatar>
-            <Avatar style={{ background: '#1f252d', color: 'orange' }}>
+            <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
               <Icon icon="carbon:analytics" color="orange" />
             </Avatar>
           </ListItemAvatar>
@@ -56,7 +56,7 @@ const settings = ({
           className={serverFocused ? `${classes.focused}` : `${classes.notFocused}`}
         >
           <ListItemAvatar>
-            <Avatar style={{ background: '#1f252d', color: 'orange' }}>
+            <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
               <Icon icon="carbon:bare-metal-server" />
             </Avatar>
           </ListItemAvatar>
@@ -69,7 +69,7 @@ const settings = ({
           className={clientFocused ? `${classes.focused}` : `${classes.notFocused}`}
         >
           <ListItemAvatar>
-            <Avatar style={{ background: '#1f252d', color: 'orange' }}>
+            <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
               <ViewCompactIcon />
             </Avatar>
           </ListItemAvatar>
@@ -82,7 +82,7 @@ const settings = ({
           className={gameFocused ? `${classes.focused}` : `${classes.notFocused}`}
         >
           <ListItemAvatar>
-            <Avatar style={{ background: '#1f252d', color: 'orange' }}>
+            <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
               <SportsEsportsIcon />
             </Avatar>
           </ListItemAvatar>
@@ -95,7 +95,7 @@ const settings = ({
           className={emailFocused ? `${classes.focused}` : `${classes.notFocused}`}
         >
           <ListItemAvatar>
-            <Avatar style={{ background: '#1f252d', color: 'orange' }}>
+            <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
               <MailOutlineIcon />
             </Avatar>
           </ListItemAvatar>
@@ -104,7 +104,7 @@ const settings = ({
         <Divider variant="inset" component="li" />
         <ListItem button onClick={handleAuth} className={authFocused ? `${classes.focused}` : `${classes.notFocused}`}>
           <ListItemAvatar>
-            <Avatar style={{ background: '#1f252d', color: 'orange' }}>
+            <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
               <LockIcon />
             </Avatar>
           </ListItemAvatar>
@@ -113,7 +113,7 @@ const settings = ({
         <Divider variant="inset" component="li" />
         <ListItem button onClick={handleAws} className={awsFocused ? `${classes.focused}` : `${classes.notFocused}`}>
           <ListItemAvatar>
-            <Avatar style={{ background: '#1f252d' }}>
+            <Avatar style={{ background: '#5e5a4d' }}>
               <Icon icon="logos:aws" />
             </Avatar>
           </ListItemAvatar>
@@ -126,7 +126,7 @@ const settings = ({
           className={chargebeeFocused ? `${classes.focused}` : `${classes.notFocused}`}
         >
           <ListItemAvatar>
-            <Avatar style={{ background: '#1f252d' }}>
+            <Avatar style={{ background: '#5e5a4d' }}>
               <Icon icon="logos:chargebee-icon" />
             </Avatar>
           </ListItemAvatar>
@@ -139,7 +139,7 @@ const settings = ({
           className={redisFocused ? `${classes.focused}` : `${classes.notFocused}`}
         >
           <ListItemAvatar>
-            <Avatar style={{ background: '#1f252d' }}>
+            <Avatar style={{ background: '#5e5a4d' }}>
               <Icon icon="logos:redis" />
             </Avatar>
           </ListItemAvatar>

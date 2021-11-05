@@ -137,7 +137,9 @@ export class ProjectGridItem extends Component<{ contextMenuId: string; project:
 
     const content = (
       <>
-        <ThumbnailContainer>{project.thumbnailUrl && <Thumbnail src={project.thumbnailUrl} />}</ThumbnailContainer>
+        <ThumbnailContainer>
+          {(project.thumbnailUrl ?? project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
+        </ThumbnailContainer>
         <TitleContainer>
           <Col>
             <h3>{project.name}</h3>

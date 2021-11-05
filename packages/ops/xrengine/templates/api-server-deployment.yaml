@@ -15,7 +15,7 @@ spec:
       labels:
         {{- include "xrengine.api.selectorLabels" . | nindent 8 }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/builder-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/api-server-configmap.yaml") . | sha256sum }}
     spec:
     {{- with .Values.api.imagePullSecrets }}
       imagePullSecrets:

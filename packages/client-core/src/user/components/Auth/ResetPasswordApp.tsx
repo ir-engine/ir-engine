@@ -1,16 +1,16 @@
 import React, { useRef, useState } from 'react'
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import Container from '@mui/material/Container'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
-import OutlinedInput from '@material-ui/core/OutlinedInput'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import IconButton from '@material-ui/core/IconButton'
-import { Visibility, VisibilityOff } from '@material-ui/icons'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import InputAdornment from '@mui/material/InputAdornment'
+import IconButton from '@mui/material/IconButton'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from '../../../store'
 
 interface Props {
   token: string
@@ -30,7 +30,7 @@ export const ResetPassword = (props: Props): any => {
   }
   const handleReset = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.resetPassword(token, state.password))
+    AuthService.resetPassword(token, state.password)
     setState({ ...state, isSubmitted: true })
   }
 
@@ -99,6 +99,7 @@ export const ResetPassword = (props: Props): any => {
                         onClick={handleClickShowPassword}
                         onMouseDown={handleMouseDownPassword}
                         color="secondary"
+                        size="large"
                       >
                         {values.showPassword ? <Visibility /> : <VisibilityOff />}
                       </IconButton>
@@ -124,6 +125,7 @@ export const ResetPassword = (props: Props): any => {
                         onClick={handleClickShowPasswordConfirm}
                         onMouseDown={handleMouseDownPassword}
                         color="secondary"
+                        size="large"
                       >
                         {values.showPasswordConfirm ? <Visibility /> : <VisibilityOff />}
                       </IconButton>

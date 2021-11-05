@@ -1,10 +1,5 @@
-import React, { Component } from 'react'
-import { withTranslation } from 'react-i18next'
-import styled from 'styled-components'
-import { deleteProject, getProjects } from '../../functions/projectFunctions'
 import { Button, MediumButton } from '../inputs/Button'
 import { connectMenu, ContextMenu, MenuItem } from '../layout/ContextMenu'
-
 import {
   ErrorMessage,
   ProjectGrid,
@@ -14,190 +9,172 @@ import {
   ProjectGridHeaderRow
 } from './ProjectGrid'
 import templates from './templates'
+import { deleteScene, getScenes } from '../../functions/sceneFunctions'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router-dom'
+import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from '../../pages/projectUtility'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { getProjects } from '../../functions/projectFunctions'
 
-/**
- *
- * @author Robert Long
- */
-export const ProjectsSection = (styled as any).section`
-  padding-bottom: 100px;
-  display: flex;
-  flex: ${(props) => (props.flex === undefined ? 1 : props.flex)};
-
-  &:first-child {
-    padding-top: 100px;
-  }
-
-  h1 {
-    font-size: 36px;
-  }
-
-  h2 {
-    font-size: 16px;
-  }
-`
-
-/**
- *
- * @author Robert Long
- */
-export const ProjectsContainer = (styled as any).div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  margin: 0 auto;
-  max-width: 1200px;
-  padding: 0 20px;
-`
-
-/**
- *
- * @author Robert Long
- */
-const WelcomeContainer = (styled as any)(ProjectsContainer)`
-  align-items: center;
-
-  & > * {
-    text-align: center;
-  }
-
-  & > *:not(:first-child) {
-    margin-top: 20px;
-  }
-
-  h2 {
-    max-width: 480px;
-  }
-`
-
-/**
- *
- * @author Robert Long
- */
-export const ProjectsHeader = (styled as any).div`
-  margin-bottom: 36px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`
+type Props = {
+  showingScenes: boolean
+}
 
 const contextMenuId = 'project-menu'
+const ProjectsPage = (props: Props) => {
+  const { showingScenes } = props
 
-/**
- *
- * @author Robert Long
- */
-class ProjectsPage extends Component<{ t: Function; history: any }> {
-  constructor(props) {
-    super(props)
+  const router = useHistory()
+  const [projects, setProjects] = useState([]) // constant projects initialized with an empty array.
+  const [loading, setLoading] = useState(false) // constant loading initialized with false.
+  const [error, setError] = useState(null) // constant error initialized with null.
 
-    this.state = {
-      projects: [],
-      loading: true,
-      error: null
+  const authState = useAuthState()
+  const authUser = authState.authUser // authUser initialized by getting property from authState object.
+  const user = authState.user // user initialized by getting value from authState object.
+
+  const { t } = useTranslation()
+  const idKey = showingScenes ? 'scene_id' : 'project_id'
+  const newProjectPath = showingScenes ? '/editor/new' : '/project/new'
+
+  useEffect(() => {
+    if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
+      const data = showingScenes ? getScenes() : getProjects()
+      data
+        .then((p) => {
+          setProjects(
+            p.map((project) => ({
+              ...project,
+              url: `/editor/${project[idKey]}`
+            }))
+          )
+          setLoading(false)
+        })
+        .catch((error) => {
+          console.error(error)
+          if (error.response && error.response.status === 401) {
+            // User has an invalid auth token. Prompt them to login again.
+            // return (this.props as any).history.push("/", { from: "/projects" });
+            return router.push('/editor')
+          }
+          setError(error)
+          setLoading(false)
+        })
+    }
+  }, [authUser.accessToken.value])
+
+  /**
+   *function to delete project
+   */
+  const onDeleteProject = async (project) => {
+    try {
+      if (showingScenes) {
+        // calling api to delete project on the basis of project_id.
+        await deleteScene(project[idKey])
+        // setting projects after removing deleted project.
+        setProjects(projects.filter((p) => p[idKey] !== project[idKey]))
+      } else {
+      }
+    } catch (error) {
+      console.log(`Error deleting ${showingScenes ? 'scene' : 'project'}, ${error}`)
     }
   }
 
-  componentDidMount() {
-    // We dont need to load projects if the user isn't logged in
-    getProjects()
-      .then((projects) => {
-        this.setState({
-          projects: projects.map((project) => ({
-            ...project,
-            url: `/editor/projects/${project.project_id}`
-          })),
-          loading: false
-        })
-      })
-      .catch((error) => {
-        console.error(error)
-
-        if (error.response && error.response.status === 401) {
-          // User has an invalid auth token. Prompt them to login again.
-          return (this.props as any).history.push('/', { from: '/editor/projects' })
-        }
-
-        this.setState({ error, loading: false })
-      })
+  const onAddNew = () => {
+    if (showingScenes) {
+      routeTo('/editor/new')
+    } else {
+      // TODO
+    }
   }
 
-  onDeleteProject = (project) => {
-    deleteProject(project.project_id)
-      .then(() =>
-        this.setState({ projects: (this.state as any).projects.filter((p) => p.project_id !== project.project_id) })
-      )
-      .catch((error) => this.setState({ error }))
+  /**
+   *function to adding a route to the router object.
+   */
+  const routeTo = (route: string) => () => {
+    router.push(route)
   }
 
-  renderContextMenu = (props) => {
+  /**
+   *function to render the ContextMenu component with MenuItem component delete.
+   */
+  const renderContextMenu = (props) => {
     return (
-      <ContextMenu id={contextMenuId}>
-        <MenuItem onClick={() => this.onDeleteProject(props.trigger.project)}>Delete Project</MenuItem>
-      </ContextMenu>
+      <>
+        <ContextMenu id={contextMenuId}>
+          <MenuItem onClick={(e) => onDeleteProject(props.trigger.project)}>
+            {t('editor.projects.contextMenu.deleteProject')}
+          </MenuItem>
+        </ContextMenu>
+      </>
     )
   }
 
-  ProjectContextMenu = connectMenu(contextMenuId)(this.renderContextMenu)
+  /**
+   *Calling a functional component connectMenu for creating ProjectContextMenu.
+   *
+   */
+  const ProjectContextMenu = connectMenu(contextMenuId)(renderContextMenu)
 
-  render() {
-    const { error, loading, projects, isAuthenticated } = this.state as any
+  // Declaring an array
+  const topTemplates = []
 
-    const ProjectContextMenu = this.ProjectContextMenu
+  // Adding first four templates of tamplates array to topTemplate array.
+  for (let i = 0; i < templates.length && i < 4; i++) {
+    topTemplates.push(templates[i])
+  }
 
-    const topTemplates = []
-
-    for (let i = 0; i < templates.length && i < 4; i++) {
-      topTemplates.push(templates[i])
-    }
-
-    return (
-      <>
+  /**
+   * Rendering view for projects page, if user is not login yet then showing login view.
+   * if user is loged in and has no existing projects then we showing welcome view, providing link for the tutorials.
+   * if user has existing projects then we show the existing projects in grids and a grid to add new project.
+   *
+   */
+  return (
+    <>
+      {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
         <main>
-          {!isAuthenticated || (projects.length === 0 && !loading) ? (
-            <ProjectsSection flex={0}>
+          {projects.length === 0 && !loading ? (
+            <StyledProjectsSection flex={0}>
               <WelcomeContainer>
-                <h1>{this.props.t('editor:projects.page.header')}</h1>
-                <h2>{this.props.t('editor:projects.page.headerMsg')}</h2>
-                <MediumButton as="a" href="/projects/tutorial">
-                  {this.props.t('editor:projects.page.lbl-startTutorial')}
+                <h1>{t('editor.projects.welcomeMsg')}</h1>
+                <h2>{t('editor.projects.description')}</h2>
+                <MediumButton onClick={routeTo('/editor/tutorial')}>
+                  {t('editor.projects.lbl-startTutorial')}
                 </MediumButton>
               </WelcomeContainer>
-            </ProjectsSection>
+            </StyledProjectsSection>
           ) : null}
-          <ProjectsSection>
-            <ProjectsContainer>
-              <ProjectsHeader>
-                <h1>{this.props.t('editor:projects.page.projects')}</h1>
-              </ProjectsHeader>
+          <StyledProjectsSection>
+            <StyledProjectsContainer>
               <ProjectGridContainer>
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button as="a" href="/editor/create">
-                      {this.props.t('editor:projects.page.lbl-newProject')}
-                    </Button>
+                    <Button onClick={routeTo(newProjectPath)}>{t('editor.projects.lbl-newProject')}</Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
                 <ProjectGridContent>
-                  {error && <ErrorMessage>{error.message}</ErrorMessage>}
+                  {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
                   {!error && (
                     <ProjectGrid
                       loading={loading}
                       projects={projects}
-                      newProjectPath="/editor/projects/templates"
+                      newProjectPath={newProjectPath}
+                      newProjectLabel={t('editor.projects.lbl-newProject')}
                       contextMenuId={contextMenuId}
                     />
                   )}
                 </ProjectGridContent>
               </ProjectGridContainer>
-            </ProjectsContainer>
-          </ProjectsSection>
+            </StyledProjectsContainer>
+          </StyledProjectsSection>
           <ProjectContextMenu />
         </main>
-      </>
-    )
-  }
+      )}
+    </>
+  )
 }
 
-export default withTranslation()(ProjectsPage)
+export default ProjectsPage

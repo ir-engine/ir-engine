@@ -1,15 +1,14 @@
 import React, { useEffect } from 'react'
-import { Grid, Typography, Paper, Divider, Button } from '@material-ui/core'
+import { Grid, Typography, Paper, Divider, Button } from '@mui/material'
 import { useStyles } from './styles'
-import InputBase from '@material-ui/core/InputBase'
-import Switch from '@material-ui/core/Switch'
+import InputBase from '@mui/material/InputBase'
+import Switch from '@mui/material/Switch'
 import { Icon } from '@iconify/react'
-import IconButton from '@material-ui/core/IconButton'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useEmailSettingState } from '../../reducers/admin/Setting/email/EmailSettingState'
-import { EmailSettingService } from '../../reducers/admin/Setting/email/EmailSettingServices'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import IconButton from '@mui/material/IconButton'
+import { useDispatch } from '../../../store'
+import { useEmailSettingState } from '../../services/Setting/EmailSettingService'
+import { EmailSettingService } from '../../services/Setting/EmailSettingService'
+import { useAuthState } from '../../../user/services/AuthService'
 
 interface emailProps {}
 
@@ -34,7 +33,7 @@ const Email = (props: emailProps) => {
 
   useEffect(() => {
     if (user?.id?.value != null && emailSettingState?.Email?.updateNeeded?.value === true) {
-      dispatch(EmailSettingService.fetchedEmailSettings())
+      EmailSettingService.fetchedEmailSettings()
     }
   }, [authState])
 
@@ -48,7 +47,7 @@ const Email = (props: emailProps) => {
           <Grid container spacing={3} key={el.id}>
             <Grid item xs={12} sm={6}>
               <Typography>SMTP</Typography>
-              <Paper variant="outlined" square elevation={3} className={classes.Paper}>
+              <Paper variant="outlined" square className={classes.Paper}>
                 <Paper component="div" className={classes.createInput}>
                   <label> Host:</label>
                   <InputBase
@@ -83,7 +82,7 @@ const Email = (props: emailProps) => {
               </Paper>
               <Divider />
               <Typography>Auth</Typography>
-              <Paper variant="outlined" square elevation={3} className={classes.Paper}>
+              <Paper variant="outlined" square className={classes.Paper}>
                 <Paper component="div" className={classes.createInput}>
                   <label> User Name: </label>
                   <InputBase
@@ -104,7 +103,7 @@ const Email = (props: emailProps) => {
                     disabled
                     style={{ color: '#fff' }}
                   />
-                  <IconButton>
+                  <IconButton size="large">
                     <Icon icon="ic:baseline-visibility-off" color="orange" />
                   </IconButton>
                 </Paper>
@@ -112,7 +111,7 @@ const Email = (props: emailProps) => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography>From</Typography>
-              <Paper variant="outlined" square elevation={3} className={classes.Paper}>
+              <Paper variant="outlined" square className={classes.Paper}>
                 <Paper component="div" className={classes.createInput}>
                   <label> From:</label>
                   <InputBase name="from" className={classes.input} style={{ color: '#fff' }} value={el.from} />
@@ -120,7 +119,7 @@ const Email = (props: emailProps) => {
               </Paper>
               <Divider />
               <Typography>Subject</Typography>
-              <Paper variant="outlined" square elevation={3} className={classes.Paper}>
+              <Paper variant="outlined" square className={classes.Paper}>
                 <Paper component="div" className={classes.createInput}>
                   <label>login: </label>
                   <InputBase

@@ -1,21 +1,20 @@
 import React from 'react'
-import Drawer from '@material-ui/core/Drawer'
-import Container from '@material-ui/core/Container'
+import Drawer from '@mui/material/Drawer'
+import Container from '@mui/material/Container'
 import { useGroupStyles, useGroupStyle } from './styles'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import Button from '@material-ui/core/Button'
-import DialogActions from '@material-ui/core/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import Button from '@mui/material/Button'
+import DialogActions from '@mui/material/DialogActions'
 import { formValid } from './validation'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-import { GroupService } from '../../reducers/admin/group/GroupService'
-import TextField from '@material-ui/core/TextField'
-import { useScopeState } from '../../reducers/admin/scope/ScopeState'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { ScopeService } from '../../reducers/admin/scope/ScopeService'
+import { useDispatch } from '../../../store'
+import Autocomplete from '@mui/material/Autocomplete'
+import { GroupService } from '../../services/GroupService'
+import TextField from '@mui/material/TextField'
+import { useScopeState } from '../../services/ScopeService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { ScopeService } from '../../services/ScopeService'
 
 interface Props {
   open: boolean
@@ -45,7 +44,7 @@ const CreateGroup = (props: Props) => {
 
   React.useEffect(() => {
     if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      dispatch(ScopeService.getScopeTypeService())
+      ScopeService.getScopeTypeService()
     }
   }, [adminScopeState.scopeType.updateNeeded.value, user])
 
@@ -77,7 +76,7 @@ const CreateGroup = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
-      dispatch(GroupService.createGroupByAdmin({ name, description, scopeType }))
+      GroupService.createGroupByAdmin({ name, description, scopeType })
       setState({
         ...state,
         name: '',

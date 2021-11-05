@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-import { useDispatch } from 'react-redux'
-import Grid from '@material-ui/core/Grid'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Checkbox from '@material-ui/core/Checkbox'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import Container from '@mui/material/Container'
+import { useDispatch } from '../../../store'
+import Grid from '@mui/material/Grid'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Checkbox from '@mui/material/Checkbox'
 import { Link } from 'react-router-dom'
 import { Config } from '@xrengine/common/src/config'
 import styles from './Auth.module.scss'
-import { AuthService } from '../../reducers/auth/AuthService'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { AuthService } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
@@ -48,7 +48,7 @@ const MagicLinkEmail = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!isAddConnection) {
-      dispatch(AuthService.createMagicLink(state.emailPhone))
+      AuthService.createMagicLink(state.emailPhone)
       setState({ ...state, isSubmitted: true })
       return
     }
@@ -56,9 +56,9 @@ const MagicLinkEmail = (props: Props): any => {
     const user = auth.user
     const userId = user ? user.id.value : ''
     if (type === 'email') {
-      dispatch(AuthService.addConnectionByEmail(state.emailPhone, userId))
+      AuthService.addConnectionByEmail(state.emailPhone, userId)
     } else {
-      dispatch(AuthService.addConnectionBySms(state.emailPhone, userId))
+      AuthService.addConnectionBySms(state.emailPhone, userId)
     }
   }
   let descr = ''

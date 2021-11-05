@@ -3,20 +3,21 @@ import { Helmet } from 'react-helmet'
 import React, { useEffect } from 'react'
 import ContactForm from '@xrengine/client-core/src/common/components/ContactForm'
 import { useHistory, Redirect } from 'react-router-dom'
-import { Capacitor } from '@capacitor/core'
+// import { Capacitor } from '@capacitor/core'
 import { useTranslation, Trans } from 'react-i18next'
 import { Config } from '@xrengine/common/src/config'
 
 const ROOT_REDIRECT: any = Config.publicRuntimeConfig.rootRedirect
 
 export const HomePage = (): any => {
+  console.log('homepage')
   const router = useHistory()
   const { t } = useTranslation()
-  useEffect(() => {
-    if (Capacitor.isNative) {
-      router.push('/plugintest')
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (Capacitor.isNative) {
+  //     router.push('/plugintest')
+  //   }
+  // }, [])
 
   if (ROOT_REDIRECT !== false && ROOT_REDIRECT !== 'false') {
     const redirectParsed = url.parse(ROOT_REDIRECT)

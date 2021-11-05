@@ -1,15 +1,11 @@
+import Button from '@mui/material/Button'
+import CardMedia from '@mui/material/CardMedia'
+import Typography from '@mui/material/Typography'
 import React from 'react'
-import { useHistory } from 'react-router-dom'
-
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { AuthService } from '../../reducers/auth/AuthService'
-import { useAuthState } from '../../reducers/auth/AuthState'
-import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
-import CardMedia from '@material-ui/core/CardMedia'
 import { Trans, useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router-dom'
+import { useDispatch } from '../../../store'
+import { AuthService, useAuthState } from '../../services/AuthService'
 import styles from '../Login/Login.module.scss'
 
 interface Props {
@@ -27,7 +23,7 @@ const ConfirmEmail = (props: Props): any => {
 
     const identityProvider = auth.identityProvider
 
-    dispatch(AuthService.resendVerificationEmail(identityProvider.token.value))
+    AuthService.resendVerificationEmail(identityProvider.token.value)
   }
 
   return (

@@ -1,3 +1,4 @@
+import { client } from '@xrengine/client-core/src/feathers'
 import { ProjectManager } from '../managers/ProjectManager'
 
 /**
@@ -16,9 +17,7 @@ export const deleteAsset = async (assetId, projectid?, fileidentifier?): Promise
 
   if (fileidentifier) headers['fileidentifier'] = fileidentifier
   try {
-    const response = await ProjectManager.instance.feathersClient
-      .service('static-resource')
-      .remove(assetId, { headers })
+    const response = await client.service('static-resource').remove(assetId, { headers })
     console.log('Response: ' + Object.values(response))
   } catch (error) {
     console.log("Can't Delete Asset" + error)

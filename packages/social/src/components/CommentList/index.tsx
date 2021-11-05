@@ -3,12 +3,11 @@
  */
 import React, { useEffect, useState } from 'react'
 
-import { useDispatch } from 'react-redux'
-import { useFeedCommentsState } from '../../reducers/feedComment/FeedCommentState'
-import { FeedCommentService } from '../../reducers/feedComment/FeedCommentService'
-import TextField from '@material-ui/core/TextField'
-import SendIcon from '@material-ui/icons/Send'
-import Grid from '@material-ui/core/Grid'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { FeedCommentService, useFeedCommentsState } from '@xrengine/client-core/src/social/services/FeedCommentService'
+import TextField from '@mui/material/TextField'
+import SendIcon from '@mui/icons-material/Send'
+import Grid from '@mui/material/Grid'
 
 import CommentCard from '../CommentCard'
 
@@ -20,12 +19,12 @@ interface Props {
 const CommentList = ({ feedId }: Props) => {
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(FeedCommentService.getFeedComments(feedId))
+    FeedCommentService.getFeedComments(feedId)
   }, [])
   const [commentText, setCommentText] = useState('')
   const feedCommentsState = useFeedCommentsState()
   const addComment = (feedId, text) => {
-    dispatch(FeedCommentService.addCommentToFeed(feedId, text))
+    FeedCommentService.addCommentToFeed(feedId, text)
     setCommentText('')
   }
   return (

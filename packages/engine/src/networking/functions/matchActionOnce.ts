@@ -14,8 +14,9 @@ export const matchActionOnce = <A, B>(match: Validator<A, B>, callback: (match: 
   }
   function cb(ac) {
     if (callback(ac)) {
-      world.receptors.delete(receptor)
+      const idx = world.receptors.indexOf(receptor)
+      world.receptors.splice(idx, 1)
     }
   }
-  world.receptors.add(receptor)
+  world.receptors.push(receptor)
 }

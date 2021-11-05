@@ -2,47 +2,44 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>, Gleb Ordinsky
  */
 import React, { useState, useEffect } from 'react'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
-import { useHistory } from 'react-router-dom'
-import { connect, useDispatch } from 'react-redux'
-
-import CardMedia from '@material-ui/core/CardMedia'
-import Typography from '@material-ui/core/Typography'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import WhatshotIcon from '@material-ui/icons/Whatshot'
-import TelegramIcon from '@material-ui/icons/Telegram'
-import AddCommentIcon from '@material-ui/icons/AddCommentOutlined'
-import FavoriteBorderOutlinedIcon from '@material-ui/icons/FavoriteBorderOutlined'
-import FavoriteIcon from '@material-ui/icons/Favorite'
-import VisibilityIcon from '@material-ui/icons/Visibility'
-import Popover from '@material-ui/core/Popover'
-import Button from '@material-ui/core/Button'
-import CardHeader from '@material-ui/core/CardHeader'
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
-import Avatar from '@material-ui/core/Avatar'
-import ReportOutlinedIcon from '@material-ui/icons/ReportOutlined'
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
+import CardMedia from '@mui/material/CardMedia'
+import Typography from '@mui/material/Typography'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import WhatshotIcon from '@mui/icons-material/Whatshot'
+import TelegramIcon from '@mui/icons-material/Telegram'
+import AddCommentIcon from '@mui/icons-material/AddCommentOutlined'
+import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined'
+import FavoriteIcon from '@mui/icons-material/Favorite'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import Popover from '@mui/material/Popover'
+import Button from '@mui/material/Button'
+import CardHeader from '@mui/material/CardHeader'
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
+import Avatar from '@mui/material/Avatar'
+import ReportOutlinedIcon from '@mui/icons-material/ReportOutlined'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import { Feed } from '@xrengine/common/src/interfaces/Feed'
 import CreatorAsTitle from '../CreatorAsTitle'
 // @ts-ignore
 import styles from './FeedCard.module.scss'
 import SimpleModal from '../SimpleModal'
-import { FeedService } from '../../reducers/feed/FeedService'
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
 
-import { FeedFiresService } from '../../reducers/feedFires/FeedFiresService'
-import { FeedLikesService } from '../../reducers/feedLikes/FeedLikesService'
+import { FeedFiresService } from '@xrengine/client-core/src/social/services/FeedFiresService'
+import { FeedLikesService } from '../../services/FeedLikesService'
 
 import { useTranslation } from 'react-i18next'
 
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
-import { FeedReportsService } from '../../reducers/feedReport/FeedReportsService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { FeedReportsService } from '../../services/FeedReportsService'
 import { Share } from '@capacitor/share'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
 import CommentList from '../CommentList'
-import Grid from '@material-ui/core/Grid'
+import Grid from '@mui/material/Grid'
 
 interface Props {
   feed: Feed
@@ -65,7 +62,7 @@ const FeedCard = (props: Props): any => {
   const [feedLikesCreators, setFeedLikesCreators] = useState(null)
 
   const handleAddFireClick = (feedId) => {
-    dispatch(FeedFiresService.addFireToFeed(feedId))
+    FeedFiresService.addFireToFeed(feedId)
     setFiredCount(firedCount + 1)
     setFired(true)
     if (liked) {
@@ -74,13 +71,13 @@ const FeedCard = (props: Props): any => {
   }
 
   const handleRemoveFireClick = (feedId) => {
-    dispatch(FeedFiresService.removeFireToFeed(feedId))
+    FeedFiresService.removeFireToFeed(feedId)
     setFiredCount(firedCount - 1)
     setFired(false)
   }
 
   const handleAddLikeClick = (feedId) => {
-    dispatch(FeedLikesService.addLikeToFeed(feedId))
+    FeedLikesService.addLikeToFeed(feedId)
     setLikedCount(likedCount + 1)
     setLiked(true)
     if (fired) {
@@ -89,13 +86,13 @@ const FeedCard = (props: Props): any => {
   }
 
   const handleRemoveLikeClick = (feedId) => {
-    dispatch(FeedLikesService.removeLikeToFeed(feedId))
+    FeedLikesService.removeLikeToFeed(feedId)
     setLikedCount(likedCount - 1)
     setLiked(false)
   }
 
   const handleReportFeed = (feedId) => {
-    dispatch(FeedReportsService.addReportToFeed(feedId))
+    FeedReportsService.addReportToFeed(feedId)
     setReported(true)
   }
 
@@ -113,7 +110,7 @@ const FeedCard = (props: Props): any => {
   //         }
   //     };
   useEffect(() => {
-    dispatch(FeedFiresService.getFeedFires(feed.id))
+    FeedFiresService.getFeedFires(feed.id)
   }, [])
 
   const { t } = useTranslation()
@@ -145,7 +142,7 @@ const FeedCard = (props: Props): any => {
 
   const previewImageClick = () => {
     setVideoDisplay(true)
-    dispatch(FeedService.addViewToFeed(feed.id))
+    FeedService.addViewToFeed(feed.id)
   }
 
   useEffect(() => {
@@ -231,7 +228,7 @@ const FeedCard = (props: Props): any => {
                 <Avatar
                   src={feed.creator.avatar ? feed.creator.avatar : '/assets/userpic.png'}
                   alt={feed.creator.username}
-                  onClick={() => dispatch(PopupsStateService.updateCreatorPageState(true, feed.creator.id))}
+                  onClick={() => PopupsStateService.updateCreatorPageState(true, feed.creator.id)}
                   className={styles.avatar}
                 />
               }

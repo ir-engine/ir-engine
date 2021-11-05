@@ -1,22 +1,22 @@
 import React from 'react'
-import Container from '@material-ui/core/Container'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Badge from '@material-ui/core/Badge'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import PhotoCamera from '@material-ui/icons/PhotoCamera'
-import CloudUploadIcon from '@material-ui/icons/CloudUpload'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
-import ClearIcon from '@material-ui/icons/Clear'
+import Container from '@mui/material/Container'
+import DialogTitle from '@mui/material/DialogTitle'
+import Badge from '@mui/material/Badge'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import PhotoCamera from '@mui/icons-material/PhotoCamera'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import ClearIcon from '@mui/icons-material/Clear'
 import { Player } from 'video-react'
 import './PlayerStyles.css'
 import { useFeedStyles, useFeedStyle } from './styles'
 import { validateFeedForm } from './validation'
-import { Save } from '@material-ui/icons'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { FeedService } from '../../../reducers/feed/FeedService'
+import { Save } from '@mui/icons-material'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
 
 interface Props {
   adminFeed: any
@@ -83,7 +83,7 @@ const EditFeed = (props: Props) => {
 
     setState({ ...state, formErrors: temp })
     if (validateFeedForm(state, state.formErrors)) {
-      dispatch(FeedService.updateFeedAsAdmin(adminFeed.id, { preview, video, title, description }))
+      FeedService.updateFeedAsAdmin(adminFeed.id, { preview, video, title, description })
       closeEdit()
     }
   }
@@ -153,6 +153,7 @@ const EditFeed = (props: Props) => {
                   })
                 }
                 className={classes.spanDange}
+                size="large"
               >
                 <ClearIcon />
               </IconButton>
@@ -196,6 +197,7 @@ const EditFeed = (props: Props) => {
                     })
                   }
                   className={classes.spanDange}
+                  size="large"
                 >
                   <ClearIcon style={{ fontWeight: 'bold' }} />
                 </IconButton>

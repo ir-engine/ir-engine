@@ -1,16 +1,16 @@
 import React from 'react'
-import Button from '@material-ui/core/Button'
-import Drawer from '@material-ui/core/Drawer'
-import Container from '@material-ui/core/Container'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import { DialogActions } from '@material-ui/core'
+import Button from '@mui/material/Button'
+import Drawer from '@mui/material/Drawer'
+import Container from '@mui/material/Container'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import DialogTitle from '@mui/material/DialogTitle'
+import { DialogActions } from '@mui/material'
 import { validateCreatorForm } from './validation'
 import { useCreatorStyle, useCreatorStyles } from './styles'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { CreatorService } from '../../../reducers/creator/CreatorService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 
 interface Props {
   open: boolean
@@ -85,7 +85,7 @@ const CreateCreator = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateCreatorForm(state, state.formErrors)) {
-      dispatch(CreatorService.createCreator(data))
+      CreatorService.createCreator(data)
       // closeViewModel(false)
       setState({
         ...state,

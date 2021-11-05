@@ -1,15 +1,15 @@
 import React, { useRef } from 'react'
-import Typography from '@material-ui/core/Typography'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Send, FileCopy } from '@material-ui/icons'
+import Typography from '@mui/material/Typography'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
+import { Send, FileCopy } from '@mui/icons-material'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import styles from '../UserMenu.module.scss'
-import { InviteService } from '../../../../social/reducers/invite/InviteService'
-import { connect, useDispatch } from 'react-redux'
+import { InviteService } from '../../../../social/services/InviteService'
+import { useDispatch } from '../../../../store'
 import { useTranslation } from 'react-i18next'
-import { useInviteState } from '../../../../social/reducers/invite/InviteState'
+import { useInviteState } from '../../../../social/services/InviteService'
 
 interface Props {
   alertSuccess?: any
@@ -24,9 +24,7 @@ const ShareMenu = (props: Props): any => {
   const dispatch = useDispatch()
   const inviteState = useInviteState()
   const copyLinkToClipboard = () => {
-    refLink.current.select()
-    document.execCommand('copy')
-    refLink.current.setSelectionRange(0, 0) // deselect
+    navigator.clipboard.writeText(refLink.current.value)
     props.alertSuccess(t('user:usermenu.share.linkCopied'))
   }
 
@@ -54,7 +52,7 @@ const ShareMenu = (props: Props): any => {
       targetObjectId: inviteState.targetObjectId.value,
       invitee: null
     }
-    dispatch(InviteService.sendInvite(sendData))
+    InviteService.sendInvite(sendData)
     setEmail('')
   }
 
@@ -68,33 +66,38 @@ const ShareMenu = (props: Props): any => {
         <Typography variant="h1" className={styles.panelHeader}>
           {t('user:usermenu.share.title')}
         </Typography>
-        <textarea readOnly className={styles.shareLink} ref={refLink} value={window.location.href} />
-        <Button onClick={copyLinkToClipboard} className={styles.copyBtn}>
-          {t('user:usermenu.share.lbl-copy')}
-          <span className={styles.materialIconBlock}>
-            <FileCopy />
-          </span>
-        </Button>
-
-        <Typography variant="h5">{t('user:usermenu.share.lbl-phoneEmail')}</Typography>
+        <TextField
+          className={styles.copyField}
+          size="small"
+          variant="outlined"
+          value={window.location.href}
+          disabled={true}
+          inputRef={refLink}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end" onClick={copyLinkToClipboard}>
+                <FileCopy />
+              </InputAdornment>
+            )
+          }}
+        />
         <TextField
           className={styles.emailField}
+          style={{ color: '#fff' }}
           size="small"
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           variant="outlined"
           value={email}
           onChange={(e) => handleChang(e)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end" onClick={() => packageInvite()}>
-                <Send />
-              </InputAdornment>
-            )
-          }}
         />
+        <div className={styles.sendInviteContainer}>
+          <Button className={styles.sendInvite} style={{ color: '#fff' }} onClick={packageInvite}>
+            {t('user:usermenu.share.lbl-send-invite')}
+          </Button>
+        </div>
         {isShareAvailable ? (
           <div className={styles.shareBtnContainer}>
-            <Button className={styles.shareBtn} onClick={shareOnApps}>
+            <Button className={styles.shareBtn} style={{ color: '#fff' }} onClick={shareOnApps}>
               {t('user:usermenu.share.lbl-share')}
             </Button>
           </div>

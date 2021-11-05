@@ -1,38 +1,37 @@
 import React from 'react'
-import Drawer from '@material-ui/core/Drawer'
-import Container from '@material-ui/core/Container'
-import Paper from '@material-ui/core/Paper'
-import Avatar from '@material-ui/core/Avatar'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import Chip from '@material-ui/core/Chip'
-import { Edit, Save } from '@material-ui/icons'
-import Skeleton from '@material-ui/lab/Skeleton'
-import TextField from '@material-ui/core/TextField'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Button from '@material-ui/core/Button'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { bindActionCreators, Dispatch } from 'redux'
-import { UserService } from '../../reducers/admin/user/UserService'
-import { connect, useDispatch } from 'react-redux'
-import InputBase from '@material-ui/core/InputBase'
+import Drawer from '@mui/material/Drawer'
+import Container from '@mui/material/Container'
+import Paper from '@mui/material/Paper'
+import Avatar from '@mui/material/Avatar'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import Chip from '@mui/material/Chip'
+import { Edit, Save } from '@mui/icons-material'
+import Skeleton from '@mui/material/Skeleton'
+import TextField from '@mui/material/TextField'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import Button from '@mui/material/Button'
+import Autocomplete from '@mui/material/Autocomplete'
+import { useAuthState } from '../../../user/services/AuthService'
+import { UserService } from '../../services/UserService'
+import { useDispatch } from '../../../store'
+import InputBase from '@mui/material/InputBase'
 
 import { useUserStyles, useUserStyle } from './styles'
-import { useUserState } from '../../reducers/admin/user/UserState'
+import { useUserState } from '../../services/UserService'
 import { validateUserForm } from './validation'
-import MuiAlert from '@material-ui/lab/Alert'
-import Snackbar from '@material-ui/core/Snackbar'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import { useScopeState } from '../../reducers/admin/scope/ScopeState'
-import { ScopeService } from '../../reducers/admin/scope/ScopeService'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
+import MuiAlert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
+import { useScopeState } from '../../services/ScopeService'
+import { ScopeService } from '../../services/ScopeService'
+import { AuthService } from '../../../user/services/AuthService'
 
 interface Props {
   openView: boolean
@@ -59,7 +58,7 @@ const ViewUser = (props: Props) => {
   const [openDialog, setOpenDialog] = React.useState(false)
   const [status, setStatus] = React.useState('')
   const [editMode, setEditMode] = React.useState(false)
-  const [refetch, setRefetch] = React.useState(false)
+  const [refetch, setRefetch] = React.useState(0)
 
   const [state, setState] = React.useState({
     name: '',
@@ -78,7 +77,7 @@ const ViewUser = (props: Props) => {
   const userRole = adminUserState.userRole
   const userRoleData = userRole ? userRole.userRole.value : []
   const singleUser = adminUserState.singleUser
-  const singleUserData = adminUserState.singleUser.singleUser
+  const singleUserData = singleUser.singleUser
   const staticResource = adminUserState.staticResource
   const staticResourceData = staticResource.staticResource
   const adminScopeState = useScopeState()
@@ -93,36 +92,45 @@ const ViewUser = (props: Props) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      dispatch(AuthService.doLoginAuto(false))
-      await dispatch(UserService.fetchUserRole())
+      AuthService.doLoginAuto(false)
+      await UserService.fetchUserRole()
     }
     if (adminUserState.users.updateNeeded.value === true && user.id.value) fetchData()
     if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
-      dispatch(UserService.fetchSingleUserAdmin(userAdmin.id))
-      setRefetch(false)
+      UserService.fetchSingleUserAdmin(userAdmin.id)
     }
     if (user.id.value && staticResource.updateNeeded.value) {
-      dispatch(UserService.fetchStaticResource())
+      UserService.fetchStaticResource()
     }
     if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      dispatch(ScopeService.getScopeTypeService())
+      ScopeService.getScopeTypeService()
     }
   }, [
     adminUserState.users.updateNeeded.value,
     adminUserState.staticResource.updateNeeded.value,
-    user,
+    user.id.value,
     refetch,
-    singleUser.updateNeeded.value
+    singleUser.updateNeeded.value,
+    adminScopeState.scopeType.updateNeeded.value
   ])
+
+  console.log(
+    adminUserState.users.updateNeeded.value,
+    adminUserState.staticResource.updateNeeded.value,
+    user.id.value,
+    refetch,
+    singleUser.updateNeeded.value,
+    adminScopeState.scopeType.updateNeeded.value
+  )
 
   React.useEffect(() => {
     if (!refetch) {
-      setRefetch(true)
+      setRefetch(refetch + 1)
     }
-  }, [userAdmin.id])
+  }, [userAdmin.id, refetch])
 
   React.useEffect(() => {
-    if (singleUserData) {
+    if (singleUserData?.value) {
       setState({
         ...state,
         name: userAdmin.name || '',
@@ -130,16 +138,17 @@ const ViewUser = (props: Props) => {
         scopeType: userAdmin.scopes || []
       })
     }
-  }, [singleUserData])
+  }, [singleUserData?.id?.value])
+
   const defaultProps = {
     options: userRoleData,
     getOptionLabel: (option: any) => option.role
   }
 
   const patchUserRole = async (user: any, role: string) => {
-    await dispatch(UserService.updateUserRole(user, role))
+    await UserService.updateUserRole(user, role)
     handleCloseDialog()
-    setRefetch(true)
+    setRefetch(refetch + 1)
   }
 
   const handleInputChange = (e) => {
@@ -180,7 +189,7 @@ const ViewUser = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      dispatch(UserService.patchUser(userAdmin.id, data))
+      UserService.patchUser(userAdmin.id, data)
       setState({
         ...state,
         name: '',
@@ -227,7 +236,7 @@ const ViewUser = (props: Props) => {
                 <Grid item xs={4}>
                   <Avatar className={classes.large}>
                     {!userAdmin.avatarId ? (
-                      <Skeleton animation="wave" variant="circle" width={40} height={40} />
+                      <Skeleton animation="wave" variant="circular" width={40} height={40} />
                     ) : (
                       userAdmin.avatarId.charAt(0).toUpperCase()
                     )}
@@ -404,7 +413,7 @@ const ViewUser = (props: Props) => {
                 User scope
               </Typography>
               <div className={classes.scopeContainer}>
-                {singleUserData.scopes?.value.map((el, index) => {
+                {singleUserData?.scopes?.value?.map((el, index) => {
                   const [label, type] = el.type.split(':')
                   return (
                     <Grid container spacing={3} style={{ paddingLeft: '10px', width: '100%' }} key={el.id}>

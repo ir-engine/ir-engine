@@ -1,17 +1,17 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { Card, CardContent, CardMedia, Typography, Avatar } from '@material-ui/core'
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
-import PersonPinIcon from '@material-ui/icons/PersonPin'
+import { Card, CardContent, CardMedia, Typography, Avatar } from '@mui/material'
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
+import PersonPinIcon from '@mui/icons-material/PersonPin'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 // @ts-ignore
 import styles from './Creators.module.scss'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 
 interface Props {}
 
@@ -19,7 +19,7 @@ const Creators = (props: Props) => {
   const creatorsState = useCreatorState()
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(CreatorService.getCreators())
+    CreatorService.getCreators()
   }, [])
   const creators =
     creatorsState.creators.creators?.value && creatorsState.creators.fetchingCreators?.value === false
@@ -27,13 +27,13 @@ const Creators = (props: Props) => {
       : null
 
   const handleCreatorView = (id) => {
-    dispatch(PopupsStateService.updateCreatorPageState(false))
-    dispatch(PopupsStateService.updateCreatorPageState(true, id))
+    PopupsStateService.updateCreatorPageState(false)
+    PopupsStateService.updateCreatorPageState(true, id)
   }
 
   const currentCreator = creatorsState.creators.currentCreator?.id?.value
   useEffect(() => {
-    dispatch(CreatorService.getBlockedList(currentCreator))
+    CreatorService.getBlockedList(currentCreator)
   }, [])
   const blackList = creatorsState?.creators?.blocked.value
 

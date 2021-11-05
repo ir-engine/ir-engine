@@ -12,7 +12,7 @@ declare module '../../../declarations' {
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate')
@@ -99,9 +99,9 @@ export default (app: Application): any => {
         //   return await Promise.resolve();
         // }));
 
-        if (data.group.dataValues) {
+        if (data.group?.dataValues) {
           data.group.dataValues.groupUsers = groupUsers
-        } else {
+        } else if (data.group) {
           data.group.groupUsers = groupUsers
         }
         targetIds = groupUsers.map((groupUser) => groupUser.userId)
@@ -137,9 +137,9 @@ export default (app: Application): any => {
         //
         //   return await Promise.resolve();
         // }));
-        if (data.party.dataValues) {
+        if (data.party?.dataValues) {
           data.party.dataValues.partyUsers = partyUsers
-        } else {
+        } else if (data.party) {
           data.party.partyUsers = partyUsers
         }
         targetIds = partyUsers.map((partyUser) => partyUser.userId)
@@ -171,9 +171,9 @@ export default (app: Application): any => {
         //
         //   return await Promise.resolve();
         // }));
-        if (data.instance.dataValues) {
+        if (data.instance?.dataValues) {
           data.instance.dataValues.instanceUsers = instanceUsers
-        } else {
+        } else if (data.instance) {
           data.instance.instanceUsers = instanceUsers
         }
         targetIds = instanceUsers.map((instanceUser) => instanceUser.id)
@@ -260,9 +260,9 @@ export default (app: Application): any => {
         //   return await Promise.resolve();
         // }));
 
-        if (data.group.dataValues) {
+        if (data.group?.dataValues) {
           data.group.dataValues.groupUsers = groupUsers
-        } else {
+        } else if (data.group) {
           data.group.groupUsers = groupUsers
         }
         targetIds = groupUsers.map((groupUser) => groupUser.userId)
@@ -298,9 +298,9 @@ export default (app: Application): any => {
         //
         //   return await Promise.resolve();
         // }));
-        if (data.party.dataValues) {
+        if (data.party?.dataValues) {
           data.party.dataValues.partyUsers = partyUsers
-        } else {
+        } else if (data.party) {
           data.party.partyUsers = partyUsers
         }
         targetIds = partyUsers.map((partyUser) => partyUser.userId)
@@ -332,9 +332,9 @@ export default (app: Application): any => {
         //
         //   return await Promise.resolve();
         // }));
-        if (data.instance.dataValues) {
+        if (data.instance?.dataValues) {
           data.instance.dataValues.instanceUsers = instanceUsers
-        } else {
+        } else if (data.instance) {
           data.instance.instanceUsers = instanceUsers
         }
         targetIds = instanceUsers.map((instanceUser) => instanceUser.id)

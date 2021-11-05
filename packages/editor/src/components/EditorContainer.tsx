@@ -1,8 +1,8 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
-import { LocationService } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationService'
-import { DockLayout, DockMode } from 'rc-dock'
+import { LocationService } from '@xrengine/client-core/src/admin/services/LocationService'
+import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { Component } from 'react'
 import { DndProvider } from 'react-dnd'
@@ -10,8 +10,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { withTranslation } from 'react-i18next'
 import Modal from 'react-modal'
 import styled from 'styled-components'
-import { createProject, getProject, saveProject } from '../functions/projectFunctions'
-import { getScene } from '../functions/getScene'
+import { createScene, getScene, saveScene } from '../functions/sceneFunctions'
 import AssetsPanel from './assets/AssetsPanel'
 import { DialogContextProvider } from './contexts/DialogContext'
 import { defaultSettings, SettingsContextProvider } from './contexts/SettingsContext'
@@ -35,11 +34,9 @@ import i18n from 'i18next'
 import FileBrowserPanel from './assets/FileBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import configs from './configs'
-import { accessLocationState } from '@xrengine/client-core/src/admin/reducers/admin/location/LocationState'
-import { accessSceneState } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneState'
-import { SceneService } from '@xrengine/client-core/src/admin/reducers/admin/scene/SceneService'
-import { upload } from '@xrengine/engine/src/scene/functions/upload'
-import { getToken } from '@xrengine/engine/src/scene/functions/getToken'
+import { accessLocationState } from '@xrengine/client-core/src/admin/services/LocationService'
+import { accessSceneState } from '@xrengine/client-core/src/admin/services/SceneService'
+import { SceneService } from '@xrengine/client-core/src/admin/services/SceneService'
 import { CommandManager } from '../managers/CommandManager'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
@@ -49,7 +46,9 @@ import { NodeManager, registerPredefinedNodes } from '../managers/NodeManager'
 import { registerPredefinedSources, SourceManager } from '../managers/SourceManager'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
-import Store from '@xrengine/client-core/src/store'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import { client } from '@xrengine/client-core/src/feathers'
+import { upload } from '@xrengine/client-core/src/util/upload'
 
 const maxUploadSize = 25
 
@@ -90,7 +89,7 @@ export const publishProject = async (project, showDialog, hideDialog?): Promise<
         }
       })
       // saving project.
-      project = await saveProject(project.project_id, signal)
+      project = await saveScene(project.scene_id, signal)
 
       if (signal.aborted) {
         const error = new Error(i18n.t('editor:errors.publishProjectAborted'))
@@ -189,7 +188,7 @@ export const publishProject = async (project, showDialog, hideDialog?): Promise<
     }
 
     // Serialize Editor scene
-    const serializedScene = await SceneManager.instance.scene.serialize(project.project_id)
+    const serializedScene = await SceneManager.instance.scene.serialize(project.scene_id)
     const sceneBlob = new Blob([JSON.stringify(serializedScene)], { type: 'application/json' })
 
     showDialog(ProgressDialog, {
@@ -273,9 +272,7 @@ export const publishProject = async (project, showDialog, hideDialog?): Promise<
     }
 
     try {
-      project = await ProjectManager.instance.feathersClient
-        .service(`/publish-project/${project.project_id}`)
-        .create({ scene: sceneParams })
+      project = await client.service(`/publish-scene/${project.scene_id}`).create({ scene: sceneParams })
     } catch (error) {
       throw new Error(error)
     }
@@ -330,9 +327,10 @@ const WorkspaceContainer = (styled as any).div`
  *Styled component used as dock container.
  *
  * @author Hanzla Mateen
+ * @author Abhishek Pathak
  * @type {type}
  */
-const DockContainer = (styled as any).div`
+export const DockContainer = (styled as any).div`
   .dock-panel {
     background: transparent;
     pointer-events: auto;
@@ -343,12 +341,13 @@ const DockContainer = (styled as any).div`
     position: relative;
     z-index: 99;
   }
-  .dock-panel[data-dockid="+3"] {
+  .dock-panel[data-dockid="+5"] {
     visibility: hidden;
     pointer-events: none;
   }
   .dock-divider {
     pointer-events: auto;
+    background:rgba(1,1,1,${(props) => props.dividerAlpha});
   }
   .dock {
     border-radius: 4px;
@@ -370,6 +369,12 @@ const DockContainer = (styled as any).div`
     background-color: #ffffff; 
   }
 `
+/**
+ * @author Abhishek Pathak
+ */
+DockContainer.defaultProps = {
+  dividerAlpha: 0
+}
 
 type EditorContainerProps = {
   t: any
@@ -378,7 +383,7 @@ type EditorContainerProps = {
   history: any
 }
 type EditorContainerState = {
-  project: any
+  project: SceneDetailInterface
   parentSceneId: null
   // templateUrl: any;
   settingsContext: any
@@ -416,7 +421,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     registerPredefinedNodes()
     registerPredefinedSources()
 
-    ProjectManager.instance.initializeFeathersClient(getToken())
+    // ProjectManager.instance.initializeFeathersClient(getToken())
 
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.setDebuginfo)
     CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), this.onProjectLoaded)
@@ -444,21 +449,20 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidMount() {
-    const dispatch = Store.store.dispatch
     if (accessLocationState().locations.updateNeeded.value === true) {
-      dispatch(LocationService.fetchAdminLocations())
+      LocationService.fetchAdminLocations()
     }
     if (accessSceneState().scenes.updateNeeded.value === true) {
-      dispatch(SceneService.fetchAdminScenes())
+      SceneService.fetchAdminScenes()
     }
     if (accessLocationState().locationTypes.updateNeeded.value === true) {
-      dispatch(LocationService.fetchLocationTypes())
+      LocationService.fetchLocationTypes()
     }
     const pathParams = this.state.pathParams
     const queryParams = this.state.queryParams
-    const projectId = pathParams.get('projectId')
+    const sceneId = pathParams.get('sceneId')
 
-    if (projectId === 'new') {
+    if (sceneId === 'new') {
       if (queryParams.has('template')) {
         this.loadProjectTemplate(queryParams.get('template'))
       } else if (queryParams.has('sceneId')) {
@@ -466,35 +470,34 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       } else {
         this.loadProjectTemplate(defaultTemplateUrl)
       }
-    } else if (projectId === 'tutorial') {
+    } else if (sceneId === 'tutorial') {
       this.loadProjectTemplate(tutorialTemplateUrl)
     } else {
-      this.loadProject(projectId)
+      this.loadProject(sceneId)
     }
   }
 
   componentDidUpdate(prevProps: EditorContainerProps) {
     if (this.props.location.pathname !== prevProps.location.pathname && !this.state.creatingProject) {
-      // const { projectId } = this.props.match.params;
-      const prevProjectId = prevProps.match.params.projectId
+      const prevSceneId = prevProps.match.params.sceneId
       const queryParams = new Map(new URLSearchParams(window.location.search).entries())
       this.setState({
         queryParams
       })
       const pathParams = this.state.pathParams
-      const projectId = pathParams.get('projectId')
+      const sceneId = pathParams.get('sceneId')
       let templateUrl = null
 
-      if (projectId === 'new' && !queryParams.has('sceneId')) {
+      if (sceneId === 'new' && !queryParams.has('sceneId')) {
         templateUrl = queryParams.get('template') || defaultTemplateUrl
-      } else if (projectId === 'tutorial') {
+      } else if (sceneId === 'tutorial') {
         templateUrl = tutorialTemplateUrl
       }
 
-      if (projectId === 'new' || projectId === 'tutorial') {
+      if (sceneId === 'new' || sceneId === 'tutorial') {
         this.loadProjectTemplate(templateUrl)
-      } else if (prevProjectId !== 'tutorial' && prevProjectId !== 'new') {
-        this.loadProject(projectId)
+      } else if (prevSceneId !== 'tutorial' && prevSceneId !== 'new') {
+        this.loadProject(sceneId)
       }
     }
   }
@@ -609,7 +612,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
   }
 
-  async loadProject(projectId) {
+  async loadProject(sceneId) {
     this.setState({
       project: null,
       parentSceneId: null
@@ -620,15 +623,15 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       message: this.t('editor:loadingMsg')
     })
 
-    let project
+    let project: SceneDetailInterface
 
     try {
-      project = await getProject(projectId)
+      project = await getScene(sceneId)
       ProjectManager.instance.ownedFileIds = JSON.parse(project.ownedFileIds)
-      globalThis.currentProjectID = project.project_id
+      globalThis.currentSceneID = project.scene_id
 
-      const projectIndex = project.project_url.split('collection/')[1]
-      const projectFile = await ProjectManager.instance.feathersClient.service(`collection`).get(projectIndex, {
+      const projectIndex = project.scene_url.split('collection/')[1]
+      const projectFile = await client.service(`collection`).get(projectIndex, {
         headers: {
           'content-type': 'application/json'
         }
@@ -820,7 +823,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     })
     SceneManager.instance.scene.setMetadata({ name: result.name })
 
-    const project = await createProject(
+    const project = await createScene(
       SceneManager.instance.scene,
       parentSceneId,
       blob,
@@ -830,13 +833,13 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     )
 
     SceneManager.instance.sceneModified = false
-    globalThis.currentProjectID = project.project_id
+    globalThis.currentSceneID = project.scene_id
 
     const pathParams = this.state.pathParams
-    pathParams.set('projectId', project.project_id)
+    pathParams.set('sceneId', project.scene_id)
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project, pathParams }, () => {
-        this.props.history.replace(`/editor/projects/${project.project_id}`)
+        this.props.history.replace(`/editor/${project.scene_id}`)
         this.setState({ creatingProject: false })
       })
     })
@@ -845,11 +848,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   onNewProject = async () => {
-    this.props.history.push('/editor/projects/new')
+    this.props.history.push('/editor/new')
   }
 
   onOpenProject = () => {
-    this.props.history.push('/editor/projects')
+    this.props.history.push('/editor')
   }
 
   onDuplicateProject = async () => {
@@ -871,7 +874,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
       this.hideDialog()
       const pathParams = this.state.pathParams
-      pathParams.set('projectId', newProject.project_id)
+      pathParams.set('sceneId', newProject.scene_id)
       this.setState({ pathParams: pathParams })
     } catch (error) {
       console.error(error)
@@ -972,7 +975,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
   onExportLegacyProject = async () => {
     const { project } = this.state
-    const projectFile = await SceneManager.instance.scene.serialize(project.project_id)
+    const projectFile = await SceneManager.instance.scene.serialize(project.scene_id)
 
     if (projectFile.metadata) {
       delete projectFile.metadata.sceneUrl
@@ -1009,11 +1012,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     try {
       const { project } = this.state
       if (project) {
-        const newProject = await saveProject(project.project_id, abortController.signal)
+        const newProject = await saveScene(project.scene_id, abortController.signal)
 
         this.setState({ project: newProject })
         const pathParams = this.state.pathParams
-        pathParams.set('projectId', newProject.project_id)
+        pathParams.set('sceneId', newProject.scene_id)
         this.setState({ pathParams: pathParams })
       } else {
         await this.createProject()
@@ -1098,16 +1101,36 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     // let assigneeScene
     // if (locations) {
     //   locations.forEach((element) => {
-    //     if (element.sceneId === this.state.queryParams.get('projectId')) {
+    //     if (element.sceneId === this.state.queryParams.get('sceneId')) {
     //       assigneeScene = element
     //     }
     //   })
     // }
 
-    let defaultLayout = {
+    let defaultLayout: LayoutData = {
       dockbox: {
         mode: 'horizontal' as DockMode,
         children: [
+          {
+            mode: 'vertical' as DockMode,
+            size: 2,
+            children: [
+              {
+                tabs: [
+                  {
+                    id: 'fileBrowserPanel',
+                    title: (
+                      <PanelDragContainer>
+                        <PanelIcon as={Archive} size={12} />
+                        <PanelTitle>File Browser</PanelTitle>
+                      </PanelDragContainer>
+                    ),
+                    content: <FileBrowserPanel />
+                  }
+                ]
+              }
+            ]
+          },
           {
             mode: 'vertical' as DockMode,
             size: 8,
@@ -1152,16 +1175,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     id: 'assetsPanel',
                     title: 'Elements',
                     content: <AssetsPanel />
-                  },
-                  {
-                    id: 'fileBrowserPanel',
-                    title: (
-                      <PanelDragContainer>
-                        <PanelIcon as={Archive} size={12} />
-                        <PanelTitle>File Browser</PanelTitle>
-                      </PanelDragContainer>
-                    ),
-                    content: <FileBrowserPanel />
                   }
                 ]
               }

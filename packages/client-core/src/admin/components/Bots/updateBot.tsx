@@ -1,28 +1,30 @@
 import React from 'react'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
 import { useStyle, useStylesForBots as useStyles } from './styles'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import Paper from '@material-ui/core/Paper'
-import FormControl from '@material-ui/core/FormControl'
-import InputBase from '@material-ui/core/InputBase'
-import { Save, Autorenew } from '@material-ui/icons'
-import { useLocationState } from '../../reducers/admin/location/LocationState'
-import { useInstanceState } from '../../reducers/admin/instance/InstanceState'
-import { connect, useDispatch } from 'react-redux'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import FormControl from '@mui/material/FormControl'
+import InputBase from '@mui/material/InputBase'
+import { Save, Autorenew } from '@mui/icons-material'
+import { useLocationState } from '../../services/LocationService'
+import { useInstanceState } from '../../services/InstanceService'
+import { useDispatch } from '../../../store'
 import { validateForm } from './validation'
-import MuiAlert from '@material-ui/lab/Alert'
-import Snackbar from '@material-ui/core/Snackbar'
-import { BotService } from '../../reducers/admin/bots/BotsService'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import Grid from '@material-ui/core/Grid'
-import IconButton from '@material-ui/core/IconButton'
-import { InstanceService } from '../../reducers/admin/instance/InstanceService'
-import { LocationService } from '../../reducers/admin/location/LocationService'
+import MuiAlert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
+import { BotService } from '../../services/BotsService'
+import { useAuthState } from '../../../user/services/AuthService'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import { InstanceService } from '../../services/InstanceService'
+import { LocationService } from '../../services/LocationService'
+
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 interface Props {
   open: boolean
@@ -51,7 +53,7 @@ const UpdateBot = (props: Props) => {
     description: '',
     location: ''
   })
-  const [currentInstance, setCurrentIntance] = React.useState([])
+  const [currentInstance, setCurrentIntance] = React.useState<Instance[]>([])
   const [openAlter, setOpenAlter] = React.useState(false)
   const [error, setError] = React.useState('')
   const adminLocation = useLocationState().locations
@@ -92,14 +94,14 @@ const UpdateBot = (props: Props) => {
     setState({ ...state, [names]: value })
   }
 
-  const data = []
+  const data: Instance[] = []
   instanceData.value.forEach((element) => {
     data.push(element)
   })
 
   React.useEffect(() => {
     if (bot) {
-      const instanceFilter = data.filter((el) => el.location?.id === state.location)
+      const instanceFilter = data.filter((el) => el.locationId === state.location)
       if (instanceFilter.length > 0) {
         setState({ ...state, instance: state.instance || '' })
         setCurrentIntance(instanceFilter)
@@ -127,7 +129,7 @@ const UpdateBot = (props: Props) => {
     }
     setFormErrors(temp)
     if (validateForm(state, formErrors)) {
-      dispatch(BotService.updateBotAsAdmin(bot.id, data))
+      BotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
       handleClose()
@@ -138,7 +140,7 @@ const UpdateBot = (props: Props) => {
   }
 
   const fetchAdminInstances = () => {
-    dispatch(InstanceService.fetchAdminInstances())
+    InstanceService.fetchAdminInstances()
   }
 
   const handleCloseAlter = (event, reason) => {
@@ -149,7 +151,7 @@ const UpdateBot = (props: Props) => {
   }
 
   const fetchAdminLocations = () => {
-    dispatch(LocationService.fetchAdminLocations())
+    LocationService.fetchAdminLocations()
   }
 
   return (
@@ -221,7 +223,7 @@ const UpdateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminLocations}>
+                <IconButton onClick={fetchAdminLocations} size="large">
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>
@@ -262,7 +264,7 @@ const UpdateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminInstances}>
+                <IconButton onClick={fetchAdminInstances} size="large">
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>

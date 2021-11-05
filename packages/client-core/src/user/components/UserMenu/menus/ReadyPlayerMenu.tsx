@@ -1,25 +1,18 @@
-import React, { useEffect, useState } from 'react'
-import { Check, ArrowBack } from '@material-ui/icons'
-import styles from '../UserMenu.module.scss'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import * as THREE from 'three'
-import { Views } from '../util'
+import CircularProgress from '@mui/material/CircularProgress'
+import { ArrowBack } from '@mui/icons-material'
 import { Config } from '@xrengine/common/src/config'
-import ModelView from '@xrengine/client-core/src/world/components/InteractableModal/modelView'
 import {
-  AVATAR_FILE_ALLOWED_EXTENSIONS,
-  MAX_AVATAR_FILE_SIZE,
-  MIN_AVATAR_FILE_SIZE,
   MAX_ALLOWED_TRIANGLES,
-  THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
-import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
-import { Help } from '@material-ui/icons'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import React from 'react'
 import { withTranslation } from 'react-i18next'
+import * as THREE from 'three'
+import styles from '../UserMenu.module.scss'
+import { Views } from '../util'
 
 interface State {
   selectedFile: any

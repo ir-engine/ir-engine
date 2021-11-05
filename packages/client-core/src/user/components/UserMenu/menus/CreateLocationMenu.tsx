@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
-import Typography from '@material-ui/core/Typography'
-import DeleteIcon from '@material-ui/icons/Delete'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import Checkbox from '@material-ui/core/Checkbox'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Tooltip from '@material-ui/core/Tooltip'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import InputLabel from '@material-ui/core/InputLabel'
-import FormControl from '@material-ui/core/FormControl'
-import FormHelperText from '@material-ui/core/FormHelperText'
+import { useDispatch } from '../../../../store'
+import Typography from '@mui/material/Typography'
+import DeleteIcon from '@mui/icons-material/Delete'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Tooltip from '@mui/material/Tooltip'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import InputLabel from '@mui/material/InputLabel'
+import FormControl from '@mui/material/FormControl'
+import FormHelperText from '@mui/material/FormHelperText'
 import { client } from '../../../../feathers'
-import { AlertAction } from '../../../../common/reducers/alert/AlertActions'
+import { AlertAction } from '../../../../common/services/AlertService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 
 const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
-  const [scenes, setScenes] = useState([])
+  const [scenes, setScenes] = useState<{ sid: string; name: string }[]>([])
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [locationTypes, setLocationTypes] = useState([])
   const [error, setError] = useState({

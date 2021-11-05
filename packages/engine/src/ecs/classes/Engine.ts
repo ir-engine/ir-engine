@@ -87,7 +87,7 @@ export class Engine {
    */
   static renderer: WebGLRenderer = null!
   static effectComposer: EffectComposerWithSchema = null!
-  static xrRenderer = null! as any
+  static xrManager = null! as any
   static xrSession: XRSession = null!
   static context = null!
   static csm: CSM = null!

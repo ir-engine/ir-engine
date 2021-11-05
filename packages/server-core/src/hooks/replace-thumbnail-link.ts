@@ -1,7 +1,7 @@
 import config from '../appconfig'
 import { Hook, HookContext } from '@feathersjs/feathers'
 import uploadThumbnailLinkHook from './upload-thumbnail-link'
-import StorageProvider from '../media/storageprovider/storageprovider'
+import { useStorageProvider } from '../media/storageprovider/storageprovider'
 import _ from 'lodash'
 
 export default (): Hook => {
@@ -33,7 +33,7 @@ export default (): Hook => {
         const bucketName = config.aws.s3.staticResourceBucket
         params.uploadPath = data.url.replace('https://s3.amazonaws.com/' + bucketName + '/', '')
         params.uploadPath = params.uploadPath.replace('/manifest.mpd', '')
-        params.storageProvider = new StorageProvider()
+        params.storageProvider = useStorageProvider()
         const contextClone = _.cloneDeep(context)
         const result = await (uploadThumbnailLinkHook() as any)(contextClone)
         data.metadata.thumbnailUrl = (result as any).params.thumbnailUrl.replace(

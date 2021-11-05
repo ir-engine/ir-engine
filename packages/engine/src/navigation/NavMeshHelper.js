@@ -59,8 +59,8 @@ function createConvexRegionHelper( navMesh ) {
 
 	}
 
-	geometry.addAttribute( 'position', new Float32BufferAttribute( positions, 3 ) );
-	geometry.addAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
+	geometry.setAttribute( 'position', new Float32BufferAttribute( positions, 3 ) );
+	geometry.setAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
 
 	return mesh;
 

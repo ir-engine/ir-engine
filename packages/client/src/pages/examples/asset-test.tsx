@@ -43,7 +43,7 @@ export default LocationPage
 let scene = new Scene()
 let animationMixers = []
 let clips
-getLoader().load('/models/avatars/Animations.glb', (gltf) => {
+getLoader().load('/default_assets/Animations.glb', (gltf) => {
   console.log(gltf)
   clips = gltf.animations
   clips.forEach((clip) => {

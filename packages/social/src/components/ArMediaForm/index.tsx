@@ -2,19 +2,19 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
 import { useTranslation } from 'react-i18next'
 
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import { FormControl, InputLabel, MenuItem, Select, Typography, Card } from '@material-ui/core'
-import BackupIcon from '@material-ui/icons/Backup'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import { FormControl, InputLabel, MenuItem, Select, Typography, Card } from '@mui/material'
+import BackupIcon from '@mui/icons-material/Backup'
 
 import styles from './ArMediaForm.module.scss'
 
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { ArMediaService } from '../../reducers/arMedia/ArMediaService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { ArMediaService } from '@xrengine/client-core/src/social/services/ArMediaService'
 
 interface Props {
   projects?: any[]
@@ -38,7 +38,7 @@ const ArMediaForm = ({ projects, view }: Props) => {
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
-    dispatch(ArMediaService.createArMedia({ type, title }, { manifest, audio, dracosis, preview }))
+    ArMediaService.createArMedia({ type, title }, { manifest, audio, dracosis, preview })
   }
 
   const handlePickManifest = async (file) => {

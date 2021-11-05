@@ -1,11 +1,10 @@
 import React from 'react'
-import { connect, useDispatch } from 'react-redux'
-import Alert from '@material-ui/lab/Alert'
-import AlertTitle from '@material-ui/lab/AlertTitle'
-import { useAlertState } from '../reducers/alert/AlertState'
-import { AlertService } from '../reducers/alert/AlertService'
-import { bindActionCreators, Dispatch } from 'redux'
-import Box from '@material-ui/core/Box'
+import { useDispatch } from '../../store'
+import Alert from '@mui/material/Alert'
+import AlertTitle from '@mui/material/AlertTitle'
+import { useAlertState } from '../services/AlertService'
+import { AlertService } from '../services/AlertService'
+import Box from '@mui/material/Box'
 import styles from './Common.module.scss'
 
 interface Props {}
@@ -14,7 +13,7 @@ const AlertsComponent = (props: Props): any => {
   const dispatch = useDispatch()
   const handleClose = (e: any): void => {
     e.preventDefault()
-    dispatch(AlertService.alertCancel())
+    AlertService.alertCancel()
   }
   const alert = useAlertState()
   const type = alert.type

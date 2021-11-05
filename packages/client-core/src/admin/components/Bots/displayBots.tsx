@@ -1,28 +1,27 @@
 import React from 'react'
-import Accordion from '@material-ui/core/Accordion'
-import AccordionDetails from '@material-ui/core/AccordionDetails'
-import AccordionSummary from '@material-ui/core/AccordionSummary'
-import Typography from '@material-ui/core/Typography'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import Accordion from '@mui/material/Accordion'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import Typography from '@mui/material/Typography'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useStylesForBots as useStyles } from './styles'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import ListItemText from '@material-ui/core/ListItemText'
-import IconButton from '@material-ui/core/IconButton'
-import DeleteIcon from '@material-ui/icons/Delete'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import Grid from '@material-ui/core/Grid'
-import { Edit } from '@material-ui/icons'
-import { BotService } from '../../reducers/admin/bots/BotsService'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import { useBotState } from '../../reducers/admin/bots/BotsState'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import Button from '@material-ui/core/Button'
-import MuiAlert from '@material-ui/lab/Alert'
-import Snackbar from '@material-ui/core/Snackbar'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
+import ListItemText from '@mui/material/ListItemText'
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from '@mui/icons-material/Delete'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import Grid from '@mui/material/Grid'
+import { Edit } from '@mui/icons-material'
+import { BotService } from '../../services/BotsService'
+import { useDispatch } from '../../../store'
+import { useBotState } from '../../services/BotsService'
+import { useAuthState } from '../../../user/services/AuthService'
+import Button from '@mui/material/Button'
+import MuiAlert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
 import UpdateBot from './updateBot'
 
 interface Props {}
@@ -50,7 +49,7 @@ const DisplayBots = (props: Props) => {
   const botAdminData = botAdmin.bots
   React.useEffect(() => {
     if (user.id.value && botAdmin.updateNeeded) {
-      dispatch(BotService.fetchBotAsAdmin())
+      BotService.fetchBotAsAdmin()
     }
   }, [botAdmin.updateNeeded.value, user?.id?.value])
 
@@ -76,7 +75,7 @@ const DisplayBots = (props: Props) => {
       description: description,
       botId: id
     }
-    dispatch(BotService.createBotCammand(data))
+    BotService.createBotCammand(data)
     setName('')
     setDescription('')
   }
@@ -120,10 +119,10 @@ const DisplayBots = (props: Props) => {
                   </Grid>
                   <Grid item xs={4} style={{ display: 'flex' }}>
                     <div style={{ marginLeft: 'auto' }}>
-                      <IconButton onClick={() => handleOpenModel(bot)}>
+                      <IconButton onClick={() => handleOpenModel(bot)} size="large">
                         <Edit style={{ color: '#fff' }} />
                       </IconButton>
-                      <IconButton onClick={() => dispatch(BotService.removeBots(bot.id))}>
+                      <IconButton onClick={() => BotService.removeBots(bot.id)} size="large">
                         <DeleteIcon style={{ color: '#fff' }} />
                       </IconButton>
                     </div>
@@ -189,7 +188,8 @@ const DisplayBots = (props: Props) => {
                             <IconButton
                               edge="end"
                               aria-label="delete"
-                              onClick={() => dispatch(BotService.removeBotsCommand(el.id))}
+                              onClick={() => BotService.removeBotsCommand(el.id)}
+                              size="large"
                             >
                               <DeleteIcon style={{ color: '#fff' }} />
                             </IconButton>

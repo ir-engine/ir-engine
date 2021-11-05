@@ -1,25 +1,23 @@
 import React from 'react'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
 import { useCreatorStyles, useCreatorStyle } from './styles'
 import { creatorColumns, CreatorData } from './Variables'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import TablePagination from '@material-ui/core/TablePagination'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import TablePagination from '@mui/material/TablePagination'
 import ViewCreator from './ViewCreator'
-import { CreatorService } from '@xrengine/gallery/src/reducers/creator/CreatorService'
-import { useCreatorState } from '../../../reducers/creator/CreatorState'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
 
 interface Props {}
 
@@ -52,7 +50,7 @@ const CreatorTable = (props: Props) => {
 
   const deleteCreatorHandler = () => {
     setShowWarning(false)
-    dispatch(CreatorService.deleteCreator(creatorId))
+    CreatorService.deleteCreator(creatorId)
   }
 
   const handleCloseWarning = () => {
@@ -72,7 +70,7 @@ const CreatorTable = (props: Props) => {
 
   React.useEffect(() => {
     if (user.id.value && creator.updateNeeded.value) {
-      dispatch(CreatorService.fetchCreatorAsAdmin())
+      CreatorService.fetchCreatorAsAdmin()
     }
   }, [user, creator])
 

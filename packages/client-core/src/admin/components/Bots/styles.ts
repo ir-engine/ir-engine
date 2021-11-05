@@ -1,4 +1,7 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+
+import makeStyles from '@mui/styles/makeStyles'
+import createStyles from '@mui/styles/createStyles'
 
 const useStylesForBots = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,7 +50,13 @@ const useStylesForBots = makeStyles((theme: Theme) =>
       transform: 'scale(0.8)'
     },
     title: {
-      fontSize: 20
+      fontSize: 20,
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      [theme.breakpoints.down('sm')]: {
+        fontSize: 14
+      }
     },
     pos: {
       marginBottom: 12
@@ -56,10 +65,15 @@ const useStylesForBots = makeStyles((theme: Theme) =>
       height: '50px',
       background: '#343b41',
       color: '#fff',
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
       borderBottom: '1px solid #23282c',
       borderRadius: '0px',
-      paddingTop: '8px',
-      paddingLeft: '20px'
+      paddingLeft: '20px',
+      [theme.breakpoints.down('md')]: {
+        paddingLeft: '5px'
+      }
     },
     alterContainer: {
       background: '#343b41',
@@ -142,16 +156,23 @@ const useStylesForBots = makeStyles((theme: Theme) =>
       width: '150px',
       boxShadow:
         '0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%) !important',
-      [theme.breakpoints.down('xs')]: {
+      [theme.breakpoints.down('md')]: {
         width: '80px',
         fontSize: '0.7rem'
+      }
+    },
+    saveBtnIcon: {
+      marginRight: '10px',
+      [theme.breakpoints.down('md')]: {
+        marginRight: '5px'
       }
     },
     smFont: {
       fontSize: '20px',
       marginLeft: '10px',
-      [theme.breakpoints.down('xs')]: {
-        fontSize: '15px'
+      [theme.breakpoints.down('md')]: {
+        fontSize: '14px',
+        marginLeft: '5px'
       }
     }
   })

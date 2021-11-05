@@ -1,14 +1,13 @@
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import Typography from '@mui/material/Typography'
+import { useDispatch } from '../../../store'
 import React, { useState } from 'react'
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
-import Container from '@material-ui/core/Container'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { AuthService } from '../../reducers/auth/AuthService'
-import Grid from '@material-ui/core/Grid'
-import styles from './Auth.module.scss'
-import OutlinedInput from '@material-ui/core/OutlinedInput'
 import { useTranslation } from 'react-i18next'
+import { AuthService } from '../../services/AuthService'
+import styles from './Auth.module.scss'
 
 interface Props {
   classes: any
@@ -27,7 +26,7 @@ const ForgotPasswordComponent = (props: Props): any => {
 
   const handleForgot = (e: any): void => {
     e.preventDefault()
-    dispatch(AuthService.forgotPassword(state.email))
+    AuthService.forgotPassword(state.email)
     setState({ ...state, isSubmitted: true })
   }
 

@@ -36,7 +36,7 @@ function redirect(req, res, next): any {
   }
 }
 
-export default (app: Application): any => {
+export default (app: Application) => {
   const options = {
     paginate: app.get('paginate')
   }

@@ -1,16 +1,16 @@
-import Button from '@material-ui/core/Button'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/reducers/auth/AuthService'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { CreatorService } from '../../reducers/creator/CreatorService'
-import { WebxrNativeService } from '../../reducers/webxr_native/WebxrNativeService'
+import Button from '@mui/material/Button'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
+import { WebxrNativeService } from '@xrengine/client-core/src/social/services/WebxrNativeService'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
+
 import { FacebookIcon } from '../../../../client-core/src/common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../client-core/src/common/components/Icons/LinkedInIcon'
@@ -20,13 +20,12 @@ import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src
 import * as polyfill from 'credential-handler-polyfill'
 import styles from './Registration.module.scss'
 import { useTranslation } from 'react-i18next'
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useSnackbar, SnackbarOrigin } from 'notistack'
-
-import { getStoredAuthState } from '@xrengine/client-core/src/persisted.store'
 
 import { Link, useHistory, Redirect } from 'react-router-dom'
 import ChangedUserName from './ChangedUserName'
+import CloseSnackbarComponent from '../../components/buttons/CloseSnackbarComponent'
 
 const Registration = (props: any): any => {
   const {
@@ -98,11 +97,33 @@ const Registration = (props: any): any => {
   const callBacksFromUpdateUsername = (str: string) => {
     switch (str) {
       case 'succes': {
-        enqueueSnackbar('Data saved successfully', { variant: 'success', anchorOrigin })
+        const succes = enqueueSnackbar('Data saved successfully', {
+          variant: 'success',
+          anchorOrigin,
+          action: [
+            <CloseSnackbarComponent
+              key="closeSnackbar"
+              handleClose={() => {
+                closeSnackbar(succes)
+              }}
+            />
+          ]
+        })
         break
       }
       case 'reject': {
-        enqueueSnackbar('This name is already taken', { variant: 'error', anchorOrigin })
+        const reject = enqueueSnackbar('This name is already taken', {
+          variant: 'error',
+          anchorOrigin,
+          action: [
+            <CloseSnackbarComponent
+              key="closeSnackbar"
+              handleClose={() => {
+                closeSnackbar(reject)
+              }}
+            />
+          ]
+        })
         break
       }
     }
@@ -115,8 +136,8 @@ const Registration = (props: any): any => {
 
   useEffect(() => {
     if (accessToken || crutch) {
-      dispatch(AuthService.doLoginAuto(true))
-      dispatch(WebxrNativeService.getWebXrNative())
+      AuthService.doLoginAuto(true)
+      WebxrNativeService.getWebXrNative()
     }
   }, [accessToken, crutch])
 
@@ -128,18 +149,18 @@ const Registration = (props: any): any => {
     if (checkRole(selfUser.userRole.value) || (selfUser.id.value !== '' && continueAsGuest)) {
       history.push('/')
     } else if (registrationServiceClick?.length > 0 && selfUser.userRole.value === 'guest') {
-      dispatch(AuthService.loginUserByOAuth(registrationServiceClick))
+      AuthService.loginUserByOAuth(registrationServiceClick)
     }
   }, [selfUser.id.value, continueAsGuest, selfUser.userRole.value, registrationServiceClick])
 
   useEffect(() => {
     if (auth?.authUser?.accessToken && auth?.user?.id.value) {
-      dispatch(CreatorService.createCreator())
+      CreatorService.createCreator()
     }
   }, [auth.isLoggedIn.value, auth.user.id.value])
 
   const handleUpdateUsername = () => {
-    dispatch(CreatorService.updateCreator(creator, callBacksFromUpdateUsername))
+    CreatorService.updateCreator(creator, callBacksFromUpdateUsername)
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
 
@@ -164,10 +185,10 @@ const Registration = (props: any): any => {
     e.preventDefault()
     if (!validate()) return
     if (type === 'email') {
-      dispatch(AuthService.addConnectionByEmail(emailPhone, authData.user.id))
+      AuthService.addConnectionByEmail(emailPhone, authData.user.id)
     }
     if (type === 'sms') {
-      dispatch(AuthService.addConnectionBySms(emailPhone, authData.user.id))
+      AuthService.addConnectionBySms(emailPhone, authData.user.id)
     }
     setDisabledButtonLogIn(true)
     enqueueSnackbar('Please check your mail', { variant: 'success', anchorOrigin })

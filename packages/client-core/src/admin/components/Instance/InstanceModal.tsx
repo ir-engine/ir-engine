@@ -1,29 +1,29 @@
-import Backdrop from '@material-ui/core/Backdrop'
-import Button from '@material-ui/core/Button'
-import Fade from '@material-ui/core/Fade'
-import Modal from '@material-ui/core/Modal'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import Snackbar from '@material-ui/core/Snackbar'
-import { makeStyles, Theme } from '@material-ui/core/styles'
-import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
+import Backdrop from '@mui/material/Backdrop'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import Modal from '@mui/material/Modal'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TableSortLabel from '@mui/material/TableSortLabel'
+import Snackbar from '@mui/material/Snackbar'
+import { Theme } from '@mui/material/styles'
+import makeStyles from '@mui/styles/makeStyles'
+import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import classNames from 'classnames'
 import { useHistory } from 'react-router-dom'
 import React, { useEffect, useRef, useState } from 'react'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
 import { client } from '../../../feathers'
 import styles from '../Admin.module.scss'
-
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { User } from '@xrengine/common/src/interfaces/User'
 interface Props {
   open: boolean
   handleClose: any
-  instance?: any
+  instance?: Instance
 }
 
 function Alert(props: AlertProps) {
@@ -46,12 +46,12 @@ const InstanceModal = (props: Props): any => {
   const classes = useStyles()
   const [openToast, setOpenToast] = React.useState(false)
   const [message, setMessage] = React.useState('')
-  const currentInstanceId = useRef()
+  const currentInstanceId = useRef(0)
 
-  const [instanceUsers, setInstanceUsers] = useState([])
+  const [instanceUsers, setInstanceUsers] = useState<User[]>([])
 
   const getInstanceUsers = async () => {
-    if (instance?.id != null && instance?.id !== '' && currentInstanceId.current === instance.id) {
+    if (instance?.id != null && instance?.id !== 0 && currentInstanceId.current === instance.id) {
       const instanceUserResult = await client.service('user').find({
         query: {
           $limit: 1000,
@@ -71,7 +71,7 @@ const InstanceModal = (props: Props): any => {
   }
 
   useEffect(() => {
-    currentInstanceId.current = instance?.id
+    currentInstanceId.current = instance?.id || 0
     getInstanceUsers()
   }, [instance])
 
@@ -94,8 +94,8 @@ const InstanceModal = (props: Props): any => {
 
   const redirectToInstance = async () => {
     try {
-      const location = await client.service('location').get(instance.locationId)
-      const route = `/location/${location.slugifiedName}?instanceId=${instance.id}`
+      const location = await client.service('location').get(instance?.locationId)
+      const route = `/location/${location.slugifiedName}?instanceId=${instance?.id}`
       router.push(route)
     } catch (err) {
       console.log('Error redirecting to instance:')

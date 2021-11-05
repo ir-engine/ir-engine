@@ -1,29 +1,28 @@
 import React from 'react'
-import Drawer from '@material-ui/core/Drawer'
-import Button from '@material-ui/core/Button'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import DialogActions from '@material-ui/core/DialogActions'
-import Container from '@material-ui/core/Container'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Snackbar from '@material-ui/core/Snackbar'
-import MuiAlert from '@material-ui/lab/Alert'
+import Drawer from '@mui/material/Drawer'
+import Button from '@mui/material/Button'
+import { useDispatch } from '../../../store'
+import DialogActions from '@mui/material/DialogActions'
+import Container from '@mui/material/Container'
+import DialogTitle from '@mui/material/DialogTitle'
+import Snackbar from '@mui/material/Snackbar'
+import MuiAlert from '@mui/material/Alert'
 import { useLocationStyles, useLocationStyle } from './styles'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import MenuItem from '@material-ui/core/MenuItem'
-import Select from '@material-ui/core/Select'
-import Grid from '@material-ui/core/Grid'
-import FormControl from '@material-ui/core/FormControl'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import FormGroup from '@material-ui/core/FormGroup'
-import Switch from '@material-ui/core/Switch'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import Grid from '@mui/material/Grid'
+import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormGroup from '@mui/material/FormGroup'
+import Switch from '@mui/material/Switch'
 import { useTranslation } from 'react-i18next'
-import { useLocationState } from '../../reducers/admin/location/LocationState'
-import { useSceneState } from '../../reducers/admin/scene/SceneState'
-import { LocationService } from '../../reducers/admin/location/LocationService'
+import { useLocationState } from '../../services/LocationService'
+import { useSceneState } from '../../services/SceneService'
+import { LocationService } from '../../services/LocationService'
 import { validateUserForm } from '../Users/validation'
-import { useAlertState } from '../../../common/reducers/alert/AlertState'
+import { useAlertState } from '../../../common/services/AlertService'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -158,7 +157,7 @@ const CreateLocation = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
-      dispatch(LocationService.createLocation(data))
+      LocationService.createLocation(data)
       //  closeViewModel(false)
     } else {
       setError('Please fill all required field')
@@ -366,10 +365,10 @@ const CreateLocation = (props: Props) => {
             </Grid>
           </Grid>
           <DialogActions>
-            <Button className={classesx.saveBtn} onClick={handleSubmit}>
+            <Button className={classes.saveBtn} onClick={handleSubmit}>
               Submit
             </Button>
-            <Button onClick={handleClose(false)} className={classesx.saveBtn}>
+            <Button onClick={handleClose(false)} className={classes.saveBtn}>
               Cancel
             </Button>
           </DialogActions>

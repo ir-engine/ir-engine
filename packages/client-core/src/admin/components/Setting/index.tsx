@@ -1,6 +1,6 @@
 import React from 'react'
 import { useStyles } from './styles'
-import { Typography, Grid } from '@material-ui/core'
+import { Typography, Grid } from '@mui/material'
 import Authentication from './Authentication'
 import Email from './Email'
 import GameServer from './GameServer'
@@ -10,11 +10,11 @@ import Aws from './Aws'
 import ChargeBee from './Chargebee'
 import Redis from './Redis'
 import Sidebar from './SideBar'
-import MenuIcon from '@material-ui/icons/Menu'
-import Button from '@material-ui/core/Button'
-import Badge from '@material-ui/core/Badge'
-import IconButton from '@material-ui/core/IconButton'
-import ClearIcon from '@material-ui/icons/Clear'
+import MenuIcon from '@mui/icons-material/Menu'
+import Button from '@mui/material/Button'
+import Badge from '@mui/material/Badge'
+import IconButton from '@mui/material/IconButton'
+import ClearIcon from '@mui/icons-material/Clear'
 import Analytics from './Analytics'
 
 const Setting = () => {
@@ -301,6 +301,7 @@ const Setting = () => {
             handleClient={handleClient}
             handleGameServer={handleGameServer}
             handleServer={handleServer}
+            handleAnalytics={handleAnalytics}
             serverFocused={serverFocused}
             awsFocused={awsFocused}
             emailFocused={emailFocused}
@@ -309,6 +310,7 @@ const Setting = () => {
             authFocused={authFocused}
             chargebeeFocused={chargebeeFocused}
             redisFocused={redisFocused}
+            analyticsFocused={analyticsFocused}
           />
         </Grid>
         <Grid item xs={12} sm={9} lg={9}>

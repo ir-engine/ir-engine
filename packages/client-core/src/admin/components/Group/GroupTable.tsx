@@ -1,23 +1,22 @@
 import React from 'react'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Button from '@material-ui/core/Button'
-import { TableContainer, TableHead, TablePagination, TableRow } from '@material-ui/core'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
-import { useGroupState } from '../../reducers/admin/group/GroupState'
-import { GroupService } from '../../reducers/admin/group/GroupService'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import Button from '@mui/material/Button'
+import { TableContainer, TableHead, TablePagination, TableRow } from '@mui/material'
+import { useDispatch } from '../../../store'
+import { useGroupState } from '../../services/GroupService'
+import { GroupService } from '../../services/GroupService'
+import { useAuthState } from '../../../user/services/AuthService'
 import { columns, Data } from './Variables'
 import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
-import { GROUP_PAGE_LIMIT } from '../../reducers/admin/group/GroupState'
+import { GROUP_PAGE_LIMIT } from '../../services/GroupService'
 
 interface Props {}
 
@@ -39,7 +38,7 @@ const GroupTable = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(GroupService.getGroupService(incDec))
+    GroupService.getGroupService(incDec)
     setPage(newPage)
   }
 
@@ -50,8 +49,10 @@ const GroupTable = (props: Props) => {
 
   const handleViewGroup = (id: string) => {
     const group = adminGroups.value.find((group) => group.id === id)
-    setSingleGroup(group)
-    setViewModel(true)
+    if (group !== null) {
+      setSingleGroup(group)
+      setViewModel(true)
+    }
   }
 
   const handleCloseWarning = () => {
@@ -65,7 +66,7 @@ const GroupTable = (props: Props) => {
 
   const deleteGroupHandler = () => {
     setShowWarning(false)
-    dispatch(GroupService.deleteGroupByAdmin(groupId))
+    GroupService.deleteGroupByAdmin(groupId)
   }
 
   const closeViewModel = (open) => {
@@ -73,7 +74,7 @@ const GroupTable = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (adminGroupState.group.updateNeeded.value) dispatch(GroupService.getGroupService())
+    if (adminGroupState.group.updateNeeded.value) GroupService.getGroupService()
   }, [adminGroupState.group.updateNeeded.value, user])
 
   const createData = (id: any, name: any, description: string): Data => {

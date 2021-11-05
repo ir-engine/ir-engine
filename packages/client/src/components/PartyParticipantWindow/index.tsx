@@ -1,6 +1,6 @@
-import IconButton from '@material-ui/core/IconButton'
-import Slider from '@material-ui/core/Slider'
-import Tooltip from '@material-ui/core/Tooltip'
+import IconButton from '@mui/material/IconButton'
+import Slider from '@mui/material/Slider'
+import Tooltip from '@mui/material/Tooltip'
 import {
   Launch,
   Mic,
@@ -13,21 +13,18 @@ import {
   VolumeMute,
   VolumeOff,
   VolumeUp
-} from '@material-ui/icons'
-import { useAppState } from '@xrengine/client-core/src/common/reducers/app/AppState'
-import { useLocationState } from '@xrengine/client-core/src/social/reducers/location/LocationState'
+} from '@mui/icons-material'
+import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import { useAuthState } from '@xrengine/client-core/src/user/reducers/auth/AuthState'
-import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
-import { MediaStreamService } from '../../reducers/mediastream/MediaStreamService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import classNames from 'classnames'
 import React, { useEffect, useRef, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { Dispatch } from 'redux'
-import { useMediaStreamState } from '../../reducers/mediastream/MediaStreamState'
 import {
   globalMuteProducer,
   globalUnmuteProducer,
@@ -35,7 +32,7 @@ import {
   pauseProducer,
   resumeConsumer,
   resumeProducer
-} from '../../transports/SocketWebRTCClientFunctions'
+} from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import Draggable from './Draggable'
 import styles from './PartyParticipantWindow.module.scss'
 import { Downgraded } from '@hookstate/core'

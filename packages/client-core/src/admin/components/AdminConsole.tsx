@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import Button from '@material-ui/core/Button'
-import GridList from '@material-ui/core/GridList'
-import GridListTile from '@material-ui/core/GridListTile'
-import GridListTileBar from '@material-ui/core/GridListTileBar'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import IconButton from '@material-ui/core/IconButton'
-import InfoIcon from '@material-ui/icons/Info'
-import { connect, useDispatch } from 'react-redux'
-import Container from '@material-ui/core/Container'
-import { bindActionCreators, Dispatch } from 'redux'
+import Button from '@mui/material/Button'
+import ImageList from '@mui/material/ImageList'
+import ImageListItem from '@mui/material/ImageListItem'
+import ImageListItemBar from '@mui/material/ImageListItemBar'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import IconButton from '@mui/material/IconButton'
+import InfoIcon from '@mui/icons-material/Info'
+import { useDispatch } from '../../store'
+import Container from '@mui/material/Container'
 import styles from './Admin.module.scss'
 import VideoModal from './VideoModal'
 import { useHistory } from 'react-router-dom'
-import { useVideoState } from '../../media/components/video/VideoState'
-import { useAuthState } from '../../user/reducers/auth/AuthState'
-import { AdminService } from '../reducers/admin/AdminService'
+import { useVideoState } from '../../media/services/VideoService'
+import { useAuthState } from '../../user/services/AuthService'
+import { AdminService } from '../services/AdminService'
 
 interface Props {}
 
@@ -41,7 +40,7 @@ const AdminConsole = (props: Props): any => {
   const [state, setState] = useState(initialState)
   const videos = useVideoState()
   useEffect(() => {
-    dispatch(AdminService.fetchAdminVideos())
+    AdminService.fetchAdminVideos()
   }, [])
 
   const handleCreateModal = (): void => {
@@ -87,21 +86,21 @@ const AdminConsole = (props: Props): any => {
           </div>
           <Container component="main" maxWidth="md">
             <div className={styles.admin}>
-              <GridList className={styles.grid} cellHeight={200} cols={2}>
+              <ImageList className={styles.grid} cellHeight={200} cols={2}>
                 {videos.videos.value.map((video) => (
-                  <GridListTile className={styles.cell} key={video.id} cols={1}>
+                  <ImageListItem className={styles.cell} key={video.id} cols={1}>
                     <img src={video.metadata.thumbnailUrl} alt={video.name} />
-                    <GridListTileBar
+                    <ImageListItemBar
                       title={video.name}
                       actionIcon={
-                        <IconButton className={styles['info-icon']} onClick={() => handleEditModal(video)}>
+                        <IconButton className={styles['info-icon']} onClick={() => handleEditModal(video)} size="large">
                           <InfoIcon />
                         </IconButton>
                       }
                     />
-                  </GridListTile>
+                  </ImageListItem>
                 ))}
-              </GridList>
+              </ImageList>
             </div>
             <VideoModal open={state.modalOpen} handleClose={modalClose} mode={state.modalMode} video={state.video} />
           </Container>

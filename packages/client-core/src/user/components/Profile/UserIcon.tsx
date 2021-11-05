@@ -1,14 +1,13 @@
 import React, { useState } from 'react'
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
-import Button from '@material-ui/core/Button'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import Button from '@mui/material/Button'
+import { useDispatch } from '../../../store'
 import styles from './Profile.module.scss'
-import TextField from '@material-ui/core/TextField'
+import TextField from '@mui/material/TextField'
 import classNames from 'classnames'
-import { AuthService } from '../../reducers/auth/AuthService'
+import { AuthService } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '../../reducers/auth/AuthState'
+import { useAuthState } from '../../services/AuthService'
 
 interface Props {
   avatarUrl: string
@@ -42,7 +41,7 @@ const UserProfile = (props: Props): any => {
   }
 
   const handleSubmit = async (): Promise<void> => {
-    await dispatch(AuthService.uploadAvatar(file))
+    await AuthService.uploadAvatar(file)
   }
 
   const handleUsernameChange = (e: any): void => {
@@ -50,7 +49,7 @@ const UserProfile = (props: Props): any => {
     setUsername(name)
   }
   const updateUsername = async (): Promise<void> => {
-    await dispatch(AuthService.updateUsername(user.id.value, username))
+    await AuthService.updateUsername(user.id.value, username)
   }
   return (
     <div className={styles['user-container']}>

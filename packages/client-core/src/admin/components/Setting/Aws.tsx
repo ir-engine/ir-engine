@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react'
-import { Grid, Paper, Button, Typography } from '@material-ui/core'
-import InputBase from '@material-ui/core/InputBase'
-import { useAdminAwsSettingState } from '../../reducers/admin/Setting/aws/AwsSettingState'
-import { AwsSettingService } from '../../reducers/admin/Setting/aws/AwsSettingServices'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect, useDispatch } from 'react-redux'
+import { Grid, Paper, Button, Typography } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
+import { useAdminAwsSettingState } from '../../services/Setting/AwsSettingService'
+import { AwsSettingService } from '../../services/Setting/AwsSettingService'
+import { useDispatch } from '../../../store'
 import { useStyles } from './styles'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
+import { useAuthState } from '../../../user/services/AuthService'
 
 interface Props {}
 
@@ -19,7 +18,7 @@ const Aws = (props: Props) => {
   const user = authState.user
   useEffect(() => {
     if (user?.id?.value != null && awsSettingState?.awsSettings?.updateNeeded?.value) {
-      dispatch(AwsSettingService.fetchAwsSetting())
+      AwsSettingService.fetchAwsSetting()
     }
   }, [authState])
 

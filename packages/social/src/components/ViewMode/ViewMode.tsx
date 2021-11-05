@@ -1,19 +1,20 @@
 import React, { forwardRef, useState } from 'react'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import Slide from '@material-ui/core/Slide'
-import { TransitionProps } from '@material-ui/core/transitions'
-import { PopupsStateService } from '../../reducers/popupsState/PopupsStateService'
-import { connect, useDispatch } from 'react-redux'
-import { useCreatorState } from '../../reducers/creator/CreatorState'
-import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import Slide from '@mui/material/Slide'
+import { TransitionProps } from '@mui/material/transitions'
+import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
+import { Box, CardMedia, Typography } from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
 import { useTranslation } from 'react-i18next'
 import StepWizard from 'react-step-wizard'
 // import { Plugins } from '@capacitor/core';
 //
 // const {XRPlugin} = Plugins;
 import { XRPlugin } from 'webxr-native'
-import { CreatorService } from '../../reducers/creator/CreatorService'
+import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 
 // @ts-ignore
 import classes from './ViewMode.module.scss'
@@ -157,7 +158,7 @@ export const ViewMode = ({ onGoRegistration }: any) => {
 
   const handleOpenNewFeedPage = () => {
     setOpen(false)
-    dispatch(PopupsStateService.updateArMediaState(true))
+    PopupsStateService.updateArMediaState(true)
   }
 
   return (

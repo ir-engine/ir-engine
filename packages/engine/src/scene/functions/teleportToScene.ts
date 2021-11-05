@@ -55,7 +55,7 @@ export const teleportToScene = async (
   Engine.scene.add(hyperspaceEffect)
 
   // TODO add an ECS thing somewhere to update this properly
-  const delta = 1 / 60
+  const { delta } = world
   const camera = Engine.scene.getObjectByProperty('isPerspectiveCamera', true as any) as PerspectiveCamera
   camera.zoom = 1.5
   const hyperSpaceUpdateInterval = setInterval(() => {

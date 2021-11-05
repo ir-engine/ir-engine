@@ -1,26 +1,25 @@
 import React from 'react'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import { Dispatch, bindActionCreators } from 'redux'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
 import { useSceneStyles, useSceneStyle } from './styles'
 import { sceneColumns, SceneData } from './variables'
-import TablePagination from '@material-ui/core/TablePagination'
-import { SceneService } from '../../reducers/admin/scene/SceneService'
-import { connect, useDispatch } from 'react-redux'
-import { useAuthState } from '../../../user/reducers/auth/AuthState'
-import { useSceneState } from '../../reducers/admin/scene/SceneState'
+import TablePagination from '@mui/material/TablePagination'
+import { SceneService } from '../../services/SceneService'
+import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/services/AuthService'
+import { useSceneState } from '../../services/SceneService'
 import ViewScene from './ViewScene'
-import { SCENE_PAGE_LIMIT } from '../../reducers/admin/scene/SceneState'
+import { SCENE_PAGE_LIMIT } from '../../services/SceneService'
 
 interface Props {}
 
@@ -33,7 +32,7 @@ const SceneTable = (props: Props) => {
   const scene = useSceneState().scenes
   const sceneData = scene?.scenes
   const sceneCount = scene?.total
-  const [singleScene, setSingleScene] = React.useState('')
+  const [singleScene, setSingleScene] = React.useState(null)
   const [open, setOpen] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)
   const [sceneId, setSceneId] = React.useState('')
@@ -43,13 +42,13 @@ const SceneTable = (props: Props) => {
 
   React.useEffect(() => {
     if (user.id.value && scene.updateNeeded.value) {
-      dispatch(SceneService.fetchAdminScenes())
+      SceneService.fetchAdminScenes()
     }
   }, [user, scene.updateNeeded.value])
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    dispatch(SceneService.fetchAdminScenes(incDec))
+    SceneService.fetchAdminScenes(incDec)
     setPage(newPage)
   }
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,8 +62,10 @@ const SceneTable = (props: Props) => {
 
   const handleViewScene = (id: string) => {
     const scene = sceneData?.value.find((sc) => sc.id === id)
-    setSingleScene(scene)
-    setOpen(true)
+    if (scene !== undefined) {
+      setSingleScene(scene)
+      setOpen(true)
+    }
   }
 
   const handleShowWarning = (id: string) => {
@@ -78,7 +79,7 @@ const SceneTable = (props: Props) => {
 
   const deleteSceneHandler = () => {
     setShowWarning(false)
-    dispatch(SceneService.deleteScene(sceneId))
+    SceneService.deleteScene(sceneId)
   }
 
   const createData = (

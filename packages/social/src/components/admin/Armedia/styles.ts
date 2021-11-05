@@ -1,4 +1,7 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 
 export const useARMediaStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -82,7 +85,7 @@ export const useARMediaStyles = makeStyles((theme: Theme) =>
       width: '100%'
     },
     container: {
-      maxHeight: '80vh'
+      maxHeight: '73vh'
     },
     rootCard: {
       maxWidth: 345,
@@ -247,7 +250,7 @@ export const useARMediaStyle = makeStyles({
 export const useStylePlayer = makeStyles((theme) => {
   return {
     root: {
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         width: '100%'
       },
       background: '#43484F !important'

@@ -1,14 +1,12 @@
-import Button from '@material-ui/core/Button'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import { Check, Close, Create, GitHub, Send } from '@material-ui/icons'
-import { useAuthState } from '../../../reducers/auth/AuthState'
-import { AuthService } from '../../../reducers/auth/AuthService'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import Button from '@mui/material/Button'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
+import { useAuthState } from '../../../services/AuthService'
+import { AuthService } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '../../../../store'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
@@ -75,7 +73,7 @@ const ProfileMenu = (props: Props): any => {
     const name = username.trim()
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
-      dispatch(AuthService.updateUsername(selfUser.id.value, name))
+      AuthService.updateUsername(selfUser.id.value, name)
     }
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
@@ -96,19 +94,19 @@ const ProfileMenu = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') dispatch(AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value))
-    else if (type === 'sms') dispatch(AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value))
+    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value)
+    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value)
     return
   }
 
   const handleOAuthServiceClick = (e) => {
-    dispatch(AuthService.loginUserByOAuth(e.currentTarget.id))
+    AuthService.loginUserByOAuth(e.currentTarget.id)
   }
 
   const handleLogout = async (e) => {
     if (changeActiveMenu != null) changeActiveMenu(null)
     else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
-    await dispatch(AuthService.logoutUser())
+    await AuthService.logoutUser()
     // window.location.reload()
   }
 
@@ -136,7 +134,7 @@ const ProfileMenu = (props: Props): any => {
     const result: any = await navigator.credentials.get(didAuthQuery)
     console.log(result)
 
-    dispatch(AuthService.loginUserByXRWallet(result))
+    AuthService.loginUserByXRWallet(result)
   }
 
   return (
@@ -157,11 +155,13 @@ const ProfileMenu = (props: Props): any => {
             )}
           </div>
           <div className={styles.headerBlock}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              {t('user:usermenu.profile.lbl-username')}
+            </Typography>
             <span className={styles.inputBlock}>
               <TextField
                 margin="none"
                 size="small"
-                label={t('user:usermenu.profile.lbl-username')}
                 name="username"
                 variant="outlined"
                 value={username || ''}
@@ -252,11 +252,11 @@ const ProfileMenu = (props: Props): any => {
                   {t('user:usermenu.profile.connectSocial')}
                 </Typography>
                 <div className={styles.socialContainer}>
-                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
                   <a href="#" id="google" onClick={handleOAuthServiceClick}>
                     <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
+                  </a>
+                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
+                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                   </a>
                   <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
                     <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
