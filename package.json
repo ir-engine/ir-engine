@@ -147,6 +147,6 @@
     "@iconify/react": "3.0.1",
     "@mui/styles": "5.0.2",
     "depcheck": "1.4.2",
-    "react-dnd": "^14.0.4"
+    "react-dnd": "14.0.4"
   }
 }
