@@ -37,6 +37,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
+import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 
 //State
 const state = createState({
@@ -78,7 +79,7 @@ store.receptors.push((action: AuthActionType): void => {
       case 'LOADED_USER_DATA':
         return s.merge({ user: action.user })
       case 'RESTORE': {
-        const stored = getStoredAuthState()
+        const stored = accessStoredLocalState().attach(Downgraded).authData.value
         if (stored) {
           return s.merge({
             isLoggedIn: stored.isLoggedIn,
@@ -130,7 +131,9 @@ accessAuthState().attach(() => ({
   id: Symbol('AuthPersist'),
   init: () => ({
     onSet(arg) {
-      saveAuthState(accessAuthState().value)
+      const state = accessAuthState().attach(Downgraded).value
+      const dispatch = useDispatch()
+      if (state.isLoggedIn) dispatch(StoredLocalAction.storedLocal({ authData: state }))
     }
   })
 }))
@@ -140,7 +143,7 @@ export const AuthService = {
   doLoginAuto: async (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
     const dispatch = useDispatch()
     try {
-      const authData = getStoredAuthState()
+      const authData = accessStoredLocalState().attach(Downgraded).authData.value
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
@@ -331,7 +334,7 @@ export const AuthService = {
       window.location.href = redirectUrl
     }
   },
-  loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string): any => {
+  loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
     const dispatch = useDispatch()
     {
       try {
@@ -1109,22 +1112,6 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       store.dispatch(AuthAction.userUpdated(user))
     }
   })
-}
-
-export function getStoredAuthState() {
-  if (!window) {
-    return undefined
-  }
-  const rawState = localStorage.getItem(Config.publicRuntimeConfig.localStorageKey)
-  if (!rawState) {
-    return undefined
-  }
-  const state = JSON.parse(rawState)
-  return state
-}
-
-export function saveAuthState(state: any) {
-  if (state.isLoggedIn) localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(state))
 }
 
 // Action
