@@ -61,8 +61,10 @@ export const useRouteStyles = makeStyles((theme: Theme) =>
       color: '#f1f1f1 !important',
       borderBottom: '2px solid #23282c !important'
     },
+    checkboxContainer: {
+      padding: '0px'
+    },
     tableCellBody: {
-      padding: '0px',
       borderBottom: '1px solid #23282c !important',
       color: '#f1f1f1 !important'
     },

@@ -48,7 +48,13 @@ const ContentPacksConsole = (props: Props) => {
   return (
     <div>
       <ConfirmProvider>
-        <Button variant="contained" color="primary" onClick={openDownloadModal}>
+        <Button
+          className={styles['open-modal']}
+          type="button"
+          variant="contained"
+          color="primary"
+          onClick={openDownloadModal}
+        >
           Download From URL
         </Button>
       </ConfirmProvider>
