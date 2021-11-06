@@ -1,14 +1,12 @@
-import React, { useEffect } from 'react'
-import { Route, Switch } from 'react-router-dom'
-const editor = React.lazy(() => import('@xrengine/editor/src/pages/projects'))
-//@ts-ignore
-const projectEditor = React.lazy(() => import('@xrengine/editor/src/pages/[projectName]'))
+import React, { Fragment, Suspense, useEffect } from 'react'
+import ProjectEditor from '@xrengine/editor/src/pages/editor'
 import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDialog'
+import CircularProgress from '@mui/material/CircularProgress'
 
 const EditorProtectedRoutes = () => {
-  const isSceneAllowed = userHasAccess('editor:write')
+  const isSceneAllowed = userHasAccess('editor:read')
 
   useEffect(() => {
     AuthService.doLoginAuto(false)
@@ -16,14 +14,24 @@ const EditorProtectedRoutes = () => {
 
   return (
     <>
-      {isSceneAllowed ? (
-        <Switch>
-          <Route exact path="/editor/:projectName" component={projectEditor} />
-          <Route exact path="/editor" component={editor} />
-        </Switch>
-      ) : (
-        <FormDialog />
-      )}
+      <Fragment>
+        <Suspense
+          fallback={
+            <div
+              style={{
+                height: '100vh',
+                width: '100%',
+                textAlign: 'center',
+                paddingTop: 'calc(50vh - 7px)'
+              }}
+            >
+              <CircularProgress />
+            </div>
+          }
+        >
+          {isSceneAllowed ? <ProjectEditor /> : <FormDialog />}
+        </Suspense>
+      </Fragment>
     </>
   )
 }

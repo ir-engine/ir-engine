@@ -17,9 +17,9 @@ import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { getProjects } from '../../functions/projectFunctions'
 import { CreateProjectModal } from './CreateProjectModal'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { ProjectService } from '@xrengine/client-core/src/admin/services/ProjectService'
-import { SceneService } from '@xrengine/client-core/src/admin/services/SceneService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { EditorAction } from '../../services/EditorServices'
 
 const contextMenuId = 'project-menu'
 
@@ -35,6 +35,7 @@ const ProjectsPage = () => {
 
   const { t } = useTranslation()
   const [createProjectsModalOpen, setCreateProjectsModalOpen] = useState(false)
+  const dispatch = useDispatch()
 
   const fetchItems = async () => {
     setLoading(true)
@@ -45,11 +46,6 @@ const ProjectsPage = () => {
       setLoading(false)
     } catch (error) {
       console.error(error)
-      if (error.response && error.response.status === 401) {
-        // User has an invalid auth token. Prompt them to login again.
-        // return (this.props as any).history.push("/", { from: "/projects" });
-        return router.push('/editor')
-      }
       setError(error)
     }
     setLoading(false)
@@ -72,9 +68,7 @@ const ProjectsPage = () => {
     }
   }
 
-  const openTutorial = () => {
-    // router.push('/editor/tutorial')
-  }
+  const openTutorial = () => {}
 
   /**
    *function to adding a route to the router object.
@@ -84,7 +78,7 @@ const ProjectsPage = () => {
   }
 
   const onClickExisting = (project) => {
-    router.push(`/editor/${project.name}`)
+    dispatch(EditorAction.projectLoaded(project.name))
   }
 
   const onCreateProject = async (name) => {

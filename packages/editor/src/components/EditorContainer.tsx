@@ -33,6 +33,7 @@ import ScenesPanel from './assets/ScenesPanel'
 import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
 import { DialogContext, useDialog } from './hooks/useDialog'
 import { saveProject } from '../functions/projectFunctions'
+import { useEditorState } from '../services/EditorServices'
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -126,8 +127,8 @@ type EditorContainerProps = {
  *
  *  @author Robert Long
  */
-const EditorContainer = (props: RouteComponentProps<any>) => {
-  const { projectName } = props.match.params
+const EditorContainer = () => {
+  const { projectName } = useEditorState().value
 
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)
@@ -135,6 +136,7 @@ const EditorContainer = (props: RouteComponentProps<any>) => {
   const [DialogComponent, setDialogComponent] = useState(null)
   const [modified, setModified] = useState(false)
   const [sceneName, setSceneName] = useState(null)
+
   const initializeEditor = async () => {
     await Promise.all([ProjectManager.instance.init()])
   }

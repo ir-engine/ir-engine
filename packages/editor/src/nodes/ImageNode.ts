@@ -11,7 +11,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = 'image'
   static nodeName = 'Image'
   static initialElementProps = {
-    src: Engine.publicPath + '/editor/dot.png'
+    src: Engine.publicPath + '/static/editor/dot.png'
   }
   static async deserialize(json, loadAsync, onError) {
     const node = await super.deserialize(json)
