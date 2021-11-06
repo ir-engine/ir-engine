@@ -106,7 +106,7 @@
     "redux": "4.1.2",
     "redux-devtools-extension": "2.13.9",
     "redux-thunk": "2.4.0",
-    "reselect": "4.1.1",
+    "reselect": "4.1.2",
     "semantic-ui-react": "2.0.4",
     "socket.io-client": "4.3.2",
     "styled-components": "5.3.3",
