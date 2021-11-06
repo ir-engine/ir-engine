@@ -63,7 +63,7 @@
     "@feathersjs/transport-commons": "5.0.0-pre.10",
     "@google-cloud/agones-sdk": "1.18.0",
     "@xrengine/engine": "^0.4.10",
-    "@xrengine/realitypacks": "^0.4.8",
+    "@xrengine/realitypacks": "0.4.8",
     "@xrengine/server-core": "^0.4.10",
     "aws-sdk": "2.1023.0",
     "@xrengine/projects": "^0.4.10",
