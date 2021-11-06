@@ -81,12 +81,13 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.interactionType = interactableComponent.props.interactionType
           node.interactionText = interactableComponent.props.interactionText
           node.interactionDistance = interactableComponent.props.interactionDistance
-          node.payloadName = interactableComponent.props.payloadName
-          node.payloadUrl = interactableComponent.props.payloadUrl
-          node.payloadBuyUrl = interactableComponent.props.payloadBuyUrl
-          node.payloadLearnMoreUrl = interactableComponent.props.payloadLearnMoreUrl
-          node.payloadHtmlContent = interactableComponent.props.payloadHtmlContent
-          node.payloadUrl = interactableComponent.props.payloadUrl
+          node.interactionThemeIndex = interactableComponent.props.interactionThemeIndex
+          node.interactionName = interactableComponent.props.interactionName
+          node.interactionDescription = interactableComponent.props.interactionDescription
+          node.interactionImages = interactableComponent.props.interactionImages
+          node.interactionVideos = interactableComponent.props.interactionVideos
+          node.interactionUrls = interactableComponent.props.interactionUrls
+          node.interactionModels = interactableComponent.props.interactionModels
         }
       })()
     )
@@ -269,12 +270,13 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         interactionType: this.interactionType,
         interactionText: this.interactionText,
         interactionDistance: this.interactionDistance,
-        payloadName: this.payloadName,
-        payloadUrl: this.payloadUrl,
-        payloadBuyUrl: this.payloadBuyUrl,
-        payloadLearnMoreUrl: this.payloadLearnMoreUrl,
-        payloadHtmlContent: this.payloadHtmlContent,
-        payloadModelUrl: this._canonicalUrl
+        interactionThemeIndex: this.interactionThemeIndex,
+        interactionName: this.interactionName,
+        interactionDescription: this.interactionDescription,
+        interactionImages: this.interactionImages,
+        interactionVideos: this.interactionVideos,
+        interactionUrls: this.interactionUrls,
+        interactionModels: this.interactionModels
       }
     }
 

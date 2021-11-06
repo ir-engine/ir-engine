@@ -39,6 +39,21 @@ const InteractableOption = [
   }
 ]
 
+const InteractableTheme = [
+  {
+    label: 'Theme 01',
+    value: 0
+  },
+  {
+    label: 'Theme 02',
+    value: 1
+  },
+  {
+    label: 'Theme 03',
+    value: 2
+  }
+]
+
 /**
  * Declaring properties for ModalNodeEditor component.
  *
@@ -148,6 +163,16 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
     CommandManager.instance.setPropertyOnSelection('matrixAutoUpdate', matrixAutoUpdate)
   }
 
+  // function to handle changes in payloadName property
+  onChangeRole = (role, selected) => {
+    CommandManager.instance.setPropertyOnSelection('role', selected.label)
+  }
+
+  //function to handle the changes in target
+  onChangeTarget = (target) => {
+    CommandManager.instance.setPropertyOnSelection('target', target)
+  }
+
   // function to handle changes in interactionType property
   onChangeInteractionType = (interactionType) => {
     CommandManager.instance.setPropertyOnSelection('interactionType', interactionType)
@@ -163,34 +188,39 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
     CommandManager.instance.setPropertyOnSelection('interactionDistance', interactionDistance)
   }
 
-  // function to handle changes in payloadName property
-  onChangePayloadName = (payloadName) => {
-    CommandManager.instance.setPropertyOnSelection('payloadName', payloadName)
+  // function to handle changes in interactionName property
+  onChangeInteractionName = (interactionName) => {
+    CommandManager.instance.setPropertyOnSelection('interactionName', interactionName)
   }
 
-  // function to handle changes in payloadName property
-  onChangeRole = (role, selected) => {
-    CommandManager.instance.setPropertyOnSelection('role', selected.label)
+  // function to handle changes in interactionThemeIndex property
+  onChangeInteractionThemeIndex = (interactionThemeIndex) => {
+    CommandManager.instance.setPropertyOnSelection('interactionThemeIndex', interactionThemeIndex)
   }
 
-  //function to handle the changes in target
-  onChangeTarget = (target) => {
-    CommandManager.instance.setPropertyOnSelection('target', target)
+  // function to handle changes in interactionDescription property
+  onChangeInteractionDescription = (interactionDescription) => {
+    CommandManager.instance.setPropertyOnSelection('interactionDescription', interactionDescription)
   }
 
-  // function to handle changes in payloadUrl
-  onChangePayloadUrl = (payloadUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadUrl', payloadUrl)
+  // function to handle changes in interactionImages property
+  onChangeInteractionImages = (interactionImages) => {
+    CommandManager.instance.setPropertyOnSelection('interactionImages', interactionImages)
   }
 
-  // function to handle changes in payloadBuyUrl
-  onChangePayloadBuyUrl = (payloadBuyUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadBuyUrl', payloadBuyUrl)
+  // function to handle changes in interactionVideos property
+  onChangeInteractionVideos = (interactionVideos) => {
+    CommandManager.instance.setPropertyOnSelection('interactionVideos', interactionVideos)
   }
 
-  // function to handle changes in payloadLearnMoreUrl
-  onChangePayloadLearnMoreUrl = (payloadLearnMoreUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadLearnMoreUrl', payloadLearnMoreUrl)
+  // function to handle changes in interactionModels property
+  onChangeInteractionModels = (interactionModels) => {
+    CommandManager.instance.setPropertyOnSelection('interactionModels', interactionModels)
+  }
+
+  // function to handle changes in interactionUrls property
+  onChangeInteractionUrls = (interactionUrls) => {
+    CommandManager.instance.setPropertyOnSelection('interactionUrls', interactionUrls)
   }
 
   // function to handle changes in payloadHtmlContent
@@ -217,27 +247,50 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
       case 'infoBox':
         return (
           <>
+            <InputGroup name="Interaction Theme" label={this.props.t('editor:properties.interaction.theme')}>
+              <SelectInput
+                options={InteractableTheme}
+                value={node.interactionThemeIndex}
+                onChange={this.onChangeInteractionThemeIndex}
+              />
+            </InputGroup>
+            <InputGroup name="Interaction Name" label={this.props.t('editor:properties.interaction.name')}>
+              <StringInput value={node.interactionName} onChange={this.onChangeInteractionName} />
+            </InputGroup>
+            <InputGroup
+              name="Interaction Description"
+              label={this.props.t('editor:properties.interaction.description')}
+            >
+              <StringInput value={node.interactionDescription} onChange={this.onChangeInteractionDescription} />
+            </InputGroup>
             <ArrayInputGroup
-              name="Name"
-              values={values}
-              onChange={(array) => {}}
-              label={this.props.t('editor:properties.model.lbl-name')}
+              name="Interaction Images"
+              prefix="Image"
+              values={node.interactionImages}
+              onChange={this.onChangeInteractionImages}
+              label={this.props.t('editor:properties.interaction.images')}
             ></ArrayInputGroup>
-            <InputGroup name="Name" label={this.props.t('editor:properties.model.lbl-name')}>
-              <StringInput value={node.payloadName} onChange={this.onChangePayloadName} />
-            </InputGroup>
-            <InputGroup name="Url" label={this.props.t('editor:properties.model.lbl-url')}>
-              <StringInput value={node.payloadUrl} onChange={this.onChangePayloadUrl} />
-            </InputGroup>
-            <InputGroup name="BuyUrl" label={this.props.t('editor:properties.model.lbl-buy')}>
-              <StringInput value={node.payloadBuyUrl} onChange={this.onChangePayloadBuyUrl} />
-            </InputGroup>
-            <InputGroup name="LearnMoreUrl" label={this.props.t('editor:properties.model.lbl-learnMore')}>
-              <StringInput value={node.payloadLearnMoreUrl} onChange={this.onChangePayloadLearnMoreUrl} />
-            </InputGroup>
-            <InputGroup name="HtmlContent" label={this.props.t('editor:properties.model.lbl-htmlContent')}>
-              <StringInput value={node.payloadHtmlContent} onChange={this.onChangePayloadHtmlContent} />
-            </InputGroup>
+            <ArrayInputGroup
+              name="Interaction Videos"
+              prefix="Video"
+              values={node.interactionVideos}
+              onChange={this.onChangeInteractionVideos}
+              label={this.props.t('editor:properties.interaction.videos')}
+            ></ArrayInputGroup>
+            <ArrayInputGroup
+              name="Interaction Urls"
+              prefix="Url"
+              values={node.interactionUrls}
+              onChange={this.onChangeInteractionUrls}
+              label={this.props.t('editor:properties.interaction.urls')}
+            ></ArrayInputGroup>
+            <ArrayInputGroup
+              name="Interaction Models"
+              prefix="Model"
+              values={node.interactionModels}
+              onChange={this.onChangeInteractionModels}
+              label={this.props.t('editor:properties.interaction.models')}
+            ></ArrayInputGroup>
           </>
         )
       default:
@@ -251,10 +304,10 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
       case true:
         return (
           <Fragment>
-            <InputGroup name="Interaction Text" label={this.props.t('editor:properties.model.lbl-interactionText')}>
+            <InputGroup name="Interaction Text" label={this.props.t('editor:properties.interaction.text')}>
               <StringInput value={node.interactionText} onChange={this.onChangeInteractionText} />
             </InputGroup>
-            <InputGroup name="Interaction Type" label={this.props.t('editor:properties.model.lbl-interactionType')}>
+            <InputGroup name="Interaction Type" label={this.props.t('editor:properties.interaction.type')}>
               <SelectInput
                 options={InteractableOption}
                 value={node.interactionType}
@@ -263,7 +316,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
             </InputGroup>
             <NumericInputGroup
               name="Interaction Distance"
-              label={this.props.t('editor:properties.model.lbl-interactionDistance')}
+              label={this.props.t('editor:properties.interaction.distance')}
               onChange={this.onChangeInteractionDistance}
               min={0}
               smallStep={0.001}

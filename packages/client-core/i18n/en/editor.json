@@ -209,6 +209,18 @@
             "lbl-interactionText": "Interaction Text",
             "lbl-interactionType": "Interaction Type"
         },
+        "interaction": {
+            "type": "Interaction Type",
+            "text": "Interaction Text",
+            "distance": "Interaction Distance",
+            "themeIndex": "Interaction Theme",
+            "name": "Interaction Name",
+            "description": "Interaction Description",
+            "images": "Interaction Images",
+            "videos": "Interaction Videos",
+            "urls": "Interaction Urls",
+            "models": "Interaction Models"
+        },
         "group": {
             "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
         },
