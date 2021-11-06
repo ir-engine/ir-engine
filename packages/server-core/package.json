@@ -36,7 +36,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha tests --recursive --jobs 2 --timeout 5000",
+    "test": "mocha tests --recursive --jobs 1 --timeout 10000",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 APP_ENV=production rollup -c",
     "validate": "npm run build && npm run test",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
