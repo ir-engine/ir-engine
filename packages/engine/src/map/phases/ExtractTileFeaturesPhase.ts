@@ -9,7 +9,7 @@ export const isAsyncPhase = false
 export const isCachingPhase = true
 
 export function getTaskKeys(state: MapStateUnwrapped) {
-  console.log('tileCache size', state.tileCache.map.map.size)
+  console.log('tileCache size', state.tileCache.size)
   return state.tileCache.keys()
 }
 

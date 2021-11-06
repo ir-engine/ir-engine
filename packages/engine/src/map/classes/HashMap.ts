@@ -27,6 +27,7 @@ export default class HashMap<Key extends ITuple, Value> {
 
   set(key: Key, value: Value) {
     this.map[key.hash] = value
+    this._size++
     return this
   }
 

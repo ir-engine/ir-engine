@@ -70,6 +70,6 @@ export default class ParametricCache<Key extends ITuple, Value> implements IPara
   }
 
   get size() {
-    return this.map.map.size
+    return this.map.size
   }
 }
