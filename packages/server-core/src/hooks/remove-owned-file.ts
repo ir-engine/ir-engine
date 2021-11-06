@@ -1,6 +1,6 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 import logger from '../logger'
-import { StorageProvider } from '../media/storageprovider/storageprovider'
+import { useStorageProvider } from '../media/storageprovider/storageprovider'
 import { StaticResource } from '../media/static-resource/static-resource.class'
 
 const getAllChildren = async (

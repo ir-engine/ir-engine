@@ -36,7 +36,10 @@ jobs:
             */*/node_modules
             package-lock.json
           key: ${{ runner.os }}-branch-build-${{ hashFiles('**/package.json') }}
+      - run: cp .env.local.default .env.local
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
+      - run: npm run dev-docker
+      - run: npm run dev-reinit
       - run: npm run test:packages
       - run: npm run build-client
