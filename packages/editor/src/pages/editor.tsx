@@ -14,6 +14,7 @@ const EditorProtectedRoutes = () => {
   const user = authState.user
 
   const editorState = useEditorState()
+  console.log(editorState.projectName.value)
 
   const initializationOptions: InitializeOptions = {
     type: EngineSystemPresets.EDITOR,

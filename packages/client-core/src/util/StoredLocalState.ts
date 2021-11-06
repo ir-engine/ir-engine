@@ -38,6 +38,11 @@ export const StoredLocalAction = {
       type: 'STORE_LOCAL' as const,
       newState
     }
+  },
+  restoreLocalData: () => {
+    return {
+      type: 'RESTORE' as const
+    }
   }
 }
 

@@ -37,7 +37,7 @@ import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
-import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
+import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
 
 //State
 const state = createState({
@@ -50,7 +50,7 @@ const state = createState({
   avatarList: [] as Array<UserAvatar>
 })
 
-store.receptors.push((action: AuthActionType): void => {
+store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
   state.batch((s) => {
     switch (action.type) {
       case 'ACTION_PROCESSING':
@@ -80,14 +80,10 @@ store.receptors.push((action: AuthActionType): void => {
         return s.merge({ user: action.user })
       case 'RESTORE': {
         const stored = accessStoredLocalState().attach(Downgraded).authData.value
-        if (stored) {
-          return s.merge({
-            isLoggedIn: stored.isLoggedIn,
-            authUser: stored.authUser,
-            identityProvider: stored.identityProvider
-          })
-        }
-        return state
+        return s.merge({
+          authUser: stored.authUser,
+          identityProvider: stored.identityProvider
+        })
       }
       case 'AVATAR_UPDATED': {
         return s.user.merge({ avatarUrl: action.url })
@@ -1270,11 +1266,6 @@ export const AuthAction = {
     return {
       type: 'AVATAR_FETCHED' as const,
       avatarList
-    }
-  },
-  restoreAuth: () => {
-    return {
-      type: 'RESTORE' as const
     }
   }
 }

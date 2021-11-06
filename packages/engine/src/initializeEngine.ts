@@ -214,15 +214,14 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   // Scene Systems
-  registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./transform/systems/TransformSystem'))
-  registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
-    simulationEnabled: options.physics.simulationEnabled
-  })
-
+  // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
+  // registerSystem(SystemUpdateType.FIXED, import('./transform/systems/TransformSystem'))
+  // registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
+  //   simulationEnabled: options.physics.simulationEnabled
+  // })
   // Miscellaneous Systems
-  registerSystem(SystemUpdateType.FIXED, import('./particles/systems/ParticleSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
+  // registerSystem(SystemUpdateType.FIXED, import('./particles/systems/ParticleSystem'))
+  // registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
 }
 
 const registerServerSystems = async (options: Required<InitializeOptions>) => {
