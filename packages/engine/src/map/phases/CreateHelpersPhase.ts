@@ -6,7 +6,7 @@ export const name = 'create helpers'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 
-const createHelpersUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: TileKey) => {
+const createHelpersUsingCache = createUsingCache((state: MapStateUnwrapped, key: TileKey) => {
   const polygons = state.tileNavMeshCache.get(key)
   // const tileNavMesh = createPolygonHelper(polygons[0])
   const tileNavMesh = createConvexMultiPolygonHelper(polygons)
@@ -28,7 +28,7 @@ export function setTaskStatus(state: MapStateUnwrapped, key: TileKey, status: Ta
 }
 
 export function execTask(state: MapStateUnwrapped, key: TileKey) {
-  return createHelpersUsingCache(state.helpersCache, key, state)
+  return createHelpersUsingCache(state.helpersCache, state, key)
 }
 
 export function cleanup(state: MapStateUnwrapped) {

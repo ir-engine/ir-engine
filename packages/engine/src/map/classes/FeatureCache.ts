@@ -1,4 +1,4 @@
 import { FeatureKey } from '../types'
-import MapCache from './MapCache'
+import ParametricCache from './ParametricCache'
 
-export default class FeatureCache<Value> extends MapCache<FeatureKey, Value> {}
+export default class FeatureCache<Value> extends ParametricCache<FeatureKey, Value> {}
