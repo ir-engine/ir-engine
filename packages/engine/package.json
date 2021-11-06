@@ -90,7 +90,7 @@
     "@types/mock-require": "2.0.0",
     "@types/offscreencanvas": "2019.6.4",
     "@types/puppeteer": "5.4.4",
-    "@types/sinon": "10.0.4",
+    "@types/sinon": "10.0.6",
     "@types/three": "0.133.1",
     "@types/yuka": "0.7.1",
     "babel-plugin-dynamic-import-node": "2.3.3",
