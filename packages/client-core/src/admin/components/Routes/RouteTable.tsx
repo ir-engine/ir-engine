@@ -109,6 +109,7 @@ const RouteTable = () => {
           route: route.value,
           active: (
             <Checkbox
+              className={classex.checkboxContainer}
               checked={isRouteActive(el.project.value, route.value)}
               onChange={(ev, checked) => activateCallback(el.project.value, route.value, checked)}
             />
@@ -167,8 +168,7 @@ const RouteTable = () => {
         />
         {processing && (
           <div className={classes.progressBackground}>
-            {' '}
-            <CircularProgress className={classes.progress} />{' '}
+            <CircularProgress className={classes.progress} />
           </div>
         )}
       </div>
