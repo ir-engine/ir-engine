@@ -106,11 +106,12 @@ export default (app: Application): void => {
               console.error(err)
             }
             promiseResolve()
-            return Promise.resolve()
           } else {
             promiseResolve()
-            return Promise.resolve()
           }
+          return Promise.resolve().then(() => {
+            if (config.db.forceRefresh) process.exit(0)
+          })
         })
         .catch((err) => {
           console.log('Sequelize sync error')
