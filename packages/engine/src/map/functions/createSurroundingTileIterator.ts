@@ -5,12 +5,13 @@ import {
   latToTileYFraction,
   longToTileXFraction
 } from '../functions/UnitConversionFunctions'
+import TileKey from '../classes/TileKey'
 
 export default function* createSurroundingTileIterator(
   center: LongLat,
   minimumSceneRadius: number,
   zoomLevel: number
-): Generator<[number, number]> {
+): Generator<TileKey> {
   const [startLong, startLat] = fromMetersFromCenter([-minimumSceneRadius, -minimumSceneRadius], center)
   const [endLong, endLat] = fromMetersFromCenter([minimumSceneRadius, minimumSceneRadius], center)
 
@@ -33,7 +34,7 @@ export default function* createSurroundingTileIterator(
   for (let tileY = startTileY; tileY <= endTileY; tileY++) {
     for (let tileX = startTileX; tileX <= endTileX; tileX++) {
       if (isIntersectTileCircle(tileX, tileY)) {
-        yield [tileX, tileY]
+        yield new TileKey(tileX, tileY)
       }
     }
   }

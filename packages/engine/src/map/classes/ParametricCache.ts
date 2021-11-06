@@ -1,35 +1,37 @@
-// TODO delete file
 import evictLeastRecentlyUsedItems from '../functions/evictLeastRecentlyUsedItems'
-import { IParametricMap } from '../types'
-import ArrayKeyedMap from './ArrayKeyedMap'
+import { ITuple, IParametricMap } from '../types'
+import HashMap from './HashMap'
+import HashSet from './HashSet'
 
-export default class MapCache<Key extends any[], Value> implements IParametricMap<Key, Value> {
-  /** ordered by time last used, ascending */
-  map = new ArrayKeyedMap<Key, Value>()
+export default class ParametricCache<Key extends ITuple, Value> implements IParametricMap<Key, Value> {
+  map = new HashMap<Key, Value>()
   maxSize: number
+  _keys = new HashSet<Key>()
   constructor(maxSize: number) {
     this.maxSize = maxSize
   }
 
-  updateLastUsedTime(key: Key, value?: Value) {
-    this.set(key, value || this.map.get(key))
+  updateLastUsedTime(key: Key) {
+    // ensuring time-last-used order
+    this._keys.delete(key)
+    this._keys.add(key)
   }
 
   set(key: Key, value: Value) {
-    // Update cache, ensuring time-last-used order
-    this.map.delete(key)
-    this.map.set(key, value)
+    this.updateLastUsedTime(key)
+    this.setWithoutAffectingLastUsedTime(key, value)
     return this
   }
 
   setWithoutAffectingLastUsedTime(key: Key, value: Value) {
+    this._keys.add(key)
     this.map.set(key, value)
   }
 
   get(key: Key) {
     const value = this.map.get(key)
     if (value !== undefined) {
-      this.updateLastUsedTime(key, value)
+      this.updateLastUsedTime(key)
     }
     return value
   }
@@ -39,30 +41,35 @@ export default class MapCache<Key extends any[], Value> implements IParametricMa
   }
 
   delete(key: Key) {
+    this._keys.delete(key)
     return this.map.delete(key)
   }
 
-  *evictLeastRecentlyUsedItems(): Generator<[Key, Value]> {
-    for (const [key, value] of evictLeastRecentlyUsedItems(this.map.map, this.maxSize)) {
-      const keySource = this.map.getKeySource(key) as any
-      yield [keySource!, value]
-    }
+  evictLeastRecentlyUsedItems(): Generator<[Key, Value]> {
+    return evictLeastRecentlyUsedItems(this, this.maxSize)
   }
 
   *keys(maxCount = this.maxSize) {
     let count = 0
-    for (const key of this.map.keys()) {
+    for (const key of this._keys.values()) {
       yield key
       count++
       // Stopgap for until I figure out why this generator doesn't finish
+      // TODO still an issue?
       if (count > maxCount) break
     }
   }
+
   values() {
     return this.map.values()
   }
 
   clear() {
+    this._keys.clear()
     this.map.clear()
+  }
+
+  get size() {
+    return this.map.size
   }
 }

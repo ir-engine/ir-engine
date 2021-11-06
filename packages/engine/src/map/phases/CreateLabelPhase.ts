@@ -1,4 +1,4 @@
-import { Feature, LineString, MultiLineString } from 'geojson'
+import { Feature, LineString } from 'geojson'
 import { FeatureKey, TaskStatus, MapStateUnwrapped } from '../types'
 import createUsingCache from '../functions/createUsingCache'
 import createFeatureLabel from '../functions/createFeatureLabel'
@@ -30,7 +30,7 @@ export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status:
   return state.labelTasks.set(key, status)
 }
 
-const createLabelUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: FeatureKey) => {
+const createLabelUsingCache = createUsingCache((state: MapStateUnwrapped, key: FeatureKey) => {
   const feature = state.featureCache.get(key)
   const label = createFeatureLabel(feature.properties.name, feature as Feature<LineString>, state.originalCenter)
   label.mesh.update()
@@ -38,7 +38,7 @@ const createLabelUsingCache = createUsingCache((state: MapStateUnwrapped, ...key
 })
 
 export function execTask(state: MapStateUnwrapped, key: FeatureKey) {
-  return createLabelUsingCache(state.labelCache, key, state)
+  return createLabelUsingCache(state.labelCache, state, key)
 }
 
 export function cleanup(state: MapStateUnwrapped) {

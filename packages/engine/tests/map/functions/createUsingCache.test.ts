@@ -1,19 +1,20 @@
 import assert from 'assert'
-import ArrayKeyedMap from '../../../src/map/classes/ArrayKeyedMap'
+import ParametricCache from '../../../src/map/classes/ParametricCache'
+import TileKey from '../../../src/map/classes/TileKey'
 import createUsingCache from '../../../src/map/functions/createUsingCache'
 
 describe('createUsingCache', () => {
   it('works', () => {
-    const cache = new ArrayKeyedMap<[any, any, any], { r: any; g: any; b: any }>()
-    const createColor = (invertRed: boolean, r: any, g: any, b: any) => ({ r: r * (invertRed ? -1 : 1), g, b })
+    const cache = new ParametricCache<TileKey, [number, number]>(3)
+    const createColor = (_:any, key: TileKey, invert = false) => ([...key].map((i) => invert ? -i : i))
     const createColorUsingCache = createUsingCache(createColor)
 
-    const r1 = createColorUsingCache(cache, [1, 2, 3], false)
-    const r1a = createColorUsingCache(cache, [1, 2, 3], false)
-    const r2 = createColorUsingCache(cache, [2, 4, 6], true)
+    const r1 = createColorUsingCache(cache, {} as any, new TileKey(0, 0))
+    const r2 = createColorUsingCache(cache, {} as any, new TileKey(0, 0))
+    const r3 = createColorUsingCache(cache, {} as any, new TileKey(1, 1), true)
 
-    assert.deepEqual(r1, r1a)
-    assert.deepEqual(r1, { r: 1, g: 2, b: 3 })
-    assert.deepEqual(r2, { r: -2, g: 4, b: 6 })
+    assert.deepEqual(r1, [0, 0])
+    assert(r1 === r2)
+    assert.deepEqual(r3, [-1, -1])
   })
 })
