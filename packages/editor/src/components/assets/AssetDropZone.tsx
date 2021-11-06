@@ -53,6 +53,7 @@ export function AssetDropZone({ afterUpload }: AssetDropZoneProp) {
   const [{ canDrop, isOver, isDragging }, onDropTarget] = useDrop({
     accept: [ItemTypes.File],
     drop(item: any) {
+      console.log(item)
       onUpload(item.files).then((assets) => {
         if (assets) {
           if (afterUpload) {

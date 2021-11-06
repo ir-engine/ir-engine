@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { useDialog } from '../hooks/useDialog'
 import { uploadProjectAsset } from '../../functions/assetFunctions'
+import { accessEditorState } from '../../services/EditorServices'
 
 //todo
 const upload = (files: any): any => {
@@ -67,30 +68,8 @@ export default function useUpload(options: Props = {}) {
             }}
           />
         )
-
-        //uploading files and showing ProgressDialog
-        // assets = await upload(
-        //   files,
-        //   (item, total, progress) => {
-        //     setDialogComponent(
-        //       <ProgressDialog
-        //         title={t('editor:asset.useUpload.progressTitle')}
-        //         message={t('editor:asset.useUpload.progressMsg', {
-        //           uploaded: item,
-        //           total,
-        //           percentage: Math.round(progress * 100)
-        //         })}
-        //         cancelable={true}
-        //         onCancel={() => {
-        //           abortController.abort()
-        //           setDialogComponent(null)
-        //         }}
-        //       />
-        //     )
-        //   },
-        //   abortController.signal
-        // )
-        assets = await uploadProjectAsset(files)
+        const { projectName } = accessEditorState().value
+        assets = await uploadProjectAsset(projectName, files)
         setDialogComponent(null)
       } catch (error) {
         console.error(error)

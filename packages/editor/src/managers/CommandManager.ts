@@ -251,9 +251,8 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  async addMedia(params: any, parent?: any, before?: any) {
+  async addMedia({ url }, parent?: any, before?: any) {
     let contentType = ''
-    const { url, name, id } = params
     const { hostname } = new URL(url)
 
     try {

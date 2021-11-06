@@ -3,6 +3,7 @@ import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { Application } from '../../../declarations'
 import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { getCachedAsset } from '../storageprovider/storageProviderUtils'
 
 interface PatchParams {
   body: Buffer
@@ -68,11 +69,12 @@ export class FileBrowserService implements ServiceMethods<any> {
    */
   async patch(path: string, data: PatchParams, params?: Params) {
     console.log(path, data)
-    return await this.store.putObject({
+    await this.store.putObject({
       Key: path,
       Body: data.body,
       ContentType: data.contentType
     })
+    return getCachedAsset(path)
   }
 
   /**

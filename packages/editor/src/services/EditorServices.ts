@@ -1,5 +1,4 @@
 import { store, useDispatch } from '@xrengine/client-core/src/store'
-import { client } from '@xrengine/client-core/src/feathers'
 import { createState, Downgraded, useState } from '@hookstate/core'
 import {
   accessStoredLocalState,
