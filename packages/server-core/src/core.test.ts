@@ -8,8 +8,4 @@ describe('Core', () => {
     assert.doesNotReject(app.isSetup)
   })
 
-  after(() => {
-    process.exit(0)
-  })
-
 })
