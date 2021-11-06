@@ -16,6 +16,8 @@ import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
 
+import ArrayInputGroup from '../inputs/ArrayInputGroup'
+
 /**
  * Array containing options for InteractableOption.
  *
@@ -210,10 +212,17 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
 
   // creating view for interactable type
   renderInteractableTypeOptions = (node) => {
+    const values = ['1', '2', '3']
     switch (node.interactionType) {
       case 'infoBox':
         return (
           <>
+            <ArrayInputGroup
+              name="Name"
+              values={values}
+              onChange={(array) => {}}
+              label={this.props.t('editor:properties.model.lbl-name')}
+            ></ArrayInputGroup>
             <InputGroup name="Name" label={this.props.t('editor:properties.model.lbl-name')}>
               <StringInput value={node.payloadName} onChange={this.onChangePayloadName} />
             </InputGroup>
