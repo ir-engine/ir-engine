@@ -64,11 +64,11 @@ export const EnginePage = (props: Props) => {
   const [isUserBanned, setUserBanned] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
-  const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
   const [scene, setScene] = useState('')
   const locationState = useLocationState()
   const connectToInstanceServer = props.connectToInstanceServer !== undefined ? props.connectToInstanceServer : true
   const setIsTeleporting = typeof props.setIsTeleporting === 'function' ? props.setIsTeleporting : () => {}
+  const [engineInitialized, setEngineInitialized] = useState(false)
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
     if (typeof props.setSceneId === 'function') props.setLoadingItemCount(loadingItemCount || 0)
@@ -82,6 +82,8 @@ export const EnginePage = (props: Props) => {
   const init = async (): Promise<any> => {
     console.log('init', scene)
     setIsTeleporting(false)
+    setEngineInitialized(true)
+    const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
     await initEngine(scene, engineInitializeOptions, newSpawnPos, engineCallbacks, connectToInstanceServer)
   }
 
@@ -123,10 +125,10 @@ export const EnginePage = (props: Props) => {
    * 4. Once we have the scene ID, initialise the engine
    */
   useEffect(() => {
-    if (scene) {
+    if (scene && !engineInitialized) {
       init()
     }
-  }, [scene, props.reinit])
+  }, [scene])
 
   const checkForBan = (): void => {
     const selfUser = authState.user
