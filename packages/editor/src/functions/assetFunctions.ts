@@ -16,7 +16,7 @@ export const uploadProjectAsset = async (
           files: [`${pathName}/${file.name}`]
         })
         console.log(response)
-        resolve({ url: response })
+        resolve({ url: response[0] })
       })
     )
   }

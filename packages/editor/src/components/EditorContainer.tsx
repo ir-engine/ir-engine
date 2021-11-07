@@ -33,7 +33,8 @@ import ScenesPanel from './assets/ScenesPanel'
 import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
 import { DialogContext, useDialog } from './hooks/useDialog'
 import { saveProject } from '../functions/projectFunctions'
-import { useEditorState } from '../services/EditorServices'
+import { EditorAction, useEditorState } from '../services/EditorServices'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -136,6 +137,7 @@ const EditorContainer = () => {
   const [DialogComponent, setDialogComponent] = useState(null)
   const [modified, setModified] = useState(false)
   const [sceneName, setSceneName] = useState(null)
+  const dispatch = useDispatch()
 
   const initializeEditor = async () => {
     await Promise.all([ProjectManager.instance.init()])
@@ -264,6 +266,10 @@ const EditorContainer = () => {
       {
         name: t('editor:menubar.exportProject'),
         action: onExportScene
+      },
+      {
+        name: t('editor:menubar.quit'),
+        action: onCloseProject
       }
     ]
   }
@@ -311,6 +317,10 @@ const EditorContainer = () => {
   }
 
   const onNewProject = async () => {}
+
+  const onCloseProject = () => {
+    dispatch(EditorAction.projectLoaded(null))
+  }
 
   const onSaveAs = async () => {
     const abortController = new AbortController()

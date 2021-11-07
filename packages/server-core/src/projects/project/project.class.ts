@@ -44,26 +44,26 @@ export const uploadLocalProjectToProvider = async (projectName) => {
   // upload new files to storage provider
   const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
   const files = getFilesRecursive(projectPath)
-  return (
-    await Promise.all(
-      files.map((file: string) => {
-        return new Promise(async (resolve) => {
-          try {
-            const fileResult = fs.readFileSync(file)
-            const filePathRelative = file.slice(projectPath.length)
-            await storageProvider.putObject({
-              Body: fileResult,
-              ContentType: getContentType(file),
-              Key: `projects/${projectName}${filePathRelative}`
-            })
-            resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`))
-          } catch (e) {
-            resolve(null)
-          }
-        })
+  const results = await Promise.all(
+    files.map((file: string) => {
+      return new Promise(async (resolve) => {
+        try {
+          const fileResult = fs.readFileSync(file)
+          const filePathRelative = file.slice(projectPath.length)
+          await storageProvider.putObject({
+            Body: fileResult,
+            ContentType: getContentType(file),
+            Key: `projects/${projectName}${filePathRelative}`
+          })
+          resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`))
+        } catch (e) {
+          resolve(null)
+        }
       })
-    )
-  ).filter((success) => !!success) as string[]
+    })
+  )
+  // console.log('uploadLocalProjectToProvider', results)
+  return results.filter((success) => !!success) as string[]
 }
 
 export class Project extends Service {
