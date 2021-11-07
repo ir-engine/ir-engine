@@ -1,5 +1,10 @@
 import assert from 'assert'
 import app from "../../server/src/app"
+import  dataToBeSent from "./inventory_item_type.test"
+var dataToBeSent2 = {
+  "inventoryItemId" : null
+}
+let tobeRemoved = null
 
 describe('Check Inventory Item', () => {
 
@@ -13,20 +18,37 @@ describe('Check Inventory Item', () => {
    it('should create an inventory item', async () => {
      const item = await app.service('inventory-item').create(
        {
-         "inventoryItemTypeId": "3fba3580-3b3b-11ec-956d-bd63c686b264",
+         "inventoryItemTypeId": dataToBeSent.inventoryItemTypeId,
          "name": "Angry",
          "metadata": {"eyes":"joy","mouth":"surprised","level":2,"stamina":9.3},
          "description": "angry",
          "url": "https://arkh-frontend.s3.us-west-1.amazonaws.com/spacejet/new1.png"
      }
      );
+     tobeRemoved = item.inventoryItemId
      assert.ok(item.inventoryItemId, "Should return a unique Id");
    })
 
+   // Creating an item in inventory item
+   it('should create an inventory item', async () => {
+    const item = await app.service('inventory-item').create(
+      {
+        "inventoryItemTypeId": dataToBeSent.inventoryItemTypeId,
+        "name": "Happy",
+        "metadata": {"eyes":"joy","mouth":"surprised","level":2,"stamina":5.3},
+        "description": "happy",
+        "url": "https://arkh-frontend.s3.us-west-1.amazonaws.com/spacejet/new2.png"
+    }
+    );
+    dataToBeSent2.inventoryItemId = item.inventoryItemId
+    assert.ok(item.inventoryItemId, "Should return a unique Id");
+  })
+
   // Removed  an existing and valid inventory item.
    it('should delete an inventory item', async () => {
-     const item = await app.service('inventory-item').remove('33c49a60-3b39-11ec-956d-bd63c686b264');
+     const item = await app.service('inventory-item').remove(tobeRemoved);
      assert.ok(item, "Inventory Item is deleted");
    })
-
 })
+
+export default dataToBeSent2
