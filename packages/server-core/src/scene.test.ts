@@ -22,7 +22,7 @@ describe('Scene Service', () => {
     const { data } = await app.service('scenes').get({ 
       projectName: defaultProjectName,
       metadataOnly: false
-    })
+    }, params)
     defaultSceneData = data[0]
     const entities = Object.values(defaultSceneData.scene.entities)
     assert.ok(entities)
