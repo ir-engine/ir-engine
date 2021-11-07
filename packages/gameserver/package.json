@@ -103,7 +103,7 @@
     "s3-blob-store": "4.1.1",
     "sequelize": "6.9.0",
     "serve-favicon": "2.5.0",
-    "slugify": "1.6.1",
+    "slugify": "1.6.2",
     "trace-unhandled": "2.0.1",
     "universal-analytics": "0.4.23",
     "uuid": "8.3.2",
