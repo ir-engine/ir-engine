@@ -124,7 +124,7 @@
     "sass": "1.43.2",
     "socket.io-client": "4.3.2",
     "styled-components": "5.3.3",
-    "three": "0.133.1",
+    "three": "0.134.0",
     "uuid": "8.3.2",
     "vite-plugin-html": "2.1.1",
     "webxr-native": "0.3.0",
