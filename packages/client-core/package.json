@@ -111,7 +111,7 @@
     "socket.io-client": "4.3.2",
     "styled-components": "5.3.3",
     "url-toolkit": "2.2.3",
-    "use-debounce": "7.0.0",
+    "use-debounce": "7.0.1",
     "use-http": "1.0.26",
     "uuid": "8.3.2",
     "video-react": "0.14.1",
