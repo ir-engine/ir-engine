@@ -136,7 +136,7 @@
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",
     "prettier": "2.4.1",
-    "puppeteer": "10.4.0",
+    "puppeteer": "11.0.0",
     "react-router-dom": "5.3.0",
     "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
