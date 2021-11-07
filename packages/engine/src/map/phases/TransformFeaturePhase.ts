@@ -11,7 +11,7 @@ export const name = 'transform feature'
 export const isAsyncPhase = true
 export const isCachingPhase = true
 
-const transformFeatureUsingCache = fetchUsingCache((state: MapStateUnwrapped, ...key: FeatureKey) => {
+const transformFeatureUsingCache = fetchUsingCache((state: MapStateUnwrapped, key: FeatureKey) => {
   const [layerName] = key
   const feature = state.featureCache.get(key)
   if (feature.properties.transformed) {
@@ -34,7 +34,7 @@ export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status:
 }
 
 export function startTask(state: MapStateUnwrapped, key: FeatureKey) {
-  return transformFeatureUsingCache(state.transformedFeatureCache, key, state)
+  return transformFeatureUsingCache(state.transformedFeatureCache, state, key)
 }
 
 export function cleanup(state: MapStateUnwrapped) {

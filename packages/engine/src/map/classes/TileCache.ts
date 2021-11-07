@@ -1,4 +1,4 @@
 import { TileKey } from '../types'
-import MapCache from './MapCache'
+import ParametricCache from './ParametricCache'
 
-export default class TileCache<Value> extends MapCache<TileKey, Value> {}
+export default class TileCache<Value> extends ParametricCache<TileKey, Value> {}
