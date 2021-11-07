@@ -190,7 +190,7 @@
         {
           "name": "gltf-model",
           "props": {
-            "src": "https://resources.theoverlay.io/7435f3d0-03f0-11ec-9f9b-470694c46166/Skybase.glb",
+            "src": "https://192.168.0.16:8642/projects/default-project/Skybase.glb",
             "textureOverride": "",
             "matrixAutoUpdate": true
           }
@@ -205,7 +205,7 @@
         {
           "name": "interact",
           "props": {
-            "payloadModelUrl": "https://resources.theoverlay.io/7435f3d0-03f0-11ec-9f9b-470694c46166/Skybase.glb"
+            "payloadModelUrl": "https://192.168.0.16:8642/projects/default-project/Skybase.glb"
           }
         },
         {

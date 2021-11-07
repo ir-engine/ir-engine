@@ -34,7 +34,7 @@ function RouterComp(props) {
     return (
       <>
         <h1 style={{ color: 'black' }}>{t('no-projects.msg')}</h1>
-        <img src="/static/xrengine black.png" />
+        <img src="/static/xrengine.png" />
       </>
     )
   }
