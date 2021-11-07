@@ -28,6 +28,7 @@ export interface SceneDetailInterface {
   name: string
   thumbnailUrl: string
   scene?: SceneJson
+  project?: string
   // parent_scene: SceneDetailData
   // scene_id: string
   // scene_url: string

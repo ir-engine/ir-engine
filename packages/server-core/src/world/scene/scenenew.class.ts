@@ -45,8 +45,23 @@ export class Scene implements ServiceMethods<any> {
 
   async setup() {}
 
-  async find(params: Params): Promise<any> {
-    throw new Error('scene.find is not supported')
+  async find(params): Promise<{ data: SceneDetailInterface[] }> {
+    const projects = await this.app.service('project').find(params)
+
+    const scenes = []
+    for (const project of projects.data) {
+      const { data } = await this.app.service('scenes').get({ projectName: project.name, metadataOnly: true }, params)
+      scenes.push(
+        ...data.map((d) => {
+          d.project = project.name
+          return d
+        })
+      )
+    }
+
+    return {
+      data: scenes
+    }
   }
 
   // @ts-ignore

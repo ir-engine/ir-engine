@@ -1,13 +1,13 @@
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { createState, useState } from '@hookstate/core'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 //State
 export const SCENE_PAGE_LIMIT = 100
 
 const state = createState({
-  scenes: [] as Array<SceneData>
+  scenes: [] as Array<SceneDetailInterface>
 })
 
 store.receptors.push((action: SceneActionType): any => {
@@ -27,24 +27,20 @@ export const useSceneState = () => useState(state) as any as typeof state
 
 export const SceneService = {
   fetchAdminScenes: async (incDec?: 'increment' | 'decrement' | 'all') => {
-    console.warn('deprecated - use fetchProjectScenes')
+    const dispatch = useDispatch()
+    const scenes = await client.service('scene').find()
+    dispatch(SceneAction.scenesFetched(scenes.data))
   },
 
-  deleteScene: async (sceneId: string) => {},
-
-  getScene: async (projectName: string) => {
-    const dispatch = useDispatch()
-    const scenes = await client.service('scenes').get({ projectName })
-    dispatch(SceneAction.scenesFetched(scenes))
-  }
+  deleteScene: async (sceneId: string) => {}
 }
 
 //Action
 export const SceneAction = {
-  scenesFetched: (sceneData: SceneData[]) => {
+  scenesFetched: (sceneData: SceneDetailInterface[]) => {
     return {
       type: 'ADMIN_SCENES_RETRIEVED' as const,
-      sceneData: sceneData
+      sceneData
     }
   },
   sceneCreated: () => {

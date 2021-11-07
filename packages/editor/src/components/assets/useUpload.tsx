@@ -69,7 +69,24 @@ export default function useUpload(options: Props = {}) {
           />
         )
         const { projectName } = accessEditorState().value
-        assets = await uploadProjectAsset(projectName, files)
+        assets = await uploadProjectAsset(projectName, files, (item, total, progress) => {
+          setDialogComponent(
+            <ProgressDialog
+              title={t('editor:asset.useUpload.progressTitle')}
+              message={t('editor:asset.useUpload.progressMsg', {
+                uploaded: item,
+                total,
+                percentage: Math.round(progress * 100)
+              })}
+              cancelable={true}
+              onCancel={() => {
+                abortController.abort()
+                setDialogComponent(null)
+              }}
+            />
+          )
+        })
+        console.log(assets)
         setDialogComponent(null)
       } catch (error) {
         console.error(error)

@@ -1,19 +1,24 @@
 import { client } from '@xrengine/client-core/src/feathers'
-import { MathUtils } from 'three'
+import { upload } from '@xrengine/client-core/src/util/upload'
 
-export const uploadProjectAsset = async (projectName: string, files: File[], assetType = 'asset') => {
-  // console.log(projectName, files, assetType)
+export const uploadProjectAsset = async (
+  projectName: string,
+  files: File[],
+  onProgress?
+): Promise<{ url: string }[]> => {
   const promises = []
   for (const file of files) {
-    const pathName = `projects/${projectName}/assets/${file.name}`
+    const pathName = `projects/${projectName}/assets`
     promises.push(
-      client.service('file-browser').patch(pathName, {
-        body: await file.arrayBuffer(),
-        contentType: file.type
+      new Promise(async (resolve) => {
+        await upload(file, onProgress, null, pathName, file.name)
+        const response = await client.service('project').patch(projectName, {
+          files: [`${pathName}/${file.name}`]
+        })
+        console.log(response)
+        resolve({ url: response })
       })
     )
   }
-  const responses = await Promise.all(promises)
-  // console.log(responses)
-  return responses
+  return await Promise.all(promises)
 }

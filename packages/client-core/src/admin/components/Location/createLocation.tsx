@@ -155,10 +155,11 @@ const CreateLocation = (props: Props) => {
     if (!state.scene) {
       temp.scene = "Scene can't be empty"
     }
+    console.log(state, temp, { ...state, formErrors: temp })
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
       LocationService.createLocation(data)
-      //  closeViewModel(false)
+      closeViewModel(false)
     } else {
       setError('Please fill all required field')
       setOpenWarning(true)
@@ -220,8 +221,10 @@ const CreateLocation = (props: Props) => {
                 <MenuItem value="" disabled>
                   <em>Select scene</em>
                 </MenuItem>
-                {adminScenes.value.map((el) => (
-                  <MenuItem value={el.sid} key={el.sid}>{`${el.name} (${el.sid})`}</MenuItem>
+                {adminScenes.value.map((el, i) => (
+                  <MenuItem value={`${el.project}/${el.name}`} key={i}>
+                    {el.name}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>

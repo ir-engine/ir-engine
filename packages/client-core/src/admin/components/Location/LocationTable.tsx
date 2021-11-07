@@ -43,7 +43,6 @@ const LocationTable = (props: LocationProps) => {
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
-  const adminSceneState = useSceneState()
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
   const adminLocationState = useLocationState()
   const adminLocations = adminLocationState.locations.locations

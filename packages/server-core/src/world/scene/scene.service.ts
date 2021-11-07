@@ -11,10 +11,13 @@ declare module '../../../declarations' {
   interface ServiceTypes {
     scene: Scene
   }
+  interface ServiceTypes {
+    scenes: { get: ReturnType<typeof getScenesForProject> }
+  }
 }
 
 export const getScenesForProject = (app: Application) => {
-  return async function ({ projectName, metadataOnly }, params) {
+  return async function ({ projectName, metadataOnly }, params): Promise<{ data: SceneDetailInterface[] }> {
     const project = await app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 

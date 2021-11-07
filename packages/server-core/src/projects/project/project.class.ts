@@ -13,7 +13,7 @@ import appRootPath from 'app-root-path'
 import templateProjectJson from './template-project.json'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { getCachedAsset, getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import config from '../../appconfig'
 
 const getRemoteURLFromGitData = (project) => {
@@ -44,22 +44,26 @@ export const uploadLocalProjectToProvider = async (projectName) => {
   // upload new files to storage provider
   const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
   const files = getFilesRecursive(projectPath)
-  await Promise.all(
-    files.map((file: string) => {
-      new Promise(async (resolve) => {
-        try {
-          const fileResult = fs.readFileSync(file)
-          const filePathRelative = file.slice(projectPath.length)
-          await storageProvider.putObject({
-            Body: fileResult,
-            ContentType: getContentType(file),
-            Key: `projects/${projectName}${filePathRelative}`
-          })
-        } catch (e) {}
-        resolve(true)
+  return (
+    await Promise.all(
+      files.map((file: string) => {
+        return new Promise(async (resolve) => {
+          try {
+            const fileResult = fs.readFileSync(file)
+            const filePathRelative = file.slice(projectPath.length)
+            await storageProvider.putObject({
+              Body: fileResult,
+              ContentType: getContentType(file),
+              Key: `projects/${projectName}${filePathRelative}`
+            })
+            resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`))
+          } catch (e) {
+            resolve(null)
+          }
+        })
       })
-    })
-  )
+    )
+  ).filter((success) => !!success) as string[]
 }
 
 export class Project extends Service {
@@ -214,12 +218,31 @@ export class Project extends Service {
   }
 
   /**
-   * 1. uploads project to the storage provider
+   * downloads file from storage provider to project
+   *   OR
+   * uploads project to the storage provider
    * @param app
    * @returns
    */
-  async patch(projectName: string, params?: Params) {
-    await uploadLocalProjectToProvider(projectName)
+  async patch(projectName: string, data?: { files: string[] }, params?: Params) {
+    if (data?.files?.length) {
+      const promises = []
+      for (const filePath of data.files) {
+        promises.push(
+          new Promise<string>(async (resolve) => {
+            const fileResult = await storageProvider.getObject(filePath)
+            const metadataPath = path.resolve(appRootPath.path, `packages/projects/`, filePath)
+            if (!fs.existsSync(path.dirname(metadataPath)))
+              fs.mkdirSync(path.dirname(metadataPath), { recursive: true })
+            fs.writeFileSync(metadataPath, fileResult.Body)
+            resolve(getCachedAsset(filePath))
+          })
+        )
+      }
+      return Promise.all(promises)
+    } else {
+      return uploadLocalProjectToProvider(projectName)
+    }
   }
 
   async remove(id: Id, params?: Params) {
@@ -272,7 +295,8 @@ export class Project extends Service {
    * @returns
    */
   // TODO: remove this entire function when nodes reference file browser
-  async find(params: Params) {
+  //@ts-ignore
+  async find(params: Params): Promise<{ data: ProjectInterface[] }> {
     const entries = (await super.find(params)) as any
     entries.data = entries.data
       .map((entry) => {
