@@ -139,6 +139,7 @@ export const AuthService = {
   doLoginAuto: async (allowGuest?: boolean, forceClientAuthReset?: boolean) => {
     const dispatch = useDispatch()
     try {
+      console.log(accessStoredLocalState().attach(Downgraded))
       const authData = accessStoredLocalState().attach(Downgraded).authData.value
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined

@@ -53,6 +53,10 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const panelRef = useRef(null)
   // const [scrollWindowWidth, setScrollWindowWidth] = useState(0)
   const [scrollWindowHeight, setScrollWindowHeight] = useState(750)
+  const [isLoading, setLoading] = useState(true)
+  const [selectedDirectory, setSelectedDirectory] = useState('/projects/')
+  const fileState = useFileBrowserState()
+  const filesValue = fileState.files.attach(Downgraded).value
 
   useEffect(() => {
     useElementResize(panelRef.current, () => {
@@ -70,11 +74,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       setSelectedDirectory(newPath)
     }
   }
-
-  const [isLoading, setLoading] = useState(true)
-  const [selectedDirectory, setSelectedDirectory] = useState('/')
-  const fileState = useFileBrowserState()
-  const filesValue = fileState.files.attach(Downgraded).value
 
   const files = fileState.files.value.map((file): FileDataType => {
     const nodeClass = UploadFileType[file.type]
