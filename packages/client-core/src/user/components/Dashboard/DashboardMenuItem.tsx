@@ -32,9 +32,7 @@ const DashboardMenuItem = (props: Props) => {
     location: false,
     user: false,
     bot: false,
-    scene: false,
     party: false,
-    contentPacks: false,
     groups: false,
     instance: false,
     invite: false,
@@ -55,7 +53,7 @@ const DashboardMenuItem = (props: Props) => {
 
   const classes = useStylesForDashboard()
   const [openSetting, setOpenSetting] = React.useState(false)
-  const [openScene, setOpenScene] = React.useState(false)
+  const [openAvatars, setOpenAvatars] = React.useState(false)
   const [openUser, setOpenUser] = React.useState(false)
   const [openLocation, setOpenLocation] = React.useState(false)
 
@@ -67,11 +65,11 @@ const DashboardMenuItem = (props: Props) => {
           allowedRoutes,
           openLocation,
           openUser,
-          openScene,
+          openAvatars,
           openSetting,
           setOpenLocation,
           setOpenUser,
-          setOpenScene,
+          setOpenAvatars,
           setOpenSetting
         ).map((sidebarItem, index) => {
           return sidebarItem.title ? (

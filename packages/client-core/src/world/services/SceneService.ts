@@ -39,19 +39,7 @@ export const accessSceneState = () => state
 export const useSceneState = () => useState(state) as any as typeof state
 
 //Service
-export const ScenesService = {
-  createPublishProject: async (data) => {
-    const dispatch = useDispatch()
-    {
-      try {
-        const result = client.service('publish-scene').create(data)
-        console.log(result)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-  }
-}
+export const ScenesService = {}
 
 //Action
 export const SceneAction = {

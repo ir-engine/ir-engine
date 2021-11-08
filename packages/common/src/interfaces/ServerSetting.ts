@@ -19,7 +19,6 @@ export interface ServerSetting {
   keyPath?: string
   local?: boolean
   releaseName?: string
-  defaultContentPackURL?: string
 }
 
 export interface HubInfo {
