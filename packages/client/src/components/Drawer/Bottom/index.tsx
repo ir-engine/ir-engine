@@ -48,6 +48,7 @@ const BottomDrawer = (props: Props): any => {
   const activeChannel = channels.find((c) => c.id.value === targetChannelId)
 
   useEffect(() => {
+    console.log('=================chatState.messageScrollInit.value')
     if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
       ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
       ChatService.updateMessageScrollInit(false)
@@ -59,7 +60,7 @@ const BottomDrawer = (props: Props): any => {
         ;(messageEl as any).scrollTop = (topMessage as any).offsetTop
       }
     }
-  }, [chatState.messageScrollInit])
+  }, [chatState.messageScrollInit.value])
 
   useEffect(() => {
     if (channelState.updateNeeded.value === true) {
@@ -115,6 +116,8 @@ const BottomDrawer = (props: Props): any => {
   }
 
   const setActiveChat = (channel): void => {
+    console.log('=================setActiveChat')
+
     ChatService.updateMessageScrollInit(true)
     const channelType = channel.channelType
     const target =
