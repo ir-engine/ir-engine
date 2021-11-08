@@ -64,7 +64,7 @@ export const EnginePage = (props: Props) => {
   const [isUserBanned, setUserBanned] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
-  const [sceneId, setSceneId] = useState('')
+  const [scene, setScene] = useState('')
   const locationState = useLocationState()
   const connectToInstanceServer = props.connectToInstanceServer !== undefined ? props.connectToInstanceServer : true
   const setIsTeleporting = typeof props.setIsTeleporting === 'function' ? props.setIsTeleporting : () => {}
@@ -80,11 +80,11 @@ export const EnginePage = (props: Props) => {
   }
 
   const init = async (): Promise<any> => {
-    console.log('init', sceneId)
+    console.log('init', scene)
     setIsTeleporting(false)
     setEngineInitialized(true)
     const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-    await initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks, connectToInstanceServer)
+    await initEngine(scene, engineInitializeOptions, newSpawnPos, engineCallbacks, connectToInstanceServer)
   }
 
   /**
@@ -114,9 +114,9 @@ export const EnginePage = (props: Props) => {
    * 3. Once we have the location data, set the scene ID
    */
   useEffect(() => {
-    if (sceneId === '' && locationState.currentLocation.location.sceneId.value) {
+    if (scene === '' && locationState.currentLocation.location.sceneId.value) {
       const id = locationState.currentLocation.location.sceneId.value
-      setSceneId(id)
+      setScene(id)
       if (typeof props.setSceneId === 'function') props.setSceneId(id)
     }
   }, [locationState.currentLocation.location.sceneId.value])
@@ -125,10 +125,10 @@ export const EnginePage = (props: Props) => {
    * 4. Once we have the scene ID, initialise the engine
    */
   useEffect(() => {
-    if (sceneId && !engineInitialized) {
+    if (scene && !engineInitialized) {
       init()
     }
-  }, [sceneId])
+  }, [scene])
 
   const checkForBan = (): void => {
     const selfUser = authState.user

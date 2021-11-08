@@ -148,7 +148,7 @@ export class S3Provider implements StorageProviderInterface {
             CallerReference: Date.now().toString(),
             Paths: {
               Quantity: invalidationItems.length,
-              Items: invalidationItems
+              Items: invalidationItems.map((item) => `/${item}`)
             }
           }
         },
@@ -182,29 +182,7 @@ export class S3Provider implements StorageProviderInterface {
         }
       )
     })
-
-    await new Promise((resolve, reject) => {
-      this.cloudfront.createInvalidation(
-        {
-          DistributionId: config.aws.cloudfront.distributionId,
-          InvalidationBatch: {
-            CallerReference: Date.now().toString(),
-            Paths: {
-              Quantity: 1,
-              Items: [`/${key}`]
-            }
-          }
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
-    })
+    await this.createInvalidation([key])
     return {
       fields: result.fields,
       cacheDomain: this.cacheDomain,

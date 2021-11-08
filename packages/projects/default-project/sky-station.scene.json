@@ -1,0 +1,413 @@
+{
+  "version": 4,
+  "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+  "entities": {
+    "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC": {
+      "name": "sky-station-25-03-2021",
+      "components": [
+        {
+          "name": "mtdata",
+          "props": {
+            "meta_data": ""
+          }
+        },
+        {
+          "name": "fog",
+          "props": {
+            "type": "disabled",
+            "color": "#ffffff",
+            "near": 0.0025,
+            "far": 1000,
+            "density": 0.0025
+          }
+        },
+        {
+          "name": "audio-settings",
+          "props": {
+            "avatarDistanceModel": "inverse",
+            "avatarRolloffFactor": 2,
+            "avatarRefDistance": 1,
+            "avatarMaxDistance": 10000,
+            "mediaVolume": 0.5,
+            "mediaDistanceModel": "inverse",
+            "mediaRolloffFactor": 1,
+            "mediaRefDistance": 1,
+            "mediaMaxDistance": 10000,
+            "mediaConeInnerAngle": 360,
+            "mediaConeOuterAngle": 0,
+            "mediaConeOuterGain": 0
+          }
+        },
+        {
+          "name": "simple-materials",
+          "props": {
+            "simpleMaterials": false
+          }
+        },
+        {
+          "name": "renderer-settings",
+          "props": {
+            "LODs": {
+              "x": 5,
+              "y": 15,
+              "z": 30
+            },
+            "overrideRendererSettings": true,
+            "csm": true,
+            "toneMapping": 3,
+            "toneMappingExposure": 1.3,
+            "shadowMapType": 2
+          }
+        },
+        {
+          "name": "envmap",
+          "props": {
+            "type": 1,
+            "envMapIntensity": 3.5,
+            "envMapTextureType": 0,
+            "envMapSourceURL": "/hdr/cubemap/MilkyWay/"
+          }
+        }
+      ]
+    },
+    "15D96FA9-8B36-4EB1-89D1-6FDDA1AD2EBD": {
+      "name": "skybox",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 2.5,
+              "y": 3.5,
+              "z": 6
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "skybox",
+          "props": {
+            "backgroundColor": "#000000",
+            "equirectangularPath": "/hdr/cubemap/MilkyWay/",
+            "cubemapPath": "/hdr/cubemap/MilkyWay/",
+            "backgroundType": 1,
+            "skyboxProps": {
+              "turbidity": 10,
+              "rayleigh": 2,
+              "luminance": 1,
+              "mieCoefficient": 0.005,
+              "mieDirectionalG": 8.5,
+              "inclination": 60,
+              "azimuth": 0
+            }
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 0
+    },
+    "633CD01A-BC2A-4584-99E2-2A3CFE2C8AD9": {
+      "name": "spawn point",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -56,
+              "y": 7,
+              "z": 0
+            },
+            "rotation": {
+              "x": 3.141592653589793,
+              "y": -0.7853981633974483,
+              "z": 3.141592653589793
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "spawn-point",
+          "props": {}
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 1
+    },
+    "CD8E5818-7659-4675-9720-200657B9B7DF": {
+      "name": "model",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -6.151167775555251,
+              "y": 1.31568728596931,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "gltf-model",
+          "props": {
+            "src": "__$project$__/default-project/Skybase.glb",
+            "textureOverride": "",
+            "matrixAutoUpdate": true
+          }
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": false,
+            "receive": true
+          }
+        },
+        {
+          "name": "interact",
+          "props": {
+            "payloadModelUrl": "__$project$__/default-project/Skybase.glb"
+          }
+        },
+        {
+          "name": "collidable",
+          "props": {}
+        },
+        {
+          "name": "walkable",
+          "props": {}
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 2
+    },
+    "CEF7BCDE-4C78-45B7-A2DB-66F8159AA945": {
+      "name": "scene preview camera",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -77.101617304139,
+              "y": 65.64281832114845,
+              "z": -18.964291623100856
+            },
+            "rotation": {
+              "x": -1.7703503812978527,
+              "y": -0.9595641083436542,
+              "z": -1.81291179062497
+            },
+            "scale": {
+              "x": 0.9999999999999997,
+              "y": 0.9999999999999999,
+              "z": 0.9999999999999998
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "scene-preview-camera",
+          "props": {}
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 3
+    },
+    "949A8E39-25D0-48B3-AADF-FCDD2D21A2FE": {
+      "name": "Ambient Light",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "ambient-light",
+          "props": {
+            "color": "#e9ffff",
+            "intensity": 1.6
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 4
+    },
+    "A8F61640-74D2-4E33-8CFF-60D52C833D70": {
+      "name": "Directional Light",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 72.62929221206238,
+              "y": 37.76670564401437,
+              "z": -39.44043178716066
+            },
+            "rotation": {
+              "x": -2.336034219943989,
+              "y": 0.8140047571580721,
+              "z": 2.1803827110356346
+            },
+            "scale": {
+              "x": 1.000000000000001,
+              "y": 1.000000000000001,
+              "z": 1.0000000000000009
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "directional-light",
+          "props": {
+            "color": "#c1cce1",
+            "intensity": 3,
+            "castShadow": true,
+            "shadowMapResolution": [
+              1024,
+              1024
+            ],
+            "shadowBias": 0.00009999999999998899,
+            "shadowRadius": 1,
+            "cameraFar": 200,
+            "showCameraHelper": false
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 5
+    },
+    "A4B9313F-C244-4A83-813D-281C43B671BE": {
+      "name": "Portal",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 49.45498515651032,
+              "y": 1.979821728775554,
+              "z": -0.008053372554778448
+            },
+            "rotation": {
+              "x": 3.141592653589793,
+              "y": -1.5539241938416273,
+              "z": 3.141592653589793
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "portal",
+          "props": {
+            "spawnPosition": {
+              "x": 98.90997031302064,
+              "y": 3.959643457551108,
+              "z": -0.016106745109556897
+            },
+            "spawnRotation": {
+              "x": 3.141592653589793,
+              "y": -1.5539241938416273,
+              "z": 3.141592653589793
+            },
+            "triggerPosition": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "triggerRotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "triggerScale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 6
+    }
+  }
+}

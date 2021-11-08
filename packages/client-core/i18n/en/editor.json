@@ -32,7 +32,6 @@
         "saveProject": "Save Project",
         "saveAs": "Save As",
         "exportGLB": "Export as binary glTF (.glb) ...",
-        "publishProject": "Publish Project",
         "importProject": "Import editor project",
         "exportProject": "Export editor project",
         "quit": "Quit"
@@ -54,7 +53,6 @@
         "projectCreationFail": "Project creation failed. {{reason}}",
         "projectDeletionFail": "Project deletion failed. {{reason}}",
         "savingProjectFail": "Saving Project failed. {{reason}}",
-        "publishProjectAborted": "Publish project aborted",
         "sceneTooLarge": "Scene is too large ({{size}} MB) to publish. Maximum size is {{maxSize}} MB.",
         "sceneCreationFail": "Scene creation failed. {{reason}}",
         "uploadAborted": "Upload aborted",
