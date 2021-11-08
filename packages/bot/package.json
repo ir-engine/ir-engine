@@ -24,7 +24,7 @@
   "dependencies": {
     "@google-cloud/agones-sdk": "1.18.0",
     "cross-env": "7.0.3",
-    "puppeteer": "10.4.0"
+    "puppeteer": "11.0.0"
   },
   "devDependencies": {
     "@types/expect-puppeteer": "4.4.7",
