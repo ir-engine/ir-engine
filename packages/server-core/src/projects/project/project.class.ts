@@ -8,13 +8,19 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
-import { deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
+import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
 import templateProjectJson from './template-project.json'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { getCachedAsset, getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import config from '../../appconfig'
+
+export const copyDefaultProject = () => {
+  const seedPath = path.resolve(appRootPath.path, `packages/projects/projects`)
+  deleteFolderRecursive(path.resolve(seedPath, `default-project`))
+  copyFolderRecursiveSync(path.resolve(appRootPath.path, `packages/projects/default-project`), seedPath)
+}
 
 const getRemoteURLFromGitData = (project) => {
   const data = getGitData(path.resolve(__dirname, `../../../../projects/projects/${project}/.git/config`))
@@ -73,6 +79,7 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+    copyDefaultProject()
     if (isDev && !config.db.forceRefresh) {
       this._fetchDevLocalProjects()
     }
