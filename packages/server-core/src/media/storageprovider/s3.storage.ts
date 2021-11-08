@@ -42,7 +42,6 @@ export class S3Provider implements StorageProviderInterface {
   bucket = config.aws.s3.staticResourceBucket
   cacheDomain = config.aws.cloudfront.domain
   provider: AWS.S3 = new AWS.S3({
-    endpoint: 'http://localhost:4566',
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
     region: config.aws.s3.region,
@@ -56,7 +55,6 @@ export class S3Provider implements StorageProviderInterface {
   })
 
   cloudfront: AWS.CloudFront = new AWS.CloudFront({
-    endpoint: 'http://localhost:4566',
     region: config.aws.s3.region,
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey

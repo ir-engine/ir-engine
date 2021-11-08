@@ -58,23 +58,23 @@ describe('Storage Provider test', () => {
             assert.ok(haveObject)
         })
 
-        // it(`should return valid object url in ${provider.constructor.name}`,async function (){
-        //     const fileKey=path.join("/",testFolderName,testFileName)
-        //     const url=(await provider.getSignedUrl(fileKey,20000,{})).url
-        //     console.log("The Signed Url is:"+url)
-        //     const httpAgent=new https.Agent({
-        //         rejectUnauthorized:false,
-        //     })
-        //     let res
-        //     try{
-        //         res=await ( fetch(url,{agent:httpAgent}))
-        //     }catch(err){
-        //         console.log(err)
-        //     }
-        //     if(!res)
-        //         console.log("Make sure server is running")
-        //     assert.ok(res?.ok)
-        // })
+        it(`should return valid object url in ${provider.constructor.name}`,async function (){
+            const fileKey=path.join("/",testFolderName,testFileName)
+            const url=(await provider.getSignedUrl(fileKey,20000,{})).url
+            console.log("The Signed Url is:"+url)
+            const httpAgent=new https.Agent({
+                rejectUnauthorized:false,
+            })
+            let res
+            try{
+                res=await ( fetch(url,{agent:httpAgent}))
+            }catch(err){
+                console.log(err)
+            }
+            if(!res)
+                console.log("Make sure server is running")
+            assert.ok(res?.ok)
+        })
 
         it(`should be able to move/copy object in ${provider.constructor.name}`,async function(){
             const fileKeyOriginal=path.join(testFolderName,testFileName)
