@@ -31,6 +31,17 @@ export interface BlobStore {
 }
 
 export interface StorageProviderInterface {
+  /**
+   * Called before Test runs.
+   * Will be used to initialize temp resources for the test
+   */
+  beforeTest(): Promise<any>
+
+  /**
+   * To clean up temp resources after the test
+   */
+  afterTest(): Promise<any>
+
   cacheDomain: string
 
   /**

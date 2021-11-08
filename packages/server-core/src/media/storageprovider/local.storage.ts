@@ -15,6 +15,29 @@ import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType
 const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 
 export class LocalStorage implements StorageProviderInterface {
+  beforeTest(): Promise<any> {
+    return new Promise<void>((resolve) => {
+      const testFolderName = 'TestFolder'
+      const folderKeyTemp = path.join(testFolderName, 'temp')
+      const folderKeyTemp2 = path.join(testFolderName, 'temp2')
+
+      const dir = path.join(appRootPath.path, `packages/server/upload`, testFolderName)
+      if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true })
+      fs.mkdirSync(path.join(appRootPath.path, `packages/server/upload`, folderKeyTemp), { recursive: true })
+      fs.mkdirSync(path.join(appRootPath.path, `packages/server/upload`, folderKeyTemp2), { recursive: true })
+      resolve()
+    })
+  }
+
+  afterTest(): Promise<any> {
+    const testFolderName = 'TestFolder'
+    return new Promise<void>((resolve) => {
+      const dir = path.join(appRootPath.path, `packages/server/upload`, testFolderName)
+      fs.rmSync(dir, { recursive: true })
+      resolve()
+    })
+  }
+
   path = './upload'
   cacheDomain = config.server.localStorageProvider
 

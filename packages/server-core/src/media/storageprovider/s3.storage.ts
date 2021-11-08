@@ -12,6 +12,33 @@ import {
 } from './storageprovider.interface'
 
 export class S3Provider implements StorageProviderInterface {
+  beforeTest(): Promise<any> {
+    this.bucket = 'test-bucket-here'
+    return this.provider.createBucket({ Bucket: this.bucket, ACL: '' }).promise()
+  }
+  afterTest(): Promise<any> {
+    return new Promise((resolve) => {
+      this.provider
+        .listObjectsV2({ Bucket: this.bucket })
+        .promise()
+        .then((res) => {
+          const promises = []
+          res.Contents.forEach((element) => {
+            promises.push(this.provider.deleteObject({ Bucket: this.bucket, Key: element.Key }).promise())
+          })
+
+          Promise.all(promises).then(() => {
+            this.provider
+              .deleteBucket({
+                Bucket: this.bucket
+              })
+              .promise()
+              .then(resolve)
+          })
+        })
+    })
+  }
+
   bucket = config.aws.s3.staticResourceBucket
   cacheDomain = config.aws.cloudfront.domain
   provider: AWS.S3 = new AWS.S3({
