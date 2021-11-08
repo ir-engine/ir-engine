@@ -101,8 +101,6 @@ const configureServer = async (options: Required<InitializeOptions>, isMediaServ
   if (!isMediaServer) {
     await loadDRACODecoder()
 
-    new SpawnPoints()
-
     await registerServerSystems(options)
   } else {
     await registerMediaServerSystems(options)
