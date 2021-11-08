@@ -136,6 +136,7 @@ const EditorContainer = () => {
   const [creatingProject, setCreatingProject] = useState(null)
   const [DialogComponent, setDialogComponent] = useState(null)
   const [modified, setModified] = useState(false)
+  const [sceneLoaded, setSceneLoaded] = useState(false)
   const dispatch = useDispatch()
 
   const initializeEditor = async () => {
@@ -168,8 +169,10 @@ const EditorContainer = () => {
   const importScene = async (projectFile) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
+    setSceneLoaded(false)
     try {
       await ProjectManager.instance.loadProject(projectFile)
+      setSceneLoaded(true)
       SceneManager.instance.sceneModified = true
       updateModifiedState()
       setDialogComponent(null)
@@ -185,13 +188,22 @@ const EditorContainer = () => {
     }
   }
 
+  useEffect(() => {
+    if (editorReady && !sceneLoaded && sceneName) {
+      console.log(`Loading scene ${sceneName} via given url`)
+      loadScene(sceneName)
+    }
+  }, [editorReady, sceneLoaded])
+
   const loadScene = async (sceneName) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
+    setSceneLoaded(false)
     try {
       const project = await getScene(projectName, sceneName, false)
       await ProjectManager.instance.loadProject(project.scene)
       dispatch(EditorAction.sceneLoaded(sceneName))
+      setSceneLoaded(true)
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -209,11 +221,13 @@ const EditorContainer = () => {
   const newScene = async () => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
+    setSceneLoaded(false)
     try {
       // TODO: replace with better template functionality
       const project = await getScene('default-project', 'default', false)
       await ProjectManager.instance.loadProject(project.scene)
       dispatch(EditorAction.sceneLoaded(sceneName))
+      setSceneLoaded(true)
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
