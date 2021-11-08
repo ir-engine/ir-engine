@@ -93,7 +93,7 @@
     }
 
     .tcellSelectable {
-       .currentUser{
+      .currentUser{
         color: lighten(white, 0.80);
         background-color: #4267B2;
         padding-top: 5px;
@@ -211,6 +211,8 @@
 }
 
 .checkbox {
+  margin: 0px; 
+  padding: 0px;
   color: white;
 }
 

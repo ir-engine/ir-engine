@@ -10,6 +10,8 @@ import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { MapAction, mapReducer } from '../../map/MapReceptor'
 import { MapComponent } from '../../map/MapComponent'
 import { getPhases, startPhases } from '../../map/functions/PhaseFunctions'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 
 export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   // TODO: handle "navigator.geolocation.getCurrentPosition" rejection?
@@ -41,5 +43,11 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     yukaNavMesh: store.navMesh,
   */
     navTarget: navigationRaycastTarget
+  })
+
+  EngineEvents.instance.dispatchEvent({ type: EngineRenderer.EVENTS.SET_RESOLUTION, payload: 1 })
+  EngineEvents.instance.dispatchEvent({
+    type: EngineRenderer.EVENTS.SET_USE_AUTOMATIC,
+    payload: false
   })
 }

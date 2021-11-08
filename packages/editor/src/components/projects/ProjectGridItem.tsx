@@ -115,7 +115,7 @@ const Col = styled.div`
  *
  * @author Robert Long
  */
-export const ProjectGridItem = (contextMenuId: string, project: any) => {
+export const ProjectGridItem = ({ onClickExisting, contextMenuId, project }) => {
   const onShowMenu = (event) => {
     event.preventDefault()
     event.stopPropagation()
@@ -135,7 +135,7 @@ export const ProjectGridItem = (contextMenuId: string, project: any) => {
   const content = (
     <>
       <ThumbnailContainer>
-        {(project.thumbnailUrl || project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
+        {(project.thumbnailUrl ?? project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
       </ThumbnailContainer>
       <TitleContainer>
         <Col>
@@ -152,7 +152,7 @@ export const ProjectGridItem = (contextMenuId: string, project: any) => {
 
   if (contextMenuId) {
     return (
-      <StyledProjectGridItem as="a" href={project.url}>
+      <StyledProjectGridItem as="a" onClick={() => onClickExisting(project)}>
         <StyledContextMenuTrigger id={contextMenuId} project={project} collect={collectMenuProps} holdToDisplay={-1}>
           {content}
         </StyledContextMenuTrigger>
@@ -160,7 +160,7 @@ export const ProjectGridItem = (contextMenuId: string, project: any) => {
     )
   } else {
     return (
-      <StyledProjectGridItem as="a" href={project.url}>
+      <StyledProjectGridItem as="a" onClick={() => onClickExisting(project)}>
         {content}
       </StyledProjectGridItem>
     )

@@ -25,6 +25,7 @@ export const ItemTypes = {
   ],
   Node: 'Node',
   Model: 'Model',
+  Shopify: 'Shopify',
   Image: 'Image',
   Video: 'Video',
   Audio: 'Audio',
@@ -40,6 +41,7 @@ export const ItemTypes = {
  */
 export const AssetTypes = [
   ItemTypes.Model,
+  ItemTypes.Shopify,
   ItemTypes.Image,
   ItemTypes.Video,
   ItemTypes.Audio,

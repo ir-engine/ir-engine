@@ -9,17 +9,13 @@ import { CommandManager } from './CommandManager'
 import { SceneManager } from './SceneManager'
 
 export class ControlManager {
-  static instance: ControlManager
+  static instance: ControlManager = new ControlManager()
 
   inputManager: InputManager
   editorControls: EditorControls
   flyControls: FlyControls
   playModeControls: PlayModeControls
   isInPlayMode: boolean
-
-  static buildControlManager() {
-    this.instance = new ControlManager()
-  }
 
   constructor() {
     this.inputManager = null

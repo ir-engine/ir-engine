@@ -4,10 +4,7 @@ import React, { useEffect } from 'react'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { useTranslation } from 'react-i18next'
 
-interface Props {}
-
-export const IndexPage = (props: Props): any => {
-  // const dispatch = useDispatch()
+export const IndexPage = (): any => {
   const { t } = useTranslation()
 
   useEffect(() => {

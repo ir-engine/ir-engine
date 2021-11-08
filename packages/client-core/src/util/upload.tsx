@@ -20,7 +20,7 @@ let lastUploadAssetRequest = 0
  * @return {Promise}
  */
 
-export const upload = async (blob, onUploadProgress, signal?, fileIdentifier?, projectId?): Promise<void> => {
+export const upload = async (blob, onUploadProgress, signal?, uploadPath?, fileId?): Promise<any> => {
   const token = getToken()
 
   return await new Promise((resolve, reject) => {
@@ -67,11 +67,11 @@ export const upload = async (blob, onUploadProgress, signal?, fileIdentifier?, p
     })
 
     const formData = new FormData()
-    if (projectId) {
-      formData.set('projectId', projectId)
+    if (fileId) {
+      formData.set('fileId', fileId)
     }
-    if (fileIdentifier) {
-      formData.set('fileIdentifier', fileIdentifier)
+    if (uploadPath) {
+      formData.set('uploadPath', uploadPath)
     }
 
     formData.set('media', blob)
@@ -171,20 +171,6 @@ export function matchesFileTypes(file, fileTypes) {
   return false
 }
 
-/**
- * uploadProjectAsset used to call _uploadAsset directly.
- *
- * @author Robert Long
- * @param {any} editor
- * @param {any} projectId
- * @param {any} file
- * @param {any} onProgress
- * @param {any} signal
- */
-
-export const uploadProjectAsset = (editor, projectId, file, onProgress, signal): any => {
-  return _uploadAsset(`${serverURL}/project/${projectId}/assets`, editor, file, onProgress, signal)
-}
 /**
  * _uploadAsset used as api handler for the uploadAsset.
  *

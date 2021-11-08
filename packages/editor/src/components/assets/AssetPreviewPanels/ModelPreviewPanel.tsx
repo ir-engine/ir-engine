@@ -78,7 +78,7 @@ export const ModelPreviewPanel = (props) => {
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
-    ProjectManager.instance.init()
+    // ProjectManager.instance.init()
     SceneManager.instance.createRenderer(assestPanelRef.current)
     renderScene()
     return () => {

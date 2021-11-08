@@ -9,6 +9,7 @@ import { Feature, MultiPolygon, Polygon } from 'geojson'
 import transformGeometry from '../functions/transformGeometry'
 import * as PC from 'polygon-clipping'
 import tesselatePolygon from '../functions/tesselatePolygon'
+import stringifyArray from '../functions/stringifyArray'
 
 export const name = 'create navigation mesh polygons for tile'
 export const isAsyncPhase = false
@@ -41,8 +42,9 @@ function fixLastPair(coordinates: Polygon) {
 const createNavMeshUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: TileKey) => {
   const [x, y] = key
 
+  const keyHash = stringifyArray(key)
   const relevantFeatures: MapTransformedFeature[] = []
-  for (const featureKey of state.tileMeta.get(key).cachedFeatureKeys) {
+  for (const featureKey of state.tileMeta.get(keyHash).cachedFeatureKeys) {
     if (featureKey[0] === 'building') {
       const feature = state.transformedFeatureCache.get(featureKey)
       relevantFeatures.push(feature)
@@ -91,7 +93,7 @@ export function setTaskStatus(state: MapStateUnwrapped, key: TileKey, status: Ta
 }
 
 export function execTask(state: MapStateUnwrapped, key: TileKey) {
-  return createNavMeshUsingCache(state.tileNavMeshCache, key, state)
+  return createNavMeshUsingCache(state.tileNavMeshCache, state, key)
 }
 
 export function cleanup(state: MapStateUnwrapped) {

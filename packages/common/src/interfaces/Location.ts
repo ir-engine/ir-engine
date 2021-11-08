@@ -10,6 +10,7 @@ export interface Location {
   locationSettings: LocationSettings
   isLobby: boolean
   isFeatured: boolean
+  location_settings?: any
 }
 
 export const LocationSeed: Location = {

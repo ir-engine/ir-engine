@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
-import { TransformComponent, TransformData } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -57,7 +57,22 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
       })
   }
 
+  const position = createVector3Proxy(TransformComponent.position, entity)
 
+  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
+  // todo: figure out why scale makes avatar disappear
+  // const scale = createVector3Proxy(TransformComponent.scale, entity)
+  const scale = new Vector3().copy(new Vector3(1, 1, 1))
+
+  const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
+  transform.position.copy(spawnAction.parameters.position)
+  transform.rotation.copy(spawnAction.parameters.rotation)
+
+  const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
+
+  addComponent(entity, VelocityComponent, {
+    velocity
+  })
 
   // The visuals group is centered for easy actor tilting
   const tiltContainer = new Group()
@@ -98,24 +113,6 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
-
-  const position = createVector3Proxy(TransformComponent.position, entity).copy(spawnAction.parameters.position)
-
-  const rotation = createQuaternionProxy(TransformComponent.rotation, entity).copy(spawnAction.parameters.rotation)
-
-  // todo: figure out why scale makes avatar disappear
-  // const scale = createVector3Proxy(TransformComponent.scale, entity)
-  const scale = new Vector3().copy(new Vector3(1, 1, 1))
-
-  const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
-
-  addComponent(entity, VelocityComponent, { velocity })
-
-  const transform = addComponent<TransformData, {}>(
-    entity,
-    TransformComponent,
-    new TransformData(tiltContainer, { position, rotation, scale })
-  )
 
   const filterData = new PhysX.PxQueryFilterData()
   filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
@@ -203,6 +200,7 @@ export const createAvatarController = (entity: Entity) => {
       entity
     }
   }) as PhysX.PxCapsuleController
+  console.log(controller.getPosition())
 
   const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
   frustumCamera.position.setY(avatarHalfHeight)

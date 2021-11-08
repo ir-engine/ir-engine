@@ -92,13 +92,22 @@ export const useStyles = makeStyles((theme: Theme) =>
       background: '#1f252d'
     },
     focused: {
-      background: '#15171B'
+      background: '#303134',
+      '&:hover': {
+        backgroundColor: '#303134'
+      }
     },
     autoFocused: {
-      background: '#15171B'
+      background: '#303134',
+      '&:hover': {
+        backgroundColor: '#303134'
+      }
     },
     notFocused: {
-      background: '#43484F'
+      background: '#43484F',
+      '&:hover': {
+        backgroundColor: '#303134'
+      }
     },
     spanDange: {
       color: '#FF8C00 !important',

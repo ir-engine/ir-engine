@@ -214,7 +214,7 @@ const Harmony = (props: Props): any => {
   const transportState = useTransportStreamState()
   const producerStartingRef = useRef(producerStarting)
   const activeAVChannelIdRef = useRef(activeAVChannelId)
-  const instanceChannelRef = useRef(null)
+  const instanceChannelRef = useRef('')
   const channelRef = useRef(channels)
   const harmonyHiddenRef = useRef(harmonyHidden)
   const callStartedFromButtonRef = useRef(callStartedFromButton)
@@ -230,8 +230,8 @@ const Harmony = (props: Props): any => {
       : currentLocation?.locationSettings?.value
       ? currentLocation?.locationSettings?.videoEnabled?.value
       : false
-  const isCamVideoEnabled = mediastream.isCamVideoEnabled
-  const isCamAudioEnabled = mediastream.isCamAudioEnabled
+  const isCamVideoEnabled = mediastream.isCamVideoEnabled.value
+  const isCamAudioEnabled = mediastream.isCamAudioEnabled.value
 
   useEffect(() => {
     navigator.mediaDevices
@@ -262,7 +262,7 @@ const Harmony = (props: Props): any => {
     )
 
     EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED, () => {
-      if (activeAVChannelIdRef.current.length > 0) setChannelDisconnected(true)
+      if (activeAVChannelIdRef.current?.length > 0) setChannelDisconnected(true)
     })
     EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED, async () => {
       setChannelAwaitingProvision({
@@ -296,28 +296,36 @@ const Harmony = (props: Props): any => {
   }, [])
 
   useEffect(() => {
-    if (selfUser?.instanceId != null && MediaStreams.instance.channelType === 'instance') {
+    if (
+      selfUser?.instanceId != null &&
+      MediaStreams.instance.channelType === 'instance' &&
+      transportState.channelType.value !== 'instance'
+    ) {
       MediaStreams.instance.channelId = instanceChannel.id
       TransportService.updateChannelTypeState()
     }
-    if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
-      UserService.getLayerUsers(true)
-    if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
+    if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value)
       UserService.getLayerUsers(false)
-  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
+  }, [selfUser, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
-    setActiveAVChannelId(transportState.channelId.value)
+    TransportService.updateChannelTypeState()
+  }, [MediaStreams.instance.channelType, MediaStreams.instance.channelId])
 
-    if (targetChannelId == null || targetChannelId === '') {
-      // TODO: fix this - it causes crashes for some reason
-      // const matchingChannel = channelEntries.find((entry) => entry?.id === activeAVChannelIdRef.current)
-      // if (matchingChannel)
-      //   setActiveChat(matchingChannel.channelType, {
-      //     id: matchingChannel.instanceId
-      //   })
-    }
-  }, [transportState])
+  // useEffect(() => {
+  //   setActiveAVChannelId(transportState.channelId.value)
+
+  //   if (targetChannelId == null || targetChannelId === '') {
+  //     // TODO: fix this - it causes crashes for some reason
+  //     // -> Please open a Github issue documenting how to make these crashes occur and tag @barankyle
+  //     // -> Without this, a lot of things don't function properly
+  //     const matchingChannel = channelEntries.find((entry) => entry?.id === activeAVChannelIdRef.current)
+  //     if (matchingChannel)
+  //       setActiveChat(matchingChannel.channelType, {
+  //         id: matchingChannel.instanceId
+  //       })
+  //   }
+  // }, [transportState])
 
   useEffect(() => {
     if (channelConnectionState.connected.value === false && channelAwaitingProvision?.id?.length > 0) {
@@ -332,20 +340,20 @@ const Harmony = (props: Props): any => {
     }
   }, [channelConnectionState.connected.value])
 
-  useEffect(() => {
-    chatStateRef.current = chatState
-    if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
-      ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
-      ChatService.updateMessageScrollInit(false)
-      setMessageScrollUpdate(false)
-    }
-    if (messageScrollUpdate === true) {
-      setMessageScrollUpdate(false)
-      if (messageEl != null && (messageEl as any).scrollTop != null) {
-        ;(messageEl as any).scrollTop = (topMessage as any).offsetTop
-      }
-    }
-  }, [chatState])
+  // useEffect(() => {
+  //   chatStateRef.current = chatState
+  //   if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
+  //     ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
+  //     ChatService.updateMessageScrollInit(false)
+  //     setMessageScrollUpdate(false)
+  //   }
+  //   if (messageScrollUpdate === true) {
+  //     setMessageScrollUpdate(false)
+  //     if (messageEl != null && (messageEl as any).scrollTop != null) {
+  //       ;(messageEl as any).scrollTop = (topMessage as any).offsetTop
+  //     }
+  //   }
+  // }, [chatState])
 
   useEffect(() => {
     if (channelState.updateNeeded.value === true) {
@@ -376,16 +384,13 @@ const Harmony = (props: Props): any => {
   }, [channels])
 
   useEffect(() => {
-    instanceChannelRef.current = instanceChannel ? instanceChannel.id : null
+    instanceChannelRef.current = instanceChannel ? instanceChannel.id : ''
   }, [instanceChannel])
 
   useEffect(() => {
-    setVideoPaused(!isCamVideoEnabled)
-  }, [isCamVideoEnabled.value])
-
-  useEffect(() => {
     setAudioPaused(!isCamAudioEnabled)
-  }, [isCamAudioEnabled.value])
+    setVideoPaused(!isCamVideoEnabled)
+  }, [isCamAudioEnabled, isCamVideoEnabled])
 
   useEffect(() => {
     if (noGameserverProvision === true) {
@@ -609,7 +614,7 @@ const Harmony = (props: Props): any => {
 
   const handleMicClick = async (e: any) => {
     e.stopPropagation()
-    const channel = channels[activeAVChannelIdRef.current]
+    const channel = channels.find((channel) => channel.id === activeAVChannelIdRef.current)
     const channelType = channel.instanceId == null ? 'channel' : 'instance'
     await checkMediaStream('audio', channelType, activeAVChannelIdRef.current)
     if (MediaStreams.instance?.camAudioProducer == null) {
@@ -631,7 +636,7 @@ const Harmony = (props: Props): any => {
 
   const handleCamClick = async (e: any) => {
     e.stopPropagation()
-    const channel = channels[activeAVChannelIdRef.current]
+    const channel = channels.find((channel) => channel.id === activeAVChannelIdRef.current)
     const channelType = channel.instanceId == null ? 'channel' : 'instance'
     await checkMediaStream('video', channelType, activeAVChannelIdRef.current)
     if (MediaStreams.instance?.camVideoProducer == null) {
@@ -766,7 +771,7 @@ const Harmony = (props: Props): any => {
   }
 
   function getChannelName(): string {
-    const channel = channels[targetChannelId]
+    const channel = channels.find((channel) => channel.id === targetChannelId)
     if (channel && channel.channelType !== 'instance') {
       if (channel.channelType === 'group') return channel[channel.channelType].name
       if (channel.channelType === 'party') return 'Current party'
@@ -776,7 +781,7 @@ const Harmony = (props: Props): any => {
   }
 
   function getAVChannelName(): string {
-    const channel = channels[activeAVChannelId]
+    const channel = channels.find((channel) => channel.id === activeAVChannelIdRef.current)
     if (channel && channel.channelType !== 'instance') {
       if (channel.channelType === 'group') return channel[channel.channelType].name
       if (channel.channelType === 'party') return 'Current party'
@@ -1166,7 +1171,7 @@ const Harmony = (props: Props): any => {
           )}
           {targetChannelId?.length > 0 && (
             <header className={styles.mediaControls}>
-              {activeAVChannelId === '' && (
+              {(!activeAVChannelId || activeAVChannelId === '') && (
                 <div
                   className={classNames({
                     [styles.iconContainer]: true,
@@ -1177,7 +1182,7 @@ const Harmony = (props: Props): any => {
                   <Call />
                 </div>
               )}
-              {activeAVChannelId !== '' && (
+              {activeAVChannelId && activeAVChannelId !== '' && (
                 <div className={styles.activeCallControls}>
                   <div
                     className={classNames({
@@ -1240,7 +1245,7 @@ const Harmony = (props: Props): any => {
             )}
           </div>
         </div>
-        {activeAVChannelId !== '' && harmonyHidden !== true && (
+        {activeAVChannelId && activeAVChannelId !== '' && harmonyHidden !== true && (
           <div className={styles['video-container']}>
             <div className={styles['active-chat-plate']}>{getAVChannelName()}</div>
             <Grid className={styles['party-user-container']} container direction="row">
@@ -1286,8 +1291,8 @@ const Harmony = (props: Props): any => {
           )}
           <List ref={messageRef as any} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
             {activeChannel != null &&
-              activeChannel.Messages &&
-              [...activeChannel.Messages]
+              activeChannel.messages &&
+              [...activeChannel.messages]
                 .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                 .map((message) => {
                   return (

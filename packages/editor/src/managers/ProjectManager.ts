@@ -11,33 +11,23 @@ import { SceneManager } from './SceneManager'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { InitializeOptions, EngineSystemPresets } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 export class ProjectManager {
-  static instance: ProjectManager
+  static instance: ProjectManager = new ProjectManager()
 
-  settings: any
   project: any
   projectLoaded: boolean
   initializing: boolean
   initialized: boolean
 
-  ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
-  currentOwnedFileIds: {}
-  static buildProjectManager(settings?: any) {
-    this.instance = new ProjectManager(settings)
-  }
-
-  constructor(settings = {}) {
-    this.settings = settings
+  constructor() {
     this.project = null
 
     this.projectLoaded = false
 
     this.initializing = false
     this.initialized = false
-
-    this.ownedFileIds = {}
-    this.currentOwnedFileIds = {}
 
     const initializationOptions: InitializeOptions = {
       type: EngineSystemPresets.EDITOR,
@@ -87,7 +77,7 @@ export class ProjectManager {
    * @param  {any}  projectFile [contains scene data]
    * @return {Promise}             [scene to render]
    */
-  async loadProject(projectFile) {
+  async loadProject(projectFile: SceneJson) {
     await this.init()
 
     CommandManager.instance.removeListener(

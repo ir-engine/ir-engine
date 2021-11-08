@@ -10,6 +10,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles'
 import RouterComp from '../route/public'
 import './styles.scss'
+import { StoredLocalAction } from '@xrengine/client-core/src/util/StoredLocalState'
 // import {  } from 'styled-components'
 
 declare module '@mui/styles/defaultTheme' {
@@ -32,7 +33,7 @@ const App = (): any => {
       ;(window as any).env = (window as any).env ?? ''
     }
 
-    dispatch(AuthAction.restoreAuth())
+    dispatch(StoredLocalAction.restoreLocalData())
 
     initGA()
 

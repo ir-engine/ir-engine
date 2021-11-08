@@ -1,5 +1,17 @@
 import i18n from 'i18next'
-import { PerspectiveCamera, Raycaster, Scene, Vector2, Vector3, AudioListener, PropertyBinding, WebGLInfo, WebGLRenderer, MeshBasicMaterial, MeshNormalMaterial } from 'three'
+import {
+  PerspectiveCamera,
+  Raycaster,
+  Scene,
+  Vector2,
+  Vector3,
+  AudioListener,
+  PropertyBinding,
+  WebGLInfo,
+  WebGLRenderer,
+  MeshBasicMaterial,
+  MeshNormalMaterial
+} from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
 import { generateImageFileThumbnail, generateVideoFileThumbnail } from '../functions/thumbnails'
@@ -32,9 +44,11 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { TransformSpace } from '../constants/TransformSpace'
+import { NodeManager } from './NodeManager'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 export class SceneManager {
-  static instance: SceneManager
+  static instance: SceneManager = new SceneManager()
 
   static DefaultExportOptions = {
     combineMeshes: true,
@@ -72,13 +86,15 @@ export class SceneManager {
     CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
   }
 
-  async initializeScene(projectFile: any): Promise<Error[] | void> {
+  async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
     this.disableUpdate = true
 
     // remove existing scene
     if (this.scene) {
       CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.scene)
     }
+
+    NodeManager.instance.nodes = [this.scene]
 
     // getting scene data
     // const [scene, error] = await SceneNode.loadProject(projectFile)
@@ -97,7 +113,6 @@ export class SceneManager {
 
     this.scene.add(this.grid)
     this.scene.add(this.transformGizmo)
-
 
     this.audioListener = new AudioListener()
     Engine.camera.add(this.audioListener)
@@ -178,11 +193,7 @@ export class SceneManager {
     let scenePreviewCamera = Engine.scene.findNodeByType(ScenePreviewCameraNode)
     if (!scenePreviewCamera) {
       scenePreviewCamera = new ScenePreviewCameraNode()
-      Engine.camera.matrix.decompose(
-        scenePreviewCamera.position,
-        scenePreviewCamera.rotation,
-        scenePreviewCamera.scale
-      )
+      Engine.camera.matrix.decompose(scenePreviewCamera.position, scenePreviewCamera.rotation, scenePreviewCamera.scale)
       CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, [scenePreviewCamera])
     }
     const prevAspect = scenePreviewCamera.aspect
@@ -268,7 +279,9 @@ export class SceneManager {
       const object3dComponent = getComponent(entityNode.eid, Object3DComponent)
 
       object3dComponent.value.traverse((child: any) => {
-        if (!child.disableOutline && !child.isHelper &&
+        if (
+          !child.disableOutline &&
+          !child.isHelper &&
           (child.isMesh || child.isLine || child.isSprite || child.isPoints)
         ) {
           meshes.push(child)
@@ -280,7 +293,6 @@ export class SceneManager {
 
     return meshes
   }
-
 
   /**
    * Function getSpawnPosition provides the postion of object inside scene.
@@ -543,7 +555,6 @@ type EngineRendererProps = {
   canvas: HTMLCanvasElement
   enabled: boolean
 }
-
 
 // TODO: Probably moved to engine package or will be replaced by already available WebGLRenderSystem
 export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {

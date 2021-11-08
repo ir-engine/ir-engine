@@ -36,8 +36,7 @@ const Scenes = (props: Props) => {
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
-    { id: 'addToContentPack', numeric: false, disablePadding: false, label: 'Add to Content Pack' }
+    { id: 'description', numeric: false, disablePadding: false, label: 'Description' }
   ]
 
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -118,7 +117,6 @@ const Scenes = (props: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(ADMIN_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
-  const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedScenes, setSelectedScenes] = useState([])
   const dispatch = useDispatch()
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
@@ -243,21 +241,7 @@ const Scenes = (props: Props) => {
             className={styles.tablePagination}
           />
         </div>
-        <AddToContentPackModal
-          open={addToContentPackModalOpen}
-          scenes={selectedScenes}
-          handleClose={() => setAddToContentPackModalOpen(false)}
-        />
       </Paper>
-      <Button
-        className={styles['open-modal']}
-        type="button"
-        variant="contained"
-        color="primary"
-        onClick={() => setAddToContentPackModalOpen(true)}
-      >
-        Add to Content Pack
-      </Button>
     </div>
   )
 }

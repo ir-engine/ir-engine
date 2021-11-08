@@ -48,8 +48,7 @@ const Server = (props: serverProps) => {
     certPath: '',
     keyPath: '',
     local: '',
-    releaseName: '',
-    defaultContentPackURL: ''
+    releaseName: ''
   })
 
   const [enabled, setEnabled] = React.useState({
@@ -307,16 +306,6 @@ const Server = (props: serverProps) => {
                 disabled
                 style={{ color: '#fff' }}
                 value={el?.releaseName || ''}
-              />
-            </Paper>
-            <label> Default Content Pack URL </label>
-            <Paper component="div" className={classes.createInput}>
-              <InputBase
-                name="defaultContentPackURL"
-                className={classes.input}
-                disabled
-                style={{ color: '#fff' }}
-                value={el?.defaultContentPackURL || ''}
               />
             </Paper>
           </Grid>
