@@ -1,15 +1,17 @@
 import assert, { strictEqual } from 'assert'
 import fetch from "node-fetch"
-import path from 'path';
-const https = require('https');
-import S3Provider from '../../src/media/storageprovider/s3.storage';
-import LocalStorage from '../../src/media/storageprovider/local.storage';
-import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface';
+import path from 'path'
+const https = require('https')
+import S3Provider from '../../src/media/storageprovider/s3.storage'
+import LocalStorage from '../../src/media/storageprovider/local.storage'
+import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface'
+import {providerBeforeTest,providerAfterTest} from "../storageprovider/storageproviderconfig"
+
 
 describe('Storage Provider test', () => {
     const testFileName="TestFile.txt"
     const testFolderName="TestFolder"
-    const testFileContent="This is the Test File"
+    const testFileContent="This is the Test File"                                                                                                                                                                       
     const folderKeyTemp=path.join(testFolderName,"temp")
     const folderKeyTemp2=path.join(testFolderName,"temp2")
     
@@ -20,11 +22,11 @@ describe('Storage Provider test', () => {
     storageProviders.forEach(provider=>{
 
         before(async function(){
-            await provider.beforeTest();
+            await providerBeforeTest(provider)
         })
 
         
-        it(`should put object in ${provider.constructor.name}`,function (){
+        it(`should put object in ${provider.constructor.name}`,function (){                                                                                                                                                     
             const fileKey=path.join(testFolderName,testFileName)
             const data=Buffer.from(testFileContent)
             provider.putObject({
@@ -90,8 +92,6 @@ describe('Storage Provider test', () => {
             await provider.moveObject(fileKeyTemp,folderKeyTemp2)
             await assert.rejects(provider.checkObjectExistence(fileKeyTemp2))
             await assert.doesNotReject(provider.checkObjectExistence(fileKeyTemp))
-
-
         })
 
         it(`should be able to rename object in ${provider.constructor.name}`,async function(){
@@ -115,7 +115,7 @@ describe('Storage Provider test', () => {
         
         
         after(async function(){
-            await provider.afterTest()
+            await providerAfterTest(provider)
         })
 
 
