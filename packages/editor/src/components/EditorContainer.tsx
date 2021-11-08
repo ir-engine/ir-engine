@@ -226,8 +226,6 @@ const EditorContainer = () => {
       // TODO: replace with better template functionality
       const project = await getScene('default-project', 'default', false)
       await ProjectManager.instance.loadProject(project.scene)
-      dispatch(EditorAction.sceneLoaded(sceneName))
-      setSceneLoaded(true)
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -240,6 +238,8 @@ const EditorContainer = () => {
         />
       )
     }
+    dispatch(EditorAction.sceneLoaded(sceneName))
+    setSceneLoaded(true)
   }
 
   const updateModifiedState = (then?) => {
