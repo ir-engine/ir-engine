@@ -51,6 +51,7 @@ export default function ScenesPanel({ projectName, loadScene, newScene }) {
       <AssetsPanelContainer ref={panelRef} id="file-browser-panel" className={styles.assetsPanel}>
         <AssetPanelContentContainer>
           <ProjectGrid
+            newProjectLabel={t('editor:newScene')}
             loading={loading}
             projects={scenes}
             onClickNew={newScene}
