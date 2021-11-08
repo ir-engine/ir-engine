@@ -133,7 +133,7 @@ type EditorContainerProps = {
  *  @author Robert Long
  */
 const EditorContainer = () => {
-  const { projectName, sceneName } = useEditorState().storage.value
+  const { projectName, sceneName } = useEditorState().value
 
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)

@@ -18,7 +18,7 @@ const EditorProtectedRoutes = () => {
   const dispatch = useDispatch()
 
   const editorState = useEditorState()
-  console.log(editorState.storage.projectName.value)
+  console.log(editorState.projectName.value)
 
   const initializationOptions: InitializeOptions = {
     type: EngineSystemPresets.EDITOR,
@@ -42,7 +42,7 @@ const EditorProtectedRoutes = () => {
 
   const editorRoute = () => (
     <>
-      {editorState.storage.projectName.value ? (
+      {editorState.projectName.value ? (
         authUser?.accessToken.value != null &&
         authUser.accessToken.value.length > 0 &&
         user?.id.value != null &&

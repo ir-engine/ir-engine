@@ -29,7 +29,7 @@ export function ViewportPanelContainer() {
   // const [showStats, setShowStats] = useState(false);
   const { t } = useTranslation()
   const editorState = useEditorState()
-  const canvasVisible = editorState.storage.sceneName.value !== null
+  const canvasVisible = editorState.sceneName.value !== null
 
   const onSelectionChanged = useCallback(() => {
     setObjectSelected(CommandManager.instance.selected.length > 0)
