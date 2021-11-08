@@ -1,5 +1,4 @@
 import { Group, MathUtils, Mesh, MeshPhongMaterial, Quaternion, Vector3 } from 'three'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import {
   addComponent,
@@ -19,8 +18,7 @@ import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractiveFocusedComponent } from '../components/InteractiveFocusedComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
 import { SubFocusedComponent } from '../components/SubFocusedComponent'
-import { FontManager } from '../../xrui/classes/FontManager'
-import { hideInteractText, showInteractText } from '../functions/interactText'
+
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import AudioSource from '../../scene/classes/AudioSource'
@@ -45,33 +43,15 @@ export default async function InteractiveSystem(world: World): Promise<System> {
   const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
   const interactedQuery = defineQuery([InteractedComponent])
 
-  const xrUIQuery = defineQuery([XRUIComponent, Object3DComponent])
-
-  const geometry = FontManager.instance.create3dText('INTERACT', new Vector3(0.8, 1, 0.2))
-
-  const textSize = 0.1
-  const text = new Mesh(geometry, new MeshPhongMaterial({ color: 0xd4af37, emissive: 0xd4af37, emissiveIntensity: 1 }))
-  text.scale.setScalar(textSize)
-
-  const interactTextEntity = createEntity()
-  const textGroup = new Group().add(text)
-  addComponent(interactTextEntity, Object3DComponent, { value: textGroup })
-  Engine.scene.add(textGroup)
-  addComponent(interactTextEntity, PersistTagComponent, {})
-  const transformComponent = addComponent(interactTextEntity, TransformComponent, {
-    position: new Vector3(),
-    rotation: new Quaternion(),
-    scale: new Vector3(1, 1, 1)
-  })
-  transformComponent.scale.setScalar(0)
-  textGroup.visible = false
-
   return () => {
     const { elapsedTime } = world
 
     for (const entity of interactiveQuery.enter(world)) {
       if (!hasComponent(entity, BoundingBoxComponent) && hasComponent(entity, Object3DComponent)) {
         createBoxComponent(entity)
+      }
+      if (!getInteractUI(entity)) {
+        createInteractUI(entity)
       }
     }
 
@@ -105,13 +85,10 @@ export default async function InteractiveSystem(world: World): Promise<System> {
 
     // removal is the first because the hint must first be deleted, and then a new one appears
     for (const entity of focusQuery.exit()) {
-      hideInteractText(interactTextEntity)
       hideInteractUI(entity)
     }
 
     for (const entity of focusQuery.enter()) {
-      createInteractUI(entity)
-      showInteractText(interactTextEntity, entity)
       showInteractUI(entity)
     }
 
@@ -134,37 +111,6 @@ export default async function InteractiveSystem(world: World): Promise<System> {
         })
       }
       removeComponent(entity, InteractedComponent)
-    }
-
-    // TODO: move to free update
-    for (const entity of localUserQuery()) {
-      for (const xrEntity of xrUIQuery()) {
-        const interactUIObject = getComponent(xrEntity, Object3DComponent).value
-        if (!interactUIObject.visible) continue
-        if (Engine.activeCameraFollowTarget && hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)) {
-          interactUIObject.children[0].setRotationFromAxisAngle(
-            upVec,
-            MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
-          )
-        } else {
-          const { x, z } = getComponent(entity, TransformComponent).position
-          interactUIObject.lookAt(x, interactUIObject.position.y, z)
-        }
-      }
-
-      // animate the interact text up and down if it's visible
-      const interactTextObject = getComponent(interactTextEntity, Object3DComponent).value
-      if (!interactTextObject.visible) continue
-      interactTextObject.children[0].position.y = Math.sin(elapsedTime * 1.8) * 0.05
-      if (Engine.activeCameraFollowTarget && hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)) {
-        interactTextObject.children[0].setRotationFromAxisAngle(
-          upVec,
-          MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
-        )
-      } else {
-        const { x, z } = getComponent(entity, TransformComponent).position
-        interactTextObject.lookAt(x, interactTextObject.position.y, z)
-      }
     }
   }
 }

@@ -24,7 +24,7 @@ export default async function XRUISystem(world: World): Promise<System> {
   const redirectDOMEvent = (evt) => {
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).layer
-      const hit = layer.hitTest(this.raycaster.ray)
+      const hit = layer.hitTest(screenRaycaster.ray)
       if (hit) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
         hit.target.focus()
