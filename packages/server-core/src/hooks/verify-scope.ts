@@ -4,6 +4,7 @@ import { extractLoggedInUserFromParams } from '../user/auth-management/auth-mana
 
 export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext) => {
+    if (context.params.isInternal) return context
     const loggedInUser = extractLoggedInUserFromParams(context.params)
     if (!loggedInUser) throw new UnauthenticatedException('No logged in user')
     const user = await context.app.service('user').get(loggedInUser.userId)
