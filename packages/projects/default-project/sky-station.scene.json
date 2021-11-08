@@ -190,7 +190,7 @@
         {
           "name": "gltf-model",
           "props": {
-            "src": "__$project$__/default-project/Skybase.glb",
+            "src": "__$project$__/default-project/assets/Skybase.glb",
             "textureOverride": "",
             "matrixAutoUpdate": true
           }
@@ -205,7 +205,7 @@
         {
           "name": "interact",
           "props": {
-            "payloadModelUrl": "__$project$__/default-project/Skybase.glb"
+            "payloadModelUrl": "__$project$__/default-project/assets/Skybase.glb"
           }
         },
         {
