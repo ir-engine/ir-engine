@@ -8,6 +8,7 @@ import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/ini
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { Route, Switch } from 'react-router-dom'
 import { useDispatch } from '@xrengine/client-core/src/store'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 const EditorProtectedRoutes = () => {
   const [engineIsInitialized, setEngineInitialized] = useState(false)
@@ -17,11 +18,18 @@ const EditorProtectedRoutes = () => {
   const dispatch = useDispatch()
 
   const editorState = useEditorState()
-  console.log(editorState.projectName.value)
+  console.log(editorState.storage.projectName.value)
 
   const initializationOptions: InitializeOptions = {
     type: EngineSystemPresets.EDITOR,
-    publicPath: location.origin
+    publicPath: location.origin,
+    systems: [
+      {
+        systemModulePromise: import('../managers/SceneManager'),
+        type: SystemUpdateType.PRE_RENDER,
+        args: { enabled: true }
+      }
+    ]
   }
 
   useEffect(() => {
@@ -34,7 +42,7 @@ const EditorProtectedRoutes = () => {
 
   const editorRoute = () => (
     <>
-      {editorState.projectName.value ? (
+      {editorState.storage.projectName.value ? (
         authUser?.accessToken.value != null &&
         authUser.accessToken.value.length > 0 &&
         user?.id.value != null &&

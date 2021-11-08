@@ -7,15 +7,17 @@ import {
 } from '@xrengine/client-core/src/util/StoredLocalState'
 
 const state = createState({
-  projectName: null as string,
-  sceneName: null as string
+  storage: {
+    projectName: null as string,
+    sceneName: null as string
+  },
+  canvas: null as HTMLCanvasElement
 })
-console.log('editor')
 
 const restoreLocalData = (s) => {
   const stored = accessStoredLocalState().attach(Downgraded).editorData.value
   console.log(stored)
-  return s.merge(stored)
+  return s.store.merge(stored)
 }
 
 store.receptors.push((action: EditorActionType | StoredLocalActionType): any => {
@@ -26,10 +28,12 @@ store.receptors.push((action: EditorActionType | StoredLocalActionType): any => 
         return restoreLocalData(s)
       case 'SCENE_LOADED':
         // dispatch(StoredLocalAction.storedLocal({ editorData: { sceneName: action.sceneName } }))
-        return s.merge({ sceneName: action.sceneName })
+        return s.storage.merge({ sceneName: action.sceneName })
       case 'PROJECT_LOADED':
         dispatch(StoredLocalAction.storedLocal({ editorData: { projectName: action.projectName } }))
-        return s.merge({ projectName: action.projectName })
+        return s.storage.merge({ projectName: action.projectName })
+      case 'SET_CANVAS':
+        return s.merge({ canvas: action.canvas })
     }
   }, action.type)
 })
@@ -53,6 +57,12 @@ export const EditorAction = {
     return {
       type: 'PROJECT_LOADED' as const,
       projectName
+    }
+  },
+  setCanvas: (canvas: HTMLCanvasElement) => {
+    return {
+      type: 'SET_CANVAS' as const,
+      canvas
     }
   }
 }

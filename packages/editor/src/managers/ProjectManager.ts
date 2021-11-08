@@ -8,9 +8,6 @@ import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
 import { NodeManager } from './NodeManager'
 import { SceneManager } from './SceneManager'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { InitializeOptions, EngineSystemPresets } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 export class ProjectManager {
@@ -28,21 +25,6 @@ export class ProjectManager {
 
     this.initializing = false
     this.initialized = false
-
-    const initializationOptions: InitializeOptions = {
-      type: EngineSystemPresets.EDITOR,
-      publicPath: location.origin,
-      systems: [
-        {
-          systemModulePromise: import('./SceneManager'),
-          type: SystemUpdateType.PRE_RENDER,
-          args: { enabled: true }
-        }
-      ]
-    }
-
-    // Engine will be initialized
-    initializeEngine(initializationOptions).then(() => {})
   }
 
   /**

@@ -46,6 +46,7 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { TransformSpace } from '../constants/TransformSpace'
 import { NodeManager } from './NodeManager'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { accessEditorState } from '../services/EditorServices'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()

@@ -1,9 +1,16 @@
-import React, { Fragment, Suspense, useEffect } from 'react'
+import React, { Fragment, Suspense, useEffect, useRef } from 'react'
 import ProjectEditor from '@xrengine/editor/src/pages/editor'
 import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDialog'
 import CircularProgress from '@mui/material/CircularProgress'
+
+const canvasStyle = {
+  width: '100%',
+  height: '100%',
+  position: 'absolute',
+  zIndex: -10000
+}
 
 const EditorProtectedRoutes = () => {
   const isSceneAllowed = userHasAccess('editor:write')
@@ -29,6 +36,7 @@ const EditorProtectedRoutes = () => {
             </div>
           }
         >
+          <canvas style={canvasStyle} tabIndex={-1} id="viewport-canvas" />
           {isSceneAllowed ? <ProjectEditor /> : <FormDialog />}
         </Suspense>
       </Fragment>

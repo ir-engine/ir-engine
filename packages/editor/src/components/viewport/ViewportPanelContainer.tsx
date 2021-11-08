@@ -11,6 +11,8 @@ import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
+import { EditorAction, useEditorState } from '../../services/EditorServices'
+import { useDispatch } from '@xrengine/client-core/src/store'
 
 /**
  * ViewportPanelContainer used to render viewport.
@@ -19,7 +21,7 @@ import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
  * @constructor
  */
 export function ViewportPanelContainer() {
-  const canvasRef = useRef<HTMLCanvasElement>()
+  // const canvasRef = useRef<HTMLCanvasElement>()
   const [flyModeEnabled, setFlyModeEnabled] = useState(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
@@ -50,7 +52,7 @@ export function ViewportPanelContainer() {
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
-    SceneManager.instance.createRenderer(canvasRef.current)
+    // SceneManager.instance.createRenderer(canvasRef.current)
 
     return () => {
       CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
@@ -145,7 +147,6 @@ export function ViewportPanelContainer() {
       ref={dropRef}
     >
       <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
-      <canvas className={styles.viewportCanvas} ref={canvasRef} tabIndex={-1} id="viewport-canvas" />
       <div className={styles.controlsText}>{controlsText}</div>
       <AssetDropZone afterUpload={onAfterUploadAssets} />
     </div>
