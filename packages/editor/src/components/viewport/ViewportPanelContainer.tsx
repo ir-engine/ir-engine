@@ -13,6 +13,7 @@ import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import { EditorAction, useEditorState } from '../../services/EditorServices'
 import { useDispatch } from '@xrengine/client-core/src/store'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 
 /**
  * ViewportPanelContainer used to render viewport.
@@ -27,6 +28,8 @@ export function ViewportPanelContainer() {
   const [transformMode, setTransformMode] = useState(null)
   // const [showStats, setShowStats] = useState(false);
   const { t } = useTranslation()
+  const editorState = useEditorState()
+  const canvasVisible = editorState.storage.sceneName.value !== null
 
   const onSelectionChanged = useCallback(() => {
     setObjectSelected(CommandManager.instance.selected.length > 0)
@@ -140,13 +143,19 @@ export function ViewportPanelContainer() {
   return (
     <div
       className={styles.viewportContainer}
-      style={{
-        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent',
-        backgroundColor: 'grey'
-      }}
+      style={
+        canvasVisible
+          ? {}
+          : {
+              borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent',
+              backgroundColor: 'grey'
+            }
+      }
       ref={dropRef}
     >
-      <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
+      {!canvasVisible && (
+        <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
+      )}
       <div className={styles.controlsText}>{controlsText}</div>
       <AssetDropZone afterUpload={onAfterUploadAssets} />
     </div>

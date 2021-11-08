@@ -78,7 +78,6 @@ export class EngineRenderer {
     if (!this.supportWebGL2 && !WebGL.isWebGLAvailable()) {
       WebGL.dispatchWebGLDisconnectedEvent()
     }
-    console.log(document.querySelector('canvas'))
     const canvas: HTMLCanvasElement = attributes.canvas ?? document.querySelector('canvas')
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
 

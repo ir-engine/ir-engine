@@ -8,8 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 const canvasStyle = {
   width: '100%',
   height: '100%',
-  position: 'absolute',
-  zIndex: -10000
+  position: 'absolute'
 }
 
 const EditorProtectedRoutes = () => {
@@ -37,7 +36,7 @@ const EditorProtectedRoutes = () => {
           }
         >
           <canvas style={canvasStyle} tabIndex={-1} id="viewport-canvas" />
-          {isSceneAllowed ? <ProjectEditor /> : <FormDialog />}
+          <div style={canvasStyle}>{isSceneAllowed ? <ProjectEditor /> : <FormDialog />}</div>
         </Suspense>
       </Fragment>
     </>

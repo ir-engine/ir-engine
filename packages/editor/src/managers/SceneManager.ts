@@ -144,13 +144,12 @@ export class SceneManager {
     this.sceneModified = true
   }
 
-  createRenderer(canvas: HTMLCanvasElement): void {
-    this.canvas = canvas
+  createRenderer(): void {
     const renderer = makeRenderer(
-      canvas.parentElement.parentElement.offsetWidth,
-      canvas.parentElement.parentElement.offsetHeight,
+      EngineRenderer.instance.canvas.parentElement.parentElement.offsetWidth,
+      EngineRenderer.instance.canvas.parentElement.parentElement.offsetHeight,
       {
-        canvas
+        canvas: EngineRenderer.instance.canvas
       }
     )
     renderer.setPixelRatio(window.devicePixelRatio)
