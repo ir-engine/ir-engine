@@ -17,6 +17,8 @@ else
   aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
 fi
 
+mkdir -p ./project-package-jsons/projects/default-project
+cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
 DOCKER_BUILDKIT=1 docker build --cache-from $ECR_URL/$REPO_NAME:latest_$STAGE --build-arg BUILDKIT_INLINE_CACHE=1 --tag $LABEL -f Dockerfile-build-deploy .
