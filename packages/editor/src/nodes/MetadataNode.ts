@@ -8,7 +8,7 @@ export default class MetadataNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = '_metadata'
 
   static async load() {
-    metadataHelperTexture = await loadTexture('/editor/metadata-icon.png')
+    metadataHelperTexture = await loadTexture('/static/editor/metadata-icon.png')
   }
 
   static async deserialize(json) {

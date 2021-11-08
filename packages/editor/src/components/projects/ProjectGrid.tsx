@@ -43,14 +43,9 @@ const ProjectGridItemContainer = (styled as any).div`
  * @param {string} label
  * @returns
  */
-export function NewProjectGridItem({ path, label }: { path: string; label: string }) {
-  const history = useHistory()
-
-  const routeTo = (route: string) => () => {
-    history.push(route)
-  }
+export function NewProjectGridItem({ onClickNew, label }: { onClickNew: any; label: string }) {
   return (
-    <ProjectGridItemContainer as="button" onClick={routeTo(path)}>
+    <ProjectGridItemContainer as="button" onClick={onClickNew}>
       <Plus />
       <h3>{label}</h3>
     </ProjectGridItemContainer>
@@ -89,7 +84,8 @@ const StyledProjectGrid = (styled as any).div`
 
 interface ProjectGridProp {
   projects?: any
-  newProjectPath?: any
+  onClickExisting?: any
+  onClickNew?: any
   newProjectLabel?: any
   contextMenuId?: any
   loading?: boolean
@@ -106,12 +102,20 @@ interface ProjectGridProp {
  * @param {any} loading
  * @returns
  */
-export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }: ProjectGridProp) {
+export function ProjectGrid({
+  projects,
+  onClickExisting,
+  onClickNew,
+  newProjectLabel,
+  contextMenuId,
+  loading
+}: ProjectGridProp) {
   return (
     <StyledProjectGrid>
-      {newProjectPath && !loading && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
+      {onClickNew && !loading && <NewProjectGridItem onClickNew={onClickNew} label={newProjectLabel} />}
       {projects.map((project) => (
         <ProjectGridItem
+          onClickExisting={onClickExisting}
           key={project.project_id || project.id || project.name}
           project={project}
           contextMenuId={contextMenuId}

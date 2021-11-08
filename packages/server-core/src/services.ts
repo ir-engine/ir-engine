@@ -1,6 +1,6 @@
 import { Application } from '../declarations'
 import AnalyticsServices from './analytics/services'
-import EntityServices from './entities/services'
+import EntityServices from './projects/services'
 import MediaServices from './media/services'
 import NetworkingServices from './networking/services'
 // import PaymentServices from './payments/services';

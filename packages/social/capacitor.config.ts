@@ -1,4 +1,4 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
   appId: 'com.xrengine.social',
@@ -7,16 +7,16 @@ const config: CapacitorConfig = {
   loggingBehavior: 'none',
   plugins: {
     SplashScreen: {
-      launchShowDuration: 0,
-    },
+      launchShowDuration: 0
+    }
   },
   ios: {
-    "limitsNavigationsToAppBoundDomains": true
+    limitsNavigationsToAppBoundDomains: true
   },
   server: {
-    "url": "https://dev.arcmedia.us",
-    "allowNavigation": ["*.arcmedia.us"]
+    url: 'https://dev.arcmedia.us',
+    allowNavigation: ['*.arcmedia.us']
   }
-};
+}
 
-export default config;
+export default config

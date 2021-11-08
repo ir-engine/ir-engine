@@ -5,7 +5,7 @@ import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 import { resolveMedia } from '../functions/resolveMedia'
 
 let defaultParticleSprite = null
-const defaultParticleUrl = '/editor/dot.png'
+const defaultParticleUrl = '/static/editor/dot.png'
 export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter) {
   static legacyComponentName = 'particle-emitter'
 

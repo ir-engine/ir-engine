@@ -15,7 +15,7 @@ export default (app: Application): void => {
     console.log('Starting app')
 
     const sequelize = new Sequelize({
-      ...config.db,
+      ...(config.db as any),
       logging: forceRefresh ? console.log : false,
       define: {
         freezeTableName: true
@@ -95,22 +95,10 @@ export default (app: Application): void => {
           return sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
         })
         .then(async () => {
-          if (forceRefresh === true && urlRegex.test(config.server.defaultContentPackURL)) {
-            try {
-              await app.service('content-pack').update(null, {
-                // @ts-ignore
-                manifestUrl: config.server.defaultContentPackURL
-              })
-            } catch (err) {
-              console.log('Error downloading initial content pack')
-              console.error(err)
-            }
-            promiseResolve()
-            return Promise.resolve()
-          } else {
-            promiseResolve()
-            return Promise.resolve()
-          }
+          promiseResolve()
+          return Promise.resolve().then(() => {
+            if (config.db.forceRefresh) process.exit(0)
+          })
         })
         .catch((err) => {
           console.log('Sequelize sync error')

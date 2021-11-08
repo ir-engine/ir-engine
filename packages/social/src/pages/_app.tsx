@@ -13,6 +13,7 @@ import RouterComp from '../router'
 import './styles.scss'
 import AppUrlListener from '../components/AppDeepLink'
 import { ThemeProvider } from 'styled-components'
+import { StoredLocalAction } from '@xrengine/client-core/src/util/StoredLocalState'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -29,7 +30,7 @@ const App = (): any => {
       ;(window as any).env = ''
     }
 
-    dispatch(AuthAction.restoreAuth())
+    dispatch(StoredLocalAction.restoreLocalData())
 
     initGA()
 

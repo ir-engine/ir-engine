@@ -72,7 +72,7 @@ function avatarActionReceptor(action) {
       })
     })
 
-    .when(NetworkWorldAction.teleportObject.matches, (a) => {
+    .when(NetworkWorldAction.teleportObject.matchesFromAny, (a) => {
       const [x, y, z, qX, qY, qZ, qW] = a.pose
 
       const entity = world.getNetworkObject(a.networkId)

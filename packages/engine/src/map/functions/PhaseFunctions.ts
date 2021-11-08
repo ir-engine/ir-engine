@@ -67,23 +67,22 @@ export function resetPhases(state: MapStateUnwrapped, phases: readonly IPhase<an
 }
 
 export async function startPhases(state: MapStateUnwrapped, phases: readonly IPhase<any, any>[]) {
+  // TODO remove
   const results = [] as any[]
   let result: any
+
   for (const phase of phases) {
+    // console.log("starting phase", phase.name)
     const keys = phase.getTaskKeys(state)
-    if (process.env.NODE_ENV === 'development') {
-      if (!keys[Symbol.iterator]) {
-        throw new Error('task keys are not iterable!')
-      }
-    }
     if (phase.isCachingPhase || phase.isAsyncPhase) {
+      // TODO remove
       const promises = [] as Promise<any>[]
       let promise: Promise<any>
       for (const key of keys) {
-        if (process.env.NODE_ENV === 'development') {
-          checkKey(key)
-        }
-        if (phase.getTaskStatus(state, key) === TaskStatus.NOT_STARTED) {
+        const taskStatus = phase.getTaskStatus(state, key)
+        // console.log(`task key: ${key} status: ${taskStatus === TaskStatus.STARTED ? 'started' : 'not started'}`)
+        if (taskStatus === TaskStatus.NOT_STARTED) {
+          // console.log("starting task for", phase.name)
           if (phase.isAsyncPhase) {
             promise = phase.startTask(state, key)
             promises.push(promise)
@@ -97,6 +96,8 @@ export async function startPhases(state: MapStateUnwrapped, phases: readonly IPh
       results.push(...(await Promise.all(promises)))
     } else {
       for (const key of keys) {
+        // console.log(`task key: ${key}`)
+        // console.log("starting task", phase.name)
         result = (phase as ISyncPhase<any, any>).execTask(state, key)
         results.push(result)
       }
