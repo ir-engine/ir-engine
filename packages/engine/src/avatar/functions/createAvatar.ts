@@ -57,15 +57,16 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
       })
   }
 
-  const position = createVector3Proxy(TransformComponent.position, entity).copy(spawnAction.parameters.position)
+  const position = createVector3Proxy(TransformComponent.position, entity)
 
-  const rotation = createQuaternionProxy(TransformComponent.rotation, entity).copy(spawnAction.parameters.rotation)
-
+  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
   // todo: figure out why scale makes avatar disappear
   // const scale = createVector3Proxy(TransformComponent.scale, entity)
   const scale = new Vector3().copy(new Vector3(1, 1, 1))
 
   const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
+  transform.position.copy(spawnAction.parameters.position)
+  transform.rotation.copy(spawnAction.parameters.rotation)
 
   const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
 
@@ -199,6 +200,7 @@ export const createAvatarController = (entity: Entity) => {
       entity
     }
   }) as PhysX.PxCapsuleController
+  console.log(controller.getPosition())
 
   const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
   frustumCamera.position.setY(avatarHalfHeight)
