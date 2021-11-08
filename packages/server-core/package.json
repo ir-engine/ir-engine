@@ -42,11 +42,11 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "socket.io": "4.3.1"
+    "socket.io": "4.3.2"
   },
   "peerDependencies": {
     "chokidar": "^3.4.2",
-    "socket.io": "4.3.1"
+    "socket.io": "4.3.2"
   },
   "dependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.9",
