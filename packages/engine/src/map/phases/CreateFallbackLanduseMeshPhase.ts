@@ -3,6 +3,7 @@ import { DEFAULT_FEATURE_STYLES, getFeatureStyles, MAX_Z_INDEX } from '../styles
 import getCachedMaterial from '../functions/getCachedMaterial'
 import { Mesh, MeshLambertMaterial, PlaneBufferGeometry } from 'three'
 import computeTileBoundingBox from '../functions/computeTileBoundingBox'
+import FeatureKey from '../classes/FeatureKey'
 
 export const name = 'create fallback landuse mesh'
 export const isAsyncPhase = false
@@ -37,7 +38,7 @@ export function execTask(state: MapStateUnwrapped, key: TileKey) {
   geometry.rotateX(-Math.PI / 2)
   const mesh = new Mesh(geometry, material)
   mesh.renderOrder = -MAX_Z_INDEX
-  state.completeObjects.set(['landuse_fallback', x, y, '0'], {
+  state.completeObjects.set(new FeatureKey('landuse_fallback', x, y, '0'), {
     centerPoint: [tileLeft + tileWidth / 2, -1 * (tileTop + tileHeight / 2)],
     boundingCircleRadius: Math.max(tileWidth, tileHeight) / 2,
     mesh

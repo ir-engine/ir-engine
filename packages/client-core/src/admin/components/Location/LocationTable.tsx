@@ -43,7 +43,6 @@ const LocationTable = (props: LocationProps) => {
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
-  const adminSceneState = useSceneState()
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
   const adminLocationState = useLocationState()
   const adminLocations = adminLocationState.locations.locations
@@ -65,7 +64,8 @@ const LocationTable = (props: LocationProps) => {
     if (user?.id?.value !== null && adminLocationState.locations.updateNeeded.value && !adminScopeReadErrMsg?.value) {
       LocationService.fetchAdminLocations()
     }
-    if (user?.id.value != null && adminSceneState.scenes.updateNeeded.value === true) {
+    if (user?.id.value != null) {
+      // && adminSceneState.scenes.updateNeeded.value === true) {
       SceneService.fetchAdminScenes('all')
     }
     if (user?.id.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
@@ -79,7 +79,7 @@ const LocationTable = (props: LocationProps) => {
     }
   }, [
     authState.user?.id?.value,
-    adminSceneState.scenes.updateNeeded.value,
+    // adminSceneState.scenes.updateNeeded.value,
     adminInstanceState.instances.updateNeeded.value,
     adminLocationState.locations.updateNeeded.value,
     adminLocationState.locationTypes.updateNeeded.value

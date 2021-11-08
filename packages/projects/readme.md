@@ -6,7 +6,16 @@ Projects are git repositories that act as containers for assets, scenes and scri
 
 ## Structure
 
-The project.json of a Project has a field "xrengine" which contains information such as the thumbnail, as well as the entry points to load modules from. The name field in the package.json should match the name of the repository.
+Each project has a few filename conventions.
+
+`<project_name>/routes.tsx`: a file for specifying custom routes
+`<project_name>/thumbnail.png`: a thumbnail image
+`<project_name>/public/`: a folder for for public assets
+
+A project can also have a package.json to provide custom dependencies. @xrengine/* monorepo dependencies will be symlinked and not needed, but some package managers (such as pnpm) requrie these to be defined. If so, they should be defined in `peerDependencies`.
+
+
+<!-- The project.json of a Project has a field "xrengine" which contains information such as the thumbnail, as well as the entry points to load modules from. The name field in the package.json should match the name of the repository. -->
 
 ## Local Development Flow
 

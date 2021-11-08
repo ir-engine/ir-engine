@@ -68,7 +68,7 @@ import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
 
 export class NodeManager {
-  static instance: NodeManager
+  static instance: NodeManager = new NodeManager()
 
   nodes: any[]
 
@@ -76,15 +76,11 @@ export class NodeManager {
 
   nodeEditors: Map<any, any>
 
-  static buildNodeManager(scene: SceneNode) {
-    this.instance = new NodeManager(scene)
-  }
-
-  constructor(scene: SceneNode) {
+  constructor() {
     this.nodeTypes = new Set()
     this.nodeEditors = new Map()
 
-    this.nodes = [scene]
+    this.nodes = []
   }
 
   /**

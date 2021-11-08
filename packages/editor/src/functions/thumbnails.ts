@@ -62,7 +62,7 @@ export async function generateMediaThumbnail(el?, width = 256, height = 256, bac
     return getCanvasBlob(canvas)
   }
 }
-export function getCanvasBlob(canvas, fileType = 'image/jpeg', quality = 0.9) {
+export function getCanvasBlob(canvas, fileType = 'image/jpeg', quality = 0.9): Promise<Blob> {
   if (canvas.msToBlob) {
     return Promise.resolve(canvas.msToBlob())
   } else {

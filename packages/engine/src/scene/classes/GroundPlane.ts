@@ -8,8 +8,7 @@ export default class GroundPlane extends Object3D {
     this._receiveShadow = true
     const material = new MeshStandardMaterial({
       roughness: 1,
-      metalness: 0,
-      color: '#5DE336'
+      metalness: 0
     })
     const mesh = new Mesh(GroundPlane._geometry, material)
     mesh.name = 'GroundPlaneMesh'

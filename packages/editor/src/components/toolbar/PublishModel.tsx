@@ -23,7 +23,6 @@ import { useTranslation } from 'react-i18next'
 import { useSceneState } from '@xrengine/client-core/src/admin/services/SceneService'
 import { useLocationState } from '@xrengine/client-core/src/admin/services/LocationService'
 import { useParams } from 'react-router-dom'
-import { ScenesService } from '@xrengine/client-core/src/world/services/SceneService'
 
 interface Props {
   open: boolean
@@ -42,7 +41,7 @@ const LocationModal = (props: Props): any => {
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
   const [scene, setScene] = useState(null)
   const [locationType, setLocationType] = useState('private')
-  const adminScenes = useSceneState().scenes.scenes
+  const adminScenes = useSceneState().scenes
   const locationTypes = useLocationState().locationTypes.locationTypes
   const dispatch = useDispatch()
   const [state, setState] = React.useState({
@@ -78,8 +77,7 @@ const LocationModal = (props: Props): any => {
     if (editing === true) {
       LocationService.patchLocation(location.id, submission)
     } else {
-      ScenesService.createPublishProject(submission)
-      //   createLocation(submission)
+      // TODO
     }
 
     handleClose()

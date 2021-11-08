@@ -34,10 +34,6 @@ export const searchMedia = async (source, params, cursor, signal): Promise<any> 
     paramsOption.query['type'] = params.type
   }
 
-  if (params.collection) {
-    paramsOption.query['collection'] = params.collection
-  }
-
   if (cursor) {
     paramsOption.query['cursor'] = cursor
   }

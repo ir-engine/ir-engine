@@ -15,6 +15,7 @@ import { NavMeshComponent } from '../../src/navigation/component/NavMeshComponen
 import { MapAction, mapReducer } from '../../src/map/MapReceptor'
 import { MapStateUnwrapped } from '../../src/map/types'
 import { MapComponent } from '../../src/map/MapComponent'
+import FeatureKey from '../../src/map/classes/FeatureKey'
 
 describe('MapUpdateSystem', () => {
   const triggerRefreshRadius = 20 // meters
@@ -159,7 +160,7 @@ describe('MapUpdateSystem', () => {
     const mesh = new Mesh()
     const subScene = getComponent(mapEntity, Object3DComponent)
     state.needsUpdate = true
-    state.completeObjects.set(['road', 0, 0, '0'], {
+    state.completeObjects.set(new FeatureKey('road', 0, 0, '0'), {
       centerPoint: [0, 0],
       boundingCircleRadius: 5,
       mesh
@@ -197,7 +198,7 @@ describe('MapUpdateSystem', () => {
     ])
     const label = createFeatureLabel('123 sesame st', feature, [0, 0])
 
-    state.labelCache.set(['road', 0, 0, '0'], label)
+    state.labelCache.set(new FeatureKey('road', 0, 0, '0'), label)
     state.needsUpdate = true
 
     world.fixedDelta = 0.16
@@ -213,7 +214,7 @@ describe('MapUpdateSystem', () => {
   it('adds meshes to the navigation plane as they become available', () => {
     const mesh = new Mesh()
     const navTarget = getComponent(mapEntity, NavMeshComponent).navTarget
-    state.completeObjects.set(['landuse_fallback', 0, 0, '0'], { mesh, centerPoint: [0, 0], boundingCircleRadius: 1 })
+    state.completeObjects.set(new FeatureKey('landuse_fallback', 0, 0, '0'), { mesh, centerPoint: [0, 0], boundingCircleRadius: 1 })
     state.needsUpdate = true
 
     world.fixedDelta = 0.16

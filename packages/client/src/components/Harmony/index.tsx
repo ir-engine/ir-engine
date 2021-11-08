@@ -312,20 +312,20 @@ const Harmony = (props: Props): any => {
     TransportService.updateChannelTypeState()
   }, [MediaStreams.instance.channelType, MediaStreams.instance.channelId])
 
-  useEffect(() => {
-    setActiveAVChannelId(transportState.channelId.value)
+  // useEffect(() => {
+  //   setActiveAVChannelId(transportState.channelId.value)
 
-    if (targetChannelId == null || targetChannelId === '') {
-      // TODO: fix this - it causes crashes for some reason
-      // -> Please open a Github issue documenting how to make these crashes occur and tag @barankyle
-      // -> Without this, a lot of things don't function properly
-      const matchingChannel = channelEntries.find((entry) => entry?.id === activeAVChannelIdRef.current)
-      if (matchingChannel)
-        setActiveChat(matchingChannel.channelType, {
-          id: matchingChannel.instanceId
-        })
-    }
-  }, [transportState])
+  //   if (targetChannelId == null || targetChannelId === '') {
+  //     // TODO: fix this - it causes crashes for some reason
+  //     // -> Please open a Github issue documenting how to make these crashes occur and tag @barankyle
+  //     // -> Without this, a lot of things don't function properly
+  //     const matchingChannel = channelEntries.find((entry) => entry?.id === activeAVChannelIdRef.current)
+  //     if (matchingChannel)
+  //       setActiveChat(matchingChannel.channelType, {
+  //         id: matchingChannel.instanceId
+  //       })
+  //   }
+  // }, [transportState])
 
   useEffect(() => {
     if (channelConnectionState.connected.value === false && channelAwaitingProvision?.id?.length > 0) {
@@ -340,20 +340,20 @@ const Harmony = (props: Props): any => {
     }
   }, [channelConnectionState.connected.value])
 
-  useEffect(() => {
-    chatStateRef.current = chatState
-    if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
-      ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
-      ChatService.updateMessageScrollInit(false)
-      setMessageScrollUpdate(false)
-    }
-    if (messageScrollUpdate === true) {
-      setMessageScrollUpdate(false)
-      if (messageEl != null && (messageEl as any).scrollTop != null) {
-        ;(messageEl as any).scrollTop = (topMessage as any).offsetTop
-      }
-    }
-  }, [chatState])
+  // useEffect(() => {
+  //   chatStateRef.current = chatState
+  //   if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
+  //     ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
+  //     ChatService.updateMessageScrollInit(false)
+  //     setMessageScrollUpdate(false)
+  //   }
+  //   if (messageScrollUpdate === true) {
+  //     setMessageScrollUpdate(false)
+  //     if (messageEl != null && (messageEl as any).scrollTop != null) {
+  //       ;(messageEl as any).scrollTop = (topMessage as any).offsetTop
+  //     }
+  //   }
+  // }, [chatState])
 
   useEffect(() => {
     if (channelState.updateNeeded.value === true) {

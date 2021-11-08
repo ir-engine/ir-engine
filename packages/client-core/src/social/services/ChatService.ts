@@ -197,8 +197,9 @@ store.receptors.push((action: ChatActionType) => {
         })
 
       case 'SET_MESSAGE_SCROLL_INIT':
-        const { value } = action
-        return s.merge({ messageScrollInit: value })
+        // const { value } = action
+        // s.merge({ messageScrollInit: value })
+        return
 
       case 'FETCHING_INSTANCE_CHANNEL':
         return s.channels.merge({ fetchingInstanceChannel: true })
