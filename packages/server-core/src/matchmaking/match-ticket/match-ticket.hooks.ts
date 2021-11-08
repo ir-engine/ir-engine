@@ -3,6 +3,7 @@ import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-i
 import matchmakingRestrictMultipleQueueing from '@xrengine/server-core/src/hooks/matchmaking-restrict-multiple-queueing'
 import matchmakingSaveTicket from '@xrengine/server-core/src/hooks/matchmaking-save-ticket'
 import * as commonHooks from 'feathers-hooks-common'
+import matchmakingRemoveTicket from '@xrengine/server-core/src/hooks/matchmaking-remove-ticket'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -30,7 +31,7 @@ export default {
     create: [matchmakingSaveTicket()],
     update: [],
     patch: [],
-    remove: []
+    remove: [matchmakingRemoveTicket()]
   },
 
   error: {
