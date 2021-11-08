@@ -99,7 +99,7 @@ export interface StorageProviderInterface {
    * List all the files/folders in the directory
    * @param folderName
    */
-  listFolderContent(folderName: string): Promise<FileContentType[]>
+  listFolderContent(folderName: string, recursive?: boolean): Promise<FileContentType[]>
 
   /**
    * Moves a directory
