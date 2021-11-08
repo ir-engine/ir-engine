@@ -31,6 +31,9 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { createInteractUI, showInteractUI, hideInteractUI, getInteractUI } from '../functions/interactUI'
+
 const upVec = new Vector3(0, 1, 0)
 
 export default async function InteractiveSystem(world: World): Promise<System> {
@@ -41,6 +44,8 @@ export default async function InteractiveSystem(world: World): Promise<System> {
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
   const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
   const interactedQuery = defineQuery([InteractedComponent])
+
+  const xrUIQuery = defineQuery([XRUIComponent, Object3DComponent])
 
   const geometry = FontManager.instance.create3dText('INTERACT', new Vector3(0.8, 1, 0.2))
 
@@ -101,10 +106,13 @@ export default async function InteractiveSystem(world: World): Promise<System> {
     // removal is the first because the hint must first be deleted, and then a new one appears
     for (const entity of focusQuery.exit()) {
       hideInteractText(interactTextEntity)
+      hideInteractUI(entity)
     }
 
     for (const entity of focusQuery.enter()) {
+      createInteractUI(entity)
       showInteractText(interactTextEntity, entity)
+      showInteractUI(entity)
     }
 
     for (const entity of subfocusQuery.enter()) {
@@ -130,6 +138,20 @@ export default async function InteractiveSystem(world: World): Promise<System> {
 
     // TODO: move to free update
     for (const entity of localUserQuery()) {
+      for (const xrEntity of xrUIQuery()) {
+        const interactUIObject = getComponent(xrEntity, Object3DComponent).value
+        if (!interactUIObject.visible) continue
+        if (Engine.activeCameraFollowTarget && hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)) {
+          interactUIObject.children[0].setRotationFromAxisAngle(
+            upVec,
+            MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
+          )
+        } else {
+          const { x, z } = getComponent(entity, TransformComponent).position
+          interactUIObject.lookAt(x, interactUIObject.position.y, z)
+        }
+      }
+
       // animate the interact text up and down if it's visible
       const interactTextObject = getComponent(interactTextEntity, Object3DComponent).value
       if (!interactTextObject.visible) continue
