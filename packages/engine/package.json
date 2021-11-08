@@ -64,7 +64,7 @@
     "postprocessing": "^6.21.5",
     "react": "17.0.2",
     "simplex-noise": "^3.0.0",
-    "socket.io": "4.3.1",
+    "socket.io": "4.3.2",
     "styled-components": "5.3.3",
     "three": "^0.134.0",
     "three-mesh-bvh": "^0.5.0",
