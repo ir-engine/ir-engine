@@ -1,5 +1,5 @@
 import { Application } from '../../../declarations'
-import { getSceneData, Scene } from './scenenew.class'
+import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
 import appRootPath from 'app-root-path'

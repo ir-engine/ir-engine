@@ -6,7 +6,7 @@ import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDial
 import CircularProgress from '@mui/material/CircularProgress'
 
 const EditorProtectedRoutes = () => {
-  const isSceneAllowed = userHasAccess('editor:read')
+  const isSceneAllowed = userHasAccess('editor:write')
 
   useEffect(() => {
     AuthService.doLoginAuto(false)
