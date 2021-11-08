@@ -6,6 +6,7 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import { getAllPortals, getCubemapBake, getPortal } from './scene-helper'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -54,6 +55,10 @@ export default (app: Application) => {
   app.use('scenes', {
     get: getScenesForProject(app)
   })
+
+  app.get('/portal/list', getAllPortals(app))
+  app.get('/portal/:entityId', getPortal(app))
+  app.get('/cubemap/:entityId', getCubemapBake(app))
 
   /**
    * Get our initialized service so that we can register hooks
