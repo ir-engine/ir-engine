@@ -213,7 +213,7 @@
             "type": "Interaction Type",
             "text": "Interaction Text",
             "distance": "Interaction Distance",
-            "themeIndex": "Interaction Theme",
+            "theme": "Interaction Theme",
             "name": "Interaction Name",
             "description": "Interaction Description",
             "images": "Interaction Images",
