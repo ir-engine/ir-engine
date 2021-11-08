@@ -7,7 +7,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { SceneDataComponent } from './SceneLoading'
 
 export const loadModelAnimation = (entity: Entity, component: SceneDataComponent) => {
   if (isClient) {

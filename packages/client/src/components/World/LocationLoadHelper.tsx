@@ -16,13 +16,13 @@ import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Vector3, Quaternion } from 'three'
-import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { getPacksFromSceneData } from '@xrengine/projects/loader'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -53,7 +53,7 @@ export type EngineCallbacks = {
   onSuccess?: Function
 }
 
-export const getSceneData = async (scene: string, isOffline: boolean): Promise<SceneData> => {
+export const getSceneData = async (scene: string, isOffline: boolean): Promise<SceneJson> => {
   if (isOffline) {
     return testScenes[scene] || testScenes.test
   }
@@ -65,12 +65,12 @@ export const getSceneData = async (scene: string, isOffline: boolean): Promise<S
   return sceneResult.data.scene
 }
 
-const getFirstSpawnPointFromSceneData = (scene: SceneData) => {
+const getFirstSpawnPointFromSceneData = (scene: SceneJson) => {
   for (const entity of Object.values(scene.entities)) {
     if (entity.name != 'spawn point') continue
 
     for (const component of entity.components) {
-      if (component.type === 'transform') {
+      if (component.name === 'transform') {
         return component.props.position
       }
     }
@@ -80,7 +80,7 @@ const getFirstSpawnPointFromSceneData = (scene: SceneData) => {
   return { x: 0, y: 0, z: 0 }
 }
 
-const createOfflineUser = (sceneData: SceneData) => {
+const createOfflineUser = (sceneData: SceneJson) => {
   const avatarDetail = {
     thumbnailURL: '',
     avatarURL: '',
