@@ -25,6 +25,7 @@ import SkyboxNode from './SkyboxNode'
 import { SceneManager } from '../managers/SceneManager'
 import { upload } from '@xrengine/client-core/src/util/upload'
 import { uploadProjectAsset } from '../functions/assetFunctions'
+import { accessEditorState } from '../services/EditorServices'
 
 const assetIdentitifer = 'cubemapbake'
 
@@ -65,7 +66,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   }
 
   async captureCubeMap(): Promise<WebGLCubeRenderTarget> {
-    const sceneToBake = this.getSceneForBaking(SceneManager.instance.scene)
+    const sceneToBake = this.getSceneForBaking(SceneManager.instance.scene as any)
     const cubemapCapturer = new CubemapCapturer(
       SceneManager.instance.renderer.webglRenderer,
       sceneToBake,
@@ -182,9 +183,13 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       this.cubemapBakeSettings.resolution,
       true
     )
-    const value = await uploadProjectAsset(projectID, blob, assetIdentitifer)
+    const sceneName = accessEditorState().sceneName.value
+    const value = await uploadProjectAsset(projectID, [
+      new File([blob], `${sceneName}-${this.nodeName.replace(' ', '-')}.png`)
+    ])
+
     console.log('uploadBakeToServer', value)
-    this.cubemapBakeSettings.envMapOrigin = value.origin
+    this.cubemapBakeSettings.envMapOrigin = value[0].url
   }
 
   setEnvMap() {

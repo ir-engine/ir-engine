@@ -78,6 +78,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             node.parent = parent
           } else if (entityId === root) {
             scene = node
+            SceneManager.instance.scene = scene
           } else {
             throw new Error(`Node "${entity.name}" with uuid "${entity.uuid}" does not specify a parent.`)
           }

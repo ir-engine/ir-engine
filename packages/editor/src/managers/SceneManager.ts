@@ -74,7 +74,6 @@ export class SceneManager {
     const [scene, error] = await SceneNode.loadProject(projectFile)
     if (scene === null) throw new Error('Scene data is null, please create a new scene.')
 
-    this.scene = scene
     this.camera.position.set(0, 5, 10)
     this.camera.lookAt(new Vector3())
 
