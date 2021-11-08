@@ -8,9 +8,9 @@ Projects are git repositories that act as containers for assets, scenes and scri
 
 Each project has a few filename conventions.
 
-`xrengine/routes.tsx` a file for specifying custom routes
-`xrengine/thumbnail.png` a thumbnail image
-`public/` for public assets
+`<project_name>/routes.tsx`: a file for specifying custom routes
+`<project_name>/thumbnail.png`: a thumbnail image
+`<project_name>/public/`: a folder for for public assets
 
 A project can also have a package.json to provide custom dependencies. @xrengine/* monorepo dependencies will be symlinked and not needed, but some package managers (such as pnpm) requrie these to be defined. If so, they should be defined in `peerDependencies`.
 

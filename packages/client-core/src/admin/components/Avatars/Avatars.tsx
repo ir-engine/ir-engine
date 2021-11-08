@@ -68,8 +68,7 @@ const Avatars = (props: Props) => {
       if (order !== 0) return order
       return a[1] - b[1]
     })
-    const returned = stabilizedThis.map((el) => el[0])
-    return returned
+    return stabilizedThis.map((el) => el[0])
   }
 
   interface EnhancedTableProps {
@@ -119,7 +118,6 @@ const Avatars = (props: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
-  const [selectedAvatars, setSelectedAvatars] = useState([])
   const [avatarSelectMenuOpen, setAvatarSelectMenuOpen] = useState(false)
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
@@ -152,14 +150,6 @@ const Avatars = (props: Props) => {
     setPage(0)
   }
 
-  const handleCheck = (e: any, row: any) => {
-    const existingAvatarIndex = selectedAvatars.findIndex((avatar) => avatar.id === row.id)
-    if (e.target.checked === true) {
-      if (existingAvatarIndex >= 0) setSelectedAvatars(selectedAvatars.splice(existingAvatarIndex, 1, row))
-      else setSelectedAvatars(selectedAvatars.concat(row))
-    } else setSelectedAvatars(selectedAvatars.splice(existingAvatarIndex, 1))
-  }
-
   const fetchTick = () => {
     setTimeout(() => {
       setRefetch(true)
@@ -167,20 +157,12 @@ const Avatars = (props: Props) => {
     }, 5000)
   }
 
-  const closeAvatarSelectModal = () => {
-    setAvatarSelectMenuOpen(false)
-  }
-
-  // useEffect(() => {
-  //   fetchTick()
-  // }, [])
-
   useEffect(() => {
-    if (user?.id.value != null && (adminAvatarState.avatars.updateNeeded.value === true || refetch === true)) {
+    if (user?.id.value != null && (adminAvatarState.updateNeeded.value === true || refetch === true)) {
       AvatarService.fetchAdminAvatars()
     }
     setRefetch(false)
-  }, [authState.user?.id?.value, adminAvatarState.avatars.updateNeeded.value, refetch])
+  }, [authState.user?.id?.value, adminAvatarState.updateNeeded.value, refetch])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -254,16 +236,6 @@ const Avatars = (props: Props) => {
                     </TableCell>
                     <TableCell className={styles.tcell} align="right">
                       {row.key}
-                    </TableCell>
-                    <TableCell className={styles.tcell} align="right">
-                      {user.userRole.value === 'admin' && (
-                        <Checkbox
-                          className={styles.checkbox}
-                          onChange={(e) => handleCheck(e, row)}
-                          name="stereoscopic"
-                          color="primary"
-                        />
-                      )}
                     </TableCell>
                   </TableRow>
                 )
