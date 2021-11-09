@@ -34,6 +34,14 @@ export class ArrayInputGroup extends Component<ArrayInputGroupProp, ArrayInputGr
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    // You don't have to do this check first, but it can help prevent an unneeded render
+    if (nextProps.values !== this.state.values) {
+      this.setState({ values: nextProps.values })
+      this.setState({ count: nextProps.values.length })
+    }
+  }
+
   onChangeSize = (text) => {
     const count = parseInt(text)
     if (count == undefined || this.state.count == count) return

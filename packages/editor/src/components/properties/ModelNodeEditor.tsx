@@ -242,7 +242,6 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
 
   // creating view for interactable type
   renderInteractableTypeOptions = (node) => {
-    const values = ['1', '2', '3']
     switch (node.interactionType) {
       case 'infoBox':
         return (
