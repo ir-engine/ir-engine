@@ -35,7 +35,9 @@ export const parseScenePortals = (scene: SceneDetailInterface) => {
       if (component.name === 'portal') {
         portals.push({
           sceneName: scene.name,
-          portalEntityId: entityId
+          portalEntityId: entityId,
+          spawnPosition: component.props.spawnPosition,
+          spawnRotation: component.props.spawnRotation
         })
       }
   }
