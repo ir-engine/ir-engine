@@ -4,12 +4,7 @@ import { AlertService } from '../../common/services/AlertService'
 import { Config } from '@xrengine/common/src/config'
 import { accessAuthState } from '../../user/services/AuthService'
 
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
-
-import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-
+import { createState, useState } from '@hookstate/core'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceResult } from '@xrengine/common/src/interfaces/InstanceResult'
 
@@ -18,23 +13,21 @@ import { InstanceResult } from '@xrengine/common/src/interfaces/InstanceResult'
 export const INSTNCE_PAGE_LIMIT = 100
 
 const state = createState({
-  instances: {
-    instances: [] as Array<Instance>,
-    skip: 0,
-    limit: INSTNCE_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    lastFetched: Date.now()
-  }
+  instances: [] as Array<Instance>,
+  skip: 0,
+  limit: INSTNCE_PAGE_LIMIT,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true,
+  lastFetched: Date.now()
 })
 
 store.receptors.push((action: InstanceActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'INSTANCES_RETRIEVED':
-        return s.instances.merge({
+        return s.merge({
           instances: action.instanceResult.data,
           skip: action.instanceResult.skip,
           limit: action.instanceResult.limit,
@@ -46,9 +39,9 @@ store.receptors.push((action: InstanceActionType): any => {
         })
       case 'INSTANCE_REMOVED_ROW':
         let instance = state.instances.value
-        let instanceList = instance.instances
+        let instanceList = instance
         instanceList = instanceList.filter((instance) => instance.id !== action.instance.id)
-        instance.instances = instanceList
+        instance = instanceList
         s.merge({ instances: instance })
     }
   }, action.type)
@@ -63,8 +56,8 @@ export const InstanceService = {
   fetchAdminInstances: async (incDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
     {
-      const skip = accessInstanceState().instances.skip.value
-      const limit = accessInstanceState().instances.limit.value
+      const skip = accessInstanceState().skip.value
+      const limit = accessInstanceState().limit.value
       const user = accessAuthState().user
       try {
         if (user.userRole.value === 'admin') {

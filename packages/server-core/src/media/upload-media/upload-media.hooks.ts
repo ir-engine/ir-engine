@@ -2,7 +2,6 @@ import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
 import { SYNC } from 'feathers-sync'
 
-import addFileId from '@xrengine/server-core/src/hooks/add-file-id'
 import addUriToFile from '@xrengine/server-core/src/hooks/add-uri-to-file'
 import attachOwnerIdInSavingContact from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
 import createOwnedFile from '@xrengine/server-core/src/hooks/create-owned-file'
@@ -33,7 +32,6 @@ export default {
     get: [],
     create: [
       reformatUploadResult(),
-      addFileId(),
       removePreviousFile(),
       createOwnedFile(),
       (context) => (context[SYNC] = false),

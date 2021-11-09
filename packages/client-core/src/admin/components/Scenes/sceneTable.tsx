@@ -29,7 +29,7 @@ const SceneTable = (props: Props) => {
   const authState = useAuthState()
   const user = authState.user
 
-  const scene = useSceneState().scenes
+  const scene = useSceneState()
   const sceneData = scene?.scenes
   const sceneCount = scene?.total
   const [singleScene, setSingleScene] = React.useState(null)

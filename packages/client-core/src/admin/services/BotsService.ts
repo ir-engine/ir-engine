@@ -10,33 +10,21 @@ import { AdminBot, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
 export const BOTS_PAGE_LIMIT = 100
 
 const state = createState({
-  bots: {
-    bots: [] as Array<AdminBot>,
-    skip: 0,
-    limit: BOTS_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    lastFetched: Date.now()
-  },
-  botCommand: {
-    botCommand: [],
-    skip: 0,
-    limit: BOTS_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    lastFetched: Date.now()
-  }
+  bots: [] as Array<AdminBot>,
+  skip: 0,
+  limit: BOTS_PAGE_LIMIT,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true,
+  lastFetched: Date.now()
 })
 
 store.receptors.push((action: BotsActionType): void => {
   state.batch((s) => {
     switch (action.type) {
       case 'BOT_ADMIN_DISPLAY':
-        return s.bots.merge({
+        return s.merge({
           bots: action.bots.data,
           retrieving: false,
           fetched: true,
@@ -44,15 +32,11 @@ store.receptors.push((action: BotsActionType): void => {
           lastFetched: Date.now()
         })
       case 'BOT_ADMIN_CREATE':
-        return s.bots.merge({ updateNeeded: true })
-      case 'BOT_COMMAND_ADMIN_CREATE':
-        return s.bots.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'BOT_ADMIN_REMOVE':
-        return s.bots.merge({ updateNeeded: true })
-      case 'BOT_COMMAND_ADMIN_REMOVE':
-        return s.bots.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'BOT_ADMIN_UPDATE':
-        return s.bots.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -76,8 +60,8 @@ export const BotService = {
     try {
       const dispatch = useDispatch()
       const user = accessAuthState().user
-      const skip = accessBotState().bots.skip.value
-      const limit = accessBotState().bots.limit.value
+      const skip = accessBotState().skip.value
+      const limit = accessBotState().limit.value
       if (user.userRole.value === 'admin') {
         const bots = await client.service('bot').find({
           query: {
@@ -95,29 +79,11 @@ export const BotService = {
       console.error(error)
     }
   },
-  createBotCammand: async (data: any) => {
-    const dispatch = useDispatch()
-    try {
-      const botCammand = await client.service('bot-command').create(data)
-      dispatch(BotsAction.botCammandCreated(botCammand))
-    } catch (error) {
-      console.error(error)
-    }
-  },
   removeBots: async (id: string) => {
     const dispatch = useDispatch()
     try {
       const bot = await client.service('bot').remove(id)
       dispatch(BotsAction.botRemoved(bot))
-    } catch (error) {
-      console.error(error)
-    }
-  },
-  removeBotsCommand: async (id: string) => {
-    const dispatch = useDispatch()
-    try {
-      const result = await client.service('bot-command').remove(id)
-      dispatch(BotsAction.botCommandRemoved(result))
     } catch (error) {
       console.error(error)
     }
@@ -146,23 +112,11 @@ export const BotsAction = {
       bot: bot
     }
   },
-  botCammandCreated: (botCommand: BotCommands) => {
-    return {
-      type: 'BOT_COMMAND_ADMIN_CREATE' as const,
-      botCommand: botCommand
-    }
-  },
   botRemoved: (bot: AdminBot) => {
     debugger
     return {
       type: 'BOT_ADMIN_REMOVE' as const,
       bot: bot
-    }
-  },
-  botCommandRemoved: (botCommand: BotCommands) => {
-    return {
-      type: 'BOT_COMMAND_ADMIN_REMOVE' as const,
-      botCommand: botCommand
     }
   },
   botPatched: (bot: AdminBot) => {

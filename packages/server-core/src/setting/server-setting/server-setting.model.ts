@@ -91,10 +91,6 @@ export default (app: Application) => {
       releaseName: {
         type: DataTypes.STRING,
         allowNull: true
-      },
-      defaultContentPackURL: {
-        type: DataTypes.STRING,
-        allowNull: true
       }
     },
     {

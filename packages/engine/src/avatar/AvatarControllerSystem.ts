@@ -84,7 +84,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
 
       // TODO: implement scene lower bounds parameter
       if (transform.position.y < -10) {
-        respawnAvatar(entity)
+        // respawnAvatar(entity)
         continue
       }
     }

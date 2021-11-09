@@ -4,8 +4,11 @@ import { extractLoggedInUserFromParams } from '../user/auth-management/auth-mana
 
 export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext) => {
+    if (context.params.isInternal) return context
     const loggedInUser = extractLoggedInUserFromParams(context.params)
     if (!loggedInUser) throw new UnauthenticatedException('No logged in user')
+    const user = await context.app.service('user').get(loggedInUser.userId)
+    if (user.userRole === 'admin') return context
     const scopes = await (context.app.service('scope') as any).Model.findAll({
       where: {
         userId: loggedInUser.userId

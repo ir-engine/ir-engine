@@ -23,7 +23,7 @@ export default {
           }
         })
         if (!foundItem.length) {
-          context.arguments[1]?.scopeType?.forEach(async (el) => {
+          context.arguments[1]?.scopeTypes?.forEach(async (el) => {
             await context.app.service('scope').create({
               type: el.type,
               groupId: context.arguments[0]
@@ -33,7 +33,7 @@ export default {
           foundItem.forEach(async (scp) => {
             await context.app.service('scope').remove(scp.dataValues.id)
           })
-          context.arguments[1]?.scopeType?.forEach(async (el) => {
+          context.arguments[1]?.scopeTypes?.forEach(async (el) => {
             await context.app.service('scope').create({
               type: el.type,
               groupId: context.arguments[0]
@@ -54,7 +54,7 @@ export default {
       createGroupOwner(),
       async (context: HookContext): Promise<HookContext> => {
         try {
-          context.arguments[0]?.scopeType?.forEach(async (el) => {
+          context.arguments[0]?.scopeTypes?.forEach(async (el) => {
             await context.app.service('scope').create({
               type: el.type,
               groupId: context.result.id

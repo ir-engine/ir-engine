@@ -43,11 +43,11 @@ const LocationTable = (props: LocationProps) => {
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
-  const adminSceneState = useSceneState()
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
   const adminLocationState = useLocationState()
-  const adminLocations = adminLocationState.locations.locations
-  const adminLocationCount = adminLocationState.locations.total
+  const adminLocations = adminLocationState
+  console.log(adminLocations)
+  const adminLocationCount = adminLocationState.total
   const { t } = useTranslation()
   const adminUserState = useUserState()
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -62,27 +62,27 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value !== null && adminLocationState.locations.updateNeeded.value && !adminScopeReadErrMsg?.value) {
+    if (user?.id?.value !== null && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
       LocationService.fetchAdminLocations()
     }
-    if (user?.id.value != null && adminSceneState.scenes.updateNeeded.value === true) {
+    if (user?.id.value != null) {
+      // && adminSceneState.scenes.updateNeeded.value === true) {
       SceneService.fetchAdminScenes('all')
     }
-    if (user?.id.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
+    if (user?.id.value != null && adminLocationState.updateNeeded.value === true) {
       LocationService.fetchLocationTypes()
     }
-    if (user?.id.value != null && adminUserState.users.updateNeeded.value === true) {
+    if (user?.id.value != null && adminUserState.updateNeeded.value === true) {
       UserService.fetchUsersAsAdmin()
     }
-    if (user?.id.value != null && adminInstanceState.instances.updateNeeded.value === true) {
+    if (user?.id.value != null && adminInstanceState.updateNeeded.value === true) {
       InstanceService.fetchAdminInstances()
     }
   }, [
     authState.user?.id?.value,
-    adminSceneState.scenes.updateNeeded.value,
-    adminInstanceState.instances.updateNeeded.value,
-    adminLocationState.locations.updateNeeded.value,
-    adminLocationState.locationTypes.updateNeeded.value
+    // adminSceneState.scenes.updateNeeded.value,
+    adminInstanceState.updateNeeded.value,
+    adminLocationState.updateNeeded.value
   ])
 
   const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -144,7 +144,7 @@ const LocationTable = (props: LocationProps) => {
     }
   }
 
-  const rows = adminLocations.value.map((el) => {
+  const rows = adminLocations.locations.value.map((el) => {
     return createData(
       el,
       el.id,

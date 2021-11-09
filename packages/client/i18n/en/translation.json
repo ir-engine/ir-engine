@@ -15,6 +15,8 @@
             "description": "If you&#39;re new here we recommend going through the tutorial. Otherwise, jump right in and create a project from scratch or from one of our templates.",
             "lbl-startTutorial": "Start Tutorial",
             "lbl-newProject": "New Project",
+            "lbl-newScene": "New Scene",
+            "back": "Back",
             "contextMenu": "Delete Project"
         }
     },

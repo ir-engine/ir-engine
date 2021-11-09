@@ -2,6 +2,8 @@ import AcceptInvite from '../user/accept-invite/accept-invite.service'
 import Auth from './auth-management/auth-management.service'
 import Email from './email/email.service'
 import IdentityProvider from './identity-provider/identity-provider.service'
+import InventoryItemType from './inventory-item-type/inventory-item-type.service'
+import InventoryItem from './inventory-item/inventory-item.service'
 import Login from './login/login.service'
 import LoginToken from './login-token/login-token.service'
 import MagicLink from './magic-link/magic-link.service'
@@ -20,6 +22,8 @@ export default [
   IdentityProvider,
   UserRelationshipType,
   UserRelationship,
+  InventoryItemType,
+  InventoryItem,
   UserInventory,
   AcceptInvite,
   Auth,

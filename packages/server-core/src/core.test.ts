@@ -7,4 +7,5 @@ describe('Core', () => {
   it('should initialise app', async () => {
     assert.doesNotReject(app.isSetup)
   })
+
 })

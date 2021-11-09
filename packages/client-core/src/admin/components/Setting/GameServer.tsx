@@ -13,7 +13,7 @@ interface gameServerProps {}
 const GameServer = (props: gameServerProps) => {
   const classes = useStyles()
   const gameServerSettingState = useGameServerSettingState()
-  const gameServerSettings = gameServerSettingState?.gameServer?.gameserver?.value || []
+  const gameServerSettings = gameServerSettingState?.gameserver?.value || []
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
@@ -34,7 +34,7 @@ const GameServer = (props: gameServerProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && gameServerSettingState?.gameServer?.updateNeeded?.value === true) {
+    if (user?.id?.value != null && gameServerSettingState?.updateNeeded?.value === true) {
       GameServerSettingService.fetchedGameServerSettings()
     }
   }, [authState])

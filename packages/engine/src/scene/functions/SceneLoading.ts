@@ -98,7 +98,8 @@ export class WorldScene {
       addComponent(entity, NameComponent, { name: sceneEntity.name })
 
       sceneEntity.components.forEach((component) => {
-        component.data.sceneEntityId = sceneEntity.entityId
+        component.data = component.props
+        component.data.sceneEntityId = key
         this.loadComponent(entity, component, sceneProperty)
       })
     })

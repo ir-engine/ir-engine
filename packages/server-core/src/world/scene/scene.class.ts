@@ -1,365 +1,159 @@
-import { Params, Id, NullableId, ServiceMethods } from '@feathersjs/feathers'
-import { Model, ModelCtor, Sequelize, Transaction } from 'sequelize/types'
-import fetch from 'node-fetch'
-
-import {
-  mapSceneDetailData,
-  defaultSceneImport,
-  readJSONFromBlobStore,
-  mapSceneTemplateDetailData
-} from './scene-helper'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
+import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import fs from 'fs'
+import path from 'path'
+import appRootPath from 'app-root-path'
+import { getCachedAsset } from '../../media/storageprovider/storageProviderUtils'
+import { cleanString } from '../../util/cleanString'
+import { uploadLocalProjectToProvider } from '../../projects/project/project.class'
+import { isDev } from '@xrengine/common/src/utils/isDev'
+import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { BadRequest } from '@feathersjs/errors'
-import logger from '../../logger'
-import { Op } from 'sequelize'
-import config from '../../appconfig'
-import { contents } from '@xrengine/common/src/scenes-templates'
-import {
-  SceneDetailInterface,
-  SceneInterface,
-  SceneSaveInterface
-} from '@xrengine/common/src/interfaces/SceneInterface'
-import { useSequilizeClient, useSequilizeModels } from '../../util/useSequilizeClient'
 
-import { StaticResourceModelType } from '../../media/static-resource/static-resource.model'
+export const sceneRelativePathIdentifier = '__$project$__'
+const storageProvider = useStorageProvider()
 
-interface Data {}
-interface ServiceOptions {}
-
-interface PatchData {
-  // scene: SceneSaveInterface
-  userId: string
-  ownedFileId: string
-  name: string
-  thumbnailOwnedFileId: {
-    file_id: string
-    file_token: string
+export const parseSceneDataCacheURLs = (sceneData: SceneJson) => {
+  for (const [key, val] of Object.entries(sceneData)) {
+    if (val && typeof val === 'object') {
+      sceneData[key] = parseSceneDataCacheURLs(val)
+    }
+    if (typeof val === 'string' && val.includes(sceneRelativePathIdentifier)) {
+      sceneData[key] = getCachedAsset(val.replace(sceneRelativePathIdentifier, '/projects'))
+    }
   }
-  ownedFileIds: string // as stringified JSON ??
+  return sceneData
 }
 
-export class Scene implements ServiceMethods<Data> {
+export const cleanSceneDataCacheURLs = (sceneData: SceneJson) => {
+  for (const [key, val] of Object.entries(sceneData)) {
+    if (val && typeof val === 'object') {
+      sceneData[key] = cleanSceneDataCacheURLs(val)
+    }
+    if (typeof val === 'string' && val.includes('https://' + storageProvider.cacheDomain + '/projects')) {
+      sceneData[key] = val.replace('https://' + storageProvider.cacheDomain + '/projects', sceneRelativePathIdentifier)
+    }
+  }
+  return sceneData
+}
+
+export const getSceneData = (projectName, sceneName, metadataOnly) => {
+  const newSceneJsonPath = path.resolve(
+    appRootPath.path,
+    `packages/projects/projects/${projectName}/${sceneName}.scene.json`
+  )
+
+  if (!fs.existsSync(newSceneJsonPath)) throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
+
+  const sceneThumbnailPath = getCachedAsset(`projects/${projectName}/${sceneName}.thumbnail.jpeg`)
+
+  const sceneData: SceneDetailInterface = {
+    name: sceneName,
+    thumbnailUrl: sceneThumbnailPath,
+    scene: metadataOnly
+      ? undefined
+      : parseSceneDataCacheURLs(JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')))
+  }
+
+  return sceneData
+}
+
+interface UpdateParams {
+  sceneName: string
+  sceneData?: SceneJson
+  thumbnailBuffer?: Buffer
+}
+
+export class Scene implements ServiceMethods<any> {
   app: Application
-  options: ServiceOptions
-  models: any
   docs: any
 
-  constructor(options: ServiceOptions = {}, app: Application) {
-    this.options = options
+  constructor(app: Application) {
     this.app = app
-    this.models = this.app.get('sequelizeClient').models
   }
 
   async setup() {}
 
-  /**
-   * A function which is used to display all projects
-   *
-   * @param params contains current user
-   * @returns {@Object} contains all project
-   * @author Vyacheslav Solovjov
-   */
-  async find(params: Params): Promise<any> {
-    const loggedInUser = extractLoggedInUserFromParams(params)
-    const user = await this.app.service('user').get(loggedInUser.userId)
-    const findParams = {
-      attributes: ['name', 'id', 'sid', 'url'],
-      include: defaultSceneImport(this.app.get('sequelizeClient').models)
-    }
-    if (user.userRole !== 'admin')
-      (findParams as any).where = {
-        [Op.or]: [{ userId: loggedInUser.userId }, { userId: null }]
-      }
-    const scenes = await this.models.collection.findAll(findParams)
-    return scenes.map((scene: any) => mapSceneDetailData(scene.toJSON()))
-  }
+  async find(params): Promise<{ data: SceneDetailInterface[] }> {
+    const projects = await this.app.service('project').find(params)
 
-  /**
-   * A function which is used to find specific project
-   *
-   * @param id of single project
-   * @param params contains current user
-   * @returns {@Object} contains specific project
-   * @author Vyacheslav Solovjov
-   */
-  async get(id: Id, params?: Params): Promise<SceneDetailInterface> {
-    const loggedInUser = extractLoggedInUserFromParams(params)
-
-    let project
-    if (String(id).match(/^~/)) {
-      project = contents.find((project) => project.id === id)
-      if (!project) {
-        return Promise.reject(new BadRequest('Project template not found'))
-      }
-      return mapSceneTemplateDetailData(project)
-    } else {
-      project = await this.models.collection.findOne({
-        attributes: ['name', 'id', 'sid', 'url', 'type', 'ownedFileIds'],
-        where: {
-          sid: id
-          // userId: loggedInUser.userId
-        },
-        include: defaultSceneImport(this.app.get('sequelizeClient').models)
-      })
-    }
-
-    if (!project) {
-      return Promise.reject(new BadRequest("Project not found Or you don't have access!"))
-    }
-
-    return mapSceneDetailData(project.toJSON())
-  }
-
-  /**
-   * A function which is used to create new project
-   *
-   * @param data used to create new project
-   * @param params contains user info
-   * @returns {@Object} of created new project
-   * @author Vyacheslav Solovjov
-   */
-  async create(data: any, params: Params): Promise<any> {
-    const provider = useStorageProvider()
-    const storage = provider.getStorage()
-
-    // After saving project, remove the project json file from s3, as we have saved that on database in collection table
-    const tempOwnedFileKey = params.ownedFile.key
-    storage.remove(
-      {
-        key: tempOwnedFileKey
-      },
-      (err: any, result: any) => {
-        if (err) {
-          logger.error('Storage removal error')
-          logger.error('Error in removing project temp Owned file: ', err)
-        }
-        logger.info('Project temp Owned file removed result: ', result)
-      }
-    )
-    return mapSceneDetailData(params.collection)
-  }
-
-  /**
-   * A function which is used to update new project
-   *
-   * @param id
-   * @param data of new project
-   * @param params
-   * @returns {@Object} of updated project
-   * @author Vyacheslav Solovjov
-   */
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data
-  }
-
-  async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {
-    const loggedInUser = extractLoggedInUserFromParams(params)
-    const seqeulizeClient = useSequilizeClient(this.app)
-    const models = useSequilizeModels(this.app)
-    const CollectionModel = models.collection
-    const EntityModel = models.entity
-    const StaticResourceModel = models.static_resource
-    const ComponentModel = models.component
-    const ComponentTypeModel = models.component_type
-    const provider = useStorageProvider()
-    const storage = provider.getStorage()
-
-    const project = (await CollectionModel.findOne({
-      where: {
-        sid: sceneId
-        // userId: loggedInUser.userId
-      }
-    })) as any
-
-    if (!project) {
-      return await Promise.reject(new BadRequest("Project not found Or you don't have access!"))
-    }
-
-    // Find the project owned_file from database
-    // TODO: Create a hook for create and patch methods to avoid code duplication.
-    const ownedFile: StaticResourceModelType = (await StaticResourceModel.findOne({
-      where: {
-        id: data.ownedFileId
-      },
-      raw: true
-    })) as any
-
-    if (!ownedFile) {
-      return await Promise.reject(new BadRequest('Project File not found!'))
-    }
-
-    let sceneData: SceneInterface
-    if (config.server.storageProvider === 'aws') {
-      sceneData = await fetch(ownedFile.url).then((res) => res.json())
-    } else {
-      sceneData = await readJSONFromBlobStore(storage, ownedFile.key)
-    }
-    if (!sceneData) return
-
-    await seqeulizeClient.transaction(async (transaction: Transaction) => {
-      project.update(
-        {
-          name: data.name,
-          metadata: sceneData.metadata,
-          version: sceneData.version,
-          ownedFileIds: data.ownedFileIds
-        },
-        { fields: ['name', 'metadata', 'version', 'ownedFileIds'], transaction }
-      )
-
-      // First delete existing collection, entity and components and create new ones
-      // Delete all entities belongs to collection, as we have added constraint that on entity remove, remove all their components too
-      await EntityModel.destroy({
-        where: {
-          collectionId: project.id
-        },
-        transaction
-      })
-
-      const sceneEntitiesArray: any = []
-
-      for (const prop in sceneData.entities) {
-        sceneEntitiesArray.push({ entityId: prop, ...sceneData.entities[prop] })
-      }
-
-      const entites = sceneEntitiesArray.map((entity: any) => {
-        entity.name = entity.name
-        entity.collectionId = project.id
-        return entity
-      })
-      const savedEntities = await EntityModel.bulkCreate(entites, { transaction })
-      const components: any = []
-      const componetTypeSet = new Set<any>()
-      savedEntities.forEach((savedEntity: any, index: number) => {
-        const entity = sceneEntitiesArray[index]
-        entity.components.forEach((component: any) => {
-          componetTypeSet.add(component.name)
-          components.push({
-            data: component.props,
-            entityId: savedEntity.id,
-            type: component.name,
-            userId: loggedInUser.userId,
-            collection: project.id
-          })
+    const scenes = []
+    for (const project of projects.data) {
+      const { data } = await this.app.service('scenes').get({ projectName: project.name, metadataOnly: true }, params)
+      scenes.push(
+        ...data.map((d) => {
+          d.project = project.name
+          return d
         })
-      })
-      // Now we check if any of component-type is missing, then create that one
-      let savedComponentTypes = await ComponentTypeModel.findAll({
-        where: {
-          type: Array.from(componetTypeSet)
-        },
-        raw: true,
-        attributes: ['type']
-      })
-
-      savedComponentTypes = savedComponentTypes.map((item: any) => item.type)
-      if (savedComponentTypes.length <= componetTypeSet.size) {
-        let nonExistedComponentTypes = Array.from(componetTypeSet).filter(
-          (item) => savedComponentTypes.indexOf(item) < 0
-        )
-
-        nonExistedComponentTypes = nonExistedComponentTypes.map((item) => {
-          return {
-            type: item
-          }
-        })
-        await ComponentTypeModel.bulkCreate(nonExistedComponentTypes, { transaction })
-      }
-      await ComponentModel.bulkCreate(components, { transaction })
-
-      // After saving project, remove the project json file from s3/local, as we have saved that on database in collection table
-      const tempOwnedFileKey = ownedFile.key
-
-      try {
-        // @ts-ignore
-        const responseSuccess = await provider.deleteResources([tempOwnedFileKey])
-        console.log('Project temp Owned file removed result: ', responseSuccess)
-      } catch (e) {
-        console.log('Storage removal error')
-        console.log('Error in removing project temp Owned file: ', e)
-      }
-
-      // Remove the static-resource because entities and components have been extracted from that resource
-      await StaticResourceModel.destroy(
-        {
-          where: {
-            id: ownedFile.id
-          }
-        },
-        // @ts-ignore
-        { transaction }
       )
-    })
-    const savedProject = await this.reloadProject(project.id, project)
-    return mapSceneDetailData(savedProject.toJSON())
-  }
-  /**
-   * A function which is used to remove specific project
-   *
-   * @param id of specific project
-   * @param params
-   * @returns {@Object} of updated project
-   */
-  async remove(id: NullableId, params?: Params): Promise<Data> {
-    if (!id) return { id }
+    }
 
-    const { collection } = this.models
-    await collection.destroy({
-      where: {
-        sid: id
-      }
-    })
     return {
-      id
+      data: scenes
     }
   }
 
-  /**
-   * A function which is used to reload project
-   *
-   * @param projectId of specific project
-   * @param loadedProject data of loaded project
-   * @returns {@Object} of loaded Project
-   * @author Vyacheslav Solovjov
-   */
-  private async reloadProject(projectId: string, loadedProject?: any): Promise<any> {
-    const seqeulizeClient = this.app.get('sequelizeClient')
-    const models = seqeulizeClient.models
-    const StaticResourceModel = models.static_resource
-    const CollectionModel = (this.app.service('collection') as any).Model
-    const projectIncludes: any = [
-      {
-        model: StaticResourceModel,
-        as: 'thumbnail_owned_file',
-        attributes: ['url']
-      }
-    ]
+  // @ts-ignore
+  async get({ projectName, sceneName, metadataOnly }, params?: Params): Promise<{ data: SceneDetailInterface }> {
+    const project = await this.app.service('project').get(projectName, params)
+    if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
-    if (loadedProject?.sceneId) {
-      projectIncludes.push({
-        model: CollectionModel,
-        attributes: ['userId', 'description', 'name', 'parentSceneId', 'sceneId', 'sid']
-      })
+    const sceneData = getSceneData(projectName, sceneName, metadataOnly)
+
+    return {
+      data: sceneData
+    }
+  }
+
+  async update(projectName: string, data: UpdateParams, params?: Params): Promise<any> {
+    const { sceneName, sceneData, thumbnailBuffer } = data
+    console.log('[scene.update]:', projectName, data)
+
+    const project = await this.app.service('project').get(projectName, params)
+    if (!project.data) throw new Error(`No project named ${projectName} exists`)
+
+    const newSceneJsonPath = path.resolve(
+      appRootPath.path,
+      `packages/projects/projects/${projectName}/${sceneName}.scene.json`
+    )
+
+    if (thumbnailBuffer) {
+      const sceneThumbnailPath = path.resolve(
+        appRootPath.path,
+        `packages/projects/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+      )
+      fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer)
     }
 
-    if (loadedProject?.parentSceneId) {
-      projectIncludes.push({
-        model: CollectionModel,
-        attributes: ['userId', 'description', 'name', 'parentSceneId', 'sceneId', 'sid'],
-        as: 'parent_scene'
-      })
+    fs.writeFileSync(
+      path.resolve(newSceneJsonPath),
+      JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed), null, 2)
+    )
+
+    /**
+     * For local development flow only
+     * Updates the local storage provider with the project's current files
+     */
+    if (isDev) {
+      await uploadLocalProjectToProvider(projectName)
     }
+  }
 
-    const projectData = await CollectionModel.findOne({
-      where: {
-        id: projectId
-      },
-      attributes: ['name', 'id', 'sid', 'url', 'thumbnailOwnedFileId'],
-      include: projectIncludes
-    })
+  // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}
 
-    return projectData
+  // @ts-ignore
+  async remove({ projectName, sceneName }, params?: Params): Promise<any> {
+    const name = cleanString(sceneName)
+
+    if (projectName === 'default-project') return
+
+    const project = await this.app.service('project').get(projectName, params)
+    if (!project.data) throw new Error(`No project named ${projectName} exists`)
+
+    const sceneJsonPath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/${name}.scene.json`)
+    if (fs.existsSync(sceneJsonPath)) {
+      fs.rmSync(path.resolve(sceneJsonPath))
+    }
   }
 }
