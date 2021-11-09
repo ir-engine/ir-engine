@@ -118,6 +118,7 @@ const Invites = (props: Props): any => {
   }
 
   const handleUserTokenChange = (event: any): void => {
+    console.log(event.target.value, 'zzzzzzzzzzzzzzzzzzzzzzzzztettttee')
     setUserToken(event.target.value)
   }
 

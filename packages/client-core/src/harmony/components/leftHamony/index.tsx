@@ -1,5 +1,4 @@
 import React from 'react'
-import Paper from '@mui/material/Paper'
 import SearchUser from './SearchUser'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
@@ -46,7 +45,6 @@ const LeftHarmony = () => {
               id="demo-controlled-open-select"
               value={chatType}
               fullWidth
-              // displayEmpty
               onChange={handleChangeType}
               className={classes.select}
               name="instance"

@@ -98,8 +98,8 @@ const Layout = (props: Props): any => {
               {siteTitle} | {pageTitle}
             </title>
           </Helmet>
-          <Harmony />
-          {/* <Harmony
+          {/* <Harmony /> */}
+          <Harmony
             isHarmonyPage={true}
             setHarmonyOpen={setHarmonyOpen}
             setDetailsType={setDetailsType}
@@ -110,7 +110,7 @@ const Layout = (props: Props): any => {
             setSelectedGroup={setSelectedGroup}
             setLeftDrawerOpen={setLeftDrawerOpen}
             setRightDrawerOpen={setRightDrawerOpen}
-          /> */}
+          />
 
           <Fragment>
             <UIDialog />
