@@ -1,4 +1,5 @@
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
+import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 
 export const sceneRelativePathIdentifier = '__$project$__'
@@ -25,4 +26,18 @@ export const cleanSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: strin
     }
   }
   return sceneData
+}
+
+export const parseScenePortals = (scene: SceneDetailInterface) => {
+  const portals: PortalDetail[] = []
+  for (const [entityId, entity] of Object.entries(scene.scene.entities)) {
+    for (const component of entity.components)
+      if (component.name === 'portal') {
+        portals.push({
+          sceneName: scene.name,
+          portalEntityId: entityId
+        })
+      }
+  }
+  return portals
 }
