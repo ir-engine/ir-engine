@@ -50,7 +50,7 @@ const LeftHarmony = () => {
               name="instance"
               MenuProps={{ classes: { paper: classx.selectPaper } }}
             >
-              {['Party', 'Freinds', 'Group', 'Layer', 'Instance'].map((el) => (
+              {['Party', 'Friends', 'Group', 'Layer', 'Instance'].map((el) => (
                 <MenuItem value={el} key={el} style={{ background: '#343b41', color: '#f1f1f1' }}>
                   {el}
                 </MenuItem>
