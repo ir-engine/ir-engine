@@ -18,7 +18,7 @@ dotenv.config({
 })
 
 const sceneData = parseSceneDataCacheURLs(sceneJson, process.env.LOCAL_STORAGE_PROVIDER!)
-console.log(sceneData, process.env.LOCAL_STORAGE_PROVIDER)
+
 describe('Portal', () => {
 
   before(async () => {

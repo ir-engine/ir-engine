@@ -8,5 +8,9 @@ module.exports = {
   ],
   extension: [
     'ts'
-  ]
+  ],
+  exit: true,
+  recursive: true,
+  jobs: '1',
+  timeout: '20000'
 };
