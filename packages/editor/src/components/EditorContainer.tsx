@@ -585,7 +585,11 @@ const EditorContainer = () => {
                 },
                 {
                   id: 'assetsPanel',
-                  title: 'Elements',
+                  title: (
+                    <PanelDragContainer>
+                      <PanelTitle>Elements</PanelTitle>
+                    </PanelDragContainer>
+                  ),
                   content: <AssetsPanel />
                 }
               ]
