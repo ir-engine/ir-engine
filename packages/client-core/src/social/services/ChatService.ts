@@ -298,7 +298,7 @@ export const ChatService = {
   },
   getChannelMessages: async (channelId: string, skip?: number, limit?: number) => {
     const dispatch = useDispatch()
-    {
+    if (channelId && channelId.length > 0) {
       try {
         const chatState = accessChatState().value
         const messageResult = await client.service('message').find({
