@@ -47,7 +47,6 @@ const UserList = ({ chatType }) => {
     setOpenInvite(open)
   }
 
-  console.log(groups)
   React.useEffect(() => {
     let data
     switch (chatType) {
@@ -84,31 +83,33 @@ const UserList = ({ chatType }) => {
       setChannelData(data)
     }
   }, [chatType])
-
   return (
     <div>
-      <List className={classes.root}>
-        {channelData &&
-          channelData.map((el) => {
-            return (
-              <div key={el.id}>
-                <ListItem alignItems="flex-start" className={classes.listBtn} button>
-                  <ListItemAvatar>
-                    <Avatar>{el.name.slice(0, 1).toLocaleUpperCase()}</Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    className={classes.listText}
-                    primary={selfUser.value.id === el.id ? `${el.name} (you)` : el.name}
-                    secondary={<React.Fragment>{el.description}</React.Fragment>}
-                  />
-                </ListItem>
+      {channelData?.length ? (
+        <List className={classes.root}>
+          {channelData &&
+            channelData.map((el) => {
+              return (
+                <div key={el.id}>
+                  <ListItem alignItems="flex-start" className={classes.listBtn} button>
+                    <ListItemAvatar>
+                      <Avatar>{el.name.slice(0, 1).toLocaleUpperCase()}</Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      className={classes.listText}
+                      primary={selfUser.value.id === el.id ? `${el.name} (you)` : el.name}
+                      secondary={<React.Fragment>{el.description}</React.Fragment>}
+                    />
+                  </ListItem>
 
-                <Divider variant="fullWidth" component="li" style={{ backgroundColor: '#15171B' }} />
-              </div>
-            )
-          })}
-      </List>
-
+                  <Divider variant="fullWidth" component="li" style={{ backgroundColor: '#15171B' }} />
+                </div>
+              )
+            })}
+        </List>
+      ) : (
+        ''
+      )}
       {chatType === 'Group' ? (
         <Button
           variant="contained"

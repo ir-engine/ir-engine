@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from '@mui/material/Button'
 import DialogActions from '@mui/material/DialogActions'
 import Container from '@mui/material/Container'
@@ -8,13 +8,22 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
 import { useGroupState } from '../../../social/services/GroupService'
+import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
 
 const GroupTab = () => {
   const classes = useStyles()
   const classex = useStyle()
-  const groupState = useGroupState()
   const [to, setTo] = useState('Select Group')
-  const groups = groupState.groups.groups.value
+
+  const groupState = useGroupState()
+  const invitableGroupState = groupState.invitableGroups
+  const invitableGroups = invitableGroupState.groups
+
+  useEffect(() => {
+    if (groupState.invitableUpdateNeeded.value === true && groupState.getInvitableGroupsInProgress.value !== true) {
+      GroupService.getInvitableGroups(0)
+    }
+  }, [groupState.invitableUpdateNeeded.value, groupState.getInvitableGroupsInProgress.value])
 
   const handleChangeTo = (event) => {
     setTo(event.target.value)
@@ -38,7 +47,7 @@ const GroupTab = () => {
             <MenuItem value="Select Group" disabled style={{ background: 'transparent', color: '#f1f1f1' }}>
               <em>Select Group</em>
             </MenuItem>
-            {groups.map((el) => (
+            {invitableGroups?.map((el) => (
               <MenuItem value={el.name} key={el.id} style={{ background: 'transparent', color: '#f1f1f1' }}>
                 {el.name}
               </MenuItem>

@@ -147,6 +147,8 @@
     "@iconify/react": "3.1.0",
     "@mui/styles": "5.1.0",
     "depcheck": "1.4.2",
-    "react-dnd": "14.0.4"
+    "react-dnd": "14.0.4",
+    "styled-components": "^5.3.3",
+    "vite": "^2.6.13"
   }
 }

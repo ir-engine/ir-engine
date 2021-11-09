@@ -22,6 +22,9 @@ import { useMediaQuery } from 'react-responsive'
 import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
+import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
+import { useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
+import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -58,6 +61,16 @@ const InviteHarmony = ({ open, handleClose }) => {
   const [otherValue, setOtherValue] = useState(0)
   const [createMode, setCreateMode] = useState(false)
   const [type, setType] = useState('Friends')
+  const inviteState = useInviteState()
+  const receivedInviteState = inviteState.receivedInvites
+  const receivedInvites = receivedInviteState.invites
+  const sentInviteState = inviteState.sentInvites
+  const sentInvites = sentInviteState.invites
+  const party = usePartyState().party.value
+
+  const identityProviderTabMap = new Map()
+  identityProviderTabMap.set(0, 'email')
+  identityProviderTabMap.set(1, 'sms')
 
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 768px)' })
 
@@ -72,7 +85,25 @@ const InviteHarmony = ({ open, handleClose }) => {
     setType(event.target.value)
   }
 
-  console.log(type)
+  const updateInviteTargetType = (targetObjectType: string, targetObjectId: string) => {
+    InviteService.updateInviteTarget(targetObjectType, targetObjectId)
+    // setUserToken('')
+  }
+
+  const packageInvite = async (userToken, tabIndex): Promise<void> => {
+    const mappedIDProvider = identityProviderTabMap.get(tabIndex)
+    const sendData = {
+      type: inviteState.targetObjectType.value === 'user' ? 'friend' : inviteState.targetObjectType.value,
+      token: mappedIDProvider ? userToken : null,
+      inviteCode: tabIndex === 2 ? userToken : null,
+      identityProviderType: mappedIDProvider ? mappedIDProvider : null,
+      targetObjectId: inviteState.targetObjectId.value,
+      invitee: tabIndex === 3 ? userToken : null
+    }
+
+    InviteService.sendInvite(sendData)
+  }
+
   return (
     <SwipeableDrawer
       anchor="right"
@@ -107,10 +138,10 @@ const InviteHarmony = ({ open, handleClose }) => {
             </AppBar>
 
             <TabPanel value={value} index={0}>
-              <ReceivedInvites />
+              <ReceivedInvites receivedInvites={receivedInvites} />
             </TabPanel>
             <TabPanel value={value} index={1}>
-              <SentInvites />
+              <SentInvites sentInvites={sentInvites} />
             </TabPanel>
           </div>
         )}
@@ -157,10 +188,27 @@ const InviteHarmony = ({ open, handleClose }) => {
                       label="Friends"
                       {...a11yProps(0)}
                       icon={<SupervisedUserCircleIcon />}
+                      onClick={() => updateInviteTargetType('user', undefined)}
                       classes={{ root: classes.root }}
                     />
-                    <Tab label="Groups" {...a11yProps(1)} icon={<GroupIcon />} classes={{ root: classes.root }} />
-                    <Tab label="Party" {...a11yProps(2)} icon={<GroupWorkIcon />} classes={{ root: classes.root }} />
+                    <Tab
+                      label="Groups"
+                      {...a11yProps(1)}
+                      icon={<GroupIcon />}
+                      onClick={() => updateInviteTargetType('group', undefined)}
+                      classes={{ root: classes.root }}
+                    />
+                    <Tab
+                      label="Party"
+                      {...a11yProps(2)}
+                      icon={<GroupWorkIcon />}
+                      onClick={() => {
+                        if (party?.id) {
+                          updateInviteTargetType('party', party.id)
+                        }
+                      }}
+                      classes={{ root: classes.root }}
+                    />
                   </Tabs>
                 </AppBar>
                 <TabPanel value={otherValue} index={0}>
