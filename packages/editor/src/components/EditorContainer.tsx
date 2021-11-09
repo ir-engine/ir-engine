@@ -434,6 +434,7 @@ const EditorContainer = () => {
         <ConfirmDialog
           title={t('editor:importLegacy')}
           message={t('editor:importLegacyMsg')}
+          confirmLabel="Yes, Continue"
           onConfirm={() => resolve(true)}
           onCancel={() => resolve(false)}
         />
