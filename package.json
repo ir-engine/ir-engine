@@ -147,7 +147,11 @@
     "@iconify/react": "3.1.0",
     "@mui/styles": "5.1.0",
     "depcheck": "1.4.2",
+<<<<<<< HEAD
     "react-dnd": "14.0.4",
+=======
+    "react-dnd": "^14.0.4",
+>>>>>>> dfbe7dd86... received and sent invitation integration
     "styled-components": "^5.3.3",
     "vite": "^2.6.13"
   }
