@@ -1,15 +1,27 @@
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import { Config } from '@xrengine/common/src/config'
-import { AuthAction } from '@xrengine/client-core/src/user/state/AuthAction'
+import { AuthAction } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
-import theme from '@xrengine/client-core/src/util/theme'
+import { theme } from '@xrengine/client-core/src/theme'
 import React, { useCallback, useEffect } from 'react'
 import { Helmet } from 'react-helmet'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { BrowserRouter } from 'react-router-dom'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles'
 import RouterComp from '../route/public'
 import './styles.scss'
+import { StoredLocalAction } from '@xrengine/client-core/src/util/StoredLocalState'
+// import {  } from 'styled-components'
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const App = (): any => {
   const dispatch = useDispatch()
@@ -21,7 +33,7 @@ const App = (): any => {
       ;(window as any).env = (window as any).env ?? ''
     }
 
-    dispatch(AuthAction.restoreAuth())
+    dispatch(StoredLocalAction.restoreLocalData())
 
     initGA()
 
@@ -39,10 +51,12 @@ const App = (): any => {
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
       </Helmet>
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        <RouterComp />
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <GlobalStyle />
+          <RouterComp />
+        </ThemeProvider>
+      </StyledEngineProvider>
     </>
   )
 }

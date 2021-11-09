@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
 import { AssetPanelContentContainer } from './AssetsPanel'
-import { UploadFileType } from './sources/MyAssetsSource'
+import AudioNode from '../../nodes/AudioNode'
+import ImageNode from '../../nodes/ImageNode'
+import ModelNode from '../../nodes/ModelNode'
+import VideoNode from '../../nodes/VideoNode'
 import { NodeManager } from '../../managers/NodeManager'
 import FileBrowserGrid from './FileBrowserGrid'
 import { File } from '@styled-icons/fa-solid/File'
@@ -11,24 +14,49 @@ import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu
 import { ToolButton } from '../toolbar/ToolButton'
 import { ArrowBack } from '@styled-icons/boxicons-regular/ArrowBack'
 import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
-import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/state/FileBrowserService'
+import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import useElementResize from 'element-resize-event'
 import { Downgraded } from '@hookstate/core'
 import { FileDataType } from './FileDataType'
 
+/**
+ * @author Abhishek Pathak
+ */
+
+export const UploadFileType = {
+  gltf: ModelNode,
+  'gltf-binary': ModelNode,
+  glb: ModelNode,
+  png: ImageNode,
+  jpeg: ImageNode,
+  mp4: VideoNode,
+  mpeg: AudioNode,
+  mp3: AudioNode,
+  'model/gltf-binary': ModelNode,
+  'model/gltf': ModelNode,
+  'model/glb': ModelNode,
+  'image/png': ImageNode,
+  'image/jpeg': ImageNode,
+  'application/pdf': null,
+  'video/mp4': VideoNode,
+  'audio/mpeg': AudioNode,
+  'audio/mp3': AudioNode
+}
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  * @author Abhishek Pathak
  * @constructor
  */
 
-let lastVal = null
-
 export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const { t } = useTranslation()
   const panelRef = useRef(null)
   // const [scrollWindowWidth, setScrollWindowWidth] = useState(0)
   const [scrollWindowHeight, setScrollWindowHeight] = useState(750)
+  const [isLoading, setLoading] = useState(true)
+  const [selectedDirectory, setSelectedDirectory] = useState('/projects/')
+  const fileState = useFileBrowserState()
+  const filesValue = fileState.files.attach(Downgraded).value
 
   useEffect(() => {
     useElementResize(panelRef.current, () => {
@@ -46,11 +74,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       setSelectedDirectory(newPath)
     }
   }
-
-  const [isLoading, setLoading] = useState(true)
-  const [selectedDirectory, setSelectedDirectory] = useState('/')
-  const fileState = useFileBrowserState()
-  const filesValue = fileState.files.attach(Downgraded).value
 
   const files = fileState.files.value.map((file): FileDataType => {
     const nodeClass = UploadFileType[file.type]

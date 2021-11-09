@@ -8,7 +8,7 @@ import logger from '@xrengine/server-core/src/logger'
 import { decode } from 'jsonwebtoken'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
+// import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
@@ -16,18 +16,11 @@ import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { getPacksFromSceneData } from '@xrengine/projects/loader'
 import { initializeServerEngine } from './initializeServerEngine'
 
-const loadScene = async (app: Application, sceneId: string) => {
-  let service, serviceId
-  const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
-  const sceneResult = await app.service('scene').get(sceneId)
-  // console.log("Scene result is: ", sceneResult)
-  const sceneUrl = sceneResult.scene_url
-  const regexResult = sceneUrl.match(sceneRegex)
-  if (regexResult) {
-    service = regexResult[1]
-    serviceId = regexResult[2]
-  }
-  const sceneData = (await app.service(service).get(serviceId)) as SceneData
+const loadScene = async (app: Application, scene: string) => {
+  const [projectName, sceneName] = scene.split('/')
+  // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
+  const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false })
+  const sceneData = sceneResult.data.scene as any // SceneData
   const packs = await getPacksFromSceneData(sceneData, false)
 
   await initializeServerEngine(packs.systems, app.isChannelInstance)
@@ -53,13 +46,13 @@ const loadScene = async (app: Application, sceneId: string) => {
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
   const portals = getAllComponentsOfType(PortalComponent)
-  await Promise.all(
-    portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
-      return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
-        if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
-      })
-    })
-  )
+  // await Promise.all(
+  //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
+  //     return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
+  //       if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
+  //     })
+  //   })
+  // )
 }
 
 const createNewInstance = async (app: Application, newInstance, locationId, channelId, agonesSDK) => {

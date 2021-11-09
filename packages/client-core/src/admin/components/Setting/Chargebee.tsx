@@ -1,23 +1,23 @@
 import React, { useEffect } from 'react'
-import { Paper, Typography } from '@material-ui/core'
-import InputBase from '@material-ui/core/InputBase'
-import { ChargebeeSettingService } from '../../state/Setting/ChargebeeSettingServices'
-import { useChargebeeSettingState } from '../../state/Setting/ChargebeeSettingState'
+import { Paper, Typography } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
+import { ChargebeeSettingService } from '../../services/Setting/ChargebeeSettingService'
+import { useChargebeeSettingState } from '../../services/Setting/ChargebeeSettingService'
 import { useDispatch } from '../../../store'
 import { useStyles } from './styles'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/services/AuthService'
 interface Props {}
 
 const ChargeBee = (props: Props) => {
   const classes = useStyles()
   const chargeBeeSettingState = useChargebeeSettingState()
-  const [chargebee] = chargeBeeSettingState?.Chargebee?.chargebee.value || []
+  const [chargebee] = chargeBeeSettingState?.chargebee.value || []
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
 
   useEffect(() => {
-    if (user?.id?.value != null && chargeBeeSettingState?.Chargebee?.updateNeeded?.value) {
+    if (user?.id?.value != null && chargeBeeSettingState?.updateNeeded?.value) {
       ChargebeeSettingService.fetchChargeBee()
     }
   }, [authState])

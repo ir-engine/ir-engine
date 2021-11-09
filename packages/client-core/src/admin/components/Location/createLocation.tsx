@@ -1,28 +1,28 @@
 import React from 'react'
-import Drawer from '@material-ui/core/Drawer'
-import Button from '@material-ui/core/Button'
+import Drawer from '@mui/material/Drawer'
+import Button from '@mui/material/Button'
 import { useDispatch } from '../../../store'
-import DialogActions from '@material-ui/core/DialogActions'
-import Container from '@material-ui/core/Container'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Snackbar from '@material-ui/core/Snackbar'
-import MuiAlert from '@material-ui/lab/Alert'
+import DialogActions from '@mui/material/DialogActions'
+import Container from '@mui/material/Container'
+import DialogTitle from '@mui/material/DialogTitle'
+import Snackbar from '@mui/material/Snackbar'
+import MuiAlert from '@mui/material/Alert'
 import { useLocationStyles, useLocationStyle } from './styles'
-import Paper from '@material-ui/core/Paper'
-import InputBase from '@material-ui/core/InputBase'
-import MenuItem from '@material-ui/core/MenuItem'
-import Select from '@material-ui/core/Select'
-import Grid from '@material-ui/core/Grid'
-import FormControl from '@material-ui/core/FormControl'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import FormGroup from '@material-ui/core/FormGroup'
-import Switch from '@material-ui/core/Switch'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import Grid from '@mui/material/Grid'
+import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormGroup from '@mui/material/FormGroup'
+import Switch from '@mui/material/Switch'
 import { useTranslation } from 'react-i18next'
-import { useLocationState } from '../../state/LocationState'
-import { useSceneState } from '../../state/SceneState'
-import { LocationService } from '../../state/LocationService'
+import { useLocationState } from '../../services/LocationService'
+import { useSceneState } from '../../services/SceneService'
+import { LocationService } from '../../services/LocationService'
 import { validateUserForm } from '../Users/validation'
-import { useAlertState } from '../../../common/state/AlertState'
+import { useAlertState } from '../../../common/services/AlertService'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -63,9 +63,9 @@ const CreateLocation = (props: Props) => {
   const dispatch = useDispatch()
   const { t } = useTranslation()
   const adminLocationState = useLocationState()
-  const locationTypes = adminLocationState.locationTypes.locationTypes
-  const location = adminLocationState.locations
-  const adminScenes = useSceneState().scenes.scenes
+  const locationTypes = adminLocationState.locationTypes
+  const location = adminLocationState
+  const adminScenes = useSceneState().scenes
   const alertState = useAlertState()
   const errorType = alertState.type
   const errorMessage = alertState.message
@@ -155,10 +155,11 @@ const CreateLocation = (props: Props) => {
     if (!state.scene) {
       temp.scene = "Scene can't be empty"
     }
+    console.log(state, temp, { ...state, formErrors: temp })
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
       LocationService.createLocation(data)
-      //  closeViewModel(false)
+      closeViewModel(false)
     } else {
       setError('Please fill all required field')
       setOpenWarning(true)
@@ -220,8 +221,10 @@ const CreateLocation = (props: Props) => {
                 <MenuItem value="" disabled>
                   <em>Select scene</em>
                 </MenuItem>
-                {adminScenes.value.map((el) => (
-                  <MenuItem value={el.sid} key={el.sid}>{`${el.name} (${el.sid})`}</MenuItem>
+                {adminScenes.value.map((el, i) => (
+                  <MenuItem value={`${el.project}/${el.name}`} key={i}>
+                    {el.name}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>

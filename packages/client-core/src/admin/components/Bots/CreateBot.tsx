@@ -1,33 +1,33 @@
 import React from 'react'
-import InputBase from '@material-ui/core/InputBase'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
-import DeleteIcon from '@material-ui/icons/Delete'
-import List from '@material-ui/core/List'
+import InputBase from '@mui/material/InputBase'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from '@mui/icons-material/Delete'
+import List from '@mui/material/List'
 
-import ListItem from '@material-ui/core/ListItem'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import ListItemText from '@material-ui/core/ListItemText'
+import ListItem from '@mui/material/ListItem'
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
+import ListItemText from '@mui/material/ListItemText'
 import { useStylesForBots as useStyles, useStyle } from './styles'
-import CardContent from '@material-ui/core/CardContent'
-import Grid from '@material-ui/core/Grid'
-import Card from '@material-ui/core/Card'
-import Typography from '@material-ui/core/Typography'
-import Paper from '@material-ui/core/Paper'
-import { Autorenew, Face, Save } from '@material-ui/icons'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
+import CardContent from '@mui/material/CardContent'
+import Grid from '@mui/material/Grid'
+import Card from '@mui/material/Card'
+import Typography from '@mui/material/Typography'
+import Paper from '@mui/material/Paper'
+import { Autorenew, Face, Save } from '@mui/icons-material'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
 
-import { InstanceService } from '../../state/InstanceService'
-import { useInstanceState } from '../../state/InstanceState'
-import { LocationService } from '../../state/LocationService'
+import { InstanceService } from '../../services/InstanceService'
+import { useInstanceState } from '../../services/InstanceService'
+import { LocationService } from '../../services/LocationService'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import MuiAlert from '@material-ui/lab/Alert'
-import Snackbar from '@material-ui/core/Snackbar'
-import { BotService } from '../../state/BotsService'
-import { useLocationState } from '../../state/LocationState'
+import { useAuthState } from '../../../user/services/AuthService'
+import MuiAlert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
+import { BotService } from '../../services/BotsService'
+import { useLocationState } from '../../services/LocationService'
 import { validateForm } from './validation'
 
 import { Location } from '@xrengine/common/src/interfaces/Location'
@@ -67,10 +67,10 @@ const CreateBot = (props: Props) => {
   const classx = useStyle()
   const authState = useAuthState()
   const user = authState.user
-  const adminInstances = adminInstanceState.instances
+  const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
   const adminLocationState = useLocationState()
-  const adminLocation = adminLocationState.locations
+  const adminLocation = adminLocationState
   const locationData = adminLocation.locations
   React.useEffect(() => {
     if (user.id.value && adminInstances.updateNeeded.value) {
@@ -79,7 +79,7 @@ const CreateBot = (props: Props) => {
     if (user?.id.value != null && adminLocation.updateNeeded.value === true) {
       LocationService.fetchAdminLocations()
     }
-  }, [user.id.value, adminInstanceState.instances.updateNeeded.value])
+  }, [user.id.value, adminInstanceState.updateNeeded.value])
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -99,7 +99,7 @@ const CreateBot = (props: Props) => {
       setState({ ...state, instance: '' })
       setCurrentIntance(instanceFilter)
     }
-  }, [state.location, adminInstanceState.instances.instances.value.length])
+  }, [state.location, adminInstanceState.instances.value.length])
 
   const temp: Location[] = []
   locationData.value.forEach((el) => {
@@ -171,11 +171,12 @@ const CreateBot = (props: Props) => {
     <Card className={classes.rootLeft}>
       <Paper className={classes.header} style={{ display: 'flex' }}>
         <Typography className={classes.title}>
-          <Face style={{ paddingTop: '5px' }} /> <span className={classes.smFont}> Create new bot </span>
+          <Face />
+          <div className={classes.smFont}>Create new bot</div>
         </Typography>
 
         <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleSubmit}>
-          <Save style={{ marginRight: '10px' }} /> save
+          <Save className={classes.saveBtnIcon} /> save
         </Button>
       </Paper>
       <CardContent>
@@ -243,7 +244,7 @@ const CreateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminLocations}>
+                <IconButton onClick={fetchAdminLocations} size="large">
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>
@@ -280,7 +281,7 @@ const CreateBot = (props: Props) => {
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
-                <IconButton onClick={fetchAdminInstances}>
+                <IconButton onClick={fetchAdminInstances} size="large">
                   <Autorenew style={{ color: '#fff' }} />
                 </IconButton>
               </div>
@@ -316,8 +317,7 @@ const CreateBot = (props: Props) => {
 
           <Button
             variant="contained"
-            fullWidth={true}
-            style={{ color: '#fff', background: '#3a4149', marginBottom: '20px' }}
+            style={{ color: '#fff', background: '#3a4149', marginBottom: '20px', width: '100%' }}
             onClick={() => {
               if (command.name) {
                 setCommandData([...commandData, command])
@@ -337,7 +337,7 @@ const CreateBot = (props: Props) => {
                   <ListItem>
                     <ListItemText primary={`${i + 1}. /${el.name} --> ${el.description} `} />
                     <ListItemSecondaryAction>
-                      <IconButton edge="end" aria-label="delete">
+                      <IconButton edge="end" aria-label="delete" size="large">
                         <DeleteIcon style={{ color: '#fff' }} />
                       </IconButton>
                     </ListItemSecondaryAction>

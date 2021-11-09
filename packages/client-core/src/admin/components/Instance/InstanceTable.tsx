@@ -1,18 +1,18 @@
 import React, { useEffect } from 'react'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TablePagination from '@material-ui/core/TablePagination'
-import TableRow from '@material-ui/core/TableRow'
-import { useAuthState } from '../../../user/state/AuthState'
-import { InstanceService } from '../../state/InstanceService'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TablePagination from '@mui/material/TablePagination'
+import TableRow from '@mui/material/TableRow'
+import { useAuthState } from '../../../user/services/AuthService'
+import { InstanceService } from '../../services/InstanceService'
 import { useDispatch } from '../../../store'
 import { instanceColumns, InstanceData } from './variables'
-import { useInstanceState } from '../../state/InstanceState'
+import { useInstanceState } from '../../services/InstanceService'
 import { useInstanceStyle, useInstanceStyles } from './styles'
-import { INSTNCE_PAGE_LIMIT } from '../../state/InstanceState'
+import { INSTNCE_PAGE_LIMIT } from '../../services/InstanceService'
 
 interface Props {
   fetchAdminState?: any
@@ -35,7 +35,7 @@ const InstanceTable = (props: Props) => {
 
   const user = useAuthState().user
   const adminInstanceState = useInstanceState()
-  const adminInstances = adminInstanceState.instances
+  const adminInstances = adminInstanceState
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     InstanceService.fetchAdminInstances(incDec)
@@ -60,7 +60,7 @@ const InstanceTable = (props: Props) => {
   React.useEffect(() => {
     if ((user.id.value && adminInstances.updateNeeded.value) || refetch === true) InstanceService.fetchAdminInstances()
     setRefetch(false)
-  }, [user, adminInstanceState.instances.updateNeeded.value, refetch])
+  }, [user, adminInstanceState.updateNeeded.value, refetch])
 
   const createData = (
     id: string,

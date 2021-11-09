@@ -1,19 +1,19 @@
 import React, { useEffect } from 'react'
 import { useStyles } from './styles'
-import { Grid, Paper, Typography } from '@material-ui/core'
-import { InputBase } from '@material-ui/core'
-import Switch from '@material-ui/core/Switch'
+import { Grid, Paper, Typography } from '@mui/material'
+import { InputBase } from '@mui/material'
+import Switch from '@mui/material/Switch'
 import { useDispatch } from '../../../store'
-import { useSettingAnalyticsState } from '../../state/Setting/SettingAnalyticsState'
-import { SettingAnalyticsService } from '../../state/Setting/SettingAnalyticsService'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useSettingAnalyticsState } from '../../services/Setting/SettingAnalyticsService'
+import { SettingAnalyticsService } from '../../services/Setting/SettingAnalyticsService'
+import { useAuthState } from '../../../user/services/AuthService'
 
 interface AnalyticsProps {}
 
 const Analytics = (props: AnalyticsProps) => {
   const classes = useStyles()
   const settingAnalyticsState = useSettingAnalyticsState()
-  const settingAnalytics = settingAnalyticsState.Analytics.analytics
+  const settingAnalytics = settingAnalyticsState.analytics
 
   const [enabled, setEnabled] = React.useState({
     checkedA: true,
@@ -27,7 +27,7 @@ const Analytics = (props: AnalyticsProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && settingAnalyticsState.Analytics.updateNeeded.value === true) {
+    if (user?.id?.value != null && settingAnalyticsState.updateNeeded.value === true) {
       SettingAnalyticsService.fetchSettingsAnalytics()
     }
   }, [authState])

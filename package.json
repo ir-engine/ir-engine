@@ -4,12 +4,10 @@
   "version": "0.2.5",
   "homepage": "xrengine.io",
   "private": true,
-  "workspaces": {
-    "packages": [
-      "packages/*",
-      "packages/projects/projects/*"
-    ]
-  },
+  "workspaces": [
+    "packages/*",
+    "packages/projects/projects/*"
+  ],
   "keywords": [
     "three",
     "three.js",
@@ -56,10 +54,10 @@
     "cleanup-tests": "node tests/cleanup-tests.js",
     "test": "npm run test:e2e && npm run test:packages",
     "test:e2e": "mocha",
-    "test:packages": "lerna run test",
+    "test:packages": "c8 lerna run test",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
-    "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
-    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",
+    "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"packages/**/*.{ts,tsx}\"",
     "format-staged": "lint-staged",
     "version-increment": "lerna version --conventional-commits --yes",
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
@@ -146,6 +144,8 @@
   },
   "dependencies": {
     "@iconify/react": "3.0.1",
-    "depcheck": "1.4.2"
+    "@mui/styles": "5.0.2",
+    "depcheck": "1.4.2",
+    "react-dnd": "^14.0.4"
   }
 }

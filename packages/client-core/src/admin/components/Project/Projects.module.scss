@@ -15,6 +15,22 @@
   overflow-y: scroll;
 }
 
+.inputConatiner {
+  width: 100%;
+  margin-bottom: 15px;
+
+  :global(.MuiFormControl-root) {
+    width: 100%;
+  }
+}
+
+.buttonConatiner{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .info-icon {
   color: white !important;
   opacity: 0.54;
@@ -77,7 +93,7 @@
     }
 
     .tcellSelectable {
-       .currentUser{
+      .currentUser{
         color: lighten(white, 0.80);
         background-color: #4267B2;
         padding-top: 5px;
@@ -195,6 +211,8 @@
 }
 
 .checkbox {
+  margin: 0px; 
+  padding: 0px;
   color: white;
 }
 

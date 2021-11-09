@@ -14,68 +14,27 @@ import RenderModeTool from './tools/RenderModeTool'
 
 type ToolBarProps = {
   menu?: any
+  editorReady: boolean
 }
 
-/**
- *
- * @author Robert Long
- */
-type ToolBarState = {
-  editorInitialized: boolean
-}
-
-/**
- *
- * @author Robert Long
- */
-export class ToolBar extends Component<ToolBarProps, ToolBarState> {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      editorInitialized: false
-    }
+const ToolBar = (props: ToolBarProps) => {
+  if (!props.editorReady) {
+    return <div className={styles.toolbarContainer} />
   }
 
-  componentDidMount() {
-    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.onRendererInitialized)
-    CommandManager.instance.addListener(EditorEvents.SETTINGS_CHANGED.toString(), this.onForceUpdate)
-  }
-
-  componentWillUnmount() {
-    CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), this.onForceUpdate)
-  }
-
-  onRendererInitialized = () => {
-    this.setState({ editorInitialized: true })
-    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), this.onRendererInitialized)
-  }
-
-  onForceUpdate = () => {
-    this.forceUpdate()
-  }
-
-  render() {
-    const { editorInitialized } = this.state as any
-
-    if (!editorInitialized) {
-      return <div className={styles.toolbarContainer} />
-    }
-
-    return (
-      <div className={styles.toolbarContainer}>
-        <MainMenu commands={this.props.menu} />
-        <TransformTool />
-        <TransformSpaceTool />
-        <TransformPivotTool />
-        <TransformSnapTool />
-        <GridTool />
-        <RenderModeTool />
-        <PlayModeTool />
-        <StatsTool />
-      </div>
-    )
-  }
+  return (
+    <div className={styles.toolbarContainer}>
+      <MainMenu commands={props.menu} />
+      <TransformTool />
+      <TransformSpaceTool />
+      <TransformPivotTool />
+      <TransformSnapTool />
+      <GridTool />
+      <RenderModeTool />
+      <PlayModeTool />
+      <StatsTool />
+    </div>
+  )
 }
 
 export default ToolBar

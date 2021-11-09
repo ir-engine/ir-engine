@@ -1,25 +1,25 @@
 import React from 'react'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
 import { useSceneStyles, useSceneStyle } from './styles'
 import { sceneColumns, SceneData } from './variables'
-import TablePagination from '@material-ui/core/TablePagination'
-import { SceneService } from '../../state/SceneService'
+import TablePagination from '@mui/material/TablePagination'
+import { SceneService } from '../../services/SceneService'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import { useSceneState } from '../../state/SceneState'
+import { useAuthState } from '../../../user/services/AuthService'
+import { useSceneState } from '../../services/SceneService'
 import ViewScene from './ViewScene'
-import { SCENE_PAGE_LIMIT } from '../../state/SceneState'
+import { SCENE_PAGE_LIMIT } from '../../services/SceneService'
 
 interface Props {}
 
@@ -29,7 +29,7 @@ const SceneTable = (props: Props) => {
   const authState = useAuthState()
   const user = authState.user
 
-  const scene = useSceneState().scenes
+  const scene = useSceneState()
   const sceneData = scene?.scenes
   const sceneCount = scene?.total
   const [singleScene, setSingleScene] = React.useState(null)

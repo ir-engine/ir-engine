@@ -1,23 +1,23 @@
 import React, { useEffect } from 'react'
-import { Grid, Paper, Button, Typography } from '@material-ui/core'
-import InputBase from '@material-ui/core/InputBase'
-import { useAdminAwsSettingState } from '../../state/Setting/AwsSettingState'
-import { AwsSettingService } from '../../state/Setting/AwsSettingServices'
+import { Grid, Paper, Button, Typography } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
+import { useAdminAwsSettingState } from '../../services/Setting/AwsSettingService'
+import { AwsSettingService } from '../../services/Setting/AwsSettingService'
 import { useDispatch } from '../../../store'
 import { useStyles } from './styles'
-import { useAuthState } from '../../../user/state/AuthState'
+import { useAuthState } from '../../../user/services/AuthService'
 
 interface Props {}
 
 const Aws = (props: Props) => {
   const classes = useStyles()
   const awsSettingState = useAdminAwsSettingState()
-  const [awsSetting] = awsSettingState?.awsSettings?.awsSettings?.value
+  const [awsSetting] = awsSettingState?.awsSettings?.value
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
   useEffect(() => {
-    if (user?.id?.value != null && awsSettingState?.awsSettings?.updateNeeded?.value) {
+    if (user?.id?.value != null && awsSettingState?.updateNeeded?.value) {
       AwsSettingService.fetchAwsSetting()
     }
   }, [authState])

@@ -11,7 +11,7 @@ export default {
     get: [],
     create: [],
     update: [],
-    patch: [disallow()],
+    patch: [],
     remove: []
   },
 

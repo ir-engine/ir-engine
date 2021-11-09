@@ -195,7 +195,7 @@ export default {
             userId: context.result.id
           })
 
-          context.arguments[0]?.scopeType?.forEach((el) => {
+          context.arguments[0]?.scopeTypes?.forEach((el) => {
             context.app.service('scope').create({
               type: el.type,
               userId: context.result.id

@@ -2,19 +2,18 @@ import React, { Fragment, Suspense, useEffect } from 'react'
 import { Switch, Redirect } from 'react-router-dom'
 import { useDispatch } from '../store'
 import PrivateRoute from '../Private'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import { useAuthState } from '../user/state/AuthState'
-import { AuthService } from '../user/state/AuthService'
+import CircularProgress from '@mui/material/CircularProgress'
+import { useAuthState } from '../user/services/AuthService'
+import { AuthService } from '../user/services/AuthService'
 
 const analytic = React.lazy(() => import('./pages/index'))
 const avatars = React.lazy(() => import('./pages/avatars'))
-const contentPacks = React.lazy(() => import('./pages/content-packs'))
 const groups = React.lazy(() => import('./pages/groups'))
 const instance = React.lazy(() => import('./pages/instance'))
 const invites = React.lazy(() => import('./pages/invites'))
 const locations = React.lazy(() => import('./pages/locations'))
 const routes = React.lazy(() => import('./pages/routes'))
-const scenes = React.lazy(() => import('./pages/scenes'))
+// const scenes = React.lazy(() => import('./pages/scenes'))
 const users = React.lazy(() => import('./pages/users'))
 const party = React.lazy(() => import('./pages/party'))
 const botSetting = React.lazy(() => import('./pages/bot'))
@@ -36,7 +35,6 @@ const ProtectedRoutes = (props: Props) => {
     bot: false,
     scene: false,
     party: false,
-    contentPacks: false,
     groups: false,
     instance: false,
     invite: false,
@@ -82,13 +80,12 @@ const ProtectedRoutes = (props: Props) => {
         <Switch>
           <PrivateRoute exact path="/admin" component={analytic} />
           <PrivateRoute exact path="/admin/avatars" component={avatars} />
-          <PrivateRoute exact path="/admin/content-packs" component={contentPacks} />
           <PrivateRoute exact path="/admin/groups" component={groups} />
           <PrivateRoute exact path="/admin/instance" component={instance} />
           <PrivateRoute exact path="/admin/invites" component={invites} />
           <PrivateRoute exact path="/admin/locations" component={locations} />
           <PrivateRoute exact path="/admin/routes" component={routes} />
-          <PrivateRoute exact path="/admin/scenes" component={scenes} />
+          {/* <PrivateRoute exact path="/admin/scenes" component={scenes} /> */}
           <PrivateRoute exact path="/admin/parties" component={party} />
           <PrivateRoute exact path="/admin/bots" component={botSetting} />
           {/* <PrivateRoute exact path="/admin/armedia" component={arMedia} /> */}

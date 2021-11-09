@@ -1,32 +1,32 @@
-import Avatar from '@material-ui/core/Avatar'
-import Button from '@material-ui/core/Button'
-import Divider from '@material-ui/core/Divider'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemText from '@material-ui/core/ListItemText'
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
-import TextField from '@material-ui/core/TextField'
-import { Add, ArrowLeft, Block, Delete, Edit, Forum, GroupAdd, SupervisorAccount } from '@material-ui/icons'
-import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
-import { useFriendState } from '@xrengine/client-core/src/social/state/FriendState'
-import { FriendService } from '@xrengine/client-core/src/social/state/FriendService'
-import { useGroupState } from '@xrengine/client-core/src/social/state/GroupState'
-import { GroupService } from '@xrengine/client-core/src/social/state/GroupService'
-import { InviteService } from '@xrengine/client-core/src/social/state/InviteService'
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
-import { usePartyState } from '@xrengine/client-core/src/social/state/PartyState'
-import { PartyService } from '@xrengine/client-core/src/social/state/PartyService'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { UserService } from '@xrengine/client-core/src/user/state/UserService'
-import { useUserState } from '@xrengine/client-core/src/user/state/UserState'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import ListItemText from '@mui/material/ListItemText'
+import SwipeableDrawer from '@mui/material/SwipeableDrawer'
+import TextField from '@mui/material/TextField'
+import { Add, ArrowLeft, Block, Delete, Edit, Forum, GroupAdd, SupervisorAccount } from '@mui/icons-material'
+import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
+import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
+import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
+import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
+import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
+import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
+import { PartyService } from '@xrengine/client-core/src/social/services/PartyService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { UserService } from '@xrengine/client-core/src/user/services/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { Group as GroupType } from '@xrengine/common/src/interfaces/Group'
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import styles from './Left.module.scss'
-import { GroupAction } from '@xrengine/client-core/src/social/state/GroupActions'
+import { GroupAction } from '@xrengine/client-core/src/social/services/GroupService'
 
 interface Props {
   harmony?: boolean
@@ -146,13 +146,6 @@ const LeftDrawer = (props: Props): any => {
         PartyService.getParty()
       }
     }, [partyState.updateNeeded.value])
-
-    useEffect(() => {
-      if (user.instanceId.value != null && userState.layerUsersUpdateNeeded.value === true)
-        UserService.getLayerUsers(true)
-      if (user.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value === true)
-        UserService.getLayerUsers(false)
-    }, [user.instanceId.value, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
     const showFriendDeleteConfirm = (e, friendId) => {
       e.preventDefault()
@@ -764,6 +757,7 @@ const LeftDrawer = (props: Props): any => {
                   {selfGroupUser != null && selfGroupUser.groupUserRank === 'owner' && (
                     <Button
                       variant="contained"
+                      className={styles['gray']}
                       startIcon={<Edit />}
                       onClick={() => openGroupForm('update', selectedGroup)}
                     >

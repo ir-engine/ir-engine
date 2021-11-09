@@ -1,5 +1,6 @@
 import createSurroundingTileIterator from '../../../src/map/functions/createSurroundingTileIterator';
 import assert from 'assert'
+import TileKey from '../../../src/map/classes/TileKey';
 
 // TODO start with center tiles and work outward
 const testCaseSanFrancisco = {
@@ -33,7 +34,7 @@ const testCaseSanFrancisco = {
 
 describe('createSurroundingTileIterator', () => {
   it('returns the tile coordinates within `minimumSceneRadius` from `center` at the given `zoomLevel`  ', () => {
-    const results = [] as [number,number][]
+    const results = [] as TileKey[]
 
     for (const coord of createSurroundingTileIterator(
       testCaseSanFrancisco.center,
@@ -43,7 +44,7 @@ describe('createSurroundingTileIterator', () => {
       results.push(coord)
     }
 
-    assert.deepEqual(results, testCaseSanFrancisco.tiles)
+    assert.deepEqual(results.map((r) => [...r]), testCaseSanFrancisco.tiles)
   })
 })
 

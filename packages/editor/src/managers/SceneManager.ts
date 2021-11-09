@@ -19,9 +19,11 @@ import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExpor
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import PostProcessingNode from '../nodes/PostProcessingNode'
+import { NodeManager } from './NodeManager'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 export class SceneManager {
-  static instance: SceneManager
+  static instance: SceneManager = new SceneManager()
 
   static DefaultExportOptions = {
     combineMeshes: true,
@@ -44,11 +46,7 @@ export class SceneManager {
   transformGizmo: TransformGizmo
   postProcessingNode: PostProcessingNode
 
-  static buildSceneManager() {
-    this.instance = new SceneManager()
-  }
-
-  constructor() {
+  async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
     this.renderer = null
     this.sceneModified = false
     this.raycaster = new Raycaster()
@@ -64,21 +62,18 @@ export class SceneManager {
     this.centerScreenSpace = new Vector2()
     this.clock = new Clock()
     this.disableUpdate = true
-  }
-
-  async initializeScene(projectFile: any): Promise<Error[] | void> {
-    this.disableUpdate = true
 
     // remove existing scene
     if (this.scene) {
       CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.scene)
     }
 
+    NodeManager.instance.nodes = [this.scene]
+
     // getting scene data
     const [scene, error] = await SceneNode.loadProject(projectFile)
     if (scene === null) throw new Error('Scene data is null, please create a new scene.')
 
-    this.scene = scene
     this.camera.position.set(0, 5, 10)
     this.camera.lookAt(new Vector3())
 
@@ -110,6 +105,7 @@ export class SceneManager {
    * @param  {any} canvas [ contains canvas data ]
    */
   initializeRenderer(canvas: HTMLCanvasElement): void {
+    if (this.renderer) return
     try {
       this.renderer = new Renderer(canvas)
 
@@ -146,7 +142,7 @@ export class SceneManager {
    * @param  {any}  height
    * @return {Promise}        [generated screenshot according to height and width]
    */
-  async takeScreenshot(width?: number, height?: number): Promise<any> {
+  async takeScreenshot(width?: number, height?: number) {
     return this.renderer.takeScreenshot(width, height)
   }
 

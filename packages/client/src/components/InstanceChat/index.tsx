@@ -1,16 +1,16 @@
-import Avatar from '@material-ui/core/Avatar'
-import Badge from '@material-ui/core/Badge'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import Fab from '@material-ui/core/Fab'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemText from '@material-ui/core/ListItemText'
-import TextField from '@material-ui/core/TextField'
-import { Message as MessageIcon, Send } from '@material-ui/icons'
-import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
-import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import Avatar from '@mui/material/Avatar'
+import Badge from '@mui/material/Badge'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Fab from '@mui/material/Fab'
+import ListItem from '@mui/material/ListItem'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import ListItemText from '@mui/material/ListItemText'
+import TextField from '@mui/material/TextField'
+import { Message as MessageIcon, Send } from '@mui/icons-material'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
@@ -20,7 +20,7 @@ import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
 
 import defaultStyles from './InstanceChat.module.scss'
-import { useInstanceConnectionState } from '@xrengine/client-core/src/common/state/InstanceConnectionState'
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 interface Props {
   styles?: any
@@ -63,7 +63,7 @@ const InstanceChat = (props: Props): any => {
     ) {
       ChatService.getInstanceChannel()
     }
-  }, [user?.instanceId?.value])
+  }, [user?.instanceId?.value, instanceConnectionState.connected?.value, channelState.fetchingInstanceChannel.value])
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
@@ -215,6 +215,7 @@ const InstanceChat = (props: Props): any => {
                 id="newMessage"
                 label={newMessageLabel}
                 name="newMessage"
+                variant="standard"
                 autoFocus
                 value={composingMessage}
                 inputProps={{

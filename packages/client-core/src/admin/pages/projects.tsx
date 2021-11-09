@@ -1,5 +1,5 @@
 import Projects from '../components/Project/ProjectTable'
-import { AuthService } from '../../user/state/AuthService'
+import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
 
 interface Props {}

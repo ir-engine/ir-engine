@@ -1,9 +1,9 @@
 import React from 'react'
-import { Mic, VolumeUp, BlurLinear, CropOriginal } from '@material-ui/icons'
-import Checkbox from '@material-ui/core/Checkbox'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Slider from '@material-ui/core/Slider'
-import Typography from '@material-ui/core/Typography'
+import { Mic, VolumeUp, BlurLinear, CropOriginal } from '@mui/icons-material'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Slider from '@mui/material/Slider'
+import Typography from '@mui/material/Typography'
 import styles from '../UserMenu.module.scss'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -15,7 +15,7 @@ const SettingMenu = (props: any): JSX.Element => {
     <div className={styles.menuPanel}>
       <div className={styles.settingPanel}>
         <section className={styles.settingSection}>
-          <Typography variant="h2" className={styles.settingHeader}>
+          <Typography variant="h4" className={styles.settingHeader}>
             {t('user:usermenu.setting.audio')}
           </Typography>
           <div className={styles.row}>
@@ -54,7 +54,7 @@ const SettingMenu = (props: any): JSX.Element => {
           </div>
         </section>
         <section className={styles.settingSection}>
-          <Typography variant="h2" className={styles.settingHeader}>
+          <Typography variant="h4" className={styles.settingHeader}>
             {t('user:usermenu.setting.graphics')}
           </Typography>
           <div className={styles.row}>

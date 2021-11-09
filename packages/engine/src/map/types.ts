@@ -2,6 +2,37 @@ import { Feature, LineString, MultiLineString, MultiPolygon, Polygon } from 'geo
 import { BufferGeometry, InstancedBufferGeometry, Mesh } from 'three'
 import { _MapStateUnwrapped } from './MapReceptor'
 
+import type _TileKey from './classes/TileKey'
+export type TileKey = _TileKey
+import type _FeatureKey from './classes/FeatureKey'
+export type FeatureKey = _FeatureKey
+
+export interface ITuple {
+  readonly hash: string
+
+  readonly [n: number]: any
+
+  readonly length: number
+
+  [Symbol.iterator](): Iterator<any>
+}
+
+export type ToArray<T> = Array<any> & {
+  [Property in keyof T]: T[Property]
+}
+
+export interface IParametricMap<Key extends ITuple, Value> {
+  set(key: Key, value: Value): IParametricMap<Key, Value>
+
+  get(key: Key): Value
+
+  delete(key: Key): boolean
+
+  keys(): Iterable<Key>
+
+  size: number
+}
+
 export type MapStateUnwrapped = _MapStateUnwrapped
 
 /**
@@ -79,18 +110,8 @@ export interface MapHelpers {
   tileNavMesh: Mesh
 }
 
-export type TileKey = [number, number]
-export type FeatureKey = [ILayerName, number, number, string]
-
-export interface IArrayKeyedMap<Key extends any[], Value> {
-  set(keySource: Key, value: Value): IArrayKeyedMap<Key, Value>
-
-  get(key: Key): Value
-
-  delete(key: Key): boolean
-
-  keys(): Iterable<Key>
-}
+// export type TileKey = [number, number]
+// export type FeatureKey = [ILayerName, number, number, string]
 
 export enum TaskStatus {
   NOT_STARTED = 0,

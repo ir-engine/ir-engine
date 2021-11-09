@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react'
-import Button from '@material-ui/core/Button'
-import Checkbox from '@material-ui/core/Checkbox'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import Paper from '@material-ui/core/Paper'
-import TablePagination from '@material-ui/core/TablePagination'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import TableSortLabel from '@mui/material/TableSortLabel'
+import Paper from '@mui/material/Paper'
+import TablePagination from '@mui/material/TablePagination'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../../state/AdminState'
-import { SceneService } from '../../state/SceneService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { ADMIN_PAGE_LIMIT } from '../../services/AdminService'
+import { SceneService } from '../../services/SceneService'
 import styles from './Scenes.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
-import { useSceneState } from '../../state/SceneState'
+import { useSceneState } from '../../services/SceneService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -30,14 +30,13 @@ const Scenes = (props: Props) => {
   const authState = useAuthState()
   const user = authState.user
   const adminSceneState = useSceneState()
-  const adminScenes = adminSceneState.scenes.scenes
-  const adminScenesCount = adminSceneState.scenes.total
+  const adminScenes = adminSceneState.scenes
+  const adminScenesCount = adminSceneState.total
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
-    { id: 'addToContentPack', numeric: false, disablePadding: false, label: 'Add to Content Pack' }
+    { id: 'description', numeric: false, disablePadding: false, label: 'Description' }
   ]
 
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -118,7 +117,6 @@ const Scenes = (props: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(ADMIN_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
-  const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedScenes, setSelectedScenes] = useState([])
   const dispatch = useDispatch()
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
@@ -167,11 +165,11 @@ const Scenes = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (user?.id.value != null && (adminSceneState.scenes.updateNeeded.value === true || refetch === true)) {
+    if (user?.id.value != null && (adminSceneState.updateNeeded.value === true || refetch === true)) {
       SceneService.fetchAdminScenes()
     }
     setRefetch(false)
-  }, [authState.user?.id?.value, adminSceneState.scenes.updateNeeded.value, refetch])
+  }, [authState.user?.id?.value, adminSceneState.updateNeeded.value, refetch])
 
   return (
     <div>
@@ -243,21 +241,7 @@ const Scenes = (props: Props) => {
             className={styles.tablePagination}
           />
         </div>
-        <AddToContentPackModal
-          open={addToContentPackModalOpen}
-          scenes={selectedScenes}
-          handleClose={() => setAddToContentPackModalOpen(false)}
-        />
       </Paper>
-      <Button
-        className={styles['open-modal']}
-        type="button"
-        variant="contained"
-        color="primary"
-        onClick={() => setAddToContentPackModalOpen(true)}
-      >
-        Add to Content Pack
-      </Button>
     </div>
   )
 }

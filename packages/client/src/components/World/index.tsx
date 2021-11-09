@@ -1,18 +1,13 @@
-import { useLocationState } from '@xrengine/client-core/src/social/state/LocationState'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import React, { useEffect, useState } from 'react'
-import { EngineCallbacks, initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
-import DefaultLayoutView from './DefaultLayoutView'
-import NetworkInstanceProvisioning from './NetworkInstanceProvisioning'
-import Layout from '../Layout/Layout'
 import { useTranslation } from 'react-i18next'
-import { ProjectReactProps } from './ProjectReactProps'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { EngineCallbacks, initEngine, retriveLocationByName, teleportToLocation } from './LocationLoadHelper'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -53,42 +48,43 @@ const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 interface Props {
   locationName: string
-  allowDebug?: boolean
-  partyState?: any
   history?: any
   engineInitializeOptions?: InitializeOptions
-  instanceConnectionState?: any
-  showTouchpad?: boolean
-  children?: any
-  chatState?: any
-  // todo: remove these props in favour of projects
-  theme?: any
-  hideVideo?: boolean
-  hideFullscreen?: boolean
+  connectToInstanceServer?: boolean
+  setSceneId?: any
+  setUserBanned?: any
+  setLoadingItemCount?: any
+  setIsTeleporting?: any
+  getEngineInitFunc?: any
+  reinit?: any
 }
 
 export const EnginePage = (props: Props) => {
   const { t } = useTranslation()
-  const [isUserBanned, setUserBanned] = useState(true)
-  const [isValidLocation, setIsValidLocation] = useState(true)
-  const [isTeleporting, setIsTeleporting] = useState(false)
+  const [isUserBanned, setUserBanned] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const authState = useAuthState()
-  const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-  const [sceneId, setSceneId] = useState('')
-  const [loadingItemCount, setLoadingItemCount] = useState(99)
-  const [harmonyOpen, setHarmonyOpen] = useState(false)
-  const [projectComponents, setProjectComponents] = useState([] as any[])
+  const [scene, setScene] = useState('')
   const locationState = useLocationState()
-  const dispatch = useDispatch()
+  const connectToInstanceServer = props.connectToInstanceServer !== undefined ? props.connectToInstanceServer : true
+  const setIsTeleporting = typeof props.setIsTeleporting === 'function' ? props.setIsTeleporting : () => {}
+  const [engineInitialized, setEngineInitialized] = useState(false)
 
   const onSceneLoadProgress = (loadingItemCount: number): void => {
-    setLoadingItemCount(loadingItemCount || 0)
+    if (typeof props.setSceneId === 'function') props.setLoadingItemCount(loadingItemCount || 0)
   }
 
   const engineCallbacks: EngineCallbacks = {
     onSceneLoadProgress,
-    onSceneLoaded: () => setLoadingItemCount(0)
+    onSceneLoaded: () => onSceneLoadProgress(0)
+  }
+
+  const init = async (): Promise<any> => {
+    console.log('init', scene)
+    setIsTeleporting(false)
+    setEngineInitialized(true)
+    const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
+    await initEngine(scene, engineInitializeOptions, newSpawnPos, engineCallbacks, connectToInstanceServer)
   }
 
   /**
@@ -118,8 +114,10 @@ export const EnginePage = (props: Props) => {
    * 3. Once we have the location data, set the scene ID
    */
   useEffect(() => {
-    if (sceneId === '' && locationState.currentLocation.location.sceneId.value) {
-      setSceneId(locationState.currentLocation.location.sceneId.value)
+    if (scene === '' && locationState.currentLocation.location.sceneId.value) {
+      const id = locationState.currentLocation.location.sceneId.value
+      setScene(id)
+      if (typeof props.setSceneId === 'function') props.setSceneId(id)
     }
   }, [locationState.currentLocation.location.sceneId.value])
 
@@ -127,10 +125,10 @@ export const EnginePage = (props: Props) => {
    * 4. Once we have the scene ID, initialise the engine
    */
   useEffect(() => {
-    if (sceneId) {
+    if (scene && !engineInitialized) {
       init()
     }
-  }, [sceneId])
+  }, [scene])
 
   const checkForBan = (): void => {
     const selfUser = authState.user
@@ -139,28 +137,8 @@ export const EnginePage = (props: Props) => {
     const isUserBanned =
       selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
     setUserBanned(isUserBanned)
-  }
 
-  const init = async (): Promise<any> => {
-    console.log('init', sceneId)
-    setIsTeleporting(false)
-
-    const componentFunctions = await initEngine(sceneId, engineInitializeOptions, newSpawnPos, engineCallbacks)
-
-    const customProps: ProjectReactProps = {
-      harmonyOpen,
-      setHarmonyOpen
-      // canvas
-    }
-
-    const components: any[] = []
-
-    let key = 0
-    componentFunctions.forEach((ComponentFunction) => {
-      components.push(...components, <ComponentFunction {...customProps} key={key++} />)
-    })
-
-    setProjectComponents(components)
+    if (typeof props.setUserBanned === 'function') props.setUserBanned(isUserBanned)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
@@ -179,45 +157,11 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
   }
 
-  if (isUserBanned) return <div className="banned">You have been banned from this location</div>
+  if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
 
   // Do not add/remove the canvas element after engine init
   // It will break internal references and prevent XR session to work properly
-  return (
-    <>
-      <NetworkInstanceProvisioning
-        locationName={props.locationName}
-        sceneId={sceneId}
-        isUserBanned={isUserBanned}
-        setIsValidLocation={setIsValidLocation}
-        reinit={init}
-      />
-      {canvas}
-      {projectComponents.length ? (
-        projectComponents
-      ) : (
-        <Layout
-          pageTitle={t('location.locationName.pageTitle')}
-          harmonyOpen={harmonyOpen}
-          setHarmonyOpen={setHarmonyOpen}
-          theme={props.theme}
-          hideVideo={props.hideVideo}
-          hideFullscreen={props.hideFullscreen}
-        >
-          <DefaultLayoutView
-            loadingItemCount={loadingItemCount}
-            isValidLocation={isValidLocation}
-            allowDebug={props.allowDebug}
-            reinit={init}
-            children={props.children}
-            showTouchpad={props.showTouchpad}
-            isTeleporting={isTeleporting}
-            locationName={props.locationName}
-          />
-        </Layout>
-      )}
-    </>
-  )
+  return canvas
 }
 
 export default EnginePage

@@ -14,17 +14,16 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from '../../pages/projectUtility'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { getProjects } from '../../functions/projectFunctions'
-
-type Props = {
-  showingScenes: boolean
-}
+import { CreateProjectModal } from './CreateProjectModal'
+import { ProjectService } from '@xrengine/client-core/src/admin/services/ProjectService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { EditorAction } from '../../services/EditorServices'
 
 const contextMenuId = 'project-menu'
-const ProjectsPage = (props: Props) => {
-  const { showingScenes } = props
 
+const ProjectsPage = () => {
   const router = useHistory()
   const [projects, setProjects] = useState([]) // constant projects initialized with an empty array.
   const [loading, setLoading] = useState(false) // constant loading initialized with false.
@@ -35,32 +34,26 @@ const ProjectsPage = (props: Props) => {
   const user = authState.user // user initialized by getting value from authState object.
 
   const { t } = useTranslation()
-  const idKey = showingScenes ? 'scene_id' : 'project_id'
-  const newProjectPath = showingScenes ? '/editor/new' : '/project/new'
+  const [createProjectsModalOpen, setCreateProjectsModalOpen] = useState(false)
+  const dispatch = useDispatch()
+
+  const fetchItems = async () => {
+    setLoading(true)
+    try {
+      const data = await getProjects()
+      console.log(data)
+      setProjects(data ?? [])
+      setLoading(false)
+    } catch (error) {
+      console.error(error)
+      setError(error)
+    }
+    setLoading(false)
+  }
 
   useEffect(() => {
     if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
-      const data = showingScenes ? getScenes() : getProjects()
-      data
-        .then((p) => {
-          setProjects(
-            p.map((project) => ({
-              ...project,
-              url: `/editor/${project[idKey]}`
-            }))
-          )
-          setLoading(false)
-        })
-        .catch((error) => {
-          console.error(error)
-          if (error.response && error.response.status === 401) {
-            // User has an invalid auth token. Prompt them to login again.
-            // return (this.props as any).history.push("/", { from: "/projects" });
-            return router.push('/editor')
-          }
-          setError(error)
-          setLoading(false)
-        })
+      fetchItems()
     }
   }, [authUser.accessToken.value])
 
@@ -69,31 +62,28 @@ const ProjectsPage = (props: Props) => {
    */
   const onDeleteProject = async (project) => {
     try {
-      if (showingScenes) {
-        // calling api to delete project on the basis of project_id.
-        await deleteScene(project[idKey])
-        // setting projects after removing deleted project.
-        setProjects(projects.filter((p) => p[idKey] !== project[idKey]))
-      } else {
-      }
+      // TODO
     } catch (error) {
-      console.log(`Error deleting ${showingScenes ? 'scene' : 'project'}, ${error}`)
+      console.log(`Error deleting project ${error}`)
     }
   }
 
-  const onAddNew = () => {
-    if (showingScenes) {
-      routeTo('/editor/new')
-    } else {
-      // TODO
-    }
-  }
+  const openTutorial = () => {}
 
   /**
    *function to adding a route to the router object.
    */
-  const routeTo = (route: string) => () => {
-    router.push(route)
+  const onClickNew = () => {
+    setCreateProjectsModalOpen(true)
+  }
+
+  const onClickExisting = (project) => {
+    dispatch(EditorAction.projectLoaded(project.name))
+  }
+
+  const onCreateProject = async (name) => {
+    console.log('onCreateProject', name)
+    await ProjectService.createProject(name)
   }
 
   /**
@@ -135,14 +125,12 @@ const ProjectsPage = (props: Props) => {
     <>
       {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && (
         <main>
-          {projects.length === 0 && !loading ? (
+          {projects.length < 2 && !loading ? (
             <StyledProjectsSection flex={0}>
               <WelcomeContainer>
                 <h1>{t('editor.projects.welcomeMsg')}</h1>
                 <h2>{t('editor.projects.description')}</h2>
-                <MediumButton onClick={routeTo('/editor/tutorial')}>
-                  {t('editor.projects.lbl-startTutorial')}
-                </MediumButton>
+                <MediumButton onClick={openTutorial}>{t('editor.projects.lbl-startTutorial')}</MediumButton>
               </WelcomeContainer>
             </StyledProjectsSection>
           ) : null}
@@ -152,7 +140,7 @@ const ProjectsPage = (props: Props) => {
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
-                    <Button onClick={routeTo(newProjectPath)}>{t('editor.projects.lbl-newProject')}</Button>
+                    <Button onClick={onClickNew}>{t(`editor.projects.lbl-newProject`)}</Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
                 <ProjectGridContent>
@@ -161,8 +149,9 @@ const ProjectsPage = (props: Props) => {
                     <ProjectGrid
                       loading={loading}
                       projects={projects}
-                      newProjectPath={newProjectPath}
-                      newProjectLabel={t('editor.projects.lbl-newProject')}
+                      onClickExisting={onClickExisting}
+                      onClickNew={onClickNew}
+                      newProjectLabel={t(`editor.projects.lbl-newProject`)}
                       contextMenuId={contextMenuId}
                     />
                   )}
@@ -171,6 +160,11 @@ const ProjectsPage = (props: Props) => {
             </StyledProjectsContainer>
           </StyledProjectsSection>
           <ProjectContextMenu />
+          <CreateProjectModal
+            createProject={onCreateProject}
+            open={createProjectsModalOpen}
+            handleClose={() => setCreateProjectsModalOpen(false)}
+          />
         </main>
       )}
     </>

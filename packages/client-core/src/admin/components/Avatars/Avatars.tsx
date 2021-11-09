@@ -1,25 +1,23 @@
 import React, { useEffect, useState } from 'react'
-import Grid from '@material-ui/core/Grid'
-import Button from '@material-ui/core/Button'
-import Checkbox from '@material-ui/core/Checkbox'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import Paper from '@material-ui/core/Paper'
-import TablePagination from '@material-ui/core/TablePagination'
-import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import { AVATAR_PAGE_LIMIT } from '../../state/AvatarState'
+import Grid from '@mui/material/Grid'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import TableSortLabel from '@mui/material/TableSortLabel'
+import Paper from '@mui/material/Paper'
+import TablePagination from '@mui/material/TablePagination'
+import { useAuthState } from '../../../user/services/AuthService'
+import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import styles from './Avatars.module.scss'
-import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
-import { useAvatarState } from '../../state/AvatarState'
+import { useAvatarState } from '../../services/AvatarService'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
-import { AuthService } from '../../../user/state/AuthService'
-import { AvatarService } from '../../state/AvatarService'
+import { AuthService } from '../../../user/services/AuthService'
+import { AvatarService } from '../../services/AvatarService'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -31,17 +29,15 @@ interface Props {
 
 const Avatars = (props: Props) => {
   const adminAvatarState = useAvatarState()
-  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
-  const adminAvatars = adminAvatarState.avatars.avatars
-  const adminAvatarCount = adminAvatarState.avatars.total
+  const adminAvatars = adminAvatarState.avatars
+  const adminAvatarCount = adminAvatarState.total
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'key', numeric: false, disablePadding: false, label: 'Key' },
-    { id: 'addToContentPack', numeric: false, disablePadding: false, label: 'Add to Content Pack' }
+    { id: 'key', numeric: false, disablePadding: false, label: 'Key' }
   ]
 
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -72,8 +68,7 @@ const Avatars = (props: Props) => {
       if (order !== 0) return order
       return a[1] - b[1]
     })
-    const returned = stabilizedThis.map((el) => el[0])
-    return returned
+    return stabilizedThis.map((el) => el[0])
   }
 
   interface EnhancedTableProps {
@@ -123,8 +118,6 @@ const Avatars = (props: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
-  const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
-  const [selectedAvatars, setSelectedAvatars] = useState([])
   const [avatarSelectMenuOpen, setAvatarSelectMenuOpen] = useState(false)
   const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
@@ -157,14 +150,6 @@ const Avatars = (props: Props) => {
     setPage(0)
   }
 
-  const handleCheck = (e: any, row: any) => {
-    const existingAvatarIndex = selectedAvatars.findIndex((avatar) => avatar.id === row.id)
-    if (e.target.checked === true) {
-      if (existingAvatarIndex >= 0) setSelectedAvatars(selectedAvatars.splice(existingAvatarIndex, 1, row))
-      else setSelectedAvatars(selectedAvatars.concat(row))
-    } else setSelectedAvatars(selectedAvatars.splice(existingAvatarIndex, 1))
-  }
-
   const fetchTick = () => {
     setTimeout(() => {
       setRefetch(true)
@@ -172,20 +157,12 @@ const Avatars = (props: Props) => {
     }, 5000)
   }
 
-  const closeAvatarSelectModal = () => {
-    setAvatarSelectMenuOpen(false)
-  }
-
-  // useEffect(() => {
-  //   fetchTick()
-  // }, [])
-
   useEffect(() => {
-    if (user?.id.value != null && (adminAvatarState.avatars.updateNeeded.value === true || refetch === true)) {
+    if (user?.id.value != null && (adminAvatarState.updateNeeded.value === true || refetch === true)) {
       AvatarService.fetchAdminAvatars()
     }
     setRefetch(false)
-  }, [authState.user?.id?.value, adminAvatarState.avatars.updateNeeded.value, refetch])
+  }, [authState.user?.id?.value, adminAvatarState.updateNeeded.value, refetch])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -219,17 +196,6 @@ const Avatars = (props: Props) => {
               onClick={() => setAvatarSelectMenuOpen(true)}
             >
               Upload Avatar
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              className={styles['open-modal']}
-              type="button"
-              variant="contained"
-              color="primary"
-              onClick={() => setAddToContentPackModalOpen(true)}
-            >
-              {dimensions.width <= 768 ? '+ Pack' : 'Add to Content Pack'}
             </Button>
           </Grid>
         </Grid>
@@ -271,16 +237,6 @@ const Avatars = (props: Props) => {
                     <TableCell className={styles.tcell} align="right">
                       {row.key}
                     </TableCell>
-                    <TableCell className={styles.tcell} align="right">
-                      {user.userRole.value === 'admin' && (
-                        <Checkbox
-                          className={styles.checkbox}
-                          onChange={(e) => handleCheck(e, row)}
-                          name="stereoscopic"
-                          color="primary"
-                        />
-                      )}
-                    </TableCell>
                   </TableRow>
                 )
               })}
@@ -300,11 +256,6 @@ const Avatars = (props: Props) => {
             className={styles.tablePagination}
           />
         </div>
-        <AddToContentPackModal
-          open={addToContentPackModalOpen}
-          avatars={selectedAvatars}
-          handleClose={() => setAddToContentPackModalOpen(false)}
-        />
         {avatarSelectMenuOpen && (
           <AvatarSelectMenu
             changeActiveMenu={() => setAvatarSelectMenuOpen(false)}

@@ -1,33 +1,33 @@
 import React, { ReactElement, useEffect } from 'react'
-import { LocationService } from '../../state/LocationService'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
+import { LocationService } from '../../services/LocationService'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
 import { useLocationStyles, useLocationStyle } from './styles'
-import { useAuthState } from '../../../user/state/AuthState'
-import { useLocationState } from '../../state/LocationState'
-import { useInstanceState } from '../../state/InstanceState'
-import { useUserState } from '../../state/UserState'
-import { SceneService } from '../../state/SceneService'
-import { useSceneState } from '../../state/SceneState'
-import { UserService } from '../../state/UserService'
-import { InstanceService } from '../../state/InstanceService'
-import { useErrorState } from '../../../common/state/ErrorState'
+import { useAuthState } from '../../../user/services/AuthService'
+import { useLocationState } from '../../services/LocationService'
+import { useInstanceState } from '../../services/InstanceService'
+import { useUserState } from '../../services/UserService'
+import { SceneService } from '../../services/SceneService'
+import { useSceneState } from '../../services/SceneService'
+import { UserService } from '../../services/UserService'
+import { InstanceService } from '../../services/InstanceService'
+import { useErrorState } from '../../../common/services/ErrorService'
 import { useDispatch } from '../../../store'
 import { useTranslation } from 'react-i18next'
 import { locationColumns, LocationProps } from './variable'
-import Chip from '@material-ui/core/Chip'
-import Avatar from '@material-ui/core/Avatar'
-import TablePagination from '@material-ui/core/TablePagination'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Button from '@material-ui/core/Button'
+import Chip from '@mui/material/Chip'
+import Avatar from '@mui/material/Avatar'
+import TablePagination from '@mui/material/TablePagination'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
+import Button from '@mui/material/Button'
 import ViewLocation from './ViewLocation'
-import { LOCATION_PAGE_LIMIT } from '../../state/LocationState'
+import { LOCATION_PAGE_LIMIT } from '../../services/LocationService'
 
 const LocationTable = (props: LocationProps) => {
   const classes = useLocationStyles()
@@ -43,11 +43,11 @@ const LocationTable = (props: LocationProps) => {
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
-  const adminSceneState = useSceneState()
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
   const adminLocationState = useLocationState()
-  const adminLocations = adminLocationState.locations.locations
-  const adminLocationCount = adminLocationState.locations.total
+  const adminLocations = adminLocationState
+  console.log(adminLocations)
+  const adminLocationCount = adminLocationState.total
   const { t } = useTranslation()
   const adminUserState = useUserState()
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -62,27 +62,27 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value !== null && adminLocationState.locations.updateNeeded.value && !adminScopeReadErrMsg?.value) {
+    if (user?.id?.value !== null && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
       LocationService.fetchAdminLocations()
     }
-    if (user?.id.value != null && adminSceneState.scenes.updateNeeded.value === true) {
+    if (user?.id.value != null) {
+      // && adminSceneState.scenes.updateNeeded.value === true) {
       SceneService.fetchAdminScenes('all')
     }
-    if (user?.id.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
+    if (user?.id.value != null && adminLocationState.updateNeeded.value === true) {
       LocationService.fetchLocationTypes()
     }
-    if (user?.id.value != null && adminUserState.users.updateNeeded.value === true) {
+    if (user?.id.value != null && adminUserState.updateNeeded.value === true) {
       UserService.fetchUsersAsAdmin()
     }
-    if (user?.id.value != null && adminInstanceState.instances.updateNeeded.value === true) {
+    if (user?.id.value != null && adminInstanceState.updateNeeded.value === true) {
       InstanceService.fetchAdminInstances()
     }
   }, [
     authState.user?.id?.value,
-    adminSceneState.scenes.updateNeeded.value,
-    adminInstanceState.instances.updateNeeded.value,
-    adminLocationState.locations.updateNeeded.value,
-    adminLocationState.locationTypes.updateNeeded.value
+    // adminSceneState.scenes.updateNeeded.value,
+    adminInstanceState.updateNeeded.value,
+    adminLocationState.updateNeeded.value
   ])
 
   const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -144,7 +144,7 @@ const LocationTable = (props: LocationProps) => {
     }
   }
 
-  const rows = adminLocations.value.map((el) => {
+  const rows = adminLocations.locations.value.map((el) => {
     return createData(
       el,
       el.id,

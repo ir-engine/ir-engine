@@ -15,6 +15,7 @@ import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import MapNodeEditor from '../components/properties/MapNodeEditor'
 import MetadataNodeEditor from '../components/properties/MetadataNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
+import ShopifyNodeEditor from '../components/properties/ShopifyNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
@@ -48,6 +49,7 @@ import LinkNode from '../nodes/LinkNode'
 import MapNode from '../nodes/MapNode'
 import MetadataNode from '../nodes/MetadataNode'
 import ModelNode from '../nodes/ModelNode'
+import ShopifyNode from '../nodes/ShopifyNode'
 import OceanNode from '../nodes/OceanNode'
 import ParticleEmitterNode from '../nodes/ParticleEmitterNode'
 import PointLightNode from '../nodes/PointLightNode'
@@ -66,7 +68,7 @@ import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
 
 export class NodeManager {
-  static instance: NodeManager
+  static instance: NodeManager = new NodeManager()
 
   nodes: any[]
 
@@ -74,15 +76,11 @@ export class NodeManager {
 
   nodeEditors: Map<any, any>
 
-  static buildNodeManager(scene: SceneNode) {
-    this.instance = new NodeManager(scene)
-  }
-
-  constructor(scene: SceneNode) {
+  constructor() {
     this.nodeTypes = new Set()
     this.nodeEditors = new Map()
 
-    this.nodes = [scene]
+    this.nodes = []
   }
 
   /**
@@ -153,6 +151,7 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
   NodeManager.instance.registerNode(GroupNode, GroupNodeEditor)
   NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
+  NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
   NodeManager.instance.registerNode(GroundPlaneNode, GroundPlaneNodeEditor)
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
   NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)

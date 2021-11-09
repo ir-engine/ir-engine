@@ -199,7 +199,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   return shape
 }
 
-export const createBody = (entity: Entity, bodyOptions: BodyOptions, shapes: PhysX.PxShape[] = []) => {
+export const createBody = (entity: Entity, bodyOptions: any, shapes: PhysX.PxShape[] = []) => {
   const { position, rotation } = getComponent(entity, TransformComponent)
   return useWorld().physics.addBody({
     shapes,

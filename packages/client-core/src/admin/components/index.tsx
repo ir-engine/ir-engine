@@ -1,37 +1,39 @@
-import Button from '@material-ui/core/Button'
-import MenuItem from '@material-ui/core/MenuItem'
-import Paper from '@material-ui/core/Paper'
-import Select from '@material-ui/core/Select'
-import Tab from '@material-ui/core/Tab'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TablePagination from '@material-ui/core/TablePagination'
-import TableRow from '@material-ui/core/TableRow'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import Tabs from '@material-ui/core/Tabs'
-import Avatar from '@material-ui/core/Avatar'
-import Chip from '@material-ui/core/Chip'
-import FormControl from '@material-ui/core/FormControl'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
+import Button from '@mui/material/Button'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import Select from '@mui/material/Select'
+import Tab from '@mui/material/Tab'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TablePagination from '@mui/material/TablePagination'
+import TableRow from '@mui/material/TableRow'
+import TableSortLabel from '@mui/material/TableSortLabel'
+import Tabs from '@mui/material/Tabs'
+import Avatar from '@mui/material/Avatar'
+import Chip from '@mui/material/Chip'
+import FormControl from '@mui/material/FormControl'
+import { Theme } from '@mui/material/styles'
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 import { Config } from '@xrengine/common/src/config'
 import { useHistory } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { useAuthState } from '../../user/state/AuthState'
-import { ADMIN_PAGE_LIMIT } from '../state/AdminState'
-import { useLocationState } from '../state/LocationState'
-import { SceneService } from '../state/SceneService'
-import { UserService } from '../state/UserService'
-import { InstanceService } from '../state/InstanceService'
-import { useUserState } from '../state/UserState'
-import { useInstanceState } from '../state/InstanceState'
-import { LocationService } from '../state/LocationService'
-import { useSceneState } from '../state/SceneState'
-import Grid from '@material-ui/core/Grid'
+import { useAuthState } from '../../user/services/AuthService'
+import { ADMIN_PAGE_LIMIT } from '../services/AdminService'
+import { useLocationState } from '../services/LocationService'
+import { SceneService } from '../services/SceneService'
+import { UserService } from '../services/UserService'
+import { InstanceService } from '../services/InstanceService'
+import { useUserState } from '../services/UserService'
+import { useInstanceState } from '../services/InstanceService'
+import { LocationService } from '../services/LocationService'
+import { useSceneState } from '../services/SceneService'
+import Grid from '@mui/material/Grid'
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
 import LocationModal from './LocationModal'
@@ -164,7 +166,7 @@ const AdminConsole = (props: Props) => {
   const [selectedLocation, setSelectedLocation] = useState(LocationSeed)
   const [selectedInstance, setSelectedInstance] = useState(InstanceSeed)
   const adminSceneState = useSceneState()
-  const adminScenes = adminSceneState.scenes.scenes
+  const adminScenes = adminSceneState.scenes
 
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {
@@ -234,13 +236,13 @@ const AdminConsole = (props: Props) => {
       name: location.name,
       sceneId: location.sceneId,
       maxUsersPerInstance: location.maxUsersPerInstance,
-      type: location.location_settings?.locationType,
+      type: location.locationSettings?.locationType,
       tags: {
         isFeatured: location?.isFeatured,
         isLobby: location?.isLobby
       },
-      instanceMediaChatEnabled: location.location_settings?.instanceMediaChatEnabled?.toString(),
-      videoEnabled: location.location_settings?.videoEnabled?.toString()
+      instanceMediaChatEnabled: location.locationSettings?.instanceMediaChatEnabled?.toString(),
+      videoEnabled: location.locationSettings?.videoEnabled?.toString()
     }
   })
 
@@ -375,9 +377,6 @@ const AdminConsole = (props: Props) => {
     if (user?.id?.value != null && adminLocationState.locations.updateNeeded.value === true) {
       LocationService.fetchAdminLocations()
     }
-    if (user?.id?.value != null && adminSceneState.scenes.updateNeeded.value === true) {
-      SceneService.fetchAdminScenes()
-    }
     if (user?.id?.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
       LocationService.fetchLocationTypes()
     }
@@ -389,7 +388,6 @@ const AdminConsole = (props: Props) => {
     }
   }, [
     authState.user?.id?.value,
-    adminSceneState.scenes.updateNeeded.value,
     adminInstanceState.instances.updateNeeded.value,
     adminLocationState.locations.updateNeeded.value,
     adminLocationState.locationTypes.updateNeeded.value

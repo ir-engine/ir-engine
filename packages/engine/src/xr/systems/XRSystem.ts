@@ -14,8 +14,9 @@ import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { XRReferenceSpaceType } from '../../input/types/WebXR'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { addDefaultControllerModels } from '../functions/addControllerModels'
+import { initializeXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
+import { updateXRControllerAnimations } from '../functions/controllerAnimation'
 
 /**
  * System for XR session and input handling
@@ -26,17 +27,18 @@ export default async function XRSystem(world: World): Promise<System> {
   const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
 
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
+  const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
   const quat = new Quaternion()
   const quat2 = new Quaternion()
   const vector3 = new Vector3()
 
   // TEMPORARY - precache controller model
-  // TODO: remove this when IK system is in
-  await AssetLoader.loadAsync({ url: '/models/webxr/controllers/valve_controller_knu_1_0_right.glb' })
   // Cache hand models
-  await AssetLoader.loadAsync({ url: '/models/webxr/controllers/hands/left.glb' })
-  await AssetLoader.loadAsync({ url: '/models/webxr/controllers/hands/right.glb' })
+  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left.glb' })
+  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right.glb' })
+  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left_controller.glb' })
+  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right_controller.glb' })
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
     Engine.renderer.outputEncoding = sRGBEncoding
@@ -102,8 +104,14 @@ export default async function XRSystem(world: World): Promise<System> {
 
     if (Engine.xrControllerModel) {
       for (const entity of localXRControllerQuery.enter()) {
-        addDefaultControllerModels(entity)
+        initializeXRInputs(entity)
       }
+    }
+
+    //XR Controller mesh animation update
+    for (const entity of xrControllerQuery()) {
+      const inputSource = getComponent(entity, XRInputSourceComponent)
+      updateXRControllerAnimations(inputSource)
     }
 
     for (const entity of localXRControllerQuery()) {

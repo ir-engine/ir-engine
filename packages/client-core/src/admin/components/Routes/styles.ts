@@ -1,4 +1,7 @@
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+
+import makeStyles from '@mui/styles/makeStyles'
+import createStyles from '@mui/styles/createStyles'
 
 export const useRouteStyle = makeStyles({
   root: {
@@ -7,7 +10,7 @@ export const useRouteStyle = makeStyles({
     //background: "#fff"
   },
   container: {
-    maxHeight: '80vh'
+    maxHeight: '73vh'
   },
   actionStyle: {
     textDecoration: 'none',
@@ -58,8 +61,10 @@ export const useRouteStyles = makeStyles((theme: Theme) =>
       color: '#f1f1f1 !important',
       borderBottom: '2px solid #23282c !important'
     },
+    checkboxContainer: {
+      padding: '0px'
+    },
     tableCellBody: {
-      padding: '0px',
       borderBottom: '1px solid #23282c !important',
       color: '#f1f1f1 !important'
     },
@@ -97,7 +102,7 @@ export const useRouteStyles = makeStyles((theme: Theme) =>
       color: '#f1f1f1 !important'
     },
     typoFont: {
-      [theme.breakpoints.down('sm')]: {
+      [theme.breakpoints.down('md')]: {
         fontSize: '0.6rem'
       }
     }

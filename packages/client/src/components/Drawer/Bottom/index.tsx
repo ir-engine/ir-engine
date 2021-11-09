@@ -1,22 +1,22 @@
-import Avatar from '@material-ui/core/Avatar'
-import Button from '@material-ui/core/Button'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemText from '@material-ui/core/ListItemText'
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer'
-import TextField from '@material-ui/core/TextField'
-import { Clear, Delete, Edit, Save, Send } from '@material-ui/icons'
-import { useChatState } from '@xrengine/client-core/src/social/state/ChatState'
-import { ChatService } from '@xrengine/client-core/src/social/state/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import ListItemText from '@mui/material/ListItemText'
+import SwipeableDrawer from '@mui/material/SwipeableDrawer'
+import TextField from '@mui/material/TextField'
+import { Clear, Delete, Edit, Save, Send } from '@mui/icons-material'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import classNames from 'classnames'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import styles from './Bottom.module.scss'
-import { ChatAction } from '@xrengine/client-core/src/social/state/ChatActions'
+import { ChatAction } from '@xrengine/client-core/src/social/services/ChatService'
 
 interface Props {
   bottomDrawerOpen: boolean
@@ -48,6 +48,7 @@ const BottomDrawer = (props: Props): any => {
   const activeChannel = channels.find((c) => c.id.value === targetChannelId)
 
   useEffect(() => {
+    console.log('=================chatState.messageScrollInit.value')
     if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
       ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
       ChatService.updateMessageScrollInit(false)
@@ -59,7 +60,7 @@ const BottomDrawer = (props: Props): any => {
         ;(messageEl as any).scrollTop = (topMessage as any).offsetTop
       }
     }
-  }, [chatState.messageScrollInit])
+  }, [chatState.messageScrollInit.value])
 
   useEffect(() => {
     if (channelState.updateNeeded.value === true) {
@@ -115,6 +116,8 @@ const BottomDrawer = (props: Props): any => {
   }
 
   const setActiveChat = (channel): void => {
+    console.log('=================setActiveChat')
+
     ChatService.updateMessageScrollInit(true)
     const channelType = channel.channelType
     const target =
@@ -292,8 +295,8 @@ const BottomDrawer = (props: Props): any => {
           <div className={styles['list-container']}>
             <List ref={messageRef as any} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
               {activeChannel != null &&
-                activeChannel.Messages.value &&
-                [...activeChannel.Messages.value]
+                activeChannel.messages.value &&
+                [...activeChannel.messages.value]
                   .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                   .map((message) => {
                     return (

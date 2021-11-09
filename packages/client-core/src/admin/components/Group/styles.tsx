@@ -1,4 +1,7 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+
+import makeStyles from '@mui/styles/makeStyles'
+import createStyles from '@mui/styles/createStyles'
 
 export const useGroupStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -165,7 +168,7 @@ export const useGroupStyle = makeStyles({
     color: '#f1f1f1'
   },
   container: {
-    maxHeight: '80vh'
+    maxHeight: '73vh'
   },
   selectPaper: {
     background: '#343b41',

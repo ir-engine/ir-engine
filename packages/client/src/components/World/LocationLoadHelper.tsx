@@ -1,10 +1,9 @@
-import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/state/AppActions'
+import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/services/AppService'
 import { client } from '@xrengine/client-core/src/feathers'
 import { Config } from '@xrengine/common/src/config'
-import { LocationService } from '@xrengine/client-core/src/social/state/LocationService'
+import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { store } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { SceneAction } from '@xrengine/client-core/src/world/state/ScreenActions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -22,9 +21,8 @@ import { getPacksFromSceneData } from '@xrengine/projects/loader'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import React from 'react'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/state/InstanceConnectionService'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -55,64 +53,73 @@ export type EngineCallbacks = {
   onSuccess?: Function
 }
 
-export const getSceneData = async (sceneId: string, isOffline: boolean): Promise<SceneData> => {
+export const getSceneData = async (scene: string, isOffline: boolean): Promise<SceneData> => {
   if (isOffline) {
-    return testScenes[sceneId] || testScenes.test
+    return testScenes[scene] || testScenes.test
   }
 
-  const sceneResult = await client.service('scene').get(sceneId)
-  store.dispatch(SceneAction.setCurrentScene(sceneResult))
+  const [projectName, sceneName] = scene.split('/')
 
-  const sceneUrl = sceneResult.scene_url
-  const regexResult = sceneUrl.match(projectRegex)
-
-  let service, serviceId
-  if (regexResult) {
-    service = regexResult[1]
-    serviceId = regexResult[2]
-  }
-
-  return client.service(service).get(serviceId) as SceneData
+  const sceneResult = await client.service('scene').get({ projectName, sceneName })
+  console.log(sceneResult)
+  return sceneResult.data.scene
 }
 
-const createOfflineUser = () => {
+const getFirstSpawnPointFromSceneData = (scene: SceneData) => {
+  for (const entity of Object.values(scene.entities)) {
+    if (entity.name != 'spawn point') continue
+
+    for (const component of entity.components) {
+      if (component.type === 'transform') {
+        return component.props.position
+      }
+    }
+  }
+
+  console.warn('Could not find spawn point from scene data')
+  return { x: 0, y: 0, z: 0 }
+}
+
+const createOfflineUser = (sceneData: SceneData) => {
   const avatarDetail = {
     thumbnailURL: '',
     avatarURL: '',
     avatarId: ''
   } as any
 
+  const spawnPos = getFirstSpawnPointFromSceneData(sceneData)
+
   const userId = 'user' as UserId
   const parameters = {
-    position: new Vector3(0.18393396470500378, 0, 0.2599274866972079),
+    position: new Vector3().copy(spawnPos),
     rotation: new Quaternion()
   }
+
+  const world = useWorld()
+  world.hostId = userId as any
 
   // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
-  const world = useWorld()
-  dispatchFrom(world.hostId, () => NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }))
-  dispatchFrom(world.hostId, () => NetworkWorldAction.spawnAvatar({ userId, parameters }))
+  dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }) as any)
+  dispatchLocal(NetworkWorldAction.spawnAvatar({ userId, parameters }) as any)
 }
 
 export const initEngine = async (
-  sceneId: string,
+  sceneName: string,
   initOptions: InitializeOptions,
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
-  engineCallbacks?: EngineCallbacks
+  engineCallbacks?: EngineCallbacks,
+  connectToInstanceServer: boolean = true
 ): Promise<any> => {
   // 1.
-  const isOffline = false // TODO
-  const sceneData = await getSceneData(sceneId, isOffline)
+  const sceneData = await getSceneData(sceneName, false)
 
   const packs = await getPacksFromSceneData(sceneData, true)
 
   for (const system of packs.systems) {
     initOptions.systems?.push(system)
   }
-
-  const projectReactComponents = packs.react.map((c) => React.lazy(() => c))
 
   // 2. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
@@ -127,7 +134,7 @@ export const initEngine = async (
   }
 
   // 3. Connect to server
-  if (!isOffline) {
+  if (connectToInstanceServer) {
     const didConnect = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
@@ -150,7 +157,7 @@ export const initEngine = async (
   store.dispatch(AppAction.setAppLoaded(true))
 
   // 5. Join to new world
-  if (!isOffline) {
+  if (connectToInstanceServer) {
     // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
     let spawnTransform
     if (newSpawnPos) {
@@ -163,8 +170,8 @@ export const initEngine = async (
     )
   }
 
-  if (isOffline) {
-    createOfflineUser()
+  if (!connectToInstanceServer) {
+    createOfflineUser(sceneData)
   }
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
@@ -179,8 +186,6 @@ export const initEngine = async (
   if (typeof engineCallbacks?.onSuccess === 'function') {
     engineCallbacks.onSuccess()
   }
-
-  return projectReactComponents
 }
 
 export const teleportToLocation = async (

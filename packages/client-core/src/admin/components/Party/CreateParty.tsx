@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react'
-import Fade from '@material-ui/core/Fade'
-import Modal from '@material-ui/core/Modal'
+import Fade from '@mui/material/Fade'
+import Modal from '@mui/material/Modal'
 import styles from '../Admin.module.scss'
-import Backdrop from '@material-ui/core/Backdrop'
+import Backdrop from '@mui/material/Backdrop'
 import classNames from 'classnames'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-import TextField from '@material-ui/core/TextField'
-import { LocationService } from '../../state/LocationService'
+import Autocomplete from '@mui/material/Autocomplete'
+import TextField from '@mui/material/TextField'
+import { LocationService } from '../../services/LocationService'
 import { useDispatch } from '../../../store'
-import { useAuthState } from '../../../user/state/AuthState'
-import { PartyService } from '../../state/PartyService'
-import { InstanceService } from '../../state/InstanceService'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogActions from '@material-ui/core/DialogActions'
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
+import { useAuthState } from '../../../user/services/AuthService'
+import { PartyService } from '../../services/PartyService'
+import { InstanceService } from '../../services/InstanceService'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
 import { PartyProps } from './variables'
 import { usePartyStyle } from './style'
-import { useLocationState } from '../../state/LocationState'
-import { useInstanceState } from '../../state/InstanceState'
+import { useLocationState } from '../../services/LocationService'
+import { useInstanceState } from '../../services/InstanceService'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 const CreateParty = (props: PartyProps) => {
@@ -32,24 +32,19 @@ const CreateParty = (props: PartyProps) => {
   const authState = useAuthState()
   const user = authState.user
   const adminLocationState = useLocationState()
-  const locationData = adminLocationState.locations.locations
+  const locationData = adminLocationState.locations
   const adminInstanceState = useInstanceState()
-  const adminInstances = adminInstanceState.instances
+  const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
 
   useEffect(() => {
-    if (user?.id.value != null && adminLocationState.locations.updateNeeded.value === true) {
+    if (user?.id.value != null && adminLocationState.updateNeeded.value === true) {
       LocationService.fetchAdminLocations()
     }
-
     if (user.id.value && adminInstances.updateNeeded.value) {
       InstanceService.fetchAdminInstances()
     }
-  }, [
-    authState.user?.id?.value,
-    adminLocationState.locations.updateNeeded.value,
-    adminInstanceState.instances.updateNeeded.value
-  ])
+  }, [authState.user?.id?.value, adminLocationState.updateNeeded.value, adminInstanceState.updateNeeded.value])
 
   const defaultProps = {
     options: locationData.value,
