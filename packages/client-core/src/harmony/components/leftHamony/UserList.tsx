@@ -59,7 +59,7 @@ const UserList = ({ chatType }) => {
           })
         }
         break
-      case 'Freinds':
+      case 'Friends':
         data = friends
         break
       case 'Party':
