@@ -52,6 +52,8 @@ type InstagramNodeEditorProps = {
 //Declaring TriggerVolumeNodeEditor state
 type InstagramNodeEditorState = {
   options: any[]
+  username: string
+  password: string
 }
 
 /**
@@ -65,7 +67,9 @@ export class InstagramNodeEditor extends Component<InstagramNodeEditorProps, Ins
   constructor(props) {
     super(props)
     this.state = {
-      options: []
+      options: [],
+      username: '',
+      password: ''
     }
   }
 
@@ -289,10 +293,23 @@ export class InstagramNodeEditor extends Component<InstagramNodeEditorProps, Ins
     return (
       <NodeEditor description={InstagramNodeEditor.description} {...this.props}>
         <InputGroup name="Instagram Username" label={this.props.t('editor:properties.instagram.lbl-instagramUsername')}>
-          <StringInput value={node.instagramUsername} onChange={this.onChangeInstagramUsername} />
+          <StringInput
+            value={this.state.username}
+            onChange={(username) => {
+              this.setState({ username })
+            }}
+            onBlur={this.onChangeInstagramUsername}
+          />
         </InputGroup>
         <InputGroup name="Instagram Password" label={this.props.t('editor:properties.instagram.lbl-instagramPassword')}>
-          <StringInput type="password" value={node.instagramPassword} onChange={this.onChangeInstagramPassword} />
+          <StringInput
+            type="password"
+            value={this.state.password}
+            onChange={(password) => {
+              this.setState({ password })
+            }}
+            onBlur={this.onChangeInstagramPassword}
+          />
         </InputGroup>
         <InputGroup name="Instagram Username" label={this.props.t('editor:properties.instagram.lbl-instagramUsername')}>
           <SelectInput

@@ -12,6 +12,7 @@ import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from '../managers/CacheManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
+import InstagramHelper from '../classes/InstagramHelper'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { delay } from '@xrengine/engine/src/common/functions/delay'
@@ -140,7 +141,7 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
   }
   set instagramUsername(value) {
     this._instagramUsername = value
-    this.getInstagramProduction()
+    this.getInstagramGallery()
   }
 
   get instagramPassword() {
@@ -148,7 +149,7 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
   }
   set instagramPassword(value) {
     this._instagramPassword = value
-    this.getInstagramProduction()
+    this.getInstagramGallery()
   }
 
   get instagramProductId() {
@@ -164,7 +165,7 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
     }
   }
 
-  async getInstagramProduction() {
+  async getInstagramGallery() {
     if (
       !this.instagramUsername ||
       this.instagramUsername == '' ||
@@ -173,115 +174,111 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
     )
       return
     try {
-      const res = await axios.post(
-        `${this.instagramUsername}/api/2021-07/graphql.json`,
-        {
-          query: `
-            query {
-              products(first: 250) {
-                edges {
-                  node {
-                    id
-                    title
-                  }
-                }
-              }
-            }
-        `
-        },
-        {
-          headers: { 'X-Instagram-Storefront-Access-Token': this.instagramPassword, 'Content-Type': 'application/json' }
-        }
-      )
-      if (!res || !res.data) return
-      const productData: any = res.data
-      this.instagramProducts = []
-      if (productData.data && productData.data.products && productData.data.products.edges) {
-        for (const edgeProduct of productData.data.products.edges) {
-          const response = await axios.post(
-            `${this.instagramDomain}/api/2021-07/graphql.json`,
-            {
-              query: `
-                query {
-                  node(id: "${edgeProduct.node.id}") {
-                    ...on Product {
-                      id
-                        media(first: 250) {
-                        edges {
-                          node {
-                            mediaContentType
-                            alt
-                            ...mediaFieldsByType
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-                
-                fragment mediaFieldsByType on Media {
-                  ...on ExternalVideo {
-                    id
-                    host
-                    embeddedUrl
-                  }
-                  ...on MediaImage {
-                    image {
-                      originalSrc
-                    }
-                  }
-                  ...on Model3d {
-                    sources {
-                      url
-                      mimeType
-                      format
-                      filesize
-                    }
-                  }
-                  ...on Video {
-                    sources {
-                      url
-                      mimeType
-                      format
-                      height
-                      width
-                    }
-                  }
-                }
-                
-            `
-            },
-            {
-              headers: {
-                'X-Instagram-Storefront-Access-Token': this.instagramPassword,
-                'Content-Type': 'application/json'
-              }
-            }
-          )
-          if (response && response.data) {
-            debugger
-            const mediaData: any = response.data
-            if (mediaData.data && mediaData.data.node && mediaData.data.node.media && mediaData.data.node.media.edges) {
-              for (const edgeMedia of mediaData.data.node.media.edges) {
-                if (edgeMedia.node && edgeMedia.node.mediaContentType == 'MODEL_3D') {
-                  for (const source of edgeMedia.node.sources) {
-                    if (source.format == 'glb') {
-                      this.instagramProducts.push({
-                        value: edgeProduct.node.id,
-                        label: edgeProduct.node.title,
-                        path: source.url
-                      })
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-        console.log(this.instagramProducts)
-        CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
-        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
-      }
+      const username = this.instagramUsername
+      const password = this.instagramPassword
+      console.log('username, password')
+      console.log(username, password)
+      const client = new InstagramHelper({
+        username,
+        password
+      })
+
+      const res = await client.login()
+      console.log(res)
+      console.log('success')
+      // const res = await client.getPhotosByUsername({ username })
+      // const edges = res.user.edge_owner_to_timeline_media.edges
+      // console.log(edges);
+
+      // if (!res || !res.data) return
+      // const productData: any = res.data
+      // this.instagramProducts = []
+      // if (productData.data && productData.data.products && productData.data.products.edges) {
+      //   for (const edgeProduct of productData.data.products.edges) {
+      //     const response = await axios.post(
+      //       `${this.instagramDomain}/api/2021-07/graphql.json`,
+      //       {
+      //         query: `
+      //           query {
+      //             node(id: "${edgeProduct.node.id}") {
+      //               ...on Product {
+      //                 id
+      //                   media(first: 250) {
+      //                   edges {
+      //                     node {
+      //                       mediaContentType
+      //                       alt
+      //                       ...mediaFieldsByType
+      //                     }
+      //                   }
+      //                 }
+      //               }
+      //             }
+      //           }
+
+      //           fragment mediaFieldsByType on Media {
+      //             ...on ExternalVideo {
+      //               id
+      //               host
+      //               embeddedUrl
+      //             }
+      //             ...on MediaImage {
+      //               image {
+      //                 originalSrc
+      //               }
+      //             }
+      //             ...on Model3d {
+      //               sources {
+      //                 url
+      //                 mimeType
+      //                 format
+      //                 filesize
+      //               }
+      //             }
+      //             ...on Video {
+      //               sources {
+      //                 url
+      //                 mimeType
+      //                 format
+      //                 height
+      //                 width
+      //               }
+      //             }
+      //           }
+
+      //       `
+      //       },
+      //       {
+      //         headers: {
+      //           'X-Instagram-Storefront-Access-Token': this.instagramPassword,
+      //           'Content-Type': 'application/json'
+      //         }
+      //       }
+      //     )
+      //     if (response && response.data) {
+      //       debugger
+      //       const mediaData: any = response.data
+      //       if (mediaData.data && mediaData.data.node && mediaData.data.node.media && mediaData.data.node.media.edges) {
+      //         for (const edgeMedia of mediaData.data.node.media.edges) {
+      //           if (edgeMedia.node && edgeMedia.node.mediaContentType == 'MODEL_3D') {
+      //             for (const source of edgeMedia.node.sources) {
+      //               if (source.format == 'glb') {
+      //                 this.instagramProducts.push({
+      //                   value: edgeProduct.node.id,
+      //                   label: edgeProduct.node.title,
+      //                   path: source.url
+      //                 })
+      //               }
+      //             }
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      //   console.log(this.instagramProducts)
+      //   CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
+      //   CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+      // }
     } catch (error) {
       this.instagramProducts = []
       console.error(error)
