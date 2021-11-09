@@ -104,7 +104,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   boundingSphere = new Sphere()
   gltfJson = null
   isValidURL = false
-  matrixAutoUpdate = false
+  matrixAutoUpdate = true
   animations = []
 
   constructor() {

@@ -1,4 +1,3 @@
-import { Group, MathUtils, Mesh, MeshPhongMaterial, Quaternion, Vector3 } from 'three'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import {
   addComponent,
@@ -7,32 +6,22 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractiveFocusedComponent } from '../components/InteractiveFocusedComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
 import { SubFocusedComponent } from '../components/SubFocusedComponent'
+import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import AudioSource from '../../scene/classes/AudioSource'
-import { Engine } from '../../ecs/classes/Engine'
 import { createBoxComponent } from '../functions/createBoxComponent'
 import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
-
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createInteractUI, showInteractUI, hideInteractUI, getInteractUI } from '../functions/interactUI'
-
-const upVec = new Vector3(0, 1, 0)
 
 export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])
@@ -40,12 +29,9 @@ export default async function InteractiveSystem(world: World): Promise<System> {
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const focusQuery = defineQuery([InteractableComponent, InteractiveFocusedComponent])
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
-  const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
   const interactedQuery = defineQuery([InteractedComponent])
 
   return () => {
-    const { elapsedTime } = world
-
     for (const entity of interactiveQuery.enter(world)) {
       if (!hasComponent(entity, BoundingBoxComponent) && hasComponent(entity, Object3DComponent)) {
         createBoxComponent(entity)

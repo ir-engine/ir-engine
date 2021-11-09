@@ -19,5 +19,6 @@ export type InteractionData = {
   interactionVideos?: any
   interactionUrls?: any
   interactionModels?: any
+  interactionUserData?: any
   action?: any
 }
