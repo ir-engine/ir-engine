@@ -215,6 +215,7 @@ const InstanceChat = (props: Props): any => {
                 id="newMessage"
                 label={newMessageLabel}
                 name="newMessage"
+                variant="standard"
                 autoFocus
                 value={composingMessage}
                 inputProps={{

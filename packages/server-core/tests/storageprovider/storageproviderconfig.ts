@@ -35,11 +35,7 @@ const localStorageAfterTest = (provider): Promise<any> => {
   })
 }
 
-const s3StorageBeforeTest = (provider: S3Provider): Promise<any> => {
-  provider.bucket = 'test-bucket-here'
-  return provider.provider.createBucket({ Bucket: provider.bucket, ACL: '' }).promise()
-}
-const s3StorageAfterTest = (provider: S3Provider): Promise<any> => {
+const deleteS3Bucket = (provider: S3Provider): Promise<any> => {
   return new Promise((resolve) => {
     provider.provider
       .listObjectsV2({ Bucket: provider.bucket })
@@ -61,3 +57,15 @@ const s3StorageAfterTest = (provider: S3Provider): Promise<any> => {
       })
   })
 }
+const s3StorageBeforeTest = async (provider: S3Provider): Promise<any> => {
+  provider.bucket = 'xrengine-test-bucket'
+  let bucketExists
+  try {
+    bucketExists = await provider.provider.headBucket({ Bucket: provider.bucket }).promise()
+  } catch (err) {
+    if (err.code !== 'NotFound') throw err
+  }
+  if (bucketExists != null) await deleteS3Bucket(provider)
+  return provider.provider.createBucket({ Bucket: provider.bucket, ACL: 'public-read' }).promise()
+}
+const s3StorageAfterTest = (provider: S3Provider): Promise<any> => deleteS3Bucket(provider)

@@ -61,7 +61,7 @@ export class LocalStorage implements StorageProviderInterface {
     return new Promise((resolve, reject) => {
       const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, key)
       const exists = fs.existsSync(filePath)
-      if (exists) reject(new Error('Pack already exists'))
+      if (exists) reject(new Error('Object already exists'))
       else resolve(null)
     })
   }
