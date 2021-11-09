@@ -77,7 +77,7 @@ export async function reset(): Promise<void> {
   Engine.prevInputState.clear()
 }
 
-export const processLocationChange = async (): Promise<void> => {
+export const unloadScene = async (): Promise<void> => {
   const world = useWorld()
   const entitiesToRemove = [] as Entity[]
   const removedEntities = [] as Entity[]
@@ -114,5 +114,5 @@ export const processLocationChange = async (): Promise<void> => {
   isClient && EngineRenderer.instance.resetPostProcessing()
 
   Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
-  world.physics.dispose()
+  // world.physics.clear() // TODO:
 }

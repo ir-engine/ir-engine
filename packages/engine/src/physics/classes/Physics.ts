@@ -49,7 +49,21 @@ export class Physics {
   controllers = new Map<number, PhysX.PxController>()
   obstacles = new Map<number, PhysX.PxObstacle>()
 
-  dispose() {}
+  /**
+   * Destroys the physics world
+   */
+  dispose() {
+    throw new Error('Function not implemented')
+  }
+
+  /**
+   * Clears all the actors in a scene, but does not destroy the world
+   */
+  clear() {
+    this.bodies.forEach((body) => {
+      this.scene.removeActor(body, true)
+    })
+  }
 
   onEvent(ev) {
     this.collisionEventQueue.push(ev)

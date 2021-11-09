@@ -142,6 +142,7 @@ export class WorldScene {
   }
 
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
+    console.log(component)
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     const world = useWorld()
@@ -442,7 +443,7 @@ export class WorldScene {
     }
   }
 
-  static load = (scene: SceneData, onProgress?: Function): Promise<void> => {
+  static load = (scene: SceneJson, onProgress?: Function): Promise<void> => {
     const world = new WorldScene(onProgress)
     return world.loadScene(scene)
   }

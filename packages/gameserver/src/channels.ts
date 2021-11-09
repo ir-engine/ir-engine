@@ -7,7 +7,7 @@ import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip
 import logger from '@xrengine/server-core/src/logger'
 import { decode } from 'jsonwebtoken'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 // import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 // import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -22,7 +22,7 @@ const loadScene = async (app: Application, scene: string) => {
   const sceneData = sceneResult.data.scene as any // SceneData
   const packs = await getPacksFromSceneData(sceneData, false)
 
-  await initializeServerEngine(packs.systems, app.isChannelInstance)
+  if (!Engine.isInitialized) await initializeServerEngine(packs.systems, app.isChannelInstance)
   console.log('Initialized new gameserver instance')
 
   let entitiesLeft = -1
@@ -70,7 +70,7 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
       Engine.engineTimer.stop()
       Engine.sceneLoaded = false
       WorldScene.isLoading = false
-      await processLocationChange()
+      await unloadScene()
       Engine.engineTimer.start()
     }
     newInstance.locationId = locationId
