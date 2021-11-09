@@ -43,7 +43,7 @@ export const uploadLocalProjectToProvider = async (projectName) => {
     if (existingFiles.length) {
       await Promise.all([
         storageProvider.deleteResources(existingFiles),
-        storageProvider.createInvalidation(existingFiles)
+        storageProvider.createInvalidation([`projects/${projectName}*`])
       ])
     }
   } catch (e) {}
@@ -221,7 +221,7 @@ export class Project extends Service {
       repositoryPath: data.url
     }
 
-    await super.create(dbEntryData, params)
+    await super.create(dbEntryData, params || {})
   }
 
   /**
