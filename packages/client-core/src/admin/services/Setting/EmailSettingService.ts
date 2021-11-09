@@ -7,17 +7,15 @@ import { EmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
 
 //State
 const state = createState({
-  Email: {
-    email: [] as Array<EmailSetting>,
-    updateNeeded: true
-  }
+  email: [] as Array<EmailSetting>,
+  updateNeeded: true
 })
 
 store.receptors.push((action: EmailSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'EMAIL_SETTING_DISPLAY':
-        return s.Email.merge({ email: action.emailSettingResult.data, updateNeeded: false })
+        return s.merge({ email: action.emailSettingResult.data, updateNeeded: false })
     }
   }, action.type)
 })

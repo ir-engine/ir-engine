@@ -74,7 +74,7 @@ export function AssetsPanelToolbar({ title, children, ...rest }) {
  * */
 export const AssetPanelContentContainer = (styled as any)(FlexRow)`
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
 `
 
 /**

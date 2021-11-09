@@ -6,17 +6,15 @@ import { createState, DevTools, useState, none, Downgraded } from '@hookstate/co
 import { ChargebeeSetting } from '@xrengine/common/src/interfaces/ChargebeeSetting'
 
 const state = createState({
-  Chargebee: {
-    chargebee: [] as Array<ChargebeeSetting>,
-    updateNeeded: true
-  }
+  chargebee: [] as Array<ChargebeeSetting>,
+  updateNeeded: true
 })
 
 store.receptors.push((action: ChargebeeSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CHARGEBEE_SETTING_DISPLAY':
-        return s.Chargebee.merge({ chargebee: action.chargebeeSettingResult.data, updateNeeded: false })
+        return s.merge({ chargebee: action.chargebeeSettingResult.data, updateNeeded: false })
     }
   }, action.type)
 })

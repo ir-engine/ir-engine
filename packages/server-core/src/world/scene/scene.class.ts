@@ -96,7 +96,6 @@ export class Scene implements ServiceMethods<any> {
 
   // @ts-ignore
   async get({ projectName, sceneName, metadataOnly }, params?: Params): Promise<{ data: SceneDetailInterface }> {
-    console.log(projectName, sceneName, metadataOnly)
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
