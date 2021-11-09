@@ -133,7 +133,6 @@ const EditorContainer = () => {
 
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)
-  const [creatingProject, setCreatingProject] = useState(null)
   const [DialogComponent, setDialogComponent] = useState(null)
   const [modified, setModified] = useState(false)
   const [sceneLoaded, setSceneLoaded] = useState(false)
@@ -239,11 +238,13 @@ const EditorContainer = () => {
       )
     }
     dispatch(EditorAction.sceneLoaded(sceneName))
+    SceneManager.instance.sceneModified = true
+    updateModifiedState()
     setSceneLoaded(true)
   }
 
   const updateModifiedState = (then?) => {
-    const nextModified = SceneManager.instance.sceneModified && !creatingProject
+    const nextModified = SceneManager.instance.sceneModified
 
     if (nextModified !== modified) {
       setModified(nextModified)
@@ -257,7 +258,7 @@ const EditorContainer = () => {
     return [
       {
         name: t('editor:menubar.newProject'),
-        action: onNewProject
+        action: newScene
       },
       {
         name: t('editor:menubar.saveProject'),
@@ -268,10 +269,10 @@ const EditorContainer = () => {
         name: t('editor:menubar.saveAs'),
         action: onSaveAs
       },
-      {
-        name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
-        action: onExportProject
-      },
+      // {
+      //   name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
+      //   action: onExportProject
+      // },
       {
         name: t('editor:menubar.importProject'),
         action: onImportScene
@@ -328,8 +329,6 @@ const EditorContainer = () => {
   const onProjectLoaded = () => {
     updateModifiedState()
   }
-
-  const onNewProject = async () => {}
 
   const onCloseProject = () => {
     dispatch(EditorAction.projectLoaded(null))

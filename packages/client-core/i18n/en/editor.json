@@ -7,6 +7,7 @@
     "errorMsg": "There was an unknown error.",
     "generateScreenshot": "Generating Project Screenshot",
     "generateScreenshotMsg": "Generating project screenshot...",
+    "newScene": "New Scene",
     "saving": "Saving Project",
     "savingMsg": "Saving project...",
     "savingError": "Error Saving Project",
@@ -28,12 +29,12 @@
     "envMapError": "Error loading cubemap images {{files}}",
     "lbl-return": "Return",
     "menubar": {
-        "newProject": "New Project",
-        "saveProject": "Save Project",
+        "newProject": "New Scene",
+        "saveProject": "Save Scene",
         "saveAs": "Save As",
         "exportGLB": "Export as binary glTF (.glb) ...",
-        "importProject": "Import editor project",
-        "exportProject": "Export editor project",
+        "importProject": "Import scene",
+        "exportProject": "Export scene",
         "quit": "Quit"
     },
     "errors": {
@@ -49,7 +50,7 @@
         "resolveURL": "Error resolving url \"{{url}}\":\n",
         "mediaSearchAborted": "Media search aborted",
         "methodNotImplemented": "Method not implemented.",
-        "saveProjectAborted": "Save project aborted",
+        "saveProjectAborted": "Save scene aborted",
         "projectCreationFail": "Project creation failed. {{reason}}",
         "projectDeletionFail": "Project deletion failed. {{reason}}",
         "savingProjectFail": "Saving Project failed. {{reason}}",

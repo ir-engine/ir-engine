@@ -52,7 +52,7 @@
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
     "earcut": "^2.2.3",
-    "ethereal": "^2.0.32",
+    "ethereal": "^2.1.0",
     "gl-matrix": "^3.0.0",
     "hls.js": "^1.0.7",
     "idb-keyval": "^5.0.5",
