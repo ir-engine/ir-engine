@@ -35,7 +35,7 @@ const InstanceTable = (props: Props) => {
 
   const user = useAuthState().user
   const adminInstanceState = useInstanceState()
-  const adminInstances = adminInstanceState.instances
+  const adminInstances = adminInstanceState
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     InstanceService.fetchAdminInstances(incDec)
@@ -60,7 +60,7 @@ const InstanceTable = (props: Props) => {
   React.useEffect(() => {
     if ((user.id.value && adminInstances.updateNeeded.value) || refetch === true) InstanceService.fetchAdminInstances()
     setRefetch(false)
-  }, [user, adminInstanceState.instances.updateNeeded.value, refetch])
+  }, [user, adminInstanceState.updateNeeded.value, refetch])
 
   const createData = (
     id: string,

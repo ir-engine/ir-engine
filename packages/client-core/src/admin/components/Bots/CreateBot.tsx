@@ -67,10 +67,10 @@ const CreateBot = (props: Props) => {
   const classx = useStyle()
   const authState = useAuthState()
   const user = authState.user
-  const adminInstances = adminInstanceState.instances
+  const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
   const adminLocationState = useLocationState()
-  const adminLocation = adminLocationState.locations
+  const adminLocation = adminLocationState
   const locationData = adminLocation.locations
   React.useEffect(() => {
     if (user.id.value && adminInstances.updateNeeded.value) {
@@ -79,7 +79,7 @@ const CreateBot = (props: Props) => {
     if (user?.id.value != null && adminLocation.updateNeeded.value === true) {
       LocationService.fetchAdminLocations()
     }
-  }, [user.id.value, adminInstanceState.instances.updateNeeded.value])
+  }, [user.id.value, adminInstanceState.updateNeeded.value])
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -99,7 +99,7 @@ const CreateBot = (props: Props) => {
       setState({ ...state, instance: '' })
       setCurrentIntance(instanceFilter)
     }
-  }, [state.location, adminInstanceState.instances.instances.value.length])
+  }, [state.location, adminInstanceState.instances.value.length])
 
   const temp: Location[] = []
   locationData.value.forEach((el) => {

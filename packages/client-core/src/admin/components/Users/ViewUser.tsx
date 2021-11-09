@@ -32,6 +32,10 @@ import Select from '@mui/material/Select'
 import { useScopeState } from '../../services/ScopeService'
 import { ScopeService } from '../../services/ScopeService'
 import { AuthService } from '../../../user/services/AuthService'
+import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeService'
+import { useUserRoleState, UserROleService } from '../../services/UserRoleService'
+import { useSingleUserState, SingleUserService } from '../../services/SingleUserService'
+import { useStaticResourceState, staticResourceService } from '../../services/StaticResourceService'
 
 interface Props {
   openView: boolean
@@ -63,25 +67,25 @@ const ViewUser = (props: Props) => {
   const [state, setState] = React.useState({
     name: '',
     avatar: '',
-    scopeType: [],
+    scopeTypes: [],
     formErrors: {
       name: '',
       avatar: '',
-      scopeType: ''
+      scopeTypes: ''
     }
   })
   const [error, setError] = React.useState('')
   const [openWarning, setOpenWarning] = React.useState(false)
   const user = useAuthState().user
   const adminUserState = useUserState()
-  const userRole = adminUserState.userRole
+  const userRole = useUserRoleState()
   const userRoleData = userRole ? userRole.userRole.value : []
-  const singleUser = adminUserState.singleUser
+  const singleUser = useSingleUserState()
   const singleUserData = singleUser.singleUser
-  const staticResource = adminUserState.staticResource
+  const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
   const adminScopeState = useScopeState()
-  const adminScopes = adminScopeState.scopeType.scopeType
+  const adminScopeTypeState = useScopeTypeState()
 
   const handleClick = () => {
     setOpenDialog(true)
@@ -93,35 +97,25 @@ const ViewUser = (props: Props) => {
   React.useEffect(() => {
     const fetchData = async () => {
       AuthService.doLoginAuto(false)
-      await UserService.fetchUserRole()
+      await UserROleService.fetchUserRole()
     }
-    if (adminUserState.users.updateNeeded.value === true && user.id.value) fetchData()
+    if (userRole.updateNeeded.value === true && user.id.value) fetchData()
     if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
-      UserService.fetchSingleUserAdmin(userAdmin.id)
+      SingleUserService.fetchSingleUserAdmin(userAdmin.id)
     }
     if (user.id.value && staticResource.updateNeeded.value) {
-      UserService.fetchStaticResource()
+      staticResourceService.fetchStaticResource()
     }
-    if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      ScopeService.getScopeTypeService()
+    if (adminScopeTypeState.updateNeeded.value && user.id.value) {
+      ScopeTypeService.getScopeTypeService()
     }
   }, [
-    adminUserState.users.updateNeeded.value,
-    adminUserState.staticResource.updateNeeded.value,
+    adminUserState.updateNeeded.value,
     user.id.value,
     refetch,
     singleUser.updateNeeded.value,
-    adminScopeState.scopeType.updateNeeded.value
+    adminScopeTypeState.updateNeeded.value
   ])
-
-  console.log(
-    adminUserState.users.updateNeeded.value,
-    adminUserState.staticResource.updateNeeded.value,
-    user.id.value,
-    refetch,
-    singleUser.updateNeeded.value,
-    adminScopeState.scopeType.updateNeeded.value
-  )
 
   React.useEffect(() => {
     if (!refetch) {
@@ -135,7 +129,7 @@ const ViewUser = (props: Props) => {
         ...state,
         name: userAdmin.name || '',
         avatar: userAdmin.avatarId || '',
-        scopeType: userAdmin.scopes || []
+        scopeTypes: userAdmin.scopes || []
       })
     }
   }, [singleUserData?.id?.value])
@@ -146,7 +140,7 @@ const ViewUser = (props: Props) => {
   }
 
   const patchUserRole = async (user: any, role: string) => {
-    await UserService.updateUserRole(user, role)
+    await UserROleService.updateUserRole(user, role)
     handleCloseDialog()
     setRefetch(refetch + 1)
   }
@@ -171,7 +165,7 @@ const ViewUser = (props: Props) => {
     const data = {
       name: state.name,
       avatarId: state.avatar,
-      scopeType: state.scopeType
+      scopeTypes: state.scopeTypes
     }
 
     let temp = state.formErrors
@@ -181,11 +175,11 @@ const ViewUser = (props: Props) => {
     if (!state.avatar) {
       temp.avatar = "Avatar can't be empty"
     }
-    if (!state.scopeType) {
-      temp.scopeType = "Scope type can't be empty"
+    if (!state.scopeTypes) {
+      temp.scopeTypes = "Scope type can't be empty"
     }
-    if (!state.scopeType.length) {
-      temp.scopeType = "Scope can't be empty"
+    if (!state.scopeTypes.length) {
+      temp.scopeTypes = "Scope can't be empty"
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
@@ -194,7 +188,7 @@ const ViewUser = (props: Props) => {
         ...state,
         name: '',
         avatar: '',
-        scopeType: []
+        scopeTypes: []
       })
       setEditMode(false)
       closeViewModel(false)
@@ -221,7 +215,7 @@ const ViewUser = (props: Props) => {
         ...state.formErrors,
         name: '',
         avatar: '',
-        scopeType: ''
+        scopeTypes: ''
       }
     })
   }
@@ -353,22 +347,22 @@ const ViewUser = (props: Props) => {
               <label>Grant scope</label>
               <Paper
                 component="div"
-                className={state.formErrors.scopeType.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.scopeTypes.length > 0 ? classes.redBorder : classes.createInput}
               >
                 <Autocomplete
                   onChange={(event, value) =>
-                    setState({ ...state, scopeType: value, formErrors: { ...state.formErrors, scopeType: '' } })
+                    setState({ ...state, scopeTypes: value, formErrors: { ...state.formErrors, scopeTypes: '' } })
                   }
                   multiple
-                  value={state.scopeType}
+                  value={state.scopeTypes}
                   className={classes.selector}
                   classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
                   id="tags-standard"
-                  options={adminScopes.value}
+                  options={adminScopeTypeState.scopeTypes.value}
                   disableCloseOnSelect
                   filterOptions={(options) =>
                     options.filter(
-                      (option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null
+                      (option) => state.scopeTypes.find((scopeType) => scopeType.type === option.type) == null
                     )
                   }
                   getOptionLabel={(option) => option.type}
@@ -459,7 +453,7 @@ const ViewUser = (props: Props) => {
                       ...state,
                       name: userAdmin.name || '',
                       avatar: userAdmin.avatarId || '',
-                      scopeType: userAdmin.scopes || []
+                      scopeTypes: userAdmin.scopes || []
                     })
                   }}
                 >

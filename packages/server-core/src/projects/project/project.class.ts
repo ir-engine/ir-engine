@@ -146,7 +146,6 @@ export class Project extends Service {
   async create(data: { name: string }, params?: Params) {
     // make alphanumeric period, underscore, dash
     const projectName = cleanString(data.name)
-    console.log(projectName)
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 

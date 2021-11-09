@@ -7,17 +7,15 @@ import { GameServerSetting } from '@xrengine/common/src/interfaces/GameServerSet
 
 //State
 const state = createState({
-  gameServer: {
-    gameserver: [] as Array<GameServerSetting>,
-    updateNeeded: true
-  }
+  gameserver: [] as Array<GameServerSetting>,
+  updateNeeded: true
 })
 
 store.receptors.push((action: GameServerSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'GAME_SERVER_SETTING_DISPLAY':
-        return s.gameServer.merge({ gameserver: action.gameServerSettingResult.data, updateNeeded: false })
+        return s.merge({ gameserver: action.gameServerSettingResult.data, updateNeeded: false })
     }
   }, action.type)
 })

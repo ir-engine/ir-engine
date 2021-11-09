@@ -27,7 +27,7 @@ const Server = (props: serverProps) => {
   const [load, setLoad] = React.useState(false)
   const dispatch = useDispatch()
   const serverSettingState = useServerSettingState()
-  const serverSettings = serverSettingState?.Server?.server?.value || []
+  const serverSettings = serverSettingState?.server?.value || []
 
   const [server, setServer] = React.useState({
     enabled: '',
@@ -93,7 +93,7 @@ const Server = (props: serverProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && serverSettingState?.Server?.updateNeeded?.value === true) {
+    if (user?.id?.value != null && serverSettingState?.updateNeeded?.value === true) {
       ServerSettingService.fetchServerSettings()
     }
   }, [authState])

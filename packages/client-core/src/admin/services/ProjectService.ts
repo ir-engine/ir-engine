@@ -38,7 +38,6 @@ export async function fetchAdminProjects(incDec?: 'increment' | 'decrement') {
   //   $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip
   // }
   // })
-  console.log(projects.data)
   store.dispatch(ProjectAction.projectsFetched(projects.data))
 }
 
