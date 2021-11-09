@@ -19,6 +19,10 @@ export default (app: Application) => {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV1,
         allowNull: true,
+      },
+      connection: {
+        type: DataTypes.STRING,
+        allowNull: true,
       }
     },
     {
