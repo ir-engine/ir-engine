@@ -33,8 +33,8 @@ export class S3Provider implements StorageProviderInterface {
     secretAccessKey: config.aws.keys.secretAccessKey
   })
 
-  getProvider = (): AWS.S3 => {
-    return this.provider
+  getProvider = (): StorageProviderInterface => {
+    return this
   }
 
   checkObjectExistence = (key: string): Promise<any> => {

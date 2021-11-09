@@ -91,14 +91,13 @@ describe('Storage Provider test', () => {
     })
 
     it(`should be able to rename object in ${provider.constructor.name}`, async function () {
-      const fileKeyTemp2 = path.join(testFolderName, 'temp2', testFileName)
-      await provider.moveObject(fileKeyTemp2, testFolderName, false, 'Renamed.txt')
-      const res = await provider.listFolderContent(testFolderName, true)
-      for (let i = 0; i < res.length; i++) {
-        if (res[i].name === 'Renamed') {
-          assert.ok(true)
-          return
-        }
+      const temp2Folder = path.join(testFolderName, 'temp2')
+      const fileKeyTemp2 = path.join(temp2Folder, testFileName)
+      await provider.moveObject(fileKeyTemp2, temp2Folder, false, 'Renamed.txt')
+      const res = await provider.listFolderContent(temp2Folder, true)
+      if (res[0].name === 'Renamed' && res.length===1) {
+        assert.ok(true)
+        return
       }
       assert.ok(false)
     })
