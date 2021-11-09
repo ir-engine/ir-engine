@@ -142,7 +142,6 @@ export class WorldScene {
   }
 
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
-    console.log(component)
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     const world = useWorld()

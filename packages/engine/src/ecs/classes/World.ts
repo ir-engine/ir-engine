@@ -28,10 +28,10 @@ export class World {
   private constructor() {
     bitecs.createWorld(this)
     Engine.worlds.push(this)
-    if (!Engine.defaultWorld) Engine.defaultWorld = this
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
-    addComponent(this.worldEntity, PersistTagComponent, {})
+    if (!Engine.defaultWorld) Engine.defaultWorld = this
+    addComponent(this.worldEntity, PersistTagComponent, {}, this)
   }
 
   static [CreateWorld] = () => new World()
