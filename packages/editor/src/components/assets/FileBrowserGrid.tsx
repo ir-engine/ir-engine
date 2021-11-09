@@ -47,10 +47,12 @@ export function FileListItem({
     if (isRenaming) inputref.current.focus()
   }, [isRenaming])
   return (
-    <div onDoubleClick={onDoubleClick} onClick={onClick}>
-      <IconComponent size={'20px'} />
+    <FileListItemContainer onDoubleClick={onDoubleClick} onClick={onClick}>
+      <div style={{ marginRight: '3px' }}>
+        <IconComponent size={'20px'} />
+      </div>
       {label}
-    </div>
+    </FileListItemContainer>
   )
 }
 
@@ -61,6 +63,20 @@ export function FileListItem({
 export const FileList = (styled as any).div`
  width: 100%;
  padding: 10px;
+`
+
+/**
+ *
+ *  @author Robert Long
+ */
+export const FileListItemContainer = (styled as any).div`
+ width: 100%;
+ display: flex;
+ flex-direction: row;
+ align-items: center;
+ margin-left: 3px;
+ margin-bottom: 3px;
+ color: white;
 `
 
 MediaGrid.defaultProps = {
