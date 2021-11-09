@@ -7,20 +7,18 @@ import { AdminAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting
 
 //State
 const state = createState({
-  awsSettings: {
-    awsSettings: [] as Array<AdminAwsSetting>,
-    skip: 0,
-    limit: 100,
-    total: 0,
-    updateNeeded: true
-  }
+  awsSettings: [] as Array<AdminAwsSetting>,
+  skip: 0,
+  limit: 100,
+  total: 0,
+  updateNeeded: true
 })
 
 store.receptors.push((action: AwsSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_AWS_SETTING_FETCHED':
-        return s.awsSettings.merge({ awsSettings: action.adminAWSSettingResult.data, updateNeeded: false })
+        return s.merge({ awsSettings: action.adminAWSSettingResult.data, updateNeeded: false })
     }
   }, action.type)
 })

@@ -30,8 +30,8 @@ const Scenes = (props: Props) => {
   const authState = useAuthState()
   const user = authState.user
   const adminSceneState = useSceneState()
-  const adminScenes = adminSceneState.scenes.scenes
-  const adminScenesCount = adminSceneState.scenes.total
+  const adminScenes = adminSceneState.scenes
+  const adminScenesCount = adminSceneState.total
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
@@ -165,11 +165,11 @@ const Scenes = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (user?.id.value != null && (adminSceneState.scenes.updateNeeded.value === true || refetch === true)) {
+    if (user?.id.value != null && (adminSceneState.updateNeeded.value === true || refetch === true)) {
       SceneService.fetchAdminScenes()
     }
     setRefetch(false)
-  }, [authState.user?.id?.value, adminSceneState.scenes.updateNeeded.value, refetch])
+  }, [authState.user?.id?.value, adminSceneState.updateNeeded.value, refetch])
 
   return (
     <div>

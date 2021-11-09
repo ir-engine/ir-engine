@@ -22,15 +22,15 @@ function collectMenuProps({ project }) {
 const StyledProjectGridItem = styled.div`
   display: flex;
   flex-direction: column;
-  height: 220px;
+  height: 200px;
   border-radius: 6px;
   background-color: ${(props) => props.theme.toolbar};
   text-decoration: none;
   border: 1px solid transparent;
 
   &:hover {
-    color: inherit;
-    border-color: ${(props) => props.theme.selected};
+    color: white;
+    border-color: white;
   }
 `
 

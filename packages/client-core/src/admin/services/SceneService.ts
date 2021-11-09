@@ -7,7 +7,14 @@ import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInter
 export const SCENE_PAGE_LIMIT = 100
 
 const state = createState({
-  scenes: [] as Array<SceneDetailInterface>
+  scenes: [] as Array<SceneDetailInterface>,
+  skip: 0,
+  limit: SCENE_PAGE_LIMIT,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true,
+  lastFetched: Date.now()
 })
 
 store.receptors.push((action: SceneActionType): any => {
@@ -15,7 +22,11 @@ store.receptors.push((action: SceneActionType): any => {
     switch (action.type) {
       case 'ADMIN_SCENES_RETRIEVED':
         return s.merge({
-          scenes: action.sceneData
+          scenes: action.sceneData,
+          retrieving: false,
+          fetched: true,
+          updateNeeded: false,
+          lastFetched: Date.now()
         })
     }
   }, action.type)

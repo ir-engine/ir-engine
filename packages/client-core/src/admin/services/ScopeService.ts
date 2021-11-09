@@ -11,26 +11,14 @@ import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
 export const SCOPE_PAGE_LIMIT = 100
 
 const state = createState({
-  scope: {
-    scope: [] as Array<AdminScope>,
-    skip: 0,
-    limit: SCOPE_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    lastFetched: Date.now()
-  },
-  scopeType: {
-    scopeType: [] as Array<AdminScopeType>,
-    skip: 0,
-    limit: SCOPE_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    lastFetched: Date.now()
-  },
+  scopes: [] as Array<AdminScope>,
+  skip: 0,
+  limit: SCOPE_PAGE_LIMIT,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true,
+  lastFetched: Date.now(),
   fetching: false
 })
 
@@ -40,7 +28,7 @@ store.receptors.push((action: ScopeActionType): any => {
       case 'SCOPE_FETCHING':
         return s.merge({ fetching: true })
       case 'SCOPE_ADMIN_RETRIEVED':
-        return s.scope.merge({
+        return s.merge({
           scope: action.adminScopeResult.data,
           skip: action.adminScopeResult.skip,
           limit: action.adminScopeResult.limit,
@@ -51,23 +39,12 @@ store.receptors.push((action: ScopeActionType): any => {
           lastFetched: Date.now()
         })
       case 'ADD_SCOPE':
-        return s.scope.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'UPDATE_SCOPE':
-        return s.scope.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
 
       case 'REMOVE_SCOPE':
-        return s.scope.merge({ updateNeeded: true })
-      case 'SCOPE_TYPE_RETRIEVED':
-        return s.scopeType.merge({
-          scopeType: action.adminScopeTypeResult.data,
-          skip: action.adminScopeTypeResult.skip,
-          limit: action.adminScopeTypeResult.limit,
-          total: action.adminScopeTypeResult.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
+        return s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -96,8 +73,8 @@ export const ScopeService = {
     const dispatch = useDispatch()
     {
       const scopeState = accessScopeState()
-      const skip = scopeState.scope.skip.value
-      const limit = scopeState.scope.limit.value
+      const skip = scopeState.skip.value
+      const limit = scopeState.limit.value
       try {
         dispatch(ScopeAction.fetchingScope())
         const list = await client.service('scope').find({
@@ -138,26 +115,6 @@ export const ScopeService = {
         AlertService.dispatchAlertError(err.message)
       }
     }
-  },
-  getScopeTypeService: async (incDec?: 'increment' | 'decrement') => {
-    const dispatch = useDispatch()
-    {
-      const scopeState = accessScopeState()
-      const skip = scopeState.scopeType.skip.value
-      const limit = scopeState.scopeType.limit.value
-      try {
-        const result = await client.service('scope-type').find({
-          query: {
-            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-            $limit: limit
-          }
-        })
-        dispatch(ScopeAction.getScopeType(result))
-      } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
-      }
-    }
   }
 }
 
@@ -190,12 +147,6 @@ export const ScopeAction = {
     return {
       type: 'REMOVE_SCOPE' as const,
       id: id
-    }
-  },
-  getScopeType: (adminScopeTypeResult: AdminScopTypeResult) => {
-    return {
-      type: 'SCOPE_TYPE_RETRIEVED' as const,
-      adminScopeTypeResult: adminScopeTypeResult
     }
   }
 }
