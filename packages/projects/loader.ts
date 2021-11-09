@@ -26,8 +26,8 @@ export const getPacksFromSceneData = async (sceneData: SceneData, isClient: bool
   }
   for (const entity of Object.values(sceneData.entities)) {
     for (const component of entity.components) {
-      if (component.type === 'project') {
-        const data: ProjectNodeArguments = component.data
+      if (component.name === 'project') {
+        const data: ProjectNodeArguments = component.props
         const projectModules = await importPack(data, isClient)
         modules.systems.push(...projectModules.systems)
         modules.react.push(...projectModules.react)
