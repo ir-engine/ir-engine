@@ -338,6 +338,7 @@ const EditorContainer = () => {
   const onSaveAs = async () => {
     const abortController = new AbortController()
     try {
+      let saveProjectFlag = true
       if (sceneName || modified) {
         const blob = await SceneManager.instance.takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
@@ -350,11 +351,17 @@ const EditorContainer = () => {
             />
           )
         })) as any
-        await saveScene(projectName, result.name, blob, abortController.signal)
-        SceneManager.instance.sceneModified = false
+        if (result) {
+          await saveScene(projectName, result.name, blob, abortController.signal)
+          SceneManager.instance.sceneModified = false
+        } else {
+          saveProjectFlag = false
+        }
       }
-      await saveProject(projectName)
-      updateModifiedState()
+      if (saveProjectFlag) {
+        await saveProject(projectName)
+        updateModifiedState()
+      }
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -427,6 +434,7 @@ const EditorContainer = () => {
         <ConfirmDialog
           title={t('editor:importLegacy')}
           message={t('editor:importLegacyMsg')}
+          confirmLabel="Yes, Continue"
           onConfirm={() => resolve(true)}
           onCancel={() => resolve(false)}
         />
