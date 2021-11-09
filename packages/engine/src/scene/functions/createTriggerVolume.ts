@@ -34,7 +34,7 @@ export const createTriggerVolume = async function (entity, args): Promise<Mesh> 
   addComponent(entity, TriggerVolumeComponent, {
     args: args,
     target: args.target,
-    active: false
+    active: true
   })
 
   if (args.showHelper) {
