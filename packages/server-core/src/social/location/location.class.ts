@@ -231,7 +231,7 @@ export class Location extends Service {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
-      // eslint-disable-next-line prefer-const
+      // @ts-ignore
       let { location_settings, ...locationData } = data
       const loggedInUser = extractLoggedInUserFromParams(params)
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
@@ -288,13 +288,15 @@ export class Location extends Service {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
-      // eslint-disable-next-line prefer-const
+      // @ts-ignore
       let { location_settings, ...locationData } = data
+      location_settings ??= data['location_setting']
 
       const old = await this.Model.findOne({
         where: { id },
         include: [(this.app.service('location-settings') as any).Model]
       })
+      const oldSettings = old.location_setting ?? old.location_settings
 
       if (locationData.name) locationData.slugifiedName = slugify(locationData.name, { lower: true })
       if (!old.isLobby && locationData.isLobby) await this.makeLobby(params, t)
@@ -311,7 +313,7 @@ export class Location extends Service {
           maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
           locationType: location_settings.locationType || 'private'
         },
-        { where: { id: old.location_settings.id }, transaction: t }
+        { where: { id: oldSettings.id }, transaction: t }
       )
 
       await t.commit()

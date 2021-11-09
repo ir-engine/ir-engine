@@ -377,9 +377,6 @@ const AdminConsole = (props: Props) => {
     if (user?.id?.value != null && adminLocationState.locations.updateNeeded.value === true) {
       LocationService.fetchAdminLocations()
     }
-    if (user?.id?.value != null && adminSceneState.scenes.updateNeeded.value === true) {
-      SceneService.fetchAdminScenes()
-    }
     if (user?.id?.value != null && adminLocationState.locationTypes.updateNeeded.value === true) {
       LocationService.fetchLocationTypes()
     }
@@ -391,7 +388,6 @@ const AdminConsole = (props: Props) => {
     }
   }, [
     authState.user?.id?.value,
-    adminSceneState.scenes.updateNeeded.value,
     adminInstanceState.instances.updateNeeded.value,
     adminLocationState.locations.updateNeeded.value,
     adminLocationState.locationTypes.updateNeeded.value

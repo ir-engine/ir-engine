@@ -85,7 +85,7 @@ export const useARMediaStyles = makeStyles((theme: Theme) =>
       width: '100%'
     },
     container: {
-      maxHeight: '80vh'
+      maxHeight: '73vh'
     },
     rootCard: {
       maxWidth: 345,

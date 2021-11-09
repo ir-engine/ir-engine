@@ -42,11 +42,12 @@ const ProgressMessage = (styled as any).div`
  * @param       {any} props
  * @constructor
  */
-export function ProgressDialog({ message, onConfirm, cancelable, onCancel, ...props }) {
+export function ProgressDialog(props) {
+  if (!props) return
   return (
-    <Dialog onCancel={cancelable ? onCancel : null} {...props}>
+    <Dialog onCancel={props.cancelable ? props.onCancel : null} {...props}>
       <ProgressContainer>
-        <ProgressMessage>{message}</ProgressMessage>
+        <ProgressMessage>{props.message}</ProgressMessage>
         <ProgressBar />
       </ProgressContainer>
     </Dialog>

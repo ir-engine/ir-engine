@@ -79,9 +79,12 @@ export class NetworkWorldAction {
     { allowDispatchFromAny: true }
   )
 
-  static teleportObject = defineActionCreator({
-    type: 'network.TELEPORT_OBJECT',
-    networkId: matchesNetworkId,
-    pose: matchPose
-  })
+  static teleportObject = defineActionCreator(
+    {
+      type: 'network.TELEPORT_OBJECT',
+      networkId: matchesNetworkId,
+      pose: matchPose
+    },
+    { allowDispatchFromAny: true }
+  )
 }

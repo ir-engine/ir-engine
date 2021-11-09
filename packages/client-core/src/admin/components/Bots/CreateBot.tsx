@@ -171,11 +171,12 @@ const CreateBot = (props: Props) => {
     <Card className={classes.rootLeft}>
       <Paper className={classes.header} style={{ display: 'flex' }}>
         <Typography className={classes.title}>
-          <Face style={{ paddingTop: '5px' }} /> <span className={classes.smFont}> Create new bot </span>
+          <Face />
+          <div className={classes.smFont}>Create new bot</div>
         </Typography>
 
         <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleSubmit}>
-          <Save style={{ marginRight: '10px' }} /> save
+          <Save className={classes.saveBtnIcon} /> save
         </Button>
       </Paper>
       <CardContent>
@@ -316,8 +317,7 @@ const CreateBot = (props: Props) => {
 
           <Button
             variant="contained"
-            fullWidth={true}
-            style={{ color: '#fff', background: '#3a4149', marginBottom: '20px' }}
+            style={{ color: '#fff', background: '#3a4149', marginBottom: '20px', width: '100%' }}
             onClick={() => {
               if (command.name) {
                 setCommandData([...commandData, command])

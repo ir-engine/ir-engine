@@ -1,10 +1,10 @@
 import { Sequelize } from 'sequelize/types'
 import { Application, Models } from '../../declarations'
 
-export const useSequilizeClient = (app: Application): Sequelize => {
+export const useSequelizeClient = (app: Application): Sequelize => {
   return app.get('sequelizeClient')
 }
 
-export const useSequilizeModels = (app: Application): Models => {
+export const useSequelizeModels = (app: Application): Models => {
   return app.get('sequelizeClient').models
 }

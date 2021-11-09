@@ -15,14 +15,10 @@ const randomPositionCentered = (area: Vector3) => {
 }
 
 export class SpawnPoints {
-  static instance: SpawnPoints
+  static instance = new SpawnPoints()
 
   spawnPoints: Entity[] = []
   lastSpawnIndex = 0
-
-  constructor() {
-    SpawnPoints.instance = this
-  }
 
   getRandomSpawnPoint(): { position: Vector3; rotation: Quaternion } {
     if (typeof this.spawnPoints[this.lastSpawnIndex] !== 'undefined') {

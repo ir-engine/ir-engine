@@ -35,9 +35,9 @@ export default class Seeder {
 
   seed(cfg) {
     return new Promise((resolve, reject) => {
-      if (!cfg.path) {
-        throw new Error('You must include the path of every service you want to seed.')
-      }
+      // if (!cfg.path) {
+      //   throw new Error('You must include the path of every service you want to seed.')
+      // }
 
       if (!cfg.template && !cfg.templates) {
         throw new Error('You must specify a template or array of templates for seeded objects.')
@@ -47,7 +47,7 @@ export default class Seeder {
         throw new Error('You may not specify both randomize = false with count')
       }
 
-      const service = this.app.service(cfg.path)
+      const service = cfg.path && this.app.service(cfg.path)
       const params = Object.assign({}, this.opts.params, cfg.params)
       const count = Number(cfg.count) || 1
       const randomize = typeof cfg.randomize === 'undefined' ? true : cfg.randomize
@@ -55,13 +55,15 @@ export default class Seeder {
       // Delete from service, if necessary
       const shouldDelete = this.opts.delete !== false && cfg.delete !== false
 
-      const deletePromise = shouldDelete ? service.remove(null, params) : Promise.resolve([])
+      const deletePromise = shouldDelete && cfg.path ? service.remove(null, params) : Promise.resolve([])
 
       return deletePromise
         .then((deleted) => {
           const pushPromise = (template) => {
             return new Promise((resolve, reject) => {
               const compiled = this.compileTemplate(template)
+
+              if (!cfg.path) resolve([])
 
               return service
                 .create(compiled, params)

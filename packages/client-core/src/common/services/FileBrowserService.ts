@@ -8,11 +8,9 @@ export const state = createState({
 })
 
 store.receptors.push((action: FileBrowserActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'FILES_FETCHED':
-        result = action.files
         return s.merge({
           files: action.files
         })
@@ -33,12 +31,20 @@ export const FileBrowserAction = {
   }
 }
 
+let _lastDir = null
+
 export const FileBrowserService = {
-  fetchFiles: async (directory) => {
+  fetchFiles: async (directory = _lastDir) => {
+    _lastDir = directory
     const dispatch = useDispatch()
     const files = await client.service('file-browser').get(directory)
     console.log('FileBrowserService.fetchFiles result', files)
     dispatch(FileBrowserAction.filesFetched(files))
+  },
+  putContent: async (path, body, contentType) => {
+    const result = await client.service('file-browser').patch(path, { body, contentType })
+    console.log('FileBrowserService.putContent result', result)
+    FileBrowserService.fetchFiles()
   },
   moveContent: async (from, destination, isCopy = false, renameTo = null) => {
     console.log(from, destination, isCopy, renameTo)

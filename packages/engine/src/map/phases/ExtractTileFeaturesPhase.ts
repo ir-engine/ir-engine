@@ -1,14 +1,15 @@
-import { MapStateUnwrapped, FeatureKey, SupportedFeature, TaskStatus, TileKey, VectorTile } from '../types'
+import { MapStateUnwrapped, SupportedFeature, TaskStatus, TileKey } from '../types'
 import { SUPPORTED_LAYERS, SUPPORTED_GEOMETRIES, TILE_ZOOM } from '../constants'
 import zipIndexes from '../zipIndexes'
 import getFeaturesFromVectorTileLayer from '../functions/getFeaturesFromVectorTileLayer'
+import FeatureKey from '../classes/FeatureKey'
 
 export const name = 'extract tile features'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 
 export function getTaskKeys(state: MapStateUnwrapped) {
-  console.log('tileCache size', state.tileCache.map.map.size)
+  console.log('tileCache size', state.tileCache.size)
   return state.tileCache.keys()
 }
 
@@ -19,9 +20,9 @@ export function setTaskStatus(state: MapStateUnwrapped, key: TileKey, status: Ta
   return state.extractTilesTasks.set(key, status)
 }
 
-export function execTask(state: MapStateUnwrapped, key: TileKey) {
-  const vectorTile = state.tileCache.get(key)
-  const [x, y] = key
+export function execTask(state: MapStateUnwrapped, tileKey: TileKey) {
+  const vectorTile = state.tileCache.get(tileKey)
+  const [x, y] = tileKey
   if (vectorTile) {
     for (const layerName of SUPPORTED_LAYERS) {
       const layer = vectorTile.layers[layerName]
@@ -32,10 +33,10 @@ export function execTask(state: MapStateUnwrapped, key: TileKey) {
         getFeaturesFromVectorTileLayer(layerName, vectorTile, x, y, TILE_ZOOM)
       )) {
         if (SUPPORTED_GEOMETRIES.includes(feature.geometry.type)) {
-          const featureKey = [layerName, x, y, `${index}`] as FeatureKey
+          const featureKey = new FeatureKey(layerName, x, y, `${index}`)
           state.featureCache.set(featureKey, feature as SupportedFeature)
-          state.featureMeta.set(featureKey, { tileKey: key })
-          state.tileMeta.get(key).cachedFeatureKeys.add(featureKey)
+          state.featureMeta.set(featureKey, { tileKey: tileKey })
+          state.tileMeta.get(tileKey).cachedFeatureKeys.add(featureKey)
         }
       }
     }

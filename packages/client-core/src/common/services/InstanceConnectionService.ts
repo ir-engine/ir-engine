@@ -19,7 +19,6 @@ const state = createState({
     ipAddress: '',
     port: ''
   },
-  socket: {},
   locationId: '',
   sceneId: '',
   channelId: '',
@@ -34,25 +33,20 @@ const state = createState({
 let connectionSocket = null
 
 store.receptors.push((action: InstanceConnectionActionType): any => {
-  let newValues, newInstance
   state.batch((s) => {
     switch (action.type) {
       case 'INSTANCE_SERVER_PROVISIONING':
-        newInstance = new Map(Object.entries(s.instance.value))
         return s.merge({
-          instance: newInstance,
-          socket: {},
           connected: false,
           instanceProvisioned: false,
           readyToConnect: false,
           instanceProvisioning: true
         })
       case 'INSTANCE_SERVER_PROVISIONED':
-        newValues = action
         return s.merge({
-          instance: { ipAddress: newValues.ipAddress, port: newValues.port },
-          locationId: newValues.locationId,
-          sceneId: newValues.sceneId,
+          instance: { ipAddress: action.ipAddress, port: action.port },
+          locationId: action.locationId!,
+          sceneId: action.sceneId!,
           instanceProvisioning: false,
           instanceProvisioned: true,
           readyToConnect: true,
@@ -65,24 +59,11 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'INSTANCE_SERVER_DISCONNECTED':
         if (connectionSocket != null) (connectionSocket as any).close()
-        newInstance = new Map(Object.entries(s.instance.value))
-        return s.merge({
-          instance: newInstance,
-          socket: s.socket.value,
-          locationId: s.locationId.value,
-          sceneId: s.sceneId.value,
-          channelId: s.channelId.value,
-          instanceProvisioned: s.instanceProvisioned.value,
-          connected: s.connected.value,
-          readyToConnect: s.readyToConnect.value,
-          updateNeeded: s.updateNeeded.value,
-          instanceServerConnecting: s.instanceServerConnecting.value,
-          instanceProvisioning: s.instanceProvisioning.value
-        })
+        return
       case 'SOCKET_CREATED':
         if (connectionSocket != null) (connectionSocket as any).close()
         connectionSocket = action.socket
-        return state
+        return
     }
   }, action.type)
 })
@@ -106,7 +87,7 @@ export const InstanceConnectionService = {
           }
         })
         if (instance.total === 0) {
-          instanceId = null
+          instanceId = null!
         }
       }
       const provisionResult = await client.service('instance-provision').find({
@@ -190,9 +171,7 @@ export const InstanceConnectionService = {
   },
   resetInstanceServer: async () => {
     const dispatch = useDispatch()
-    {
-      dispatch(InstanceConnectionAction.instanceServerDisconnected())
-    }
+    dispatch(InstanceConnectionAction.instanceServerDisconnected())
   }
 }
 
