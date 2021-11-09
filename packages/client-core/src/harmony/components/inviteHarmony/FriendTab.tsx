@@ -51,7 +51,6 @@ const FriendTab = () => {
                   {el === 'Phone' ? <PhoneIphone className={classes.whiteIcon} /> : ''}
                   {el === 'Email' ? <Email className={classes.whiteIcon} /> : ''}
                   {el === 'Invite Code' ? <AccountCircle className={classes.whiteIcon} /> : ''}
-                  {el === 'Friend' ? <SupervisedUserCircle className={classes.whiteIcon} /> : ''}
                 </ListItemIcon>
                 <ListItemText>{el}</ListItemText>
               </MenuItem>
