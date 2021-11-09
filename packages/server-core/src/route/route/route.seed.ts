@@ -12,6 +12,10 @@ export const routeSeedData = {
     },
     {
       project: 'default-project',
+      route: '/inventory'
+    },
+    {
+      project: 'default-project',
       route: '/harmony'
     },
     {

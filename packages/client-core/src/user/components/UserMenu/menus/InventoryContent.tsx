@@ -1,38 +1,12 @@
 import Button from '@material-ui/core/Button'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
-import {
-  DialogTitle,
-  Dialog,
-  DialogContent,
-  DialogActions,
-  makeStyles,
-  Grid,
-  Divider
-  // Stack
-} from '@material-ui/core'
-import { Check, Close, Create, GitHub, Send, Cancel, ArrowBackIos } from '@material-ui/icons'
-import { useAuthState } from '@xrengine/client-core/src/user/state/AuthState'
-import { AuthService } from '@xrengine/client-core/src/user/state/AuthService'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { makeStyles, Grid, Divider } from '@material-ui/core'
+import { ArrowBackIos } from '@material-ui/icons'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
-import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
-import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
-import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
-import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
-import { getAvatarURLForUser, Views } from '../util'
-import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import * as polyfill from 'credential-handler-polyfill'
-import styles from '../UserMenu.module.scss'
-import { useTranslation } from 'react-i18next'
 import {
   Box,
   Card,
   CircularProgress,
-  Container,
   FormControl,
   IconButton,
   InputLabel,
@@ -42,13 +16,6 @@ import {
   Stack
 } from '@mui/material'
 import { useHistory } from 'react-router-dom'
-
-// interface Props {
-//     changeActiveMenu?: any
-//     setProfileMenuOpen?: any
-
-//     hideLogin?: any
-// }
 
 const useStyles = makeStyles({
   root1: {
@@ -97,11 +64,7 @@ const useStyles = makeStyles({
 })
 
 const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer }: any) => {
-  // const { changeActiveMenu, setProfileMenuOpen, hideLogin,data } = props
-  const { t } = useTranslation()
   const history = useHistory()
-  const dispatch = useDispatch()
-  const selfUser = useAuthState().user
   const classes = useStyles()
   const [state, setState] = useState({ url: '', metadata: '', selectedid: '', userid: '' })
   const { url, metadata, userid, selectedid } = state

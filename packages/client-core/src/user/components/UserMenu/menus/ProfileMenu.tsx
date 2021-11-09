@@ -1,21 +1,12 @@
-import Button from '@material-ui/core/Button'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import {
-  DialogTitle,
-  Dialog,
-  DialogContent,
-  DialogActions
-  // Stack
-} from '@material-ui/core'
-import { Check, Close, Create, GitHub, Send, Cancel } from '@material-ui/icons'
-import { useAuthState } from '../../../reducers/auth/AuthState'
-import { AuthService } from '../../../reducers/auth/AuthService'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import Button from '@mui/material/Button'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import { Check, Close, Create, GitHub, Send, Cancel } from '@mui/icons-material'
+import { useAuthState } from '../../../services/AuthService'
+import { AuthService } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+import { useDispatch } from '../../../../store'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
@@ -25,8 +16,9 @@ import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
-import { IconButton, Stack } from '@mui/material'
 import { useHistory } from 'react-router-dom'
+import { IconButton, Stack } from '@mui/material'
+import { DialogTitle, Dialog, DialogContent } from '@material-ui/core'
 
 interface Props {
   changeActiveMenu?: any
@@ -38,15 +30,17 @@ interface Props {
 const ProfileMenu = (props: Props): any => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
+
   const history = useHistory()
-  const dispatch = useDispatch()
   const selfUser = useAuthState().user
 
   const [username, setUsername] = useState(selfUser?.name.value)
   const [emailPhone, setEmailPhone] = useState('')
-  const [modal, setModal] = useState(false)
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
+  const [modal, setModal] = useState(false)
+
+  const userId = selfUser.id.value!
 
   let type = ''
 
@@ -85,7 +79,7 @@ const ProfileMenu = (props: Props): any => {
     const name = username.trim()
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
-      dispatch(AuthService.updateUsername(selfUser.id.value, name))
+      AuthService.updateUsername(userId, name)
     }
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
@@ -106,22 +100,22 @@ const ProfileMenu = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') dispatch(AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value))
-    else if (type === 'sms') dispatch(AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value))
+    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, userId)
+    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, userId)
     return
   }
 
   const handleOAuthServiceClick = (e) => {
-    dispatch(AuthService.loginUserByOAuth(e.currentTarget.id))
+    AuthService.loginUserByOAuth(e.currentTarget.id)
   }
 
   const handleLogout = async (e) => {
     if (changeActiveMenu != null) changeActiveMenu(null)
     else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
-    await dispatch(AuthService.logoutUser())
+    await AuthService.logoutUser()
     // window.location.reload()
   }
-  const userId = selfUser.id.value
+
   const handleWalletLoginClick = async (e) => {
     const domain = window.location.origin
     const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
@@ -146,7 +140,7 @@ const ProfileMenu = (props: Props): any => {
     const result: any = await navigator.credentials.get(didAuthQuery)
     console.log(result)
 
-    dispatch(AuthService.loginUserByXRWallet(result))
+    AuthService.loginUserByXRWallet(result)
   }
 
   return (
@@ -168,11 +162,13 @@ const ProfileMenu = (props: Props): any => {
               )}
             </div>
             <div className={styles.headerBlock}>
+              <Typography variant="h1" className={styles.panelHeader}>
+                {t('user:usermenu.profile.lbl-username')}
+              </Typography>
               <span className={styles.inputBlock}>
                 <TextField
                   margin="none"
                   size="small"
-                  label={t('user:usermenu.profile.lbl-username')}
                   name="username"
                   variant="outlined"
                   value={username || ''}
@@ -209,7 +205,9 @@ const ProfileMenu = (props: Props): any => {
                   {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
                 </h2>
               )}
-              <button onClick={() => history.push(`/inventory/${selfUser.id.value}`)}>My Inventory</button>
+              <button onClick={() => history.push(`/inventory/${selfUser.id.value}`)} className={styles.walletBtn}>
+                My Inventory
+              </button>
             </div>
           </section>
           {!hideLogin && (
@@ -264,11 +262,11 @@ const ProfileMenu = (props: Props): any => {
                     {t('user:usermenu.profile.connectSocial')}
                   </Typography>
                   <div className={styles.socialContainer}>
-                    <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
-                      <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                    </a>
                     <a href="#" id="google" onClick={handleOAuthServiceClick}>
                       <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                    <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
+                      <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                     <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
                       <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
@@ -311,21 +309,21 @@ const ProfileMenu = (props: Props): any => {
           <Stack>
             <Stack direction="row" spacing={2} justifyContent="flex-end">
               {/* <LoadingButton
-                      variant="contained"
-                      color="secondary"
-                      onClick={() => handleCancelpaylink(row.id, index)}
-                      loading={iscancelloading}
-                    >
-                      Yes
-                    </LoadingButton>
-                    <LoadingButton
-                      variant="outlined"
-                      color="error"
-                      onClick={() => setCancelmodal(false)}
-                      loading={iscancelloading}
-                    >
-                      No
-                    </LoadingButton> */}
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleCancelpaylink(row.id, index)}
+                        loading={iscancelloading}
+                      >
+                        Yes
+                      </LoadingButton>
+                      <LoadingButton
+                        variant="outlined"
+                        color="error"
+                        onClick={() => setCancelmodal(false)}
+                        loading={iscancelloading}
+                      >
+                        No
+                      </LoadingButton> */}
             </Stack>
           </Stack>
         </DialogContent>
