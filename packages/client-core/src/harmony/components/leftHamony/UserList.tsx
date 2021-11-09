@@ -47,7 +47,6 @@ const UserList = ({ chatType }) => {
       {
         // chatType === "Instance" && <UserListData data ={[{id: selfUser.instanceId.value}]}/>
       }
-
       {chatType === 'Group' ? (
         <Button
           variant="contained"
