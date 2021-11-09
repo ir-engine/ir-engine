@@ -17,7 +17,7 @@ const GroupTab = () => {
 
   const groupState = useGroupState()
   const invitableGroupState = groupState.invitableGroups
-  const invitableGroups = invitableGroupState.groups
+  const invitableGroups = invitableGroupState.groups.value
 
   useEffect(() => {
     if (groupState.invitableUpdateNeeded.value === true && groupState.getInvitableGroupsInProgress.value !== true) {
