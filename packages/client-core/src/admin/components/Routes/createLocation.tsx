@@ -7,7 +7,7 @@ import Container from '@mui/material/Container'
 import DialogTitle from '@mui/material/DialogTitle'
 import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/material/Alert'
-import { useLocationStyles, useLocationStyle } from './styles'
+import { useRouteStyles, useRouteStyle } from './styles'
 import Paper from '@mui/material/Paper'
 import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
@@ -36,8 +36,8 @@ interface Props {
 
 const CreateLocation = (props: Props) => {
   const { open, handleClose, closeViewModel } = props
-  const classesx = useLocationStyle()
-  const classes = useLocationStyles()
+  const classesx = useRouteStyle()
+  const classes = useRouteStyles()
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
   const [state, setState] = React.useState({
@@ -155,11 +155,10 @@ const CreateLocation = (props: Props) => {
     if (!state.scene) {
       temp.scene = "Scene can't be empty"
     }
-    console.log(state, temp, { ...state, formErrors: temp })
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
       LocationService.createLocation(data)
-      closeViewModel(false)
+      //  closeViewModel(false)
     } else {
       setError('Please fill all required field')
       setOpenWarning(true)
@@ -221,10 +220,8 @@ const CreateLocation = (props: Props) => {
                 <MenuItem value="" disabled>
                   <em>Select scene</em>
                 </MenuItem>
-                {adminScenes.value.map((el, i) => (
-                  <MenuItem value={`${el.project}/${el.name}`} key={i}>
-                    {el.name}
-                  </MenuItem>
+                {adminScenes.value.map((el) => (
+                  <MenuItem value={el.sid} key={el.sid}>{`${el.name} (${el.sid})`}</MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -368,10 +365,10 @@ const CreateLocation = (props: Props) => {
             </Grid>
           </Grid>
           <DialogActions>
-            <Button className={classes.saveBtn} onClick={handleSubmit}>
+            <Button className={classesx.saveBtn} onClick={handleSubmit}>
               Submit
             </Button>
-            <Button onClick={handleClose(false)} className={classes.saveBtn}>
+            <Button onClick={handleClose(false)} className={classesx.saveBtn}>
               Cancel
             </Button>
           </DialogActions>

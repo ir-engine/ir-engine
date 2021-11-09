@@ -166,7 +166,7 @@ const AdminConsole = (props: Props) => {
   const [selectedLocation, setSelectedLocation] = useState(LocationSeed)
   const [selectedInstance, setSelectedInstance] = useState(InstanceSeed)
   const adminSceneState = useSceneState()
-  const adminScenes = adminSceneState.scenes.scenes
+  const adminScenes = adminSceneState.scenes
 
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {

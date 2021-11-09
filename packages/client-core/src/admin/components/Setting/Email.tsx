@@ -15,7 +15,7 @@ interface emailProps {}
 const Email = (props: emailProps) => {
   const classes = useStyles()
   const emailSettingState = useEmailSettingState()
-  const emailSetting = emailSettingState?.Email?.email?.value || []
+  const emailSetting = emailSettingState?.email?.value || []
   const dispatch = useDispatch()
   const [secure, setSecure] = React.useState({
     checkedA: true,
@@ -32,7 +32,7 @@ const Email = (props: emailProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && emailSettingState?.Email?.updateNeeded?.value === true) {
+    if (user?.id?.value != null && emailSettingState?.updateNeeded?.value === true) {
       EmailSettingService.fetchedEmailSettings()
     }
   }, [authState])
