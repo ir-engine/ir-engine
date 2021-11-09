@@ -38,9 +38,9 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
     box-shadow: ${(props) => props.theme.shadow30};
   }
 
-  .react-contextmenu-wrapper{
+  .react-contextmenu-wrapper {
     height:100%;
-width:100%;
+    width:100%;
   }
 
   .react-contextmenu.react-contextmenu--visible {
