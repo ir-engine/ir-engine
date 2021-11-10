@@ -63,7 +63,7 @@ export default (app: Application) => {
     ;(User as any).hasMany(models.location_ban)
     ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId' })
-    ;(User as any).belongsToMany(models.inventory_item, { through: models.user_inventory, foreignKey: 'userId' })
+    //;(User as any).belongsToMany(models.inventory_item, { through: models.user_inventory, foreignKey: 'userId' })
   }
 
   return User

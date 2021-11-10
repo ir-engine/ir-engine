@@ -5,8 +5,9 @@ import { NavigateNext, NavigateBefore } from '@material-ui/icons'
 import styles from './Inventory.module.scss'
 import { useTranslation } from 'react-i18next'
 import { LazyImage } from '../../../common/components/LazyImage'
-import { InventoryService } from '../../state/InventoryService'
-import { useAuthState } from '../../../user/state/AuthState'
+import { InventoryService } from '../../services/InventoryService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { useInventoryState } from '../../../user/services/InventoryState'
 const InventoryMenu = (props: any): any => {
   const MAX_ITEMS_PER_PAGE = 9
   const MIN_ITEMS_PER_PAGE = 6
@@ -19,7 +20,8 @@ const InventoryMenu = (props: any): any => {
   const [selectedItemId, setSelectedItemId] = useState('')
   const [isItemLoaded, setItemLoaded] = useState(false)
   const selfUser = useAuthState().user
-
+  const inventoryState = useInventoryState()
+  const inventoryItemList = inventoryState.userInventoryItems?.value || []
   useEffect((() => {
     function handleResize() {
       setItemPerPage(getItemPerPage())
@@ -32,24 +34,43 @@ const InventoryMenu = (props: any): any => {
     }
   }) as any)
 
-  useEffect(() => {
-    props.fetchInventoryItemList()
-  }, [isItemLoaded])
+  useEffect(() => {}, [isItemLoaded])
 
   useEffect(() => {
-    if (page * itemPerPage >= props.itemList.length) {
+    if (page * itemPerPage >= inventoryItemList.length) {
       if (page === 0) return
       setPage(page - 1)
     }
-  }, [props.itemList])
+  }, [inventoryState.userInventoryItems?.value])
+
+  useEffect(() => {
+    if (inventoryState.updateNeeded.value) {
+      InventoryService.getUserInventory(selfUser.id?.value || '')
+    }
+  }, [inventoryState.updateNeeded.value])
 
   const loadNextItems = (e) => {
-    InventoryService.getUserInventory(selfUser.id?.value || '')
-    InventoryService.getInventoryType()
     e.preventDefault()
-    if ((page + 1) * itemPerPage >= props.itemList.length) return
+    if ((page + 1) * itemPerPage >= inventoryItemList.length) {
+      return
+    }
     setPage(page + 1)
+
+    if (inventoryState.total.value > inventoryItemList.length) {
+      loadUserInventoryItems()
+    }
   }
+
+  const loadUserInventoryItems = () => {
+    // if(!inventoryState.isLoading.value && inventoryState.total.value > inventoryItemList.length){
+    InventoryService.getUserInventory(
+      selfUser.id?.value || '',
+      inventoryState.limit.value,
+      inventoryState.skip.value + inventoryState.limit.value
+    )
+    // }
+  }
+
   const loadPreviousItems = (e) => {
     e.preventDefault()
     if (page === 0) return
@@ -61,17 +82,22 @@ const InventoryMenu = (props: any): any => {
   }
 
   const renderInventoryItemList = () => {
-    const itemList = []
+    const itemList: any[] = []
     const startIndex = page * itemPerPage
     const endIndex = startIndex + itemPerPage
     for (let i = startIndex; i < endIndex; i++) {
-      const inventoryItem = props.itemList.length > i ? props.itemList[i] : null
+      const inventoryItem = inventoryItemList.length > i ? inventoryItemList[i] : null
 
       itemList.push(
         <Card key={inventoryItem?.id || 'inventery-item-key-' + i} className={`${styles.itemPreviewWrapper}`}>
           {inventoryItem && (
             <CardContent onClick={() => inventoryItem && selectItem(inventoryItem)}>
-              <LazyImage key={inventoryItem?.id} src={inventoryItem?.image} alt={inventoryItem?.name} />
+              <LazyImage
+                key={inventoryItem?.id}
+                src={inventoryItem?.image}
+                alt={inventoryItem?.name}
+                draggable="true"
+              />
               <div className={styles.itemName}>{inventoryItem.name}</div>
             </CardContent>
           )}
@@ -93,11 +119,13 @@ const InventoryMenu = (props: any): any => {
           <NavigateBefore />
         </button>
         <div className={styles.pageBlock}>
-          {t('user:inventory.page')} {page + 1} / {Math.ceil(props.itemList.length / itemPerPage)}
+          {t('user:inventory.page')} {page + 1} / {Math.ceil(inventoryItemList.length / itemPerPage)}
         </div>
         <button
           type="button"
-          className={`${styles.iconBlock} ${(page + 1) * itemPerPage >= props.itemList.length ? styles.disabled : ''}`}
+          className={`${styles.iconBlock} ${
+            (page + 1) * itemPerPage >= inventoryItemList.length ? styles.disabled : ''
+          }`}
           onClick={loadNextItems}
         >
           <NavigateNext />

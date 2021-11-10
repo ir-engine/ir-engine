@@ -6,7 +6,7 @@ import styles from './LazyImage.module.scss'
 const placeHolder =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII='
 
-export const LazyImage = ({ src, alt }) => {
+export const LazyImage = ({ src, alt, draggable }) => {
   const [imageSrc, setImageSrc] = useState(placeHolder)
   const [imageRef, setImageRef] = useState<HTMLImageElement>(null)
   const [isLoadedImage, setIsLoadedImage] = useState(true)
@@ -64,6 +64,7 @@ export const LazyImage = ({ src, alt }) => {
       src={imageSrc}
       title={alt}
       className={styles.lazyImage}
+      draggable={draggable}
     />
   ) : (
     <PermIdentityIcon color="primary" className={styles.lazyImage} />

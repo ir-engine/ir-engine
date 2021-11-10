@@ -113,8 +113,6 @@ const UserMenu = (props: UserMenuProps): any => {
     return AuthService.removeAvatar(keys)
   }
 
-  const handleFetchInventoryItemList = () => {}
-
   const updateGraphicsSettings = (newSetting: any): void => {
     const setting = { ...graphics, ...newSetting }
     setGraphicsSetting(setting)
@@ -225,22 +223,7 @@ const UserMenu = (props: UserMenuProps): any => {
         break
       case Views.Inventory:
         args = {
-          changeActiveMenu: changeActiveMenu,
-          itemList: [
-            { id: '1', name: 'test1', image: '/itemPlate.png' },
-            { id: '2', name: 'test2', image: '/itemPlate.png' },
-            { id: '3', name: 'test3', image: '/itemPlate.png' },
-            { id: '4', name: 'test4', image: '/itemPlate.png' },
-            { id: '5', name: 'test5', image: '/itemPlate.png' },
-            { id: '6', name: 'test6', image: '/itemPlate.png' },
-            { id: '7', name: 'test7', image: '/noise.jpg' },
-            { id: '8', name: 'test8', image: '/noise.jpg' },
-            { id: '9', name: 'test9', image: '/noise.jpg' },
-            { id: '10', name: 'test10', image: '/noise.jpg' },
-            { id: '11', name: 'test11', image: '/hdr/city.jpg' },
-            { id: '12', name: 'test12', image: '/hdr/city.jpg' }
-          ],
-          fetchInventoryItemList: handleFetchInventoryItemList
+          changeActiveMenu: changeActiveMenu
         }
         break
       default:
