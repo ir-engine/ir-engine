@@ -12,6 +12,7 @@ import NodeEditor from './NodeEditor'
 import dompurify from 'dompurify'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
+import InteractableGroup from '../inputs/InteractableGroup'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
@@ -406,7 +407,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
         <InputGroup name="MatrixAutoUpdate" label={this.props.t('editor:properties.model.lbl-matrixAutoUpdate')}>
           <BooleanInput value={node.matrixAutoUpdate} onChange={this.onChangeUpdateDataMatrix} />
         </InputGroup>
-        {this.renderInteractableDependantFields(node)}
+        {node.interactable && <InteractableGroup node={node}></InteractableGroup>}
       </NodeEditor>
     )
   }
