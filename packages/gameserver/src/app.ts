@@ -194,12 +194,9 @@ export const createApp = (): Application => {
    */
   if (isDev && !config.kubernetes.enabled) {
     app.restart = () => {
-      process.on('exit', function () {
-        require('child_process').spawn('npm', ['run', 'dev'], {
-          cwd: process.cwd(),
-          detached: true,
-          stdio: 'inherit'
-        })
+      require('child_process').spawn('npm', ['run', 'dev'], {
+        cwd: process.cwd(),
+        stdio: 'inherit'
       })
       process.exit(0)
     }
