@@ -19,6 +19,11 @@ const params = { isInternal: true }
 
 describe('Scene Service', () => {
 
+  // wait for initial project loading to occur in CI/CD
+  before(async () => {
+    await new Promise(resolve => setTimeout(resolve, 3000))
+  })
+
   it("should have default test scene", async function () {
     const { data } = await app.service('scenes').get({ 
       projectName: defaultProjectName,
