@@ -1,4 +1,4 @@
-interface OpenMatchTicket {
+export interface OpenMatchTicket {
   id?: string
   assignment?: OpenMatchTicketAssignment
   search_fields?: OpenMatchSearchFields
@@ -14,7 +14,7 @@ interface OpenMatchSearchFields {
   tags: string[]
 }
 
-interface OpenAPIErrorResponse {
+export interface OpenAPIErrorResponse {
   code: number
   message: string
   details?: [
@@ -25,29 +25,20 @@ interface OpenAPIErrorResponse {
   ]
 }
 
-type OpenAPIResult<T> = T | OpenAPIErrorResponse
+export type OpenAPIResult<T> = T | OpenAPIErrorResponse
 
-function isOpenAPIError(response: unknown | OpenAPIErrorResponse): response is OpenAPIErrorResponse {
+export function isOpenAPIError(response: unknown | OpenAPIErrorResponse): response is OpenAPIErrorResponse {
   const error = response as OpenAPIErrorResponse
   return error && typeof error.code !== 'undefined' && typeof error.message !== 'undefined'
 }
 
-interface OpenMatchTicketAssignment {
+export interface OpenMatchTicketAssignment {
   connection: string
   extensions?: OpenMatchExtensions
 }
 
-interface OpenMatchTicketAssignmentResponse {
+export interface OpenMatchTicketAssignmentResponse {
   result: {
     assignment: OpenMatchTicketAssignment
   }
-}
-
-export {
-  OpenMatchTicket,
-  OpenMatchTicketAssignment,
-  OpenMatchTicketAssignmentResponse,
-  OpenAPIResult,
-  OpenAPIErrorResponse,
-  isOpenAPIError
 }

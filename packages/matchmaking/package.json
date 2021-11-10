@@ -13,7 +13,6 @@
   "license": "MIT",
   "main": "lib/engine.umd.js",
   "module": "lib/engine.es.js",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/XRFoundation/XREngine.git"

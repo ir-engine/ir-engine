@@ -1,5 +1,5 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
-import { OpenMatchTicketAssignment } from '@xrengine/engine/tests/mathmaker/interfaces'
+import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
 
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
