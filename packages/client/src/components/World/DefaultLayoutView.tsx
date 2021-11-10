@@ -18,17 +18,10 @@ const goHome = () => (window.location.href = window.location.origin)
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
 interface Props {
-  loadingItemCount
   isValidLocation
   allowDebug
   reinit
-  children
-  showTouchpad
   locationName
-
-  // todo: remove these props in favour of projects
-  customComponents?: any
-  theme?: any
   hideVideo?: boolean
   hideFullscreen?: boolean
 }
@@ -41,7 +34,7 @@ const DefaultLayoutView = (props: Props) => {
 
   return (
     <>
-      <LoadingScreen objectsToLoad={props.loadingItemCount} />
+      <LoadingScreen />
       {!props.isValidLocation && (
         <Snackbar
           open
@@ -56,13 +49,8 @@ const DefaultLayoutView = (props: Props) => {
           </>
         </Snackbar>
       )}
-
       {props.allowDebug && <NetworkDebug reinit={props.reinit} />}
-
-      {props.children}
-      {props.customComponents}
-
-      {props.showTouchpad && isTouchAvailable ? (
+      {isTouchAvailable ? (
         <Suspense fallback={<></>}>
           <TouchGamepad layout="default" />
         </Suspense>
