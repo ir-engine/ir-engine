@@ -1,6 +1,6 @@
 import assert from 'assert'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { parseSceneDataCacheURLs, cleanSceneDataCacheURLs, sceneRelativePathIdentifier } from './scene.class'
+import { parseSceneDataCacheURLs, cleanSceneDataCacheURLs, sceneRelativePathIdentifier } from './scene-parser'
 import _ from 'lodash'
 
 const storageProvider = useStorageProvider()
@@ -24,12 +24,12 @@ const parsedMockData = {
 describe('Scene Helper Functions', () => {
 
   it("should parse saved data", async function () {
-    const parsedData = parseSceneDataCacheURLs(_.cloneDeep(savedMockData) as any)
+    const parsedData = parseSceneDataCacheURLs(_.cloneDeep(savedMockData) as any, storageProvider.cacheDomain)
     assert.deepStrictEqual(parsedMockData, parsedData)
   })
 
   it("should unparse parsed data", async function () {
-    const unparsedData = cleanSceneDataCacheURLs(_.cloneDeep(parsedMockData) as any)
+    const unparsedData = cleanSceneDataCacheURLs(_.cloneDeep(parsedMockData) as any, storageProvider.cacheDomain)
     assert.deepStrictEqual(savedMockData, unparsedData)
   })
 

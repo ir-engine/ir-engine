@@ -11,6 +11,7 @@ import InstanceChat from '../InstanceChat'
 import MediaIconsBox from '../MediaIconsBox'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
+import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 
 const goHome = () => (window.location.href = window.location.origin)
 
@@ -23,7 +24,6 @@ interface Props {
   reinit
   children
   showTouchpad
-  isTeleporting
   locationName
 
   // todo: remove these props in favour of projects
@@ -37,6 +37,7 @@ const DefaultLayoutView = (props: Props) => {
   const authState = useAuthState()
   const selfUser = authState.user
   const party = usePartyState().party.value
+  const engineState = useEngineState()
 
   return (
     <>
@@ -68,7 +69,7 @@ const DefaultLayoutView = (props: Props) => {
       ) : null}
 
       <GameServerWarnings
-        isTeleporting={props.isTeleporting}
+        isTeleporting={engineState.isTeleporting.value}
         locationName={props.locationName}
         instanceId={selfUser?.instanceId.value ?? party?.instanceId}
       />
@@ -81,6 +82,4 @@ const DefaultLayoutView = (props: Props) => {
   )
 }
 
-const connector = DefaultLayoutView
-
-export default connector
+export default DefaultLayoutView

@@ -15,6 +15,10 @@ type CustomRoute = {
   page: any
 }
 
+const $adminRoute = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
+const $503 = React.lazy(() => import('../pages/503'))
+const $404 = React.lazy(() => import('../pages/404'))
+
 function RouterComp(props) {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
 
@@ -59,14 +63,10 @@ function RouterComp(props) {
           <Switch>
             {customRoutes}
             {/* default to allowing admin access regardless */}
-            <Route
-              key={'/admin'}
-              path={'/admin'}
-              component={React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))}
-            />
+            <Route key={'/admin'} path={'/admin'} component={$adminRoute} />
             {/* if no index page has been provided, indicate this as obviously as possible */}
-            <Route key={'/503'} path={'/'} component={React.lazy(() => import('../pages/503'))} exact />
-            <Route key={'*504'} path="*" component={React.lazy(() => import('../pages/404'))} />
+            <Route key={'/503'} path={'/'} component={$503} exact />
+            <Route key={'*504'} path="*" component={$404} />
           </Switch>
         </Suspense>
       </React.Fragment>

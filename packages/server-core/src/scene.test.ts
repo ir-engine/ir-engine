@@ -3,6 +3,12 @@ import app from '../../server/src/app'
 import path from 'path'
 import appRootPath from 'app-root-path'
 import { deleteFolderRecursive } from './util/fsHelperFunctions'
+import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
+import { useStorageProvider } from './media/storageprovider/storageprovider'
+import { parseSceneDataCacheURLs } from './world/scene/scene-parser'
+import _ from 'lodash'
+const storageProvider = useStorageProvider()
+const parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
 
 const defaultProjectName = 'default-project'
 const defaultSceneName = 'default'
@@ -10,10 +16,10 @@ const newProjectName = 'test_project_name'
 const newSceneName = 'test_scene_name'
 
 const params = { isInternal: true }
-let defaultSceneData
 
 describe('Scene Service', () => {
 
+  // wait for initial project loading to occur in CI/CD
   before(async () => {
     await new Promise(resolve => setTimeout(resolve, 3000))
   })
@@ -23,9 +29,7 @@ describe('Scene Service', () => {
       projectName: defaultProjectName,
       metadataOnly: false
     }, params)
-    defaultSceneData = data[0]
-    const entities = Object.values(defaultSceneData.scene.entities)
-    assert.ok(entities)
+    assert.deepStrictEqual(parsedData, data[0].scene)
   })
 
   it("should get default scene data", async function() {
@@ -35,7 +39,7 @@ describe('Scene Service', () => {
       metadataOnly: false
     })
     const entities = Object.values(data.scene.entities)
-    assert.strictEqual(entities.length, 8)
+    assert.strictEqual(entities.length, 9)
   })
 
   it("should add new project", async function() {
@@ -57,12 +61,12 @@ describe('Scene Service', () => {
       metadataOnly: false
     }, params)
     assert.strictEqual(data.name, newSceneName)
-    assert.deepEqual(data.scene, defaultSceneData.scene)
+    assert.deepStrictEqual(data.scene, parsedData)
   })
 
   it("should save scene", async function() {
     await app.service('scene').update(newProjectName, { 
-      sceneData: defaultSceneData.scene,
+      sceneData: _.cloneDeep(parsedData),
       sceneName: newSceneName
     }, params)
     const { data } = await app.service('scene').get({
@@ -71,7 +75,7 @@ describe('Scene Service', () => {
       metadataOnly: false
     }, params)
     assert.deepStrictEqual(data.name, newSceneName)
-    assert.deepStrictEqual(data.scene, defaultSceneData.scene)
+    assert.deepStrictEqual(data.scene, parsedData)
   })
 
   it("should remove scene", async function() {

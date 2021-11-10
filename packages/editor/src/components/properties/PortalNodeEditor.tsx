@@ -15,13 +15,14 @@ import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { ProjectManager } from '../../managers/ProjectManager'
 import { client } from '@xrengine/client-core/src/feathers'
+import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 
 type PortalNodeEditorProps = {
-  node?: object
+  node?: PortalNode
   t: Function
 }
 
-type PortalDetail = {
+type PortalOptions = {
   name: string
   value: string
 }
@@ -29,11 +30,11 @@ type PortalDetail = {
 type PortalFilterOption = {
   label: string
   value: string
-  data: PortalDetail
+  data: PortalOptions
 }
 
 type PortalNodeEditorStates = {
-  portals: PortalDetail[]
+  portals: PortalOptions[]
   entityId: string
 }
 
@@ -112,24 +113,20 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
   }
 
   loadPortals = async () => {
-    let portalsDetail
+    const portalsDetail: PortalDetail[] = []
     try {
-      portalsDetail = await client.service('portal/list').find()
+      portalsDetail.push(...(await client.service('portal').find()).data)
+      console.log('portalsDetail', portalsDetail, this.props.node.entityId)
     } catch (error) {
       throw new Error(error)
-      return []
     }
-    const portals = []
-
-    portalsDetail.forEach((portal) => {
-      if (portal.entity.entityId === (this.props.node as any).entityId) return
-      portals.push({
-        name: `${portal.entity.collection.name} (${portal.entity.name})`,
-        value: portal.entity.entityId
-      })
+    this.setState({
+      portals: portalsDetail
+        .filter((portal) => portal.portalEntityId !== this.props.node.uuid)
+        .map(({ portalEntityId, sceneName }) => {
+          return { value: portalEntityId, name: sceneName }
+        })
     })
-
-    this.setState({ portals })
   }
 
   // rendering view of editor for properties of PortalNode
@@ -149,7 +146,7 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
             filterOption={(option: PortalFilterOption, searchString: string) => {
               return option.label.includes(searchString || '')
             }}
-            getOptionLabel={(data: PortalDetail) => data.name}
+            getOptionLabel={(data) => data.name}
           />
         </InputGroup>
         <InputGroup name="Model Url" label={this.props.t('editor:properties.portal.lbl-modelUrl')}>

@@ -111,6 +111,4 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   return <></>
 }
 
-const connector = NetworkInstanceProvisioning
-
-export default connector
+export default NetworkInstanceProvisioning

@@ -26,6 +26,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   isChannelInstance: boolean
   gsName: any
   isSetup: Promise<boolean>
+  restart: Function
 
   // API Server
 }
