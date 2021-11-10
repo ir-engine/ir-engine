@@ -10,7 +10,7 @@ fi
 
 MODULE=xrengine-matchmaking-$1
 
-cd "$1" || exit
+pushd "./open-match-custom-pods/$1" || exit
 
 echo "BUILDING $1 as $MODULE"
 docker build -t $REGISTRY/"$MODULE" .
@@ -21,4 +21,4 @@ then
   docker push $REGISTRY/"$MODULE"
 fi
 
-cd ..
+popd || exit
