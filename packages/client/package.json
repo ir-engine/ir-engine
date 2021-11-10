@@ -107,7 +107,7 @@
     "url-toolkit": "2.2.3",
     "use-debounce": "7.0.1",
     "uuid": "8.3.2",
-    "vite": "2.6.13",
+    "vite": "2.6.14",
     "webxr-native": "0.3.0"
   },
   "devDependencies": {
@@ -129,7 +129,7 @@
     "vite-plugin-html": "2.1.1",
     "webxr-native": "0.3.0",
     "@hookstate/devtools": "3.0.1",
-    "vite": "2.6.10",
+    "vite": "2.6.14",
     "vite-plugin-optimize-persist": "0.1.0",
     "vite-plugin-package-config": "0.0.3"
   },
