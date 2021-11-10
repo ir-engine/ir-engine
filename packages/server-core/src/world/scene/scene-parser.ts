@@ -30,7 +30,7 @@ export const cleanSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: strin
 
 export const parseScenePortals = (scene: SceneDetailInterface) => {
   const portals: PortalDetail[] = []
-  for (const [entityId, entity] of Object.entries(scene.scene.entities)) {
+  for (const [entityId, entity] of Object.entries(scene.scene?.entities!)) {
     for (const component of entity.components)
       if (component.name === 'portal') {
         portals.push({

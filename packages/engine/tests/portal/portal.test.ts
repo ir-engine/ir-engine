@@ -35,12 +35,8 @@ describe('Portal', () => {
   })
 
   it('Can unload scene', async () => {
-    // unload
-    Engine.engineTimer.stop()
-    Engine.sceneLoaded = false
-    WorldScene.isLoading = false    
+    // unload  
     await unloadScene()
-    Engine.engineTimer.start()
 
     // test
     const world = useWorld()

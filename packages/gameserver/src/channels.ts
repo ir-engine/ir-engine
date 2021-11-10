@@ -65,14 +65,6 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
   } else {
     console.log('locationId: ' + locationId)
-    // on local dev, if a scene is already loaded and it's no the scene we want, reset the engine
-    if (config.kubernetes.enabled === false && app.instance && app.instance.locationId !== locationId) {
-      Engine.engineTimer.stop()
-      Engine.sceneLoaded = false
-      WorldScene.isLoading = false
-      await unloadScene()
-      Engine.engineTimer.start()
-    }
     newInstance.locationId = locationId
   }
 
@@ -103,6 +95,7 @@ export default (app: Application): void => {
     return
   }
   app.on('connection', async (connection) => {
+    console.log('\n\nNEW CONNECTION\n\n')
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
       process.env.APP_ENV === 'development' ||
@@ -161,6 +154,11 @@ export default (app: Application): void => {
                 sceneId: sceneId,
                 ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
               } as any
+
+              // on local dev, if a scene is already loaded and it's no the scene we want, reset the engine
+              if (config.kubernetes.enabled === false && app.instance && app.instance.locationId !== locationId) {
+                await unloadScene()
+              }
               await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
               if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
                 await loadScene(app, sceneId)

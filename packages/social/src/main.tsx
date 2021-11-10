@@ -4,6 +4,7 @@ import { initialize } from './util'
 import Splash from '@xrengine/social/src/components/Splash'
 import { store } from '@xrengine/client-core/src/store'
 
+const StoreProvider = React.lazy(() => import('./pages/_app'))
 // Add additional state modules
 // const stateModules = import.meta.globEager('./services/*State')
 // store.registerStateModules(stateModules)
@@ -15,7 +16,6 @@ import('./env-config').then((module) => {
   initialize()
     // then load the app
     .then((_) => {
-      const StoreProvider = React.lazy(() => import('./pages/_app'))
       ReactDOM.render(
         <Suspense fallback={<Splash />}>
           <StoreProvider />

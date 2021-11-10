@@ -204,8 +204,8 @@ export const teleportToLocation = async (
   // }
 
   // shut down connection with existing GS
+  Network.instance.transport.close(true, false)
   InstanceConnectionService.resetInstanceServer()
-  Network.instance.transport.close()
 
   await teleportToScene(portalComponent, async () => {
     onTeleport()

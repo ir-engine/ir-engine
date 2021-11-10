@@ -1,17 +1,7 @@
-import { isClient } from '../../common/functions/isClient'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, addComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { PortalComponent } from '../../scene/components/PortalComponent'
-import { Engine } from '../../ecs/classes/Engine'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
-import { getControllerCollisions } from '../../physics/functions/getControllerCollisions'
-import {
-  ColliderHitEvent,
-  CollisionEvents,
-  ControllerHitEvent,
-  ControllerObstacleHitEvent
-} from '../../physics/types/PhysicsTypes'
+import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'
 import { TriggerVolumeComponent } from '../../scene/components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../../scene/components/TriggerDetectedComponent'
 
@@ -24,11 +14,9 @@ export const detectActiveTriggerCollision = (collidingEntity: Entity, collision:
 
   if (collision.type == CollisionEvents.TRIGGER_START) {
     addComponent(collidingEntity, TriggerDetectedComponent, { triggerEntity })
-    console.log('Add TriggerDetectedComponent', triggerEntity)
   } else if (!collision.type || collision.type == CollisionEvents.TRIGGER_END) {
     if (getComponent(collidingEntity, TriggerDetectedComponent)) {
       removeComponent(collidingEntity, TriggerDetectedComponent)
-      console.log('Remove TriggerDetectedComponent', triggerEntity)
     }
   }
 }

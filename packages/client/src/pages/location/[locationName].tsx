@@ -25,7 +25,6 @@ const LocationPage = (props: Props) => {
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [loadingItemCount, setLoadingItemCount] = useState(99)
-  const [isTeleporting, setIsTeleporting] = useState(false)
   const [reinit, reinitEngine] = useState(false)
   const locationName = props?.match?.params?.locationName
 
@@ -47,7 +46,6 @@ const LocationPage = (props: Props) => {
         setSceneId={setSceneId}
         setUserBanned={setIsUserBanned}
         setLoadingItemCount={setLoadingItemCount}
-        setIsTeleporting={setIsTeleporting}
         reinit={reinit}
       />
       <Layout
@@ -65,7 +63,6 @@ const LocationPage = (props: Props) => {
           reinit={engineInit}
           children={props.children}
           showTouchpad={props.showTouchpad}
-          isTeleporting={isTeleporting}
           locationName={locationName}
         />
       </Layout>

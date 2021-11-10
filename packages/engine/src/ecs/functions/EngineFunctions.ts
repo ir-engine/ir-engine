@@ -78,6 +78,10 @@ export async function reset(): Promise<void> {
 }
 
 export const unloadScene = async (): Promise<void> => {
+  console.log('\n\n\n\n')
+  Engine.engineTimer.stop()
+  Engine.sceneLoaded = false
+  WorldScene.isLoading = false
   const world = useWorld()
   const entitiesToRemove = [] as Entity[]
   const removedEntities = [] as Entity[]
@@ -114,5 +118,10 @@ export const unloadScene = async (): Promise<void> => {
   isClient && EngineRenderer.instance.resetPostProcessing()
 
   Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
+
+  Engine.engineTimer.start()
+
+  console.log(world.entities, world.entities.length)
+  console.log('\n\n\n\n')
   // world.physics.clear() // TODO:
 }
