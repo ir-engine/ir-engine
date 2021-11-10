@@ -15,7 +15,7 @@ describe('Storage Provider test', () => {
   const folderKeyTemp2 = path.join(testFolderName, 'temp2')
 
   const storageProviders: StorageProviderInterface[] = []
-  storageProviders.push(new LocalStorage())
+  //storageProviders.push(new LocalStorage())
   storageProviders.push(new S3Provider())
 
   storageProviders.forEach((provider) => {
