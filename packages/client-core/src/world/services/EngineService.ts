@@ -3,7 +3,9 @@ import { client } from '../../feathers'
 import { createState, useState } from '@hookstate/core'
 
 const state = createState({
-  isTeleporting: false
+  isTeleporting: false,
+  isInitialised: false,
+  loadingProgress: -1
 })
 
 store.receptors.push((action: EngineActionType): any => {
@@ -11,6 +13,10 @@ store.receptors.push((action: EngineActionType): any => {
     switch (action.type) {
       case 'ENGINE_SET_TELEPORTING':
         return s.merge({ isTeleporting: action.teleporting })
+      case 'ENGINE_SET_INITIALISED':
+        return s.merge({ isInitialised: action.initialised })
+      case 'ENGINE_LOADING_PROGRESS':
+        return s.merge({ loadingProgress: action.count })
     }
   }, action.type)
 })
@@ -26,6 +32,18 @@ export const EngineAction = {
     return {
       type: 'ENGINE_SET_TELEPORTING' as const,
       teleporting
+    }
+  },
+  setInitialised: (initialised: boolean) => {
+    return {
+      type: 'ENGINE_SET_INITIALISED' as const,
+      initialised
+    }
+  },
+  loadingProgress: (count: number) => {
+    return {
+      type: 'ENGINE_LOADING_PROGRESS' as const,
+      count
     }
   }
 }
