@@ -20,6 +20,16 @@ import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 import { initializeXRControllerAnimations } from './controllerAnimation'
 import { mapXRControllers } from './WebXRFunctions'
 
+const setupController = (inputSource, controller) => {
+  if (inputSource) {
+    const targetRay = createController(inputSource)
+    if (targetRay) {
+      controller.add(targetRay)
+      controller.targetRay = targetRay
+    }
+  }
+}
+
 export const initializeXRInputs = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
@@ -43,20 +53,12 @@ export const initializeXRInputs = (entity: Entity) => {
       }
 
       if (!controller.targetRay) {
-        const targetRay = createController(ev.data)
-        controller.add(targetRay)
-        controller.targetRay = targetRay
+        setupController(ev.data, controller)
       }
     })
 
     const inputSource = session.inputSources[i]
-    if (inputSource) {
-      const targetRay = createController(inputSource)
-      if (targetRay) {
-        controller.add(targetRay)
-        controller.targetRay = targetRay
-      }
-    }
+    setupController(inputSource, controller)
   })
 
   controllersGrip.forEach((controller: any) => {

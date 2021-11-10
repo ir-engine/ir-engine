@@ -1,5 +1,5 @@
-import { Layers, Ray, Raycaster, Vector3 } from 'three'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { Color, Layers, Ray, Raycaster, Vector3 } from 'three'
+import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
@@ -11,8 +11,10 @@ import { XRUIComponent } from '../components/XRUIComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 
 export default async function XRUISystem(world: World): Promise<System> {
+  const hitRayColor = new Color(0x00e6e6)
+  const normalRayColor = new Color(0xffffff)
   const xruiQuery = defineQuery([XRUIComponent])
-  const xrInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, XRUIComponent])
+  const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent])
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('ethereal')))
   const screenRaycaster = new Raycaster()
@@ -24,10 +26,26 @@ export default async function XRUISystem(world: World): Promise<System> {
   const redirectDOMEvent = (evt) => {
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).layer
-      const hit = layer.hitTest(this.raycaster.ray)
+      const hit = layer.hitTest(xrui.interactionRays[0])
       if (hit) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
         hit.target.focus()
+      }
+    }
+  }
+
+  const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
+    for (const entity of xruiQuery()) {
+      const layer = getComponent(entity, XRUIComponent).layer
+      const controllers = [inputComponent.controllerLeft, inputComponent.controllerRight]
+      for (const controller of controllers) {
+        const hit = layer.hitTest(controller)
+        if (hit) {
+          const interactable = window.getComputedStyle(hit.target).cursor == 'pointer'
+          if (interactable && (controller as any).targetRay) (controller as any).targetRay.material.color = hitRayColor
+        } else {
+          if ((controller as any).targetRay) (controller as any).targetRay.material.color = normalRayColor
+        }
       }
     }
   }
@@ -43,7 +61,7 @@ export default async function XRUISystem(world: World): Promise<System> {
     }
 
     const input = getComponent(world.localClientEntity, InputComponent)
-    const screenXY = input?.data?.get(BaseInput.SCREENXY)
+    const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value
     if (screenXY) {
       screenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, Engine.camera)
     } else {
@@ -56,17 +74,18 @@ export default async function XRUISystem(world: World): Promise<System> {
       layer.interactionRays = xrui.interactionRays
     }
 
-    for (const entity of xrInputQuery.enter()) {
+    for (const entity of localXRInputQuery.enter()) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      xrui.interactionRays = [
-        screenRaycaster.ray,
-        xrInputSourceComponent.controllerLeft,
-        xrInputSourceComponent.controllerRight
-      ]
+      xrui.interactionRays.push(xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight)
     }
 
-    for (const entity of xrInputQuery.exit()) {
-      xrui.interactionRays = [screenRaycaster.ray]
+    for (const entity of localXRInputQuery()) {
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+      updateControllerRayInteraction(xrInputSourceComponent)
+    }
+
+    for (const entity of localXRInputQuery.exit()) {
+      xrui.interactionRays.splice(1, 2)
     }
 
     for (const entity of xruiQuery()) {
