@@ -7,6 +7,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { Engine } from '../../ecs/classes/Engine'
 import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
+import { instanceGLTF } from '../functions/transformGLTF'
 
 export const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
   const replacedMaterials = new Map()
@@ -138,11 +139,12 @@ type AssetLoaderParamType = {
   [key: string]: any
 }
 
-const load = (
+const load = async (
   params: AssetLoaderParamType,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {}
+  onError = (event: ErrorEvent | Error) => {},
+  isInstanced = false
 ) => {
   if (!params.url) {
     onError(new Error('URL is empty'))
@@ -159,24 +161,49 @@ const load = (
 
   const loader = getLoader(assetType)
 
-  loader.load(
-    url,
-    (asset) => {
-      if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
-        loadExtentions(asset)
-      }
+  if (isInstanced) {
+    let buffer = await instanceGLTF(url)
+    console.log('instanced loading')
 
-      if (assetClass === AssetClass.Model) {
-        processModelAsset(asset.scene, params)
-      }
+    loader.parse(
+      buffer,
+      null,
+      (asset) => {
+        if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
+          loadExtentions(asset)
+        }
 
-      AssetLoader.Cache.set(url, asset)
+        if (assetClass === AssetClass.Model) {
+          processModelAsset(asset.scene, params)
+        }
 
-      onLoad(asset)
-    },
-    onProgress,
-    onError
-  )
+        AssetLoader.Cache.set(url, asset)
+
+        onLoad(asset)
+      },
+      onError
+    )
+  } else {
+    console.log('non instanced loading')
+    loader.load(
+      url,
+      (asset) => {
+        if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
+          loadExtentions(asset)
+        }
+
+        if (assetClass === AssetClass.Model) {
+          processModelAsset(asset.scene, params)
+        }
+
+        AssetLoader.Cache.set(url, asset)
+
+        onLoad(asset)
+      },
+      onProgress,
+      onError
+    )
+  }
 }
 
 export class AssetLoader {
@@ -192,9 +219,10 @@ export class AssetLoader {
     params: AssetLoaderParamType,
     onLoad = (response: any) => {},
     onProgress = (request: ProgressEvent) => {},
-    onError = (event: ErrorEvent | Error) => {}
+    onError = (event: ErrorEvent | Error) => {},
+    isInstanced = false
   ) {
-    load(params, onLoad, onProgress, onError)
+    load(params, onLoad, onProgress, onError, isInstanced)
   }
 
   static async loadAsync(params: AssetLoaderParamType) {
