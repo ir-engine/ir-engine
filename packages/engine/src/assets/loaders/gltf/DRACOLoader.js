@@ -381,6 +381,106 @@ class DRACOLoader extends Loader {
 
 	}
 
+	/**
+	 * Gets WebAssembly or asm.js singleton instance of DracoDecoderModule
+	 * after testing for browser support. Returns Promise that resolves when
+	 * module is available.
+	 * @return {Promise<{decoder: DracoDecoderModule}>}
+	 */
+	getDecoderModule() {
+		var scope = this;
+		var config = {};
+		var promise = this.decoderModulePromise;
+	
+		if ( promise ) return promise;
+	
+		// Load source files.
+		if ( typeof DracoDecoderModule !== 'undefined' ) {
+		// Loaded externally.
+		promise = Promise.resolve();
+		} else if ( typeof WebAssembly !== 'object' || config.type === 'js' ) {
+		// Load with asm.js.
+		promise = this._loadScript(  this.decoderPath + 'draco_decoder.js', 'decoder_script' )
+		} else {
+		// Load with WebAssembly.
+		promise = this._loadScript( this.decoderPath + 'draco_wasm_wrapper.js', 'decoder_script' )
+			.then( function () {
+				return scope._loadLibrary( 'draco_decoder.wasm', 'arraybuffer' )
+			} )
+			.then( function ( wasmBinary ) {
+				config.wasmBinary = wasmBinary;
+			} );
+		}
+	
+		// Wait for source files, then create and return a decoder.
+		promise = promise.then( function () {
+		return new Promise( function ( resolve ) {
+			config.onModuleLoaded = function ( decoder ) {
+			// Module is Promise-like. Wrap before resolving to avoid loop.
+			resolve( { decoder: decoder } );
+			};
+			DracoDecoderModule( config );
+		} );
+		} );
+	
+		return promise;
+	};
+
+	/**
+	 * Gets WebAssembly or asm.js singleton instance of DracoEncoderModule
+	 * after testing for browser support. Returns Promise that resolves when
+	 * module is available.
+	 * @return {Promise<{decoder: DracoDecoderModule}>}
+	 */
+	getEncoderModule() {
+		var scope = this;
+		var config = {};
+		var promise = this.decoderModulePromise;
+	
+		if ( promise ) return promise;
+	
+		// Load source files.
+		if ( typeof DracoEncoderModule !== 'undefined' ) {
+		// Loaded externally.
+		promise = Promise.resolve();
+		} else {
+		// Load with asm.js.
+		promise = this._loadScript(  this.decoderPath + 'draco_encoder.js', 'encoder_script' )
+		}
+	
+		// Wait for source files, then create and return a decoder.
+		promise = promise.then( function () {
+		return new Promise( function ( resolve ) {
+			config.onModuleLoaded = function ( encoder ) {
+			// Module is Promise-like. Wrap before resolving to avoid loop.
+			resolve( { encoder: encoder } );
+			};
+			DracoEncoderModule( config );
+		} );
+		} );
+	
+		return promise;
+	};
+
+	/**
+	 * @param {string} src
+	 * @return {Promise}
+	 */
+	_loadScript ( src, script_id ) {
+		var prevScript = document.getElementById( script_id );
+		if ( prevScript !== null ) {
+		prevScript.parentNode.removeChild( prevScript );
+		}
+		var head = document.getElementsByTagName( 'head' )[ 0 ];
+		var script = document.createElement( 'script' );
+		script.id = script_id;
+		script.type = 'text/javascript';
+		script.src = src;
+		return new Promise( function ( resolve ) {
+		script.onload = resolve;
+		head.appendChild( script );
+		});
+	};
 }
 
 /* WEB WORKER */

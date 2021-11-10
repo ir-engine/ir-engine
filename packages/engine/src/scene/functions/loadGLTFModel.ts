@@ -205,7 +205,8 @@ export const loadGLTFModel = (
           console.log('[SCENE-LOADING]:', err)
           sceneLoader._onModelLoaded()
           reject(err)
-        }
+        },
+        component.props.isUsingGPUInstancing
       )
     })
   )
