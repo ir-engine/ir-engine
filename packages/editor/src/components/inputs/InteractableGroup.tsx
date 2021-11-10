@@ -6,7 +6,6 @@ import StringInput from './StringInput'
 import dompurify from 'dompurify'
 import NumericInputGroup from './NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
-
 import ArrayInputGroup from './ArrayInputGroup'
 
 /**
@@ -63,6 +62,7 @@ type InteractableGroupState = {
 
 export class InteractableGroup extends Component<InteractableGroupProps, InteractableGroupState> {
   //initializing props and state
+
   constructor(props) {
     super(props)
   }

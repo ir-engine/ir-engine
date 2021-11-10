@@ -148,7 +148,6 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
 
   // rendering view of ModelNodeEditor
   render() {
-    debugger
     ModelNodeEditor.description = this.props.t('editor:properties.model.description')
     const node = this.props.node as any
     return (
@@ -218,7 +217,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
         <InputGroup name="MatrixAutoUpdate" label={this.props.t('editor:properties.model.lbl-matrixAutoUpdate')}>
           <BooleanInput value={node.matrixAutoUpdate} onChange={this.onChangeUpdateDataMatrix} />
         </InputGroup>
-        {node.interactable && <InteractableGroup node={node} trans={this.props.t}></InteractableGroup>}
+        {node.interactable && <InteractableGroup node={node}></InteractableGroup>}
       </NodeEditor>
     )
   }
