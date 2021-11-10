@@ -62,7 +62,13 @@ const InteractiveModalView = () => {
     value++
     if (value > detailState.totalMediaUrls.value.length) value = 0
     detailState.mediaIndex.set(value)
-    if (callback) callback(detailState)
+    if (callback) {
+      callback({
+        mediaIndex: value,
+        mediaData: detailState.totalMediaUrls.value,
+        entityIndex: detailState.entityIndex.value
+      })
+    }
   }
 
   const beforeClick = () => {
@@ -70,7 +76,13 @@ const InteractiveModalView = () => {
     value--
     if (value < 0) value = detailState.totalMediaUrls.value.length - 1
     detailState.mediaIndex.set(value)
-    if (callback) callback(detailState)
+    if (callback) {
+      callback({
+        mediaIndex: value,
+        mediaData: detailState.totalMediaUrls.value,
+        entityIndex: detailState.entityIndex.value
+      })
+    }
   }
 
   const linkClick = (urls) => {
@@ -79,7 +91,7 @@ const InteractiveModalView = () => {
     }
   }
 
-  const renderMedia = (width, height, position = 'relative') => {
+  const renderMedia = (width, height, position?) => {
     let value = detailState.mediaIndex.value
     let entityIndex = detailState.entityIndex.value
     if (value < 0) value = detailState.totalMediaUrls.value.length - 1
@@ -89,7 +101,16 @@ const InteractiveModalView = () => {
       type: media.type,
       path: media.path
     }
+    let videoUrl = ''
+    let imageUrl = ''
 
+    if (data.type == 'image') {
+      imageUrl = media.path
+    } else if (data.type == 'video') {
+      videoUrl = media.path
+    }
+
+    if (!position) position = 'relative'
     return (
       <div
         style={{
@@ -99,7 +120,7 @@ const InteractiveModalView = () => {
         }}
       >
         <img
-          src={`${data.path}`}
+          src={`${imageUrl}`}
           width="100%"
           height="100%"
           style={{
@@ -122,9 +143,10 @@ const InteractiveModalView = () => {
             display: data.type == 'video' ? 'block' : 'none'
           }}
         >
-          <source type="video/mp4" src={`${data.path}`}></source>
+          <source type="video/mp4" src={`${videoUrl}`}></source>
         </video>
         <div
+          xr-layer="true"
           id={`interactive-ui-model-${entityIndex}`}
           style={{
             width: '100%',
@@ -137,95 +159,7 @@ const InteractiveModalView = () => {
     )
   }
 
-  if (detailState.themeIndex.value == '0') {
-    return (
-      <div
-        style={{
-          fontSize: '120px',
-          backgroundColor: '#000000dd',
-          color: 'white',
-          fontFamily: "'Roboto', sans-serif",
-          border: '10px solid white',
-          borderRadius: '50px',
-          padding: '20px',
-          margin: '60px',
-          boxShadow: '#fff2 0 0 30px',
-          width: '2000px',
-          height: '3200px',
-          textAlign: 'center'
-        }}
-      >
-        <div
-          style={{
-            fontSize: '150px',
-            padding: '50px 0px',
-            textAlign: 'center'
-          }}
-        >
-          {detailState.title.value}
-        </div>
-        {renderMedia('100%', '1200px')}
-
-        <div
-          style={{
-            padding: '50px',
-            height: '1000px',
-            overflow: 'hidden',
-            textAlign: 'left',
-            fontSize: '90px'
-          }}
-        >
-          {detailState.description.value}
-          {/* Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS.Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS. */}
-        </div>
-        {detailState.urls.value && detailState.urls.value.length ? (
-          <button
-            xr-layer="true"
-            style={{
-              width: '500px',
-              height: '200px',
-              fontSize: '90px',
-              backgroundColor: '#000000dd',
-              color: 'white'
-            }}
-            onClick={() => {
-              linkClick(detailState.urls.value)
-            }}
-          >
-            <a>Open Link</a>
-          </button>
-        ) : (
-          <></>
-        )}
-        <button
-          xr-layer="true"
-          style={{
-            width: '250px',
-            height: '250px',
-            position: 'absolute',
-            top: '1050px',
-            right: '150px'
-          }}
-          onClick={nextClick}
-        >
-          <NavigateNext />
-        </button>
-        <button
-          xr-layer="true"
-          style={{
-            width: '250px',
-            height: '250px',
-            position: 'absolute',
-            top: '1050px',
-            left: '150px'
-          }}
-          onClick={beforeClick}
-        >
-          <NavigateBefore />
-        </button>
-      </div>
-    )
-  } else if (detailState.themeIndex.value == '1') {
+  if (detailState.themeIndex.value == '1') {
     return (
       <div
         style={{
@@ -413,6 +347,92 @@ const InteractiveModalView = () => {
       </div>
     )
   } else {
-    return <></>
+    return (
+      <div
+        style={{
+          fontSize: '120px',
+          backgroundColor: '#000000dd',
+          color: 'white',
+          fontFamily: "'Roboto', sans-serif",
+          border: '10px solid white',
+          borderRadius: '50px',
+          padding: '20px',
+          margin: '60px',
+          boxShadow: '#fff2 0 0 30px',
+          width: '2000px',
+          height: '3200px',
+          textAlign: 'center'
+        }}
+      >
+        <div
+          style={{
+            fontSize: '150px',
+            padding: '50px 0px',
+            textAlign: 'center'
+          }}
+        >
+          {detailState.title.value}
+        </div>
+        {renderMedia('100%', '1200px')}
+
+        <div
+          style={{
+            padding: '50px',
+            height: '1000px',
+            overflow: 'hidden',
+            textAlign: 'left',
+            fontSize: '90px'
+          }}
+        >
+          {detailState.description.value}
+          {/* Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS.Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS. */}
+        </div>
+        {detailState.urls.value && detailState.urls.value.length ? (
+          <button
+            xr-layer="true"
+            style={{
+              width: '500px',
+              height: '200px',
+              fontSize: '90px',
+              backgroundColor: '#000000dd',
+              color: 'white'
+            }}
+            onClick={() => {
+              linkClick(detailState.urls.value)
+            }}
+          >
+            <a>Open Link</a>
+          </button>
+        ) : (
+          <></>
+        )}
+        <button
+          xr-layer="true"
+          style={{
+            width: '250px',
+            height: '250px',
+            position: 'absolute',
+            top: '1050px',
+            right: '150px'
+          }}
+          onClick={nextClick}
+        >
+          <NavigateNext />
+        </button>
+        <button
+          xr-layer="true"
+          style={{
+            width: '250px',
+            height: '250px',
+            position: 'absolute',
+            top: '1050px',
+            left: '150px'
+          }}
+          onClick={beforeClick}
+        >
+          <NavigateBefore />
+        </button>
+      </div>
+    )
   }
 }
