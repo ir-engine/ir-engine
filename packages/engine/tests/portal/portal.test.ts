@@ -19,7 +19,7 @@ dotenv.config({
 
 const sceneData = parseSceneDataCacheURLs(sceneJson, process.env.LOCAL_STORAGE_PROVIDER!)
 
-describe('Portal', () => {
+describe.skip('Portal', () => {
 
   before(async () => {
     await initializeEngine(engineTestSetup)
