@@ -78,7 +78,6 @@ export async function reset(): Promise<void> {
 }
 
 export const unloadScene = async (): Promise<void> => {
-  console.log('\n\n\n\n')
   Engine.engineTimer.stop()
   Engine.sceneLoaded = false
   WorldScene.isLoading = false
@@ -121,7 +120,5 @@ export const unloadScene = async (): Promise<void> => {
 
   Engine.engineTimer.start()
 
-  console.log(world.entities, world.entities.length)
-  console.log('\n\n\n\n')
   // world.physics.clear() // TODO:
 }
