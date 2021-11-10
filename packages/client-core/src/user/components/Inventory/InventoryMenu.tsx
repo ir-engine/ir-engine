@@ -5,9 +5,8 @@ import { NavigateNext, NavigateBefore } from '@material-ui/icons'
 import styles from './Inventory.module.scss'
 import { useTranslation } from 'react-i18next'
 import { LazyImage } from '../../../common/components/LazyImage'
-import { InventoryService } from '../../services/InventoryService'
 import { useAuthState } from '../../../user/services/AuthService'
-import { useInventoryState } from '../../../user/services/InventoryState'
+import { InventoryItem } from '@xrengine/common/src/interfaces/Inventoryitem'
 const InventoryMenu = (props: any): any => {
   const MAX_ITEMS_PER_PAGE = 9
   const MIN_ITEMS_PER_PAGE = 6
@@ -20,8 +19,7 @@ const InventoryMenu = (props: any): any => {
   const [selectedItemId, setSelectedItemId] = useState('')
   const [isItemLoaded, setItemLoaded] = useState(false)
   const selfUser = useAuthState().user
-  const inventoryState = useInventoryState()
-  const inventoryItemList = inventoryState.userInventoryItems?.value || []
+  const [inventoryItemList, setInventoryItemList] = useState<InventoryItem[]>([])
   useEffect((() => {
     function handleResize() {
       setItemPerPage(getItemPerPage())
@@ -37,17 +35,8 @@ const InventoryMenu = (props: any): any => {
   useEffect(() => {}, [isItemLoaded])
 
   useEffect(() => {
-    if (page * itemPerPage >= inventoryItemList.length) {
-      if (page === 0) return
-      setPage(page - 1)
-    }
-  }, [inventoryState.userInventoryItems?.value])
-
-  useEffect(() => {
-    if (inventoryState.updateNeeded.value) {
-      InventoryService.getUserInventory(selfUser.id?.value || '')
-    }
-  }, [inventoryState.updateNeeded.value])
+    setInventoryItemList(selfUser.inventory_items.value)
+  }, [selfUser.inventory_items.value])
 
   const loadNextItems = (e) => {
     e.preventDefault()
@@ -55,20 +44,6 @@ const InventoryMenu = (props: any): any => {
       return
     }
     setPage(page + 1)
-
-    if (inventoryState.total.value > inventoryItemList.length) {
-      loadUserInventoryItems()
-    }
-  }
-
-  const loadUserInventoryItems = () => {
-    // if(!inventoryState.isLoading.value && inventoryState.total.value > inventoryItemList.length){
-    InventoryService.getUserInventory(
-      selfUser.id?.value || '',
-      inventoryState.limit.value,
-      inventoryState.skip.value + inventoryState.limit.value
-    )
-    // }
   }
 
   const loadPreviousItems = (e) => {
@@ -89,12 +64,15 @@ const InventoryMenu = (props: any): any => {
       const inventoryItem = inventoryItemList.length > i ? inventoryItemList[i] : null
 
       itemList.push(
-        <Card key={inventoryItem?.id || 'inventery-item-key-' + i} className={`${styles.itemPreviewWrapper}`}>
+        <Card
+          key={inventoryItem?.inventoryItemId || 'inventery-item-key-' + i}
+          className={`${styles.itemPreviewWrapper}`}
+        >
           {inventoryItem && (
             <CardContent onClick={() => inventoryItem && selectItem(inventoryItem)}>
-              <LazyImage
-                key={inventoryItem?.id}
-                src={inventoryItem?.image}
+              <img
+                key={inventoryItem?.inventoryItemId}
+                src={inventoryItem?.url}
                 alt={inventoryItem?.name}
                 draggable="true"
               />

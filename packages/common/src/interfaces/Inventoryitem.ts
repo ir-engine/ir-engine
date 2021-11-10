@@ -1,17 +1,18 @@
-export interface InventoryItem {
-  id: string
-  sid: string
-  name: string
-  description?: string
-  version: number
-  metadata: InventoryItemMetaData
-  isPublic: number
-  url: string
-  createdAt: string
-  updatedAt: string
-  type: string
-}
+import { UserInventoryItem } from '@xrengine/common/src/interfaces/UserInventoryItem'
 
-interface InventoryItemMetaData {
-  name?: string
+export interface InventoryItem {
+  createdAt: string
+  description?: string
+  inventoryItemId: string
+  inventoryItemTypeId?: string
+  inventory_item_type?: any
+  isPublic: boolean
+  metadata: string
+  name: string
+  ownedFileIds?: any
+  sid: string
+  updatedAt: string
+  url: string
+  user_inventory: UserInventoryItem
+  version: number
 }

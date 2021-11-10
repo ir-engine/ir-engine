@@ -3,6 +3,7 @@ import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
+import { InventoryItem } from './Inventoryitem'
 
 export interface UserSetting {
   id: string
@@ -32,6 +33,7 @@ export interface User {
   user_setting?: UserSetting
   inviteCode?: string
   scopes?: UserScope[]
+  inventory_items: InventoryItem[]
 }
 
 export const UserSeed: User = {
@@ -40,7 +42,8 @@ export const UserSeed: User = {
   userRole: '',
   avatarId: '',
   identityProviders: [],
-  locationAdmins: []
+  locationAdmins: [],
+  inventory_items: []
 }
 
 export function resolveUser(user: any): User {
