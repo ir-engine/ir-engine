@@ -48,7 +48,6 @@ export function incomingNetworkReceptor(action) {
         hasComponent(world.localClientEntity, NetworkObjectComponent)
       ) {
         getComponent(world.localClientEntity, NetworkObjectComponent).networkId = a.networkId
-        console.log('not creatring new object')
         return
       }
       const isOwnedByMe = a.userId === Engine.userId

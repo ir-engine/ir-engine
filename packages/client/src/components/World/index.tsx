@@ -92,7 +92,6 @@ export const EnginePage = (props: Props) => {
    * 1. Try to log in
    */
   useEffect(() => {
-    console.log('EnginePage', props)
     addUIEvents()
     AuthService.doLoginAuto(true)
   }, [])
@@ -123,7 +122,6 @@ export const EnginePage = (props: Props) => {
    * 4. Once we have the scene ID, initialise the engine
    */
   useEffect(() => {
-    console.log(scene)
     if (scene) {
       init()
     }

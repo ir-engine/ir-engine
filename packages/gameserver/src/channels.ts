@@ -143,6 +143,15 @@ export default (app: Application): void => {
                 app.instance.locationId !== locationId ||
                 app.instance.channelId !== channelId)
 
+            /**
+             * When using local dev, to properly test multiple worlds for portals we
+             * need to programatically shut down and restart the gameserver process.
+             */
+            if (config.kubernetes.enabled === false && app.instance && app.instance.sceneId !== sceneId) {
+              app.restart()
+              return
+            }
+
             if (isReady || isNeedingNewServer) {
               console.info('Starting new instance')
               console.log('Initialized new gameserver instance')
@@ -154,11 +163,6 @@ export default (app: Application): void => {
                 sceneId: sceneId,
                 ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
               } as any
-
-              // on local dev, if a scene is already loaded and it's no the scene we want, reset the engine
-              if (config.kubernetes.enabled === false && app.instance && app.instance.locationId !== locationId) {
-                await unloadScene()
-              }
               await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
               if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
                 await loadScene(app, sceneId)
