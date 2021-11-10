@@ -61,15 +61,20 @@ export const createInteractUI = (entity: Entity) => {
     parentEntity: entity
   }
 
-  setTimeout(() => {
-    hideInteractUI(entity)
-  }, 1000)
+  const timer = setInterval(() => {
+    const object3D = getComponent(ui.entity, Object3DComponent)
+    if (object3D) {
+      hideInteractUI(entity)
+      clearInterval(timer)
+    }
+  }, 100)
+
   // callback from modal view state
   connectCallback((data) => {
     setTimeout(() => {
-      const mediaIndex = data.mediaIndex.value
-      const mediaData = data.totalMediaUrls.value
-      const entityIndex = data.entityIndex.value
+      const mediaIndex = data.mediaIndex
+      const mediaData = data.mediaData
+      const entityIndex = data.entityIndex
       const currentUI = getInteractUI(entityIndex) as any
       const xrComponent = getComponent(currentUI.entity, XRUIComponent) as any
       if (!xrComponent && !xrComponent.layer) return
@@ -110,11 +115,22 @@ export const createInteractUI = (entity: Entity) => {
             //load glb file
             LoadGLTF(mediaData[mediaIndex].path).then((model) => {
               const updateableObject = new UpdateableObject3D()
-              updateableObject.scale.set(
-                1 / modelElement.contentMesh.scale.x,
-                1 / modelElement.contentMesh.scale.y,
-                0.5
-              )
+
+              model.scene.traverse((mesh) => {
+                //@ts-ignore
+                if (mesh.material) {
+                  //@ts-ignore
+                  mesh.material.depthTest = false
+                  //@ts-ignore
+                  mesh.renderOrder = 1
+                  //@ts-ignore
+                  mesh.material.transparent = true
+                }
+              })
+
+              const scale = modelElement.contentMesh.scale
+              updateableObject.scale.set(1 / scale.x, 1 / scale.y, 1 / scale.x)
+
               updateableObject.add(model.scene)
               modelElement.contentMesh.add(updateableObject)
               interactModelEntity = createEntity()
@@ -123,14 +139,6 @@ export const createInteractUI = (entity: Entity) => {
               updateableObject.update = () => {
                 updateableObject.rotateY(0.01)
               }
-
-              // const box = new Box3()
-              // box.setFromObject(modelElement.contentMesh)
-              // const aabb = new Box3()
-              // aabb.setFromObject(updateableObject)
-              // const rate = Math.max(box.min.x, box.min.y, box.min.z) / Math.max(aabb.min.x, aabb.min.y, aabb.min.z)
-              // updateableObject.scale.addScalar(rate * 0.5)
-              // updateableObject.position.set(0, -(aabb.max.y - aabb.min.y) * rate * 0.5, aabb.max.z)
             })
           } else {
             //remove past entity
