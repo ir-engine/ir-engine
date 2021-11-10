@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { client } from '@xrengine/client-core/src/feathers'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { OpenMatchTicket, OpenMatchTicketAssignment } from '@xrengine/engine/tests/mathmaker/interfaces'
+import { OpenMatchTicket, OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
 import { useHistory } from 'react-router-dom'
 
 async function findCurrentTicketData() {
