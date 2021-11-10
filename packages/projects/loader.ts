@@ -1,7 +1,7 @@
 import type { ProjectPackageInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 
 interface ProjectNodeArguments {
   packName: string
@@ -19,7 +19,7 @@ interface ProjectModules {
   react: ProjectReactComponent[]
 }
 
-export const getPacksFromSceneData = async (sceneData: SceneData, isClient: boolean): Promise<ProjectModules> => {
+export const getPacksFromSceneData = async (sceneData: SceneJson, isClient: boolean): Promise<ProjectModules> => {
   const modules = {
     systems: [],
     react: []

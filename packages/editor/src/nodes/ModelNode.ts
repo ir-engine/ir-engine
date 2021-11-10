@@ -12,9 +12,7 @@ import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from '../managers/CacheManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { delay } from '@xrengine/engine/src/common/functions/delay'
+import { LoadInstancedGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -30,9 +28,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const node = await super.deserialize(json)
     loadAsync(
       (async () => {
-        const { src, envMapOverride, textureOverride, matrixAutoUpdate } = json.components.find(
+        const { src, envMapOverride, textureOverride, matrixAutoUpdate, isUsingGPUInstancing } = json.components.find(
           (c) => c.name === 'gltf-model'
         ).props
+
+        node.isUsingGPUInstancing = isUsingGPUInstancing
 
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
@@ -106,6 +106,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   isValidURL = false
   matrixAutoUpdate = true
   animations = []
+  isUsingGPUInstancing = false
 
   constructor() {
     super()
@@ -124,7 +125,15 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
-    const loadPromise = CacheManager.gltfCache.get(src)
+    let loadPromise = null
+    if (this.isUsingGPUInstancing) {
+      console.log('instanced')
+      // TODO: Look into how to support caching for this
+      loadPromise = LoadInstancedGLTF(src)
+    } else {
+      console.log('non-instanced')
+      loadPromise = CacheManager.gltfCache.get(src)
+    }
     const { scene, json, animations } = await loadPromise
     this.gltfJson = json
     const clonedScene = cloneObject3D(scene)
@@ -259,7 +268,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
         textureOverride: this.textureOverride,
-        matrixAutoUpdate: this.matrixAutoUpdate
+        matrixAutoUpdate: this.matrixAutoUpdate,
+        isUsingGPUInstancing: this.isUsingGPUInstancing
       },
       shadow: {
         cast: this.castShadow,

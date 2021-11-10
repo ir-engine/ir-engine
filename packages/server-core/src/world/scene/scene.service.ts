@@ -7,18 +7,22 @@ import fs from 'fs'
 import path from 'path'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { getAllPortals, getCubemapBake, getPortal } from './scene-helper'
+import { Params } from '@feathersjs/feathers'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
     scene: Scene
   }
   interface ServiceTypes {
-    scenes: { get: ReturnType<typeof getScenesForProject> }
+    scenes: {
+      get: ReturnType<typeof getScenesForProject>
+      find: ReturnType<typeof getAllScenes>
+    }
   }
 }
 
 export const getScenesForProject = (app: Application) => {
-  return async function ({ projectName, metadataOnly }, params): Promise<{ data: SceneDetailInterface[] }> {
+  return async function ({ projectName, metadataOnly }, params: Params): Promise<{ data: SceneDetailInterface[] }> {
     const project = await app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
@@ -41,6 +45,27 @@ export const getScenesForProject = (app: Application) => {
   }
 }
 
+export const getAllScenes = (app: Application) => {
+  return async function (params: Params): Promise<{ data: SceneDetailInterface[] }> {
+    const projects = await app.service('project').find(params)
+    const scenes = await Promise.all(
+      projects.data.map(
+        (project) =>
+          new Promise<SceneDetailInterface[]>(async (resolve) => {
+            const projectScenes = (
+              await getScenesForProject(app)({ projectName: project.name, metadataOnly: params.metadataOnly }, params)
+            ).data
+            projectScenes.forEach((scene) => (scene.project = project.name))
+            resolve(projectScenes)
+          })
+      )
+    )
+    return {
+      data: scenes.flat()
+    }
+  }
+}
+
 export default (app: Application) => {
   /**
    * Initialize our service with any options it requires and docs
@@ -53,12 +78,15 @@ export default (app: Application) => {
   app.use('scene', event)
 
   app.use('scenes', {
-    get: getScenesForProject(app)
+    get: getScenesForProject(app),
+    find: getAllScenes(app)
   })
 
-  app.get('/portal/list', getAllPortals(app))
-  app.get('/portal/:entityId', getPortal(app))
-  app.get('/cubemap/:entityId', getCubemapBake(app))
+  app.use('portal', {
+    get: getPortal(app),
+    find: getAllPortals(app)
+  })
+  app.use('/cubemap/:entityId', getCubemapBake(app))
 
   /**
    * Get our initialized service so that we can register hooks

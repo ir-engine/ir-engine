@@ -13,8 +13,9 @@ import appRootPath from 'app-root-path'
 import templateProjectJson from './template-project.json'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
-import { getCachedAsset, getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import config from '../../appconfig'
+import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 
 export const copyDefaultProject = () => {
   const seedPath = path.resolve(appRootPath.path, `packages/projects/projects`)
@@ -61,7 +62,7 @@ export const uploadLocalProjectToProvider = async (projectName) => {
             ContentType: getContentType(file),
             Key: `projects/${projectName}${filePathRelative}`
           })
-          resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`))
+          resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain))
         } catch (e) {
           resolve(null)
         }
@@ -241,7 +242,7 @@ export class Project extends Service {
             if (!fs.existsSync(path.dirname(metadataPath)))
               fs.mkdirSync(path.dirname(metadataPath), { recursive: true })
             fs.writeFileSync(metadataPath, fileResult.Body)
-            resolve(getCachedAsset(filePath))
+            resolve(getCachedAsset(filePath, storageProvider.cacheDomain))
           })
         )
       }

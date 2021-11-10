@@ -169,6 +169,11 @@ export class EngineRenderer {
 
     this.canvas = canvas
 
+    canvas.ondragstart = (e) => {
+      e.preventDefault()
+      return false
+    }
+
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
     Engine.renderer = renderer
     Engine.renderer.physicallyCorrectLights = true
@@ -212,11 +217,9 @@ export class EngineRenderer {
   }
 
   resetPostProcessing(): void {
-    console.log('resetPostProcessing')
     Engine.effectComposer.dispose()
     Engine.effectComposer = new EffectComposer(Engine.renderer)
     this.postProcessingSchema = undefined!
-    console.log('resetPostProcessing done')
   }
 
   /**

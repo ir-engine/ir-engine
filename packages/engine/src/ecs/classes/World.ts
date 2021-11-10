@@ -1,6 +1,6 @@
 import { isClient } from '../../common/functions/isClient'
 import { Action } from '../../networking/interfaces/Action'
-import { defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { SystemFactoryType, SystemModuleType } from '../functions/SystemFunctions'
 import { Entity } from './Entity'
@@ -15,6 +15,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { WorldStateInterface } from '../../networking/schema/networkSchema'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 
 type SystemInstanceType = { name: string; type: SystemUpdateType; execute: System }
 
@@ -30,6 +31,7 @@ export class World {
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
     if (!Engine.defaultWorld) Engine.defaultWorld = this
+    addComponent(this.worldEntity, PersistTagComponent, {}, this)
   }
 
   static [CreateWorld] = () => new World()

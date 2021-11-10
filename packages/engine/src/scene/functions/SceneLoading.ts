@@ -55,11 +55,18 @@ import { setCameraProperties } from '../functions/setCameraProperties'
 import { setEnvMap } from '../functions/setEnvMap'
 import { setFog } from '../functions/setFog'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
-import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { SceneJson, ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+
+export interface SceneDataComponent extends ComponentJson {
+  data: any
+}
+
+export interface SceneData extends SceneJson {
+  data: any
+}
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -78,7 +85,7 @@ export class WorldScene {
 
   constructor(private onProgress?: Function) {}
 
-  loadScene = (scene: SceneData): Promise<void> => {
+  loadScene = (scene: SceneJson): Promise<void> => {
     WorldScene.callbacks = {}
     WorldScene.isLoading = true
 
@@ -97,7 +104,7 @@ export class WorldScene {
 
       addComponent(entity, NameComponent, { name: sceneEntity.name })
 
-      sceneEntity.components.forEach((component) => {
+      sceneEntity.components.forEach((component: SceneDataComponent) => {
         component.data = component.props
         component.data.sceneEntityId = key
         this.loadComponent(entity, component, sceneProperty)
@@ -435,7 +442,7 @@ export class WorldScene {
     }
   }
 
-  static load = (scene: SceneData, onProgress?: Function): Promise<void> => {
+  static load = (scene: SceneJson, onProgress?: Function): Promise<void> => {
     const world = new WorldScene(onProgress)
     return world.loadScene(scene)
   }
