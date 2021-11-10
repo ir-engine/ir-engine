@@ -10,6 +10,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { useRouteStyles, useRouteStyle } from './styles'
 import { useRouteState } from '../../services/RouteService'
 import { RouteService } from '../../services/RouteService'
+import { ActiveRouteService, useActiveRouteState } from '../../services/ActiveRouteService'
 import { Checkbox } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 
@@ -52,28 +53,29 @@ const RouteTable = () => {
   const authState = useAuthState()
   const user = authState.user
   const adminRouteState = useRouteState()
-  const adminRoute = adminRouteState.routes
-  const activeRouteData = adminRoute.activeRoutes
+  const adminActiveRouteState = useActiveRouteState()
+  const adminRoute = adminRouteState
+  const activeRouteData = adminActiveRouteState.activeRoutes
   const installedRouteData = adminRoute.routes
   const adminRouteCount = adminRoute.total
   const [processing, setProcessing] = useState(false)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    RouteService.fetchActiveRoutes(incDec)
+    ActiveRouteService.fetchActiveRoutes(incDec)
     RouteService.fetchInstalledRoutes(incDec)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (user?.id?.value && adminRoute.updateNeeded.value === true) {
-      RouteService.fetchActiveRoutes()
+      ActiveRouteService.fetchActiveRoutes()
       RouteService.fetchInstalledRoutes()
     }
-  }, [authState.user?.id?.value, adminRouteState.routes.updateNeeded.value])
+  }, [authState.user?.id?.value, adminRouteState.updateNeeded.value])
 
   useEffect(() => {
-    RouteService.fetchActiveRoutes()
+    ActiveRouteService.fetchActiveRoutes()
     RouteService.fetchInstalledRoutes()
   }, [])
 
@@ -95,7 +97,7 @@ const RouteTable = () => {
   const activateCallback = (project: string, route: string, checked: boolean) => {
     // setProcessing(true)
     // setTimeout(() => {
-    RouteService.setRouteActive(project, route, checked)
+    ActiveRouteService.setRouteActive(project, route, checked)
     // }, 1000)
   }
 
@@ -109,6 +111,7 @@ const RouteTable = () => {
           route: route.value,
           active: (
             <Checkbox
+              className={classex.checkboxContainer}
               checked={isRouteActive(el.project.value, route.value)}
               onChange={(ev, checked) => activateCallback(el.project.value, route.value, checked)}
             />
@@ -167,8 +170,7 @@ const RouteTable = () => {
         />
         {processing && (
           <div className={classes.progressBackground}>
-            {' '}
-            <CircularProgress className={classes.progress} />{' '}
+            <CircularProgress className={classes.progress} />
           </div>
         )}
       </div>

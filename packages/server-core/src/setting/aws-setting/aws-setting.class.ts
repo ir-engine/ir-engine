@@ -11,7 +11,7 @@ export class Aws extends Service {
   }
 
   async find(params: Params): Promise<any> {
-    const awsSetting = await super.find()
+    const awsSetting = (await super.find()) as any
     const data = awsSetting.data.map((el) => {
       return {
         ...el,

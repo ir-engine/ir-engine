@@ -1,8 +1,8 @@
 import findSplitFeatures from '../../../src/map/functions/findSplitFeatures'
 import { Feature } from 'geojson'
 import { scalePolygon, translatePolygon } from '../../../src/map/GeoJSONFns'
-import { FeatureKey } from '../../../src/map/types'
 import assert from 'assert'
+import FeatureKey from '../../../src/map/classes/FeatureKey'
 
 const boxCoords = [
   [-1, -1],
@@ -15,10 +15,10 @@ const boxCoords = [
 describe('findSplitFeatures', () => {
   it('finds sets of feature objects that describe parts of the same physical feature', () => {
     const keyArray: FeatureKey[] = [
-      ['building', 1, 2, '3'],
-      ['building', 2, 2, '7'],
-      ['building', 2, 1, '5'],
-      ['road', 4, 8, '6']
+      new FeatureKey('building', 1, 2, '3'),
+      new FeatureKey('building', 2, 2, '7'),
+      new FeatureKey('building', 2, 1, '5'),
+      new FeatureKey('road', 4, 8, '6')
     ]
     const featureArray: Feature[] = [
       {

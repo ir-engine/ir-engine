@@ -12,8 +12,10 @@ store.receptors.push((action: TransportActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CHANNEL_TYPE_CHANGED':
-        s.channelType.set(action.channelType)
-        return s.channelId.set(action.channelId)
+        return s.merge({
+          channelType: action.channelType,
+          channelId: action.channelId
+        })
     }
   }, action.type)
 })

@@ -1,8 +1,9 @@
 import { Object3D, Vector3 } from 'three'
 
-// TODO(perf) add target param
-export function vector3ToArray2(vector: Vector3): [number, number] {
-  return [vector.x, vector.z]
+export function vectorToArray(vector: Vector3, target: [number, number] = new Array(2) as any): [number, number] {
+  target[0] = vector.x
+  target[1] = vector.z
+  return target
 }
 
 // TODO(perf) add target param

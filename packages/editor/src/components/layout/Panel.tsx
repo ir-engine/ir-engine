@@ -3,6 +3,23 @@ import styled from 'styled-components'
 
 /**
  *
+ *  @author Robert Long
+ */
+export const PanelIcon = (styled as any).div`
+ color: #b6b6b6;
+ margin-right: 8px;
+`
+
+/**
+ *
+ *  @author Robert Long
+ */
+export const PanelTitle = (styled as any).div`
+ color: #b6b6b6;
+`
+
+/**
+ *
  *  @author Hanzla  Mateen
  */
 export const PanelDragContainer = (styled as any).div`
@@ -10,6 +27,17 @@ export const PanelDragContainer = (styled as any).div`
   flex: 1;
   flex-direction: row;
   align-items: center;
+
+  &.dock-tab-active {
+
+    ${PanelTitle} {
+      color: white !important;
+    }
+
+    ${PanelIcon} {
+      color: white !important;
+    }
+  }
 `
 
 /**
@@ -37,20 +65,6 @@ export const PanelToolbar = (styled as any).div`
   align-items: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 `
-
-/**
- *
- *  @author Robert Long
- */
-export const PanelIcon = (styled as any).div`
-  margin-right: 8px;
-`
-
-/**
- *
- *  @author Robert Long
- */
-export const PanelTitle = (styled as any).div``
 
 /**
  *

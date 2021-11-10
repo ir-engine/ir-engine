@@ -16,7 +16,6 @@ import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
-import { configCanvasElement } from './renderer/functions/canvas'
 import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -36,8 +35,6 @@ BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
 BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
 const configureClient = async (options: Required<InitializeOptions>) => {
-  const canvas = configCanvasElement(options.renderer.canvasId!)
-
   // https://bugs.chromium.org/p/chromium/issues/detail?id=1106389
   Engine.audioListener = new AudioListener()
 
@@ -56,6 +53,8 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     })
     Engine.hasJoinedWorld = true
   })
+
+  const canvas = document.querySelector('canvas')!
 
   if (options.scene.disabled !== true) {
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
@@ -100,8 +99,6 @@ const configureServer = async (options: Required<InitializeOptions>, isMediaServ
 
   if (!isMediaServer) {
     await loadDRACODecoder()
-
-    new SpawnPoints()
 
     await registerServerSystems(options)
   } else {
@@ -214,15 +211,14 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   // Scene Systems
-  registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./transform/systems/TransformSystem'))
-  registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
-    simulationEnabled: options.physics.simulationEnabled
-  })
-
+  // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
+  // registerSystem(SystemUpdateType.FIXED, import('./transform/systems/TransformSystem'))
+  // registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
+  //   simulationEnabled: options.physics.simulationEnabled
+  // })
   // Miscellaneous Systems
-  registerSystem(SystemUpdateType.FIXED, import('./particles/systems/ParticleSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
+  // registerSystem(SystemUpdateType.FIXED, import('./particles/systems/ParticleSystem'))
+  // registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
 }
 
 const registerServerSystems = async (options: Required<InitializeOptions>) => {

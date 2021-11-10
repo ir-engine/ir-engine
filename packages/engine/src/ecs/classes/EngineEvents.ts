@@ -97,6 +97,7 @@ export class EngineEvents {
     }
   }
   dispatchEvent(event: { type: string; [attachment: string]: any }, ...args: any): void {
+    console.log(event)
     const listenerArray = EngineEvents.instance._listeners[event.type]
     if (listenerArray !== undefined) {
       const array = listenerArray.slice(0)

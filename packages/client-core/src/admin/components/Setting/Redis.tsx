@@ -16,7 +16,7 @@ interface Props {
 const Redis = (props: Props) => {
   const classes = useStyles()
   const redisSettingState = useAdminRedisSettingState()
-  const [redisSetting] = redisSettingState?.redisSettings?.redisSettings?.value || []
+  const [redisSetting] = redisSettingState?.redisSettings?.value || []
   const dispatch = useDispatch()
   const [enabled, setEnabled] = React.useState({
     checkedA: true,
@@ -25,7 +25,7 @@ const Redis = (props: Props) => {
   const authState = useAuthState()
   const user = authState.user
   useEffect(() => {
-    if (user?.id?.value != null && redisSettingState?.redisSettings?.updateNeeded?.value) {
+    if (user?.id?.value != null && redisSettingState?.updateNeeded?.value) {
       AdminRedisSettingService.fetchRedisSetting()
     }
   }, [authState])

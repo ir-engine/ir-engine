@@ -40,7 +40,7 @@ const LocationModal = (props: Props): any => {
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
   const [locationType, setLocationType] = useState('private')
   const adminSceneState = useSceneState()
-  const adminScenes = adminSceneState.scenes.scenes
+  const adminScenes = adminSceneState.scenes
   const locationTypes = useLocationState().locationTypes.locationTypes
   const [state, setState] = React.useState({
     feature: false,

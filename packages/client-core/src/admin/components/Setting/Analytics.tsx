@@ -13,7 +13,7 @@ interface AnalyticsProps {}
 const Analytics = (props: AnalyticsProps) => {
   const classes = useStyles()
   const settingAnalyticsState = useSettingAnalyticsState()
-  const settingAnalytics = settingAnalyticsState.Analytics.analytics
+  const settingAnalytics = settingAnalyticsState.analytics
 
   const [enabled, setEnabled] = React.useState({
     checkedA: true,
@@ -27,7 +27,7 @@ const Analytics = (props: AnalyticsProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && settingAnalyticsState.Analytics.updateNeeded.value === true) {
+    if (user?.id?.value != null && settingAnalyticsState.updateNeeded.value === true) {
       SettingAnalyticsService.fetchSettingsAnalytics()
     }
   }, [authState])

@@ -53,7 +53,7 @@
     "cross-env": "7.0.3",
     "dotenv-flow": "3.2.0",
     "feathers-hooks-common": "5.0.6",
-    "feathers-sequelize": "https://github.com/feathersjs-ecosystem/feathers-sequelize.git",
+    "feathers-sequelize": "6.3.2",
     "http-server": "14.0.0",
     "mime-types": "2.1.33",
     "node-fetch": "2.6.5",

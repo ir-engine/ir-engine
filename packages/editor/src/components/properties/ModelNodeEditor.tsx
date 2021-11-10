@@ -86,6 +86,10 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
   //initializing iconComponent with image name
   static iconComponent = Cube
 
+  onChangeGPUInstancingFlag = (isUsingGPUInstancing) => {
+    CommandManager.instance.setPropertyOnSelection('isUsingGPUInstancing', isUsingGPUInstancing)
+  }
+
   //function to handle change in property src
   onChangeSrc = (src, initialProps) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
@@ -276,6 +280,12 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
     const node = this.props.node as any
     return (
       <NodeEditor description={ModelNodeEditor.description} {...this.props}>
+        <InputGroup
+          name="Using GPU instancing Flag"
+          label={this.props.t('editor:properties.model.lbl-usingGPUInstancingFlag')}
+        >
+          <BooleanInput value={node.isUsingGPUInstancing} onChange={this.onChangeGPUInstancingFlag} />
+        </InputGroup>
         <InputGroup name="Model Url" label={this.props.t('editor:properties.model.lbl-modelurl')}>
           <ModelInput value={node.src} onChange={this.onChangeSrc} />
           {!(this.props.node as ModelNode).isValidURL && <div>{this.props.t('editor:properties.model.error-url')}</div>}

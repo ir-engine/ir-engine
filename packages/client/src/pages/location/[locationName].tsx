@@ -11,6 +11,7 @@ interface Props {
   history?: any
   showTouchpad?: boolean
   children?: any
+  match?: any
   // todo: remove these props in favour of projects
   theme?: any
   hideVideo?: boolean
@@ -24,8 +25,8 @@ const LocationPage = (props: Props) => {
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [loadingItemCount, setLoadingItemCount] = useState(99)
-  const [isTeleporting, setIsTeleporting] = useState(false)
   const [reinit, reinitEngine] = useState(false)
+  const locationName = props?.match?.params?.locationName
 
   const engineInit = () => {
     reinitEngine(!reinit)
@@ -34,18 +35,17 @@ const LocationPage = (props: Props) => {
   return (
     <>
       <NetworkInstanceProvisioning
-        locationName={props.locationName}
+        locationName={locationName}
         sceneId={sceneId}
         isUserBanned={isUserBanned}
         setIsValidLocation={setIsValidLocation}
       />
       <World
-        locationName={props.locationName}
+        locationName={locationName}
         history={props.history}
         setSceneId={setSceneId}
         setUserBanned={setIsUserBanned}
         setLoadingItemCount={setLoadingItemCount}
-        setIsTeleporting={setIsTeleporting}
         reinit={reinit}
       />
       <Layout
@@ -63,8 +63,7 @@ const LocationPage = (props: Props) => {
           reinit={engineInit}
           children={props.children}
           showTouchpad={props.showTouchpad}
-          isTeleporting={isTeleporting}
-          locationName={props.locationName}
+          locationName={locationName}
         />
       </Layout>
     </>

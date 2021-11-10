@@ -57,7 +57,7 @@ export const useInstanceStyle = makeStyles({
     width: '100%'
   },
   container: {
-    maxHeight: '80vh'
+    maxHeight: '73vh'
   },
   actionStyle: {
     textDecoration: 'none',

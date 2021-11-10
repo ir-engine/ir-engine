@@ -67,10 +67,10 @@ const CreateBot = (props: Props) => {
   const classx = useStyle()
   const authState = useAuthState()
   const user = authState.user
-  const adminInstances = adminInstanceState.instances
+  const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
   const adminLocationState = useLocationState()
-  const adminLocation = adminLocationState.locations
+  const adminLocation = adminLocationState
   const locationData = adminLocation.locations
   React.useEffect(() => {
     if (user.id.value && adminInstances.updateNeeded.value) {
@@ -79,7 +79,7 @@ const CreateBot = (props: Props) => {
     if (user?.id.value != null && adminLocation.updateNeeded.value === true) {
       LocationService.fetchAdminLocations()
     }
-  }, [user.id.value, adminInstanceState.instances.updateNeeded.value])
+  }, [user.id.value, adminInstanceState.updateNeeded.value])
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -99,7 +99,7 @@ const CreateBot = (props: Props) => {
       setState({ ...state, instance: '' })
       setCurrentIntance(instanceFilter)
     }
-  }, [state.location, adminInstanceState.instances.instances.value.length])
+  }, [state.location, adminInstanceState.instances.value.length])
 
   const temp: Location[] = []
   locationData.value.forEach((el) => {
@@ -171,11 +171,12 @@ const CreateBot = (props: Props) => {
     <Card className={classes.rootLeft}>
       <Paper className={classes.header} style={{ display: 'flex' }}>
         <Typography className={classes.title}>
-          <Face style={{ paddingTop: '5px' }} /> <span className={classes.smFont}> Create new bot </span>
+          <Face />
+          <div className={classes.smFont}>Create new bot</div>
         </Typography>
 
         <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleSubmit}>
-          <Save style={{ marginRight: '10px' }} /> save
+          <Save className={classes.saveBtnIcon} /> save
         </Button>
       </Paper>
       <CardContent>
@@ -316,8 +317,7 @@ const CreateBot = (props: Props) => {
 
           <Button
             variant="contained"
-            fullWidth={true}
-            style={{ color: '#fff', background: '#3a4149', marginBottom: '20px' }}
+            style={{ color: '#fff', background: '#3a4149', marginBottom: '20px', width: '100%' }}
             onClick={() => {
               if (command.name) {
                 setCommandData([...commandData, command])

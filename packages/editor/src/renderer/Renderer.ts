@@ -211,7 +211,7 @@ export default class Renderer {
     this.configureEffectComposer()
   }
 
-  takeScreenshot = async (width = 1920, height = 1080) => {
+  takeScreenshot = async (width = 1920, height = 1080): Promise<Blob> => {
     const { screenshotRenderer } = this
     const originalRenderer = this.webglRenderer
     this.webglRenderer = screenshotRenderer

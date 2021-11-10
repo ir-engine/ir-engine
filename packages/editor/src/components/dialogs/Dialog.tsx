@@ -158,7 +158,7 @@ export function Dialog(props: Props) {
       {(onConfirm || onCancel || bottomNav) && (
         <DialogBottomNav>
           {bottomNav}
-          {onCancel && <SecondaryButton onClick={onCancel}>{cancelLabel}</SecondaryButton>}
+          {onCancel && <SecondaryButton onClick={onCancel}>{cancelLabel || 'Cancel'}</SecondaryButton>}
           {onConfirm && button}
         </DialogBottomNav>
       )}

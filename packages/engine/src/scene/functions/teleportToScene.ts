@@ -13,7 +13,7 @@ import { delay } from '../../common/functions/delay'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { processLocationChange } from '../../ecs/functions/EngineFunctions'
+import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { useWorld } from '../../ecs/functions/SystemHooks'
@@ -83,7 +83,7 @@ export const teleportToScene = async (
   // TODO: add BPCEM of old and new scenes and fade them in and out too
   await hyperspaceEffect.fadeIn(delta)
 
-  await processLocationChange()
+  await unloadScene()
   await handleNewScene()
 
   await new Promise<void>((resolve) => {

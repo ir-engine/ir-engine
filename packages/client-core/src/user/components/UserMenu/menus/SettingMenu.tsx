@@ -15,7 +15,7 @@ const SettingMenu = (props: any): JSX.Element => {
     <div className={styles.menuPanel}>
       <div className={styles.settingPanel}>
         <section className={styles.settingSection}>
-          <Typography variant="h2" className={styles.settingHeader}>
+          <Typography variant="h4" className={styles.settingHeader}>
             {t('user:usermenu.setting.audio')}
           </Typography>
           <div className={styles.row}>
@@ -54,7 +54,7 @@ const SettingMenu = (props: any): JSX.Element => {
           </div>
         </section>
         <section className={styles.settingSection}>
-          <Typography variant="h2" className={styles.settingHeader}>
+          <Typography variant="h4" className={styles.settingHeader}>
             {t('user:usermenu.setting.graphics')}
           </Typography>
           <div className={styles.row}>
