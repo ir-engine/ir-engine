@@ -17,7 +17,7 @@ export default {
         },
         connection: {
           type: 'string'
-        },
+        }
       }
     }
   },

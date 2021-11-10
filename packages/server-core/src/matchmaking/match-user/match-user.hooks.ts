@@ -1,7 +1,8 @@
 import * as authentication from '@feathersjs/authentication'
-import setLoggedInUser from "../../hooks/set-loggedin-user-in-body";
-import setLoggedInUserInQuery from "../../hooks/set-loggedin-user-in-query";
-import * as commonHooks from "feathers-hooks-common";
+import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
+import setLoggedInUserInQuery from '../../hooks/set-loggedin-user-in-query'
+import * as commonHooks from 'feathers-hooks-common'
+
 const { authenticate } = authentication.hooks
 
 // Don't remove this comment. It's needed to format import lines nicely.
@@ -9,9 +10,17 @@ const { authenticate } = authentication.hooks
 export default {
   before: {
     all: [authenticate('jwt')],
-    find: [commonHooks.iff(commonHooks.isProvider('external'), authenticate('jwt') as any, setLoggedInUserInQuery('userId') as any)],
+    find: [
+      commonHooks.iff(
+        commonHooks.isProvider('external'),
+        authenticate('jwt') as any,
+        setLoggedInUserInQuery('userId') as any
+      )
+    ],
     get: [],
-    create: [commonHooks.iff(commonHooks.isProvider('external'), authenticate('jwt') as any, setLoggedInUser('userId') as any)],
+    create: [
+      commonHooks.iff(commonHooks.isProvider('external'), authenticate('jwt') as any, setLoggedInUser('userId') as any)
+    ],
     update: [],
     patch: [],
     remove: []

@@ -14,11 +14,14 @@ async function findCurrentTicketData() {
   }
 }
 
-interface TicketData { id: string, gamemode: string }
+interface TicketData {
+  id: string
+  gamemode: string
+}
 
 const Page = () => {
   const history = useHistory()
-  const [ isUpdating, setIsUpdating ] = useState(true)
+  const [isUpdating, setIsUpdating] = useState(true)
   const [ticketData, setTicketData] = useState<TicketData | undefined>()
   const [connection, setConnection] = useState<string | undefined>()
   const locationService = client.service('location')
@@ -28,12 +31,11 @@ const Page = () => {
   console.log('RENDER', ticketData, connection)
 
   useEffect(() => {
-    AuthService.doLoginAuto(true)
-      .then(async () => {
-        const _ticketData = await findCurrentTicketData()
-        setTicketData(_ticketData)
-        setIsUpdating(false)
-      })
+    AuthService.doLoginAuto(true).then(async () => {
+      const _ticketData = await findCurrentTicketData()
+      setTicketData(_ticketData)
+      setIsUpdating(false)
+    })
   }, [])
 
   const ticketId = ticketData?.id
@@ -46,7 +48,7 @@ const Page = () => {
       setConnection(assignment.connection)
       // setStatus('Found!')
     })
-  }, [ ticketId ])
+  }, [ticketId])
 
   useEffect(() => {
     if (connection) {
@@ -59,7 +61,7 @@ const Page = () => {
   async function newTicket(gamemode) {
     // setStatus('...')
     setIsUpdating(true)
-    let serverTicket:OpenMatchTicket
+    let serverTicket: OpenMatchTicket
     try {
       serverTicket = await ticketsService.create({ gamemode })
     } catch (e) {
@@ -89,7 +91,7 @@ const Page = () => {
 
   async function deleteTicket(ticketId: string) {
     if (!ticketId) {
-      return;
+      return
     }
     await ticketsService.remove(ticketId)
     setTicketData(undefined)
@@ -103,13 +105,20 @@ const Page = () => {
     })
   }
 
-  return (<div style={{ backgroundColor: 'black', margin: '10px' }}>
-    {isUpdating ?
-      <>Loading...</> :
-      <MatchMakingControl ticket={ticketData} connection={connection} onJoinQueue={newTicket}
-                          onExitQueue={deleteTicket} />
-    }
-  </div>)
+  return (
+    <div style={{ backgroundColor: 'black', margin: '10px' }}>
+      {isUpdating ? (
+        <>Loading...</>
+      ) : (
+        <MatchMakingControl
+          ticket={ticketData}
+          connection={connection}
+          onJoinQueue={newTicket}
+          onExitQueue={deleteTicket}
+        />
+      )}
+    </div>
+  )
 }
 
 interface MatchMakingControlPropsInterface {
@@ -119,13 +128,13 @@ interface MatchMakingControlPropsInterface {
   onExitQueue: (string) => void
 }
 
-const MatchMakingControl = (props:MatchMakingControlPropsInterface) => {
+const MatchMakingControl = (props: MatchMakingControlPropsInterface) => {
   // ticketId, gamemode
   const { ticket, connection, onJoinQueue, onExitQueue } = props
 
-  let content;
+  let content
   if (connection) {
-    content = (<div style={{ fontSize: 16, textAlign: 'center' }}>{`GAME FOUND, connection: ${connection}.`}</div>)
+    content = <div style={{ fontSize: 16, textAlign: 'center' }}>{`GAME FOUND, connection: ${connection}.`}</div>
   } else if (typeof ticket !== 'undefined') {
     content = (
       <>

@@ -18,11 +18,11 @@ export default (app: Application) => {
       ticketId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV1,
-        allowNull: true,
+        allowNull: true
       },
       connection: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: true
       }
     },
     {

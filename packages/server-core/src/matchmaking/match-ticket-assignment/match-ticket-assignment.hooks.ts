@@ -17,7 +17,7 @@ export default {
   after: {
     all: [],
     find: [],
-    get: [saveConnection(),createLocationIfNotExists()], // createLocationIfNotExists - is side effect...
+    get: [saveConnection(), createLocationIfNotExists()], // createLocationIfNotExists - is side effect...
     create: [],
     update: [],
     patch: [],
