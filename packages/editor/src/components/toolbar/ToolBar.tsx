@@ -49,8 +49,6 @@ export const ToolBar = (props: ToolBarProps) => {
     }
   }, [])
 
-  useEffect(() => {}, null)
-
   if (!editorInitialized) {
     return <div className={styles.toolbarContainer} />
   }
