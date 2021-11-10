@@ -94,7 +94,6 @@ export default (app: Application) => {
    * @author Vyacheslav Solovjov
    */
   const service = app.service('scene')
-  app.service('portal')
 
   service.hooks(hooks)
 }
