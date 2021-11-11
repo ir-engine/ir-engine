@@ -89,24 +89,20 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
   }
 
   const loadPortals = async () => {
-    let portalsDetail
+    const portalsDetail: PortalDetail[] = []
     try {
       portalsDetail.push(...(await client.service('portal').find()).data)
-      console.log('portalsDetail', portalsDetail, this.props.node.entityId)
+      console.log('portalsDetail', portalsDetail, node.entityId)
     } catch (error) {
       throw new Error(error)
     }
-    const portals = []
-
-    portalsDetail.forEach((portal) => {
-      if (portal.entity.entityId === props.node.entityId) return
-      portals.push({
-        name: `${portal.entity.collection.name} (${portal.entity.name})`,
-        value: portal.entity.entityId
-      })
-    })
-
-    setPortals(portals)
+    setPortals(
+      portalsDetail
+        .filter((portal) => portal.portalEntityId !== node.uuid)
+        .map(({ portalEntityId, sceneName }) => {
+          return { value: portalEntityId, name: sceneName }
+        })
+    )
   }
 
   useEffect(() => {
@@ -137,7 +133,7 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
           filterOption={(option: PortalFilterOption, searchString: string) => {
             return option.label.includes(searchString || '')
           }}
-          getOptionLabel={(data: PortalDetail) => data.name}
+          getOptionLabel={(data) => data.name}
         />
       </InputGroup>
       <InputGroup name="Model Url" label={props.t('editor:properties.portal.lbl-modelUrl')}>

@@ -110,12 +110,19 @@ const Col = styled.div`
     color: ${(props) => props.theme.text2};
   }
 `
+type Props = {
+  onClickExisting: any
+  contextMenuId: any
+  project: any
+}
 
 /**
  *
  * @author Robert Long
  */
-export const ProjectGridItem = (onClickExisting: Function, contextMenuId: string, project: any) => {
+export const ProjectGridItem = (props: Props) => {
+  const { onClickExisting, contextMenuId, project } = props
+
   const onShowMenu = (event) => {
     event.preventDefault()
     event.stopPropagation()

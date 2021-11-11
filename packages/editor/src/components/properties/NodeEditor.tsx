@@ -5,8 +5,10 @@ import PropertyGroup from './PropertyGroup'
 type NodeEditorProps = {
   name?: string
   description?: string
-  node?: object
+  node?: any
   disableTransform?: boolean
+  children?: any
+  multiEdit?: boolean
 }
 
 /**

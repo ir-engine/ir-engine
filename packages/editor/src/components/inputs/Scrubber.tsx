@@ -1,4 +1,4 @@
-import React, { useRef, ReactNode } from 'react'
+import React, { useRef, ReactNode, useCallback } from 'react'
 import Portal from '../layout/Portal'
 import { getStepSize, toPrecision } from '../../functions/utils'
 import styled from 'styled-components'
@@ -8,6 +8,7 @@ import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
 import {} from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
+import { useHookstate } from '@hookstate/core'
 
 /**
  *
@@ -50,7 +51,7 @@ type ScrubberProp = {
   convertFrom?: any
   convertTo?: any
   value?: any
-  onChange?: Function
+  onChange: Function
   onCommit?: Function
 }
 
@@ -59,47 +60,48 @@ type ScrubberProp = {
  * @author Robert Long
  */
 const Scrubber = (props: ScrubberProp) => {
-  const [isDragging, setIsDragging] = useState(false)
-  const [startValue, setStartValue] = useState(null)
-  const [delta, setDelta] = useState(null)
-  const [mouseX, setMouseX] = useState(null)
-  const [mouseY, setMouseY] = useState(null)
+  const state = useHookstate({
+    isDragging: false,
+    startValue: null,
+    delta: null,
+    mouseX: null,
+    mouseY: null
+  })
+
   const scrubberEl = useRef(null)
 
   const handleMouseMove = (event) => {
     const { smallStep, mediumStep, largeStep, sensitivity, min, max, precision, convertTo, onChange } = props
 
-    if (isDragging) {
-      const mX = mouseX + event.movementX
-      const mY = mouseY + event.movementY
-      const nextDelta = delta + event.movementX
+    if (state.isDragging.value) {
+      const mX = state.mouseX.value + event.movementX
+      const mY = state.mouseY.value + event.movementY
+      const nextDelta = state.delta.value + event.movementX
       const stepSize = getStepSize(event, smallStep, mediumStep, largeStep)
-      const nextValue = startValue + Math.round(nextDelta / sensitivity) * stepSize
+      const nextValue = state.startValue.value + Math.round(nextDelta / sensitivity) * stepSize
       const clampedValue = clamp(nextValue, min, max)
       const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
       const finalValue = convertTo(roundedValue)
       onChange(finalValue)
 
-      setDelta(nextDelta)
-      setMouseX(mX)
-      setMouseY(mY)
+      state.delta.set(nextDelta)
+      state.mouseX.set(mX)
+      state.mouseY.set(mY)
     }
   }
 
   const handleMouseUp = () => {
-    const { onCommit, onChange, value } = props
+    const { onCommit, value } = props
 
-    if (isDragging) {
-      setIsDragging(false)
-      setStartValue(null)
-      setDelta(null)
-      setMouseX(null)
-      setMouseY(null)
+    if (state.isDragging.value) {
+      state.isDragging.set(false)
+      state.startValue.set(null)
+      state.delta.set(null)
+      state.mouseX.set(null)
+      state.mouseY.set(null)
 
       if (onCommit) {
         onCommit(value)
-      } else {
-        onChange(value)
       }
 
       document.exitPointerLock()
@@ -117,11 +119,11 @@ const Scrubber = (props: ScrubberProp) => {
   const handleMouseDown = (event) => {
     const { convertFrom, value } = props
 
-    setIsDragging(true)
-    setStartValue(convertFrom(value))
-    setDelta(0)
-    setMouseX(event.clientX)
-    setMouseY(event.clientY)
+    state.isDragging.set(true)
+    state.startValue.set(convertFrom(value))
+    state.delta.set(0)
+    state.mouseX.set(event.clientX)
+    state.mouseY.set(event.clientY)
 
     scrubberEl?.current?.requestPointerLock()
 
@@ -150,10 +152,10 @@ const Scrubber = (props: ScrubberProp) => {
   return (
     <ScrubberContainer as={tag} ref={scrubberEl} onMouseDown={handleMouseDown} {...rest}>
       {children}
-      {isDragging && (
+      {state.isDragging.value && (
         <Portal>
           <Overlay pointerEvents="none">
-            <Cursor x={mouseX} y={mouseY} />
+            <Cursor x={state.mouseX.value} y={state.mouseY.value} />
           </Overlay>
         </Portal>
       )}

@@ -16,7 +16,7 @@ import EditorEvents from '../../constants/EditorEvents'
  * @type {Object}
  */
 type TransformPropertyGroupProps = {
-  node?: object
+  node?: any
   t: Function
 }
 

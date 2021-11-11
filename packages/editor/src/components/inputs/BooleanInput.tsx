@@ -69,14 +69,10 @@ export const BooleanInput = (props: BooleanInputProp) => {
     props?.onChange(e.target.checked)
   }
 
-  //initializing variables using props of component
-  const { value, ...rest } = props
-
-  // returing view for BooleanInput component
   return (
     <div>
-      <StyledBooleanInput {...rest} id={checkboxId} type="checkbox" checked={props.value} onChange={onChange} />
-      <BooleanInputLabel htmlFor={checkboxId}>{value && <BooleanCheck size={12} />}</BooleanInputLabel>
+      <StyledBooleanInput id={checkboxId} type="checkbox" checked={props.value} onChange={onChange} />
+      <BooleanInputLabel htmlFor={checkboxId}>{props.value && <BooleanCheck size={12} />}</BooleanInputLabel>
     </div>
   )
 }

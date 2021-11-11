@@ -89,11 +89,20 @@ const NumericInputUnit = (styled as any).div`
 `
 
 interface NumericInputProp {
+  className?: any
+  unit?: any
+  displayPrecision?: any
   value?: any
   convertFrom?: any
   precision?: any
   mediumStep?: number
   onChange?: Function
+  onCommit?: Function
+  smallStep?: number
+  largeStep?: number
+  min?: number
+  max?: number
+  convertTo?: any
 }
 
 /**
@@ -228,7 +237,7 @@ const NumericInput = (props: NumericInputProp) => {
       <StyledNumericInput
         {...rest}
         unit={unit}
-        ref={inputEl}
+        innerRef={inputEl}
         value={focused ? tempValue : toPrecisionString(convertFrom(value), displayPrecision)}
         onKeyUp={handleKeyPress}
         onKeyDown={handleKeyDown}

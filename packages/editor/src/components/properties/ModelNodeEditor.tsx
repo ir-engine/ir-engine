@@ -2,7 +2,7 @@ import { Cube } from '@styled-icons/fa-solid/Cube'
 import ModelNode from '../../nodes/ModelNode'
 import i18n from 'i18next'
 import React, { Fragment, useEffect, useState } from 'react'
-import { withTranslation } from 'react-i18next'
+import { useTranslation, withTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
@@ -57,6 +57,7 @@ type ModelNodeEditorProps = {
  */
 export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
   let [options, setOptions] = useState([])
+  const { t } = useTranslation()
 
   useEffect(() => {
     const options = []
@@ -129,7 +130,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
 
   // function to handle change in matrixAutoUpdate property
   const onChangeUpdateDataMatrix = (matrixAutoUpdate) => {
-    CommandManager.instance.setPropertyOnSelection('matrixAutoUpdate', matrixAutoUpdate)
+    CommandManager.instance.setPropertyOnSelection('_matrixAutoUpdate', matrixAutoUpdate)
   }
 
   // function to handle changes in interactionType property
@@ -200,19 +201,19 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
       case 'infoBox':
         return (
           <>
-            <InputGroup name="Name" label={props.t('editor:properties.model.lbl-name')}>
+            <InputGroup name="Name" label={t('editor:properties.model.lbl-name')}>
               <StringInput value={node.payloadName} onChange={onChangePayloadName} />
             </InputGroup>
-            <InputGroup name="Url" label={props.t('editor:properties.model.lbl-url')}>
+            <InputGroup name="Url" label={t('editor:properties.model.lbl-url')}>
               <StringInput value={node.payloadUrl} onChange={onChangePayloadUrl} />
             </InputGroup>
-            <InputGroup name="BuyUrl" label={props.t('editor:properties.model.lbl-buy')}>
+            <InputGroup name="BuyUrl" label={t('editor:properties.model.lbl-buy')}>
               <StringInput value={node.payloadBuyUrl} onChange={onChangePayloadBuyUrl} />
             </InputGroup>
-            <InputGroup name="LearnMoreUrl" label={props.t('editor:properties.model.lbl-learnMore')}>
+            <InputGroup name="LearnMoreUrl" label={t('editor:properties.model.lbl-learnMore')}>
               <StringInput value={node.payloadLearnMoreUrl} onChange={onChangePayloadLearnMoreUrl} />
             </InputGroup>
-            <InputGroup name="HtmlContent" label={props.t('editor:properties.model.lbl-htmlContent')}>
+            <InputGroup name="HtmlContent" label={t('editor:properties.model.lbl-htmlContent')}>
               <StringInput value={node.payloadHtmlContent} onChange={onChangePayloadHtmlContent} />
             </InputGroup>
           </>
@@ -228,10 +229,10 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
       case true:
         return (
           <Fragment>
-            <InputGroup name="Interaction Text" label={props.t('editor:properties.model.lbl-interactionText')}>
+            <InputGroup name="Interaction Text" label={t('editor:properties.model.lbl-interactionText')}>
               <StringInput value={node.interactionText} onChange={onChangeInteractionText} />
             </InputGroup>
-            <InputGroup name="Interaction Type" label={props.t('editor:properties.model.lbl-interactionType')}>
+            <InputGroup name="Interaction Type" label={t('editor:properties.model.lbl-interactionType')}>
               <SelectInput
                 options={InteractableOption}
                 value={node.interactionType}
@@ -240,7 +241,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
             </InputGroup>
             <NumericInputGroup
               name="Interaction Distance"
-              label={props.t('editor:properties.model.lbl-interactionDistance')}
+              label={t('editor:properties.model.lbl-interactionDistance')}
               onChange={onChangeInteractionDistance}
               min={0}
               smallStep={0.001}
@@ -261,17 +262,17 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
   const node = props.node
   return (
     <NodeEditor description={ModelNodeEditor.description} {...props}>
-      <InputGroup name="Model Url" label={props.t('editor:properties.model.lbl-modelurl')}>
+      <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput value={node.src} onChange={onChangeSrc} />
-        {!(props.node as ModelNode).isValidURL && <div>{props.t('editor:properties.model.error-url')}</div>}
+        {!(props.node as ModelNode).isValidURL && <div>{t('editor:properties.model.error-url')}</div>}
       </InputGroup>
 
       {/* TODO: implement environment map overrides. - source from scene env map, a custom BPCEM bake, URL string
-         <InputGroup name="Environment Map" label={props.t('editor:properties.model.lbl-modelurl')}>
+         <InputGroup name="Environment Map" label={t('editor:properties.model.lbl-modelurl')}>
           <ModelInput value={node.src} onChange={onChangeSrc} />
-          {!(props.node as ModelNode).isValidURL && <div>{props.t('editor:properties.model.error-url')}</div>}
+          {!(props.node as ModelNode).isValidURL && <div>{t('editor:properties.model.error-url')}</div>}
         </InputGroup> */}
-      <InputGroup name="Loop Animation" label={props.t('editor:properties.model.lbl-loopAnimation')}>
+      <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
           disabled={isAnimationPropertyDisabled()}
           options={node.getClipOptions()}
@@ -279,17 +280,17 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
           onChange={onChangeAnimation}
         />
       </InputGroup>
-      <InputGroup name="Is Avatar" label={props.t('editor:properties.model.lbl-isAvatar')}>
+      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput value={node.hasAvatarAnimations} onChange={onChangeAnimationSource} />
       </InputGroup>
-      {/* <InputGroup name="Collidable" label={props.t('editor:properties.model.lbl-collidable')}>
+      {/* <InputGroup name="Collidable" label={t('editor:properties.model.lbl-collidable')}>
           // === not currently in use, used by floor plan === //
           <BooleanInput
             value={node.collidable}
             onChange={onChangeCollidable}
           />
         </InputGroup> */}
-      <InputGroup name="Texture Override" label={props.t('editor:properties.model.lbl-textureOverride')}>
+      <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
         <SelectInput
           options={SceneManager.instance.scene.children.map((obj: Object3D) => {
             return {
@@ -301,24 +302,24 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
           onChange={onChangeTextureOverride}
         />
       </InputGroup>
-      {/* <InputGroup name="Walkable" label={props.t('editor:properties.model.lbl-walkable')}>
+      {/* <InputGroup name="Walkable" label={t('editor:properties.model.lbl-walkable')}>
             // === not currently in use, used by floor plan === //
             <BooleanInput
             value={node.walkable}
             onChange={onChangeWalkable}
           />
         </InputGroup> */}
-      <InputGroup name="Cast Shadow" label={props.t('editor:properties.model.lbl-castShadow')}>
+      <InputGroup name="Cast Shadow" label={t('editor:properties.model.lbl-castShadow')}>
         <BooleanInput value={node.castShadow} onChange={onChangeCastShadow} />
       </InputGroup>
-      <InputGroup name="Receive Shadow" label={props.t('editor:properties.model.lbl-receiveShadow')}>
+      <InputGroup name="Receive Shadow" label={t('editor:properties.model.lbl-receiveShadow')}>
         <BooleanInput value={node.receiveShadow} onChange={onChangeReceiveShadow} />
       </InputGroup>
-      <InputGroup name="Interactable" label={props.t('editor:properties.model.lbl-interactable')}>
+      <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
         <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
       </InputGroup>
-      <InputGroup name="MatrixAutoUpdate" label={props.t('editor:properties.model.lbl-matrixAutoUpdate')}>
-        <BooleanInput value={node.matrixAutoUpdate} onChange={onChangeUpdateDataMatrix} />
+      <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
+        <BooleanInput value={node._matrixAutoUpdate} onChange={onChangeUpdateDataMatrix} />
       </InputGroup>
       {renderInteractableDependantFields(node)}
     </NodeEditor>
@@ -328,4 +329,4 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
 ModelNodeEditor.description = i18n.t('editor:properties.model.description')
 ModelNodeEditor.iconComponent = Cube
 
-export default withTranslation()(ModelNodeEditor)
+export default ModelNodeEditor

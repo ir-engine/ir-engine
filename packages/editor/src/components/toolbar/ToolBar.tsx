@@ -1,8 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import EditorEvents from '../../constants/EditorEvents'
+import React from 'react'
 import MainMenu from '../mainMenu'
 import GridTool from './tools/GridTool'
-import { CommandManager } from '../../managers/CommandManager'
 import * as styles from './styles.module.scss'
 import TransformTool from './tools/TransformTool'
 import TransformPivotTool from './tools/TransformPivotTool'
@@ -17,39 +15,8 @@ type ToolBarProps = {
   editorReady: boolean
 }
 
-/**
- *
- * @author Robert Long
- */
-type ToolBarState = {
-  editorInitialized: boolean
-}
-
-/**
- *
- * @author Robert Long
- */
 export const ToolBar = (props: ToolBarProps) => {
-  let [editorInitialized, setEditInitialized] = useState(false)
-  const [, updateState] = useState()
-
-  const forceUpdate = useCallback(() => updateState({}), [])
-
-  const onRendererInitialized = () => {
-    setEditInitialized(true)
-    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onRendererInitialized)
-  }
-
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onRendererInitialized)
-    CommandManager.instance.addListener(EditorEvents.SETTINGS_CHANGED.toString(), forceUpdate)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), forceUpdate)
-    }
-  }, [])
-
-  if (!editorInitialized) {
+  if (!props.editorReady) {
     return <div className={styles.toolbarContainer} />
   }
 
