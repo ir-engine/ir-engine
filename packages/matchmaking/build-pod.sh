@@ -1,7 +1,5 @@
 #!/bin/bash
-
-# docker hub registry
-REGISTRY=lagunalabs
+source ./vars.sh
 
 if [ -z "$1" ]
 then

@@ -1,8 +1,8 @@
 #!/bin/bash
-REGISTRY=lagunalabs
+source ./vars.sh
 
-./build.sh director "$1"
-./build.sh matchfunction "$1"
+./build-pod.sh director "$1"
+./build-pod.sh matchfunction "$1"
 
 #kubectl -n xrengine-matchmaking delete pod,svc --all
 
