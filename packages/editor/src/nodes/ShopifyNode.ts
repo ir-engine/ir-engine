@@ -221,21 +221,32 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
     let modelCount = 0
     let videoCount = 0
     let imageCount = 0
+    this.initInteractive()
+    this.shopifyProductItemId = ''
+
     if (this.shopifyProducts && this.shopifyProducts.length != 0) {
       const filtered = this.shopifyProducts.filter((product) => product.value == value)
       if (filtered && filtered.length != 0) {
         if (filtered[0] && filtered[0].media) {
+          this.interactionName = filtered[0].title
+          this.interactionText = filtered[0].title
+          this.interactionDescription = filtered[0].description
+          if (filtered[0].storeUrl) this.interactionUrls.push(filtered[0].storeUrl)
+
           filtered[0].media.forEach((media, index) => {
             let label = media.extendType.replace(/\b\w/g, (l) => l.toUpperCase())
             if (media.extendType == 'model') {
               modelCount++
               label += ` ${modelCount}`
+              this.interactionModels.push(media.url)
             } else if (media.extendType == 'video') {
               videoCount++
               label += ` ${videoCount}`
+              this.interactionVideos.push(media.url)
             } else {
               imageCount++
               label += ` ${imageCount}`
+              this.interactionImages.push(media.url)
             }
             this.shopifyProductItems.push({
               value: index,
@@ -332,13 +343,6 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
       if (productData.data && productData.data.products && productData.data.products.edges) {
         for (const edgeProduct of productData.data.products.edges) {
           //TODO: interact data
-          this.interactionUrls = []
-          this.interactionText = edgeProduct.node.title
-          this.interactionName = edgeProduct.node.title
-          this.interactionDescription = edgeProduct.node.description
-          if (edgeProduct.node.onlineStoreUrl) {
-            this.interactionUrls.push(edgeProduct.node.onlineStoreUrl)
-          }
           const response = await axios.post(
             `${this.shopifyDomain}/api/2021-07/graphql.json`,
             {
@@ -404,10 +408,8 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
                   if (sourceValue.format == 'glb') {
                     //3d model
                     sourceValue.extendType = 'model'
-                    this.interactionModels.push(sourceValue.url)
                   } else {
                     sourceValue.extendType = 'video'
-                    this.interactionVideos.push(sourceValue.url)
                   }
                   sourceData.push(sourceValue)
                 } else if (edgeMedia.node.image && edgeMedia.node.image.originalSrc) {
@@ -417,10 +419,12 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
                     format: 'png',
                     extendType: 'image'
                   })
-                  this.interactionImages.push(edgeMedia.node.image.originalSrc)
                 }
               }
               this.shopifyProducts.push({
+                title: edgeProduct.node.title,
+                description: edgeProduct.node.description,
+                storeUrl: edgeProduct.node.onlineStoreUrl,
                 value: edgeProduct.node.id,
                 label: edgeProduct.node.title,
                 media: sourceData
@@ -444,6 +448,7 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   }
 
   async serialize(projectID) {
+    debugger
     let extend: any
     if (this.extendType == 'model') {
       extend = {
@@ -499,7 +504,6 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
       }
     }
 
-    debugger
     const components = {
       shopify: {
         shopifyProducts: this.shopifyProducts,

@@ -15,25 +15,35 @@ export function connectCallback(cb: any) {
 }
 
 function createInteractiveModalState(data: any) {
+  debugger
   const totalMediaUrls: any[] = []
-  for (let url of data.interactionImages) {
-    totalMediaUrls.push({
-      type: 'image',
-      path: url
-    })
+  if (data.interactionImages) {
+    for (let url of data.interactionImages) {
+      totalMediaUrls.push({
+        type: 'image',
+        path: url
+      })
+    }
   }
-  for (let url of data.interactionVideos) {
-    totalMediaUrls.push({
-      type: 'video',
-      path: url
-    })
+
+  if (data.interactionVideos) {
+    for (let url of data.interactionVideos) {
+      totalMediaUrls.push({
+        type: 'video',
+        path: url
+      })
+    }
   }
-  for (let url of data.interactionModels) {
-    totalMediaUrls.push({
-      type: 'model',
-      path: url
-    })
+
+  if (data.interactionModels) {
+    for (let url of data.interactionModels) {
+      totalMediaUrls.push({
+        type: 'model',
+        path: url
+      })
+    }
   }
+
   let entityIndex = 0
   if (data.interactionUserData && data.interactionUserData.entity) {
     entityIndex = data.interactionUserData.entity
