@@ -79,7 +79,7 @@ export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
         />
       </InputGroup>
       <InputGroup name="Rotation" label={props.t('editor:properties.transform.lbl-rotation')}>
-        <EulerInput value={node.eulerRotation} onChange={onChangeRotation} unit="°" />
+        <EulerInput value={node.rotation} onChange={onChangeRotation} unit="°" />
       </InputGroup>
       <InputGroup name="Scale" label={props.t('editor:properties.transform.lbl-scale')}>
         <Vector3Input

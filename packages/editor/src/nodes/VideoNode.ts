@@ -47,7 +47,6 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   synchronize = 0
   constructor() {
     super(SceneManager.instance.audioListener)
-    this.src = 'hello'
   }
   async load(onError?) {
     this.issues = []
@@ -93,7 +92,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     return this
   }
   onChange() {
-    this.load(this.src)
+    if (this.el.src !== this.src) this.load(this.src)
   }
   onPlay(): void {
     if (this.autoPlay) {

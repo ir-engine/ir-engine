@@ -20,12 +20,9 @@ import { useEngineState } from '@xrengine/client-core/src/world/services/EngineS
 
 interface Props {
   locationName: string
-  setIsValidLocation: any
 }
 
 export const NetworkInstanceProvisioning = (props: Props) => {
-  const { setIsValidLocation } = props
-
   const authState = useAuthState()
   const selfUser = authState.user
   const userState = useUserState()
@@ -79,7 +76,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       }
     } else {
       if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
-        setIsValidLocation(false)
         dispatch(AppAction.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false))
       }
     }

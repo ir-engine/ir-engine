@@ -17,7 +17,7 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 
-export const copyDefaultProject = () => {
+export const copyDefaultProject = (overwrite = false) => {
   const seedPath = path.resolve(appRootPath.path, `packages/projects/projects`)
   deleteFolderRecursive(path.resolve(seedPath, `default-project`))
   copyFolderRecursiveSync(path.resolve(appRootPath.path, `packages/projects/default-project`), seedPath)
@@ -80,7 +80,11 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
-    copyDefaultProject()
+
+    // copy default project if it doesn't exist
+    if (!fs.existsSync(path.resolve(appRootPath.path, `packages/projects/projects/default-project`)))
+      copyDefaultProject()
+
     if (isDev && !config.db.forceRefresh) {
       this._fetchDevLocalProjects()
     }
