@@ -10,7 +10,7 @@
     "@xrengine/client-core": "^0.4.10"
   },
   "xrengine": {
-    "routes": ["/", "/login", "/harmony", "/admin", "/location", "/auth", "/editor"],
+    "routes": ["/", "/login", "/harmony", "/admin", "/location", "/auth", "/editor", "/examples"],
     "thumbnail": "/static/xrengine_thumbnail.jpg",
     "moduleEntryPoints": [],
     "clientReactEntryPoint": []

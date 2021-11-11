@@ -7,8 +7,7 @@ const $harmony = React.lazy(() => import('@xrengine/client/src/pages/harmony/ind
 const $location = React.lazy(() => import('@xrengine/client/src/pages/location/location'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
 const $editor = React.lazy(() => import('@xrengine/client/src/pages/editor/editor'))
-// examples
-const $examplesMatchmaking = React.lazy(() => import('@xrengine/client/src/pages/examples/matchmaking'))
+const $examples = React.lazy(() => import('@xrengine/client/src/pages/examples/index'))
 
 export default function (route: string) {
   switch (route) {
@@ -25,7 +24,7 @@ export default function (route: string) {
     case '/editor':
       return [<Route key={'/editor'} path={'/editor'} component={$editor} />]
     case '/examples':
-      return [<Route path="/examples/matchmaking" component={$examplesMatchmaking} />]
+      return [<Route path="/examples" component={$examples} />]
   }
 
   // TODO: add test routes
