@@ -101,13 +101,10 @@ const InteractiveModalView = () => {
       type: media.type,
       path: media.path
     }
-    let videoUrl = ''
-    let imageUrl = ''
 
+    let imageUrl = ''
     if (data.type == 'image') {
       imageUrl = media.path
-    } else if (data.type == 'video') {
-      videoUrl = media.path
     }
 
     if (!position) position = 'relative'
@@ -120,7 +117,7 @@ const InteractiveModalView = () => {
         }}
       >
         <img
-          src={`${imageUrl}`}
+          src={imageUrl}
           width="100%"
           height="100%"
           style={{
@@ -142,9 +139,7 @@ const InteractiveModalView = () => {
             position: 'absolute',
             display: data.type == 'video' ? 'block' : 'none'
           }}
-        >
-          <source type="video/mp4" src={`${videoUrl}`}></source>
-        </video>
+        ></video>
         <div
           xr-layer="true"
           id={`interactive-ui-model-${entityIndex}`}
