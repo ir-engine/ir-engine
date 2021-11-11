@@ -118,7 +118,7 @@ const NumericInput = (props: NumericInputProp) => {
 
     const stepSize = event ? getStepSize(event, smallStep, mediumStep, largeStep) : mediumStep
 
-    const nextValue = parseFloat(inputEl.current.value) + stepSize * direction
+    const nextValue = parseFloat(inputEl?.current?.value ?? 0) + stepSize * direction
     const clampedValue = clamp(nextValue, min, max)
     const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue
     const finalValue = convertTo(roundedValue)
@@ -199,7 +199,7 @@ const NumericInput = (props: NumericInputProp) => {
     )
     setFocused(true)
 
-    inputEl.current.select()
+    inputEl?.current?.select()
   }
 
   const handleBlur = () => {

@@ -202,8 +202,6 @@ const EditorContainer = () => {
     try {
       const project = await getScene(projectName, sceneName, false)
       await ProjectManager.instance.loadProject(project.scene)
-      dispatch(EditorAction.sceneLoaded(sceneName))
-      setSceneLoaded(true)
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -216,6 +214,8 @@ const EditorContainer = () => {
         />
       )
     }
+    dispatch(EditorAction.sceneLoaded(sceneName))
+    setSceneLoaded(true)
   }
 
   const newScene = async () => {

@@ -12,7 +12,6 @@ interface Props {
 
 const LocationPage = (props: Props) => {
   const { t } = useTranslation()
-  const [isValidLocation, setIsValidLocation] = useState(true)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
   const [reinit, reinitEngine] = useState(false)
   const locationName = props?.match?.params?.locationName
@@ -23,7 +22,7 @@ const LocationPage = (props: Props) => {
 
   return (
     <>
-      <NetworkInstanceProvisioning locationName={locationName} setIsValidLocation={setIsValidLocation} />
+      <NetworkInstanceProvisioning locationName={locationName} />
       <LoadLocationScene locationName={props.match.params.locationName} />
       <LoadEngineWithScene />
       <Layout
@@ -31,12 +30,7 @@ const LocationPage = (props: Props) => {
         harmonyOpen={harmonyOpen}
         setHarmonyOpen={setHarmonyOpen}
       >
-        <DefaultLayoutView
-          isValidLocation={isValidLocation}
-          allowDebug={true}
-          reinit={engineInit}
-          locationName={locationName}
-        />
+        <DefaultLayoutView allowDebug={true} reinit={engineInit} locationName={locationName} />
       </Layout>
     </>
   )

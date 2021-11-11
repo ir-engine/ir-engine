@@ -107,6 +107,7 @@ export default class Image extends Object3D {
       material.map.dispose()
     }
     const texture = (await this.loadTexture(src)) as any
+    if (!texture) return this
     // TODO: resize to maintain aspect ratio but still allow scaling.
     texture.encoding = sRGBEncoding
     texture.minFilter = LinearFilter
