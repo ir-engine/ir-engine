@@ -1,4 +1,4 @@
-import { Box3, Sphere, PropertyBinding } from 'three'
+import { Box3, Sphere, PropertyBinding, Mesh } from 'three'
 import Model from '@xrengine/engine/src/scene/classes/Model'
 import EditorNodeMixin from './EditorNodeMixin'
 import { setStaticMode, StaticModes } from '../functions/StaticMode'
@@ -36,7 +36,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
 
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
-        if (typeof matrixAutoUpdate !== undefined) node.matrixAutoUpdate = matrixAutoUpdate
+        if (typeof matrixAutoUpdate !== undefined) node._matrixAutoUpdate = matrixAutoUpdate
         if (textureOverride) {
           // Using this to pass texture override uuid to event callback instead of creating a new variable
           node.textureOverride = textureOverride
@@ -103,9 +103,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   boundingSphere = new Sphere()
   gltfJson = null
   isValidURL = false
-  matrixAutoUpdate = false
+  _matrixAutoUpdate = false
   animations = []
   isUsingGPUInstancing = false
+  model: Mesh
 
   constructor() {
     super()
@@ -188,7 +189,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         this.initialScale = 1
       }
       if (this.model) {
-        this.model.traverse((object) => {
+        this.model.traverse((object: any) => {
           if (object.material && object.material.isMeshStandardMaterial) {
             object.material.envMap = SceneManager.instance.scene?.environmentMap
             object.material.needsUpdate = true
@@ -210,7 +211,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     }
     CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
     CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
-
     // this.hideLoadingCube();
     return this
   }
@@ -267,7 +267,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
         textureOverride: this.textureOverride,
-        matrixAutoUpdate: this.matrixAutoUpdate,
+        matrixAutoUpdate: this._matrixAutoUpdate,
         isUsingGPUInstancing: this.isUsingGPUInstancing
       },
       shadow: {
