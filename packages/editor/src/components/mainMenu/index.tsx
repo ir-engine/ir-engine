@@ -3,6 +3,7 @@ import { Bars } from '@styled-icons/fa-solid/Bars'
 import ToolButton from '../toolbar/ToolButton'
 import { ContextMenu, MenuItem, SubMenu, showMenu } from '../layout/ContextMenu'
 import { withTranslation, TFunction } from 'react-i18next'
+import { useState } from 'react'
 
 interface Command {
   name: string
@@ -16,26 +17,13 @@ interface MainMenuProp {
   t: TFunction
 }
 
-interface MainMenuState {
-  isMenuOpen: boolean
-}
+const MainMenu = (props: MainMenuProp) => {
+  let [isMenuOpen, setMenuOpen] = useState(false)
+  const t = props.t
 
-class MainMenu extends React.Component<MainMenuProp, MainMenuState> {
-  constructor(props: MainMenuProp) {
-    super(props)
-
-    this.state = {
-      isMenuOpen: false
-    }
-
-    this.t = this.props.t
-  }
-
-  t: TFunction
-
-  toggleMenu = (e): void => {
-    if (this.state.isMenuOpen) {
-      this.setState({ isMenuOpen: false })
+  const toggleMenu = (e) => {
+    if (isMenuOpen) {
+      setMenuOpen(!isMenuOpen)
       return
     }
 
@@ -47,10 +35,12 @@ class MainMenu extends React.Component<MainMenuProp, MainMenuState> {
       id: 'menu'
     })
 
-    this.setState({ isMenuOpen: true })
+    setMenuOpen(true)
   }
 
-  renderMenu = (command: Command) => {
+  const hideMenu = () => setMenuOpen(false)
+
+  const renderMenu = (command: Command) => {
     if (!command.subCommnads || command.subCommnads.length === 0) {
       return (
         <MenuItem key={command.name} onClick={command.action}>
@@ -62,23 +52,21 @@ class MainMenu extends React.Component<MainMenuProp, MainMenuState> {
       return (
         <SubMenu key={command.name} title={command.name} hoverDelay={0}>
           {command.subCommnads.map((subcommand) => {
-            return this.renderMenu(subcommand)
+            return renderMenu(subcommand)
           })}
         </SubMenu>
       )
     }
   }
 
-  render() {
-    return (
-      <>
-        <ToolButton icon={Bars} onClick={this.toggleMenu} isSelected={this.state.isMenuOpen} id="menu" />
-        <ContextMenu id="menu" onHide={() => this.setState({ isMenuOpen: false })}>
-          {this.props.commands.map((command: Command) => this.renderMenu(command))}
-        </ContextMenu>
-      </>
-    )
-  }
+  return (
+    <>
+      <ToolButton icon={Bars} onClick={toggleMenu} isSelected={isMenuOpen} id="menu" />
+      <ContextMenu id="menu" onHide={hideMenu}>
+        {props.commands.map((command: Command) => renderMenu(command))}
+      </ContextMenu>
+    </>
+  )
 }
 
 export default withTranslation()(MainMenu)

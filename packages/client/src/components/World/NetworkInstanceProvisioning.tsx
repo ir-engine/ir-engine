@@ -16,25 +16,13 @@ import { useChatState } from '@xrengine/client-core/src/social/services/ChatServ
 import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { ChannelConnectionService } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 
 interface Props {
   locationName: string
-  history?: any
-  engineInitializeOptions?: InitializeOptions
-  //doLoginAuto?: typeof doLoginAuto
-
-  showTouchpad?: boolean
-  children?: any
-  chatState?: any
-  sceneId: any
-  //reinit: any
-  isUserBanned: boolean
-  setIsValidLocation: any
 }
 
 export const NetworkInstanceProvisioning = (props: Props) => {
-  const { sceneId, isUserBanned, setIsValidLocation } = props
-
   const authState = useAuthState()
   const selfUser = authState.user
   const userState = useUserState()
@@ -42,6 +30,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const chatState = useChatState()
   const locationState = useLocationState()
   const instanceConnectionState = useInstanceConnectionState()
+  const isUserBanned = locationState.currentLocation.selfUserBanned.value
+
   useEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
   }, [selfUser, userState.layerUsersUpdateNeeded.value])
@@ -78,11 +68,14 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           instanceId = query.instanceId
         }
 
-        InstanceConnectionService.provisionInstanceServer(currentLocation.id.value, instanceId || undefined, sceneId)
+        InstanceConnectionService.provisionInstanceServer(
+          currentLocation.id.value,
+          instanceId || undefined,
+          locationState.currentLocation.location.sceneId.value
+        )
       }
     } else {
       if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
-        setIsValidLocation(false)
         dispatch(AppAction.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false))
       }
     }

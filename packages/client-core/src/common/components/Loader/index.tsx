@@ -4,19 +4,19 @@ import { useAppState } from '../../services/AppService'
 import { useTranslation } from 'react-i18next'
 import styles from './Loader.module.scss'
 import LottieLoader from './LottieLoader'
+import { useEngineState } from '../../../world/services/EngineService'
 
 interface Props {
-  objectsToLoad?: number
-
   Loader?: any
 }
 
 const LoadingScreen = (props: Props) => {
-  const { objectsToLoad, Loader } = props
+  const { Loader } = props
   const onBoardingStep = useAppState().onBoardingStep
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')
   const { t } = useTranslation()
+  const objectsToLoad = useEngineState().loadingProgress.value
 
   useEffect(() => {
     switch (onBoardingStep.value) {

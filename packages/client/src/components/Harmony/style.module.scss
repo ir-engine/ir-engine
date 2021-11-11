@@ -1,9 +1,8 @@
+@import "@xrengine/client-core/src/styles/imports.module.scss";
 $mobileControllButtonsSize: 3em;
 
 .paper {
-    padding: 16px 32px 24px;
-    box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
-    background-color: #fff;
+    @include paper-modal();
 }
 
 .selectable {
@@ -21,7 +20,7 @@ $mobileControllButtonsSize: 3em;
 
 
 .activeChat {
-    background-color: rgb(56, 56, 178);
+    background-color: $MediumBlue;
 }
 
 .activeAVCall {
@@ -33,7 +32,7 @@ $mobileControllButtonsSize: 3em;
 }
 
 .background-red {
-    background-color: #ef5350;
+    background-color: $LightRed;
     color: white;
 }
 
@@ -532,7 +531,7 @@ $mobileControllButtonsSize: 3em;
         align-items: center;
 
         .harmony-toggle {
-            background-color: rgb(56, 56, 178);
+            background-color: $MediumBlue;
             color: white;
 
             svg {
@@ -543,7 +542,7 @@ $mobileControllButtonsSize: 3em;
 
             &:hover {
                 cursor: pointer;
-                background-color: lighten(rgb(56, 56, 178), 10%);
+                background-color: lighten($MediumBlue, 10%);
             }
         }
 
