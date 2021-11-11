@@ -15,6 +15,10 @@ import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 
 import { hideInteractText, showInteractText, createInteractText } from './interactText'
 import { createInteractiveModalView, connectCallback } from '../ui/InteractiveModalView'
+
+import Hls from 'hls.js'
+import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
+
 /**
  * @author Ron Oyama <github.com/rondoor124>
  */
@@ -112,7 +116,15 @@ export const createInteractUI = (entity: Entity) => {
           //TODO: sometimes the video rendering does not work, set resize for refreshing
           videoElement.element.style.height = 0
           if (mediaData[mediaIndex].type == 'video') {
-            videoElement.element.load()
+            const path = mediaData[mediaIndex].path
+            if (isHLS(path)) {
+              const hls = new Hls()
+              hls.loadSource(path)
+              hls.attachMedia(videoElement.element)
+            } else {
+              videoElement.element.src = path
+              videoElement.element.load()
+            }
             videoElement.element.addEventListener(
               'loadeddata',
               function () {

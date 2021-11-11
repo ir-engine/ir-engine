@@ -12,7 +12,7 @@ import ImageNode from './ImageNode'
 
 export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   static nodeName = 'Shopify'
-  static legacyComponentName = 'gltf-shopify'
+  static legacyComponentName = 'shopify'
   static initialElementProps = {
     shopifyDomain: '',
     shopifyProducts: [],
@@ -38,7 +38,7 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
           shopifyProductId,
           shopifyProductItems,
           shopifyProductItemId
-        } = json.components.find((c) => c.name === 'gltf-shopify').props
+        } = json.components.find((c) => c.name === 'shopify').props
 
         if (shopifyProducts) node.shopifyProducts = shopifyProducts
         if (shopifyProductItems) node.shopifyProductItems = shopifyProductItems
@@ -131,12 +131,13 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
           node.interactionType = interactableComponent.props.interactionType
           node.interactionText = interactableComponent.props.interactionText
           node.interactionDistance = interactableComponent.props.interactionDistance
-          node.payloadName = interactableComponent.props.payloadName
-          node.payloadUrl = interactableComponent.props.payloadUrl
-          node.payloadBuyUrl = interactableComponent.props.payloadBuyUrl
-          node.payloadLearnMoreUrl = interactableComponent.props.payloadLearnMoreUrl
-          node.payloadHtmlContent = interactableComponent.props.payloadHtmlContent
-          node.payloadUrl = interactableComponent.props.payloadUrl
+          node.interactionThemeIndex = interactableComponent.props.interactionThemeIndex
+          node.interactionName = interactableComponent.props.interactionName
+          node.interactionDescription = interactableComponent.props.interactionDescription
+          node.interactionImages = interactableComponent.props.interactionImages
+          node.interactionVideos = interactableComponent.props.interactionVideos
+          node.interactionUrls = interactableComponent.props.interactionUrls
+          node.interactionModels = interactableComponent.props.interactionModels
         }
       })()
     )
@@ -251,6 +252,7 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   }
   set shopifyProductItemId(value) {
     this._shopifyProductItemId = value
+    if (value !== '') this.interactable = true
     this.setMediaNode(value)
   }
 
@@ -279,6 +281,21 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
 
     await this.extendNode.load(media.url)
     this.add(this.extendNode.children[0].clone())
+
+    //TODO active interactable
+  }
+
+  initInteractive() {
+    this.interactable = false
+    this.interactionType = 'infoBox'
+    this.interactionText = ''
+    this.interactionThemeIndex = 0
+    this.interactionName = ''
+    this.interactionDescription = ''
+    this.interactionImages = []
+    this.interactionVideos = []
+    this.interactionUrls = []
+    this.interactionModels = []
   }
 
   async getShopifyProduction() {
@@ -294,6 +311,8 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
                   node {
                     id
                     title
+                    description
+                    onlineStoreUrl 
                   }
                 }
               }
@@ -303,12 +322,23 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
         { headers: { 'X-Shopify-Storefront-Access-Token': this.shopifyToken, 'Content-Type': 'application/json' } }
       )
       if (!res || !res.data) return
+
+      this.initInteractive()
+
       const productData: any = res.data
       this.shopifyProducts = []
       this.shopifyProductItems = []
       this.shopifyProductItemIndex = ''
       if (productData.data && productData.data.products && productData.data.products.edges) {
         for (const edgeProduct of productData.data.products.edges) {
+          //TODO: interact data
+          this.interactionUrls = []
+          this.interactionText = edgeProduct.node.title
+          this.interactionName = edgeProduct.node.title
+          this.interactionDescription = edgeProduct.node.description
+          if (edgeProduct.node.onlineStoreUrl) {
+            this.interactionUrls.push(edgeProduct.node.onlineStoreUrl)
+          }
           const response = await axios.post(
             `${this.shopifyDomain}/api/2021-07/graphql.json`,
             {
@@ -374,8 +404,10 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
                   if (sourceValue.format == 'glb') {
                     //3d model
                     sourceValue.extendType = 'model'
+                    this.interactionModels.push(sourceValue.url)
                   } else {
                     sourceValue.extendType = 'video'
+                    this.interactionVideos.push(sourceValue.url)
                   }
                   sourceData.push(sourceValue)
                 } else if (edgeMedia.node.image && edgeMedia.node.image.originalSrc) {
@@ -385,6 +417,7 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
                     format: 'png',
                     extendType: 'image'
                   })
+                  this.interactionImages.push(edgeMedia.node.image.originalSrc)
                 }
               }
               this.shopifyProducts.push({
@@ -466,13 +499,9 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
       }
     }
 
-    let shopifyJsonStr = ''
-    if (this.shopifyProductItems && this.shopifyProductItems.length > 0) {
-      shopifyJsonStr = JSON.stringify(this.shopifyProductItems)
-    }
-
+    debugger
     const components = {
-      'gltf-shopify': {
+      shopify: {
         shopifyProducts: this.shopifyProducts,
         shopifyDomain: this._shopifyDomain,
         shopifyToken: this._shopifyToken,
@@ -487,13 +516,13 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
         interactionType: this.interactionType,
         interactionText: this.interactionText,
         interactionDistance: this.interactionDistance,
-        payloadName: this.payloadName,
-        payloadUrl: this.payloadUrl,
-        payloadBuyUrl: this.payloadBuyUrl,
-        payloadLearnMoreUrl: this.payloadLearnMoreUrl,
-        payloadHtmlContent: this.payloadHtmlContent,
-        payloadModelUrl: this._canonicalUrl,
-        payloadJson: shopifyJsonStr
+        interactionThemeIndex: this.interactionThemeIndex,
+        interactionName: this.interactionName,
+        interactionDescription: this.interactionDescription,
+        interactionImages: this.interactionImages,
+        interactionVideos: this.interactionVideos,
+        interactionUrls: this.interactionUrls,
+        interactionModels: this.interactionModels
       }
     }
     return await super.serialize(projectID, components)

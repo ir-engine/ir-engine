@@ -205,7 +205,7 @@ export class WorldScene {
         loadGLTFModel(this, entity, component, sceneProperty)
         break
 
-      case 'gltf-shopify':
+      case 'shopify':
         if (component.data && component.data.extend) {
           if (component.data.extendType == 'video') {
             // if livestream, server will send the video info to the client

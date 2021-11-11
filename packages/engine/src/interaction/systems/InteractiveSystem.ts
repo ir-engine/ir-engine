@@ -31,6 +31,8 @@ export default async function InteractiveSystem(world: World): Promise<System> {
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
   const interactedQuery = defineQuery([InteractedComponent])
 
+  console.log(interactiveQuery)
+
   return () => {
     for (const entity of interactiveQuery.enter(world)) {
       if (!hasComponent(entity, BoundingBoxComponent) && hasComponent(entity, Object3DComponent)) {
