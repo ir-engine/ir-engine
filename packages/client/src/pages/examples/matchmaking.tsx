@@ -9,8 +9,13 @@ async function findCurrentTicketData() {
   if (data.length) {
     const matchUser = data[0]
     const ticket = await client.service('match-ticket').get(matchUser.ticketId)
-    const gamemode = ticket.search_fields.tags[0]
-    return { id: ticket.id, gamemode }
+    if (!ticket) {
+      // ticket is outdated - delete match-user row
+      await client.service('match-user').remove(matchUser.id)
+    } else {
+      const gamemode = ticket.search_fields.tags[0]
+      return { id: ticket.id, gamemode }
+    }
   }
 }
 
