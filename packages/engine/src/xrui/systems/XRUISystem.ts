@@ -1,9 +1,9 @@
-import { Color, Layers, Ray, Raycaster, Vector3 } from 'three'
+import { Color, Mesh, Raycaster, Vector3 } from 'three'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { XRUIManager } from '../classes/XRUIManager'
@@ -11,10 +11,15 @@ import { XRUIComponent } from '../components/XRUIComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 
 export default async function XRUISystem(world: World): Promise<System> {
-  const hitRayColor = new Color(0x00e6e6)
-  const normalRayColor = new Color(0xffffff)
+  const hitColor = new Color(0x00e6e6)
+  const normalColor = new Color(0xffffff)
   const xruiQuery = defineQuery([XRUIComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent])
+  const controllerLastHitTarget: string[] = []
+  const hoverSfxPath = Engine.publicPath + '/default_assets/audio/ui-hover.mp3'
+  const hoverAudio = new Audio()
+  hoverAudio.src = hoverSfxPath
+  let idCounter = 0
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('ethereal')))
   const screenRaycaster = new Raycaster()
@@ -35,16 +40,51 @@ export default async function XRUISystem(world: World): Promise<System> {
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
+    const controllers = [inputComponent.controllerLeft, inputComponent.controllerRight]
+
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).layer
-      const controllers = [inputComponent.controllerLeft, inputComponent.controllerRight]
-      for (const controller of controllers) {
+
+      for (const [i, controller] of controllers.entries()) {
         const hit = layer.hitTest(controller)
+        const cursor = (controller as any).cursor as Mesh
+
         if (hit) {
           const interactable = window.getComputedStyle(hit.target).cursor == 'pointer'
-          if (interactable && (controller as any).targetRay) (controller as any).targetRay.material.color = hitRayColor
+
+          if (cursor) {
+            cursor.visible = true
+            cursor.position.copy(hit.intersection.point)
+            controller.worldToLocal(cursor.position)
+
+            if (interactable) {
+              ;(cursor.material as any).color = hitColor
+            } else {
+              ;(cursor.material as any).color = normalColor
+            }
+          }
+
+          if (interactable) {
+            if (!hit.target.id) {
+              hit.target.id = 'interactable-' + ++idCounter
+            }
+
+            const lastHit = controllerLastHitTarget[i]
+
+            if (lastHit != hit.target.id) {
+              console.log(lastHit, hit.target.id)
+              hoverAudio.pause()
+              hoverAudio.currentTime = 0
+              hoverAudio.play()
+            }
+
+            controllerLastHitTarget[i] = hit.target.id
+          }
         } else {
-          if ((controller as any).targetRay) (controller as any).targetRay.material.color = normalRayColor
+          if (cursor) {
+            ;(cursor.material as any).color = normalColor
+            cursor.visible = false
+          }
         }
       }
     }

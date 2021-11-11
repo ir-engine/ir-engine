@@ -1,5 +1,7 @@
 import {
   AdditiveBlending,
+  BoxGeometry,
+  BufferAttribute,
   BufferGeometry,
   Float32BufferAttribute,
   Line,
@@ -7,6 +9,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   RingGeometry,
+  SphereGeometry,
   XRInputSource
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -20,6 +23,12 @@ import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 import { initializeXRControllerAnimations } from './controllerAnimation'
 import { mapXRControllers } from './WebXRFunctions'
 
+const createUICursor = () => {
+  const geometry = new SphereGeometry(0.01, 16, 16)
+  const material = new MeshBasicMaterial({ color: 0xffffff })
+  return new Mesh(geometry, material)
+}
+
 const setupController = (inputSource, controller) => {
   if (inputSource) {
     const targetRay = createController(inputSource)
@@ -27,6 +36,12 @@ const setupController = (inputSource, controller) => {
       controller.add(targetRay)
       controller.targetRay = targetRay
     }
+  }
+
+  if (!controller.cursor) {
+    controller.cursor = createUICursor()
+    controller.add(controller.cursor)
+    controller.cursor.visible = false
   }
 }
 
@@ -108,12 +123,21 @@ const createController = (inputSource) => {
   let geometry, material
   switch (inputSource.targetRayMode) {
     case 'tracked-pointer':
-      geometry = new BufferGeometry()
-      geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 0, 0, -1], 3))
-      geometry.setAttribute('color', new Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3))
-      geometry.setAttribute('alpha', new Float32BufferAttribute([1, 0], 1))
-      material = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
-      return new Line(geometry, material)
+      geometry = new BoxGeometry(0.005, 0.005, 0.25)
+      const positions = geometry.attributes.position
+      const count = positions.count
+      geometry.setAttribute('color', new BufferAttribute(new Float32Array(count * 3), 3))
+      const colors = geometry.attributes.color
+
+      for (let i = 0; i < count; i++) {
+        if (positions.getZ(i) < 0) colors.setXYZ(i, 0, 0, 0)
+        else colors.setXYZ(i, 0.5, 0.5, 0.5)
+      }
+
+      material = new MeshBasicMaterial({ color: 0xffffff, vertexColors: true, blending: AdditiveBlending })
+      const mesh = new Mesh(geometry, material)
+      mesh.position.z = -0.125
+      return mesh
 
     case 'gaze':
       geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
