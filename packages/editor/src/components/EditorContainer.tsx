@@ -626,7 +626,7 @@ const EditorContainer = () => {
             ariaHideApp={false}
             isOpen={!!DialogComponent}
             onRequestClose={() => setDialogComponent(null)}
-            shouldCloseOnOverlayClick={false}
+            shouldCloseOnOverlayClick={true}
             className="Modal"
             overlayClassName="Overlay"
           >
