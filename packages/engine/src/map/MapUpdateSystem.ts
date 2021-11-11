@@ -2,7 +2,7 @@ import { System } from '../ecs/classes/System'
 import { MapComponent } from './MapComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { fromMetersFromCenter, LongLat } from './functions/UnitConversionFunctions'
-import { addChildFast, multiplyArray, setPosition, vector3ToArray2 } from './util'
+import { addChildFast, multiplyArray, setPosition, vectorToArray } from './util'
 import { Vector3 } from 'three'
 import { Entity } from '../ecs/classes/Entity'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
@@ -16,6 +16,7 @@ import { Downgraded } from '@hookstate/core'
 import { getPhases, startPhases, resetPhases } from './functions/PhaseFunctions'
 
 const $vector3 = new Vector3()
+const $normalScaleViewerPositionDelta = new Array(2) as [number, number]
 
 /** Track where the viewer was the last time we kicked off a new set of map contruction tasks */
 const $previousViewerPosition = new Vector3()
@@ -40,7 +41,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     const mapScale = mapState.scale
     const object3dComponent = getComponent(mapEntity, Object3DComponent)
     const viewerTransform = getComponent(viewerEntity, TransformComponent)
-    const viewerPosition = vector3ToArray2(viewerTransform.position)
+    const viewerPosition = vectorToArray(viewerTransform.position)
     const viewerPositionScaled = multiplyArray(viewerPosition, 1 / mapScale)
     const navigationRaycastTarget = getComponent(navPlaneEntity, NavMeshComponent).navTarget
 
@@ -52,10 +53,13 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     // Find how far the viewer has travelled since last update, in real-world scale (scale=1)
     // TODO only compare x, z components of positions
     $vector3.subVectors(viewerTransform.position, $previousViewerPosition).divideScalar(mapScale)
-    const viewerPositionDeltaNormalScale = vector3ToArray2($vector3)
-    const viewerDistanceFromCenter = Math.hypot(...viewerPositionDeltaNormalScale)
+    vectorToArray($vector3, $normalScaleViewerPositionDelta)
+    const viewerDistanceFromCenterSquared =
+      $normalScaleViewerPositionDelta[0] * $normalScaleViewerPositionDelta[0] +
+      $normalScaleViewerPositionDelta[1] * $normalScaleViewerPositionDelta[1]
 
-    const wasRefreshTriggered = viewerDistanceFromCenter >= mapState.triggerRefreshRadius
+    const wasRefreshTriggered =
+      viewerDistanceFromCenterSquared >= mapState.triggerRefreshRadius * mapState.triggerRefreshRadius
     const wasMapCenterUpdated =
       typeof $previousMapCenterPoint[0] !== 'undefined' &&
       typeof $previousMapCenterPoint[1] !== 'undefined' &&
@@ -69,7 +73,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
     }
 
     if (wasRefreshTriggered || wasMapCenterUpdated) {
-      mapState.center = fromMetersFromCenter(viewerPositionDeltaNormalScale, mapState.center)
+      mapState.center = fromMetersFromCenter($normalScaleViewerPositionDelta, mapState.center)
       mapState.viewerPosition = viewerPosition
       startPhases(mapState, phases)
 
@@ -82,21 +86,21 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
 
     if (mapState.needsUpdate) {
       // Perf hack: Start with an empty array so that any children that have been purged or that do not meet the criteria for adding are implicitly removed.
-      const subSceneChildren = []
+      object3dComponent.value.children.length = 0
       for (const key of mapState.completeObjects.keys()) {
         const object = mapState.completeObjects.get(key)
         if (object.mesh) {
           if (
             isIntersectCircleCircle(
               viewerPositionScaled,
-              mapState.minimumSceneRadius,
+              mapState.minimumSceneRadius * mapState.scale,
               object.centerPoint,
               object.boundingCircleRadius
             ) &&
             key[0] !== 'landuse_fallback'
           ) {
             setPosition(object.mesh, object.centerPoint)
-            addChildFast(object3dComponent.value, object.mesh, subSceneChildren)
+            addChildFast(object3dComponent.value, object.mesh)
           } else {
             object.mesh.parent = null
           }
@@ -107,13 +111,13 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
           if (
             isIntersectCircleCircle(
               viewerPositionScaled,
-              mapState.labelRadius,
+              mapState.labelRadius * mapState.scale,
               label.centerPoint,
               label.boundingCircleRadius
             )
           ) {
             setPosition(label.mesh, label.centerPoint)
-            addChildFast(object3dComponent.value, label.mesh, subSceneChildren)
+            addChildFast(object3dComponent.value, label.mesh)
           } else {
             label.mesh.parent = null
           }
@@ -131,12 +135,11 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
       }
       for (const helpers of mapState.helpersCache.values()) {
         if (helpers.tileNavMesh) {
-          addChildFast(object3dComponent.value, helpers.tileNavMesh, subSceneChildren)
+          addChildFast(object3dComponent.value, helpers.tileNavMesh)
         }
       }
 
       // Update (sub)scene
-      object3dComponent.value.children = subSceneChildren
       mapState.needsUpdate = false
     }
 
@@ -147,7 +150,7 @@ export default async function MapUpdateSystem(world: World): Promise<System> {
           if (
             isIntersectCircleCircle(
               viewerPositionScaled,
-              mapState.labelRadius,
+              mapState.labelRadius * mapState.scale,
               label.centerPoint,
               label.boundingCircleRadius
             )

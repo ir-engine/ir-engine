@@ -1,31 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import Layout from '../../components/Layout/Layout'
 import DefaultLayoutView from '../../components/World/DefaultLayoutView'
-import World from '../../components/World/index'
+import { LoadEngineWithScene } from '../../components/World/LoadEngineWithScene'
+import { LoadLocationScene } from '../../components/World/LoadLocationScene'
 import NetworkInstanceProvisioning from '../../components/World/NetworkInstanceProvisioning'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
-  locationName: string
-  allowDebug?: boolean
-  history?: any
-  showTouchpad?: boolean
-  children?: any
-  // todo: remove these props in favour of projects
-  theme?: any
-  hideVideo?: boolean
-  hideFullscreen?: boolean
+  match?: any
 }
 
 const LocationPage = (props: Props) => {
   const { t } = useTranslation()
-  const [sceneId, setSceneId] = useState('')
-  const [isUserBanned, setIsUserBanned] = useState(true)
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [harmonyOpen, setHarmonyOpen] = useState(false)
-  const [loadingItemCount, setLoadingItemCount] = useState(99)
-  const [isTeleporting, setIsTeleporting] = useState(false)
   const [reinit, reinitEngine] = useState(false)
+  const locationName = props?.match?.params?.locationName
 
   const engineInit = () => {
     reinitEngine(!reinit)
@@ -33,38 +23,19 @@ const LocationPage = (props: Props) => {
 
   return (
     <>
-      <NetworkInstanceProvisioning
-        locationName={props.locationName}
-        sceneId={sceneId}
-        isUserBanned={isUserBanned}
-        setIsValidLocation={setIsValidLocation}
-      />
-      <World
-        locationName={props.locationName}
-        history={props.history}
-        setSceneId={setSceneId}
-        setUserBanned={setIsUserBanned}
-        setLoadingItemCount={setLoadingItemCount}
-        setIsTeleporting={setIsTeleporting}
-        reinit={reinit}
-      />
+      <NetworkInstanceProvisioning locationName={locationName} setIsValidLocation={setIsValidLocation} />
+      <LoadLocationScene locationName={props.match.params.locationName} />
+      <LoadEngineWithScene />
       <Layout
         pageTitle={t('location.locationName.pageTitle')}
         harmonyOpen={harmonyOpen}
         setHarmonyOpen={setHarmonyOpen}
-        theme={props.theme}
-        hideVideo={props.hideVideo}
-        hideFullscreen={props.hideFullscreen}
       >
         <DefaultLayoutView
-          loadingItemCount={loadingItemCount}
           isValidLocation={isValidLocation}
-          allowDebug={props.allowDebug}
+          allowDebug={true}
           reinit={engineInit}
-          children={props.children}
-          showTouchpad={props.showTouchpad}
-          isTeleporting={isTeleporting}
-          locationName={props.locationName}
+          locationName={locationName}
         />
       </Layout>
     </>

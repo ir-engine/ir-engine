@@ -109,6 +109,8 @@ export const MenuButton = styled(Button)`
   background-color: transparent;
   color: ${(props) => props.theme.text2};
   padding: 1px 8px;
+  width: 20px;
+  margin-right: 0px;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);

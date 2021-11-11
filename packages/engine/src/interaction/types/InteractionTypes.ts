@@ -12,10 +12,13 @@ export type InteractionData = {
   interactionType?: string
   interactionText?: string
   interactionDistance?: number
-  payloadName?: string
-  payloadUrl?: string
-  payloadBuyUrl?: string
-  payloadLearnMoreUrl?: string
-  payloadHtmlContent?: string
+  interactionThemeIndex?: number
+  interactionName?: string
+  interactionDescription?: string
+  interactionImages?: any
+  interactionVideos?: any
+  interactionUrls?: any
+  interactionModels?: any
+  interactionUserData?: any
   action?: any
 }

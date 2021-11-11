@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { OpenLink } from '../OpenLink'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { useEngineState } from '../../services/EngineService'
 
 const ModelView = React.lazy(() => import('./modelView'))
 
@@ -25,6 +26,8 @@ export const InteractableModal: FunctionComponent = () => {
   const [objectActivated, setObjectActivated] = useState(false)
   const [objectHovered, setObjectHovered] = useState(false)
   const [isInputEnabled, setInputEnabled] = useState(true)
+
+  const engineState = useEngineState()
 
   useEffect(() => {
     enableInput({
@@ -49,12 +52,10 @@ export const InteractableModal: FunctionComponent = () => {
     setObjectActivated(true)
   }
 
-  const onEngineLoaded = () => {
+  useEffect(() => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_HOVER, onObjectHover)
-    document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
-  }
-  document.addEventListener('ENGINE_LOADED', onEngineLoaded)
+  }, [engineState.isInitialised.value])
 
   const handleLinkClick = (url) => {
     window.open(url, '_blank')

@@ -1,13 +1,17 @@
 import assert from 'assert'
+import ParametricCache from '../../../src/map/classes/ParametricCache'
+import TileKey from '../../../src/map/classes/TileKey'
 import evictLeastRecentlyUsedItems from '../../../src/map/functions/evictLeastRecentlyUsedItems'
+import {ITuple} from '../../../src/map/types'
 
 describe('evictLeastRecentlyUsedItems', () => {
   it('works', () => {
-    const cache = new Map<number, number>()
-    const keysEvicted = [] as number[]
-    const keysRemaining = [] as number[]
+    const cache = new ParametricCache(2)
+    const keysEvicted: ITuple[] = []
+    const keysRemaining: ITuple[] = []
     for (let i = 0; i < 3; i++) {
-      cache.set(i, i)
+      const key = new TileKey(i, i)
+      cache.set(key, i)
     }
 
     for (const [key] of evictLeastRecentlyUsedItems(cache, 2)) {
@@ -18,7 +22,7 @@ describe('evictLeastRecentlyUsedItems', () => {
       keysRemaining.push(key)
     }
 
-    assert.deepEqual(keysEvicted, [0])
-    assert.deepEqual(keysRemaining, [1, 2])
+    assert.deepEqual(keysEvicted.map((k) => k.hash), ['0,0'])
+    assert.deepEqual(keysRemaining.map((k) => k.hash), ['1,1', '2,2'])
   })
 })

@@ -51,19 +51,17 @@ const state = createState({
   instanceChannelFetched: false
 })
 
-store.receptors.push((action: ChatActionType): any => {
+store.receptors.push((action: ChatActionType) => {
   state.batch((s) => {
-    switch (action!.type) {
+    switch (action.type) {
       case 'LOADED_CHANNELS':
-        s.channels.merge({
+        return s.channels.merge({
           limit: action.limit,
           skip: action.skip,
           total: action.total,
           updateNeeded: false,
           channels: action.channels
         })
-        return
-
       case 'LOADED_CHANNEL': {
         const idx =
           (typeof action.channel.id === 'string' &&
@@ -79,7 +77,6 @@ store.receptors.push((action: ChatActionType): any => {
             instanceChannelFetching: false
           })
         }
-
         return
       }
 
@@ -91,8 +88,8 @@ store.receptors.push((action: ChatActionType): any => {
         if (!channel) {
           s.channels.updateNeeded.set(true)
         } else {
-          if (!channel.Messages.length) channel.Messages.set([action.message])
-          else channel.Messages[channel.Messages.length].set(action.message)
+          if (!channel.messages.length) channel.messages.set([action.message])
+          else channel.messages[channel.messages.length].set(action.message)
         }
 
         s.updateMessageScroll.set(true)
@@ -119,9 +116,9 @@ store.receptors.push((action: ChatActionType): any => {
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
         if (channel) {
           for (const m of action.messages) {
-            const message = channel.Messages.find((m2) => m2.id.value === m.id)
+            const message = channel.messages.find((m2) => m2.id.value === m.id)
             if (message) message.set(m)
-            else channel.Messages[channel.Messages.length].set(m)
+            else channel.messages[channel.messages.length].set(m)
           }
         }
 
@@ -132,8 +129,8 @@ store.receptors.push((action: ChatActionType): any => {
         const channelId = action.message.channelId
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
         if (channel) {
-          const messageIdx = channel.Messages.findIndex((m) => m.id.value === action.message.id)
-          if (messageIdx > -1) channel.Messages.merge({ [messageIdx]: none })
+          const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
+          if (messageIdx > -1) channel.messages.merge({ [messageIdx]: none })
         } else {
           s.channels.updateNeeded.set(true)
         }
@@ -145,8 +142,8 @@ store.receptors.push((action: ChatActionType): any => {
         const channelId = action.message.channelId
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
         if (channel) {
-          const messageIdx = channel.Messages.findIndex((m) => m.id.value === action.message.id)
-          if (messageIdx > -1) channel.Messages[messageIdx].set(action.message)
+          const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
+          if (messageIdx > -1) channel.messages[messageIdx].set(action.message)
         } else {
           s.channels.updateNeeded.set(true)
         }
@@ -159,7 +156,7 @@ store.receptors.push((action: ChatActionType): any => {
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
 
         if (channel) {
-          channel.set(action.channel)
+          channel.merge(action.channel)
         } else {
           s.channels.channels[s.channels.channels.length].set(action.channel)
         }
@@ -172,7 +169,7 @@ store.receptors.push((action: ChatActionType): any => {
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
 
         if (channel) {
-          channel.set(action.channel)
+          channel.merge(action.channel)
         } else {
           s.channels.channels[s.channels.channels.length].set(action.channel)
         }
@@ -186,6 +183,7 @@ store.receptors.push((action: ChatActionType): any => {
         if (channelIdx > -1) {
           s.channels.channels[channelIdx].set(none)
         }
+        return
       }
 
       case 'CHAT_TARGET_SET':
@@ -199,8 +197,9 @@ store.receptors.push((action: ChatActionType): any => {
         })
 
       case 'SET_MESSAGE_SCROLL_INIT':
-        const { value } = action
-        return s.merge({ messageScrollInit: value })
+        // const { value } = action
+        // s.merge({ messageScrollInit: value })
+        return
 
       case 'FETCHING_INSTANCE_CHANNEL':
         return s.channels.merge({ fetchingInstanceChannel: true })
@@ -260,12 +259,13 @@ export const ChatService = {
         await waitForClientAuthenticated()
         const chatState = accessChatState().value
         const data = {
-          targetObjectId: chatState.targetObject.id || null,
-          targetObjectType: chatState.targetObjectType || null,
+          targetObjectId: chatState.targetObject.id || values.targetObjectId || null,
+          targetObjectType: chatState.targetObjectType || values.targetObjectType || null,
           text: values.text
         }
         if (data.targetObjectId === null || data.targetObjectType === null) {
-          console.log('invalid data, something is null: ' + data)
+          console.log('invalid data, something is null: ')
+          console.log(data)
           return
         }
         await client.service('message').create(data)
@@ -386,6 +386,27 @@ export const ChatService = {
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('message').on('created', (params) => {
     const selfUser = accessAuthState().user.value
+    const { message } = params
+    if (message != undefined && message.text != undefined) {
+      if (isPlayerLocal(message.senderId)) {
+        if (handleCommand(message.text, Engine.defaultWorld.localClientEntity, message.senderId)) return
+        else {
+          const system = getChatMessageSystem(message.text)
+          if (system !== 'none') {
+            message.text = removeMessageSystem(message.text)
+            if (!isBot(window) && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
+          }
+        }
+      } else {
+        const system = getChatMessageSystem(message.text)
+        if (system !== 'none') {
+          message.text = removeMessageSystem(message.text)
+          if (!isBot(window) && !Engine.isBot && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system))
+            return
+        } else if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
+      }
+    }
+
     const msg = ChatAction.createdMessage(params.message, selfUser)
     if (msg != undefined) store.dispatch(msg)
   })
@@ -431,26 +452,6 @@ export const ChatAction = {
     }
   },
   createdMessage: (message: Message, selfUser: User) => {
-    if (message != undefined && message.text != undefined) {
-      if (isPlayerLocal(message.senderId)) {
-        if (handleCommand(message.text, Engine.defaultWorld.localClientEntity, message.senderId)) return
-        else {
-          const system = getChatMessageSystem(message.text)
-          if (system !== 'none') {
-            message.text = removeMessageSystem(message.text)
-            if (!isBot(window) && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
-          }
-        }
-      } else {
-        const system = getChatMessageSystem(message.text)
-        if (system !== 'none') {
-          message.text = removeMessageSystem(message.text)
-          if (!isBot(window) && !Engine.isBot && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system))
-            return
-        } else if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
-      }
-    }
-
     return {
       type: 'CREATED_MESSAGE' as const,
       message: message,

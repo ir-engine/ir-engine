@@ -227,7 +227,7 @@ export async function configureMediaTransports(
     }
   }
 
-  //This probably isn't needed anymore with chanenls handling all audio and video, but left it in and commented
+  //This probably isn't needed anymore with channels handling all audio and video, but left it in and commented
   //just in case.
   // if (
   //   networkTransport.channelSendTransport == null ||

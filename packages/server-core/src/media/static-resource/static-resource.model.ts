@@ -66,7 +66,6 @@ export default (app: Application) => {
       foreignKey: 'staticResourceType',
       required: true
     })
-    ;(staticResource as any).belongsToMany(models.component, { through: 'static_resource_component' })
     ;(staticResource as any).belongsTo(models.user)
     ;(staticResource as any).hasMany(models.static_resource, {
       as: 'parent',

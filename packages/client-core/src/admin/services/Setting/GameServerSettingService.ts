@@ -2,24 +2,20 @@ import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
 import { GameServerSettingResult } from '@xrengine/common/src/interfaces/GameServerSettingResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { GameServerSetting } from '@xrengine/common/src/interfaces/GameServerSetting'
 
 //State
 const state = createState({
-  gameServer: {
-    gameserver: [] as Array<GameServerSetting>,
-    updateNeeded: true
-  }
+  gameserver: [] as Array<GameServerSetting>,
+  updateNeeded: true
 })
 
 store.receptors.push((action: GameServerSettingActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'GAME_SERVER_SETTING_DISPLAY':
-        result = action.gameServerSettingResult
-        return s.gameServer.merge({ gameserver: result.data, updateNeeded: false })
+        return s.merge({ gameserver: action.gameServerSettingResult.data, updateNeeded: false })
     }
   }, action.type)
 })

@@ -64,6 +64,7 @@ export default function EditorNodeMixin(Object3DClass) {
       }
       return node
     }
+    uuid: string
     constructor(...args) {
       super(...args)
       this.nodeName = (this.constructor as any).nodeName

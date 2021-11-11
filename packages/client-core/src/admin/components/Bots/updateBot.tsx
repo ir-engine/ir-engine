@@ -56,9 +56,9 @@ const UpdateBot = (props: Props) => {
   const [currentInstance, setCurrentIntance] = React.useState<Instance[]>([])
   const [openAlter, setOpenAlter] = React.useState(false)
   const [error, setError] = React.useState('')
-  const adminLocation = useLocationState().locations
+  const adminLocation = useLocationState()
   const locationData = adminLocation.locations
-  const adminInstances = adminInstanceState.instances
+  const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
   const user = useAuthState().user
 
@@ -107,7 +107,7 @@ const UpdateBot = (props: Props) => {
         setCurrentIntance(instanceFilter)
       }
     }
-  }, [state.location, bot, adminInstanceState.instances.instances.value])
+  }, [state.location, bot, adminInstanceState.instances.value])
 
   const handleUpdate = () => {
     const data = {

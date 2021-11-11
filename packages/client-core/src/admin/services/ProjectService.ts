@@ -12,11 +12,9 @@ export const state = createState({
 })
 
 store.receptors.push((action: ProjectActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'PROJECTS_RETRIEVED':
-        result = action.projectResult
         return s.merge({
           projects: action.projectResult,
           updateNeeded: false
@@ -40,27 +38,41 @@ export async function fetchAdminProjects(incDec?: 'increment' | 'decrement') {
   //   $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip
   // }
   // })
-  console.log(projects.data)
   store.dispatch(ProjectAction.projectsFetched(projects.data))
 }
 
-export async function uploadProject(url: string) {
-  const dispatch = useDispatch()
-  const result = await client.service('project').create({ url })
-  console.log('Upload project result', result)
-  dispatch(ProjectAction.postProject())
-  fetchAdminProjects()
-}
+export const ProjectService = {
+  fetchAdminProjects: async () => {
+    const projects = await client.service('project').find({ paginate: false })
+    store.dispatch(ProjectAction.projectsFetched(projects.data))
+  },
 
-export async function removeProject(id: string) {
-  const result = await client.service('project').remove(id)
-  console.log('Remove project result', result)
-  fetchAdminProjects()
-}
+  createProject: async (name: string) => {
+    const dispatch = useDispatch()
+    const result = await client.service('project').create({ name })
+    console.log('Upload project result', result)
+    dispatch(ProjectAction.createdProject())
+    ProjectService.fetchAdminProjects()
+  },
 
-export async function triggerReload() {
-  const result = await client.service('project-build').patch({ rebuild: true })
-  console.log('Remove project result', result)
+  uploadProject: async (url: string) => {
+    const dispatch = useDispatch()
+    const result = await client.service('project').update({ url })
+    console.log('Upload project result', result)
+    dispatch(ProjectAction.postProject())
+    ProjectService.fetchAdminProjects()
+  },
+
+  removeProject: async (id: string) => {
+    const result = await client.service('project').remove(id)
+    console.log('Remove project result', result)
+    ProjectService.fetchAdminProjects()
+  },
+
+  triggerReload: async () => {
+    const result = await client.service('project-build').patch({ rebuild: true })
+    console.log('Remove project result', result)
+  }
 }
 // TODO
 // client.service('project-build').on('patched', (params) => {
@@ -78,6 +90,11 @@ export const ProjectAction = {
   postProject: () => {
     return {
       type: 'PROJECT_POSTED' as const
+    }
+  },
+  createdProject: () => {
+    return {
+      type: 'PROJECT_CREATED' as const
     }
   }
   // TODO

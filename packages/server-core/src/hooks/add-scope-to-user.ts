@@ -30,8 +30,8 @@ export default () => {
         })
       }
 
-      if (context.arguments[1]?.scopeType) {
-        context.arguments[1]?.scopeType?.forEach(async (el) => {
+      if (context.arguments[1]?.scopeTypes) {
+        context.arguments[1]?.scopeTypes?.forEach(async (el) => {
           await context.app.service('scope').create({
             type: el.type,
             userId: context.arguments[0]
@@ -65,11 +65,11 @@ export default () => {
         })
       }
 
-      if (context.arguments[1].scopeType) {
+      if (context.arguments[1].scopeTypes) {
         foundItem.forEach(async (scp) => {
           await context.app.service('scope').remove(scp.dataValues.id)
         })
-        context.arguments[1]?.scopeType?.forEach(async (el) => {
+        context.arguments[1]?.scopeTypes?.forEach(async (el) => {
           await context.app.service('scope').create({
             type: el.type,
             userId: context.arguments[0]

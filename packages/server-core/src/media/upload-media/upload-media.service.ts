@@ -31,7 +31,7 @@ export default (app: Application): void => {
       if (req?.feathers && req.method !== 'GET') {
         req.feathers.file = (req as any).files.media ? (req as any).files.media[0] : null
         req.feathers.body = (req as any).body
-        req.feathers.body.fileId = uuidv1()
+        req.feathers.body.fileId = req.feathers.body.fileId ?? uuidv1()
         req.feathers.mimeType = req.feathers.file.mimetype
         req.feathers.storageProvider = provider
         req.feathers.thumbnail = (req as any).files.thumbnail ? (req as any).files.thumbnail[0] : null

@@ -18,8 +18,8 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import Switch from '@mui/material/Switch'
 import { useTranslation } from 'react-i18next'
-import { useLocationState } from '../../services/LocationStatece'
-import { useSceneState } from '../../services/SceneStatece'
+import { useLocationState } from '../../services/LocationService'
+import { useSceneState } from '../../services/SceneService'
 import { LocationService } from '../../services/LocationService'
 import { validateUserForm } from '../Users/validation'
 import { useAlertState } from '../../../common/services/AlertService'
@@ -63,9 +63,9 @@ const CreateLocation = (props: Props) => {
   const dispatch = useDispatch()
   const { t } = useTranslation()
   const adminLocationState = useLocationState()
-  const locationTypes = adminLocationState.locationTypes.locationTypes
-  const location = adminLocationState.locations
-  const adminScenes = useSceneState().scenes.scenes
+  const locationTypes = adminLocationState.locationTypes
+  const location = adminLocationState
+  const adminScenes = useSceneState().scenes
   const alertState = useAlertState()
   const errorType = alertState.type
   const errorMessage = alertState.message

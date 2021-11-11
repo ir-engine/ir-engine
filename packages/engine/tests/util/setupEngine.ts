@@ -1,12 +1,6 @@
-/**
- * engine utils & polyfills
- */
 import { EngineSystemPresets, InitializeOptions } from '../../src/initializationOptions'
-import { XMLHttpRequest } from 'xmlhttprequest'
-import { NetworkSchema } from '../../src/networking/interfaces/NetworkSchema'
 import { Network } from '../../src/networking/classes/Network'
-;(globalThis as any).XMLHttpRequest = XMLHttpRequest
-;(globalThis as any).self = globalThis
+import '@xrengine/engine/src/patchEngineNode'
 
 class DummyTransport {
   handleKick = () => {}

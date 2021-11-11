@@ -1,5 +1,4 @@
 import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
-import { entitySeeds, componentSeeds } from './entities/seeder-config'
 import { mediaSeeds } from './media/seeder-config'
 import { networkingSeeds } from './networking/seeder-config'
 import { paymentSeeds } from './payments/seeder-config'
@@ -11,9 +10,9 @@ import { scopeSeeds } from './scope/seeder-config'
 import { settingSeeds } from './setting/seeder-config'
 import { analyticsSeeds } from './analytics/seeder-config'
 import { routeSeeds } from './route/seeder-config'
+import { projectSeeds } from './projects/seeder-config'
 
 export const seeds: Array<ServicesSeedConfig> = [
-  ...entitySeeds,
   ...mediaSeeds,
   ...networkingSeeds,
   ...paymentSeeds,
@@ -21,11 +20,11 @@ export const seeds: Array<ServicesSeedConfig> = [
   ...socialMediaSeeds,
   ...userSeeds,
   ...worldSeeds,
-  ...componentSeeds,
   ...scopeSeeds,
   ...settingSeeds,
   ...analyticsSeeds,
-  ...routeSeeds
+  ...routeSeeds,
+  ...projectSeeds
 ]
 
 export default seeds

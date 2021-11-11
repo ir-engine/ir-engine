@@ -7,19 +7,15 @@ import { SettingAnalyticsResult } from '@xrengine/common/src/interfaces/SettingA
 
 //State
 const state = createState({
-  Analytics: {
-    analytics: [] as Array<SettingAnalytics>,
-    updateNeeded: true
-  }
+  analytics: [] as Array<SettingAnalytics>,
+  updateNeeded: true
 })
 
 store.receptors.push((action: SettingAnalyticsActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'SETTING_ANALYIS_DISPLAY':
-        result = action.settingAnalyticsResult
-        return s.Analytics.merge({ analytics: result.data, updateNeeded: false })
+        return s.merge({ analytics: action.settingAnalyticsResult.data, updateNeeded: false })
     }
   }, action.type)
 })

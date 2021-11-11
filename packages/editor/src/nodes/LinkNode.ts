@@ -6,7 +6,7 @@ export default class LinkNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'link'
   static nodeName = 'Link'
   static async load() {
-    linkHelperTexture = await loadTexture('/editor/link-icon.png')
+    linkHelperTexture = await loadTexture('/static/editor/link-icon.png')
   }
   static async deserialize(json) {
     const node = await super.deserialize(json)

@@ -3,10 +3,7 @@ import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
 import { accessAuthState } from '../../user/services/AuthService'
 
-import { createState, DevTools, useState, Downgraded } from '@hookstate/core'
-import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { createState, useState } from '@hookstate/core'
 
 import { AdminPartyResult } from '@xrengine/common/src/interfaces/AdminPartyResult'
 import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
@@ -15,33 +12,23 @@ import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
 export const PARTY_PAGE_LIMIT = 100
 
 const state = createState({
-  isLoggedIn: false,
-  isProcessing: false,
-  error: '',
-  authUser: AuthUserSeed,
-  user: UserSeed,
-  identityProvider: IdentityProviderSeed,
-  parties: {
-    parties: [] as Array<AdminParty>,
-    skip: 0,
-    limit: PARTY_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    lastFetched: Date.now()
-  }
+  parties: [] as Array<AdminParty>,
+  skip: 0,
+  limit: PARTY_PAGE_LIMIT,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true,
+  lastFetched: Date.now()
 })
 
 store.receptors.push((action: PartyActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'PARTY_ADMIN_DISPLAYED':
-        result = action.data
-        return s.parties.merge({ parties: result.data, updateNeeded: false })
+        return s.merge({ parties: action.data.data, updateNeeded: false })
       case 'PARTY_ADMIN_CREATED':
-        return s.parties.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -69,8 +56,8 @@ export const PartyService = {
     {
       const user = accessAuthState().user
       const adminParty = accessPartyState()
-      const skip = adminParty.parties.skip.value
-      const limit = adminParty.parties.limit.value
+      const skip = adminParty.skip.value
+      const limit = adminParty.limit.value
       try {
         if (user.userRole.value === 'admin') {
           const parties = await client.service('party').find({

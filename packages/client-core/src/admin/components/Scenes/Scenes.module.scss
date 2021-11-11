@@ -1,3 +1,5 @@
+@import "../../../styles/imports.module.scss";
+
 .admin {
   display: flex;
   flex-direction: column;
@@ -7,9 +9,7 @@
 }
 
 .paper-modal {
-  padding: 16px 32px 24px;
-  box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
-  background-color: #fff;
+  @include paper-modal();
   max-width: 80%;
   max-height: 90%;
   overflow-y: scroll;
@@ -40,7 +40,7 @@
   background-color: red !important;
 }
 .MuiButton-contained.facebook {
-  background-color: #4267B2;
+  background-color: $FacebookBlue;
   color: white;
 }
 .MuiButton-contained.google {
@@ -81,7 +81,7 @@
 
        .currentUser{
         color: lighten(white, 0.80);
-        background-color: #4267B2;
+        background-color: $FacebookBlue;
         padding-top: 5px;
         padding-bottom: 5px;
         &:hover {
@@ -140,9 +140,7 @@
 }
 
 .paper {
-  padding: 16px 32px 24px;
-  box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
-  background-color: #fff;
+  @include paper-modal();
 }
 
 .modal-content {

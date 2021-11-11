@@ -39,8 +39,9 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   static canAddNode() {
     return false
   }
-  static async loadProject(json) {
-    const { root, metadata, entities } = json
+  static async loadProject(json: SceneJson) {
+    console.log(json)
+    const { root, entities } = json
     let scene = null
     const dependencies = []
     function loadAsync(promise) {
@@ -77,7 +78,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             node.parent = parent
           } else if (entityId === root) {
             scene = node
-            scene.metadata = metadata
+            SceneManager.instance.scene = scene
           } else {
             throw new Error(`Node "${entity.name}" with uuid "${entity.uuid}" does not specify a parent.`)
           }
@@ -156,7 +157,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   url = null
-  metadata = {} as any
 
   meta_data = ''
   _fogType = FogType.Disabled
@@ -405,7 +405,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   copy(source, recursive = true) {
     super.copy(source, recursive)
     this.url = source.url
-    this.metadata = source.metadata
     this.meta_data = source.meta_data
     this.fogType = source.fogType
 
@@ -439,11 +438,11 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
     return this
   }
-  async serialize(projectId): Promise<any> {
+  // @ts-ignore
+  async serialize(sceneId): Promise<SceneJson> {
     const sceneJson: SceneJson = {
       version: 4,
       root: this.uuid,
-      metadata: this.parseMetadataToObject(this.metadata),
       entities: {
         [this.uuid]: {
           name: this.name,
@@ -501,7 +500,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             },
             {
               name: 'envmap',
-              props: await this.getEnvMapProps(projectId)
+              props: await this.getEnvMapProps(sceneId)
             }
           ]
         }
@@ -512,7 +511,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       if (!child.isNode || child === this) {
         return
       }
-      const entityJson = await child.serialize(projectId)
+      const entityJson = await child.serialize(sceneId)
       entityJson.parent = child.parent.uuid
       let index = 0
       for (const sibling of child.parent.children) {
@@ -634,15 +633,5 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       }
     })
     return animations
-  }
-  clearMetadata() {
-    this.metadata = {}
-  }
-  setMetadata(newMetadata) {
-    const existingMetadata = this.metadata || {}
-    this.metadata = Object.assign(this.parseMetadataToObject(existingMetadata), newMetadata)
-  }
-  parseMetadataToObject(metadata) {
-    return typeof metadata === 'string' ? this.parseMetadataToObject(JSON.parse(metadata)) : metadata
   }
 }

@@ -15,9 +15,8 @@ import Paper from '@mui/material/Paper'
 import TablePagination from '@mui/material/TablePagination'
 import { useAuthState } from '../../../user/services/AuthService'
 import { PROJECT_PAGE_LIMIT, useProjectState } from '../../services/ProjectService'
-import { fetchAdminProjects, removeProject, triggerReload, uploadProject } from '../../services/ProjectService'
+import { ProjectService } from '../../services/ProjectService'
 import styles from './Projects.module.scss'
-import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import UploadProjectModal from './UploadProjectModal'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
@@ -117,7 +116,6 @@ const Projects = () => {
   const [selected, setSelected] = useState<string[]>([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
-  const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [uploadProjectsModalOpen, setUploadProjectsModalOpen] = useState(false)
   const [selectedProjects, setSelectedProjects] = useState<ProjectInterface[]>([])
   const [dimensions, setDimensions] = useState({
@@ -153,13 +151,14 @@ const Projects = () => {
 
   const onRemoveProject = async (e: any, row: any) => {
     const projectToRemove = adminProjects.value.find((project) => project.name === row.name)!
-    await removeProject(projectToRemove.id!)
+    await ProjectService.removeProject(projectToRemove.id!)
   }
 
-  const tryReuploadProjects = async (row) => {
+  const tryReuploadProjects = async (row: ProjectInterface) => {
     try {
+      if (!row.repositoryPath) return
       const existingProjects = adminProjects.value.find((projects) => projects.name === row.name)!
-      await uploadProject(existingProjects.repositoryPath)
+      await ProjectService.uploadProject(existingProjects.repositoryPath)
     } catch (err) {
       console.log(err)
     }
@@ -171,7 +170,7 @@ const Projects = () => {
 
   useEffect(() => {
     if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
-      fetchAdminProjects()
+      ProjectService.fetchAdminProjects()
     }
   }, [adminProjectState.updateNeeded.value])
 
@@ -211,7 +210,7 @@ const Projects = () => {
               type="button"
               variant="contained"
               color="primary"
-              onClick={triggerReload}
+              onClick={ProjectService.triggerReload}
             >
               {'Rebuild'}
             </Button>
@@ -246,6 +245,7 @@ const Projects = () => {
                       {user.userRole.value === 'admin' && (
                         <Button
                           className={styles.checkbox}
+                          disabled={row.repositoryPath === null}
                           onClick={(e) => tryReuploadProjects(row)}
                           name="stereoscopic"
                           color="primary"
@@ -285,11 +285,6 @@ const Projects = () => {
             className={styles.tablePagination}
           />
         </div> */}
-        <AddToContentPackModal
-          open={addToContentPackModalOpen}
-          projects={selectedProjects}
-          handleClose={() => setAddToContentPackModalOpen(false)}
-        />
         <UploadProjectModal open={uploadProjectsModalOpen} handleClose={() => setUploadProjectsModalOpen(false)} />
       </Paper>
     </div>

@@ -18,8 +18,8 @@ import { LocationService } from '../services/LocationService'
 import styles from './Admin.module.scss'
 import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { useSceneState } from '../services/SceneStatece'
-import { useLocationState } from '../services/LocationStatece'
+import { useSceneState } from '../services/SceneService'
+import { useLocationState } from '../services/LocationService'
 
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
@@ -40,7 +40,7 @@ const LocationModal = (props: Props): any => {
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
   const [locationType, setLocationType] = useState('private')
   const adminSceneState = useSceneState()
-  const adminScenes = adminSceneState.scenes.scenes
+  const adminScenes = adminSceneState.scenes
   const locationTypes = useLocationState().locationTypes.locationTypes
   const [state, setState] = React.useState({
     feature: false,
@@ -81,9 +81,9 @@ const LocationModal = (props: Props): any => {
       setName(location.name)
       setSceneId(location.sceneId || '')
       setMaxUsers(location.maxUsersPerInstance)
-      setVideoEnabled(location.location_settings.videoEnabled)
-      setInstanceMediaChatEnabled(location.location_settings.instanceMediaChatEnabled)
-      setLocationType(location.location_settings.locationType)
+      setVideoEnabled(location.locationSettings.videoEnabled)
+      setInstanceMediaChatEnabled(location.locationSettings.instanceMediaChatEnabled)
+      setLocationType(location.locationSettings.locationType)
       setState({
         lobby: location.isLobby,
         feature: location.isFeatured
