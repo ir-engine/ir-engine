@@ -56,8 +56,6 @@ export default class Model extends Object3D {
     return this
   }
   getClipOptions() {
-    console.log('CLIP OPTIONS')
-    console.log(this.model)
     const clipOptions =
       this.model && this.model.animations
         ? this.model.animations.map((clip, index) => ({
