@@ -375,21 +375,21 @@ const ViewUser = (props: Props) => {
               <Typography variant="h4" component="h4" className={`${classes.mb20px} ${classes.headingFont}`}>
                 Personal Information{' '}
               </Typography>
-              <Grid item xs={6} sm={6}>
-                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
+              <Grid item xs={6} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   Location:
                 </Typography>
-                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   Avatar:
                 </Typography>
-                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   Invite Code:
                 </Typography>
-                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
+                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   Instance:
                 </Typography>
               </Grid>
-              <Grid item xs={4} sm={6}>
+              <Grid item xs={4} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                   {userAdmin?.party?.location?.name || <span className={classx.spanNone}>None</span>}
                 </Typography>
@@ -410,7 +410,12 @@ const ViewUser = (props: Props) => {
                 {singleUserData?.scopes?.value?.map((el, index) => {
                   const [label, type] = el.type.split(':')
                   return (
-                    <Grid container spacing={3} style={{ paddingLeft: '10px', width: '100%' }} key={el.id}>
+                    <Grid
+                      container
+                      spacing={3}
+                      style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}
+                      key={el.id}
+                    >
                       <Grid item xs={8}>
                         <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                           {label}:
