@@ -33,7 +33,7 @@ open ports, in different terminal
 kubectl port-forward --namespace open-match service/open-match-frontend 51504:51504
 ```
 
-all next runs:
+#all next runs:
 ```bash
 minikube start
 kubectl port-forward --namespace open-match service/open-match-frontend 51504:51504
