@@ -188,6 +188,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput value={node._matrixAutoUpdate} onChange={onChangeUpdateDataMatrix} />
       </InputGroup>
+      {node.interactable && <InteractableGroup node={node}></InteractableGroup>}
     </NodeEditor>
   )
 }
