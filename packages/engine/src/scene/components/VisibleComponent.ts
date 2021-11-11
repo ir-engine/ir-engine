@@ -80,4 +80,4 @@ export class VisibleData implements ComponentData {
   }
 }
 
-export const VisibleComponent = createMappedComponent<VisibleData>('VisibleComponent')
+export const VisibleComponent = createMappedComponent<VisibleData>(ComponentNames.VISIBILE)

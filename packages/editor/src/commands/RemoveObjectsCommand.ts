@@ -5,12 +5,17 @@ import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { NodeManager } from '../managers/NodeManager'
 import { TreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent, removeAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getAllComponents, getComponent, removeAllComponents, serializeComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { ComponentData } from '@xrengine/engine/src/common/classes/ComponentData'
+import { getShapeOfEntity } from '@xrengine/engine/src/common/constants/Object3DClassMap'
 
 export interface RemoveObjectCommandParams extends CommandParams {
   /** Whether to deselect object or not */
   deselectObject?: boolean
+
+  /** Whether to serialize all the component or not. serialized components will be used for undo operation */
+  serializeComponent?: boolean
 }
 
 export default class RemoveObjectsCommand extends Command {
@@ -20,9 +25,10 @@ export default class RemoveObjectsCommand extends Command {
 
   oldBefores: any[]
 
-  oldNodes: any
-
   deselectObject?: boolean
+
+  serializeComponent?: boolean
+  oldComponents?: any[]
 
   constructor(objects?: any | any[], params?: RemoveObjectCommandParams) {
     super(objects, params)
@@ -31,15 +37,20 @@ export default class RemoveObjectsCommand extends Command {
     this.oldParents = []
     this.oldBefores = []
     this.undoObjects = []
-    this.oldNodes = NodeManager.instance.getCopy()
     this.oldSelection = CommandManager.instance.selected.slice(0)
     this.deselectObject = params.deselectObject
+    this.serializeComponent = params.serializeComponent
+    this.oldComponents = []
 
     for (let i = this.affectedObjects.length - 1; i >= 0; i--) {
       const object = this.affectedObjects[i]
       this.undoObjects.push(object)
       this.oldParents.push(object.parentNode)
       this.oldBefores.push(object.parentNode.children[object.parentNode.children.indexOf(object) + 1])
+
+      if (this.serializeComponent) {
+        this.oldComponents.push(serializeComponents(object.eid))
+      }
     }
   }
 
@@ -81,7 +92,8 @@ export default class RemoveObjectsCommand extends Command {
       parents: this.oldParents,
       befores: this.oldBefores,
       isObjectSelected: this.isSelected,
-      useUniqueName: false
+      useUniqueName: false,
+      componentData: this.oldComponents
     })
 
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)

@@ -1,4 +1,5 @@
 import { CubeTextureLoader, PMREMGenerator, ShaderMaterial, sRGBEncoding, TextureLoader, Color } from 'three'
+import { ComponentData } from '../../common/classes/ComponentData'
 import { ComponentNames } from '../../common/constants/ComponentNames'
 import { Engine } from '../../ecs/classes/Engine'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
@@ -19,7 +20,7 @@ export type SkyboxDataProps = {
   cubemapPath?: string
 }
 
-export class SkyboxData {
+export class SkyboxData implements ComponentData {
   static legacyComponentName = ComponentNames.SKYBOX
 
   constructor(obj3d: Sky, props?: SkyboxDataProps) {
@@ -214,6 +215,26 @@ export class SkyboxData {
     if (this.backgroundType !== SkyTypeEnum.SKYBOX) return
 
     Engine.scene.background = this.obj3d.generateSkybox(Engine.renderer)
+  }
+
+  serialize(): object {
+    return {
+      backgroundType: this.backgroundType,
+      azimuth: this.azimuth,
+      inclination: this.inclination,
+      mieCoefficient: this.mieCoefficient,
+      mieDirectionalG: this.mieDirectionalG,
+      rayleigh: this.rayleigh,
+      turbidity: this.turbidity,
+      luminance: this.luminance,
+      backgroundColor: this.backgroundColor,
+      equirectangularPath: this.equirectangularPath,
+      cubemapPath: this.cubemapPath,
+    }
+  }
+
+  serializeToJSON(): string {
+    return JSON.stringify(this.serialize())
   }
 }
 

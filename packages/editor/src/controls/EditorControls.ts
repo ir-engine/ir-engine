@@ -264,10 +264,10 @@ export default class EditorControls extends EventEmitter {
 
       const lastTransform = getComponent(selected[selected.length - 1].eid, TransformComponent)
       if (
-        this.selectionChanged ||
+        (this.selectionChanged ||
         this.transformModeChanged ||
         this.transformPivotChanged ||
-        this.transformPropertyChanged
+        this.transformPropertyChanged) && lastTransform
       ) {
         if (this.transformPivot === TransformPivot.Selection) {
           lastTransform.obj3d.getWorldPosition(SceneManager.instance.transformGizmo.position)
@@ -295,7 +295,7 @@ export default class EditorControls extends EventEmitter {
         this.transformPropertyChanged
       ) {
         if (this.transformSpace === TransformSpace.LocalSelection) {
-          lastTransform.obj3d.getWorldQuaternion(SceneManager.instance.transformGizmo.quaternion)
+          lastTransform?.obj3d.getWorldQuaternion(SceneManager.instance.transformGizmo.quaternion)
         } else {
           SceneManager.instance.transformGizmo.rotation.set(0, 0, 0)
         }

@@ -12,7 +12,6 @@ export const createDefaultEntity: EntityCreateFunctionType = (
   entity: Entity,
   componentData: EntityComponentDataType,
 ) => {
-  console.debug('Hello world')
   if (componentData[ComponentNames.NAME]) {
     addComponent<NameData, {}>(entity, NameComponent, new NameData(componentData[ComponentNames.NAME].name))
   }

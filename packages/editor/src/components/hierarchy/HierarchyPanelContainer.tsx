@@ -407,7 +407,7 @@ export default function HierarchyPanel() {
    */
   const onDeleteNode = useCallback((_, node) => {
     let objs = node.selected ? CommandManager.instance.selected : node.object
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.REMOVE_OBJECTS, objs)
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.REMOVE_OBJECTS, objs, { serializeComponent: true })
   }, [])
 
   /**

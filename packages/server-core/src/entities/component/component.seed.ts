@@ -168,9 +168,7 @@ export const componentSeed = {
     },
     {
       id: '09cc03c4-24e9-11eb-bc2e-e7e742fb069f',
-      data: {
-        options: defaultPostProcessingSchema
-      },
+      data: defaultPostProcessingSchema,
       createdAt: '2020-11-12 13:14:45',
       updatedAt: '2020-11-12 13:14:45',
       type: 'postprocessing',
@@ -213,7 +211,7 @@ export const componentSeed = {
       createdAt: '2020-11-12 13:14:45',
       updatedAt: '2020-11-12 13:14:45',
       type: 'envMap',
-      entityId: entitySeed.templates.find((template) => template.id === '1A698484-D15A-4DED-9247-03873520DX70').id
+      entityId: entitySeed.templates.find((template) => template.id === '08c8a840-24e9-11eb-bc2e-e7e742fb069f').id
     }
   ]
 }

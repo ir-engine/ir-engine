@@ -1,4 +1,4 @@
-import { CircleBufferGeometry, Color, Mesh, MeshBasicMaterial, MeshStandardMaterial, Quaternion, Vector3 } from 'three'
+import { CircleBufferGeometry, Color, Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { ComponentData } from '../../common/classes/ComponentData'
@@ -10,28 +10,8 @@ export type GroundPlaneDataProps = {
   walkable: boolean
 }
 
-// TODO: Component class to hold the component data
 export class GroundPlaneData implements ComponentData {
   static legacyComponentName = ComponentNames.GROUND_PLANE
-
-  // TODO: Will be used for rendering Editor input UI
-  static metadata: [
-    {
-      name: 'coler',
-      displayName: 'Color',
-      type: 'Color',
-    },
-    {
-      name: 'receiveShadow',
-      displayName: 'Receive Shadow',
-      type: 'boolean',
-    },
-    {
-      name: 'walkable',
-      displayName: 'Walkable',
-      type: 'boolean',
-    }
-  ]
 
   constructor(obj3d: Mesh, props: GroundPlaneDataProps) {
     this.obj3d = obj3d
@@ -43,7 +23,7 @@ export class GroundPlaneData implements ComponentData {
 
     this.obj3d.name = 'GroundPlaneMesh'
     this.obj3d.position.setY(-0.05)
-    this.obj3d.rotateX(-Math.PI / 2)
+    this.obj3d.rotation.x = -Math.PI / 2
 
     this.walkableMesh = new Mesh(
       new CircleBufferGeometry(1, 32),

@@ -10,6 +10,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { TreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { DefautSceneEntityShape, getShapeOfEntity } from '@xrengine/engine/src/common/constants/Object3DClassMap'
 
 export interface AddObjectCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -20,6 +21,9 @@ export interface AddObjectCommandParams extends CommandParams {
 
   /** Whether to use unique name or not */
   useUniqueName?: boolean
+
+  /** ComponentData */
+  componentData?: any[]
 }
 
 export default class AddObjectCommand extends Command {
@@ -34,6 +38,9 @@ export default class AddObjectCommand extends Command {
 
   duplicateObjects?: any[]
 
+  /** ComponentData */
+  componentData?: any[]
+
   constructor(objects?: any | any[], params?: AddObjectCommandParams) {
     super(objects, params)
 
@@ -42,6 +49,7 @@ export default class AddObjectCommand extends Command {
     this.befores = Array.isArray(params.befores) ? params.befores : [params.befores]
     this.useUniqueName = params.useUniqueName ?? true
     this.oldSelection = CommandManager.instance.selected.slice(0)
+    this.componentData = params.componentData
   }
 
   execute(): void {
@@ -118,6 +126,15 @@ export default class AddObjectCommand extends Command {
       }
 
       if (this.useUniqueName) makeUniqueName(object, world.entityTree)
+
+      const compData = this.componentData ? this.componentData[i] : undefined
+
+      if (compData) {
+        const entityShape = getShapeOfEntity(Object.keys(compData))
+
+        if (entityShape) entityShape.create(object.eid, compData, { sceneProperty: { isEditor: true } })
+        else DefautSceneEntityShape.create(object.eid, compData)
+      }
     }
 
     if (this.isSelected) {

@@ -195,3 +195,14 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
 }
 
 export type Query = ReturnType<typeof defineQuery>
+
+export function serializeComponents(entity: Entity): any {
+  const components = getAllComponents(entity)
+
+  const data = {}
+  components.forEach((comp) => {
+    data[comp._name] = comp.get(entity).serialize()
+  })
+
+  return data
+}

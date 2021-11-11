@@ -81,4 +81,4 @@ export class TransformData implements ComponentData {
   }
 }
 
-export const TransformComponent = createMappedComponent<TransformData>('TransformComponent')
+export const TransformComponent = createMappedComponent<TransformData>(ComponentNames.TRANSFORM)
