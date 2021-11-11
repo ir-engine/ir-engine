@@ -1,3 +1,4 @@
+import { useHookstate } from '@hookstate/core'
 import React, { useState, useRef, useEffect, Children, cloneElement } from 'react'
 import styled from 'styled-components'
 
@@ -436,7 +437,7 @@ const PositionerContainer = (styled as any).div.attrs(({ transform, transformOri
 export function Positioner({ children, position, padding, getTargetRef, ...rest }) {
   const positionerContainerRef = useRef<any>()
 
-  const [transformProps, setTransformProps] = useState({
+  const transformProps = useHookstate({
     finalPosition: position,
     transform: 'translate(0px,0px)',
     transformOrigin: 'initial',
@@ -459,9 +460,8 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
         viewportOffset: padding
       })
 
-      setTransformProps({
+      transformProps.merge({
         finalPosition,
-        transformOrigin: transformProps.transformOrigin,
         transform: `translate(${rect.left}px, ${rect.top}px)`,
         opacity: 1
       })
@@ -474,14 +474,14 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
     return () => {
       window.removeEventListener('resize', onReposition)
     }
-  }, [position, padding, getTargetRef, setTransformProps])
+  }, [position, padding, getTargetRef])
 
   const childrenWithProps = Children.map(children, (child) =>
-    cloneElement(child, { position: transformProps.finalPosition })
+    cloneElement(child, { position: transformProps.finalPosition.value })
   )
 
   return (
-    <PositionerContainer {...rest} {...transformProps} ref={positionerContainerRef}>
+    <PositionerContainer {...rest} {...transformProps.value} ref={positionerContainerRef}>
       {childrenWithProps}
     </PositionerContainer>
   )

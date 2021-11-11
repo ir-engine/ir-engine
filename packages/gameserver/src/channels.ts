@@ -147,7 +147,8 @@ export default (app: Application): void => {
              * When using local dev, to properly test multiple worlds for portals we
              * need to programatically shut down and restart the gameserver process.
              */
-            if (config.kubernetes.enabled === false && app.instance && app.instance.sceneId !== sceneId) {
+            console.log(app.instance?.locationId, locationId)
+            if (config.kubernetes.enabled === false && app.instance && app.instance.locationId !== locationId) {
               app.restart()
               return
             }
