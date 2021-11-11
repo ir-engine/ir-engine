@@ -39,25 +39,13 @@ const ErrorMessage = (styled as any).code`
  * @author Robert Long
  * @type {Object}
  */
-export class ErrorDialog extends Component {
-  state = { eventId: null } //eslint-disable-line react/no-unused-state
-
-  //updating state once the component get mounted.
-  componentDidMount() {
-    if ((this.props as any).error) {
-      this.setState({ ...((this.props as any).eventId ?? null) })
-    }
-  }
-
-  // rendering view for ErrorMessage
-  render() {
-    const { error, message, onCancel, ...props } = this.props as any
-    return (
-      <ErrorDialogContainer {...props}>
-        <ErrorMessage>{message}</ErrorMessage>
-      </ErrorDialogContainer>
-    )
-  }
+export function ErrorDialog(props) {
+  if (!props) return
+  return (
+    <ErrorDialogContainer {...props}>
+      <ErrorMessage>{props?.message}</ErrorMessage>
+    </ErrorDialogContainer>
+  )
 }
 
 export default ErrorDialog

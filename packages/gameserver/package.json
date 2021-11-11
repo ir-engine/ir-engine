@@ -78,7 +78,7 @@
     "feathers-logger": "0.3.2",
     "feathers-mailer": "3.1.0",
     "feathers-seeder": "2.0.0",
-    "feathers-sequelize": "https://github.com/feathersjs-ecosystem/feathers-sequelize.git",
+    "feathers-sequelize": "6.3.2",
     "feathers-swagger": "1.2.1",
     "feathers-sync": "2.4.0",
     "fs-blob-store": "6.0.0",

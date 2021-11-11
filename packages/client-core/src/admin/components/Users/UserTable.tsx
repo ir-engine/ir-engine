@@ -31,8 +31,8 @@ const UserTable = (props: UserProps) => {
   const user = useAuthState().user
   const dispatch = useDispatch()
   const adminUserState = useUserState()
-  const adminUsers = adminUserState.users.users
-  const adminUserCount = adminUserState.users.total
+  const adminUsers = adminUserState.users
+  const adminUserCount = adminUserState.total
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     UserService.fetchUsersAsAdmin(incDec)
@@ -47,8 +47,8 @@ const UserTable = (props: UserProps) => {
     const fetchData = async () => {
       await UserService.fetchUsersAsAdmin()
     }
-    if (adminUserState.users.updateNeeded.value === true && user.id.value) fetchData()
-  }, [adminUserState.users.updateNeeded.value, user])
+    if (adminUserState.updateNeeded.value === true && user.id.value) fetchData()
+  }, [adminUserState.updateNeeded.value, user])
 
   const openViewModel = (open: boolean, user: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
     UserService.refetchSingleUserAdmin()
@@ -105,6 +105,7 @@ const UserTable = (props: UserProps) => {
       )
     }
   }
+
   const rows = adminUsers.value.map((el) => {
     const loc = el.party?.id ? el.party.location : null
     const loca = loc ? (

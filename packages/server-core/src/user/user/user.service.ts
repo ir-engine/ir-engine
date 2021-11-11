@@ -5,6 +5,7 @@ import hooks from './user.hooks'
 import _ from 'lodash'
 import logger from '../../logger'
 import userDocs from './user.docs'
+import config from '../../appconfig'
 
 declare module '../../../declarations' {
   /**
@@ -30,6 +31,9 @@ export default (app: Application): void => {
   const service = app.service('user')
 
   service.hooks(hooks)
+
+  // when seeding db, no need to patch users
+  if (config.db.forceRefresh) return
 
   /**
    * This method find all users

@@ -1,8 +1,7 @@
 import { createState, Downgraded } from '@hookstate/core'
-import ArrayKeyedMap from './classes/ArrayKeyedMap'
+import HashMap from './classes/HashMap'
 import TileCache from './classes/TileCache'
 import {
-  FeatureKey,
   MapDerivedFeatureComplete,
   MapDerivedFeatureGeometry,
   MapFeatureLabel,
@@ -10,44 +9,46 @@ import {
   MapTransformedFeature,
   SupportedFeature,
   TaskStatus,
+  VectorTile,
   TileKey,
-  VectorTile
+  FeatureKey
 } from './types'
 import { MAX_CACHED_TILES, MAX_CACHED_FEATURES } from './constants'
 import FeatureCache from './classes/FeatureCache'
 import { MultiPolygon } from 'polygon-clipping'
 import MutableNavMesh from './classes/MutableNavMesh'
 import { LongLat } from './functions/UnitConversionFunctions'
+import HashSet from './classes/HashSet'
 
 const state = createState({
   center: [0, 0],
   originalCenter: [0, 0],
   viewerPosition: [0, 0],
-  triggerRefreshRadius: 40,
+  triggerRefreshRadius: 160,
   minimumSceneRadius: 800,
   labelRadius: 400,
   navMeshRadius: 400,
   scale: 1,
-  fetchTilesTasks: new ArrayKeyedMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
+  fetchTilesTasks: new HashMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   tileCache: new TileCache<VectorTile>(MAX_CACHED_TILES),
-  extractTilesTasks: new ArrayKeyedMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
+  extractTilesTasks: new HashMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   featureCache: new FeatureCache<SupportedFeature>(MAX_CACHED_FEATURES),
-  transformedFeatureTasks: new ArrayKeyedMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
+  transformedFeatureTasks: new HashMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   transformedFeatureCache: new FeatureCache<MapTransformedFeature>(MAX_CACHED_FEATURES),
-  geometryTasks: new ArrayKeyedMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
+  geometryTasks: new HashMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   geometryCache: new FeatureCache<MapDerivedFeatureGeometry>(MAX_CACHED_FEATURES),
-  completeObjectsTasks: new ArrayKeyedMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
+  completeObjectsTasks: new HashMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   completeObjects: new FeatureCache<MapDerivedFeatureComplete>(MAX_CACHED_FEATURES),
-  labelTasks: new ArrayKeyedMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
+  labelTasks: new HashMap<FeatureKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   labelCache: new FeatureCache<MapFeatureLabel>(MAX_CACHED_FEATURES),
-  tileNavMeshTasks: new ArrayKeyedMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
+  tileNavMeshTasks: new HashMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   tileNavMeshCache: new TileCache<MultiPolygon>(MAX_CACHED_TILES),
-  helpersTasks: new ArrayKeyedMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
+  helpersTasks: new HashMap<TileKey, TaskStatus>([], { defaultValue: TaskStatus.NOT_STARTED }),
   helpersCache: new TileCache<MapHelpers>(MAX_CACHED_TILES),
-  tileMeta: new ArrayKeyedMap<TileKey, { cachedFeatureKeys: Set<FeatureKey> }>([], {
-    defaultValue: { cachedFeatureKeys: new Set() }
+  tileMeta: new HashMap<TileKey, { cachedFeatureKeys: HashSet<FeatureKey> }>([], {
+    defaultValue: { cachedFeatureKeys: new HashSet() }
   }),
-  featureMeta: new ArrayKeyedMap<FeatureKey, { tileKey: TileKey }>(),
+  featureMeta: new HashMap<FeatureKey, { tileKey: TileKey }>(),
   navMesh: new MutableNavMesh(),
   needsUpdate: false
 })

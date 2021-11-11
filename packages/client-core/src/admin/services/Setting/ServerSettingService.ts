@@ -7,19 +7,15 @@ import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
 
 //State
 const state = createState({
-  Server: {
-    server: [] as Array<ServerSetting>,
-    updateNeeded: true
-  }
+  server: [] as Array<ServerSetting>,
+  updateNeeded: true
 })
 
 store.receptors.push((action: ServerSettingActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'SETTING_SERVER_DISPLAY':
-        result = action.serverSettingResult
-        return s.Server.merge({ server: result.data, updateNeeded: false })
+        return s.merge({ server: action.serverSettingResult.data, updateNeeded: false })
     }
   }, action.type)
 })

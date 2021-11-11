@@ -43,7 +43,6 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       padding: '2px 4px',
       display: 'flex',
       alignItems: 'center',
-      //width: "45vw",
       marginTop: '10px',
       marginBottom: '15px',
       background: '#343b41',
@@ -78,7 +77,7 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       color: '#ff9966'
     },
     container: {
-      maxHeight: '80vh'
+      maxHeight: '73vh'
     },
     redBorder: {
       border: '1px solid red',

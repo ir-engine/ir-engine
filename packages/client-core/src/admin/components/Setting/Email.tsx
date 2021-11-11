@@ -15,7 +15,7 @@ interface emailProps {}
 const Email = (props: emailProps) => {
   const classes = useStyles()
   const emailSettingState = useEmailSettingState()
-  const emailSetting = emailSettingState?.Email?.email?.value || []
+  const emailSetting = emailSettingState?.email?.value || []
   const dispatch = useDispatch()
   const [secure, setSecure] = React.useState({
     checkedA: true,
@@ -32,7 +32,7 @@ const Email = (props: emailProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && emailSettingState?.Email?.updateNeeded?.value === true) {
+    if (user?.id?.value != null && emailSettingState?.updateNeeded?.value === true) {
       EmailSettingService.fetchedEmailSettings()
     }
   }, [authState])
@@ -47,7 +47,7 @@ const Email = (props: emailProps) => {
           <Grid container spacing={3} key={el.id}>
             <Grid item xs={12} sm={6}>
               <Typography>SMTP</Typography>
-              <Paper variant="outlined" square elevation={3} className={classes.Paper}>
+              <Paper variant="outlined" square className={classes.Paper}>
                 <Paper component="div" className={classes.createInput}>
                   <label> Host:</label>
                   <InputBase
@@ -82,7 +82,7 @@ const Email = (props: emailProps) => {
               </Paper>
               <Divider />
               <Typography>Auth</Typography>
-              <Paper variant="outlined" square elevation={3} className={classes.Paper}>
+              <Paper variant="outlined" square className={classes.Paper}>
                 <Paper component="div" className={classes.createInput}>
                   <label> User Name: </label>
                   <InputBase
@@ -111,7 +111,7 @@ const Email = (props: emailProps) => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography>From</Typography>
-              <Paper variant="outlined" square elevation={3} className={classes.Paper}>
+              <Paper variant="outlined" square className={classes.Paper}>
                 <Paper component="div" className={classes.createInput}>
                   <label> From:</label>
                   <InputBase name="from" className={classes.input} style={{ color: '#fff' }} value={el.from} />
@@ -119,7 +119,7 @@ const Email = (props: emailProps) => {
               </Paper>
               <Divider />
               <Typography>Subject</Typography>
-              <Paper variant="outlined" square elevation={3} className={classes.Paper}>
+              <Paper variant="outlined" square className={classes.Paper}>
                 <Paper component="div" className={classes.createInput}>
                   <label>login: </label>
                   <InputBase

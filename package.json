@@ -54,10 +54,10 @@
     "cleanup-tests": "node tests/cleanup-tests.js",
     "test": "npm run test:e2e && npm run test:packages",
     "test:e2e": "mocha",
-    "test:packages": "lerna run test",
+    "test:packages": "c8 lerna run test",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
-    "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
-    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",
+    "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"packages/**/*.{ts,tsx}\"",
     "format-staged": "lint-staged",
     "version-increment": "lerna version --conventional-commits --yes",
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
@@ -137,6 +137,7 @@
     "pre-push": "0.1.1",
     "prettier": "2.4.1",
     "react-router-dom": "5.3.0",
+    "react-dnd": "14.0.4",
     "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
     "ts-eager": "2.0.2",
@@ -145,6 +146,7 @@
   "dependencies": {
     "@iconify/react": "3.0.1",
     "@mui/styles": "5.0.2",
-    "depcheck": "1.4.2"
+    "depcheck": "1.4.2",
+    "react-dnd": "^14.0.4"
   }
 }

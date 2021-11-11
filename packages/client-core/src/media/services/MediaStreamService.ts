@@ -13,7 +13,7 @@ const state = createState({
   }
 })
 
-export function receptor(action: MediaStreamActionType): any {
+store.receptors.push((action: MediaStreamActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'CAM_VIDEO_CHANGED':
@@ -28,7 +28,7 @@ export function receptor(action: MediaStreamActionType): any {
         return s.nearbyLayerUsers.set(action.users.map((user) => user.id))
     }
   }, action.type)
-}
+})
 
 export const accessMediaStreamState = () => state
 export const useMediaStreamState = () => useState(state)

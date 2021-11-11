@@ -1,8 +1,10 @@
+@import "@xrengine/client-core/src/styles/imports.module.scss";
+
 .primary {
-  background: #5f5ff1;
+  background: $PurpleButtonColor;
 }
 .primaryForeground {
-  color: #5f5ff1;
+  color: $PurpleButtonColor;
 }
 .logo {
   display: flex;
@@ -148,7 +150,7 @@
             width: 0px;
             height: 0px;
             border-radius: 20px;
-            background: #5f5ff1;
+            background: $PurpleButtonColor;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
@@ -182,7 +184,7 @@
 
       .walletBtn {
         height: 35px;
-        background: #5f5ff1;
+        background: $PurpleButtonColor;
         color: #ffffff;
         margin: 15px 0 20px 0;
 
@@ -274,7 +276,7 @@
 
         :global(.MuiCheckbox-root) {
           padding: 0;
-          color: #5f5ff1;
+          color: $PurpleButtonColor;
           margin-right: 10px;
 
           svg {
@@ -296,7 +298,7 @@
         height: 24px;
         flex-shrink: 0;
         svg {
-          color: #5f5ff1;
+          color: $PurpleButtonColor;
         }
       }
 
@@ -311,12 +313,12 @@
 
       :global(.MuiSlider-root) {
         &.slider {
-          color: #5f5ff1;
+          color: $PurpleButtonColor;
           margin: 0 10px;
         }
         :global(.MuiSlider-thumb) {
-          background: #5f5ff1;
-          border: #5f5ff1;
+          background: $PurpleButtonColor;
+          border: $PurpleButtonColor;
           width: 16px;
           height: 16px;
           margin-top: -7px;
@@ -368,7 +370,7 @@
     .copyBtn {
       width: 100px;
       height: 35px;
-      background: #5f5ff1;
+      background: $PurpleButtonColor;
       position: absolute;
       top: -9px;
       right: 0;
@@ -396,7 +398,7 @@
         }
       }
       :global(.MuiInputAdornment-root) {
-        color: #5f5ff1;
+        color: $PurpleButtonColor;
         cursor: pointer;
         &:hover {
           opacity: 0.8;
@@ -409,7 +411,7 @@
       .shareBtn {
         width: 100px;
         height: 35px;
-        background: #5f5ff1;
+        background: $PurpleButtonColor;
         &:hover {
           opacity: 0.8;
         }
@@ -424,7 +426,7 @@
     }
     .newLocation {
       width: 90px;
-      background: #5f5ff1;
+      background: $PurpleButtonColor;
       margin: 0;
       height: 40px;
       flex-shrink: 0;
@@ -443,7 +445,7 @@
       border-color: #444;
       &:focus-within {
         svg {
-          color: #5f5ff1;
+          color: $PurpleButtonColor;
         }
       }
     }
@@ -454,7 +456,7 @@
     .locationTable {
       margin-top: 10px;
       .tableHead {
-        background: #5f5ff1;
+        background: $PurpleButtonColor;
         color: white;
       }
       .tablebody {
@@ -478,7 +480,7 @@
         background: transparent;
       }
       button:hover {
-        background: #5f5ff1;
+        background: $PurpleButtonColor;
         color: white;
       }
     }
@@ -499,7 +501,7 @@
           color: #666;
         }
         &:global(.Mui-checked) svg {
-          color: #5f5ff1;
+          color: $PurpleButtonColor;
         }
         &:hover {
           background: transparent;
@@ -564,7 +566,7 @@
       height: 25px;
       border-radius: 20px;
       background: transparent;
-      color: #5f5ff1;
+      color: $PurpleButtonColor;
       margin: 0;
       min-width: 0;
       margin-right: 10px;
@@ -574,7 +576,7 @@
         width: 0px;
         height: 0px;
         border-radius: 25px;
-        background: #5f5ff1;
+        background: $PurpleButtonColor;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -592,7 +594,7 @@
     }
     .savebtn {
       color: white;
-      background: #5f5ff1;
+      background: $PurpleButtonColor;
       height: 35px;
       width: 150px;
       margin-top: 25px;
@@ -630,7 +632,7 @@
             width: 100px;
             height: 35px;
             margin: 20px 10px;
-            background: #5f5ff1;
+            background: $PurpleButtonColor;
             font-size: 0.8rem;
             &.yesbtn {
               background: rgb(241, 57, 57);
@@ -703,7 +705,7 @@
         &::after {
           content: '✓';
           position: absolute;
-          background: #5f5ff1;
+          background: $PurpleButtonColor;
           height: 20px;
           width: 20px;
           top: 5px;
@@ -738,7 +740,7 @@
         right: -5px;
         border: none;
         border-radius: 50%;
-        background: #5f5ff1;
+        background: $PurpleButtonColor;
         box-shadow: 2px 2px 10px gray;
         color: white;
         transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
@@ -783,7 +785,7 @@
           padding: 5px;
           width: 50%;
           &:last-child {
-            color: #5f5ff1;
+            color: $PurpleButtonColor;
           }
           svg {
             font-size: 20px;
@@ -830,7 +832,7 @@
       width: 0px;
       height: 0px;
       border-radius: 20px;
-      background: #5f5ff1;
+      background: $PurpleButtonColor;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
@@ -926,7 +928,7 @@
       width: 0px;
       height: 0px;
       border-radius: 20px;
-      background: #5f5ff1;
+      background: $PurpleButtonColor;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);

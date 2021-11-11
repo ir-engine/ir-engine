@@ -14,7 +14,7 @@ const Client = (props: clientProps) => {
   const classes = useStyles()
   const clientSettingState = useClientSettingState()
   const dispatch = useDispatch()
-  const clientSettings = clientSettingState?.Client?.client?.value || []
+  const clientSettings = clientSettingState?.client?.value || []
 
   const [enabled, setEnabled] = React.useState({
     checkedA: true,
@@ -32,7 +32,7 @@ const Client = (props: clientProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && clientSettingState?.Client?.updateNeeded?.value === true) {
+    if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
       ClientSettingService.fetchedClientSettings()
     }
   }, [authState])

@@ -86,11 +86,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     console.log('Handling kick: ', socket)
   }
 
-  close() {
-    this.instanceRecvTransport?.close()
-    this.instanceSendTransport?.close()
-    this.channelRecvTransport?.close()
-    this.channelSendTransport?.close()
+  close(instance = true, channel = true) {
+    if (instance) {
+      this.instanceRecvTransport?.close()
+      this.instanceSendTransport?.close()
+    }
+    if (channel) {
+      this.channelRecvTransport?.close()
+      this.channelSendTransport?.close()
+    }
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
@@ -240,7 +244,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       })
 
       socket.on('disconnect', async () => {
-        console.log(`DICONNECT from port ${port}`)
+        console.log(`DISCONNECT from port ${port}`)
         if ((socket as any).instance === true)
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED })
         if ((socket as any).instance !== true)
@@ -359,6 +363,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         if ((socket as any).instance !== true)
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
         this.reconnecting = true
+        console.log('reconnect')
         EngineEvents.instance.dispatchEvent({
           type: EngineEvents.EVENTS.RESET_ENGINE,
           instance: (socket as any).instance

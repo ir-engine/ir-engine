@@ -12,12 +12,12 @@ interface Props {}
 const Aws = (props: Props) => {
   const classes = useStyles()
   const awsSettingState = useAdminAwsSettingState()
-  const [awsSetting] = awsSettingState?.awsSettings?.awsSettings?.value
+  const [awsSetting] = awsSettingState?.awsSettings?.value
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
   useEffect(() => {
-    if (user?.id?.value != null && awsSettingState?.awsSettings?.updateNeeded?.value) {
+    if (user?.id?.value != null && awsSettingState?.updateNeeded?.value) {
       AwsSettingService.fetchAwsSetting()
     }
   }, [authState])

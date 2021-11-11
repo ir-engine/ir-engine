@@ -17,7 +17,7 @@ export interface UserScope {
 
 export interface User {
   id?: UserId
-  name?: string
+  name: string
   userRole?: string
   avatarId?: string
   identityProviders?: IdentityProvider[]

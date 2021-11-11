@@ -23,13 +23,13 @@ import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/
 import LoadMaterialSlotCommand, { LoadMaterialSlotCommandParams } from '../commands/LoadMaterialSlotMultipleCommand'
 import isInputSelected from '../functions/isInputSelected'
 import ModelNode from '../nodes/ModelNode'
+import ShopifyNode from '../nodes/ShopifyNode'
 import InstagramNode from '../nodes/InstagramNode'
 import VideoNode from '../nodes/VideoNode'
 import ImageNode from '../nodes/ImageNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
-import { ProjectManager } from './ProjectManager'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -46,7 +46,7 @@ export type CommandParamsType =
   | LoadMaterialSlotCommandParams
 
 export class CommandManager extends EventEmitter {
-  static instance: CommandManager
+  static instance: CommandManager = new CommandManager()
 
   commands: {
     [key: string]: typeof Command
@@ -55,10 +55,6 @@ export class CommandManager extends EventEmitter {
   selected: any[] = []
   selectedTransformRoots: any[] = []
   history: History
-
-  static buildCommandManager() {
-    this.instance = new CommandManager()
-  }
 
   constructor() {
     super()
@@ -256,9 +252,8 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  async addMedia(params: any, parent?: any, before?: any) {
+  async addMedia({ url }, parent?: any, before?: any) {
     let contentType = ''
-    const { url, name, id } = params
     const { hostname } = new URL(url)
 
     try {
@@ -273,12 +268,14 @@ export class CommandManager extends EventEmitter {
       node = new ModelNode()
       node.initialScale = 'fit'
       await node.load(url)
-      // Added for instagram
-      // } else if (contentType.startsWith('instagram/gltf')) {
-      //   node = new InstagramNode()
-      //   node.initialScale = 'fit'
-      //   await node.load(url)
-    } else if (contentType.startsWith('video/') || hostname === 'www.twitch.tv') {
+    }
+
+    // else if (contentType.startsWith('shopify/gltf')) {
+    //   node = new ShopifyNode()
+    //   node.initialScale = 'fit'
+    //   await node.load(url)
+    // }
+    else if (contentType.startsWith('video/') || hostname === 'www.twitch.tv') {
       node = new VideoNode()
       await node.load(url)
     } else if (contentType.startsWith('image/')) {
@@ -297,7 +294,6 @@ export class CommandManager extends EventEmitter {
     SceneManager.instance.getSpawnPosition(node.position)
     this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, { parents: parent, befores: before })
 
-    ProjectManager.instance.currentOwnedFileIds[name] = id
     CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)
     return node
   }

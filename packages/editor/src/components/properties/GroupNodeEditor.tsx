@@ -14,16 +14,11 @@ type GroupNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export class GroupNodeEditor extends Component<GroupNodeEditorProps, {}> {
-  //setting icon for GroupNod
-  static iconComponent = Cubes
-
-  //description for groupNode and will appears on properties container
-  static description = i18n.t('editor:properties.group.description')
-  render() {
-    GroupNodeEditor.description = this.props.t('editor:properties.group.description')
-    return <NodeEditor {...this.props} description={GroupNodeEditor.description} />
-  }
+export const GroupNodeEditor = (props: GroupNodeEditorProps) => {
+  return <NodeEditor {...props} description={GroupNodeEditor.description} />
 }
+
+GroupNodeEditor.iconComponent = Cubes
+GroupNodeEditor.description = i18n.t('editor:properties.group.description')
 
 export default withTranslation()(GroupNodeEditor)

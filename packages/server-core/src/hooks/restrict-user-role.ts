@@ -7,6 +7,7 @@ const loggedInUserEntity: string = config.authentication.entity
 // This will attach the owner ID in the contact while creating/updating list item
 export default (userRole: string) => {
   return async (context: HookContext): Promise<HookContext> => {
+    if (context.params.isInternal) return context
     // Getting logged in user and attaching owner of user
     const loggedInUser = context.params[loggedInUserEntity]
     const user = await context.app.service('user').get(loggedInUser.userId)

@@ -1,8 +1,10 @@
+@import "../../../styles/imports.module.scss";
+
 .primary {
-    background: #5F5FF1;
+    background: $PurpleButtonColor;
 }
 .primaryForeground {
-    color: #1ED700;
+    color: $PrimaryGreenColor;
 }
 
 .settingContainer {
@@ -40,7 +42,7 @@
             opacity: 0.8;
             margin-right: 5px;
             border-radius: 50%;
-            background-color: #5F5FF1;
+            background-color: $PurpleButtonColor;
 
             @media (max-width: 500px) {
                 padding: 8px;
@@ -106,35 +108,11 @@
                 }
 
                 &.activeAvatar {
-                    &::after {
-                        content: "✓";
-                        position: absolute;
-                        background: #5F5FF1;
-                        height: 20px;
-                        width: 20px;
-                        top: 5px;
-                        right: 5px;
-                        text-align: center;
-                        border-radius: 10px;
-                        color: white;
-                        font-weight: bold;
-                    }
+                    @include active-avatar();
                 }
 
                 &.selectedAvatar {
-                    &::before {
-                        content: "✓";
-                        position: absolute;
-                        background: #21B84E;
-                        height: 20px;
-                        width: 20px;
-                        top: 5px;
-                        right: 5px;
-                        text-align: center;
-                        border-radius: 10px;
-                        color: white;
-                        font-weight: bold;
-                    }
+                    @include selected-avatar();
                 }
             }
         }
@@ -156,43 +134,7 @@
         }
 
         .iconBlock {
-            position: relative;
-            color: white;
-            border: none;
-            padding: 0;
-
-            svg {
-                position: relative;
-                z-index: 1;
-            }
-
-            &::before {
-                content: ' ';
-                position: absolute;;
-                width: 0px;
-                height: 0px;
-                border-radius: 20px;
-                background: #5F5FF1;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-            }
-            &:hover, &:focus {
-                color: #fff;
-
-                &::before {
-                    width: 35px;
-                    height: 35px;
-                }
-            }
-
-            &.disabled {
-                color: grey;
-                cursor: initial;
-
-                &::before { content: none !important; }
-            }
+            @include icon-block-styling();
         }
 
         @media screen and (min-width: 768px) {
@@ -232,6 +174,9 @@
 
         .avatarHeaderBlock {
             margin: 30px 0 20px 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
             .iconBlock { display: inline-block; color: white; }
             h2 { font-size: 18px; color: white; font-weight: bold; display: inline-block; vertical-align: middle; margin-left: 10px;}
         }
@@ -241,7 +186,7 @@
             margin-bottom: 30px;
             button {
                 height: 35px;
-                background: #5F5FF1;
+                background: $PurpleButtonColor;
                 padding: 0;
                 border: none;
                 color: white;
@@ -254,7 +199,7 @@
             button + button { margin-left: 5px; }
             button[disabled] { background: grey; opacity: 1 !important; }
             .browseBtn { &>svg { transform: rotate(180deg); } }
-            .uploadBtn { background: #21B84E; }
+            .uploadBtn { background: $SelectedGreenColor; }
             button:hover, button:focus { outline: none; opacity: 0.8; }
             .selectBtns {
                 display: flex;
@@ -345,44 +290,7 @@
         }
 
         .iconBlock {
-            position: relative;
-            color: black;
-            border: none;
-            padding: 0;
-
-            svg {
-                position: relative;
-                z-index: 1;
-                vertical-align: middle;
-            }
-
-            &::before {
-                content: ' ';
-                position: absolute;;
-                width: 0px;
-                height: 0px;
-                border-radius: 20px;
-                background: #5F5FF1;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-            }
-            &:hover, &:focus {
-                color: #fff;
-
-                &::before {
-                    width: 35px;
-                    height: 35px;
-                }
-            }
-
-            &.disabled {
-                color: grey;
-                cursor: initial;
-
-                &::before { content: none !important; }
-            }
+            @include icon-block-styling();
         }
 
         @media (max-width: 400px) {
@@ -455,7 +363,8 @@
                     margin: 0;
                     min-width: 30px;
                     border-radius: 50%;
-                    background: #5F5FF1;
+                    color: white;
+                    background: $PurpleButtonColor;
                     box-shadow: 2px 2px 10px gray;
                     transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
                     &:hover, &:focus {
@@ -497,29 +406,7 @@
                     }
 
                     .materialIconBlock {
-                        margin-left: 20px;
-                        width: 24px;
-                        height: 24px;
-                        flex-shrink: 0;
-                        flex-grow: 0;
-                        position: relative;
-
-                        &::before {
-                            content: ' ';
-                            position: absolute;;
-                            width: 0px;
-                            height: 0px;
-                            border-radius: 20px;
-                            background: #1ED700;
-                            left: 50%;
-                            top: 50%;
-                            transform: translate(-50%, -50%);
-                            transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-                        }
-                        &:hover, &:focus {
-                            svg { color: #fff; z-index: 1; }
-                            &::before { width: 35px; height: 35px; }
-                        }
+                        @include material-icon-block-styling();
                     }
                 }
                 h2 {
@@ -561,29 +448,7 @@
                 input { color: white; border-color: white;}
                 :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) { border-color: white; }
                 .materialIconBlock {
-                    margin-left: 20px;
-                    width: 20px;
-                    height: 20px;
-                    flex-shrink: 0;
-                    flex-grow: 0;
-                    position: relative;
-
-                    &::before {
-                        content: ' ';
-                        position: absolute;;
-                        width: 0px;
-                        height: 0px;
-                        border-radius: 20px;
-                        background: #1ED700;
-                        left: 50%;
-                        top: 50%;
-                        transform: translate(-50%, -50%);
-                        transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-                    }
-                    &:hover, &:focus {
-                        svg { color: #fff; z-index: 1; }
-                        &::before { width: 35px; height: 35px; }
-                    }
+                    @include material-icon-block-styling();
                 }
             }
         }
@@ -605,7 +470,7 @@
                 font-size: 14px;
                 width: 250px;
                 max-width: 100%;
-                background: #5555FF;
+                background: $PurpleButtonColor;
                 color: #FFFFFF;
                 border-radius: 20px;
                 margin: 15px 0 20px;
@@ -672,7 +537,7 @@
 
                 :global(.MuiCheckbox-root) {
                     padding: 0;
-                    color: #1ED700;
+                    color: $PrimaryGreenColor;
                     margin-right: 10px;
 
                     svg { font-size: 24px; }
@@ -687,7 +552,7 @@
                 width: 24px;
                 height: 24px;
                 flex-shrink: 0;
-                svg { color: #1ED700; }
+                svg { color: $PrimaryGreenColor; }
             }
 
             .settingLabel {
@@ -701,16 +566,14 @@
 
             :global(.MuiSlider-root) {
                 &.slider {
-                    color: #1ED700;
+                    color: $PrimaryGreenColor;
                     margin: 0 10px;
                 }
                 :global(.MuiSlider-thumb) {
-                    background: #1ED700;
-                    border: #1ED700;
+                    background: $PrimaryGreenColor;
+                    border: $PrimaryGreenColor;
                     width: 16px;
                     height: 16px;
-                    margin-top: -7px;
-                    margin-left: -8px;
                 }
             }
         }
@@ -765,7 +628,7 @@
             .sendInvite {
                 width: 125px;
                 height: 35px;
-                background: #5555FF;
+                background: $PurpleButtonColor;
                 &:hover { opacity: 0.8; }
             }
         }
@@ -803,7 +666,8 @@
             .shareBtn {
                 width: 100px;
                 height: 35px;
-                background: #5555FF;
+                background: $PurpleButtonColor;
+                color: "#fff";
                 &:hover { opacity: 0.8; }
             }
         }
@@ -811,7 +675,7 @@
 
     .locationPanel {
         .control { margin-top: 10px; display: flex; }
-        .newLocation { width: 90px; background: #5f5ff1; margin: 0; height: 40px; flex-shrink: 0; }
+        .newLocation { width: 90px; background: $PurpleButtonColor; margin: 0; height: 40px; flex-shrink: 0; }
         .searchbox {
             margin: 0;
             margin-right: 10px;
@@ -822,7 +686,7 @@
             input, svg { color: #444; }
             border-color: #444;
             &:focus-within {
-                svg { color: #5F5FF1; }
+                svg { color: $PurpleButtonColor; }
             }
         }
         .tableContainer {
@@ -832,7 +696,7 @@
         .locationTable {
             margin-top: 10px;
             .tableHead {
-                background: #5F5FF1;
+                background: $PurpleButtonColor;
                 color: white;
             }
             .tablebody {
@@ -848,7 +712,7 @@
         .tablePagination {
             color: #444;
             button { background: transparent; }
-            button:hover { background: #5f5ff1; color: white; }
+            button:hover { background: $PurpleButtonColor; color: white; }
         }
         .formControl {
             width: 100%;
@@ -864,7 +728,7 @@
             .checkbox {
                 padding: 0 9px;
                 svg { color: #666; }
-                &:global(.Mui-checked) svg { color: #5f5ff1; }
+                &:global(.Mui-checked) svg { color: $PurpleButtonColor; }
                 &:hover { background: transparent; }
                 input:focus + svg { opacity: 0.7; }
             }
@@ -918,7 +782,7 @@
             height: 25px;
             border-radius: 20px;
             background: transparent;
-            color: #5f5ff1;
+            color: $PurpleButtonColor;
             margin: 0;
             min-width: 0;
             margin-right: 10px;
@@ -928,7 +792,7 @@
                 width: 0px;
                 height: 0px;
                 border-radius: 25px;
-                background: #5f5ff1;
+                background: $PurpleButtonColor;
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
@@ -945,7 +809,7 @@
         }
         .savebtn {
             color: white;
-            background: #5f5ff1;
+            background: $PurpleButtonColor;
             height: 35px;
             width: 150px;
             margin-top: 25px;
@@ -977,7 +841,7 @@
                         width: 100px;
                         height: 35px;
                         margin: 20px 10px;
-                        background: #5f5ff1;
+                        background: $PurpleButtonColor;
                         font-size: 0.8rem;
                         &.yesbtn { background: rgb(241, 57, 57); }
                     }
@@ -996,19 +860,7 @@
 }
 
 .avatarPanel {
-    position: absolute;
-    bottom: 75px;
-    padding: 0 20px;
-
-    border-radius: 5px;
-    background: #ffffffe8;
-    width: 140px;
-    right: 100px;
-    box-shadow: 16px 16px 32px 0px #11111159;
-    color: black;
-
-    max-height: calc(100vh - 175px);
-    overflow: auto;
+    @include panel-popup-container-styling();
 
     &>.avatarContainer{ margin-top: 40px; }
     &>.controlContainer{ margin-bottom: 10px; }
@@ -1038,36 +890,13 @@
             }
 
             &.activeAvatar {
-                &::after {
-                    content: "✓";
-                    position: absolute;
-                    background: #5F5FF1;
-                    height: 20px;
-                    width: 20px;
-                    top: 5px;
-                    right: 5px;
-                    text-align: center;
-                    border-radius: 10px;
-                    color: white;
-                    font-weight: bold;
-                }
+                @include active-avatar();
             }
 
             &.selectedAvatar {
-                &::before {
-                    content: "✓";
-                    position: absolute;
-                    background: #21B84E;
-                    height: 20px;
-                    width: 20px;
-                    top: 5px;
-                    right: 5px;
-                    text-align: center;
-                    border-radius: 10px;
-                    color: white;
-                    font-weight: bold;
-                }
+                @include selected-avatar();
             }
+
             .deleteBlock {
                 position: absolute;
                 width: 30px;
@@ -1076,7 +905,7 @@
                 right: -5px;
                 border: none;
                 border-radius: 50%;
-                background: #5F5FF1;
+                background: $PurpleButtonColor;
                 box-shadow: 2px 2px 10px gray;
                 color: white;
                 transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
@@ -1111,7 +940,7 @@
                     border: none;
                     padding: 5px;
                     width: 50%;
-                    &:last-child { color: #5f5ff1; }
+                    &:last-child { color: $PurpleButtonColor; }
                     svg { font-size: 20px; }
                 }
                 @media (min-width: 769px){
@@ -1138,44 +967,7 @@
     }
 
     .iconBlock {
-        position: relative;
-        color: black;
-        border: none;
-        padding: 0;
-        background: transparent;
-
-        svg {
-            position: relative;
-            z-index: 1;
-        }
-
-        &::before {
-            content: ' ';
-            position: absolute;;
-            width: 0px;
-            height: 0px;
-            border-radius: 20px;
-            background: #5F5FF1;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-        }
-        &:hover, &:focus {
-            color: #fff;
-
-            &::before {
-                width: 35px;
-                height: 35px;
-            }
-        }
-
-        &.disabled {
-            color: grey;
-            cursor: initial;
-
-            &::before { content: none !important; }
-        }
+        @include icon-block-styling();
     }
 
     @media screen and (min-width: 768px) {
@@ -1199,23 +991,11 @@
 }
 
 .avatarUploadPanel {
-    position: absolute;
-    bottom: 75px;
-    padding: 0 30px;
-    border-radius: 5px;
-    background: #ffffffe8;
-    left: 50%;
-    transform: translateX(-50%);
-    box-shadow: 16px 16px 32px 0px #11111159;
-    color: black;
-    max-height: calc(100vh - 175px);
-    overflow: auto;
-    width: 360px;
-    z-index: 1400;
+    @include panel-popup-container-styling();
 
     .avatarHeaderBlock {
         margin: 30px 0 20px 0;
-        .iconBlock { display: inline-block; color: #5F5FF1; background: transparent; }
+        .iconBlock { display: inline-block; color: $PurpleButtonColor; background: transparent; }
         h2 { font-size: 18px; font-weight: bold; display: inline-block; vertical-align: middle; margin-left: 10px;}
     }
     .controlContainer {
@@ -1224,7 +1004,7 @@
         margin-bottom: 30px;
         button {
             height: 35px;
-            background: #5F5FF1;
+            background: $PurpleButtonColor;
             padding: 0;
             border: none;
             color: white;
@@ -1240,7 +1020,7 @@
         button + button { margin-left: 5px; }
         button[disabled] { background: grey; opacity: 1 !important; }
         .browseBtn { &>svg { transform: rotate(180deg); } }
-        .uploadBtn { background: #21B84E; }
+        .uploadBtn { background: $SelectedGreenColor; }
         button:hover, button:focus { outline: none; opacity: 0.8; }
         .selectBtns {
             display: flex;
@@ -1303,7 +1083,7 @@
         .thumbnailSelectLabel {
             margin: 20px 3px 8px 0;
             font-size: 15px;
-            color: #5f5ff1;
+            color: $PurpleButtonColor;
 
             &.avatarSelectError,
             &.thumbnailSelectError {
@@ -1316,48 +1096,10 @@
         display: flex;
         justify-content: space-around;
         margin-top: 8px;
-
-        .avatarNameInput {}
     }
 
     .iconBlock {
-        position: relative;
-        color: black;
-        border: none;
-        padding: 0;
-
-        svg {
-            position: relative;
-            z-index: 1;
-        }
-
-        &::before {
-            content: ' ';
-            position: absolute;;
-            width: 0px;
-            height: 0px;
-            border-radius: 20px;
-            background: #5F5FF1;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-        }
-        &:hover, &:focus {
-            color: #fff;
-
-            &::before {
-                width: 35px;
-                height: 35px;
-            }
-        }
-
-        &.disabled {
-            color: grey;
-            cursor: initial;
-
-            &::before { content: none !important; }
-        }
+        @include icon-block-styling();
     }
 
     @media (max-width: 400px) {
@@ -1369,18 +1111,7 @@
 }
 
 .ReadyPlayerPanel {
-    position: absolute;
-    bottom: 75px;
-    border-radius: 5px;
-    background: #ffffffe8;
-    width: calc(100% - 50px);
-    left: 50%;
-    transform: translateX(-50%);
-    box-shadow: 16px 16px 32px 0px #11111159;
-    color: black;
-    max-height: calc(100vh - 175px);
-    overflow-x: hidden;
-    touch-action: auto;
+    @include panel-popup-container-styling();
     
     .controlContainer {
         display: flex;
@@ -1398,44 +1129,7 @@
     }
 
     .iconBlock {
-        position: relative;
-        color: #dad7d7;
-        border: none;
-        padding: 0;
-        background: transparent;
-
-        svg {
-            position: relative;
-            z-index: 1;
-        }
-
-        &::before {
-            content: ' ';
-            position: absolute;;
-            width: 0px;
-            height: 0px;
-            border-radius: 20px;
-            background: #5F5FF1;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-        }
-        &:hover, &:focus {
-            color: #fff;
-
-            &::before {
-                width: 35px;
-                height: 35px;
-            }
-        }
-
-        &.disabled {
-            color: grey;
-            cursor: initial;
-
-            &::before { content: none !important; }
-        }
+        @include icon-block-styling();
     }
 
     iframe{
@@ -1499,7 +1193,7 @@
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            background-color: #5f5ff1;
+            background-color: $PurpleButtonColor;
             border: none;
             border-radius: 3px;
         }
@@ -1560,7 +1254,7 @@
                 flex-direction: row;
                 align-items: center;
                 justify-content: center;
-                background-color: #5F5FF1;
+                background-color: $PurpleButtonColor;
 
                 svg {
                     color: white;
@@ -1569,11 +1263,11 @@
             }
 
             &.selectedAvatar {
-                border: solid 2px #21B84E;
+                border: solid 2px $SelectedGreenColor;
             }
 
             &.activeAvatar {
-                border: solid 2px #5F5FF1;
+                border: solid 2px $PurpleButtonColor;
             }
         }
     }

@@ -5,8 +5,7 @@ import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import { useDispatch } from '../../../store'
-import { AuthService } from '../../services/AuthService'
-import { useAuthState } from '../../services/AuthStatece'
+import { AuthService, useAuthState } from '../../services/AuthService'
 import styles from '../Login/Login.module.scss'
 
 interface Props {

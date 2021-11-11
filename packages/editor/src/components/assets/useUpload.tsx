@@ -1,35 +1,30 @@
-import { useCallback, useContext } from 'react'
+import React, { useCallback, useContext } from 'react'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { ProgressDialog } from '../dialogs/ProgressDialog'
-import { DialogContext } from '../contexts/DialogContext'
 import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { SourceManager } from '../../managers/SourceManager'
+import { useDialog } from '../hooks/useDialog'
+import { uploadProjectAsset } from '../../functions/assetFunctions'
+import { accessEditorState } from '../../services/EditorServices'
 
-/**
- * useUpload used to upload asset file.
- *
- * @author Robert Long
- * @param  {object} options
- * @return {any}         [assets]
- */
-export default function useUpload(options: any = {}) {
+//todo
+const upload = (files: any): any => {
+  console.log(files)
+}
+
+type Props = {
+  multiple?: boolean
+  accepts?: string[]
+}
+
+export default function useUpload(options: Props = {}) {
   const { t } = useTranslation()
 
-  // initializing showDialog, hideDialog using dialogContext
-  const { showDialog, hideDialog } = useContext(DialogContext)
+  const [DialogComponent, setDialogComponent] = useDialog()
 
-  // initializing multiple if options contains multiple.
-  const multiple = options.multiple === undefined ? false : options.multiple
-
-  // initializing source if options contains source else use Source manager's defaultUploadSource
-  const source = options.source || SourceManager.instance.defaultUploadSource
-
-  //initializing accepts options using options.accepts
-  //if options.accepts is not empty else set all types
+  const multiple = !!options.multiple
   const accepts = options.accepts || AllFileTypes
 
-  //function callback used when upload asset files.
   const onUpload = useCallback(
     //initailizing files by using assets files after upload.
     async (files) => {
@@ -62,51 +57,53 @@ export default function useUpload(options: any = {}) {
           }
         }
         const abortController = new AbortController()
-        showDialog(ProgressDialog, {
-          title: t('editor:asset.useUpload.progressTitle'),
-          message: t('editor:asset.useUpload.progressMsg', { uploaded: 0, total: files.length, percentage: 0 }),
-          cancelable: true,
-          onCancel: () => {
-            abortController.abort()
-            hideDialog()
-          }
-        })
-
-        //uploading files and showing ProgressDialog
-        assets = await source.upload(
-          files,
-          (item, total, progress) => {
-            showDialog(ProgressDialog, {
-              title: t('editor:asset.useUpload.progressTitle'),
-              message: t('editor:asset.useUpload.progressMsg', {
+        setDialogComponent(
+          <ProgressDialog
+            title={t('editor:asset.useUpload.progressTitle')}
+            message={t('editor:asset.useUpload.progressMsg', { uploaded: 0, total: files.length, percentage: 0 })}
+            cancelable={true}
+            onCancel={() => {
+              abortController.abort()
+              setDialogComponent(null)
+            }}
+          />
+        )
+        const { projectName } = accessEditorState().value
+        assets = await uploadProjectAsset(projectName, files, (item, total, progress) => {
+          setDialogComponent(
+            <ProgressDialog
+              title={t('editor:asset.useUpload.progressTitle')}
+              message={t('editor:asset.useUpload.progressMsg', {
                 uploaded: item,
                 total,
                 percentage: Math.round(progress * 100)
-              }),
-              cancelable: true,
-              onCancel: () => {
+              })}
+              cancelable={true}
+              onCancel={() => {
                 abortController.abort()
-                hideDialog()
-              }
-            })
-          },
-          abortController.signal
-        )
-        hideDialog()
+                setDialogComponent(null)
+              }}
+            />
+          )
+        })
+        console.log(assets)
+        setDialogComponent(null)
       } catch (error) {
         console.error(error)
-        showDialog(ErrorDialog, {
-          title: t('editor:asset.useUpload.uploadError'),
-          message: t('editor:asset.useUpload.uploadErrorMsg', {
-            message: error.message || t('editor:asset.useUpload.uploadErrorDefaultMsg')
-          }),
-          error
-        })
+        setDialogComponent(
+          <ErrorDialog
+            title={t('editor:asset.useUpload.uploadError')}
+            message={t('editor:asset.useUpload.uploadErrorMsg', {
+              message: error.message || t('editor:asset.useUpload.uploadErrorDefaultMsg')
+            })}
+            error={error}
+          />
+        )
         return null
       }
       return assets
     },
-    [showDialog, hideDialog, source, multiple, accepts]
+    [multiple, accepts]
   )
   return onUpload
 }

@@ -7,19 +7,15 @@ import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 
 //State
 const state = createState({
-  Client: {
-    client: [] as Array<ClientSetting>,
-    updateNeeded: true
-  }
+  client: [] as Array<ClientSetting>,
+  updateNeeded: true
 })
 
 store.receptors.push((action: ClientSettingActionType): any => {
-  let result
   state.batch((s) => {
     switch (action.type) {
       case 'CLIENT_SETTING_DISPLAY':
-        result = action.clientSettingResult
-        return s.Client.merge({ client: result.data, updateNeeded: false })
+        return s.merge({ client: action.clientSettingResult.data, updateNeeded: false })
     }
   }, action.type)
 })

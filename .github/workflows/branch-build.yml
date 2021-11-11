@@ -6,7 +6,21 @@ on:
       - master
       - 'version-increment-*'
 jobs:
+  secrets-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check-secrets.outputs.ok }}
+    steps:
+      - name: check for secrets needed to run workflows
+        id: check-secrets
+        run: |
+          if [ ${{ secrets.BRANCH_BUILD_ENABLED }} == 'true' ]; then
+            echo "::set-output name=ok::enabled"
+          fi
   compile-codebase:
+    needs:
+      - secrets-gate
+    if: ${{ needs.secrets-gate.outputs.ok == 'enabled' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +36,10 @@ jobs:
             */*/node_modules
             package-lock.json
           key: ${{ runner.os }}-branch-build-${{ hashFiles('**/package.json') }}
+      - run: cp .env.local.default .env.local
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
+      - run: npm run dev-docker
+      - run: npm run dev-reinit
       - run: npm run test:packages
       - run: npm run build-client

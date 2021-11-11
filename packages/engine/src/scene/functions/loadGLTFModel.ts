@@ -8,8 +8,7 @@ import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ec
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { applyTransformToMesh, applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
-import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { ScenePropertyType, WorldScene, SceneDataComponent } from '../functions/SceneLoading'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import * as YUKA from 'yuka'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
@@ -79,7 +78,7 @@ export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) 
         name: key,
         data: value,
         sceneEntityId
-      } as SceneDataComponent
+      } as any as SceneDataComponent
       loadComponent(e, prefab)
     }
   }
@@ -205,7 +204,8 @@ export const loadGLTFModel = (
           console.log('[SCENE-LOADING]:', err)
           sceneLoader._onModelLoaded()
           reject(err)
-        }
+        },
+        component.props.isUsingGPUInstancing
       )
     })
   )

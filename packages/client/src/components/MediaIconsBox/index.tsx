@@ -25,9 +25,13 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import {
+  ChannelConnectionService,
+  useChannelConnectionState
+} from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 
 const MediaIconsBox = (props) => {
   const [xrSupported, setXRSupported] = useState(false)
@@ -54,6 +58,8 @@ const MediaIconsBox = (props) => {
   const isCamVideoEnabled = mediastream.isCamVideoEnabled
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
+  const engineState = useEngineState()
+
   useEffect(() => {
     navigator.mediaDevices
       .enumerateDevices()
@@ -66,11 +72,9 @@ const MediaIconsBox = (props) => {
       .catch((err) => console.log('could not get media devices', err))
   }, [])
 
-  const onEngineLoaded = () => {
+  useEffect(() => {
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => setXRSupported(Engine.xrSupported))
-    document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
-  }
-  document.addEventListener('ENGINE_LOADED', onEngineLoaded)
+  }, [engineState.isInitialised.value])
 
   const handleFaceClick = async () => {
     const partyId =
@@ -95,7 +99,10 @@ const MediaIconsBox = (props) => {
       (Network.instance.transport as any).channelType !== 'instance'
     ) {
       await endVideoChat({})
-      if ((Network.instance.transport as any).channelSocket?.connected === true) await leave(false)
+      if ((Network.instance.transport as any).channelSocket?.connected === true) {
+        await leave(false)
+        await ChannelConnectionService.provisionChannelServer(instanceChannel.id)
+      }
     }
   }
   const handleMicClick = async () => {

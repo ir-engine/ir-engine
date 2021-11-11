@@ -138,6 +138,7 @@ export function SelectInput({
     />
   )
 }
+
 SelectInput.defaultProps = {
   value: null,
   placeholder: 'Select...',
@@ -148,4 +149,5 @@ SelectInput.defaultProps = {
   disabled: false,
   creatable: false
 }
+
 export default SelectInput

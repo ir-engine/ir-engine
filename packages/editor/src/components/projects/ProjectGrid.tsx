@@ -15,7 +15,7 @@ const ProjectGridItemContainer = (styled as any).div`
   display: flex;
   flex-direction: column;
   color: ${(props) => props.theme.text};
-  height: 220px;
+  height: 200px;
   border-radius: 6px;
   text-decoration: none;
   background-color: ${(props) => props.theme.toolbar};
@@ -24,9 +24,9 @@ const ProjectGridItemContainer = (styled as any).div`
   border: 1px solid transparent;
 
   &:hover {
-    color: ${(props) => props.theme.text};
+    color: white;
     cursor: pointer;
-    border-color: ${(props) => props.theme.selected};
+    border-color: white;
   }
 
   svg {
@@ -43,14 +43,9 @@ const ProjectGridItemContainer = (styled as any).div`
  * @param {string} label
  * @returns
  */
-export function NewProjectGridItem({ path, label }: { path: string; label: string }) {
-  const history = useHistory()
-
-  const routeTo = (route: string) => () => {
-    history.push(route)
-  }
+export function NewProjectGridItem({ onClickNew, label }: { onClickNew: any; label: string }) {
   return (
-    <ProjectGridItemContainer as="button" onClick={routeTo(path)}>
+    <ProjectGridItemContainer as="button" onClick={onClickNew}>
       <Plus />
       <h3>{label}</h3>
     </ProjectGridItemContainer>
@@ -82,14 +77,16 @@ NewProjectGridItem.defaultProps = {
  */
 const StyledProjectGrid = (styled as any).div`
   display: grid;
-  grid-gap: 20px;
+  grid-gap: 10px;
   width: 100%;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  margin-bottom: auto;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 `
 
 interface ProjectGridProp {
   projects?: any
-  newProjectPath?: any
+  onClickExisting?: any
+  onClickNew?: any
   newProjectLabel?: any
   contextMenuId?: any
   loading?: boolean
@@ -106,12 +103,20 @@ interface ProjectGridProp {
  * @param {any} loading
  * @returns
  */
-export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }: ProjectGridProp) {
+export function ProjectGrid({
+  projects,
+  onClickExisting,
+  onClickNew,
+  newProjectLabel,
+  contextMenuId,
+  loading
+}: ProjectGridProp) {
   return (
     <StyledProjectGrid>
-      {newProjectPath && !loading && <NewProjectGridItem path={newProjectPath} label={newProjectLabel} />}
+      {onClickNew && !loading && <NewProjectGridItem onClickNew={onClickNew} label={newProjectLabel} />}
       {projects.map((project) => (
         <ProjectGridItem
+          onClickExisting={onClickExisting}
           key={project.project_id || project.id || project.name}
           project={project}
           contextMenuId={contextMenuId}

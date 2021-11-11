@@ -63,7 +63,7 @@ const InstanceChat = (props: Props): any => {
     ) {
       ChatService.getInstanceChannel()
     }
-  }, [user?.instanceId?.value])
+  }, [user?.instanceId?.value, instanceConnectionState.connected?.value, channelState.fetchingInstanceChannel.value])
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
@@ -215,6 +215,7 @@ const InstanceChat = (props: Props): any => {
                 id="newMessage"
                 label={newMessageLabel}
                 name="newMessage"
+                variant="standard"
                 autoFocus
                 value={composingMessage}
                 inputProps={{

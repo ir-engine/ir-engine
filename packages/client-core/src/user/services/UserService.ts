@@ -36,11 +36,10 @@ store.receptors.push((action: UserActionType): void => {
           return layerUser != null && layerUser.id.value === newUser.id
         })
         if (idx === -1) {
-          s.layerUsers.merge([newUser])
+          return s.layerUsers.merge([newUser])
         } else {
-          s.layerUsers[idx].set(newUser)
+          return s.layerUsers[idx].set(newUser)
         }
-        return s.layerUsersUpdateNeeded.set(true)
       }
       case 'REMOVED_LAYER_USER': {
         const layerUsers = s.layerUsers
@@ -65,11 +64,10 @@ store.receptors.push((action: UserActionType): void => {
           return layerUser != null && layerUser.value.id === newUser.id
         })
         if (idx === -1) {
-          s.channelLayerUsers.merge([newUser])
+          return s.channelLayerUsers.merge([newUser])
         } else {
-          s.channelLayerUsers[idx].set(newUser)
+          return s.channelLayerUsers[idx].set(newUser)
         }
-        return s.channelLayerUsersUpdateNeeded.set(true)
       }
       case 'REMOVED_CHANNEL_LAYER_USER':
         const newUser = action.user

@@ -35,7 +35,8 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       marginTop: '10%'
     },
     mt5: {
-      marginTop: '5%'
+      marginTop: '5%',
+      marginLeft: '0px'
     },
     mb10: {
       marginBottom: '10%'
@@ -48,7 +49,10 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       alignItems: 'center',
       width: '100%',
-      background: '#343b41'
+      background: '#343b41',
+      [theme.breakpoints.down('sm')]: {
+        padding: '2px 5px'
+      }
     },
     input: {
       marginLeft: theme.spacing(1),
@@ -72,10 +76,11 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       color: '#ff9966'
     },
     marginTp: {
-      marginTop: '20%'
+      marginTop: '20%',
+      overflow: 'auto'
     },
     marginTop: {
-      marginTop: '7%'
+      marginTop: '5px'
     },
     texAlign: {
       textAlign: 'center'
@@ -98,7 +103,11 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       margin: 'auto 5px',
       width: '100%',
       background: 'rgb(58, 65, 73)',
-      color: '#f1f1f1 !important'
+      color: '#f1f1f1 !important',
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '12px',
+        padding: '2px'
+      }
     },
     rootTable: {
       flexGrow: 1,
@@ -137,7 +146,7 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       width: '100%'
     },
     scopeContainer: {
-      height: '200px',
+      maxHeight: '200px',
       width: '460px',
       overflowY: 'scroll',
       [theme.breakpoints.down('lg')]: {
@@ -170,9 +179,10 @@ export const useUserStyle = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
       width: '40%',
+      marginTop: '65px',
       backgroundColor: '#43484F',
       color: '#f1f1f1',
-      overflow: 'hidden'
+      overflow: 'auto'
     },
     paperDialog: {
       background: 'rgb(58, 65, 73) !important',
@@ -182,7 +192,7 @@ export const useUserStyle = makeStyles((theme: Theme) =>
       width: '100%'
     },
     container: {
-      maxHeight: '80vh'
+      maxHeight: '73vh'
     },
     actionStyle: {
       textDecoration: 'none',

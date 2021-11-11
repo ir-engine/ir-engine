@@ -6,22 +6,18 @@ import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSet
 
 //State
 const state = createState({
-  redisSettings: {
-    redisSettings: [] as Array<AdminRedisSetting>,
-    skip: 0,
-    limit: 100,
-    total: 0,
-    updateNeeded: true
-  }
+  redisSettings: [] as Array<AdminRedisSetting>,
+  skip: 0,
+  limit: 100,
+  total: 0,
+  updateNeeded: true
 })
 
 store.receptors.push((action: AdminRedisSettingActionType): any => {
-  let result: any
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_REDIS_SETTING_FETCHED':
-        result = action.adminRedisSettingResult
-        return s.redisSettings.merge({ redisSettings: result.data, updateNeeded: false })
+        return s.merge({ redisSettings: action.adminRedisSettingResult.data, updateNeeded: false })
     }
   }, action.type)
 })
