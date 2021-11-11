@@ -1,3 +1,5 @@
+@import "@xrengine/client-core/src/styles/imports.module.scss";
+
 .container {
     display: flex;
     flex-direction: row;
@@ -25,7 +27,7 @@
     display: flex;
     align-items: center;
     z-index: 20;
-    background-color: rgb(56, 56, 178);
+    background-color: $MediumBlue;
     height: 36px;
     width: 36px;
     color: white;
@@ -38,7 +40,7 @@
 
     &:hover {
         cursor: pointer;
-        background-color: lighten(rgb(56, 56, 178), 10%);
+        background-color: lighten($MediumBlue, 10%);
     }
 }
 .fullScreen {
@@ -114,7 +116,7 @@
     border-radius: 50%;
     z-index: 11;
     svg { width: 50%; height: 50%; }
-    &.expanded { background: #5f5ff1; }
+    &.expanded { background: $PurpleButtonColor; }
     &::before {
         content: " ";
         position: absolute;
@@ -122,7 +124,7 @@
         height: 50px;
         display: block;
         transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
-        background: #5f5ff1;
+        background: $PurpleButtonColor;
         top: 0;
         left: 0;
         z-index: -1;

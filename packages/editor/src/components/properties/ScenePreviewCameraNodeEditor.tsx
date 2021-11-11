@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useEffect } from 'react'
 import NodeEditor from './NodeEditor'
 import { Camera } from '@styled-icons/fa-solid/Camera'
 import { PropertiesPanelButton } from '../inputs/Button'
@@ -22,25 +22,21 @@ type ScenePreviewCameraNodeEditorProps = {
  * @author Robert Long
  * @type {Class component}
  */
-export class ScenePreviewCameraNodeEditor extends Component<ScenePreviewCameraNodeEditorProps, {}> {
-  // setting iconComponent as icon name
-  static iconComponent = Camera
+export const ScenePreviewCameraNodeEditor = (props: ScenePreviewCameraNodeEditorProps) => {
+  const onSetFromViewport = () => {
+    props.node.setFromViewport()
+  }
 
-  // setting description for ScenePreviewCameraNode and will appear on editor view
-  static description = i18n.t('editor:properties.sceneCamera.description')
-  onSetFromViewport = () => {
-    ;(this.props.node as any).setFromViewport()
-  }
-  render() {
-    ScenePreviewCameraNodeEditor.description = this.props.t('editor:properties.sceneCamera.description')
-    return (
-      <NodeEditor {...this.props} description={ScenePreviewCameraNodeEditor.description}>
-        <PropertiesPanelButton onClick={this.onSetFromViewport}>
-          {this.props.t('editor:properties.sceneCamera.lbl-setFromViewPort')}
-        </PropertiesPanelButton>
-      </NodeEditor>
-    )
-  }
+  return (
+    <NodeEditor {...props} description={ScenePreviewCameraNodeEditor.description}>
+      <PropertiesPanelButton onClick={onSetFromViewport}>
+        {props.t('editor:properties.sceneCamera.lbl-setFromViewPort')}
+      </PropertiesPanelButton>
+    </NodeEditor>
+  )
 }
+
+ScenePreviewCameraNodeEditor.iconComponent = Camera
+ScenePreviewCameraNodeEditor.description = i18n.t('editor:properties.sceneCamera.description')
 
 export default withTranslation()(ScenePreviewCameraNodeEditor)

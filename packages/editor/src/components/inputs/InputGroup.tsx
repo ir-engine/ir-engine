@@ -24,7 +24,6 @@ export const InputGroupContainer = (styled as any).div`
 
   & > label {
     display: block;
-    width: 25%;
     color: ${(props) => props.theme.text2};
     padding-bottom: 2px;
     padding-top: 4px;
