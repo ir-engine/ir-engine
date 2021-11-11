@@ -12,7 +12,6 @@ import { InfoTooltip } from '../../layout/Tooltip'
 
 const TransformTool = () => {
   const [transformMode, setTransformMode] = useState(TransformMode.Translate)
-  const editorControls = ControlManager.instance.editorControls
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), updateTransformMode)
@@ -23,7 +22,7 @@ const TransformTool = () => {
   }, [])
 
   const updateTransformMode = () => {
-    setTransformMode(editorControls.transformMode)
+    setTransformMode(ControlManager.instance.editorControls.transformMode)
   }
 
   return (
@@ -31,7 +30,7 @@ const TransformTool = () => {
       <InfoTooltip id="translate-button" info="[T] Translate" position="bottom">
         <button
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Translate ? styles.selected : '')}
-          onClick={() => editorControls.setTransformMode(TransformMode.Translate)}
+          onClick={() => ControlManager.instance.editorControls.setTransformMode(TransformMode.Translate)}
         >
           <ArrowsAlt size={12} />
         </button>
@@ -39,7 +38,7 @@ const TransformTool = () => {
       <InfoTooltip id="rotate-button" info="[R] Rotate" position="bottom">
         <button
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Rotate ? styles.selected : '')}
-          onClick={() => editorControls.setTransformMode(TransformMode.Rotate)}
+          onClick={() => ControlManager.instance.editorControls.setTransformMode(TransformMode.Rotate)}
         >
           <SyncAlt size={12} />
         </button>
@@ -47,7 +46,7 @@ const TransformTool = () => {
       <InfoTooltip id="scale-button" info="[Y] Scale" position="bottom">
         <button
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Scale ? styles.selected : '')}
-          onClick={() => editorControls.setTransformMode(TransformMode.Scale)}
+          onClick={() => ControlManager.instance.editorControls.setTransformMode(TransformMode.Scale)}
         >
           <ArrowsAltV size={12} />
         </button>

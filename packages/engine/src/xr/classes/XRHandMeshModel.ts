@@ -72,10 +72,8 @@ export class XRHandMeshModel extends Object3D {
         const XRJoint = XRJoints[bone.jointName] as Group
 
         if (XRJoint?.visible) {
-          const position = XRJoint.position
-
           if (bone) {
-            bone.position.copy(position)
+            bone.position.copy(XRJoint.position)
             bone.quaternion.copy(XRJoint.quaternion)
           }
         }

@@ -1,8 +1,7 @@
 import React, { useCallback, useRef, useEffect, memo, useState } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { VerticalScrollContainer } from '../layout/Flex'
-import { MediaGrid, IconMediaGridItem } from '../layout/MediaGrid'
+import { MediaGrid } from '../layout/MediaGrid'
 import { unique } from '../../functions/utils'
 import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { useDrag, useDrop } from 'react-dnd'
@@ -13,11 +12,10 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
-import { ProjectManager } from '../../managers/ProjectManager'
 import { Folder } from '@styled-icons/fa-solid/Folder'
-import { VirtualizedList } from './VirtualizedList'
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 import { FileDataType } from './FileDataType'
+import InfiniteScroll from 'react-infinite-scroller'
+import { CircularProgress } from '@mui/material'
 
 function collectMenuProps({ item }) {
   return { item }
@@ -107,10 +105,6 @@ function FileBrowserItem(props: FileBrowserItemType) {
     SceneManager.instance.getSpawnPosition(node.position)
 
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
-
-    if (item.projectId && globalThis.currentSceneID !== item.projectId) {
-      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
-    }
   }, [])
 
   const placeObjectAtOrigin = useCallback((_, trigger) => {
@@ -123,8 +117,6 @@ function FileBrowserItem(props: FileBrowserItemType) {
     }
 
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
-    if (item.projectId && globalThis.currentSceneID !== item.projectId)
-      ProjectManager.instance.currentOwnedFileIds[item.label] = item.fileId
   }, [])
 
   const copyURL = useCallback(() => {
@@ -324,40 +316,31 @@ export function FileBrowserGrid(props: FileBrowserGridTypes) {
     lastId++
   }, [])
 
-  const renderItem = (index, style) => {
-    const item = items[index]
-    if (!item) return
-    return (
-      <MemoFileGridItem
-        key={item.id}
-        contextMenuId={uniqueId.current + index}
-        item={item}
-        // selected={selectedItems.indexOf(item) !== -1}
-        onClick={onSelect}
-        moveContent={moveContent}
-        deleteContent={deleteContent}
-        currentContent={currentContent}
-        //@ts-ignore
-        style={style}
-      />
-    )
-  }
-
   // itemHeight = num rows / num cols
+  const itemsRendered = unique(items, 'id').map((item, i) => (
+    <MemoFileGridItem
+      key={item.id}
+      contextMenuId={i.toString()}
+      item={item}
+      onClick={onSelect}
+      moveContent={moveContent}
+      deleteContent={deleteContent}
+      currentContent={currentContent}
+    />
+  ))
 
   return (
     <>
-      {isLoading ? (
-        <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>
-      ) : (
-        <VirtualizedList
-          numItems={items.length}
-          itemHeight={20}
-          renderItem={renderItem}
-          windowHeight={scrollWindowHeight}
-          ScrollWindow={FileList}
-        />
-      )}
+      <InfiniteScroll
+        pageStart={0}
+        hasMore={false}
+        loader={<CircularProgress />}
+        threshold={100}
+        useWindow={false}
+        loadMore={() => {}}
+      >
+        {itemsRendered}
+      </InfiniteScroll>
     </>
   )
 }

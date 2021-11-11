@@ -2,7 +2,7 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
 import CircularProgress from '@mui/material/CircularProgress'
 import { getCustomRoutes } from './getCustomRoutes'
-import ErrorBoundary from '../components/ErrorBoundary'
+import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { useTranslation } from 'react-i18next'
 
 if (typeof globalThis.process === 'undefined') {
@@ -34,7 +34,7 @@ function RouterComp(props) {
     return (
       <>
         <h1 style={{ color: 'black' }}>{t('no-projects.msg')}</h1>
-        <img src="/static/xrengine black.png" />
+        <img src="/static/xrengine.png" />
       </>
     )
   }

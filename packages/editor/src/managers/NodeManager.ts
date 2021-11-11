@@ -15,6 +15,7 @@ import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import MapNodeEditor from '../components/properties/MapNodeEditor'
 import MetadataNodeEditor from '../components/properties/MetadataNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
+import ShopifyNodeEditor from '../components/properties/ShopifyNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
@@ -44,6 +45,7 @@ import LinkNode from '../nodes/LinkNode'
 import MapNode from '../nodes/MapNode'
 import MetadataNode from '../nodes/MetadataNode'
 import ModelNode from '../nodes/ModelNode'
+import ShopifyNode from '../nodes/ShopifyNode'
 import OceanNode from '../nodes/OceanNode'
 import ParticleEmitterNode from '../nodes/ParticleEmitterNode'
 import PointLightNode from '../nodes/PointLightNode'
@@ -58,7 +60,7 @@ import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
 import { ComponentNames } from '@xrengine/engine/src/common/constants/ComponentNames'
 import { Certificate } from '@styled-icons/fa-solid/Certificate'
-import { StyledIcon } from '@styled-icons/styled-icon';
+import { StyledIcon } from '@styled-icons/styled-icon'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Camera, Cloud, Globe, Rainbow, SquareFull, StreetView } from '@styled-icons/fa-solid'
@@ -69,9 +71,8 @@ import FogEditor from '../components/properties/FogEditor'
 import AudioSettingsEditor from '../components/properties/AudioSettingsEditor'
 import RenderSettingsEditor from '../components/properties/RenderSettingsEditor'
 
-
 export class NodeManager {
-  static instance: NodeManager
+  static instance: NodeManager = new NodeManager()
 
   nodes: any[]
 
@@ -79,15 +80,11 @@ export class NodeManager {
 
   nodeEditors: Map<any, any>
 
-  static buildNodeManager(scene: SceneNode) {
-    this.instance = new NodeManager(scene)
-  }
-
-  constructor(scene: SceneNode) {
+  constructor() {
     this.nodeTypes = new Set()
     this.nodeEditors = new Map()
 
-    this.nodes = [scene]
+    this.nodes = []
   }
 
   /**
@@ -163,6 +160,7 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(ComponentNames.GROUP, GroupNodeEditor)
   NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
   NodeManager.instance.registerNode(ComponentNames.GROUND_PLANE, GroundPlaneNodeEditor)
+  NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
   NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
   NodeManager.instance.registerNode(AmbientLightNode, AmbientLightNodeEditor)
@@ -205,7 +203,7 @@ export const ComponentIcon: {
   [ComponentNames.RENDERER_SETTINGS]: Globe,
   [ComponentNames.ENVMAP]: Globe,
   [ComponentNames.FOG]: Globe,
-  [ComponentNames.AUDIO_SETTINGS]: Globe,
+  [ComponentNames.AUDIO_SETTINGS]: Globe
 }
 
 export const getComponentIcon = (entity: Entity): StyledIcon => {

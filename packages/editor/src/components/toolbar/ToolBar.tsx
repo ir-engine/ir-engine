@@ -14,41 +14,11 @@ import RenderModeTool from './tools/RenderModeTool'
 
 type ToolBarProps = {
   menu?: any
+  editorReady: boolean
 }
 
-/**
- *
- * @author Robert Long
- */
-type ToolBarState = {
-  editorInitialized: boolean
-}
-
-/**
- *
- * @author Robert Long
- */
-export const ToolBar = (props: ToolBarProps) => {
-  let [editorInitialized, setEditInitialized] = useState(false)
-  const [, updateState] = useState()
-
-  const forceUpdate = useCallback(() => updateState({}), [])
-
-  const onRendererInitialized = () => {
-    setEditInitialized(true)
-    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onRendererInitialized)
-  }
-
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onRendererInitialized)
-    CommandManager.instance.addListener(EditorEvents.SETTINGS_CHANGED.toString(), forceUpdate)
-  }, [])
-
-  useEffect(() => {
-    CommandManager.instance.removeListener(EditorEvents.SETTINGS_CHANGED.toString(), forceUpdate)
-  }, null)
-
-  if (!editorInitialized) {
+const ToolBar = (props: ToolBarProps) => {
+  if (!props.editorReady) {
     return <div className={styles.toolbarContainer} />
   }
 

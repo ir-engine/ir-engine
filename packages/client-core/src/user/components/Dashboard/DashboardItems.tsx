@@ -24,11 +24,11 @@ export const SidebarItems = (
   allowedRoutes,
   openLocation,
   openUser,
-  openScene,
+  openAvatars,
   openSetting,
   setOpenLocation,
   setOpenUser,
-  setOpenScene,
+  setOpenAvatars,
   setOpenSetting
 ) => [
   {
@@ -109,25 +109,15 @@ export const SidebarItems = (
     ]
   },
   {
-    title: 'Scene',
-    open: openScene,
+    title: 'Avatars',
+    open: openAvatars,
     icon: <Casino style={{ color: 'white' }} />,
-    click: () => setOpenScene(!openScene),
+    click: () => setOpenAvatars(!openAvatars),
     items: [
-      allowedRoutes.scene && {
-        name: 'user:dashboard.scenes',
-        path: '/admin/scenes',
-        icon: <PhotoLibrary style={{ color: 'white' }} />
-      },
       allowedRoutes.globalAvatars && {
         name: 'user:dashboard.avatars',
         path: '/admin/avatars',
         icon: <Accessibility style={{ color: 'white' }} />
-      },
-      allowedRoutes.contentPacks && {
-        name: 'user:dashboard.content',
-        path: '/admin/content-packs',
-        icon: <PhotoAlbum style={{ color: 'white' }} />
       }
     ]
   },

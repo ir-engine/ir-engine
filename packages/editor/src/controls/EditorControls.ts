@@ -15,6 +15,7 @@ import {
   Quaternion,
   Ray,
   Raycaster,
+  Scene,
   Sphere,
   Spherical,
   Vector2,
@@ -261,7 +262,6 @@ export default class EditorControls extends EventEmitter {
       this.transformMode !== TransformMode.Grab &&
       this.transformMode !== TransformMode.Placement
     if (selectedTransformRoots.length > 0 && this.transformMode !== TransformMode.Disabled) {
-
       const lastTransform = getComponent(selected[selected.length - 1].eid, TransformComponent)
       if (
         (this.selectionChanged ||
@@ -661,7 +661,7 @@ export default class EditorControls extends EventEmitter {
   raycastNode(coords) {
     this.raycaster.setFromCamera(coords, this.camera)
     this.raycasterResults.length = 0
-    this.raycaster.intersectObject(SceneManager.instance.scene, true, this.raycasterResults)
+    this.raycaster.intersectObject(SceneManager.instance.scene as any as Scene, true, this.raycasterResults)
     return getIntersectingNode(this.raycasterResults, SceneManager.instance.scene)
   }
   focus(objects) {
@@ -700,8 +700,6 @@ export default class EditorControls extends EventEmitter {
     if (
       (excludeObjects && excludeObjects.indexOf(object) !== -1) ||
       (excludeLayers && excludeLayers.test(object.layers)) ||
-      (Engine.renderer.batchManager &&
-        Engine.renderer.batchManager.batches.indexOf(object) !== -1) ||
       !object.visible
     ) {
       return

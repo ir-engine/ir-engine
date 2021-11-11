@@ -11,6 +11,9 @@ import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
+import { EditorAction, useEditorState } from '../../services/EditorServices'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 
 /**
  * ViewportPanelContainer used to render viewport.
@@ -19,12 +22,14 @@ import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
  * @constructor
  */
 export function ViewportPanelContainer() {
-  const canvasRef = useRef<HTMLCanvasElement>()
+  // const canvasRef = useRef<HTMLCanvasElement>()
   const [flyModeEnabled, setFlyModeEnabled] = useState(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
   // const [showStats, setShowStats] = useState(false);
   const { t } = useTranslation()
+  const editorState = useEditorState()
+  const canvasVisible = editorState.sceneName.value !== null
 
   const onSelectionChanged = useCallback(() => {
     setObjectSelected(CommandManager.instance.selected.length > 0)
@@ -50,7 +55,7 @@ export function ViewportPanelContainer() {
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
-    SceneManager.instance.createRenderer(canvasRef.current)
+    // SceneManager.instance.createRenderer(canvasRef.current)
 
     return () => {
       CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
@@ -89,8 +94,8 @@ export function ViewportPanelContainer() {
 
   const onAfterUploadAssets = useCallback((assets) => {
     Promise.all(
-      assets.map(({ url, name, id }) => {
-        CommandManager.instance.addMedia({ url, name, id })
+      assets.map((url) => {
+        CommandManager.instance.addMedia({ url })
       })
     ).catch((err) => {
       CommandManager.instance.emitEvent(EditorEvents.ERROR, err)
@@ -138,12 +143,19 @@ export function ViewportPanelContainer() {
   return (
     <div
       className={styles.viewportContainer}
-      style={{
-        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent'
-      }}
+      style={
+        canvasVisible
+          ? {}
+          : {
+              borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent',
+              backgroundColor: 'grey'
+            }
+      }
       ref={dropRef}
     >
-      <canvas className={styles.viewportCanvas} ref={canvasRef} tabIndex={-1} id="viewport-canvas" />
+      {!canvasVisible && (
+        <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
+      )}
       <div className={styles.controlsText}>{controlsText}</div>
       <AssetDropZone afterUpload={onAfterUploadAssets} />
     </div>

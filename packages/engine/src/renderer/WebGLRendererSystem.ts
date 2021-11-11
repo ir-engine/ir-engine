@@ -1,11 +1,5 @@
 import { EffectComposer } from 'postprocessing'
-import {
-  MathUtils,
-  PerspectiveCamera,
-  sRGBEncoding,
-  WebGL1Renderer,
-  WebGLRenderer,
-} from 'three'
+import { MathUtils, PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer } from 'three'
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
@@ -84,7 +78,6 @@ export class EngineRenderer {
     if (!this.supportWebGL2 && !WebGL.isWebGLAvailable()) {
       WebGL.dispatchWebGLDisconnectedEvent()
     }
-
     const canvas: HTMLCanvasElement = attributes.canvas ?? document.querySelector('canvas')
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
 

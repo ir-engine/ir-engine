@@ -1,88 +1,87 @@
-import config from '../../appconfig'
-import { SceneDetailData, SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
-import { BlobStore } from '../../media/storageprovider/storageprovider.interface'
+import express from 'express'
 
-export function mapSceneData(scene: any, projectId: string): SceneDetailData {
-  if (!scene) {
-    return null
+export const getAllPortals = (app: any): any => {
+  return async (req: express.Request, res: express.Response) => {
+    // TODO: reimplement with new scene format
+    // const models = app.get('sequelizeClient').models
+    // const portals = await models.component.findAll({
+    //   where: {
+    //     type: 'portal'
+    //   },
+    //   attributes: ['entityId'],
+    //   include: [
+    //     {
+    //       model: models.entity,
+    //       attributes: ['collectionId', 'name', 'entityId'],
+    //       as: 'entity',
+    //       include: [
+    //         {
+    //           model: models.collection,
+    //           attributes: ['id', 'sid', 'name']
+    //         }
+    //       ]
+    //     }
+    //   ]
+    // })
+    // res.json(portals)
   }
-  const selectedSceneData = {
-    ...scene,
-    sceneId: scene?.sid,
-    scene_id: projectId,
-    url: `${config.server.hub.endpoint}/scene/${scene.slug as string}`,
-    model_url: scene?.model_owned_file?.url,
-    screenshot_url: scene?.screenshot_owned_file?.url
-  }
-  delete selectedSceneData.model_owned_file
-  delete selectedSceneData.screenshot_owned_file
-  delete selectedSceneData.scene_owned_file
-  return selectedSceneData
-}
-export function defaultSceneImport(models: any): any[] {
-  const includedEntities = [
-    {
-      model: models.static_resource,
-      as: 'thumbnail_owned_file',
-      attributes: ['url']
-    }
-  ]
-  return includedEntities
 }
 
-export function readJSONFromBlobStore(storage: BlobStore, key): any {
-  return new Promise((resolve, reject) => {
-    const chunks = []
-    storage
-      .createReadStream({
-        key
-      })
-      .on('data', (data: any) => {
-        chunks.push(data.toString())
-      })
-      .on('end', () => {
-        try {
-          const json = JSON.parse(chunks.join(''))
-          resolve(json)
-        } catch (error) {
-          console.log('Failed to parse JSON', error, chunks)
-          reject()
-        }
-      })
-      .on('error', reject)
-  })
+export const getPortal = (app: any): any => {
+  return async (req: express.Request, res: express.Response) => {
+    const portals = await getPortalByEntityId(app, req.params.entityId)
+
+    res.json(portals)
+  }
 }
 
-export function mapSceneDetailData(project: any): SceneDetailInterface {
-  const _proj = {
-    name: project.name,
-    parent_scene: mapSceneData(project?.parent_scene_listing || project?.parent_scene, project.sid),
-    scene_id: project.sid,
-    scene_url: project?.url,
-    scene: mapSceneData(project.scene, project.sid),
-    thumbnailUrl: project?.thumbnail_owned_file?.url,
-    ownedFileIds: project?.ownedFileIds
-  }
-  return _proj
+export const getPortalByEntityId = async (app, entityId: string) => {
+  // TODO: reimplement with new scene format
+  // const models = app.get('sequelizeClient').models
+  // return models.component.findOne({
+  //   where: {
+  //     type: 'portal',
+  //     '$entity.entityId$': entityId
+  //   },
+  //   attributes: ['entityId', 'data'],
+  //   include: [
+  //     {
+  //       model: models.entity,
+  //       attributes: ['collectionId', 'name', 'entityId'],
+  //       as: 'entity',
+  //       include: [
+  //         {
+  //           model: models.collection,
+  //           attributes: ['id', 'sid']
+  //         }
+  //       ]
+  //     }
+  //   ]
+  // })
 }
 
-export function mapSceneTemplateDetailData(projectTemplate: any): any {
-  const selectedSceneData = {
-    ...projectTemplate,
-    sceneId: null,
-    scene_id: projectTemplate.sid,
-    url: null,
-    model_url: null,
-    screenshot_url: projectTemplate?.thumbnail_file?.url
-  }
+export const getCubemapBake = (app: any): any => {
+  return async (req: express.Request, res: express.Response) => {
+    const cubemapBake = await getCubemapBakeById(app, req.params.entityId)
 
-  const _proj = {
-    name: projectTemplate.name,
-    parent_scene: null,
-    scene_id: projectTemplate.sid,
-    scene_url: null,
-    scenes: [selectedSceneData],
-    thumbnailUrl: projectTemplate?.thumbnail_file?.url
+    res.json(cubemapBake)
   }
-  return _proj
+}
+
+export const getCubemapBakeById = async (app, entityId: string) => {
+  // TODO: reimplement with new scene format
+  // const models = app.get('sequelizeClient').models
+  // return models.component.findOne({
+  //   where: {
+  //     type: 'cubemapbake',
+  //     '$entity.entityId$': entityId
+  //   },
+  //   include: [
+  //     {
+  //       model: models.entity,
+  //       attributes: ['collectionId', 'name', 'entityId'],
+  //       as: 'entity'
+  //     }
+  //   ]
+  // })
 }

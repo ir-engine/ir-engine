@@ -24,6 +24,8 @@ import { detectUserInTrigger } from './functions/detectUserInTrigger'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { initializeHandModel } from '../xr/functions/addControllerModels'
+import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
+import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -70,7 +72,7 @@ function avatarActionReceptor(action) {
       })
     })
 
-    .when(NetworkWorldAction.teleportObject.matches, (a) => {
+    .when(NetworkWorldAction.teleportObject.matchesFromAny, (a) => {
       const [x, y, z, qX, qY, qZ, qW] = a.pose
 
       const entity = world.getNetworkObject(a.networkId)
@@ -99,6 +101,8 @@ export default async function AvatarSystem(world: World): Promise<System> {
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
   const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent])
+  const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
+  const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
 
   return () => {
     for (const entity of xrInputQuery.enter(world)) {
@@ -106,10 +110,10 @@ export default async function AvatarSystem(world: World): Promise<System> {
       const object3DComponent = getComponent(entity, Object3DComponent)
 
       xrInputSourceComponent.container.add(
-        xrInputSourceComponent.controllerLeft,
-        xrInputSourceComponent.controllerGripLeft,
-        xrInputSourceComponent.controllerRight,
-        xrInputSourceComponent.controllerGripRight
+        xrInputSourceComponent.controllerLeft.parent || xrInputSourceComponent.controllerLeft,
+        xrInputSourceComponent.controllerGripLeft.parent || xrInputSourceComponent.controllerGripLeft,
+        xrInputSourceComponent.controllerRight.parent || xrInputSourceComponent.controllerRight,
+        xrInputSourceComponent.controllerGripRight.parent || xrInputSourceComponent.controllerGripRight
       )
 
       xrInputSourceComponent.container.applyQuaternion(rotate180onY)
@@ -139,6 +143,26 @@ export default async function AvatarSystem(world: World): Promise<System> {
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
 
       // detectUserInTrigger(entity)
+    }
+
+    for (const entity of xrLGripQuery.enter()) {
+      const inputComponent = getComponent(entity, XRInputSourceComponent)
+      playTriggerPressAnimation(inputComponent.controllerGripLeft)
+    }
+
+    for (const entity of xrRGripQuery.enter()) {
+      const inputComponent = getComponent(entity, XRInputSourceComponent)
+      playTriggerPressAnimation(inputComponent.controllerGripRight)
+    }
+
+    for (const entity of xrLGripQuery.exit()) {
+      const inputComponent = getComponent(entity, XRInputSourceComponent)
+      playTriggerReleaseAnimation(inputComponent.controllerGripLeft)
+    }
+
+    for (const entity of xrRGripQuery.exit()) {
+      const inputComponent = getComponent(entity, XRInputSourceComponent)
+      playTriggerReleaseAnimation(inputComponent.controllerGripRight)
     }
   }
 }

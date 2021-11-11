@@ -1,5 +1,9 @@
 import { DirectionalLight } from 'three'
-import { DefautSceneEntityShape, EntityComponentDataType, getShapeOfEntity } from '../../common/constants/Object3DClassMap'
+import {
+  DefautSceneEntityShape,
+  EntityComponentDataType,
+  getShapeOfEntity
+} from '../../common/constants/Object3DClassMap'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import EntityTree from '../../ecs/classes/EntityTree'
@@ -99,9 +103,8 @@ export class WorldScene {
   loadComponents = (sceneEntity: any, sceneProperty: SceneLoadParams): void => {
     const entity = createEntity()
     this.entityMap[sceneEntity.entityId] = entity
-
     const components = {} as EntityComponentDataType
-    const componentNames = sceneEntity.components.map(comp => {
+    const componentNames = sceneEntity.components.map((comp) => {
       // remove '-1', '-2' etc suffixes
       const name = comp.name.replace(/(-\d+)|(\s)/g, '')
       components[name] = comp.data

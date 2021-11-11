@@ -1,4 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import EditorControls from '../controls/EditorControls'
@@ -6,20 +7,15 @@ import FlyControls from '../controls/FlyControls'
 import InputManager from '../controls/InputManager'
 import PlayModeControls from '../controls/PlayModeControls'
 import { CommandManager } from './CommandManager'
-import { SceneManager } from './SceneManager'
 
 export class ControlManager {
-  static instance: ControlManager
+  static instance: ControlManager = new ControlManager()
 
   inputManager: InputManager
   editorControls: EditorControls
   flyControls: FlyControls
   playModeControls: PlayModeControls
   isInPlayMode: boolean
-
-  static buildControlManager() {
-    this.instance = new ControlManager()
-  }
 
   constructor() {
     this.inputManager = null
@@ -30,7 +26,7 @@ export class ControlManager {
   }
 
   initControls() {
-    this.inputManager = new InputManager(SceneManager.instance.canvas)
+    this.inputManager = new InputManager(EngineRenderer.instance.canvas)
     this.flyControls = new FlyControls(Engine.camera as any, this.inputManager)
     this.editorControls = new EditorControls(Engine.camera, this.inputManager, this.flyControls)
     this.playModeControls = new PlayModeControls(this.inputManager, this.editorControls, this.flyControls)

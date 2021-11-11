@@ -34,6 +34,7 @@ Mousetrap.prototype.unbindGlobal = function (keys, callback, action) {
   }
   delete _globalCallbacks[keys]
 }
+
 Mousetrap.init()
 function initializeValue(source, initialState, state, resetKeys, value, reset, resetPosition = true) {
   if (!source) return
@@ -132,8 +133,7 @@ const SPECIAL_ALIASES = {
   command: 'meta',
   return: 'enter',
   escape: 'esc',
-  plus: '+',
-  mod: /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'meta' : 'control'
+  plus: '+'
 }
 export default class InputManager {
   canvas: any
