@@ -1,10 +1,14 @@
-import React, { Component, createRef, ReactNode } from 'react'
+import React, { useRef, ReactNode, useCallback } from 'react'
 import Portal from '../layout/Portal'
 import { getStepSize, toPrecision } from '../../functions/utils'
 import styled from 'styled-components'
 import { ArrowsAltH } from '@styled-icons/fa-solid/ArrowsAltH'
 import Overlay from '../layout/Overlay'
 import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
+import {} from 'react'
+import { useState } from 'react'
+import { useEffect } from 'react'
+import { useHookstate } from '@hookstate/core'
 
 /**
  *
@@ -47,136 +51,128 @@ type ScrubberProp = {
   convertFrom?: any
   convertTo?: any
   value?: any
-  onChange?: Function
+  onChange: Function
   onCommit?: Function
-}
-
-type ScrubberState = {
-  isDragging: boolean
-  mouseX: number
-  mouseY: number
-  startValue: number
-  delta: number
 }
 
 /**
  *
  * @author Robert Long
  */
-class Scrubber extends Component<ScrubberProp, ScrubberState> {
-  constructor(props) {
-    super(props)
-    this.scrubberEl = createRef()
-    this.state = { isDragging: false, startValue: null, delta: null, mouseX: null, mouseY: null }
-  }
-  static defaultProps = {
-    tag: 'label',
-    smallStep: 0.025,
-    mediumStep: 0.1,
-    largeStep: 0.25,
-    sensitivity: 5,
-    min: -Infinity,
-    max: Infinity,
-    convertFrom: (value) => value,
-    convertTo: (value) => value
-  }
+const Scrubber = (props: ScrubberProp) => {
+  const state = useHookstate({
+    isDragging: false,
+    startValue: null,
+    delta: null,
+    mouseX: null,
+    mouseY: null
+  })
 
-  componentWillUnmount() {
-    window.removeEventListener('mousemove', this.handleMouseMove)
-    window.removeEventListener('mouseup', this.handleMouseUp)
-  }
+  const scrubberEl = useRef(null)
 
-  scrubberEl: React.RefObject<unknown>
+  const handleMouseMove = (event) => {
+    const { smallStep, mediumStep, largeStep, sensitivity, min, max, precision, convertTo, onChange } = props
 
-  handleMouseMove = (event) => {
-    const state = this.state as any
-    const { smallStep, mediumStep, largeStep, sensitivity, min, max, precision, convertTo, onChange } = this
-      .props as any
-
-    if (state.isDragging) {
-      const mouseX = state.mouseX + event.movementX
-      const mouseY = state.mouseY + event.movementY
-      const nextDelta = state.delta + event.movementX
+    if (state.isDragging.value) {
+      const mX = state.mouseX.value + event.movementX
+      const mY = state.mouseY.value + event.movementY
+      const nextDelta = state.delta.value + event.movementX
       const stepSize = getStepSize(event, smallStep, mediumStep, largeStep)
-      const nextValue = state.startValue + Math.round(nextDelta / sensitivity) * stepSize
+      const nextValue = state.startValue.value + Math.round(nextDelta / sensitivity) * stepSize
       const clampedValue = clamp(nextValue, min, max)
       const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
       const finalValue = convertTo(roundedValue)
       onChange(finalValue)
-      this.setState({ ...state, delta: nextDelta, mouseX, mouseY })
+
+      state.delta.set(nextDelta)
+      state.mouseX.set(mX)
+      state.mouseY.set(mY)
     }
   }
 
-  handleMouseDown = (event) => {
-    const { convertFrom, value } = this.props as any
+  const handleMouseUp = () => {
+    const { onCommit, value } = props
 
-    this.setState({
-      isDragging: true,
-      startValue: convertFrom(value),
-      delta: 0,
-      mouseX: event.clientX,
-      mouseY: event.clientY
-    })
-    ;(this.scrubberEl.current as any).requestPointerLock()
-
-    window.addEventListener('mousemove', this.handleMouseMove)
-    window.addEventListener('mouseup', this.handleMouseUp)
-  }
-
-  handleMouseUp = () => {
-    const { onCommit, onChange, value } = this.props as any
-    const state = this.state as any
-
-    if (state.isDragging) {
-      this.setState({ isDragging: false, startValue: null, delta: null, mouseX: null, mouseY: null })
+    if (state.isDragging.value) {
+      state.isDragging.set(false)
+      state.startValue.set(null)
+      state.delta.set(null)
+      state.mouseX.set(null)
+      state.mouseY.set(null)
 
       if (onCommit) {
         onCommit(value)
-      } else {
-        onChange(value)
       }
 
       document.exitPointerLock()
     }
 
-    window.removeEventListener('mousemove', this.handleMouseMove)
-    window.removeEventListener('mouseup', this.handleMouseUp)
+    window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('mouseup', handleMouseUp)
   }
 
-  render() {
-    const {
-      tag,
-      children,
-      smallStep,
-      mediumStep,
-      largeStep,
-      sensitivity,
-      min,
-      max,
-      precision,
-      convertFrom,
-      convertTo,
-      value,
-      onChange,
-      onCommit,
-      ...rest
-    } = this.props as any
+  useEffect(() => {
+    window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('mouseup', handleMouseUp)
+  }, [])
 
-    const { isDragging, mouseX, mouseY } = this.state as any
+  const handleMouseDown = (event) => {
+    const { convertFrom, value } = props
 
-    return (
-      <ScrubberContainer as={tag} ref={this.scrubberEl} onMouseDown={this.handleMouseDown} {...rest}>
-        {children}
-        {isDragging && (
-          <Portal>
-            <Overlay pointerEvents="none">
-              <Cursor x={mouseX} y={mouseY} />
-            </Overlay>
-          </Portal>
-        )}
-      </ScrubberContainer>
-    )
+    state.isDragging.set(true)
+    state.startValue.set(convertFrom(value))
+    state.delta.set(0)
+    state.mouseX.set(event.clientX)
+    state.mouseY.set(event.clientY)
+
+    scrubberEl?.current?.requestPointerLock()
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
   }
+
+  const {
+    tag,
+    children,
+    smallStep,
+    mediumStep,
+    largeStep,
+    sensitivity,
+    min,
+    max,
+    precision,
+    convertFrom,
+    convertTo,
+    value,
+    onChange,
+    onCommit,
+    ...rest
+  } = props
+
+  return (
+    <ScrubberContainer as={tag} ref={scrubberEl} onMouseDown={handleMouseDown} {...rest}>
+      {children}
+      {state.isDragging.value && (
+        <Portal>
+          <Overlay pointerEvents="none">
+            <Cursor x={state.mouseX.value} y={state.mouseY.value} />
+          </Overlay>
+        </Portal>
+      )}
+    </ScrubberContainer>
+  )
+}
+
+Scrubber.defaultProps = {
+  tag: 'label',
+  smallStep: 0.025,
+  mediumStep: 0.1,
+  largeStep: 0.25,
+  sensitivity: 5,
+  min: -Infinity,
+  max: Infinity,
+  convertFrom: (value) => value,
+  convertTo: (value) => value
 }
 
 /**

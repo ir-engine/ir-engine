@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from '../properties/NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ImageInput from '../inputs/ImageInput'
@@ -21,50 +21,36 @@ type InteriorNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export class InteriorNodeEditor extends Component<InteriorNodeEditorProps> {
-  constructor(props: InteriorNodeEditorProps) {
-    super(props)
-    this.props = props
-  }
-
-  //setting iconComponent name
-  static iconComponent = City
-
-  //setting description and will appears on editor view
-  static description = i18n.t('editor:properties.interior.description')
-
-  declare props: InteriorNodeEditorProps
-
-  onChangeProperty = (name: string) => {
+export const InteriorNodeEditor = (props: InteriorNodeEditorProps) => {
+  const onChangeProperty = (name: string) => {
     return (value) => {
       CommandManager.instance.setPropertyOnSelection(name, value)
     }
   }
 
-  //rendering view
-  render() {
-    InteriorNodeEditor.description = this.props.t('editor:properties.interior.description')
-    return (
-      <NodeEditor {...this.props} description={InteriorNodeEditor.description}>
-        <InputGroup name="Cube Map" label={this.props.t('editor:properties.interior.lbl-cubeMap')}>
-          <ImageInput value={this.props.node.cubeMap} onChange={this.onChangeProperty('cubeMap')} />
-        </InputGroup>
-        <InputGroup name="Size" label={this.props.t('editor:properties.interior.lbl-size')}>
-          <Vector2Input value={this.props.node.size} onChange={this.onChangeProperty('size')} />
-        </InputGroup>
-        <NumericInputGroup
-          name="Tiling"
-          label={this.props.t('editor:properties.interior.lbl-tiling')}
-          min={1}
-          smallStep={1.0}
-          mediumStep={1.0}
-          largeStep={2.0}
-          value={this.props.node.tiling}
-          onChange={this.onChangeProperty('tiling')}
-        />
-      </NodeEditor>
-    )
-  }
+  return (
+    <NodeEditor {...props} description={InteriorNodeEditor.description}>
+      <InputGroup name="Cube Map" label={props.t('editor:properties.interior.lbl-cubeMap')}>
+        <ImageInput value={props.node.cubeMap} onChange={onChangeProperty('cubeMap')} />
+      </InputGroup>
+      <InputGroup name="Size" label={props.t('editor:properties.interior.lbl-size')}>
+        <Vector2Input value={props.node.size} onChange={onChangeProperty('size')} />
+      </InputGroup>
+      <NumericInputGroup
+        name="Tiling"
+        label={props.t('editor:properties.interior.lbl-tiling')}
+        min={1}
+        smallStep={1.0}
+        mediumStep={1.0}
+        largeStep={2.0}
+        value={props.node.tiling}
+        onChange={onChangeProperty('tiling')}
+      />
+    </NodeEditor>
+  )
 }
+
+InteriorNodeEditor.iconComponent = City
+InteriorNodeEditor.description = i18n.t('editor:properties.interior.description')
 
 export default withTranslation()(InteriorNodeEditor)

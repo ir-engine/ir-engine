@@ -81,7 +81,7 @@ export function NumericStepperInput({ style, className, decrementTooltip, increm
           <CaretLeft size={16} />
         </StepperButton>
       </InfoTooltip>
-      <NumericInput ref={inputRef} {...rest} />
+      <NumericInput innerRef={inputRef} {...rest} />
       <InfoTooltip info={incrementTooltip} position="bottom">
         <StepperButton right onClick={onIncrement}>
           <CaretRight size={16} />

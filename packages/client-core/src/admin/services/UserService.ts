@@ -21,7 +21,8 @@ const state = createState({
   total: 0,
   retrieving: false,
   fetched: false,
-  updateNeeded: true
+  updateNeeded: true,
+  skipGuests: false
 })
 
 store.receptors.push((action: UserActionType): any => {
@@ -57,6 +58,11 @@ store.receptors.push((action: UserActionType): any => {
           updateNeeded: false,
           lastFetched: Date.now()
         })
+      case 'SET_SKIP_GUESTS':
+        return s.merge({
+          skipGuests: action.skipGuests,
+          updateNeeded: true
+        })
     }
   }, action.type)
 })
@@ -74,9 +80,10 @@ export const UserService = {
       const user = accessAuthState().user
       const skip = userState.skip.value
       const limit = userState.limit.value
+      const skipGuests = userState.skipGuests.value
       try {
         if (user.userRole.value === 'admin') {
-          const users = await client.service('user').find({
+          const params = {
             query: {
               $sort: {
                 name: 1
@@ -85,7 +92,13 @@ export const UserService = {
               $limit: limit,
               action: 'admin'
             }
-          })
+          }
+          if (skipGuests) {
+            params.query.userRole = {
+              $ne: 'guest'
+            }
+          }
+          const users = await client.service('user').find(params)
           dispatch(UserAction.loadedUsers(users))
         }
       } catch (err) {
@@ -149,7 +162,11 @@ export const UserService = {
       }
     }
   },
-  refetchSingleUserAdmin: async () => {}
+  refetchSingleUserAdmin: async () => {},
+  setSkipGuests: async (value: boolean) => {
+    const dispatch = useDispatch()
+    dispatch(UserAction.setSkipGuests(value))
+  }
 }
 
 //Action
@@ -182,6 +199,12 @@ export const UserAction = {
     return {
       type: 'USER_SEARCH_ADMIN' as const,
       userResult: userResult
+    }
+  },
+  setSkipGuests: (skipGuests: boolean) => {
+    return {
+      type: 'SET_SKIP_GUESTS' as const,
+      skipGuests: skipGuests
     }
   }
 }

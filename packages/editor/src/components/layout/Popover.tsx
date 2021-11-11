@@ -1,7 +1,8 @@
-import React, { useRef, useState, useCallback, ReactNode } from 'react'
+import React, { useRef, useCallback, ReactNode } from 'react'
 import Portal from './Portal'
 import Positioner from './Positioner'
 import Overlay from './Overlay'
+import { useHookstate } from '@hookstate/core'
 
 interface PopoverProp {
   children?: ReactNode
@@ -24,7 +25,9 @@ interface PopoverProp {
  */
 export function Popover({ children, padding, position, renderContent, disabled, ...rest }: PopoverProp) {
   const popoverTriggerRef = useRef()
-  const [isOpen, setIsOpen] = useState(false)
+  const state = useHookstate({
+    isOpen: false
+  })
 
   /**
    *
@@ -32,9 +35,9 @@ export function Popover({ children, padding, position, renderContent, disabled, 
    */
   const onOpen = useCallback(() => {
     if (!disabled) {
-      setIsOpen(true)
+      state.isOpen.set(true)
     }
-  }, [setIsOpen, disabled])
+  }, [state.isOpen.value, disabled])
 
   /**
    *
@@ -42,10 +45,10 @@ export function Popover({ children, padding, position, renderContent, disabled, 
    */
   const onClose = useCallback(
     (e) => {
-      setIsOpen(false)
+      state.isOpen.set(false)
       e.stopPropagation()
     },
-    [setIsOpen]
+    [state.isOpen.value]
   )
 
   /**
@@ -67,7 +70,7 @@ export function Popover({ children, padding, position, renderContent, disabled, 
   return (
     <div ref={popoverTriggerRef} onClick={onOpen} {...rest}>
       {children}
-      {isOpen && (
+      {state.isOpen.value && (
         <Portal>
           <Overlay onClick={onClose} />
           <Positioner onClick={onPreventClose} getTargetRef={getTargetRef} padding={padding} position={position}>
