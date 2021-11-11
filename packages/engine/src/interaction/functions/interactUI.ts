@@ -1,8 +1,7 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { Group, MathUtils, Mesh, MeshPhongMaterial, Quaternion, Vector3, Box3 } from 'three'
+import { MathUtils, Quaternion, Vector3, Object3D } from 'three'
 import { addComponent, getComponent, hasComponent, defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
@@ -12,8 +11,6 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 
 import { Engine } from '../../ecs/classes/Engine'
-import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
-import { removeEntity, createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 
 import { hideInteractText, showInteractText, createInteractText } from './interactText'
@@ -25,7 +22,6 @@ import { createInteractiveModalView, connectCallback } from '../ui/InteractiveMo
 const upVec = new Vector3(0, 1, 0)
 const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
 const xrUIQuery = defineQuery([XRUIComponent, Object3DComponent])
-let interactModelEntity: any
 
 export const InteactiveUI = new Map<Entity, ReturnType<typeof createInteractiveModalView>>()
 
@@ -51,21 +47,51 @@ export const createInteractUI = (entity: Entity) => {
   //create text
   const interactTextEntity = createInteractText(interactiveComponent.data.interactionText)
 
-  //rendered for model rotation
-  addComponent(ui.entity, RenderedComponent, {})
-  const updateableObject = new UpdateableObject3D()
-  addComponent(ui.entity, UpdatableComponent, { value: updateableObject })
-
-  updateableObject.userData = {
-    interactTextEntity,
-    parentEntity: entity
-  }
-
   const timer = setInterval(() => {
     const object3D = getComponent(ui.entity, Object3DComponent)
     if (object3D) {
+      object3D.value.userData = {
+        interactTextEntity,
+        parentEntity: entity
+      }
       hideInteractUI(entity)
       clearInterval(timer)
+
+      //rendered for model rotation
+      addComponent(ui.entity, RenderedComponent, {})
+
+      if (object3D && object3D.value) {
+        //@ts-ignore
+        object3D.value.update = () => {
+          for (const entity of localUserQuery()) {
+            for (const xrEntity of xrUIQuery()) {
+              const interactUIObject = getComponent(xrEntity, Object3DComponent).value
+              if (!interactUIObject.visible) continue
+              const xrComponent = getComponent(xrEntity, XRUIComponent) as any
+              if (!xrComponent && !xrComponent.layer) return
+              xrComponent.layer.rootLayer.update(true)
+
+              const entityIndex = xrComponent.layer.userData.parentEntity
+              const modelElement = xrComponent.layer.querySelector(`#interactive-ui-model-${entityIndex}`)
+              if (modelElement && modelElement.contentMesh && modelElement.contentMesh.children[0]) {
+                modelElement.contentMesh.children[0].rotateY(0.01)
+              }
+              if (
+                Engine.activeCameraFollowTarget &&
+                hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)
+              ) {
+                interactUIObject.children[0].setRotationFromAxisAngle(
+                  upVec,
+                  MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
+                )
+              } else {
+                const { x, z } = getComponent(entity, TransformComponent).position
+                interactUIObject.lookAt(x, interactUIObject.position.y, z)
+              }
+            }
+          }
+        }
+      }
     }
   }, 100)
 
@@ -103,19 +129,13 @@ export const createInteractUI = (entity: Entity) => {
         //refresh model element
         if (modelElement) {
           if (mediaData[mediaIndex].type == 'model') {
-            //remove past entity
-            if (interactModelEntity) {
-              removeEntity(interactModelEntity)
-              interactModelEntity = undefined
-              for (var i = modelElement.contentMesh.children.length - 1; i >= 0; i--) {
-                modelElement.contentMesh.remove(modelElement.contentMesh.children[i])
-              }
+            for (var i = modelElement.contentMesh.children.length - 1; i >= 0; i--) {
+              modelElement.contentMesh.remove(modelElement.contentMesh.children[i])
             }
 
             //load glb file
             LoadGLTF(mediaData[mediaIndex].path).then((model) => {
-              const updateableObject = new UpdateableObject3D()
-
+              const object3d = new Object3D()
               model.scene.traverse((mesh) => {
                 //@ts-ignore
                 if (mesh.material) {
@@ -129,25 +149,14 @@ export const createInteractUI = (entity: Entity) => {
               })
 
               const scale = modelElement.contentMesh.scale
-              updateableObject.scale.set(1 / scale.x, 1 / scale.y, 1 / scale.x)
+              model.scene.scale.set(1 / scale.x, 1 / scale.y, 1 / scale.x)
 
-              updateableObject.add(model.scene)
-              modelElement.contentMesh.add(updateableObject)
-              interactModelEntity = createEntity()
-              addComponent(interactModelEntity, RenderedComponent, {})
-              addComponent(interactModelEntity, UpdatableComponent, { value: updateableObject })
-              updateableObject.update = () => {
-                updateableObject.rotateY(0.01)
-              }
+              object3d.add(model.scene)
+              modelElement.contentMesh.add(object3d)
             })
           } else {
-            //remove past entity
-            if (interactModelEntity) {
-              removeEntity(interactModelEntity)
-              interactModelEntity = undefined
-              for (var i = modelElement.contentMesh.children.length - 1; i >= 0; i--) {
-                modelElement.contentMesh.remove(modelElement.contentMesh.children[i])
-              }
+            for (var i = modelElement.contentMesh.children.length - 1; i >= 0; i--) {
+              modelElement.contentMesh.remove(modelElement.contentMesh.children[i])
             }
           }
         }
@@ -162,14 +171,10 @@ export const showInteractUI = (entity: Entity) => {
   if (!ui) return
   const xrComponent = getComponent(ui.entity, XRUIComponent) as any
   if (!xrComponent && !xrComponent.layer) return
-  const updateableObject = getComponent(ui.entity, UpdatableComponent) as any
-  if (
-    !updateableObject.value ||
-    !updateableObject.value.userData ||
-    !updateableObject.value.userData.interactTextEntity
-  )
-    return
-  const userData = updateableObject.value.userData
+  const object3D = getComponent(ui.entity, Object3DComponent) as any
+  if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
+
+  const userData = object3D.value.userData
 
   //refresh video
   const videoElement = xrComponent.layer.querySelector(`#interactive-ui-video-${userData.parentEntity}`)
@@ -191,32 +196,7 @@ export const showInteractUI = (entity: Entity) => {
     }
   }
 
-  const { value } = getComponent(ui.entity, Object3DComponent)
-  value.visible = true
-
-  //rotate UI by camera rotation
-  const updateableComponent = getComponent(ui.entity, UpdatableComponent)
-  if (updateableComponent && updateableComponent.value) {
-    //@ts-ignore
-    updateableComponent.value.update = () => {
-      for (const entity of localUserQuery()) {
-        for (const xrEntity of xrUIQuery()) {
-          const interactUIObject = getComponent(xrEntity, Object3DComponent).value
-          if (!interactUIObject.visible) continue
-          if (Engine.activeCameraFollowTarget && hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)) {
-            interactUIObject.children[0].setRotationFromAxisAngle(
-              upVec,
-              MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
-            )
-          } else {
-            const { x, z } = getComponent(entity, TransformComponent).position
-            interactUIObject.lookAt(x, interactUIObject.position.y, z)
-          }
-        }
-      }
-    }
-  }
-
+  object3D.value.visible = true
   hideInteractText(userData.interactTextEntity)
 }
 
@@ -226,20 +206,14 @@ export const hideInteractUI = (entity: Entity) => {
   if (!ui) return
   const xrComponent = getComponent(ui.entity, XRUIComponent) as any
   if (!xrComponent && !xrComponent.layer) return
-  const updateableObject = getComponent(ui.entity, UpdatableComponent) as any
-  if (
-    !updateableObject.value ||
-    !updateableObject.value.userData ||
-    !updateableObject.value.userData.interactTextEntity
-  )
-    return
-  const userData = updateableObject.value.userData
+
+  const object3D = getComponent(ui.entity, Object3DComponent) as any
+  if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
+  const userData = object3D.value.userData
   const videoElement = xrComponent.layer.querySelector(`#interactive-ui-video-${userData.parentEntity}`)
   if (videoElement && videoElement.element && videoElement.element.pause) videoElement.element.pause()
 
-  const { value } = getComponent(ui.entity, Object3DComponent)
-  value.visible = false
-
+  object3D.value.visible = false
   showInteractText(userData.interactTextEntity, entity)
 }
 
