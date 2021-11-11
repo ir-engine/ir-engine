@@ -298,7 +298,9 @@ export class InstagramNodeEditor extends Component<InstagramNodeEditorProps, Ins
             onChange={(username) => {
               this.setState({ username })
             }}
-            onBlur={this.onChangeInstagramUsername}
+            onBlur={() => {
+              this.onChangeInstagramUsername(this.state.username)
+            }}
           />
         </InputGroup>
         <InputGroup name="Instagram Password" label={this.props.t('editor:properties.instagram.lbl-instagramPassword')}>
@@ -308,7 +310,9 @@ export class InstagramNodeEditor extends Component<InstagramNodeEditorProps, Ins
             onChange={(password) => {
               this.setState({ password })
             }}
-            onBlur={this.onChangeInstagramPassword}
+            onBlur={() => {
+              this.onChangeInstagramPassword(this.state.password)
+            }}
           />
         </InputGroup>
         <InputGroup name="Instagram Username" label={this.props.t('editor:properties.instagram.lbl-instagramUsername')}>
