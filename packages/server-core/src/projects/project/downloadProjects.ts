@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import {
   copyFileSync,
+  copyFolderRecursiveSync,
   deleteFolderRecursive,
   getFilesRecursive,
   writeFileSyncRecursive
@@ -18,12 +19,16 @@ export const download = async (projectName) => {
   try {
     // for default project, overwrite default logic files but not scene files
     if (projectName === 'default-project') {
-      const files = getFilesRecursive(path.resolve(appRootPath.path, `packages/projects/default-project`)).filter(
-        (file) => !sceneRegex.test(file)
+      // make a local copy of the default files
+      copyFolderRecursiveSync(
+        path.resolve(appRootPath.path, `packages/projects/default-project`),
+        path.resolve(appRootPath.path, `packages/projects/projects/default-project`)
       )
-      files.forEach((file) =>
-        copyFileSync(file, path.resolve(file.split('/').slice(0, -1).join('/'), 'projects', file.split('/').pop()))
-      )
+      // remove the scene files so they aren't overwritten
+      const sceneFilesToNotOverwrite = getFilesRecursive(
+        path.resolve(appRootPath.path, `packages/projects/projects/default-project`)
+      ).filter((file) => sceneRegex.test(file))
+      sceneFilesToNotOverwrite.forEach((file) => fs.rmSync(file))
       await uploadLocalProjectToProvider('default-project', [sceneRegex])
     }
 
