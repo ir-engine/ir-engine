@@ -19,64 +19,50 @@ export interface ArrayInputGroupState {
  *
  * @author Ron Oyama
  */
-export class ArrayInputGroup extends Component<ArrayInputGroupProp, ArrayInputGroupState> {
-  static defaultProps = {
-    values: [],
-    prefix: 'Element',
-    onChange: () => {}
-  }
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      count: props.values.length,
-      values: props.values
+const onChangeSize = (text, values, onChange) => {
+  const count = parseInt(text)
+  let preCount = 0
+  if (!values) {
+    values = []
+  } else {
+    preCount = values.length
+  }
+  if (count == undefined || preCount == count) return
+  if (preCount > count) {
+    values.splice(count)
+  } else {
+    for (let i = 0; i < count - preCount; i++) {
+      values.push('')
     }
   }
+  preCount = count
+  onChange(values)
+}
 
-  componentWillReceiveProps(nextProps) {
-    // You don't have to do this check first, but it can help prevent an unneeded render
-    if (nextProps.values !== this.state.values) {
-      this.setState({ values: nextProps.values })
-      this.setState({ count: nextProps.values.length })
-    }
-  }
+const onChangeText = (text, index, values, onChange) => {
+  values[index] = text
+  onChange(values)
+}
 
-  onChangeSize = (text) => {
-    const count = parseInt(text)
-    if (count == undefined || this.state.count == count) return
-    const values = [...this.state.values]
-    if (this.state.count > count) {
-      values.splice(count)
-    } else {
-      for (let i = 0; i < count - this.state.count; i++) {
-        values.push('')
-      }
-    }
-    this.setState({ count: count, values: values })
-    this.props.onChange(values)
-  }
-
-  onChangeText = (text, index) => {
-    const values = [...this.state.values]
-    values[index] = text
-    this.setState({ values: values })
-    this.props.onChange(values)
-  }
-
-  render() {
-    const self = this
-    const { label, prefix } = this.props
-    const { count, values } = this.state
-    return (
-      <InputGroupVerticalContainer>
-        <label>{label}:</label>
-        <InputGroupVerticalContent>
-          <InputGroupContent style={{ margin: '4px 0px' }}>
-            <label style={{ width: '30%' }}>Size:</label>
-            <StringInput value={count} onChange={this.onChangeSize} />
-          </InputGroupContent>
-          {values.map(function (value, index) {
+export function ArrayInputGroup({ prefix, label, values, onChange }: ArrayInputGroupProp) {
+  let count = 0
+  if (values && values.length) count = values.length.toString()
+  return (
+    <InputGroupVerticalContainer>
+      <label>{label}:</label>
+      <InputGroupVerticalContent>
+        <InputGroupContent style={{ margin: '4px 0px' }}>
+          <label style={{ width: '30%' }}>Size:</label>
+          <StringInput
+            value={count}
+            onChange={(text) => {
+              onChangeSize(text, values, onChange)
+            }}
+          />
+        </InputGroupContent>
+        {values &&
+          values.map(function (value, index) {
             return (
               <InputGroupContent key={index} style={{ margin: '4px 0px' }}>
                 <label style={{ width: '30%' }}>
@@ -85,16 +71,15 @@ export class ArrayInputGroup extends Component<ArrayInputGroupProp, ArrayInputGr
                 <StringInput
                   value={value}
                   onChange={(text) => {
-                    self.onChangeText(text, index)
+                    onChangeText(text, index, values, onChange)
                   }}
                 />
               </InputGroupContent>
             )
           })}
-        </InputGroupVerticalContent>
-      </InputGroupVerticalContainer>
-    )
-  }
+      </InputGroupVerticalContent>
+    </InputGroupVerticalContainer>
+  )
 }
 
 export default ArrayInputGroup

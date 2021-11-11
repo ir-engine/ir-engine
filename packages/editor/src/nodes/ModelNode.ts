@@ -104,7 +104,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   boundingSphere = new Sphere()
   gltfJson = null
   isValidURL = false
-  _matrixAutoUpdate = true
+  _matrixAutoUpdate = false
   animations = []
   isUsingGPUInstancing = false
   model: Mesh
