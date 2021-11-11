@@ -9,7 +9,6 @@ import {
   ProjectGridHeaderRow
 } from './ProjectGrid'
 import templates from './templates'
-import { deleteScene, getScenes } from '../../functions/sceneFunctions'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
@@ -78,6 +77,7 @@ const ProjectsPage = () => {
   }
 
   const onClickExisting = (project) => {
+    dispatch(EditorAction.sceneLoaded(null))
     dispatch(EditorAction.projectLoaded(project.name))
   }
 

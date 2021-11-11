@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState, useCallback } from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
@@ -18,54 +18,55 @@ type HemisphereLightNodeEditorProps = {
  * @author Robert Long
  * @type {class Compoment}
  */
-export class HemisphereLightNodeEditor extends Component<HemisphereLightNodeEditorProps, {}> {
-  //setting icon component name
-  static iconComponent = Certificate
+export const HemisphereLightNodeEditor = (props: HemisphereLightNodeEditorProps) => {
+  const [, updateState] = useState()
 
-  //setting description for HemisphereLightNode and will appears on property container
-  static description = i18n.t('editor:properties.hemisphere.description')
+  const forceUpdate = useCallback(() => updateState({}), [])
 
   //function handle change in skyColor property
-  onChangeSkyColor = (skyColor) => {
+  const onChangeSkyColor = (skyColor) => {
     CommandManager.instance.setPropertyOnSelection('skyColor', skyColor)
+    forceUpdate()
   }
 
   //function to handle changes in ground property
-  onChangeGroundColor = (groundColor) => {
+  const onChangeGroundColor = (groundColor) => {
     CommandManager.instance.setPropertyOnSelection('groundColor', groundColor)
+    forceUpdate()
   }
 
   //function to handle changes in intensity property
-  onChangeIntensity = (intensity) => {
+  const onChangeIntensity = (intensity) => {
     CommandManager.instance.setPropertyOnSelection('intensity', intensity)
+    forceUpdate()
   }
 
   //renders view to customize HemisphereLightNode
-  render() {
-    HemisphereLightNodeEditor.description = this.props.t('editor:properties.hemisphere.description')
-    const node = this.props.node
-    return (
-      <NodeEditor {...this.props} description={HemisphereLightNodeEditor.description}>
-        <InputGroup name="Sky Color" label={this.props.t('editor:properties.hemisphere.lbl-skyColor')}>
-          <ColorInput value={node.skyColor} onChange={this.onChangeSkyColor} />
-        </InputGroup>
-        <InputGroup name="Ground Color" label={this.props.t('editor:properties.hemisphere.lbl-groundColor')}>
-          <ColorInput value={node.groundColor} onChange={this.onChangeGroundColor} />
-        </InputGroup>
-        <NumericInputGroup
-          name="Intensity"
-          label={this.props.t('editor:properties.hemisphere.lbl-intensity')}
-          min={0}
-          smallStep={0.001}
-          mediumStep={0.01}
-          largeStep={0.1}
-          value={(node as any).intensity}
-          onChange={this.onChangeIntensity}
-          unit="cd"
-        />
-      </NodeEditor>
-    )
-  }
+  const node = props.node
+  return (
+    <NodeEditor {...props} description={HemisphereLightNodeEditor.description}>
+      <InputGroup name="Sky Color" label={props.t('editor:properties.hemisphere.lbl-skyColor')}>
+        <ColorInput value={node.skyColor} onChange={onChangeSkyColor} />
+      </InputGroup>
+      <InputGroup name="Ground Color" label={props.t('editor:properties.hemisphere.lbl-groundColor')}>
+        <ColorInput value={node.groundColor} onChange={onChangeGroundColor} />
+      </InputGroup>
+      <NumericInputGroup
+        name="Intensity"
+        label={props.t('editor:properties.hemisphere.lbl-intensity')}
+        min={0}
+        smallStep={0.001}
+        mediumStep={0.01}
+        largeStep={0.1}
+        value={node.intensity}
+        onChange={onChangeIntensity}
+        unit="cd"
+      />
+    </NodeEditor>
+  )
 }
+
+HemisphereLightNodeEditor.iconComponent = Certificate
+HemisphereLightNodeEditor.description = i18n.t('editor:properties.hemisphere.description')
 
 export default withTranslation()(HemisphereLightNodeEditor)
