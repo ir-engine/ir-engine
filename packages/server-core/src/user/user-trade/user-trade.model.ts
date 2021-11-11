@@ -21,8 +21,11 @@ export default (app: Application): any => {
       addedOn: {
         type: DataTypes.DATE
       },
-      extra:{
-        type: DataTypes.STRING
+      fromUserInventoryIds:{
+        type: DataTypes.JSON
+      },
+      toUserInventoryIds:{
+        type: DataTypes.JSON
       }
     },
     {

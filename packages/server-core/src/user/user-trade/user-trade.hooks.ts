@@ -1,13 +1,14 @@
 import { disallow } from 'feathers-hooks-common'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+//import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
 import * as authentication from '@feathersjs/authentication'
-import app from "../../../../server/src/app"
+//import app from "../../../../server/src/app"
 
 function processCollectionEntities(usertrade: any): any {
   return usertrade
 }
 
+/*
 const findRequest = async context => {
   const { data, params } = context
   console.log(data)
@@ -25,6 +26,7 @@ const findRequest = async context => {
   }
   return context
 };
+*/
 const { authenticate } = authentication.hooks
 
 export default {
@@ -32,7 +34,7 @@ export default {
     all: [authenticate('jwt')],
     find: [],
     get: [],
-    create: [findRequest],
+    create: [/*findRequest*/],
     update: [disallow()],
     patch: [],
     remove: []

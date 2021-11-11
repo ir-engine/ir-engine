@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../../../declarations'
 import generateShortId from '../../util/generate-short-id'
-import config from '../../appconfig'
+//import config from '../../appconfig'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -76,26 +76,6 @@ export default (app: Application): any => {
       through: models.user_inventory,
       foreignKey: 'inventoryItemId'
     })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'fromInventoryItemId1', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'fromInventoryItemId2', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'fromInventoryItemId3', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'fromInventoryItemId4', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'fromInventoryItemId5', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'fromInventoryItemId6', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'fromInventoryItemId7', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'fromInventoryItemId8', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'fromInventoryItemId9', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'fromInventoryItemId10', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'toInventoryItemId1', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'toInventoryItemId2', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'toInventoryItemId3', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'toInventoryItemId4', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'toInventoryItemId5', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'toInventoryItemId6', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'toInventoryItemId7', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'toInventoryItemId8', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'toInventoryItemId9', required: true })
-    ;(inventoryItem as any).hasMany(models.user_trade, { foreignKey: 'toInventoryItemId10', required: true })
   }
   //A.belongsToMany(B, { through: 'C' });
 
