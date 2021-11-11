@@ -17,7 +17,7 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 
-export const copyDefaultProject = (overwrite = false) => {
+export const copyDefaultProject = () => {
   const seedPath = path.resolve(appRootPath.path, `packages/projects/projects`)
   deleteFolderRecursive(path.resolve(seedPath, `default-project`))
   copyFolderRecursiveSync(path.resolve(appRootPath.path, `packages/projects/default-project`), seedPath)
@@ -37,7 +37,7 @@ export const getStorageProviderPath = (projectName: string) =>
  * Updates the local storage provider with the project's current files
  * @param projectName
  */
-export const uploadLocalProjectToProvider = async (projectName) => {
+export const uploadLocalProjectToProvider = async (projectName, exclusionList: RegExp[] = []) => {
   // remove exiting storage provider files
   try {
     const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
@@ -53,6 +53,7 @@ export const uploadLocalProjectToProvider = async (projectName) => {
   const files = getFilesRecursive(projectPath)
   const results = await Promise.all(
     files.map((file: string) => {
+      if (exclusionList.find((exc) => exc.test(file))) return Promise.resolve()
       return new Promise(async (resolve) => {
         try {
           const fileResult = fs.readFileSync(file)
