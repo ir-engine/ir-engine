@@ -37,17 +37,19 @@ export const getStorageProviderPath = (projectName: string) =>
  * Updates the local storage provider with the project's current files
  * @param projectName
  */
-export const uploadLocalProjectToProvider = async (projectName, exclusionList: RegExp[] = []) => {
+export const uploadLocalProjectToProvider = async (projectName, remove = false, exclusionList: RegExp[] = []) => {
   // remove exiting storage provider files
-  try {
-    const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
-    if (existingFiles.length) {
-      await Promise.all([
-        storageProvider.deleteResources(existingFiles),
-        storageProvider.createInvalidation([`projects/${projectName}*`])
-      ])
-    }
-  } catch (e) {}
+  if (remove) {
+    try {
+      const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+      if (existingFiles.length) {
+        await Promise.all([
+          storageProvider.deleteResources(existingFiles.filter((file) => exclusionList.find((exc) => exc.test(file)))),
+          storageProvider.createInvalidation([`projects/${projectName}*`])
+        ])
+      }
+    } catch (e) {}
+  }
   // upload new files to storage provider
   const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
   const files = getFilesRecursive(projectPath)
