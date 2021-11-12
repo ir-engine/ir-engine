@@ -35,6 +35,7 @@ import { DialogContext, useDialog } from './hooks/useDialog'
 import { saveProject } from '../functions/projectFunctions'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { useDispatch } from '@xrengine/client-core/src/store'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -499,6 +500,10 @@ const EditorContainer = () => {
     const blob = await SceneManager.instance.takeScreenshot(512, 320)
 
     try {
+      if (isDev && projectName === 'default-project')
+        await new Promise((resolve) => {
+          setDialogComponent(<ErrorDialog title={t('editor:warnDefault')} message={t('editor:warnDefaultMsg')} />)
+        })
       await saveScene(projectName, sceneName, blob, abortController.signal)
       await saveProject(projectName)
       SceneManager.instance.sceneModified = false
@@ -626,7 +631,7 @@ const EditorContainer = () => {
             ariaHideApp={false}
             isOpen={!!DialogComponent}
             onRequestClose={() => setDialogComponent(null)}
-            shouldCloseOnOverlayClick={false}
+            shouldCloseOnOverlayClick={true}
             className="Modal"
             overlayClassName="Overlay"
           >

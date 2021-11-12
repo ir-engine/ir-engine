@@ -3,7 +3,7 @@
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
   "entities": {
     "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC": {
-      "name": "default_scene",
+      "name": "empty_scene",
       "components": [
         {
           "name": "mtdata",

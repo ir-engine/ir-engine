@@ -3,7 +3,7 @@ import app from '../../server/src/app'
 import path from 'path'
 import appRootPath from 'app-root-path'
 import { deleteFolderRecursive } from './util/fsHelperFunctions'
-import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
+import defaultSceneSeed from '@xrengine/projects/default-project/empty.scene.json'
 import { useStorageProvider } from './media/storageprovider/storageprovider'
 import { parseSceneDataCacheURLs } from './world/scene/scene-parser'
 import _ from 'lodash'
@@ -11,7 +11,7 @@ const storageProvider = useStorageProvider()
 const parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
 
 const defaultProjectName = 'default-project'
-const defaultSceneName = 'default'
+const defaultSceneName = 'empty'
 const newProjectName = 'test_project_name'
 const newSceneName = 'test_scene_name'
 

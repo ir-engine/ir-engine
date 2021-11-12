@@ -23,7 +23,7 @@ const empty = new Vector3()
 const mx = new Matrix4()
 const tempVec = new Vector3()
 const tempVec1 = new Vector3()
-const cameraRayCount = 6
+const cameraRayCount = 3
 const cameraRays: Vector3[] = []
 const rayConeAngle = Math.PI / 6
 const coneDebugHelpers: ArrowHelper[] = []
@@ -89,7 +89,7 @@ const updateCameraTargetRotation = (entity: Entity, delta: number) => {
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
 
-const getMaxCamDistance = (entity: Entity, target: Vector3): number => {
+const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   // Raycast to keep the line of sight with avatar
@@ -103,7 +103,7 @@ const getMaxCamDistance = (entity: Entity, target: Vector3): number => {
 
   // Check hit with mid ray
   followCamera.raycaster.set(target, targetToCamVec.normalize())
-  const hits = followCamera.raycaster.intersectObjects(Engine.scene.children, true)
+  const hits = followCamera.raycaster.intersectObject(Engine.scene, true)
 
   if (hits[0] && hits[0].distance < maxDistance) {
     maxDistance = hits[0].distance
@@ -112,7 +112,7 @@ const getMaxCamDistance = (entity: Entity, target: Vector3): number => {
   //Check the cone for minimum distance
   cameraRays.forEach((rayDir, i) => {
     followCamera.raycaster.set(target, rayDir)
-    const hits = followCamera.raycaster.intersectObjects(Engine.scene.children, true)
+    const hits = followCamera.raycaster.intersectObject(Engine.scene, true)
 
     if (hits[0] && hits[0].distance < maxDistance) {
       maxDistance = hits[0].distance
@@ -131,7 +131,10 @@ const getMaxCamDistance = (entity: Entity, target: Vector3): number => {
     }
   })
 
-  return maxDistance
+  return {
+    maxDistance,
+    targetHit: !!hits[0]
+  }
 }
 
 const calculateCameraTarget = (entity: Entity, target: Vector3) => {
@@ -160,11 +163,18 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   calculateCameraTarget(entity, tempVec)
 
   let maxDistance = followCamera.zoomLevel
+  let isInsideWall = false
 
   // Run only if not in first person mode
   if (followCamera.zoomLevel >= followCamera.minDistance) {
-    maxDistance = getMaxCamDistance(entity, tempVec)
+    const distanceResults = getMaxCamDistance(entity, tempVec)
+    maxDistance = distanceResults.maxDistance
+    isInsideWall = distanceResults.targetHit
+    // isInsideWall = newZoomDistance < followCamera.maxDistance
+    // console.log(newZoomDistance, maxDistance, followCamera.maxDistance)
   }
+
+  const newZoomDistance = Math.min(followCamera.zoomLevel, maxDistance)
 
   // if (maxDistance < followCamera.zoomLevel) {
   //   // ground collision
@@ -174,13 +184,9 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   // }
 
   // Zoom smoothing
-  followCamera.distance = smoothDamp(
-    followCamera.distance,
-    Math.min(followCamera.zoomLevel, maxDistance),
-    followCamera.zoomVelocity,
-    0.3,
-    delta
-  )
+  followCamera.distance = isInsideWall
+    ? newZoomDistance
+    : smoothDamp(followCamera.distance, newZoomDistance, followCamera.zoomVelocity, 0.3, delta)
 
   const theta = followCamera.theta
   const thetaRad = MathUtils.degToRad(theta)
