@@ -6,5 +6,6 @@ COPY certs/ /usr/app/
 
 RUN npm install -g http-server
 
-
 CMD http-server ./upload --ssl --cors=* --port 8642 
+
+RUN cd upload && sudo chmod -R 777 .
