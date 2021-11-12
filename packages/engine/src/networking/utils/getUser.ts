@@ -7,11 +7,21 @@ import { UserNameComponent } from '../../scene/components/UserNameComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
-export function getUserEntityByName(name: string) {
+export function getUserEntityByName(name: string, localUserId) {
+  /*console.log('looking for entity: ' + name)
+  console.log('values: ' + JSON.stringify(Engine.defaultWorld.clients.values()))
   const client = Array.from(Engine.defaultWorld.clients.values()).find((c) => {
     return c.name === name
   })
-  return client ? useWorld().getUserAvatarEntity(client.userId) : undefined
+  return client ? useWorld().getUserAvatarEntity(client.userId) : undefined*/
+  const world = useWorld()
+
+  for (let [_, client] of world.clients) {
+    console.log('current user id: ' + client.userId)
+    if (client.userId !== localUserId && client.name === name) {
+      return world.getUserAvatarEntity(client.userId)
+    }
+  }
 }
 
 export function getRemoteUsers(localUserId, notAfk: boolean): UserId[] {
