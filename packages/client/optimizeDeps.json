@@ -1,6 +1,19 @@
 {
   "dependencies": [
-    "@material-ui/core/styles",
-    "@material-ui/icons"
+    "@gltf-transform/core",
+    "@gltf-transform/extensions",
+    "@gltf-transform/functions",
+    "@mui/icons-material/ArrowBackIos",
+    "@mui/icons-material/ArrowDownward",
+    "@mui/icons-material/ArrowUpward",
+    "@mui/icons-material/Group",
+    "@mui/icons-material/GroupWork",
+    "@mui/styles/createStyles",
+    "@mui/styles/makeStyles",
+    "@styled-icons/fa-solid/ShoppingCart",
+    "draco3dgltf",
+    "element-resize-event",
+    "react-responsive",
+    "semantic-ui-react"
   ]
 }

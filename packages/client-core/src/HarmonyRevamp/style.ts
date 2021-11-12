@@ -17,8 +17,12 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       padding: '50px 0px'
     },
     leftGrid: {
+<<<<<<< HEAD
       backgroundColor: '#181A1C',
       padding: '50px 0px'
+=======
+      backgroundColor: '#181A1C'
+>>>>>>> 9e55ee53e... implement ui design for chat system
     },
     dFlex: {
       display: 'flex'
@@ -26,9 +30,12 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     justifyContentBetween: {
       justifyContent: 'space-between'
     },
+<<<<<<< HEAD
     justifyCenter: {
       justifyContent: 'center'
     },
+=======
+>>>>>>> 9e55ee53e... implement ui design for chat system
     alignCenter: {
       alignItems: 'center'
     },
@@ -41,6 +48,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     flexWrap: {
       flexWrap: 'wrap'
     },
+<<<<<<< HEAD
     cpointer: {
       cursor: 'pointer'
     },
@@ -59,6 +67,14 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     my1: {
       margin: '0 !important'
     },
+=======
+    mx2: {
+      margin: '7px 10px'
+    },
+    my2: {
+      margin: '15px 0px'
+    },
+>>>>>>> 9e55ee53e... implement ui design for chat system
     roundedCircle: {
       borderRadius: 80,
       textDecoration: 'none'
@@ -77,6 +93,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#83769C'
     },
     flexColumn: {
+<<<<<<< HEAD
       flexDirection: 'column'
     },
     formControls: {
@@ -87,6 +104,10 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       marginTop: 15,
       borderRadius: '2px',
       color: '#ccc'
+=======
+      flexDirection: 'column',
+      height: '92vh'
+>>>>>>> 9e55ee53e... implement ui design for chat system
     },
     box: {
       backgroundColor: '#232424',
@@ -102,7 +123,10 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#935CFF',
       backgroundColor: '#232424',
       borderRadius: '30px',
+<<<<<<< HEAD
       border: 0,
+=======
+>>>>>>> 9e55ee53e... implement ui design for chat system
       padding: '12px 24px',
       fontSize: 14,
       fontWeight: 'bold'
@@ -112,19 +136,25 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#FFF',
       textDecoration: 'none'
     },
+<<<<<<< HEAD
     borderNone: {
       border: 0
     },
+=======
+>>>>>>> 9e55ee53e... implement ui design for chat system
     bgDark: {
       backgroundColor: '#3A3D40',
       color: '#FFF',
       padding: '15px 0px'
     },
+<<<<<<< HEAD
     bgDarkLight: {
       backgroundColor: '#181A1C',
       color: '#FFF',
       width: '8rem'
     },
+=======
+>>>>>>> 9e55ee53e... implement ui design for chat system
     white: {
       color: '#FFF'
     },
@@ -141,7 +171,11 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#A8A9AB'
     },
     h100: {
+<<<<<<< HEAD
       height: '89vh'
+=======
+      height: '96vh'
+>>>>>>> 9e55ee53e... implement ui design for chat system
     },
     flexGrow: {
       flexGrow: 1,
@@ -173,6 +207,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       backgroundColor: '#935CFF',
       padding: '5px 10px',
       borderRadius: '30px'
+<<<<<<< HEAD
     },
     p2: {
       backgroundColor: '#1B1C1D',
@@ -242,6 +277,8 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       '&::-webkit-scrollbar-thumb:hover': {
         background: '#f1f1f1'
       }
+=======
+>>>>>>> 9e55ee53e... implement ui design for chat system
     }
   })
 )
