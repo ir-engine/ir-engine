@@ -29,7 +29,7 @@ export const download = async (projectName) => {
         path.resolve(appRootPath.path, `packages/projects/projects/default-project`)
       ).filter((file) => sceneRegex.test(file))
       sceneFilesToNotOverwrite.forEach((file) => fs.rmSync(file))
-      await uploadLocalProjectToProvider('default-project', true, [sceneRegex])
+      await uploadLocalProjectToProvider('default-project', false, [sceneRegex])
     }
 
     console.log('[ProjectLoader]: Installing project', projectName, '...')

@@ -37,7 +37,7 @@ export const getStorageProviderPath = (projectName: string) =>
  * Updates the local storage provider with the project's current files
  * @param projectName
  */
-export const uploadLocalProjectToProvider = async (projectName, remove = false, exclusionList: RegExp[] = []) => {
+export const uploadLocalProjectToProvider = async (projectName, remove = true, exclusionList: RegExp[] = []) => {
   // remove exiting storage provider files
   if (remove) {
     try {
