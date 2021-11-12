@@ -1,6 +1,6 @@
 import assert from 'assert'
 import { ProjectManager } from '../src/managers/ProjectManager'
-import defaultSceneData from '../../projects/default-project/default.scene.json'
+import defaultSceneData from '../../projects/default-project/empty.scene.json'
 import { EngineSystemPresets, InitializeOptions } from '../../engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 
