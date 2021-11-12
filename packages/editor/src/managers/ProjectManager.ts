@@ -9,6 +9,7 @@ import { CommandManager } from './CommandManager'
 import { NodeManager } from './NodeManager'
 import { SceneManager } from './SceneManager'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export class ProjectManager {
   static instance: ProjectManager = new ProjectManager()
@@ -73,7 +74,7 @@ export class ProjectManager {
 
     const errors = await SceneManager.instance.initializeScene(projectFile)
 
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, SceneManager.instance.scene)
+    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, Engine.scene)
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
     CommandManager.instance.history.clear()
 
@@ -98,9 +99,6 @@ export class ProjectManager {
 
   dispose() {
     CacheManager.clearCaches()
-
-    if (SceneManager.instance.renderer) {
-      SceneManager.instance.renderer.dispose()
-    }
+    SceneManager.instance.dispose()
   }
 }

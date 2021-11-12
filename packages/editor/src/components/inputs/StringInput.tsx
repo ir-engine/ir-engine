@@ -24,6 +24,7 @@ interface StringInputProp {
   onKeyUp?: Function
   type?: string
   placeholder?: string
+  disabled?: boolean
 }
 
 /**

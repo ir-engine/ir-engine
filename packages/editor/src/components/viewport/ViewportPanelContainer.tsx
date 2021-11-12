@@ -71,9 +71,7 @@ export function ViewportPanelContainer() {
         )
       }
 
-      if (SceneManager.instance.renderer) {
-        SceneManager.instance.renderer.dispose()
-      }
+      SceneManager.instance.dispose()
     }
   }, [])
 

@@ -5,6 +5,9 @@ export interface ComponentJson {
 export interface EntityJson {
   name: string
   components: Array<ComponentJson>
+  uuid?: string
+  parent?: string
+  index?: number
 }
 
 export interface SceneJson {
