@@ -22,6 +22,7 @@ import { NavMeshComponent } from '../component/NavMeshComponent'
 import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import createSpeedFunction from '../functions/createSpeedFunction'
 
 export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -56,6 +57,9 @@ export default async function AutopilotSystem(world: World): Promise<System> {
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
   const autopilotQuery = defineQuery([AutoPilotComponent])
   const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
+
+  const ARRIVED_DISTANCE = 0.2
+  const getSpeed = createSpeedFunction(3, 1.1, 0.1)
 
   const vec3 = new Vector3()
   function getCameraDirection() {
@@ -144,10 +148,6 @@ export default async function AutopilotSystem(world: World): Promise<System> {
     // ongoing
     if (allOngoing.length) {
       // update our entity transform from vehicle
-      const ARRIVING_DISTANCE = 1
-      const ARRIVED_DISTANCE = 0.2
-      const MAX_SPEED = 2
-      let speedModifier = 0
       for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
         if (!autopilot.path.current()) {
@@ -176,15 +176,12 @@ export default async function AutopilotSystem(world: World): Promise<System> {
 
           autopilot.path.advance()
         } else {
-          if (targetFlatDistance > ARRIVING_DISTANCE) {
-            speedModifier = Math.min(speedModifier + 1.2, MAX_SPEED)
-          }
-          speedModifier = Math.max(speedModifier - 0.1, 0)
+          const speed = getSpeed(targetFlatDistance)
           direction.copy(targetFlatPosition).sub(avatarPositionFlat).normalize()
           const targetAngle = Math.atan2(direction.x, direction.z)
           stickValue
             .copy(direction)
-            .multiplyScalar(speedModifier)
+            .multiplyScalar(speed)
             // Avatar controller system assumes all movement is relative to camera, so cancel that out
             .applyQuaternion(getCameraDirection().invert())
 
