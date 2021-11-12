@@ -12,7 +12,6 @@ import {
 } from '@mui/material'
 import * as React from 'react'
 import { useHarmonyStyles } from './style'
-// import Avatar from './Avatar.png';
 
 const LeftHarmony: React.FunctionComponent = () => {
   const classes = useHarmonyStyles()

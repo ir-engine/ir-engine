@@ -140,6 +140,10 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       backgroundColor: '#935CFF',
       padding: '5px 10px',
       borderRadius: '30px'
+    },
+    p2: {
+      backgroundColor: '#1B1C1D',
+      padding: '28px 17px'
     }
   })
 )

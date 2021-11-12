@@ -3,6 +3,7 @@ import { Container, Grid } from '@mui/material'
 import { useHarmonyStyles } from './style'
 import LeftHarmony from './LeftHarmony'
 import MessageBox from './messageBox'
+import RightHarmony from './RightHarmony'
 
 // interface IndexProps {
 
@@ -19,13 +20,11 @@ const Index = () => {
         </Container>
       </Grid>
       <Grid item xs={6}>
-        <Container>
-          <MessageBox />
-        </Container>
+        <MessageBox />
       </Grid>
       <Grid item xs={3} className={classes.leftGrid}>
         <Container>
-          <p>three</p>
+          <RightHarmony />
         </Container>
       </Grid>
     </Grid>
