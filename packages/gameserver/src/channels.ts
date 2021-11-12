@@ -95,7 +95,6 @@ export default (app: Application): void => {
     return
   }
   app.on('connection', async (connection) => {
-    console.log('\n\nNEW CONNECTION\n\n')
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
       process.env.APP_ENV === 'development' ||

@@ -351,16 +351,8 @@ export const handleMouseWheel = (event: WheelEvent): void => {
  * @param elementHeight
  * @returns Normalized Mouse movement (x, y) where x and y are between 0 to 2 inclusively.
  */
-function normalizeMouseMovement(
-  x: number,
-  y: number,
-  elementWidth: number,
-  elementHeight: number
-): { x: number; y: number } {
-  return {
-    x: x / (elementWidth / 2),
-    y: -y / (elementHeight / 2)
-  }
+function normalizeMouseMovement(x: number, y: number, elementWidth: number, elementHeight: number) {
+  return [x / (elementWidth / 2), -y / (elementHeight / 2)]
 }
 
 /**
@@ -388,6 +380,7 @@ export const handleMouseMovement = (event: MouseEvent): void => {
     window.innerHeight
   )
   const mousePosition: [number, number] = [normalizedPosition.x, normalizedPosition.y]
+  const lastMousePosition = Engine.inputState.get(MouseInput.MousePosition)?.value! ?? mousePosition
 
   Engine.inputState.set(MouseInput.MousePosition, {
     type: InputType.TWODIM,
@@ -395,14 +388,7 @@ export const handleMouseMovement = (event: MouseEvent): void => {
     lifecycleState: Engine.inputState.has(MouseInput.MousePosition) ? LifecycleValue.Changed : LifecycleValue.Started
   })
 
-  const normalizedMovement = normalizeMouseMovement(
-    event.movementX,
-    event.movementY,
-    window.outerWidth,
-    window.outerHeight
-  )
-
-  const mouseMovement: [number, number] = [normalizedMovement.x, normalizedMovement.y]
+  const mouseMovement = [mousePosition[0] - lastMousePosition[0], mousePosition[1] - lastMousePosition[1]]
 
   Engine.inputState.set(MouseInput.MouseMovement, {
     type: InputType.TWODIM,
@@ -412,9 +398,7 @@ export const handleMouseMovement = (event: MouseEvent): void => {
 
   const isDragging = Engine.inputState.get(MouseInput.MouseClickDownPosition)
 
-  let value = [0, 0] as NumericalType
   if (isDragging && isDragging?.lifecycleState !== LifecycleValue.Ended) {
-    value = mouseMovement
     callback = setTimeout(() => {
       Engine.inputState.set(MouseInput.MouseClickDownMovement, {
         type: InputType.TWODIM,
@@ -426,7 +410,7 @@ export const handleMouseMovement = (event: MouseEvent): void => {
     }, 50)
     Engine.inputState.set(MouseInput.MouseClickDownMovement, {
       type: InputType.TWODIM,
-      value: value,
+      value: mouseMovement,
       lifecycleState: Engine.inputState.has(MouseInput.MouseClickDownMovement)
         ? LifecycleValue.Changed
         : LifecycleValue.Started
