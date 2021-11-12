@@ -15,9 +15,6 @@ import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 
-const networkUserQuery = defineQuery([Not(LocalInputTagComponent), AvatarComponent, TransformComponent])
-const equippableQuery = defineQuery([EquipperComponent])
-
 function equippableActionReceptor(action) {
   matches(action).when(NetworkWorldAction.setEquippedObject.matches, (a) => {
     // const world = useWorld()
@@ -42,12 +39,16 @@ function equippableActionReceptor(action) {
 export default async function EquippableSystem(world: World): Promise<System> {
   world.receptors.push(equippableActionReceptor)
 
+  const networkUserQuery = defineQuery([Not(LocalInputTagComponent), AvatarComponent, TransformComponent])
+  const equippableQuery = defineQuery([EquipperComponent])
+
   return () => {
     for (const entity of equippableQuery.enter()) {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
       const collider = getComponent(equippedEntity, ColliderComponent)
       // if (collider) collider.body.type = BodyType.KINEMATIC
       // send equip to clients
+      console.log('send equip to clients')
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.setEquippedObject({
           networkId: getComponent(equippedEntity, NetworkObjectComponent).networkId,
@@ -57,6 +58,7 @@ export default async function EquippableSystem(world: World): Promise<System> {
     }
 
     for (const entity of equippableQuery()) {
+      console.log('equipping loop')
       const equipperComponent = getComponent(entity, EquipperComponent)
       const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
       const handTransform = getHandTransform(entity)
@@ -74,6 +76,7 @@ export default async function EquippableSystem(world: World): Promise<System> {
         // collider.body.type = BodyType.DYNAMIC
         teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
       }
+      console.log('send un equip to clients')
       // send unequip to clients
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.setEquippedObject({
