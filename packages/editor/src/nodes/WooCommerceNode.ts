@@ -136,12 +136,13 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
           node.interactionType = interactableComponent.props.interactionType
           node.interactionText = interactableComponent.props.interactionText
           node.interactionDistance = interactableComponent.props.interactionDistance
-          node.payloadName = interactableComponent.props.payloadName
-          node.payloadUrl = interactableComponent.props.payloadUrl
-          node.payloadBuyUrl = interactableComponent.props.payloadBuyUrl
-          node.payloadLearnMoreUrl = interactableComponent.props.payloadLearnMoreUrl
-          node.payloadHtmlContent = interactableComponent.props.payloadHtmlContent
-          node.payloadUrl = interactableComponent.props.payloadUrl
+          node.interactionThemeIndex = interactableComponent.props.interactionThemeIndex
+          node.interactionName = interactableComponent.props.interactionName
+          node.interactionDescription = interactableComponent.props.interactionDescription
+          node.interactionImages = interactableComponent.props.interactionImages
+          node.interactionVideos = interactableComponent.props.interactionVideos
+          node.interactionUrls = interactableComponent.props.interactionUrls
+          node.interactionModels = interactableComponent.props.interactionModels
         }
       })()
     )
@@ -150,6 +151,19 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
 
   constructor() {
     super()
+  }
+
+  initInteractive() {
+    this.interactable = false
+    this.interactionType = 'infoBox'
+    this.interactionText = ''
+    this.interactionThemeIndex = 0
+    this.interactionName = ''
+    this.interactionDescription = ''
+    this.interactionImages = []
+    this.interactionVideos = []
+    this.interactionUrls = []
+    this.interactionModels = []
   }
 
   //set properties from editor
@@ -232,21 +246,29 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
     let modelCount = 0
     let videoCount = 0
     let imageCount = 0
+    this.initInteractive()
     if (this.wooCommerceProducts && this.wooCommerceProducts.length != 0) {
       const filtered = this.wooCommerceProducts.filter((product) => product.value == value)
       if (filtered && filtered.length != 0) {
         if (filtered[0] && filtered[0].media) {
+          this.interactionName = filtered[0].title
+          this.interactionText = filtered[0].title
+          this.interactionDescription = filtered[0].description
+          if (filtered[0].storeUrl) this.interactionUrls.push(filtered[0].storeUrl)
           filtered[0].media.forEach((media, index) => {
             let label = media.extendType.replace(/\b\w/g, (l) => l.toUpperCase())
             if (media.extendType == 'model') {
               modelCount++
               label += ` ${modelCount}`
+              this.interactionModels.push(media.url)
             } else if (media.extendType == 'video') {
               videoCount++
               label += ` ${videoCount}`
+              this.interactionVideos.push(media.url)
             } else {
               imageCount++
               label += ` ${imageCount}`
+              this.interactionImages.push(media.url)
             }
             this.wooCommerceProductItems.push({
               value: index,
@@ -263,6 +285,7 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
   }
   set wooCommerceProductItemId(value) {
     this._wooCommerceProductItemId = value
+    if (value !== '') this.interactable = true
     this.setMediaNode(value)
   }
 
@@ -305,15 +328,17 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
       return
     try {
       const res = await this.makeRequest(
-        this.wooCommerceDomain,
+        this.wooCommerceDomain + '/wp-json/wc/v3/products',
         this.wooCommerceConsumerKey,
         this.wooCommerceConsumerSecret
       )
       if (!res || !res.data) return
       const productData: any = res.data
+      this.initInteractive()
       this.wooCommerceProducts = []
       this.wooCommerceProductItems = []
-      this.wooCommerceProductItemId = -1
+      this.wooCommerceProductItemId = ''
+      debugger
       var urlRegex = /(https?:\/\/[^\s]+)/g
       if (productData && productData.length > 0) {
         productData.forEach((product) => {
@@ -351,6 +376,9 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
             }
           })
           this.wooCommerceProducts.push({
+            title: product.name,
+            description: product.short_description.replace(/(<([^>]+)>)/gi, ''),
+            storeUrl: product.permalink,
             value: product.id,
             label: product.name,
             media: sourceData
@@ -447,11 +475,6 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
       }
     }
 
-    let wooCommerceJsonStr = ''
-    if (this.wooCommerceProductItems && this.wooCommerceProductItems.length > 0) {
-      wooCommerceJsonStr = JSON.stringify(this.wooCommerceProductItems)
-    }
-
     const components = {
       wooCommerce: {
         wooCommerceProducts: this.wooCommerceProducts,
@@ -469,13 +492,13 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
         interactionType: this.interactionType,
         interactionText: this.interactionText,
         interactionDistance: this.interactionDistance,
-        payloadName: this.payloadName,
-        payloadUrl: this.payloadUrl,
-        payloadBuyUrl: this.payloadBuyUrl,
-        payloadLearnMoreUrl: this.payloadLearnMoreUrl,
-        payloadHtmlContent: this.payloadHtmlContent,
-        payloadModelUrl: this._canonicalUrl,
-        payloadJson: wooCommerceJsonStr
+        interactionThemeIndex: this.interactionThemeIndex,
+        interactionName: this.interactionName,
+        interactionDescription: this.interactionDescription,
+        interactionImages: this.interactionImages,
+        interactionVideos: this.interactionVideos,
+        interactionUrls: this.interactionUrls,
+        interactionModels: this.interactionModels
       }
     }
     return await super.serialize(projectID, components)
