@@ -48,7 +48,8 @@ const staticStyle = {
   }),
   menuList: (base) => ({
     ...base,
-    padding: '0'
+    padding: '0',
+    maxHeight: '120px'
   }),
   option: (base, { isFocused }) => ({
     ...base,
@@ -133,6 +134,7 @@ export function SelectInput({
       components={{ IndicatorSeparator: () => null }}
       placeholder={placeholder}
       options={options}
+      menuPlacement="auto"
       onChange={(option) => onChange(option && option.value, option)}
       isDisabled={disabled}
     />

@@ -294,7 +294,6 @@ export class Project extends Service {
         }
       } catch (e) {
         console.warn('[getProjects]: Failed to read package.json for project', name, 'with error', e)
-        return
       }
     }
     return {
@@ -327,7 +326,7 @@ export class Project extends Service {
           }
         } catch (e) {
           console.warn('[getProjects]: Failed to read package.json for project', entry.name, 'with error', e)
-          return
+          return entry
         }
       })
       .filter((entry) => !!entry)

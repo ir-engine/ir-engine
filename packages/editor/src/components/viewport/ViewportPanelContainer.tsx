@@ -100,7 +100,7 @@ export function ViewportPanelContainer() {
   const onAfterUploadAssets = useCallback((assets) => {
     Promise.all(
       assets.map((url) => {
-        CommandManager.instance.addMedia({ url })
+        CommandManager.instance.addMedia(url)
       })
     ).catch((err) => {
       CommandManager.instance.emitEvent(EditorEvents.ERROR, err)
