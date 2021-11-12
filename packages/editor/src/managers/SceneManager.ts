@@ -73,7 +73,32 @@ export class SceneManager {
 
     // Empty existing scene
     if (Engine.scene) {
-      CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, Engine.scene)
+      Engine.scene.traverse((child: any) => {
+        if (child.isNode) {
+          child.onRemove()
+          if (!NodeManager.instance.remove(child)) {
+            throw new Error(i18n.t('editor:errors.removeObject'))
+          }
+        }
+
+        if (child.geometry) {
+          child.geometry.dispose()
+        }
+
+        if (child.material) {
+          if (child.material.length) {
+            for (let i = 0; i < child.material.length; ++i) {
+              child.material[i].dispose()
+            }
+          } else {
+            child.material.dispose()
+          }
+        }
+      })
+
+      Engine.scene = null
+      Engine.renderer.renderLists.dispose()
+      Engine.renderer = null
     }
 
     NodeManager.instance.nodes = [Engine.scene]
@@ -496,7 +521,7 @@ export class SceneManager {
   }
 
   updateOutlinePassSelection(): any[] {
-    if (!Engine.effectComposer[Effects.OutlineEffect]) return
+    if (!Engine.effectComposer || !Engine.effectComposer[Effects.OutlineEffect]) return
 
     const meshes = []
     for (let i = 0; i < CommandManager.instance.selectedTransformRoots.length; i++) {
