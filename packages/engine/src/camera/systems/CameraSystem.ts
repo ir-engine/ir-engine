@@ -23,7 +23,7 @@ const empty = new Vector3()
 const mx = new Matrix4()
 const tempVec = new Vector3()
 const tempVec1 = new Vector3()
-const cameraRayCount = 6
+const cameraRayCount = 3
 const cameraRays: Vector3[] = []
 const rayConeAngle = Math.PI / 6
 const coneDebugHelpers: ArrowHelper[] = []
@@ -103,7 +103,7 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 
   // Check hit with mid ray
   followCamera.raycaster.set(target, targetToCamVec.normalize())
-  const hits = followCamera.raycaster.intersectObjects(Engine.scene.children, true)
+  const hits = followCamera.raycaster.intersectObject(Engine.scene, true)
 
   if (hits[0] && hits[0].distance < maxDistance) {
     maxDistance = hits[0].distance
@@ -112,7 +112,7 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   //Check the cone for minimum distance
   cameraRays.forEach((rayDir, i) => {
     followCamera.raycaster.set(target, rayDir)
-    const hits = followCamera.raycaster.intersectObjects(Engine.scene.children, true)
+    const hits = followCamera.raycaster.intersectObject(Engine.scene, true)
 
     if (hits[0] && hits[0].distance < maxDistance) {
       maxDistance = hits[0].distance
