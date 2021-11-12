@@ -323,12 +323,8 @@ export const handleMouseWheel = (event: WheelEvent): void => {
 
   if (event?.target !== EngineRenderer.instance.canvas) return
 
-  let normalizedValues = normalizeWheel(event)
-  console.log(normalizedValues)
-  console.log(event.deltaY)
-  const value = normalizedValues?.spinY
-  console.log('final', value)
-  // debugger
+  const normalizedValues = normalizeWheel(event)
+  const value = normalizedValues?.spinY + Math.random() * 0.000001
 
   if (!Engine.inputState.has(MouseInput.MouseScroll)) {
     Engine.inputState.set(MouseInput.MouseScroll, {
@@ -338,17 +334,10 @@ export const handleMouseWheel = (event: WheelEvent): void => {
     })
   } else {
     const oldValue = Engine.inputState.get(MouseInput.MouseScroll)?.value[0] as number
-    if (oldValue === value) {
-      Engine.inputState.set(MouseInput.MouseScroll, {
-        type: InputType.ONEDIM,
-        value: [value],
-        lifecycleState: LifecycleValue.Unchanged
-      })
-      return
-    }
+    const newValue = oldValue === value ? value : oldValue + Math.sign(value)
     Engine.inputState.set(MouseInput.MouseScroll, {
       type: InputType.ONEDIM,
-      value: [oldValue + Math.sign(value)],
+      value: [newValue],
       lifecycleState: LifecycleValue.Changed
     })
   }
