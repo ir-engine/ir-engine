@@ -7,6 +7,7 @@ import { useMediaQuery } from 'react-responsive'
 import SideMenu from './SideMenu'
 import IconButton from '@mui/material/IconButton'
 import { useStyles } from './style'
+import Index from '@xrengine/client-core/src/HarmonyRevamp/index'
 
 export default function Harmony() {
   const classes = useStyles()
