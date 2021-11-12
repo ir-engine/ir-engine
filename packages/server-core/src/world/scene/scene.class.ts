@@ -7,7 +7,7 @@ import appRootPath from 'app-root-path'
 import { cleanString } from '../../util/cleanString'
 import { uploadLocalProjectToProvider } from '../../projects/project/project.class'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
+import defaultSceneSeed from '@xrengine/projects/default-project/empty.scene.json'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
@@ -91,6 +91,9 @@ export class Scene implements ServiceMethods<any> {
   async update(projectName: string, data: UpdateParams, params?: Params): Promise<any> {
     const { sceneName, sceneData, thumbnailBuffer } = data
     console.log('[scene.update]:', projectName, data)
+
+    if (!isDev && projectName === 'default-project')
+      throw new Error('The default project is read only. Please make a new project if you wish to customise it.')
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)

@@ -8,7 +8,7 @@ import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import AssetTooltip from './AssetTooltip'
-import Tooltip, { TooltipContainer } from '../layout/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
@@ -34,16 +34,6 @@ const getNodes = (params?) => {
     return acc
   }, [])
 }
-/**
- * AssetGridTooltipContainer used to provide styles for tooltip shown if we hover the object.
- *
- * @author Robert Long
- * @type {styled component}
- */
-const AssetGridTooltipContainer = (styled as any)(TooltipContainer)`
-  max-width: initial;
-  text-align: left;
-`
 
 /**
  * collectMenuProps returns menu items.
@@ -102,30 +92,19 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
     multiple: false
   }))
 
-  /**
-   * [renderTooltip  used to render tooltip for AssetGrid]
-   * @type {function component}
-   */
-  const renderTooltip = useCallback(() => {
-    const TooltipComponent = tooltipComponent
-    return (
-      <AssetGridTooltipContainer>
-        <TooltipComponent item={item} />
-      </AssetGridTooltipContainer>
-    )
-  }, [item, tooltipComponent])
-
   //showing the object in viewport once it drag and droped
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
+  const TooltipComponent = tooltipComponent
+
   //creating view for AssetGrid using ContextMenuTrigger and tooltip component
   return (
     <div ref={drag}>
       <ContextMenuTrigger id={contextMenuId} collect={collectMenuProps} holdToDisplay={-1}>
-        <Tooltip renderContent={renderTooltip} disabled={disableTooltip}>
-          {content}
+        <Tooltip title={<TooltipComponent item={item} />}>
+          <div>{content}</div>
         </Tooltip>
       </ContextMenuTrigger>
     </div>

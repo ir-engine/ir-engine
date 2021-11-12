@@ -13,12 +13,9 @@ import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 
-const goHome = () => (window.location.href = window.location.origin)
-
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
 interface Props {
-  isValidLocation
   allowDebug
   reinit
   locationName
@@ -35,20 +32,6 @@ const DefaultLayoutView = (props: Props) => {
   return (
     <>
       <LoadingScreen />
-      {!props.isValidLocation && (
-        <Snackbar
-          open
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'center'
-          }}
-        >
-          <>
-            <section>Location is invalid</section>
-            <Button onClick={goHome}>Return Home</Button>
-          </>
-        </Snackbar>
-      )}
       {props.allowDebug && <NetworkDebug reinit={props.reinit} />}
       {isTouchAvailable ? (
         <Suspense fallback={<></>}>

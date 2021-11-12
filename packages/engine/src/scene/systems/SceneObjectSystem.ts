@@ -57,11 +57,10 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
         console.warn('[Object3DComponent]: Scene object has been added manually.', object3DComponent.value)
       }
 
-      // Set default layer
-      object3DComponent.value.layers.set(CameraLayers.Scene)
-
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
+        // Set default layer
+        obj.layers.set(CameraLayers.Scene)
         const material = obj.material as Material
         if (typeof material !== 'undefined') material.dithering = true
 
