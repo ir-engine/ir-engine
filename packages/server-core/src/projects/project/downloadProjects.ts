@@ -2,34 +2,18 @@ import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import fs from 'fs'
 import path from 'path'
-import {
-  copyFileSync,
-  copyFolderRecursiveSync,
-  deleteFolderRecursive,
-  getFilesRecursive,
-  writeFileSyncRecursive
-} from '../../util/fsHelperFunctions'
+import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
-import { uploadLocalProjectToProvider } from './project.class'
+import { copyDefaultProject, uploadLocalProjectToProvider } from './project.class'
 
 const storageProvider = useStorageProvider()
-const sceneRegex = /\.(scene.json)$/g
 
 export const download = async (projectName) => {
   try {
-    // for default project, overwrite default logic files but not scene files
+    // default project is presumed read only
     if (projectName === 'default-project') {
-      // make a local copy of the default files
-      copyFolderRecursiveSync(
-        path.resolve(appRootPath.path, `packages/projects/default-project`),
-        path.resolve(appRootPath.path, `packages/projects/projects/default-project`)
-      )
-      // remove the scene files so they aren't overwritten
-      const sceneFilesToNotOverwrite = getFilesRecursive(
-        path.resolve(appRootPath.path, `packages/projects/projects/default-project`)
-      ).filter((file) => sceneRegex.test(file))
-      sceneFilesToNotOverwrite.forEach((file) => fs.rmSync(file))
-      await uploadLocalProjectToProvider('default-project', false, [sceneRegex])
+      copyDefaultProject()
+      await uploadLocalProjectToProvider('default-project')
     }
 
     console.log('[ProjectLoader]: Installing project', projectName, '...')
