@@ -1,0 +1,10 @@
+FROM node
+
+WORKDIR /usr/app
+
+COPY certs/ /usr/app/
+
+RUN npm install -g http-server
+
+
+CMD http-server ./upload --ssl --cors=* --port 8642 

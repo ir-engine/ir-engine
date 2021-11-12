@@ -15,8 +15,8 @@ describe('Storage Provider test', () => {
   const folderKeyTemp2 = path.join(testFolderName, 'temp2')
 
   const storageProviders: StorageProviderInterface[] = []
-  //storageProviders.push(new LocalStorage())
-  storageProviders.push(new S3Provider())
+  storageProviders.push(new LocalStorage())
+  //storageProviders.push(new S3Provider())
 
   storageProviders.forEach((provider) => {
     before(async function () {
@@ -60,7 +60,6 @@ describe('Storage Provider test', () => {
     it(`should return valid object url in ${provider.constructor.name}`, async function () {
       const fileKey = path.join('/', testFolderName, testFileName)
       const url = (await provider.getSignedUrl(fileKey, 20000, [])).url
-      console.log('The Signed Url is:' + url)
       const httpAgent = new https.Agent({
         rejectUnauthorized: false
       })

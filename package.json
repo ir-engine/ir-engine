@@ -47,6 +47,7 @@
     "dev-docker": "cd scripts && docker-compose up -d",
     "dev-agones": "cd scripts && ./start-agones.sh",
     "dev-server": "cd packages/server && npm run dev",
+    "dev-file-server": "cd scripts && USER=$(id -u) docker-compose -f docker-compose-fileserver.yml up -d",
     "dev-server-windows": "cd packages/server && npm run dev-windows",
     "dev-client": "cd packages/client && npm run dev",
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
