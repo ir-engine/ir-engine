@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
 import NodeEditor from './NodeEditor'
 import { Cubes } from '@styled-icons/fa-solid/Cubes'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
+
 type GroupNodeEditorProps = {
   node?: object
-  t: Function
 }
 
 /**
@@ -15,10 +14,11 @@ type GroupNodeEditorProps = {
  * @type {class component}
  */
 export const GroupNodeEditor = (props: GroupNodeEditorProps) => {
-  return <NodeEditor {...props} description={GroupNodeEditor.description} />
+  const { t } = useTranslation()
+
+  return <NodeEditor {...props} description={t('editor:properties.group.description')} />
 }
 
 GroupNodeEditor.iconComponent = Cubes
-GroupNodeEditor.description = i18n.t('editor:properties.group.description')
 
-export default withTranslation()(GroupNodeEditor)
+export default GroupNodeEditor

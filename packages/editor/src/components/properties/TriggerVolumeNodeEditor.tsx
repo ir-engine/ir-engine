@@ -6,8 +6,7 @@ import SelectInput from '../inputs/SelectInput'
 import BooleanInput from '../inputs/BooleanInput'
 import StringInput from '../inputs/StringInput'
 import { Running } from '@styled-icons/fa-solid/Running'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
@@ -16,7 +15,6 @@ import { SceneManager } from '../../managers/SceneManager'
 type TriggerVolumeNodeEditorProps = {
   node?: object
   multiEdit?: boolean
-  t: Function
 }
 
 //Declaring TriggerVolumeNodeEditor state
@@ -33,6 +31,7 @@ type TriggerVolumeNodeEditorState = {
 export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => {
   //initializing props and state
   let [options, setOptions] = useState([])
+  const { t } = useTranslation()
 
   useEffect(() => {
     const options = []
@@ -79,17 +78,17 @@ export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => 
   const targetNotFound = node.target && target === null
 
   return (
-    <NodeEditor description={TriggerVolumeNodeEditor.description} {...props}>
-      <InputGroup name="Show Helper" label={props.t('editor:properties.triggereVolume.lbl-showHelper')}>
+    <NodeEditor description={t('editor:properties.triggereVolume.description')} {...props}>
+      <InputGroup name="Show Helper" label={t('editor:properties.triggereVolume.lbl-showHelper')}>
         <BooleanInput value={node.showHelper} onChange={onChangeShowHelperValue} disabled={false} />
       </InputGroup>
-      <InputGroup name="Target" label={props.t('editor:properties.triggereVolume.lbl-target')}>
+      <InputGroup name="Target" label={t('editor:properties.triggereVolume.lbl-target')}>
         <SelectInput
           error={targetNotFound}
           placeholder={
             targetNotFound
-              ? props.t('editor:properties.triggereVolume.ph-errorNode')
-              : props.t('editor:properties.triggereVolume.ph-selectNode')
+              ? t('editor:properties.triggereVolume.ph-errorNode')
+              : t('editor:properties.triggereVolume.ph-selectNode')
           }
           value={node.target}
           onChange={onChangeTarget}
@@ -97,10 +96,10 @@ export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => 
           disabled={multiEdit}
         />
       </InputGroup>
-      <InputGroup name="On Enter" label={props.t('editor:properties.triggereVolume.lbl-onenter')}>
+      <InputGroup name="On Enter" label={t('editor:properties.triggereVolume.lbl-onenter')}>
         <StringInput value={node.onEnter} onChange={onChangeOnEnter} disabled={multiEdit || !target} />
       </InputGroup>
-      <InputGroup name="On Exit" label={props.t('editor:properties.triggereVolume.lbl-onexit')}>
+      <InputGroup name="On Exit" label={t('editor:properties.triggereVolume.lbl-onexit')}>
         <StringInput value={node.onExit} onChange={onChangeOnExit} disabled={multiEdit || !target} />
       </InputGroup>
     </NodeEditor>
@@ -108,6 +107,5 @@ export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => 
 }
 
 TriggerVolumeNodeEditor.iconComponent = Running
-TriggerVolumeNodeEditor.description = i18n.t('editor:properties.triggereVolume.description')
 
-export default withTranslation()(TriggerVolumeNodeEditor)
+export default TriggerVolumeNodeEditor
