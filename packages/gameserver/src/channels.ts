@@ -89,6 +89,31 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
   }
 }
 
+const assignExistingInstance = async (app: Application, existingInstance, agonesSDK) => {
+  console.log('assignExistingInstance', existingInstance)
+  await agonesSDK.allocate()
+  app.instance = existingInstance
+
+  await app.service('instance').patch(existingInstance.id, {
+    currentUsers: existingInstance.currentUsers + 1
+  })
+
+  if (app.gsSubdomainNumber != null) {
+    const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
+      query: {
+        gs_number: app.gsSubdomainNumber
+      }
+    })
+
+    if (gsSubProvision.total > 0) {
+      const provision = gsSubProvision.data[0]
+      await app.service('gameserver-subdomain-provision').patch(provision.id, {
+        instanceId: existingInstance.id
+      })
+    }
+  }
+}
+
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
@@ -158,13 +183,29 @@ export default (app: Application): void => {
               console.log('Initialized new gameserver instance')
 
               const localIp = await getLocalServerIp(app.isChannelInstance)
+
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
-              const newInstance = {
-                currentUsers: 1,
-                sceneId: sceneId,
-                ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
-              } as any
-              await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
+              const ipAddress = config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
+              const existingInstanceQuery = {
+                ipAddress: ipAddress,
+                ended: false
+              }
+              if (locationId) existingInstanceQuery.locationId = locationId
+              else if (channelId) existingInstanceQuery.channelId = channelId
+              const existingInstanceResult = await app.service('instance').find({
+                query: existingInstanceQuery
+              })
+              if (existingInstanceResult.total === 0) {
+                const newInstance = {
+                  currentUsers: 1,
+                  locationId: locationId,
+                  channelId: channelId,
+                  ipAddress: ipAddress
+                } as any
+                await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
+              } else {
+                await assignExistingInstance(app, existingInstanceResult.data[0], agonesSDK)
+              }
               if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
                 await loadScene(app, sceneId)
               }

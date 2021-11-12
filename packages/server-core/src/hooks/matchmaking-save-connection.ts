@@ -5,6 +5,7 @@ export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const app = context.app
     const result: OpenMatchTicketAssignment = context.result
+    console.log('matchmaking-save-connection', context)
 
     const matchUserResult = await app.service('match-user').find({
       query: {
@@ -14,6 +15,7 @@ export default (): Hook => {
     })
 
     if (!matchUserResult.data.length) {
+      console.log('ticket assignment result', result)
       await app.service('match-user').patch(matchUserResult.data[0].id, { connection: result.connection })
     }
 

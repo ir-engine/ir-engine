@@ -28,7 +28,7 @@ import (
 
 const (
 	matchName              = "basic-matchfunction"
-	ticketsPerPoolPerMatch = 4
+	ticketsPerPoolPerMatch = 2
 )
 
 // Run is this match function's implementation of the gRPC call defined in api/matchfunction.proto.

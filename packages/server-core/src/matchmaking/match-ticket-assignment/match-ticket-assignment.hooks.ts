@@ -1,5 +1,5 @@
 import * as commonHooks from 'feathers-hooks-common'
-import createLocationIfNotExists from '@xrengine/server-core/src/hooks/matchmaking-create-location-if-not-exists'
+import createInstance from '@xrengine/server-core/src/hooks/matchmaking-create-instance'
 import saveConnection from '@xrengine/server-core/src/hooks/matchmaking-save-connection'
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -17,7 +17,7 @@ export default {
   after: {
     all: [],
     find: [],
-    get: [saveConnection(), createLocationIfNotExists()], // createLocationIfNotExists - is side effect...
+    get: [saveConnection(), createInstance()], // createLocationIfNotExists - is side effect...
     create: [],
     update: [],
     patch: [],

@@ -10,6 +10,7 @@ const $editor = React.lazy(() => import('@xrengine/client/src/pages/editor/edito
 const $examples = React.lazy(() => import('@xrengine/client/src/pages/examples/index'))
 
 export default function (route: string) {
+  console.log('route', route)
   switch (route) {
     case '/':
       return [<Route key={'/'} path={'/'} component={$} exact />]
@@ -24,7 +25,7 @@ export default function (route: string) {
     case '/editor':
       return [<Route key={'/editor'} path={'/editor'} component={$editor} />]
     case '/examples':
-      return [<Route path="/examples" component={$examples} />]
+      return [<Route key={'/examples'} path={'/examples'} component={$examples} />]
   }
 
   // TODO: add test routes
