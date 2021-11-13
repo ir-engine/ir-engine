@@ -99,6 +99,11 @@ const LeftHarmony = (props: Props) => {
   const party = usePartyState().party?.value
   const currentLocation = useLocationState().currentLocation.location
 
+  //group state
+  const groupState = useGroupState()
+  const groupSubState = groupState.groups
+  const groups = groupSubState.groups.value
+
   const handleChange = (event, newValue) => {
     setValue(newValue)
   }
@@ -433,6 +438,54 @@ const LeftHarmony = (props: Props) => {
                           <a href="#" className={classes.border0} onClick={handleClick}>
                             <MoreHoriz />
                           </a>
+                          <Popover
+                            id={id}
+                            open={open}
+                            anchorEl={anchorEl}
+                            onClose={handleClose}
+                            anchorOrigin={{
+                              vertical: 'bottom',
+                              horizontal: 'right'
+                            }}
+                            transformOrigin={{
+                              vertical: 'center',
+                              horizontal: 'left'
+                            }}
+                          >
+                            <div className={classes.bgDark}>
+                              <MenuList sx={{ width: 210, maxWidth: '100%', borderRadius: 10 }}>
+                                <MenuItem className={classes.my2}>
+                                  <ListItemIcon>
+                                    <Forum fontSize="small" className={classes.info} />
+                                  </ListItemIcon>
+                                  <ListItemText>CHAT</ListItemText>
+                                </MenuItem>
+                                <MenuItem className={classes.my2}>
+                                  <ListItemIcon>
+                                    <Edit fontSize="small" className={classes.muted} />
+                                  </ListItemIcon>
+                                  <ListItemText>EDIT</ListItemText>
+                                </MenuItem>
+                                <MenuItem className={classes.my2}>
+                                  <ListItemIcon>
+                                    <GroupAdd fontSize="small" className={classes.success} />
+                                  </ListItemIcon>
+                                  <ListItemText>INVITE</ListItemText>
+                                </MenuItem>
+                                <MenuItem className={classes.my2}>
+                                  <ListItemIcon>
+                                    <Delete fontSize="small" className={classes.danger} />
+                                  </ListItemIcon>
+                                  <ListItemText>DELETE</ListItemText>
+                                </MenuItem>
+                              </MenuList>
+                              <div className={classes.center}>
+                                <a href="#" className={`${classes.my2} ${classes.btn}`}>
+                                  CREATE GROUP
+                                </a>
+                              </div>
+                            </div>
+                          </Popover>
                         </div>
                       </div>
                     )
