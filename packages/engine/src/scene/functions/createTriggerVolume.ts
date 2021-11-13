@@ -1,4 +1,5 @@
 import { BoxBufferGeometry, BoxHelper, Material, Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -41,7 +42,7 @@ export const createTriggerVolume = async function (entity, args): Promise<Mesh> 
     // A visual representation for the trigger
     boxMesh.scale.multiplyScalar(2) // engine uses half-extents for box size, to be compatible with gltf and threejs
     const box = new BoxHelper(boxMesh, 0xffff00)
-    box.layers.set(1)
+    box.layers.set(CameraLayers.Gizmos)
     addObject3DComponent(entity, box, {})
   }
 
