@@ -4,9 +4,6 @@ import { HookContext } from '@feathersjs/feathers'
 import * as authentication from '@feathersjs/authentication'
 //import app from "../../../../server/src/app"
 
-function processCollectionEntities(usertrade: any): any {
-  return usertrade
-}
 
 /*
 const findRequest = async context => {
@@ -27,6 +24,8 @@ const findRequest = async context => {
   return context
 };
 */
+
+
 const { authenticate } = authentication.hooks
 
 export default {
@@ -43,7 +42,22 @@ export default {
   after: {
     all: [],
     find: [(context: HookContext): HookContext => {
-      context.result = processCollectionEntities(context.result)
+      try{
+        if(context.result?.data[0]?.fromUserInventoryIds){
+          for(let x = 0 ; x < context.result.data.length; x ++){
+            context.result.data[x].fromUserInventoryIds = JSON.parse(context.result.data[x].fromUserInventoryIds) 
+            for(let i =0; i < context.result.data[0].fromUserInventoryIds.length; i ++){
+              context.result.data[x].fromUserInventoryIds[i].metadata = JSON.parse(context.result.data[x].fromUserInventoryIds[i].metadata)
+            }
+          }
+        }
+        else{
+          context.result.data[0].fromUserInventoryIds  = []
+        }
+      }
+      catch{
+        context.result.data = []
+      }
       return context
     }],
     get: [],
