@@ -391,7 +391,7 @@ export class WorldScene {
         break
 
       case 'postprocessing':
-        configureEffectComposer(component.data.options)
+        isClient && configureEffectComposer(component.data.options)
         break
 
       case 'cameraproperties':
