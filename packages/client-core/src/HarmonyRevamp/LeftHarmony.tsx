@@ -55,32 +55,6 @@ function TabPanel(props) {
   )
 }
 
-function a11yProps(index) {
-  return {
-    id: `vertical-tab-${index}`,
-    'aria-controls': `vertical-tabpanel-${index}`
-  }
-}
-
-function TabPanel(props) {
-  const { children, value, index, ...other } = props
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  )
-}
 
 function a11yProps(index) {
   return {
@@ -88,7 +62,6 @@ function a11yProps(index) {
     'aria-controls': `vertical-tabpanel-${index}`
   }
 }
-
 const LeftHarmony: React.FunctionComponent = () => {
   const classes = useHarmonyStyles()
   const [show, setShow] = React.useState(false)
