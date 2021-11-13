@@ -8,7 +8,6 @@
     "@mui/styles/createStyles",
     "@mui/styles/makeStyles",
     "draco3dgltf",
-    "react-responsive",
     "semantic-ui-react",
     "ts-matches"
   ]
