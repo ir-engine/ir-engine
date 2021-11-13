@@ -10,7 +10,7 @@ import axios from 'axios'
 
 
 
-export const InventoryPage = (): any => {
+export const TradingPage = (): any => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const [state, setState] = useState<any>({ data: [], user: [], type: [], isLoading: true, isLoadingtransfer: false })
@@ -139,4 +139,4 @@ export const InventoryPage = (): any => {
   )
 }
 
-export default InventoryPage
+export default TradingPage

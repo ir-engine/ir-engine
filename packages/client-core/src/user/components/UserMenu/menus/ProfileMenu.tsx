@@ -208,6 +208,9 @@ const ProfileMenu = (props: Props): any => {
               <button onClick={() => history.push(`/inventory/${selfUser.id.value}`)} className={styles.walletBtn}>
                 My Inventory
               </button>
+              <button onClick={() => history.push(`/trading`)} className={styles.walletBtn}>
+                My Trading
+              </button>
             </div>
           </section>
           {!hideLogin && (
