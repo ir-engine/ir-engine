@@ -15,6 +15,7 @@ import {
   Tabs,
   Tab
 } from '@mui/material'
+import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import * as React from 'react'
 import { useHarmonyStyles } from './style'
 
@@ -54,6 +55,11 @@ const LeftHarmony: React.FunctionComponent = () => {
   const [type, setType] = React.useState('email')
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [value, setValue] = React.useState(0)
+
+  //group state
+  const groupState = useGroupState()
+  const groupSubState = groupState.groups
+  const groups = groupSubState.groups.value
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
@@ -173,68 +179,79 @@ const LeftHarmony: React.FunctionComponent = () => {
                   CREATE GROUP
                 </a>
               </div>
-              <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2}`}>
-                <div>
-                  <div className={classes.mx2}>
-                    <h4 className={classes.fontBig}>Dwark Matths</h4>
-                    <small className={classes.textMuted}>You:</small>
-                    <small className={classes.textMuted}>UX Consulting</small>
-                  </div>
-                </div>
-                <div>
-                  <a href="#" className={classes.border0} onClick={handleClick}>
-                    <MoreHoriz />
-                  </a>
-                  <Popover
-                    id={id}
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'right'
-                    }}
-                    transformOrigin={{
-                      vertical: 'center',
-                      horizontal: 'left'
-                    }}
-                  >
-                    <div className={classes.bgDark}>
-                      <MenuList sx={{ width: 210, maxWidth: '100%', borderRadius: 10 }}>
-                        <MenuItem className={classes.my2}>
-                          <ListItemIcon>
-                            <Forum fontSize="small" className={classes.info} />
-                          </ListItemIcon>
-                          <ListItemText>CHAT</ListItemText>
-                        </MenuItem>
-                        <MenuItem className={classes.my2}>
-                          <ListItemIcon>
-                            <Edit fontSize="small" className={classes.muted} />
-                          </ListItemIcon>
-                          <ListItemText>EDIT</ListItemText>
-                        </MenuItem>
-                        <MenuItem className={classes.my2}>
-                          <ListItemIcon>
-                            <GroupAdd fontSize="small" className={classes.success} />
-                          </ListItemIcon>
-                          <ListItemText>INVITE</ListItemText>
-                        </MenuItem>
-                        <MenuItem className={classes.my2}>
-                          <ListItemIcon>
-                            <Delete fontSize="small" className={classes.danger} />
-                          </ListItemIcon>
-                          <ListItemText>DELETE</ListItemText>
-                        </MenuItem>
-                      </MenuList>
-                      <div className={classes.center}>
-                        <a href="#" className={`${classes.my2} ${classes.btn}`}>
-                          CREATE GROUP
-                        </a>
+              {groups &&
+                groups.length > 0 &&
+                [...groups]
+                  .sort((a, b) => a.name - b.name)
+                  .map((group, index) => {
+                    return (
+                      <div
+                        key={group.id}
+                        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2}`}
+                      >
+                        <div>
+                          <div className={classes.mx2}>
+                            <h4 className={classes.fontBig}>{group.name}</h4>
+                            <small className={classes.textMuted}>You:</small>
+                            <small className={classes.textMuted}>{group.description}</small>
+                          </div>
+                        </div>
+                        <div>
+                          <a href="#" className={classes.border0} onClick={handleClick}>
+                            <MoreHoriz />
+                          </a>
+                          <Popover
+                            id={id}
+                            open={open}
+                            anchorEl={anchorEl}
+                            onClose={handleClose}
+                            anchorOrigin={{
+                              vertical: 'bottom',
+                              horizontal: 'right'
+                            }}
+                            transformOrigin={{
+                              vertical: 'center',
+                              horizontal: 'left'
+                            }}
+                          >
+                            <div className={classes.bgDark}>
+                              <MenuList sx={{ width: 210, maxWidth: '100%', borderRadius: 10 }}>
+                                <MenuItem className={classes.my2}>
+                                  <ListItemIcon>
+                                    <Forum fontSize="small" className={classes.info} />
+                                  </ListItemIcon>
+                                  <ListItemText>CHAT</ListItemText>
+                                </MenuItem>
+                                <MenuItem className={classes.my2}>
+                                  <ListItemIcon>
+                                    <Edit fontSize="small" className={classes.muted} />
+                                  </ListItemIcon>
+                                  <ListItemText>EDIT</ListItemText>
+                                </MenuItem>
+                                <MenuItem className={classes.my2}>
+                                  <ListItemIcon>
+                                    <GroupAdd fontSize="small" className={classes.success} />
+                                  </ListItemIcon>
+                                  <ListItemText>INVITE</ListItemText>
+                                </MenuItem>
+                                <MenuItem className={classes.my2}>
+                                  <ListItemIcon>
+                                    <Delete fontSize="small" className={classes.danger} />
+                                  </ListItemIcon>
+                                  <ListItemText>DELETE</ListItemText>
+                                </MenuItem>
+                              </MenuList>
+                              <div className={classes.center}>
+                                <a href="#" className={`${classes.my2} ${classes.btn}`}>
+                                  CREATE GROUP
+                                </a>
+                              </div>
+                            </div>
+                          </Popover>
+                        </div>
                       </div>
-                    </div>
-                  </Popover>
-                </div>
-              </div>
+                    )
+                  })}
             </>
           )}
         </div>
