@@ -298,15 +298,6 @@ export class SceneManager {
    */
   onResize = () => {
     ControlManager.instance.inputManager.onResize()
-    // const camera = Engine.camera as PerspectiveCamera
-    // const canvas = Engine.renderer.domElement
-    // const containerEl = canvas.parentElement.parentElement
-    // camera.aspect = containerEl.offsetWidth / containerEl.offsetHeight
-    // camera.updateProjectionMatrix()
-    // Engine.renderer.setSize(containerEl.offsetWidth, containerEl.offsetHeight, false)
-    // Engine.csm.updateFrustums();
-
-    // configureEffectComposer(this.postProcessingNode?.postProcessingOptions)
     CommandManager.instance.emit('resize')
   }
 
