@@ -10,6 +10,7 @@ import { NodeManager } from './NodeManager'
 import { SceneManager } from './SceneManager'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { ControlManager } from './ControlManager'
 
 export class ProjectManager {
   static instance: ProjectManager = new ProjectManager()
@@ -59,18 +60,9 @@ export class ProjectManager {
    * @return {Promise}             [scene to render]
    */
   async loadProject(projectFile: SceneJson) {
+    this.dispose()
+
     await ProjectManager.instance.init()
-
-    CommandManager.instance.removeListener(
-      EditorEvents.OBJECTS_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-    CommandManager.instance.removeListener(
-      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-
-    CacheManager.clearCaches()
 
     const errors = await SceneManager.instance.initializeScene(projectFile)
 
@@ -98,7 +90,17 @@ export class ProjectManager {
   }
 
   dispose() {
+    CommandManager.instance.removeListener(
+      EditorEvents.OBJECTS_CHANGED.toString(),
+      SceneManager.instance.onEmitSceneModified
+    )
+    CommandManager.instance.removeListener(
+      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
+      SceneManager.instance.onEmitSceneModified
+    )
+
     CacheManager.clearCaches()
     SceneManager.instance.dispose()
+    ControlManager.instance.dispose()
   }
 }

@@ -184,6 +184,15 @@ export default class EditorControls extends EventEmitter {
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
+  dispose() {
+    CommandManager.instance.removeListener(
+      EditorEvents.BEFORE_SELECTION_CHANGED.toString(),
+      this.onBeforeSelectionChanged
+    )
+    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
+    CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
+  }
+
   onBeforeSelectionChanged = () => {
     if (this.transformMode === TransformMode.Grab) {
       const checkpoint = this.grabHistoryCheckpoint

@@ -77,4 +77,11 @@ export class ControlManager {
     this.editorControls.update()
     this.inputManager.reset()
   }
+
+  dispose() {
+    this.inputManager?.dispose()
+    this.editorControls?.dispose()
+    this.flyControls?.dispose()
+    this.playModeControls?.dispose()
+  }
 }

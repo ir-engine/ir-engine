@@ -63,6 +63,8 @@ export class SceneManager {
   renderMode: RenderModesType
 
   async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
+    this.dispose()
+
     this.raycaster = new Raycaster()
 
     this.audioListener = new AudioListener()
@@ -541,8 +543,8 @@ export class SceneManager {
   }
 
   dispose() {
-    Engine.renderer.dispose()
-    this.screenshotRenderer.dispose()
+    Engine.renderer?.dispose()
+    this.screenshotRenderer?.dispose()
     Engine.effectComposer?.dispose()
     CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
   }
