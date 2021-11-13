@@ -204,14 +204,52 @@ export default (app: Application): void => {
                 } as any
                 await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
               } else {
-                await assignExistingInstance(app, existingInstanceResult.data[0], agonesSDK)
+                const instance = existingInstanceResult.data[0]
+                const authorizedUsers = await app.service('instance-authorized-user').find({
+                  query: {
+                    instanceId: instance.id,
+                    $limit: 0
+                  }
+                })
+                if (authorizedUsers.total > 0) {
+                  const thisUserAuthorized = await app.service('instance-authorized-user').find({
+                    query: {
+                      instanceId: instance.id,
+                      userId: identityProvider.userId,
+                      $limit: 0
+                    }
+                  })
+                  if (thisUserAuthorized.total === 0) {
+                    return console.log('User', identityProvider.userId, 'not authorized to be on this server')
+                  }
+                }
+                await assignExistingInstance(app, instance, agonesSDK)
               }
               if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
+                console.log('loading scene')
                 await loadScene(app, sceneId)
               }
             } else {
               try {
                 const instance = await app.service('instance').get(app.instance.id)
+                const authorizedUsers = await app.service('instance-authorized-user').find({
+                  query: {
+                    instanceId: instance.id,
+                    $limit: 0
+                  }
+                })
+                if (authorizedUsers.total > 0) {
+                  const thisUserAuthorized = await app.service('instance-authorized-user').find({
+                    query: {
+                      instanceId: instance.id,
+                      userId: identityProvider.userId,
+                      $limit: 0
+                    }
+                  })
+                  if (thisUserAuthorized.total === 0) {
+                    return console.log('User', identityProvider.userId, 'not authorized to be on this server')
+                  }
+                }
                 await agonesSDK.allocate()
                 await app.service('instance').patch(app.instance.id, {
                   currentUsers: (instance.currentUsers as number) + 1

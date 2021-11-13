@@ -5,7 +5,7 @@ import { Application } from '../../../declarations'
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const instanceAuthorizedUser = sequelizeClient.define(
-    'instance-authorized-user',
+    'instance_authorized_user',
     {
       id: {
         type: DataTypes.UUID,

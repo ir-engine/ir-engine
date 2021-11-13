@@ -5,7 +5,6 @@ export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const app = context.app
     const result: OpenMatchTicketAssignment = context.result
-    console.log('matchmaking-save-connection', context)
 
     const matchUserResult = await app.service('match-user').find({
       query: {

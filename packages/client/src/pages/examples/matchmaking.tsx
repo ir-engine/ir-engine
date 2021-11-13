@@ -29,6 +29,8 @@ const Page = () => {
   const [isUpdating, setIsUpdating] = useState(true)
   const [ticketData, setTicketData] = useState<TicketData | undefined>()
   const [connection, setConnection] = useState<string | undefined>()
+  const [instanceId, setInstanceId] = useState<string | undefined>()
+  const [locationName, setLocationName] = useState<string | undefined>()
   const locationService = client.service('location')
   const ticketsService = client.service('match-ticket')
   const ticketsAssignmentService = client.service('match-ticket-assignment')
@@ -51,17 +53,19 @@ const Page = () => {
 
     getAssignment(ticketId).then((assignment) => {
       setConnection(assignment.connection)
+      setInstanceId(assignment.instanceId)
+      setLocationName(assignment.locationName)
       // setStatus('Found!')
     })
   }, [ticketId])
 
   useEffect(() => {
-    if (connection) {
+    if (connection && instanceId && locationName) {
       setTimeout(() => {
-        history.push('/location/' + connection)
+        history.push('/location/' + locationName + '?instanceId=' + instanceId)
       }, 500)
     }
-  }, [connection])
+  }, [connection, instanceId, locationName])
 
   async function newTicket(gamemode) {
     // setStatus('...')

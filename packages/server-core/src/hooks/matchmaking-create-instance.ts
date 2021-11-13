@@ -4,8 +4,9 @@ import { Application } from '../../declarations'
 
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
-    const { app, result } = context
+    const { app, result, params } = context
     console.log('assignment HOOK!', result)
+    const identityProvider = params['identity-provider']
     const connection = result?.connection
     // context.params.connection
     if (!connection) {
@@ -15,18 +16,46 @@ export default (): Hook => {
 
     const location = await app.service('location').find({
       query: {
-        name: result.MatchType
+        name: 'ctf'
       }
     })
     const freeInstance = await getFreeGameserver(app as Application, false)
     try {
-      const newInstance = {
-        ipAddress: `${freeInstance.ipAddress}:${freeInstance.port}`,
-        currentUsers: 0,
-        locationId: location.data[0].id,
-        sceneId: location.data[0].sceneId
+      const existingInstance = await app.service('instance').find({
+        query: {
+          ipAddress: `${freeInstance.ipAddress}:${freeInstance.port}`,
+          locationId: location.data[0].id,
+          ended: false
+        }
+      })
+      console.log('existing instance for match', existingInstance)
+      let instanceId
+      if (existingInstance.total === 0) {
+        const newInstance = {
+          ipAddress: `${freeInstance.ipAddress}:${freeInstance.port}`,
+          currentUsers: 0,
+          locationId: location.data[0].id
+        }
+        const newInstanceResult = await app.service('instance').create(newInstance)
+        instanceId = newInstanceResult.id
+      } else {
+        instanceId = existingInstance.data[0].id
       }
-      const newInstanceResult = await app.service('instance').create(newInstance)
+
+      const existingInstanceAuthorizedUser = await app.service('instance-authorized-user').find({
+        query: {
+          userId: identityProvider.userId,
+          instanceId: instanceId,
+          $limit: 0
+        }
+      })
+      if (existingInstanceAuthorizedUser.total === 0) await app.service('instance-authorized-user').create({
+        userId: identityProvider.userId,
+        instanceId: instanceId
+      })
+
+      context.result.instanceId = instanceId
+      context.result.locationName = 'ctf'
     } catch (e) {
       console.log('matchmaking instance create error', e)
       // TODO: check error? skip?
