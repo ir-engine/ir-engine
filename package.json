@@ -124,7 +124,7 @@
     "@typescript-eslint/parser": "5.3.1",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
-    "concurrently": "6.3.0",
+    "concurrently": "6.4.0",
     "cpy-cli": "3.1.1",
     "esbuild": "0.13.13",
     "esbuild-plugin-sass": "0.6.0",
