@@ -3,7 +3,7 @@ import { InventoryItem } from './inventory-item.class'
 import createModel from './inventory-item.model'
 import hooks from './inventory-item.hooks'
 import inventoryItemDocs from './inventory-item.docs'
-
+//test
 declare module '../../../declarations' {
   interface ServiceTypes {
     inventoryItem: InventoryItem
