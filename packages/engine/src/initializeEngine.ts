@@ -235,6 +235,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   // Input Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./interaction/systems/EquippableSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
 

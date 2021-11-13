@@ -12,12 +12,8 @@ export const equipEntity = (
   equippedEntity: Entity,
   attachmentPoint: EquippableAttachmentPoint = EquippableAttachmentPoint.RIGHT_HAND
 ): void => {
-  if (
-    !hasComponent(equipperEntity, EquipperComponent) &&
-    hasComponent(equippedEntity, NetworkObjectComponent) &&
-    !hasComponent(equippedEntity, EquippedComponent)
-  ) {
-    addComponent(equipperEntity, EquipperComponent, { equippedEntity, data: {} })
+  if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
+    addComponent(equipperEntity, EquipperComponent, { equippedEntity, data: {} as any })
     addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint })
   }
 }

@@ -84,7 +84,6 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
   console.log('interacting now', parityValue)
   const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent)
   // Define interaction types in some enum?
-  debugger
   if (interactiveComponent.data.interactionType === 'equippable') {
     // Handle input hand cases
     equipEntity(entity, interactor.focusedInteractive)
