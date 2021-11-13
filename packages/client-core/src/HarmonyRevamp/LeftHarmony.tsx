@@ -1,10 +1,12 @@
 import { Add, Close, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
-import { AddCircleOutline, Check } from '@mui/icons-material'
+import { AddCircleOutline, Check, Settings } from '@mui/icons-material'
 import {
   Badge,
   IconButton,
   MenuList,
   MenuItem,
+  List,
+  ListItemAvatar,
   ListItemIcon,
   ListItemText,
   Popover,
@@ -15,7 +17,14 @@ import {
   Tabs,
   Tab
 } from '@mui/material'
+import Divider from '@mui/material/Divider'
+
+import ListItem from '@mui/material/ListItem'
+
+import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
+import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import * as React from 'react'
 import { useHarmonyStyles } from './style'
 
@@ -56,10 +65,19 @@ const LeftHarmony: React.FunctionComponent = () => {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [value, setValue] = React.useState(0)
 
+  //friend state
+  const friendState = useFriendState()
+  const friendSubState = friendState.friends
+  const friends = friendSubState.friends.value
+
   //group state
   const groupState = useGroupState()
   const groupSubState = groupState.groups
   const groups = groupSubState.groups.value
+
+  //party state
+  const party = usePartyState().party.value
+  const currentLocation = useLocationState().currentLocation.location
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
@@ -88,6 +106,9 @@ const LeftHarmony: React.FunctionComponent = () => {
   const handleClose = () => {
     setAnchorEl(null)
   }
+
+  console.log('display friends')
+  console.log(friends)
 
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
@@ -159,19 +180,9 @@ const LeftHarmony: React.FunctionComponent = () => {
               <span>Instance</span>
             </a>
           </div>
+          {chat !== 'friends' ? '' : <div>friends</div>}
           {chat !== 'group' ? (
-            <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2}`}>
-              <div className={`${classes.dFlex} ${classes.mx2}`}>
-                <Avatar src="./Avatar.png" />
-                {/* <img src={Avatar} alt="" width="44" height="44" /> */}
-                <div className={classes.mx2}>
-                  <h4 className={classes.fontBig}>Dwark Matths</h4>
-                  <small className={classes.textMuted}>You:</small>
-                  <small className={classes.textMuted}>UX Consulting</small>
-                </div>
-              </div>
-              <span>12m</span>
-            </div>
+            ''
           ) : (
             <>
               <div className={classes.center}>
