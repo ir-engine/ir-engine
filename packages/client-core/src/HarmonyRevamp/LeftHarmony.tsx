@@ -13,7 +13,9 @@ import {
   Dialog,
   Typography,
   Avatar,
-  Box
+  Box,
+  Tabs,
+  Tab
 } from '@mui/material'
 import Divider from '@mui/material/Divider'
 
@@ -112,6 +114,10 @@ const LeftHarmony = (props: Props) => {
 
   const handleCloseCreate = () => {
     setCreate(false)
+  }
+
+  const handleClickClose = () => {
+    setShow(false)
   }
 
   const handleClick = (event) => {
