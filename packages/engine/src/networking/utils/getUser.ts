@@ -8,13 +8,7 @@ import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export function getUserEntityByName(name: string, localUserId) {
-  /*console.log('looking for entity: ' + name)
-  console.log('values: ' + JSON.stringify(Engine.defaultWorld.clients.values()))
-  const client = Array.from(Engine.defaultWorld.clients.values()).find((c) => {
-    return c.name === name
-  })
-  return client ? useWorld().getUserAvatarEntity(client.userId) : undefined*/
-  const world = useWorld()
+  const world = Engine.defaultWorld
 
   for (let [_, client] of world.clients) {
     console.log('current user id: ' + client.userId)

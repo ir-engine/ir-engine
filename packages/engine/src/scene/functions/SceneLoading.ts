@@ -236,6 +236,7 @@ export class WorldScene {
         break
 
       case 'ground-plane':
+        console.log('component.data -> ground plane: ' + JSON.stringify(component))
         createGround(entity, component.data, isClient)
         break
 

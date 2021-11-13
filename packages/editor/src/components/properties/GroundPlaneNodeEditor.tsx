@@ -37,6 +37,11 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
     forceUpdate()
   }
 
+  const onChangeGenerateNavmesh = (generateNavmesh) => {
+    CommandManager.instance.setPropertyOnSelection('generateNavmesh', generateNavmesh)
+    forceUpdate()
+  }
+
   //function handles the changes for receiveShadow property
   const onChangeReceiveShadow = (receiveShadow) => {
     CommandManager.instance.setPropertyOnSelection('receiveShadow', receiveShadow)
@@ -58,6 +63,9 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
       </InputGroup>
       <InputGroup name="Receive Shadow" label={props.t('editor:properties.groundPlane.lbl-receiveShadow')}>
         <BooleanInput value={node.receiveShadow} onChange={onChangeReceiveShadow} />
+      </InputGroup>
+      <InputGroup name="Generate Navmesh" label={props.t('editor:properties.groundPlane.lbl-generateNavmesh')}>
+        <BooleanInput value={node.generateNavmesh} onChange={onChangeGenerateNavmesh} />
       </InputGroup>
       <InputGroup name="Walkable" label={props.t('editor:properties.groundPlane.lbl-walkable')}>
         <BooleanInput value={node.walkable} onChange={onChangeWalkable} />
