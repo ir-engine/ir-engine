@@ -96,10 +96,19 @@ const LeftHarmony: React.FunctionComponent = () => {
   const party = usePartyState().party?.value
   const currentLocation = useLocationState().currentLocation.location
 
+  //friend state
+  const friendState = useFriendState()
+  const friendSubState = friendState.friends
+  const friends = friendSubState.friends.value
+
   //group state
   const groupState = useGroupState()
   const groupSubState = groupState.groups
   const groups = groupSubState.groups.value
+
+  //party state
+  const party = usePartyState().party.value
+  const currentLocation = useLocationState().currentLocation.location
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
