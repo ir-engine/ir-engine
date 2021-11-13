@@ -26,7 +26,8 @@ export default function Harmony() {
 
   return (
     <div style={{ backgroundColor: '#15171B' }}>
-      <Grid container spacing={0}>
+      <Index />
+      {/* <Grid container spacing={0}>
         <Grid item xs={1} md={3}>
           {isTabletOrMobile ? (
             <IconButton onClick={() => openMenuModel(true)}>
@@ -40,7 +41,7 @@ export default function Harmony() {
           <RightHarmony />
         </Grid>
       </Grid>
-      <SideMenu open={openSideMenu} handleClose={openMenuModel} />
+      <SideMenu open={openSideMenu} handleClose={openMenuModel} /> */}
     </div>
   )
 }
