@@ -1,1 +1,20 @@
-{"dependencies":[]}
+{
+  "dependencies": [
+    "@gltf-transform/core",
+    "@gltf-transform/extensions",
+    "@gltf-transform/functions",
+    "@material-ui/core/styles",
+    "@material-ui/icons",
+    "@mui/icons-material/ArrowBackIos",
+    "@mui/icons-material/ArrowDownward",
+    "@mui/icons-material/ArrowUpward",
+    "@mui/icons-material/Group",
+    "@mui/icons-material/GroupWork",
+    "@mui/styles/createStyles",
+    "@mui/styles/makeStyles",
+    "draco3dgltf",
+    "react-responsive",
+    "semantic-ui-react",
+    "ts-matches"
+  ]
+}

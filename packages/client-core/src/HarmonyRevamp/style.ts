@@ -47,9 +47,12 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     mx2: {
       margin: '7px 10px'
     },
+<<<<<<< HEAD
     mx0: {
       margin: '0px 10px'
     },
+=======
+>>>>>>> 3c94ddfa2... Added invite modals
     p5: {
       padding: '20px'
     },
@@ -77,8 +80,15 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#83769C'
     },
     flexColumn: {
-      flexDirection: 'column',
-      height: '92vh'
+      flexDirection: 'column'
+    },
+    formControls: {
+      width: '100%',
+      backgroundColor: 'transparent',
+      border: '1px solid #FFF',
+      padding: '12px',
+      marginTop: 15,
+      borderRadius: '2px'
     },
     formControls: {
       width: '100%',
@@ -202,8 +212,12 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     smallBtn: {
       backgroundColor: '#transparent',
       margin: '0px 10px',
+<<<<<<< HEAD
       border: 0,
       cursor: 'pointer'
+=======
+      border: 0
+>>>>>>> 3c94ddfa2... Added invite modals
     },
     lightDanger: {
       backgroundColor: '#3C3230',
@@ -222,6 +236,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: '50%'
+<<<<<<< HEAD
     },
     btnCursor: {
       cursor: 'pointer'
@@ -243,6 +258,8 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       '&::-webkit-scrollbar-thumb:hover': {
         background: '#f1f1f1'
       }
+=======
+>>>>>>> 3c94ddfa2... Added invite modals
     }
   })
 )

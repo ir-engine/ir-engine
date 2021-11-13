@@ -1,5 +1,5 @@
 import { Add, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
-import { AddCircleOutline } from '@mui/icons-material'
+import { AddCircleOutline, Check } from '@mui/icons-material'
 import {
   Badge,
   Container,
@@ -15,7 +15,9 @@ import {
   Typography,
   Avatar,
   Box,
-  Drawer
+  Drawer,
+  Tabs,
+  Tab
 } from '@mui/material'
 import Divider from '@mui/material/Divider'
 
@@ -32,6 +34,33 @@ import * as React from 'react'
 import InviteHarmony from './InviteHarmony'
 import { useHarmonyStyles } from './style'
 import InviteModel from './InviteModel'
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`vertical-tabpanel-${index}`}
+      aria-labelledby={`vertical-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  )
+}
+
+function a11yProps(index) {
+  return {
+    id: `vertical-tab-${index}`,
+    'aria-controls': `vertical-tabpanel-${index}`
+  }
+}
 
 const LeftHarmony: React.FunctionComponent = () => {
   const classes = useHarmonyStyles()
@@ -67,6 +96,10 @@ const LeftHarmony: React.FunctionComponent = () => {
   const party = usePartyState().party?.value
   const currentLocation = useLocationState().currentLocation.location
 
+  const handleChange = (event, newValue) => {
+    setValue(newValue)
+  }
+
   const handleClickOpen = () => {
     setShow(true)
   }
@@ -77,6 +110,10 @@ const LeftHarmony: React.FunctionComponent = () => {
 
   const handleCloseCreate = () => {
     setCreate(false)
+  }
+
+  const handleClickClose = () => {
+    setShow(false)
   }
 
   const handleClick = (event) => {
