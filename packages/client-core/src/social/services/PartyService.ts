@@ -104,8 +104,8 @@ export const PartyService = {
     {
       try {
         // console.log('CALLING GETPARTY()');
-        const partyResult = await client.service('party').get(null)
-        dispatch(PartyAction.loadedParty(partyResult))
+        const partyResult = await client.service('party').find()
+        dispatch(PartyAction.loadedParty(partyResult.data))
       } catch (err) {
         AlertService.dispatchAlertError(err.message)
       }
