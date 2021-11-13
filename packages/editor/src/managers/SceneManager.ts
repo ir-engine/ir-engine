@@ -39,6 +39,10 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()
@@ -114,6 +118,10 @@ export class SceneManager {
 
     this.grid = new EditorInfiniteGridHelper()
     this.transformGizmo = new TransformGizmo()
+
+    const entity = createEntity()
+    addComponent(entity, Object3DComponent, { value: this.transformGizmo })
+    addComponent(entity, TransformGizmoComponent, {})
 
     Engine.scene.add(Engine.camera)
     Engine.scene.add(this.grid)

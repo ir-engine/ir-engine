@@ -611,7 +611,6 @@ export default class EditorControls extends EventEmitter {
       CommandManager.instance.emitEvent(EditorEvents.SAVE_PROJECT)
     }
     if (flying) {
-      this.updateTransformGizmoScale()
       return
     }
     const selecting = input.get(EditorInputs.selecting)
@@ -659,7 +658,6 @@ export default class EditorControls extends EventEmitter {
       camera.position.copy(center).add(vector)
       camera.lookAt(center)
     }
-    this.updateTransformGizmoScale()
   }
   raycastNode(coords) {
     this.raycaster.setFromCamera(coords, this.camera)
@@ -694,10 +692,6 @@ export default class EditorControls extends EventEmitter {
     delta.applyQuaternion(camera.quaternion)
     delta.multiplyScalar(Math.min(distance, this.maxFocusDistance) * 4)
     camera.position.copy(center).add(delta)
-  }
-  updateTransformGizmoScale() {
-    const eyeDistance = SceneManager.instance.transformGizmo.position.distanceTo(this.camera.position)
-    SceneManager.instance.transformGizmo.scale.set(1, 1, 1).multiplyScalar(eyeDistance / 5)
   }
   _raycastRecursive(object, excludeObjects?, excludeLayers?) {
     if (

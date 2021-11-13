@@ -208,10 +208,9 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 }
 
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
-  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
-    tickRate: 5
-  })
+  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), { tickRate: 60 })
 
+  registerSystem(SystemUpdateType.UPDATE, import('./scene/systems/GizmoSystem'))
   registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
 
   // Scene Systems
