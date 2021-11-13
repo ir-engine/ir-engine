@@ -9,6 +9,8 @@ import { CommandManager } from './CommandManager'
 import { NodeManager } from './NodeManager'
 import { SceneManager } from './SceneManager'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { ControlManager } from './ControlManager'
 
 export class ProjectManager {
   static instance: ProjectManager = new ProjectManager()
@@ -58,22 +60,13 @@ export class ProjectManager {
    * @return {Promise}             [scene to render]
    */
   async loadProject(projectFile: SceneJson) {
+    this.dispose()
+
     await ProjectManager.instance.init()
-
-    CommandManager.instance.removeListener(
-      EditorEvents.OBJECTS_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-    CommandManager.instance.removeListener(
-      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-
-    CacheManager.clearCaches()
 
     const errors = await SceneManager.instance.initializeScene(projectFile)
 
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, SceneManager.instance.scene)
+    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, Engine.scene)
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
     CommandManager.instance.history.clear()
 
@@ -97,10 +90,17 @@ export class ProjectManager {
   }
 
   dispose() {
-    CacheManager.clearCaches()
+    CommandManager.instance.removeListener(
+      EditorEvents.OBJECTS_CHANGED.toString(),
+      SceneManager.instance.onEmitSceneModified
+    )
+    CommandManager.instance.removeListener(
+      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
+      SceneManager.instance.onEmitSceneModified
+    )
 
-    if (SceneManager.instance.renderer) {
-      SceneManager.instance.renderer.dispose()
-    }
+    CacheManager.clearCaches()
+    SceneManager.instance.dispose()
+    ControlManager.instance.dispose()
   }
 }

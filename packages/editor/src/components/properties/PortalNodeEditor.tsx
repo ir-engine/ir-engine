@@ -12,10 +12,9 @@ import { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { CommandManager } from '../../managers/CommandManager'
-import { SceneManager } from '../../managers/SceneManager'
-import { ProjectManager } from '../../managers/ProjectManager'
 import { client } from '@xrengine/client-core/src/feathers'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 type PortalNodeEditorProps = {
   node?: PortalNode
@@ -144,7 +143,7 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
       </InputGroup>
       <InputGroup name="Cubemap Bake" label={props.t('editor:properties.portal.lbl-cubemapBake')}>
         <SelectInput
-          options={SceneManager.instance.scene.children
+          options={Engine.scene.children
             .filter((obj: Object3D) => {
               return (obj as any).nodeName === CubemapBakeNode.nodeName
             })

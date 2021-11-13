@@ -29,6 +29,8 @@ import ImageNode from '../nodes/ImageNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import SceneNode from '../nodes/SceneNode'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -149,7 +151,7 @@ export class CommandManager extends EventEmitter {
       }
     }
 
-    traverse(SceneManager.instance.scene)
+    traverse(Engine.scene)
 
     return target
   }
@@ -236,7 +238,7 @@ export class CommandManager extends EventEmitter {
       }
 
       const nodes = nodeUUIDs
-        .map((uuid) => SceneManager.instance.scene.getObjectByUUID(uuid))
+        .map((uuid) => (Engine.scene as any as SceneNode).getObjectByUUID(uuid))
         .filter((uuid) => uuid !== undefined)
 
       CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, nodes)

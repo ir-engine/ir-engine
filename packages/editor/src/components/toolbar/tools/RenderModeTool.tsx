@@ -28,8 +28,8 @@ const RenderModeTool = () => {
     }
   }, [])
 
-  const onChangeRenderMode = useCallback((mode) => SceneManager.instance.renderer.changeRenderMode(mode), [])
-  const changeRenderMode = useCallback(() => setRenderMode(SceneManager.instance.renderer.renderMode), [])
+  const onChangeRenderMode = useCallback((mode) => SceneManager.instance.changeRenderMode(mode), [])
+  const changeRenderMode = useCallback(() => setRenderMode(SceneManager.instance.renderMode), [])
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
