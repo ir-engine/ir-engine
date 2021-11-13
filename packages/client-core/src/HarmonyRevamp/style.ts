@@ -17,7 +17,8 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       padding: '50px 0px'
     },
     leftGrid: {
-      backgroundColor: '#181A1C'
+      backgroundColor: '#181A1C',
+      padding: '50px 0px'
     },
     dFlex: {
       display: 'flex'
@@ -40,6 +41,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     mx2: {
       margin: '7px 10px'
     },
+    p5: {
+      padding: '20px'
+    },
     my2: {
       margin: '15px 0px'
     },
@@ -61,8 +65,15 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#83769C'
     },
     flexColumn: {
-      flexDirection: 'column',
-      height: '92vh'
+      flexDirection: 'column'
+    },
+    formControls: {
+      width: '100%',
+      backgroundColor: 'transparent',
+      border: '1px solid #FFF',
+      padding: '12px',
+      marginTop: 15,
+      borderRadius: '2px'
     },
     box: {
       backgroundColor: '#232424',
@@ -78,6 +89,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#935CFF',
       backgroundColor: '#232424',
       borderRadius: '30px',
+      border: 0,
       padding: '12px 24px',
       fontSize: 14,
       fontWeight: 'bold'
@@ -86,6 +98,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       backgroundColor: 'transparent',
       color: '#FFF',
       textDecoration: 'none'
+    },
+    borderNone: {
+      border: 0
     },
     bgDark: {
       backgroundColor: '#3A3D40',
@@ -108,7 +123,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#A8A9AB'
     },
     h100: {
-      height: '96vh'
+      height: '89vh'
     },
     flexGrow: {
       flexGrow: 1,
@@ -144,6 +159,49 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     p2: {
       backgroundColor: '#1B1C1D',
       padding: '28px 17px'
+    },
+    p4: {
+      backgroundColor: '#1B1C1D',
+      padding: '28px 24px'
+    },
+    bgModal: {
+      backgroundColor: '#15171B',
+      color: '#fff'
+    },
+    btns: {
+      backgroundColor: 'transparent',
+      color: '#fff',
+      border: 'none',
+      flexGrow: 0.5,
+      padding: '28px 17px'
+    },
+    borderBottom: {
+      borderBottomColor: 'rgba(55, 55, 55, 0.8)',
+      borderBottomWidth: 1,
+      borderBottomStyle: 'solid'
+    },
+    smallBtn: {
+      backgroundColor: '#transparent',
+      margin: '0px 10px',
+      border: 0
+    },
+    lightDanger: {
+      backgroundColor: '#3C3230',
+      width: '30px',
+      height: '30px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: '50%'
+    },
+    lightSuccess: {
+      backgroundColor: '#303C31',
+      width: '30px',
+      height: '30px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: '50%'
     }
   })
 )
