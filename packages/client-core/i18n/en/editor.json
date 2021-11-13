@@ -18,6 +18,8 @@
     "exportingMsg": "Exporting project...",
     "exportingError": "Error Exporting Project",
     "exportingErrorMsg": "There was an error when exporting the project.",
+    "warnDefault": "Warning!",
+    "warnDefaultMsg": "The default project is only an example and will be overwritten in a production environment. Please make a new project if you wish to keep your changes.",
     "importLegacy": "Import Legacy World",
     "importLegacyMsg": "Warning! This will overwrite your existing scene! Are you sure you wish to continue?",
     "publishingError": "Error Publishing Project",
@@ -189,6 +191,7 @@
         },
         "model": {
             "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
+            "lbl-usingGPUInstancingFlag": "Use GPU Instancing",
             "lbl-modelurl": "Model Url",
             "lbl-textureOverride": "Override Texture",
             "error-url": "Error Loading From URL",

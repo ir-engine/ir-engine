@@ -128,8 +128,8 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": -56,
-              "y": 7,
+              "x": 44.5,
+              "y": 2,
               "z": 0
             },
             "rotation": {
@@ -378,10 +378,12 @@
         {
           "name": "portal",
           "props": {
+            "locationName": "black-sun",
+            "linkedPortalId": "0EA643B7-AA51-4577-8380-30817ED665C9",
             "spawnPosition": {
-              "x": 98.90997031302064,
-              "y": 3.959643457551108,
-              "z": -0.016106745109556897
+              "x": 49.45498515651025,
+              "y": 1.979821728775554,
+              "z": -0.008053372554778537
             },
             "spawnRotation": {
               "x": 3.141592653589793,
@@ -390,7 +392,7 @@
             },
             "triggerPosition": {
               "x": 0,
-              "y": 0,
+              "y": 0.8,
               "z": 0
             },
             "triggerRotation": {
@@ -408,6 +410,204 @@
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 6
+    },
+    "A4B9313F-C244-4A83-813D-281C43B671EB": {
+      "name": "Image",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 2.5,
+              "y": 4,
+              "z": -13.5
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 2,
+              "y": 2,
+              "z": 2
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "image",
+          "props": {
+            "src": "/static/xrengine.png",
+            "controls": true,
+            "alphaMode": "opaque",
+            "alphaCutoff": 0.5,
+            "projection": "flat"
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 7
+    },
+    "560B2C33-DD18-42DF-8848-4605FF6B91B6": {
+      "name": "Video",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -1.5,
+              "y": 3.5,
+              "z": 13.5
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1.777,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "video",
+          "props": {
+            "src": "__$project$__/default-project/assets/SampleVideo.mp4",
+            "interactable": false,
+            "isLivestream": false,
+            "controls": true,
+            "autoPlay": true,
+            "synchronize": 0,
+            "loop": true,
+            "volume": 0.5,
+            "projection": "flat"
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 8
+    },
+    "D98AD592-0DDF-4F1C-9C41-FC1E5229FAB3": {
+      "name": "Trigger Volume",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 24.5,
+              "y": 3,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "trigger-volume",
+          "props": {
+            "target": null,
+            "onEnter": "",
+            "onExit": "",
+            "showHelper": false
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 9
+    },
+    "358A1F93-4823-4436-A26E-2D4ED06DD9E1": {
+      "name": "Particle Emitter",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 24.5,
+              "y": 2,
+              "z": 0
+            },
+            "rotation": {
+              "x": -1.5707963267948966,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "particle-emitter",
+          "props": {
+            "src": "/static/editor/dot.png",
+            "startColor": "#f61919",
+            "middleColor": "#7ed321",
+            "endColor": "#4a90e2",
+            "startOpacity": 1,
+            "middleOpacity": 1,
+            "endOpacity": 1,
+            "colorCurve": "linear",
+            "sizeCurve": "linear",
+            "startSize": 0.25,
+            "endSize": 0.25,
+            "sizeRandomness": 0,
+            "ageRandomness": 10,
+            "lifetime": 5,
+            "lifetimeRandomness": 5,
+            "particleCount": 100,
+            "startVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0.5
+            },
+            "endVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0.5
+            },
+            "velocityCurve": "linear",
+            "angularVelocity": 0
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 10
     }
   }
 }

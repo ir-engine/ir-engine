@@ -1,10 +1,14 @@
 import React from 'react'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import UserModel from './CreateUser'
 import UserTable from './UserTable'
 import SearchUser from './SearchUser'
 import { useUserStyles } from './styles'
+import styles from '../Admin.module.scss'
+import { UserService } from '../../services/UserService'
 
 const Users = () => {
   const classes = useUserStyles()
@@ -25,11 +29,29 @@ const Users = () => {
     setUserModalOpen(open)
   }
 
+  const handleSkipGuests = (e: any) => {
+    UserService.setSkipGuests(e.target.checked)
+  }
+
   return (
     <div>
       <Grid container spacing={1} className={classes.marginBottom}>
-        <Grid item md={9} xs={7}>
+        <Grid item md={8} xs={6}>
           <SearchUser />
+        </Grid>
+        <Grid item md={1} xs={1}>
+          <FormControlLabel
+            className={styles.checkbox}
+            control={
+              <Checkbox
+                onChange={(e) => handleSkipGuests(e)}
+                name="stereoscopic"
+                className={styles.checkbox}
+                color="primary"
+              />
+            }
+            label="Hide guests"
+          />
         </Grid>
         <Grid item md={3} xs={5}>
           <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>

@@ -4,39 +4,15 @@ import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces
 import fs from 'fs'
 import path from 'path'
 import appRootPath from 'app-root-path'
-import { getCachedAsset } from '../../media/storageprovider/storageProviderUtils'
 import { cleanString } from '../../util/cleanString'
 import { uploadLocalProjectToProvider } from '../../projects/project/project.class'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
+import defaultSceneSeed from '@xrengine/projects/default-project/empty.scene.json'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
 
-export const sceneRelativePathIdentifier = '__$project$__'
 const storageProvider = useStorageProvider()
-
-export const parseSceneDataCacheURLs = (sceneData: SceneJson) => {
-  for (const [key, val] of Object.entries(sceneData)) {
-    if (val && typeof val === 'object') {
-      sceneData[key] = parseSceneDataCacheURLs(val)
-    }
-    if (typeof val === 'string' && val.includes(sceneRelativePathIdentifier)) {
-      sceneData[key] = getCachedAsset(val.replace(sceneRelativePathIdentifier, '/projects'))
-    }
-  }
-  return sceneData
-}
-
-export const cleanSceneDataCacheURLs = (sceneData: SceneJson) => {
-  for (const [key, val] of Object.entries(sceneData)) {
-    if (val && typeof val === 'object') {
-      sceneData[key] = cleanSceneDataCacheURLs(val)
-    }
-    if (typeof val === 'string' && val.includes('https://' + storageProvider.cacheDomain + '/projects')) {
-      sceneData[key] = val.replace('https://' + storageProvider.cacheDomain + '/projects', sceneRelativePathIdentifier)
-    }
-  }
-  return sceneData
-}
 
 export const getSceneData = (projectName, sceneName, metadataOnly) => {
   const newSceneJsonPath = path.resolve(
@@ -46,14 +22,20 @@ export const getSceneData = (projectName, sceneName, metadataOnly) => {
 
   if (!fs.existsSync(newSceneJsonPath)) throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
 
-  const sceneThumbnailPath = getCachedAsset(`projects/${projectName}/${sceneName}.thumbnail.jpeg`)
+  const sceneThumbnailPath = getCachedAsset(
+    `projects/${projectName}/${sceneName}.thumbnail.jpeg`,
+    storageProvider.cacheDomain
+  )
 
   const sceneData: SceneDetailInterface = {
     name: sceneName,
     thumbnailUrl: sceneThumbnailPath,
     scene: metadataOnly
       ? undefined
-      : parseSceneDataCacheURLs(JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')))
+      : parseSceneDataCacheURLs(
+          JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')),
+          storageProvider.cacheDomain
+        )
   }
 
   return sceneData
@@ -110,6 +92,9 @@ export class Scene implements ServiceMethods<any> {
     const { sceneName, sceneData, thumbnailBuffer } = data
     console.log('[scene.update]:', projectName, data)
 
+    if (!isDev && projectName === 'default-project')
+      throw new Error('The default project is read only. Please make a new project if you wish to customise it.')
+
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
@@ -128,7 +113,7 @@ export class Scene implements ServiceMethods<any> {
 
     fs.writeFileSync(
       path.resolve(newSceneJsonPath),
-      JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed), null, 2)
+      JSON.stringify(cleanSceneDataCacheURLs(sceneData ?? defaultSceneSeed, storageProvider.cacheDomain), null, 2)
     )
 
     /**

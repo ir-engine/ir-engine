@@ -13,8 +13,9 @@ import appRootPath from 'app-root-path'
 import templateProjectJson from './template-project.json'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
-import { getCachedAsset, getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import config from '../../appconfig'
+import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 
 export const copyDefaultProject = () => {
   const seedPath = path.resolve(appRootPath.path, `packages/projects/projects`)
@@ -36,22 +37,25 @@ export const getStorageProviderPath = (projectName: string) =>
  * Updates the local storage provider with the project's current files
  * @param projectName
  */
-export const uploadLocalProjectToProvider = async (projectName) => {
+export const uploadLocalProjectToProvider = async (projectName, remove = true, exclusionList: RegExp[] = []) => {
   // remove exiting storage provider files
-  try {
-    const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
-    if (existingFiles.length) {
-      await Promise.all([
-        storageProvider.deleteResources(existingFiles),
-        storageProvider.createInvalidation([`projects/${projectName}*`])
-      ])
-    }
-  } catch (e) {}
+  if (remove) {
+    try {
+      const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+      if (existingFiles.length) {
+        await Promise.all([
+          storageProvider.deleteResources(existingFiles.filter((file) => exclusionList.find((exc) => exc.test(file)))),
+          storageProvider.createInvalidation([`projects/${projectName}*`])
+        ])
+      }
+    } catch (e) {}
+  }
   // upload new files to storage provider
   const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
   const files = getFilesRecursive(projectPath)
   const results = await Promise.all(
     files.map((file: string) => {
+      if (exclusionList.find((exc) => exc.test(file))) return Promise.resolve()
       return new Promise(async (resolve) => {
         try {
           const fileResult = fs.readFileSync(file)
@@ -61,7 +65,7 @@ export const uploadLocalProjectToProvider = async (projectName) => {
             ContentType: getContentType(file),
             Key: `projects/${projectName}${filePathRelative}`
           })
-          resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`))
+          resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain))
         } catch (e) {
           resolve(null)
         }
@@ -79,7 +83,11 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
-    copyDefaultProject()
+
+    // copy default project if it doesn't exist
+    if (!fs.existsSync(path.resolve(appRootPath.path, `packages/projects/projects/default-project`)))
+      copyDefaultProject()
+
     if (isDev && !config.db.forceRefresh) {
       this._fetchDevLocalProjects()
     }
@@ -241,7 +249,7 @@ export class Project extends Service {
             if (!fs.existsSync(path.dirname(metadataPath)))
               fs.mkdirSync(path.dirname(metadataPath), { recursive: true })
             fs.writeFileSync(metadataPath, fileResult.Body)
-            resolve(getCachedAsset(filePath))
+            resolve(getCachedAsset(filePath, storageProvider.cacheDomain))
           })
         )
       }
@@ -286,7 +294,6 @@ export class Project extends Service {
         }
       } catch (e) {
         console.warn('[getProjects]: Failed to read package.json for project', name, 'with error', e)
-        return
       }
     }
     return {
@@ -319,7 +326,7 @@ export class Project extends Service {
           }
         } catch (e) {
           console.warn('[getProjects]: Failed to read package.json for project', entry.name, 'with error', e)
-          return
+          return entry
         }
       })
       .filter((entry) => !!entry)

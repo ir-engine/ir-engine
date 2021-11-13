@@ -51,7 +51,6 @@ export default async function InteractiveSystem(world: World): Promise<System> {
   const interactTextEntity = createEntity()
   const textGroup = new Group().add(text)
   addComponent(interactTextEntity, Object3DComponent, { value: textGroup })
-  Engine.scene.add(textGroup)
   addComponent(interactTextEntity, PersistTagComponent, {})
   const transformComponent = addComponent(interactTextEntity, TransformComponent, {
     position: new Vector3(),

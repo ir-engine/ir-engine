@@ -27,6 +27,7 @@ import { PortalComponent } from '../components/PortalComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { BodyType } from '../../physics/types/PhysicsTypes'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
+import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 
 export type PortalProps = {
   locationName: string
@@ -148,6 +149,12 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     remoteSpawnPosition: new Vector3(),
     remoteSpawnRotation: new Quaternion(),
     remoteSpawnEuler: new Euler()
+  })
+
+  addComponent(entity, TriggerVolumeComponent, {
+    args: null,
+    target: null,
+    active: true
   })
 
   Engine.defaultWorld.portalEntities.push(entity)

@@ -1,12 +1,13 @@
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { AmbientLight } from 'three'
-import { SceneManager } from '../managers/SceneManager'
 import EditorNodeMixin from './EditorNodeMixin'
+import SceneNode from './SceneNode'
 export default class AmbientLightNode extends EditorNodeMixin(AmbientLight) {
   static legacyComponentName = 'ambient-light'
   static nodeName = 'Ambient Light'
   static disableTransform = true
   static canAddNode() {
-    return SceneManager.instance.scene.findNodeByType(AmbientLightNode) === null
+    return (Engine.scene as any as SceneNode).findNodeByType(AmbientLightNode) === null
   }
   static async deserialize(json) {
     const node = await super.deserialize(json)

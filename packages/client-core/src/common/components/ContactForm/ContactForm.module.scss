@@ -1,3 +1,5 @@
+@import "../../../styles/imports.module.scss";
+
 .emailDiv{
     max-width: 400px;
     margin: 0 0 0 auto;
@@ -51,10 +53,9 @@
     text-align: center;
 
     button {
+        @include purple-pink-linear-gradient();
         width: 100px;
         height: 35px;
-        background: -moz-linear-gradient(357.78deg,#5236ff 0,#c20560 100%);
-        background: linear-gradient(92.22deg,#5236ff,#c20560);
         color: white;
         border: none;
         border-radius: 5px;
@@ -73,10 +74,9 @@
         font-size: 13px;
     }
     button {
+        @include purple-pink-linear-gradient();
         width: 50px;
         height: 25px;
-        background: -moz-linear-gradient(357.78deg,#5236ff 0,#c20560 100%);
-        background: linear-gradient(92.22deg,#5236ff,#c20560);
         color: white;
         border: none;
         border-radius: 3px;

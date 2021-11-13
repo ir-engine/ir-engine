@@ -17,7 +17,8 @@ const state = createState({
   },
   currentLocation: {
     location: LocationSeed as Location,
-    bannedUsers: [] as UserId[]
+    bannedUsers: [] as UserId[],
+    selfUserBanned: false
   },
   updateNeeded: true,
   currentLocationUpdateNeeded: true,
@@ -54,7 +55,8 @@ store.receptors.push((action: LocationActionType): any => {
               ...action.location,
               locationSettings: (action.location as any).location_setting
             },
-            bannedUsers
+            bannedUsers,
+            selfUserBanned: false
           },
           currentLocationUpdateNeeded: false,
           fetchingCurrentLocation: false
@@ -64,7 +66,8 @@ store.receptors.push((action: LocationActionType): any => {
         return s.merge({
           currentLocation: {
             location: LocationSeed,
-            bannedUsers: []
+            bannedUsers: [],
+            selfUserBanned: false
           },
           currentLocationUpdateNeeded: false,
           fetchingCurrentLocation: false,
@@ -73,6 +76,11 @@ store.receptors.push((action: LocationActionType): any => {
 
       case 'LOCATION_BAN_CREATED':
         return s.merge({ currentLocationUpdateNeeded: true })
+
+      case 'LOCATION_LOCAL_USER_BANNED':
+        s.merge({ currentLocationUpdateNeeded: true })
+        s.currentLocation.merge({ selfUserBanned: true })
+        return
     }
   }, action.type)
 })
@@ -216,6 +224,12 @@ export const LocationAction = {
   socialLocationNotFound: () => {
     return {
       type: 'LOCATION_NOT_FOUND' as const
+    }
+  },
+  socialSelfUserBanned: (banned: boolean) => {
+    return {
+      type: 'LOCATION_LOCAL_USER_BANNED' as const,
+      banned
     }
   }
 }

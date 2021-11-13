@@ -1,8 +1,6 @@
-import React, { Component } from 'react'
-import EditorEvents from '../../constants/EditorEvents'
+import React from 'react'
 import MainMenu from '../mainMenu'
 import GridTool from './tools/GridTool'
-import { CommandManager } from '../../managers/CommandManager'
 import * as styles from './styles.module.scss'
 import TransformTool from './tools/TransformTool'
 import TransformPivotTool from './tools/TransformPivotTool'
@@ -17,7 +15,7 @@ type ToolBarProps = {
   editorReady: boolean
 }
 
-const ToolBar = (props: ToolBarProps) => {
+export const ToolBar = (props: ToolBarProps) => {
   if (!props.editorReady) {
     return <div className={styles.toolbarContainer} />
   }

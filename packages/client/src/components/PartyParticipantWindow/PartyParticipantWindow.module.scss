@@ -1,3 +1,5 @@
+@import "@xrengine/client-core/src/styles/imports.module.scss";
+
 .party-chat-user {
     margin: 10px 0;
     position: relative;
@@ -249,12 +251,12 @@
             }
             :global(.MuiSlider-root) {
                 &.slider {
-                    color: #5F5FF1;
+                    color: $PurpleButtonColor;
                     margin-left: 10px;
                 }
                 :global(.MuiSlider-thumb) {
-                    background: #5F5FF1;
-                    border: #5F5FF1;
+                    background: $PurpleButtonColor;
+                    border: $PurpleButtonColor;
                     width: 16px;
                     height: 16px;
                     margin-top: -7px;
