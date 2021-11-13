@@ -66,7 +66,7 @@
     "simplex-noise": "^3.0.0",
     "socket.io": "4.3.1",
     "styled-components": "5.3.3",
-    "three": "^0.133.0",
+    "three": "^0.133.1",
     "three-mesh-bvh": "0.5.0",
     "troika-three-text": "^0.43.0",
     "ts-matches": "^5.1.0-1",
