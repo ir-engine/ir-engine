@@ -38,7 +38,6 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
 
   createCollider(entity, mesh)
 
-  console.log('ground args: ' + JSON.stringify(args))
   if (isClient && args.generateNavmesh === true) {
     const navigationRaycastTarget = new Group()
     navigationRaycastTarget.scale.setScalar(getComponent(entity, TransformComponent).scale.x)
