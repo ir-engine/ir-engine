@@ -183,7 +183,8 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     smallBtn: {
       backgroundColor: '#transparent',
       margin: '0px 10px',
-      border: 0
+      border: 0,
+      cursor: 'pointer'
     },
     lightDanger: {
       backgroundColor: '#3C3230',
@@ -202,6 +203,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: '50%'
+    },
+    btnCursor: {
+      cursor: 'pointer'
     }
   })
 )
