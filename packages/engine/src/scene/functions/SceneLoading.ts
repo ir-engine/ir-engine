@@ -3,7 +3,6 @@ import {
   DirectionalLight,
   Euler,
   HemisphereLight,
-  Mesh,
   Object3D,
   PointLight,
   Quaternion,
@@ -21,7 +20,6 @@ import { createParticleEmitterObject } from '../../particles/functions/particleH
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { createBody, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Clouds } from '../classes/Clouds'
@@ -39,7 +37,6 @@ import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { WalkableTagComponent } from '../components/Walkable'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
 import { createDirectionalLight } from '../functions/createDirectionalLight'
 import { createGround } from '../functions/createGround'
@@ -59,6 +56,7 @@ import { SceneJson, ComponentJson } from '@xrengine/common/src/interfaces/SceneI
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -143,6 +141,7 @@ export class WorldScene {
 
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
+    console.log(component)
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     const world = useWorld()
     switch (name) {
@@ -394,7 +393,7 @@ export class WorldScene {
         break
 
       case 'postprocessing':
-        EngineRenderer.instance?.configurePostProcessing(component.data.options)
+        isClient && configureEffectComposer(component.data.options)
         break
 
       case 'cameraproperties':

@@ -1,12 +1,13 @@
 import { Mesh, CircleBufferGeometry, MeshBasicMaterial, Object3D } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import GroundPlane from '@xrengine/engine/src/scene/classes/GroundPlane'
-import { SceneManager } from '../managers/SceneManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import SceneNode from './SceneNode'
 export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
   static legacyComponentName = 'ground-plane'
   static nodeName = 'Ground Plane'
   static canAddNode() {
-    return SceneManager.instance.scene.findNodeByType(GroundPlaneNode) === null
+    return (Engine.scene as any as SceneNode).findNodeByType(GroundPlaneNode) === null
   }
   static async deserialize(json) {
     const node = await super.deserialize(json)

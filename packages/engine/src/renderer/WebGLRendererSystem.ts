@@ -1,37 +1,22 @@
 import {
-  BlendFunction,
   BloomEffect,
   BrightnessContrastEffect,
   ColorDepthEffect,
-  DepthDownsamplingPass,
   DepthOfFieldEffect,
   EffectComposer,
-  EffectPass,
   HueSaturationEffect,
   NormalPass,
   OutlineEffect,
   RenderPass,
   SSAOEffect,
-  TextureEffect,
   ToneMappingEffect
 } from 'postprocessing'
-import {
-  MathUtils,
-  NearestFilter,
-  PerspectiveCamera,
-  RGBFormat,
-  sRGBEncoding,
-  WebGL1Renderer,
-  WebGLRenderer,
-  WebGLRenderTarget
-} from 'three'
+import { MathUtils, PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRenderTarget } from 'three'
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { System } from '../ecs/classes/System'
-import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing'
-import { PostProcessingSchema } from './interfaces/PostProcessingSchema'
 import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
@@ -55,7 +40,7 @@ export interface EffectComposerWithSchema extends EffectComposer {
   outputBuffer: WebGLRenderTarget
   copyPass: any
   depthTexture: any
-  passes: []
+  passes: any[]
   autoRenderToScreen: boolean
   multisampling: number
   getRenderer()
@@ -104,9 +89,6 @@ export class EngineRenderer {
 
   /** Is resize needed? */
   needsResize: boolean
-
-  /** Postprocessing schema. */
-  postProcessingSchema: PostProcessingSchema
 
   /** Maximum Quality level of the rendered. **Default** value is 5. */
   maxQualityLevel = 5
@@ -222,68 +204,6 @@ export class EngineRenderer {
   resetPostProcessing(): void {
     Engine.effectComposer.dispose()
     Engine.effectComposer = new EffectComposer(Engine.renderer)
-    this.postProcessingSchema = undefined!
-  }
-
-  /**
-   * Configure post processing.
-   * Note: Post processing effects are set in the PostProcessingSchema provided to the system.
-   * @param entity The Entity holding renderer component.
-   */
-  public configurePostProcessing(postProcessingSchema: PostProcessingSchema = defaultPostProcessingSchema): void {
-    this.postProcessingSchema = postProcessingSchema
-    const renderPass = new RenderPass(Engine.scene, Engine.camera)
-    renderPass.scene = Engine.scene
-    renderPass.camera = Engine.camera
-    Engine.effectComposer.addPass(renderPass)
-    // This sets up the render
-    const passes: any[] = []
-    const normalPass = new NormalPass(renderPass.scene, renderPass.camera, {
-      renderTarget: new WebGLRenderTarget(1, 1, {
-        minFilter: NearestFilter,
-        magFilter: NearestFilter,
-        format: RGBFormat,
-        stencilBuffer: false
-      })
-    })
-    const depthDownsamplingPass = new DepthDownsamplingPass({
-      normalBuffer: normalPass.texture,
-      resolutionScale: 0.5
-    })
-    const normalDepthBuffer = depthDownsamplingPass.texture
-    let pass
-    Object.keys(this.postProcessingSchema).forEach((key: any) => {
-      pass = this.postProcessingSchema[key]
-      const effect = effectType[key].effect
-      if (pass.isActive)
-        if (effect === SSAOEffect) {
-          const eff = new effect(Engine.camera, normalPass.texture, { ...pass, normalDepthBuffer })
-          Engine.effectComposer[key] = eff
-          passes.push(eff)
-        } else if (effect === DepthOfFieldEffect) {
-          const eff = new effect(Engine.camera, pass)
-          Engine.effectComposer[key] = eff
-          passes.push(eff)
-        } else if (effect === OutlineEffect) {
-          const eff = new effect(Engine.scene, Engine.camera, pass)
-          Engine.effectComposer[key] = eff
-          passes.push(eff)
-        } else {
-          const eff = new effect(pass)
-          Engine.effectComposer[key] = eff
-          passes.push(eff)
-        }
-    })
-    const textureEffect = new TextureEffect({
-      blendFunction: BlendFunction.SKIP,
-      texture: depthDownsamplingPass.texture
-    })
-    if (passes.length) {
-      Engine.effectComposer.addPass(depthDownsamplingPass)
-      Engine.effectComposer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect))
-    }
-    // const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
-    // this.effectComposer.addPass(gammaCorrectionPass);
   }
 
   /**
@@ -320,7 +240,7 @@ export class EngineRenderer {
         }
 
         this.qualityLevel > 0 && Engine.csm?.update()
-        if (this.usePostProcessing && this.postProcessingSchema) {
+        if (this.usePostProcessing) {
           Engine.effectComposer.render(delta)
         } else {
           Engine.renderer.autoClear = true
