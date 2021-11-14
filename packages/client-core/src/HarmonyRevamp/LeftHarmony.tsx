@@ -68,6 +68,11 @@ const LeftHarmony: React.FunctionComponent = () => {
   const [create, setCreate] = React.useState(false)
   const [chat, setChat] = React.useState('party')
   const [invite, setInvite] = React.useState('')
+  const [type, setType] = React.useState('email')
+  const [messageDeletePending, setMessageDeletePending] = React.useState('')
+  const [messageUpdatePending, setMessageUpdatePending] = React.useState('')
+  const [editingMessage, setEditingMessage] = React.useState('')
+  const [composingMessage, setComposingMessage] = React.useState('')
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [value, setValue] = React.useState(0)
   const [showNot, setShowNot] = React.useState(false)
@@ -107,7 +112,7 @@ const LeftHarmony: React.FunctionComponent = () => {
   const groups = groupSubState.groups.value
 
   //party state
-  const party = usePartyState().party.value
+  const party = usePartyState().party?.value
   const currentLocation = useLocationState().currentLocation.location
 
   const handleChange = (event, newValue) => {
@@ -316,6 +321,46 @@ const LeftHarmony: React.FunctionComponent = () => {
           )}
 
           {chat !== 'party' ? (
+            ''
+          ) : (
+            <>
+              <div className={classes.center}>
+                <a href="#" className={`${classes.my2} ${classes.btn}`}>
+                  CREATE PARTY
+                </a>
+              </div>
+              {party &&
+                party.length > 0 &&
+                [...party]
+                  .sort((a, b) => a.createdAt - b.createdAt)
+                  .map((part) => {
+                    return (
+                      <div
+                        key={part.id}
+                        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
+                        onClick={() => {
+                          setActiveChat('user', part)
+                          if (dimensions.width <= 768) setSelectorsOpen(false)
+                        }}
+                      >
+                        <div className={classes.mx2}>
+                          <h4 className={classes.fontBig}>{part.name}</h4>
+                          <small className={classes.textMuted}>Party id:</small>
+                          <small className={classes.textMuted}>{part.id}</small>
+                        </div>
+                        <div className={classes.mx2}></div>
+
+                        <div>
+                          <a href="#" className={classes.border0} onClick={handleClick}>
+                            <MoreHoriz />
+                          </a>
+                        </div>
+                      </div>
+                    )
+                  })}
+            </>
+          )}
+          {chat !== 'group' ? (
             ''
           ) : (
             <>
