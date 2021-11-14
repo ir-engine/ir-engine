@@ -68,7 +68,7 @@
     "styled-components": "5.3.3",
     "three": "^0.134.0",
     "three-mesh-bvh": "^0.5.0",
-    "troika-three-text": "^0.43.0",
+    "troika-three-text": "^0.44.0",
     "ts-matches": "^5.0.0",
     "twitch-m3u8": "^1.1.4",
     "vite": "2.6.14",
