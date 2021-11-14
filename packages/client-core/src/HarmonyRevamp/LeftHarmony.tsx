@@ -110,7 +110,7 @@ const LeftHarmony = (props: Props) => {
   const groups = groupSubState.groups.value
 
   //party state
-  const party = usePartyState().party.value
+  const party = usePartyState().party?.value
   const currentLocation = useLocationState().currentLocation.location
 
   const handleChange = (event, newValue) => {
@@ -323,6 +323,7 @@ const LeftHarmony = (props: Props) => {
                           <ListItem
                             className={classes.cpointer}
                             onClick={() => {
+                              setActiveChat('user', friend)
                               if (dimensions.width <= 768) setSelectorsOpen(false)
                             }}
                           >
@@ -604,8 +605,9 @@ const LeftHarmony = (props: Props) => {
                     return (
                       <div
                         key={group.id}
-                        className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}
+                        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
                         onClick={() => {
+                          setActiveChat('user', group)
                           if (dimensions.width <= 768) setSelectorsOpen(false)
                         }}
                       >
