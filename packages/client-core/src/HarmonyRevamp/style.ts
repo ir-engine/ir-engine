@@ -38,6 +38,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     flexWrap: {
       flexWrap: 'wrap'
     },
+    cpointer: {
+      cursor: 'pointer'
+    },
     mx2: {
       margin: '7px 10px'
     },
