@@ -47,12 +47,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     mx2: {
       margin: '7px 10px'
     },
-<<<<<<< HEAD
     mx0: {
       margin: '0px 10px'
     },
-=======
->>>>>>> d06bd8b5f... Added invite modals
     p5: {
       padding: '20px'
     },
@@ -88,7 +85,6 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       border: '1px solid #FFF',
       padding: '12px',
       marginTop: 15,
-<<<<<<< HEAD
       borderRadius: '2px',
       color: '#ccc'
     },
@@ -100,9 +96,6 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       marginTop: 15,
       borderRadius: '2px',
       color: '#ccc'
-=======
-      borderRadius: '2px'
->>>>>>> d06bd8b5f... Added invite modals
     },
     box: {
       backgroundColor: '#232424',
@@ -158,15 +151,12 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     h100: {
       height: '89vh'
-<<<<<<< HEAD
     },
     h1002: {
       height: '98%'
     },
     flexGrow2: {
       flexGrow: 1
-=======
->>>>>>> d06bd8b5f... Added invite modals
     },
     flexGrow: {
       flexGrow: 1,
@@ -226,12 +216,8 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     smallBtn: {
       backgroundColor: '#transparent',
       margin: '0px 10px',
-<<<<<<< HEAD
       border: 0,
       cursor: 'pointer'
-=======
-      border: 0
->>>>>>> d06bd8b5f... Added invite modals
     },
     lightDanger: {
       backgroundColor: '#3C3230',
@@ -250,7 +236,6 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: '50%'
-<<<<<<< HEAD
     },
     btnCursor: {
       cursor: 'pointer'
@@ -288,8 +273,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     fontSizeSmall: {
       fontSize: '1rem'
-=======
->>>>>>> d06bd8b5f... Added invite modals
+    },
+    btnCursor: {
+      cursor: 'pointer'
     }
   })
 )
