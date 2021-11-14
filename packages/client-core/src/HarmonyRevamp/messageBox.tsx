@@ -147,12 +147,9 @@ const MessageBox: React.FunctionComponent = () => {
                 ></textarea>
               </div>
             </div>
-            <label htmlFor="icon-button-file">
-              <Input accept="image/*" id="icon-button-file" type="file" />
-              <IconButton onClick={packageMessage} aria-label="upload picture" component="span">
-                <Send className={classes.white} />
-              </IconButton>
-            </label>
+            <IconButton aria-label="upload picture" component="span">
+              <Send className={classes.white} />
+            </IconButton>
           </div>
         </div>
       </Container>

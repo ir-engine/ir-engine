@@ -26,6 +26,7 @@ import { useGroupState } from '@xrengine/client-core/src/social/services/GroupSe
 import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import * as React from 'react'
+import InviteHarmony from './InviteHarmony'
 import { useHarmonyStyles } from './style'
 import InviteModel from './InviteModel'
 
@@ -58,13 +59,13 @@ function a11yProps(index) {
 
 const LeftHarmony: React.FunctionComponent = () => {
   const classes = useHarmonyStyles()
-  const [state, setState] = React.useState('Received')
   const [show, setShow] = React.useState(false)
   const [create, setCreate] = React.useState(false)
-  const [chat, setChat] = React.useState('friends')
+  const [chat, setChat] = React.useState('party')
   const [type, setType] = React.useState('email')
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [value, setValue] = React.useState(0)
+  const [showNot, setShowNot] = React.useState(false)
 
   //friend state
   const friendState = useFriendState()
@@ -96,10 +97,6 @@ const LeftHarmony: React.FunctionComponent = () => {
     setCreate(false)
   }
 
-  const handleClickClose = () => {
-    setShow(false)
-  }
-
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
   }
@@ -122,7 +119,7 @@ const LeftHarmony: React.FunctionComponent = () => {
             <h4>Chats</h4>
             <div className={`${classes.dFlex} ${classes.alignCenter}`}>
               <IconButton color="primary" component="span" onClick={handleClickOpen}>
-                <Badge color="secondary" variant="dot">
+                <Badge color="secondary" variant={showNot ? 'dot' : ''}>
                   <Notifications className={classes.primaryText} />
                 </Badge>
               </IconButton>
@@ -278,66 +275,10 @@ const LeftHarmony: React.FunctionComponent = () => {
           </div>
         </div>
       </div>
-      <Dialog
-        fullWidth={true}
-        maxWidth={'sm'}
-        open={show}
-        onClose={handleClickClose}
-        // className={classes.bgModal}
-      >
-        <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter} ${classes.bgModal}`}>
-          <button
-            className={`${classes.btns} ${state === 'Received' && classes.borderBottom}`}
-            onClick={() => setState('Received')}
-          >
-            <b className={`${state === 'Received' && classes.info}`}>RECEIVED</b>
-          </button>
-          <button
-            className={`${classes.btns} ${state === 'Sent' && classes.borderBottom}`}
-            onClick={() => setState('Sent')}
-          >
-            <b className={`${state === 'Sent' && classes.info}`}>SENT</b>
-          </button>
-        </div>
-        <div className={`${classes.bgModal} ${classes.p4}`}>
-          {state === 'Received' ? (
-            <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter} ${classes.my2}`}>
-              <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.mx2}`}>
-                <Avatar src="./Avatar.png" />
-                {/* <img src={Avatar} alt="" width="44" height="44" /> */}
-                <div className={classes.mx2}>
-                  <h4 className={classes.fontBig}>Dwark Matths</h4>
-                  <small className={classes.textMuted}>12 Aug 2021</small>
-                </div>
-              </div>
-              <div className={`${classes.dFlex} ${classes.alignCenter}`}>
-                <button className={`${classes.smallBtn} ${classes.lightDanger}`}>
-                  <Close fontSize="small" style={{ color: '#DD3333' }} />
-                </button>
-                <button className={`${classes.smallBtn} ${classes.lightSuccess}`}>
-                  <Check fontSize="small" style={{ color: '#57C290' }} />
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter} ${classes.my2}`}>
-              <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.mx2}`}>
-                <Avatar src="./Avatar.png" />
-                <div className={classes.mx2}>
-                  <h4 className={classes.fontBig}>Dwark Matths</h4>
-                  <small className={classes.textMuted}>12 Aug 2021</small>
-                </div>
-              </div>
-              <button className={`${classes.my2} ${classes.btn}`}>
-                <span className={classes.danger}>Uninvite</span>
-              </button>
-            </div>
-          )}
-        </div>
-      </Dialog>
       <Dialog fullWidth={true} maxWidth={'md'} open={create} onClose={handleCloseCreate}>
         <InviteModel />
       </Dialog>
+      <InviteHarmony setShowNot={setShowNot} show={show} setShow={setShow} />
     </>
   )
 }
