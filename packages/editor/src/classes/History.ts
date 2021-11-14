@@ -15,7 +15,7 @@ export default class History {
     this.redos = []
     this.lastCmdTime = new Date()
     this.idCounter = 0
-    this.commandUpdatesEnabled = true // Used for testing
+    this.commandUpdatesEnabled = false // Used for testing
     this.debug = false
   }
 
@@ -34,7 +34,7 @@ export default class History {
       cmd = lastCmd
 
       if (this.debug) {
-        console.log(`update: ${cmd}`)
+        console.log(`update:`, cmd)
       }
     } else {
       // the command is not updatable and is added as a new part of the history
@@ -43,7 +43,7 @@ export default class History {
       cmd.execute()
 
       if (this.debug) {
-        console.log(`execute: ${cmd}`)
+        console.log(`execute:`, cmd)
       }
     }
 

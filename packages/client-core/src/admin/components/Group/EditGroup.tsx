@@ -8,13 +8,11 @@ import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
 import { formValid } from './validation'
 
-import { useDispatch } from '../../../store'
 import Autocomplete from '@mui/material/Autocomplete'
-import { ScopeService } from '../../services/ScopeService'
-import { useScopeState } from '../../services/ScopeService'
 import { useAuthState } from '../../../user/services/AuthService'
 import { GroupService } from '../../services/GroupService'
 import { useGroupStyles, useGroupStyle } from './styles'
+import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 
 interface Props {
   groupAdmin: any
@@ -25,28 +23,27 @@ interface Props {
 const EditGroup = (props: Props) => {
   const classes = useGroupStyles()
   const classx = useGroupStyle()
-  const dispatch = useDispatch()
   const { groupAdmin, closeEditModal, closeViewModal } = props
   const user = useAuthState().user
-  const adminScopeState = useScopeState()
-  const adminScopes = adminScopeState.scopeType.scopeType
+  const adminScopeTypeState = useScopeTypeState()
+  const adminScopeTypes = adminScopeTypeState.scopeTypes
 
   const [state, setState] = React.useState({
     name: groupAdmin.name,
     description: groupAdmin.description,
-    scopeType: groupAdmin.scopes,
+    scopeTypes: groupAdmin.scopes,
     formErrors: {
       name: '',
       description: '',
-      scopeType: ''
+      scopeTypes: ''
     }
   })
 
   React.useEffect(() => {
-    if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      ScopeService.getScopeTypeService()
+    if (adminScopeTypeState.updateNeeded.value && user.id.value) {
+      ScopeTypeService.getScopeTypeService()
     }
-  }, [adminScopeState.scopeType.updateNeeded.value, user])
+  }, [adminScopeTypeState.updateNeeded.value, user])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -65,7 +62,7 @@ const EditGroup = (props: Props) => {
 
   const onSubmitHandler = (e) => {
     e.preventDefault()
-    const { name, description, scopeType } = state
+    const { name, description, scopeTypes } = state
     let temp = state.formErrors
 
     if (!state.name) {
@@ -74,17 +71,17 @@ const EditGroup = (props: Props) => {
     if (!state.description) {
       temp.description = "Description can't be empty"
     }
-    if (!state.scopeType.length) {
-      temp.scopeType = "Scope can't be empty"
+    if (!state.scopeTypes.length) {
+      temp.scopeTypes = "Scope can't be empty"
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
-      GroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeType })
+      GroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeTypes })
       setState({
         ...state,
         name: '',
         description: '',
-        scopeType: []
+        scopeTypes: []
       })
       closeEditModal(false)
       if (typeof closeViewModal === 'function') closeViewModal()
@@ -128,21 +125,21 @@ const EditGroup = (props: Props) => {
         <label>Grant Scope</label>
         <Paper
           component="div"
-          className={state.formErrors.scopeType.length > 0 ? classes.redBorder : classes.createInput}
+          className={state.formErrors.scopeTypes.length > 0 ? classes.redBorder : classes.createInput}
         >
           <Autocomplete
             onChange={(event, value) =>
-              setState({ ...state, scopeType: value, formErrors: { ...state.formErrors, scopeType: '' } })
+              setState({ ...state, scopeTypes: value, formErrors: { ...state.formErrors, scopeTypes: '' } })
             }
             multiple
             className={classes.selector}
             classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
             id="tags-standard"
-            value={state.scopeType}
-            options={adminScopes.value}
+            value={state.scopeTypes}
+            options={adminScopeTypes.value}
             disableCloseOnSelect
             filterOptions={(options) =>
-              options.filter((option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null)
+              options.filter((option) => state.scopeTypes.find((scopeType) => scopeType.type === option.type) == null)
             }
             getOptionLabel={(option) => option.type}
             renderInput={(params) => <TextField {...params} placeholder="Select access" />}

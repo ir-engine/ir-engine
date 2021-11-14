@@ -5,13 +5,12 @@ import { resolveMedia } from '../functions/resolveMedia'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { CacheManager } from '../managers/CacheManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = 'image'
   static nodeName = 'Image'
-  static initialElementProps = {
-    src: new URL('/editor/dot.png', location as any).href
-  }
+  static initialElementProps = {}
   static async deserialize(json, loadAsync, onError) {
     const node = await super.deserialize(json)
     const { src, projection, controls, alphaMode, alphaCutoff } = json.components.find((c) => c.name === 'image').props
@@ -30,6 +29,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     super()
     this._canonicalUrl = ''
     this.controls = true
+    this.src = '/static/xrengine.png'
   }
   get src() {
     return this._canonicalUrl

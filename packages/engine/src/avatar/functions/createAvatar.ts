@@ -35,6 +35,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { CameraLayers } from '../../camera/constants/CameraLayers'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -57,15 +58,16 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
       })
   }
 
-  const position = createVector3Proxy(TransformComponent.position, entity).copy(spawnAction.parameters.position)
+  const position = createVector3Proxy(TransformComponent.position, entity)
 
-  const rotation = createQuaternionProxy(TransformComponent.rotation, entity).copy(spawnAction.parameters.rotation)
-
+  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
   // todo: figure out why scale makes avatar disappear
   // const scale = createVector3Proxy(TransformComponent.scale, entity)
   const scale = new Vector3().copy(new Vector3(1, 1, 1))
 
   const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
+  transform.position.copy(spawnAction.parameters.position)
+  transform.rotation.copy(spawnAction.parameters.rotation)
 
   const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
 
@@ -112,6 +114,10 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
+  tiltContainer.traverse((o) => {
+    o.layers.disable(CameraLayers.Scene)
+    o.layers.enable(CameraLayers.Avatar)
+  })
 
   const filterData = new PhysX.PxQueryFilterData()
   filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
@@ -199,6 +205,7 @@ export const createAvatarController = (entity: Entity) => {
       entity
     }
   }) as PhysX.PxCapsuleController
+  console.log(controller.getPosition())
 
   const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
   frustumCamera.position.setY(avatarHalfHeight)

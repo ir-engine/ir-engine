@@ -29,8 +29,7 @@ const server = {
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
   local: process.env.LOCAL === 'true',
-  releaseName: process.env.RELEASE_NAME || null,
-  defaultContentPackURL: process.env.DEFAULT_CONTENT_PACK_URL
+  releaseName: process.env.RELEASE_NAME || null
 }
 
 server.url =

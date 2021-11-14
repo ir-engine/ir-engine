@@ -6,7 +6,7 @@ export const name = 'create complete object'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 
-const createCompleteObjectUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: FeatureKey) => {
+const createCompleteObjectUsingCache = createUsingCache((state: MapStateUnwrapped, key: FeatureKey) => {
   const [layerName] = key
 
   const feature = state.featureCache.get(key)
@@ -32,7 +32,7 @@ export function setTaskStatus(state: MapStateUnwrapped, key: FeatureKey, status:
 }
 
 export function execTask(state: MapStateUnwrapped, key: FeatureKey) {
-  return createCompleteObjectUsingCache(state.completeObjects, key, state)
+  return createCompleteObjectUsingCache(state.completeObjects, state, key)
 }
 
 export function cleanup(state: MapStateUnwrapped) {

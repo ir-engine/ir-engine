@@ -29,7 +29,8 @@ import ImageNode from '../nodes/ImageNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
-import { ProjectManager } from './ProjectManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import SceneNode from '../nodes/SceneNode'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -46,7 +47,7 @@ export type CommandParamsType =
   | LoadMaterialSlotCommandParams
 
 export class CommandManager extends EventEmitter {
-  static instance: CommandManager
+  static instance: CommandManager = new CommandManager()
 
   commands: {
     [key: string]: typeof Command
@@ -55,10 +56,6 @@ export class CommandManager extends EventEmitter {
   selected: any[] = []
   selectedTransformRoots: any[] = []
   history: History
-
-  static buildCommandManager() {
-    this.instance = new CommandManager()
-  }
 
   constructor() {
     super()
@@ -154,7 +151,7 @@ export class CommandManager extends EventEmitter {
       }
     }
 
-    traverse(SceneManager.instance.scene)
+    traverse(Engine.scene)
 
     return target
   }
@@ -241,7 +238,7 @@ export class CommandManager extends EventEmitter {
       }
 
       const nodes = nodeUUIDs
-        .map((uuid) => SceneManager.instance.scene.getObjectByUUID(uuid))
+        .map((uuid) => (Engine.scene as any as SceneNode).getObjectByUUID(uuid))
         .filter((uuid) => uuid !== undefined)
 
       CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, nodes)
@@ -256,9 +253,8 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  async addMedia(params: any, parent?: any, before?: any) {
+  async addMedia({ url }, parent?: any, before?: any) {
     let contentType = ''
-    const { url, name, id } = params
     const { hostname } = new URL(url)
 
     try {
@@ -299,7 +295,6 @@ export class CommandManager extends EventEmitter {
     SceneManager.instance.getSpawnPosition(node.position)
     this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, { parents: parent, befores: before })
 
-    ProjectManager.instance.currentOwnedFileIds[name] = id
     CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)
     return node
   }

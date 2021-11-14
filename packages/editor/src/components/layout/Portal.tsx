@@ -1,35 +1,29 @@
 import React from 'react'
+import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 /**
  *
  * @author Robert Long
  */
-export class Portal extends React.Component {
-  constructor(props) {
-    super(props)
-    this.el = document.createElement('div')
-  }
+export const Portal = (props) => {
+  let el = document.createElement('div')
 
-  componentDidMount() {
-    document.body.appendChild(this.el)
-  }
+  useEffect(() => {
+    document.body.appendChild(el)
 
-  componentWillUnmount() {
-    try {
-      if (this.el) {
-        document.body.removeChild(this.el)
+    return () => {
+      try {
+        if (el) {
+          document.body.removeChild(el)
+        }
+      } catch (err) {
+        console.warn(`Error removing Portal element: ${err}`)
       }
-    } catch (err) {
-      console.warn(`Error removing Portal element: ${err}`)
     }
-  }
+  }, [])
 
-  el: HTMLDivElement
-
-  render(): any {
-    return createPortal(this.props.children, this.el)
-  }
+  return createPortal(props.children, el)
 }
 
 export default Portal

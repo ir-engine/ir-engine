@@ -5,7 +5,7 @@ export interface ServicesSeedConfig {
   count?: number
   disabled?: boolean
   delete?: boolean
-  path: string
+  path?: string
   randomize?: boolean
   templates?: any[]
   callback?: ServicesSeedCallback

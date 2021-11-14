@@ -20,7 +20,6 @@ import matches from 'ts-matches'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { teleportRigidbody } from '../physics/functions/teleportRigidbody'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
-import { detectUserInTrigger } from './functions/detectUserInTrigger'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { initializeHandModel } from '../xr/functions/addControllerModels'
@@ -72,7 +71,7 @@ function avatarActionReceptor(action) {
       })
     })
 
-    .when(NetworkWorldAction.teleportObject.matches, (a) => {
+    .when(NetworkWorldAction.teleportObject.matchesFromAny, (a) => {
       const [x, y, z, qX, qY, qZ, qW] = a.pose
 
       const entity = world.getNetworkObject(a.networkId)
@@ -141,8 +140,6 @@ export default async function AvatarSystem(world: World): Promise<System> {
       const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
-
-      // detectUserInTrigger(entity)
     }
 
     for (const entity of xrLGripQuery.enter()) {

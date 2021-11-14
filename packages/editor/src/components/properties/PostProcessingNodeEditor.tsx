@@ -356,4 +356,5 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
 }
 PostProcessingNodeEditor.iconComponent = Rainbow
 PostProcessingNodeEditor.description = 'For applying Post Processing effects to you scene'
+
 export default PostProcessingNodeEditor

@@ -68,8 +68,8 @@ const ViewLocation = (props: Props) => {
   const [error, setError] = React.useState('')
   const [openWarning, setOpenWarning] = React.useState(false)
   const { t } = useTranslation()
-  const adminScenes = useSceneState().scenes.scenes
-  const locationTypes = useLocationState().locationTypes.locationTypes
+  const adminScenes = useSceneState().scenes
+  const locationTypes = useLocationState().locationTypes
   const user = useAuthState().user // user initialized by getting value from authState object.
   const scopes = user?.scopes?.value || []
   let isLocationWrite = false

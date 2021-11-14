@@ -16,8 +16,10 @@ import InputBase from '@mui/material/InputBase'
 import Grid from '@mui/material/Grid'
 import { Edit } from '@mui/icons-material'
 import { BotService } from '../../services/BotsService'
+import { BotCommandService } from '../../services/BotsCommand'
 import { useDispatch } from '../../../store'
 import { useBotState } from '../../services/BotsService'
+import { useBotCommandState } from '../../services/BotsCommand'
 import { useAuthState } from '../../../user/services/AuthService'
 import Button from '@mui/material/Button'
 import MuiAlert from '@mui/material/Alert'
@@ -44,11 +46,13 @@ const DisplayBots = (props: Props) => {
     setExpanded(isExpanded ? panel : false)
   }
   const botsAdminState = useBotState()
-  const botAdmin = botsAdminState.bots
+  const botAdmin = botsAdminState
+  const botCommand = useBotCommandState()
   const user = useAuthState().user
   const botAdminData = botAdmin.bots
+
   React.useEffect(() => {
-    if (user.id.value && botAdmin.updateNeeded) {
+    if (user.id.value && botAdmin.updateNeeded.value) {
       BotService.fetchBotAsAdmin()
     }
   }, [botAdmin.updateNeeded.value, user?.id?.value])
@@ -75,7 +79,7 @@ const DisplayBots = (props: Props) => {
       description: description,
       botId: id
     }
-    BotService.createBotCammand(data)
+    BotCommandService.createBotCammand(data)
     setName('')
     setDescription('')
   }
@@ -188,7 +192,7 @@ const DisplayBots = (props: Props) => {
                             <IconButton
                               edge="end"
                               aria-label="delete"
-                              onClick={() => BotService.removeBotsCommand(el.id)}
+                              onClick={() => BotCommandService.removeBotsCommand(el.id)}
                               size="large"
                             >
                               <DeleteIcon style={{ color: '#fff' }} />

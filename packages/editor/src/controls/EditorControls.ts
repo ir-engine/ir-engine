@@ -27,6 +27,7 @@ import { TransformSpace } from '../constants/TransformSpace'
 import getIntersectingNode from '../functions/getIntersectingNode'
 import { EditorInputs, EditorMapping, Fly } from './input-mappings'
 import { SceneManager } from '../managers/SceneManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export const SnapMode = {
   Disabled: 'Disabled',
@@ -181,6 +182,15 @@ export default class EditorControls extends EventEmitter {
     CommandManager.instance.addListener(EditorEvents.BEFORE_SELECTION_CHANGED.toString(), this.onBeforeSelectionChanged)
     CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
+  }
+
+  dispose() {
+    CommandManager.instance.removeListener(
+      EditorEvents.BEFORE_SELECTION_CHANGED.toString(),
+      this.onBeforeSelectionChanged
+    )
+    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
+    CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
   onBeforeSelectionChanged = () => {
@@ -445,7 +455,7 @@ export default class EditorControls extends EventEmitter {
             startMarkerLocal.position.copy(SceneManager.instance.transformGizmo.position)
             startMarkerLocal.quaternion.copy(SceneManager.instance.transformGizmo.quaternion)
             startMarkerLocal.scale.copy(SceneManager.instance.transformGizmo.scale)
-            SceneManager.instance.scene.add(startMarkerLocal)
+            Engine.scene.add(startMarkerLocal)
           }
         }
         if (this.transformSpace === TransformSpace.World) {
@@ -466,7 +476,7 @@ export default class EditorControls extends EventEmitter {
           selectedAxisInfo.rotationTarget.rotation.set(0, 0, 0)
           if (this.transformSpace !== TransformSpace.World) {
             const startMarkerLocal = selectedAxisInfo.startMarkerLocal
-            SceneManager.instance.scene.remove(startMarkerLocal)
+            Engine.scene.remove(startMarkerLocal)
           }
         }
       } else if (this.transformMode === TransformMode.Scale) {
@@ -654,8 +664,8 @@ export default class EditorControls extends EventEmitter {
   raycastNode(coords) {
     this.raycaster.setFromCamera(coords, this.camera)
     this.raycasterResults.length = 0
-    this.raycaster.intersectObject(SceneManager.instance.scene, true, this.raycasterResults)
-    return getIntersectingNode(this.raycasterResults, SceneManager.instance.scene)
+    this.raycaster.intersectObject(Engine.scene, true, this.raycasterResults)
+    return getIntersectingNode(this.raycasterResults, Engine.scene)
   }
   focus(objects) {
     const box = this.box
@@ -693,8 +703,6 @@ export default class EditorControls extends EventEmitter {
     if (
       (excludeObjects && excludeObjects.indexOf(object) !== -1) ||
       (excludeLayers && excludeLayers.test(object.layers)) ||
-      (SceneManager.instance.renderer.webglRenderer.batchManager &&
-        SceneManager.instance.renderer.webglRenderer.batchManager.batches.indexOf(object) !== -1) ||
       !object.visible
     ) {
       return
@@ -708,11 +716,7 @@ export default class EditorControls extends EventEmitter {
   getRaycastPosition(coords, target, modifier) {
     this.raycaster.setFromCamera(coords, this.camera)
     this.raycasterResults.length = 0
-    this._raycastRecursive(
-      SceneManager.instance.scene,
-      CommandManager.instance.selectedTransformRoots,
-      this.raycastIgnoreLayers
-    )
+    this._raycastRecursive(Engine.scene, CommandManager.instance.selectedTransformRoots, this.raycastIgnoreLayers)
     this._raycastRecursive(SceneManager.instance.grid)
     this.raycasterResults.sort(sortDistance)
     const result = this.raycasterResults[0]

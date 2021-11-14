@@ -1,4 +1,4 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
   appId: 'com.xrengine.social',
@@ -6,14 +6,14 @@ const config: CapacitorConfig = {
   webDir: 'www',
   plugins: {
     SplashScreen: {
-      launchShowDuration: 0,
-    },
+      launchShowDuration: 0
+    }
   },
   server: {
-    hostname: "dev.arcmedia.us",
-    androidScheme: "https",
-    iosScheme: "https"
+    hostname: 'dev.arcmedia.us',
+    androidScheme: 'https',
+    iosScheme: 'https'
   }
-};
+}
 
-export default config;
+export default config

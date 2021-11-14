@@ -21,22 +21,6 @@ export const staticResourceSeed = {
   path: 'static-resource',
   templates: [
     {
-      id: 'd0828450-24e4-11eb-8630-81b209daf73a',
-      sid: 'j9o2NLiD',
-      name: null,
-      description: null,
-      url: 'https://resources.theoverlay.io/c4efdc80-c9f0-11eb-b166-5b4d0f7861e6.jpeg',
-      key: 'd0828450-24e4-11eb-8630-81b209daf73a.jpeg',
-      mimeType: 'image/jpeg',
-      metadata: null,
-      createdAt: '2020-11-12 12:44:37',
-      updatedAt: '2020-11-12 13:08:04',
-      staticResourceType: null,
-      subscriptionLevel: null,
-      componentId: null,
-      parentResourceId: null
-    },
-    {
       name: 'Allison',
       url: getAvatarURL('Allison.glb'),
       key: 'avatars/Allison.glb',

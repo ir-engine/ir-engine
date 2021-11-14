@@ -32,24 +32,19 @@ const CreateParty = (props: PartyProps) => {
   const authState = useAuthState()
   const user = authState.user
   const adminLocationState = useLocationState()
-  const locationData = adminLocationState.locations.locations
+  const locationData = adminLocationState.locations
   const adminInstanceState = useInstanceState()
-  const adminInstances = adminInstanceState.instances
+  const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
 
   useEffect(() => {
-    if (user?.id.value != null && adminLocationState.locations.updateNeeded.value === true) {
+    if (user?.id.value != null && adminLocationState.updateNeeded.value === true) {
       LocationService.fetchAdminLocations()
     }
-
     if (user.id.value && adminInstances.updateNeeded.value) {
       InstanceService.fetchAdminInstances()
     }
-  }, [
-    authState.user?.id?.value,
-    adminLocationState.locations.updateNeeded.value,
-    adminInstanceState.instances.updateNeeded.value
-  ])
+  }, [authState.user?.id?.value, adminLocationState.updateNeeded.value, adminInstanceState.updateNeeded.value])
 
   const defaultProps = {
     options: locationData.value,

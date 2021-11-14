@@ -81,6 +81,7 @@ export type MappedComponent<T, S extends bitECS.ISchema> = bitECS.ComponentType<
   get: (entity: number) => T & SoAProxy<S>
   set: (entity: number, value: T & SoAProxy<S>) => void
   delete: (entity: number) => void
+  readonly _name: string
 }
 
 export type ComponentConstructor<T, S extends bitECS.ISchema> = MappedComponent<T, S>

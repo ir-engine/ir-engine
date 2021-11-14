@@ -1,7 +1,8 @@
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import React from 'react'
 import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema'
-import World from '../../components/World'
+import { LoadEngineWithScene } from '../../components/World/LoadEngineWithScene'
+import { LoadLocationScene } from '../../components/World/LoadLocationScene'
 
 const engineInitializeOptions: InitializeOptions = {}
 
@@ -12,12 +13,10 @@ const LocationPage = (props) => {
   }
 
   return (
-    <World
-      allowDebug={true}
-      locationName={props.match.params.locationName}
-      history={props.history}
-      engineInitializeOptions={engineInitializeOptions}
-    />
+    <>
+      <LoadLocationScene locationName={props.match.params.locationName} />
+      <LoadEngineWithScene engineInitializeOptions={engineInitializeOptions} />
+    </>
   )
 }
 

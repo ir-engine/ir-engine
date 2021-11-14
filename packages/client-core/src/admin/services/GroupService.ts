@@ -15,16 +15,14 @@ import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 export const GROUP_PAGE_LIMIT = 10
 
 export const state = createState({
-  group: {
-    group: [] as Array<Group>,
-    skip: 0,
-    limit: GROUP_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    lastFetched: Date.now()
-  },
+  group: [] as Array<Group>,
+  skip: 0,
+  limit: GROUP_PAGE_LIMIT,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true,
+  lastFetched: Date.now(),
   fetching: false
 })
 
@@ -34,7 +32,7 @@ store.receptors.push((action: GroupActionType): any => {
       case 'GROUP_FETCHING':
         return s.merge({ fetching: true })
       case 'GROUP_ADMIN_RETRIEVED':
-        return s.group.merge({
+        return s.merge({
           group: action.list.data,
           skip: action.list.skip,
           limit: action.list.limit,
@@ -44,11 +42,11 @@ store.receptors.push((action: GroupActionType): any => {
           lastFetched: Date.now()
         })
       case 'ADD_GROUP':
-        return s.group.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'GROUP_ADMIN_UPDATE':
-        return s.group.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'GROUP_ADMIN_DELETE':
-        return s.group.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -62,8 +60,8 @@ export const GroupService = {
   getGroupService: async (incDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
     {
-      const skip = accessGroupState().group.skip.value
-      const limit = accessGroupState().group.limit.value
+      const skip = accessGroupState().skip.value
+      const limit = accessGroupState().limit.value
       try {
         dispatch(GroupAction.fetchingGroup())
         const list = await client.service('group').find({

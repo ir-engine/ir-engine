@@ -22,5 +22,5 @@ export const getCustomRoutes = async (): Promise<any> => {
     }
   }
 
-  return components
+  return components.filter((c) => !!c)
 }

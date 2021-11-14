@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
 import styles from './Projects.module.scss'
-import { uploadProject } from '../../services/ProjectService'
+import { ProjectService } from '../../services/ProjectService'
 import { useDispatch } from '../../../store'
 import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
@@ -20,7 +20,7 @@ interface Props {
   projects?: any
 }
 
-const AddToContentPackModal = (props: Props): any => {
+const UploadProjectModal = (props: Props): any => {
   const { open, handleClose, scenes } = props
 
   const [processing, setProcessing] = useState(false)
@@ -39,7 +39,7 @@ const AddToContentPackModal = (props: Props): any => {
     try {
       if (projectURL !== '') {
         setProcessing(true)
-        await uploadProject(projectURL)
+        await ProjectService.uploadProject(projectURL)
         setProcessing(false)
         closeModal()
       }
@@ -107,4 +107,4 @@ const AddToContentPackModal = (props: Props): any => {
   )
 }
 
-export default AddToContentPackModal
+export default UploadProjectModal

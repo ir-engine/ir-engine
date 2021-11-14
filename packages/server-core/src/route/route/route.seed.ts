@@ -3,31 +3,31 @@ export const routeSeedData = {
   randomize: false,
   templates: [
     {
-      project: 'theoverlay',
+      project: 'default-project',
       route: '/'
     },
     {
-      project: 'theoverlay',
+      project: 'default-project',
       route: '/login'
     },
     {
-      project: 'theoverlay',
+      project: 'default-project',
       route: '/harmony'
     },
     {
-      project: 'theoverlay',
+      project: 'default-project',
       route: '/location'
     },
     {
-      project: 'theoverlay',
+      project: 'default-project',
       route: '/admin'
     },
     {
-      project: 'theoverlay',
+      project: 'default-project',
       route: '/auth'
     },
     {
-      project: 'theoverlay',
+      project: 'default-project',
       route: '/editor'
     }
   ]

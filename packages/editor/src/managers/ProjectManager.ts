@@ -8,33 +8,25 @@ import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
 import { NodeManager } from './NodeManager'
 import { SceneManager } from './SceneManager'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { ControlManager } from './ControlManager'
 
 export class ProjectManager {
-  static instance: ProjectManager
+  static instance: ProjectManager = new ProjectManager()
 
-  settings: any
   project: any
   projectLoaded: boolean
   initializing: boolean
   initialized: boolean
 
-  ownedFileIds: {} //contain file ids of the files that are also stored in Db as ownedFiles
-  currentOwnedFileIds: {}
-  static buildProjectManager(settings?: any) {
-    this.instance = new ProjectManager(settings)
-  }
-
-  constructor(settings = {}) {
-    this.settings = settings
+  constructor() {
     this.project = null
 
     this.projectLoaded = false
 
     this.initializing = false
     this.initialized = false
-
-    this.ownedFileIds = {}
-    this.currentOwnedFileIds = {}
   }
 
   /**
@@ -67,23 +59,14 @@ export class ProjectManager {
    * @param  {any}  projectFile [contains scene data]
    * @return {Promise}             [scene to render]
    */
-  async loadProject(projectFile) {
+  async loadProject(projectFile: SceneJson) {
+    // this.dispose()
+
     await ProjectManager.instance.init()
-
-    CommandManager.instance.removeListener(
-      EditorEvents.OBJECTS_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-    CommandManager.instance.removeListener(
-      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-
-    CacheManager.clearCaches()
 
     const errors = await SceneManager.instance.initializeScene(projectFile)
 
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, SceneManager.instance.scene)
+    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, Engine.scene)
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
     CommandManager.instance.history.clear()
 
@@ -107,10 +90,17 @@ export class ProjectManager {
   }
 
   dispose() {
-    CacheManager.clearCaches()
+    CommandManager.instance.removeListener(
+      EditorEvents.OBJECTS_CHANGED.toString(),
+      SceneManager.instance.onEmitSceneModified
+    )
+    CommandManager.instance.removeListener(
+      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
+      SceneManager.instance.onEmitSceneModified
+    )
 
-    if (SceneManager.instance.renderer) {
-      SceneManager.instance.renderer.dispose()
-    }
+    CacheManager.clearCaches()
+    SceneManager.instance.dispose()
+    ControlManager.instance.dispose()
   }
 }

@@ -12,25 +12,23 @@ import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
 export const PARTY_PAGE_LIMIT = 100
 
 const state = createState({
-  parties: {
-    parties: [] as Array<AdminParty>,
-    skip: 0,
-    limit: PARTY_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    lastFetched: Date.now()
-  }
+  parties: [] as Array<AdminParty>,
+  skip: 0,
+  limit: PARTY_PAGE_LIMIT,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true,
+  lastFetched: Date.now()
 })
 
 store.receptors.push((action: PartyActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'PARTY_ADMIN_DISPLAYED':
-        return s.parties.merge({ parties: action.data.data, updateNeeded: false })
+        return s.merge({ parties: action.data.data, updateNeeded: false })
       case 'PARTY_ADMIN_CREATED':
-        return s.parties.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -58,8 +56,8 @@ export const PartyService = {
     {
       const user = accessAuthState().user
       const adminParty = accessPartyState()
-      const skip = adminParty.parties.skip.value
-      const limit = adminParty.parties.limit.value
+      const skip = adminParty.skip.value
+      const limit = adminParty.limit.value
       try {
         if (user.userRole.value === 'admin') {
           const parties = await client.service('party').find({

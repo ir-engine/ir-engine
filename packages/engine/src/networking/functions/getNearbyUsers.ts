@@ -14,18 +14,20 @@ export function getNearbyUsers(userId: UserId, maxMediaUsers = 8): Array<NearbyU
     if (userId === otherUserId) continue
     otherUsers.push(otherUserId)
   }
-  if (userAvatar != null) {
+  if (typeof userAvatar === 'number') {
     const userPosition = getComponent(userAvatar, TransformComponent).position
     if (userPosition) {
       const userDistances = [] as Array<{ id: UserId; distance: number }>
       for (const id of otherUsers) {
         const avatar = Engine.defaultWorld.getUserAvatarEntity(id)
-        const position = getComponent(avatar, TransformComponent).position
-        if (position) {
-          userDistances.push({
-            id,
-            distance: position.distanceTo(userPosition)
-          })
+        if (typeof avatar === 'number') {
+          const position = getComponent(avatar, TransformComponent).position
+          if (position) {
+            userDistances.push({
+              id,
+              distance: position.distanceTo(userPosition)
+            })
+          }
         }
       }
       return userDistances.sort(compareDistance).slice(0, maxMediaUsers)

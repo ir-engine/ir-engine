@@ -49,15 +49,13 @@ export function ViewportPanelContainer() {
   }, [])
 
   useEffect(() => {
-    const initRenderer = () => {
-      SceneManager.instance.initializeRenderer(canvasRef.current)
-      CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
-    }
+    const initRenderer = () => SceneManager.instance.initializeRenderer(canvasRef.current)
 
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
     CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
 
     return () => {
+      CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
       CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
 
       if (ControlManager.instance.editorControls) {
@@ -71,9 +69,7 @@ export function ViewportPanelContainer() {
         )
       }
 
-      if (SceneManager.instance.renderer) {
-        SceneManager.instance.renderer.dispose()
-      }
+      SceneManager.instance.dispose()
     }
   }, [])
 
@@ -101,8 +97,8 @@ export function ViewportPanelContainer() {
 
   const onAfterUploadAssets = useCallback((assets) => {
     Promise.all(
-      assets.map(({ url, name, id }) => {
-        CommandManager.instance.addMedia({ url, name, id })
+      assets.map((url) => {
+        CommandManager.instance.addMedia(url)
       })
     ).catch((err) => {
       CommandManager.instance.emitEvent(EditorEvents.ERROR, err)
@@ -151,10 +147,12 @@ export function ViewportPanelContainer() {
     <div
       className={styles.viewportContainer}
       style={{
-        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent'
+        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent',
+        backgroundColor: 'grey'
       }}
       ref={dropRef}
     >
+      <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
       <canvas className={styles.viewportCanvas} ref={canvasRef} tabIndex={-1} id="viewport-canvas" />
       <div className={styles.controlsText}>{controlsText}</div>
       <AssetDropZone afterUpload={onAfterUploadAssets} />

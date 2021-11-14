@@ -5,7 +5,7 @@ import EditorNodeMixin from './EditorNodeMixin'
 // TODO: add circle option
 
 let spawnPointHelperModel = null
-const GLTF_PATH = '/editor/spawn-point.glb' // Static
+const GLTF_PATH = '/static/editor/spawn-point.glb' // Static
 
 export default class SpawnPointNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'spawn-point'
