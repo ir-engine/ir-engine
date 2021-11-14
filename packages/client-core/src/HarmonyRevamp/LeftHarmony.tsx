@@ -21,10 +21,13 @@ import Divider from '@mui/material/Divider'
 
 import ListItem from '@mui/material/ListItem'
 
+import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
+import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
 import * as React from 'react'
 import InviteHarmony from './InviteHarmony'
 import { useHarmonyStyles } from './style'
@@ -63,9 +66,19 @@ const LeftHarmony: React.FunctionComponent = () => {
   const [create, setCreate] = React.useState(false)
   const [chat, setChat] = React.useState('party')
   const [type, setType] = React.useState('email')
+  const [messageDeletePending, setMessageDeletePending] = React.useState('')
+  const [messageUpdatePending, setMessageUpdatePending] = React.useState('')
+  const [editingMessage, setEditingMessage] = React.useState('')
+  const [composingMessage, setComposingMessage] = React.useState('')
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [value, setValue] = React.useState(0)
   const [showNot, setShowNot] = React.useState(false)
+  const [tabIndex, setTabIndex] = React.useState(0)
+  const [selectorsOpen, setSelectorsOpen] = React.useState(false)
+  const [dimensions, setDimensions] = React.useState({
+    height: window.innerHeight,
+    width: window.innerWidth
+  })
 
   //friend state
   const friendState = useFriendState()
@@ -78,7 +91,7 @@ const LeftHarmony: React.FunctionComponent = () => {
   const groups = groupSubState.groups.value
 
   //party state
-  const party = usePartyState().party.value
+  const party = usePartyState().party?.value
   const currentLocation = useLocationState().currentLocation.location
 
   const handleChange = (event, newValue) => {
@@ -105,8 +118,36 @@ const LeftHarmony: React.FunctionComponent = () => {
     setAnchorEl(null)
   }
 
-  console.log('display friends')
-  console.log(friends)
+  const nextFriendsPage = (): void => {
+    if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
+      FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value)
+    }
+  }
+
+  const nextGroupsPage = (): void => {
+    if (groupSubState.skip.value + groupSubState.limit.value < groupSubState.total.value) {
+      GroupService.getGroups(groupSubState.skip.value + groupSubState.limit.value)
+    }
+  }
+
+  const onListScroll = (e): void => {
+    if (e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight) {
+      if (tabIndex === 0) {
+        nextFriendsPage()
+      } else if (tabIndex === 1) {
+        nextGroupsPage()
+      }
+    }
+  }
+
+  const setActiveChat = (channelType, target): void => {
+    ChatService.updateMessageScrollInit(true)
+    ChatService.updateChatTarget(channelType, target)
+    setMessageDeletePending('')
+    setMessageUpdatePending('')
+    setEditingMessage('')
+    setComposingMessage('')
+  }
 
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
@@ -178,7 +219,99 @@ const LeftHarmony: React.FunctionComponent = () => {
               <span>Instance</span>
             </a>
           </div>
-          {chat !== 'friends' ? '' : <div>friends</div>}
+          {chat !== 'friends' ? (
+            ''
+          ) : (
+            <>
+              <div className={classes.center}>
+                <a href="#" className={`${classes.my2} ${classes.btn}`}>
+                  Invite Friends
+                </a>
+              </div>
+              <List onScroll={(e) => onListScroll(e)}>
+                {friends &&
+                  friends.length > 0 &&
+                  [...friends]
+                    .sort((a, b) => a.name - b.name)
+                    .map((friend, index) => {
+                      return (
+                        <div key={friend.id}>
+                          <ListItem
+                            className={classes.cpointer}
+                            onClick={() => {
+                              setActiveChat('user', friend)
+                              if (dimensions.width <= 768) setSelectorsOpen(false)
+                            }}
+                          >
+                            <ListItemAvatar>
+                              <Avatar src={friend.avatarUrl} />
+                            </ListItemAvatar>
+                            <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2}`}>
+                              <div className={classes.mx2}>
+                                <h4 className={classes.fontBig}>{friend.name}</h4>
+                                <small className={classes.textMuted}>Hello Buddy</small>
+                              </div>
+                              <div className={classes.mx2}></div>
+
+                              <div>
+                                <a href="#" className={classes.border0} onClick={handleClick}>
+                                  <MoreHoriz />
+                                </a>
+                              </div>
+                            </div>
+
+                            {/* <ListItemIcon onClick={(e) => openDetails(e, 'user', friend)}>
+                              <Settings />
+                            </ListItemIcon> */}
+                          </ListItem>
+                          {index < friends.length - 1 && <Divider />}
+                        </div>
+                      )
+                    })}
+              </List>
+            </>
+          )}
+
+          {chat !== 'party' ? (
+            ''
+          ) : (
+            <>
+              <div className={classes.center}>
+                <a href="#" className={`${classes.my2} ${classes.btn}`}>
+                  CREATE PARTY
+                </a>
+              </div>
+              {party &&
+                party.length > 0 &&
+                [...party]
+                  .sort((a, b) => a.createdAt - b.createdAt)
+                  .map((part) => {
+                    return (
+                      <div
+                        key={part.id}
+                        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
+                        onClick={() => {
+                          setActiveChat('user', part)
+                          if (dimensions.width <= 768) setSelectorsOpen(false)
+                        }}
+                      >
+                        <div className={classes.mx2}>
+                          <h4 className={classes.fontBig}>{part.name}</h4>
+                          <small className={classes.textMuted}>Party id:</small>
+                          <small className={classes.textMuted}>{part.id}</small>
+                        </div>
+                        <div className={classes.mx2}></div>
+
+                        <div>
+                          <a href="#" className={classes.border0} onClick={handleClick}>
+                            <MoreHoriz />
+                          </a>
+                        </div>
+                      </div>
+                    )
+                  })}
+            </>
+          )}
           {chat !== 'group' ? (
             ''
           ) : (
@@ -196,7 +329,11 @@ const LeftHarmony: React.FunctionComponent = () => {
                     return (
                       <div
                         key={group.id}
-                        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2}`}
+                        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
+                        onClick={() => {
+                          setActiveChat('user', group)
+                          if (dimensions.width <= 768) setSelectorsOpen(false)
+                        }}
                       >
                         <div>
                           <div className={classes.mx2}>
