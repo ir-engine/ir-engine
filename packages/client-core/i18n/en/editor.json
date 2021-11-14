@@ -441,9 +441,10 @@
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
         },
-        "projectnode": {
-            "description": "Attach Project.",
-            "lbl-scripturl": "Project"
+        "scriptnode": {
+            "description": "Attach script.",
+            "lbl-scripturl": "Script Url",
+            "error-url": "Error Loading Script From URL"
         },
         "portal": {
             "lbl-portal": "Linked Portal",
