@@ -87,9 +87,7 @@ export const ModelPreviewPanel = (props) => {
           onFlyModeChanged
         )
       }
-      if (SceneManager.instance.renderer) {
-        SceneManager.instance.renderer.dispose()
-      }
+
       ProjectManager.instance.dispose()
     }
   }, [])

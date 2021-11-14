@@ -1,11 +1,11 @@
 import i18n from 'i18next'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Command, { CommandParams } from './Command'
 import { serializeObject3DArray } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { NodeManager } from '../managers/NodeManager'
-import { SceneManager } from '../managers/SceneManager'
 
 export interface RemoveObjectCommandParams extends CommandParams {
   /** Whether to deselect object or not */
@@ -36,7 +36,7 @@ export default class RemoveObjectsCommand extends Command {
     }
 
     // Sort objects, parents, and befores with a depth first search so that undo adds nodes in the correct order
-    SceneManager.instance.scene.traverse((object) => {
+    Engine.scene.traverse((object) => {
       if (objects.indexOf(object) !== -1) {
         this.affectedObjects.push(object)
         this.oldParents.push(object.parent)

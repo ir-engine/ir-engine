@@ -17,24 +17,23 @@ const StatsTool = () => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    if (SceneManager.instance.renderer)
-      SceneManager.instance.renderer.onUpdateStats = (info) => {
-        if (info.render.frame % 3 === 0) {
-          setInfo({
-            geometries: info.memory.geometries,
-            textures: info.memory.textures,
-            fps: (info.render as any).fps,
-            frameTime: (info.render as any).frameTime,
-            calls: info.render.calls,
-            triangles: info.render.triangles,
-            points: info.render.points,
-            lines: info.render.lines
-          })
-        }
+    SceneManager.instance.onUpdateStats = (info) => {
+      if (info.render.frame % 3 === 0) {
+        setInfo({
+          geometries: info.memory.geometries,
+          textures: info.memory.textures,
+          fps: (info.render as any).fps,
+          frameTime: (info.render as any).frameTime,
+          calls: info.render.calls,
+          triangles: info.render.triangles,
+          points: info.render.points,
+          lines: info.render.lines
+        })
       }
+    }
 
     return () => {
-      if (SceneManager.instance.renderer) SceneManager.instance.renderer.onUpdateStats = undefined
+      SceneManager.instance.onUpdateStats = undefined
     }
   }, [])
 

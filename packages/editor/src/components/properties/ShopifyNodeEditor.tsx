@@ -5,21 +5,18 @@ import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
-import VideoInput from '../inputs/VideoInput'
-import ImageInput from '../inputs/ImageInput'
 import NodeEditor from './NodeEditor'
 import dompurify from 'dompurify'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
-import { SceneManager } from '../../managers/SceneManager'
 
 import AudioSourceProperties from './AudioSourceProperties'
-import useSetPropertySelected from './useSetPropertySelected'
 import { ControlledStringInput } from '../inputs/StringInput'
 import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
 import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import SceneNode from '../../nodes/SceneNode'
 
 /**
  * Array containing options for InteractableOption.
@@ -70,7 +67,7 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
 
   useEffect(() => {
     const options = []
-    const sceneNode = SceneManager.instance.scene
+    const sceneNode = Engine.scene as any as SceneNode
     sceneNode.traverse((o) => {
       if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
@@ -290,7 +287,7 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
             </InputGroup>
             <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
               <SelectInput
-                options={SceneManager.instance.scene.children.map((obj: Object3D) => {
+                options={Engine.scene.children.map((obj: Object3D) => {
                   return {
                     label: obj.name,
                     value: obj.uuid

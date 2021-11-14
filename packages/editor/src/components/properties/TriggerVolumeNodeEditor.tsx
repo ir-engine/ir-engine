@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useEffect, useState } from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
@@ -9,11 +8,11 @@ import { Running } from '@styled-icons/fa-solid/Running'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
-import { SceneManager } from '../../managers/SceneManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 //Declaring TriggerVolumeNodeEditor properties
 type TriggerVolumeNodeEditorProps = {
-  node?: object
+  node?: any
   multiEdit?: boolean
 }
 
@@ -35,8 +34,8 @@ export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => 
 
   useEffect(() => {
     const options = []
-    const sceneNode = SceneManager.instance.scene
-    sceneNode.traverse((o) => {
+    const sceneNode = Engine.scene
+    sceneNode.traverse((o: any) => {
       if (o.isNode && o !== sceneNode) {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
       }

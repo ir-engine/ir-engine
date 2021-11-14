@@ -1,6 +1,9 @@
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import PostProcessing from '@xrengine/engine/src/scene/classes/PostProcessing'
 import { SceneManager } from '../managers/SceneManager'
 import EditorNodeMixin from './EditorNodeMixin'
+import SceneNode from './SceneNode'
 
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
@@ -18,7 +21,7 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing) 
   }
 
   static canAddNode() {
-    return SceneManager.instance.scene.findNodeByType(PostProcessingNode) === null
+    return (Engine.scene as any as SceneNode).findNodeByType(PostProcessingNode) === null
   }
 
   static async deserialize(json) {
@@ -38,11 +41,11 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing) 
   }
 
   onChange() {
-    SceneManager.instance.renderer.configureEffectComposer(!this.visible)
+    configureEffectComposer(SceneManager.instance.postProcessingNode?.postProcessingOptions, !this.visible && false)
   }
 
   onRemove() {
-    SceneManager.instance.renderer.configureEffectComposer(true)
+    configureEffectComposer(null, true)
   }
 
   prepareForExport() {
