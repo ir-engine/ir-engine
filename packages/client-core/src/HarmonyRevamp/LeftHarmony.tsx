@@ -126,10 +126,6 @@ const LeftHarmony: React.FunctionComponent = () => {
     setCreate(false)
   }
 
-  const handleClickClose = () => {
-    setShow(false)
-  }
-
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
   }
