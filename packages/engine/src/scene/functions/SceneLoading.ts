@@ -57,6 +57,7 @@ import { NetworkWorldAction } from '../../networking/functions/NetworkWorldActio
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -90,6 +91,7 @@ export class WorldScene {
     // reset renderer settings for if we are teleporting and the new scene does not have an override
     configureCSM(null!, true)
     handleRendererSettings(null!, true)
+    if (isClient) EngineRenderer.instance.postProcessingConfig = null
 
     const sceneProperty: ScenePropertyType = {
       directionalLights: [],
