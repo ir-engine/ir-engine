@@ -22,11 +22,11 @@
   },
   "resolutions": {
     "socket.io": "4.3.2",
-    "@types/react": "17.0.34",
+    "@types/react": "17.0.35",
     "react": "17.0.2"
   },
   "peerDependencies": {
-    "@types/react": "17.0.34",
+    "@types/react": "17.0.35",
     "react": "17.0.2",
     "socket.io": "4.3.2"
   },
@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@types/node": "16.11.7",
-    "@types/react": "17.0.34",
+    "@types/react": "17.0.35",
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "eslint": "8.2.0",
