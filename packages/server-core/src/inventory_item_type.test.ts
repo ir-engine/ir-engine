@@ -17,7 +17,7 @@ describe('Check Inventory Item Type', () => {
       // Creating an item in inventory item type
        it('should create an inventory item type', async () => {
          const item = await app.service('inventory-item-type').create({
-           "inventoryItemType": "skill inventory x1500"
+           "inventoryItemType": "skill inventory x500"
          });
          dataToBeSent.inventoryItemTypeId = item.inventoryItemTypeId
          assert.ok(item.inventoryItemTypeId, "Should return a unique Id");

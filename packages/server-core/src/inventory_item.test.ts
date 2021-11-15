@@ -5,6 +5,9 @@ var dataToBeSent2 = {
   "inventoryItemId" : null
 }
 let tobeRemoved = null
+var trading_data = {
+  "inventoryItemId" : null
+}
 
 describe('Check Inventory Item', () => {
 
@@ -44,6 +47,20 @@ describe('Check Inventory Item', () => {
     assert.ok(item.inventoryItemId, "Should return a unique Id");
   })
 
+  it('should create an inventory item', async () => {
+    const item = await app.service('inventory-item').create(
+      {
+        "inventoryItemTypeId": dataToBeSent.inventoryItemTypeId,
+        "name": "Angry",
+        "metadata": {"eyes":"joy","mouth":"surprised","level":2,"stamina":9.3},
+        "description": "angry",
+        "url": "https://arkh-frontend.s3.us-west-1.amazonaws.com/spacejet/new1.png"
+    }
+    );
+    trading_data.inventoryItemId = item.inventoryItemId
+    assert.ok(item.inventoryItemId, "Should return a unique Id");
+  })
+
   // Removed  an existing and valid inventory item.
    it('should delete an inventory item', async () => {
      const item = await app.service('inventory-item').remove(tobeRemoved);
@@ -51,4 +68,4 @@ describe('Check Inventory Item', () => {
    })
 })
 
-export default dataToBeSent2
+export default {dataToBeSent2,trading_data}

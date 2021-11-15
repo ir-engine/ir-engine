@@ -1,6 +1,9 @@
 import assert from 'assert'
 import app from "../../server/src/app"
-import  dataToBeSent2 from "./inventory_item.test"
+import  data  from "./inventory_item.test"
+
+
+let dataToBeSent2 = data.dataToBeSent2
 let tobeRemoved = null
 let senderID : 'ac2ce810-3f15-11ec-929f-05fac043d297'
 let receiverID : 'ac2ce811-3f15-11ec-929f-05fac043d297'
@@ -37,5 +40,5 @@ describe('Check User Inventory', () => {
     it('should delete a user inventory item', async () => {
         const item = await app.service('user-inventory').remove(tobeRemoved);
         assert.ok(item, "Item is deleted");
-      })
+    })
 })
