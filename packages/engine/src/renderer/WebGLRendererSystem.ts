@@ -165,7 +165,7 @@ export class EngineRenderer {
     Engine.renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    // Engine.renderer.debug.checkShaderErrors = false
+    Engine.renderer.debug.checkShaderErrors = false
 
     Engine.xrManager = renderer.xr
     //@ts-ignore
