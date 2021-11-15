@@ -17,7 +17,7 @@ describe('Storage Provider test', () => {
   const storageProviders: StorageProviderInterface[] = []
   storageProviders.push(new LocalStorage())
   //storageProviders.push(new S3Provider())
-
+  
   storageProviders.forEach((provider) => {
     before(async function () {
       await providerBeforeTest(provider)
@@ -65,7 +65,7 @@ describe('Storage Provider test', () => {
       })
       let res
       try {
-        res = await fetch(url, { agent: httpAgent })
+        res = await fetch(url)
       } catch (err) {
         console.log(err)
       }

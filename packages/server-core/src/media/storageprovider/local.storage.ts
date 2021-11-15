@@ -11,13 +11,13 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { createTestFileServer } from '../../createFileServer'
 
 const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 
 export class LocalStorage implements StorageProviderInterface {
   path = './upload'
   cacheDomain = config.server.localStorageProvider
-
   getObject = async (key: string): Promise<any> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, key)
     const result = await fs.promises.readFile(filePath)
@@ -71,7 +71,7 @@ export class LocalStorage implements StorageProviderInterface {
       fields: {
         Key: key
       },
-      url: `https://${this.cacheDomain}${key}`,
+      url: `http://${this.cacheDomain}${key}`,
       local: true,
       cacheDomain: this.cacheDomain
     }
