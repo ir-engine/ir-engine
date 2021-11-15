@@ -68,8 +68,8 @@ const LeftHarmony: React.FunctionComponent = () => {
   const [create, setCreate] = React.useState(false)
   const [chat, setChat] = React.useState('party')
   const [invite, setInvite] = React.useState('')
+
   const [type, setType] = React.useState('email')
-  const [invite, setInvite] = React.useState('')
   const [messageDeletePending, setMessageDeletePending] = React.useState('')
   const [messageUpdatePending, setMessageUpdatePending] = React.useState('')
   const [editingMessage, setEditingMessage] = React.useState('')
@@ -85,6 +85,7 @@ const LeftHarmony: React.FunctionComponent = () => {
   })
   const [state, setState] = React.useState({ right: false })
   const [list, setList] = React.useState({ right: false })
+
   // Current User
   const selfUser = useAuthState().user.value
 
@@ -356,7 +357,7 @@ const LeftHarmony: React.FunctionComponent = () => {
                         key={part.id}
                         className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
                         onClick={() => {
-                          setActiveChat('user', part)
+                          setActiveChat('party', part)
                           if (dimensions.width <= 768) setSelectorsOpen(false)
                         }}
                       >
