@@ -2,7 +2,7 @@ import path from 'path'
 import S3Provider from '../../src/media/storageprovider/s3.storage'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
-import { closeTestFileServer, createTestFileServer } from '../../src/createFileServer'
+import { StartTestFileServer } from '../../src/createFileServer'
 
 export const providerBeforeTest = (provider): Promise<any> => {
   if (provider.constructor.name === 'LocalStorage') return localStorageBeforeTest(provider)
@@ -16,7 +16,7 @@ export const providerAfterTest = (provider): Promise<any> => {
 
 const localStorageBeforeTest = (provider): Promise<any> => {
   return new Promise<void>((resolve) => {
-    createTestFileServer()
+    StartTestFileServer()
     const testFolderName = 'TestFolder'
     const folderKeyTemp = path.join(testFolderName, 'temp')
     const folderKeyTemp2 = path.join(testFolderName, 'temp2')
@@ -31,7 +31,6 @@ const localStorageBeforeTest = (provider): Promise<any> => {
 const localStorageAfterTest = (provider): Promise<any> => {
   const testFolderName = 'TestFolder'
   return new Promise<void>((resolve) => {
-    closeTestFileServer()
     const dir = path.join(appRootPath.path, `packages/server/upload`, testFolderName)
     fs.rmSync(dir, { recursive: true })
     resolve()

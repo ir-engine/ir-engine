@@ -11,7 +11,6 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
-import { createTestFileServer } from '../../createFileServer'
 
 const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 
