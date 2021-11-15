@@ -22,7 +22,6 @@ import {
 import Divider from '@mui/material/Divider'
 
 import ListItem from '@mui/material/ListItem'
-
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
@@ -30,6 +29,7 @@ import { usePartyState } from '@xrengine/client-core/src/social/services/PartySe
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
 import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import * as React from 'react'
 import InviteHarmony from './InviteHarmony'
 import { useHarmonyStyles } from './style'
@@ -67,12 +67,15 @@ const LeftHarmony: React.FunctionComponent = () => {
   const [show, setShow] = React.useState(false)
   const [create, setCreate] = React.useState(false)
   const [chat, setChat] = React.useState('party')
+<<<<<<< HEAD
   const [type, setType] = React.useState('email')
   const [invite, setInvite] = React.useState('')
   const [messageDeletePending, setMessageDeletePending] = React.useState('')
   const [messageUpdatePending, setMessageUpdatePending] = React.useState('')
   const [editingMessage, setEditingMessage] = React.useState('')
   const [composingMessage, setComposingMessage] = React.useState('')
+=======
+>>>>>>> de47bcfce... Fixed errors and started deleted, edit message
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [value, setValue] = React.useState(0)
   const [showNot, setShowNot] = React.useState(false)
@@ -82,8 +85,13 @@ const LeftHarmony: React.FunctionComponent = () => {
     height: window.innerHeight,
     width: window.innerWidth
   })
+<<<<<<< HEAD
   const [state, setState] = React.useState({ right: false })
   const [list, setList] = React.useState({ right: false })
+=======
+  // Current User
+  const selfUser = useAuthState().user.value
+>>>>>>> de47bcfce... Fixed errors and started deleted, edit message
 
   //friend state
   const friendState = useFriendState()
@@ -148,10 +156,6 @@ const LeftHarmony: React.FunctionComponent = () => {
   const setActiveChat = (channelType, target): void => {
     ChatService.updateMessageScrollInit(true)
     ChatService.updateChatTarget(channelType, target)
-    setMessageDeletePending('')
-    setMessageUpdatePending('')
-    setEditingMessage('')
-    setComposingMessage('')
   }
 
   const toggleDrawer = (anchor, open) => (event) => {
@@ -196,7 +200,10 @@ const LeftHarmony: React.FunctionComponent = () => {
           <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.my2}`}>
             <a
               href="#"
-              onClick={() => setChat('party')}
+              onClick={() => {
+                setChat('party')
+                setActiveChat('party', {})
+              }}
               className={`${chat === 'party' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
                 classes.mx2
               }`}
@@ -205,7 +212,10 @@ const LeftHarmony: React.FunctionComponent = () => {
             </a>
             <a
               href="#"
-              onClick={() => setChat('friends')}
+              onClick={() => {
+                setChat('friends')
+                setActiveChat('friends', {})
+              }}
               className={`${chat === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
                 classes.mx2
               }`}
@@ -214,7 +224,10 @@ const LeftHarmony: React.FunctionComponent = () => {
             </a>
             <a
               href="#"
-              onClick={() => setChat('group')}
+              onClick={() => {
+                setChat('group')
+                setActiveChat('group', {})
+              }}
               className={`${chat === 'group' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
                 classes.mx2
               }`}
@@ -223,7 +236,10 @@ const LeftHarmony: React.FunctionComponent = () => {
             </a>
             <a
               href="#"
-              onClick={() => setChat('layer')}
+              onClick={() => {
+                setChat('layer')
+                setActiveChat('layer', {})
+              }}
               className={`${chat === 'layer' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
                 classes.mx2
               }`}
@@ -232,7 +248,10 @@ const LeftHarmony: React.FunctionComponent = () => {
             </a>
             <a
               href="#"
-              onClick={() => setChat('instance')}
+              onClick={() => {
+                setChat('instance')
+                setActiveChat('instance', {})
+              }}
               className={`${chat === 'instance' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
                 classes.mx2
               }`}
@@ -312,7 +331,7 @@ const LeftHarmony: React.FunctionComponent = () => {
                         key={part.id}
                         className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
                         onClick={() => {
-                          setActiveChat('user', part)
+                          setActiveChat('party', part)
                           if (dimensions.width <= 768) setSelectorsOpen(false)
                         }}
                       >
@@ -377,14 +396,14 @@ const LeftHarmony: React.FunctionComponent = () => {
               {groups &&
                 groups.length > 0 &&
                 [...groups]
-                  .sort((a, b) => a.name - b.name)
+                  .sort((a, b) => a.createdAt - b.createdAt)
                   .map((group, index) => {
                     return (
                       <div
                         key={group.id}
                         className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
                         onClick={() => {
-                          setActiveChat('user', group)
+                          setActiveChat('group', group)
                           if (dimensions.width <= 768) setSelectorsOpen(false)
                         }}
                       >
@@ -492,11 +511,11 @@ const LeftHarmony: React.FunctionComponent = () => {
         </div>
         <div>
           <div className={`${classes.dFlex} ${classes.box} ${classes.mx2}`}>
-            <Avatar src="./Avatar.png" />
+            <Avatar src={selfUser.avatarUrl} />
             <div className={classes.mx2}>
-              <h4 className={classes.fontBig}>Dwark Matths</h4>
-              <small className={classes.textMuted}>You:</small>
-              <small className={classes.textMuted}>UX Consulting</small>
+              <h4 className={classes.fontBig}>{selfUser.name}</h4>
+              <small className={classes.textMuted}>You are:</small>
+              <small className={classes.textMuted}>{selfUser.userRole}</small>
             </div>
           </div>
         </div>
