@@ -5,6 +5,7 @@ import LeftHarmony from './LeftHarmony'
 import MessageBox from './messageBox'
 import RightHarmony from './RightHarmony'
 import Empty from './empty'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 
 // interface IndexProps {
 
@@ -12,7 +13,8 @@ import Empty from './empty'
 
 const Index = () => {
   const classes = useHarmonyStyles()
-
+  const chatState = useChatState()
+  const targetChannelId = chatState.targetChannelId.value
   return (
     <Grid container className={classes.root}>
       <Grid item xs={3} className={classes.rightGrid}>
@@ -23,6 +25,7 @@ const Index = () => {
       <Grid item xs={6}>
         {/* <MessageBox /> */}
         <Empty />
+        {targetChannelId && <MessageBox />}
       </Grid>
       <Grid item xs={3} className={classes.leftGrid}>
         <Container>

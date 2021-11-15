@@ -56,6 +56,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     my2: {
       margin: '15px 0px'
     },
+    my1: {
+      margin: '0 !important'
+    },
     roundedCircle: {
       borderRadius: 80,
       textDecoration: 'none'
@@ -116,6 +119,11 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       backgroundColor: '#3A3D40',
       color: '#FFF',
       padding: '15px 0px'
+    },
+    bgDarkLight: {
+      backgroundColor: '#181A1C',
+      color: '#FFF',
+      width: '8rem'
     },
     white: {
       color: '#FFF'
@@ -228,7 +236,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
         width: '5px'
       },
       '&::-webkit-scrollbar-thumb': {
-        background: '#555',
+        background: '#555 !important',
         borderRadius: '10px'
       },
       '&::-webkit-scrollbar-thumb:hover': {
