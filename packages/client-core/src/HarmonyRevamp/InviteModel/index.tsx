@@ -1,6 +1,7 @@
 import React from 'react'
 import { Add, Close, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
 import { AddCircleOutline, Check } from '@mui/icons-material'
+import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
 import {
   Badge,
   IconButton,
@@ -53,6 +54,8 @@ const Index = ({ invite }) => {
   const [value, setValue] = React.useState(invite === 'Group' ? 2 : 0)
 
   const handleChange = (event, newValue) => {
+    // hack
+    InviteService.updateInviteTarget('group', 'd5206d80-4499-11ec-bf97-7105055dd807')
     setValue(newValue)
   }
 
