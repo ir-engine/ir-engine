@@ -106,6 +106,7 @@ export default defineConfig((command) => {
         })
     ],
     server: {
+      hmr: false,
       host: true,
     },
     resolve: {

@@ -94,7 +94,7 @@ export default async function XRUISystem(world: World): Promise<System> {
 
   return () => {
     if (!addedEventListeners) {
-      const canvas = Engine.renderer.context.canvas
+      const canvas = Engine.renderer.getContext().canvas
       canvas.addEventListener('click', redirectDOMEvent)
       canvas.addEventListener('dblclick', redirectDOMEvent)
       addedEventListeners = true
