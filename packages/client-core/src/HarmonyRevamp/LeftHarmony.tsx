@@ -67,15 +67,8 @@ const LeftHarmony: React.FunctionComponent = () => {
   const [show, setShow] = React.useState(false)
   const [create, setCreate] = React.useState(false)
   const [chat, setChat] = React.useState('party')
-<<<<<<< HEAD
   const [type, setType] = React.useState('email')
   const [invite, setInvite] = React.useState('')
-  const [messageDeletePending, setMessageDeletePending] = React.useState('')
-  const [messageUpdatePending, setMessageUpdatePending] = React.useState('')
-  const [editingMessage, setEditingMessage] = React.useState('')
-  const [composingMessage, setComposingMessage] = React.useState('')
-=======
->>>>>>> de47bcfce... Fixed errors and started deleted, edit message
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [value, setValue] = React.useState(0)
   const [showNot, setShowNot] = React.useState(false)
@@ -85,13 +78,10 @@ const LeftHarmony: React.FunctionComponent = () => {
     height: window.innerHeight,
     width: window.innerWidth
   })
-<<<<<<< HEAD
   const [state, setState] = React.useState({ right: false })
   const [list, setList] = React.useState({ right: false })
-=======
   // Current User
   const selfUser = useAuthState().user.value
->>>>>>> de47bcfce... Fixed errors and started deleted, edit message
 
   //friend state
   const friendState = useFriendState()
