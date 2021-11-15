@@ -16,7 +16,8 @@ describe('Storage Provider test', () => {
 
   const storageProviders: StorageProviderInterface[] = []
   storageProviders.push(new LocalStorage())
-  storageProviders.push(new S3Provider())
+  if(process.env.STORAGE_AWS_ACCESS_KEY_ID && process.env.STORAGE_AWS_ACCESS_KEY_SECRET)
+    storageProviders.push(new S3Provider())
   
   storageProviders.forEach((provider) => {
     before(async function () {
