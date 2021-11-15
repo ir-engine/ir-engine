@@ -3,20 +3,29 @@ import { Avatar, IconButton, Container } from '@mui/material'
 import { AttachFile, LocalPhone, PhotoCamera, Send } from '@material-ui/icons'
 import { useHarmonyStyles } from './style'
 import { styled } from '@mui/material/styles'
-//import { ChatService } from 'src/social/services/ChatService'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
-//import { ChatService } from '../../../social/services/ChatService'
-//import { useDispatch } from 'src/store'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { Message } from '@xrengine/common/src/interfaces/Message'
 
 const Input = styled('input')({
   display: 'none'
 })
 
 const MessageBox: React.FunctionComponent = () => {
-  const dispatch = useDispatch()
   const [composingMessage, setComposingMessage] = useState('')
 
+  const chatState = useChatState()
+  const selfUser = useAuthState().user.value
+  const channelState = chatState.channels
+  const channels = channelState.channels.value
+  const channelEntries = Object.values(channels).filter((channel) => !!channel)!
+  const targetChannelId = chatState.targetChannelId.value
+  // To be uncommented for real test
+  // const activeChannel = channels.find((c) => c.id === targetChannelId)!
+
+  // Used for testing purpose
+  const activeChannel = channels[1]
   const composingMessageChangedHandler = (event: any): void => {
     const message = event.target.value
     setComposingMessage(message)
@@ -26,109 +35,74 @@ const MessageBox: React.FunctionComponent = () => {
 
   const packageMessage = (): void => {
     if (composingMessage.length > 0) {
-      console.log(`dispach message ${composingMessage}`)
-      dispatch(
-        ChatService.createMessage({
-          text: composingMessage
-        })
-      )
-      console.log(`done dispatching message ${composingMessage}`)
+      ChatService.createMessage({
+        text: composingMessage
+      })
       setComposingMessage('')
     }
   }
 
-  //   {
-  //     "id": "d5206d80-4499-11ec-bf97-7105055dd807",
-  //     "name": "",
-  //     "createdAt": "2021-11-13T15:53:23.000Z",
-  //     "updatedAt": "2021-11-13T15:53:23.000Z",
-  //     "instanceId": null,
-  //     "locationId": null,
-  //     "partyUsers": [
-  //         {
-  //             "id": "d53777f0-4499-11ec-bf97-7105055dd807",
-  //             "isOwner": true,
-  //             "isInviteAccepted": false,
-  //             "createdAt": "2021-11-13T15:53:23.000Z",
-  //             "updatedAt": "2021-11-13T15:53:25.000Z",
-  //             "partyId": "d5206d80-4499-11ec-bf97-7105055dd807",
-  //             "userId": "6d17b430-4482-11ec-bf97-7105055dd807",
-  //             "user": {
-  //                 "id": "6d17b430-4482-11ec-bf97-7105055dd807",
-  //                 "name": "Guest #851",
-  //                 "avatarId": "Allison",
-  //                 "inviteCode": null,
-  //                 "createdAt": "2021-11-13T13:05:51.000Z",
-  //                 "updatedAt": "2021-11-13T15:53:24.000Z",
-  //                 "userRole": "guest",
-  //                 "instanceId": null,
-  //                 "channelInstanceId": null,
-  //                 "partyId": "d5206d80-4499-11ec-bf97-7105055dd807"
-  //             }
-  //         }
-  //     ]
-  // }
+  React.useEffect(() => {
+    if (channelState.updateNeeded.value === true) {
+      ChatService.getChannels()
+    }
+  }, [channelState.updateNeeded.value])
 
-  //   {
-  //     "id": "d5206d80-4499-11ec-bf97-7105055dd807",
-  //     "name": "",
-  //     "createdAt": "2021-11-13T15:53:23.000Z",
-  //     "updatedAt": "2021-11-13T15:53:23.000Z",
-  //     "instanceId": null,
-  //     "locationId": null,
-  //     "partyUsers": [
-  //         {
-  //             "id": "d53777f0-4499-11ec-bf97-7105055dd807",
-  //             "isOwner": true,
-  //             "isInviteAccepted": false,
-  //             "createdAt": "2021-11-13T15:53:23.000Z",
-  //             "updatedAt": "2021-11-13T15:53:25.000Z",
-  //             "partyId": "d5206d80-4499-11ec-bf97-7105055dd807",
-  //             "userId": "6d17b430-4482-11ec-bf97-7105055dd807",
-  //             "user": {
-  //                 "id": "6d17b430-4482-11ec-bf97-7105055dd807",
-  //                 "name": "Guest #851",
-  //                 "avatarId": "Allison",
-  //                 "inviteCode": null,
-  //                 "createdAt": "2021-11-13T13:05:51.000Z",
-  //                 "updatedAt": "2021-11-13T15:53:24.000Z",
-  //                 "userRole": "guest",
-  //                 "instanceId": null,
-  //                 "channelInstanceId": null,
-  //                 "partyId": "d5206d80-4499-11ec-bf97-7105055dd807"
-  //             }
-  //         }
-  //     ]
-  // }
+  React.useEffect(() => {
+    channelEntries.forEach((channel) => {
+      if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
+        ChatService.getChannelMessages(channel.id)
+      }
+    })
+  }, [channels])
 
+  let sortedMessages
+  if (activeChannel != null && activeChannel.messages) {
+    sortedMessages = [...activeChannel.messages].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    )
+  }
   return (
     <>
       <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.p2}`}>
-        <h2>Laura Palmeri</h2>
+        <h2>{selfUser?.name}</h2>
         <LocalPhone fontSize="small" />
       </div>
       <Container>
         <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h100}`}>
-          <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.my2}`}>
-            <div className={`${classes.selfStart}`}>
-              <div className={classes.dFlex}>
-                <Avatar src="./Avatar.png" />
-                <div className={`${classes.bgBlack} ${classes.mx2}`}>
-                  <p>If you already have the Chrome extension installed, it should autoupdate within the next week. </p>
+          <div className={classes.scroll}>
+            {sortedMessages?.map((message: Message, index: number) => {
+              return (
+                <div key={message.id} className={`${classes.dFlex} ${classes.flexColumn} ${classes.my2}`}>
+                  {message.senderId !== selfUser.id && (
+                    <div className={`${classes.selfStart}`}>
+                      <div className={classes.dFlex}>
+                        {index !== 0 && message.senderId !== sortedMessages[index - 1].senderId && (
+                          <Avatar src={message.sender?.avatarUrl} />
+                        )}
+                        {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
+                        <div className={`${classes.bgBlack} ${classes.mx2}`}>
+                          <p>{message.text}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {message.senderId === selfUser.id && (
+                    <div className={classes.selfEnd}>
+                      <div className={classes.dFlex}>
+                        <div className={`${classes.bgInfo} ${classes.mx2}`}>
+                          <p>{message.text}</p>
+                        </div>
+                        {index !== 0 && message.senderId !== sortedMessages[index - 1].senderId && (
+                          <Avatar src={message.sender?.avatarUrl} />
+                        )}
+                        {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </div>
-            <div className={classes.selfEnd}>
-              <div className={classes.dFlex}>
-                <div className={`${classes.bgInfo} ${classes.mx2}`}>
-                  <p>
-                    You can also head to chrome://extensions and click “Update extensions now” if you’d like to get the
-                    new version today.
-                  </p>
-                </div>
-                <Avatar src="./Avatar.png" />
-              </div>
-            </div>
+              )
+            })}
           </div>
           <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter}`}>
             <label htmlFor="icon-button-file">
@@ -139,15 +113,22 @@ const MessageBox: React.FunctionComponent = () => {
             </label>
             <div className={classes.flexGrow}>
               <div className={`${classes.dFlex} ${classes.alignCenter}`}>
-                <Avatar src="./Avatar.png" />
+                <Avatar src={selfUser.avatarUrl} />
                 <textarea
-                  className={classes.formControl}
+                  className={`${classes.formControl} ${classes.inPad}`}
                   placeholder="Your message"
+                  value={composingMessage}
+                  onKeyPress={(e) => {
+                    if (e.shiftKey === false && e.charCode === 13) {
+                      e.preventDefault()
+                      packageMessage()
+                    }
+                  }}
                   onChange={composingMessageChangedHandler}
                 ></textarea>
               </div>
             </div>
-            <IconButton aria-label="upload picture" component="span">
+            <IconButton onClick={packageMessage} component="span">
               <Send className={classes.white} />
             </IconButton>
           </div>

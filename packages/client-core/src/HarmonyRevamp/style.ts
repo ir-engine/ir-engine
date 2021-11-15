@@ -76,7 +76,8 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       border: '1px solid #FFF',
       padding: '12px',
       marginTop: 15,
-      borderRadius: '2px'
+      borderRadius: '2px',
+      color: '#ccc'
     },
     box: {
       backgroundColor: '#232424',
@@ -209,6 +210,24 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     btnCursor: {
       cursor: 'pointer'
+    },
+    inPad: {
+      padding: '10px 0 0 5px',
+      color: '#ccc'
+    },
+    scroll: {
+      height: '90%',
+      overflowY: 'scroll',
+      '&::-webkit-scrollbar': {
+        width: '5px'
+      },
+      '&::-webkit-scrollbar-thumb': {
+        background: '#555',
+        borderRadius: '10px'
+      },
+      '&::-webkit-scrollbar-thumb:hover': {
+        background: '#f1f1f1'
+      }
     }
   })
 )
