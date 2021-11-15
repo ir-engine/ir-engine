@@ -94,7 +94,7 @@ const MessageBox: React.FunctionComponent = () => {
           <div className={classes.scroll}>
             {sortedMessages?.map((message: Message, index: number) => {
               return (
-                <div key={message.id} className={`${classes.dFlex} ${classes.flexColumn}`}>
+                <div key={message.id} className={`${classes.dFlex} ${classes.flexColumn} ${classes.my2}`} >
                   {message.senderId !== selfUser.id && (
                     <div className={`${classes.selfStart} ${classes.my1}`}>
                       <div className={classes.dFlex}>

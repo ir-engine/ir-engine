@@ -83,6 +83,7 @@ const Group = () => {
           onClick={() => setType('friends')}
           className={`${type === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
             classes.mx0
+            classes.mx2
           }`}
         >
           <span>Friends</span>

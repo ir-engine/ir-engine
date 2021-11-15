@@ -85,7 +85,8 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       border: '1px solid #FFF',
       padding: '12px',
       marginTop: 15,
-      borderRadius: '2px'
+      borderRadius: '2px',
+      color: '#ccc'
     },
     formControls: {
       width: '100%',
