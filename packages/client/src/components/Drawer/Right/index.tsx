@@ -109,6 +109,7 @@ const Invites = (props: Props): any => {
   }
 
   const handleInviteGroupChange = (event: React.ChangeEvent<{ value: string }>): void => {
+    console.log(event.target.value)
     InviteService.updateInviteTarget('group', event.target.value)
   }
 

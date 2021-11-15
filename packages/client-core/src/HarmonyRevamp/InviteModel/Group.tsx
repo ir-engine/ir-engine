@@ -1,9 +1,59 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import { useHarmonyStyles } from '../style'
 
 const Group = () => {
   const classes = useHarmonyStyles()
   const [type, setType] = React.useState('email')
+
+  const [tabIndex, setTabIndex] = useState(0)
+  const [userToken, setUserToken] = useState('')
+  const [inviteTypeIndex, setInviteTypeIndex] = useState(0)
+  const inviteState = useInviteState()
+
+  const identityProviderTabMap = new Map()
+  identityProviderTabMap.set(0, 'email')
+  identityProviderTabMap.set(1, 'sms')
+
+  const handleUserTokenChange = (event: any): void => {
+    setUserToken(event.target.value)
+  }
+
+  const handleChange = (event: any, newValue: number): void => {
+    event.preventDefault()
+    setTabIndex(newValue)
+    setUserToken('')
+  }
+
+  const handleInviteGroupChange = (event: React.ChangeEvent<{ value: string }>): void => {
+    InviteService.updateInviteTarget('group', event.target.value)
+  }
+
+  const handleInviteTypeChange = (e: any, newValue: number): void => {
+    e.preventDefault()
+    setInviteTypeIndex(newValue)
+    if (newValue === 0 && tabIndex === 3) {
+      setTabIndex(0)
+    }
+  }
+
+  const packageInvite = async (event: any): Promise<void> => {
+    //const mappedIDProvider = identityProviderTabMap.get(tabIndex)
+    const mappedIDProvider = type
+    event.preventDefault()
+    const sendData = {
+      type: inviteState.targetObjectType.value === 'user' ? 'friend' : inviteState.targetObjectType.value,
+      token: mappedIDProvider !== 'code' ? userToken : null,
+      inviteCode: mappedIDProvider === 'code' ? userToken : null,
+      identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
+      targetObjectId: inviteState.targetObjectId.value || 'ac5a1be0-44a2-11ec-bf97-7105055dd807',
+      invitee: mappedIDProvider !== 'code' ? userToken : null
+    }
+
+    InviteService.sendInvite(sendData)
+    //console.log(sendData)
+    setUserToken('')
+  }
   return (
     <React.Fragment>
       <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx0}`}>
@@ -16,8 +66,8 @@ const Group = () => {
         </a>
         <a
           href="#"
-          onClick={() => setType('phone')}
-          className={`${type === 'phone' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx0}`}
+          onClick={() => setType('sms')}
+          className={`${type === 'phone' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2}`}
         >
           <span>Phone</span>
         </a>
@@ -31,9 +81,8 @@ const Group = () => {
         <a
           href="#"
           onClick={() => setType('friends')}
-          className={`${type === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-            classes.mx0
-          }`}
+          className={`${type === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx0
+            }`}
         >
           <span>Friends</span>
         </a>
@@ -67,7 +116,12 @@ const Group = () => {
               <label htmlFor="" className={classes.mx2}>
                 <p>Code:</p>
               </label>
-              <input type="text" className={classes.formControls} placeholder="XXXXXX" />
+              <input
+                onChange={(e) => handleUserTokenChange(e)}
+                type="text"
+                className={classes.formControls}
+                placeholder="XXXXXX"
+              />
             </div>
           ) : (
             <div className="form-group">
@@ -83,6 +137,7 @@ const Group = () => {
           )}
           <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
             <button
+              onClick={packageInvite}
               className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
             >
               Send
