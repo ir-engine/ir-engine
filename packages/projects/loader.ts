@@ -59,14 +59,14 @@ export const importPack = async (data: ProjectNodeArguments, isClient: boolean):
         switch (entryPointExtension) {
           case 'js':
             modules.systems.push({
-              systemModulePromise: await import(`./projects/${data.packName}/${entryPointFileName}.js`),
+              systemModulePromise: import(`./projects/${data.packName}/${entryPointFileName}.js`),
               type: systemUpdateType,
               args
             })
             break
           case 'ts':
             modules.systems.push({
-              systemModulePromise: await import(`./projects/${data.packName}/${entryPointFileName}.ts`),
+              systemModulePromise: import(`./projects/${data.packName}/${entryPointFileName}.ts`),
               type: systemUpdateType,
               args
             })

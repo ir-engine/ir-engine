@@ -1,4 +1,5 @@
 import i18n from 'i18next'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Command, { CommandParams } from './Command'
 import { serializeObject3D } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
@@ -7,7 +8,6 @@ import EditorEvents from '../constants/EditorEvents'
 import getDetachedObjectsRoots from '../functions/getDetachedObjectsRoots'
 import makeUniqueName from '../functions/makeUniqueName'
 import { NodeManager } from '../managers/NodeManager'
-import { SceneManager } from '../managers/SceneManager'
 
 export interface AddObjectCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -101,14 +101,14 @@ export default class AddObjectCommand extends Command {
         } else {
           parent.add(object)
         }
-      } else if (object !== SceneManager.instance.scene) {
-        SceneManager.instance.scene.add(object)
+      } else if (object !== Engine.scene) {
+        Engine.scene.add(object)
       }
 
       object.traverse((child) => {
         if (child.isNode) {
           if (this.useUniqueName) {
-            makeUniqueName(SceneManager.instance.scene, child)
+            makeUniqueName(Engine.scene, child)
           }
 
           child.onAdd()

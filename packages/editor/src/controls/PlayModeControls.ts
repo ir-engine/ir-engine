@@ -34,4 +34,9 @@ export default class PlayModeControls {
       this.flyControls.disable()
     }
   }
+
+  dispose() {
+    this.inputManager.canvas.removeEventListener('click', this.onClickCanvas)
+    document.removeEventListener('pointerlockchange', this.onPointerLockChange)
+  }
 }
