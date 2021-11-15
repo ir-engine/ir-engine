@@ -3,6 +3,7 @@ import S3Provider from '../../src/media/storageprovider/s3.storage'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import { StartTestFileServer } from '../../src/createFileServer'
+import { v4 as uuid } from 'uuid'
 
 export const providerBeforeTest = (provider): Promise<any> => {
   if (provider.constructor.name === 'LocalStorage') return localStorageBeforeTest(provider)
@@ -60,7 +61,7 @@ const deleteS3Bucket = (provider: S3Provider): Promise<any> => {
   })
 }
 const s3StorageBeforeTest = async (provider: S3Provider): Promise<any> => {
-  provider.bucket = 'xrengine-test-bucket'
+  provider.bucket = `xrengine-temp-${uuid()}`
   let bucketExists
   try {
     bucketExists = await provider.provider.headBucket({ Bucket: provider.bucket }).promise()
