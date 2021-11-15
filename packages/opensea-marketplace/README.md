@@ -3,13 +3,19 @@
 **.env file**
 
 NODE_ENV=development
+
 BROWSER=chrome
+
 REACT_APP_SERVICE_URL=https://kt105wr4m9.execute-api.us-west-1.amazonaws.com/prod
+
 REACT_APP_RPC_URL_1=http://0.0.0.0:7545
+
 REACT_APP_RPC_URL_4=https://rinkeby.infura.io/v3/1wH8HCOBYnmdOGcC25ElTRMk4A3
+
 SKIP_PREFLIGHT_CHECK=true
 
-Note: for ubuntu   /usr/bin/google-chrome-stable 
+
+Note: for ubuntu   BROWSER=/usr/bin/google-chrome-stable 
 
 **change contract address to show your NFTs**
 
