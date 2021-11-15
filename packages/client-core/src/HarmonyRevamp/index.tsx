@@ -24,7 +24,7 @@ const Index = () => {
       </Grid>
       <Grid item xs={6}>
         {/* <MessageBox /> */}
-        <Empty />
+        {!targetChannelId && <Empty />}
         {targetChannelId && <MessageBox />}
       </Grid>
       <Grid item xs={3} className={classes.leftGrid}>
