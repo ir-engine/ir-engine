@@ -6,7 +6,8 @@ import { HandPaper } from '@styled-icons/fa-solid/HandPaper'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
-import { SceneManager } from '../../managers/SceneManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import SceneNode from '../../nodes/SceneNode'
 
 type BoxColliderNodeEditorProps = {
   node?: any
@@ -25,7 +26,7 @@ export const BoxColliderNodeEditor = (props: BoxColliderNodeEditorProps) => {
 
   useEffect(() => {
     const options = []
-    const sceneNode = SceneManager.instance.scene
+    const sceneNode = Engine.scene as any as SceneNode
     sceneNode.traverse((o) => {
       if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })

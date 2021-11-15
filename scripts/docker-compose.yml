@@ -2,7 +2,7 @@
 version: '2.3'
 services:
   db:
-    image: mariadb:10.6
+    image: mariadb:10.7
     container_name: xrengine_db
     environment:
       MYSQL_ROOT_PASSWORD: xrengine-root-pa$$w0rd

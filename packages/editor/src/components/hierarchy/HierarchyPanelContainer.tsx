@@ -19,9 +19,9 @@ import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { NodeManager } from '../../managers/NodeManager'
-import { SceneManager } from '../../managers/SceneManager'
 import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -723,11 +723,11 @@ const MemoTreeNode = memo(TreeNode, areEqual)
 function* treeWalker(collapsedNodes) {
   const stack = []
 
-  if (!SceneManager.instance.scene) return
+  if (!Engine.scene) return
 
   stack.push({
     depth: 0,
-    object: SceneManager.instance.scene,
+    object: Engine.scene,
     childIndex: 0,
     lastChild: true
   })
@@ -872,7 +872,7 @@ export default function HierarchyPanel() {
    */
   const onCollapseAllNodes = useCallback(() => {
     const newCollapsedNodes = {}
-    SceneManager.instance.scene.traverse((child) => {
+    Engine.scene.traverse((child: any) => {
       if (child.isNode) {
         newCollapsedNodes[child.id] = true
       }
@@ -1140,9 +1140,7 @@ export default function HierarchyPanel() {
         return
       }
 
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
-        parents: SceneManager.instance.scene
-      })
+      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: Engine.scene })
     },
     canDrop(item, monitor) {
       if (!monitor.isOver({ shallow: true })) {
@@ -1155,8 +1153,8 @@ export default function HierarchyPanel() {
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
         return !(item.multiple
-          ? item.value.some((otherObject) => isAncestor(otherObject, SceneManager.instance.scene))
-          : isAncestor(item.value, SceneManager.instance.scene))
+          ? item.value.some((otherObject) => isAncestor(otherObject, Engine.scene))
+          : isAncestor(item.value, Engine.scene))
       }
 
       return true
@@ -1171,7 +1169,7 @@ export default function HierarchyPanel() {
   return (
     <Fragment>
       <PanelContainer>
-        {SceneManager.instance.scene && (
+        {Engine.scene && (
           <AutoSizer>
             {({ height, width }) => (
               <FixedSizeList

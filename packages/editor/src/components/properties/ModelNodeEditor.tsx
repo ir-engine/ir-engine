@@ -2,7 +2,7 @@ import { Cube } from '@styled-icons/fa-solid/Cube'
 import ModelNode from '../../nodes/ModelNode'
 import i18n from 'i18next'
 import React, { Fragment, useEffect, useState } from 'react'
-import { useTranslation, withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
@@ -14,7 +14,8 @@ import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
-import { SceneManager } from '../../managers/SceneManager'
+import SceneNode from '../../nodes/SceneNode'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 /**
  * Array containing options for InteractableOption.
@@ -61,7 +62,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
 
   useEffect(() => {
     const options = []
-    const sceneNode = SceneManager.instance.scene
+    const sceneNode = Engine.scene as any as SceneNode
     sceneNode.traverse((o) => {
       if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
@@ -292,7 +293,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
         </InputGroup> */}
       <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
         <SelectInput
-          options={SceneManager.instance.scene.children.map((obj: Object3D) => {
+          options={Engine.scene.children.map((obj: Object3D) => {
             return {
               label: obj.name,
               value: obj.uuid

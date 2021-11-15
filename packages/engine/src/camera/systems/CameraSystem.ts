@@ -247,7 +247,7 @@ export default async function CameraSystem(world: World): Promise<System> {
           const arrow = new ArrowHelper()
           coneDebugHelpers.push(arrow)
           arrow.traverse((obj: Object3D) => {
-            obj.layers.set(CameraLayers.Avatar)
+            obj.layers.set(CameraLayers.Gizmos)
           })
           Engine.scene.add(arrow)
         }

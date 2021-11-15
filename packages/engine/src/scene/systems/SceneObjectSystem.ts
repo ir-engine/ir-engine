@@ -59,8 +59,6 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
 
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
-        // Set default layer
-        obj.layers.set(CameraLayers.Scene)
         const material = obj.material as Material
         if (typeof material !== 'undefined') material.dithering = true
 
