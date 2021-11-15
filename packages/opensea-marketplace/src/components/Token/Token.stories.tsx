@@ -7,11 +7,11 @@ export default {
   title: 'Components/Token',
   component: Token,
   parameters: {
-    layout: 'padded',
-  },
+    layout: 'padded'
+  }
 } as Meta
 
-const Template: Story<TokenCompProps> = args => <Token {...args} />
+const Template: Story<TokenCompProps> = (args) => <Token {...args} />
 
 export const Default = Template.bind({})
 Default.args = {
@@ -19,6 +19,6 @@ Default.args = {
     id: '1',
     uri: 'token1',
     price: BigNumber.from(1),
-    name: 'Token 1',
-  },
+    name: 'Token 1'
+  }
 } as TokenCompProps

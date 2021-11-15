@@ -13,8 +13,8 @@ const defaultButton = {
   cursor: 'pointer',
   transition: 'all 0.1s ease-out',
   '&:hover': {
-    opacity: 0.7,
-  },
+    opacity: 0.7
+  }
 } as SxProp
 
 export const Palette = {
@@ -35,7 +35,7 @@ export const Palette = {
   muted: '#999',
   transparent: 'transparent',
   white20: 'rgba(255, 255, 255, .2)',
-  black66: 'rgba(0, 0, 0, .66)',
+  black66: 'rgba(0, 0, 0, .66)'
 }
 
 export type PaletteKeys = keyof typeof Palette
@@ -46,7 +46,7 @@ export const Sizes = {
   button: [100, 250],
   logo: 60,
   sidemenu: 240,
-  chart: 950,
+  chart: 950
 }
 
 export default {
@@ -55,24 +55,24 @@ export default {
   fontSizes: [10, 12, 16, 26, 36, 50, 75],
   fonts: {
     body: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
-    heading: 'inherit',
+    heading: 'inherit'
   },
   layout: {
     container: {
       py: 4,
       px: 3,
-      pb: 10,
-    },
+      pb: 10
+    }
   },
   sizes: {
-    ...Sizes,
+    ...Sizes
   },
   cards: {
     nft: {
       bg: 'background',
       border: '1px solid',
       borderColor: 'muted',
-      textAlign: 'left',
+      textAlign: 'left'
     },
     transaction: {
       bg: 'amber',
@@ -80,8 +80,8 @@ export default {
       top: 50,
       right: 20,
       p: 4,
-      borderRadius: 10,
-    },
+      borderRadius: 10
+    }
   },
   links: {
     nav: {
@@ -90,8 +90,8 @@ export default {
       transition: 'all .2s ease-out',
       '&:hover': {
         opacity: 0.5,
-        color: 'white',
-      },
+        color: 'white'
+      }
     },
     openSea: {
       color: 'green',
@@ -99,13 +99,13 @@ export default {
       opacity: 0.5,
       '&:after': {
         content: `url("data:image/svg+xml,%3Csvg width='8' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.262 0l2.529 2.524L0 6.314 1.685 8l3.79-3.79L8 6.732V0z' fill='rgb(99, 255, 203)' fill-rule='nonzero' /%3E%3C/svg%3E")`,
-        ml: 1,
+        ml: 1
       },
       transition: 'all .2s ease-out',
       '&:hover': {
         opacity: 1,
-        color: 'green',
-      },
+        color: 'green'
+      }
     },
     owner: {
       color: 'white',
@@ -114,13 +114,13 @@ export default {
       transition: 'all .2s ease-out',
       '&:hover': {
         opacity: 1,
-        color: 'white',
+        color: 'white'
       },
       '&:after': {
         content: `url("data:image/svg+xml,%3Csvg width='8' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.262 0l2.529 2.524L0 6.314 1.685 8l3.79-3.79L8 6.732V0z' fill='white' fill-rule='nonzero' /%3E%3C/svg%3E")`,
-        ml: 1,
-      },
-    },
+        ml: 1
+      }
+    }
   },
   buttons: {
     primary: {
@@ -133,26 +133,26 @@ export default {
       display: 'flex',
       width: '100%',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'center'
     },
 
     secondary: {
       cursor: 'pointer',
       variant: 'buttons.primary',
       bg: 'secondary',
-      fontWeight: 'body',
+      fontWeight: 'body'
     },
     tertiary: {
       variant: 'buttons.secondary',
       color: 'white',
-      bg: 'primary',
+      bg: 'primary'
     },
     quartiary: {
       variant: 'buttons.tertiary',
       bg: 'green',
       color: 'black',
       minWidth: 'auto',
-      py: 2,
+      py: 2
     },
     filter: {
       variant: 'buttons.tertiary',
@@ -163,34 +163,34 @@ export default {
       fontSize: 1,
       '&:disabled': {
         pointerEvents: 'none',
-        opacity: 0.5,
-      },
+        opacity: 0.5
+      }
     },
     connect: {
       variant: 'buttons.tertiary',
       py: 4,
-      px: 5,
-    },
+      px: 5
+    }
   },
   fontWeights: {
     heading: 300,
     body: 400,
-    bold: 700,
+    bold: 700
   },
   lineHeights: {
     body: 1.333333333,
     heading: 1.066666667,
-    subheading: 2,
+    subheading: 2
   },
   colors: {
-    ...Palette,
+    ...Palette
   },
   divider: {
     nft: {
       color: 'muted',
       height: 1,
-      my: 2,
-    },
+      my: 2
+    }
   },
   forms: {
     input: {
@@ -198,21 +198,21 @@ export default {
       paddingY: 2,
       borderRadius: '5px',
       bg: 'white',
-      color: 'primary',
-    },
+      color: 'primary'
+    }
   },
   text: {
     body: {
       fontFamily: 'body',
       fontWeight: 'body',
       lineHeight: 'body',
-      fontSize: 1,
+      fontSize: 1
     },
     heading: {
-      py: 2,
+      py: 2
     },
     bold: {
-      fontWeight: 'bold',
+      fontWeight: 'bold'
     },
     paragraph: {
       fontFamily: 'body',
@@ -220,60 +220,60 @@ export default {
       lineHeight: 2,
       fontSize: 2,
       letterSpacing: 0.44,
-      color: 'white',
+      color: 'white'
     },
     h1: {
       fontFamily: 'heading',
       lineHeight: 'heading',
       fontWeight: 'heading',
       fontSize: 6,
-      letterSpacing: -0.44,
+      letterSpacing: -0.44
     },
     h2: {
       fontFamily: 'heading',
       lineHeight: 'heading',
       fontWeight: 'heading',
       fontSize: 5,
-      letterSpacing: -0.44,
+      letterSpacing: -0.44
     },
     h3: {
       fontFamily: 'heading',
       lineHeight: 'subheading',
       fontWeight: 'heading',
-      fontSize: 3,
+      fontSize: 3
     },
     h4: {
       fontFamily: 'heading',
       lineHeight: 'subheading',
       fontWeight: 'bold',
-      fontSize: [1, 2],
+      fontSize: [1, 2]
     },
     h5: {
       fontFamily: 'heading',
       fontWeight: 'bold',
       lineHeight: 1.6,
       fontSize: 0,
-      letterSpacing: 1.5,
-    },
+      letterSpacing: 1.5
+    }
   },
   styles: {
     root: {
       fontFamily: 'body',
       lineHeight: 'body',
-      fontWeight: 'body',
+      fontWeight: 'body'
     },
     a: {
       color: 'primary',
       '&:hover': {
-        color: 'inherit',
-      },
+        color: 'inherit'
+      }
     },
     hr: {
       height: 1,
       opacity: 0.5,
       bg: 'black',
       color: 'black',
-      my: 6,
-    },
-  },
+      my: 6
+    }
+  }
 } as Theme

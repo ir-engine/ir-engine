@@ -6,11 +6,11 @@ export default {
   title: 'Components/Header',
   component: Header,
   parameters: {
-    layout: 'padded',
-  },
+    layout: 'padded'
+  }
 } as Meta
 
-const Template: Story<HeaderProps> = args => <Header {...args} />
+const Template: Story<HeaderProps> = (args) => <Header {...args} />
 
 export const Default = Template.bind({})
 Default.args = {} as HeaderProps

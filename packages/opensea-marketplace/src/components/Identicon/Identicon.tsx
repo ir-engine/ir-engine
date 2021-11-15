@@ -24,7 +24,7 @@ const Identicon = ({ address, size = 16 }: IdenticonProps) => {
       ref={ref}
       sx={{
         justifyContent: 'center',
-        width: size + 2,
+        width: size + 2
       }}
     />
   )

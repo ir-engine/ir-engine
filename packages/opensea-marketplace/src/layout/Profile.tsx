@@ -42,9 +42,7 @@ const Profile = () => {
             <Grid gap={4} columns={['1fr 1fr', '1fr 1fr 1fr']}>
               {ownedTokens.map((t, index) => (
                 <Token
-                  isOnSale={
-                    !!tokensOnSale?.find(a => utils.formatUnits(a.id) === utils.formatUnits(t.id))
-                  }
+                  isOnSale={!!tokensOnSale?.find((a) => utils.formatUnits(a.id) === utils.formatUnits(t.id))}
                   onSale
                   onTransfer
                   token={t}

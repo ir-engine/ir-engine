@@ -1,13 +1,10 @@
-import { title } from 'process';
+import { title } from 'process'
 import { useCallback, useEffect, useState } from 'react'
 
 import './accordian.style.css'
 
-
-
-
-const Accordian = (props:any) => {
-    const [isActive, setIsActive] = useState(false);
+const Accordian = (props: any) => {
+  const [isActive, setIsActive] = useState(false)
 
   return (
     <div className="accordion-item">
@@ -17,8 +14,7 @@ const Accordian = (props:any) => {
       </div>
       {isActive && <div className="accordion-content">{props.children}</div>}
     </div>
-  );
-  
+  )
 }
 
 export { Accordian }

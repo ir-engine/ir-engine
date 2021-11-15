@@ -6,11 +6,11 @@ export default {
   title: 'Views/ContractDetails',
   component: ContractDetails,
   parameters: {
-    layout: 'padded',
-  },
+    layout: 'padded'
+  }
 } as Meta
 
-const Template: Story<ContractDetailsProps> = args => <ContractDetails {...args} />
+const Template: Story<ContractDetailsProps> = (args) => <ContractDetails {...args} />
 
 export const Default = Template.bind({})
 Default.args = {} as ContractDetailsProps

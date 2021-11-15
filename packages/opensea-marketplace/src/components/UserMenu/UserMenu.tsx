@@ -36,7 +36,7 @@ const UserMenu = () => {
               ml: [0, 3],
               height: 30,
               width: 30,
-              borderRadius: '100%',
+              borderRadius: '100%'
             }}
           >
             <Identicon size={30} address={user.address} />

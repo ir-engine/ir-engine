@@ -21,8 +21,7 @@ const ActivityLine = ({ activity }: ActivityLineProps) => {
             {'>'}
           </Text>
           <Text as="span" ml={2}>
-            Bought <b>{activity.name}</b> from <b>{activity.from}</b> at{' '}
-            {activity.time.toLocaleDateString('en-GB')} -{' '}
+            Bought <b>{activity.name}</b> from <b>{activity.from}</b> at {activity.time.toLocaleDateString('en-GB')} -{' '}
             {activity.time.toLocaleTimeString('en-GB')}
           </Text>
         </Text>
@@ -33,8 +32,7 @@ const ActivityLine = ({ activity }: ActivityLineProps) => {
             {'<'}
           </Text>
           <Text as="span" ml={2}>
-            Sold <b>{activity.name}</b> to <b>{activity.to}</b> at{' '}
-            {activity.time.toLocaleDateString('en-GB')} -{' '}
+            Sold <b>{activity.name}</b> to <b>{activity.to}</b> at {activity.time.toLocaleDateString('en-GB')} -{' '}
             {activity.time.toLocaleTimeString('en-GB')}
           </Text>
         </Text>

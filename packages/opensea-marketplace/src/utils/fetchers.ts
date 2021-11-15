@@ -5,7 +5,7 @@ export const fetcherETHUSD = async (url: string) => {
     const { setEthPrice } = useAppState.getState()
 
     const {
-      result: { ethusd },
+      result: { ethusd }
     } = await (await fetch(url)).json()
     setEthPrice(ethusd)
   } catch (e) {

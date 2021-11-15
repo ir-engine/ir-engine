@@ -24,8 +24,7 @@ const Header = () => {
           src="/static/logo.png"
         />
         <Heading sx={{ ml: [1, 2], color: 'white' }} as="h4">
-          XREngine Marketplace{' '}
-          <Text sx={{ display: ['none', 'block'] }}>+ on Rinkeby Network</Text>
+          XREngine Marketplace <Text sx={{ display: ['none', 'block'] }}>+ on Rinkeby Network</Text>
         </Heading>
         <UserMenu />
       </Flex>
@@ -34,7 +33,7 @@ const Header = () => {
           <NavLink
             sx={{
               pointerEvents: location.pathname === '/' ? 'none' : 'visible',
-              color: location.pathname === '/' ? 'green' : 'white',
+              color: location.pathname === '/' ? 'green' : 'white'
             }}
             onClick={() => history.push('/')}
           >
@@ -44,7 +43,7 @@ const Header = () => {
           <NavLink
             sx={{
               pointerEvents: location.pathname === '/profile' ? 'none' : 'visible',
-              color: location.pathname === '/profile' ? 'green' : 'white',
+              color: location.pathname === '/profile' ? 'green' : 'white'
             }}
             onClick={() => history.push('/profile')}
           >

@@ -6,11 +6,11 @@ export default {
   title: 'Views/MetamaskLogin',
   component: MetamaskLogin,
   parameters: {
-    layout: 'padded',
-  },
+    layout: 'padded'
+  }
 } as Meta
 
-const Template: Story<MetamaskLoginProps> = args => <MetamaskLogin {...args} />
+const Template: Story<MetamaskLoginProps> = (args) => <MetamaskLogin {...args} />
 
 export const Default = Template.bind({})
 Default.args = {} as MetamaskLoginProps

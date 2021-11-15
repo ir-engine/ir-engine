@@ -6,7 +6,7 @@ import { useAppState } from '../../state'
 
 const iconsMap = {
   [ConnectorNames.Metamask]: 'https://docs.metamask.io/metamask-fox.svg',
-  [ConnectorNames.WalletConnect]: 'https://walletconnect.org/walletconnect-logo.svg',
+  [ConnectorNames.WalletConnect]: 'https://walletconnect.org/walletconnect-logo.svg'
 }
 
 const Login = () => {
@@ -27,7 +27,7 @@ const Login = () => {
             sx={{
               borderColor: activating ? 'orange' : connected ? 'green' : 'unset',
               position: 'relative',
-              maxWidth: 250,
+              maxWidth: 250
             }}
             key={name}
             onClick={() => {
@@ -36,11 +36,7 @@ const Login = () => {
             }}
           >
             {iconsMap[name as keyof typeof connectorsByName] && (
-              <Image
-                sx={{ width: 35, height: 35 }}
-                mr={3}
-                src={iconsMap[name as keyof typeof connectorsByName]}
-              />
+              <Image sx={{ width: 35, height: 35 }} mr={3} src={iconsMap[name as keyof typeof connectorsByName]} />
             )}
 
             {name}

@@ -67,35 +67,43 @@ const useStyles = makeStyles({
   }
 })
 
-const ITEM_HEIGHT = 48;
+const ITEM_HEIGHT = 48
 
 const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type }: any) => {
   const history = useHistory()
   const classes = useStyles()
-  const [state, setState] = useState({ url: '', metadata: '', selectedid: '', userid: '', anchorEl: null, selectedtype: '', inventory: [] })
+  const [state, setState] = useState({
+    url: '',
+    metadata: '',
+    selectedid: '',
+    userid: '',
+    anchorEl: null,
+    selectedtype: '',
+    inventory: []
+  })
   const { url, metadata, userid, selectedid, anchorEl, selectedtype, inventory } = state
-  const prevState = usePrevious({ selectedtype });
+  const prevState = usePrevious({ selectedtype })
   // const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const open = Boolean(anchorEl)
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setState((prevState: any) => ({
       ...prevState,
       anchorEl: event.currentTarget
     }))
-  };
+  }
   const handleClose = () => {
-    setState(prevState => ({
+    setState((prevState) => ({
       ...prevState,
-      anchorEl: null,
+      anchorEl: null
     }))
-  };
+  }
   const handletypeselect = (id) => {
-    setState(prevState => ({
+    setState((prevState) => ({
       ...prevState,
       selectedtype: id
     }))
     handleClose()
-  };
+  }
 
   useEffect(() => {
     if (data.length !== 0) {
@@ -108,7 +116,6 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type }:
       }))
     }
   }, [])
-
 
   //   useEffect(() => {
   //     if (prevState) {
@@ -151,7 +158,6 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type }:
   //   }, [selectedtype])
 
   return (
-
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
       <Stack direction="row" justifyContent="space-between" className={classes.title}>
@@ -161,88 +167,103 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type }:
         <Typography className={classes.title}>Inventory</Typography>
       </Stack>
       <Divider />
-      {data.length !== 0 ? <Grid container spacing={2} className={`${classes.p10} ${classes.contents}`}>
-        <Grid item md={2}>
-          <Stack className={classes.card}>
-            <IconButton
-              aria-label="more"
-              id="long-button"
-              aria-controls="long-menu"
-              aria-expanded={open ? 'true' : undefined}
-              aria-haspopup="true"
-              onClick={handleClick}
-            >
-              <FilterList />
-            </IconButton>
-            <Menu
-              id="long-menu"
-              MenuListProps={{
-                'aria-labelledby': 'long-button',
-              }}
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              PaperProps={{
-                style: {
-                  maxHeight: ITEM_HEIGHT * 4.5,
-                  width: '20ch',
-                },
-              }}
-            >
-              <MenuItem selected={selectedtype === ""} onClick={(e) => handletypeselect("")}>
-                All
-              </MenuItem>
-              {type.map((option) => (
-                <MenuItem key={option.inventoryItemTypeId} selected={option.inventoryItemTypeId === selectedtype} onClick={(e) => handletypeselect(option.inventoryItemTypeId)}>
-                  {option.inventoryItemType}
+      {data.length !== 0 ? (
+        <Grid container spacing={2} className={`${classes.p10} ${classes.contents}`}>
+          <Grid item md={2}>
+            <Stack className={classes.card}>
+              <IconButton
+                aria-label="more"
+                id="long-button"
+                aria-controls="long-menu"
+                aria-expanded={open ? 'true' : undefined}
+                aria-haspopup="true"
+                onClick={handleClick}
+              >
+                <FilterList />
+              </IconButton>
+              <Menu
+                id="long-menu"
+                MenuListProps={{
+                  'aria-labelledby': 'long-button'
+                }}
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                  style: {
+                    maxHeight: ITEM_HEIGHT * 4.5,
+                    width: '20ch'
+                  }
+                }}
+              >
+                <MenuItem selected={selectedtype === ''} onClick={(e) => handletypeselect('')}>
+                  All
                 </MenuItem>
-              ))}
-            </Menu>
-            {inventory.length !== 0 ? <Stack>
-              {inventory.map((value: any, index: number) => (
-                <Card key={index} onClick={() => {
-                  setState(prevState => ({
-                    ...prevState,
-                    url: value.url,
-                    metadata: value.metadata,
-                    selectedid: value.inventoryItemTypeId
-                  }))
-                }}>
-                  <Stack justifyContent="center" alignItems="center" className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ""}`}>
-                    <img src={value.url} height="100" width="100" alt="" />
-                    <Typography>{`Name: ${value.name}`}</Typography>
-                    <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
-                  </Stack>
-                </Card>
-
-
-              ))}
-            </Stack> : <Stack sx={{ color: 'black' }}><Typography>No Data Found</Typography></Stack>}
-
-          </Stack>
-        </Grid>
-        <Grid item md={6}>
-          <Card>
-            <Stack justifyContent="center" alignItems="center" >
-              <Typography className={classes.title}>Selected Items For Trade</Typography>
+                {type.map((option) => (
+                  <MenuItem
+                    key={option.inventoryItemTypeId}
+                    selected={option.inventoryItemTypeId === selectedtype}
+                    onClick={(e) => handletypeselect(option.inventoryItemTypeId)}
+                  >
+                    {option.inventoryItemType}
+                  </MenuItem>
+                ))}
+              </Menu>
+              {inventory.length !== 0 ? (
+                <Stack>
+                  {inventory.map((value: any, index: number) => (
+                    <Card
+                      key={index}
+                      onClick={() => {
+                        setState((prevState) => ({
+                          ...prevState,
+                          url: value.url,
+                          metadata: value.metadata,
+                          selectedid: value.inventoryItemTypeId
+                        }))
+                      }}
+                    >
+                      <Stack
+                        justifyContent="center"
+                        alignItems="center"
+                        className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                      >
+                        <img src={value.url} height="100" width="100" alt="" />
+                        <Typography>{`Name: ${value.name}`}</Typography>
+                        <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                      </Stack>
+                    </Card>
+                  ))}
+                </Stack>
+              ) : (
+                <Stack sx={{ color: 'black' }}>
+                  <Typography>No Data Found</Typography>
+                </Stack>
+              )}
             </Stack>
-          </Card>
-
+          </Grid>
+          <Grid item md={6}>
+            <Card>
+              <Stack justifyContent="center" alignItems="center">
+                <Typography className={classes.title}>Selected Items For Trade</Typography>
+              </Stack>
+            </Card>
+          </Grid>
+          <Grid item md={4}>
+            <Card>
+              <Stack justifyContent="center" alignItems="center">
+                <Typography className={classes.title}>Trade Items From User</Typography>
+              </Stack>
+            </Card>
+          </Grid>
         </Grid>
-        <Grid item md={4}>
-          <Card>
-          <Stack justifyContent="center" alignItems="center" >
-            <Typography className={classes.title}>Trade Items From User</Typography>
-          </Stack>
-          </Card>
-          
-        </Grid>
-      </Grid> : <Stack justifyContent="center" alignItems="center" >
-        <Typography className={classes.title}>NO ITEMS FOUND</Typography>
-      </Stack>}
+      ) : (
+        <Stack justifyContent="center" alignItems="center">
+          <Typography className={classes.title}>NO ITEMS FOUND</Typography>
+        </Stack>
+      )}
       {/* </Stack> */}
     </Box>
-
   )
 }
 

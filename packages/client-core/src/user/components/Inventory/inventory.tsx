@@ -8,8 +8,6 @@ import { client } from '../../../feathers'
 import { bindActionCreators, Dispatch } from 'redux'
 import axios from 'axios'
 
-
-
 export const InventoryPage = (): any => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
@@ -24,7 +22,6 @@ export const InventoryPage = (): any => {
 
   useEffect(() => {
     if (authState.isLoggedIn.value) {
-
       fetchInventoryList()
       fetchUserList()
       fetchtypeList()
@@ -60,7 +57,7 @@ export const InventoryPage = (): any => {
     }))
     try {
       const response = await client.service('user').get(id)
-      console.log(response,"inventorylist")
+      console.log(response, 'inventorylist')
       setState((prevState) => ({
         ...prevState,
         data: [...response.inventory_items],
@@ -78,7 +75,7 @@ export const InventoryPage = (): any => {
           action: 'inventory'
         }
       })
-      console.log(response,"userlist")
+      console.log(response, 'userlist')
       if (response.data && response.data.length !== 0) {
         const activeUser = response.data.filter((val: any) => val.inviteCode !== null)
         setState((prevState: any) => ({
@@ -102,14 +99,10 @@ export const InventoryPage = (): any => {
           type: [...response.data]
         }))
       }
-
-    }
-    catch (err) {
+    } catch (err) {
       console.error(err, 'error')
     }
-
   }
-
 
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 

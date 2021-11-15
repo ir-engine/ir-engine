@@ -6,13 +6,13 @@ export default {
   title: 'Primitives/Identicon',
   component: Identicon,
   parameters: {
-    layout: 'padded',
-  },
+    layout: 'padded'
+  }
 } as Meta
 
-const Template: Story<IdenticonProps> = args => <Identicon {...args} />
+const Template: Story<IdenticonProps> = (args) => <Identicon {...args} />
 
 export const Default = Template.bind({})
 Default.args = {
-  address: '0x123Dasdas980sa8daza09sdxzasda091823',
+  address: '0x123Dasdas980sa8daza09sdxzasda091823'
 } as IdenticonProps

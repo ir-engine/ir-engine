@@ -2,7 +2,7 @@ import { FC, useEffect, useCallback } from 'react'
 import { useWeb3React, UnsupportedChainIdError } from '@web3-react/core'
 import {
   NoEthereumProviderError,
-  UserRejectedRequestError as UserRejectedRequestErrorInjected,
+  UserRejectedRequestError as UserRejectedRequestErrorInjected
 } from '@web3-react/injected-connector'
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
 
@@ -39,7 +39,7 @@ const Connect: FC = ({ children }) => {
     useCallback(
       ({ setContract, setUser }) => ({
         setContract,
-        setUser,
+        setUser
       }),
       []
     )

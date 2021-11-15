@@ -8,8 +8,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 import axios from 'axios'
 import TradingContent from '../UserMenu/menus/TradingContent'
 
-
-
 export const TradingPage = (): any => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
@@ -24,7 +22,6 @@ export const TradingPage = (): any => {
 
   useEffect(() => {
     if (authState.isLoggedIn.value) {
-
       fetchInventoryList()
       // fetchUserList()
       // fetchtypeList()
@@ -60,7 +57,7 @@ export const TradingPage = (): any => {
     }))
     try {
       const response = await client.service('user-trade').find()
-      console.log(response,"tradelist")
+      console.log(response, 'tradelist')
       setState((prevState) => ({
         ...prevState,
         data: [...response.data],
@@ -109,7 +106,6 @@ export const TradingPage = (): any => {
   //   }
 
   // }
-
 
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 

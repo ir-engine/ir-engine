@@ -13,7 +13,7 @@ const ContractDetails = () => {
       <Heading as="h1">NFT Contract Details</Heading>
       <Grid my={3}>
         {contractDetails &&
-          Object.keys(contractDetails).map(a => (
+          Object.keys(contractDetails).map((a) => (
             <Text key={a}>
               {a}:{' '}
               <Text variant="text.bold" as="span">

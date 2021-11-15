@@ -9,7 +9,7 @@ const TransactionProgress = () => {
       ({ setTransaction, setUser, updateTokensOnSale }) => ({
         setTransaction,
         setUser,
-        updateTokensOnSale,
+        updateTokensOnSale
       }),
       []
     )
@@ -51,8 +51,7 @@ const TransactionProgress = () => {
   return (
     <Card variant="transaction">
       <Flex sx={{ alignItems: 'center' }}>
-        <Spinner size={20} color="white" sx={{ mr: 2 }} /> Transaction:{' '}
-        {toShort(transactionRef.current.hash)}
+        <Spinner size={20} color="white" sx={{ mr: 2 }} /> Transaction: {toShort(transactionRef.current.hash)}
       </Flex>
     </Card>
   )

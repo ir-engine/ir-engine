@@ -46,8 +46,7 @@
 //   // if(data && ind){
 //   // data = data[ind]
 //   // }
-  
- 
+
 //   const onTransferClick = async (e: FormEvent | MouseEvent) => {
 //     e.preventDefault()
 //     if (onTransfer && utils.isAddress(address)) {
@@ -74,12 +73,8 @@
 
 //   const { data: owner } = useSWR(pdata?.id, fetchOwner)
 //   const { data } = useSWR(`${METADATA_API}/token/${pdata?.id}`, fetcherMetadata)
- 
 
 //   const tokenPriceEth = formatPriceEth(pdata?.price, ethPrice)
-
-  
-
 
 //   if (!data)
 //     return (
@@ -257,19 +252,7 @@
 
 import { FormEvent, MouseEvent, useState } from 'react'
 import { utils, BigNumber, constants } from 'ethers'
-import {
-  Spinner,
-  Box,
-  Flex,
-  Card,
-  Button,
-  Image,
-  Input,
-  Text,
-  Heading,
-  Divider,
-  NavLink,
-} from 'theme-ui'
+import { Spinner, Box, Flex, Card, Button, Image, Input, Text, Heading, Divider, NavLink } from 'theme-ui'
 import useSWR from 'swr'
 import { useAppState } from '../../state'
 import { fetcherMetadata, fetchOwner } from '../../utils/fetchers'
@@ -323,10 +306,10 @@ const Token = ({ token, isOnSale, onTransfer, onBuy, onSale }: TokenCompProps) =
 
   const { data: owner } = useSWR(token.id, fetchOwner)
   const { data } = useSWR(`${METADATA_API}/token/${token.id}`, fetcherMetadata)
-  
-  let tokenPriceEth = ""
-  if(token.price){
-     tokenPriceEth = formatPriceEth(token.price, ethPrice)
+
+  let tokenPriceEth = ''
+  if (token.price) {
+    tokenPriceEth = formatPriceEth(token.price, ethPrice)
   }
 
   if (!data)
@@ -340,10 +323,7 @@ const Token = ({ token, isOnSale, onTransfer, onBuy, onSale }: TokenCompProps) =
 
   return (
     <Card variant="nft">
-      <Image
-        sx={{ width: '100%', bg: 'white', borderBottom: '1px solid black' }}
-        src={data.image}
-      />
+      <Image sx={{ width: '100%', bg: 'white', borderBottom: '1px solid black' }} src={data.image} />
       <Box p={3} pt={2}>
         <Heading as="h2"> {data.name}</Heading>
         <Divider variant="divider.nft" />
@@ -368,7 +348,7 @@ const Token = ({ token, isOnSale, onTransfer, onBuy, onSale }: TokenCompProps) =
                   textOverflow: 'ellipsis',
                   width: '100%',
                   position: 'relative',
-                  overflow: 'hidden',
+                  overflow: 'hidden'
                 }}
               >
                 {toShort(owner)}
@@ -390,26 +370,14 @@ const Token = ({ token, isOnSale, onTransfer, onBuy, onSale }: TokenCompProps) =
           <Flex mt={3} sx={{ justifyContent: 'center' }}>
             {transfer && (
               <Box sx={{ width: '100%' }}>
-                <Flex
-                  onSubmit={onTransferClick}
-                  sx={{ width: '100%', flexDirection: 'column' }}
-                  as="form"
-                >
-                  <Input
-                    onChange={e => setAddress(e.currentTarget.value)}
-                    placeholder="ETH Address 0x0..."
-                  />
+                <Flex onSubmit={onTransferClick} sx={{ width: '100%', flexDirection: 'column' }} as="form">
+                  <Input onChange={(e) => setAddress(e.currentTarget.value)} placeholder="ETH Address 0x0..." />
                 </Flex>
                 <Flex mt={2}>
                   <Button sx={{ bg: 'green' }} onClick={onTransferClick} variant="quartiary">
                     Confirm
                   </Button>
-                  <Button
-                    sx={{ bg: 'red' }}
-                    ml={2}
-                    onClick={() => setTransfer(false)}
-                    variant="quartiary"
-                  >
+                  <Button sx={{ bg: 'red' }} ml={2} onClick={() => setTransfer(false)} variant="quartiary">
                     Cancel
                   </Button>
                 </Flex>
@@ -417,26 +385,14 @@ const Token = ({ token, isOnSale, onTransfer, onBuy, onSale }: TokenCompProps) =
             )}
             {onSaleActive && (
               <Box sx={{ width: '100%' }}>
-                <Flex
-                  onSubmit={onTransferClick}
-                  sx={{ width: '100%', flexDirection: 'column' }}
-                  as="form"
-                >
-                  <Input
-                    onChange={e => setPrice(e.currentTarget.value)}
-                    placeholder="Token Price in ETH"
-                  />
+                <Flex onSubmit={onTransferClick} sx={{ width: '100%', flexDirection: 'column' }} as="form">
+                  <Input onChange={(e) => setPrice(e.currentTarget.value)} placeholder="Token Price in ETH" />
                 </Flex>
                 <Flex mt={2}>
                   <Button sx={{ bg: 'green' }} onClick={onSaleClick} variant="quartiary">
                     Confirm
                   </Button>
-                  <Button
-                    sx={{ bg: 'red' }}
-                    ml={2}
-                    onClick={() => setOnSale(false)}
-                    variant="quartiary"
-                  >
+                  <Button sx={{ bg: 'red' }} ml={2} onClick={() => setOnSale(false)} variant="quartiary">
                     Cancel
                   </Button>
                 </Flex>
@@ -468,16 +424,12 @@ const Token = ({ token, isOnSale, onTransfer, onBuy, onSale }: TokenCompProps) =
           <Flex mt={3} sx={{ justifyContent: 'center', width: '100%' }}>
             <Button
               sx={{
-                opacity: !!user?.ownedTokens.find(
-                  a => utils.formatUnits(a.id) === utils.formatUnits(token.id)
-                )
+                opacity: !!user?.ownedTokens.find((a) => utils.formatUnits(a.id) === utils.formatUnits(token.id))
                   ? 0.5
                   : 1,
-                pointerEvents: !!user?.ownedTokens.find(
-                  a => utils.formatUnits(a.id) === utils.formatUnits(token.id)
-                )
+                pointerEvents: !!user?.ownedTokens.find((a) => utils.formatUnits(a.id) === utils.formatUnits(token.id))
                   ? 'none'
-                  : 'visible',
+                  : 'visible'
               }}
               onClick={onBuyClick}
               variant="quartiary"
@@ -492,4 +444,3 @@ const Token = ({ token, isOnSale, onTransfer, onBuy, onSale }: TokenCompProps) =
 }
 
 export { Token }
-

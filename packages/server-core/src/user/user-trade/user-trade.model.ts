@@ -21,10 +21,10 @@ export default (app: Application): any => {
       addedOn: {
         type: DataTypes.DATE
       },
-      fromUserInventoryIds:{
+      fromUserInventoryIds: {
         type: DataTypes.JSON
       },
-      toUserInventoryIds:{
+      toUserInventoryIds: {
         type: DataTypes.JSON
       }
     },
@@ -38,7 +38,6 @@ export default (app: Application): any => {
     }
   )
 
-  ;(userTrade as any).assocate = (models: any): void => {
-  }
+  ;(userTrade as any).assocate = (models: any): void => {}
   return userTrade
 }

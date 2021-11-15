@@ -6,11 +6,11 @@ export default {
   title: 'CHANGE ME/UserMenu',
   component: UserMenu,
   parameters: {
-    layout: 'padded',
-  },
+    layout: 'padded'
+  }
 } as Meta
 
-const Template: Story<UserMenuProps> = args => <UserMenu {...args} />
+const Template: Story<UserMenuProps> = (args) => <UserMenu {...args} />
 
 export const Default = Template.bind({})
 Default.args = {} as UserMenuProps
