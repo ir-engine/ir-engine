@@ -10,6 +10,7 @@ import {
 import { NearestFilter, RGBFormat, WebGLRenderTarget } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { EffectMap, Effects } from '../../scene/classes/PostProcessing'
+import { EngineRenderer } from '../WebGLRendererSystem'
 
 export const configureEffectComposer = (postprocessingComponent: any, remove?: boolean): void => {
   if (remove) {
@@ -24,6 +25,7 @@ export const configureEffectComposer = (postprocessingComponent: any, remove?: b
   Engine.effectComposer.addPass(renderPass)
 
   if (!postprocessingComponent) return
+  EngineRenderer.instance.postProcessingConfig = postprocessingComponent
 
   const effects: any[] = []
   const effectKeys = EffectMap.keys()

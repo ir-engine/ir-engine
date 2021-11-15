@@ -22,6 +22,7 @@ import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { World } from '../ecs/classes/World'
 import { useWorld } from '../ecs/functions/SystemHooks'
+import { configureEffectComposer } from './functions/configureEffectComposer'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -108,6 +109,7 @@ export class EngineRenderer {
   /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
 
+  postProcessingConfig = null
   renderPass: RenderPass
   normalPass: NormalPass
   renderContext: WebGLRenderingContext | WebGL2RenderingContext
@@ -143,6 +145,7 @@ export class EngineRenderer {
 
     this.renderContext = context!
     const options: any = {
+      powerPreference: 'high-performance',
       canvas,
       context,
       antialias: !Engine.isHMD,
@@ -162,7 +165,7 @@ export class EngineRenderer {
     Engine.renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    Engine.renderer.debug.checkShaderErrors = false
+    // Engine.renderer.debug.checkShaderErrors = false
 
     Engine.xrManager = renderer.xr
     //@ts-ignore
@@ -175,7 +178,7 @@ export class EngineRenderer {
     this.needsResize = true
     Engine.renderer.autoClear = true
 
-    Engine.effectComposer = new EffectComposer(Engine.renderer)
+    configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
 
     EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.SET_POST_PROCESSING, (ev: any) => {
       this.setUsePostProcessing(this.supportWebGL2 && ev.payload)
@@ -199,11 +202,6 @@ export class EngineRenderer {
   /** Called on resize, sets resize flag. */
   onResize(): void {
     this.needsResize = true
-  }
-
-  resetPostProcessing(): void {
-    Engine.effectComposer.dispose()
-    Engine.effectComposer = new EffectComposer(Engine.renderer)
   }
 
   /**
@@ -240,7 +238,7 @@ export class EngineRenderer {
         }
 
         this.qualityLevel > 0 && Engine.csm?.update()
-        if (this.usePostProcessing) {
+        if (this.usePostProcessing && Engine.effectComposer) {
           Engine.effectComposer.render(delta)
         } else {
           Engine.renderer.autoClear = true
