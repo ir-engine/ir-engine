@@ -60,7 +60,7 @@ export class ProjectManager {
    * @return {Promise}             [scene to render]
    */
   async loadProject(projectFile: SceneJson) {
-    this.dispose()
+    // this.dispose()
 
     await ProjectManager.instance.init()
 

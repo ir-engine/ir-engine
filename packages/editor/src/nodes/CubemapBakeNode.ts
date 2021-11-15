@@ -57,7 +57,8 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       roughness: 0,
       metalness: 1
     })
-    this.add(this.gizmo)(Engine.scene as any as SceneNode).registerEnvironmentMapNode(this)
+    this.add(this.gizmo)
+    ;(Engine.scene as any as SceneNode).registerEnvironmentMapNode(this)
   }
 
   static canAddNode() {
