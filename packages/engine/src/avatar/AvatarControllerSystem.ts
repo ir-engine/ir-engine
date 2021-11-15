@@ -30,7 +30,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
 
   return () => {
     for (const entity of controllerQuery.exit(world)) {
-      const controller = getComponent(entity, AvatarControllerComponent)
+      const controller = getComponent(entity, AvatarControllerComponent, true)
 
       if (controller?.controller) {
         world.physics.removeController(controller.controller)
@@ -52,7 +52,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
     }
 
     for (const entity of localXRInputQuery.exit(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent, true)
       // TODO: Temporarily make rig invisible until rig is fixed
       if (avatar.modelContainer) {
         avatar.modelContainer.visible = true

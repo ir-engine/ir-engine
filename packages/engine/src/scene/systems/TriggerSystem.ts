@@ -60,7 +60,7 @@ export default async function TriggerSystem(world: World): Promise<System> {
     }
 
     for (const entity of triggerCollidedQuery.exit(world)) {
-      const { triggerEntity } = getComponent(entity, TriggerDetectedComponent)
+      const { triggerEntity } = getComponent(entity, TriggerDetectedComponent, true)
       const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
 
       const args = triggerComponent.args
