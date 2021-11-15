@@ -2,6 +2,7 @@ import { Add, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Se
 import { AddCircleOutline, Check } from '@mui/icons-material'
 import {
   Badge,
+  Container,
   IconButton,
   MenuList,
   MenuItem,
@@ -14,6 +15,7 @@ import {
   Typography,
   Avatar,
   Box,
+  Drawer,
   Tabs,
   Tab
 } from '@mui/material'
@@ -50,6 +52,7 @@ const LeftHarmony = (props: Props) => {
   const [invite, setInvite] = React.useState('')
 
   const [type, setType] = React.useState('email')
+  const [invite, setInvite] = React.useState('')
   const [messageDeletePending, setMessageDeletePending] = React.useState('')
   const [messageUpdatePending, setMessageUpdatePending] = React.useState('')
   const [editingMessage, setEditingMessage] = React.useState('')
@@ -596,6 +599,38 @@ const LeftHarmony = (props: Props) => {
                 <a href="#" onClick={toggleDrawer('right', true)} className={`${classes.my2} ${classes.btn}`}>
                   CREATE GROUP
                 </a>
+                <Drawer anchor={'right'} open={state['right']} onClose={toggleDrawer('right', false)}>
+                  <Container className={classes.bgDark} style={{ height: '100vh', overflowY: 'scroll' }}>
+                    <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
+                      <AddCircleOutline />
+                      &nbsp;&nbsp;&nbsp;&nbsp;
+                      <h1>CREATE GROUP</h1>
+                    </div>
+                    <div className={classes.p5}>
+                      <form>
+                        <div className="form-group">
+                          <label htmlFor="" className={classes.mx2}>
+                            <p>Name:</p>
+                          </label>
+                          <input type="text" className={classes.formControls} placeholder="Enter group name" />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="" className={classes.mx2}>
+                            <p>Description:</p>
+                          </label>
+                          <input type="text" className={classes.formControls} placeholder="Enter description" />
+                        </div>
+                        <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
+                          <button
+                            className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
+                          >
+                            <b className={classes.white}>Create Now</b>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </Container>
+                </Drawer>
               </div>
               {groups &&
                 groups.length > 0 &&
@@ -688,6 +723,33 @@ const LeftHarmony = (props: Props) => {
                                 >
                                   <small>VIEW MEMBERS</small>
                                 </a>
+                                <Drawer anchor={'right'} open={list['right']} onClose={toggleList('right', false)}>
+                                  <Container
+                                    className={classes.bgDark}
+                                    style={{ height: '100vh', overflowY: 'scroll' }}
+                                  >
+                                    <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
+                                      <AddCircleOutline />
+                                      &nbsp;&nbsp;&nbsp;&nbsp;
+                                      <h1>
+                                        GROUP TEST 1 <small>&nbsp;&nbsp; 12 Members (s)</small>
+                                      </h1>
+                                    </div>
+                                    <div
+                                      className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter} ${classes.my2} ${classes.p5}`}
+                                    >
+                                      <div className={`${classes.dFlex} ${classes.alignCenter}`}>
+                                        <Avatar src="./Avatar.png" />
+                                        <div className={classes.mx2}>
+                                          <h4 className={classes.fontBig}>John laouireen</h4>
+                                        </div>
+                                      </div>
+                                      <a href="#" className={classes.border0}>
+                                        <Delete fontSize="small" className={classes.danger} />
+                                      </a>
+                                    </div>
+                                  </Container>
+                                </Drawer>
                               </div>
                             </div>
                           </Popover>
