@@ -22,10 +22,10 @@ const MessageBox: React.FunctionComponent = () => {
   const channelEntries = Object.values(channels).filter((channel) => !!channel)!
   const targetChannelId = chatState.targetChannelId.value
   // To be uncommented for real test
-  // const activeChannel = channels.find((c) => c.id === targetChannelId)!
+  const activeChannel = channels.find((c) => c.id === targetChannelId)!
 
   // Used for testing purpose
-  const activeChannel = channels[1]
+  // const activeChannel = channels[1]
   const composingMessageChangedHandler = (event: any): void => {
     const message = event.target.value
     setComposingMessage(message)
