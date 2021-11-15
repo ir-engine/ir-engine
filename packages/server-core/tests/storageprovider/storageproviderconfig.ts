@@ -3,7 +3,6 @@ import S3Provider from '../../src/media/storageprovider/s3.storage'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import { closeTestFileServer, createTestFileServer } from '../../src/createFileServer'
-import config from '../../src/appconfig'
 
 export const providerBeforeTest = (provider): Promise<any> => {
   if (provider.constructor.name === 'LocalStorage') return localStorageBeforeTest(provider)

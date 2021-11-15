@@ -71,7 +71,7 @@ export class LocalStorage implements StorageProviderInterface {
       fields: {
         Key: key
       },
-      url: `http://${this.cacheDomain}${key}`,
+      url: `https://${this.cacheDomain}${key}`,
       local: true,
       cacheDomain: this.cacheDomain
     }

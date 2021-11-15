@@ -65,7 +65,7 @@ describe('Storage Provider test', () => {
       })
       let res
       try {
-        res = await fetch(url)
+        res = await fetch(url,{agent:httpAgent})
       } catch (err) {
         console.log(err)
       }
