@@ -48,9 +48,9 @@ function a11yProps(index) {
   }
 }
 
-const Index = () => {
+const Index = ({ invite }) => {
   const classes = useHarmonyStyles()
-  const [value, setValue] = React.useState(0)
+  const [value, setValue] = React.useState(invite === 'Group' ? 2 : 0)
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
