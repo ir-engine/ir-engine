@@ -50,10 +50,12 @@ const InviteHarmony = (props: Props) => {
 
   const acceptRequest = (invite) => {
     InviteService.acceptInvite(invite.id, invite.passcode)
+    setShowNot(false)
   }
 
   const declineRequest = (invite) => {
     InviteService.declineInvite(invite)
+    setShowNot(false)
   }
 
   const cancelDelete = () => {
@@ -89,7 +91,7 @@ const InviteHarmony = (props: Props) => {
         {state === 'Received' ? (
           <>
             {[...receivedInvites?.value]
-              .sort((a, b) => a.createdAt - b.createdAt)
+              .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
               .map((invite) => {
                 const dt = invite.createdAt.split('T')[0].split('-')
                 const formatedDate = new Date(Date.UTC(+dt[0], +dt[1] - 1, +dt[2]))
@@ -150,7 +152,7 @@ const InviteHarmony = (props: Props) => {
         ) : (
           <>
             {[...sentInvites?.value]
-              .sort((a, b) => a.createdAt - b.createdAt)
+              .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
               .map((invite) => {
                 const dt = invite.createdAt.split('T')[0].split('-')
                 const formatedDate = new Date(Date.UTC(+dt[0], +dt[1] - 1, +dt[2]))
