@@ -58,6 +58,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 const setAvatarOpacity = (entity: Entity, opacity: number): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
   object3DComponent.value.traverse((obj) => {
+    if (!(obj as SkinnedMesh).isSkinnedMesh) return
     const mat = (obj as SkinnedMesh).material as Material
     if (!mat) return
     mat.opacity = opacity
@@ -95,7 +96,6 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
   const targetToCamVec = tempVec1.subVectors(cameraTransform.position, target)
-  // followCamera.raycaster.far = followCamera.maxDistance
 
   createConeOfVectors(targetToCamVec, cameraRays, rayConeAngle)
 
@@ -170,8 +170,6 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
     const distanceResults = getMaxCamDistance(entity, tempVec)
     maxDistance = distanceResults.maxDistance
     isInsideWall = distanceResults.targetHit
-    // isInsideWall = newZoomDistance < followCamera.maxDistance
-    // console.log(newZoomDistance, maxDistance, followCamera.maxDistance)
   }
 
   const newZoomDistance = Math.min(followCamera.zoomLevel, maxDistance)
@@ -184,9 +182,15 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   // }
 
   // Zoom smoothing
-  followCamera.distance = isInsideWall
-    ? newZoomDistance
-    : smoothDamp(followCamera.distance, newZoomDistance, followCamera.zoomVelocity, 0.3, delta)
+  let smoothingSpeed = isInsideWall ? 0.06 : 0.3
+
+  followCamera.distance = smoothDamp(
+    followCamera.distance,
+    newZoomDistance,
+    followCamera.zoomVelocity,
+    smoothingSpeed,
+    delta
+  )
 
   const theta = followCamera.theta
   const thetaRad = MathUtils.degToRad(theta)
@@ -248,6 +252,7 @@ export default async function CameraSystem(world: World): Promise<System> {
           coneDebugHelpers.push(arrow)
           arrow.traverse((obj: Object3D) => {
             obj.layers.set(CameraLayers.Gizmos)
+            obj.layers.enable(CameraLayers.Render)
           })
           Engine.scene.add(arrow)
         }

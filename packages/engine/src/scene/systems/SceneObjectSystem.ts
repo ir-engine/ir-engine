@@ -50,6 +50,11 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
 
       ;(object3DComponent.value as any).entity = entity
 
+      // Enable scene layer
+      object3DComponent.value.traverse((obj: Object3D) => {
+        obj.layers.enable(CameraLayers.Scene)
+      })
+
       // Add to scene
       if (!Engine.scene.children.includes(object3DComponent.value)) {
         Engine.scene.add(object3DComponent.value)
