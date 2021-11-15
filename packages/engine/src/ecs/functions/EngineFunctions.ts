@@ -13,6 +13,7 @@ import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
 import { hasComponent, removeAllComponents } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
+import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -114,7 +115,7 @@ export const unloadScene = async (): Promise<void> => {
     removeEntity(entity)
   })
 
-  isClient && EngineRenderer.instance.resetPostProcessing()
+  isClient && configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
 
   Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
 

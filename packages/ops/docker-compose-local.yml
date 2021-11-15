@@ -40,7 +40,7 @@ services:
  
   # DB Server
   db:
-    image: mariadb:10.6
+    image: mariadb:10.7
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: xrengine-root-pa$$w0rd
