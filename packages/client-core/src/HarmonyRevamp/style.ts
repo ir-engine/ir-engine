@@ -273,9 +273,6 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     fontSizeSmall: {
       fontSize: '1rem'
-    },
-    btnCursor: {
-      cursor: 'pointer'
     }
   })
 )

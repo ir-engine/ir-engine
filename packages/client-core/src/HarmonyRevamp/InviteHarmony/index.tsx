@@ -50,10 +50,12 @@ const InviteHarmony = (props: Props) => {
 
   const acceptRequest = (invite) => {
     InviteService.acceptInvite(invite.id, invite.passcode)
+    setShowNot(false)
   }
 
   const declineRequest = (invite) => {
     InviteService.declineInvite(invite)
+    setShowNot(false)
   }
 
   const cancelDelete = () => {
