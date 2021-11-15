@@ -16,6 +16,9 @@ import {
   Tabs,
   Tab
 } from '@mui/material'
+import Friends from './Friends'
+import Group from './Group'
+import Party from './Party'
 import { useHarmonyStyles } from '../style'
 
 function TabPanel(props) {
@@ -47,9 +50,6 @@ function a11yProps(index) {
 
 const Index = () => {
   const classes = useHarmonyStyles()
-  const [show, setShow] = React.useState(false)
-  const [type, setType] = React.useState('email')
-  const [anchorEl, setAnchorEl] = React.useState(null)
   const [value, setValue] = React.useState(0)
 
   const handleChange = (event, newValue) => {
@@ -78,214 +78,13 @@ const Index = () => {
             <Tab label="GROUP" {...a11yProps(2)} />
           </Tabs>
           <TabPanel value={value} index={0}>
-            <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx2}`}>
-              <a
-                href="#"
-                onClick={() => setType('email')}
-                className={`${type === 'email' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Email</span>
-              </a>
-              <a
-                href="#"
-                onClick={() => setType('phone')}
-                className={`${type === 'phone' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Phone</span>
-              </a>
-              <a
-                href="#"
-                onClick={() => setType('code')}
-                className={`${type === 'code' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Invite Code</span>
-              </a>
-            </div>
-            <div className={classes.p5}>
-              <form>
-                {type === 'email' ? (
-                  <div className="form-group">
-                    <label htmlFor="" className={classes.mx2}>
-                      <p>Email:</p>
-                    </label>
-                    <input type="text" className={classes.formControls} placeholder="Your@domain.com" />
-                  </div>
-                ) : type === 'phone' ? (
-                  <div className="form-group">
-                    <label htmlFor="">
-                      <p>Phone:</p>
-                    </label>
-                    <input type="text" className={classes.formControls} placeholder="078XXXXXXX" />
-                  </div>
-                ) : (
-                  <div className="form-group">
-                    <label htmlFor="">
-                      <p>Code:</p>
-                    </label>
-                    <input type="text" className={classes.formControls} placeholder="XXXXXX" />
-                  </div>
-                )}
-                <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
-                  <button
-                    className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
-                  >
-                    Send
-                  </button>
-                </div>
-              </form>
-            </div>
+            <Friends />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx2}`}>
-              <a
-                href="#"
-                onClick={() => setType('email')}
-                className={`${type === 'email' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Email</span>
-              </a>
-              <a
-                href="#"
-                onClick={() => setType('phone')}
-                className={`${type === 'phone' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Phone</span>
-              </a>
-              <a
-                href="#"
-                onClick={() => setType('code')}
-                className={`${type === 'code' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Invite Code</span>
-              </a>
-              <a
-                href="#"
-                onClick={() => setType('friends')}
-                className={`${type === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Friends</span>
-              </a>
-            </div>
-            <div className={classes.p5}>
-              <form>
-                {type === 'email' ? (
-                  <div className="form-group">
-                    <label htmlFor="" className={classes.mx2}>
-                      <p>Email:</p>
-                    </label>
-                    <input type="text" className={classes.formControls} placeholder="Your@domain.com" />
-                  </div>
-                ) : type === 'phone' ? (
-                  <div className="form-group">
-                    <label htmlFor="">
-                      <p>Phone:</p>
-                    </label>
-                    <input type="text" className={classes.formControls} placeholder="078XXXXXXX" />
-                  </div>
-                ) : (
-                  <div className="form-group">
-                    <label htmlFor="">
-                      <p>Code:</p>
-                    </label>
-                    <input type="text" className={classes.formControls} placeholder="XXXXXX" />
-                  </div>
-                )}
-                <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
-                  <button
-                    className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
-                  >
-                    Send
-                  </button>
-                </div>
-              </form>
-            </div>
+            <Party />
           </TabPanel>
           <TabPanel value={value} index={2}>
-            <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx2}`}>
-              <a
-                href="#"
-                onClick={() => setType('email')}
-                className={`${type === 'email' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Email</span>
-              </a>
-              <a
-                href="#"
-                onClick={() => setType('phone')}
-                className={`${type === 'phone' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Phone</span>
-              </a>
-              <a
-                href="#"
-                onClick={() => setType('code')}
-                className={`${type === 'code' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Invite Code</span>
-              </a>
-              <a
-                href="#"
-                onClick={() => setType('friends')}
-                className={`${type === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                  classes.mx2
-                }`}
-              >
-                <span>Friends</span>
-              </a>
-            </div>
-            <div className={classes.p5}>
-              <form>
-                {type === 'email' ? (
-                  <div className="form-group">
-                    <label htmlFor="" className={classes.mx2}>
-                      <p>Email:</p>
-                    </label>
-                    <input type="text" className={classes.formControls} placeholder="Your@domain.com" />
-                  </div>
-                ) : type === 'phone' ? (
-                  <div className="form-group">
-                    <label htmlFor="">
-                      <p>Phone:</p>
-                    </label>
-                    <input type="text" className={classes.formControls} placeholder="078XXXXXXX" />
-                  </div>
-                ) : (
-                  <div className="form-group">
-                    <label htmlFor="">
-                      <p>Code:</p>
-                    </label>
-                    <input type="text" className={classes.formControls} placeholder="XXXXXX" />
-                  </div>
-                )}
-                <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
-                  <button
-                    className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
-                  >
-                    Send
-                  </button>
-                </div>
-              </form>
-            </div>
+            <Group />
           </TabPanel>
         </Box>
       </div>
