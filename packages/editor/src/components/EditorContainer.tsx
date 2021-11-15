@@ -502,15 +502,13 @@ const EditorContainer = () => {
 
     try {
       if (isDev && projectName === 'default-project')
-        await new Promise((resolve) => {
-          setDialogComponent(<ErrorDialog title={t('editor:warnDefault')} message={t('editor:warnDefaultMsg')} />)
-        })
+        setDialogComponent(<ErrorDialog title={t('editor:warnDefault')} message={t('editor:warnDefaultMsg')} />)
       await saveScene(projectName, sceneName, blob, abortController.signal)
       await saveProject(projectName)
       SceneManager.instance.sceneModified = false
       updateModifiedState()
 
-      setDialogComponent(null)
+      if (!(isDev && projectName === 'default-project')) setDialogComponent(null)
     } catch (error) {
       console.error(error)
 
