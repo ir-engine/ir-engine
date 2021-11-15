@@ -7,22 +7,20 @@ import { AdminAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetti
 
 //State
 const state = createState({
-  authSettings: {
-    authSettings: [] as Array<AdminAuthSetting>,
-    skip: 0,
-    limit: 100,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true
-  }
+  authSettings: [] as Array<AdminAuthSetting>,
+  skip: 0,
+  limit: 100,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true
 })
 
 store.receptors.push((action: AuthSettingActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_AUTH_SETTING_FETCHED':
-        return s.authSettings.merge({
+        return s.merge({
           authSettings: action.adminRedisSettingResult.data,
           skip: action.adminRedisSettingResult.skip,
           limit: action.adminRedisSettingResult.limit,
@@ -30,7 +28,7 @@ store.receptors.push((action: AuthSettingActionType): any => {
           updateNeeded: false
         })
       case 'ADMIN_AUTH_SETTING_PATCHED':
-        return s.authSettings.updateNeeded.set(true)
+        return s.updateNeeded.set(true)
     }
   }, action.type)
 })

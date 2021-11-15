@@ -1,59 +1,35 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
 import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserResult } from '@xrengine/common/src/interfaces/UserResult'
 import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
 import { UserRoleResult } from '@xrengine/common/src/interfaces/UserRoleResult'
+import { accessAuthState } from '../../user/services/AuthService'
 
 //State
 export const USER_PAGE_LIMIT = 100
 
 const state = createState({
-  users: {
-    users: [] as Array<User>,
-    skip: 0,
-    limit: USER_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true,
-    lastFetched: Date.now()
-  },
-  userRole: {
-    userRole: [] as Array<UserRole>,
-    skip: 0,
-    limit: USER_PAGE_LIMIT,
-    total: 0,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true
-  },
-  singleUser: {
-    singleUser: UserSeed as User,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true
-  },
-  staticResource: {
-    staticResource: [] as Array<StaticResource>,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true
-  }
+  users: [] as Array<User>,
+  skip: 0,
+  limit: USER_PAGE_LIMIT,
+  total: 0,
+  retrieving: false,
+  fetched: false,
+  updateNeeded: true,
+  skipGuests: false
 })
 
 store.receptors.push((action: UserActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_LOADED_USERS':
-        return s.users.merge({
+        return s.merge({
           users: action.userResult.data,
           skip: action.userResult.skip,
           limit: action.userResult.limit,
@@ -63,22 +39,16 @@ store.receptors.push((action: UserActionType): any => {
           updateNeeded: false,
           lastFetched: Date.now()
         })
-      case 'USER_ROLE_RETRIEVED':
-        return s.userRole.merge({ userRole: action.types.data, updateNeeded: false })
-      case 'USER_ROLE_CREATED':
-        return s.userRole.merge({ updateNeeded: true })
       case 'USER_ADMIN_REMOVED':
-        let userRemove = [...s.users.users.value]
+        let userRemove = [...s.users.value]
         userRemove = userRemove.filter((user) => user.id !== action.data.id)
-        return s.users.merge({ users: userRemove, updateNeeded: true })
+        return s.merge({ users: userRemove, updateNeeded: true })
       case 'USER_ADMIN_CREATED':
-        return s.users.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'USER_ADMIN_PATCHED':
-        return s.users.merge({ updateNeeded: true })
-      case 'USER_ROLE_UPDATED':
-        return s.users.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'USER_SEARCH_ADMIN':
-        return s.users.merge({
+        return s.merge({
           users: action.userResult.data,
           skip: action.userResult.skip,
           limit: action.userResult.limit,
@@ -88,17 +58,11 @@ store.receptors.push((action: UserActionType): any => {
           updateNeeded: false,
           lastFetched: Date.now()
         })
-      case 'SINGLE_USER_ADMIN_LOADED':
-        return s.singleUser.merge({ singleUser: action.data, retrieving: false, fetched: true, updateNeeded: false })
-      case 'STATIC_RESOURCE_RETRIEVED':
-        return s.staticResource.merge({
-          staticResource: action.staticResource.data,
-          retrieving: false,
-          updateNeeded: false,
-          fetched: true
+      case 'SET_SKIP_GUESTS':
+        return s.merge({
+          skipGuests: action.skipGuests,
+          updateNeeded: true
         })
-      case 'SINGLE_USER_ADMIN_REFETCH':
-        return s.singleUser.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -113,11 +77,13 @@ export const UserService = {
     const dispatch = useDispatch()
     {
       const userState = accessUserState()
-      const skip = userState.users.skip.value
-      const limit = userState.users.limit.value
+      const user = accessAuthState().user
+      const skip = userState.skip.value
+      const limit = userState.limit.value
+      const skipGuests = userState.skipGuests.value
       try {
-        if (userState.userRole.userRole.findIndex((r) => r.userRole.value === 'admin') !== -1) {
-          const users = await client.service('user').find({
+        if (user.userRole.value === 'admin') {
+          const params = {
             query: {
               $sort: {
                 name: 1
@@ -126,7 +92,13 @@ export const UserService = {
               $limit: limit,
               action: 'admin'
             }
-          })
+          }
+          if (skipGuests) {
+            params.query.userRole = {
+              $ne: 'guest'
+            }
+          }
+          const users = await client.service('user').find(params)
           dispatch(UserAction.loadedUsers(users))
         }
       } catch (err) {
@@ -165,44 +137,13 @@ export const UserService = {
       dispatch(UserAction.userAdminRemoved(result))
     }
   },
-  fetchUserRole: async () => {
-    const dispatch = useDispatch()
-    {
-      try {
-        const userRole = await client.service('user-role').find()
-        dispatch(UserAction.userRoleRetrieved(userRole))
-      } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
-      }
-    }
-  },
-  createUserRoleAction: async (data) => {
-    const dispatch = useDispatch()
-    {
-      const result = await client.service('user-role').create(data)
-      dispatch(UserAction.userRoleCreated(result))
-    }
-  },
-  updateUserRole: async (id: string, role: string) => {
-    const dispatch = useDispatch()
-    {
-      try {
-        const userRole = await client.service('user').patch(id, { userRole: role })
-        dispatch(UserAction.userRoleUpdated(userRole))
-      } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
-      }
-    }
-  },
   searchUserAction: async (data: any) => {
     const dispatch = useDispatch()
     {
       try {
         const userState = accessUserState()
-        const skip = userState.users.skip.value
-        const limit = userState.users.limit.value
+        const skip = userState.skip.value
+        const limit = userState.limit.value
         const result = await client.service('user').find({
           query: {
             $sort: {
@@ -221,34 +162,11 @@ export const UserService = {
       }
     }
   },
-  fetchSingleUserAdmin: async (id: string) => {
+  refetchSingleUserAdmin: async () => {},
+  setSkipGuests: async (value: boolean) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = await client.service('user').get(id)
-        dispatch(UserAction.fetchedSingleUser(result))
-      } catch (error) {
-        console.error(error)
-        AlertService.dispatchAlertError(error.message)
-      }
-    }
-  },
-  fetchStaticResource: async () => {
-    const dispatch = useDispatch()
-    {
-      try {
-        const result = await client.service('static-resource').find({
-          query: {
-            staticResourceType: 'avatar'
-          }
-        })
-        dispatch(UserAction.fetchedStaticResource(result))
-      } catch (error) {
-        console.error(error)
-      }
-    }
-  },
-  refetchSingleUserAdmin: async () => {}
+    dispatch(UserAction.setSkipGuests(value))
+  }
 }
 
 //Action
@@ -271,27 +189,9 @@ export const UserAction = {
       user: user
     }
   },
-  userRoleRetrieved: (data: UserRoleResult) => {
-    return {
-      type: 'USER_ROLE_RETRIEVED' as const,
-      types: data
-    }
-  },
-  userRoleCreated: (data: UserRole) => {
-    return {
-      type: 'USER_ROLE_CREATED' as const,
-      types: data
-    }
-  },
   userAdminRemoved: (data: User) => {
     return {
       type: 'USER_ADMIN_REMOVED' as const,
-      data: data
-    }
-  },
-  userRoleUpdated: (data: User) => {
-    return {
-      type: 'USER_ROLE_UPDATED' as const,
       data: data
     }
   },
@@ -301,21 +201,10 @@ export const UserAction = {
       userResult: userResult
     }
   },
-  fetchedSingleUser: (data: User) => {
+  setSkipGuests: (skipGuests: boolean) => {
     return {
-      type: 'SINGLE_USER_ADMIN_LOADED' as const,
-      data: data
-    }
-  },
-  fetchedStaticResource: (data: StaticResourceResult) => {
-    return {
-      type: 'STATIC_RESOURCE_RETRIEVED' as const,
-      staticResource: data
-    }
-  },
-  refetchSingleUser: () => {
-    return {
-      type: 'SINGLE_USER_ADMIN_REFETCH' as const
+      type: 'SET_SKIP_GUESTS' as const,
+      skipGuests: skipGuests
     }
   }
 }

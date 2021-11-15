@@ -3,7 +3,6 @@ import { Route, Switch } from 'react-router-dom'
 import CircularProgress from '@mui/material/CircularProgress'
 import { getCustomRoutes } from './getCustomRoutes'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
-import { useTranslation } from 'react-i18next'
 
 if (typeof globalThis.process === 'undefined') {
   ;(globalThis as any).process = { env: {} }
@@ -15,10 +14,14 @@ type CustomRoute = {
   page: any
 }
 
+const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
+const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
+const $login = React.lazy(() => import('@xrengine/client/src/pages/login'))
+const $503 = React.lazy(() => import('../pages/503'))
+const $404 = React.lazy(() => import('../pages/404'))
+
 function RouterComp(props) {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
-
-  const { t } = useTranslation()
 
   useEffect(() => {
     getCustomRoutes().then((routes) => {
@@ -28,15 +31,6 @@ function RouterComp(props) {
 
   if (!customRoutes) {
     return <div>Loading...</div>
-  }
-
-  if (Array.isArray(customRoutes) && !customRoutes.length) {
-    return (
-      <>
-        <h1 style={{ color: 'black' }}>{t('no-projects.msg')}</h1>
-        <img src="/static/xrengine.png" />
-      </>
-    )
   }
 
   return (
@@ -57,16 +51,14 @@ function RouterComp(props) {
           }
         >
           <Switch>
-            {customRoutes}
+            {customRoutes?.length && customRoutes}
             {/* default to allowing admin access regardless */}
-            <Route
-              key={'/admin'}
-              path={'/admin'}
-              component={React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))}
-            />
+            <Route key={'default-admin'} path={'/admin'} component={$admin} />
+            <Route key={'default-login'} path={'/login'} component={$login} />
+            <Route key={'default-auth'} path={'/auth'} component={$auth} />
             {/* if no index page has been provided, indicate this as obviously as possible */}
-            <Route key={'/503'} path={'/'} component={React.lazy(() => import('../pages/503'))} exact />
-            <Route key={'*504'} path="*" component={React.lazy(() => import('../pages/404'))} />
+            <Route key={'/503'} path={'/'} component={$503} exact />
+            <Route key={'404'} path="*" component={$404} />
           </Switch>
         </Suspense>
       </React.Fragment>

@@ -6,8 +6,7 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 export const retriggerBuilderService = async (app: Application) => {
   try {
     // invalidate cache for all installed projects
-    const files = await getFileKeysRecursive(`projects`)
-    await useStorageProvider().createInvalidation(files)
+    await useStorageProvider().createInvalidation(['projects*'])
   } catch (e) {
     console.log('[Project Rebuild]: Failed to invalidate cache with error', e)
   }

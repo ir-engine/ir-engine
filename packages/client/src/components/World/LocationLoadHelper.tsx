@@ -2,7 +2,7 @@ import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/se
 import { client } from '@xrengine/client-core/src/feathers'
 import { Config } from '@xrengine/common/src/config'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
-import { store } from '@xrengine/client-core/src/store'
+import { store, useDispatch } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -16,13 +16,14 @@ import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Vector3, Quaternion } from 'three'
-import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { getPacksFromSceneData } from '@xrengine/projects/loader'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { EngineAction } from '@xrengine/client-core/src/world/services/EngineService'
 
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
@@ -44,16 +45,7 @@ export const retriveLocationByName = (authState: any, locationName: string, hist
   }
 }
 
-export type EngineCallbacks = {
-  onEngineInitialized?: Function
-  onConnectedToServer?: Function
-  onSceneLoaded?: Function
-  onSceneLoadProgress?: Function
-  onJoinedToNewWorld?: Function
-  onSuccess?: Function
-}
-
-export const getSceneData = async (scene: string, isOffline: boolean): Promise<SceneData> => {
+export const getSceneData = async (scene: string, isOffline: boolean): Promise<SceneJson> => {
   if (isOffline) {
     return testScenes[scene] || testScenes.test
   }
@@ -65,12 +57,12 @@ export const getSceneData = async (scene: string, isOffline: boolean): Promise<S
   return sceneResult.data.scene
 }
 
-const getFirstSpawnPointFromSceneData = (scene: SceneData) => {
+const getFirstSpawnPointFromSceneData = (scene: SceneJson) => {
   for (const entity of Object.values(scene.entities)) {
     if (entity.name != 'spawn point') continue
 
     for (const component of entity.components) {
-      if (component.type === 'transform') {
+      if (component.name === 'transform') {
         return component.props.position
       }
     }
@@ -80,7 +72,7 @@ const getFirstSpawnPointFromSceneData = (scene: SceneData) => {
   return { x: 0, y: 0, z: 0 }
 }
 
-const createOfflineUser = (sceneData: SceneData) => {
+const createOfflineUser = (sceneData: SceneJson) => {
   const avatarDetail = {
     thumbnailURL: '',
     avatarURL: '',
@@ -105,11 +97,17 @@ const createOfflineUser = (sceneData: SceneData) => {
   dispatchLocal(NetworkWorldAction.spawnAvatar({ userId, parameters }) as any)
 }
 
-export const initEngine = async (
+export const initEngine = async (initOptions: InitializeOptions) => {
+  Network.instance.transport = new SocketWebRTCClientTransport()
+  await initializeEngine(initOptions)
+  const dispatch = useDispatch()
+  dispatch(EngineAction.setInitialised(false))
+}
+
+export const loadLocation = async (
   sceneName: string,
   initOptions: InitializeOptions,
   newSpawnPos?: ReturnType<typeof PortalComponent.get>,
-  engineCallbacks?: EngineCallbacks,
   connectToInstanceServer: boolean = true
 ): Promise<any> => {
   // 1.
@@ -123,14 +121,7 @@ export const initEngine = async (
 
   // 2. Initialize Engine if not initialized
   if (!Engine.isInitialized) {
-    console.log('initEngine')
-    Network.instance.transport = new SocketWebRTCClientTransport()
-    await initializeEngine(initOptions)
-    document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
-
-    if (typeof engineCallbacks?.onEngineInitialized === 'function') {
-      engineCallbacks.onEngineInitialized()
-    }
+    await initEngine(initOptions)
   }
 
   // 3. Connect to server
@@ -141,16 +132,15 @@ export const initEngine = async (
     await Promise.all([InstanceConnectionService.connectToInstanceServer('instance'), didConnect])
   }
 
-  if (typeof engineCallbacks?.onConnectedToServer === 'function') {
-    engineCallbacks.onConnectedToServer()
-  }
-
   // 4. Start scene loading
   store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
   console.log('Awaiting scene load')
 
-  await WorldScene.load(sceneData, engineCallbacks?.onSceneLoadProgress)
+  const dispatch = useDispatch()
+  await WorldScene.load(sceneData, (count: number) => {
+    dispatch(EngineAction.loadingProgress(count))
+  })
 
   getPortalDetails()
   store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
@@ -176,16 +166,8 @@ export const initEngine = async (
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
-  if (typeof engineCallbacks?.onJoinedToNewWorld === 'function') {
-    engineCallbacks.onJoinedToNewWorld()
-  }
-
   // 6. Dispatch success
   store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
-
-  if (typeof engineCallbacks?.onSuccess === 'function') {
-    engineCallbacks.onSuccess()
-  }
 }
 
 export const teleportToLocation = async (
@@ -204,8 +186,8 @@ export const teleportToLocation = async (
   // }
 
   // shut down connection with existing GS
+  Network.instance.transport.close(true, false)
   InstanceConnectionService.resetInstanceServer()
-  Network.instance.transport.close()
 
   await teleportToScene(portalComponent, async () => {
     onTeleport()

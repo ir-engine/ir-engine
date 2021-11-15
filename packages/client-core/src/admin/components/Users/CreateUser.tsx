@@ -23,7 +23,10 @@ import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { ScopeService } from '../../services/ScopeService'
 import { useScopeState } from '../../services/ScopeService'
+import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeService'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { useUserRoleState, UserROleService } from '../../services/UserRoleService'
+import { useStaticResourceState, staticResourceService } from '../../services/StaticResourceService'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -46,12 +49,12 @@ const CreateUser = (props: Props) => {
     name: '',
     avatar: '',
     userRole: '',
-    scopeType: [] as Array<AdminScopeType>,
+    scopeTypes: [] as Array<AdminScopeType>,
     formErrors: {
       name: '',
       avatar: '',
       userRole: '',
-      scopeType: ''
+      scopeTypes: ''
     }
   })
 
@@ -60,27 +63,26 @@ const CreateUser = (props: Props) => {
 
   const user = useAuthState().user
   const adminUserState = useUserState()
-  const userRole = adminUserState.userRole
+  const userRole = useUserRoleState()
   const userRoleData = userRole ? userRole.userRole?.value : []
-  const staticResource = adminUserState.staticResource
+  const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
 
-  const adminScopeState = useScopeState()
-  const adminScopes = adminScopeState.scopeType.scopeType
+  const adminScopeTypeState = useScopeTypeState()
 
   React.useEffect(() => {
     const fetchData = async () => {
-      await UserService.fetchUserRole()
+      await UserROleService.fetchUserRole()
     }
     const role = userRole ? userRole.updateNeeded.value : false
     if (role === true && user.id.value) fetchData()
     if (user.id.value && staticResource.updateNeeded.value) {
-      UserService.fetchStaticResource()
+      staticResourceService.fetchStaticResource()
     }
-    if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      ScopeService.getScopeTypeService()
+    if (adminScopeTypeState.updateNeeded.value && user.id.value) {
+      ScopeTypeService.getScopeTypeService()
     }
-  }, [adminScopeState.scopeType.updateNeeded.value, user])
+  }, [adminScopeTypeState.updateNeeded.value, staticResource.updateNeeded.value, user])
 
   const createUserRole = () => {
     setOpenCreateUserRole(true)
@@ -122,7 +124,7 @@ const CreateUser = (props: Props) => {
       name: state.name,
       avatarId: state.avatar,
       userRole: state.userRole,
-      scopeType: state.scopeType
+      scopeTypes: state.scopeTypes
     }
     let temp = state.formErrors
     if (!state.name) {
@@ -134,8 +136,8 @@ const CreateUser = (props: Props) => {
     if (!state.userRole) {
       temp.userRole = "User role can't be empty"
     }
-    if (!state.scopeType.length) {
-      temp.scopeType = "Scope type can't be empty"
+    if (!state.scopeTypes.length) {
+      temp.scopeTypes = "Scope type can't be empty"
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
@@ -146,7 +148,7 @@ const CreateUser = (props: Props) => {
         name: '',
         avatar: '',
         userRole: '',
-        scopeType: []
+        scopeTypes: []
       })
     } else {
       setError('Please fill all required field')
@@ -222,8 +224,8 @@ const CreateUser = (props: Props) => {
                   <em>Select user role</em>
                 </MenuItem>
                 {userRoleData.map((el) => (
-                  <MenuItem value={el?.userRole || ''} key={el?.userRole || ''}>
-                    {el?.userRole || ''}
+                  <MenuItem value={el?.role || ''} key={el?.role || ''}>
+                    {el?.role || ''}
                   </MenuItem>
                 ))}
               </Select>
@@ -240,20 +242,20 @@ const CreateUser = (props: Props) => {
           <label>Grant Scope</label>
           <Paper
             component="div"
-            className={state.formErrors.scopeType.length > 0 ? classes.redBorder : classes.createInput}
+            className={state.formErrors.scopeTypes.length > 0 ? classes.redBorder : classes.createInput}
           >
             <Autocomplete
               onChange={(event, value) =>
-                setState({ ...state, scopeType: value, formErrors: { ...state.formErrors, scopeType: '' } })
+                setState({ ...state, scopeTypes: value, formErrors: { ...state.formErrors, scopeTypes: '' } })
               }
               multiple
               className={classes.selector}
               classes={{ paper: classesx.selectPaper, inputRoot: classes.select }}
               id="tags-standard"
-              options={adminScopes.value}
+              options={adminScopeTypeState.scopeTypes.value}
               disableCloseOnSelect
               filterOptions={(options: any) =>
-                options.filter((option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null)
+                options.filter((option) => state.scopeTypes.find((scopeType) => scopeType.type === option.type) == null)
               }
               getOptionLabel={(option: any) => option.type}
               renderInput={(params) => <TextField {...params} placeholder="Select scope" />}

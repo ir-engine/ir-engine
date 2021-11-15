@@ -10,10 +10,8 @@ type DefaultNodeEditorProps = {
  *
  * @author Robert Long
  */
-export class DefaultNodeEditor extends Component<DefaultNodeEditorProps, {}> {
-  render() {
-    return <NodeEditor {...this.props} />
-  }
+export const DefaultNodeEditor = (props: DefaultNodeEditorProps) => {
+  return <NodeEditor {...props} />
 }
 
 export default DefaultNodeEditor

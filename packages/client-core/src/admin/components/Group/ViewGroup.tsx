@@ -70,7 +70,7 @@ const ViewGroup = (props: Props) => {
             <div className={classes.flex}>
               <div>
                 <Typography variant="h4" component="h4" className={classes.mb20px}>
-                  User scope
+                  Group scopes
                 </Typography>
                 <Container style={{ overflowY: 'auto', height: '300px' }}>
                   {groupAdmin.scopes?.map((el, index) => {

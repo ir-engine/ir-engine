@@ -24,7 +24,7 @@ const DialogComponent = (props: Props): any => {
 
   useEffect(() => {
     history.listen(() => {
-      dispatch(DialogAction.dialogClose)
+      dispatch(DialogAction.dialogClose())
     })
   }, [])
 

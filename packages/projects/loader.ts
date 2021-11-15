@@ -1,7 +1,7 @@
 import type { ProjectPackageInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 
 interface ProjectNodeArguments {
   packName: string
@@ -19,15 +19,15 @@ interface ProjectModules {
   react: ProjectReactComponent[]
 }
 
-export const getPacksFromSceneData = async (sceneData: SceneData, isClient: boolean): Promise<ProjectModules> => {
+export const getPacksFromSceneData = async (sceneData: SceneJson, isClient: boolean): Promise<ProjectModules> => {
   const modules = {
     systems: [],
     react: []
   }
   for (const entity of Object.values(sceneData.entities)) {
     for (const component of entity.components) {
-      if (component.type === 'project') {
-        const data: ProjectNodeArguments = component.data
+      if (component.name === 'project') {
+        const data: ProjectNodeArguments = component.props
         const projectModules = await importPack(data, isClient)
         modules.systems.push(...projectModules.systems)
         modules.react.push(...projectModules.react)
@@ -59,14 +59,14 @@ export const importPack = async (data: ProjectNodeArguments, isClient: boolean):
         switch (entryPointExtension) {
           case 'js':
             modules.systems.push({
-              systemModulePromise: await import(`./projects/${data.packName}/${entryPointFileName}.js`),
+              systemModulePromise: import(`./projects/${data.packName}/${entryPointFileName}.js`),
               type: systemUpdateType,
               args
             })
             break
           case 'ts':
             modules.systems.push({
-              systemModulePromise: await import(`./projects/${data.packName}/${entryPointFileName}.ts`),
+              systemModulePromise: import(`./projects/${data.packName}/${entryPointFileName}.ts`),
               type: systemUpdateType,
               args
             })

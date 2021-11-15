@@ -6,6 +6,7 @@ import { GLTFInstancingExtension } from '../classes/GLTFInstancingExtension'
 import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { instanceGLTF } from './transformGLTF'
 
 /**
  * Interface for result of the GLTF Asset load.
@@ -63,6 +64,35 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
         resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} })
       },
       null,
+      (e) => {
+        console.log(e)
+        reject(e)
+      }
+    )
+  })
+}
+
+/**
+ * Loads an Instanced Asset which is in GLTF format and uses EXT_mesh_gpu_instancing extension.
+ *
+ * @param url URL of the asset.
+ * @returns a promise of {@link LoadGLTFResultInterface}.
+ */
+export async function LoadInstancedGLTF(url: string): Promise<LoadGLTFResultInterface> {
+  let buffer = await instanceGLTF(url)
+  return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
+    getLoader().parse(
+      buffer,
+      null,
+      (gltf) => {
+        // TODO: Remove me when we add retargeting
+        gltf.scene.traverse((o) => {
+          o.name = o.name.replace('mixamorig', '')
+        })
+
+        loadExtentions(gltf)
+        resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} })
+      },
       (e) => {
         console.log(e)
         reject(e)

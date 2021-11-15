@@ -3,8 +3,6 @@ import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
 import { AssetPanelContentContainer } from './AssetsPanel'
 import { useTranslation } from 'react-i18next'
-import { connectMenu, ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
-import useElementResize from 'element-resize-event'
 import { ProjectGrid } from '../projects/ProjectGrid'
 import { getScenes } from '../../functions/sceneFunctions'
 
@@ -20,6 +18,7 @@ export default function ScenesPanel({ projectName, loadScene, newScene }) {
   const panelRef = useRef(null)
   const [loading, setLoading] = useState(true)
   const [scenes, setScenes] = useState([])
+  const [currentSceneName, setCurrentSceneName] = useState<string>()
 
   const fetchItems = async () => {
     setLoading(true)
@@ -39,7 +38,10 @@ export default function ScenesPanel({ projectName, loadScene, newScene }) {
   }, [])
 
   const onClickExisting = (scene) => {
-    loadScene(scene.name)
+    if (currentSceneName !== scene.name) {
+      loadScene(scene.name)
+      setCurrentSceneName(scene.name)
+    }
   }
 
   useEffect(() => {
@@ -51,6 +53,7 @@ export default function ScenesPanel({ projectName, loadScene, newScene }) {
       <AssetsPanelContainer ref={panelRef} id="file-browser-panel" className={styles.assetsPanel}>
         <AssetPanelContentContainer>
           <ProjectGrid
+            newProjectLabel={t('editor:newScene')}
             loading={loading}
             projects={scenes}
             onClickNew={newScene}

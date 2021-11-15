@@ -22,15 +22,15 @@ function collectMenuProps({ project }) {
 const StyledProjectGridItem = styled.div`
   display: flex;
   flex-direction: column;
-  height: 220px;
+  height: 200px;
   border-radius: 6px;
   background-color: ${(props) => props.theme.toolbar};
   text-decoration: none;
   border: 1px solid transparent;
 
   &:hover {
-    color: inherit;
-    border-color: ${(props) => props.theme.selected};
+    color: white;
+    border-color: white;
   }
 `
 
@@ -110,12 +110,19 @@ const Col = styled.div`
     color: ${(props) => props.theme.text2};
   }
 `
+type Props = {
+  onClickExisting: any
+  contextMenuId: any
+  project: any
+}
 
 /**
  *
  * @author Robert Long
  */
-export const ProjectGridItem = ({ onClickExisting, contextMenuId, project }) => {
+export const ProjectGridItem = (props: Props) => {
+  const { onClickExisting, contextMenuId, project } = props
+
   const onShowMenu = (event) => {
     event.preventDefault()
     event.stopPropagation()
@@ -135,7 +142,7 @@ export const ProjectGridItem = ({ onClickExisting, contextMenuId, project }) => 
   const content = (
     <>
       <ThumbnailContainer>
-        {(project.thumbnailUrl ?? project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
+        {(project.thumbnailUrl || project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
       </ThumbnailContainer>
       <TitleContainer>
         <Col>

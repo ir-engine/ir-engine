@@ -33,8 +33,8 @@ const GroupTable = (props: Props) => {
   const [groupId, setGroupId] = React.useState('')
   const [showWarning, setShowWarning] = React.useState(false)
   const adminGroupState = useGroupState()
-  const adminGroups = adminGroupState.group.group
-  const adminGroupCount = adminGroupState.group.total
+  const adminGroups = adminGroupState.group
+  const adminGroupCount = adminGroupState.total
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -74,8 +74,8 @@ const GroupTable = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (adminGroupState.group.updateNeeded.value) GroupService.getGroupService()
-  }, [adminGroupState.group.updateNeeded.value, user])
+    if (adminGroupState.updateNeeded.value) GroupService.getGroupService()
+  }, [adminGroupState.updateNeeded.value, user])
 
   const createData = (id: any, name: any, description: string): Data => {
     return {

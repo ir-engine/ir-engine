@@ -7,11 +7,11 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { moveAvatar } from './functions/moveAvatar'
-import { detectUserInCollisions } from './functions/detectUserInCollisions'
 import { World } from '../ecs/classes/World'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
+import { detectUserInCollisions } from './functions/detectUserInCollisions'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()

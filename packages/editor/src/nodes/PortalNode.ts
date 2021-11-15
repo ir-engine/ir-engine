@@ -32,8 +32,8 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   static async deserialize(json) {
     const node = (await super.deserialize(json)) as PortalNode
     const portalComponent = json.components.find((c) => c.name === 'portal')
+    console.log(json)
     if (portalComponent) {
-      node.entityId = json.entityId
       node.linkedPortalId = portalComponent.props.linkedPortalId
       node.modelUrl = portalComponent.props.modelUrl
       node.loadModel()

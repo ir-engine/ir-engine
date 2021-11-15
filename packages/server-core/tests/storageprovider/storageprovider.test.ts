@@ -16,7 +16,7 @@ describe('Storage Provider test', () => {
 
   const storageProviders: StorageProviderInterface[] = []
   storageProviders.push(new LocalStorage())
-  //storageProviders.push(new S3Provider())
+  storageProviders.push(new S3Provider())
   
   storageProviders.forEach((provider) => {
     before(async function () {

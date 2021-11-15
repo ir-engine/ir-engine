@@ -8,13 +8,11 @@ import InputBase from '@mui/material/InputBase'
 import Button from '@mui/material/Button'
 import DialogActions from '@mui/material/DialogActions'
 import { formValid } from './validation'
-import { useDispatch } from '../../../store'
 import Autocomplete from '@mui/material/Autocomplete'
 import { GroupService } from '../../services/GroupService'
 import TextField from '@mui/material/TextField'
-import { useScopeState } from '../../services/ScopeService'
+import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeService'
 import { useAuthState } from '../../../user/services/AuthService'
-import { ScopeService } from '../../services/ScopeService'
 
 interface Props {
   open: boolean
@@ -27,26 +25,25 @@ const CreateGroup = (props: Props) => {
   const classes = useGroupStyles()
   const classx = useGroupStyle()
   const user = useAuthState().user
-  const adminScopeState = useScopeState()
-  const adminScopes = adminScopeState.scopeType.scopeType
-  const dispatch = useDispatch()
+  const adminScopeTypeState = useScopeTypeState()
+  const adminScopeTypes = adminScopeTypeState.scopeTypes
 
   const [state, setState] = React.useState({
     name: '',
     description: '',
-    scopeType: [],
+    scopeTypes: [],
     formErrors: {
       name: '',
       description: '',
-      scopeType: ''
+      scopeTypes: ''
     }
   })
 
   React.useEffect(() => {
-    if (adminScopeState.scopeType.updateNeeded.value && user.id.value) {
-      ScopeService.getScopeTypeService()
+    if (adminScopeTypeState.updateNeeded.value && user.id.value) {
+      ScopeTypeService.getScopeTypeService()
     }
-  }, [adminScopeState.scopeType.updateNeeded.value, user])
+  }, [adminScopeTypeState.updateNeeded.value, user])
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -65,7 +62,7 @@ const CreateGroup = (props: Props) => {
 
   const onSubmitHandler = (event) => {
     event.preventDefault()
-    const { name, description, scopeType } = state
+    const { name, description, scopeTypes } = state
     let temp = state.formErrors
 
     if (!state.name) {
@@ -76,12 +73,12 @@ const CreateGroup = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
-      GroupService.createGroupByAdmin({ name, description, scopeType })
+      GroupService.createGroupByAdmin({ name, description, scopeTypes })
       setState({
         ...state,
         name: '',
         description: '',
-        scopeType: []
+        scopeTypes: []
       })
     }
     handleClose(false)
@@ -130,17 +127,17 @@ const CreateGroup = (props: Props) => {
             <Paper component="div" className={classes.createInput}>
               <Autocomplete
                 onChange={(event, value) =>
-                  setState({ ...state, scopeType: value, formErrors: { ...state.formErrors, scopeType: '' } })
+                  setState({ ...state, scopeTypes: value, formErrors: { ...state.formErrors, scopeTypes: '' } })
                 }
                 multiple
                 className={classes.selector}
                 classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
                 id="tags-standard"
-                options={adminScopes.value}
+                options={adminScopeTypes.value}
                 disableCloseOnSelect
                 filterOptions={(options: any) =>
                   options.filter(
-                    (option) => state.scopeType.find((scopeType) => scopeType.type === option.type) == null
+                    (option) => state.scopeTypes.find((scopeType) => scopeType.type === option.type) == null
                   )
                 }
                 getOptionLabel={(option: any) => option.type}

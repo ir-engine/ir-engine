@@ -63,8 +63,8 @@ const CreateLocation = (props: Props) => {
   const dispatch = useDispatch()
   const { t } = useTranslation()
   const adminLocationState = useLocationState()
-  const locationTypes = adminLocationState.locationTypes.locationTypes
-  const location = adminLocationState.locations
+  const locationTypes = adminLocationState.locationTypes
+  const location = adminLocationState
   const adminScenes = useSceneState().scenes
   const alertState = useAlertState()
   const errorType = alertState.type

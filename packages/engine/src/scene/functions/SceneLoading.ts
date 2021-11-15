@@ -3,7 +3,6 @@ import {
   DirectionalLight,
   Euler,
   HemisphereLight,
-  Mesh,
   Object3D,
   PointLight,
   Quaternion,
@@ -21,7 +20,6 @@ import { createParticleEmitterObject } from '../../particles/functions/particleH
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { createBody, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Clouds } from '../classes/Clouds'
@@ -39,7 +37,6 @@ import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { WalkableTagComponent } from '../components/Walkable'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
 import { createDirectionalLight } from '../functions/createDirectionalLight'
 import { createGround } from '../functions/createGround'
@@ -55,11 +52,20 @@ import { setCameraProperties } from '../functions/setCameraProperties'
 import { setEnvMap } from '../functions/setEnvMap'
 import { setFog } from '../functions/setFog'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneData'
-import { SceneDataComponent } from '../interfaces/SceneDataComponent'
+import { SceneJson, ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+
+export interface SceneDataComponent extends ComponentJson {
+  data: any
+}
+
+export interface SceneData extends SceneJson {
+  data: any
+}
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -78,13 +84,14 @@ export class WorldScene {
 
   constructor(private onProgress?: Function) {}
 
-  loadScene = (scene: SceneData): Promise<void> => {
+  loadScene = (scene: SceneJson): Promise<void> => {
     WorldScene.callbacks = {}
     WorldScene.isLoading = true
 
     // reset renderer settings for if we are teleporting and the new scene does not have an override
     configureCSM(null!, true)
     handleRendererSettings(null!, true)
+    if (isClient) EngineRenderer.instance.postProcessingConfig = null
 
     const sceneProperty: ScenePropertyType = {
       directionalLights: [],
@@ -97,9 +104,9 @@ export class WorldScene {
 
       addComponent(entity, NameComponent, { name: sceneEntity.name })
 
-      sceneEntity.components.forEach((component) => {
+      sceneEntity.components.forEach((component: SceneDataComponent) => {
         component.data = component.props
-        component.data.sceneEntityId = sceneEntity.entityId
+        component.data.sceneEntityId = key
         this.loadComponent(entity, component, sceneProperty)
       })
     })
@@ -136,6 +143,7 @@ export class WorldScene {
 
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
+    console.log(component)
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     const world = useWorld()
     switch (name) {
@@ -386,7 +394,7 @@ export class WorldScene {
         break
 
       case 'postprocessing':
-        EngineRenderer.instance?.configurePostProcessing(component.data.options)
+        isClient && configureEffectComposer(component.data.options)
         break
 
       case 'cameraproperties':
@@ -435,7 +443,7 @@ export class WorldScene {
     }
   }
 
-  static load = (scene: SceneData, onProgress?: Function): Promise<void> => {
+  static load = (scene: SceneJson, onProgress?: Function): Promise<void> => {
     const world = new WorldScene(onProgress)
     return world.loadScene(scene)
   }

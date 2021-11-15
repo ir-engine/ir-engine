@@ -11,13 +11,13 @@ interface Props {}
 const ChargeBee = (props: Props) => {
   const classes = useStyles()
   const chargeBeeSettingState = useChargebeeSettingState()
-  const [chargebee] = chargeBeeSettingState?.Chargebee?.chargebee.value || []
+  const [chargebee] = chargeBeeSettingState?.chargebee.value || []
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
 
   useEffect(() => {
-    if (user?.id?.value != null && chargeBeeSettingState?.Chargebee?.updateNeeded?.value) {
+    if (user?.id?.value != null && chargeBeeSettingState?.updateNeeded?.value) {
       ChargebeeSettingService.fetchChargeBee()
     }
   }, [authState])

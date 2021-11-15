@@ -25,7 +25,7 @@ const PartyTable = (props: PartyPropsTable) => {
   const authState = useAuthState()
   const user = authState.user
   const adminPartyState = usePartyState()
-  const adminParty = adminPartyState.parties
+  const adminParty = adminPartyState
   const adminPartyData = adminParty.parties?.value || []
   const adminPartyCount = adminParty.total
 
@@ -39,7 +39,7 @@ const PartyTable = (props: PartyPropsTable) => {
     if (user?.id?.value && adminParty.updateNeeded.value === true) {
       PartyService.fetchAdminParty()
     }
-  }, [authState.user?.id?.value, adminPartyState.parties.updateNeeded.value])
+  }, [authState.user?.id?.value, adminPartyState.updateNeeded.value])
 
   const createData = (id: string, instance: string, location: string): PartyData => {
     return {

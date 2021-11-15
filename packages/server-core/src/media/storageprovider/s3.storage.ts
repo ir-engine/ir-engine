@@ -151,7 +151,7 @@ export class S3Provider implements StorageProviderInterface {
             CallerReference: Date.now().toString(),
             Paths: {
               Quantity: invalidationItems.length,
-              Items: invalidationItems.map((item) => `/${item}`)
+              Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
             }
           }
         },

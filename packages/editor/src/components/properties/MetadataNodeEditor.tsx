@@ -6,7 +6,12 @@ import StringInput from '../inputs/StringInput'
 import { withTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
-export function MetadataNodeEditor(props: { any; node?: any; t: any }) {
+type MetadataNodeEditorProps = {
+  node?: any
+  t: Function
+}
+
+export function MetadataNodeEditor(props: MetadataNodeEditorProps) {
   const { node, t } = props
 
   const onChangeData = (value) => {
@@ -26,4 +31,5 @@ export function MetadataNodeEditor(props: { any; node?: any; t: any }) {
 
 MetadataNodeEditor.iconComponent = Analytics
 MetadataNodeEditor.description = 'Metadata Node for the Digital Being'
+
 export default withTranslation()(MetadataNodeEditor)

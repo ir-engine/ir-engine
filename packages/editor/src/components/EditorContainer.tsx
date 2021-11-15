@@ -1,5 +1,5 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
-import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
@@ -31,10 +31,12 @@ import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import ScenesPanel from './assets/ScenesPanel'
 import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
-import { DialogContext, useDialog } from './hooks/useDialog'
+import { DialogContext } from './hooks/useDialog'
 import { saveProject } from '../functions/projectFunctions'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { useDispatch } from '@xrengine/client-core/src/store'
+import { isDev } from '@xrengine/common/src/utils/isDev'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -129,11 +131,11 @@ type EditorContainerProps = {
  *  @author Robert Long
  */
 const EditorContainer = () => {
-  const { projectName, sceneName } = useEditorState().value
+  const projectName = useEditorState().projectName.value
+  const sceneName = useEditorState().sceneName.value
 
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)
-  const [creatingProject, setCreatingProject] = useState(null)
   const [DialogComponent, setDialogComponent] = useState(null)
   const [modified, setModified] = useState(false)
   const [sceneLoaded, setSceneLoaded] = useState(false)
@@ -202,8 +204,6 @@ const EditorContainer = () => {
     try {
       const project = await getScene(projectName, sceneName, false)
       await ProjectManager.instance.loadProject(project.scene)
-      dispatch(EditorAction.sceneLoaded(sceneName))
-      setSceneLoaded(true)
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -216,6 +216,8 @@ const EditorContainer = () => {
         />
       )
     }
+    dispatch(EditorAction.sceneLoaded(sceneName))
+    setSceneLoaded(true)
   }
 
   const newScene = async () => {
@@ -226,8 +228,6 @@ const EditorContainer = () => {
       // TODO: replace with better template functionality
       const project = await getScene('default-project', 'default', false)
       await ProjectManager.instance.loadProject(project.scene)
-      dispatch(EditorAction.sceneLoaded(sceneName))
-      setSceneLoaded(true)
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -240,10 +240,14 @@ const EditorContainer = () => {
         />
       )
     }
+    dispatch(EditorAction.sceneLoaded(sceneName))
+    SceneManager.instance.sceneModified = true
+    updateModifiedState()
+    setSceneLoaded(true)
   }
 
   const updateModifiedState = (then?) => {
-    const nextModified = SceneManager.instance.sceneModified && !creatingProject
+    const nextModified = SceneManager.instance.sceneModified
 
     if (nextModified !== modified) {
       setModified(nextModified)
@@ -257,7 +261,7 @@ const EditorContainer = () => {
     return [
       {
         name: t('editor:menubar.newProject'),
-        action: onNewProject
+        action: newScene
       },
       {
         name: t('editor:menubar.saveProject'),
@@ -268,10 +272,10 @@ const EditorContainer = () => {
         name: t('editor:menubar.saveAs'),
         action: onSaveAs
       },
-      {
-        name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
-        action: onExportProject
-      },
+      // {
+      //   name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
+      //   action: onExportProject
+      // },
       {
         name: t('editor:menubar.importProject'),
         action: onImportScene
@@ -288,7 +292,7 @@ const EditorContainer = () => {
   }
 
   const setDebuginfo = () => {
-    const gl = SceneManager.instance.renderer.webglRenderer.getContext()
+    const gl = Engine.renderer.getContext()
 
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
 
@@ -329,8 +333,6 @@ const EditorContainer = () => {
     updateModifiedState()
   }
 
-  const onNewProject = async () => {}
-
   const onCloseProject = () => {
     dispatch(EditorAction.projectLoaded(null))
   }
@@ -338,23 +340,30 @@ const EditorContainer = () => {
   const onSaveAs = async () => {
     const abortController = new AbortController()
     try {
+      let saveProjectFlag = true
       if (sceneName || modified) {
         const blob = await SceneManager.instance.takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewProjectDialog
               thumbnailUrl={URL.createObjectURL(blob)}
-              initialName={SceneManager.instance.scene.name}
+              initialName={Engine.scene.name}
               onConfirm={resolve}
               onCancel={resolve}
             />
           )
         })) as any
-        await saveScene(projectName, result.name, blob, abortController.signal)
-        SceneManager.instance.sceneModified = false
+        if (result) {
+          await saveScene(projectName, result.name, blob, abortController.signal)
+          SceneManager.instance.sceneModified = false
+        } else {
+          saveProjectFlag = false
+        }
       }
-      await saveProject(projectName)
-      updateModifiedState()
+      if (saveProjectFlag) {
+        await saveProject(projectName)
+        updateModifiedState()
+      }
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -398,7 +407,7 @@ const EditorContainer = () => {
       setDialogComponent(null)
 
       const el = document.createElement('a')
-      el.download = SceneManager.instance.scene.name + '.glb'
+      el.download = Engine.scene.name + '.glb'
       el.href = URL.createObjectURL(glbBlob)
       document.body.appendChild(el)
       el.click()
@@ -427,6 +436,7 @@ const EditorContainer = () => {
         <ConfirmDialog
           title={t('editor:importLegacy')}
           message={t('editor:importLegacyMsg')}
+          confirmLabel="Yes, Continue"
           onConfirm={() => resolve(true)}
           onCancel={() => resolve(false)}
         />
@@ -452,11 +462,11 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await SceneManager.instance.scene.serialize(sceneName)
+    const projectFile = await (Engine.scene as any).serialize(sceneName)
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
-    const fileName = SceneManager.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
+    const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
     el.download = fileName + '.world'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
@@ -491,6 +501,10 @@ const EditorContainer = () => {
     const blob = await SceneManager.instance.takeScreenshot(512, 320)
 
     try {
+      if (isDev && projectName === 'default-project')
+        await new Promise((resolve) => {
+          setDialogComponent(<ErrorDialog title={t('editor:warnDefault')} message={t('editor:warnDefaultMsg')} />)
+        })
       await saveScene(projectName, sceneName, blob, abortController.signal)
       await saveProject(projectName)
       SceneManager.instance.sceneModified = false
@@ -585,7 +599,11 @@ const EditorContainer = () => {
                 },
                 {
                   id: 'assetsPanel',
-                  title: 'Elements',
+                  title: (
+                    <PanelDragContainer>
+                      <PanelTitle>Elements</PanelTitle>
+                    </PanelDragContainer>
+                  ),
                   content: <AssetsPanel />
                 }
               ]
@@ -614,7 +632,7 @@ const EditorContainer = () => {
             ariaHideApp={false}
             isOpen={!!DialogComponent}
             onRequestClose={() => setDialogComponent(null)}
-            shouldCloseOnOverlayClick={false}
+            shouldCloseOnOverlayClick={true}
             className="Modal"
             overlayClassName="Overlay"
           >
