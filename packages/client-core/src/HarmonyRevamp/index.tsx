@@ -4,6 +4,7 @@ import { useHarmonyStyles } from './style'
 import LeftHarmony from './LeftHarmony'
 import MessageBox from './messageBox'
 import RightHarmony from './RightHarmony'
+import Empty from './empty'
 
 // interface IndexProps {
 
@@ -20,7 +21,8 @@ const Index = () => {
         </Container>
       </Grid>
       <Grid item xs={6}>
-        <MessageBox />
+        {/* <MessageBox /> */}
+        <Empty />
       </Grid>
       <Grid item xs={3} className={classes.leftGrid}>
         <Container>

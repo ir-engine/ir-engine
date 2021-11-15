@@ -26,6 +26,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     justifyContentBetween: {
       justifyContent: 'space-between'
     },
+    justifyCenter: {
+      justifyContent: 'center'
+    },
     alignCenter: {
       alignItems: 'center'
     },
@@ -43,6 +46,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     mx2: {
       margin: '7px 10px'
+    },
+    mx0: {
+      margin: '0px 10px'
     },
     p5: {
       padding: '20px'
