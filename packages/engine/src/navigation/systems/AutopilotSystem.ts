@@ -59,7 +59,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
   const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
 
   const ARRIVED_DISTANCE = 0.2
-  const getSpeed = createSpeedFunction(3, 1.1, 0.1)
+  const getSpeed = createSpeedFunction(3, 1.1, 0.01)
 
   const vec3 = new Vector3()
   function getCameraDirection() {
