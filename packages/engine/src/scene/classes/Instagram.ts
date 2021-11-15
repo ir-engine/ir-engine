@@ -4,7 +4,7 @@ import { AnimationManager } from '../../avatar/AnimationManager'
 import cloneObject3D from '../../scene/functions/cloneObject3D'
 export default class Instagram extends Object3D {
   model: any
-  instagramProducts: any
+  instagramMedias: any
   _instagramUsername: any
   _instagramPassword: any
   _instagramProductId: any
@@ -19,7 +19,7 @@ export default class Instagram extends Object3D {
     super()
     ;(this as any).type = 'Instagram'
     this.model = null
-    this.instagramProducts = []
+    this.instagramMedias = []
     this._src = null
     this._instagramUsername = ''
     this._instagramPassword = ''

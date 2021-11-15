@@ -3,6 +3,7 @@ import Instagram from '@xrengine/engine/src/scene/classes/Instagram'
 import EditorNodeMixin from './EditorNodeMixin'
 import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
+import { Config } from '@xrengine/common/src/config'
 import { makeCollidersInvisible } from '@xrengine/engine/src/physics/functions/parseModelColliders'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
@@ -12,11 +13,12 @@ import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from '../managers/CacheManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
-import InstagramHelper from '../classes/InstagramHelper'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { delay } from '@xrengine/engine/src/common/functions/delay'
 import axios from 'axios'
+import { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+import ImageNode from './ImageNode'
 
 export default class InstagramNode extends EditorNodeMixin(Instagram) {
   static nodeName = 'Instagram'
@@ -25,9 +27,12 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
     initialScale: 'fit',
     src: '',
     instagramUsername: '',
-    instagramProducts: [],
+    instagramMedias: [],
+    instagramProductItems: [],
     instagramPassword: '',
-    instagramProductId: ''
+    instagramProductId: '',
+    instagramProductItemId: '',
+    extendType: ''
   }
 
   meshColliders = []
@@ -37,21 +42,27 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
     loadAsync(
       (async () => {
         const {
-          src,
+          extend,
+          extendType,
           envMapOverride,
           textureOverride,
-          instagramProducts,
+          instagramMedias,
           instagramUsername,
           instagramPassword,
-          instagramProductId
+          instagramProductId,
+          instagramProductItems,
+          instagramProductItemId
         } = json.components.find((c) => c.name === 'gltf-instagram').props
-        debugger
-        await node.load(src, onError)
+        // debugger
+        // await node.load(src, onError)
 
-        if (instagramProducts) node.instagramProducts = instagramProducts
+        if (instagramMedias) node.instagramMedias = instagramMedias
+        if (instagramProductItems) node.instagramProductItems = instagramProductItems
         if (instagramUsername) node._instagramUsername = instagramUsername
         if (instagramPassword) node._instagramPassword = instagramPassword
         if (instagramProductId) node._instagramProductId = instagramProductId
+        if (instagramProductItemId) node._instagramProductItemId = instagramProductItemId
+        if (extendType) node.extendType = extendType
 
         if (envMapOverride) node.envMapOverride = envMapOverride
         if (textureOverride) {
@@ -91,6 +102,18 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
           node.castShadow = shadowComponent.props.cast
           node.receiveShadow = shadowComponent.props.receive
         }
+
+        if (extendType == 'video') {
+        } else if (extendType == 'image') {
+          node.extendNode = new ImageNode()
+          await node.extendNode.load(extend.src, onError)
+          node.controls = extend.controls || false
+          node.alphaMode = extend.alphaMode === undefined ? ImageAlphaMode.Blend : extend.alphaMode
+          node.alphaCutoff = extend.alphaCutoff === undefined ? 0.5 : extend.alphaCutoff
+          node.projection = extend.projection
+        }
+        node.add(node.extendNode.children[0].clone())
+
         const interactableComponent = json.components.find((c) => c.name === 'interact')
 
         if (interactableComponent) {
@@ -157,12 +180,76 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
   }
   set instagramProductId(value) {
     this._instagramProductId = value
-    if (this.instagramProducts && this.instagramProducts.length != 0) {
-      const filtered = this.instagramProducts.filter((product) => product.value == value)
+    this.instagramProductItems = []
+    let modelCount = 0
+    let videoCount = 0
+    let imageCount = 0
+    if (this.instagramMedias && this.instagramMedias.length != 0) {
+      const filtered = this.instagramMedias.filter((media) => media.value == value)
+      if (filtered && filtered.length != 0) {
+        if (filtered[0] && filtered[0].media) {
+          filtered[0].media.forEach((media, index) => {
+            let label = media.extendType.replace(/\b\w/g, (l) => l.toUpperCase())
+            if (media.extendType == 'model') {
+              modelCount++
+              label += ` ${modelCount}`
+            } else if (media.extendType == 'video') {
+              videoCount++
+              label += ` ${videoCount}`
+            } else {
+              imageCount++
+              label += ` ${imageCount}`
+            }
+            this.instagramProductItems.push({
+              value: index,
+              label,
+              media
+            })
+          })
+        }
+      }
+    }
+
+    this._instagramProductId = value
+    if (this.instagramMedias && this.instagramMedias.length != 0) {
+      const filtered = this.instagramMedias.filter((product) => product.value == value)
       if (filtered && filtered.length != 0) {
         this.src = filtered[0].path
       }
     }
+
+    this.instagramProductItemId = 0
+  }
+
+  get instagramProductItemId() {
+    return this._instagramProductItemId
+  }
+  set instagramProductItemId(value) {
+    this._instagramProductItemId = value
+    this.setMediaNode(value)
+  }
+
+  async setMediaNode(index) {
+    while (this.children.length > 0) {
+      this.remove(this.children[0])
+    }
+    if (this.extendNode && this.extendNode.dispose) {
+      this.extendNode.dispose()
+    }
+
+    if (!this.instagramProductItems[index] || !this.instagramProductItems[index].media) return
+
+    const media = this.instagramProductItems[index].media
+    this.extendType = media.extendType
+
+    if (media.extendType == 'model') {
+    } else if (media.extendType == 'video') {
+    } else if (media.extendType == 'image') {
+      this.extendNode = new ImageNode()
+    }
+
+    await this.extendNode.load(media.url)
+    this.add(this.extendNode.children[0].clone())
   }
 
   async getInstagramGallery() {
@@ -176,24 +263,56 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
     try {
       const username = this.instagramUsername
       const password = this.instagramPassword
-      console.log('username, password')
-      console.log(username, password)
-      const client = new InstagramHelper({
+      const res: any = await axios.post(`${Config.publicRuntimeConfig.apiServer}/instagram/login`, {
         username,
         password
       })
 
-      const res = await client.login()
-      console.log(res)
-      console.log('success')
+      if ((res.data.body.authenticated = true)) {
+        const { csrfToken, cookies, sharedData } = res.data
+        const photos: any = await axios.post(`${Config.publicRuntimeConfig.apiServer}/instagram/getPhotosByUsername`, {
+          username,
+          csrfToken,
+          cookies,
+          sharedData
+        })
+        const mediaData = photos.data.user.edge_owner_to_timeline_media.edges
+        for (let i = 0; i < mediaData.length; i++) {
+          if (mediaData[i].node.__typename === 'GraphVideo') {
+            this.instagramMedias.push({
+              label: `Picture ${i}`,
+              value: mediaData[i].node.id,
+              media: [
+                {
+                  extendType: 'video'
+                }
+              ]
+            })
+          } else if (mediaData[i].node.__typename === 'GraphImage') {
+            this.instagramMedias.push({
+              label: `Picture ${i}`,
+              value: mediaData[i].node.id,
+              media: [
+                {
+                  url: mediaData[i].node.display_resources[0].src,
+                  mimeType: 'image/jpeg',
+                  format: 'jpeg',
+                  extendType: 'image'
+                }
+              ]
+            })
+          }
+        }
+      } else {
+        console.log('Login Fail')
+      }
     } catch (error) {
-      this.instagramProducts = []
+      this.instagramMedias = []
       console.error(error)
     }
   }
 
   reload() {
-    console.log('reload')
     this.load(this.src).catch(console.error)
   }
   // Overrides Instagram's loadGLTF method and uses the Editor's gltf cache.
@@ -228,6 +347,7 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
         // SceneManager.instance.renderer.removeBatchedObject(this.model)
       }
       await super.load(url)
+      // await super.load(src)
 
       if (this.initialScale === 'fit') {
         this.scale.set(1, 1, 1)
@@ -328,21 +448,30 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
     })
   }
   async serialize(projectID) {
-    debugger
+    // debugger
+    let extend: any
+
+    if (this.extendType == 'video') {
+    } else if (this.extendType == 'image') {
+      extend = {
+        src: this.extendNode._canonicalUrl,
+        controls: this.extendNode.controls,
+        alphaMode: this.extendNode.alphaMode,
+        alphaCutoff: this.extendNode.alphaCutoff,
+        projection: this.extendNode.projection
+      }
+    }
+
     const components = {
       'gltf-instagram': {
-        instagramProducts: this.instagramProducts,
+        instagramMedias: this.instagramMedias,
         instagramUsername: this._instagramUsername,
         instagramPassword: this._instagramPassword,
         instagramProductId: this._instagramProductId,
-        src: this._canonicalUrl,
-        envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
-        textureOverride: this.textureOverride,
-        matrixAutoUpdate: this.isUpdateDataMatrix
-      },
-      shadow: {
-        cast: this.castShadow,
-        receive: this.receiveShadow
+        instagramProductItemId: this._instagramProductItemId,
+        instagramProductItems: this.instagramProductItems,
+        extendType: this.extendType,
+        extend
       },
       interact: {
         interactable: this.interactable,
@@ -358,18 +487,6 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
       }
     }
 
-    if (this.activeClipIndex !== -1) {
-      components['loop-animation'] = {
-        activeClipIndex: this.activeClipIndex,
-        hasAvatarAnimations: this.hasAvatarAnimations
-      }
-    }
-    if (this.collidable) {
-      components['collidable'] = {}
-    }
-    if (this.walkable) {
-      components['walkable'] = {}
-    }
     return await super.serialize(projectID, components)
   }
   copy(source, recursive = true) {
@@ -386,7 +503,7 @@ export default class InstagramNode extends EditorNodeMixin(Instagram) {
     this.collidable = source.collidable
     this.textureOverride = source.textureOverride
     this.instagramUsername = source.instagramUsername
-    this.instagramProducts = source.instagramProducts
+    this.instagramMedias = source.instagramMedias
     this.instagramPassword = source.instagramPassword
     this.instagramProductId = source.instagramProductId
     this.walkable = source.walkable

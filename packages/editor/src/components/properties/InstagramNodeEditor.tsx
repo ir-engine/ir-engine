@@ -1,4 +1,4 @@
-import { Cube } from '@styled-icons/fa-solid/Cube'
+import { Instagram } from '@styled-icons/bootstrap/Instagram'
 import InstagramNode from '../../nodes/InstagramNode'
 import i18n from 'i18next'
 import React, { Component, Fragment } from 'react'
@@ -88,7 +88,12 @@ export class InstagramNodeEditor extends Component<InstagramNodeEditorProps, Ins
   static description = i18n.t('editor:properties.instagram.description')
 
   //initializing iconComponent with image name
-  static iconComponent = Cube
+  static iconComponent = Instagram
+
+  onBlurCredentials = () => {
+    this.onChangeInstagramUsername(this.state.username)
+    this.onChangeInstagramPassword(this.state.password)
+  }
 
   //function to handle change in property src
   onChangeSrc = (src, initialProps) => {
@@ -105,7 +110,7 @@ export class InstagramNodeEditor extends Component<InstagramNodeEditorProps, Ins
     CommandManager.instance.setPropertyOnSelection('instagramPassword', password)
   }
 
-  onChangeInstagramProducts = (id) => {
+  onChangeInstagramMedias = (id) => {
     CommandManager.instance.setPropertyOnSelection('instagramProductId', id)
   }
 
@@ -298,9 +303,7 @@ export class InstagramNodeEditor extends Component<InstagramNodeEditorProps, Ins
             onChange={(username) => {
               this.setState({ username })
             }}
-            onBlur={() => {
-              this.onChangeInstagramUsername(this.state.username)
-            }}
+            onBlur={this.onBlurCredentials}
           />
         </InputGroup>
         <InputGroup name="Instagram Password" label={this.props.t('editor:properties.instagram.lbl-instagramPassword')}>
@@ -310,16 +313,14 @@ export class InstagramNodeEditor extends Component<InstagramNodeEditorProps, Ins
             onChange={(password) => {
               this.setState({ password })
             }}
-            onBlur={() => {
-              this.onChangeInstagramPassword(this.state.password)
-            }}
+            onBlur={this.onBlurCredentials}
           />
         </InputGroup>
         <InputGroup name="Instagram Username" label={this.props.t('editor:properties.instagram.lbl-instagramUsername')}>
           <SelectInput
-            options={node.instagramProducts}
+            options={node.instagramMedias}
             value={node.instagramProductId}
-            onChange={this.onChangeInstagramProducts}
+            onChange={this.onChangeInstagramMedias}
           />
         </InputGroup>
 
