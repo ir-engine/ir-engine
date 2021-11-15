@@ -172,6 +172,7 @@ export class World {
       for (const c of components) c.delete(entity)
     }
     this._removedComponents.clear()
+    // this._removeEntities.clear()
   }
 
   async initSystems() {
