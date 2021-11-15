@@ -136,6 +136,17 @@ const Group = () => {
                 <option value="3">Test Friend 3</option>
               </select>
             </div>
+          ) : (
+            <div className="form-group">
+              <label htmlFor="" className={classes.mx2}>
+                <p>Friends:</p>
+              </label>
+              <select className={classes.formControls}>
+                <option value="1">Test Friend 1</option>
+                <option value="2">Test Friend 2</option>
+                <option value="3">Test Friend 3</option>
+              </select>
+            </div>
           )}
           <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
             <button

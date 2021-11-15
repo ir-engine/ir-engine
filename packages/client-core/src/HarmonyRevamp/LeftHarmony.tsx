@@ -69,6 +69,7 @@ const LeftHarmony: React.FunctionComponent = () => {
   const [chat, setChat] = React.useState('party')
   const [invite, setInvite] = React.useState('')
   const [type, setType] = React.useState('email')
+  const [invite, setInvite] = React.useState('')
   const [messageDeletePending, setMessageDeletePending] = React.useState('')
   const [messageUpdatePending, setMessageUpdatePending] = React.useState('')
   const [editingMessage, setEditingMessage] = React.useState('')
@@ -164,6 +165,22 @@ const LeftHarmony: React.FunctionComponent = () => {
   const setActiveChat = (channelType, target): void => {
     ChatService.updateMessageScrollInit(true)
     ChatService.updateChatTarget(channelType, target)
+  }
+
+  const toggleDrawer = (anchor, open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return
+    }
+
+    setState({ ...state, [anchor]: open })
+  }
+
+  const toggleList = (anchor, open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return
+    }
+
+    setList({ ...state, [anchor]: open })
   }
 
   const toggleDrawer = (anchor, open) => (event) => {
