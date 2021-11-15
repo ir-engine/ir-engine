@@ -114,7 +114,7 @@
     "yup": "0.32.11",
     "@gltf-transform/core": "1.1.1",
     "@gltf-transform/functions": "1.1.1",
-    "@gltf-transform/extensions": "1.0.0"
+    "@gltf-transform/extensions": "1.1.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "21.0.1",
