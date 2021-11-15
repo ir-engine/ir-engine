@@ -57,13 +57,12 @@ export class SceneManager {
   grid: EditorInfiniteGridHelper
   raycaster: Raycaster
   centerScreenSpace: Vector2
-  thumbnailRenderer: ThumbnailRenderer
+  thumbnailRenderer = new ThumbnailRenderer()
   disableUpdate: boolean
   transformGizmo: TransformGizmo
   postProcessingNode: PostProcessingNode
   onUpdateStats: (info: WebGLInfo) => void
-  canvas: HTMLCanvasElement
-  screenshotRenderer: WebGLRenderer
+  screenshotRenderer: WebGLRenderer = makeRenderer(1920, 1080)
   renderMode: RenderModesType
 
   async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
@@ -103,8 +102,6 @@ export class SceneManager {
       })
 
       Engine.scene = null
-      Engine.renderer.renderLists.dispose()
-      Engine.renderer = null
     }
 
     NodeManager.instance.nodes = [Engine.scene]
@@ -148,28 +145,17 @@ export class SceneManager {
    * @param  {any} canvas [ contains canvas data ]
    */
   initializeRenderer(canvas: HTMLCanvasElement): void {
-    if (Engine.renderer) return
-
     try {
-      this.canvas = canvas
-      const renderer = makeRenderer(
-        canvas.parentElement.parentElement.offsetWidth,
-        canvas.parentElement.parentElement.offsetHeight,
-        { canvas }
-      )
-      renderer.setPixelRatio(window.devicePixelRatio)
-      renderer.info.autoReset = false
-      Engine.renderer = renderer
-
-      this.screenshotRenderer = makeRenderer(1920, 1080)
-      this.thumbnailRenderer = new ThumbnailRenderer()
       this.disableUpdate = false
 
-      ControlManager.instance.initControls()
-      new EngineRenderer({ canvas, enabled: true })
-      Engine.engineTimer.start()
-      this.grid.setSize(ControlManager.instance.editorControls.translationSnap)
+      if (!Engine.renderer) {
+        new EngineRenderer({ canvas, enabled: true })
+        EngineRenderer.instance.automatic = false
+        ControlManager.instance.initControls()
+        Engine.engineTimer.start()
+      }
 
+      this.grid.setSize(ControlManager.instance.editorControls.translationSnap)
       /** @todo */
       // Cascaded shadow maps
       // const csm = new CSM({
@@ -320,15 +306,6 @@ export class SceneManager {
    */
   onResize = () => {
     ControlManager.instance.inputManager.onResize()
-    const camera = Engine.camera as PerspectiveCamera
-    const canvas = this.canvas
-    const containerEl = canvas.parentElement.parentElement
-    camera.aspect = containerEl.offsetWidth / containerEl.offsetHeight
-    camera.updateProjectionMatrix()
-    Engine.renderer.setSize(containerEl.offsetWidth, containerEl.offsetHeight, false)
-    // Engine.csm.updateFrustums();
-
-    configureEffectComposer(this.postProcessingNode?.postProcessingOptions)
     CommandManager.instance.emit('resize')
   }
 
@@ -368,7 +345,7 @@ export class SceneManager {
    * @returns
    */
   getCursorSpawnPosition(mousePos, target) {
-    const rect = this.canvas.getBoundingClientRect()
+    const rect = Engine.renderer.domElement.getBoundingClientRect()
     const position = new Vector2()
     position.x = ((mousePos.x - rect.left) / rect.width) * 2 - 1
     position.y = ((mousePos.y - rect.top) / rect.height) * -2 + 1
@@ -515,19 +492,7 @@ export class SceneManager {
     })
 
     ControlManager.instance.update(delta, time)
-
-    // Engine.csm.update();
-    Engine.effectComposer
-      ? Engine.effectComposer.render(delta)
-      : Engine.renderer.render(Engine.scene as any, Engine.camera)
-
-    if (this.onUpdateStats) {
-      Engine.renderer.info.reset()
-      const renderStat = Engine.renderer.info.render as any
-      renderStat.fps = 1 / delta
-      renderStat.frameTime = delta * 1000
-      this.onUpdateStats(Engine.renderer.info)
-    }
+    EngineRenderer.instance.execute(delta)
   }
 
   updateOutlinePassSelection(): any[] {
@@ -569,6 +534,6 @@ export default async function EditorRendererSystem(world: World, props: EngineRe
   // EngineRenderer.instance.dispatchSettingsChangeEvent()
 
   return () => {
-    if (props.enabled) SceneManager.instance.update(world.delta, world.elapsedTime)
+    SceneManager.instance.update(world.delta, world.elapsedTime)
   }
 }

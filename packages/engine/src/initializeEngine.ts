@@ -58,7 +58,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
 
   if (options.scene.disabled !== true) {
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-    Engine.camera.layers.enableAll()
+    Engine.camera.layers.set(0)
     Engine.scene.add(Engine.camera)
     Engine.camera.add(Engine.audioListener)
     addClientInputListeners(canvas)
