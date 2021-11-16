@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import { useHarmonyStyles } from '../style'
+import { MenuItem, Select } from '@mui/material'
 
 const Group = () => {
   const classes = useHarmonyStyles()
@@ -50,7 +51,7 @@ const Group = () => {
       token: mappedIDProvider !== 'code' ? userToken : null,
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
       identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
-      targetObjectId: inviteState.targetObjectId.value || 'ac5a1be0-44a2-11ec-bf97-7105055dd807',
+      targetObjectId: inviteState.targetObjectId.value,
       invitee: mappedIDProvider !== 'code' ? userToken : null
     }
 
@@ -58,6 +59,8 @@ const Group = () => {
     //console.log(sendData)
     setUserToken('')
   }
+
+  console.log('TTTTTTTTtttttttt', inviteState.targetObjectType)
   return (
     <React.Fragment>
       <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx0}`}>
@@ -99,9 +102,31 @@ const Group = () => {
             <label htmlFor="" className={classes.mx2}>
               <p>Group:</p>
             </label>
-            <select className={classes.formControls}>
+            <Select
+              labelId="invite-group-select-label"
+              id="invite-group-select"
+              value={inviteState.targetObjectId.value}
+              //onChange={handleInviteGroupChange}
+              //onScroll={onSelectScroll}
+            >
+              {invitableGroups.value.map((group) => {
+                return (
+                  <MenuItem
+                    // className={classNames({
+                    //   [styles['flex-center']]: true,
+                    //   [styles['color-white']]: true
+                    // })}
+                    key={group.id}
+                    value={group.id}
+                  >
+                    {group.description}
+                  </MenuItem>
+                )
+              })}
+            </Select>
+            {/* <select className={classes.formControls}>
               <option value={inviteState.targetObjectId.value}>{inviteState.targetObjectId.value}</option>
-            </select>
+            </select> */}
           </div>
           {type === 'email' ? (
             <div className="form-group">

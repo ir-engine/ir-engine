@@ -33,7 +33,7 @@ import InviteModel from './InviteModel'
 import GroupMembers from './Group/GroupMember'
 import CreateGroup from './Group/CreateGroup'
 import { AnyContext } from '@hookstate/core'
-import { InviteService } from 'src/social/services/InviteService'
+import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
 
 interface Props {
   setShowChat: AnyContext
@@ -162,7 +162,6 @@ const LeftHarmony = (props: Props) => {
     ChatService.updateChatTarget(channelType, target)
   }
 
-<<<<<<< HEAD
   const toggleDrawer = (anchor, open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return
@@ -195,8 +194,9 @@ const LeftHarmony = (props: Props) => {
     setList({ ...state, [anchor]: open })
   }
 
-=======
->>>>>>> f192c500d... resolve conficts
+  const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
+    InviteService.updateInviteTarget(targetObjectType, targetObjectId)
+  }
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
 
@@ -228,8 +228,9 @@ const LeftHarmony = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('party', {})
               }}
-              className={`${chat === 'party' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'party' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Party</span>
             </a>
@@ -240,8 +241,9 @@ const LeftHarmony = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('friends', {})
               }}
-              className={`${chat === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Friends</span>
             </a>
@@ -252,8 +254,9 @@ const LeftHarmony = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('group', {})
               }}
-              className={`${chat === 'group' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'group' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Group</span>
             </a>
@@ -264,8 +267,9 @@ const LeftHarmony = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('layer', {})
               }}
-              className={`${chat === 'layer' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'layer' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Layer</span>
             </a>
@@ -276,8 +280,9 @@ const LeftHarmony = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('instance', {})
               }}
-              className={`${chat === 'instance' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'instance' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Instance</span>
             </a>
@@ -354,7 +359,7 @@ const LeftHarmony = (props: Props) => {
                                       <MenuItem
                                         className={classes.my2}
                                         onClick={() => {
-                                          setActiveChat('user', friend),
+                                          openInvite('user', friend.id),
                                             handleClose(),
                                             setInvite('Friends'),
                                             handleCreate()
@@ -433,7 +438,6 @@ const LeftHarmony = (props: Props) => {
           ) : (
             <>
               <div className={classes.center}>
-<<<<<<< HEAD
                 <a href="#" className={`${classes.my2} ${classes.btn}`}>
                   CREATE PARTY
                 </a>
@@ -525,9 +529,6 @@ const LeftHarmony = (props: Props) => {
             <>
               <div className={classes.center}>
                 <a href="#" onClick={toggleDrawer('right', true)} className={`${classes.my2} ${classes.btn}`}>
-=======
-                <a href="#" onClick={() => handleOpenCreateDrawer()} className={`${classes.my2} ${classes.btn}`}>
->>>>>>> f192c500d... resolve conficts
                   CREATE GROUP
                 </a>
               </div>
@@ -596,7 +597,7 @@ const LeftHarmony = (props: Props) => {
                                 <MenuItem
                                   className={classes.my2}
                                   onClick={() => {
-                                    setActiveChat('group', group), handleClose(), setInvite('Group'), handleCreate()
+                                    openInvite('group', group.id), handleClose(), setInvite('Group'), handleCreate()
                                   }}
                                 >
                                   <ListItemIcon>
