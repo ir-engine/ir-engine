@@ -4,13 +4,17 @@ import {
   IconButton,
   MenuList,
   MenuItem,
-  List,
-  ListItemAvatar,
   ListItemIcon,
   ListItemText,
   Popover,
   Avatar,
-  Container
+  Container,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  Button,
+  listItemClasses,
+  listItemIconClasses
 } from '@mui/material'
 import { AttachFile, LocalPhone, PhotoCamera, Send } from '@material-ui/icons'
 import { useHarmonyStyles } from './style'
@@ -36,13 +40,50 @@ const MessageBox: React.FunctionComponent = () => {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const activeChannel = channels.find((c) => c.id === targetChannelId)!
 
+  const [messageUpdatePending, setMessageUpdatePending] = useState('')
+  const [editingMessage, setEditingMessage] = useState({})
+  const [editingMessageText, setEditingMessageText] = useState('')
+  const [messageTodelete, setMessageToDelete] = useState('')
+  const [showWarning, setShowWarning] = React.useState(false)
+
   const composingMessageChangedHandler = (event: any): void => {
     const message = event.target.value
     setComposingMessage(message)
   }
 
-  const handleClick = (event) => {
+  const handleClick = (event, message: Message) => {
     setAnchorEl(event.currentTarget)
+    setMessageToDelete(message.id)
+    setEditingMessage({ ...message })
+  }
+
+  const showMessageDeleteConfirm = () => {
+    setAnchorEl(null)
+    setShowWarning(true)
+    setMessageUpdatePending('')
+    setEditingMessage('')
+  }
+
+  const cancelMessageDelete = (e: any) => {
+    e.preventDefault()
+    setShowWarning(false)
+    setMessageToDelete('')
+    setMessageUpdatePending('')
+    setEditingMessage('')
+  }
+
+  const confirmMessageDelete = (e: any) => {
+    e.preventDefault()
+    setShowWarning(false)
+    ChatService.removeMessage(messageTodelete)
+    setMessageToDelete('')
+  }
+
+  const confirmMessageUpdate = (e: any) => {
+    e.preventDefault()
+    ChatService.patchMessage(messageUpdatePending, editingMessageText)
+    setMessageUpdatePending('')
+    setEditingMessage('')
   }
 
   const handleClose = () => {
@@ -102,7 +143,7 @@ const MessageBox: React.FunctionComponent = () => {
                           <Avatar src={message.sender?.avatarUrl} />
                         )}
                         {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
-                        <div className={`${classes.bgBlack} ${classes.mx2}`} onClick={(e) => handleClick(e)}>
+                        <div className={`${classes.bgBlack} ${classes.mx2}`}>
                           <p>{message.text}</p>
                         </div>
                       </div>
@@ -111,7 +152,10 @@ const MessageBox: React.FunctionComponent = () => {
                   {message.senderId === selfUser.id && (
                     <div className={`${classes.selfEnd} ${classes.my1}`}>
                       <div className={classes.dFlex}>
-                        <div className={`${classes.bgInfo} ${classes.mx2}`} onClick={(e) => handleClick(e)}>
+                        <div
+                          className={`${classes.bgInfo} ${classes.mx2} ${classes.btnCursor}`}
+                          onClick={(e) => handleClick(e, message)}
+                        >
                           <p>{message.text}</p>
                         </div>
                         {index !== 0 && message.senderId !== sortedMessages[index - 1].senderId && (
@@ -141,9 +185,9 @@ const MessageBox: React.FunctionComponent = () => {
                           <ListItemIcon>
                             <Edit fontSize="small" className={classes.muted} />
                           </ListItemIcon>
-                          <ListItemText>EDIT</ListItemText>
+                          <ListItemText classes={{ root: classes.fontSizeSmall }}>EDIT</ListItemText>
                         </MenuItem>
-                        <MenuItem className={classes.my2}>
+                        <MenuItem onClick={showMessageDeleteConfirm} className={classes.my2}>
                           <ListItemIcon>
                             <Delete fontSize="small" className={classes.danger} />
                           </ListItemIcon>
@@ -185,6 +229,23 @@ const MessageBox: React.FunctionComponent = () => {
             </IconButton>
           </div>
         </div>
+        <Dialog
+          open={showWarning}
+          onClose={() => setShowWarning(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          classes={{ paper: classes.paperDialog }}
+        >
+          <DialogTitle id="alert-dialog-title">Confirm to delete this message!</DialogTitle>
+          <DialogActions>
+            <Button onClick={() => setShowWarning(false)} className={classes.spanNone}>
+              Cancel
+            </Button>
+            <Button className={classes.spanDange} onClick={confirmMessageDelete} autoFocus>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </>
   )

@@ -14,7 +14,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     rightGrid: {
       backgroundColor: '#181A1C',
-      padding: '50px 0px'
+      paddingTop: '50px'
     },
     leftGrid: {
       backgroundColor: '#181A1C',
@@ -152,6 +152,12 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     h100: {
       height: '89vh'
     },
+    h1002: {
+      height: '98%'
+    },
+    flexGrow2: {
+      flexGrow: 1
+    },
     flexGrow: {
       flexGrow: 1,
       backgroundColor: '#232424',
@@ -254,6 +260,19 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     btnCursor: {
       cursor: 'pointer'
+    },
+    spanNone: {
+      color: '#808080'
+    },
+    spanDange: {
+      color: '#FF8C00'
+    },
+    paperDialog: {
+      background: 'rgb(58, 65, 73) !important',
+      color: '#f1f1f1'
+    },
+    fontSizeSmall: {
+      fontSize: '1rem'
     }
   })
 )

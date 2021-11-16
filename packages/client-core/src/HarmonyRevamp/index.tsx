@@ -15,17 +15,17 @@ const Index = () => {
   const classes = useHarmonyStyles()
   const chatState = useChatState()
   const targetChannelId = chatState.targetChannelId.value
+  const [showChat, setShowChat] = React.useState(false)
   return (
     <Grid container className={classes.root}>
       <Grid item xs={3} className={classes.rightGrid}>
-        <Container>
-          <LeftHarmony />
+        <Container style={{ height: '100%' }}>
+          <LeftHarmony setShowChat={setShowChat} />
         </Container>
       </Grid>
       <Grid item xs={6}>
-        {/* <MessageBox /> */}
-        {!targetChannelId && <Empty />}
-        {targetChannelId && <MessageBox />}
+        {!showChat && <Empty />}
+        {showChat && targetChannelId && <MessageBox />}
       </Grid>
       <Grid item xs={3} className={classes.leftGrid}>
         <Container>
