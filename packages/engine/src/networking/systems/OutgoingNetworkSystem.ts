@@ -18,7 +18,6 @@ import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { Mesh } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { GolfBallComponent } from '@xrengine/projects/projects/puttclub/components/GolfBallComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 
 /***********
@@ -139,9 +138,6 @@ export const rerouteActions = pipe(
 
 export const queueEntityTransform = (world: World, entity: Entity) => {
   const { outgoingNetworkState, previousNetworkState } = world
-  // if(hasComponent(entity, GolfBallComponent)) {
-  //   console.log(getComponent(entity, VelocityComponent).velocity)
-  // }
 
   const networkObject = getComponent(entity, NetworkObjectComponent)
   const transformComponent = getComponent(entity, TransformComponent)
