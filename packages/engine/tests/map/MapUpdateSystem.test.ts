@@ -17,7 +17,7 @@ import { MapStateUnwrapped } from '../../src/map/types'
 import { MapComponent } from '../../src/map/MapComponent'
 import FeatureKey from '../../src/map/classes/FeatureKey'
 
-describe('MapUpdateSystem', () => {
+describe.skip('MapUpdateSystem', () => {
   const triggerRefreshRadius = 20 // meters
   const mapCenter = [0, 0]
   let execute: System,

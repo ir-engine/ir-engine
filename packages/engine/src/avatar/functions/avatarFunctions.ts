@@ -93,6 +93,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   let materialList: Array<MaterialMap> = []
 
   model.traverse((object) => {
+    if (object.isBone) object.visible = false
     setAvatarLayer(object)
 
     if (typeof object.material !== 'undefined') {
