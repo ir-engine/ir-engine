@@ -11,7 +11,6 @@ export function getUserEntityByName(name: string, localUserId) {
   const world = Engine.defaultWorld
 
   for (let [_, client] of world.clients) {
-    console.log('current user id: ' + client.userId)
     if (client.userId !== localUserId && client.name === name) {
       return world.getUserAvatarEntity(client.userId)
     }

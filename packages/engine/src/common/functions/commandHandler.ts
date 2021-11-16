@@ -54,7 +54,6 @@ export function getStarterCount(text: string): number {
 export function handleCommand(cmd: string, entity: Entity, userId: UserId): boolean {
   //It checks for all messages, the default
   if (!isCommand(cmd)) return false
-  console.log('handling command: ' + cmd)
 
   //Remove the command starter, get the data (the base which is the command and the parameters if exist, parameters are separated by , (commas))
   cmd = cmd.substring(getStarterCount(cmd))
@@ -206,7 +205,6 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
     }
     case 'follow': {
       let name = ''
-      console.log(params.length)
       if (params.length < 1) {
         console.log('invalid params')
         return true
@@ -216,7 +214,6 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
         name = params.join(' ')
       }
 
-      console.log('follow: ' + name)
       handleFollowCommand(name, entity, userId)
 
       return true
@@ -499,7 +496,6 @@ function getMetadataPosition(_pos: string): Vector3 {
 }
 
 export function goTo(pos: Vector3, entity: Entity) {
-  console.log('goto: ' + JSON.stringify(pos))
   let linput = getComponent(entity, LocalInputTagComponent)
   if (linput === undefined) linput = addComponent(entity, LocalInputTagComponent, {})
   addComponent(entity, AutoPilotOverrideComponent, {

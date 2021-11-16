@@ -45,7 +45,6 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
     addComponent(entity, NavMeshComponent, {
       navTarget: navigationRaycastTarget
     })
-    console.log('added navmesh to entity: ' + entity)
   }
 
   return mesh
