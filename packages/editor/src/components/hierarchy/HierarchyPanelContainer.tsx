@@ -786,6 +786,7 @@ export default function HierarchyPanel() {
   const [renamingNode, setRenamingNode] = useState(null)
   const [collapsedNodes, setCollapsedNodes] = useState({})
   const [nodes, setNodes] = useState([])
+  const [selectedNode, setSelectedNode] = useState(null)
   const updateNodeHierarchy = useCallback(() => {
     const nodes = Array.from(treeWalker(collapsedNodes))
     setNodes(nodes)
@@ -918,8 +919,10 @@ export default function HierarchyPanel() {
     if (e.detail === 1) {
       if (e.shiftKey) {
         CommandManager.instance.executeCommandWithHistory(EditorCommands.TOGGLE_SELECTION, node.object)
+        setSelectedNode(null)
       } else if (!node.selected) {
         CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, node.object)
+        setSelectedNode(node)
       }
     }
   }, [])
@@ -1030,8 +1033,10 @@ export default function HierarchyPanel() {
       } else if (e.key === 'Enter') {
         if (e.shiftKey) {
           CommandManager.instance.executeCommandWithHistory(EditorCommands.TOGGLE_SELECTION, node.object)
+          setSelectedNode(null)
         } else {
           CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, node.object)
+          setSelectedNode(node)
         }
       }
     },
@@ -1201,13 +1206,27 @@ export default function HierarchyPanel() {
       </PanelContainer>
       <ContextMenu id="hierarchy-node-menu">
         <MenuItem onClick={onRenameNode}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
-        <Hotkeys keyName={cmdOrCtrlString + '+d'} onKeyUp={onDuplicateNode}>
+        <Hotkeys
+          keyName={cmdOrCtrlString + '+d'}
+          onKeyUp={(_, e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            selectedNode && onDuplicateNode(e, selectedNode)
+          }}
+        >
           <MenuItem onClick={onDuplicateNode}>
             {t('editor:hierarchy.lbl-duplicate')}
             <div>{cmdOrCtrlString + ' + d'}</div>
           </MenuItem>
         </Hotkeys>
-        <Hotkeys keyName={cmdOrCtrlString + '+g'} onKeyUp={onGroupNodes}>
+        <Hotkeys
+          keyName={cmdOrCtrlString + '+g'}
+          onKeyUp={(_, e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            selectedNode && onGroupNodes(e, selectedNode)
+          }}
+        >
           <MenuItem onClick={onGroupNodes}>
             {t('editor:hierarchy.lbl-group')}
             <div>{cmdOrCtrlString + ' + g'}</div>
