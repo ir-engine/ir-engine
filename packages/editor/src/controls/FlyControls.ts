@@ -92,4 +92,7 @@ export default class FlyControls {
     }
     this.camera.position.y += input.get(Fly.moveY) * dt * this.moveSpeed * boostSpeed
   }
+  dispose() {
+    this.inputManager.canvas.removeEventListener('mouseup', this.onMouseUp)
+  }
 }
