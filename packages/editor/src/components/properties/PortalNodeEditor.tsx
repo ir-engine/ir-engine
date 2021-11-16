@@ -1,7 +1,6 @@
 import { DoorOpen } from '@styled-icons/fa-solid'
-import i18n from 'i18next'
 import React, { useEffect, useState } from 'react'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 import PortalNode from '../../nodes/PortalNode'
 import CubemapBakeNode from '../../nodes/CubemapBakeNode'
@@ -18,7 +17,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 type PortalNodeEditorProps = {
   node?: PortalNode
-  t: Function
 }
 
 type PortalOptions = {
@@ -46,6 +44,7 @@ type PortalNodeEditorStates = {
 export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
   let [portals, setPortals] = useState([])
   let [entityId, setEntityId] = useState('')
+  const { t } = useTranslation()
 
   const onChangeLocationName = (locationName) => {
     CommandManager.instance.setPropertyOnSelection('locationName', locationName)
@@ -120,11 +119,11 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
   const node = props.node as PortalNode
 
   return (
-    <NodeEditor description={PortalNodeEditor.description} {...props}>
-      <InputGroup name="Location" label={props.t('editor:properties.portal.lbl-locationName')}>
+    <NodeEditor description={t('editor:properties.portal.description')} {...props}>
+      <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>
         <ControlledStringInput value={node.locationName} onChange={onChangeLocationName} />
       </InputGroup>
-      <InputGroup name="Portal" label={props.t('editor:properties.portal.lbl-portal')}>
+      <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput
           options={portals}
           value={node.linkedPortalId}
@@ -135,13 +134,13 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
           getOptionLabel={(data) => data.name}
         />
       </InputGroup>
-      <InputGroup name="Model Url" label={props.t('editor:properties.portal.lbl-modelUrl')}>
+      <InputGroup name="Model Url" label={t('editor:properties.portal.lbl-modelUrl')}>
         <ControlledStringInput value={node.modelUrl} onChange={onChangeModelUrl} />
       </InputGroup>
-      <InputGroup name="Display Text" label={props.t('editor:properties.portal.lbl-displayText')}>
+      <InputGroup name="Display Text" label={t('editor:properties.portal.lbl-displayText')}>
         <ControlledStringInput value={node.displayText} onChange={onChangeDisplayText} />
       </InputGroup>
-      <InputGroup name="Cubemap Bake" label={props.t('editor:properties.portal.lbl-cubemapBake')}>
+      <InputGroup name="Cubemap Bake" label={t('editor:properties.portal.lbl-cubemapBake')}>
         <SelectInput
           options={Engine.scene.children
             .filter((obj: Object3D) => {
@@ -157,19 +156,19 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
           onChange={onChangeCubemapBake}
         />
       </InputGroup>
-      <InputGroup name="Spawn Position" label={props.t('editor:properties.portal.lbl-spawnPosition')}>
+      <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')}>
         <Vector3Input value={node.spawnPosition} onChange={onChangeSpawnPosition} />
       </InputGroup>
-      <InputGroup name="Spawn Rotation" label={props.t('editor:properties.portal.lbl-spawnRotation')}>
+      <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')}>
         <EulerInput value={node.spawnRotation} onChange={onChangeSpawnRotation} />
       </InputGroup>
-      <InputGroup name="Trigger Position" label={props.t('editor:properties.portal.lbl-triggerPosition')}>
+      <InputGroup name="Trigger Position" label={t('editor:properties.portal.lbl-triggerPosition')}>
         <Vector3Input value={node.triggerPosition} onChange={onChangeTriggerPosition} />
       </InputGroup>
-      <InputGroup name="Trigger Rotation" label={props.t('editor:properties.portal.lbl-triggerRotation')}>
+      <InputGroup name="Trigger Rotation" label={t('editor:properties.portal.lbl-triggerRotation')}>
         <EulerInput value={node.triggerRotation} onChange={onChangeTriggerRotation} />
       </InputGroup>
-      <InputGroup name="Trigger Scale" label={props.t('editor:properties.portal.lbl-triggerScale')}>
+      <InputGroup name="Trigger Scale" label={t('editor:properties.portal.lbl-triggerScale')}>
         <Vector3Input value={node.triggerScale} onChange={onChangeTriggerScale} />
       </InputGroup>
     </NodeEditor>
@@ -177,6 +176,5 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
 }
 
 PortalNodeEditor.iconComponent = DoorOpen
-PortalNodeEditor.description = i18n.t('editor:properties.portal.description')
 
-export default withTranslation()(PortalNodeEditor)
+export default PortalNodeEditor

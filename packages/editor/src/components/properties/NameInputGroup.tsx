@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import styled from 'styled-components'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
 /**
@@ -20,7 +20,6 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
 
 type Types = {
   node: any
-  t: Function
 }
 
 /**
@@ -32,6 +31,7 @@ type Types = {
 export const NameInputGroup = (props: Types) => {
   let [name, setName] = useState(props.node.name)
   let [focusedNode, setFocusedNode] = useState(null)
+  const { t } = useTranslation()
 
   //function to handle change in name property
   const onUpdateName = (name) => {
@@ -61,7 +61,7 @@ export const NameInputGroup = (props: Types) => {
   const onKeyUpName = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      CommandManager.instance.setPropertyOnSelection('name', (this.state as any).name)
+      CommandManager.instance.setPropertyOnSelection('name', name)
     }
   }
   //rendering view NameInputGroup component
@@ -72,10 +72,10 @@ export const NameInputGroup = (props: Types) => {
   }
 
   return (
-    <StyledNameInputGroup name="Name" label={props.t('editor:properties.name.lbl-name')}>
+    <StyledNameInputGroup name="Name" label={t('editor:properties.name.lbl-name')}>
       <StringInput value={name} onChange={onUpdateName} onFocus={onFocus} onBlur={onBlurName} onKeyUp={onKeyUpName} />
     </StyledNameInputGroup>
   )
 }
 
-export default withTranslation()(NameInputGroup)
+export default NameInputGroup

@@ -2,7 +2,6 @@ import React from 'react'
 import { Bars } from '@styled-icons/fa-solid/Bars'
 import ToolButton from '../toolbar/ToolButton'
 import { ContextMenu, MenuItem, SubMenu, showMenu } from '../layout/ContextMenu'
-import { withTranslation, TFunction } from 'react-i18next'
 import { useState } from 'react'
 import Hotkeys from 'react-hot-keys'
 
@@ -15,12 +14,10 @@ interface Command {
 
 interface MainMenuProp {
   commands: Command[]
-  t: TFunction
 }
 
 const MainMenu = (props: MainMenuProp) => {
   let [isMenuOpen, setMenuOpen] = useState(false)
-  const t = props.t
 
   const toggleMenu = (e) => {
     if (isMenuOpen) {
@@ -79,4 +76,4 @@ const MainMenu = (props: MainMenuProp) => {
   )
 }
 
-export default withTranslation()(MainMenu)
+export default MainMenu

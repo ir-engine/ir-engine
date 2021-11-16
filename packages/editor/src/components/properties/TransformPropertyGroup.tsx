@@ -3,8 +3,7 @@ import PropertyGroup from './PropertyGroup'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import EulerInput from '../inputs/EulerInput'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import EditorEvents from '../../constants/EditorEvents'
@@ -17,7 +16,6 @@ import EditorEvents from '../../constants/EditorEvents'
  */
 type TransformPropertyGroupProps = {
   node?: any
-  t: Function
 }
 
 /**
@@ -28,6 +26,7 @@ type TransformPropertyGroupProps = {
  */
 export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
   const [, updateState] = useState()
+  const { t } = useTranslation()
 
   const forceUpdate = useCallback(() => updateState({}), [])
 
@@ -68,8 +67,8 @@ export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
   const { node } = props
 
   return (
-    <PropertyGroup name={props.t('editor:properties.transform.title')}>
-      <InputGroup name="Position" label={props.t('editor:properties.transform.lbl-postition')}>
+    <PropertyGroup name={t('editor:properties.transform.title')}>
+      <InputGroup name="Position" label={t('editor:properties.transform.lbl-postition')}>
         <Vector3Input
           value={node.position}
           smallStep={0.01}
@@ -78,10 +77,10 @@ export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
           onChange={onChangePosition}
         />
       </InputGroup>
-      <InputGroup name="Rotation" label={props.t('editor:properties.transform.lbl-rotation')}>
+      <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
         <EulerInput value={node.rotation} onChange={onChangeRotation} unit="°" />
       </InputGroup>
-      <InputGroup name="Scale" label={props.t('editor:properties.transform.lbl-scale')}>
+      <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
         <Vector3Input
           uniformScaling
           smallStep={0.01}
@@ -95,6 +94,4 @@ export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
   )
 }
 
-export default withTranslation()(
-  React.memo(TransformPropertyGroup, (prevProps, nextProps) => prevProps.node === nextProps.node)
-)
+export default React.memo(TransformPropertyGroup, (prevProps, nextProps) => prevProps.node === nextProps.node)
