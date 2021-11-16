@@ -6,7 +6,7 @@ import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { useTranslation, withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import Modal from 'react-modal'
 import styled from 'styled-components'
 import { getScene, saveScene } from '../functions/sceneFunctions'
@@ -502,15 +502,13 @@ const EditorContainer = () => {
 
     try {
       if (isDev && projectName === 'default-project')
-        await new Promise((resolve) => {
-          setDialogComponent(<ErrorDialog title={t('editor:warnDefault')} message={t('editor:warnDefaultMsg')} />)
-        })
+        setDialogComponent(<ErrorDialog title={t('editor:warnDefault')} message={t('editor:warnDefaultMsg')} />)
       await saveScene(projectName, sceneName, blob, abortController.signal)
       await saveProject(projectName)
       SceneManager.instance.sceneModified = false
       updateModifiedState()
 
-      setDialogComponent(null)
+      if (!(isDev && projectName === 'default-project')) setDialogComponent(null)
     } catch (error) {
       console.error(error)
 
@@ -562,6 +560,7 @@ const EditorContainer = () => {
           size: 8,
           children: [
             {
+              id: '+5',
               tabs: [{ id: 'viewPanel', title: 'Viewport', content: <div /> }],
               size: 1
             }
@@ -644,4 +643,4 @@ const EditorContainer = () => {
   )
 }
 
-export default withTranslation()(withRouter(EditorContainer))
+export default withRouter(EditorContainer)

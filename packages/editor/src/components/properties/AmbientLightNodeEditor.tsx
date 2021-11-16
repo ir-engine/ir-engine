@@ -4,13 +4,11 @@ import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { Sun } from '@styled-icons/fa-solid/Sun'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
 type AmbientLightNodeEditorProps = {
   node?: any
-  t: Function
   description: string
 }
 
@@ -25,6 +23,8 @@ type AmbientLightNodeEditorProps = {
 export const AmbientLightNodeEditor = (props: AmbientLightNodeEditorProps) => {
   const node = props.node
 
+  const { t } = useTranslation()
+
   // used to change the color property of selected scene, when we change color property of ambient light
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelection('color', color)
@@ -36,13 +36,13 @@ export const AmbientLightNodeEditor = (props: AmbientLightNodeEditorProps) => {
   }
 
   return (
-    <NodeEditor {...props} description={props.t('editor:properties.ambientLight.description')}>
-      <InputGroup name="Color" label={props.t('editor:properties.ambientLight.lbl-color')}>
+    <NodeEditor {...props} description={t('editor:properties.ambientLight.description')}>
+      <InputGroup name="Color" label={t('editor:properties.ambientLight.lbl-color')}>
         <ColorInput value={node.color} onChange={onChangeColor} />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
-        label={props.t('editor:properties.ambientLight.lbl-intensity')}
+        label={t('editor:properties.ambientLight.lbl-intensity')}
         min={0}
         smallStep={0.001}
         mediumStep={0.01}
@@ -57,4 +57,4 @@ export const AmbientLightNodeEditor = (props: AmbientLightNodeEditorProps) => {
 
 AmbientLightNodeEditor.iconComponent = Sun
 
-export default withTranslation()(AmbientLightNodeEditor)
+export default AmbientLightNodeEditor

@@ -1,10 +1,10 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment } from 'react'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import BooleanInput from '../inputs/BooleanInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { Vector2 } from 'three'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
 /**
@@ -38,7 +38,6 @@ const ShadowMapResolutionOptions = [
 //creating properties for LightShadowProperties component
 type LightShadowPropertiesProps = {
   node?: any
-  t?: Function
 }
 
 /**
@@ -49,6 +48,8 @@ type LightShadowPropertiesProps = {
  * @type {[class component]}
  */
 export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
+  const { t } = useTranslation()
+
   // function to handle the change in shadowMapResolution propery
   const onChangeShadowMapResolution = (shadowMapResolution) => {
     CommandManager.instance.setPropertyOnSelection('shadowMapResolution', shadowMapResolution)
@@ -73,13 +74,10 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
 
   return (
     <Fragment>
-      <InputGroup name="Cast Shadow" label={props.t('editor:properties.directionalLight.lbl-castShadow')}>
+      <InputGroup name="Cast Shadow" label={t('editor:properties.directionalLight.lbl-castShadow')}>
         <BooleanInput value={node.castShadow} onChange={onChangeCastShadow} />
       </InputGroup>
-      <InputGroup
-        name="Shadow Map Resolution"
-        label={props.t('editor:properties.directionalLight.lbl-shadowmapResolution')}
-      >
+      <InputGroup name="Shadow Map Resolution" label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}>
         <SelectInput
           options={ShadowMapResolutionOptions}
           value={node.shadowMapResolution}
@@ -88,7 +86,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
       </InputGroup>
       <NumericInputGroup
         name="Shadow Bias"
-        label={props.t('editor:properties.directionalLight.lbl-shadowBias')}
+        label={t('editor:properties.directionalLight.lbl-shadowBias')}
         mediumStep={0.00001}
         smallStep={0.0001}
         largeStep={0.001}
@@ -98,7 +96,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
       />
       <NumericInputGroup
         name="Shadow Radius"
-        label={props.t('editor:properties.directionalLight.lbl-shadowRadius')}
+        label={t('editor:properties.directionalLight.lbl-shadowRadius')}
         mediumStep={0.01}
         smallStep={0.1}
         largeStep={1}
@@ -110,4 +108,4 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   )
 }
 
-export default withTranslation()(LightShadowProperties)
+export default LightShadowProperties
