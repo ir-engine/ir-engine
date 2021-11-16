@@ -94,7 +94,8 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
     }
 
     for (const entity of audioQuery.exit()) {
-      const positionalAudio = getComponent(entity, PositionalAudioComponent) ?? getComponent(entity, AudioComponent)
+      const positionalAudio =
+        getComponent(entity, PositionalAudioComponent, true) ?? getComponent(entity, AudioComponent, true)
       if (positionalAudio?.value?.source) positionalAudio.value.disconnect()
     }
 
@@ -125,12 +126,6 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
 
     for (const entity of avatarAudioQuery.exit()) {
       avatarAudioStream.delete(entity)
-
-      const positionalAudio = getComponent(entity, PositionalAudioComponent)
-      if (positionalAudio != null) Engine.scene.remove(positionalAudio.value)
-
-      const audio = getComponent(entity, AudioComponent)
-      if (audio != null) Engine.scene.remove(audio.value)
     }
 
     for (const entity of positionalAudioQuery()) {
