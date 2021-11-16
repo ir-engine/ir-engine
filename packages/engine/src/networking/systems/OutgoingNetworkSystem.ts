@@ -18,12 +18,15 @@ import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { Mesh } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
+import { GolfBallComponent } from '@xrengine/projects/projects/puttclub/components/GolfBallComponent'
+import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 
 /***********
  * QUERIES *
  **********/
 
 const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
+const ownedNetworkTransformsQuery = defineQuery([NetworkObjectOwnedTag, NetworkObjectComponent, TransformComponent])
 
 const ikTransformsQuery = isClient
   ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
@@ -136,6 +139,9 @@ export const rerouteActions = pipe(
 
 export const queueEntityTransform = (world: World, entity: Entity) => {
   const { outgoingNetworkState, previousNetworkState } = world
+  // if(hasComponent(entity, GolfBallComponent)) {
+  //   console.log(getComponent(entity, VelocityComponent).velocity)
+  // }
 
   const networkObject = getComponent(entity, NetworkObjectComponent)
   const transformComponent = getComponent(entity, TransformComponent)
@@ -180,18 +186,15 @@ export const queueUnchangedPosesServer = (world: World) => {
   for (let i = 0; i < ents.length; i++) {
     queueEntityTransform(world, ents[i])
   }
-
-  // todo: forward updates for remotely owned objects
-
   return world
 }
 
 // todo: move to client-specific system?
 export const queueUnchangedPosesClient = (world: World) => {
-  queueEntityTransform(world, world.localClientEntity)
-
-  // todo: queue udpates for owned objects
-
+  const ents = ownedNetworkTransformsQuery(world)
+  for (let i = 0; i < ents.length; i++) {
+    queueEntityTransform(world, ents[i])
+  }
   return world
 }
 
