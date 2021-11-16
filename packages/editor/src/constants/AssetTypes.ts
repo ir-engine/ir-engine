@@ -12,8 +12,11 @@ export const ItemTypes = {
   FileBrowserContent: [
     'png',
     'jpeg',
+    'jpg',
+    'gif',
     'gltf',
     'mp4',
+    'mp3',
     'mpeg',
     NativeTypes.FILE,
     'folder',
@@ -23,6 +26,10 @@ export const ItemTypes = {
     'audio/mpeg',
     'model/gltf'
   ],
+  Images: ['png', 'jpeg', 'jpg', 'gif'],
+  Videos: ['mp4'],
+  Audios: ['mp3', 'mpeg'],
+  //TODO: Need to check if following types are really used or not.
   Node: 'Node',
   Model: 'Model',
   Shopify: 'Shopify',
