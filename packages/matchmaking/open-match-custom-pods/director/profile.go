@@ -26,12 +26,11 @@ func generateProfiles(modes []string, teamSizes map[string]uint32) []*pb.MatchPr
 	var profiles []*pb.MatchProfile
 	for _, mode := range modes {
 
-    profileData := &common.ProfileDataMessage{
-            			Mode: mode,
-            			TeamSize: teamSizes[mode],
-            		}
-    buffProfileData, err := anypb.New(profileData)
-
+		profileData := &common.ProfileDataMessage{
+			Mode: mode,
+			TeamSize: teamSizes[mode],
+		}
+		buffProfileData, err := anypb.New(profileData)
 		if err != nil {
 			log.Fatal("Failed to marshal DefaultEvaluationCriteria, got %w.", err)
 		}

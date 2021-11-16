@@ -90,7 +90,7 @@ func main() {
 
                 if len(matches) > 0 {
                     log.Printf("Generated %v matches for profile %v", len(matches), p.GetName())
-                    if err := assign(be, matches); err != nil {
+                    if err := assign(be, p, matches); err != nil {
                         log.Printf("Failed to assign servers to matches, got %s", err.Error())
                         return
                     }
@@ -136,12 +136,19 @@ func fetch(be pb.BackendServiceClient, p *pb.MatchProfile) ([]*pb.Match, error) 
 	return result, nil
 }
 
-func assign(be pb.BackendServiceClient, matches []*pb.Match) error {
+func assign(be pb.BackendServiceClient, p *pb.MatchProfile, matches []*pb.Match) error {
 	for _, match := range matches {
 		ticketIDs := []string{}
 		for _, t := range match.GetTickets() {
 			ticketIDs = append(ticketIDs, t.Id)
 		}
+
+		//var profileDataMessage *anypb.Any
+		//if p.Extensions != nil {
+		//	if message, ok := p.Extensions["profileData"]; ok {
+		//		profileDataMessage = message
+		//	}
+		//}
 
 		// TODO get gameserver ip or link
 		conn := uuid.New().String()
@@ -152,6 +159,9 @@ func assign(be pb.BackendServiceClient, matches []*pb.Match) error {
 					TicketIds: ticketIDs,
 					Assignment: &pb.Assignment{
 						Connection: conn,
+						//Extensions: map[string]*anypb.Any{
+						//	"profileData": profileDataMessage,
+						//},
 					},
 				},
 			},

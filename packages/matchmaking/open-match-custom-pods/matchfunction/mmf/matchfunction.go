@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-	"github.com/golang/protobuf/ptypes/wrappers"
+	"lagunalabs/matchmaking/common"
 	"log"
 	"math/rand"
 	"time"
@@ -66,13 +66,13 @@ func makeMatches(p *pb.MatchProfile, poolTickets map[string][]*pb.Ticket) ([]*pb
 	var ticketsPerPoolPerMatch = 16
 	if p.Extensions != nil {
 		if message, ok := p.Extensions["profileData"]; ok {
-			var val wrappers.UInt32Value
-			err := any.Any.UnmarshalTo(message, &val)
-			if err != nil {
-				log.Printf("failed to extract profileData")
-				//log.Fatal(err.Error())
-			} else {
-				ticketsPerPoolPerMatch = int(val.GetValue())
+			m := new(common.ProfileDataMessage)
+			if message.MessageIs(m) {
+				if err := message.UnmarshalTo(m); err != nil {
+					log.Printf("failed to extract profileData")
+				} else {
+					ticketsPerPoolPerMatch = int(m.TeamSize)
+				}
 			}
 		}
 	}
