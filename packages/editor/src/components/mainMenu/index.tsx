@@ -3,6 +3,7 @@ import { Bars } from '@styled-icons/fa-solid/Bars'
 import ToolButton from '../toolbar/ToolButton'
 import { ContextMenu, MenuItem, SubMenu, showMenu } from '../layout/ContextMenu'
 import { useState } from 'react'
+import Hotkeys from 'react-hot-keys'
 
 interface Command {
   name: string
@@ -39,12 +40,21 @@ const MainMenu = (props: MainMenuProp) => {
 
   const renderMenu = (command: Command) => {
     if (!command.subCommnads || command.subCommnads.length === 0) {
-      return (
+      const menuItem = (
         <MenuItem key={command.name} onClick={command.action}>
           {command.name}
           {command.hotkey && <div>{command.hotkey}</div>}
         </MenuItem>
       )
+
+      if (command.hotkey) {
+        return (
+          <Hotkeys keyName={command.hotkey} onKeyUp={command.action}>
+            {menuItem}
+          </Hotkeys>
+        )
+      }
+      return menuItem
     } else {
       return (
         <SubMenu key={command.name} title={command.name} hoverDelay={0}>
