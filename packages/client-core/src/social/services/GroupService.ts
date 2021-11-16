@@ -78,7 +78,8 @@ store.receptors.push((action: GroupActionType): any => {
         updateGroup = newValues.group
 
         groupIndex = s.groups.groups.value.findIndex((groupItem) => {
-          return groupItem != null && groupItem.id === groupUser.groupId
+          // return groupItem != null && groupItem.id === groupUser.groupId
+          return groupItem != null && groupItem.id === updateGroup.id
         })
         if (groupIndex !== -1) {
           return s.groups.groups[groupIndex].set(updateGroup)
@@ -200,10 +201,11 @@ export const GroupService = {
     const dispatch = useDispatch()
     {
       try {
-        await client.service('group').create({
+        const result = await client.service('group').create({
           name: values.name,
           description: values.description
         })
+        dispatch(GroupAction.createdGroup(result))
       } catch (err) {
         console.log(err)
         AlertService.dispatchAlertError(err.message)
@@ -221,7 +223,9 @@ export const GroupService = {
         ;(patch as any).description = values.description
       }
       try {
-        await client.service('group').patch(values.id, patch)
+        const data = await client.service('group').patch(values.id, patch)
+        // ;(patch as any).id = values.id
+        dispatch(GroupAction.patchedGroup(data))
       } catch (err) {
         console.log(err)
         AlertService.dispatchAlertError(err.message)
