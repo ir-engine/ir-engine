@@ -81,8 +81,9 @@ const Group = () => {
         <a
           href="#"
           onClick={() => setType('friends')}
-          className={`${type === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx0
-            }`}
+          className={`${type === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+            classes.mx0
+          }`}
         >
           <span>Friends</span>
         </a>
