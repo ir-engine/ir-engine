@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { Dashboard } from '@mui/icons-material'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -22,7 +21,6 @@ import { client } from '@xrengine/client-core/src/feathers'
 
 type ProjectNodeEditorProps = {
   node?: ProjectNode
-  t: Function
 }
 
 type ProjectEditorStates = {
@@ -70,6 +68,7 @@ const systemUpdateTypes = [
 
 export const ProjectNodeEditor = (props: ProjectNodeEditorProps) => {
   let [projects, setProjects] = useState([])
+  const { t } = useTranslation()
 
   const getProjects = async () => {
     let projects: ProjectInterface[] = []
@@ -107,7 +106,7 @@ export const ProjectNodeEditor = (props: ProjectNodeEditorProps) => {
   const currentPack = projects.find((pack) => pack.name === node.packName)
 
   return (
-    <NodeEditor description={ProjectNodeEditor.description} {...props}>
+    <NodeEditor description={t('editor:properties.projectnode.description')} {...props}>
       <InputGroup name="Project" label="Project">
         <SelectInput
           options={projects.map((r) => {
@@ -137,6 +136,5 @@ export const ProjectNodeEditor = (props: ProjectNodeEditorProps) => {
 }
 
 ProjectNodeEditor.iconComponent = Dashboard
-ProjectNodeEditor.description = i18n.t('editor:properties.projectnode.description')
 
-export default withTranslation()(ProjectNodeEditor)
+export default ProjectNodeEditor
