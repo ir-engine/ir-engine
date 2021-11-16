@@ -22,6 +22,7 @@ import { NodeManager } from '../../managers/NodeManager'
 import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import Hotkeys from 'react-hot-keys'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -1200,14 +1201,18 @@ export default function HierarchyPanel() {
       </PanelContainer>
       <ContextMenu id="hierarchy-node-menu">
         <MenuItem onClick={onRenameNode}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
-        <MenuItem onClick={onDuplicateNode}>
-          {t('editor:hierarchy.lbl-duplicate')}
-          <div>{cmdOrCtrlString + '+ D'}</div>
-        </MenuItem>
-        <MenuItem onClick={onGroupNodes}>
-          {t('editor:hierarchy.lbl-group')}
-          <div>{cmdOrCtrlString + '+ G'}</div>
-        </MenuItem>
+        <Hotkeys keyName={cmdOrCtrlString + '+d'} onKeyUp={onDuplicateNode}>
+          <MenuItem onClick={onDuplicateNode}>
+            {t('editor:hierarchy.lbl-duplicate')}
+            <div>{cmdOrCtrlString + ' + d'}</div>
+          </MenuItem>
+        </Hotkeys>
+        <Hotkeys keyName={cmdOrCtrlString + '+g'} onKeyUp={onGroupNodes}>
+          <MenuItem onClick={onGroupNodes}>
+            {t('editor:hierarchy.lbl-group')}
+            <div>{cmdOrCtrlString + ' + g'}</div>
+          </MenuItem>
+        </Hotkeys>
         <MenuItem onClick={onDeleteNode}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
         <MenuItem onClick={onExpandAllNodes}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
         <MenuItem onClick={onCollapseAllNodes}>{t('editor:hierarchy.lbl-collapseAll')}</MenuItem>
