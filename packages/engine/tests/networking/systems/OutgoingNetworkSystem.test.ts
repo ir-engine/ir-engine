@@ -19,6 +19,7 @@ import { VelocityComponent } from '../../../src/physics/components/VelocityCompo
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { TestNetwork } from '../TestNetwork'
+import { NetworkObjectOwnedTag } from '../../../src/networking/components/NetworkObjectOwnedTag'
 
 describe('OutgoingNetworkSystem Unit Tests', () => {
 
@@ -255,6 +256,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         // make first entity the client's entity
         if (i === 0) {
           world.localClientEntity = entity
+          const ownedNetworkTag = addComponent(entity, NetworkObjectOwnedTag, {})
         }
 
         const transform = addComponent(entity, TransformComponent, {
