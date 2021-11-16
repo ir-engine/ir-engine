@@ -59,7 +59,15 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
   cmd = cmd.substring(getStarterCount(cmd))
   let data = cmd.split(' ')
   let base = data[0]
-  let params = data.length == 2 ? data[1].split(',') : ''
+  let params: string[] = [] // data.length >= 2 ? data[1].split(',') : []
+  if (data.length > 1) {
+    for (let i = 1; i < data.length; i++) {
+      const d = data[i].split(',')
+      for (let k = 0; k < d.length; k++) {
+        params.push(d[k])
+      }
+    }
+  }
 
   //Handle the command according to the base
   switch (base) {
@@ -161,7 +169,7 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
         return true
       }
 
-      handleGetPositionCommand(params[0])
+      handleGetPositionCommand(params[0], userId)
 
       return true
     }
@@ -171,7 +179,7 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
         return true
       }
 
-      handleGetRotationCommand(params[0])
+      handleGetRotationCommand(params[0], userId)
 
       return true
     }
@@ -181,7 +189,7 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
         return true
       }
 
-      handleGetScaleCommand(params[0])
+      handleGetScaleCommand(params[0], userId)
 
       return true
     }
@@ -191,17 +199,22 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
         return true
       }
 
-      handleGetTransformCommand(params[0])
+      handleGetTransformCommand(params[0], userId)
 
       return true
     }
     case 'follow': {
-      if (params.length !== 1) {
+      let name = ''
+      if (params.length < 1) {
         console.log('invalid params')
         return true
+      } else if (params.length === 1) {
+        name = params[0]
+      } else {
+        name = params.join(' ')
       }
 
-      handleFollowCommand(params[0], entity)
+      handleFollowCommand(name, entity, userId)
 
       return true
     }
@@ -223,7 +236,7 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
       return true
     }
     default: {
-      console.log('unknown command: ' + base + ' params: ' + (params === '' ? 'none' : params))
+      console.log('unknown command: ' + base + ' params: ' + params)
       return false
     }
   }
@@ -353,10 +366,10 @@ function handleFaceCommand(face: string, entity: any) {
   //handle face
 }
 
-function handleGetPositionCommand(player: string) {
+function handleGetPositionCommand(player: string, userId) {
   if (player === undefined || player === '') return
 
-  const entity = getUserEntityByName(player)
+  const entity = getUserEntityByName(player, userId)
   if (entity === undefined) {
     console.log('undefiend entity')
     return
@@ -371,10 +384,10 @@ function handleGetPositionCommand(player: string) {
   console.log(player + ' position: ' + JSON.stringify(transform.position))
 }
 
-function handleGetRotationCommand(player: string) {
+function handleGetRotationCommand(player: string, userid) {
   if (player === undefined || player === '') return
 
-  const entity = getUserEntityByName(player)
+  const entity = getUserEntityByName(player, userid)
   if (entity === undefined) return
 
   const transform = getComponent(entity, TransformComponent)
@@ -383,10 +396,10 @@ function handleGetRotationCommand(player: string) {
   console.log(player + ' rotation: ' + JSON.stringify(transform.rotation))
 }
 
-function handleGetScaleCommand(player: string) {
+function handleGetScaleCommand(player: string, userid) {
   if (player === undefined || player === '') return
 
-  const entity = getUserEntityByName(player)
+  const entity = getUserEntityByName(player, userid)
   if (entity === undefined) return
 
   const transform = getComponent(entity, TransformComponent)
@@ -395,10 +408,10 @@ function handleGetScaleCommand(player: string) {
   console.log(player + ' scale: ' + JSON.stringify(transform.scale))
 }
 
-function handleGetTransformCommand(player: string) {
+function handleGetTransformCommand(player: string, userid) {
   if (player === undefined || player === '') return
 
-  const entity = getUserEntityByName(player)
+  const entity = getUserEntityByName(player, userid)
   if (entity === undefined) return
 
   const transform = getComponent(entity, TransformComponent)
@@ -406,11 +419,11 @@ function handleGetTransformCommand(player: string) {
 
   console.log(player + ' transform: ' + JSON.stringify(transform))
 }
-function handleFollowCommand(param: string, entity: Entity) {
+function handleFollowCommand(param: string, entity: Entity, userid) {
   if (param === 'stop') {
     removeFollowComponent(entity)
   } else {
-    const targetEntity = getUserEntityByName(param)
+    const targetEntity = getUserEntityByName(param, userid)
     console.log('follow target entity: ' + targetEntity)
     if (targetEntity === undefined || entity === targetEntity) return
     createFollowComponent(entity, targetEntity)
@@ -483,7 +496,6 @@ function getMetadataPosition(_pos: string): Vector3 {
 }
 
 export function goTo(pos: Vector3, entity: Entity) {
-  //console.log('goto: ' + JSON.stringify(pos))
   let linput = getComponent(entity, LocalInputTagComponent)
   if (linput === undefined) linput = addComponent(entity, LocalInputTagComponent, {})
   addComponent(entity, AutoPilotOverrideComponent, {

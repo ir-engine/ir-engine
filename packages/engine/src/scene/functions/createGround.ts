@@ -1,13 +1,18 @@
-import { CircleBufferGeometry, Color, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three'
+import { CircleBufferGeometry, Color, Group, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createCollider } from '../../physics/functions/createCollider'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { addObject3DComponent } from './addObject3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Engine } from '../../ecs/classes/Engine'
+import { MapAction, mapReducer } from '../../map/MapReceptor'
+import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+import { getPhases, startPhases } from '../../map/functions/PhaseFunctions'
 
 type GroundProps = {
   color: string
+  generateNavmesh: boolean
 }
 
 const halfTurnX = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2)
@@ -32,6 +37,15 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
   }
 
   createCollider(entity, mesh)
+
+  if (isClient && args.generateNavmesh === true) {
+    const navigationRaycastTarget = new Group()
+    navigationRaycastTarget.scale.setScalar(getComponent(entity, TransformComponent).scale.x)
+    Engine.scene.add(navigationRaycastTarget)
+    addComponent(entity, NavMeshComponent, {
+      navTarget: navigationRaycastTarget
+    })
+  }
 
   return mesh
 }
