@@ -1,8 +1,6 @@
-import { Add, Close, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
-import { AddCircleOutline, Check, Settings } from '@mui/icons-material'
+import { Add, Delete, Edit, Forum, GroupAdd, MoreHoriz, Notifications, Search } from '@material-ui/icons'
 import {
   Badge,
-  Container,
   IconButton,
   MenuList,
   MenuItem,
@@ -14,10 +12,7 @@ import {
   Dialog,
   Typography,
   Avatar,
-  Box,
-  Drawer,
-  Tabs,
-  Tab
+  Box
 } from '@mui/material'
 import Divider from '@mui/material/Divider'
 
@@ -34,6 +29,9 @@ import * as React from 'react'
 import InviteHarmony from './InviteHarmony'
 import { useHarmonyStyles } from './style'
 import InviteModel from './InviteModel'
+import GroupMembers from './Group/GroupMember'
+import CreateGroup from './Group/CreateGroup'
+import { AnyContext } from '@hookstate/core'
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props
@@ -55,14 +53,19 @@ function TabPanel(props) {
   )
 }
 
-
 function a11yProps(index) {
   return {
     id: `vertical-tab-${index}`,
     'aria-controls': `vertical-tabpanel-${index}`
   }
 }
-const LeftHarmony: React.FunctionComponent = () => {
+
+interface Props {
+  setShowChat: AnyContext
+}
+
+const LeftHarmony = (props: Props) => {
+  const { setShowChat } = props
   const classes = useHarmonyStyles()
   const [show, setShow] = React.useState(false)
   const [create, setCreate] = React.useState(false)
@@ -79,6 +82,8 @@ const LeftHarmony: React.FunctionComponent = () => {
     width: window.innerWidth
   })
   const [state, setState] = React.useState({ right: false })
+  const [openDrawer, setOpen] = React.useState(false)
+  const [openCreateDrawer, setOpenCreate] = React.useState(false)
   const [list, setList] = React.useState({ right: false })
   // Current User
   const selfUser = useAuthState().user.value
@@ -102,6 +107,7 @@ const LeftHarmony: React.FunctionComponent = () => {
   }
 
   const handleClickOpen = () => {
+    setShowNot(false)
     setShow(true)
   }
 
@@ -119,6 +125,19 @@ const LeftHarmony: React.FunctionComponent = () => {
 
   const handleClose = () => {
     setAnchorEl(null)
+  }
+
+  const handleOpenDrawer = () => {
+    setOpen(true)
+  }
+  const handleCloseDrawer = () => {
+    setOpen(false)
+  }
+  const handleOpenCreateDrawer = () => {
+    setOpenCreate(true)
+  }
+  const handleCloseCreateDrawer = () => {
+    setOpenCreate(false)
   }
 
   const nextFriendsPage = (): void => {
@@ -148,28 +167,12 @@ const LeftHarmony: React.FunctionComponent = () => {
     ChatService.updateChatTarget(channelType, target)
   }
 
-  const toggleDrawer = (anchor, open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return
-    }
-
-    setState({ ...state, [anchor]: open })
-  }
-
-  const toggleList = (anchor, open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return
-    }
-
-    setList({ ...state, [anchor]: open })
-  }
-
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
 
   return (
     <>
-      <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h100}`}>
+      <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h1002}`}>
         <div>
           <div className={`${classes.dFlex} ${classes.justifyContentBetween}`}>
             <h4>Chats</h4>
@@ -192,10 +195,12 @@ const LeftHarmony: React.FunctionComponent = () => {
               href="#"
               onClick={() => {
                 setChat('party')
+                setShowChat(false)
                 setActiveChat('party', {})
               }}
-              className={`${chat === 'party' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'party' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Party</span>
             </a>
@@ -203,10 +208,12 @@ const LeftHarmony: React.FunctionComponent = () => {
               href="#"
               onClick={() => {
                 setChat('friends')
+                setShowChat(false)
                 setActiveChat('friends', {})
               }}
-              className={`${chat === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Friends</span>
             </a>
@@ -214,10 +221,12 @@ const LeftHarmony: React.FunctionComponent = () => {
               href="#"
               onClick={() => {
                 setChat('group')
+                setShowChat(false)
                 setActiveChat('group', {})
               }}
-              className={`${chat === 'group' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'group' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Group</span>
             </a>
@@ -225,10 +234,12 @@ const LeftHarmony: React.FunctionComponent = () => {
               href="#"
               onClick={() => {
                 setChat('layer')
+                setShowChat(false)
                 setActiveChat('layer', {})
               }}
-              className={`${chat === 'layer' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'layer' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Layer</span>
             </a>
@@ -236,10 +247,12 @@ const LeftHarmony: React.FunctionComponent = () => {
               href="#"
               onClick={() => {
                 setChat('instance')
+                setShowChat(false)
                 setActiveChat('instance', {})
               }}
-              className={`${chat === 'instance' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'instance' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Instance</span>
             </a>
@@ -264,30 +277,80 @@ const LeftHarmony: React.FunctionComponent = () => {
                           <ListItem
                             className={classes.cpointer}
                             onClick={() => {
-                              setActiveChat('user', friend)
                               if (dimensions.width <= 768) setSelectorsOpen(false)
                             }}
                           >
                             <ListItemAvatar>
                               <Avatar src={friend.avatarUrl} />
                             </ListItemAvatar>
-                            <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2}`}>
-                              <div className={classes.mx2}>
+                            <div
+                              className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.flexGrow2}`}
+                            >
+                              <div
+                                onClick={() => {
+                                  setActiveChat('user', friend), setShowChat(true)
+                                }}
+                                className={`${classes.mx2} ${classes.flexGrow2}`}
+                              >
                                 <h4 className={classes.fontBig}>{friend.name}</h4>
                                 <small className={classes.textMuted}>Hello Buddy</small>
                               </div>
-                              <div className={classes.mx2}></div>
-
                               <div>
                                 <a href="#" className={classes.border0} onClick={handleClick}>
                                   <MoreHoriz />
                                 </a>
+                                <Popover
+                                  id={id}
+                                  open={open}
+                                  anchorEl={anchorEl}
+                                  onClose={handleClose}
+                                  anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'right'
+                                  }}
+                                  transformOrigin={{
+                                    vertical: 'center',
+                                    horizontal: 'left'
+                                  }}
+                                >
+                                  <div className={classes.bgDark}>
+                                    <MenuList sx={{ width: 210, maxWidth: '100%', borderRadius: 10 }}>
+                                      <MenuItem
+                                        className={classes.my2}
+                                        onClick={() => {
+                                          setActiveChat('user', friend), setShowChat(true), handleClose()
+                                        }}
+                                      >
+                                        <ListItemIcon>
+                                          <Forum fontSize="small" className={classes.info} />
+                                        </ListItemIcon>
+                                        <ListItemText>CHAT</ListItemText>
+                                      </MenuItem>
+                                      <MenuItem
+                                        className={classes.my2}
+                                        onClick={() => {
+                                          setActiveChat('user', friend),
+                                            handleClose(),
+                                            setInvite('Friends'),
+                                            handleCreate()
+                                        }}
+                                      >
+                                        <ListItemIcon>
+                                          <GroupAdd fontSize="small" className={classes.success} />
+                                        </ListItemIcon>
+                                        <ListItemText>INVITE</ListItemText>
+                                      </MenuItem>
+                                      <MenuItem className={classes.my2}>
+                                        <ListItemIcon>
+                                          <Delete fontSize="small" className={classes.danger} />
+                                        </ListItemIcon>
+                                        <ListItemText>UNFRIEND</ListItemText>
+                                      </MenuItem>
+                                    </MenuList>
+                                  </div>
+                                </Popover>
                               </div>
                             </div>
-
-                            {/* <ListItemIcon onClick={(e) => openDetails(e, 'user', friend)}>
-                              <Settings />
-                            </ListItemIcon> */}
                           </ListItem>
                           {index < friends.length - 1 && <Divider />}
                         </div>
@@ -314,18 +377,21 @@ const LeftHarmony: React.FunctionComponent = () => {
                     return (
                       <div
                         key={part.id}
-                        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
+                        className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}
                         onClick={() => {
-                          setActiveChat('party', part)
                           if (dimensions.width <= 768) setSelectorsOpen(false)
                         }}
                       >
-                        <div className={classes.mx2}>
+                        <div
+                          onClick={() => {
+                            setActiveChat('party', part), setShowChat(true)
+                          }}
+                          className={`${classes.mx2} ${classes.flexGrow2}`}
+                        >
                           <h4 className={classes.fontBig}>{part.name}</h4>
-                          <small className={classes.textMuted}>Party id:</small>
-                          <small className={classes.textMuted}>{part.id}</small>
+                          <small className={classes.textMuted}>Party id: </small>
+                          <small className={classes.textMuted}>{part.instance?.ipAddress}</small>
                         </div>
-                        <div className={classes.mx2}></div>
 
                         <div>
                           <a href="#" className={classes.border0} onClick={handleClick}>
@@ -342,41 +408,9 @@ const LeftHarmony: React.FunctionComponent = () => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" onClick={toggleDrawer('right', true)} className={`${classes.my2} ${classes.btn}`}>
+                <a href="#" onClick={() => handleOpenCreateDrawer()} className={`${classes.my2} ${classes.btn}`}>
                   CREATE GROUP
                 </a>
-                <Drawer anchor={'right'} open={state['right']} onClose={toggleDrawer('right', false)}>
-                  <Container className={classes.bgDark} style={{ height: '100vh', overflowY: 'scroll' }}>
-                    <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
-                      <AddCircleOutline />
-                      &nbsp;&nbsp;&nbsp;&nbsp;
-                      <h1>CREATE GROUP</h1>
-                    </div>
-                    <div className={classes.p5}>
-                      <form>
-                        <div className="form-group">
-                          <label htmlFor="" className={classes.mx2}>
-                            <p>Name:</p>
-                          </label>
-                          <input type="text" className={classes.formControls} placeholder="Enter group name" />
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="" className={classes.mx2}>
-                            <p>Description:</p>
-                          </label>
-                          <input type="text" className={classes.formControls} placeholder="Enter description" />
-                        </div>
-                        <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
-                          <button
-                            className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
-                          >
-                            <b className={classes.white}>Create Now</b>
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </Container>
-                </Drawer>
               </div>
               {groups &&
                 groups.length > 0 &&
@@ -386,13 +420,17 @@ const LeftHarmony: React.FunctionComponent = () => {
                     return (
                       <div
                         key={group.id}
-                        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
+                        className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}
                         onClick={() => {
-                          setActiveChat('group', group)
                           if (dimensions.width <= 768) setSelectorsOpen(false)
                         }}
                       >
-                        <div>
+                        <div
+                          className={classes.flexGrow2}
+                          onClick={() => {
+                            setActiveChat('group', group), setShowChat(true)
+                          }}
+                        >
                           <div className={classes.mx2}>
                             <h4 className={classes.fontBig}>{group.name}</h4>
                             <small className={classes.textMuted}>You:</small>
@@ -419,7 +457,12 @@ const LeftHarmony: React.FunctionComponent = () => {
                           >
                             <div className={classes.bgDark}>
                               <MenuList sx={{ width: 210, maxWidth: '100%', borderRadius: 10 }}>
-                                <MenuItem className={classes.my2}>
+                                <MenuItem
+                                  className={classes.my2}
+                                  onClick={() => {
+                                    setActiveChat('group', group), setShowChat(true), handleClose()
+                                  }}
+                                >
                                   <ListItemIcon>
                                     <Forum fontSize="small" className={classes.info} />
                                   </ListItemIcon>
@@ -434,7 +477,7 @@ const LeftHarmony: React.FunctionComponent = () => {
                                 <MenuItem
                                   className={classes.my2}
                                   onClick={() => {
-                                    handleClose(), setInvite('Group'), handleCreate()
+                                    setActiveChat('group', group), handleClose(), setInvite('Group'), handleCreate()
                                   }}
                                 >
                                   <ListItemIcon>
@@ -452,38 +495,13 @@ const LeftHarmony: React.FunctionComponent = () => {
                               <div className={classes.center}>
                                 <a
                                   href="#"
-                                  onClick={toggleList('right', true)}
+                                  onClick={() => {
+                                    handleOpenDrawer(), handleClose()
+                                  }}
                                   className={`${classes.my2} ${classes.btn}`}
                                 >
                                   <small>VIEW MEMBERS</small>
                                 </a>
-                                <Drawer anchor={'right'} open={list['right']} onClose={toggleList('right', false)}>
-                                  <Container
-                                    className={classes.bgDark}
-                                    style={{ height: '100vh', overflowY: 'scroll' }}
-                                  >
-                                    <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
-                                      <AddCircleOutline />
-                                      &nbsp;&nbsp;&nbsp;&nbsp;
-                                      <h1>
-                                        GROUP TEST 1 <small>&nbsp;&nbsp; 12 Members (s)</small>
-                                      </h1>
-                                    </div>
-                                    <div
-                                      className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter} ${classes.my2} ${classes.p5}`}
-                                    >
-                                      <div className={`${classes.dFlex} ${classes.alignCenter}`}>
-                                        <Avatar src="./Avatar.png" />
-                                        <div className={classes.mx2}>
-                                          <h4 className={classes.fontBig}>John laouireen</h4>
-                                        </div>
-                                      </div>
-                                      <a href="#" className={classes.border0}>
-                                        <Delete fontSize="small" className={classes.danger} />
-                                      </a>
-                                    </div>
-                                  </Container>
-                                </Drawer>
                               </div>
                             </div>
                           </Popover>
@@ -516,6 +534,8 @@ const LeftHarmony: React.FunctionComponent = () => {
         <InviteModel invite={invite} />
       </Dialog>
       <InviteHarmony setShowNot={setShowNot} show={show} setShow={setShow} />
+      <GroupMembers openDrawer={openDrawer} handleCloseDrawer={handleCloseDrawer} />
+      <CreateGroup openCreateDrawer={openCreateDrawer} handleCloseCreateDrawer={handleCloseCreateDrawer} />
     </>
   )
 }
