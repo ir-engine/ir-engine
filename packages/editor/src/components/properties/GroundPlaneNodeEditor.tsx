@@ -64,7 +64,7 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
       <InputGroup name="Receive Shadow" label={t('editor:properties.groundPlane.lbl-receiveShadow')}>
         <BooleanInput value={node.receiveShadow} onChange={onChangeReceiveShadow} />
       </InputGroup>
-      <InputGroup name="Generate Navmesh" label={props.t('editor:properties.groundPlane.lbl-generateNavmesh')}>
+      <InputGroup name="Generate Navmesh" label={t('editor:properties.groundPlane.lbl-generateNavmesh')}>
         <BooleanInput value={node.generateNavmesh} onChange={onChangeGenerateNavmesh} />
       </InputGroup>
       <InputGroup name="Walkable" label={t('editor:properties.groundPlane.lbl-walkable')}>
