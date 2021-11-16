@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
+import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import { useHarmonyStyles } from '../style'
 
 const Group = () => {
@@ -10,6 +11,9 @@ const Group = () => {
   const [userToken, setUserToken] = useState('')
   const [inviteTypeIndex, setInviteTypeIndex] = useState(0)
   const inviteState = useInviteState()
+  const groupState = useGroupState()
+  const invitableGroupState = groupState.invitableGroups
+  const invitableGroups = invitableGroupState.groups
 
   const identityProviderTabMap = new Map()
   identityProviderTabMap.set(0, 'email')
@@ -81,8 +85,9 @@ const Group = () => {
         <a
           href="#"
           onClick={() => setType('friends')}
-          className={`${type === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx0
-            }`}
+          className={`${type === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+            classes.mx0
+          }`}
         >
           <span>Friends</span>
         </a>
@@ -94,7 +99,7 @@ const Group = () => {
               <p>Group:</p>
             </label>
             <select className={classes.formControls}>
-              <option value="1">Test Group</option>
+              <option value={inviteState.targetObjectId.value}>{inviteState.targetObjectId.value}</option>
             </select>
           </div>
           {type === 'email' ? (
