@@ -21,7 +21,7 @@ export type SystemFactoryType<A> = {
   args?: A
 }
 
-export const registerSystem = (type: SystemUpdateType, systemModulePromise: SystemModulePromise<void>) => {
+export const registerSystem = (type: SystemUpdateType, systemModulePromise: SystemModulePromise<any>) => {
   Engine.defaultWorld._pipeline.push({ type, systemModulePromise, args: undefined }) // yes undefined, V8...
 }
 
