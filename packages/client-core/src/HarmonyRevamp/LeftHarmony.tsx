@@ -49,7 +49,26 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
   const { setShowChat } = props
   const { darkMode, setDarkMode } = React.useContext(ModeContext)
   const [checked, setChecked] = React.useState(true)
+  const initialSelectedUserState = {
+    id: '',
+    name: '',
+    userRole: '',
+    identityProviders: [],
+    relationType: {},
+    inverseRelationType: {},
+    avatarUrl: ''
+  }
+
+  const initialGroupForm = {
+    id: '',
+    name: '',
+    groupUsers: [],
+    description: ''
+  }
+
   const classes = useHarmonyStyles()
+  const {darkMode, setDarkMode} = React.useContext(ModeContext);
+  const [checked, setChecked] = React.useState(true);
   const [show, setShow] = React.useState(false)
   const [create, setCreate] = React.useState(false)
   const [chat, setChat] = React.useState('party')
@@ -70,6 +89,7 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
     height: window.innerHeight,
     width: window.innerWidth
   })
+  const [detailsType, setDetailsType] = React.useState('')
   const [state, setState] = React.useState({ right: false })
   const [openDrawer, setOpen] = React.useState(false)
   const [openCreateDrawer, setOpenCreate] = React.useState(false)
@@ -87,6 +107,15 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
   const groupState = useGroupState()
   const groupSubState = groupState.groups
   const groups = groupSubState.groups.value
+
+  const [groupFormOpen, setGroupFormOpen] = React.useState(false)
+
+  const [groupFormMode, setGroupFormMode] = React.useState('create')
+
+  const [groupForm, setGroupForm] = React.useState(initialGroupForm)
+  const [selectedUser, setSelectedUser] = React.useState(initialSelectedUserState)
+  const [selectedGroup, setSelectedGroup] = React.useState(initialGroupForm)
+  const [groupDeletePending, setGroupDeletePending] = React.useState('')
 
   //party state
   const party = usePartyState().party?.value
@@ -142,7 +171,28 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
     setAnchorEl(event.currentTarget)
   }
 
+  const openDetails = (e, type, object) => {
+    handleClick(e)
+    setDetailsType(type)
+    setGroupFormMode('update')
+    e.stopPropagation()
+    if (type === 'user') {
+      setSelectedUser(object)
+    } else if (type === 'group') {
+      setSelectedGroup(object)
+      setGroupForm({ ...groupForm, name: object.name, description: object.description, id: object.id })
+    }
+  }
+
   const handleClose = () => {
+    setGroupForm(initialGroupForm)
+    setGroupFormMode('create')
+    setSelectedGroup(initialGroupForm)
+    setDetailsType('')
+    setAnchorEl(null)
+  }
+
+  const handleUpdateClose = () => {
     setAnchorEl(null)
   }
 
@@ -186,12 +236,54 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
     ChatService.updateChatTarget(channelType, target)
   }
 
+  const handleGroupCreateInput = (e: any): void => {
+    const value = e.target.value
+    const form = Object.assign({}, groupForm)
+    form[e.target.name] = value
+    setGroupForm(form)
+  }
+
+  const closeDrawer = (anchor, open) => {
+    setState({ ...state, [anchor]: open })
+  }
+
+  const submitGroup = (e: any): void => {
+    e.preventDefault()
+
+    const group = {
+      id: groupForm.id,
+      name: groupForm.name,
+      description: groupForm.description
+    }
+
+    if (groupFormMode === 'create') {
+      delete group.id
+      GroupService.createGroup(group)
+    } else {
+      GroupService.patchGroup(group)
+    }
+    setGroupForm(initialGroupForm)
+    closeDrawer('right', false)
+    setGroupFormMode('create')
+  }
+
   const toggleDrawer = (anchor, open) => (event) => {
+    console.log('toggled')
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return
     }
 
     setState({ ...state, [anchor]: open })
+    handleClose()
+  }
+
+  const toggleUpdateDrawer = (anchor, open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return
+    }
+
+    setState({ ...state, [anchor]: open })
+    handleUpdateClose()
   }
 
   const toggleList = (anchor, open) => (event) => {
@@ -221,6 +313,24 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
   const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
     InviteService.updateInviteTarget(targetObjectType, targetObjectId)
   }
+
+  const showGroupDeleteConfirm = (e, groupId) => {
+    e.preventDefault()
+    setGroupDeletePending(groupId)
+  }
+
+  const cancelGroupDelete = (e) => {
+    e.preventDefault()
+    setGroupDeletePending('')
+  }
+
+  const confirmGroupDelete = (e, groupId) => {
+    e.preventDefault()
+    setGroupDeletePending('')
+    GroupService.removeGroup(groupId)
+    handleClose()
+  }
+
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
 
@@ -252,9 +362,8 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('party', {})
               }}
-              className={`${chat === 'party' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'party' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${classes.roundedCircle
+                } ${classes.mx2}`}
             >
               <span>Party</span>
             </a>
@@ -265,9 +374,8 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('friends', {})
               }}
-              className={`${chat === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'friends' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${classes.roundedCircle
+                } ${classes.mx2}`}
             >
               <span>Friends</span>
             </a>
@@ -278,9 +386,8 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('group', {})
               }}
-              className={`${chat === 'group' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'group' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${classes.roundedCircle
+                } ${classes.mx2}`}
             >
               <span>Group</span>
             </a>
@@ -291,9 +398,8 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('layer', {})
               }}
-              className={`${chat === 'layer' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'layer' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${classes.roundedCircle
+                } ${classes.mx2}`}
             >
               <span>Layer</span>
             </a>
@@ -304,9 +410,8 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('instance', {})
               }}
-              className={`${chat === 'instance' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'instance' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight
+                } ${classes.roundedCircle} ${classes.mx2}`}
             >
               <span>Instance</span>
             </a>
@@ -617,27 +722,44 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                     <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
                       <AddCircleOutline />
                       &nbsp;&nbsp;&nbsp;&nbsp;
-                      <h1>CREATE GROUP</h1>
+                      <h1>{groupFormMode === 'create' ? 'CREATE' : 'UPDATE'} GROUP</h1>
                     </div>
                     <div className={classes.p5}>
-                      <form>
+                      <form onSubmit={(e) => submitGroup(e)}>
                         <div className="form-group">
                           <label htmlFor="" className={classes.mx2}>
                             <p>Name:</p>
                           </label>
-                          <input type="text" className={classes.formControls} placeholder="Enter group name" />
+                          <input
+                            type="text"
+                            className={classes.formControls}
+                            id="name"
+                            name="name"
+                            value={groupForm.name}
+                            autoFocus
+                            placeholder="Enter group name"
+                            onChange={(e) => handleGroupCreateInput(e)}
+                          />
                         </div>
                         <div className="form-group">
                           <label htmlFor="" className={classes.mx2}>
                             <p>Description:</p>
                           </label>
-                          <input type="text" className={classes.formControls} placeholder="Enter description" />
+                          <input
+                            type="text"
+                            className={classes.formControls}
+                            id="description"
+                            name="description"
+                            value={groupForm.description}
+                            placeholder="Enter description"
+                            onChange={(e) => handleGroupCreateInput(e)}
+                          />
                         </div>
                         <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
                           <button
                             className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
                           >
-                            <b className={classes.white}>Create Now</b>
+                            <b className={classes.white}>{groupFormMode === 'create' ? 'Create' : 'Update'} Now</b>
                           </button>
                         </div>
                       </form>
@@ -672,7 +794,7 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                           </div>
                         </div>
                         <div>
-                          <a href="#" className={classes.border0} onClick={handleClick}>
+                          <a href="#" className={classes.border0} onClick={(e) => openDetails(e, 'group', group)}>
                             <MoreHoriz />
                           </a>
                           <Popover
@@ -702,7 +824,7 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                                   </ListItemIcon>
                                   <ListItemText>CHAT</ListItemText>
                                 </MenuItem>
-                                <MenuItem className={classes.my2}>
+                                <MenuItem className={classes.my2} onClick={toggleUpdateDrawer('right', true)}>
                                   <ListItemIcon>
                                     <Edit fontSize="small" className={classes.muted} />
                                   </ListItemIcon>
@@ -719,7 +841,10 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                                   </ListItemIcon>
                                   <ListItemText>INVITE</ListItemText>
                                 </MenuItem>
-                                <MenuItem className={classes.my2}>
+                                <MenuItem
+                                  className={classes.my2}
+                                  onClick={(e) => confirmGroupDelete(e, selectedGroup.id)}
+                                >
                                   <ListItemIcon>
                                     <Delete fontSize="small" className={classes.danger} />
                                   </ListItemIcon>
@@ -773,9 +898,12 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
             </>
           )}
         </div>
-        <div>
-          <div className={`${classes.dFlex} ${classes.box} ${classes.mx2}`}>
-            <Avatar src={selfUser.avatarUrl} />
+        <div
+          className={`${classes.dFlex} ${classes.justifyContentBetween} ${darkMode ? classes.darkBg : classes.whiteBg
+            } ${classes.mx2}`}
+        >
+          <div className={`${classes.dFlex} ${classes.box}`}>
+            <Avatar src="./Avatar.png" />
             <div className={classes.mx2}>
               <h4 className={classes.fontBig}>{selfUser.name}</h4>
               <small className={classes.textMuted}>You are:</small>
