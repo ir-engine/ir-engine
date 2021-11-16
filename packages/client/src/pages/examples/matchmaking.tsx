@@ -1,8 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { client } from '@xrengine/client-core/src/feathers'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { OpenMatchTicket, OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
+import {
+  MatchmakingTicketAssignment,
+  OpenMatchTicket,
+} from "@xrengine/matchmaking/src/interfaces";
 import { useHistory } from 'react-router-dom'
+
+const gameModes = [ "staked", "unstaked", "exhibition" ]
 
 async function findCurrentTicketData() {
   const { data } = await client.service('match-user').find()
@@ -67,7 +72,7 @@ const Page = () => {
     }
   }, [connection, instanceId, locationName])
 
-  async function newTicket(gamemode) {
+  async function newTicket(gamemode:string) {
     // setStatus('...')
     setIsUpdating(true)
     let serverTicket: OpenMatchTicket
@@ -107,8 +112,8 @@ const Page = () => {
     // setStatus('')
   }
 
-  function getAssignment(ticketId: string): Promise<OpenMatchTicketAssignment> {
-    return (ticketsAssignmentService.get(ticketId) as Promise<OpenMatchTicketAssignment>).then((assignment) => {
+  function getAssignment(ticketId: string): Promise<MatchmakingTicketAssignment> {
+    return (ticketsAssignmentService.get(ticketId) as Promise<MatchmakingTicketAssignment>).then((assignment) => {
       console.log('assignment', ticketId, assignment)
       return assignment
     })
@@ -120,6 +125,7 @@ const Page = () => {
         <>Loading...</>
       ) : (
         <MatchMakingControl
+          modes={gameModes}
           ticket={ticketData}
           connection={connection}
           onJoinQueue={newTicket}
@@ -132,6 +138,7 @@ const Page = () => {
 
 interface MatchMakingControlPropsInterface {
   ticket?: TicketData
+  modes: string[]
   connection?: string
   onJoinQueue: (string) => void
   onExitQueue: (string) => void
@@ -152,10 +159,13 @@ const MatchMakingControl = (props: MatchMakingControlPropsInterface) => {
       </>
     )
   } else {
+    const buttons = props.modes.map(mode => {
+      return (<button key={mode} onClick={() => onJoinQueue(mode)}>Join: {mode}</button>)
+    })
+
     content = (
       <>
-        <button onClick={() => onJoinQueue('mode.ctf')}>Join: CTF</button>
-        <button onClick={() => onJoinQueue('mode.battleroyale')}>Join: BATTLEROYALE</button>
+        { buttons }
       </>
     )
   }

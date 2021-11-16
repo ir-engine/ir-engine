@@ -2,15 +2,18 @@ import assert from 'assert'
 import { createTicket, deleteTicket, getTicket, getTicketsAssignment } from '../src/functions'
 import { OpenMatchTicket } from '../src/interfaces'
 
+// const testGameMode = 'mode.battleroyale'
+const testGameMode = 'staked'
+
 // this tests use real open match services
 describe.skip('open-match frontend service', () => {
   it('creates ticket', async () => {
-    const ticket = await createTicket('mode.battleroyale')
+    const ticket = await createTicket(testGameMode)
     assert(ticket.id)
   })
 
   it('gets ticket info after creation', async () => {
-    const result = await createTicket('mode.battleroyale')
+    const result = await createTicket(testGameMode)
     assert(result.id)
 
     const ticket = await getTicket(result.id)
@@ -18,7 +21,7 @@ describe.skip('open-match frontend service', () => {
   })
 
   it('deletes ticket', async () => {
-    const result = await createTicket('mode.battleroyale')
+    const result = await createTicket(testGameMode)
     assert(result.id, 'Ticket creation is failed')
     await deleteTicket(result.id)
 
@@ -33,7 +36,7 @@ describe.skip('open-match frontend service', () => {
     // 1. create enough tickets
     const ticketsPromises: Promise<OpenMatchTicket>[] = []
     for (let i = 0; i < 5; i++) {
-      ticketsPromises.push(createTicket('mode.battleroyale'))
+      ticketsPromises.push(createTicket(testGameMode))
     }
     const tickets = await Promise.all(ticketsPromises)
 

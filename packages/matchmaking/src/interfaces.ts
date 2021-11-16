@@ -37,6 +37,16 @@ export interface OpenMatchTicketAssignment {
   extensions?: OpenMatchExtensions
 }
 
+export interface MatchmakingTicketAssignment extends OpenMatchTicketAssignment {
+  instanceId: string
+  locationName: string
+}
+
+export interface MatchmakingProfileData {
+  mode: string
+  team_size: number
+}
+
 export interface OpenMatchTicketAssignmentResponse {
   result: {
     assignment: OpenMatchTicketAssignment
