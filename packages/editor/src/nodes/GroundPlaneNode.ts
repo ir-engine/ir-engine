@@ -72,8 +72,5 @@ export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
       receive: this.receiveShadow,
       cast: false
     })
-    this.addGLTFComponent('navmesh', {
-      generateNavmesh: this.generateNavmesh
-    })
   }
 }
