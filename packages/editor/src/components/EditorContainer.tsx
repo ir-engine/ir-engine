@@ -560,6 +560,7 @@ const EditorContainer = () => {
           size: 8,
           children: [
             {
+              id: '+5',
               tabs: [{ id: 'viewPanel', title: 'Viewport', content: <div /> }],
               size: 1
             }
