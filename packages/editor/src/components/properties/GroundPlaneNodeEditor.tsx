@@ -4,8 +4,7 @@ import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
 import BooleanInput from '../inputs/BooleanInput'
 import { SquareFull } from '@styled-icons/fa-solid/SquareFull'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
 /**
@@ -28,6 +27,7 @@ type GroundPlaneNodeEditorProps = {
  */
 export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
   const [, updateState] = useState()
+  const { t } = useTranslation()
 
   const forceUpdate = useCallback(() => updateState({}), [])
 
@@ -52,14 +52,14 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
   const node = props.node
 
   return (
-    <NodeEditor {...props} description={GroundPlaneNodeEditor.description}>
-      <InputGroup name="Color" label={props.t('editor:properties.groundPlane.lbl-color')}>
+    <NodeEditor {...props} description={t('editor:properties.groundPlane.description')}>
+      <InputGroup name="Color" label={t('editor:properties.groundPlane.lbl-color')}>
         <ColorInput value={node.color} onChange={onChangeColor} />
       </InputGroup>
-      <InputGroup name="Receive Shadow" label={props.t('editor:properties.groundPlane.lbl-receiveShadow')}>
+      <InputGroup name="Receive Shadow" label={t('editor:properties.groundPlane.lbl-receiveShadow')}>
         <BooleanInput value={node.receiveShadow} onChange={onChangeReceiveShadow} />
       </InputGroup>
-      <InputGroup name="Walkable" label={props.t('editor:properties.groundPlane.lbl-walkable')}>
+      <InputGroup name="Walkable" label={t('editor:properties.groundPlane.lbl-walkable')}>
         <BooleanInput value={node.walkable} onChange={onChangeWalkable} />
       </InputGroup>
     </NodeEditor>
@@ -67,6 +67,5 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
 }
 
 GroundPlaneNodeEditor.iconComponent = SquareFull
-GroundPlaneNodeEditor.description = i18n.t('editor:properties.groundPlane.description')
 
-export default withTranslation()(GroundPlaneNodeEditor)
+export default GroundPlaneNodeEditor

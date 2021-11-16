@@ -7,14 +7,12 @@ import ColorInput from '../inputs/ColorInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
 import { Lightbulb } from '@styled-icons/fa-solid/Lightbulb'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
 //Declaring properties for PointLightNodeEditor
 type PointLightNodeEditorProps = {
   node?: object
-  t: Function
 }
 
 /**
@@ -24,6 +22,8 @@ type PointLightNodeEditorProps = {
  * @type {class component}
  */
 export const PointLightNodeEditor = (props: PointLightNodeEditorProps) => {
+  const { t } = useTranslation()
+
   //function to handle changes in color property
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelection('color', color)
@@ -42,13 +42,13 @@ export const PointLightNodeEditor = (props: PointLightNodeEditorProps) => {
   //rendering editor view
   const { node } = props
   return (
-    <NodeEditor {...props} description={PointLightNodeEditor.description}>
-      <InputGroup name="Color" label={props.t('editor:properties.pointLight.lbl-color')}>
+    <NodeEditor {...props} description={t('editor:properties.pointLight.description')}>
+      <InputGroup name="Color" label={t('editor:properties.pointLight.lbl-color')}>
         <ColorInput value={node.color} onChange={onChangeColor} />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
-        label={props.t('editor:properties.pointLight.lbl-intensity')}
+        label={t('editor:properties.pointLight.lbl-intensity')}
         min={0}
         smallStep={0.001}
         mediumStep={0.01}
@@ -59,7 +59,7 @@ export const PointLightNodeEditor = (props: PointLightNodeEditorProps) => {
       />
       <NumericInputGroup
         name="Range"
-        label={props.t('editor:properties.pointLight.lbl-range')}
+        label={t('editor:properties.pointLight.lbl-range')}
         min={0}
         smallStep={0.1}
         mediumStep={1}
@@ -74,6 +74,5 @@ export const PointLightNodeEditor = (props: PointLightNodeEditorProps) => {
 }
 
 PointLightNodeEditor.iconComponent = Lightbulb
-PointLightNodeEditor.description = i18n.t('editor:properties.pointLight.description')
 
-export default withTranslation()(PointLightNodeEditor)
+export default PointLightNodeEditor
