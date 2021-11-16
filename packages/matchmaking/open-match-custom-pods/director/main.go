@@ -18,12 +18,14 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"lagunalabs/matchmaking/common"
 	"log"
 	//"math/rand"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kelseyhightower/envconfig"
 	"google.golang.org/grpc"
 	"open-match.dev/open-match/pkg/pb"
 )
@@ -41,6 +43,23 @@ const (
 
 func main() {
 	log.Printf("Use backend host:[%s]", omBackendEndpoint)
+
+	var envConfig common.EnvDataSpecification
+	err := envconfig.Process("MATCHMAKING", &envConfig)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	fmt.Println("GameTypes:")
+	for _, v := range envConfig.GameTypes {
+		fmt.Printf("  %s\n", v)
+	}
+
+	fmt.Println("GameTypesSizes:")
+	for k, v := range envConfig.GameTypesSizes {
+		fmt.Printf("  %s: %d\n", k, v)
+	}
+
 	// Connect to Open Match Backend.
 	conn, err := grpc.Dial(omBackendEndpoint, grpc.WithInsecure())
 	if err != nil {
@@ -51,7 +70,8 @@ func main() {
 	be := pb.NewBackendServiceClient(conn)
 
 	// Generate the profiles to fetch matches for.
-	profiles := generateProfiles()
+	// modes := []string{"mode.demo", "mode.ctf", "mode.battleroyale"}
+	profiles := generateProfiles(envConfig.GameTypes, envConfig.GameTypesSizes)
 	log.Printf("Fetching matches for %v profiles", len(profiles))
 
 	for range time.Tick(time.Second * 5) {

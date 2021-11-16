@@ -15,14 +15,27 @@
 package main
 
 import (
+	"google.golang.org/protobuf/types/known/anypb"
+	"lagunalabs/matchmaking/common"
+	"log"
 	"open-match.dev/open-match/pkg/pb"
 )
 
 // generateProfiles generates test profiles for the matchmaker101 tutorial.
-func generateProfiles() []*pb.MatchProfile {
+func generateProfiles(modes []string, teamSizes map[string]uint32) []*pb.MatchProfile {
 	var profiles []*pb.MatchProfile
-	modes := []string{"mode.demo", "mode.ctf", "mode.battleroyale"}
 	for _, mode := range modes {
+
+    profileData := &common.ProfileDataMessage{
+            			Mode: mode,
+            			TeamSize: teamSizes[mode],
+            		}
+    buffProfileData, err := anypb.New(profileData)
+
+		if err != nil {
+			log.Fatal("Failed to marshal DefaultEvaluationCriteria, got %w.", err)
+		}
+
 		profiles = append(profiles, &pb.MatchProfile{
 			Name: "mode_based_profile",
 			Pools: []*pb.Pool{
@@ -34,6 +47,9 @@ func generateProfiles() []*pb.MatchProfile {
 						},
 					},
 				},
+			},
+			Extensions: map[string]*anypb.Any{
+				"profileData": buffProfileData,
 			},
 		})
 	}

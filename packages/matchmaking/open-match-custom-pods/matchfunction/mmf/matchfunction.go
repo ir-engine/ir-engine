@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"log"
 	"math/rand"
 	"time"
@@ -28,7 +29,6 @@ import (
 
 const (
 	matchName              = "basic-matchfunction"
-	ticketsPerPoolPerMatch = 2
 )
 
 // Run is this match function's implementation of the gRPC call defined in api/matchfunction.proto.
@@ -63,6 +63,20 @@ func (s *MatchFunctionService) Run(req *pb.RunRequest, stream pb.MatchFunction_R
 }
 
 func makeMatches(p *pb.MatchProfile, poolTickets map[string][]*pb.Ticket) ([]*pb.Match, error) {
+	var ticketsPerPoolPerMatch = 16
+	if p.Extensions != nil {
+		if message, ok := p.Extensions["profileData"]; ok {
+			var val wrappers.UInt32Value
+			err := any.Any.UnmarshalTo(message, &val)
+			if err != nil {
+				log.Printf("failed to extract profileData")
+				//log.Fatal(err.Error())
+			} else {
+				ticketsPerPoolPerMatch = int(val.GetValue())
+			}
+		}
+	}
+
 	var matches []*pb.Match
 	count := 0
 	for {

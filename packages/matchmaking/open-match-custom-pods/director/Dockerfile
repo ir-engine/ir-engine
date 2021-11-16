@@ -15,6 +15,9 @@
 FROM golang:alpine as go
 WORKDIR /app
 ENV GO111MODULE=on
+ENV MATCHMAKING_DEBUG=false
+ENV MATCHMAKING_GAMETYPES="staked,unstaked,exhibition"
+ENV MATCHMAKING_GAMETYPESSIZES="staked:1,unstaked:1,exhibition:2"
 
 COPY . .
 RUN go build -o director .

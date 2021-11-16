@@ -20,10 +20,10 @@
 package main
 
 import (
-	"open-match.dev/open-match/tutorials/matchmaker101/matchfunction/mmf"
+	"lagunalabs/matchmaking/matchfunction/mmf"
 )
 
-// This tutorial implenents a basic Match Function that is hosted in the below
+// This tutorial implements a basic Match Function that is hosted in the below
 // configured port. You can also configure the Open Match QueryService endpoint
 // with which the Match Function communicates to query the Tickets.
 
