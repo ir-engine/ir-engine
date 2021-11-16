@@ -8,6 +8,7 @@ import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchFrom } from './dispatchFrom'
+import { loadGLTFModel } from '../../scene/functions/loadGLTFModel'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -18,6 +19,7 @@ export function incomingNetworkReceptor(action) {
 
   matches(action)
     .when(NetworkWorldAction.createClient.matches, ({ userId, name, avatarDetail }) => {
+      console.log('create client')
       if (!isClient) return
       world.clients.set(userId, {
         userId,
@@ -37,7 +39,9 @@ export function incomingNetworkReceptor(action) {
     })
 
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
+      console.log('Spawning object: ', a)
       const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
+      console.log(isSpawningAvatar)
       /**
        * When changing location via a portal, the local client entity will be
        * defined when the new world dispatches this action, so ignore it
@@ -51,10 +55,26 @@ export function incomingNetworkReceptor(action) {
         return
       }
       const isOwnedByMe = a.userId === Engine.userId
-      const entity =
-        isSpawningAvatar && isOwnedByMe
-          ? world.localClientEntity
-          : world.getNetworkObject(a.networkId) ?? createEntity()
+      let entity
+      if (isSpawningAvatar && isOwnedByMe) {
+        console.log('local client entity')
+        entity = world.localClientEntity
+      } else {
+        let networkObject = world.getNetworkObject(a.networkId)
+        if (networkObject) {
+          console.log('network object: ', networkObject)
+          entity = networkObject
+        } else {
+          let params = a.parameters
+          if (params && params.eid) {
+            console.log('get from eid')
+            entity = params.eid
+          } else {
+            console.log('create entity')
+            entity = createEntity()
+          }
+        }
+      }
       if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
       addComponent(entity, NetworkObjectComponent, a)
     })

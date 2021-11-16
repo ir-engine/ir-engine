@@ -59,6 +59,8 @@ import { SceneJson, ComponentJson } from '@xrengine/common/src/interfaces/SceneI
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -203,6 +205,18 @@ export class WorldScene {
 
       case 'gltf-model':
         loadGLTFModel(this, entity, component, sceneProperty)
+        // To Do: Do this only for dynamic objects
+        if (!isClient) {
+          dispatchFrom(world.hostId, () =>
+            NetworkWorldAction.spawnObject({
+              userId: Engine.userId,
+              prefab: component.data.src,
+              parameters: {
+                eid: entity
+              }
+            })
+          )
+        }
         break
 
       case 'gltf-shopify':
