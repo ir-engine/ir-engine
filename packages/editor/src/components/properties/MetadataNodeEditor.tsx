@@ -3,16 +3,14 @@ import { Analytics } from '@styled-icons/material/Analytics/Analytics.esm'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
-import { withTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
 type MetadataNodeEditorProps = {
   node?: any
-  t: Function
 }
 
 export function MetadataNodeEditor(props: MetadataNodeEditorProps) {
-  const { node, t } = props
+  const { node } = props
 
   const onChangeData = (value) => {
     CommandManager.instance.setPropertyOnSelection('_data', value)
@@ -30,6 +28,5 @@ export function MetadataNodeEditor(props: MetadataNodeEditorProps) {
 }
 
 MetadataNodeEditor.iconComponent = Analytics
-MetadataNodeEditor.description = 'Metadata Node for the Digital Being'
 
-export default withTranslation()(MetadataNodeEditor)
+export default MetadataNodeEditor

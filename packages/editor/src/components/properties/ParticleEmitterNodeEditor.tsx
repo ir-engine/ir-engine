@@ -10,8 +10,7 @@ import SelectInput from '../inputs/SelectInput'
 import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
 import { SprayCan } from '@styled-icons/fa-solid/SprayCan'
 import { camelPad } from '../../functions/utils'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
 //creating object containing Curve options for SelectInput
@@ -23,7 +22,6 @@ const CurveOptions = Object.keys(EasingFunctions).map((name) => ({
 //declaring properties for ParticleEmitterNodeEditor
 type ParticleEmitterNodeEditorProps = {
   node: any
-  t: Function
 }
 
 /**
@@ -33,6 +31,8 @@ type ParticleEmitterNodeEditorProps = {
  * @type {class component}
  */
 export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps) => {
+  const { t } = useTranslation()
+
   //function used to reflect the change in any property of ParticleEmitterNodeEditor
   const updateParticles = () => {
     for (const node of CommandManager.instance.selected) {
@@ -148,10 +148,10 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
   }
 
   return (
-    <NodeEditor {...props} description={ParticleEmitterNodeEditor.description}>
+    <NodeEditor {...props} description={t('editor:properties.partileEmitter.description')}>
       <NumericInputGroup
         name="Particle Count"
-        label={props.t('editor:properties.partileEmitter.lbl-particleCount')}
+        label={t('editor:properties.partileEmitter.lbl-particleCount')}
         min={1}
         smallStep={1}
         mediumStep={1}
@@ -160,14 +160,14 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
         onChange={onChangeParticleCount}
       />
 
-      <InputGroup name="Image" label={props.t('editor:properties.partileEmitter.lbl-image')}>
+      <InputGroup name="Image" label={t('editor:properties.partileEmitter.lbl-image')}>
         <ImageInput value={props.node.src} onChange={onChangeSrc} />
       </InputGroup>
 
       <NumericInputGroup
         name="Age Randomness"
-        label={props.t('editor:properties.partileEmitter.lbl-ageRandomness')}
-        info={props.t('editor:properties.partileEmitter.info-ageRandomness')}
+        label={t('editor:properties.partileEmitter.lbl-ageRandomness')}
+        info={t('editor:properties.partileEmitter.info-ageRandomness')}
         min={0}
         smallStep={0.01}
         mediumStep={0.1}
@@ -179,8 +179,8 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
 
       <NumericInputGroup
         name="Lifetime"
-        label={props.t('editor:properties.partileEmitter.lbl-lifetime')}
-        info={props.t('editor:properties.partileEmitter.info-lifetime')}
+        label={t('editor:properties.partileEmitter.lbl-lifetime')}
+        info={t('editor:properties.partileEmitter.info-lifetime')}
         min={0}
         smallStep={0.01}
         mediumStep={0.1}
@@ -192,8 +192,8 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
 
       <NumericInputGroup
         name="Lifetime Randomness"
-        label={props.t('editor:properties.partileEmitter.lbl-lifetimeRandomness')}
-        info={props.t('editor:properties.partileEmitter.info-lifetimeRandomness')}
+        label={t('editor:properties.partileEmitter.lbl-lifetimeRandomness')}
+        info={t('editor:properties.partileEmitter.info-lifetimeRandomness')}
         min={0}
         smallStep={0.01}
         mediumStep={0.1}
@@ -203,13 +203,13 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
         unit="s"
       />
 
-      <InputGroup name="Size Curve" label={props.t('editor:properties.partileEmitter.lbl-sizeCurve')}>
+      <InputGroup name="Size Curve" label={t('editor:properties.partileEmitter.lbl-sizeCurve')}>
         <SelectInput options={CurveOptions} value={props.node.sizeCurve} onChange={onChangeSizeCurve} />
       </InputGroup>
 
       <NumericInputGroup
         name="Start Particle Size"
-        label={props.t('editor:properties.partileEmitter.lbl-startPSize')}
+        label={t('editor:properties.partileEmitter.lbl-startPSize')}
         min={0}
         smallStep={0.01}
         mediumStep={0.1}
@@ -221,7 +221,7 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
 
       <NumericInputGroup
         name="End Particle Size"
-        label={props.t('editor:properties.partileEmitter.lbl-endPSize')}
+        label={t('editor:properties.partileEmitter.lbl-endPSize')}
         min={0}
         smallStep={0.01}
         mediumStep={0.1}
@@ -233,8 +233,8 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
 
       <NumericInputGroup
         name="Size Randomness"
-        label={props.t('editor:properties.partileEmitter.lbl-sizeRandomness')}
-        info={props.t('editor:properties.partileEmitter.info-sizeRandomness')}
+        label={t('editor:properties.partileEmitter.lbl-sizeRandomness')}
+        info={t('editor:properties.partileEmitter.info-sizeRandomness')}
         min={0}
         smallStep={0.01}
         mediumStep={0.1}
@@ -244,15 +244,15 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
         unit="m"
       />
 
-      <InputGroup name="Color Curve" label={props.t('editor:properties.partileEmitter.lbl-colorCurve')}>
+      <InputGroup name="Color Curve" label={t('editor:properties.partileEmitter.lbl-colorCurve')}>
         <SelectInput options={CurveOptions} value={props.node.colorCurve} onChange={onChangeColorCurve} />
       </InputGroup>
 
-      <InputGroup name="Start Color" label={props.t('editor:properties.partileEmitter.lbl-startColor')}>
+      <InputGroup name="Start Color" label={t('editor:properties.partileEmitter.lbl-startColor')}>
         <ColorInput value={props.node.startColor} onChange={onChangeStartColor} />
       </InputGroup>
 
-      <InputGroup name="Start Opacity" label={props.t('editor:properties.partileEmitter.lbl-startOpacity')}>
+      <InputGroup name="Start Opacity" label={t('editor:properties.partileEmitter.lbl-startOpacity')}>
         <CompoundNumericInput
           min={0}
           max={1}
@@ -262,11 +262,11 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
         />
       </InputGroup>
 
-      <InputGroup name="Middle Color" label={props.t('editor:properties.partileEmitter.lbl-middleColor')}>
+      <InputGroup name="Middle Color" label={t('editor:properties.partileEmitter.lbl-middleColor')}>
         <ColorInput value={props.node.middleColor} onChange={onChangeMiddleColor} />
       </InputGroup>
 
-      <InputGroup name="Middle Opacity" label={props.t('editor:properties.partileEmitter.lbl-middleOpacity')}>
+      <InputGroup name="Middle Opacity" label={t('editor:properties.partileEmitter.lbl-middleOpacity')}>
         <CompoundNumericInput
           min={0}
           max={1}
@@ -276,19 +276,19 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
         />
       </InputGroup>
 
-      <InputGroup name="End Color" label={props.t('editor:properties.partileEmitter.lbl-endColor')}>
+      <InputGroup name="End Color" label={t('editor:properties.partileEmitter.lbl-endColor')}>
         <ColorInput value={props.node.endColor} onChange={onChangeEndColor} />
       </InputGroup>
 
-      <InputGroup name="End Opacity" label={props.t('editor:properties.partileEmitter.lbl-endOpacity')}>
+      <InputGroup name="End Opacity" label={t('editor:properties.partileEmitter.lbl-endOpacity')}>
         <CompoundNumericInput min={0} max={1} step={0.01} value={props.node.endOpacity} onChange={onChangeEndOpacity} />
       </InputGroup>
 
-      <InputGroup name="Velocity Curve" label={props.t('editor:properties.partileEmitter.lbl-velocityCurve')}>
+      <InputGroup name="Velocity Curve" label={t('editor:properties.partileEmitter.lbl-velocityCurve')}>
         <SelectInput options={CurveOptions} value={props.node.velocityCurve} onChange={onChangeVelocityCurve} />
       </InputGroup>
 
-      <InputGroup name="Start Velocity" label={props.t('editor:properties.partileEmitter.lbl-startVelocity')}>
+      <InputGroup name="Start Velocity" label={t('editor:properties.partileEmitter.lbl-startVelocity')}>
         <Vector3Input
           value={props.node.startVelocity}
           smallStep={0.01}
@@ -298,7 +298,7 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
         />
       </InputGroup>
 
-      <InputGroup name="End Velocity" label={props.t('editor:properties.partileEmitter.lbl-endVelocity')}>
+      <InputGroup name="End Velocity" label={t('editor:properties.partileEmitter.lbl-endVelocity')}>
         <Vector3Input
           value={props.node.endVelocity}
           smallStep={0.01}
@@ -310,7 +310,7 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
 
       <NumericInputGroup
         name="Angular Velocity"
-        label={props.t('editor:properties.partileEmitter.lbl-angularVelocity')}
+        label={t('editor:properties.partileEmitter.lbl-angularVelocity')}
         min={-100}
         smallStep={1}
         mediumStep={1}
@@ -324,6 +324,5 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
 }
 
 ParticleEmitterNodeEditor.iconComponent = SprayCan
-ParticleEmitterNodeEditor.description = i18n.t('editor:properties.partileEmitter.description')
 
-export default withTranslation()(ParticleEmitterNodeEditor)
+export default ParticleEmitterNodeEditor

@@ -5,8 +5,7 @@ import ColorInput from '../inputs/ColorInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
 import { Bolt } from '@styled-icons/fa-solid/Bolt'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import { CommandManager } from '../../managers/CommandManager'
 
@@ -18,7 +17,6 @@ import { CommandManager } from '../../managers/CommandManager'
  */
 type DirectionalLightNodeEditorProps = {
   node?: object
-  t?: Function
 }
 
 /**
@@ -28,6 +26,8 @@ type DirectionalLightNodeEditorProps = {
  *  @type {Component class}
  */
 export const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProps) => {
+  const { t } = useTranslation()
+
   //function to handle changes in color property
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelection('color', color)
@@ -48,7 +48,7 @@ export const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProp
   }
 
   // renders editor view, provides inputs to customize properties of DirectionalLight element.
-  const { node, t } = props
+  const { node } = props
 
   return (
     <NodeEditor {...props} description={t('editor:properties.directionalLight.description')}>
@@ -85,6 +85,5 @@ export const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProp
 }
 
 DirectionalLightNodeEditor.iconComponent = Bolt
-DirectionalLightNodeEditor.description = i18n.t('editor:properties.directionalLight.description')
 
-export default withTranslation()(DirectionalLightNodeEditor)
+export default DirectionalLightNodeEditor
