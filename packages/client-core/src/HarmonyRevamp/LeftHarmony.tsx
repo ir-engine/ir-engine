@@ -1,5 +1,5 @@
-import { Add, Close, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
-import { AddCircleOutline, Check, Settings } from '@mui/icons-material'
+import { Add, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
+import { AddCircleOutline } from '@mui/icons-material'
 import {
   Badge,
   Container,
@@ -15,9 +15,7 @@ import {
   Typography,
   Avatar,
   Box,
-  Drawer,
-  Tabs,
-  Tab
+  Drawer
 } from '@mui/material'
 import Divider from '@mui/material/Divider'
 
@@ -35,66 +33,11 @@ import InviteHarmony from './InviteHarmony'
 import { useHarmonyStyles } from './style'
 import InviteModel from './InviteModel'
 
-function TabPanel(props) {
-  const { children, value, index, ...other } = props
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  )
-}
-
-function a11yProps(index) {
-  return {
-    id: `vertical-tab-${index}`,
-    'aria-controls': `vertical-tabpanel-${index}`
-  }
-}
-
-function TabPanel(props) {
-  const { children, value, index, ...other } = props
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  )
-}
-
-function a11yProps(index) {
-  return {
-    id: `vertical-tab-${index}`,
-    'aria-controls': `vertical-tabpanel-${index}`
-  }
-}
-
 const LeftHarmony: React.FunctionComponent = () => {
   const classes = useHarmonyStyles()
   const [show, setShow] = React.useState(false)
   const [create, setCreate] = React.useState(false)
   const [chat, setChat] = React.useState('party')
-  const [type, setType] = React.useState('email')
   const [invite, setInvite] = React.useState('')
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [value, setValue] = React.useState(0)
@@ -123,10 +66,6 @@ const LeftHarmony: React.FunctionComponent = () => {
   //party state
   const party = usePartyState().party?.value
   const currentLocation = useLocationState().currentLocation.location
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue)
-  }
 
   const handleClickOpen = () => {
     setShow(true)
@@ -221,8 +160,9 @@ const LeftHarmony: React.FunctionComponent = () => {
                 setChat('party')
                 setActiveChat('party', {})
               }}
-              className={`${chat === 'party' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'party' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Party</span>
             </a>
@@ -232,8 +172,9 @@ const LeftHarmony: React.FunctionComponent = () => {
                 setChat('friends')
                 setActiveChat('friends', {})
               }}
-              className={`${chat === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Friends</span>
             </a>
@@ -243,8 +184,9 @@ const LeftHarmony: React.FunctionComponent = () => {
                 setChat('group')
                 setActiveChat('group', {})
               }}
-              className={`${chat === 'group' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'group' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Group</span>
             </a>
@@ -254,8 +196,9 @@ const LeftHarmony: React.FunctionComponent = () => {
                 setChat('layer')
                 setActiveChat('layer', {})
               }}
-              className={`${chat === 'layer' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'layer' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Layer</span>
             </a>
@@ -265,8 +208,9 @@ const LeftHarmony: React.FunctionComponent = () => {
                 setChat('instance')
                 setActiveChat('instance', {})
               }}
-              className={`${chat === 'instance' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2
-                }`}
+              className={`${chat === 'instance' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
+                classes.mx2
+              }`}
             >
               <span>Instance</span>
             </a>
