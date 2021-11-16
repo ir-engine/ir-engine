@@ -3,18 +3,16 @@ import { createState } from '@hookstate/core'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { NavigateNext, NavigateBefore } from '@mui/icons-material'
+import { InteractionData } from '@xrengine/engine/src/interaction/types/InteractionTypes'
 
-let callback: any
-
-export function createInteractiveModalView(data: any) {
-  return createXRUI(InteractiveModalView, createInteractiveModalState(data))
+export function createInteractiveModalView(data: InteractionData) {
+  return createXRUI(
+    () => <InteractiveModalView callback={data.callback}></InteractiveModalView>,
+    createInteractiveModalState(data)
+  )
 }
 
-export function connectCallback(cb: any) {
-  callback = cb
-}
-
-function createInteractiveModalState(data: any) {
+function createInteractiveModalState(data: InteractionData) {
   const totalMediaUrls: any[] = []
   for (let url of data.interactionImages) {
     totalMediaUrls.push({
@@ -54,7 +52,7 @@ function createInteractiveModalState(data: any) {
 
 type InteractiveDetailState = ReturnType<typeof createInteractiveModalState>
 
-const InteractiveModalView = () => {
+const InteractiveModalView = (props) => {
   const detailState = useXRUIState() as InteractiveDetailState
 
   const nextClick = () => {
@@ -62,8 +60,8 @@ const InteractiveModalView = () => {
     value++
     if (value > detailState.totalMediaUrls.value.length) value = 0
     detailState.mediaIndex.set(value)
-    if (callback) {
-      callback({
+    if (props && props.callback) {
+      props.callback({
         mediaIndex: value,
         mediaData: detailState.totalMediaUrls.value,
         entityIndex: detailState.entityIndex.value
@@ -76,8 +74,8 @@ const InteractiveModalView = () => {
     value--
     if (value < 0) value = detailState.totalMediaUrls.value.length - 1
     detailState.mediaIndex.set(value)
-    if (callback) {
-      callback({
+    if (props && props.callback) {
+      props.callback({
         mediaIndex: value,
         mediaData: detailState.totalMediaUrls.value,
         entityIndex: detailState.entityIndex.value
@@ -154,7 +152,7 @@ const InteractiveModalView = () => {
     )
   }
 
-  if (detailState.themeIndex.value == '1') {
+  if (detailState.themeIndex.value?.toString() == '1') {
     return (
       <div
         style={{
@@ -238,11 +236,20 @@ const InteractiveModalView = () => {
           }}
           onClick={beforeClick}
         >
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
+          button:hover {
+            border: 10px solid red;
+          }
+        `
+            }}
+          ></style>
           <NavigateBefore />
         </button>
       </div>
     )
-  } else if (detailState.themeIndex.value == '2') {
+  } else if (detailState.themeIndex.value?.toString() == '2') {
     return (
       <div
         style={{
@@ -339,6 +346,15 @@ const InteractiveModalView = () => {
         >
           <NavigateBefore />
         </button>
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+          button:hover {
+            border: 10px solid red;
+          }
+        `
+          }}
+        ></style>
       </div>
     )
   } else {
@@ -427,6 +443,15 @@ const InteractiveModalView = () => {
         >
           <NavigateBefore />
         </button>
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+          button:hover {
+            border: 10px solid red;
+          }
+        `
+          }}
+        ></style>
       </div>
     )
   }

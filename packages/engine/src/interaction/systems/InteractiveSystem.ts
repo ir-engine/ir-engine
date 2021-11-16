@@ -13,6 +13,9 @@ import { InteractiveFocusedComponent } from '../components/InteractiveFocusedCom
 import { InteractorComponent } from '../components/InteractorComponent'
 import { SubFocusedComponent } from '../components/SubFocusedComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
@@ -21,7 +24,14 @@ import { createBoxComponent } from '../functions/createBoxComponent'
 import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
-import { createInteractUI, showInteractUI, hideInteractUI, getInteractUI } from '../functions/interactUI'
+import {
+  createInteractUI,
+  showInteractUI,
+  hideInteractUI,
+  getInteractUI,
+  updateInteractUI,
+  setUserDataInteractUI
+} from '../functions/interactUI'
 
 export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])
@@ -30,6 +40,8 @@ export default async function InteractiveSystem(world: World): Promise<System> {
   const focusQuery = defineQuery([InteractableComponent, InteractiveFocusedComponent])
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
   const interactedQuery = defineQuery([InteractedComponent])
+  const xrComponentQuery = defineQuery([XRUIComponent, Object3DComponent])
+  const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
 
   return () => {
     for (const entity of interactiveQuery.enter(world)) {
@@ -83,6 +95,16 @@ export default async function InteractiveSystem(world: World): Promise<System> {
     }
     for (const entity of subfocusQuery.exit()) {
       removeComponent(entity, HighlightComponent)
+    }
+
+    for (const entity of xrComponentQuery.enter()) {
+      setUserDataInteractUI(entity)
+    }
+
+    for (const xrEntity of xrComponentQuery()) {
+      for (const entity of localUserQuery()) {
+        updateInteractUI(entity, xrEntity)
+      }
     }
 
     for (const entity of interactedQuery.enter()) {

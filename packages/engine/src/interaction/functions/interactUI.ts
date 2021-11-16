@@ -6,15 +6,13 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { RenderedComponent } from '../../scene/components/RenderedComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 
 import { hideInteractText, showInteractText, createInteractText } from './interactText'
-import { createInteractiveModalView, connectCallback } from '../ui/InteractiveModalView'
+import { createInteractiveModalView } from '../ui/InteractiveModalView'
 
 import Hls from 'hls.js'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
@@ -24,20 +22,19 @@ import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
  */
 
 const upVec = new Vector3(0, 1, 0)
-const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
-const xrUIQuery = defineQuery([XRUIComponent, Object3DComponent])
 
 export const InteactiveUI = new Map<Entity, ReturnType<typeof createInteractiveModalView>>()
 
 //TODO: Create interactive UI
 export const createInteractUI = (entity: Entity) => {
+  console.log('createInteractUI ', entity)
   const interactiveComponent = getComponent(entity, InteractableComponent)
   if (getInteractUI(entity) || !interactiveComponent || !interactiveComponent.data) return
 
   //create interactive view
   interactiveComponent.data.interactionUserData = {}
   interactiveComponent.data.interactionUserData.entity = entity
-  const ui = createInteractiveModalView(interactiveComponent.data)
+  const ui = createInteractiveModalView(interactiveComponent.data as any)
   InteactiveUI.set(entity, ui)
 
   //set transform
@@ -48,59 +45,8 @@ export const createInteractUI = (entity: Entity) => {
     scale: new Vector3(1, 1, 1)
   })
 
-  //create text
-  const interactTextEntity = createInteractText(interactiveComponent.data.interactionText)
-
-  const timer = setInterval(() => {
-    const object3D = getComponent(ui.entity, Object3DComponent)
-    if (object3D) {
-      object3D.value.userData = {
-        interactTextEntity,
-        parentEntity: entity
-      }
-      hideInteractUI(entity)
-      clearInterval(timer)
-
-      //rendered for model rotation
-      addComponent(ui.entity, RenderedComponent, {})
-
-      if (object3D && object3D.value) {
-        //@ts-ignore
-        object3D.value.update = () => {
-          for (const entity of localUserQuery()) {
-            for (const xrEntity of xrUIQuery()) {
-              const interactUIObject = getComponent(xrEntity, Object3DComponent).value
-              if (!interactUIObject.visible) continue
-              const xrComponent = getComponent(xrEntity, XRUIComponent) as any
-              if (!xrComponent && !xrComponent.layer) return
-              xrComponent.layer.rootLayer.update(true)
-
-              const entityIndex = xrComponent.layer.userData.parentEntity
-              const modelElement = xrComponent.layer.querySelector(`#interactive-ui-model-${entityIndex}`)
-              if (modelElement && modelElement.contentMesh && modelElement.contentMesh.children[0]) {
-                modelElement.contentMesh.children[0].rotateY(0.01)
-              }
-              if (
-                Engine.activeCameraFollowTarget &&
-                hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)
-              ) {
-                interactUIObject.children[0].setRotationFromAxisAngle(
-                  upVec,
-                  MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
-                )
-              } else {
-                const { x, z } = getComponent(entity, TransformComponent).position
-                interactUIObject.lookAt(x, interactUIObject.position.y, z)
-              }
-            }
-          }
-        }
-      }
-    }
-  }, 100)
-
   // callback from modal view state
-  connectCallback((data) => {
+  interactiveComponent.data.callback = (data) => {
     setTimeout(() => {
       const mediaIndex = data.mediaIndex
       const mediaData = data.mediaData
@@ -174,7 +120,46 @@ export const createInteractUI = (entity: Entity) => {
         }
       }
     }, 500)
-  })
+  }
+}
+
+export const setUserDataInteractUI = (xrEntity: Entity) => {
+  const xrComponent = getComponent(xrEntity, XRUIComponent) as any
+  if (!xrComponent && !xrComponent.layer) return
+  //create text
+  const parentEntity = getParentInteractUI(xrEntity)
+  const interactiveComponent = getComponent(parentEntity, InteractableComponent)
+  const interactTextEntity = createInteractText(interactiveComponent.data.interactionText)
+  const object3D = getComponent(xrEntity, Object3DComponent)
+  if (object3D) {
+    object3D.value.userData = {
+      interactTextEntity,
+      parentEntity: parentEntity
+    }
+    hideInteractUI(parentEntity)
+  }
+}
+
+export const updateInteractUI = (userEntity: Entity, xrEntity: Entity) => {
+  const interactUIObject = getComponent(xrEntity, Object3DComponent).value
+  if (!interactUIObject.visible) return
+  const xrComponent = getComponent(xrEntity, XRUIComponent) as any
+  if (!xrComponent && !xrComponent.layer) return
+
+  const entityIndex = xrComponent.layer.userData.parentEntity
+  const modelElement = xrComponent.layer.querySelector(`#interactive-ui-model-${entityIndex}`)
+  if (modelElement && modelElement.contentMesh && modelElement.contentMesh.children[0]) {
+    modelElement.contentMesh.children[0].rotateY(0.01)
+  }
+  if (Engine.activeCameraFollowTarget && hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)) {
+    interactUIObject.children[0].setRotationFromAxisAngle(
+      upVec,
+      MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
+    )
+  } else {
+    const { x, z } = getComponent(userEntity, TransformComponent).position
+    interactUIObject.lookAt(x, interactUIObject.position.y, z)
+  }
 }
 
 //TODO: Show interactive UI
@@ -234,4 +219,15 @@ export const getInteractUI = (entity: Entity) => {
   let ui = InteactiveUI.get(entity)
   if (ui) return ui
   return false
+}
+
+//TODO: Get interactive UI
+export const getParentInteractUI = (entity: Entity) => {
+  let parentEntity
+  InteactiveUI.forEach((ui) => {
+    if (ui.entity == entity) {
+      parentEntity = ui.state.entityIndex.value
+    }
+  })
+  return parentEntity
 }

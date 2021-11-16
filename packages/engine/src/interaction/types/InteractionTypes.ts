@@ -20,5 +20,7 @@ export type InteractionData = {
   interactionUrls?: any
   interactionModels?: any
   interactionUserData?: any
+  mediaIndex?: number
+  callback?: any
   action?: any
 }
