@@ -45,7 +45,6 @@ export class World {
   fixedElapsedTime = NaN
   fixedTick = -1
 
-  _removedComponents = new Map<Entity, Set<MappedComponent<any, any>>>()
   _pipeline = [] as SystemModuleType<any>[]
 
   physics = new Physics()
@@ -168,10 +167,6 @@ export class World {
     this.delta = delta
     this.elapsedTime = elapsedTime
     for (const system of this.freeSystems) system.execute()
-    for (const [entity, components] of this._removedComponents) {
-      for (const c of components) c.delete(entity)
-    }
-    this._removedComponents.clear()
   }
 
   async initSystems() {

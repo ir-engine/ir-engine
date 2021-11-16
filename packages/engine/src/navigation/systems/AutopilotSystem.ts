@@ -77,12 +77,14 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults: Intersection[] = []
+      let _entity = -1
 
       const clickResult = navmeshesQuery().reduce(
         (previousEntry, currentEntity) => {
           const mesh = getComponent(currentEntity, NavMeshComponent).navTarget
           raycasterResults.length = 0
           raycaster.intersectObject(mesh, true, raycasterResults)
+          _entity = currentEntity
           if (!raycasterResults.length) {
             return previousEntry
           }
@@ -107,6 +109,14 @@ export default async function AutopilotSystem(world: World): Promise<System> {
           point: clickResult.point,
           navEntity: clickResult.entity
         })
+      } else if (!clickResult.point && overrideComponent?.overrideCoords) {
+        clickResult.point = overrideComponent.overridePosition
+        clickResult.entity = _entity
+
+        addComponent(entity, AutoPilotRequestComponent, {
+          point: clickResult.point,
+          navEntity: clickResult.entity
+        })
       }
 
       removeComponent(entity, AutoPilotClickRequestComponent)
@@ -119,7 +129,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       const request = getComponent(entity, AutoPilotRequestComponent)
       const navMeshComponent = getComponent(request.navEntity, NavMeshComponent)
       const { position } = getComponent(entity, TransformComponent)
-      if (!navMeshComponent.yukaNavMesh) {
+      if (navMeshComponent.yukaNavMesh === undefined || !navMeshComponent.yukaNavMesh) {
         startPoint.copy(position as any)
         endPoint.copy(request.point as any)
         path.clear()

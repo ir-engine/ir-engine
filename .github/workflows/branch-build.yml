@@ -45,6 +45,4 @@ jobs:
         env:
           STORAGE_AWS_ACCESS_KEY_ID: ${{secrets.STORAGE_AWS_ACCESS_KEY_ID}}
           STORAGE_AWS_ACCESS_KEY_SECRET: ${{secrets.STORAGE_AWS_ACCESS_KEY_SECRET}}
-          STORAGE_CLOUDFRONT_DOMAIN: ${{secrets.STORAGE_CLOUDFRONT_DOMAIN}}
-          STORAGE_S3_REGION: ${{secrets.STORAGE_S3_REGION}}
       - run: npm run build-client

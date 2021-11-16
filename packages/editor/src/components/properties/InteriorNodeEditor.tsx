@@ -4,15 +4,13 @@ import InputGroup from '../inputs/InputGroup'
 import ImageInput from '../inputs/ImageInput'
 import Vector2Input from '../inputs/Vector2Input'
 import { City } from '@styled-icons/fa-solid/City'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
 
 //declaring properties for InteriorNodeEditor
 type InteriorNodeEditorProps = {
   node: any
-  t: Function
 }
 
 /**
@@ -22,6 +20,8 @@ type InteriorNodeEditorProps = {
  * @type {class component}
  */
 export const InteriorNodeEditor = (props: InteriorNodeEditorProps) => {
+  const { t } = useTranslation()
+
   const onChangeProperty = (name: string) => {
     return (value) => {
       CommandManager.instance.setPropertyOnSelection(name, value)
@@ -29,16 +29,16 @@ export const InteriorNodeEditor = (props: InteriorNodeEditorProps) => {
   }
 
   return (
-    <NodeEditor {...props} description={InteriorNodeEditor.description}>
-      <InputGroup name="Cube Map" label={props.t('editor:properties.interior.lbl-cubeMap')}>
+    <NodeEditor {...props} description={t('editor:properties.interior.description')}>
+      <InputGroup name="Cube Map" label={t('editor:properties.interior.lbl-cubeMap')}>
         <ImageInput value={props.node.cubeMap} onChange={onChangeProperty('cubeMap')} />
       </InputGroup>
-      <InputGroup name="Size" label={props.t('editor:properties.interior.lbl-size')}>
+      <InputGroup name="Size" label={t('editor:properties.interior.lbl-size')}>
         <Vector2Input value={props.node.size} onChange={onChangeProperty('size')} />
       </InputGroup>
       <NumericInputGroup
         name="Tiling"
-        label={props.t('editor:properties.interior.lbl-tiling')}
+        label={t('editor:properties.interior.lbl-tiling')}
         min={1}
         smallStep={1.0}
         mediumStep={1.0}
@@ -51,6 +51,5 @@ export const InteriorNodeEditor = (props: InteriorNodeEditorProps) => {
 }
 
 InteriorNodeEditor.iconComponent = City
-InteriorNodeEditor.description = i18n.t('editor:properties.interior.description')
 
-export default withTranslation()(InteriorNodeEditor)
+export default InteriorNodeEditor
