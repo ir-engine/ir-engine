@@ -3,15 +3,13 @@ import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import { HandPaper } from '@styled-icons/fa-solid/HandPaper'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from '../../nodes/SceneNode'
 
 type BoxColliderNodeEditorProps = {
   node?: any
-  t: Function
   multiEdit: boolean
 }
 
@@ -23,6 +21,7 @@ type BoxColliderNodeEditorProps = {
  */
 export const BoxColliderNodeEditor = (props: BoxColliderNodeEditorProps) => {
   let [options, setOptions] = useState([])
+  const { t } = useTranslation()
 
   useEffect(() => {
     const options = []
@@ -50,8 +49,8 @@ export const BoxColliderNodeEditor = (props: BoxColliderNodeEditorProps) => {
   }
 
   return (
-    <NodeEditor {...props} description={props.t('editor:properties.boxCollider.description')}>
-      <InputGroup name="Trigger" label={props.t('editor:properties.boxCollider.lbl-isTrigger')}>
+    <NodeEditor {...props} description={t('editor:properties.boxCollider.description')}>
+      <InputGroup name="Trigger" label={t('editor:properties.boxCollider.lbl-isTrigger')}>
         <BooleanInput value={props.node?.isTrigger} onChange={onChangeTrigger} />
       </InputGroup>
     </NodeEditor>
@@ -59,6 +58,5 @@ export const BoxColliderNodeEditor = (props: BoxColliderNodeEditorProps) => {
 }
 
 BoxColliderNodeEditor.iconComponent = HandPaper
-BoxColliderNodeEditor.description = i18n.t('editor:properties.boxCollider.description')
 
-export default withTranslation()(BoxColliderNodeEditor)
+export default BoxColliderNodeEditor
