@@ -57,7 +57,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 
 const setAvatarOpacity = (entity: Entity, opacity: number): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
-  object3DComponent.value.traverse((obj) => {
+  object3DComponent?.value.traverse((obj) => {
     const mat = (obj as SkinnedMesh).material as Material
     if (!mat) return
     mat.opacity = opacity
