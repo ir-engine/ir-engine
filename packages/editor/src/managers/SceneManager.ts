@@ -1,6 +1,5 @@
 import i18n from 'i18next'
 import {
-  PerspectiveCamera,
   Raycaster,
   Vector2,
   Vector3,
@@ -39,10 +38,11 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
-import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/TransformGizmo'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { createGizmoEntity } from '../functions/createGizmoEntity'
+import { createCameraEntity } from '../functions/createCameraEntity'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createEditorEntity } from '../functions/createEditorEntity'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()
@@ -60,6 +60,9 @@ export class SceneManager {
   thumbnailRenderer = new ThumbnailRenderer()
   disableUpdate: boolean
   transformGizmo: TransformGizmo
+  gizmoEntity: Entity
+  cameraEntity: Entity
+  editorEntity: Entity
   postProcessingNode: PostProcessingNode
   onUpdateStats: (info: WebGLInfo) => void
   screenshotRenderer: WebGLRenderer = makeRenderer(1920, 1080)
@@ -116,9 +119,9 @@ export class SceneManager {
     this.grid = new EditorInfiniteGridHelper()
     this.transformGizmo = new TransformGizmo()
 
-    const entity = createEntity()
-    addComponent(entity, Object3DComponent, { value: this.transformGizmo })
-    addComponent(entity, TransformGizmoComponent, {})
+    this.gizmoEntity = createGizmoEntity(this.transformGizmo)
+    this.cameraEntity = createCameraEntity()
+    this.editorEntity = createEditorEntity()
 
     Engine.scene.add(Engine.camera)
     Engine.scene.add(this.grid)
@@ -491,7 +494,7 @@ export class SceneManager {
       }
     })
 
-    ControlManager.instance.update(delta, time)
+    ControlManager.instance.update(delta)
     EngineRenderer.instance.execute(delta)
   }
 
@@ -516,6 +519,9 @@ export class SceneManager {
   }
 
   dispose() {
+    if (this.cameraEntity) removeEntity(this.cameraEntity)
+    if (this.gizmoEntity) removeEntity(this.gizmoEntity)
+    if (this.editorEntity) removeEntity(this.editorEntity)
     Engine.renderer?.dispose()
     this.screenshotRenderer?.dispose()
     Engine.effectComposer?.dispose()

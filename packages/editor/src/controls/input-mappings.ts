@@ -1,176 +1,254 @@
-function requestPointerLockHandler(filter) {
-  return {
-    handler: (event, input) => {
-      const shouldRequest = filter ? filter(event, input) : true
-      if (shouldRequest) {
-        input.canvas.requestPointerLock()
-      }
-    }
-  }
+/** Mouse Button key codes */
+export const MouseButtons = [
+  'left' as const,
+  'middle' as const,
+  'right' as const,
+  'button4' as const,
+  'button5' as const
+]
+
+/** Special keyboard button codes */
+export const SpecialAliases = {
+  option: 'alt' as const,
+  command: 'meta' as const,
+  return: 'enter' as const,
+  escape: 'esc' as const,
+  plus: '+' as const
 }
-function exitPointerLockHandler(filter) {
-  return {
-    handler: (event, input) => {
-      const shouldExit = filter ? filter(event, input) : true
-      if (shouldExit && document.pointerLockElement === input.canvas) {
-        document.exitPointerLock()
-      }
-    }
-  }
+
+/** Supported Action sets */
+export enum ActionSets {
+  FLY,
+  EDITOR
 }
-function booleanEventHandler(outputAction) {
-  return {
-    reset: true,
-    defaultValue: false,
-    handler: () => true,
-    action: outputAction
-  }
+
+/** Fly Action set. Defines actions in flying mode */
+export const FlyActionSet = {
+  moveLeft: 'moveLeft' as const,
+  moveRight: 'moveRight' as const,
+  moveX: 'moveX' as const,
+  moveForward: 'moveForward' as const,
+  moveBackward: 'moveBackward' as const,
+  moveZ: 'moveZ' as const,
+  lookX: 'lookX' as const,
+  lookY: 'lookY' as const,
+  moveDown: 'moveDown' as const,
+  moveUp: 'moveUp' as const,
+  moveY: 'moveY' as const,
+  boost: 'boost' as const
 }
-export const Fly = {
-  moveLeft: 'moveLeft',
-  moveRight: 'moveRight',
-  moveX: 'moveX',
-  moveForward: 'moveForward',
-  moveBackward: 'moveBackward',
-  moveZ: 'moveZ',
-  lookX: 'lookX',
-  lookY: 'lookY',
-  moveDown: 'moveDown',
-  moveUp: 'moveUp',
-  moveY: 'moveY',
-  boost: 'boost'
+
+/** Editor Action set. Defines all the editor action. */
+export const EditorActionSet = {
+  grab: 'grab' as const,
+  focus: 'focus' as const,
+  focusPosition: 'focusPosition' as const,
+  focusSelection: 'focusSelection' as const,
+  zoomDelta: 'zoomDelta' as const,
+  enableFlyMode: 'enableFlyMode' as const,
+  disableFlyMode: 'disableFlyMode' as const,
+  flying: 'flying' as const,
+  selecting: 'selecting' as const,
+  selectStart: 'selectStart' as const,
+  selectStartPosition: 'selectStartPosition' as const,
+  selectEnd: 'selectEnd' as const,
+  selectEndPosition: 'selectEndPosition' as const,
+  cursorPosition: 'cursorPosition' as const,
+  cursorDeltaX: 'cursorDeltaX' as const,
+  cursorDeltaY: 'cursorDeltaY' as const,
+  panning: 'panning' as const,
+  setTranslateMode: 'setTranslateMode' as const,
+  setRotateMode: 'setRotateMode' as const,
+  setScaleMode: 'setScaleMode' as const,
+  toggleSnapMode: 'toggleSnapMode' as const,
+  toggleTransformPivot: 'toggleTransformPivot' as const,
+  modifier: 'modifier' as const,
+  shift: 'shift' as const,
+  toggleTransformSpace: 'toggleTransformSpace' as const,
+  deleteSelected: 'deleteSelected' as const,
+  undo: 'undo' as const,
+  redo: 'redo' as const,
+  duplicateSelected: 'duplicateSelected' as const,
+  groupSelected: 'groupSelected' as const,
+  saveProject: 'saveProject' as const,
+  cancel: 'cancel' as const,
+  rotateLeft: 'rotateLeft' as const,
+  rotateRight: 'rotateRight' as const,
+  incrementGridHeight: 'incrementGridHeight' as const,
+  decrementGridHeight: 'decrementGridHeight' as const
 }
-export const EditorInputs = {
-  grab: 'grab',
-  focus: 'focus',
-  focusPosition: 'focusPosition',
-  focusSelection: 'focusSelection',
-  zoomDelta: 'zoomDelta',
-  enableFlyMode: 'enableFlyMode',
-  disableFlyMode: 'disableFlyMode',
-  flying: 'flying',
-  selecting: 'selecting',
-  selectStart: 'selectStart',
-  selectStartPosition: 'selectStartPosition',
-  selectEnd: 'selectEnd',
-  selectEndPosition: 'selectEndPosition',
-  cursorPosition: 'cursorPosition',
-  cursorDeltaX: 'cursorDeltaX',
-  cursorDeltaY: 'cursorDeltaY',
-  panning: 'panning',
-  setTranslateMode: 'setTranslateMode',
-  setRotateMode: 'setRotateMode',
-  setScaleMode: 'setScaleMode',
-  toggleSnapMode: 'toggleSnapMode',
-  toggleTransformPivot: 'toggleTransformPivot',
-  modifier: 'modifier',
-  shift: 'shift',
-  toggleTransformSpace: 'toggleTransformSpace',
-  deleteSelected: 'deleteSelected',
-  undo: 'undo',
-  redo: 'redo',
-  duplicateSelected: 'duplicateSelected',
-  groupSelected: 'groupSelected',
-  saveProject: 'saveProject',
-  cancel: 'cancel',
-  rotateLeft: 'rotateLeft',
-  rotateRight: 'rotateRight',
-  incrementGridHeight: 'incrementGridHeight',
-  decrementGridHeight: 'decrementGridHeight'
+
+export type FlyActionType = typeof FlyActionSet
+export type EditorActionType = typeof EditorActionSet
+export type ActionType = FlyActionType | EditorActionType
+
+export type FlyActionKey = keyof FlyActionType
+export type EditorActionKey = keyof EditorActionType
+export type ActionKey = FlyActionKey | EditorActionKey
+
+export enum MouseInput {
+  position = 'position',
+  movementX = 'movementX',
+  movementY = 'movementY',
+  normalizedMovementX = 'normalizedMovementX',
+  normalizedMovementY = 'normalizedMovementY',
+  deltaX = 'deltaX',
+  deltaY = 'deltaY',
+  normalizedDeltaX = 'normalizedDeltaX',
+  normalizedDeltaY = 'normalizedDeltaY'
 }
-export const FlyMapping = {
+
+export type Action = {
+  callback?: (event: any, input: any) => any
+  key: ActionKey
+  defaultValue?: any
+  preventReset?: boolean
+}
+
+export type InputMapping = { [key: string | MouseInput]: Action }
+export type ComputedInputMapping = {
+  transform: (input: any) => any
+  action: ActionKey
+  defaultValue?: any
+  preventReset?: boolean
+}
+
+export type KeyboardMapping = {
+  pressed?: InputMapping
+  keyup?: InputMapping
+  keydown?: InputMapping
+  hotkeys?: InputMapping
+  globalHotkeys?: InputMapping
+}
+export type MouseMapping = {
+  click?: InputMapping
+  dblclick?: InputMapping
+  move?: InputMapping
+  wheel?: InputMapping
+  pressed?: InputMapping
+  mouseup?: InputMapping
+  mousedown?: InputMapping
+}
+export type ComputedMapping = ComputedInputMapping[]
+export type InputActionMapping = {
+  keyboard: KeyboardMapping
+  mouse: MouseMapping
+  computed?: ComputedMapping
+}
+
+export type ActionState = {
+  [key in ActionKey]: any
+}
+
+export const FlyMapping: InputActionMapping = {
   keyboard: {
     pressed: {
-      w: Fly.moveForward,
-      a: Fly.moveLeft,
-      s: Fly.moveBackward,
-      d: Fly.moveRight,
-      r: Fly.moveDown,
-      t: Fly.moveUp,
-      shift: Fly.boost
+      w: { key: FlyActionSet.moveForward, preventReset: true, defaultValue: 0 },
+      a: { key: FlyActionSet.moveLeft, preventReset: true, defaultValue: 0 },
+      s: { key: FlyActionSet.moveBackward, preventReset: true, defaultValue: 0 },
+      d: { key: FlyActionSet.moveRight, preventReset: true, defaultValue: 0 },
+      r: { key: FlyActionSet.moveDown, preventReset: true, defaultValue: 0 },
+      t: { key: FlyActionSet.moveUp, preventReset: true, defaultValue: 0 },
+      shift: { key: FlyActionSet.boost, preventReset: true, defaultValue: 0 }
     }
   },
   mouse: {
     move: {
-      normalizedMovementX: Fly.lookX,
-      normalizedMovementY: Fly.lookY
+      normalizedMovementX: { key: FlyActionSet.lookX, defaultValue: 0 },
+      normalizedMovementY: { key: FlyActionSet.lookY, defaultValue: 0 }
     }
   },
   computed: [
     {
-      transform: (input) => input.get(Fly.moveRight) - input.get(Fly.moveLeft),
-      action: Fly.moveX
+      transform: (input) => input.get(FlyActionSet.moveRight) - input.get(FlyActionSet.moveLeft),
+      action: FlyActionSet.moveX,
+      preventReset: true,
+      defaultValue: 0
     },
     {
-      transform: (input) => input.get(Fly.moveUp) - input.get(Fly.moveDown),
-      action: Fly.moveY
+      transform: (input) => input.get(FlyActionSet.moveUp) - input.get(FlyActionSet.moveDown),
+      action: FlyActionSet.moveY,
+      preventReset: true,
+      defaultValue: 0
     },
     {
-      transform: (input) => input.get(Fly.moveBackward) - input.get(Fly.moveForward),
-      action: Fly.moveZ
+      transform: (input) => input.get(FlyActionSet.moveBackward) - input.get(FlyActionSet.moveForward),
+      action: FlyActionSet.moveZ,
+      preventReset: true,
+      defaultValue: 0
     }
   ]
 }
-export const EditorMapping = {
+
+export const EditorMapping: InputActionMapping = {
   mouse: {
     dblclick: {
-      event: [booleanEventHandler(EditorInputs.focus)],
-      position: EditorInputs.focusPosition
+      position: { key: EditorActionSet.focusPosition, defaultValue: { x: 0, y: 0 } }
     },
     wheel: {
-      normalizedDeltaY: EditorInputs.zoomDelta
+      normalizedDeltaY: { key: EditorActionSet.zoomDelta, defaultValue: 0 }
     },
     pressed: {
-      left: EditorInputs.selecting,
-      middle: EditorInputs.panning,
-      right: EditorInputs.flying
+      left: { key: EditorActionSet.selecting, preventReset: true, defaultValue: 0 },
+      middle: { key: EditorActionSet.panning, preventReset: true, defaultValue: 0 },
+      right: { key: EditorActionSet.flying, preventReset: true, defaultValue: 0 }
     },
     mousedown: {
-      event: [requestPointerLockHandler((event) => event.button === 2)],
-      left: EditorInputs.selectStart,
-      position: EditorInputs.selectStartPosition,
-      right: EditorInputs.enableFlyMode
+      left: { key: EditorActionSet.selectStart, defaultValue: 0 },
+      position: { key: EditorActionSet.selectStartPosition, defaultValue: 0 },
+      right: {
+        callback: (event, input) => input.canvas.requestPointerLock(),
+        key: EditorActionSet.enableFlyMode,
+        defaultValue: 0
+      }
     },
     mouseup: {
-      event: [exitPointerLockHandler((event) => event.button === 2)],
-      left: EditorInputs.selectEnd,
-      position: EditorInputs.selectEndPosition,
-      right: EditorInputs.disableFlyMode
+      left: { key: EditorActionSet.selectEnd, defaultValue: 0 },
+      position: { key: EditorActionSet.selectEndPosition, defaultValue: 0 },
+      right: {
+        callback: (event, input) => {
+          if (document.pointerLockElement === input.canvas) {
+            document.exitPointerLock()
+          }
+        },
+        key: EditorActionSet.disableFlyMode,
+        defaultValue: 0
+      }
     },
     move: {
-      position: EditorInputs.cursorPosition,
-      normalizedMovementX: EditorInputs.cursorDeltaX,
-      normalizedMovementY: EditorInputs.cursorDeltaY
+      position: { key: EditorActionSet.cursorPosition, defaultValue: 0 },
+      normalizedMovementX: { key: EditorActionSet.cursorDeltaX, defaultValue: 0 },
+      normalizedMovementY: { key: EditorActionSet.cursorDeltaY, defaultValue: 0 }
     }
   },
   keyboard: {
     pressed: {
-      mod: EditorInputs.modifier,
-      shift: EditorInputs.shift
+      mod: { key: EditorActionSet.modifier, preventReset: true, defaultValue: 0 },
+      shift: { key: EditorActionSet.shift, preventReset: true, defaultValue: 0 }
     },
     hotkeys: {
-      '=': EditorInputs.incrementGridHeight,
-      '-': EditorInputs.decrementGridHeight,
-      f: EditorInputs.focusSelection,
-      t: EditorInputs.setTranslateMode,
-      r: EditorInputs.setRotateMode,
-      y: EditorInputs.setScaleMode,
-      q: EditorInputs.rotateLeft,
-      e: EditorInputs.rotateRight,
-      g: EditorInputs.grab,
-      z: EditorInputs.toggleTransformSpace,
-      x: EditorInputs.toggleTransformPivot,
-      c: EditorInputs.toggleSnapMode,
-      backspace: EditorInputs.deleteSelected,
-      del: EditorInputs.deleteSelected,
-      'mod+z': EditorInputs.undo,
-      'mod+shift+z': EditorInputs.redo,
-      'mod+d': EditorInputs.duplicateSelected,
-      'mod+g': EditorInputs.groupSelected,
-      esc: EditorInputs.cancel
+      '=': { key: EditorActionSet.incrementGridHeight, defaultValue: false },
+      '-': { key: EditorActionSet.decrementGridHeight, defaultValue: false },
+      f: { key: EditorActionSet.focusSelection, defaultValue: false },
+      t: { key: EditorActionSet.setTranslateMode, defaultValue: false },
+      r: { key: EditorActionSet.setRotateMode, defaultValue: false },
+      y: { key: EditorActionSet.setScaleMode, defaultValue: false },
+      q: { key: EditorActionSet.rotateLeft, defaultValue: false },
+      e: { key: EditorActionSet.rotateRight, defaultValue: false },
+      g: { key: EditorActionSet.grab, defaultValue: false },
+      z: { key: EditorActionSet.toggleTransformSpace, defaultValue: false },
+      x: { key: EditorActionSet.toggleTransformPivot, defaultValue: false },
+      c: { key: EditorActionSet.toggleSnapMode, defaultValue: false },
+      backspace: { key: EditorActionSet.deleteSelected, defaultValue: false },
+      del: { key: EditorActionSet.deleteSelected, defaultValue: false },
+      'mod+z': { key: EditorActionSet.undo, defaultValue: false },
+      'mod+shift+z': { key: EditorActionSet.redo, defaultValue: false },
+      'mod+d': { key: EditorActionSet.duplicateSelected, defaultValue: false },
+      'mod+g': { key: EditorActionSet.groupSelected, defaultValue: false },
+      esc: { key: EditorActionSet.cancel, defaultValue: false }
     },
     globalHotkeys: {
-      'mod+s': EditorInputs.saveProject
+      'mod+s': { key: EditorActionSet.saveProject, defaultValue: false }
     }
   }
 }

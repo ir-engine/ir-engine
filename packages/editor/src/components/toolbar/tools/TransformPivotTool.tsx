@@ -20,7 +20,6 @@ const transformPivotOptions = [
 
 const TransformPivotTool = () => {
   const [transformPivot, setTransformPivot] = useState(TransformPivot.Selection)
-  const editorControls = ControlManager.instance.editorControls
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.TRANSFORM_PIVOT_CHANGED.toString(), updateTransformPivot)
@@ -31,15 +30,15 @@ const TransformPivotTool = () => {
   }, [])
 
   const updateTransformPivot = () => {
-    setTransformPivot(editorControls.transformPivot)
+    setTransformPivot(ControlManager.instance.editorControls.transformPivot)
   }
 
   const onChangeTransformPivot = (transformPivot) => {
-    editorControls.setTransformPivot(transformPivot)
+    ControlManager.instance.editorControls.setTransformPivot(transformPivot)
   }
 
   const onToggleTransformPivot = () => {
-    editorControls.changeTransformPivot()
+    ControlManager.instance.editorControls.changeTransformPivot()
   }
 
   return (

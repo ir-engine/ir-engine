@@ -44,8 +44,6 @@ const defaultSnapSetting = {
 
 const TransformSnapTool = () => {
   const [snapSetting, setSnapSetting] = useState(defaultSnapSetting)
-  const editorControls = ControlManager.instance.editorControls
-
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.SNAP_SETTINGS_CHANGED.toString(), updateSnapSettings)
 
@@ -56,29 +54,29 @@ const TransformSnapTool = () => {
 
   const updateSnapSettings = () => {
     setSnapSetting({
-      mode: editorControls.snapMode,
-      translationSnap: editorControls.translationSnap,
-      rotationSnap: editorControls.rotationSnap
+      mode: ControlManager.instance.editorControls.snapMode,
+      translationSnap: ControlManager.instance.editorControls.translationSnap,
+      rotationSnap: ControlManager.instance.editorControls.rotationSnap
     })
   }
 
   const onChangeTranslationSnap = (snapValue: number) => {
-    editorControls.setTranslationSnap(snapValue)
-    editorControls.setSnapMode(SnapMode.Grid)
+    ControlManager.instance.editorControls.setTranslationSnap(snapValue)
+    ControlManager.instance.editorControls.setSnapMode(SnapMode.Grid)
   }
 
   const onChangeRotationSnap = (snapValue: number) => {
-    editorControls.setRotationSnap(snapValue)
-    editorControls.setSnapMode(SnapMode.Grid)
+    ControlManager.instance.editorControls.setRotationSnap(snapValue)
+    ControlManager.instance.editorControls.setSnapMode(SnapMode.Grid)
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
-  //   editorControls.setScaleSnap(snapValue)
-  //   editorControls.setSnapMode(SnapMode.Grid)
+  //   ControlManager.instance.editorControls.setScaleSnap(snapValue)
+  //   ControlManager.instance.editorControls.setSnapMode(SnapMode.Grid)
   // }
 
   const onToggleSnap = () => {
-    editorControls.toggleSnapMode()
+    ControlManager.instance.editorControls.toggleSnapMode()
   }
 
   return (

@@ -19,7 +19,6 @@ const transformSpaceOptions = [
 
 const TransformSpaceTool = () => {
   const [transformSpace, setTransformSpace] = useState(TransformSpace.World)
-  const editorControls = ControlManager.instance.editorControls
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), updateTransformSpace)
@@ -30,15 +29,15 @@ const TransformSpaceTool = () => {
   }, [])
 
   const updateTransformSpace = () => {
-    setTransformSpace(editorControls.transformSpace)
+    setTransformSpace(ControlManager.instance.editorControls.transformSpace)
   }
 
   const onChangeTransformSpace = (transformSpace) => {
-    editorControls.setTransformSpace(transformSpace)
+    ControlManager.instance.editorControls.setTransformSpace(transformSpace)
   }
 
   const onToggleTransformSpace = () => {
-    editorControls.toggleTransformSpace()
+    ControlManager.instance.editorControls.toggleTransformSpace()
   }
 
   return (

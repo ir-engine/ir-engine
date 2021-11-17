@@ -27,6 +27,26 @@ const EditorProtectedRoutes = () => {
         systemModulePromise: import('../managers/SceneManager'),
         type: SystemUpdateType.PRE_RENDER,
         args: { enabled: true }
+      },
+      {
+        systemModulePromise: import('../systems/InputSystem'),
+        type: SystemUpdateType.PRE_RENDER,
+        args: { enabled: true }
+      },
+      {
+        systemModulePromise: import('../systems/FlyControlSystem'),
+        type: SystemUpdateType.PRE_RENDER,
+        args: { enabled: true }
+      },
+      {
+        systemModulePromise: import('../systems/EditorCameraSystem'),
+        type: SystemUpdateType.PRE_RENDER,
+        args: { enabled: true }
+      },
+      {
+        systemModulePromise: import('../systems/ResetInputSystem'),
+        type: SystemUpdateType.PRE_RENDER,
+        args: { enabled: true }
       }
     ]
   }

@@ -3,11 +3,10 @@ import { PerspectiveCamera } from 'three'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import EditorControls from '../controls/EditorControls'
-import FlyControls from '../controls/FlyControls'
+import { FlyControls } from '../controls/FlyControls'
 import InputManager from '../controls/InputManager'
 import PlayModeControls from '../controls/PlayModeControls'
 import { CommandManager } from './CommandManager'
-import { SceneManager } from './SceneManager'
 
 export class ControlManager {
   static instance: ControlManager = new ControlManager()
@@ -71,11 +70,8 @@ export class ControlManager {
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
   }
 
-  update(delta: number, time: number) {
-    this.inputManager.update(delta, time)
-    this.flyControls.update(delta)
+  update(delta: number) {
     this.editorControls.update()
-    this.inputManager.reset()
   }
 
   dispose() {
