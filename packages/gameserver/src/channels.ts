@@ -20,7 +20,6 @@ const loadScene = async (app: Application, scene: string) => {
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
   const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false })
   const sceneData = sceneResult.data.scene as any // SceneData
-  console.log('loadScene', sceneData)
   const packs = await getPacksFromSceneData(sceneData, false)
 
   if (!Engine.isInitialized) await initializeServerEngine(packs.systems, app.isChannelInstance)

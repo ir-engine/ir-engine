@@ -5,8 +5,6 @@ import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 export const sceneRelativePathIdentifier = '__$project$__'
 
 export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string) => {
-  console.log(cacheDomain)
-  console.log('parseSceneDataCacheURLs before', sceneData)
   for (const [key, val] of Object.entries(sceneData)) {
     if (val && typeof val === 'object') {
       sceneData[key] = parseSceneDataCacheURLs(val, cacheDomain)
@@ -15,7 +13,6 @@ export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: strin
       sceneData[key] = getCachedAsset(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain)
     }
   }
-  console.log('parseSceneDataCacheURLs after', sceneData)
   return sceneData
 }
 
