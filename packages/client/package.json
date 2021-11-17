@@ -33,7 +33,7 @@
     "socket.io": "4.3.2"
   },
   "dependencies": {
-    "@capacitor/core": "3.3.1",
+    "@capacitor/core": "3.3.2",
     "@emotion/react": "11.6.0",
     "@types/react": "17.0.35",
     "@emotion/styled": "11.6.0",
