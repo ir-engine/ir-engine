@@ -29,12 +29,12 @@ import SimpleModal from '../SimpleModal'
 import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
 
 import { FeedFiresService } from '@xrengine/client-core/src/social/services/FeedFiresService'
-import { FeedLikesService } from '../../services/FeedLikesService'
+import { FeedLikesService } from '../../state/FeedLikesService'
 
 import { useTranslation } from 'react-i18next'
 
 import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
-import { FeedReportsService } from '../../services/FeedReportsService'
+import { FeedReportsService } from '../../state/FeedReportsService'
 import { Share } from '@capacitor/share'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'

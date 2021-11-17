@@ -35,7 +35,7 @@ import WebXRStart from '../components/popups/WebXR'
 import { useHistory } from 'react-router-dom'
 import TemporarySolution from './TemporarySolution'
 
-import { CreatorAction } from '@xrengine/client-core/src/social/services/CreatorActions'
+import { CreatorAction } from '@xrengine/client-core/src/social/services/CreatorService'
 
 interface Props {}
 

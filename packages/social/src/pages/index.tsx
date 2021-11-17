@@ -1,5 +1,5 @@
 // import {Stories} from '@xrengine/social/src/components/Stories';
-import { AuthService, getStoredAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
 import React, { useEffect, useState } from 'react'
 
@@ -45,15 +45,15 @@ const Home = ({}) => {
 
   /*hided for now*/
 
-  const authData = getStoredAuthState()
-  const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
+  // const authData = getStoredAuthState()
+  // const accessToken = authData?.authUser ? authData.authUser.accessToken : undefined
 
   useEffect(() => {
     // if (accessToken) {
     AuthService.doLoginAuto(true)
     WebxrNativeService.getWebXrNative()
     // }
-  }, [accessToken])
+  }, [])
 
   useEffect(() => {
     if (auth?.authUser?.accessToken) {
