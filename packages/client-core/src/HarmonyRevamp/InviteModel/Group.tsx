@@ -61,7 +61,7 @@ const Group = () => {
   }
   return (
     <React.Fragment>
-      <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx0}`}>
+      <div className={`${classes.dFlex} ${classes.FlexWrap} ${classes.alignCenter} ${classes.mx0}`}>
         <a
           href="#"
           onClick={() => setType('email')}

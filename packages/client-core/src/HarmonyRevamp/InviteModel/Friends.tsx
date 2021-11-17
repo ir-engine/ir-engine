@@ -33,7 +33,7 @@ const Friends = () => {
 
   return (
     <React.Fragment>
-      <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx2}`}>
+      <div className={`${classes.dFlex} ${classes.FlexWrap} ${classes.alignCenter} ${classes.mx2}`}>
         <a
           href="#"
           onClick={() => setType('email')}

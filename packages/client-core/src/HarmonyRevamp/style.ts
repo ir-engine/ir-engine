@@ -8,6 +8,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       height: '100vh',
       backgroundColor: '#161819'
     },
+    darkBg: {
+      backgroundColor: '#232424'
+    },
     bgPrimary: {
       backgroundColor: '#935CFF',
       padding: '7px 18px'
@@ -17,7 +20,17 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       padding: '50px 0px'
     },
     leftGrid: {
+      backgroundColor: '#181A1C'
+    },
+    GridDark: {
       backgroundColor: '#181A1C',
+      padding: '50px 0px'
+    },
+    bgLight: {
+      backgroundColor: '#EBEDEF'
+    },
+    GridLight: {
+      backgroundColor: '#E3E5E8',
       padding: '50px 0px'
     },
     dFlex: {
@@ -67,9 +80,15 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       border: '1px dashed #FFF',
       padding: '7px 18px'
     },
+    borderLight: {
+      border: '1px dashed #787589',
+      padding: '7px 18px',
+      color: '#787589'
+    },
     fontBig: {
       fontSize: 15,
-      marginBottom: '5px'
+      marginBottom: '5px',
+      color: '#000'
     },
     textMuted: {
       fontSize: 12,
@@ -97,10 +116,12 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'center'
     },
+    btnDark: {
+      backgroundColor: '#232424'
+    },
     btn: {
       textDecoration: 'none',
       color: '#935CFF',
-      backgroundColor: '#232424',
       borderRadius: '30px',
       border: 0,
       padding: '12px 24px',
@@ -124,6 +145,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       backgroundColor: '#181A1C',
       color: '#FFF',
       width: '8rem'
+    },
+    whiteBg: {
+      backgroundColor: '#FFF'
     },
     white: {
       color: '#FFF'
@@ -180,8 +204,10 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       padding: '5px 10px',
       borderRadius: '30px'
     },
+    bgDarkLight: {
+      backgroundColor: '#1B1C1D'
+    },
     p2: {
-      backgroundColor: '#1B1C1D',
       padding: '28px 17px'
     },
     p4: {
@@ -242,7 +268,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
         width: '5px'
       },
       '&::-webkit-scrollbar-thumb': {
-        background: '#555 !important',
+        background: '#555',
         borderRadius: '10px'
       },
       '&::-webkit-scrollbar-thumb:hover': {

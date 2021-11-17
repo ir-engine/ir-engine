@@ -1,5 +1,5 @@
-import { Add, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
-import { AddCircleOutline } from '@mui/icons-material'
+import { Add, Close, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
+import { AddCircleOutline, Check, PhotoCamera, Settings } from '@mui/icons-material'
 import {
   Badge,
   Container,
@@ -15,7 +15,10 @@ import {
   Typography,
   Avatar,
   Box,
-  Drawer
+  Drawer,
+  Switch,
+  Tabs,
+  Tab
 } from '@mui/material'
 import Divider from '@mui/material/Divider'
 
@@ -49,6 +52,10 @@ const LeftHarmony = (props: Props) => {
   const [chat, setChat] = React.useState('party')
   const [type, setType] = React.useState('email')
   const [invite, setInvite] = React.useState('')
+  const [messageDeletePending, setMessageDeletePending] = React.useState('')
+  const [messageUpdatePending, setMessageUpdatePending] = React.useState('')
+  const [editingMessage, setEditingMessage] = React.useState('')
+  const [composingMessage, setComposingMessage] = React.useState('')
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [value, setValue] = React.useState(0)
   const [showNot, setShowNot] = React.useState(false)
@@ -79,12 +86,12 @@ const LeftHarmony = (props: Props) => {
   const party = usePartyState().party?.value
   const currentLocation = useLocationState().currentLocation.location
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue)
+  const handleChange = (event) => {
+    setDarkMode(!darkMode)
+    setChecked(event.target.checked)
   }
 
   const handleClickOpen = () => {
-    setShowNot(false)
     setShow(true)
   }
 
@@ -169,10 +176,10 @@ const LeftHarmony = (props: Props) => {
 
   return (
     <>
-      <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h1002}`}>
+      <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h100}`}>
         <div>
           <div className={`${classes.dFlex} ${classes.justifyContentBetween}`}>
-            <h4>Chats</h4>
+            <h4 className={darkMode ? classes.white : classes.textBlack}>Chats</h4>
             <div className={`${classes.dFlex} ${classes.alignCenter}`}>
               <IconButton color="primary" component="span" onClick={handleClickOpen}>
                 <Badge color="secondary" variant={showNot ? 'dot' : ''}>
@@ -195,9 +202,9 @@ const LeftHarmony = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('party', {})
               }}
-              className={`${chat === 'party' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'party' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Party</span>
             </a>
@@ -208,9 +215,9 @@ const LeftHarmony = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('friends', {})
               }}
-              className={`${chat === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'friends' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Friends</span>
             </a>
@@ -221,9 +228,9 @@ const LeftHarmony = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('group', {})
               }}
-              className={`${chat === 'group' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'group' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Group</span>
             </a>
@@ -234,9 +241,9 @@ const LeftHarmony = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('layer', {})
               }}
-              className={`${chat === 'layer' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'layer' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Layer</span>
             </a>
@@ -247,9 +254,9 @@ const LeftHarmony = (props: Props) => {
                 setShowChat(false)
                 setActiveChat('instance', {})
               }}
-              className={`${chat === 'instance' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${
+                chat === 'instance' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight
+              } ${classes.roundedCircle} ${classes.mx2}`}
             >
               <span>Instance</span>
             </a>
@@ -259,7 +266,11 @@ const LeftHarmony = (props: Props) => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" className={`${classes.my2} ${classes.btn}`} onClick={handleCreate}>
+                <a
+                  href="#"
+                  className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
+                  onClick={handleCreate}
+                >
                   INVITE FRIENDS
                 </a>
               </div>
@@ -363,8 +374,8 @@ const LeftHarmony = (props: Props) => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" className={`${classes.my2} ${classes.btn}`}>
-                  CREATE PARTY
+                <a href="#" className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}>
+                  <b>CREATE PARTY</b>
                 </a>
               </div>
               {party &&
@@ -406,8 +417,12 @@ const LeftHarmony = (props: Props) => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" onClick={toggleDrawer('right', true)} className={`${classes.my2} ${classes.btn}`}>
-                  CREATE GROUP
+                <a
+                  href="#"
+                  onClick={toggleDrawer('right', true)}
+                  className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
+                >
+                  <b>CREATE GROUP</b>
                 </a>
                 <Drawer anchor={'right'} open={state['right']} onClose={toggleDrawer('right', false)}>
                   <Container className={classes.bgDark} style={{ height: '100vh', overflowY: 'scroll' }}>
@@ -445,7 +460,7 @@ const LeftHarmony = (props: Props) => {
               {groups &&
                 groups.length > 0 &&
                 [...groups]
-                  .sort((a, b) => a.createdAt - b.createdAt)
+                  .sort((a, b) => a.name - b.name)
                   .map((group, index) => {
                     return (
                       <div
@@ -565,14 +580,24 @@ const LeftHarmony = (props: Props) => {
             </>
           )}
         </div>
-        <div>
-          <div className={`${classes.dFlex} ${classes.box} ${classes.mx2}`}>
-            <Avatar src={selfUser.avatarUrl} />
+        <div
+          className={`${classes.dFlex} ${classes.justifyContentBetween} ${
+            darkMode ? classes.darkBg : classes.whiteBg
+          } ${classes.mx2}`}
+        >
+          <div className={`${classes.dFlex} ${classes.box}`}>
+            <Avatar src="./Avatar.png" />
             <div className={classes.mx2}>
-              <h4 className={classes.fontBig}>{selfUser.name}</h4>
-              <small className={classes.textMuted}>You are:</small>
-              <small className={classes.textMuted}>{selfUser.userRole}</small>
+              <h4 className={`${classes.fontBig} ${darkMode && classes.white}`}>Dwark Matths</h4>
+              <small className={`${classes.textMuted} ${darkMode && classes.white}`}>You:</small>
+              <small className={`${classes.textMuted} ${darkMode && classes.white}`}>UX Consulting</small>
             </div>
+          </div>
+          <div className={`${classes.dFlex} ${classes.alignCenter}`}>
+            <Switch checked={checked} onChange={handleChange} inputProps={{ 'aria-label': 'controlled' }} />
+            <IconButton aria-label="upload picture" component="span">
+              <Settings className={darkMode && classes.white} />
+            </IconButton>
           </div>
         </div>
       </div>
