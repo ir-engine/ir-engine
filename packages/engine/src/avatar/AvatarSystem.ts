@@ -120,7 +120,7 @@ export default async function AvatarSystem(world: World): Promise<System> {
     }
 
     for (const entity of xrInputQuery.exit(world)) {
-      const xrInputComponent = getComponent(entity, XRInputSourceComponent)
+      const xrInputComponent = getComponent(entity, XRInputSourceComponent, true)
       xrInputComponent.container.removeFromParent()
       xrInputComponent.head.removeFromParent()
     }
@@ -153,12 +153,12 @@ export default async function AvatarSystem(world: World): Promise<System> {
     }
 
     for (const entity of xrLGripQuery.exit()) {
-      const inputComponent = getComponent(entity, XRInputSourceComponent)
+      const inputComponent = getComponent(entity, XRInputSourceComponent, true)
       playTriggerReleaseAnimation(inputComponent.controllerGripLeft)
     }
 
     for (const entity of xrRGripQuery.exit()) {
-      const inputComponent = getComponent(entity, XRInputSourceComponent)
+      const inputComponent = getComponent(entity, XRInputSourceComponent, true)
       playTriggerReleaseAnimation(inputComponent.controllerGripRight)
     }
   }

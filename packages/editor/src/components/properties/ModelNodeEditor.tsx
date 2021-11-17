@@ -1,6 +1,5 @@
 import { Cube } from '@styled-icons/fa-solid/Cube'
 import ModelNode from '../../nodes/ModelNode'
-import i18n from 'i18next'
 import React, { Fragment, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
@@ -24,7 +23,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 type ModelNodeEditorProps = {
   node?: any
   multiEdit?: boolean
-  t: Function
 }
 
 /**
@@ -129,7 +127,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
 
   const node = props.node
   return (
-    <NodeEditor description={ModelNodeEditor.description} {...props}>
+    <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput value={node.src} onChange={onChangeSrc} />
         {!(props.node as ModelNode).isValidURL && <div>{t('editor:properties.model.error-url')}</div>}
@@ -194,7 +192,6 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
   )
 }
 
-ModelNodeEditor.description = i18n.t('editor:properties.model.description')
 ModelNodeEditor.iconComponent = Cube
 
 export default ModelNodeEditor

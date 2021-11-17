@@ -1,7 +1,7 @@
 import { Map } from '@styled-icons/fa-solid/Map'
 import i18n from 'i18next'
 import React from 'react'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
@@ -10,7 +10,6 @@ import NodeEditor from './NodeEditor'
 
 type MapNodeEditorProps = {
   node?: any
-  t: Function
 }
 
 /**
@@ -19,7 +18,8 @@ type MapNodeEditorProps = {
  */
 
 export function MapNodeEditor(props: MapNodeEditorProps) {
-  const { node, t } = props
+  const { node } = props
+  const { t } = useTranslation()
 
   const onChangeStartLatitude = (payload) => {
     CommandManager.instance.setPropertyOnSelection('startLatitude', payload)
@@ -80,4 +80,4 @@ export function MapNodeEditor(props: MapNodeEditorProps) {
 
 MapNodeEditor.iconComponent = Map
 
-export default withTranslation()(MapNodeEditor)
+export default MapNodeEditor
