@@ -20,6 +20,10 @@ export default (app: Application) => {
         defaultValue: DataTypes.UUIDV1,
         allowNull: true
       },
+      gamemode: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
       connection: {
         type: DataTypes.STRING,
         allowNull: true

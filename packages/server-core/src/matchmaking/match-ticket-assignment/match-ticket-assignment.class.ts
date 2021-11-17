@@ -3,6 +3,8 @@ import { BadRequest } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { getTicketsAssignment } from '@xrengine/matchmaking/src/functions'
 import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
+import config from '../../appconfig'
+import { emulate_getTicketsAssignment } from '../emulate'
 
 interface Data {}
 
@@ -29,10 +31,15 @@ export class MatchTicketAssignment implements ServiceMethods<Data> {
     return []
   }
 
-  async get(ticketId: unknown): Promise<OpenMatchTicketAssignment> {
+  async get(ticketId: unknown, params?: Params): Promise<OpenMatchTicketAssignment> {
     if (typeof ticketId !== 'string' || ticketId.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
+
+    if (config.server.matchmakerEmulationMode) {
+      return emulate_getTicketsAssignment(this.app, ticketId, params['identity-provider'].userId)
+    }
+
     return getTicketsAssignment(ticketId)
   }
 

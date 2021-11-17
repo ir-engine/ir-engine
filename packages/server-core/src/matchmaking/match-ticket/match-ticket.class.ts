@@ -3,6 +3,8 @@ import { BadRequest, NotFound } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { createTicket, deleteTicket, getTicket } from '@xrengine/matchmaking/src/functions'
 import { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
+import config from '@xrengine/server-core/src/appconfig'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 interface Data {}
 
@@ -42,6 +44,22 @@ export class MatchTicket implements ServiceMethods<Data> {
     if (typeof id !== 'string' || id.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
+
+    console.log('ticket.get:emulate', config.server.matchmakerEmulationMode)
+
+    if (config.server.matchmakerEmulationMode) {
+      // emulate response from open-match-api
+      const matchUser = await this.app.service('match-user').create({
+        ticketId: id,
+        userId: params.userId
+      })
+      return {
+        id,
+        search_fields: {
+          tags: [matchUser.gamemode]
+        }
+      }
+    }
     const ticket = getTicket(String(id))
 
     if (!ticket) {
@@ -61,6 +79,13 @@ export class MatchTicket implements ServiceMethods<Data> {
       throw new BadRequest('Invalid ticket params')
     }
 
+    console.log('ticket.create:emulate', config.server.matchmakerEmulationMode)
+
+    if (config.server.matchmakerEmulationMode) {
+      // emulate response from open-match-api
+      return { id: Math.random().toString(), search_fields: { tags: [data.gamemode] } } as OpenMatchTicket
+    }
+
     return await createTicket(data.gamemode)
   }
 
@@ -75,7 +100,9 @@ export class MatchTicket implements ServiceMethods<Data> {
   }
 
   async remove(id: Id, params?: Params): Promise<Data> {
-    await deleteTicket(String(id))
+    if (!config.server.matchmakerEmulationMode) {
+      await deleteTicket(String(id))
+    }
     return { id }
   }
 }

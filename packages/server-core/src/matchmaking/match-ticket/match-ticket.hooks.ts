@@ -13,7 +13,9 @@ export default {
   before: {
     all: [],
     find: [],
-    get: [],
+    get: [
+      commonHooks.iff(commonHooks.isProvider('external'), authenticate('jwt') as any, setLoggedInUser('userId') as any)
+    ],
     create: [
       commonHooks.iff(commonHooks.isProvider('external'), authenticate('jwt') as any, setLoggedInUser('userId') as any),
       matchmakingRestrictMultipleQueueing()
