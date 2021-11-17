@@ -107,6 +107,19 @@ const MessageBox: React.FunctionComponent = () => {
     }
   }
 
+  const handleEditingMessageChange = (event: any): void => {
+    const message = event.target.value
+    setEditingMessageText(message)
+  }
+
+  const loadMessageEdit = (e: any) => {
+    e.preventDefault()
+    setAnchorEl(null)
+    setMessageUpdatePending(editingMessage.id)
+    setEditingMessageText(editingMessage.text)
+    setMessageToDelete('')
+  }
+
   React.useEffect(() => {
     if (channelState.updateNeeded.value === true) {
       ChatService.getChannels()
@@ -159,12 +172,30 @@ const MessageBox: React.FunctionComponent = () => {
                   {message.senderId === selfUser.id && (
                     <div className={`${classes.selfEnd} ${classes.my1}`}>
                       <div className={classes.dFlex}>
-                        <div
-                          className={`${classes.bgInfo} ${classes.mx2} ${classes.btnCursor}`}
-                          onClick={(e) => handleClick(e, message)}
-                        >
-                          <p>{message.text}</p>
-                        </div>
+                        {messageUpdatePending === message.id ? (
+                          <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.textArea}`}>
+                            <Avatar src={selfUser.avatarUrl} />
+                            <textarea
+                              className={`${classes.formControl} ${classes.inPad} ${classes.scroll}`}
+                              value={editingMessageText}
+                              onKeyPress={(e) => {
+                                if (e.charCode === 13 && e.shiftKey) {
+                                } else if (e.charCode === 13) {
+                                  e.preventDefault()
+                                  confirmMessageUpdate(e)
+                                }
+                              }}
+                              onChange={handleEditingMessageChange}
+                            ></textarea>
+                          </div>
+                        ) : (
+                          <div
+                            className={`${classes.bgInfo} ${classes.mx2} ${classes.btnCursor}`}
+                            onClick={(e) => handleClick(e, message)}
+                          >
+                            <p>{message.text}</p>
+                          </div>
+                        )}
                         {index !== 0 && message.senderId !== sortedMessages[index - 1].senderId && (
                           <Avatar src={message.sender?.avatarUrl} />
                         )}
@@ -188,7 +219,7 @@ const MessageBox: React.FunctionComponent = () => {
                   >
                     <div className={classes.bgDarkLight}>
                       <MenuList sx={{ width: 210, maxWidth: '100%', borderRadius: 10 }}>
-                        <MenuItem className={classes.my2}>
+                        <MenuItem className={classes.my2} onClick={(e) => loadMessageEdit(e)}>
                           <ListItemIcon>
                             <Edit fontSize="small" className={classes.muted} />
                           </ListItemIcon>
@@ -218,7 +249,7 @@ const MessageBox: React.FunctionComponent = () => {
               <div className={`${classes.dFlex} ${classes.alignCenter}`}>
                 <Avatar src={selfUser.avatarUrl} />
                 <textarea
-                  className={`${classes.formControl} ${classes.inPad}`}
+                  className={`${classes.formControl} ${classes.inPad} ${classes.scroll}`}
                   placeholder="Your message"
                   value={composingMessage}
                   onKeyPress={(e) => {
@@ -245,7 +276,7 @@ const MessageBox: React.FunctionComponent = () => {
         >
           <DialogTitle id="alert-dialog-title">Confirm to delete this message!</DialogTitle>
           <DialogActions>
-            <Button onClick={() => setShowWarning(false)} className={classes.spanNone}>
+            <Button onClick={cancelMessageDelete} className={classes.spanNone}>
               Cancel
             </Button>
             <Button className={classes.spanDange} onClick={confirmMessageDelete} autoFocus>

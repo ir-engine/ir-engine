@@ -21,7 +21,8 @@ import {
   Tab
 } from '@mui/material'
 import Divider from '@mui/material/Divider'
-
+import queryString from 'querystring'
+import { useHistory } from 'react-router-dom'
 import ListItem from '@mui/material/ListItem'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
@@ -42,7 +43,7 @@ import { InviteService } from '@xrengine/client-core/src/social/services/InviteS
 import ModeContext from './context/modeContext'
 
 interface Props {
-  setShowChat: AnyContext
+  setShowChat: any
 }
 
 const LeftHarmony = (props: Props) => {
@@ -67,20 +68,20 @@ const LeftHarmony = (props: Props) => {
   const classes = useHarmonyStyles()
   const {darkMode, setDarkMode} = React.useContext(ModeContext);
   const [checked, setChecked] = React.useState(true);
+
+  const persed = queryString.parse(location.search)
+  const history = useHistory()
   const [show, setShow] = React.useState(false)
   const [create, setCreate] = React.useState(false)
-  const [chat, setChat] = React.useState('party')
-  const [type, setType] = React.useState('email')
+  const [chat, setChat] = React.useState(persed['?channel'] ? persed['?channel'] : 'party')
   const [invite, setInvite] = React.useState('')
   const [messageDeletePending, setMessageDeletePending] = React.useState('')
   const [messageUpdatePending, setMessageUpdatePending] = React.useState('')
   const [editingMessage, setEditingMessage] = React.useState('')
   const [composingMessage, setComposingMessage] = React.useState('')
   const [anchorEl, setAnchorEl] = React.useState(null)
-  const [value, setValue] = React.useState(0)
   const [showNot, setShowNot] = React.useState(false)
   const [tabIndex, setTabIndex] = React.useState(0)
-  const [selectorsOpen, setSelectorsOpen] = React.useState(false)
   const [dimensions, setDimensions] = React.useState({
     height: window.innerHeight,
     width: window.innerWidth
@@ -89,7 +90,25 @@ const LeftHarmony = (props: Props) => {
   const [state, setState] = React.useState({ right: false })
   const [openDrawer, setOpen] = React.useState(false)
   const [openCreateDrawer, setOpenCreate] = React.useState(false)
-  const [list, setList] = React.useState({ right: false })
+  const [list, setList] = React.useState({ right: false})
+
+  React.useEffect(() => {
+    if (!persed['?channel']) {
+      history.push({
+        pathname: '/harmony',
+        search: '?channel=party'
+      })
+    }
+  })
+
+  const channelTypeChangeHandler = (type: string) => {
+    setChat(type)
+    history.push({
+      pathname: '/harmony',
+      search: `?channel=${type}`
+    })
+  }
+
   // Current User
   const selfUser = useAuthState().user.value
 
@@ -308,7 +327,7 @@ const LeftHarmony = (props: Props) => {
             <a
               href="#"
               onClick={() => {
-                setChat('party')
+                channelTypeChangeHandler('party')
                 setShowChat(false)
                 setActiveChat('party', {})
               }}
@@ -320,7 +339,7 @@ const LeftHarmony = (props: Props) => {
             <a
               href="#"
               onClick={() => {
-                setChat('friends')
+                channelTypeChangeHandler('friends')
                 setShowChat(false)
                 setActiveChat('friends', {})
               }}
@@ -332,7 +351,7 @@ const LeftHarmony = (props: Props) => {
             <a
               href="#"
               onClick={() => {
-                setChat('group')
+                channelTypeChangeHandler('group')
                 setShowChat(false)
                 setActiveChat('group', {})
               }}
@@ -344,7 +363,7 @@ const LeftHarmony = (props: Props) => {
             <a
               href="#"
               onClick={() => {
-                setChat('layer')
+                channelTypeChangeHandler('layer')
                 setShowChat(false)
                 setActiveChat('layer', {})
               }}
@@ -356,7 +375,7 @@ const LeftHarmony = (props: Props) => {
             <a
               href="#"
               onClick={() => {
-                setChat('instance')
+                channelTypeChangeHandler('instance')
                 setShowChat(false)
                 setActiveChat('instance', {})
               }}
@@ -391,7 +410,6 @@ const LeftHarmony = (props: Props) => {
                             className={classes.cpointer}
                             onClick={() => {
                               setActiveChat('user', friend)
-                              if (dimensions.width <= 768) setSelectorsOpen(false)
                             }}
                           >
                             <ListItemAvatar>
@@ -492,9 +510,6 @@ const LeftHarmony = (props: Props) => {
                       <div
                         key={part.id}
                         className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}
-                        onClick={() => {
-                          if (dimensions.width <= 768) setSelectorsOpen(false)
-                        }}
                       >
                         <div
                           onClick={() => {
@@ -590,7 +605,6 @@ const LeftHarmony = (props: Props) => {
                         className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
                         onClick={() => {
                           setActiveChat('group', group)
-                          if (dimensions.width <= 768) setSelectorsOpen(false)
                         }}
                       >
                         <div>
