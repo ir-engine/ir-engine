@@ -85,7 +85,7 @@ export default async function PhysicsSystem(
     // }
 
     for (const entity of colliderQuery.exit()) {
-      const colliderComponent = getComponent(entity, ColliderComponent)
+      const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent?.body) {
         world.physics.removeBody(colliderComponent.body)
       }

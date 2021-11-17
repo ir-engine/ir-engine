@@ -1,3 +1,5 @@
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { PerspectiveCamera } from 'three'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import EditorControls from '../controls/EditorControls'
@@ -25,9 +27,9 @@ export class ControlManager {
   }
 
   initControls() {
-    this.inputManager = new InputManager(SceneManager.instance.renderer.canvas)
-    this.flyControls = new FlyControls(SceneManager.instance.camera as any, this.inputManager)
-    this.editorControls = new EditorControls(SceneManager.instance.camera, this.inputManager, this.flyControls)
+    this.inputManager = new InputManager(Engine.renderer.domElement)
+    this.flyControls = new FlyControls(Engine.camera as PerspectiveCamera, this.inputManager)
+    this.editorControls = new EditorControls(Engine.camera, this.inputManager, this.flyControls)
     this.playModeControls = new PlayModeControls(this.inputManager, this.editorControls, this.flyControls)
 
     this.editorControls.center.set(0, 0, 0)
@@ -42,9 +44,9 @@ export class ControlManager {
   enterPlayMode() {
     this.isInPlayMode = true
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
-    SceneManager.instance.camera.layers.disable(1)
+    Engine.camera.layers.disable(1)
     this.playModeControls.enable()
-    SceneManager.instance.scene.traverse((node) => {
+    Engine.scene.traverse((node: any) => {
       if (node.isNode) {
         node.onPlay()
       }
@@ -59,13 +61,27 @@ export class ControlManager {
    */
   leavePlayMode() {
     this.isInPlayMode = false
-    SceneManager.instance.camera.layers.enable(1)
+    Engine.camera.layers.enable(1)
     this.playModeControls.disable()
-    SceneManager.instance.scene.traverse((node) => {
+    Engine.scene.traverse((node: any) => {
       if (node.isNode) {
         node.onPause()
       }
     })
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
+  }
+
+  update(delta: number, time: number) {
+    this.inputManager.update(delta, time)
+    this.flyControls.update(delta)
+    this.editorControls.update()
+    this.inputManager.reset()
+  }
+
+  dispose() {
+    this.inputManager?.dispose()
+    this.editorControls?.dispose()
+    this.flyControls?.dispose()
+    this.playModeControls?.dispose()
   }
 }

@@ -100,7 +100,8 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       color: '#808080'
     },
     rootPaper: {
-      height: '21vh',
+      marginTop: '65px',
+      height: '15vh',
       background: '#111',
       color: '#f1f1f1',
       backgroundColor: '#343b41',
@@ -160,7 +161,7 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       }
     },
     spacing: {
-      paddingLeft: '2.5rem',
+      paddingLeft: '2rem',
       marginTop: '5%',
       [theme.breakpoints.down('md')]: {
         paddingLeft: '1rem'
@@ -191,9 +192,9 @@ export const useLocationStyles = makeStyles((theme: Theme) =>
       padding: '2rem'
     },
     pdlarge: {
-      paddingLeft: '3rem',
+      paddingLeft: '2rem',
       [theme.breakpoints.down('md')]: {
-        paddingLeft: '2rem'
+        paddingLeft: '1rem'
       }
     },
     mt10: {
@@ -208,7 +209,7 @@ export const useLocationStyle = makeStyles((theme: Theme) =>
       width: '40%',
       backgroundColor: '#43484F',
       color: '#f1f1f1',
-      overflow: 'hidden',
+      overflow: 'auto',
       [theme.breakpoints.down('md')]: {
         overflowY: 'scroll'
       }

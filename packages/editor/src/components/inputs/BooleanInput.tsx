@@ -52,6 +52,7 @@ interface BooleanInputProp {
   id?: string
   value: any
   onChange: Function
+  disabled?: boolean
 }
 
 /**

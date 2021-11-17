@@ -57,9 +57,6 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
         console.warn('[Object3DComponent]: Scene object has been added manually.', object3DComponent.value)
       }
 
-      // Set default layer
-      object3DComponent.value.layers.set(CameraLayers.Scene)
-
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
         const material = obj.material as Material
@@ -99,10 +96,10 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
     }
 
     for (const entity of sceneObjectQuery.exit()) {
-      const object3DComponent = getComponent(entity, Object3DComponent)
+      const object3DComponent = getComponent(entity, Object3DComponent, true)
 
       // Remove from scene
-      if (object3DComponent && Engine.scene.children.includes(object3DComponent.value)) {
+      if (Engine.scene.children.includes(object3DComponent.value)) {
         Engine.scene.remove(object3DComponent.value)
       } else {
         console.warn('[Object3DComponent]: Scene object has been removed manually.')

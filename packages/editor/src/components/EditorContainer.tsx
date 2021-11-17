@@ -1,12 +1,12 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
-import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { useTranslation, withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import Modal from 'react-modal'
 import styled from 'styled-components'
 import { getScene, saveScene } from '../functions/sceneFunctions'
@@ -31,10 +31,12 @@ import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import ScenesPanel from './assets/ScenesPanel'
 import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
-import { DialogContext, useDialog } from './hooks/useDialog'
+import { DialogContext } from './hooks/useDialog'
 import { saveProject } from '../functions/projectFunctions'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { useDispatch } from '@xrengine/client-core/src/store'
+import { isDev } from '@xrengine/common/src/utils/isDev'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -143,29 +145,6 @@ const EditorContainer = () => {
     await Promise.all([ProjectManager.instance.init()])
   }
 
-  useEffect(() => {
-    CacheManager.init()
-
-    registerPredefinedNodes()
-
-    initializeEditor().then(() => {
-      setEditorReady(true)
-      CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
-      CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
-      CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
-      CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
-    })
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
-      CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
-      CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
-      ProjectManager.instance.dispose()
-    }
-  }, [])
-
   const importScene = async (projectFile) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
@@ -255,42 +234,8 @@ const EditorContainer = () => {
     }
   }
 
-  const generateToolbarMenu = () => {
-    return [
-      {
-        name: t('editor:menubar.newProject'),
-        action: newScene
-      },
-      {
-        name: t('editor:menubar.saveProject'),
-        hotkey: `${cmdOrCtrlString} + S`,
-        action: onSaveScene
-      },
-      {
-        name: t('editor:menubar.saveAs'),
-        action: onSaveAs
-      },
-      // {
-      //   name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
-      //   action: onExportProject
-      // },
-      {
-        name: t('editor:menubar.importProject'),
-        action: onImportScene
-      },
-      {
-        name: t('editor:menubar.exportProject'),
-        action: onExportScene
-      },
-      {
-        name: t('editor:menubar.quit'),
-        action: onCloseProject
-      }
-    ]
-  }
-
   const setDebuginfo = () => {
-    const gl = SceneManager.instance.renderer.webglRenderer.getContext()
+    const gl = Engine.renderer.getContext()
 
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
 
@@ -345,7 +290,7 @@ const EditorContainer = () => {
           setDialogComponent(
             <SaveNewProjectDialog
               thumbnailUrl={URL.createObjectURL(blob)}
-              initialName={SceneManager.instance.scene.name}
+              initialName={Engine.scene.name}
               onConfirm={resolve}
               onCancel={resolve}
             />
@@ -405,7 +350,7 @@ const EditorContainer = () => {
       setDialogComponent(null)
 
       const el = document.createElement('a')
-      el.download = SceneManager.instance.scene.name + '.glb'
+      el.download = Engine.scene.name + '.glb'
       el.href = URL.createObjectURL(glbBlob)
       document.body.appendChild(el)
       el.click()
@@ -460,11 +405,11 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await SceneManager.instance.scene.serialize(sceneName)
+    const projectFile = await (Engine.scene as any).serialize(sceneName)
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
-    const fileName = SceneManager.instance.scene.name.toLowerCase().replace(/\s+/g, '-')
+    const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
     el.download = fileName + '.world'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
@@ -499,12 +444,14 @@ const EditorContainer = () => {
     const blob = await SceneManager.instance.takeScreenshot(512, 320)
 
     try {
+      if (isDev && projectName === 'default-project')
+        setDialogComponent(<ErrorDialog title={t('editor:warnDefault')} message={t('editor:warnDefaultMsg')} />)
       await saveScene(projectName, sceneName, blob, abortController.signal)
       await saveProject(projectName)
       SceneManager.instance.sceneModified = false
       updateModifiedState()
 
-      setDialogComponent(null)
+      if (!(isDev && projectName === 'default-project')) setDialogComponent(null)
     } catch (error) {
       console.error(error)
 
@@ -512,6 +459,63 @@ const EditorContainer = () => {
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
       )
     }
+  }
+
+  useEffect(() => {
+    CacheManager.init()
+
+    registerPredefinedNodes()
+
+    initializeEditor().then(() => {
+      setEditorReady(true)
+      CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
+      CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
+      CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
+      CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
+    })
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
+      CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
+      CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
+      ProjectManager.instance.dispose()
+    }
+  }, [])
+
+  const generateToolbarMenu = () => {
+    return [
+      {
+        name: t('editor:menubar.newProject'),
+        action: newScene
+      },
+      {
+        name: t('editor:menubar.saveProject'),
+        hotkey: `${cmdOrCtrlString}+s`,
+        action: onSaveScene
+      },
+      {
+        name: t('editor:menubar.saveAs'),
+        action: onSaveAs
+      },
+      // {
+      //   name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
+      //   action: onExportProject
+      // },
+      {
+        name: t('editor:menubar.importProject'),
+        action: onImportScene
+      },
+      {
+        name: t('editor:menubar.exportProject'),
+        action: onExportScene
+      },
+      {
+        name: t('editor:menubar.quit'),
+        action: onCloseProject
+      }
+    ]
   }
 
   const toolbarMenu = generateToolbarMenu()
@@ -556,6 +560,7 @@ const EditorContainer = () => {
           size: 8,
           children: [
             {
+              id: '+5',
               tabs: [{ id: 'viewPanel', title: 'Viewport', content: <div /> }],
               size: 1
             }
@@ -626,7 +631,7 @@ const EditorContainer = () => {
             ariaHideApp={false}
             isOpen={!!DialogComponent}
             onRequestClose={() => setDialogComponent(null)}
-            shouldCloseOnOverlayClick={false}
+            shouldCloseOnOverlayClick={true}
             className="Modal"
             overlayClassName="Overlay"
           >
@@ -638,4 +643,4 @@ const EditorContainer = () => {
   )
 }
 
-export default withTranslation()(withRouter(EditorContainer))
+export default withRouter(EditorContainer)

@@ -1,6 +1,5 @@
 export interface LocationColumn {
   id:
-    | 'name'
     | 'sceneId'
     | 'maxUsersPerInstance'
     | 'scene'
@@ -15,18 +14,16 @@ export interface LocationColumn {
 }
 
 export const locationColumns: LocationColumn[] = [
-  { id: 'name', label: 'Name', minWidth: 65 },
-  { id: 'sceneId', label: 'SceneId', minWidth: 65 },
+  {
+    id: 'scene',
+    label: 'Name',
+    minWidth: 65
+  },
+  { id: 'sceneId', label: 'Scene', minWidth: 65 },
   {
     id: 'maxUsersPerInstance',
     label: 'Max Users Per Instance',
     minWidth: 80,
-    align: 'center'
-  },
-  {
-    id: 'scene',
-    label: 'Scene',
-    minWidth: 65,
     align: 'center'
   },
   {
