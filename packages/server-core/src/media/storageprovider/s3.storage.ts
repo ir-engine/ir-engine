@@ -1,6 +1,7 @@
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 import AWS from 'aws-sdk'
 import { PresignedPost } from 'aws-sdk/clients/s3'
+import path from 'path'
 import S3BlobStore from 's3-blob-store'
 import config from '../../appconfig'
 import {
@@ -16,7 +17,8 @@ export class S3Provider implements StorageProviderInterface {
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
-    region: config.aws.s3.region
+    region: config.aws.s3.region,
+    s3ForcePathStyle: true
   })
 
   blob: typeof S3BlobStore = new S3BlobStore({
@@ -26,12 +28,13 @@ export class S3Provider implements StorageProviderInterface {
   })
 
   cloudfront: AWS.CloudFront = new AWS.CloudFront({
+    region: config.aws.s3.region,
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey
   })
 
-  getProvider = (): any => {
-    return this.provider
+  getProvider = (): StorageProviderInterface => {
+    return this
   }
 
   checkObjectExistence = (key: string): Promise<any> => {
@@ -97,7 +100,7 @@ export class S3Provider implements StorageProviderInterface {
     })
   }
 
-  listObjects = async (prefix: string, recursive = false): Promise<StorageListObjectInterface> => {
+  listObjects = async (prefix: string, recursive = true): Promise<StorageListObjectInterface> => {
     return new Promise((resolve, reject) =>
       this.provider.listObjectsV2(
         {
@@ -170,7 +173,7 @@ export class S3Provider implements StorageProviderInterface {
     const result = await new Promise<PresignedPost>((resolve) => {
       this.provider.createPresignedPost(
         {
-          Bucket: config.aws.s3.staticResourceBucket,
+          Bucket: this.bucket,
           Fields: {
             Key: key
           },
@@ -195,7 +198,7 @@ export class S3Provider implements StorageProviderInterface {
     return new Promise((resolve, reject) => {
       this.provider.deleteObjects(
         {
-          Bucket: config.aws.s3.staticResourceBucket,
+          Bucket: this.bucket,
           Delete: {
             Objects: keys.map((key) => {
               return { Key: key }
@@ -210,8 +213,8 @@ export class S3Provider implements StorageProviderInterface {
     })
   }
 
-  listFolderContent = async (folderName: string): Promise<FileContentType[]> => {
-    const folderContent = await this.listObjects(folderName)
+  listFolderContent = async (folderName: string, recursive = false): Promise<FileContentType[]> => {
+    const folderContent = await this.listObjects(folderName, recursive)
     // console.log('folderContent', folderContent)
     const np = new RegExp(`${folderName}${'(?<filename>.*)'}`)
     const promises = []
@@ -220,14 +223,14 @@ export class S3Provider implements StorageProviderInterface {
       promises.push(
         new Promise(async (resolve) => {
           const key = folderContent.Contents[i].Key
-          const fileName = np.exec(key).groups.filename
-          const contentType = await this.getObjectContentType(key)
+          const regexx = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
+          const query = regexx.exec(key)
           const url = `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
           const cont: FileContentType = {
             key,
             url,
-            name: fileName,
-            type: contentType
+            name: query.groups.name,
+            type: query.groups.extension
           }
           resolve(cont)
         })
@@ -265,11 +268,29 @@ export class S3Provider implements StorageProviderInterface {
 
     promises.push(
       ...listResponse.Contents.map(async (file) => {
-        await this.provider.copyObject({
-          Bucket: this.bucket,
-          CopySource: `${this.bucket}/${file.Key}`,
-          Key: `${destination}${file.Key.replace(listResponse.Prefix, '')}`
-        })
+        const dest = `${destination}${file.Key.replace(listResponse.Prefix, '')}`
+        let fileName = renameTo != null ? renameTo : path.basename(current)
+        let isDestAvailable = false
+        const f = fileName.split('.')
+        let fileCount = 1
+        while (!isDestAvailable) {
+          try {
+            await this.checkObjectExistence(path.join(dest, fileName))
+            isDestAvailable = true
+          } catch {
+            fileName = ''
+            for (let i = 0; i < f.length - 1; i++) fileName += f[i]
+            fileName = `${fileName}(${fileCount}).${f[f.length - 1]}`
+            fileCount++
+          }
+        }
+        await this.provider
+          .copyObject({
+            Bucket: this.bucket,
+            CopySource: `/${this.bucket}/${file.Key}`,
+            Key: path.join(dest, fileName)
+          })
+          .promise()
         // we have to do these one by one after the copy
         if (!isCopy) {
           await this.deleteResources([file.Key])
