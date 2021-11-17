@@ -18,6 +18,8 @@
     "exportingMsg": "Exporting project...",
     "exportingError": "Error Exporting Project",
     "exportingErrorMsg": "There was an error when exporting the project.",
+    "warnDefault": "Warning!",
+    "warnDefaultMsg": "The default project is only an example and will be overwritten in a production environment. Please make a new project if you wish to keep your changes.",
     "importLegacy": "Import Legacy World",
     "importLegacyMsg": "Warning! This will overwrite your existing scene! Are you sure you wish to continue?",
     "publishingError": "Error Publishing Project",
@@ -178,6 +180,7 @@
             "description": "A flat ground plane that extends into the distance.",
             "lbl-color": "Color",
             "lbl-receiveShadow": "Receive Shadow",
+            "lbl-generateNavmesh": "Generate Navmesh",
             "lbl-walkable": "Walkable"
         },
         "link": {

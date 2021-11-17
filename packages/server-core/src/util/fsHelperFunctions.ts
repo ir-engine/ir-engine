@@ -52,7 +52,7 @@ export function deleteFolderRecursive(path) {
 }
 
 export function getFilesRecursive(path, includeDirs = false) {
-  const files: any[] = []
+  const files: string[] = []
   if (fs.existsSync(path)) {
     const curFiles = fs.readdirSync(path)
     curFiles.forEach(function (file, index) {

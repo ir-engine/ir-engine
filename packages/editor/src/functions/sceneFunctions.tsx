@@ -1,7 +1,8 @@
 import i18n from 'i18next'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
-import { SceneManager } from '../managers/SceneManager'
 import { client } from '@xrengine/client-core/src/feathers'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import SceneNode from '../nodes/SceneNode'
 
 /**
  * getScenes used to get list projects created by user.
@@ -10,8 +11,8 @@ import { client } from '@xrengine/client-core/src/feathers'
  */
 export const getScenes = async (projectName: string): Promise<SceneDetailInterface[]> => {
   try {
-    const { data } = await client.service('scenes').get({ projectName, metadataOnly: true })
-    return data
+    const result = await client.service('scenes').get({ projectName, metadataOnly: true })
+    return result?.data
   } catch (error) {
     console.log('Error in Getting Project:' + error)
     throw new Error(error)
@@ -75,7 +76,7 @@ export const saveScene = async (projectName: string, sceneName: string, thumbnai
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const sceneNode = SceneManager.instance.scene
+  const sceneNode = Engine.scene as any as SceneNode
   const sceneData = await sceneNode.serialize(projectName)
 
   try {
