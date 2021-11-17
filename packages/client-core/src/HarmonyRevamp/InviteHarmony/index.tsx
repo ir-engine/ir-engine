@@ -4,6 +4,7 @@ import { Dialog, Avatar } from '@mui/material'
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
 import { useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import * as React from 'react'
+import ModeContext from '../context/modeContext'
 import { useHarmonyStyles } from '../style'
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const InviteHarmony = (props: Props) => {
+  const { darkMode } = React.useContext(ModeContext)
   const { setShow, show, setShowNot } = props
   const capitalize = (word) => word[0].toUpperCase() + word.slice(1)
   const classes = useHarmonyStyles()
@@ -74,21 +76,25 @@ const InviteHarmony = (props: Props) => {
 
   return (
     <Dialog fullWidth={true} maxWidth={'sm'} open={show} onClose={handleClickClose}>
-      <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter} ${classes.bgModal}`}>
+      <div
+        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter} ${
+          darkMode ? classes.bgModal : classes.bgModalLight
+        }`}
+      >
         <button
           className={`${classes.btns} ${state === 'Received' && classes.borderBottom}`}
           onClick={() => setState('Received')}
         >
-          <b className={`${state === 'Received' && classes.info}`}>RECEIVED</b>
+          <b className={`${state === 'Received' ? classes.info : darkMode && classes.white}`}>RECEIVED</b>
         </button>
         <button
           className={`${classes.btns} ${state === 'Sent' && classes.borderBottom}`}
           onClick={() => setState('Sent')}
         >
-          <b className={`${state === 'Sent' && classes.info}`}>SENT</b>
+          <b className={`${state === 'Sent' ? classes.info : darkMode && classes.white}`}>SENT</b>
         </button>
       </div>
-      <div className={`${classes.bgModal} ${classes.p4}`}>
+      <div className={`${darkMode ? classes.bgModal : classes.bgModalLight} ${classes.p4}`}>
         {state === 'Received' ? (
           <>
             {[...receivedInvites?.value]

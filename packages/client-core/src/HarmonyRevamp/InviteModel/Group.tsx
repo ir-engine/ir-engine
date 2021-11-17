@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState , useContext} from 'react'
 import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
+import ModeContext from '../context/modeContext'
 import { useHarmonyStyles } from '../style'
 import { MenuItem, Select } from '@mui/material'
 
 const Group = () => {
+  const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [type, setType] = React.useState('email')
 
@@ -67,21 +69,27 @@ const Group = () => {
         <a
           href="#"
           onClick={() => setType('email')}
-          className={`${type === 'email' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx0}`}
+          className={`${type === 'email' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+            classes.roundedCircle
+          } ${classes.mx0}`}
         >
           <span>Email</span>
         </a>
         <a
           href="#"
-          onClick={() => setType('sms')}
-          className={`${type === 'phone' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2}`}
+          onClick={() => setType('phone')}
+          className={`${type === 'phone' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+            classes.roundedCircle
+          } ${classes.mx0}`}
         >
           <span>Phone</span>
         </a>
         <a
           href="#"
           onClick={() => setType('code')}
-          className={`${type === 'code' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx0}`}
+          className={`${type === 'code' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+            classes.roundedCircle
+          } ${classes.mx0}`}
         >
           <span>Invite Code</span>
         </a>
@@ -133,14 +141,22 @@ const Group = () => {
               <label htmlFor="" className={classes.mx2}>
                 <p>Email:</p>
               </label>
-              <input type="text" className={classes.formControls} placeholder="Your@domain.com" />
+              <input
+                type="text"
+                className={darkMode ? classes.formControls : classes.formControlsLight}
+                placeholder="Your@domain.com"
+              />
             </div>
           ) : type === 'phone' ? (
             <div className="form-group">
               <label htmlFor="" className={classes.mx2}>
                 <p>Phone:</p>
               </label>
-              <input type="text" className={classes.formControls} placeholder="078XXXXXXX" />
+              <input
+                type="text"
+                className={darkMode ? classes.formControls : classes.formControlsLight}
+                placeholder="078XXXXXXX"
+              />
             </div>
           ) : type === 'code' ? (
             <div className="form-group">
@@ -150,7 +166,7 @@ const Group = () => {
               <input
                 onChange={(e) => handleUserTokenChange(e)}
                 type="text"
-                className={classes.formControls}
+                className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="XXXXXX"
               />
             </div>
@@ -159,7 +175,7 @@ const Group = () => {
               <label htmlFor="" className={classes.mx2}>
                 <p>Friends:</p>
               </label>
-              <select className={classes.formControls}>
+              <select className={darkMode ? classes.formControls : classes.formControlsLight}>
                 <option value="1">Test Friend 1</option>
                 <option value="2">Test Friend 2</option>
                 <option value="3">Test Friend 3</option>

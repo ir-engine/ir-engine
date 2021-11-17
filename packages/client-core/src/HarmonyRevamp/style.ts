@@ -6,10 +6,10 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       width: '100%',
       overflow: 'hidden',
       height: '100vh',
-      backgroundColor: '#161819'
+      backgroundColor: '#2E2B45'
     },
     darkBg: {
-      backgroundColor: '#232424'
+      backgroundColor: '#261F34'
     },
     bgPrimary: {
       backgroundColor: '#935CFF',
@@ -100,7 +100,16 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       border: '1px solid #FFF',
       padding: '12px',
       marginTop: 15,
-      borderRadius: '2px',
+      borderRadius: '5px',
+      color: '#ccc'
+    },
+    formControlsLight: {
+      width: '100%',
+      backgroundColor: 'transparent',
+      border: '1px solid #787589',
+      padding: '12px',
+      marginTop: 15,
+      borderRadius: '5px',
       color: '#ccc'
     },
     formControls: {
@@ -175,13 +184,17 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       height: '98%'
     },
     flexGrow2: {
-      flexGrow: 1
+      flexGrow: 1},
+    hAuto: {
+      height: '94vh'
+    },
+    borderRadius: {
+      borderRadius: '30px'
     },
     flexGrow: {
       flexGrow: 1,
       margin: '0px 8px',
-      padding: '8px 10px',
-      borderRadius: '30px'
+      padding: '8px 10px'
     },
     formControl: {
       width: '100%',
@@ -210,6 +223,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     bgDarkLight1: {
       backgroundColor: '#1B1C1D'
     },
+    bgDarkLight: {
+      backgroundColor: '#27243A'
+    },
     p2: {
       padding: '28px 17px'
     },
@@ -221,9 +237,12 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       backgroundColor: '#15171B',
       color: '#fff'
     },
+    bgModalLight: {
+      backgroundColor: '#FFF',
+      color: '#15171B'
+    },
     btns: {
       backgroundColor: 'transparent',
-      color: '#fff',
       border: 'none',
       flexGrow: 0.5,
       padding: '28px 17px'
@@ -263,6 +282,10 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     inPad: {
       padding: '10px 0 0 5px',
       color: '#ccc'
+    },
+    px2: {
+      padding: '0px 14px',
+      borderRadius: '6px'
     },
     scroll: {
       height: '90%',

@@ -356,19 +356,19 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
     <>
       <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h1002}`}>
         <div>
-          <div className={`${classes.dFlex} ${classes.justifyContentBetween}`}>
+          <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter}`}>
             <h4 className={darkMode ? classes.white : classes.textBlack}>Chats</h4>
             <div className={`${classes.dFlex} ${classes.alignCenter}`}>
               <IconButton color="primary" component="span" onClick={handleClickOpen}>
                 <Badge color="secondary" variant={showNot ? 'dot' : ''}>
-                  <Notifications className={classes.primaryText} />
+                  <Notifications className={darkMode ? classes.white : classes.secondaryText} />
                 </Badge>
               </IconButton>
               <IconButton component="span">
-                <Search className={classes.primaryText} />
+                <Search className={darkMode ? classes.white : classes.secondaryText} />
               </IconButton>
               <IconButton component="span" onClick={handleCreate}>
-                <Add className={classes.secondaryText} />
+                <Add className={darkMode ? classes.white : classes.secondaryText} />
               </IconButton>
             </div>
           </div>
@@ -761,9 +761,9 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
         <div
           className={`${classes.dFlex} ${classes.justifyContentBetween} ${
             darkMode ? classes.darkBg : classes.whiteBg
-          } ${classes.mx2}`}
+} ${classes.mx2} ${classes.px2}`}
         >
-          <div className={`${classes.dFlex} ${classes.box}`}>
+          <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.box}`}>
             <Avatar src={selfUser.avatarUrl} />
             <div className={classes.mx2}>
               <h4 className={classes.fontBig}>{selfUser.name}</h4>
