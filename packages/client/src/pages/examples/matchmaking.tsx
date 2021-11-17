@@ -7,7 +7,7 @@ import {
 } from "@xrengine/matchmaking/src/interfaces";
 import { useHistory } from 'react-router-dom'
 
-const gameModes = [ "staked", "unstaked", "exhibition" ]
+const gameModes = [ "ctf", "tournament" ]
 
 async function findCurrentTicketData() {
   const { data } = await client.service('match-user').find()
@@ -67,7 +67,11 @@ const Page = () => {
   useEffect(() => {
     if (connection && instanceId && locationName) {
       setTimeout(() => {
-        history.push('/location/' + locationName + '?instanceId=' + instanceId)
+        const matchUrl = '/location/' + locationName + '?instanceId=' + instanceId
+        console.log('Match location', matchUrl)
+        if(confirm('Game found, relocate to match location?\n' + matchUrl)) {
+          history.push(matchUrl)
+        }
       }, 500)
     }
   }, [connection, instanceId, locationName])

@@ -17,6 +17,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"io"
 	"lagunalabs/matchmaking/common"
 	"log"
@@ -143,12 +146,28 @@ func assign(be pb.BackendServiceClient, p *pb.MatchProfile, matches []*pb.Match)
 			ticketIDs = append(ticketIDs, t.Id)
 		}
 
-		//var profileDataMessage *anypb.Any
-		//if p.Extensions != nil {
-		//	if message, ok := p.Extensions["profileData"]; ok {
-		//		profileDataMessage = message
-		//	}
-		//}
+		var gameMode = ""
+		if p.Extensions != nil {
+			if message, ok := p.Extensions["profileData"]; ok {
+				m := new(common.ProfileDataMessage)
+				if message.MessageIs(m) {
+					if err := message.UnmarshalTo(m); err != nil {
+						log.Printf("failed to extract profileData")
+					} else {
+						gameMode = m.Mode
+					}
+				}
+			}
+		}
+
+		// wrappedGameMode, err := any.Marshal(&wrappers.StringValue{Value: gameMode})
+		wrappedGameMode, err := ptypes.MarshalAny(&wrappers.StringValue{
+			Value: gameMode,
+		})
+		if err != nil {
+			// handle marshaling error.
+			log.Printf("failed to marshal gamemode")
+		}
 
 		// TODO get gameserver ip or link
 		conn := uuid.New().String()
@@ -159,9 +178,9 @@ func assign(be pb.BackendServiceClient, p *pb.MatchProfile, matches []*pb.Match)
 					TicketIds: ticketIDs,
 					Assignment: &pb.Assignment{
 						Connection: conn,
-						//Extensions: map[string]*anypb.Any{
-						//	"profileData": profileDataMessage,
-						//},
+						Extensions: map[string]*any.Any{
+							"GameMode": wrappedGameMode,
+						},
 					},
 				},
 			},
