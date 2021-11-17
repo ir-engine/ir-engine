@@ -18,6 +18,7 @@ import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent
 import { Group } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { avatarHalfHeight } from '../../avatar/functions/createAvatar'
+import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 
 export const applyDelayedActions = (world: World) => {
   const { delayedActions } = world
@@ -112,10 +113,9 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
           console.warn(`Rejecting update for non-existing network object: ${pose.networkId}`)
           continue
         }
-        const networkComponent = getComponent(networkObjectEntity, NetworkObjectComponent)
 
         // don't apply state if this client has ownership
-        const weHaveOwnership = networkComponent.userId === Engine.userId
+        const weHaveOwnership = hasComponent(networkObjectEntity, NetworkObjectOwnedTag)
         if (weHaveOwnership) {
           // console.warn(`Received network update for entity that this client owns: ${pose.networkId}`)
           continue
