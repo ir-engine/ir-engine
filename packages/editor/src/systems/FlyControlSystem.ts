@@ -29,8 +29,6 @@ export default async function FlyControlSystem(world: World): Promise<System> {
 
       if (!flyControlComponent.enable) return
 
-      console.debug(getInput(FlyActionSet.moveX))
-
       // assume that Engine.camera[position,quaterion/rotation,scale] are authority
       Engine.camera.updateMatrix()
       Engine.camera.updateMatrixWorld()

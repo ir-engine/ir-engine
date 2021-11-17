@@ -142,42 +142,6 @@ export const parseInputActionMapping = (inputMapping: InputActionMapping) => {
     initializeValue(actionState, keyboard.keyup, defaultValues, resetKeys)
     initializeValue(actionState, keyboard.hotkeys, defaultValues, resetKeys)
     initializeValue(actionState, keyboard.globalHotkeys, defaultValues, resetKeys)
-
-    // initializeValue(actionState, keyboard.pressed, 0, false)
-    // initializeValue(actionState, keyboard.keydown, 0, true)
-    // initializeValue(actionState, keyboard.keyup, 0, true)
-
-    // if (keyboard.hotkeys) {
-    //   for (const input in keyboard.hotkeys) {
-    //     if (!Object.prototype.hasOwnProperty.call(keyboard.hotkeys, input)) continue
-
-    //     const key = keyboard.hotkeys[input].key
-    //     Mousetrap.bind(input, () => {
-    //       actionState[key] = true
-    //       return false
-    //     })
-
-    //     initialState[key] = false
-    //     actionState[key] = false
-    //     resetKeys.push(key)
-    //   }
-    // }
-
-    // if (keyboard.globalHotkeys) {
-    //   for (const binding in keyboard.globalHotkeys) {
-    //     if (!Object.prototype.hasOwnProperty.call(keyboard.globalHotkeys, binding)) continue
-
-    //     const key = keyboard.globalHotkeys[binding].key
-    //     Mousetrap.bindGlobal(binding, () => {
-    //       actionState[key] = true
-    //       return false
-    //     })
-
-    //     initialState[key] = false
-    //     actionState[key] = false
-    //     resetKeys.push(key)
-    //   }
-    // }
   }
 
   const mouse = inputMapping.mouse
@@ -189,24 +153,11 @@ export const parseInputActionMapping = (inputMapping: InputActionMapping) => {
     initializeValue(actionState, mouse.pressed, defaultValues, resetKeys)
     initializeValue(actionState, mouse.mousedown, defaultValues, resetKeys)
     initializeValue(actionState, mouse.mouseup, defaultValues, resetKeys)
-
-    // initializeValue(actionState, mouse.click, 0, true)
-    // initializeValue(actionState, mouse.dblclick, 0, true)
-    // initializeValue(actionState, mouse.move, 0, true)
-    // initializeValue(actionState, mouse.wheel, 0, true)
-    // initializeValue(actionState, mouse.pressed, 0, false)
-    // initializeValue(actionState, mouse.mousedown, 0, true)
-    // initializeValue(actionState, mouse.mouseup, 0, true)
   }
 
   const computed = inputMapping.computed
   if (computed) {
     for (const computedProp of computed) {
-      // const { action, transform, defaultValue, preventReset } = computedProp
-      // const value = defaultValue !== undefined ? defaultValue : transform(this)
-
-      // if (!action) throw new Error(`Action is undefined for ${computedProp}`)
-
       defaultValues[computedProp.action] = actionState[computedProp.action] = computedProp.defaultValue
       if (!computedProp.preventReset) resetKeys.add(computedProp.action)
     }
@@ -235,20 +186,6 @@ export const addInputActionMapping = (inputSet: ActionSets, mapping: InputAction
   const inputComponent = getComponent(SceneManager.instance.editorEntity, InputComponent)
   inputComponent.mappings.set(inputSet, mapping)
   updateInputActionMapping()
-}
-
-export const resetActionState = (): void => {
-  const inputComponent = getComponent(SceneManager.instance.editorEntity, InputComponent)
-  inputComponent.resetKeys.forEach((key: ActionKey) => {
-    const actionState = inputComponent.state[key]
-    const initialActionState = inputComponent.defaultState[key]
-    // BUG: this.defaultState might not be correct
-    if (typeof actionState === 'object' && typeof inputComponent.defaultState === 'object') {
-      inputComponent.state[key] = Object.assign(inputComponent.state[key] ?? {}, initialActionState)
-    } else {
-      inputComponent.state[key] = initialActionState
-    }
-  })
 }
 
 export const removeInputActionMapping = (inputSet: ActionSets): void => {

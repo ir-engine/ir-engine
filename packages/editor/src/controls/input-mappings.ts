@@ -1,3 +1,5 @@
+import { getInput } from '../functions/parseInputActionMapping'
+
 /** Mouse Button key codes */
 export const MouseButtons = [
   'left' as const,
@@ -107,7 +109,7 @@ export type Action = {
 
 export type InputMapping = { [key: string | MouseInput]: Action }
 export type ComputedInputMapping = {
-  transform: (input: any) => any
+  transform: () => any
   action: ActionKey
   defaultValue?: any
   preventReset?: boolean
@@ -160,19 +162,19 @@ export const FlyMapping: InputActionMapping = {
   },
   computed: [
     {
-      transform: (input) => input.get(FlyActionSet.moveRight) - input.get(FlyActionSet.moveLeft),
+      transform: () => getInput(FlyActionSet.moveRight) - getInput(FlyActionSet.moveLeft),
       action: FlyActionSet.moveX,
       preventReset: true,
       defaultValue: 0
     },
     {
-      transform: (input) => input.get(FlyActionSet.moveUp) - input.get(FlyActionSet.moveDown),
+      transform: () => getInput(FlyActionSet.moveUp) - getInput(FlyActionSet.moveDown),
       action: FlyActionSet.moveY,
       preventReset: true,
       defaultValue: 0
     },
     {
-      transform: (input) => input.get(FlyActionSet.moveBackward) - input.get(FlyActionSet.moveForward),
+      transform: () => getInput(FlyActionSet.moveBackward) - getInput(FlyActionSet.moveForward),
       action: FlyActionSet.moveZ,
       preventReset: true,
       defaultValue: 0

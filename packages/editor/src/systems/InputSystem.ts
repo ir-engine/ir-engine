@@ -16,7 +16,7 @@ export default async function InputSystem(_: World): Promise<System> {
       if (!computed) return
 
       for (let i = 0; i < computed.length; i++) {
-        inputComponent.actionState[computed[i].action] = computed[i].transform(this)
+        inputComponent.actionState[computed[i].action] = computed[i].transform()
       }
     }
   }
