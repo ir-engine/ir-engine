@@ -37,6 +37,33 @@ export class S3Provider implements StorageProviderInterface {
     return this
   }
 
+  waitForBucketExistence = async (): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      this.provider.headBucket({ Bucket: this.bucket }, (err, data) => {
+        if (err) {
+          console.log('Bucket', this.bucket, 'does not exist, something is probably configured wrong')
+          console.error(err)
+          reject(err)
+        } else {
+          this.provider.waitFor(
+            'bucketExists',
+            {
+              Bucket: this.bucket
+            },
+            (err, data) => {
+              if (err) {
+                console.log('Waiting for bucket to exist failed', err)
+                reject(err)
+              } else {
+                resolve(null)
+              }
+            }
+          )
+        }
+      })
+    })
+  }
+
   checkObjectExistence = (key: string): Promise<any> => {
     return new Promise((resolve, reject) => {
       this.provider.getObjectAcl(
@@ -47,7 +74,13 @@ export class S3Provider implements StorageProviderInterface {
         (err, data) => {
           if (err) {
             if (err.code === 'NoSuchKey') resolve(null)
-            else {
+            else if (err.code === 'NoSuchBucket') {
+              this.waitForBucketExistence()
+                .then(() => {
+                  this.checkObjectExistence(key).then((result) => resolve(result))
+                })
+                .catch((err) => reject(err))
+            } else {
               console.error(err)
               reject(err)
             }
@@ -68,8 +101,16 @@ export class S3Provider implements StorageProviderInterface {
         },
         (err, data) => {
           if (err) {
-            console.error(err)
-            reject(err)
+            if (err.code === 'NoSuchBucket') {
+              this.waitForBucketExistence()
+                .then(() => {
+                  this.getObject(key).then((result) => resolve(result))
+                })
+                .catch((err) => reject(err))
+            } else {
+              console.error(err)
+              reject(err)
+            }
           } else {
             resolve({
               Body: data.Body as Buffer,
@@ -90,8 +131,16 @@ export class S3Provider implements StorageProviderInterface {
         },
         (err, data) => {
           if (err) {
-            console.log('Error:' + err)
-            reject(err)
+            if (err.code === 'NoSuchBucket') {
+              this.waitForBucketExistence()
+                .then(() => {
+                  this.getObjectContentType(key).then((result) => resolve(result))
+                })
+                .catch((err) => reject(err))
+            } else {
+              console.log('Error:' + err)
+              reject(err)
+            }
           } else {
             resolve(data.ContentType)
           }
@@ -110,8 +159,16 @@ export class S3Provider implements StorageProviderInterface {
         },
         (err, data) => {
           if (err) {
-            console.error(err)
-            reject(err)
+            if (err.code === 'NoSuchBucket') {
+              this.waitForBucketExistence()
+                .then(() => {
+                  this.listObjects(prefix, recursive).then((result) => resolve(result))
+                })
+                .catch((err) => reject(err))
+            } else {
+              console.error(err)
+              reject(err)
+            }
           } else {
             resolve(data as StorageListObjectInterface)
           }
@@ -132,8 +189,16 @@ export class S3Provider implements StorageProviderInterface {
         },
         (err, data) => {
           if (err) {
-            console.error(err)
-            reject(err)
+            if (err.code === 'NoSuchBucket') {
+              this.waitForBucketExistence()
+                .then(() => {
+                  this.putObject(params).then((result) => resolve(result))
+                })
+                .catch((err) => reject(err))
+            } else {
+              console.error(err)
+              reject(err)
+            }
           } else {
             resolve(data)
           }
