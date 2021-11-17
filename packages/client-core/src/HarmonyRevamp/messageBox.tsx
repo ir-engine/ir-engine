@@ -144,7 +144,7 @@ const MessageBox: React.FunctionComponent = () => {
     <>
       <div
         className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.p2} ${
-          !darkMode ? classes.bgLight : classes.bgDarkLight
+          !darkMode ? classes.bgLight : classes.bgDarkLight1
         }`}
       >
         <h2 className={darkMode ? classes.white : classes.textBlack}>{selfUser?.name}</h2>
@@ -163,7 +163,7 @@ const MessageBox: React.FunctionComponent = () => {
                           <Avatar src={message.sender?.avatarUrl} />
                         )}
                         {index === 0 && <Avatar src={message.sender?.avatarUrl} />}
-                        <div className={`${classes.bgBlack} ${classes.mx2}`} onClick={(e) => handleClick(e)}>
+                        <div className={`${classes.bgBlack} ${classes.mx2}`}>
                           <p>{message.text}</p>
                         </div>
                       </div>

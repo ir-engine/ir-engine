@@ -119,6 +119,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     btnDark: {
       backgroundColor: '#232424'
     },
+    textBlack: {
+      color: '#3F3960'
+    },
     btn: {
       textDecoration: 'none',
       color: '#935CFF',
@@ -204,7 +207,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       padding: '5px 10px',
       borderRadius: '30px'
     },
-    bgDarkLight: {
+    bgDarkLight1: {
       backgroundColor: '#1B1C1D'
     },
     p2: {

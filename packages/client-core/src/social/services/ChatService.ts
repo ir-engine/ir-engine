@@ -345,20 +345,24 @@ export const ChatService = {
   updateChatTarget: async (targetObjectType: string, targetObject: any) => {
     const dispatch = useDispatch()
     {
-      const targetChannelResult = await client.service('channel').find({
-        query: {
-          findTargetId: true,
-          targetObjectType: targetObjectType,
-          targetObjectId: targetObject.id
-        }
-      })
-      dispatch(
-        ChatAction.setChatTarget(
-          targetObjectType,
-          targetObject,
-          targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
+      if (!targetObject) {
+        dispatch(ChatAction.setChatTarget(targetObjectType, targetObject, ''))
+      } else {
+        const targetChannelResult = await client.service('channel').find({
+          query: {
+            findTargetId: true,
+            targetObjectType: targetObjectType,
+            targetObjectId: targetObject.id
+          }
+        })
+        dispatch(
+          ChatAction.setChatTarget(
+            targetObjectType,
+            targetObject,
+            targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
+          )
         )
-      )
+      }
     }
   },
   clearChatTargetIfCurrent: async (targetObjectType: string, targetObject: any) => {
