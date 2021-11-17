@@ -238,11 +238,35 @@ const MessageBox: React.FunctionComponent = () => {
               )
             })}
           </div>
-          <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter}`}>
-            <label htmlFor="icon-button-file">
-              <Input accept="image/*" id="icon-button-file" type="file" />
-              <IconButton aria-label="upload picture" component="span">
-                <AttachFile className={darkMode ? classes.white : classes.textBlack} />
+          <div
+            className={`${classes.dFlex} ${classes.borderRadius} ${classes.justifyContentBetween} ${
+              darkMode ? classes.darkBg : classes.bgLight
+            }`}
+          >
+            <div className={`${classes.dFlex} ${classes.flexGrow} ${classes.alignCenter}`}>
+              <Avatar src={selfUser.avatarUrl} />
+              <textarea
+                className={`${classes.formControl} ${classes.inPad}`}
+                placeholder="Your message"
+                value={composingMessage}
+                onKeyPress={(e) => {
+                  if (e.shiftKey === false && e.charCode === 13) {
+                    e.preventDefault()
+                    packageMessage()
+                  }
+                }}
+                onChange={composingMessageChangedHandler}
+              ></textarea>
+            </div>
+            <div className={`${classes.dFlex} ${classes.alignCenter}`}>
+              <label htmlFor="icon-button-file">
+                <Input accept="image/*" id="icon-button-file" type="file" />
+                <IconButton aria-label="upload picture" component="span">
+                  <AttachFile className={darkMode ? classes.white : classes.textBlack} />
+                </IconButton>
+              </label>
+              <IconButton onClick={packageMessage} component="span">
+                <Send className={darkMode && classes.white} />
               </IconButton>
             </label>
             <div className={`${classes.flexGrow} ${darkMode ? classes.darkBg : classes.bgLight}`}>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Add, Close, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
 import { AddCircleOutline, Check } from '@mui/icons-material'
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
@@ -21,6 +21,7 @@ import Friends from './Friends'
 import Group from './Group'
 import Party from './Party'
 import { useHarmonyStyles } from '../style'
+import ModeContext from '../context/modeContext'
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props
@@ -50,6 +51,7 @@ function a11yProps(index) {
 }
 
 const Index = ({ invite }) => {
+  const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [value, setValue] = React.useState(invite === 'Group' ? 2 : 0)
 
@@ -61,7 +63,7 @@ const Index = ({ invite }) => {
 
   return (
     <div>
-      <div className={classes.bgModal} style={{ height: '60vh' }}>
+      <div className={darkMode ? classes.bgModal : classes.bgModalLight} style={{ height: '60vh' }}>
         <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
           <AddCircleOutline />
           &nbsp;&nbsp;&nbsp;&nbsp;

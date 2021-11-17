@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
+import ModeContext from '../context/modeContext'
 import { useHarmonyStyles } from '../style'
 
 const Party = () => {
+  const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const inviteState = useInviteState()
   const [userToken, setUserToken] = useState('')
@@ -37,30 +39,36 @@ const Party = () => {
         <a
           href="#"
           onClick={() => setType('email')}
-          className={`${type === 'email' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2}`}
+          className={`${type === 'email' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+            classes.roundedCircle
+          } ${classes.mx2}`}
         >
           <span>Email</span>
         </a>
         <a
           href="#"
           onClick={() => setType('phone')}
-          className={`${type === 'phone' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2}`}
+          className={`${type === 'phone' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+            classes.roundedCircle
+          } ${classes.mx2}`}
         >
           <span>Phone</span>
         </a>
         <a
           href="#"
           onClick={() => setType('code')}
-          className={`${type === 'code' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${classes.mx2}`}
+          className={`${type === 'code' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+            classes.roundedCircle
+          } ${classes.mx2}`}
         >
           <span>Invite Code</span>
         </a>
         <a
           href="#"
           onClick={() => setType('friends')}
-          className={`${type === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-            classes.mx2
-          }`}
+          className={`${type === 'friends' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+            classes.roundedCircle
+          } ${classes.mx2}`}
         >
           <span>Friends</span>
         </a>
@@ -73,14 +81,22 @@ const Party = () => {
               <label htmlFor="" className={classes.mx2}>
                 <p>Email:</p>
               </label>
-              <input type="text" className={classes.formControls} placeholder="Your@domain.com" />
+              <input
+                type="text"
+                className={darkMode ? classes.formControls : classes.formControlsLight}
+                placeholder="Your@domain.com"
+              />
             </div>
           ) : type === 'phone' ? (
             <div className="form-group">
               <label htmlFor="">
                 <p>Phone:</p>
               </label>
-              <input type="text" className={classes.formControls} placeholder="078XXXXXXX" />
+              <input
+                type="text"
+                className={darkMode ? classes.formControls : classes.formControlsLight}
+                placeholder="078XXXXXXX"
+              />
             </div>
           ) : (
             <div className="form-group">
@@ -88,9 +104,8 @@ const Party = () => {
                 <p>Code:</p>
               </label>
               <input
-                onChange={handleUserTokenChange}
                 type="text"
-                className={classes.formControls}
+                className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="XXXXXX"
               />
             </div>
