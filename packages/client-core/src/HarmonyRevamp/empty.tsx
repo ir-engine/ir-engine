@@ -7,7 +7,7 @@ const Empty = () => {
 
   return (
     <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.justifyCenter} ${classes.h100}`}>
-      <img src={image} alt="" />
+      <img style={{ maxWidth: '60%' }} src={image} alt="" />
       {/* <h1>Empty Box</h1> */}
     </div>
   )

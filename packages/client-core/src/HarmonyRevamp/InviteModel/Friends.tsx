@@ -1,9 +1,36 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import { useHarmonyStyles } from '../style'
 
 const Friends = () => {
   const classes = useHarmonyStyles()
+  const inviteState = useInviteState()
+  const [userToken, setUserToken] = useState('')
   const [type, setType] = React.useState('email')
+
+  const handleUserTokenChange = (event: any): void => {
+    console.log(event.target.value, 'zzzzzzzzzzzzzzzzzzzzzzzzztettttee')
+    setUserToken(event.target.value)
+  }
+
+  const packageInvite = async (event: any): Promise<void> => {
+    //const mappedIDProvider = identityProviderTabMap.get(tabIndex)
+    const mappedIDProvider = type
+    event.preventDefault()
+    const sendData = {
+      type: inviteState.targetObjectType.value === 'user' ? 'friend' : inviteState.targetObjectType.value,
+      token: mappedIDProvider !== 'code' ? userToken : null,
+      inviteCode: mappedIDProvider === 'code' ? userToken : null,
+      identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
+      targetObjectId: inviteState.targetObjectId.value,
+      invitee: mappedIDProvider !== 'code' ? userToken : null
+    }
+
+    InviteService.sendInvite(sendData)
+    //console.log(sendData)
+    setUserToken('')
+  }
+
   return (
     <React.Fragment>
       <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx2}`}>
@@ -50,11 +77,17 @@ const Friends = () => {
               <label htmlFor="">
                 <p>Code:</p>
               </label>
-              <input type="text" className={classes.formControls} placeholder="XXXXXX" />
+              <input
+                onChange={handleUserTokenChange}
+                type="text"
+                className={classes.formControls}
+                placeholder="XXXXXX"
+              />
             </div>
           )}
           <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
             <button
+              onClick={packageInvite}
               className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
             >
               Send
