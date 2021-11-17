@@ -8,6 +8,7 @@ import {
   MeshBasicMaterial,
   Object3D,
   PlaneGeometry,
+  RGBAFormat,
   Skeleton,
   SkinnedMesh,
   sRGBEncoding
@@ -96,11 +97,13 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
     if (object.isBone) object.visible = false
     setAvatarLayer(object)
 
-    if (typeof object.material !== 'undefined') {
-      // object.material = object.material.clone()
+    if (object.material) {
+      // Transparency fix
+      object.material.format = RGBAFormat
+
       materialList.push({
         id: object.uuid,
-        material: object.material.clone()
+        material: object.material
       })
       object.material = DissolveEffect.getDissolveTexture(object)
     }
