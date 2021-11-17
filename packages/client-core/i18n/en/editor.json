@@ -180,6 +180,7 @@
             "description": "A flat ground plane that extends into the distance.",
             "lbl-color": "Color",
             "lbl-receiveShadow": "Receive Shadow",
+            "lbl-generateNavmesh": "Generate Navmesh",
             "lbl-walkable": "Walkable"
         },
         "link": {

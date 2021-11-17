@@ -1,6 +1,5 @@
 import { Camera } from '@styled-icons/fa-solid'
 import React, { useState } from 'react'
-import { withTranslation } from 'react-i18next'
 import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
@@ -15,7 +14,6 @@ import { CommandManager } from '../../managers/CommandManager'
  */
 type CameraPropertiesNodeEditorPropTypes = {
   node?: any
-  t?: any
 }
 
 interface Props {
@@ -90,8 +88,8 @@ const projectionTypeSelect = [
  * @type {[component class]}
  */
 
-export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorPropTypes) {
-  const { node, t } = props
+export const CameraPropertiesNodeEditor = (props: CameraPropertiesNodeEditorPropTypes) => {
+  const { node } = props
   const [cameraMode, setCameraMode] = useState(node.cameraMode) as any
 
   // function to handle changes in payloadName property
@@ -248,6 +246,5 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
 }
 
 CameraPropertiesNodeEditor.iconComponent = Camera
-CameraPropertiesNodeEditor.description = 'For changing scene camera properties'
 
-export default withTranslation()(CameraPropertiesNodeEditor)
+export default CameraPropertiesNodeEditor
