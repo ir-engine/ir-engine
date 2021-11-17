@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Avatar, IconButton, Container } from '@mui/material'
 import { AttachFile, LocalPhone, PhotoCamera, Send } from '@material-ui/icons'
 import { useHarmonyStyles } from './style'
@@ -7,6 +7,7 @@ import { ChatService } from '@xrengine/client-core/src/social/services/ChatServi
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Message } from '@xrengine/common/src/interfaces/Message'
+import ModeContext from './context/modeContext'
 
 const Input = styled('input')({
   display: 'none'
@@ -14,7 +15,7 @@ const Input = styled('input')({
 
 const MessageBox: React.FunctionComponent = () => {
   const [composingMessage, setComposingMessage] = useState('')
-
+  const { darkMode } = useContext(ModeContext)
   const chatState = useChatState()
   const selfUser = useAuthState().user.value
   const channelState = chatState.channels
@@ -64,9 +65,13 @@ const MessageBox: React.FunctionComponent = () => {
   }
   return (
     <>
-      <div className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.p2}`}>
-        <h2>{selfUser?.name}</h2>
-        <LocalPhone fontSize="small" />
+      <div
+        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.p2} ${
+          !darkMode ? classes.bgLight : classes.bgDarkLight
+        }`}
+      >
+        <h2 className={darkMode ? classes.white : classes.textBlack}>{selfUser?.name}</h2>
+        <LocalPhone fontSize="small" className={darkMode ? classes.white : classes.textBlack} />
       </div>
       <Container>
         <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h100}`}>
@@ -108,10 +113,10 @@ const MessageBox: React.FunctionComponent = () => {
             <label htmlFor="icon-button-file">
               <Input accept="image/*" id="icon-button-file" type="file" />
               <IconButton aria-label="upload picture" component="span">
-                <AttachFile className={classes.white} />
+                <AttachFile className={darkMode ? classes.white : classes.textBlack} />
               </IconButton>
             </label>
-            <div className={classes.flexGrow}>
+            <div className={`${classes.flexGrow} ${darkMode ? classes.darkBg : classes.bgLight}`}>
               <div className={`${classes.dFlex} ${classes.alignCenter}`}>
                 <Avatar src={selfUser.avatarUrl} />
                 <textarea
@@ -129,7 +134,7 @@ const MessageBox: React.FunctionComponent = () => {
               </div>
             </div>
             <IconButton onClick={packageMessage} component="span">
-              <Send className={classes.white} />
+              <Send className={darkMode && classes.white} />
             </IconButton>
           </div>
         </div>

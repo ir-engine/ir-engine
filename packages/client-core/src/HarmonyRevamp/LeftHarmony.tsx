@@ -1,5 +1,5 @@
 import { Add, Close, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
-import { AddCircleOutline, Check, Settings } from '@mui/icons-material'
+import { AddCircleOutline, Check, PhotoCamera, Settings } from '@mui/icons-material'
 import {
   Badge,
   Container,
@@ -16,6 +16,7 @@ import {
   Avatar,
   Box,
   Drawer,
+  Switch,
   Tabs,
   Tab
 } from '@mui/material'
@@ -34,6 +35,7 @@ import * as React from 'react'
 import InviteHarmony from './InviteHarmony'
 import { useHarmonyStyles } from './style'
 import InviteModel from './InviteModel'
+import ModeContext from './context/modeContext'
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props
@@ -63,6 +65,8 @@ function a11yProps(index) {
 }
 
 const LeftHarmony: React.FunctionComponent = () => {
+  const { darkMode, setDarkMode } = React.useContext(ModeContext)
+  const [checked, setChecked] = React.useState(true)
   const classes = useHarmonyStyles()
   const [show, setShow] = React.useState(false)
   const [create, setCreate] = React.useState(false)
@@ -99,8 +103,9 @@ const LeftHarmony: React.FunctionComponent = () => {
   const party = usePartyState().party?.value
   const currentLocation = useLocationState().currentLocation.location
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue)
+  const handleChange = (event) => {
+    setDarkMode(!darkMode)
+    setChecked(event.target.checked)
   }
 
   const handleClickOpen = () => {
@@ -178,7 +183,7 @@ const LeftHarmony: React.FunctionComponent = () => {
       <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h100}`}>
         <div>
           <div className={`${classes.dFlex} ${classes.justifyContentBetween}`}>
-            <h4>Chats</h4>
+            <h4 className={darkMode ? classes.white : classes.textBlack}>Chats</h4>
             <div className={`${classes.dFlex} ${classes.alignCenter}`}>
               <IconButton color="primary" component="span" onClick={handleClickOpen}>
                 <Badge color="secondary" variant={showNot ? 'dot' : ''}>
@@ -197,45 +202,45 @@ const LeftHarmony: React.FunctionComponent = () => {
             <a
               href="#"
               onClick={() => setChat('party')}
-              className={`${chat === 'party' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'party' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Party</span>
             </a>
             <a
               href="#"
               onClick={() => setChat('friends')}
-              className={`${chat === 'friends' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'friends' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Friends</span>
             </a>
             <a
               href="#"
               onClick={() => setChat('group')}
-              className={`${chat === 'group' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'group' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Group</span>
             </a>
             <a
               href="#"
               onClick={() => setChat('layer')}
-              className={`${chat === 'layer' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${chat === 'layer' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Layer</span>
             </a>
             <a
               href="#"
               onClick={() => setChat('instance')}
-              className={`${chat === 'instance' ? classes.bgPrimary : classes.border} ${classes.roundedCircle} ${
-                classes.mx2
-              }`}
+              className={`${
+                chat === 'instance' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight
+              } ${classes.roundedCircle} ${classes.mx2}`}
             >
               <span>Instance</span>
             </a>
@@ -245,7 +250,11 @@ const LeftHarmony: React.FunctionComponent = () => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" className={`${classes.my2} ${classes.btn}`} onClick={handleCreate}>
+                <a
+                  href="#"
+                  className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
+                  onClick={handleCreate}
+                >
                   INVITE FRIENDS
                 </a>
               </div>
@@ -298,8 +307,8 @@ const LeftHarmony: React.FunctionComponent = () => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" className={`${classes.my2} ${classes.btn}`}>
-                  CREATE PARTY
+                <a href="#" className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}>
+                  <b>CREATE PARTY</b>
                 </a>
               </div>
               {party &&
@@ -338,8 +347,12 @@ const LeftHarmony: React.FunctionComponent = () => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" onClick={toggleDrawer('right', true)} className={`${classes.my2} ${classes.btn}`}>
-                  CREATE GROUP
+                <a
+                  href="#"
+                  onClick={toggleDrawer('right', true)}
+                  className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
+                >
+                  <b>CREATE GROUP</b>
                 </a>
                 <Drawer anchor={'right'} open={state['right']} onClose={toggleDrawer('right', false)}>
                   <Container className={classes.bgDark} style={{ height: '100vh', overflowY: 'scroll' }}>
@@ -490,14 +503,24 @@ const LeftHarmony: React.FunctionComponent = () => {
             </>
           )}
         </div>
-        <div>
-          <div className={`${classes.dFlex} ${classes.box} ${classes.mx2}`}>
+        <div
+          className={`${classes.dFlex} ${classes.justifyContentBetween} ${
+            darkMode ? classes.darkBg : classes.whiteBg
+          } ${classes.mx2}`}
+        >
+          <div className={`${classes.dFlex} ${classes.box}`}>
             <Avatar src="./Avatar.png" />
             <div className={classes.mx2}>
-              <h4 className={classes.fontBig}>Dwark Matths</h4>
-              <small className={classes.textMuted}>You:</small>
-              <small className={classes.textMuted}>UX Consulting</small>
+              <h4 className={`${classes.fontBig} ${darkMode && classes.white}`}>Dwark Matths</h4>
+              <small className={`${classes.textMuted} ${darkMode && classes.white}`}>You:</small>
+              <small className={`${classes.textMuted} ${darkMode && classes.white}`}>UX Consulting</small>
             </div>
+          </div>
+          <div className={`${classes.dFlex} ${classes.alignCenter}`}>
+            <Switch checked={checked} onChange={handleChange} inputProps={{ 'aria-label': 'controlled' }} />
+            <IconButton aria-label="upload picture" component="span">
+              <Settings className={darkMode && classes.white} />
+            </IconButton>
           </div>
         </div>
       </div>
