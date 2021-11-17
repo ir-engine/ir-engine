@@ -73,7 +73,9 @@ export class Channel extends Service {
             ]
           },
           {
-            model: this.app.service('message').Model
+            model: this.app.service('message').Model,
+            limit: 20,
+            order: [['createdAt', 'DESC']]
           }
         ],
         where: {
