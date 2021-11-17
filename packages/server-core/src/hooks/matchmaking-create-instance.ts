@@ -8,17 +8,24 @@ export default (): Hook => {
     console.log('assignment HOOK!', result)
     const identityProvider = params['identity-provider']
     const connection = result?.connection
+    const gameMode = result?.extensions?.GameMode.value
     // context.params.connection
-    if (!connection) {
+    if (!connection || !gameMode) {
       // throw error?!
-      throw new Error('Unexpected response from match finder')
+      throw new Error('Unexpected response from match finder. ' + JSON.stringify(result))
     }
 
+    const locationName = 'game-' + gameMode
     const location = await app.service('location').find({
       query: {
-        name: 'ctf'
+        name: locationName
       }
     })
+    if (!location.data.length) {
+      // throw error?!
+      throw new Error(`Location for match type '${gameMode}'(${locationName}) is not found.`)
+    }
+
     const freeInstance = await getFreeGameserver(app as Application, false)
     try {
       const existingInstance = await app.service('instance').find({
@@ -55,7 +62,7 @@ export default (): Hook => {
       })
 
       context.result.instanceId = instanceId
-      context.result.locationName = 'ctf'
+      context.result.locationName = locationName
     } catch (e) {
       console.log('matchmaking instance create error', e)
       // TODO: check error? skip?
