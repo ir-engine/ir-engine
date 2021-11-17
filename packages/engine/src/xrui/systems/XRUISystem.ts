@@ -31,7 +31,7 @@ export default async function XRUISystem(world: World): Promise<System> {
   const redirectDOMEvent = (evt) => {
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).layer
-      const hit = layer.hitTest(xrui.interactionRays[0])
+      const hit = layer.hitTest(screenRaycaster.ray)
       if (hit) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
         hit.target.focus()
@@ -116,7 +116,7 @@ export default async function XRUISystem(world: World): Promise<System> {
 
     for (const entity of localXRInputQuery.enter()) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      xrui.interactionRays.push(xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight)
+      xrui.interactionRays = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
     }
 
     for (const entity of localXRInputQuery()) {
@@ -125,7 +125,7 @@ export default async function XRUISystem(world: World): Promise<System> {
     }
 
     for (const entity of localXRInputQuery.exit()) {
-      xrui.interactionRays.splice(1, 2)
+      xrui.interactionRays = [screenRaycaster.ray]
     }
 
     for (const entity of xruiQuery()) {
