@@ -250,7 +250,6 @@ const ViewLocation = (props: Props) => {
                   onChange={handleInputChange}
                 />
               </Paper>
-
               <label>Scene</label>
               <Paper
                 component="div"
