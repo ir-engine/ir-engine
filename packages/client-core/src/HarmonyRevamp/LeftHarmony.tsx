@@ -16,6 +16,7 @@ import {
   Avatar,
   Box,
   Drawer,
+  Switch,
   Tabs,
   Tab
 } from '@mui/material'
@@ -38,13 +39,16 @@ import GroupMembers from './Group/GroupMember'
 import CreateGroup from './Group/CreateGroup'
 import { AnyContext } from '@hookstate/core'
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
+import ModeContext from './context/modeContext'
 
 interface Props {
   setShowChat: AnyContext
 }
 
-const LeftHarmony = (props: Props) => {
+const LeftHarmony: React.FunctionComponent = (props: Props) => {
   const { setShowChat } = props
+  const { darkMode, setDarkMode } = React.useContext(ModeContext)
+  const [checked, setChecked] = React.useState(true)
   const classes = useHarmonyStyles()
   const [show, setShow] = React.useState(false)
   const [create, setCreate] = React.useState(false)
@@ -116,8 +120,9 @@ const LeftHarmony = (props: Props) => {
   const party = usePartyState().party?.value
   const currentLocation = useLocationState().currentLocation.location
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue)
+  const handleChange = (event) => {
+    setDarkMode(!darkMode)
+    setChecked(event.target.checked)
   }
 
   const handleClickOpen = () => {
@@ -224,7 +229,7 @@ const LeftHarmony = (props: Props) => {
       <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h1002}`}>
         <div>
           <div className={`${classes.dFlex} ${classes.justifyContentBetween}`}>
-            <h4>Chats</h4>
+            <h4 className={darkMode ? classes.white : classes.textBlack}>Chats</h4>
             <div className={`${classes.dFlex} ${classes.alignCenter}`}>
               <IconButton color="primary" component="span" onClick={handleClickOpen}>
                 <Badge color="secondary" variant={showNot ? 'dot' : ''}>
@@ -311,7 +316,11 @@ const LeftHarmony = (props: Props) => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" className={`${classes.my2} ${classes.btn}`} onClick={handleCreate}>
+                <a
+                  href="#"
+                  className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
+                  onClick={handleCreate}
+                >
                   INVITE FRIENDS
                 </a>
               </div>
@@ -415,8 +424,8 @@ const LeftHarmony = (props: Props) => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" className={`${classes.my2} ${classes.btn}`}>
-                  CREATE PARTY
+                <a href="#" className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}>
+                  <b>CREATE PARTY</b>
                 </a>
               </div>
               {party &&
@@ -596,8 +605,12 @@ const LeftHarmony = (props: Props) => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" onClick={toggleDrawer('right', true)} className={`${classes.my2} ${classes.btn}`}>
-                  CREATE GROUP
+                <a
+                  href="#"
+                  onClick={toggleDrawer('right', true)}
+                  className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
+                >
+                  <b>CREATE GROUP</b>
                 </a>
                 <Drawer anchor={'right'} open={state['right']} onClose={toggleDrawer('right', false)}>
                   <Container className={classes.bgDark} style={{ height: '100vh', overflowY: 'scroll' }}>
@@ -768,6 +781,12 @@ const LeftHarmony = (props: Props) => {
               <small className={classes.textMuted}>You are:</small>
               <small className={classes.textMuted}>{selfUser.userRole}</small>
             </div>
+          </div>
+          <div className={`${classes.dFlex} ${classes.alignCenter}`}>
+            <Switch checked={checked} onChange={handleChange} inputProps={{ 'aria-label': 'controlled' }} />
+            <IconButton aria-label="upload picture" component="span">
+              <Settings className={darkMode && classes.white} />
+            </IconButton>
           </div>
         </div>
       </div>

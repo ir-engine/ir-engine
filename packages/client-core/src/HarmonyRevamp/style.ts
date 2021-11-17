@@ -8,16 +8,22 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       height: '100vh',
       backgroundColor: '#161819'
     },
+    darkBg: {
+      backgroundColor: '#232424'
+    },
     bgPrimary: {
       backgroundColor: '#935CFF',
       padding: '7px 18px'
     },
-    rightGrid: {
+    GridDark: {
       backgroundColor: '#181A1C',
       paddingTop: '50px'
     },
-    leftGrid: {
-      backgroundColor: '#181A1C',
+    bgLight: {
+      backgroundColor: '#EBEDEF'
+    },
+    GridLight: {
+      backgroundColor: '#E3E5E8',
       padding: '50px 0px'
     },
     dFlex: {
@@ -63,13 +69,22 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       borderRadius: 80,
       textDecoration: 'none'
     },
+    textBlack: {
+      color: '#000'
+    },
     border: {
       border: '1px dashed #FFF',
       padding: '7px 18px'
     },
+    borderLight: {
+      border: '1px dashed #787589',
+      padding: '7px 18px',
+      color: '#787589'
+    },
     fontBig: {
       fontSize: 15,
-      marginBottom: '5px'
+      marginBottom: '5px',
+      color: '#000'
     },
     textMuted: {
       fontSize: 12,
@@ -98,7 +113,6 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#ccc'
     },
     box: {
-      backgroundColor: '#232424',
       padding: '13px 16px',
       borderRadius: '5px'
     },
@@ -106,10 +120,12 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       justifyContent: 'center'
     },
+    btnDark: {
+      backgroundColor: '#232424'
+    },
     btn: {
       textDecoration: 'none',
       color: '#935CFF',
-      backgroundColor: '#232424',
       borderRadius: '30px',
       border: 0,
       padding: '12px 24px',
@@ -160,7 +176,6 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     flexGrow: {
       flexGrow: 1,
-      backgroundColor: '#232424',
       margin: '0px 8px',
       padding: '8px 10px',
       borderRadius: '30px'
@@ -189,8 +204,10 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       padding: '5px 10px',
       borderRadius: '30px'
     },
+    bgDarkLight: {
+      backgroundColor: '#1B1C1D'
+    },
     p2: {
-      backgroundColor: '#1B1C1D',
       padding: '28px 17px'
     },
     p4: {

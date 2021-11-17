@@ -6,12 +6,14 @@ import MessageBox from './messageBox'
 import RightHarmony from './RightHarmony'
 import Empty from './empty'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import ModeContext from './context/modeContext'
 
 // interface IndexProps {
 
 // }
 
 const Index = () => {
+  const { darkMode } = React.useContext(ModeContext)
   const classes = useHarmonyStyles()
   const chatState = useChatState()
   const targetChannelId = chatState.targetChannelId.value
@@ -27,7 +29,7 @@ const Index = () => {
         {!showChat && <Empty />}
         {showChat && targetChannelId && <MessageBox />}
       </Grid>
-      <Grid item xs={3} className={classes.leftGrid}>
+      <Grid item xs={3} className={darkMode ? classes.GridDark : classes.GridLight}>
         <Container>
           <RightHarmony />
         </Container>
