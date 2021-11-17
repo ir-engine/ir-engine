@@ -1,19 +1,17 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from '../properties/NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ImageInput from '../inputs/ImageInput'
 import Vector3Input from '../inputs/Vector3Input'
 import Vector2Input from '../inputs/Vector2Input'
 import { Cloud } from '@styled-icons/fa-solid/Cloud'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import ColorInput from '../inputs/ColorInput'
 import { CommandManager } from '../../managers/CommandManager'
 
 //declaring properties for CloudsNodeEditor
 type CloudsNodeEditorProps = {
   node: any
-  t: Function
 }
 
 /**
@@ -23,6 +21,8 @@ type CloudsNodeEditorProps = {
  * @type {class component}
  */
 export const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
+  const { t } = useTranslation()
+
   const onChangeProperty = (name: string) => {
     return (value) => {
       CommandManager.instance.setPropertyOnSelection(name, value)
@@ -30,12 +30,12 @@ export const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
   }
 
   return (
-    <NodeEditor {...props} description={props.t('editor:properties.clouds.description')}>
-      <InputGroup name="Image" label={props.t('editor:properties.clouds.lbl-image')}>
+    <NodeEditor {...props} description={t('editor:properties.clouds.description')}>
+      <InputGroup name="Image" label={t('editor:properties.clouds.lbl-image')}>
         <ImageInput value={props.node.texture} onChange={onChangeProperty('texture')} />
       </InputGroup>
 
-      <InputGroup name="World Scale" label={props.t('editor:properties.clouds.lbl-wroldScale')}>
+      <InputGroup name="World Scale" label={t('editor:properties.clouds.lbl-wroldScale')}>
         <Vector3Input
           value={props.node.worldScale}
           smallStep={0.01}
@@ -45,7 +45,7 @@ export const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
         />
       </InputGroup>
 
-      <InputGroup name="Dimensions" label={props.t('editor:properties.clouds.lbl-dimensions')}>
+      <InputGroup name="Dimensions" label={t('editor:properties.clouds.lbl-dimensions')}>
         <Vector3Input
           value={props.node.dimensions}
           smallStep={1}
@@ -55,7 +55,7 @@ export const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
         />
       </InputGroup>
 
-      <InputGroup name="Noise Zoom" label={props.t('editor:properties.clouds.lbl-noiseZoom')}>
+      <InputGroup name="Noise Zoom" label={t('editor:properties.clouds.lbl-noiseZoom')}>
         <Vector3Input
           value={props.node.noiseZoom}
           smallStep={0.01}
@@ -65,7 +65,7 @@ export const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
         />
       </InputGroup>
 
-      <InputGroup name="Noise Offset" label={props.t('editor:properties.clouds.lbl-noiseOffset')}>
+      <InputGroup name="Noise Offset" label={t('editor:properties.clouds.lbl-noiseOffset')}>
         <Vector3Input
           value={props.node.noiseOffset}
           smallStep={0.01}
@@ -75,15 +75,15 @@ export const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
         />
       </InputGroup>
 
-      <InputGroup name="Sprite Scale" label={props.t('editor:properties.clouds.lbl-spriteScale')}>
+      <InputGroup name="Sprite Scale" label={t('editor:properties.clouds.lbl-spriteScale')}>
         <Vector2Input value={props.node.spriteScaleRange} onChange={onChangeProperty('spriteScaleRange')} />
       </InputGroup>
 
-      <InputGroup name="Fog Color" label={props.t('editor:properties.clouds.lbl-fogColor')}>
+      <InputGroup name="Fog Color" label={t('editor:properties.clouds.lbl-fogColor')}>
         <ColorInput value={props.node.fogColor} onChange={onChangeProperty('fogColor')} disabled={false} />
       </InputGroup>
 
-      <InputGroup name="Fog Range" label={props.t('editor:properties.clouds.lbl-fogRange')}>
+      <InputGroup name="Fog Range" label={t('editor:properties.clouds.lbl-fogRange')}>
         <Vector2Input value={props.node.fogRange} onChange={onChangeProperty('fogRange')} />
       </InputGroup>
     </NodeEditor>
@@ -91,6 +91,5 @@ export const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
 }
 
 CloudsNodeEditor.iconComponent = Cloud
-CloudsNodeEditor.description = i18n.t('editor:properties.clouds.description')
 
-export default withTranslation()(CloudsNodeEditor)
+export default CloudsNodeEditor
