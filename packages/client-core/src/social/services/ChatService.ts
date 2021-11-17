@@ -214,6 +214,8 @@ export const accessChatState = () => state
 
 export const useChatState = () => useState(state) as any as typeof state
 
+globalThis.chatState = state
+
 //Service
 export const ChatService = {
   getChannels: async (skip?: number, limit?: number) => {
