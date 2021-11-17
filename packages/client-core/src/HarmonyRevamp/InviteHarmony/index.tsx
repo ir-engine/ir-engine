@@ -45,6 +45,7 @@ const InviteHarmony = (props: Props) => {
   ])
 
   const handleClickClose = () => {
+    setShowNot(false)
     setShow(false)
   }
 

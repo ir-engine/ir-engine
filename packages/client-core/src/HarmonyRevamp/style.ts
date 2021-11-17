@@ -146,7 +146,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       padding: '15px 0px'
     },
     bgDarkLight: {
-      backgroundColor: '#181A1C',
+      backgroundColor: '#3A3D40;',
       color: '#FFF',
       width: '8rem'
     },
@@ -290,6 +290,10 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     fontSizeSmall: {
       fontSize: '1rem'
+    },
+    textArea: {
+      width: '20rem',
+      margin: '1rem 2rem 1rem 0'
     }
   })
 )
