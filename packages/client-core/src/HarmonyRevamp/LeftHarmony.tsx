@@ -38,9 +38,10 @@ import { useHarmonyStyles } from './style'
 import InviteModel from './InviteModel'
 import GroupMembers from './Group/GroupMember'
 import CreateGroup from './Group/CreateGroup'
-import { AnyContext } from '@hookstate/core'
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
+import { PartyService } from '@xrengine/client-core/src/social/services/PartyService'
 import ModeContext from './context/modeContext'
+import Party from './party'
 
 interface Props {
   setShowChat: any
@@ -68,8 +69,8 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
   }
 
   const classes = useHarmonyStyles()
-  const {darkMode, setDarkMode} = React.useContext(ModeContext);
-  const [checked, setChecked] = React.useState(true);
+  const { darkMode, setDarkMode } = React.useContext(ModeContext)
+  const [checked, setChecked] = React.useState(true)
 
   const persed = queryString.parse(location.search)
   const history = useHistory()
@@ -80,17 +81,10 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
   const [type, setType] = React.useState('email')
   const [chat, setChat] = React.useState(persed['?channel'] ? persed['?channel'] : 'party')
   const [invite, setInvite] = React.useState('')
-  const [messageDeletePending, setMessageDeletePending] = React.useState('')
-  const [messageUpdatePending, setMessageUpdatePending] = React.useState('')
-  const [editingMessage, setEditingMessage] = React.useState('')
-  const [composingMessage, setComposingMessage] = React.useState('')
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [showNot, setShowNot] = React.useState(false)
   const [tabIndex, setTabIndex] = React.useState(0)
-  const [dimensions, setDimensions] = React.useState({
-    height: window.innerHeight,
-    width: window.innerWidth
-  })
+
   const [detailsType, setDetailsType] = React.useState('')
   const [state, setState] = React.useState({ right: false })
   const [openDrawer, setOpen] = React.useState(false)
@@ -202,6 +196,10 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
       setSelectedGroup(object)
       setGroupForm({ ...groupForm, name: object.name, description: object.description, id: object.id })
     }
+  }
+
+  const createNewParty = (): void => {
+    PartyService.createParty()
   }
 
   const handleClose = () => {
@@ -380,10 +378,11 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
               onClick={() => {
                 channelTypeChangeHandler('party')
                 setShowChat(false)
-                setActiveChat('party', {})
+                setActiveChat('party', null)
               }}
-              className={`${chat === 'party' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${classes.roundedCircle
-                } ${classes.mx2}`}
+              className={`${chat === 'party' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Party</span>
             </a>
@@ -392,10 +391,11 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
               onClick={() => {
                 channelTypeChangeHandler('friends')
                 setShowChat(false)
-                setActiveChat('friends', {})
+                setActiveChat('friends', null)
               }}
-              className={`${chat === 'friends' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${classes.roundedCircle
-                } ${classes.mx2}`}
+              className={`${chat === 'friends' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Friends</span>
             </a>
@@ -404,10 +404,11 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
               onClick={() => {
                 channelTypeChangeHandler('group')
                 setShowChat(false)
-                setActiveChat('group', {})
+                setActiveChat('group', null)
               }}
-              className={`${chat === 'group' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${classes.roundedCircle
-                } ${classes.mx2}`}
+              className={`${chat === 'group' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Group</span>
             </a>
@@ -416,10 +417,11 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
               onClick={() => {
                 channelTypeChangeHandler('layer')
                 setShowChat(false)
-                setActiveChat('layer', {})
+                setActiveChat('layer', null)
               }}
-              className={`${chat === 'layer' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${classes.roundedCircle
-                } ${classes.mx2}`}
+              className={`${chat === 'layer' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+                classes.roundedCircle
+              } ${classes.mx2}`}
             >
               <span>Layer</span>
             </a>
@@ -428,10 +430,11 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
               onClick={() => {
                 channelTypeChangeHandler('instance')
                 setShowChat(false)
-                setActiveChat('instance', {})
+                setActiveChat('instance', null)
               }}
-              className={`${chat === 'instance' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight
-                } ${classes.roundedCircle} ${classes.mx2}`}
+              className={`${
+                chat === 'instance' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight
+              } ${classes.roundedCircle} ${classes.mx2}`}
             >
               <span>Instance</span>
             </a>
@@ -457,12 +460,7 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                     .map((friend, index) => {
                       return (
                         <div key={friend.id}>
-                          <ListItem
-                            className={classes.cpointer}
-                            onClick={() => {
-                              setActiveChat('user', friend)
-                            }}
-                          >
+                          <ListItem className={classes.cpointer}>
                             <ListItemAvatar>
                               <Avatar src={friend.avatarUrl} />
                             </ListItemAvatar>
@@ -548,177 +546,22 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
           ) : (
             <>
               <div className={classes.center}>
-                <a href="#" className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}>
+                <a
+                  href="#"
+                  className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
+                  onClick={() => createNewParty()}
+                >
                   <b>CREATE PARTY</b>
                 </a>
               </div>
-              {party &&
-                party.length > 0 &&
-                [...party]
-                  .sort((a, b) => a.createdAt - b.createdAt)
-                  .map((part) => {
-                    return (
-                      <div
-                        key={part.id}
-                        className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}
-                      >
-                        <div
-                          onClick={() => {
-                            setActiveChat('party', part), setShowChat(true)
-                          }}
-                          className={`${classes.mx2} ${classes.flexGrow2}`}
-                        >
-                          <h4 className={classes.fontBig}>{part.name}</h4>
-                          <small className={classes.textMuted}>Party id: </small>
-                          <small className={classes.textMuted}>{part.instance?.ipAddress}</small>
-                        </div>
-
-                        <div>
-                          <a href="#" className={classes.border0} onClick={handleClick}>
-                            <MoreHoriz />
-                          </a>
-                          <Popover
-                            id={id}
-                            open={open}
-                            anchorEl={anchorEl}
-                            onClose={handleClose}
-                            anchorOrigin={{
-                              vertical: 'bottom',
-                              horizontal: 'right'
-                            }}
-                            transformOrigin={{
-                              vertical: 'center',
-                              horizontal: 'left'
-                            }}
-                          >
-                            <div className={classes.bgDark}>
-                              <MenuList sx={{ width: 210, maxWidth: '100%', borderRadius: 10 }}>
-                                <MenuItem className={classes.my2}>
-                                  <ListItemIcon>
-                                    <Forum fontSize="small" className={classes.info} />
-                                  </ListItemIcon>
-                                  <ListItemText>CHAT</ListItemText>
-                                </MenuItem>
-                                <MenuItem className={classes.my2}>
-                                  <ListItemIcon>
-                                    <Edit fontSize="small" className={classes.muted} />
-                                  </ListItemIcon>
-                                  <ListItemText>EDIT</ListItemText>
-                                </MenuItem>
-                                <MenuItem className={classes.my2}>
-                                  <ListItemIcon>
-                                    <GroupAdd fontSize="small" className={classes.success} />
-                                  </ListItemIcon>
-                                  <ListItemText>INVITE</ListItemText>
-                                </MenuItem>
-                                <MenuItem className={classes.my2}>
-                                  <ListItemIcon>
-                                    <Delete fontSize="small" className={classes.danger} />
-                                  </ListItemIcon>
-                                  <ListItemText>DELETE</ListItemText>
-                                </MenuItem>
-                              </MenuList>
-                              <div className={classes.center}>
-                                <a href="#" className={`${classes.my2} ${classes.btn}`}>
-                                  CREATE GROUP
-                                </a>
-                              </div>
-                            </div>
-                          </Popover>
-                        </div>
-                      </div>
-                    )
-                  })}
-            </>
-          )}
-          {chat !== 'group' ? (
-            ''
-          ) : (
-            <>
-              <div className={classes.center}>
-                <a href="#" className={`${classes.my2} ${classes.btn}`}>
-                  CREATE PARTY
-                </a>
-              </div>
-              {party &&
-                party.length > 0 &&
-                [...party]
-                  .sort((a, b) => a.createdAt - b.createdAt)
-                  .map((part) => {
-                    return (
-                      <div
-                        key={part.id}
-                        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
-                        onClick={() => {
-                          setActiveChat('party', part)
-                          if (dimensions.width <= 768) setSelectorsOpen(false)
-                        }}
-                      >
-                        <div className={classes.mx2}>
-                          <h4 className={classes.fontBig}>{part.name}</h4>
-                          <small className={classes.textMuted}>Party id:</small>
-                          <small className={classes.textMuted}>{part.id}</small>
-                        </div>
-                        <div className={classes.mx2}></div>
-
-                        
-
-                        <div>
-                          <a href="#" className={classes.border0} onClick={handleClick}>
-                            <MoreHoriz />
-                          </a>
-                          <Popover
-                            id={id}
-                            open={open}
-                            anchorEl={anchorEl}
-                            onClose={handleClose}
-                            anchorOrigin={{
-                              vertical: 'bottom',
-                              horizontal: 'right'
-                            }}
-                            transformOrigin={{
-                              vertical: 'center',
-                              horizontal: 'left'
-                            }}
-                          >
-                            <div className={classes.bgDark}>
-                              <MenuList sx={{ width: 210, maxWidth: '100%', borderRadius: 10 }}>
-                                <MenuItem className={classes.my2}>
-                                  <ListItemIcon>
-                                    <Forum fontSize="small" className={classes.info} />
-                                  </ListItemIcon>
-                                  <ListItemText>CHAT</ListItemText>
-                                </MenuItem>
-                                <MenuItem className={classes.my2}>
-                                  <ListItemIcon>
-                                    <Edit fontSize="small" className={classes.muted} />
-                                  </ListItemIcon>
-                                  <ListItemText>EDIT</ListItemText>
-                                </MenuItem>
-                                <MenuItem className={classes.my2}>
-                                  <ListItemIcon>
-                                    <GroupAdd fontSize="small" className={classes.success} />
-                                  </ListItemIcon>
-                                  <ListItemText>INVITE</ListItemText>
-                                </MenuItem>
-                                <MenuItem className={classes.my2}>
-                                  <ListItemIcon>
-                                    <Delete fontSize="small" className={classes.danger} />
-                                  </ListItemIcon>
-                                  <ListItemText>DELETE</ListItemText>
-                                </MenuItem>
-                              </MenuList>
-                              <div className={classes.center}>
-                                <a href="#" className={`${classes.my2} ${classes.btn}`}>
-                                  CREATE GROUP
-                                </a>
-                              </div>
-                            </div>
-                          </Popover>
-                        </div>
-                      </div>
-                    )
-                  })}
+              {party && party.length > 0 && (
+                <Party
+                  party={party}
+                  setActiveChat={setActiveChat}
+                  setShowChat={setShowChat}
+                  handleClick={handleClick}
+                />
+              )}
             </>
           )}
           {chat !== 'group' ? (
@@ -791,7 +634,7 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                     return (
                       <div
                         key={group.id}
-                        className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.my2} ${classes.cpointer}`}
+                        className={`${classes.dFlex} ${classes.alignCenter} ${classes.flexGrow2} ${classes.my2} ${classes.cpointer}`}
                         onClick={() => {
                           setActiveChat('user', group)
                           if (dimensions.width <= 768) setSelectorsOpen(false)
@@ -809,6 +652,7 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
                             <small className={classes.textMuted}>{group.description}</small>
                           </div>
                         </div>
+
                         <div>
                           <a href="#" className={classes.border0} onClick={(e) => openDetails(e, 'group', group)}>
                             <MoreHoriz />
@@ -915,11 +759,12 @@ const LeftHarmony: React.FunctionComponent = (props: Props) => {
           )}
         </div>
         <div
-          className={`${classes.dFlex} ${classes.justifyContentBetween} ${darkMode ? classes.darkBg : classes.whiteBg
-            } ${classes.mx2}`}
+          className={`${classes.dFlex} ${classes.justifyContentBetween} ${
+            darkMode ? classes.darkBg : classes.whiteBg
+          } ${classes.mx2}`}
         >
           <div className={`${classes.dFlex} ${classes.box}`}>
-            <Avatar src="./Avatar.png" />
+            <Avatar src={selfUser.avatarUrl} />
             <div className={classes.mx2}>
               <h4 className={classes.fontBig}>{selfUser.name}</h4>
               <small className={classes.textMuted}>You are:</small>

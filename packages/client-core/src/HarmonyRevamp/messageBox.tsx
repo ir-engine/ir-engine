@@ -142,7 +142,7 @@ const MessageBox: React.FunctionComponent = () => {
     <>
       <div
         className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.p2} ${
-          !darkMode ? classes.bgLight : classes.bgDarkLight
+          !darkMode ? classes.bgLight : classes.bgDarkLight1
         }`}
       >
         <h2 className={darkMode ? classes.white : classes.textBlack}>{selfUser?.name}</h2>
