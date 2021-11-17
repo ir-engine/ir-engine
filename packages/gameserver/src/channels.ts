@@ -22,7 +22,7 @@ const loadScene = async (app: Application, scene: string) => {
   const sceneData = sceneResult.data.scene as any // SceneData
   const packs = await getPacksFromSceneData(sceneData, false)
 
-  if (!Engine.isInitialized) await initializeServerEngine(packs.systems, app.isChannelInstance)
+  if (!Engine.isInitialized) await initializeServerEngine(packs, app.isChannelInstance)
   console.log('Initialized new gameserver instance')
 
   let entitiesLeft = -1

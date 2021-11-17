@@ -444,7 +444,11 @@
         },
         "scriptnode": {
             "description": "Attach script.",
-            "lbl-scripturl": "Script Url",
+            "lbl-filePath": "Url",
+            "lbl-systemUpdateType": "Injection Point",
+            "lbl-enableClient": "Client",
+            "lbl-enableServer": "Server",
+            "lbl-args": "Args",
             "error-url": "Error Loading Script From URL"
         },
         "portal": {

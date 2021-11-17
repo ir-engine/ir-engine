@@ -115,7 +115,7 @@ export const loadLocation = async (
 
   const packs = await getPacksFromSceneData(sceneData, true)
 
-  for (const system of packs.systems) {
+  for (const system of packs) {
     initOptions.systems?.push(system)
   }
 
