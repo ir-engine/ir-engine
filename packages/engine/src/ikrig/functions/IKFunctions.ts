@@ -161,9 +161,8 @@ function updatePoseBonesFromSkeleton(rig: IKRigComponentType): void {
     const bone = rig.pose.skeleton.bones[i]
     const pose = rig.pose.bones[i]
 
-    bone.getWorldPosition(pose.world.position)
-    bone.getWorldQuaternion(pose.world.quaternion)
-    bone.getWorldScale(pose.world.scale)
+    bone.updateWorldMatrix(true, false)
+    bone.matrixWorld.decompose(pose.world.position, pose.world.quaternion, pose.world.scale)
 
     worldToModel(pose.world.position, pose.world.quaternion, pose.world.scale, skeletonTransform)
 
@@ -449,12 +448,8 @@ export function applyLimb(
     scale: tempVec4
   }
 
-  bindBone.parent.getWorldPosition(parentTransform.position)
-  bindBone.parent.getWorldQuaternion(parentTransform.quaternion)
-  bindBone.parent.getWorldScale(parentTransform.scale)
-  bindBone.getWorldPosition(childTransform.position)
-  bindBone.getWorldQuaternion(childTransform.quaternion)
-  bindBone.getWorldScale(childTransform.scale)
+  //bindBone.parent.matrixWorld.decompose(parentTransform.position, parentTransform.quaternion, parentTransform.scale)
+  //bindBone.matrixWorld.decompose(childTransform.position, childTransform.quaternion, childTransform.scale)
 
   rig.pose.get_parent_world(chain.first(), parentTransform, childTransform)
 
