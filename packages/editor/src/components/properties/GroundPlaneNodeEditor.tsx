@@ -1,11 +1,10 @@
-import React, { Component } from 'react'
+import React, { useState, useCallback } from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
 import BooleanInput from '../inputs/BooleanInput'
 import { SquareFull } from '@styled-icons/fa-solid/SquareFull'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
 /**
@@ -26,46 +25,55 @@ type GroundPlaneNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export class GroundPlaneNodeEditor extends Component<GroundPlaneNodeEditorProps, {}> {
-  // setting icon component name
-  static iconComponent = SquareFull
+export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
+  const [, updateState] = useState()
+  const { t } = useTranslation()
 
-  // setting description will show on properties container
-  static description = i18n.t('editor:properties.groundPlane.description')
+  const forceUpdate = useCallback(() => updateState({}), [])
 
   //function handles the changes in color property
-  onChangeColor = (color) => {
+  const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelection('color', color)
+    forceUpdate()
+  }
+
+  const onChangeGenerateNavmesh = (generateNavmesh) => {
+    CommandManager.instance.setPropertyOnSelection('generateNavmesh', generateNavmesh)
+    forceUpdate()
   }
 
   //function handles the changes for receiveShadow property
-  onChangeReceiveShadow = (receiveShadow) => {
+  const onChangeReceiveShadow = (receiveShadow) => {
     CommandManager.instance.setPropertyOnSelection('receiveShadow', receiveShadow)
+    forceUpdate()
   }
 
   // function handles the changes in walkable property
-  onChangeWalkable = (walkable) => {
+  const onChangeWalkable = (walkable) => {
     CommandManager.instance.setPropertyOnSelection('walkable', walkable)
+    forceUpdate()
   }
 
-  //rendering GroundPlaneNode node customization view
-  render() {
-    GroundPlaneNodeEditor.description = this.props.t('editor:properties.groundPlane.description')
-    const node = this.props.node
-    return (
-      <NodeEditor {...this.props} description={GroundPlaneNodeEditor.description}>
-        <InputGroup name="Color" label={this.props.t('editor:properties.groundPlane.lbl-color')}>
-          <ColorInput value={node.color} onChange={this.onChangeColor} />
-        </InputGroup>
-        <InputGroup name="Receive Shadow" label={this.props.t('editor:properties.groundPlane.lbl-receiveShadow')}>
-          <BooleanInput value={node.receiveShadow} onChange={this.onChangeReceiveShadow} />
-        </InputGroup>
-        <InputGroup name="Walkable" label={this.props.t('editor:properties.groundPlane.lbl-walkable')}>
-          <BooleanInput value={(this.props.node as any).walkable} onChange={this.onChangeWalkable} />
-        </InputGroup>
-      </NodeEditor>
-    )
-  }
+  const node = props.node
+
+  return (
+    <NodeEditor {...props} description={t('editor:properties.groundPlane.description')}>
+      <InputGroup name="Color" label={t('editor:properties.groundPlane.lbl-color')}>
+        <ColorInput value={node.color} onChange={onChangeColor} />
+      </InputGroup>
+      <InputGroup name="Receive Shadow" label={t('editor:properties.groundPlane.lbl-receiveShadow')}>
+        <BooleanInput value={node.receiveShadow} onChange={onChangeReceiveShadow} />
+      </InputGroup>
+      <InputGroup name="Generate Navmesh" label={t('editor:properties.groundPlane.lbl-generateNavmesh')}>
+        <BooleanInput value={node.generateNavmesh} onChange={onChangeGenerateNavmesh} />
+      </InputGroup>
+      <InputGroup name="Walkable" label={t('editor:properties.groundPlane.lbl-walkable')}>
+        <BooleanInput value={node.walkable} onChange={onChangeWalkable} />
+      </InputGroup>
+    </NodeEditor>
+  )
 }
 
-export default withTranslation()(GroundPlaneNodeEditor)
+GroundPlaneNodeEditor.iconComponent = SquareFull
+
+export default GroundPlaneNodeEditor

@@ -35,6 +35,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { CameraLayers } from '../../camera/constants/CameraLayers'
 
 const avatarRadius = 0.25
 const avatarHeight = 1.8
@@ -112,6 +113,10 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     prevVelocity: new Vector3()
   })
   addComponent(entity, Object3DComponent, { value: tiltContainer })
+  tiltContainer.traverse((o) => {
+    o.layers.disable(CameraLayers.Scene)
+    o.layers.enable(CameraLayers.Avatar)
+  })
 
   const filterData = new PhysX.PxQueryFilterData()
   filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)

@@ -151,8 +151,7 @@ class OverlayMaterial extends ShaderMaterial {
 export default class OutlinePass extends Pass {
   renderScene: any
   renderCamera: any
-  selectedObjects: any
-  editorRenderer: any
+  // selectedObjects: any
   selectedRenderables: any[]
   nonSelectedRenderables: any[]
   edgeColor: Color
@@ -174,12 +173,12 @@ export default class OutlinePass extends Pass {
   quad: Mesh
   textureMatrix: Matrix4
   renderableLayers: Layers
-  constructor(resolution, scene, camera, selectedObjects, editorRenderer) {
+  constructor(resolution, scene, camera, selectedObjects, editorRenderer?) {
     super()
     this.renderScene = scene
     this.renderCamera = camera
-    this.selectedObjects = selectedObjects
-    this.editorRenderer = editorRenderer
+    // this.selectedObjects = selectedObjects
+    // this.editorRenderer = editorRenderer
     this.selectedRenderables = []
     this.nonSelectedRenderables = []
     this.edgeColor = new Color(1, 1, 1)
@@ -232,6 +231,7 @@ export default class OutlinePass extends Pass {
     this.renderableLayers = new Layers()
   }
   render(renderer, writeBuffer, readBuffer, delta, maskActive) {
+    return
     if (this.selectedObjects.length > 0) {
       this.oldClearColor.copy(renderer.getClearColor(new Color('black')))
       this.oldClearAlpha = renderer.getClearAlpha()
@@ -260,9 +260,9 @@ export default class OutlinePass extends Pass {
       this.renderScene.overrideMaterial = this.depthMaterial
       renderer.setRenderTarget(this.renderTargetDepthBuffer)
       renderer.clear()
-      if (this.editorRenderer.batchManager) {
-        this.editorRenderer.batchManager.update()
-      }
+      // if (this.editorRenderer.batchManager) {
+      //   this.editorRenderer.batchManager.update()
+      // }
       renderer.render(this.renderScene, this.renderCamera)
       // Restore selected mesh visibility.
       for (const mesh of this.selectedRenderables) {
@@ -298,9 +298,9 @@ export default class OutlinePass extends Pass {
       ;(this.depthMaskMaterial as any).uniforms['textureMatrix'].value = this.textureMatrix
       renderer.setRenderTarget(this.renderTargetMaskBuffer)
       renderer.clear()
-      if (this.editorRenderer.batchManager) {
-        this.editorRenderer.batchManager.update()
-      }
+      // if (this.editorRenderer.batchManager) {
+      //   this.editorRenderer.batchManager.update()
+      // }
       renderer.render(this.renderScene, this.renderCamera)
       this.renderScene.overrideMaterial = null
       // Restore non-selected mesh visibility

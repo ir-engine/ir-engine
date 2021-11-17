@@ -4,20 +4,36 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
 import { System } from '../../ecs/classes/System'
+import { hasComponent } from 'bitecs'
+import { PortalComponent } from '../components/PortalComponent'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
 
 /**
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
 
 export default async function TriggerSystem(world: World): Promise<System> {
-  const triggerCollidedQuery = defineQuery([TriggerVolumeComponent, TriggerDetectedComponent])
+  const triggerCollidedQuery = defineQuery([TriggerDetectedComponent])
   const sceneEntityCaches: any = []
+
   return () => {
     for (const entity of triggerCollidedQuery.enter(world)) {
-      let triggerComponent = getComponent(entity, TriggerVolumeComponent)
+      const { triggerEntity } = getComponent(entity, TriggerDetectedComponent)
+
+      if (getComponent(triggerEntity, PortalComponent)) {
+        const portalComponent = getComponent(triggerEntity, PortalComponent)
+        if (Engine.defaultWorld.isInPortal) continue
+        EngineEvents.instance.dispatchEvent({
+          type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
+          portalComponent
+        })
+      }
+
+      const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
 
       const args = triggerComponent.args
-      let onEnter = args.onEnter
+      if (!args) continue
+      const onEnter = args.onEnter
 
       const filtered = sceneEntityCaches.filter((cache: any) => cache.target == args.target)
       let targetObj: any
@@ -44,10 +60,12 @@ export default async function TriggerSystem(world: World): Promise<System> {
     }
 
     for (const entity of triggerCollidedQuery.exit(world)) {
-      let triggerComponent = getComponent(entity, TriggerVolumeComponent)
+      const { triggerEntity } = getComponent(entity, TriggerDetectedComponent, true)
+      const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
 
       const args = triggerComponent.args
-      let onExit = args.onExit
+      if (!args) continue
+      const onExit = args.onExit
 
       const filtered = sceneEntityCaches.filter((cache: any) => cache.target == args.target)
       console.log(filtered)

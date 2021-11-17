@@ -23,8 +23,6 @@ let mockElapsedTime = 0
 
 describe.skip('Physics', () => {
 
-  after(() => setTimeout(() => process.exit(0), 500))
-
   // face indexed cube data
   const vertices = [
     0, 0, 1,

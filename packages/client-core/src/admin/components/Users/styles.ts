@@ -35,7 +35,8 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       marginTop: '10%'
     },
     mt5: {
-      marginTop: '5%'
+      marginTop: '5%',
+      marginLeft: '0px'
     },
     mb10: {
       marginBottom: '10%'
@@ -79,7 +80,7 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       overflow: 'auto'
     },
     marginTop: {
-      marginTop: '7%'
+      marginTop: '5px'
     },
     texAlign: {
       textAlign: 'center'
@@ -145,7 +146,7 @@ export const useUserStyles = makeStyles((theme: Theme) =>
       width: '100%'
     },
     scopeContainer: {
-      height: '200px',
+      maxHeight: '200px',
       width: '460px',
       overflowY: 'scroll',
       [theme.breakpoints.down('lg')]: {
@@ -178,9 +179,10 @@ export const useUserStyle = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
       width: '40%',
+      marginTop: '65px',
       backgroundColor: '#43484F',
       color: '#f1f1f1',
-      overflow: 'hidden'
+      overflow: 'auto'
     },
     paperDialog: {
       background: 'rgb(58, 65, 73) !important',

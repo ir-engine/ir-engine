@@ -9,7 +9,6 @@ import {
   ProjectGridHeaderRow
 } from './ProjectGrid'
 import templates from './templates'
-import { deleteScene, getScenes } from '../../functions/sceneFunctions'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
@@ -60,11 +59,11 @@ const ProjectsPage = () => {
   /**
    *function to delete project
    */
-  const onDeleteProject = async (project) => {
+  const onDeleteScene = async (scene) => {
     try {
       // TODO
     } catch (error) {
-      console.log(`Error deleting project ${error}`)
+      console.log(`Error deleting scene ${error}`)
     }
   }
 
@@ -78,6 +77,7 @@ const ProjectsPage = () => {
   }
 
   const onClickExisting = (project) => {
+    dispatch(EditorAction.sceneLoaded(null))
     dispatch(EditorAction.projectLoaded(project.name))
   }
 
@@ -93,7 +93,7 @@ const ProjectsPage = () => {
     return (
       <>
         <ContextMenu id={contextMenuId}>
-          <MenuItem onClick={(e) => onDeleteProject(props.trigger.project)}>
+          <MenuItem onClick={(e) => onDeleteScene(props.trigger.scene)}>
             {t('editor.projects.contextMenu.deleteProject')}
           </MenuItem>
         </ContextMenu>
@@ -152,7 +152,6 @@ const ProjectsPage = () => {
                       onClickExisting={onClickExisting}
                       onClickNew={onClickNew}
                       newProjectLabel={t(`editor.projects.lbl-newProject`)}
-                      contextMenuId={contextMenuId}
                     />
                   )}
                 </ProjectGridContent>

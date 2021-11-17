@@ -1,6 +1,5 @@
-import React, { Component } from 'react'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dashboard } from '@mui/icons-material'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -22,7 +21,6 @@ import { client } from '@xrengine/client-core/src/feathers'
 
 type ProjectNodeEditorProps = {
   node?: ProjectNode
-  t: Function
 }
 
 type ProjectEditorStates = {
@@ -68,18 +66,11 @@ const systemUpdateTypes = [
  * @constructor
  */
 
-export class ProjectNodeEditor extends Component<ProjectNodeEditorProps, ProjectEditorStates> {
-  static iconComponent = Dashboard
-  static description = i18n.t('editor:properties.projectnode.description')
+export const ProjectNodeEditor = (props: ProjectNodeEditorProps) => {
+  let [projects, setProjects] = useState([])
+  const { t } = useTranslation()
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      projects: []
-    }
-  }
-
-  getProjects = async () => {
+  const getProjects = async () => {
     let projects: ProjectInterface[] = []
     try {
       projects = (await client.service('project').find()).data
@@ -88,16 +79,16 @@ export class ProjectNodeEditor extends Component<ProjectNodeEditorProps, Project
       console.log(e)
       return
     }
-    this.setState({ projects })
+    setProjects(projects)
   }
 
-  onChangeProject = (val) => {
+  const onChangeProject = (val) => {
     CommandManager.instance.setPropertyOnSelection('packName', val)
     CommandManager.instance.setPropertyOnSelection('entryPoints', [])
   }
 
-  onChangeSystemUpdateType = (entryPoint, systemUpdateType) => {
-    const entryPoints = [...this.props.node.entryPoints]
+  const onChangeSystemUpdateType = (entryPoint, systemUpdateType) => {
+    const entryPoints = [...props.node.entryPoints]
     console.log(entryPoints)
     const currentEntry = entryPoints.find((ep) => ep.entryPoint === entryPoint)
     if (currentEntry) currentEntry.systemUpdateType = systemUpdateType
@@ -106,43 +97,44 @@ export class ProjectNodeEditor extends Component<ProjectNodeEditorProps, Project
     console.log(entryPoints)
   }
 
-  componentDidMount() {
-    this.getProjects()
-  }
+  useEffect(() => {
+    getProjects()
+  }, [])
 
-  render() {
-    const node = this.props.node as ProjectNode
-    const currentPack = this.state.projects.find((pack) => pack.name === node.packName)
-    ProjectNodeEditor.description = i18n.t('editor:properties.projectnode.description')
-    return (
-      <NodeEditor description={ProjectNodeEditor.description} {...this.props}>
-        <InputGroup name="Project" label="Project">
-          <SelectInput
-            options={this.state.projects.map((r) => {
-              return { label: r.name, value: r.name }
-            })}
-            onChange={this.onChangeProject}
-            value={node.packName}
-          />
-        </InputGroup>
+  const node = props.node as ProjectNode
 
-        {currentPack?.moduleEntryPoints?.map((entryPoint) => {
-          let entryPointSplit = entryPoint.split('.')
-          entryPointSplit.pop()
-          const entryPointFilename = entryPointSplit.join('.')
-          return (
-            <InputGroup key={entryPointFilename} name={entryPointFilename} label={entryPointFilename}>
-              <SelectInput
-                options={systemUpdateTypes}
-                onChange={(val) => this.onChangeSystemUpdateType(entryPoint, val)}
-                value={node.entryPoints.find((ep) => ep.entryPoint === entryPoint)?.systemUpdateType ?? 'None'}
-              />
-            </InputGroup>
-          )
-        })}
-      </NodeEditor>
-    )
-  }
+  const currentPack = projects.find((pack) => pack.name === node.packName)
+
+  return (
+    <NodeEditor description={t('editor:properties.projectnode.description')} {...props}>
+      <InputGroup name="Project" label="Project">
+        <SelectInput
+          options={projects.map((r) => {
+            return { label: r.name, value: r.name }
+          })}
+          onChange={onChangeProject}
+          value={node.packName}
+        />
+      </InputGroup>
+
+      {currentPack?.moduleEntryPoints?.map((entryPoint) => {
+        let entryPointSplit = entryPoint.split('.')
+        entryPointSplit.pop()
+        const entryPointFilename = entryPointSplit.join('.')
+        return (
+          <InputGroup key={entryPointFilename} name={entryPointFilename} label={entryPointFilename}>
+            <SelectInput
+              options={systemUpdateTypes}
+              onChange={(val) => onChangeSystemUpdateType(entryPoint, val)}
+              value={node.entryPoints.find((ep) => ep.entryPoint === entryPoint)?.systemUpdateType ?? 'None'}
+            />
+          </InputGroup>
+        )
+      })}
+    </NodeEditor>
+  )
 }
 
-export default withTranslation()(ProjectNodeEditor)
+ProjectNodeEditor.iconComponent = Dashboard
+
+export default ProjectNodeEditor

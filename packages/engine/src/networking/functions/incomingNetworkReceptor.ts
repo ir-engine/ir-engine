@@ -1,5 +1,5 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from './NetworkWorldAction'
@@ -36,6 +36,18 @@ export function incomingNetworkReceptor(action) {
     })
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
       const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
+      /**
+       * When changing location via a portal, the local client entity will be
+       * defined when the new world dispatches this action, so ignore it
+       */
+      if (
+        isSpawningAvatar &&
+        Engine.userId === a.userId &&
+        hasComponent(world.localClientEntity, NetworkObjectComponent)
+      ) {
+        getComponent(world.localClientEntity, NetworkObjectComponent).networkId = a.networkId
+        return
+      }
       const isOwnedByMe = a.userId === Engine.userId
       const entity =
         isSpawningAvatar && isOwnedByMe

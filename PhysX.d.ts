@@ -456,7 +456,7 @@ declare namespace PhysX {
   class PxSceneDesc {}
   class PxScene {
     addActor(actor: PxActor, unk: any): void
-    removeActor(actor: PxActor, unk: any): void
+    removeActor(actor: PxActor, wakeOnLostTouch: boolean): void
     simulate(timeStep: number, rando: boolean): void
     fetchResults(b: boolean): void
     getActiveActors(len: number): PxActor[]

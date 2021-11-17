@@ -7,11 +7,11 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { moveAvatar } from './functions/moveAvatar'
-import { detectUserInCollisions } from './functions/detectUserInCollisions'
 import { World } from '../ecs/classes/World'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
+import { detectUserInCollisions } from './functions/detectUserInCollisions'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
@@ -30,7 +30,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
 
   return () => {
     for (const entity of controllerQuery.exit(world)) {
-      const controller = getComponent(entity, AvatarControllerComponent)
+      const controller = getComponent(entity, AvatarControllerComponent, true)
 
       if (controller?.controller) {
         world.physics.removeController(controller.controller)
@@ -52,7 +52,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
     }
 
     for (const entity of localXRInputQuery.exit(world)) {
-      const avatar = getComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent, true)
       // TODO: Temporarily make rig invisible until rig is fixed
       if (avatar.modelContainer) {
         avatar.modelContainer.visible = true

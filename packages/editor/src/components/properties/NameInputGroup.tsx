@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import styled from 'styled-components'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
 /**
@@ -20,7 +20,6 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
 
 type Types = {
   node: any
-  t: Function
 }
 
 /**
@@ -29,72 +28,54 @@ type Types = {
  * @author Robert Long
  * @type {class component}
  */
-export class NameInputGroup extends Component<Types> {
-  // updating state and properties
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      name: ((this.props as any).node as any).name,
-      focusedNode: null
-    }
-
-    this.t = this.props.t
-  }
-
-  t: Function
+export const NameInputGroup = (props: Types) => {
+  let [name, setName] = useState(props.node.name)
+  let [focusedNode, setFocusedNode] = useState(null)
+  const { t } = useTranslation()
 
   //function to handle change in name property
-  onUpdateName = (name) => {
-    this.setState({ name })
+  const onUpdateName = (name) => {
+    setName(name)
+    setFocusedNode(null)
   }
 
   //function called when element get focused
   //Updating state of component
-  onFocus = () => {
-    this.setState({
-      focusedNode: (this.props as any).node,
-      name: ((this.props as any).node as any).name
-    })
+  const onFocus = () => {
+    setFocusedNode(props.node)
+    setName(props.node.name)
   }
 
-  //function to handle onBlur event on name property
-  onBlurName = () => {
+  // function to handle onBlur event on name property
+  const onBlurName = () => {
     // Check that the focused node is current node before setting the property.
     // This can happen when clicking on another node in the HierarchyPanel
-    if (
-      ((this.props as any).node as any).name !== (this.state as any).name &&
-      (this.props as any).node === (this.state as any).focusedNode
-    ) {
-      CommandManager.instance.setPropertyOnSelection('name', (this.state as any).name)
+    if (props?.node?.name !== name && props?.node === focusedNode) {
+      CommandManager.instance.setPropertyOnSelection('name', name)
     }
 
-    this.setState({ focusedNode: null })
+    setFocusedNode(null)
   }
 
   //function to handle keyUp event on name property
-  onKeyUpName = (e) => {
+  const onKeyUpName = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      CommandManager.instance.setPropertyOnSelection('name', (this.state as any).name)
+      CommandManager.instance.setPropertyOnSelection('name', name)
     }
   }
-
   //rendering view NameInputGroup component
-  render() {
-    const name = (this.state as any).focusedNode ? (this.state as any).name : ((this.props as any).node as any).name
-    return (
-      <StyledNameInputGroup name="Name" label={this.t('editor:properties.name.lbl-name')}>
-        <StringInput
-          value={name}
-          onChange={this.onUpdateName}
-          onFocus={this.onFocus}
-          onBlur={this.onBlurName}
-          onKeyUp={this.onKeyUpName}
-        />
-      </StyledNameInputGroup>
-    )
+  let n = name
+
+  if (!focusedNode) {
+    n = props.node.name
   }
+
+  return (
+    <StyledNameInputGroup name="Name" label={t('editor:properties.name.lbl-name')}>
+      <StringInput value={name} onChange={onUpdateName} onFocus={onFocus} onBlur={onBlurName} onKeyUp={onKeyUpName} />
+    </StyledNameInputGroup>
+  )
 }
 
-export default withTranslation()(NameInputGroup)
+export default NameInputGroup

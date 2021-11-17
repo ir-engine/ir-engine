@@ -89,15 +89,15 @@ export type ComponentType<C extends MappedComponent<any, any>> = ReturnType<C['g
 
 export const getComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
-  component: MappedComponent<T, S>
-  // getRemoved = false,
-  // world = useWorld()
+  component: MappedComponent<T, S>,
+  getRemoved = false,
+  world = useWorld()
 ): T & SoAProxy<S> => {
   if (typeof entity === 'undefined') {
     throw new Error('[getComponent]: entity is undefined')
   }
-  return component.get(entity)
-  // if (getRemoved || hasComponent(entity, component, world)) return component.get(entity)
+  if (bitECS.hasComponent(world, component, entity) || getRemoved) return component.get(entity)
+  return null!
 }
 
 export const addComponent = <T, S extends bitECS.ISchema>(
@@ -115,7 +115,6 @@ export const addComponent = <T, S extends bitECS.ISchema>(
       component[key][entity] = args[key]
     }
   }
-  world._removedComponents.get(entity)?.delete(component)
   component.set(entity, args as T & SoAProxy<S>)
   return component.get(entity)
 }
@@ -128,7 +127,6 @@ export const hasComponent = <T, S extends bitECS.ISchema>(
   if (typeof entity === 'undefined') {
     throw new Error('[hasComponent]: entity is undefined')
   }
-  // return typeof component.get(entity) !== 'undefined'
   return bitECS.hasComponent(world, component, entity)
 }
 
@@ -138,14 +136,9 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
   world = useWorld()
 ) => {
   if (typeof entity === 'undefined') {
-    console.warn('[removeComponent]: entity is undefined')
-    return
+    throw new Error('[removeComponent]: entity is undefined')
   }
-  const componentRef = component.get(entity)
-  const removed = world._removedComponents.get(entity) ?? new Set()
-  world._removedComponents.set(entity, removed.add(component))
   bitECS.removeComponent(world, component, entity)
-  return componentRef
 }
 
 export const getAllComponentsOfType = <T, S extends bitECS.ISchema>(

@@ -23,6 +23,7 @@ import InventoryMenu from '../Inventory/InventoryMenu'
 import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
 import EmoteMenu from './menus/EmoteMenu'
+import { useEngineState } from '../../../world/services/EngineService'
 
 type StateType = {
   currentActiveMenu: any
@@ -75,6 +76,7 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const [userSetting, setUserSetting] = useState(selfUser?.user_setting.value)
   const [graphics, setGraphicsSetting] = useState({})
+  const engineState = useEngineState()
 
   useEffect(() => {
     EngineEvents.instance?.addEventListener(EngineRenderer.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
@@ -83,11 +85,10 @@ const UserMenu = (props: UserMenuProps): any => {
       EngineEvents.instance?.removeEventListener(EngineRenderer.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
     }
   }, [])
-  const onEngineLoaded = () => {
+
+  useEffect(() => {
     setEngineLoaded(true)
-    document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
-  }
-  document.addEventListener('ENGINE_LOADED', onEngineLoaded)
+  }, [engineState.isInitialised.value])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (selfUser?.value) {

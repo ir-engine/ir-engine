@@ -34,8 +34,23 @@ export function unique(arr, maybeComp) {
   }
   return newArr
 }
-export const isApple = /(Mac|iPhone|iPod|iPad)/i.test((process as any).browser && navigator ? navigator.platform : '')
-export const cmdOrCtrlString = isApple ? '⌘' : 'ctrl'
+
+export const isApple = () => {
+  const iOS_1to12 = /iPad|iPhone|iPod/.test(navigator.platform)
+
+  const iOS13_iPad = navigator.platform === 'MacIntel'
+
+  const iOS1to12quirk = () => {
+    var audio = new Audio() // temporary Audio object
+    audio.volume = 0.5 // has no effect on iOS <= 12
+    return audio.volume === 1
+  }
+
+  return iOS_1to12 || iOS13_iPad || iOS1to12quirk()
+}
+
+export const cmdOrCtrlString = isApple() ? '⌘' : 'ctrl'
+
 export function getStepSize(event, smallStep, mediumStep, largeStep) {
   if (event.altKey) {
     return smallStep

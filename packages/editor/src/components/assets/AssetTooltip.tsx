@@ -9,7 +9,7 @@ import styled from 'styled-components'
  */
 const TooltipContainer = (styled as any).div`
   display: flex;
-  width: 600px;
+  maxWidth: 100px;
   padding: 12px 0;
 `
 
@@ -23,8 +23,6 @@ const TooltipThumbnailContainer = (styled as any).div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 200px;
-  height: 200px;
 `
 
 /**
@@ -50,34 +48,38 @@ const TooltipContent = (styled as any).div`
  * @param       {any} item
  * @constructor
  */
-export function AssetTooltip({ item }) {
-  let thumbnail
+export class AssetTooltip extends React.Component {
+  render() {
+    let { item } = this.props
 
-  // check if item contains thumbnailUrl then initializing thumbnail
-  // else creating thumbnail if there is videoUrl
-  // then check if item contains iconComponent then initializing using IconComponent
-  //else initialize thumbnail using src from item object
-  if (item.thumbnailUrl) {
-    thumbnail = <img src={item.thumbnailUrl} />
-  } else if (item.videoUrl) {
-    thumbnail = <video src={item.videoUrl} autoPlay muted />
-  } else if (item.iconComponent) {
-    const IconComponent = item.iconComponent
-    thumbnail = <IconComponent size={100} />
-  } else {
-    thumbnail = <img src={item.src} />
+    let thumbnail
+
+    // check if item contains thumbnailUrl then initializing thumbnail
+    // else creating thumbnail if there is videoUrl
+    // then check if item contains iconComponent then initializing using IconComponent
+    //else initialize thumbnail using src from item object
+    if (item.thumbnailUrl) {
+      thumbnail = <img src={item.thumbnailUrl} />
+    } else if (item.videoUrl) {
+      thumbnail = <video src={item.videoUrl} autoPlay muted />
+    } else if (item.iconComponent) {
+      const IconComponent = item.iconComponent
+      thumbnail = <IconComponent size={50} />
+    } else {
+      thumbnail = <img src={item.src} />
+    }
+
+    //creating tooltip view
+    return (
+      <TooltipContainer>
+        <TooltipThumbnailContainer>{thumbnail}</TooltipThumbnailContainer>
+        <TooltipContent>
+          <b>{item.label}</b>
+          {item.description && <div>{item.description}</div>}
+        </TooltipContent>
+      </TooltipContainer>
+    )
   }
-
-  //creating tooltip view
-  return (
-    <TooltipContainer>
-      <TooltipThumbnailContainer>{thumbnail}</TooltipThumbnailContainer>
-      <TooltipContent>
-        <b>{item.label}</b>
-        {item.description && <div>{item.description}</div>}
-      </TooltipContent>
-    </TooltipContainer>
-  )
 }
 
 export default AssetTooltip

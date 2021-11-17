@@ -7,12 +7,11 @@ import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip
 import logger from '@xrengine/server-core/src/logger'
 import { decode } from 'jsonwebtoken'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 // import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
-import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
+// import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import type { SceneData } from '@xrengine/common/src/interfaces/SceneData'
 import { getPacksFromSceneData } from '@xrengine/projects/loader'
 import { initializeServerEngine } from './initializeServerEngine'
 
@@ -23,7 +22,7 @@ const loadScene = async (app: Application, scene: string) => {
   const sceneData = sceneResult.data.scene as any // SceneData
   const packs = await getPacksFromSceneData(sceneData, false)
 
-  await initializeServerEngine(packs.systems, app.isChannelInstance)
+  if (!Engine.isInitialized) await initializeServerEngine(packs.systems, app.isChannelInstance)
   console.log('Initialized new gameserver instance')
 
   let entitiesLeft = -1
@@ -66,14 +65,6 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
   } else {
     console.log('locationId: ' + locationId)
-    // on local dev, if a scene is already loaded and it's no the scene we want, reset the engine
-    if (config.kubernetes.enabled === false && app.instance && app.instance.locationId !== locationId) {
-      Engine.engineTimer.stop()
-      Engine.sceneLoaded = false
-      WorldScene.isLoading = false
-      await processLocationChange()
-      Engine.engineTimer.start()
-    }
     newInstance.locationId = locationId
   }
 
@@ -150,6 +141,16 @@ export default (app: Application): void => {
                 app.instance == null ||
                 app.instance.locationId !== locationId ||
                 app.instance.channelId !== channelId)
+
+            /**
+             * When using local dev, to properly test multiple worlds for portals we
+             * need to programatically shut down and restart the gameserver process.
+             */
+            console.log(app.instance?.locationId, locationId)
+            if (config.kubernetes.enabled === false && app.instance && app.instance.locationId !== locationId) {
+              app.restart()
+              return
+            }
 
             if (isReady || isNeedingNewServer) {
               console.info('Starting new instance')

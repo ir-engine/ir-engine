@@ -1,46 +1,24 @@
-export interface SceneJson {
-  entities: { [uuid: string]: any }
-  root: string
-  version: number
+export interface ComponentJson {
+  name: string
+  props: any
+}
+export interface EntityJson {
+  name: string
+  components: Array<ComponentJson>
+  uuid?: string
+  parent?: string
+  index?: number
 }
 
-// export interface SceneInterface extends SceneJson {
-//   id: string
-//   user_id: string
-//   isPublic: boolean
-//   name: string
-//   sidsid: string
-//   type: string
-//   url: string
-// }
-
-// TODO
-export interface SceneDetailData {
-  // [x: string]: any
-  sceneId: string
-  scene_id: string
-  url: string
-  model_url: string
-  screenshot_url: string
+export interface SceneJson {
+  entities: { [uuid: string]: EntityJson }
+  root: string
+  version: number
 }
 
 export interface SceneDetailInterface {
   name: string
   thumbnailUrl: string
   scene?: SceneJson
-  project?: string
-  // parent_scene: SceneDetailData
-  // scene_id: string
-  // scene_url: string
-}
-
-export interface SceneSaveInterface {
-  name: string
-  scene_id: string
-  thumbnailOwnedFileId: {
-    file_id: string
-    file_token: string
-  }
-  scene_file_id: string
-  scene_file_token: string
+  project?: String
 }

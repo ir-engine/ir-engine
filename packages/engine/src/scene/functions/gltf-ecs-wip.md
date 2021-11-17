@@ -7,7 +7,7 @@ Model userData properties
 
 ```ts
 {
-  [projectentity]: name
+  [project.entity]: name
   [project.prefab-type.property]: value
   [project.component-type.property]: value
 }

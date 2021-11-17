@@ -13,6 +13,7 @@ import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
 import { hasComponent, removeAllComponents } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
+import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -77,7 +78,10 @@ export async function reset(): Promise<void> {
   Engine.prevInputState.clear()
 }
 
-export const processLocationChange = async (): Promise<void> => {
+export const unloadScene = async (): Promise<void> => {
+  Engine.engineTimer.stop()
+  Engine.sceneLoaded = false
+  WorldScene.isLoading = false
   const world = useWorld()
   const entitiesToRemove = [] as Entity[]
   const removedEntities = [] as Entity[]
@@ -111,8 +115,11 @@ export const processLocationChange = async (): Promise<void> => {
     removeEntity(entity)
   })
 
-  isClient && EngineRenderer.instance.resetPostProcessing()
+  isClient && configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
 
   Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
-  world.physics.dispose()
+
+  Engine.engineTimer.start()
+
+  // world.physics.clear() // TODO:
 }

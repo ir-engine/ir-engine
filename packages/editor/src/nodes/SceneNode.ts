@@ -1,4 +1,5 @@
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
@@ -28,9 +29,8 @@ import serializeColor from '../functions/serializeColor'
 import sortEntities from '../functions/sortEntities'
 import { isStatic, setStaticMode, StaticModes } from '../functions/StaticMode'
 import { NodeManager } from '../managers/NodeManager'
-import { SceneManager } from '../managers/SceneManager'
 import CubemapBakeNode from './CubemapBakeNode'
-import EditorNodeMixin, { SerializedNode } from './EditorNodeMixin'
+import EditorNodeMixin from './EditorNodeMixin'
 import GroupNode from './GroupNode'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
@@ -78,7 +78,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             node.parent = parent
           } else if (entityId === root) {
             scene = node
-            SceneManager.instance.scene = scene
+            Engine.scene = scene
           } else {
             throw new Error(`Node "${entity.name}" with uuid "${entity.uuid}" does not specify a parent.`)
           }
@@ -244,7 +244,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   async setUpEnvironmentMapTexture() {
-    const pmremGenerator = new PMREMGenerator(SceneManager.instance.renderer.webglRenderer)
+    const pmremGenerator = new PMREMGenerator(Engine.renderer)
     switch (this.envMapTextureType) {
       case EnvMapTextureType.Equirectangular:
         try {
@@ -337,7 +337,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       data[i + 1] = Math.floor(col.g * 255)
       data[i + 2] = Math.floor(col.b * 255)
     }
-    const pmren = new PMREMGenerator(SceneManager.instance.renderer.webglRenderer)
+    const pmren = new PMREMGenerator(Engine.renderer)
     const texture = new DataTexture(data, resolution, resolution, RGBFormat)
     texture.encoding = sRGBEncoding
     this.environment = pmren.fromEquirectangular(texture).texture

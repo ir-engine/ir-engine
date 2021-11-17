@@ -1,8 +1,7 @@
 import { Cloud } from '@styled-icons/fa-solid/Cloud'
 import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
-import i18n from 'i18next'
-import React, { Component } from 'react'
-import { withTranslation } from 'react-i18next'
+import React, { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -49,7 +48,6 @@ const SkyOption = [
  */
 type SkyboxNodeEditorProps = {
   node?: object
-  t: Function
 }
 
 /**
@@ -58,76 +56,88 @@ type SkyboxNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
-  //defining iconComponent with icon name
-  static iconComponent = Cloud
-  static description = i18n.t('editor:properties.skybox.description')
+export const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
+  const [, updateState] = useState()
+  const { t } = useTranslation()
+
+  const forceUpdate = useCallback(() => updateState({}), [])
 
   //function to handle changes in turbidity Property
-  onChangeTurbidity = (turbidity) => {
+  const onChangeTurbidity = (turbidity) => {
     CommandManager.instance.setPropertyOnSelection('turbidity', turbidity)
+    forceUpdate()
   }
 
   //function to handle changes in rayleigh property
-  onChangeRayleigh = (rayleigh) => {
+  const onChangeRayleigh = (rayleigh) => {
     CommandManager.instance.setPropertyOnSelection('rayleigh', rayleigh)
+    forceUpdate()
   }
 
   //function to handle the changes in luminance property
-  onChangeLuminance = (luminance) => {
+  const onChangeLuminance = (luminance) => {
     CommandManager.instance.setPropertyOnSelection('luminance', luminance)
+    forceUpdate()
   }
 
   //function to handle the changes in mieCoefficient property
-  onChangeMieCoefficient = (mieCoefficient) => {
+  const onChangeMieCoefficient = (mieCoefficient) => {
     CommandManager.instance.setPropertyOnSelection('mieCoefficient', mieCoefficient)
+    forceUpdate()
   }
 
   //function to handle the changes in mieDirectionalG property
-  onChangeMieDirectionalG = (mieDirectionalG) => {
+  const onChangeMieDirectionalG = (mieDirectionalG) => {
     CommandManager.instance.setPropertyOnSelection('mieDirectionalG', mieDirectionalG)
+    forceUpdate()
   }
 
   //function to handle the changes in inclination
-  onChangeInclination = (inclination) => {
+  const onChangeInclination = (inclination) => {
     CommandManager.instance.setPropertyOnSelection('inclination', inclination)
+    forceUpdate()
   }
 
   //function to handle changes azimuth
-  onChangeAzimuth = (azimuth) => {
+  const onChangeAzimuth = (azimuth) => {
     CommandManager.instance.setPropertyOnSelection('azimuth', azimuth)
+    forceUpdate()
   }
 
   //function to handle changes in distance property
-  onChangeDistance = (distance) => {
+  const onChangeDistance = (distance) => {
     CommandManager.instance.setPropertyOnSelection('distance', distance)
   }
 
   //function to handle the changes skyType
-  onChangeSkyOption = (backgroundType) => {
+  const onChangeSkyOption = (backgroundType) => {
     CommandManager.instance.setPropertyOnSelection('backgroundType', backgroundType)
+    forceUpdate()
   }
 
   //function to handle the changes backgroundPath
-  onChangeEquirectangularPathOption = (path) => {
+  const onChangeEquirectangularPathOption = (path) => {
     CommandManager.instance.setPropertyOnSelection('equirectangularPath', path)
+    forceUpdate()
   }
 
-  onChangeCubemapPathOption = (path) => {
+  const onChangeCubemapPathOption = (path) => {
     CommandManager.instance.setPropertyOnSelection('cubemapPath', path)
+    forceUpdate()
   }
 
   //function to handle the changes backgroundPath
-  onChangeColorOption = (backgroundColor) => {
+  const onChangeColorOption = (backgroundColor) => {
     CommandManager.instance.setPropertyOnSelection('backgroundColor', backgroundColor)
+    forceUpdate()
   }
 
   //creating editor view for skybox setting
-  renderSkyboxSettings = (node) => (
+  const renderSkyboxSettings = (node) => (
     <>
       <NumericInputGroup
         name="Time of Day"
-        label={this.props.t('editor:properties.skybox.lbl-timeOfDay')}
+        label={t('editor:properties.skybox.lbl-timeOfDay')}
         smallStep={0.1}
         mediumStep={0.5}
         largeStep={1}
@@ -136,105 +146,100 @@ export class SkyboxNodeEditor extends Component<SkyboxNodeEditorProps, {}> {
         convertFrom={radiansToHours}
         convertTo={hoursToRadians}
         value={node.azimuth}
-        onChange={this.onChangeAzimuth}
+        onChange={onChangeAzimuth}
         unit="h"
       />
       <RadianNumericInputGroup
         name="Latitude"
-        label={this.props.t('editor:properties.skybox.lbl-latitude')}
+        label={t('editor:properties.skybox.lbl-latitude')}
         min={-90}
         max={90}
         smallStep={0.1}
         mediumStep={0.5}
         largeStep={1}
         value={node.inclination}
-        onChange={this.onChangeInclination}
+        onChange={onChangeInclination}
       />
-      <InputGroup name="Luminance" label={this.props.t('editor:properties.skybox.lbl-luminance')}>
+      <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')}>
         <CompoundNumericInput
           min={0.001}
           max={1.189}
           step={0.001}
           value={node.luminance}
-          onChange={this.onChangeLuminance}
+          onChange={onChangeLuminance}
         />
       </InputGroup>
-      <InputGroup name="Scattering Amount" label={this.props.t('editor:properties.skybox.lbl-scattering')}>
+      <InputGroup name="Scattering Amount" label={t('editor:properties.skybox.lbl-scattering')}>
         <CompoundNumericInput
           min={0}
           max={0.1}
           step={0.001}
           value={node.mieCoefficient}
-          onChange={this.onChangeMieCoefficient}
+          onChange={onChangeMieCoefficient}
         />
       </InputGroup>
-      <InputGroup name="Scattering Distance" label={this.props.t('editor:properties.skybox.lbl-scatteringDistance')}>
+      <InputGroup name="Scattering Distance" label={t('editor:properties.skybox.lbl-scatteringDistance')}>
         <CompoundNumericInput
           min={0}
           max={1}
           step={0.001}
           value={node.mieDirectionalG}
-          onChange={this.onChangeMieDirectionalG}
+          onChange={onChangeMieDirectionalG}
         />
       </InputGroup>
-      <InputGroup name="Horizon Start" label={this.props.t('editor:properties.skybox.lbl-horizonStart')}>
-        <CompoundNumericInput min={1} max={20} value={node.turbidity} onChange={this.onChangeTurbidity} />
+      <InputGroup name="Horizon Start" label={t('editor:properties.skybox.lbl-horizonStart')}>
+        <CompoundNumericInput min={1} max={20} value={node.turbidity} onChange={onChangeTurbidity} />
       </InputGroup>
-      <InputGroup name="Horizon End" label={this.props.t('editor:properties.skybox.lbl-horizonEnd')}>
-        <CompoundNumericInput min={0} max={4} value={node.rayleigh} onChange={this.onChangeRayleigh} />
+      <InputGroup name="Horizon End" label={t('editor:properties.skybox.lbl-horizonEnd')}>
+        <CompoundNumericInput min={0} max={4} value={node.rayleigh} onChange={onChangeRayleigh} />
       </InputGroup>
     </>
   )
 
   // creating editor view for cubemap Settings
-  renderTextureSettings = (value, onChange) => (
+  const renderTextureSettings = (value, onChange) => (
     <>
-      <InputGroup name="Texture" label={this.props.t('editor:properties.skybox.lbl-texture')}>
+      <InputGroup name="Texture" label={t('editor:properties.skybox.lbl-texture')}>
         <ControlledStringInput value={value} onChange={onChange} />
       </InputGroup>
     </>
   )
 
   // creating editor view for color Settings
-  renderColorSettings = (node) => (
+  const renderColorSettings = (node) => (
     <>
-      <InputGroup name="Color" label={this.props.t('editor:properties.skybox.lbl-color')}>
-        <ColorInput
-          value={(node as any).backgroundColor ? (node as any).backgroundColor : 0x000000}
-          onChange={this.onChangeColorOption}
-          isValueAsInteger={true}
-        />
+      <InputGroup name="Color" label={t('editor:properties.skybox.lbl-color')}>
+        <ColorInput value={node.backgroundColor} onChange={onChangeColorOption} isValueAsInteger={true} />
       </InputGroup>
     </>
   )
 
   // creating editor view for skybox Properties
-  renderSkyBoxProps = (node) => {
+  const renderSkyBoxProps = (node) => {
     switch (node.backgroundType) {
       case SkyTypeEnum.equirectangular as any:
-        return this.renderTextureSettings((node as any).equirectangularPath, this.onChangeEquirectangularPathOption)
+        return renderTextureSettings((node as any).equirectangularPath, onChangeEquirectangularPathOption)
       case SkyTypeEnum.cubemap as any:
-        return this.renderTextureSettings((node as any).cubemapPath, this.onChangeCubemapPathOption)
+        return renderTextureSettings((node as any).cubemapPath, onChangeCubemapPathOption)
       case SkyTypeEnum.color as any:
-        return this.renderColorSettings(node)
+        return renderColorSettings(node)
       default:
-        return this.renderSkyboxSettings(node)
+        return renderSkyboxSettings(node)
     }
   }
 
   // rendering editor view for SkyboxNode
-  render() {
-    SkyboxNodeEditor.description = this.props.t('editor:properties.skybox.description')
-    const node = this.props.node as any
-    return (
-      <NodeEditor description={SkyboxNodeEditor.description} {...this.props}>
-        <InputGroup name="Sky Type" label={this.props.t('editor:properties.skybox.lbl-skyType')}>
-          <SelectInput options={SkyOption} value={(node as any).backgroundType} onChange={this.onChangeSkyOption} />
-        </InputGroup>
-        {this.renderSkyBoxProps(node)}
-      </NodeEditor>
-    )
-  }
+  const node = props.node
+  return (
+    <NodeEditor description={t('editor:properties.skybox.description')} {...props}>
+      <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>
+        <SelectInput options={SkyOption} value={node.backgroundType} onChange={onChangeSkyOption} />
+      </InputGroup>
+      {renderSkyBoxProps(node)}
+    </NodeEditor>
+  )
 }
 
-export default withTranslation()(SkyboxNodeEditor)
+SkyboxNodeEditor.iconComponent = Cloud
+
+export default SkyboxNodeEditor

@@ -37,5 +37,5 @@ export interface NetworkTransport {
   /**
    * Closes all the media soup transports
    */
-  close(): void
+  close(instance?: boolean, channel?: boolean): void
 }

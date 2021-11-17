@@ -1,8 +1,7 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import TimelineIcon from '@mui/icons-material/Timeline'
-import i18n from 'i18next'
-import { useTranslation, withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { PropertiesPanelButton } from '../inputs/Button'
 
 /**
@@ -13,7 +12,6 @@ import { PropertiesPanelButton } from '../inputs/Button'
  */
 type SplineNodeEditorProps = {
   node?: object
-  t: Function
 }
 
 /**
@@ -24,25 +22,20 @@ type SplineNodeEditorProps = {
  * @constructor
  */
 
-export class SplineNodeEditor extends Component<SplineNodeEditorProps, {}> {
-  //setting icon component name
-  static iconComponent = TimelineIcon
-  static description = i18n.t('editor:properties.spline.description')
-  onAddNode = () => {
-    ;(this.props.node as any).onAddNodeToSpline()
+export const SplineNodeEditor = (props: SplineNodeEditorProps) => {
+  const { t } = useTranslation()
+
+  const onAddNode = () => {
+    props.node?.onAddNodeToSpline()
   }
 
-  render() {
-    SplineNodeEditor.description = this.props.t('editor:properties.spline.description')
-    //returning view to customize properties
-    return (
-      <NodeEditor description={SplineNodeEditor.description} {...this.props}>
-        <PropertiesPanelButton onClick={this.onAddNode}>
-          {this.props.t('editor:properties.spline.lbl-addNode')}
-        </PropertiesPanelButton>
-      </NodeEditor>
-    )
-  }
+  return (
+    <NodeEditor description={t('editor:properties.spline.description')} {...props}>
+      <PropertiesPanelButton onClick={onAddNode}>{t('editor:properties.spline.lbl-addNode')}</PropertiesPanelButton>
+    </NodeEditor>
+  )
 }
 
-export default withTranslation()(SplineNodeEditor)
+SplineNodeEditor.iconComponent = TimelineIcon
+
+export default SplineNodeEditor

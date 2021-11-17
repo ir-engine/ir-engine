@@ -1,9 +1,8 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import { Camera } from '@styled-icons/fa-solid/Camera'
 import { PropertiesPanelButton } from '../inputs/Button'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 
 /**
  * ScenePreviewCameraNodeEditorProps declaring props for ScenePreviewCameraNodeEditor.
@@ -13,7 +12,6 @@ import { withTranslation } from 'react-i18next'
  */
 type ScenePreviewCameraNodeEditorProps = {
   node?: object
-  t: Function
 }
 
 /**
@@ -22,25 +20,22 @@ type ScenePreviewCameraNodeEditorProps = {
  * @author Robert Long
  * @type {Class component}
  */
-export class ScenePreviewCameraNodeEditor extends Component<ScenePreviewCameraNodeEditorProps, {}> {
-  // setting iconComponent as icon name
-  static iconComponent = Camera
+export const ScenePreviewCameraNodeEditor = (props: ScenePreviewCameraNodeEditorProps) => {
+  const { t } = useTranslation()
 
-  // setting description for ScenePreviewCameraNode and will appear on editor view
-  static description = i18n.t('editor:properties.sceneCamera.description')
-  onSetFromViewport = () => {
-    ;(this.props.node as any).setFromViewport()
+  const onSetFromViewport = () => {
+    props.node.setFromViewport()
   }
-  render() {
-    ScenePreviewCameraNodeEditor.description = this.props.t('editor:properties.sceneCamera.description')
-    return (
-      <NodeEditor {...this.props} description={ScenePreviewCameraNodeEditor.description}>
-        <PropertiesPanelButton onClick={this.onSetFromViewport}>
-          {this.props.t('editor:properties.sceneCamera.lbl-setFromViewPort')}
-        </PropertiesPanelButton>
-      </NodeEditor>
-    )
-  }
+
+  return (
+    <NodeEditor {...props} description={t('editor:properties.sceneCamera.description')}>
+      <PropertiesPanelButton onClick={onSetFromViewport}>
+        {t('editor:properties.sceneCamera.lbl-setFromViewPort')}
+      </PropertiesPanelButton>
+    </NodeEditor>
+  )
 }
 
-export default withTranslation()(ScenePreviewCameraNodeEditor)
+ScenePreviewCameraNodeEditor.iconComponent = Camera
+
+export default ScenePreviewCameraNodeEditor

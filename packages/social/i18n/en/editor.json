@@ -177,6 +177,7 @@
         },
         "model": {
             "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
+            "lbl-usingGPUInstancingFlag": "Use GPU Instancing",
             "lbl-modelurl": "Model Url",
             "error-url": "Error Loading From URL",
             "lbl-loopAnimation": "Loop Animation",
@@ -193,6 +194,18 @@
             "lbl-htmlContent": "Html Content",
             "lbl-interactionText": "Interaction Text",
             "lbl-interactionType": "Interaction Type"
+        },
+        "interaction": {
+            "type": "Interaction Type",
+            "text": "Interaction Text",
+            "distance": "Interaction Distance",
+            "theme": "Interaction Theme",
+            "name": "Interaction Name",
+            "description": "Interaction Description",
+            "images": "Interaction Images",
+            "videos": "Interaction Videos",
+            "urls": "Interaction Urls",
+            "models": "Interaction Models"
         },
         "shopify": {
             "description": "A 3D object of a scene loaded from Shopify Products Media.",

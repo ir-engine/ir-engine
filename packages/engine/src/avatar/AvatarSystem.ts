@@ -20,7 +20,6 @@ import matches from 'ts-matches'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { teleportRigidbody } from '../physics/functions/teleportRigidbody'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
-import { detectUserInTrigger } from './functions/detectUserInTrigger'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { initializeHandModel } from '../xr/functions/addControllerModels'
@@ -121,7 +120,7 @@ export default async function AvatarSystem(world: World): Promise<System> {
     }
 
     for (const entity of xrInputQuery.exit(world)) {
-      const xrInputComponent = getComponent(entity, XRInputSourceComponent)
+      const xrInputComponent = getComponent(entity, XRInputSourceComponent, true)
       xrInputComponent.container.removeFromParent()
       xrInputComponent.head.removeFromParent()
     }
@@ -141,8 +140,6 @@ export default async function AvatarSystem(world: World): Promise<System> {
       const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
-
-      // detectUserInTrigger(entity)
     }
 
     for (const entity of xrLGripQuery.enter()) {
@@ -156,12 +153,12 @@ export default async function AvatarSystem(world: World): Promise<System> {
     }
 
     for (const entity of xrLGripQuery.exit()) {
-      const inputComponent = getComponent(entity, XRInputSourceComponent)
+      const inputComponent = getComponent(entity, XRInputSourceComponent, true)
       playTriggerReleaseAnimation(inputComponent.controllerGripLeft)
     }
 
     for (const entity of xrRGripQuery.exit()) {
-      const inputComponent = getComponent(entity, XRInputSourceComponent)
+      const inputComponent = getComponent(entity, XRInputSourceComponent, true)
       playTriggerReleaseAnimation(inputComponent.controllerGripRight)
     }
   }

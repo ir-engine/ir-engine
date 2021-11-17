@@ -851,7 +851,7 @@ function DevToolsInitializeInternal() {
             .replace(/\s*[(].*/, '')
             .replace(/\s*at\s*/, '');
         var pathParts = path.matchAll(new RegExp('(.*)\/(.+?)(?:\.[^\.]*$|$)', 'g'));
-        var moduleName = Array.from(pathParts)[0][2];
+        var moduleName = Array.from(pathParts)[0]?.[2];
         if (!moduleName) {
             return defaultLabel();
         }

@@ -66,7 +66,7 @@ export default async function EquippableSystem(world: World): Promise<System> {
     }
 
     for (const entity of equippableQuery.exit()) {
-      const equipperComponent = getComponent(entity, EquipperComponent)
+      const equipperComponent = getComponent(entity, EquipperComponent, true)
       const equippedEntity = equipperComponent.equippedEntity
       const equippedTransform = getComponent(equippedEntity, TransformComponent)
       const collider = getComponent(equippedEntity, ColliderComponent)

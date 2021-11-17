@@ -11,24 +11,14 @@ import InstanceChat from '../InstanceChat'
 import MediaIconsBox from '../MediaIconsBox'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
-
-const goHome = () => (window.location.href = window.location.origin)
+import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
 interface Props {
-  loadingItemCount
-  isValidLocation
   allowDebug
   reinit
-  children
-  showTouchpad
-  isTeleporting
   locationName
-
-  // todo: remove these props in favour of projects
-  customComponents?: any
-  theme?: any
   hideVideo?: boolean
   hideFullscreen?: boolean
 }
@@ -37,38 +27,20 @@ const DefaultLayoutView = (props: Props) => {
   const authState = useAuthState()
   const selfUser = authState.user
   const party = usePartyState().party.value
+  const engineState = useEngineState()
 
   return (
     <>
-      <LoadingScreen objectsToLoad={props.loadingItemCount} />
-      {!props.isValidLocation && (
-        <Snackbar
-          open
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'center'
-          }}
-        >
-          <>
-            <section>Location is invalid</section>
-            <Button onClick={goHome}>Return Home</Button>
-          </>
-        </Snackbar>
-      )}
-
+      <LoadingScreen />
       {props.allowDebug && <NetworkDebug reinit={props.reinit} />}
-
-      {props.children}
-      {props.customComponents}
-
-      {props.showTouchpad && isTouchAvailable ? (
+      {isTouchAvailable ? (
         <Suspense fallback={<></>}>
           <TouchGamepad layout="default" />
         </Suspense>
       ) : null}
 
       <GameServerWarnings
-        isTeleporting={props.isTeleporting}
+        isTeleporting={engineState.isTeleporting.value}
         locationName={props.locationName}
         instanceId={selfUser?.instanceId.value ?? party?.instanceId}
       />
@@ -82,6 +54,4 @@ const DefaultLayoutView = (props: Props) => {
   )
 }
 
-const connector = DefaultLayoutView
-
-export default connector
+export default DefaultLayoutView
