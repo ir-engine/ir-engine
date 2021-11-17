@@ -1,13 +1,13 @@
 import i18n from 'i18next'
+import { Matrix4 } from 'three'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Command, { CommandParams } from './Command'
 import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
 import reverseDepthFirstTraverse from '../functions/reverseDepthFirstTraverse'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
-import { SceneManager } from '../managers/SceneManager'
 import { TransformSpace } from '../constants/TransformSpace'
-import { Matrix4 } from 'three'
 
 export interface ReparentCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -52,14 +52,14 @@ export default class ReparentCommand extends Command {
 
     this.oldPositions = objects.map((o) => o.position.clone())
 
-    SceneManager.instance.scene.traverse((object) => {
+    Engine.scene.traverse((object) => {
       if (objects.indexOf(object) !== -1) {
         this.affectedObjects.push(object)
       }
     })
 
     // Sort objects, parents, and befores with a depth first search so that undo adds nodes in the correct order
-    reverseDepthFirstTraverse(SceneManager.instance.scene, (object) => {
+    reverseDepthFirstTraverse(Engine.scene, (object) => {
       if (objects.indexOf(object) !== -1) {
         this.undoObjects.push(object)
         this.oldParents.push(object.parent)

@@ -158,7 +158,7 @@ const Avatars = (props: Props) => {
   }
 
   useEffect(() => {
-    if (user?.id.value != null && (adminAvatarState.updateNeeded.value === true || refetch === true)) {
+    if (user?.id.value != null && (adminAvatarState.updateNeeded.value || refetch === true)) {
       AvatarService.fetchAdminAvatars()
     }
     setRefetch(false)

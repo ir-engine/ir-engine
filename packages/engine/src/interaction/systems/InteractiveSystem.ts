@@ -30,6 +30,7 @@ import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import { CameraLayers } from '../../camera/constants/CameraLayers'
 
 const upVec = new Vector3(0, 1, 0)
 
@@ -50,8 +51,11 @@ export default async function InteractiveSystem(world: World): Promise<System> {
 
   const interactTextEntity = createEntity()
   const textGroup = new Group().add(text)
+  textGroup.traverse((o) => {
+    o.layers.disable(CameraLayers.Scene)
+    o.layers.enable(CameraLayers.Gizmos)
+  })
   addComponent(interactTextEntity, Object3DComponent, { value: textGroup })
-  Engine.scene.add(textGroup)
   addComponent(interactTextEntity, PersistTagComponent, {})
   const transformComponent = addComponent(interactTextEntity, TransformComponent, {
     position: new Vector3(),

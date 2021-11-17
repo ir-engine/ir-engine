@@ -1,3 +1,4 @@
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Command, { CommandParams } from './Command'
 import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
 import reverseDepthFirstTraverse from '../functions/reverseDepthFirstTraverse'
@@ -5,7 +6,6 @@ import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import GroupNode from '../nodes/GroupNode'
-import { SceneManager } from '../managers/SceneManager'
 
 export interface GroupCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -43,14 +43,14 @@ export default class GroupCommand extends Command {
     this.oldBefores = []
     this.oldSelection = CommandManager.instance.selected.slice(0)
 
-    SceneManager.instance.scene.traverse((object) => {
+    Engine.scene.traverse((object) => {
       if (objects.indexOf(object) !== -1) {
         this.affectedObjects.push(object)
       }
     })
 
     // Sort objects, parents, and befores with a reverse depth first search so that undo adds nodes in the correct order
-    reverseDepthFirstTraverse(SceneManager.instance.scene, (object) => {
+    reverseDepthFirstTraverse(Engine.scene, (object) => {
       if (objects.indexOf(object) !== -1) {
         this.undoObjects.push(object)
         this.oldParents.push(object.parent)
