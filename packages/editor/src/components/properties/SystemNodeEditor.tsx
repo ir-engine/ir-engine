@@ -3,7 +3,7 @@ import i18n from 'i18next'
 import { useTranslation, withTranslation } from 'react-i18next'
 import { Extension } from '@styled-icons/boxicons-solid/Extension'
 import InputGroup from '../inputs/InputGroup'
-import ScriptNode from '../../nodes/SystemNode'
+import Systemnode from '../../nodes/SystemNode'
 import { CommandManager } from '../../managers/CommandManager'
 import NodeEditor from './NodeEditor'
 import FileBrowserInput from '../inputs/FileBrowserInput'
@@ -24,7 +24,7 @@ import StringInput from '../inputs/StringInput'
  */
 
 type SystemNodeEditorProps = {
-  node?: ScriptNode
+  node?: Systemnode
   t: Function
 }
 
@@ -66,7 +66,7 @@ const systemUpdateTypes = [
  * @constructor
  */
 
-export const ScriptNodeEditor = (props: SystemNodeEditorProps) => {
+export const SystemnodeEditor = (props: SystemNodeEditorProps) => {
   const { node } = props
   const { t } = useTranslation()
 
@@ -94,33 +94,33 @@ export const ScriptNodeEditor = (props: SystemNodeEditorProps) => {
   }
 
   return (
-    <NodeEditor description={ScriptNodeEditor.description} {...props}>
-      <InputGroup name="Script" label={t('editor:properties.scriptnode.lbl-filePath')}>
+    <NodeEditor description={SystemnodeEditor.description} {...props}>
+      <InputGroup name="Script" label={t('editor:properties.systemnode.lbl-filePath')}>
         <FileBrowserInput
           acceptFileTypes={CustomScriptFileTypes}
           acceptDropItems={ItemTypes.Script}
           value={node.filePath}
           onChange={onChangePath}
         />
-        {!node.isValidURL && <div>{t('editor:properties.scriptnode.error-url')}</div>}
+        {!node.isValidURL && <div>{t('editor:properties.systemnode.error-url')}</div>}
       </InputGroup>
-      <InputGroup name="systemUpdateType" label={t('editor:properties.scriptnode.lbl-systemUpdateType')}>
+      <InputGroup name="systemUpdateType" label={t('editor:properties.systemnode.lbl-systemUpdateType')}>
         <SelectInput options={systemUpdateTypes} onChange={onChangeSystemUpdateType} value={node.systemUpdateType} />
       </InputGroup>
-      <InputGroup name="enableClient" label={t('editor:properties.scriptnode.lbl-enableClient')}>
+      <InputGroup name="enableClient" label={t('editor:properties.systemnode.lbl-enableClient')}>
         <BooleanInput onChange={onChangeEnableClient} value={node.enableClient} />
       </InputGroup>
-      <InputGroup name="enableServer" label={t('editor:properties.scriptnode.lbl-enableServer')}>
+      <InputGroup name="enableServer" label={t('editor:properties.systemnode.lbl-enableServer')}>
         <BooleanInput onChange={onChangeEnableServer} value={node.enableServer} />
       </InputGroup>
-      <InputGroup name="args" label={t('editor:properties.scriptnode.lbl-args')}>
+      <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
         <StringInput onChange={onChangeArgs} value={node.args} />
       </InputGroup>
     </NodeEditor>
   )
 }
 
-ScriptNodeEditor.iconComponent = Extension
-ScriptNodeEditor.description = i18n.t('editor:properties.scriptnode.description')
+SystemnodeEditor.iconComponent = Extension
+SystemnodeEditor.description = i18n.t('editor:properties.systemnode.description')
 
-export default withTranslation()(ScriptNodeEditor)
+export default withTranslation()(SystemnodeEditor)

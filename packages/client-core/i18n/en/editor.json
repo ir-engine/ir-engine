@@ -442,7 +442,7 @@
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
         },
-        "scriptnode": {
+        "systemnode": {
             "description": "Attach script.",
             "lbl-filePath": "Url",
             "lbl-systemUpdateType": "Injection Point",
