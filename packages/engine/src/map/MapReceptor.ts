@@ -96,7 +96,8 @@ export const mapReceptor = (action: MapActionType) => {
       case 'map.SET_CENTER_POINT':
         return s.merge({
           center: action.centerPoint,
-          originalCenter: action.centerPoint
+          originalCenter: action.centerPoint,
+          needsUpdate: true
         })
     }
   })
