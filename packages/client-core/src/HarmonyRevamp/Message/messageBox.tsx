@@ -17,13 +17,13 @@ import {
   listItemIconClasses
 } from '@mui/material'
 import { AttachFile, LocalPhone, PhotoCamera, Send } from '@material-ui/icons'
-import { useHarmonyStyles } from './style'
+import { useHarmonyStyles } from '../style'
 import { styled } from '@mui/material/styles'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Message } from '@xrengine/common/src/interfaces/Message'
-import ModeContext from './context/modeContext'
+import ModeContext from '../context/modeContext'
 
 const Input = styled('input')({
   display: 'none'
