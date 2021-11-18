@@ -1,4 +1,4 @@
-import assert, { strictEqual } from 'assert'
+import assert from 'assert'
 import fetch from 'node-fetch'
 import path from 'path'
 const https = require('https')
@@ -6,6 +6,9 @@ import S3Provider from '../../src/media/storageprovider/s3.storage'
 import LocalStorage from '../../src/media/storageprovider/local.storage'
 import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface'
 import { providerBeforeTest, providerAfterTest } from '../storageprovider/storageproviderconfig'
+import { getContentType } from '../../src/util/fileUtils'
+import approot from 'app-root-path'
+import fs from 'fs-extra'
 
 describe('Storage Provider test', () => {
   const testFileName = 'TestFile.txt'
@@ -30,7 +33,7 @@ describe('Storage Provider test', () => {
       await provider.putObject({
         Body: data,
         Key: fileKey,
-        ContentType: 'txt'
+        ContentType: getContentType(fileKey)
       })
     })
 
@@ -105,6 +108,21 @@ describe('Storage Provider test', () => {
     it(`should delete object in ${provider.constructor.name}`, async function () {
       const fileKey = path.join(testFolderName, testFileName)
       assert.ok(await provider.deleteResources([fileKey]))
+    })
+
+    it(`should put and get same data for glbs in ${provider.constructor.name}`, async function () {
+      const glbTestPath = 'packages/projects/default-project/assets/collisioncube.glb'
+      const filePath = path.join(approot.path, glbTestPath)
+      const fileData = fs.readFileSync(filePath)
+      const contentType = getContentType(filePath)
+      await provider.putObject({
+        Body: fileData,
+        Key: glbTestPath,
+        ContentType: contentType
+      })
+      const ret = await provider.getObject(glbTestPath)
+      assert.strictEqual(contentType, ret.ContentType)
+      assert.deepStrictEqual(fileData, ret.Body)
     })
 
     after(async function () {
