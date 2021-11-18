@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { useHarmonyStyles } from './style'
-import image from '../../../client/public/static/undraw_empty_re_opql.svg'
+import { useHarmonyStyles } from '../style'
+import image from '../../../../client/public/static/undraw_empty_re_opql.svg'
 
 const Empty = () => {
   const classes = useHarmonyStyles()

@@ -11,7 +11,6 @@ const Friends = () => {
   const [type, setType] = React.useState('email')
 
   const handleUserTokenChange = (event: any): void => {
-    console.log(event.target.value, 'zzzzzzzzzzzzzzzzzzzzzzzzztettttee')
     setUserToken(event.target.value)
   }
 
@@ -35,7 +34,7 @@ const Friends = () => {
 
   return (
     <React.Fragment>
-      <div className={`${classes.dFlex} ${classes.FlexWrap} ${classes.alignCenter} ${classes.mx2}`}>
+      <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx2}`}>
         <a
           href="#"
           onClick={() => setType('email')}

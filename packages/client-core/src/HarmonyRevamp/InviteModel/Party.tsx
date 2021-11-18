@@ -11,7 +11,6 @@ const Party = () => {
   const [type, setType] = React.useState('email')
 
   const handleUserTokenChange = (event: any): void => {
-    console.log(event.target.value, 'zzzzzzzzzzzzzzzzzzzzzzzzztettttee')
     setUserToken(event.target.value)
   }
 

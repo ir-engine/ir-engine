@@ -706,7 +706,7 @@ const LeftHarmony = (props: Props) => {
         <div
           className={`${classes.dFlex} ${classes.justifyContentBetween} ${
             darkMode ? classes.darkBg : classes.whiteBg
-} ${classes.mx2} ${classes.px2}`}
+          } ${classes.mx2} ${classes.px2}`}
         >
           <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.box}`}>
             <Avatar src={selfUser.avatarUrl} />
