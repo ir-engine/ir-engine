@@ -96,8 +96,7 @@
     "slugify": "^1.4.5",
     "universal-analytics": "^0.4.20",
     "uuid": "^8.0.0",
-    "winston": "^3.3.3",
-    "xrengine-matchmaking": "https://github.com/XiaNi/xrengine-matchmaking.git"
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "3.1.8",
