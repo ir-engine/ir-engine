@@ -12,6 +12,8 @@ import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
 import { Engine } from '../ecs/classes/Engine'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import matches from 'ts-matches'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 
 const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
@@ -20,10 +22,7 @@ export default async function AnimationSystem(world: World): Promise<System> {
   world.receptors.push(animationActionReceptor)
 
   function animationActionReceptor(action) {
-    console.log('receive animation: ' + JSON.stringify(action))
-
-    if (action.type === 'network.AVATAR_ANIMATION') {
-      const $from = action.$from
+    matches(action).when(NetworkWorldAction.avatarAnimation.matchesFromAny, ({ $from }) => {
       if ($from === Engine.userId) {
         console.log('same user id for remote anim')
         return
@@ -31,29 +30,13 @@ export default async function AnimationSystem(world: World): Promise<System> {
 
       console.log('handling anim')
       const avatarEntity = world.getUserAvatarEntity($from)
-      console.log('from: ' + $from + ' eid: ' + avatarEntity)
       const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
       if (!networkObject) {
         return console.warn(`Avatar Entity for user id ${$from} does not exist! You should probably reconnect...`)
       }
       action.params.forceTransition = true
       AnimationGraph.forceUpdateAnimationState(avatarEntity, action.newStateName, action.params)
-    }
-    /*matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
-      if ($from === Engine.userId) { 
-        console.log('same user id for remote anim')
-        return
-      }
-
-      console.log('handling anim')
-      const avatarEntity = world.getUserAvatarEntity($from)
-      const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
-      if (!networkObject) {
-        return console.warn(`Avatar Entity for user id ${$from} does not exist! You should probably reconnect...`)
-      }
-      action.params.forceTransition = true
-      AnimationGraph.forceUpdateAnimationState(avatarEntity, action.newStateName, action.params)
-    })*/
+    })
   }
 
   await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
