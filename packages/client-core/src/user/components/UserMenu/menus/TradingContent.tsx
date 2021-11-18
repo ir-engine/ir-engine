@@ -79,9 +79,10 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type }:
     userid: '',
     anchorEl: null,
     selectedtype: '',
-    inventory: []
+    inventory: [],
+    fortrading: []
   })
-  const { url, metadata, userid, selectedid, anchorEl, selectedtype, inventory } = state
+  const { url, metadata, userid, selectedid, anchorEl, selectedtype, inventory, fortrading } = state
   const prevState = usePrevious({ selectedtype })
   // const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl)
@@ -117,45 +118,30 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type }:
     }
   }, [])
 
-  //   useEffect(() => {
-  //     if (prevState) {
-  //       if (prevState.selectedtype !== selectedtype) {
-  //         if (selectedtype === '') {
-  //           setState((prevState: any) => ({
-  //             ...prevState,
-  //             url: data[0].url,
-  //             metadata: data[0].metadata,
-  //             selectedid: data[0].user_inventory.userInventoryId,
-  //             inventory: [...data]
-  //           }))
-  //         }
-  //         else {
-  //           let filtereddata = data.filter(val => val.inventoryItemTypeId === selectedtype)
-  //           console.log(filtereddata, selectedtype)
-  //           if (filtereddata.length !== 0) {
-  //             setState((prevState: any) => ({
-  //               ...prevState,
-  //               url: filtereddata[0].url,
-  //               metadata: filtereddata[0].metadata,
-  //               selectedid: filtereddata[0].user_inventory.userInventoryId,
-  //               inventory: [...filtereddata]
-  //             }))
-  //           }
-  //           else {
-  //             setState((prevState: any) => ({
-  //               ...prevState,
-  //               url: "",
-  //               metadata: "",
-  //               selectedid: "",
-  //               inventory: []
-  //             }))
-  //           }
+  const onDragStart = (ev, id) => {
+    console.log('dragstart:', id);
+    ev.dataTransfer.setData("id", id);
+  }
 
-  //         }
+  const onDragOver = (ev) => {
+    ev.preventDefault();
+  }
 
-  //       }
-  //     }
-  //   }, [selectedtype])
+  const onDrop = (ev, cat) => {
+    let id = ev.dataTransfer.getData("id");
+
+    // let tasks = inventory.filter((task) => {
+    //   if (task.name == id) {
+    //     task.category = cat;
+    //   }
+    //   return task;
+    // });
+
+    // setState((prevState: any) => ({
+    //   ...prevState,
+    //   fortrading: [...tasks]
+    // }))
+  }
 
   return (
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
@@ -170,7 +156,8 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type }:
       {data.length !== 0 ? (
         <Grid container spacing={2} className={`${classes.p10} ${classes.contents}`}>
           <Grid item md={2}>
-            <Stack className={classes.card}>
+            <Stack className={classes.card} onDragOver={(e) => onDragOver(e)}
+          onDrop={(e) => { onDrop(e, "wip") }}>
               <IconButton
                 aria-label="more"
                 id="long-button"
@@ -246,6 +233,37 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type }:
             <Card>
               <Stack justifyContent="center" alignItems="center">
                 <Typography className={classes.title}>Selected Items For Trade</Typography>
+                {fortrading.length !== 0 ? (
+                <Stack>
+                  {fortrading.map((value: any, index: number) => (
+                    <Card
+                      key={index}
+                      onClick={() => {
+                        setState((prevState) => ({
+                          ...prevState,
+                          url: value.url,
+                          metadata: value.metadata,
+                          selectedid: value.inventoryItemTypeId
+                        }))
+                      }}
+                    >
+                      <Stack
+                        justifyContent="center"
+                        alignItems="center"
+                        // className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                      >
+                        <img src={value.url} height="100" width="100" alt="" />
+                        <Typography>{`Name: ${value.name}`}</Typography>
+                        <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                      </Stack>
+                    </Card>
+                  ))}
+                </Stack>
+              ) : (
+                <Stack sx={{ color: 'black' }}>
+                  <Typography>No Data Found</Typography>
+                </Stack>
+              )}
               </Stack>
             </Card>
           </Grid>
