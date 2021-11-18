@@ -28,7 +28,7 @@ export const ItemTypes = {
   ],
   Node: 'Node',
   Model: 'Model',
-  Script: ['tsx', 'ts', 'js'],
+  Script: ['tsx', 'ts', 'jsx', 'js'],
   Shopify: 'Shopify',
   Image: 'Image',
   Video: 'Video',
