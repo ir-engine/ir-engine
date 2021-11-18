@@ -1,18 +1,15 @@
 import type { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
 import type { Application } from '@xrengine/server-core/declarations'
 
-interface ProjectConfigInterface {
-  thumbnail: string
-  routes: {
-    [route: string]: () => Promise<{ default: (props: any) => JSX.Element }>
-  }
-  scenes: {} // todo
-  services: {
-    [service: string]: {
-      constructor: (app: Application) => void
-      seed: ServicesSeedConfig
-    }
-  }
+export interface ProjectConfigInterface {
+  // TODO
+  // thumbnail?: string
+  // routes?: {
+  //   [route: string]: () => Promise<{ default: (props: any) => JSX.Element }>
+  // }
+  // scenes?: {} // todo
+  services?: () => Promise<{ default: Array<(app: Application) => void> }>
+  databaseSeed?: Promise<{ default: Array<ServicesSeedConfig> }>
 }
 
 export const registerProject = (config: ProjectConfigInterface) => {}
