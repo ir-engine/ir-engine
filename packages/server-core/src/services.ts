@@ -13,6 +13,23 @@ import ScopeService from './scope/service'
 import SettingService from './setting/service'
 import RouteService from './route/service'
 
+import fs from 'fs'
+import path from 'path'
+
+const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
+  ? fs
+      .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => {
+        console.log(dirent)
+        if (fs.existsSync(path.resolve(__dirname, '../../projects/projects', dirent.name, 'services/services.ts')))
+          return dirent.name
+      })
+      .filter((hasServices) => !!hasServices)
+      .map((name) => require(`../../projects/projects/${name}/services/services.ts`).default)
+      .flat()
+  : []
+
 export default (app: Application): void => {
   ;[
     ...AnalyticsServices,
@@ -27,7 +44,8 @@ export default (app: Application): void => {
     ...BotService,
     ...ScopeService,
     ...SettingService,
-    ...RouteService
+    ...RouteService,
+    ...installedProjects
   ].forEach((service) => {
     app.configure(service)
   })
