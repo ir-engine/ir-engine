@@ -21,14 +21,14 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "socket.io": "4.3.2",
+    "socket.io": "4.4.0",
     "@types/react": "17.0.35",
     "react": "17.0.2"
   },
   "peerDependencies": {
     "@types/react": "17.0.35",
     "react": "17.0.2",
-    "socket.io": "4.3.2"
+    "socket.io": "4.4.0"
   },
   "dependencies": {
     "@capacitor-community/http": "1.4.1",
