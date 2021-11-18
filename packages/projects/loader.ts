@@ -34,10 +34,8 @@ export const importSystem = async (project: string, data: SystemProps): Promise<
   console.info(`Loading Project ${project} with data`, data)
   const { filePath, systemUpdateType, args } = data
   const filePathRelative = new URL(filePath).pathname.replace(`/projects/${project}/`, '')
-  console.log(filePath)
   const entryPointSplit = filePathRelative.split('.')
   const entryPointExtension = entryPointSplit.pop()
-  console.log(filePathRelative, entryPointSplit, entryPointExtension)
   // const entryPointFileName = entryPointSplit.join('.')
   // vite MUST have the extension as part of the string, so unfortunately we have to manually try all potential file paths
   // TODO: we could make our own derivate of https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars which can handle this more elegantly
