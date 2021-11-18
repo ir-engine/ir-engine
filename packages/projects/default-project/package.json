@@ -11,9 +11,7 @@
   },
   "xrengine": {
     "routes": ["/", "/login", "/harmony", "/admin", "/location", "/auth", "/editor"],
-    "thumbnail": "/static/xrengine_thumbnail.jpg",
-    "moduleEntryPoints": [],
-    "clientReactEntryPoint": []
+    "thumbnail": "/static/xrengine_thumbnail.jpg"
   },
   "license": "ISC"
 }

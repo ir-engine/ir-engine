@@ -1,10 +1,12 @@
 export interface CommonInteractiveData {
-  interactionType: string
+  interactionType?: string
   interactionText?: string
-  payloadName?: string
-  payloadUrl?: string
-  payloadBuyUrl?: string
-  payloadLearnMoreUrl?: string
-  payloadHtmlContent?: string
-  payloadModelUrl?: string
+  interactionDistance?: number
+  interactionThemeIndex?: number
+  interactionName?: string
+  interactionDescription?: string
+  interactionImages?: any
+  interactionVideos?: any
+  interactionUrls?: any
+  interactionModels?: any
 }
