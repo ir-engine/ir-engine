@@ -240,6 +240,7 @@ const MessageBox: React.FunctionComponent = () => {
               )
             })}
           </div>
+
           <div
             className={`${classes.dFlex} ${classes.borderRadius} ${classes.justifyContentBetween} ${
               darkMode ? classes.darkBg : classes.bgLight
@@ -272,26 +273,6 @@ const MessageBox: React.FunctionComponent = () => {
                   <Send className={darkMode && classes.white} />
                 </IconButton>
               </label>
-              <div className={`${classes.flexGrow} ${darkMode ? classes.darkBg : classes.bgLight}`}>
-                <div className={`${classes.dFlex} ${classes.alignCenter}`}>
-                  <Avatar src={selfUser.avatarUrl} />
-                  <textarea
-                    className={`${classes.formControl} ${classes.inPad} ${classes.scroll}`}
-                    placeholder="Your message"
-                    value={composingMessage}
-                    onKeyPress={(e) => {
-                      if (e.shiftKey === false && e.charCode === 13) {
-                        e.preventDefault()
-                        packageMessage()
-                      }
-                    }}
-                    onChange={composingMessageChangedHandler}
-                  ></textarea>
-                </div>
-              </div>
-              <IconButton onClick={packageMessage} component="span">
-                <Send className={classes.white} />
-              </IconButton>
             </div>
           </div>
           <Dialog

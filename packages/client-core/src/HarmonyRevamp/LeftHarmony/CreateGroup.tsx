@@ -99,7 +99,10 @@ const CreateGroup = (props: Props) => {
           <b>CREATE GROUP</b>
         </a>
         <Drawer anchor={'right'} open={state['right']} onClose={toggleDrawer('right', false)}>
-          <Container className={classes.bgDark} style={{ height: '100vh', overflowY: 'scroll' }}>
+          <Container
+            className={darkMode ? classes.bgDark : classes.bgWhite}
+            style={{ height: '100vh', overflowY: 'scroll' }}
+          >
             <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
               <AddCircleOutline />
               &nbsp;&nbsp;&nbsp;&nbsp;
