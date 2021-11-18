@@ -116,8 +116,16 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       borderRadius: '5px',
       color: '#ccc'
     },
+    formControls: {
+      width: '100%',
+      backgroundColor: 'transparent',
+      border: '1px solid #FFF',
+      padding: '12px',
+      marginTop: 15,
+      borderRadius: '2px',
+      color: '#ccc'
+    },
     box: {
-      // backgroundColor: '#232424',
       padding: '13px 16px',
       borderRadius: '5px'
     },
@@ -308,12 +316,15 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
         width: '5px'
       },
       '&::-webkit-scrollbar-thumb': {
-        background: '#555',
+        background: '#555 !important',
         borderRadius: '10px'
       },
       '&::-webkit-scrollbar-thumb:hover': {
         background: '#f1f1f1'
       }
+    },
+    btnCursor: {
+      cursor: 'pointer'
     },
     spanNone: {
       color: '#808080'

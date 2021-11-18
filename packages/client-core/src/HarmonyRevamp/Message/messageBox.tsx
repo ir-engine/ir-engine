@@ -1,3 +1,4 @@
+import React, { useState, useContext } from 'react'
 import { Delete, Edit, Forum, GroupAdd } from '@material-ui/icons'
 import {
   IconButton,
@@ -17,7 +18,7 @@ import {
   listItemClasses,
   listItemIconClasses
 } from '@mui/material'
-import React, { useContext, useState } from 'react'
+
 import { AttachFile, LocalPhone, PhotoCamera, Send } from '@material-ui/icons'
 import { useHarmonyStyles } from '../style'
 import { styled } from '@mui/material/styles'
@@ -157,7 +158,7 @@ const MessageBox: React.FunctionComponent = () => {
               return (
                 <div key={message.id} className={`${classes.dFlex} ${classes.flexColumn} ${classes.my2}`}>
                   {message.senderId !== selfUser.id && (
-                    <div className={`${classes.selfStart}`}>
+                    <div className={`${classes.selfStart} ${classes.my1}`}>
                       <div className={classes.dFlex}>
                         {index !== 0 && message.senderId !== sortedMessages[index - 1].senderId && (
                           <Avatar src={message.sender?.avatarUrl} />

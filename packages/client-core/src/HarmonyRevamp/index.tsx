@@ -8,10 +8,6 @@ import Empty from './Message/empty'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import ModeContext from './context/modeContext'
 
-// interface IndexProps {
-
-// }
-
 const Index = () => {
   const { darkMode } = React.useContext(ModeContext)
   const classes = useHarmonyStyles()

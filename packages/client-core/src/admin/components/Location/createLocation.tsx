@@ -223,7 +223,7 @@ const CreateLocation = (props: Props) => {
                 </MenuItem>
                 {adminScenes.value.map((el, i) => (
                   <MenuItem value={`${el.project}/${el.name}`} key={i}>
-                    {el.name}
+                    {el.name} ({el.project})
                   </MenuItem>
                 ))}
               </Select>

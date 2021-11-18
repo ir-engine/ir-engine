@@ -53,9 +53,7 @@ const InviteHarmony = (props: Props) => {
 
   const acceptRequest = (invite) => {
     InviteService.acceptInvite(invite.id, invite.passcode)
-    console.log('Setting')
     setShowNot(false)
-    console.log('Settled')
   }
 
   const declineRequest = (invite) => {
