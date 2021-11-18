@@ -185,7 +185,8 @@ export default (app: Application): void => {
               const localIp = await getLocalServerIp(app.isChannelInstance)
 
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
-              const ipAddress = config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
+              const ipAddress =
+                config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
               const existingInstanceQuery = {
                 ipAddress: ipAddress,
                 ended: false

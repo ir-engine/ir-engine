@@ -56,10 +56,11 @@ export default (): Hook => {
           $limit: 0
         }
       })
-      if (existingInstanceAuthorizedUser.total === 0) await app.service('instance-authorized-user').create({
-        userId: identityProvider.userId,
-        instanceId: instanceId
-      })
+      if (existingInstanceAuthorizedUser.total === 0)
+        await app.service('instance-authorized-user').create({
+          userId: identityProvider.userId,
+          instanceId: instanceId
+        })
 
       context.result.instanceId = instanceId
       context.result.locationName = locationName

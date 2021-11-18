@@ -5,4 +5,11 @@ import InstanceAuthorizedUser from './instance-authorized-user/instance-authoriz
 import GameServerSubdomainProvision from './gameserver-subdomain-provision/gameserver-subdomain-provision.service'
 import RtcPorts from './rtc-ports/rtc-ports.service'
 
-export default [RtcPorts, Instance, GameServerSubdomainProvision, InstanceProvision, InstanceAttendance, InstanceAuthorizedUser]
+export default [
+  RtcPorts,
+  Instance,
+  GameServerSubdomainProvision,
+  InstanceProvision,
+  InstanceAttendance,
+  InstanceAuthorizedUser
+]

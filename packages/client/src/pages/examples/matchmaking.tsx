@@ -1,13 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { client } from '@xrengine/client-core/src/feathers'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import {
-  MatchmakingTicketAssignment,
-  OpenMatchTicket,
-} from "@xrengine/matchmaking/src/interfaces";
+import { MatchmakingTicketAssignment, OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
 import { useHistory } from 'react-router-dom'
 
-const gameModes = [ "ctf", "tournament" ]
+const gameModes = ['ctf', 'tournament']
 
 async function findCurrentTicketData() {
   const { data } = await client.service('match-user').find()
@@ -69,14 +66,14 @@ const Page = () => {
       setTimeout(() => {
         const matchUrl = '/location/' + locationName + '?instanceId=' + instanceId
         console.log('Match location', matchUrl)
-        if(confirm('Game found, relocate to match location?\n' + matchUrl)) {
+        if (confirm('Game found, relocate to match location?\n' + matchUrl)) {
           history.push(matchUrl)
         }
       }, 500)
     }
   }, [connection, instanceId, locationName])
 
-  async function newTicket(gamemode:string) {
+  async function newTicket(gamemode: string) {
     // setStatus('...')
     setIsUpdating(true)
     let serverTicket: OpenMatchTicket
@@ -163,15 +160,15 @@ const MatchMakingControl = (props: MatchMakingControlPropsInterface) => {
       </>
     )
   } else {
-    const buttons = props.modes.map(mode => {
-      return (<button key={mode} onClick={() => onJoinQueue(mode)}>Join: {mode}</button>)
+    const buttons = props.modes.map((mode) => {
+      return (
+        <button key={mode} onClick={() => onJoinQueue(mode)}>
+          Join: {mode}
+        </button>
+      )
     })
 
-    content = (
-      <>
-        { buttons }
-      </>
-    )
+    content = <>{buttons}</>
   }
 
   return content

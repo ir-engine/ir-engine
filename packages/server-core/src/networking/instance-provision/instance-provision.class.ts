@@ -24,8 +24,8 @@ const pressureThresholdPercent = 0.8
  * An method which start server for instance
  * @author Vyacheslav Solovjov
  */
-export async function getFreeGameserver (app: Application, isChannelInstance?: boolean): Promise<GameserverAddress> {
-    if (!config.kubernetes.enabled) {
+export async function getFreeGameserver(app: Application, isChannelInstance?: boolean): Promise<GameserverAddress> {
+  if (!config.kubernetes.enabled) {
     console.log('Local server spinning up new instance')
     return getLocalServerIp(isChannelInstance)
   }
@@ -52,8 +52,7 @@ export async function getFreeGameserver (app: Application, isChannelInstance?: b
     if (instanceExistsResult.total > 0) {
       console.log('server already claimed by an instance', instanceExistsResult)
       server = readyServers[Math.floor(Math.random() * readyServers.length)]
-    }
-    else {
+    } else {
       foundServer = true
       return {
         ipAddress: server.status.address,

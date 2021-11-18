@@ -13,4 +13,3 @@ export class InstanceAuthorizedUser extends Service {
     this.app = app
   }
 }
-
