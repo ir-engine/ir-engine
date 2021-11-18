@@ -103,7 +103,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
 
       materialList.push({
         id: object.uuid,
-        material: object.material
+        material: object.material.clone()
       })
       object.material = DissolveEffect.getDissolveTexture(object)
     }
