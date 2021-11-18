@@ -21,9 +21,19 @@ export default function Harmony() {
   }
 
   React.useEffect(() => {
+    const mode = JSON.parse(localStorage.getItem('mode'))
+    if (mode === null) {
+      localStorage.setItem('mode', JSON.stringify(darkMode))
+    } else {
+      setDarkMode(mode)
+    }
+  }, [])
+
+  React.useEffect(() => {
     if (!isTabletOrMobile) {
       setOpenSIdeMenu(isTabletOrMobile)
     }
+    console.log('Local Storage', localStorage.getItem('mode'))
   }, [isTabletOrMobile])
 
   return (

@@ -68,7 +68,7 @@ const LeftHarmony = (props: Props) => {
 
   const classes = useHarmonyStyles()
   const { darkMode, setDarkMode } = React.useContext(ModeContext)
-  const [checked, setChecked] = React.useState(true)
+  const [checked, setChecked] = React.useState(JSON.parse(localStorage.getItem('mode')))
 
   const persed = queryString.parse(location.search)
   const history = useHistory()
@@ -130,8 +130,10 @@ const LeftHarmony = (props: Props) => {
   const currentLocation = useLocationState().currentLocation.location
 
   const handleChange = (event) => {
-    setDarkMode(!darkMode)
-    setChecked(event.target.checked)
+    const mode = event.target.checked
+    setChecked(mode)
+    setDarkMode(mode)
+    localStorage.setItem('mode', JSON.stringify(mode))
   }
 
   const handleClickOpen = () => {
@@ -251,7 +253,6 @@ const LeftHarmony = (props: Props) => {
   }
 
   const toggleDrawer = (anchor, open) => (event) => {
-    console.log('toggled')
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return
     }
@@ -526,7 +527,10 @@ const LeftHarmony = (props: Props) => {
                   <b>CREATE GROUP</b>
                 </a>
                 <Drawer anchor={'right'} open={state['right']} onClose={toggleDrawer('right', false)}>
-                  <Container className={classes.bgDark} style={{ height: '100vh', overflowY: 'scroll' }}>
+                  <Container
+                    className={darkMode ? classes.bgDark : classes.bgWhite}
+                    style={{ height: '100vh', overflowY: 'scroll' }}
+                  >
                     <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
                       <AddCircleOutline />
                       &nbsp;&nbsp;&nbsp;&nbsp;
@@ -540,7 +544,7 @@ const LeftHarmony = (props: Props) => {
                           </label>
                           <input
                             type="text"
-                            className={classes.formControls}
+                            className={darkMode ? classes.formControls : classes.formControlsLight}
                             id="name"
                             name="name"
                             value={groupForm.name}
@@ -555,7 +559,7 @@ const LeftHarmony = (props: Props) => {
                           </label>
                           <input
                             type="text"
-                            className={classes.formControls}
+                            className={darkMode ? classes.formControls : classes.formControlsLight}
                             id="description"
                             name="description"
                             value={groupForm.description}

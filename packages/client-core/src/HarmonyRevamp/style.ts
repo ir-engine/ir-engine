@@ -86,7 +86,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#787589'
     },
     fontBig: {
-      fontSize: 15,
+      fontSize: '15px',
       marginBottom: '5px',
       color: '#000'
     },
@@ -117,7 +117,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#ccc'
     },
     box: {
-      backgroundColor: '#232424',
+      // backgroundColor: '#232424',
       padding: '13px 16px',
       borderRadius: '5px'
     },
@@ -153,6 +153,11 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#FFF',
       padding: '15px 0px'
     },
+    bgWhite: {
+      backgroundColor: '#FFF',
+      color: '#3A3D40',
+      padding: '15px 0px'
+    },
     bgDarkLight: {
       backgroundColor: '#3A3D40;',
       color: '#FFF',
@@ -183,7 +188,8 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       height: '98%'
     },
     flexGrow2: {
-      flexGrow: 1},
+      flexGrow: 1
+    },
     hAuto: {
       height: '94vh'
     },
@@ -241,6 +247,15 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       backgroundColor: '#FFF',
       color: '#15171B'
     },
+    bigBox: {
+      backgroundColor: '#5B598B',
+      width: '100%',
+      height: '100%',
+      borderRadius: '5px'
+    },
+    bigFont: {
+      fontSize: '28px'
+    },
     btns: {
       backgroundColor: 'transparent',
       border: 'none',
@@ -280,8 +295,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       cursor: 'pointer'
     },
     inPad: {
-      padding: '10px 0 0 5px',
-      color: '#ccc'
+      padding: '10px 0 0 5px'
     },
     px2: {
       padding: '0px 14px',
