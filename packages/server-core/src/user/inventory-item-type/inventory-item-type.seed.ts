@@ -7,6 +7,7 @@ export const inventoryItemTypeSeed = {
     { inventoryItemType: inventoryItemType.skill },
     { inventoryItemType: inventoryItemType.weapon },
     { inventoryItemType: inventoryItemType.ammo },
-    { inventoryItemType: inventoryItemType.player }
+    { inventoryItemType: inventoryItemType.player },
+    { inventoryItemType: inventoryItemType.coin }
   ]
 }

@@ -46,6 +46,11 @@ export default (app: Application): any => {
         defaultValue: true,
         allowNull: false
       },
+      isCoin: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false
+      },
       url: {
         type: DataTypes.STRING,
         allowNull: false

@@ -33,6 +33,9 @@ export default {
         isPublic: {
           type: 'integer'
         },
+        isCoin: {
+          type: 'integer'
+        },
         url: {
           type: 'string'
         },
