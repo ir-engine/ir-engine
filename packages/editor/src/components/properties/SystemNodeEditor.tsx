@@ -98,7 +98,7 @@ export const SystemnodeEditor = (props: SystemNodeEditorProps) => {
       <InputGroup name="Script" label={t('editor:properties.systemnode.lbl-filePath')}>
         <FileBrowserInput
           acceptFileTypes={CustomScriptFileTypes}
-          acceptDropItems={ItemTypes.Script}
+          acceptDropItems={ItemTypes.Scripts}
           value={node.filePath}
           onChange={onChangePath}
         />

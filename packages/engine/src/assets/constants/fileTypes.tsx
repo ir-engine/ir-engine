@@ -9,7 +9,7 @@ export const ModelFileTypes = ['.glb', 'model/gltf-binary']
 //array containing shopify file type.
 export const ShopifyFileTypes = ['.glb', 'model/gltf-binary']
 //array containing custom script type.
-export const CustomScriptFileTypes = ['.tsx', '.ts', '.js']
+export const CustomScriptFileTypes = ['.tsx', '.ts', '.js', '.jsx']
 //array contains arrays of all files types.
 export const AllFileTypes = [
   ...AudioFileTypes,

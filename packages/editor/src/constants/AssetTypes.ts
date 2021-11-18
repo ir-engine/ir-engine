@@ -29,13 +29,13 @@ export const ItemTypes = {
     'audio/mpeg',
     'model/gltf'
   ],
+  Scripts: ['tsx', 'ts', 'jsx', 'js'],
   Images: ['png', 'jpeg', 'jpg', 'gif'],
   Videos: ['mp4'],
   Audios: ['mp3', 'mpeg'],
   //TODO: Need to check if following types are really used or not.
   Node: 'Node',
   Model: 'Model',
-  Script: ['tsx', 'ts', 'jsx', 'js'],
   Shopify: 'Shopify',
   Image: 'Image',
   Video: 'Video',
