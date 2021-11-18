@@ -1,4 +1,4 @@
-import React, { useState , useContext} from 'react'
+import React, { useState, useContext } from 'react'
 import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import ModeContext from '../context/modeContext'

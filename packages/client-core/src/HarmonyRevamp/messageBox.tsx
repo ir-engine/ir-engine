@@ -174,7 +174,9 @@ const MessageBox: React.FunctionComponent = () => {
                           <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.textArea}`}>
                             <Avatar src={selfUser.avatarUrl} />
                             <textarea
-                              className={`${classes.formControl} ${classes.inPad} ${classes.scroll}`}
+                              className={`${classes.formControl} ${classes.inPad} ${
+                                darkMode ? classes.white : classes.textBlack
+                              } ${classes.scroll}`}
                               value={editingMessageText}
                               onKeyPress={(e) => {
                                 if (e.charCode === 13 && e.shiftKey) {
@@ -244,7 +246,7 @@ const MessageBox: React.FunctionComponent = () => {
             <div className={`${classes.dFlex} ${classes.flexGrow} ${classes.alignCenter}`}>
               <Avatar src={selfUser.avatarUrl} />
               <textarea
-                className={`${classes.formControl} ${classes.inPad}`}
+                className={`${classes.formControl} ${classes.inPad} ${darkMode ? classes.white : classes.textBlack}`}
                 placeholder="Your message"
                 value={composingMessage}
                 onKeyPress={(e) => {
@@ -263,49 +265,54 @@ const MessageBox: React.FunctionComponent = () => {
                   <AttachFile className={darkMode ? classes.white : classes.textBlack} />
                 </IconButton>
               </label>
-              <IconButton onClick={packageMessage} component="span">
-                <Send className={darkMode && classes.white} />
-              </IconButton>
-            </label>
-            <div className={`${classes.flexGrow} ${darkMode ? classes.darkBg : classes.bgLight}`}>
-              <div className={`${classes.dFlex} ${classes.alignCenter}`}>
-                <Avatar src={selfUser.avatarUrl} />
-                <textarea
-                  className={`${classes.formControl} ${classes.inPad} ${classes.scroll}`}
-                  placeholder="Your message"
-                  value={composingMessage}
-                  onKeyPress={(e) => {
-                    if (e.shiftKey === false && e.charCode === 13) {
-                      e.preventDefault()
-                      packageMessage()
-                    }
-                  }}
-                  onChange={composingMessageChangedHandler}
-                ></textarea>
+              <label>
+                <IconButton onClick={packageMessage} component="span">
+                  <Send className={darkMode && classes.white} />
+                </IconButton>
+              </label>
+              <div className={`${classes.flexGrow} ${darkMode ? classes.darkBg : classes.bgLight}`}>
+                <div className={`${classes.dFlex} ${classes.alignCenter}`}>
+                  <Avatar src={selfUser.avatarUrl} />
+                  <textarea
+                    className={`${classes.formControl} ${classes.inPad} ${classes.scroll}`}
+                    placeholder="Your message"
+                    value={composingMessage}
+                    onKeyPress={(e) => {
+                      if (e.shiftKey === false && e.charCode === 13) {
+                        e.preventDefault()
+                        packageMessage()
+                      }
+                    }}
+                    onChange={composingMessageChangedHandler}
+                  ></textarea>
+                </div>
               </div>
+              <IconButton onClick={packageMessage} component="span">
+                <Send className={classes.white} />
+              </IconButton>
             </div>
             <IconButton onClick={packageMessage} component="span">
               <Send className={darkMode && classes.white} />
             </IconButton>
           </div>
+          <Dialog
+            open={showWarning}
+            onClose={() => setShowWarning(false)}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            classes={{ paper: classes.paperDialog }}
+          >
+            <DialogTitle id="alert-dialog-title">Confirm to delete this message!</DialogTitle>
+            <DialogActions>
+              <Button onClick={cancelMessageDelete} className={classes.spanNone}>
+                Cancel
+              </Button>
+              <Button className={classes.spanDange} onClick={confirmMessageDelete} autoFocus>
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
         </div>
-        <Dialog
-          open={showWarning}
-          onClose={() => setShowWarning(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          classes={{ paper: classes.paperDialog }}
-        >
-          <DialogTitle id="alert-dialog-title">Confirm to delete this message!</DialogTitle>
-          <DialogActions>
-            <Button onClick={cancelMessageDelete} className={classes.spanNone}>
-              Cancel
-            </Button>
-            <Button className={classes.spanDange} onClick={confirmMessageDelete} autoFocus>
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
       </Container>
     </>
   )

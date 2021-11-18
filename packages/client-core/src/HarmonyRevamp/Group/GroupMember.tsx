@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Delete } from '@material-ui/icons'
 import { AddCircleOutline } from '@mui/icons-material'
 import { Container, Avatar, Drawer } from '@mui/material'
 import { useHarmonyStyles } from '../style'
+import ModeContext from '../context/modeContext'
 
 interface Props {
   openDrawer: any
@@ -10,11 +11,13 @@ interface Props {
 }
 
 const GroupMembers = (props: Props) => {
+  const { darkMode } = useContext(ModeContext)
   const { openDrawer, handleCloseDrawer } = props
   const classes = useHarmonyStyles()
+
   return (
     <Drawer anchor={'right'} open={openDrawer} onClose={() => handleCloseDrawer()}>
-      <Container className={classes.bgDark} style={{ height: '100vh', overflowY: 'scroll' }}>
+      <Container className={classes.bgWhite} style={{ height: '100vh', overflowY: 'scroll' }}>
         <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
           <AddCircleOutline />
           &nbsp;&nbsp;&nbsp;&nbsp;
