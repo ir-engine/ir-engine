@@ -12,6 +12,23 @@ import { analyticsSeeds } from './analytics/seeder-config'
 import { routeSeeds } from './route/seeder-config'
 import { projectSeeds } from './projects/seeder-config'
 
+import fs from 'fs'
+import path from 'path'
+
+const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
+  ? fs
+      .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => {
+        console.log(dirent)
+        if (fs.existsSync(path.resolve(__dirname, '../../projects/projects', dirent.name, 'services/seeder-config.ts')))
+          return dirent.name
+      })
+      .filter((hasServices) => !!hasServices)
+      .map((name) => require(`../../projects/projects/${name}/services/seeder-config.ts`).default)
+      .flat()
+  : []
+
 export const seeds: Array<ServicesSeedConfig> = [
   ...mediaSeeds,
   ...networkingSeeds,
@@ -24,7 +41,8 @@ export const seeds: Array<ServicesSeedConfig> = [
   ...settingSeeds,
   ...analyticsSeeds,
   ...routeSeeds,
-  ...projectSeeds
+  ...projectSeeds,
+  ...installedProjects
 ]
 
 export default seeds

@@ -1,9 +1,6 @@
 export interface ProjectPackageInterface {
   thumbnail: string
   routes: string[]
-  // TODO: remove these when file browser is in
-  clientReactEntryPoint: string
-  moduleEntryPoints: string[]
 }
 
 export interface ProjectInterface extends ProjectPackageInterface {
