@@ -29,7 +29,7 @@ describe('Scene Service', () => {
       projectName: defaultProjectName,
       metadataOnly: false
     }, params)
-    assert.deepStrictEqual(parsedData, data[0].scene)
+    assert.deepStrictEqual(parsedData, data.find(entry => entry.name === defaultSceneName).scene)
   })
 
   it("should get default scene data", async function() {
