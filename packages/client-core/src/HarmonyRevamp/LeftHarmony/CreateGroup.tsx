@@ -13,6 +13,16 @@ const initialGroupForm = {
   description: ''
 }
 
+const initialSelectedUserState = {
+  id: '',
+  name: '',
+  userRole: '',
+  identityProviders: [],
+  relationType: {},
+  inverseRelationType: {},
+  avatarUrl: ''
+}
+
 interface Props {
   setShowChat: any
 }
@@ -27,6 +37,7 @@ const CreateGroup = (props: Props) => {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [detailsType, setDetailsType] = React.useState('')
   const [selectedGroup, setSelectedGroup] = React.useState(initialGroupForm)
+  const [selectedUser, setSelectedUser] = React.useState(initialSelectedUserState)
 
   const handleClose = () => {
     setGroupForm(initialGroupForm)
@@ -38,6 +49,23 @@ const CreateGroup = (props: Props) => {
 
   const handleUpdateClose = () => {
     setAnchorEl(null)
+  }
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const openDetails = (e, type, object) => {
+    handleClick(e)
+    setDetailsType(type)
+    setGroupFormMode('update')
+    e.stopPropagation()
+    if (type === 'user') {
+      setSelectedUser(object)
+    } else if (type === 'group') {
+      setSelectedGroup(object)
+      setGroupForm({ ...groupForm, name: object.name, description: object.description, id: object.id })
+    }
   }
 
   const toggleUpdateDrawer = (anchor, open) => (event) => {
@@ -151,7 +179,7 @@ const CreateGroup = (props: Props) => {
           </Container>
         </Drawer>
       </div>
-      <GroupList setShowChat={setShowChat} toggleUpdateDrawer={toggleUpdateDrawer} />
+      <GroupList setShowChat={setShowChat} toggleUpdateDrawer={toggleUpdateDrawer} openDetails={openDetails} />
     </div>
   )
 }

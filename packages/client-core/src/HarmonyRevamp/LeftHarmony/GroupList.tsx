@@ -31,6 +31,7 @@ import ModeContext from '../context/modeContext'
 interface Props {
   setShowChat: any
   toggleUpdateDrawer: (anchor: string, open: boolean) => void
+  openDetails: (e: any, type: string, object: any) => void
 }
 const initialGroupForm = {
   id: '',
@@ -49,7 +50,7 @@ const initialSelectedUserState = {
 }
 
 const GroupList = (props: Props) => {
-  const { setShowChat, toggleUpdateDrawer } = props
+const { setShowChat, toggleUpdateDrawer, openDetails } = props
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [anchorEl, setAnchorEl] = React.useState(null)
@@ -87,14 +88,6 @@ const GroupList = (props: Props) => {
     InviteService.updateInviteTarget(targetObjectType, targetObjectId)
   }
 
-  const toggleDrawer = (anchor, open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return
-    }
-    setState({ ...state, [anchor]: open })
-    handleClose()
-  }
-
   const handleClose = () => {
     setGroupForm(initialGroupForm)
     setGroupFormMode('create')
@@ -115,19 +108,6 @@ const GroupList = (props: Props) => {
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
-  }
-
-  const openDetails = (e, type, object) => {
-    handleClick(e)
-    setDetailsType(type)
-    setGroupFormMode('update')
-    e.stopPropagation()
-    if (type === 'user') {
-      setSelectedUser(object)
-    } else if (type === 'group') {
-      setSelectedGroup(object)
-      setGroupForm({ ...groupForm, name: object.name, description: object.description, id: object.id })
-    }
   }
 
   const handleCreate = () => {
@@ -159,7 +139,14 @@ const GroupList = (props: Props) => {
                 </div>
 
                 <div>
-                  <a href="#" className={classes.border0} onClick={(e) => openDetails(e, 'group', group)}>
+                  <a
+                    href="#"
+                    className={classes.border0}
+                    onClick={(e) => {
+                      openDetails(e, 'group', group)
+                      handleClick(e)
+                    }}
+                  >
                     <MoreHoriz className={darkMode ? classes.white : classes.textBlack} />
                   </a>
                   <Popover
