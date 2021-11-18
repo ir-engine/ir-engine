@@ -33,7 +33,7 @@ export const download = async (projectName) => {
         console.log(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
       }
       console.log(path.resolve(appRootPath.path, 'packages/projects'))
-      writeFileSyncRecursive(path.resolve(appRootPath.path, 'packages/projects', filePath), fileResult.Body.toString()) //, 'utf8')
+      writeFileSyncRecursive(path.resolve(appRootPath.path, 'packages/projects', filePath), fileResult.Body) //, 'utf8')
     }
 
     console.log('[ProjectLoader]: Successfully downloaded and mounted project', projectName)
