@@ -22,7 +22,7 @@ const Index = () => {
   return (
     <Grid container className={classes.root}>
       <Grid item xs={3} className={darkMode ? classes.GridDark : classes.GridLight}>
-        <Container>
+        <Container style={{ height: '100%' }}>
           <LeftHarmony setShowChat={setShowChat} />
         </Container>
       </Grid>

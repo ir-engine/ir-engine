@@ -3,9 +3,14 @@ import { InviteService, useInviteState } from '@xrengine/client-core/src/social/
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import ModeContext from '../context/modeContext'
 import { useHarmonyStyles } from '../style'
-import { MenuItem, Select } from '@mui/material'
+import { FormControl, MenuItem, Select } from '@mui/material'
 
-const Group = () => {
+interface Props {
+  handleCloseModal: any
+}
+
+const Group = (props: Props) => {
+  const { handleCloseModal } = props
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [type, setType] = React.useState('email')
@@ -58,7 +63,7 @@ const Group = () => {
     }
 
     InviteService.sendInvite(sendData)
-    //console.log(sendData)
+    handleCloseModal()
     setUserToken('')
   }
   return (
@@ -107,28 +112,27 @@ const Group = () => {
             <label htmlFor="" className={classes.mx2}>
               <p>Group:</p>
             </label>
-            <Select
-              labelId="invite-group-select-label"
-              id="invite-group-select"
-              value={inviteState.targetObjectId.value}
-              //onChange={handleInviteGroupChange}
-              //onScroll={onSelectScroll}
-            >
-              {invitableGroups.value.map((group) => {
-                return (
-                  <MenuItem
-                    // className={classNames({
-                    //   [styles['flex-center']]: true,
-                    //   [styles['color-white']]: true
-                    // })}
-                    key={group.id}
-                    value={group.id}
-                  >
-                    {group.description}
-                  </MenuItem>
-                )
-              })}
-            </Select>
+            <FormControl fullWidth>
+              <Select
+                labelId="invite-group-select-label"
+                id="invite-group-select"
+                className={classes.select}
+                value={inviteState.targetObjectId.value}
+                //onChange={handleInviteGroupChange}
+                MenuProps={{ classes: { paper: classes.selectPaper } }}
+              >
+                <MenuItem value="" disabled>
+                  <em>Select group</em>
+                </MenuItem>
+                {invitableGroups.value.map((group) => {
+                  return (
+                    <MenuItem key={group.id} value={group.id}>
+                      {group.description}
+                    </MenuItem>
+                  )
+                })}
+              </Select>
+            </FormControl>{' '}
             {/* <select className={classes.formControls}>
               <option value={inviteState.targetObjectId.value}>{inviteState.targetObjectId.value}</option>
             </select> */}
@@ -182,7 +186,7 @@ const Group = () => {
           <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
             <button
               onClick={packageInvite}
-              className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
+              className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary} ${classes.cpointer} ${classes.hover}`}
             >
               Send
             </button>

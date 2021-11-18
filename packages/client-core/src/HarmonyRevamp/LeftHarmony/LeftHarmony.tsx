@@ -101,8 +101,8 @@ const LeftHarmony = (props: Props) => {
     PartyService.createParty()
   }
 
-  const handleCloseDrawer = () => {
-    setOpen(false)
+  const handleCloseModal = () => {
+    handleCloseCreate(), setInvite('')
   }
 
   const nextFriendsPage = (): void => {
@@ -134,7 +134,7 @@ const LeftHarmony = (props: Props) => {
 
   return (
     <>
-      <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h100}`}>
+      <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h}`}>
         <div>
           <div className={`${classes.dFlex} ${classes.justifyContentBetween}`}>
             <h4 className={darkMode ? classes.white : classes.textBlack}>Chats</h4>
@@ -290,19 +290,10 @@ const LeftHarmony = (props: Props) => {
           </div>
         </div>
       </div>
-      <Dialog
-        fullWidth={true}
-        maxWidth={'md'}
-        open={create}
-        onClose={() => {
-          handleCloseCreate(), setInvite('')
-        }}
-      >
-        <InviteModel invite={invite} />
+      <Dialog fullWidth={true} maxWidth={'md'} open={create} onClose={() => handleCloseModal()}>
+        <InviteModel handleCloseModal={handleCloseModal} invite={invite} />
       </Dialog>
       <InviteHarmony setShowNot={setShowNot} show={show} setShow={setShow} />
-      {/* <GroupMembers openDrawer={openDrawer} handleCloseDrawer={handleCloseDrawer} /> */}
-      {/* <CreateGroup openCreateDrawer={openCreateDrawer} handleCloseCreateDrawer={handleCloseCreateDrawer} /> */}
     </>
   )
 }

@@ -24,14 +24,14 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     GridDark: {
       backgroundColor: '#3E3A5F',
-      padding: '50px 0px'
+      paddingTop: '50px'
     },
     bgLight: {
       backgroundColor: '#EBEDEF'
     },
     GridLight: {
       backgroundColor: '#E3E5E8',
-      padding: '50px 0px'
+      paddingTop: '50px'
     },
     dFlex: {
       display: 'flex'
@@ -184,7 +184,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     h100: {
       height: '89vh'
     },
-    h1002: {
+    h: {
       height: '98%'
     },
     flexGrow2: {
@@ -330,7 +330,26 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     textArea: {
       width: '20rem',
-      margin: '1rem 2rem 1rem 0'
+      margin: '1rem 2rem 1rem 0',
+      padding: '5px 20px',
+      borderRadius: '40px'
+    },
+    bgColorTrans: {
+      background: 'transparent'
+    },
+    hover: {
+      transition: 'all .2',
+      color: '#fff',
+      '&:hover': {
+        background: '#3E3A5F'
+      }
+    },
+    selectPaper: {
+      background: '#343b41',
+      color: '#f1f1f1'
+    },
+    select: {
+      color: '#f1f1f1 !important'
     }
   })
 )

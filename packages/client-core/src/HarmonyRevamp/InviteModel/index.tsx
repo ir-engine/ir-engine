@@ -50,14 +50,18 @@ function a11yProps(index) {
   }
 }
 
-const Index = ({ invite }) => {
+interface Props {
+  invite: string
+  handleCloseModal: any
+}
+
+const Index = (props: Props) => {
+  const { invite, handleCloseModal } = props
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [value, setValue] = React.useState(invite === 'Group' ? 2 : 0)
 
   const handleChange = (event, newValue) => {
-    // hack
-    InviteService.updateInviteTarget('group', 'd5206d80-4499-11ec-bf97-7105055dd807')
     setValue(newValue)
   }
 
@@ -67,7 +71,7 @@ const Index = ({ invite }) => {
         <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
           <AddCircleOutline />
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <h1>CREATE</h1>
+          <h1>Send Invite</h1>
         </div>
         <Box sx={{ flexGrow: 1, display: 'flex', height: 224, marginTop: 5 }}>
           <Tabs
@@ -83,13 +87,13 @@ const Index = ({ invite }) => {
             <Tab label="GROUP" {...a11yProps(2)} />
           </Tabs>
           <TabPanel value={value} index={0}>
-            <Friends />
+            <Friends handleCloseModal={handleCloseModal} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <Party />
+            <Party handleCloseModal={handleCloseModal} />
           </TabPanel>
           <TabPanel value={value} index={2}>
-            <Group />
+            <Group handleCloseModal={handleCloseModal} />
           </TabPanel>
         </Box>
       </div>

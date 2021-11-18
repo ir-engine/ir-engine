@@ -173,9 +173,14 @@ const MessageBox: React.FunctionComponent = () => {
                     <div className={`${classes.selfEnd} ${classes.my1}`}>
                       <div className={classes.dFlex}>
                         {messageUpdatePending === message.id ? (
-                          <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.textArea}`}>
+                          <div
+                            className={`${classes.dFlex} ${classes.alignCenter} ${classes.textArea} ${
+                              darkMode ? classes.darkBg : classes.bgLight
+                            } `}
+                          >
                             <Avatar src={selfUser.avatarUrl} />
                             <textarea
+                              autoFocus
                               className={`${classes.formControl} ${classes.inPad} ${
                                 darkMode ? classes.white : classes.textBlack
                               } ${classes.scroll}`}
@@ -246,7 +251,9 @@ const MessageBox: React.FunctionComponent = () => {
               darkMode ? classes.darkBg : classes.bgLight
             }`}
           >
-            <div className={`${classes.dFlex} ${classes.flexGrow} ${classes.alignCenter}`}>
+            <div
+              className={`${classes.dFlex} ${classes.flexGrow} ${classes.alignCenter} ${classes.borderRadius} ${classes.bgColorTrans}`}
+            >
               <Avatar src={selfUser.avatarUrl} />
               <textarea
                 className={`${classes.formControl} ${classes.inPad} ${darkMode ? classes.white : classes.textBlack}`}

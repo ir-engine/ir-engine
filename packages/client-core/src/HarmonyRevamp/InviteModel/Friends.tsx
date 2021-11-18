@@ -3,7 +3,12 @@ import { InviteService, useInviteState } from '@xrengine/client-core/src/social/
 import ModeContext from '../context/modeContext'
 import { useHarmonyStyles } from '../style'
 
-const Friends = () => {
+interface Props {
+  handleCloseModal: any
+}
+
+const Friends = (props: Props) => {
+  const { handleCloseModal } = props
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const inviteState = useInviteState()
@@ -28,8 +33,8 @@ const Friends = () => {
     }
 
     InviteService.sendInvite(sendData)
-    //console.log(sendData)
     setUserToken('')
+    handleCloseModal()
   }
 
   return (
@@ -94,6 +99,7 @@ const Friends = () => {
               </label>
               <input
                 onChange={handleUserTokenChange}
+                value={userToken}
                 type="text"
                 className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="XXXXXX"
@@ -103,7 +109,7 @@ const Friends = () => {
           <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
             <button
               onClick={packageInvite}
-              className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
+              className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary} ${classes.cpointer} ${classes.hover}`}
             >
               Send
             </button>

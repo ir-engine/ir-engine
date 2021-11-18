@@ -2,8 +2,12 @@ import React, { useState, useContext } from 'react'
 import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import ModeContext from '../context/modeContext'
 import { useHarmonyStyles } from '../style'
+interface Props {
+  handleCloseModal: any
+}
 
-const Party = () => {
+const Party = (props: Props) => {
+  const { handleCloseModal } = props
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const inviteState = useInviteState()
@@ -28,7 +32,7 @@ const Party = () => {
     }
 
     InviteService.sendInvite(sendData)
-    console.log(sendData)
+    handleCloseModal()
     setUserToken('')
   }
 
@@ -112,7 +116,7 @@ const Party = () => {
           <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
             <button
               onClick={packageInvite}
-              className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
+              className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary} ${classes.cpointer} ${classes.hover}`}
             >
               Send
             </button>
