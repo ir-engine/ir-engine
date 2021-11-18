@@ -38,7 +38,7 @@ export const locationSeed = {
         (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d11'
       ),
       isLobby: false
-    } as Location,      
+    } as Location,
     {
       id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d12',
       name: 'Game-Tournament',
