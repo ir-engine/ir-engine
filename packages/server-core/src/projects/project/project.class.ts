@@ -17,7 +17,7 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 
-export const copyDefaultProject = (overwrite = false) => {
+export const copyDefaultProject = () => {
   const seedPath = path.resolve(appRootPath.path, `packages/projects/projects`)
   deleteFolderRecursive(path.resolve(seedPath, `default-project`))
   copyFolderRecursiveSync(path.resolve(appRootPath.path, `packages/projects/default-project`), seedPath)
@@ -37,22 +37,25 @@ export const getStorageProviderPath = (projectName: string) =>
  * Updates the local storage provider with the project's current files
  * @param projectName
  */
-export const uploadLocalProjectToProvider = async (projectName) => {
+export const uploadLocalProjectToProvider = async (projectName, remove = true, exclusionList: RegExp[] = []) => {
   // remove exiting storage provider files
-  try {
-    const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
-    if (existingFiles.length) {
-      await Promise.all([
-        storageProvider.deleteResources(existingFiles),
-        storageProvider.createInvalidation([`projects/${projectName}*`])
-      ])
-    }
-  } catch (e) {}
+  if (remove) {
+    try {
+      const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+      if (existingFiles.length) {
+        await Promise.all([
+          storageProvider.deleteResources(existingFiles.filter((file) => exclusionList.find((exc) => exc.test(file)))),
+          storageProvider.createInvalidation([`projects/${projectName}*`])
+        ])
+      }
+    } catch (e) {}
+  }
   // upload new files to storage provider
   const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
   const files = getFilesRecursive(projectPath)
   const results = await Promise.all(
     files.map((file: string) => {
+      if (exclusionList.find((exc) => exc.test(file))) return Promise.resolve()
       return new Promise(async (resolve) => {
         try {
           const fileResult = fs.readFileSync(file)
@@ -291,7 +294,6 @@ export class Project extends Service {
         }
       } catch (e) {
         console.warn('[getProjects]: Failed to read package.json for project', name, 'with error', e)
-        return
       }
     }
     return {
@@ -324,7 +326,7 @@ export class Project extends Service {
           }
         } catch (e) {
           console.warn('[getProjects]: Failed to read package.json for project', entry.name, 'with error', e)
-          return
+          return entry
         }
       })
       .filter((entry) => !!entry)

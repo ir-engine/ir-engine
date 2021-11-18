@@ -3,7 +3,7 @@ import SketchPicker from 'react-color/lib/Sketch'
 import Input from './Input'
 import { Color } from 'three'
 import styled from 'styled-components'
-import Popover from '../layout/Popover'
+import Popover from '@mui/material/Popover'
 
 /**
  * ColorInputContainer used to provide styles for ColorInputContainer div.
@@ -91,24 +91,34 @@ export function ColorInput({ value, onChange, disabled, isValueAsInteger = false
     [onChange]
   )
 
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
+
+  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null)
+  }
+
+  const open = Boolean(anchorEl)
+
   //initializing hexColor by getting hexString
   const hexColor = '#' + (isValueAsInteger ? value.toString(16) : value.getHexString())
 
   //creating view for ColorInput
   return (
     <ColorInputContainer>
-      <Popover
-        disabled={disabled}
-        renderContent={() => (
+      <StyledColorInput as="div" disabled={disabled} onClick={handlePopoverOpen}>
+        <ColorPreview style={{ background: hexColor }} />
+        <ColorText>{hexColor.toUpperCase()}</ColorText>
+      </StyledColorInput>
+      <Popover open={open && !disabled} anchorEl={anchorEl} onClose={handlePopoverClose}>
+        <div>
           <ColorInputPopover>
             <SketchPicker {...rest} color={hexColor} disableAlpha={true} onChange={onChangePicker} />
           </ColorInputPopover>
-        )}
-      >
-        <StyledColorInput as="div" disabled={disabled}>
-          <ColorPreview style={{ background: hexColor }} />
-          <ColorText>{hexColor.toUpperCase()}</ColorText>
-        </StyledColorInput>
+        </div>
       </Popover>
     </ColorInputContainer>
   )

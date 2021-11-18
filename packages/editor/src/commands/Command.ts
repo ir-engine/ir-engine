@@ -34,7 +34,7 @@ export default class Command {
   /** Old selected objects prior to this command execution */
   oldSelection: any
 
-  constructor(objects?: any, params?: CommandParams) {
+  constructor(objects?: any, params: CommandParams = {}) {
     this.shouldEmitEvent = params.shouldEmitEvent ?? true
     this.shouldGizmoUpdate = params.shouldGizmoUpdate ?? true
     this.isSelected = params.isObjectSelected ?? true

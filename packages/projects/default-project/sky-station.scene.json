@@ -192,13 +192,13 @@
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
             "textureOverride": "",
-            "matrixAutoUpdate": true
+            "matrixAutoUpdate": false
           }
         },
         {
           "name": "shadow",
           "props": {
-            "cast": false,
+            "cast": true,
             "receive": true
           }
         },
@@ -333,12 +333,12 @@
             "intensity": 3,
             "castShadow": true,
             "shadowMapResolution": [
-              1024,
-              1024
+              512,
+              512
             ],
-            "shadowBias": 0.00009999999999998899,
+            "shadowBias": -0.0009999999999998899,
             "shadowRadius": 1,
-            "cameraFar": 200,
+            "cameraFar": 300,
             "showCameraHelper": false
           }
         }
@@ -381,9 +381,9 @@
             "locationName": "black-sun",
             "linkedPortalId": "0EA643B7-AA51-4577-8380-30817ED665C9",
             "spawnPosition": {
-              "x": 49.45498515651026,
+              "x": 49.45498515651021,
               "y": 1.979821728775554,
-              "z": -0.00805337255477852
+              "z": -0.00805337255477836
             },
             "spawnRotation": {
               "x": 3.141592653589793,
@@ -555,7 +555,7 @@
               "z": 0
             },
             "rotation": {
-              "x": 0,
+              "x": -1.5707963267948966,
               "y": 0,
               "z": 0
             },
@@ -576,9 +576,9 @@
           "name": "particle-emitter",
           "props": {
             "src": "/static/editor/dot.png",
-            "startColor": "#ffffff",
-            "middleColor": "#ffffff",
-            "endColor": "#ffffff",
+            "startColor": "#f61919",
+            "middleColor": "#7ed321",
+            "endColor": "#4a90e2",
             "startOpacity": 1,
             "middleOpacity": 1,
             "endOpacity": 1,
@@ -608,6 +608,122 @@
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 10
+    },
+    "68F3E172-E383-4EC0-832A-657CE147B1CE": {
+      "name": "Post Processing",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "postprocessing",
+          "props": {
+            "options": {
+              "FXAAEffect": {
+                "isActive": true,
+                "blendFunction": 13
+              },
+              "OutlineEffect": {
+                "isActive": true,
+                "blendFunction": 16,
+                "patternTexture": null,
+                "edgeStrength": 1,
+                "pulseSpeed": 0,
+                "visibleEdgeColor": 16777215,
+                "hiddenEdgeColor": 2230538,
+                "resolutionScale": 0.5,
+                "width": -1,
+                "height": -1,
+                "kernelSize": 0,
+                "blur": false,
+                "xRay": true
+              },
+              "SSAOEffect": {
+                "isActive": false,
+                "blendFunction": 10,
+                "distanceScaling": true,
+                "depthAwareUpsampling": true,
+                "samples": 16,
+                "rings": 7,
+                "distanceThreshold": 0.125,
+                "distanceFalloff": 0.02,
+                "minRadiusScale": 1,
+                "bias": 0.25,
+                "radius": 0.01,
+                "intensity": 2,
+                "fade": 0.05
+              },
+              "DepthOfFieldEffect": {
+                "isActive": false,
+                "blendFunction": 13,
+                "focusDistance": 0.02,
+                "focalLength": 0.5,
+                "bokehScale": 1
+              },
+              "BloomEffect": {
+                "isActive": true,
+                "blendFunction": 16,
+                "kernelSize": 2,
+                "luminanceThreshold": 1,
+                "luminanceSmoothing": 0.1,
+                "intensity": 0.2
+              },
+              "ToneMappingEffect": {
+                "isActive": false,
+                "blendFunction": 13,
+                "adaptive": true,
+                "resolution": 512,
+                "middleGrey": 0.6,
+                "maxLuminance": 32,
+                "averageLuminance": 1,
+                "adaptationRate": 2
+              },
+              "BrightnessContrastEffect": {
+                "isActive": false,
+                "brightness": 0.05,
+                "contrast": 0.1
+              },
+              "HueSaturationEffect": {
+                "isActive": false,
+                "hue": 0,
+                "saturation": -0.15
+              },
+              "ColorDepthEffect": {
+                "isActive": false,
+                "bits": 16
+              },
+              "LinearTosRGBEffect": {
+                "isActive": false
+              }
+            }
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 11
     }
   }
 }

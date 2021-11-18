@@ -19,6 +19,7 @@ import { VelocityComponent } from '../../../src/physics/components/VelocityCompo
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { TestNetwork } from '../TestNetwork'
+import { NetworkObjectOwnedTag } from '../../../src/networking/components/NetworkObjectOwnedTag'
 
 describe('OutgoingNetworkSystem Unit Tests', () => {
 
@@ -246,15 +247,12 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         handsPose: []
       }
 
-      // client is not host (world.isHosting === false)
-      Engine.userId = '0' as UserId
-
-      for (let i = 0; i < 2; i++) {
+      for (let i = 0; i < 8; i++) {
         const entity = createEntity()
 
-        // make first entity the client's entity
-        if (i === 0) {
-          world.localClientEntity = entity
+        // make every other entity owned by this instance
+        if (i % 2) {
+          const ownedNetworkTag = addComponent(entity, NetworkObjectOwnedTag, {})
         }
 
         const transform = addComponent(entity, TransformComponent, {
@@ -265,7 +263,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         const networkObject = addComponent(entity, NetworkObjectComponent, {
           // remote owner
           userId: i as unknown as UserId,
-          networkId: 0 as NetworkId,
+          networkId: i as NetworkId,
           prefab: '',
           parameters: {},
         })
@@ -276,9 +274,13 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       queueUnchangedPosesClient(world)
 
       /* assert */
-      // verify only 1 client pose was queued
+      // verify only every odd entity pose was queued
       const { outgoingNetworkState } = world
-      strictEqual(outgoingNetworkState.pose.length, 1)
+      strictEqual(outgoingNetworkState.pose.length, 4)
+      strictEqual(outgoingNetworkState.pose[0].networkId, 1)
+      strictEqual(outgoingNetworkState.pose[1].networkId, 3)
+      strictEqual(outgoingNetworkState.pose[2].networkId, 5)
+      strictEqual(outgoingNetworkState.pose[3].networkId, 7)
     })
   })
 
