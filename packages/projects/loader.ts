@@ -3,7 +3,7 @@ import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
-interface ProjectNodeArguments {
+interface SystemProps {
   filePath: string
   systemUpdateType: keyof typeof SystemUpdateType
   enableClient: boolean
@@ -11,7 +11,8 @@ interface ProjectNodeArguments {
   args: any
 }
 
-export const getPacksFromSceneData = async (
+export const getSystemsFromSceneData = async (
+  project: string,
   sceneData: SceneJson,
   isClient: boolean
 ): Promise<SystemModuleType<any>[]> => {
@@ -19,9 +20,9 @@ export const getPacksFromSceneData = async (
   for (const entity of Object.values(sceneData.entities)) {
     for (const component of entity.components) {
       if (component.name === 'system') {
-        const data: ProjectNodeArguments = component.props
+        const data: SystemProps = component.props
         if ((isClient && data.enableClient) || (!isClient && data.enableServer)) {
-          systems.push(await importPack(data))
+          systems.push(await importSystem(project, data))
         }
       }
     }
@@ -29,10 +30,10 @@ export const getPacksFromSceneData = async (
   return systems
 }
 
-export const importPack = async (data: ProjectNodeArguments): Promise<SystemModuleType<any>> => {
-  console.info(`Loading Project with data`, data)
+export const importSystem = async (project: string, data: SystemProps): Promise<SystemModuleType<any>> => {
+  console.info(`Loading Project ${project} with data`, data)
   const { filePath, systemUpdateType, args } = data
-  const filePathRelative = new URL(filePath).pathname.replace('/projects/', '')
+  const filePathRelative = new URL(filePath).pathname.replace(`/projects/${project}/`, '')
   console.log(filePath)
   const entryPointSplit = filePathRelative.split('.')
   const entryPointExtension = entryPointSplit.pop()
@@ -44,25 +45,25 @@ export const importPack = async (data: ProjectNodeArguments): Promise<SystemModu
     switch (entryPointExtension) {
       case 'js':
         return {
-          systemModulePromise: import(`./projects/${entryPointSplit}.js`),
+          systemModulePromise: import(`./projects/${project}/${entryPointSplit}.js`),
           type: systemUpdateType,
           args
         }
       case 'jsx':
         return {
-          systemModulePromise: import(`./projects/${entryPointSplit}.jsx`),
+          systemModulePromise: import(`./projects/${project}/${entryPointSplit}.jsx`),
           type: systemUpdateType,
           args
         }
       case 'ts':
         return {
-          systemModulePromise: import(`./projects/${entryPointSplit}.ts`),
+          systemModulePromise: import(`./projects/${project}/${entryPointSplit}.ts`),
           type: systemUpdateType,
           args
         }
       case 'tsx':
         return {
-          systemModulePromise: import(`./projects/${entryPointSplit}.tsx`),
+          systemModulePromise: import(`./projects/${project}/${entryPointSplit}.tsx`),
           type: systemUpdateType,
           args
         }
