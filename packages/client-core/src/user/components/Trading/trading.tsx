@@ -108,7 +108,7 @@ export const TradingPage = (): any => {
   // }
 
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
-
+ 
   return (
     <EmptyLayout pageTitle={t('Inventory.pageTitle')}>
       <style>
