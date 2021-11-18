@@ -14,7 +14,7 @@ import * as React from 'react'
 import InviteHarmony from '../InviteHarmony'
 import { useHarmonyStyles } from '../style'
 import InviteModel from '../InviteModel'
-import GroupMembers from '../Group/GroupMember'
+// import GroupMembers from '../Group/GroupMember'
 import CreateGroup from './CreateGroup'
 import { PartyService } from '@xrengine/client-core/src/social/services/PartyService'
 import ModeContext from '../context/modeContext'
@@ -30,7 +30,7 @@ const LeftHarmony = (props: Props) => {
 
   const classes = useHarmonyStyles()
   const { darkMode, setDarkMode } = React.useContext(ModeContext)
-  const [checked, setChecked] = React.useState(true)
+  const [checked, setChecked] = React.useState(JSON.parse(localStorage.getItem('mode')))
 
   const persed = queryString.parse(location.search)
   const history = useHistory()
@@ -75,8 +75,10 @@ const LeftHarmony = (props: Props) => {
   const party = usePartyState().party?.value
 
   const handleChange = (event) => {
-    setDarkMode(!darkMode)
-    setChecked(event.target.checked)
+    const mode = event.target.checked
+    setDarkMode(mode)
+    setChecked(mode)
+    localStorage.setItem('mode', JSON.stringify(mode))
   }
 
   const handleClickOpen = () => {
@@ -299,7 +301,7 @@ const LeftHarmony = (props: Props) => {
         <InviteModel invite={invite} />
       </Dialog>
       <InviteHarmony setShowNot={setShowNot} show={show} setShow={setShow} />
-      <GroupMembers openDrawer={openDrawer} handleCloseDrawer={handleCloseDrawer} />
+      {/* <GroupMembers openDrawer={openDrawer} handleCloseDrawer={handleCloseDrawer} /> */}
       {/* <CreateGroup openCreateDrawer={openCreateDrawer} handleCloseCreateDrawer={handleCloseCreateDrawer} /> */}
     </>
   )

@@ -2,9 +2,9 @@ import * as React from 'react'
 import { Avatar, Grid } from '@mui/material'
 import { useHarmonyStyles } from '../style'
 import { Download } from '@mui/icons-material'
-import Image1 from '../../../client/public/static/download.jpeg'
-import Image2 from '../../../client/public/static/download (1).jpeg'
-import Image3 from '../../../client/public/static/images.jpeg'
+import Image1 from '../../../../client/public/static/download.jpeg'
+import Image2 from '../../../../client/public/static/download (1).jpeg'
+import Image3 from '../../../../client/public/static/images.jpeg'
 import ModeContext from '../context/modeContext'
 
 const RightHarmony = () => {
