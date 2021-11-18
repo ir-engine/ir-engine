@@ -1,5 +1,5 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import { BadRequest } from '@feathersjs/errors'
+import { BadRequest, NotFound } from '@feathersjs/errors'
 import { Application } from '../../../declarations'
 import { getTicketsAssignment } from '@xrengine/matchmaking/src/functions'
 import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
@@ -36,11 +36,19 @@ export class MatchTicketAssignment implements ServiceMethods<Data> {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
 
-    if (config.server.matchmakerEmulationMode) {
-      return emulate_getTicketsAssignment(this.app, ticketId, params['identity-provider'].userId)
+    let assignment
+    try {
+      if (config.server.matchmakerEmulationMode) {
+        assignment = await emulate_getTicketsAssignment(this.app, ticketId, params['identity-provider'].userId)
+      } else {
+        assignment = getTicketsAssignment(ticketId)
+      }
+    } catch (e) {
+      // todo: handle other errors. like no connection, etc....
+      throw new NotFound(e.message, e)
     }
 
-    return getTicketsAssignment(ticketId)
+    return assignment
   }
 
   async create(data: unknown, params?: Params): Promise<Data> {

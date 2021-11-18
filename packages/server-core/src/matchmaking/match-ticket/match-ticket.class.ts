@@ -5,6 +5,7 @@ import { createTicket, deleteTicket, getTicket } from '@xrengine/matchmaking/src
 import { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
 import config from '@xrengine/server-core/src/appconfig'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { emulate_createTicket, emulate_getTicket } from '../emulate'
 
 interface Data {}
 
@@ -45,22 +46,13 @@ export class MatchTicket implements ServiceMethods<Data> {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
 
-    console.log('ticket.get:emulate', config.server.matchmakerEmulationMode)
-
+    let ticket
     if (config.server.matchmakerEmulationMode) {
       // emulate response from open-match-api
-      const matchUser = await this.app.service('match-user').create({
-        ticketId: id,
-        userId: params.userId
-      })
-      return {
-        id,
-        search_fields: {
-          tags: [matchUser.gamemode]
-        }
-      }
+      ticket = await emulate_getTicket(this.app, id, params.body.userId)
+    } else {
+      ticket = getTicket(String(id))
     }
-    const ticket = getTicket(String(id))
 
     if (!ticket) {
       throw new NotFound()
@@ -73,17 +65,14 @@ export class MatchTicket implements ServiceMethods<Data> {
       return await Promise.all(data.map((current) => this.create(current, params) as OpenMatchTicket))
     }
 
-    // TODO: handle duplicate tickets from same person?
     if (!isValidTicketParams(data)) {
       // TODO: better validation response
       throw new BadRequest('Invalid ticket params')
     }
 
-    console.log('ticket.create:emulate', config.server.matchmakerEmulationMode)
-
     if (config.server.matchmakerEmulationMode) {
       // emulate response from open-match-api
-      return { id: Math.random().toString(), search_fields: { tags: [data.gamemode] } } as OpenMatchTicket
+      return emulate_createTicket(data.gamemode)
     }
 
     return await createTicket(data.gamemode)
@@ -100,6 +89,7 @@ export class MatchTicket implements ServiceMethods<Data> {
   }
 
   async remove(id: Id, params?: Params): Promise<Data> {
+    // skip delete in emulation, user-match will be deleted in hook
     if (!config.server.matchmakerEmulationMode) {
       await deleteTicket(String(id))
     }

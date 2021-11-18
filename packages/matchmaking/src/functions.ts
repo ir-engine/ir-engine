@@ -63,7 +63,7 @@ function getTicketsAssignment(ticketId: string): Promise<OpenMatchTicketAssignme
     .then(checkForApiErrorResponse)
     .then((response) => (response as OpenMatchTicketAssignmentResponse).result.assignment)
     .catch((e) => {
-      console.log('ticket assignment fetch error', e)
+      // console.log('ticket assignment fetch error', e)
       return Promise.reject(e)
     })
 }

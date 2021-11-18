@@ -53,12 +53,16 @@ const Page = () => {
       return
     }
 
-    getAssignment(ticketId).then((assignment) => {
-      setConnection(assignment.connection)
-      setInstanceId(assignment.instanceId)
-      setLocationName(assignment.locationName)
-      // setStatus('Found!')
-    })
+    getAssignment(ticketId)
+      .then((assignment) => {
+        setConnection(assignment.connection)
+        setInstanceId(assignment.instanceId)
+        setLocationName(assignment.locationName)
+        // setStatus('Found!')
+      })
+      .catch((e) => {
+        console.error(e)
+      })
   }, [ticketId])
 
   useEffect(() => {
@@ -151,7 +155,12 @@ const MatchMakingControl = (props: MatchMakingControlPropsInterface) => {
 
   let content
   if (connection) {
-    content = <div style={{ fontSize: 16, textAlign: 'center' }}>{`GAME FOUND, connection: ${connection}.`}</div>
+    content = (
+      <>
+        <div style={{ fontSize: 16, textAlign: 'center' }}>{`GAME FOUND, connection: ${connection}.`}</div>
+        {ticket?.id ? <button onClick={() => onExitQueue(ticket.id)}>Exit queue</button> : null}
+      </>
+    )
   } else if (typeof ticket !== 'undefined') {
     content = (
       <>

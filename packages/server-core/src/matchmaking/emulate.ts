@@ -1,5 +1,6 @@
 import { BadRequest } from '@feathersjs/errors'
-import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
+import { OpenAPIErrorResponse, OpenMatchTicket, OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
+import { getTicket } from '@xrengine/matchmaking/src/functions'
 
 async function waitAndGetMatchUser(app, ticketId, userId, timeout) {
   return new Promise<any>((resolve, reject) => {
@@ -20,26 +21,54 @@ async function waitAndGetMatchUser(app, ticketId, userId, timeout) {
   })
 }
 
-export async function emulate_getTicketsAssignment(app, ticketId, userId) {
+export async function emulate_createTicket(gamemode: string): Promise<OpenMatchTicket> {
+  return { id: Math.random().toString(), search_fields: { tags: [gamemode] } } as OpenMatchTicket
+}
+
+export async function emulate_getTicket(app, ticketId, userId): Promise<OpenMatchTicket | void> {
+  const matchUserResult = await app.service('match-user').find({
+    query: {
+      ticketId,
+      userId
+    }
+  })
+  if (Array.isArray(matchUserResult) || matchUserResult.data.length === 0) {
+    return
+  }
+  const matchUser = matchUserResult.data[0]
+
+  return {
+    id: ticketId,
+    search_fields: {
+      tags: [matchUser.gamemode]
+    }
+  }
+}
+
+export async function emulate_getTicketsAssignment(
+  app,
+  ticketId,
+  userId
+): Promise<OpenMatchTicketAssignment | OpenAPIErrorResponse> {
   // emulate response from open-match-api
-  const matchUser = await waitAndGetMatchUser(app, ticketId, userId, 5000)
+  const matchUser = await waitAndGetMatchUser(app, ticketId, userId, 50)
 
   if (!matchUser) {
-    throw new BadRequest('MatchUser not found. ticket is outdated?')
+    // throw new BadRequest('MatchUser not found. ticket is outdated?')
+    throw { code: 5, message: `Ticket id: ${ticketId} not found` }
   }
 
-  console.log('matchUser', matchUser)
   const connection = Math.random().toString()
   await app.service('match-user').patch(matchUser.id, {
     connection
   })
 
-  return new Promise<OpenMatchTicketAssignment>((resolve, reject) => {
+  return new Promise<OpenMatchTicketAssignment | OpenAPIErrorResponse>((resolve, reject) => {
     setTimeout(async () => {
-      const user = await app.service('match-user').get(matchUser.id)
-      console.log('assignment time', user)
-      if (!user) {
-        reject()
+      try {
+        await app.service('match-user').get(matchUser.id)
+      } catch (e) {
+        reject({ code: 5, message: `Ticket id: ${ticketId} not found` })
       }
 
       const assignment: OpenMatchTicketAssignment = {
