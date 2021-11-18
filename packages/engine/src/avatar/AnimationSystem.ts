@@ -24,11 +24,9 @@ export default async function AnimationSystem(world: World): Promise<System> {
   function animationActionReceptor(action) {
     matches(action).when(NetworkWorldAction.avatarAnimation.matchesFromAny, ({ $from }) => {
       if ($from === Engine.userId) {
-        console.log('same user id for remote anim')
         return
       }
 
-      console.log('handling anim')
       const avatarEntity = world.getUserAvatarEntity($from)
       const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
       if (!networkObject) {
