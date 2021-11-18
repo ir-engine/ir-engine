@@ -18,6 +18,9 @@ export const ItemTypes = {
     'mp4',
     'mp3',
     'mpeg',
+    'tsx',
+    'ts',
+    'js',
     NativeTypes.FILE,
     'folder',
     'image/png',
@@ -32,6 +35,7 @@ export const ItemTypes = {
   //TODO: Need to check if following types are really used or not.
   Node: 'Node',
   Model: 'Model',
+  Script: ['tsx', 'ts', 'jsx', 'js'],
   Shopify: 'Shopify',
   Image: 'Image',
   Video: 'Video',
