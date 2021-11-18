@@ -26,7 +26,6 @@ const Friends = () => {
       targetObjectId: inviteState.targetObjectId.value,
       invitee: mappedIDProvider !== 'code' ? userToken : null
     }
-
     InviteService.sendInvite(sendData)
     //console.log(sendData)
     setUserToken('')
@@ -37,7 +36,10 @@ const Friends = () => {
       <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx2}`}>
         <a
           href="#"
-          onClick={() => setType('email')}
+          onClick={() => {
+            setUserToken('')
+            setType('email')
+          }}
           className={`${type === 'email' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
             classes.roundedCircle
           } ${classes.mx2}`}
@@ -46,7 +48,10 @@ const Friends = () => {
         </a>
         <a
           href="#"
-          onClick={() => setType('phone')}
+          onClick={() => {
+            setUserToken('')
+            setType('phone')
+          }}
           className={`${type === 'phone' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
             classes.roundedCircle
           } ${classes.mx2}`}
@@ -55,7 +60,10 @@ const Friends = () => {
         </a>
         <a
           href="#"
-          onClick={() => setType('code')}
+          onClick={() => {
+            setUserToken('')
+            setType('code')
+          }}
           className={`${type === 'code' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
             classes.roundedCircle
           } ${classes.mx2}`}
@@ -72,6 +80,7 @@ const Friends = () => {
               </label>
               <input
                 type="text"
+                onChange={handleUserTokenChange}
                 className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="Your@domain.com"
               />
@@ -83,6 +92,7 @@ const Friends = () => {
               </label>
               <input
                 type="text"
+                onChange={handleUserTokenChange}
                 className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="078XXXXXXX"
               />

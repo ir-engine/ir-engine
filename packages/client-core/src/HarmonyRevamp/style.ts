@@ -331,6 +331,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     fontSizeSmall: {
       fontSize: '1rem'
     },
+    whiteBg: {
+      backgroundColor: '#FFF'
+    },
     textArea: {
       width: '20rem',
       margin: '1rem 2rem 1rem 0'

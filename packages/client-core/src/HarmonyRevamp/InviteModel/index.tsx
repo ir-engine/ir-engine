@@ -67,7 +67,7 @@ const Index = ({ invite }) => {
         <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
           <AddCircleOutline />
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <h1>CREATE</h1>
+          <h1>INVITE</h1>
         </div>
         <Box sx={{ flexGrow: 1, display: 'flex', height: 224, marginTop: 5 }}>
           <Tabs
