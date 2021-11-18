@@ -192,7 +192,7 @@ const LeftHarmony = (props: Props) => {
             >
               <span>Group</span>
             </a>
-            <a
+            {/* <a
               href="#"
               onClick={() => {
                 channelTypeChangeHandler('layer')
@@ -204,7 +204,7 @@ const LeftHarmony = (props: Props) => {
               } ${classes.mx2}`}
             >
               <span>Layer</span>
-            </a>
+            </a> */}
             <a
               href="#"
               onClick={() => {

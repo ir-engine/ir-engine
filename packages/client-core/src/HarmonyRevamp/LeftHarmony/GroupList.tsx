@@ -63,6 +63,7 @@ const GroupList = (props: Props) => {
   const [create, setCreate] = React.useState(false)
   const [detailsType, setDetailsType] = React.useState('')
   const [selectedUser, setSelectedUser] = React.useState(initialSelectedUserState)
+  const [invite, setInvite] = React.useState('')
 
   //group state
   const groupState = useGroupState()
