@@ -447,7 +447,6 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   }
 
   async serialize(projectID) {
-    debugger
     let extend: any
     if (this.extendType == 'model') {
       extend = {

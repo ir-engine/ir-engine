@@ -270,17 +270,22 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
         <StringInput value={node.shopifyToken} onChange={onChangeShopifyToken} />
       </InputGroup>
 
-      <InputGroup name="Shopify Products" label={t('editor:properties.shopify.lbl-shopifyProducts')}>
-        <SelectInput options={node.shopifyProducts} value={node.shopifyProductId} onChange={onChangeProducts} />
-      </InputGroup>
+      {node.shopifyProducts && node.shopifyProducts.length > 0 && (
+        <InputGroup name="Shopify Products" label={t('editor:properties.shopify.lbl-shopifyProducts')}>
+          <SelectInput options={node.shopifyProducts} value={node.shopifyProductId} onChange={onChangeProducts} />
+        </InputGroup>
+      )}
 
-      <InputGroup name="Shopify Media" label={t('editor:properties.shopify.lbl-shopifyProductItems')}>
-        <SelectInput
-          options={node.shopifyProductItems}
-          value={node.shopifyProductItemId}
-          onChange={onChangeProductItems}
-        />
-      </InputGroup>
+      {node.shopifyProductItems && node.shopifyProductItems.length > 0 && (
+        <InputGroup name="Shopify Media" label={t('editor:properties.shopify.lbl-shopifyProductItems')}>
+          <SelectInput
+            options={node.shopifyProductItems}
+            value={node.shopifyProductItemId}
+            onChange={onChangeProductItems}
+          />
+        </InputGroup>
+      )}
+
       {renderPropertiesFields(node)}
       {node.shopifyProductItemId != '' && (
         <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
