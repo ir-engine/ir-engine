@@ -11,19 +11,20 @@ import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
-import templateProjectJson from '@xrengine/projects/template/package.json'
+import templateProjectJson from '@xrengine/projects/template-project/package.json'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 
-const templateFolderDirectory = path.resolve(appRootPath.path, `packages/projects/template`)
+const templateFolderDirectory = path.resolve(appRootPath.path, `packages/projects/template-project/`)
+
+const projectsRootFolder = path.resolve(appRootPath.path, 'packages/projects/projects/')
 
 export const copyDefaultProject = () => {
-  const seedPath = path.resolve(appRootPath.path, `packages/projects/projects`)
-  deleteFolderRecursive(path.resolve(seedPath, `default-project`))
-  copyFolderRecursiveSync(path.resolve(appRootPath.path, `packages/projects/default-project`), seedPath)
+  deleteFolderRecursive(path.resolve(projectsRootFolder, `default-project`))
+  copyFolderRecursiveSync(path.resolve(projectsRootFolder, 'default-project'), projectsRootFolder)
 }
 
 const getRemoteURLFromGitData = (project) => {
@@ -58,7 +59,7 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true) =
     await deleteProjectFilesInStorageProvider(projectName)
   }
   // upload new files to storage provider
-  const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
+  const projectPath = path.resolve(projectsRootFolder, projectName)
   const files = getFilesRecursive(projectPath)
   const results = await Promise.all(
     files.map((file: string) => {
@@ -91,8 +92,7 @@ export class Project extends Service {
     this.app = app
 
     // copy default project if it doesn't exist
-    if (!fs.existsSync(path.resolve(appRootPath.path, `packages/projects/projects/default-project`)))
-      copyDefaultProject()
+    if (!fs.existsSync(path.resolve(projectsRootFolder, 'default-project'))) copyDefaultProject()
 
     if (isDev && !config.db.forceRefresh) {
       this._fetchDevLocalProjects()
@@ -106,8 +106,6 @@ export class Project extends Service {
     const dbEntries = (await super.find()) as any
     const data: ProjectInterface[] = dbEntries.data
     console.log(dbEntries)
-
-    const projectsRootFolder = path.resolve(appRootPath.path, 'packages/projects/projects/')
 
     if (!fs.existsSync(projectsRootFolder)) {
       fs.mkdirSync(projectsRootFolder, { recursive: true })
@@ -152,9 +150,16 @@ export class Project extends Service {
   async create(data: { name: string }, params?: Params) {
     const projectName = cleanString(data.name)
 
-    const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+    if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
+      throw new Error(`[Projects]: Project with name ${projectName} already exists`)
 
-    copyFolderRecursiveSync(templateFolderDirectory, projectLocalDirectory)
+    if (projectName === 'default-project' || projectName === 'template-project')
+      throw new Error(`[Projects]: Project name ${projectName} not allowed`)
+
+    const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
+
+    copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
+    fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), path.resolve(projectsRootFolder, projectName))
 
     fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
 
