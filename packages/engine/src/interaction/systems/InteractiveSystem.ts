@@ -31,7 +31,7 @@ import {
   getInteractUI,
   updateInteractUI,
   setUserDataInteractUI,
-  InteactiveUI
+  InteractiveUI
 } from '../functions/interactUI'
 
 export default async function InteractiveSystem(world: World): Promise<System> {
@@ -98,10 +98,10 @@ export default async function InteractiveSystem(world: World): Promise<System> {
     }
 
     for (const entity of xrComponentQuery.enter()) {
-      if (InteactiveUI.has(entity)) setUserDataInteractUI(entity)
+      if (InteractiveUI.has(entity)) setUserDataInteractUI(entity)
     }
 
-    for (const xrEntity of InteactiveUI.keys()) {
+    for (const xrEntity of InteractiveUI.keys()) {
       updateInteractUI(xrEntity)
     }
 

@@ -24,7 +24,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 
 const upVec = new Vector3(0, 1, 0)
 
-export const InteactiveUI = new Map<Entity, ReturnType<typeof createInteractiveModalView>>()
+export const InteractiveUI = new Map<Entity, ReturnType<typeof createInteractiveModalView>>()
 
 //TODO: Create interactive UI
 export const createInteractUI = (entity: Entity) => {
@@ -36,7 +36,7 @@ export const createInteractUI = (entity: Entity) => {
   interactiveComponent.data.interactionUserData = {}
   interactiveComponent.data.interactionUserData.entity = entity
   const ui = createInteractiveModalView(interactiveComponent.data as any)
-  InteactiveUI.set(entity, ui)
+  InteractiveUI.set(entity, ui)
 
   //set transform
   const transform = getComponent(entity, TransformComponent)
@@ -218,7 +218,7 @@ export const hideInteractUI = (entity: Entity) => {
 
 //TODO: Get interactive UI
 export const getInteractUI = (entity: Entity) => {
-  let ui = InteactiveUI.get(entity)
+  let ui = InteractiveUI.get(entity)
   if (ui) return ui
   return false
 }
@@ -226,7 +226,7 @@ export const getInteractUI = (entity: Entity) => {
 //TODO: Get interactive UI
 export const getParentInteractUI = (entity: Entity) => {
   let parentEntity
-  InteactiveUI.forEach((ui) => {
+  InteractiveUI.forEach((ui) => {
     if (ui.entity == entity) {
       parentEntity = ui.state.entityIndex.value
     }
