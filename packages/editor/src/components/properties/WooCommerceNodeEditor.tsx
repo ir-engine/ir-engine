@@ -13,6 +13,8 @@ import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import SceneNode from '../../nodes/SceneNode'
 
 import AudioSourceProperties from './AudioSourceProperties'
 import { ControlledStringInput } from '../inputs/StringInput'
@@ -37,7 +39,7 @@ export const WooCommerceNodeEditor = (props: WooCommerceNodeEditorProps) => {
 
   useEffect(() => {
     const options = []
-    const sceneNode = SceneManager.instance.scene
+    const sceneNode = Engine.scene as any as SceneNode
     sceneNode.traverse((o) => {
       if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
@@ -227,7 +229,7 @@ export const WooCommerceNodeEditor = (props: WooCommerceNodeEditorProps) => {
             </InputGroup>
             <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
               <SelectInput
-                options={SceneManager.instance.scene.children.map((obj: Object3D) => {
+                options={Engine.scene.children.map((obj: Object3D) => {
                   return {
                     label: obj.name,
                     value: obj.uuid
