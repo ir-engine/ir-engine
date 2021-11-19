@@ -3,7 +3,8 @@
         "youHaveBeenBannedMsg": "You have been banned from this location",
         "locationName": {
             "pageTitle": "Home"
-        }
+        },
+        "locationNotFoundMsg": "We are unable to find this location. Please check your location name."
     },
     "editor": {
         "projects": {

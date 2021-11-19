@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
 import { retriveLocationByName } from './LocationLoadHelper'
 
+import styles from './Scene.module.scss'
+
 interface Props {
   locationName: string
 }
@@ -16,6 +18,7 @@ export const LoadLocationScene = (props: Props) => {
   const authState = useAuthState()
   const locationState = useLocationState()
   const history = useHistory()
+  const locationNotFound = locationState.locationNotFound
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const dispatch = useDispatch()
 
@@ -42,7 +45,9 @@ export const LoadLocationScene = (props: Props) => {
     }
   }, [authState.isLoggedIn.value, authState.user.id.value])
 
-  if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
+  if (isUserBanned) return <div className={styles['banned']}>{t('location.youHaveBeenBannedMsg')}</div>
+
+  if (locationNotFound) return <div className={styles['location-not-found']}>{t('location.locationNotFoundMsg')}</div>
 
   return <> </>
 }
