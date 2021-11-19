@@ -67,6 +67,10 @@ export default class HashMap<Key extends ITuple, Value> {
     }
   }
 
+  entries() {
+    return this.values()
+  }
+
   clear() {
     this.map = {}
   }
