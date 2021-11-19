@@ -19,9 +19,10 @@ import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { NodeManager } from '../../managers/NodeManager'
-import { SceneManager } from '../../managers/SceneManager'
 import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import Hotkeys from 'react-hot-keys'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -723,11 +724,11 @@ const MemoTreeNode = memo(TreeNode, areEqual)
 function* treeWalker(collapsedNodes) {
   const stack = []
 
-  if (!SceneManager.instance.scene) return
+  if (!Engine.scene) return
 
   stack.push({
     depth: 0,
-    object: SceneManager.instance.scene,
+    object: Engine.scene,
     childIndex: 0,
     lastChild: true
   })
@@ -785,6 +786,7 @@ export default function HierarchyPanel() {
   const [renamingNode, setRenamingNode] = useState(null)
   const [collapsedNodes, setCollapsedNodes] = useState({})
   const [nodes, setNodes] = useState([])
+  const [selectedNode, setSelectedNode] = useState(null)
   const updateNodeHierarchy = useCallback(() => {
     const nodes = Array.from(treeWalker(collapsedNodes))
     setNodes(nodes)
@@ -872,7 +874,7 @@ export default function HierarchyPanel() {
    */
   const onCollapseAllNodes = useCallback(() => {
     const newCollapsedNodes = {}
-    SceneManager.instance.scene.traverse((child) => {
+    Engine.scene.traverse((child: any) => {
       if (child.isNode) {
         newCollapsedNodes[child.id] = true
       }
@@ -917,8 +919,10 @@ export default function HierarchyPanel() {
     if (e.detail === 1) {
       if (e.shiftKey) {
         CommandManager.instance.executeCommandWithHistory(EditorCommands.TOGGLE_SELECTION, node.object)
+        setSelectedNode(null)
       } else if (!node.selected) {
         CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, node.object)
+        setSelectedNode(node)
       }
     }
   }, [])
@@ -1029,8 +1033,10 @@ export default function HierarchyPanel() {
       } else if (e.key === 'Enter') {
         if (e.shiftKey) {
           CommandManager.instance.executeCommandWithHistory(EditorCommands.TOGGLE_SELECTION, node.object)
+          setSelectedNode(null)
         } else {
           CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, node.object)
+          setSelectedNode(node)
         }
       }
     },
@@ -1140,9 +1146,7 @@ export default function HierarchyPanel() {
         return
       }
 
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
-        parents: SceneManager.instance.scene
-      })
+      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: Engine.scene })
     },
     canDrop(item, monitor) {
       if (!monitor.isOver({ shallow: true })) {
@@ -1155,8 +1159,8 @@ export default function HierarchyPanel() {
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
         return !(item.multiple
-          ? item.value.some((otherObject) => isAncestor(otherObject, SceneManager.instance.scene))
-          : isAncestor(item.value, SceneManager.instance.scene))
+          ? item.value.some((otherObject) => isAncestor(otherObject, Engine.scene))
+          : isAncestor(item.value, Engine.scene))
       }
 
       return true
@@ -1171,7 +1175,7 @@ export default function HierarchyPanel() {
   return (
     <Fragment>
       <PanelContainer>
-        {SceneManager.instance.scene && (
+        {Engine.scene && (
           <AutoSizer>
             {({ height, width }) => (
               <FixedSizeList
@@ -1202,14 +1206,32 @@ export default function HierarchyPanel() {
       </PanelContainer>
       <ContextMenu id="hierarchy-node-menu">
         <MenuItem onClick={onRenameNode}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
-        <MenuItem onClick={onDuplicateNode}>
-          {t('editor:hierarchy.lbl-duplicate')}
-          <div>{cmdOrCtrlString + '+ D'}</div>
-        </MenuItem>
-        <MenuItem onClick={onGroupNodes}>
-          {t('editor:hierarchy.lbl-group')}
-          <div>{cmdOrCtrlString + '+ G'}</div>
-        </MenuItem>
+        <Hotkeys
+          keyName={cmdOrCtrlString + '+d'}
+          onKeyUp={(_, e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            selectedNode && onDuplicateNode(e, selectedNode)
+          }}
+        >
+          <MenuItem onClick={onDuplicateNode}>
+            {t('editor:hierarchy.lbl-duplicate')}
+            <div>{cmdOrCtrlString + ' + d'}</div>
+          </MenuItem>
+        </Hotkeys>
+        <Hotkeys
+          keyName={cmdOrCtrlString + '+g'}
+          onKeyUp={(_, e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            selectedNode && onGroupNodes(e, selectedNode)
+          }}
+        >
+          <MenuItem onClick={onGroupNodes}>
+            {t('editor:hierarchy.lbl-group')}
+            <div>{cmdOrCtrlString + ' + g'}</div>
+          </MenuItem>
+        </Hotkeys>
         <MenuItem onClick={onDeleteNode}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
         <MenuItem onClick={onExpandAllNodes}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
         <MenuItem onClick={onCollapseAllNodes}>{t('editor:hierarchy.lbl-collapseAll')}</MenuItem>

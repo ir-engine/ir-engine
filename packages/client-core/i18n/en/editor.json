@@ -180,6 +180,7 @@
             "description": "A flat ground plane that extends into the distance.",
             "lbl-color": "Color",
             "lbl-receiveShadow": "Receive Shadow",
+            "lbl-generateNavmesh": "Generate Navmesh",
             "lbl-walkable": "Walkable"
         },
         "link": {
@@ -477,9 +478,14 @@
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
         },
-        "projectnode": {
-            "description": "Attach Project.",
-            "lbl-scripturl": "Project"
+        "systemnode": {
+            "description": "Attach script.",
+            "lbl-filePath": "Url",
+            "lbl-systemUpdateType": "Injection Point",
+            "lbl-enableClient": "Client",
+            "lbl-enableServer": "Server",
+            "lbl-args": "Args",
+            "error-url": "Error Loading Script From URL"
         },
         "portal": {
             "lbl-portal": "Linked Portal",

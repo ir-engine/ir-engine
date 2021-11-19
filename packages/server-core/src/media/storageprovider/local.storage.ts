@@ -11,17 +11,20 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { getContentType } from '../../util/fileUtils'
 
 const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 
 export class LocalStorage implements StorageProviderInterface {
   path = './upload'
   cacheDomain = config.server.localStorageProvider
-
-  getObject = async (key: string): Promise<any> => {
+  getObject = async (key: string): Promise<StorageObjectInterface> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, key)
     const result = await fs.promises.readFile(filePath)
-    return { Body: result }
+    return {
+      Body: result,
+      ContentType: getContentType(filePath)
+    }
   }
 
   listObjects = async (prefix: string, recursive = false): Promise<StorageListObjectInterface> => {
@@ -55,13 +58,13 @@ export class LocalStorage implements StorageProviderInterface {
   createInvalidation = async (): Promise<any> => Promise.resolve()
 
   getProvider = (): StorageProviderInterface => this
-  getStorage = (): BlobStore => fsStore(this.path)
+  getStorage = (): BlobStore => fsStore(path.join(appRootPath.path, 'packages', 'server', this.path))
 
   checkObjectExistence = (key: string): Promise<any> => {
     return new Promise((resolve, reject) => {
       const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, key)
       const exists = fs.existsSync(filePath)
-      if (exists) reject(new Error('Pack already exists'))
+      if (exists) reject(new Error('Object already exists'))
       else resolve(null)
     })
   }
@@ -78,6 +81,7 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   deleteResources(keys: string[]): Promise<any> {
+    //Currently Not able to delete dir
     const blobs = this.getStorage()
 
     return Promise.all(
@@ -96,11 +100,8 @@ export class LocalStorage implements StorageProviderInterface {
                   resolve(false)
                   return
                 }
-
                 resolve(true)
               })
-
-            resolve(true)
           })
         })
       })
@@ -152,7 +153,12 @@ export class LocalStorage implements StorageProviderInterface {
    * @param renameTo
    * @returns
    */
-  moveObject = async (current: string, destination: string, isCopy: boolean, renameTo: string): Promise<boolean> => {
+  moveObject = async (
+    current: string,
+    destination: string,
+    isCopy = false,
+    renameTo: string = null
+  ): Promise<boolean> => {
     const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
     let fileName = renameTo != null ? renameTo : path.basename(current)
     let fileCount = 1

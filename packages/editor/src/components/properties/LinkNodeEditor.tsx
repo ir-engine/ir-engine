@@ -3,14 +3,12 @@ import React from 'react'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import i18n from 'i18next'
-import { withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
 //declaring properties for LinkNodeEditor
 type LinkNodeEditorProps = {
   node?: any
-  t: Function
 }
 
 /**
@@ -20,6 +18,7 @@ type LinkNodeEditorProps = {
  * @type {class component}
  */
 export const LinkNodeEditor = (props: LinkNodeEditorProps) => {
+  const { t } = useTranslation()
   //function to handle change in href property of LinkNode
   const onChangeHref = (href) => {
     CommandManager.instance.setPropertyOnSelection('href', href)
@@ -29,8 +28,8 @@ export const LinkNodeEditor = (props: LinkNodeEditorProps) => {
   const node = props.node
 
   return (
-    <NodeEditor description={LinkNodeEditor.description} {...props}>
-      <InputGroup name="Url" label={props.t('editor:properties.link.lbl-url')}>
+    <NodeEditor description={t('editor:properties.link.description')} {...props}>
+      <InputGroup name="Url" label={t('editor:properties.link.lbl-url')}>
         <StringInput value={node.href} onChange={onChangeHref} />
       </InputGroup>
     </NodeEditor>
@@ -38,6 +37,5 @@ export const LinkNodeEditor = (props: LinkNodeEditorProps) => {
 }
 
 LinkNodeEditor.iconComponent = Link
-LinkNodeEditor.description = i18n.t('editor:properties.link.description')
 
-export default withTranslation()(LinkNodeEditor)
+export default LinkNodeEditor

@@ -33,29 +33,32 @@ const storageProvider = useStorageProvider()
 export const getStorageProviderPath = (projectName: string) =>
   `https://${storageProvider.cacheDomain}/projects/${projectName}/`
 
+export const deleteProjectFilesInStorageProvider = async (projectName: string) => {
+  try {
+    const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+    if (existingFiles.length) {
+      await Promise.all([
+        storageProvider.deleteResources(existingFiles),
+        storageProvider.createInvalidation([`projects/${projectName}*`])
+      ])
+    }
+  } catch (e) {}
+}
+
 /**
  * Updates the local storage provider with the project's current files
  * @param projectName
  */
-export const uploadLocalProjectToProvider = async (projectName, remove = true, exclusionList: RegExp[] = []) => {
+export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
   // remove exiting storage provider files
   if (remove) {
-    try {
-      const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
-      if (existingFiles.length) {
-        await Promise.all([
-          storageProvider.deleteResources(existingFiles.filter((file) => exclusionList.find((exc) => exc.test(file)))),
-          storageProvider.createInvalidation([`projects/${projectName}*`])
-        ])
-      }
-    } catch (e) {}
+    await deleteProjectFilesInStorageProvider(projectName)
   }
   // upload new files to storage provider
   const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
   const files = getFilesRecursive(projectPath)
   const results = await Promise.all(
     files.map((file: string) => {
-      if (exclusionList.find((exc) => exc.test(file))) return Promise.resolve()
       return new Promise(async (resolve) => {
         try {
           const fileResult = fs.readFileSync(file)
@@ -262,6 +265,8 @@ export class Project extends Service {
   async remove(id: Id, params?: Params) {
     console.log('remove', id)
     try {
+      const { name } = await super.get(id, params)
+      await deleteProjectFilesInStorageProvider(name)
       await super.remove(id, params)
     } catch (e) {
       console.log(`[Projects]: failed to remove project ${id}`, e)
@@ -294,7 +299,6 @@ export class Project extends Service {
         }
       } catch (e) {
         console.warn('[getProjects]: Failed to read package.json for project', name, 'with error', e)
-        return
       }
     }
     return {
@@ -327,7 +331,7 @@ export class Project extends Service {
           }
         } catch (e) {
           console.warn('[getProjects]: Failed to read package.json for project', entry.name, 'with error', e)
-          return
+          return entry
         }
       })
       .filter((entry) => !!entry)
