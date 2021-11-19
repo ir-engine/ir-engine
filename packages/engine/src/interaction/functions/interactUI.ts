@@ -16,6 +16,7 @@ import { createInteractiveModalView } from '../ui/InteractiveModalView'
 
 import Hls from 'hls.js'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 /**
  * @author Ron Oyama <github.com/rondoor124>
@@ -140,7 +141,7 @@ export const setUserDataInteractUI = (xrEntity: Entity) => {
   }
 }
 
-export const updateInteractUI = (userEntity: Entity, xrEntity: Entity) => {
+export const updateInteractUI = (xrEntity: Entity) => {
   const interactUIObject = getComponent(xrEntity, Object3DComponent).value
   if (!interactUIObject.visible) return
   const xrComponent = getComponent(xrEntity, XRUIComponent) as any
@@ -157,7 +158,8 @@ export const updateInteractUI = (userEntity: Entity, xrEntity: Entity) => {
       MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
     )
   } else {
-    const { x, z } = getComponent(userEntity, TransformComponent).position
+    const world = useWorld()
+    const { x, z } = getComponent(world.localClientEntity, TransformComponent).position
     interactUIObject.lookAt(x, interactUIObject.position.y, z)
   }
 }
