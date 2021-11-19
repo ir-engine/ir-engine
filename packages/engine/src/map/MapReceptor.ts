@@ -110,7 +110,7 @@ export const mapReceptor = (action: MapActionType) => {
 export const accessMapState = () => state
 
 if (process.env.APP_ENV === 'development' && isClient) {
-  window.mapReceptor = mapReceptor
-  window.MapAction = MapAction
-  window.accessMapState = accessMapState
+  ;(window as any).mapReceptor = mapReceptor
+  ;(window as any).MapAction = MapAction
+  ;(window as any).accessMapState = accessMapState
 }
