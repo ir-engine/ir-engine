@@ -9,6 +9,7 @@ import { NativeTypes } from 'react-dnd-html5-backend'
  */
 export const ItemTypes = {
   File: NativeTypes.FILE,
+  Folder: 'folder',
   FileBrowserContent: [
     'png',
     'jpeg',

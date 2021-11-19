@@ -6,15 +6,13 @@ import InputGroup from '../inputs/InputGroup'
 import Systemnode from '../../nodes/SystemNode'
 import { CommandManager } from '../../managers/CommandManager'
 import NodeEditor from './NodeEditor'
-import FileBrowserInput from '../inputs/FileBrowserInput'
 import EditorEvents from '../../constants/EditorEvents'
-import { CustomScriptFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { ItemTypes } from '../../constants/AssetTypes'
 import { validatePath } from '@xrengine/common/src/utils/validatePath'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { SelectInput } from '../inputs/SelectInput'
 import BooleanInput from '../inputs/BooleanInput'
 import StringInput from '../inputs/StringInput'
+import ScriptInput from '../inputs/ScriptInput'
 
 /**
  * Define properties for Script component.
@@ -96,12 +94,7 @@ export const SystemnodeEditor = (props: SystemNodeEditorProps) => {
   return (
     <NodeEditor description={SystemnodeEditor.description} {...props}>
       <InputGroup name="Script" label={t('editor:properties.systemnode.lbl-filePath')}>
-        <FileBrowserInput
-          acceptFileTypes={CustomScriptFileTypes}
-          acceptDropItems={ItemTypes.Scripts}
-          value={node.filePath}
-          onChange={onChangePath}
-        />
+        <ScriptInput value={node.filePath} onChange={onChangePath} />
         {!node.isValidURL && <div>{t('editor:properties.systemnode.error-url')}</div>}
       </InputGroup>
       <InputGroup name="systemUpdateType" label={t('editor:properties.systemnode.lbl-systemUpdateType')}>
