@@ -1,6 +1,3 @@
-import type { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
-import type { Application } from '@xrengine/server-core/declarations'
-
 export interface ProjectConfigInterface {
   thumbnail?: string
   routes?: {
@@ -12,6 +9,6 @@ export interface ProjectConfigInterface {
       }
     }
   }
-  services?: () => Promise<{ default: Array<(app: Application) => void> }>
-  databaseSeed?: Promise<{ default: Array<ServicesSeedConfig> }>
+  services?: string
+  databaseSeed?: string
 }

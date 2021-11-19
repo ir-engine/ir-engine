@@ -24,15 +24,21 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
       .map((dirent) => {
         try {
           const config: ProjectConfigInterface =
-            require(`../../projects/projects${dirent.name}/xrengine.config.ts`).default
+            require(`../../projects/projects/${dirent.name}/xrengine.config.ts`).default
+          if (!config.services) return null
           return path.join(dirent.name, config.services)
-        } catch (e) {}
+        } catch (e) {
+          console.log(e)
+        }
       })
       .filter((hasServices) => !!hasServices)
-      .map((servicesDir) => require(`../../projects/projects/${servicesDir}`).default)
+      .map((servicesDir) => {
+        console.log(servicesDir)
+        return require(`../../projects/projects/${servicesDir}`).default
+      })
       .flat()
   : []
-console.log(installedProjects)
+
 export default (app: Application): void => {
   ;[
     ...AnalyticsServices,

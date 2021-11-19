@@ -283,12 +283,4 @@ export class Project extends Service {
       data: data.find((e) => e.name === name)
     }
   }
-
-  //@ts-ignore
-  async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
-    const data: ProjectInterface[] = ((await super.find(params)) as any).data
-    return {
-      data
-    }
-  }
 }
