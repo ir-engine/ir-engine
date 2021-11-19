@@ -17,7 +17,12 @@ else
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME --region us-east-1 --public true
 fi
 
-docker tag $LABEL $ECR_URL/$REPO_NAME:$TAG
-docker tag $LABEL $ECR_URL/$REPO_NAME:latest_$STAGE
-docker push $ECR_URL/$REPO_NAME:$TAG
-docker push $ECR_URL/$REPO_NAME:latest_$STAGE
+docker tag $LABEL-analytics $ECR_URL/$REPO_NAME-analytics:$TAG & docker tag $LABEL-analytics $ECR_URL/$REPO_NAME-analytics:latest_$STAGE & \
+  docker tag $LABEL-api $ECR_URL/$REPO_NAME-api:$TAG & docker tag $LABEL-api $ECR_URL/$REPO_NAME-api:latest_$STAGE & \
+  docker tag $LABEL-client $ECR_URL/$REPO_NAME-client:$TAG & docker tag $LABEL-client $ECR_URL/$REPO_NAME-client:latest_$STAGE & \
+  docker tag $LABEL-gameserver $ECR_URL/$REPO_NAME-gameserver:$TAG & docker tag $LABEL-gameserver $ECR_URL/$REPO_NAME-gameserver:latest_$STAGE
+
+docker push $ECR_URL/$REPO_NAME-analytics:$TAG & docker push $ECR_URL/$REPO_NAME-api:$TAG & \
+  docker push $ECR_URL/$REPO_NAME-client:$TAG & docker push $ECR_URL/$REPO_NAME-gameserver:$TAG
+docker push $ECR_URL/$REPO_NAME-analytics:latest_$STAGE & docker push $ECR_URL/$REPO_NAME-api:latest_$STAGE & \
+  docker push $ECR_URL/$REPO_NAME-client:latest_$STAGE & docker push $ECR_URL/$REPO_NAME-gameserver:latest_$STAGE

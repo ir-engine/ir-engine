@@ -14,4 +14,4 @@ else
   aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
 fi
 
-DOCKER_BUILDKIT=1 docker build --cache-from $ECR_URL/$REPO_NAME-builder:latest_$STAGE --build-arg BUILDKIT_INLINE_CACHE=1 --tag $LABEL -f Dockerfile-builder .
+DOCKER_BUILDKIT=1 docker build --cache-from $ECR_URL/$REPO_NAME-builder:latest_$STAGE --build-arg BUILDKIT_INLINE_CACHE=1 --tag $LABEL -f dockerfiles/builder/Dockerfile-builder .
