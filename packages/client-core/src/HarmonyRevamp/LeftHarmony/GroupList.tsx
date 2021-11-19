@@ -16,6 +16,9 @@ import {
   ListItemText,
   Popover,
   Dialog,
+  DialogActions,
+  DialogTitle,
+  Button,
   Typography,
   Avatar,
   Box,
@@ -27,12 +30,20 @@ import {
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
 import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
 import ModeContext from '../context/modeContext'
+import { createJSHandle } from 'puppeteer'
 
 interface Props {
   setShowChat: any
+  setInvite: any
+  setCreate: any
   toggleUpdateDrawer: (anchor: string, open: boolean) => void
   openDetails: (e: any, type: string, object: any) => void
   isUserRank: string
+  setGroupForm: any
+  setGroupFormMode: any
+  groupForm: any
+  anchorEl: any
+  setAnchorEl: any
 }
 const initialGroupForm = {
   id: '',
@@ -51,21 +62,31 @@ const initialSelectedUserState = {
 }
 
 const GroupList = (props: Props) => {
-  const { setShowChat, toggleUpdateDrawer, openDetails, isUserRank } = props
+  const {
+    setShowChat,
+    setInvite,
+    setCreate,
+    toggleUpdateDrawer,
+    groupForm,
+    setGroupForm,
+    setGroupFormMode,
+    anchorEl,
+    setAnchorEl
+  } = props
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
-  const [anchorEl, setAnchorEl] = React.useState(null)
   // const [groupForm, setGroupForm] = React.useState(initialGroupForm)
-  const [groupFormMode, setGroupFormMode] = React.useState('create')
+  // const [groupFormMode, setGroupFormMode] = React.useState('create')
   const [selectedGroup, setSelectedGroup] = React.useState(initialGroupForm)
-  const [openDrawer, setOpen] = React.useState(false)
+  const [openDrawer, setOpenDrawer] = React.useState(false)
   const [state, setState] = React.useState({ right: false })
   const [groupDeletePending, setGroupDeletePending] = React.useState('')
   const [list, setList] = React.useState({ right: false })
-  const [create, setCreate] = React.useState(false)
   const [detailsType, setDetailsType] = React.useState('')
   const [selectedUser, setSelectedUser] = React.useState(initialSelectedUserState)
   const [invite, setInvite] = React.useState('')
+  const [groupToDelete, setGroupToDelete] = React.useState('')
+  const [showWarning, setShowWarning] = React.useState(false)
 
   //group state
   const groupState = useGroupState()
@@ -92,30 +113,48 @@ const GroupList = (props: Props) => {
   const handleClose = () => {
     // setGroupForm(initialGroupForm)
     setGroupFormMode('create')
-    setSelectedGroup(initialGroupForm)
+    // setSelectedGroup(initialGroupForm)
     setAnchorEl(null)
   }
 
   const handleOpenDrawer = () => {
-    setOpen(true)
+    setOpenDrawer(true)
   }
 
-  const confirmGroupDelete = (e, groupId) => {
+  const showGroupDeleteConfirm = () => {
+    setAnchorEl(null)
+    setShowWarning(true)
+  }
+
+  const cancelGroupDelete = (e: any) => {
     e.preventDefault()
-    setGroupDeletePending('')
-    GroupService.removeGroup(groupId)
-    handleClose()
+    setShowWarning(false)
+    setSelectedGroup(initialGroupForm)
+    setGroupForm(initialGroupForm)
+    setGroupFormMode('create')
   }
 
-  const handleClick = (event) => {
+  const confirmGroupDelete = (e) => {
+    e.preventDefault()
+    setShowWarning(false)
+    GroupService.removeGroup(selectedGroup.id)
+    setSelectedGroup(initialGroupForm)
+    setGroupForm(initialGroupForm)
+    setGroupFormMode('create')
+  }
+
+  const handleClick = (event, type, object) => {
     setAnchorEl(event.currentTarget)
+    setDetailsType(type)
+    setGroupFormMode('update')
+    event.stopPropagation()
+    if (type === 'user') {
+      setSelectedUser(object)
+    } else if (type === 'group') {
+      setSelectedGroup(object)
+      setGroupForm({ ...groupForm, name: object.name, description: object.description, id: object.id })
+    }
   }
-
-  const handleCreate = () => {
-    setCreate(true)
-  }
-
-  console.log(isUserRank)
 
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
@@ -188,7 +227,7 @@ const GroupList = (props: Props) => {
                         <MenuItem
                           className={classes.my2}
                           onClick={() => {
-                            openInvite('group', group.id), handleClose(), setInvite('Group'), handleCreate()
+                            openInvite('group', selectedGroup.id), handleClose(), setCreate(true), setInvite('Group')
                           }}
                         >
                           <ListItemIcon>
@@ -196,14 +235,12 @@ const GroupList = (props: Props) => {
                           </ListItemIcon>
                           <ListItemText>INVITE</ListItemText>
                         </MenuItem>
-                        {isUserRank === 'owner' && (
-                          <MenuItem className={classes.my2} onClick={(e) => confirmGroupDelete(e, selectedGroup.id)}>
-                            <ListItemIcon>
-                              <Delete fontSize="small" className={classes.danger} />
-                            </ListItemIcon>
-                            <ListItemText>DELETE</ListItemText>
-                          </MenuItem>
-                        )}
+                        <MenuItem className={classes.my2} onClick={showGroupDeleteConfirm}>
+                          <ListItemIcon>
+                            <Delete fontSize="small" className={classes.danger} />
+                          </ListItemIcon>
+                          <ListItemText>DELETE</ListItemText>
+                        </MenuItem>
                       </MenuList>
                       <div className={classes.center}>
                         <a
@@ -215,30 +252,6 @@ const GroupList = (props: Props) => {
                         >
                           <small>VIEW MEMBERS</small>
                         </a>
-                        <Drawer anchor={'right'} open={list['right']} onClose={toggleList('right', false)}>
-                          <Container className={classes.bgDark} style={{ height: '100vh', overflowY: 'scroll' }}>
-                            <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
-                              <AddCircleOutline />
-                              &nbsp;&nbsp;&nbsp;&nbsp;
-                              <h1>
-                                GROUP TEST 1 <small>&nbsp;&nbsp; 12 Members (s)</small>
-                              </h1>
-                            </div>
-                            <div
-                              className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter} ${classes.my2} ${classes.p5}`}
-                            >
-                              <div className={`${classes.dFlex} ${classes.alignCenter}`}>
-                                <Avatar src="./Avatar.png" />
-                                <div className={classes.mx2}>
-                                  <h4 className={classes.fontBig}>John laouireen</h4>
-                                </div>
-                              </div>
-                              <a href="#" className={classes.border0}>
-                                <Delete fontSize="small" className={classes.danger} />
-                              </a>
-                            </div>
-                          </Container>
-                        </Drawer>
                       </div>
                     </div>
                   </Popover>
@@ -246,6 +259,70 @@ const GroupList = (props: Props) => {
               </div>
             )
           })}
+      <Drawer
+        anchor={'right'}
+        open={openDrawer}
+        onClose={() => {
+          setOpenDrawer(false)
+        }}
+      >
+        <Container className={classes.bgDark} style={{ height: '100vh', overflowY: 'scroll' }}>
+          <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.p5}`}>
+            <AddCircleOutline />
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <h1>
+              GROUP TEST 1 <small>&nbsp;&nbsp; {selectedGroup.groupUsers.length} Members (s)</small>
+            </h1>
+          </div>
+          {selectedGroup &&
+            selectedGroup.groupUsers &&
+            selectedGroup.groupUsers.length > 0 &&
+            selectedGroup.groupUsers
+              .sort((a, b) => a.name - b.name)
+              .map((groupUser) => {
+                return (
+                  <div
+                    key={groupUser.id}
+                    className={`${classes.dFlex} ${classes.justifyContentBetween} ${classes.alignCenter} ${classes.my2} ${classes.p5}`}
+                  >
+                    <div className={`${classes.dFlex} ${classes.alignCenter}`}>
+                      <Avatar src={groupUser.avatarUrl} />
+                      {selectedUser.id === groupUser.id && (
+                        <div className={classes.mx2}>
+                          <h4 className={classes.fontBig}>{groupUser.name + ' (you)'}</h4>
+                        </div>
+                      )}
+                      {selectedUser.id !== groupUser.id && (
+                        <div className={classes.mx2}>
+                          <h4 className={classes.fontBig}>{groupUser.name + ' (you)'}</h4>
+                        </div>
+                      )}
+                    </div>
+                    <a href="#" className={classes.border0}>
+                      <Delete fontSize="small" className={classes.danger} />
+                    </a>
+                  </div>
+                )
+              })}
+        </Container>
+      </Drawer>
+      <Dialog
+        open={showWarning}
+        onClose={() => setShowWarning(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        classes={{ paper: classes.paperDialog }}
+      >
+        <DialogTitle id="alert-dialog-title">Confirm to delete this group!</DialogTitle>
+        <DialogActions>
+          <Button onClick={cancelGroupDelete} className={classes.spanNone}>
+            Cancel
+          </Button>
+          <Button className={classes.spanDange} onClick={confirmGroupDelete} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }

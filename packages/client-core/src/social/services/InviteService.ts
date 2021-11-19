@@ -342,7 +342,7 @@ export const InviteAction = {
       type: 'DECLINED_INVITE' as const
     }
   },
-  setInviteTarget: (targetObjectType: string, targetObjectId: string) => {
+  setInviteTarget: (targetObjectType?: string, targetObjectId?: string) => {
     return {
       type: 'INVITE_TARGET_SET' as const,
       targetObjectId: targetObjectId,

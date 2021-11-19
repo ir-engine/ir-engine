@@ -25,11 +25,12 @@ const initialSelectedUserState = {
 
 interface Props {
   setShowChat: any
-  selfUser: any
+  setInvite: any
+  setCreate: any
 }
 
 const CreateGroup = (props: Props) => {
-  const { setShowChat, selfUser } = props
+  const { setShowChat, setInvite, setCreate } = props
   const classes = useHarmonyStyles()
   const { darkMode } = React.useContext(ModeContext)
   const [state, setState] = React.useState({ right: false })
@@ -194,6 +195,13 @@ const CreateGroup = (props: Props) => {
         isUserRank={isUserRank}
         toggleUpdateDrawer={toggleUpdateDrawer}
         openDetails={openDetails}
+        groupForm={groupForm}
+        setGroupForm={setGroupForm}
+        setGroupFormMode={setGroupFormMode}
+        anchorEl={anchorEl}
+        setAnchorEl={setAnchorEl}
+        setInvite={setInvite}
+        setCreate={setCreate}
       />
     </div>
   )
