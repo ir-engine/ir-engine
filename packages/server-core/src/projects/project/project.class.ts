@@ -218,7 +218,7 @@ export class Project extends Service {
 
     let projectConfig: ProjectConfigInterface = {}
     try {
-      projectConfig = (await import(`@xrengine/projects/projects/${projectName}/xrengine.config.ts`)).default
+      projectConfig = (await import(`../../../../projects/projects/${projectName}/xrengine.config.ts`)).default
     } catch (e) {
       console.log(
         `[Projects]: WARNING project with name ${projectName} has no xrengine.config.ts file - this is not recommended`

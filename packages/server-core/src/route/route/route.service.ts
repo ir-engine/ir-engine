@@ -15,37 +15,38 @@ declare module '../../../declarations' {
   }
 }
 
-export const getInstalledRoutes = () => {
+export const getInstalledRoutes = async () => {
   const projects = fs
     .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name)
 
   const data: InstalledRoutesInterface[] = []
-  projects.forEach(async (project) => {
-    try {
-      const routesJsonPath = path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`)
-      if (fs.existsSync(routesJsonPath)) {
-        const projectConfig: ProjectConfigInterface = (
-          await import(`@xrengine/projects/projects/${project}/xrengine.config.ts`)
-        ).default
-        data.push({
-          routes: Object.keys(projectConfig.routes),
-          project
-        })
+  await Promise.all(
+    projects.map(async (project) => {
+      try {
+        if (fs.existsSync(path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`))) {
+          const projectConfig: ProjectConfigInterface = (
+            await import(`@xrengine/projects/projects/${project}/xrengine.config.ts`)
+          ).default
+          data.push({
+            routes: Object.keys(projectConfig.routes),
+            project
+          })
+        }
+      } catch (e) {
+        console.warn('[getProjects]: Failed to read config for project', project, 'with error', e)
+        return
       }
-    } catch (e) {
-      console.warn('[getProjects]: Failed to read package.json for project', project, 'with error', e)
-      return
-    }
-  })
+    })
+  )
   return { data }
 }
 
 export const activateRoute = (routeService: Route): any => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params) => {
     const activatedRoutes = ((await routeService.find()) as any).data as ActiveRoutesInterface[]
-    const installedRoutes = getInstalledRoutes().data
+    const installedRoutes = (await getInstalledRoutes()).data
     if (data.activate) {
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))
       if (routeToActivate) {
