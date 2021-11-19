@@ -26,8 +26,10 @@ export default class HashMap<Key extends ITuple, Value> {
   }
 
   set(key: Key, value: Value) {
+    if (!this.has(key)) {
+      this._size++
+    }
     this.map[key.hash] = value
-    this._size++
     return this
   }
 
@@ -44,10 +46,13 @@ export default class HashMap<Key extends ITuple, Value> {
   }
 
   delete(key: Key) {
-    const has = this.has(key)
-    delete this.map[key.hash]
-    this._size--
-    return has
+    if (this.has(key)) {
+      delete this.map[key.hash]
+      this._size--
+      return true
+    } else {
+      return false
+    }
   }
 
   *keyHashes() {

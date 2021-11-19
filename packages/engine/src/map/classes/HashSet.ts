@@ -15,8 +15,10 @@ export default class HashSet<Value extends ITuple> {
   }
 
   add(value: Value) {
+    if (!this.has(value)) {
+      this._size++
+    }
     this.map[value.hash] = value
-    this._size++
     return this
   }
 
@@ -25,10 +27,13 @@ export default class HashSet<Value extends ITuple> {
   }
 
   delete(value: Value) {
-    const has = this.has(value)
-    delete this.map[value.hash]
-    this._size--
-    return has
+    if (this.has(value)) {
+      delete this.map[value.hash]
+      this._size--
+      return true
+    } else {
+      return false
+    }
   }
 
   *values() {
