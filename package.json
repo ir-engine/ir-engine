@@ -105,7 +105,7 @@
     "@feathersjs/errors": "5.0.0-pre.9",
     "@feathersjs/express": "^5.0.0-pre.9",
     "@feathersjs/feathers": "5.0.0-pre.9",
-    "@feathersjs/hooks": "0.6.5",
+    "@feathersjs/hooks": "0.7.0",
     "@feathersjs/rest-client": "5.0.0-pre.9",
     "@feathersjs/socketio": "5.0.0-pre.9",
     "@feathersjs/socketio-client": "^5.0.0-pre.9",
