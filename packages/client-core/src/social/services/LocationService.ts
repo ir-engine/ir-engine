@@ -20,7 +20,6 @@ const state = createState({
     bannedUsers: [] as UserId[],
     selfUserBanned: false
   },
-  locationNotFound: false,
   updateNeeded: true,
   currentLocationUpdateNeeded: true,
   fetchingCurrentLocation: false,
@@ -224,7 +223,6 @@ export const LocationAction = {
   },
   socialLocationNotFound: () => {
     return {
-      locationNotFound: true,
       type: 'LOCATION_NOT_FOUND' as const
     }
   },

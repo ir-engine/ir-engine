@@ -18,7 +18,7 @@ export const LoadLocationScene = (props: Props) => {
   const authState = useAuthState()
   const locationState = useLocationState()
   const history = useHistory()
-  const locationNotFound = locationState.locationNotFound
+  const locationNotFound = locationState.invalidLocation.value
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const dispatch = useDispatch()
 
