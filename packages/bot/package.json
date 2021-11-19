@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/expect-puppeteer": "4.4.7",
     "@types/mocha": "9.0.0",
-    "@types/node": "16.11.8",
+    "@types/node": "16.11.9",
     "@types/puppeteer": "5.4.4",
     "@types/react": "17.0.35",
     "@types/react-dom": "17.0.11",
