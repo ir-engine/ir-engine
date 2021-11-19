@@ -106,40 +106,7 @@ const Home = (props: Props) => {
   }
 
   // if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
-  return (
-    <>
-      {view === 'terms' || view === 'policy' ? (
-        <TemporarySolution view={view} setView={setView} />
-      ) : (
-        <div className={platformClass + ' ' + hideContentOnRecord}>
-          {/*{!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}*/}
-          <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
-            <AppHeader setView={setView} onGoRegistration={onGoRegistration} />
-            {/* <Stories stories={stories} /> */}
-            <FeedMenu view={view} setView={setView} />
-            <AppFooter setView={setView} onGoRegistration={onGoRegistration} />
-            {(currentCreator?.value &&
-              // Made at the time of the test Aleks951
-              (!!!currentCreator.terms.value || !!!currentCreator.policy.value) &&
-              auth.user.userRole.value === 'user') ||
-              (auth.user.userRole.value === 'guest' && <TermsAndPolicy view={view} setView={setView} />)}
-            <ArMediaPopup />
-            <WebXRStart
-              feedHintsOnborded={feedHintsOnborded}
-              webxrRecorderActivity={webxrRecorderActivity}
-              setContentHidden={changeWebXrNative}
-              setFeedHintsOnborded={setFeedHintsOnborded}
-            />
-            <CreatorPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-            <FeedPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-            <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} setView={setView} />
-            <FeedFormPopup setView={setView} />
-            <SharedFormPopup setView={setView} />
-          </div>
-        </div>
-      )}
-    </>
-  )
+  return <>null</>
 }
 
 export default Home

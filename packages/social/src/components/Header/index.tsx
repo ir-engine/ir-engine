@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react'
 // @ts-ignore
 import styles from './Header.module.scss'
-import Avatar from '@mui/material/Avatar'
+import Avatar from '@material-ui/core/Avatar'
 import { useDispatch } from '@xrengine/client-core/src/store'
 
 import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
@@ -12,16 +12,16 @@ import { CreatorService } from '@xrengine/client-core/src/social/services/Creato
 import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import { useTranslation } from 'react-i18next'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useHistory } from 'react-router-dom'
 
-interface Props {
-  logo?: string
-  setView: any
-}
 const AppHeader = ({ setView, onGoRegistration }: any) => {
+  const history = useHistory()
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const [creator, setCreator] = useState({})
+
   const auth = useAuthState()
+
   useEffect(() => {
     if (auth.user.id.value) {
       CreatorService.getLoggedCreator()
@@ -30,9 +30,8 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
   const creatorState = useCreatorState()
 
   useEffect(() => {
-    // fixThis
     setCreator(
-      creatorState.creators.fetchingCurrentCreator.value === false ? false : creatorState.creators.currentCreator.value
+      creatorState.creators.fetchingCurrentCreator.value === false && creatorState.creators.currentCreator.value
     )
   }, [])
 
@@ -51,17 +50,23 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
           })
         }}
       />
-      {creator && (
-        <Avatar
-          onClick={() => {
-            onGoRegistration(() => {
-              PopupsStateService.updateCreatorFormState(true)
-            })
-          }}
-          alt={creator?.username}
-          src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
-        />
-      )}
+      {creator &&
+        {
+          /*!checkGuest*/
+        } && (
+          <Avatar
+            onClick={() => {
+              onGoRegistration(() => {
+                history.push('/editCreator')
+              })
+            }}
+            alt={creator?.username}
+            src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
+            style={{
+              cursor: 'pointer'
+            }}
+          />
+        )}
     </nav>
   )
 }

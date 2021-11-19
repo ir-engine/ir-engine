@@ -106,7 +106,7 @@ const CreatorForm = ({ creatorData }: Props) => {
                 variant="text"
                 className={styles.backButton}
                 onClick={() => {
-                  PopupsStateService.updateCreatorFormState(false)
+                  history.goBack()
                 }}
               >
                 <ArrowBackIosIcon />

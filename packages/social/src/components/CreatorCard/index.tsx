@@ -130,7 +130,7 @@ const CreatorCard = ({ creator }: Props) => {
             variant="text"
             className={styles.backButton}
             onClick={() => {
-              PopupsStateService.updateCreatorPageState(false)
+              history.back()
             }}
           >
             <ArrowBackIosIcon />
