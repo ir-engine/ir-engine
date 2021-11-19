@@ -45,11 +45,9 @@ function RouterComp(props) {
           }
         >
           <Switch>
-            {/* <Switch> */}
             {customRoutes.map((route, i) => (
               <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
             ))}
-            {/* </Switch> */}
             {/* default to allowing admin access regardless */}
             <Route key={'default-admin'} path={'/admin'} component={$admin} />
             <Route key={'default-login'} path={'/login'} component={$login} />

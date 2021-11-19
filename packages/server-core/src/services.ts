@@ -15,21 +15,24 @@ import RouteService from './route/service'
 
 import fs from 'fs'
 import path from 'path'
+import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
   ? fs
       .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => {
-        console.log(dirent)
-        if (fs.existsSync(path.resolve(__dirname, '../../projects/projects', dirent.name, 'services/services.ts')))
-          return dirent.name
+        try {
+          const config: ProjectConfigInterface =
+            require(`../../projects/projects${dirent.name}/xrengine.config.ts`).default
+          return path.join(dirent.name, config.services)
+        } catch (e) {}
       })
       .filter((hasServices) => !!hasServices)
-      .map((name) => require(`../../projects/projects/${name}/services/services.ts`).default)
+      .map((servicesDir) => require(`../../projects/projects/${servicesDir}`).default)
       .flat()
   : []
-
+console.log(installedProjects)
 export default (app: Application): void => {
   ;[
     ...AnalyticsServices,
