@@ -13,7 +13,7 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
 import { Action } from '../interfaces/Action'
-import { IWorld, pipe } from 'bitecs'
+import { Changed, defineSerializer, pipe } from 'bitecs'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { Mesh } from 'three'
@@ -26,6 +26,8 @@ import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 
 const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
 const ownedNetworkTransformsQuery = defineQuery([NetworkObjectOwnedTag, NetworkObjectComponent, TransformComponent])
+
+const serialize = defineSerializer([NetworkObjectComponent, Changed(TransformComponent)])
 
 const ikTransformsQuery = isClient
   ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
@@ -294,8 +296,14 @@ export const queueXRHandPoses = (world: World) => {
   return world
 }
 
-export const resetNetworkState = (world: World) => {
-  world.previousNetworkState = world.outgoingNetworkState
+const initNetworkStates = (world: World) => {
+  world.previousNetworkState = {
+    tick: world.fixedTick,
+    time: Date.now(),
+    pose: [],
+    controllerPose: [],
+    handsPose: []
+  }
   world.outgoingNetworkState = {
     tick: world.fixedTick,
     time: Date.now(),
@@ -303,6 +311,22 @@ export const resetNetworkState = (world: World) => {
     controllerPose: [],
     handsPose: []
   }
+  return world
+}
+
+export const resetNetworkState = (world: World) => {
+  const { outgoingNetworkState, previousNetworkState } = world
+
+  // copy previous state
+  previousNetworkState.pose = outgoingNetworkState.pose
+  previousNetworkState.controllerPose = outgoingNetworkState.controllerPose
+  previousNetworkState.handsPose = outgoingNetworkState.handsPose
+
+  // reset current state
+  outgoingNetworkState.pose = []
+  outgoingNetworkState.controllerPose = []
+  outgoingNetworkState.handsPose = []
+
   return world
 }
 
@@ -317,6 +341,16 @@ export const queueAllOutgoingPoses = pipe(
   isClient ? queueUnchangedPosesClient : queueUnchangedPosesServer,
   queueXRHandPoses,
   queueUnchangedControllerPoses
+)
+
+// prettier-ignore
+export const queueAllOutgoingPosesSoA = pipe(
+  /**
+   * For the client, we only want to send out objects we have authority over,
+   *   which are the local avatar and any owned objects
+   * For the server, we want to send all objects
+   */
+  isClient ? queueUnchangedPosesClient : queueUnchangedPosesServer,
 )
 
 /****************
@@ -334,12 +368,20 @@ const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) =
 }
 
 const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
-  transport.sendData(data)
+  try {
+    transport.sendData(data)
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
   const sendActions = sendActionsOnTransport(Network.instance.transport)
   const sendData = sendDataOnTransport(Network.instance.transport)
+
+  const serializeAndSendNetworkTransforms = pipe(networkTransformsQuery, serialize, sendData)
+
+  initNetworkStates(world)
 
   return () => {
     rerouteActions(world)
@@ -353,14 +395,16 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
 
     if (Engine.offlineMode) return
 
-    queueAllOutgoingPoses(world)
+    serializeAndSendNetworkTransforms(world)
+
+    // queueAllOutgoingPoses(world)
 
     // side effect - network IO
-    try {
-      const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
-      sendData(data)
-    } catch (e) {
-      console.error(e)
-    }
+    // try {
+    // const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
+    // sendData(data)
+    // } catch (e) {
+    //   console.error(e)
+    // }
   }
 }

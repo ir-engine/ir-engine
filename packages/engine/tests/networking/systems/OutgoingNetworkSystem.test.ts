@@ -20,6 +20,7 @@ import { NetworkObjectComponent } from '../../../src/networking/components/Netwo
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { TestNetwork } from '../TestNetwork'
 import { NetworkObjectOwnedTag } from '../../../src/networking/components/NetworkObjectOwnedTag'
+import { deserialize } from '../../../src/networking/systems/IncomingNetworkSystem'
 
 describe('OutgoingNetworkSystem Unit Tests', () => {
 
@@ -395,14 +396,18 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
 
     outgoingNetworkSystem()
 
-    /* assert */
+    /* retrieve */
     const datum = (Network.instance as TestNetwork).transport.getSentData()
     strictEqual(datum.length, 1)
+    
+    const packet = datum[0]
+    
+    const deserializedEntities = deserialize(world, packet)
 
-    const data0 = WorldStateModel.fromBuffer(datum[0])
-    strictEqual(data0.pose[0].position[0], 1)
-    strictEqual(data0.pose[0].position[1], 2)
-    strictEqual(data0.pose[0].position[2], 3)
+    /* assert */
+    strictEqual(deserializedEntities.length, 1)
+    strictEqual(deserializedEntities[0], entity)
+
   })
 
 })

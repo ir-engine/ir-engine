@@ -13,12 +13,14 @@ import { World } from '../../ecs/classes/World'
 import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { pipe } from 'bitecs'
+import { Changed, defineDeserializer, pipe } from 'bitecs'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { Group } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { avatarHalfHeight } from '../../avatar/functions/createAvatar'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+
+export const deserialize = defineDeserializer([NetworkObjectComponent, Changed(TransformComponent)])
 
 export const applyDelayedActions = (world: World) => {
   const { delayedActions } = world
