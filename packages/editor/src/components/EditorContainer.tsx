@@ -130,7 +130,7 @@ type EditorContainerProps = {
  *
  *  @author Robert Long
  */
-const EditorContainer = () => {
+const EditorContainer = (props) => {
   const projectName = useEditorState().projectName.value
   const sceneName = useEditorState().sceneName.value
 
@@ -166,6 +166,19 @@ const EditorContainer = () => {
       )
     }
   }
+
+  useEffect(() => {
+    const locationSceneName = props?.match?.params?.sceneName
+    const locationProjectName = props?.match?.params?.projectName
+
+    if (projectName !== locationProjectName) {
+      locationProjectName && dispatch(EditorAction.projectLoaded(locationProjectName))
+    }
+
+    if (sceneName !== locationSceneName) {
+      locationSceneName && dispatch(EditorAction.sceneLoaded(locationSceneName))
+    }
+  }, [])
 
   useEffect(() => {
     if (editorReady && !sceneLoaded && sceneName) {
@@ -277,6 +290,7 @@ const EditorContainer = () => {
   }
 
   const onCloseProject = () => {
+    props.history.push('/editor')
     dispatch(EditorAction.projectLoaded(null))
   }
 
