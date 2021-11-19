@@ -11,8 +11,8 @@ import TradingContent from '../UserMenu/menus/TradingContent'
 export const TradingPage = (): any => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const [state, setState] = useState<any>({ data: [], user: [], type: [], isLoading: true, isLoadingtransfer: false })
-  const { data, user, type, isLoading, isLoadingtransfer } = state
+  const [state, setState] = useState<any>({ data: [],inventory:[], user: [], type: [], isLoading: true, isLoadingtransfer: false })
+  const { data, user, type, isLoading, isLoadingtransfer ,inventory} = state
 
   const authState = useAuthState()
 
@@ -23,7 +23,7 @@ export const TradingPage = (): any => {
   useEffect(() => {
     if (authState.isLoggedIn.value) {
       fetchInventoryList()
-      // fetchUserList()
+      fetchTradingList()
       // fetchtypeList()
     }
   }, [authState.isLoggedIn.value])
@@ -34,10 +34,6 @@ export const TradingPage = (): any => {
       isLoadingtransfer: true
     }))
     try {
-      // const response = await client.service('user-inventory').patch({
-      //   userId: ids,
-      //   userInventoryId: itemid
-      // })
       fetchInventoryList()
       console.log('success')
     } catch (err) {
@@ -50,7 +46,7 @@ export const TradingPage = (): any => {
     }
   }
 
-  const fetchInventoryList = async () => {
+  const fetchTradingList = async () => {
     setState((prevState) => ({
       ...prevState,
       isLoading: true
@@ -66,6 +62,44 @@ export const TradingPage = (): any => {
     } catch (err) {
       console.error(err, 'error')
     }
+  }
+
+  const fetchInventoryList = async () => {
+    setState((prevState) => ({
+      ...prevState,
+      isLoading: true
+    }))
+    try {
+      const response = await client.service('user').get(id)
+      console.log(response, 'inventorylist')
+      setState((prevState) => ({
+        ...prevState,
+        inventory: [...response.inventory_items],
+        isLoading: false
+      }))
+    } catch (err) {
+      console.error(err, 'error')
+    }
+  }
+
+  const removeiteminventory =(index)=>{
+    const inventorytemp =[...inventory]
+    inventorytemp.splice(index,1)
+    setState((prevState) => ({
+      ...prevState,
+      inventory: [...inventorytemp]
+      
+    }))
+  }
+
+  const additeminventory =(values)=>{
+    const inventorytemp =[...inventory]
+    inventorytemp.push(values)
+    setState((prevState) => ({
+      ...prevState,
+      inventory: [...inventorytemp]
+      
+    }))
   }
 
   // const fetchUserList = async () => {
@@ -88,27 +122,7 @@ export const TradingPage = (): any => {
   //     console.error(err, 'error')
   //   }
   // }
-
-  // const fetchtypeList = async () => {
-  //   try {
-  //     const response = await client.service('inventory-item-type').find()
-  //     console.log(response.data, 'resptype')
-  //     if (response.data && response.data.length !== 0) {
-  //       setState((prevState: any) => ({
-  //         ...prevState,
-  //         type: [...response.data]
-  //       }))
-  //     }
-
-  //   }
-  //   catch (err) {
-  //     console.error(err, 'error')
-  //   }
-
-  // }
-
-  // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
- 
+  console.log(inventory,"parent")
   return (
     <EmptyLayout pageTitle={t('Inventory.pageTitle')}>
       <style>
@@ -125,8 +139,11 @@ export const TradingPage = (): any => {
       ) : (
         <TradingContent
           data={data}
+          inventory={inventory}
           user={user}
           type={type}
+          removeiteminventory={removeiteminventory}
+          additeminventory={additeminventory}
           handleTransfer={handleTransfer}
           isLoadingtransfer={isLoadingtransfer}
         />
