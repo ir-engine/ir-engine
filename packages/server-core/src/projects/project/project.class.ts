@@ -279,8 +279,18 @@ export class Project extends Service {
 
   async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
+    const project = data.find((e) => e.name === name)
+    if (!project) return
     return {
-      data: data.find((e) => e.name === name)
+      data: project
+    }
+  }
+
+  //@ts-ignore
+  async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
+    const data: ProjectInterface[] = ((await super.find(params)) as any).data
+    return {
+      data
     }
   }
 }
