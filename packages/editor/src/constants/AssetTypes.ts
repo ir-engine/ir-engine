@@ -15,6 +15,7 @@ export const ItemTypes = {
     'jpg',
     'gif',
     'gltf',
+    'glb',
     'mp4',
     'mp3',
     'mpeg',
@@ -29,10 +30,11 @@ export const ItemTypes = {
     'audio/mpeg',
     'model/gltf'
   ],
-  Scripts: ['tsx', 'ts', 'jsx', 'js'],
-  Images: ['png', 'jpeg', 'jpg', 'gif'],
-  Videos: ['mp4'],
   Audios: ['mp3', 'mpeg'],
+  Images: ['png', 'jpeg', 'jpg', 'gif'],
+  Models: ['glb', 'gltf'],
+  Scripts: ['tsx', 'ts', 'jsx', 'js'],
+  Videos: ['mp4'],
   //TODO: Need to check if following types are really used or not.
   Node: 'Node',
   Model: 'Model',

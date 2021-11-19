@@ -4,7 +4,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
-import ModelInput from '../inputs/ModelInput'
+import FileBrowserInput from '../inputs/FileBrowserInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { Object3D } from 'three'
@@ -13,6 +13,8 @@ import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import SceneNode from '../../nodes/SceneNode'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { ModelFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { ItemTypes } from '../../constants/AssetTypes'
 
 /**
  * Declaring properties for ModalNodeEditor component.
@@ -129,7 +131,12 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={node.src} onChange={onChangeSrc} />
+        <FileBrowserInput
+          value={node.src}
+          onChange={onChangeSrc}
+          acceptFileTypes={ModelFileTypes}
+          acceptDropItems={ItemTypes.Models}
+        />
         {!(props.node as ModelNode).isValidURL && <div>{t('editor:properties.model.error-url')}</div>}
       </InputGroup>
 
