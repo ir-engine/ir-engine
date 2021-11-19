@@ -25,15 +25,17 @@ const initialSelectedUserState = {
 
 interface Props {
   setShowChat: any
+  selfUser: any
 }
 
 const CreateGroup = (props: Props) => {
-  const { setShowChat } = props
+  const { setShowChat, selfUser } = props
   const classes = useHarmonyStyles()
   const { darkMode } = React.useContext(ModeContext)
   const [state, setState] = React.useState({ right: false })
   const [groupFormMode, setGroupFormMode] = React.useState('create')
   const [groupForm, setGroupForm] = React.useState(initialGroupForm)
+  const [isUserRank, setIsUserRank] = React.useState('')
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [detailsType, setDetailsType] = React.useState('')
   const [selectedGroup, setSelectedGroup] = React.useState(initialGroupForm)
@@ -63,8 +65,16 @@ const CreateGroup = (props: Props) => {
     if (type === 'user') {
       setSelectedUser(object)
     } else if (type === 'group') {
+      const owner = object.groupUsers.find((el) => el.userId === selfUser.id)
+      setIsUserRank(owner.groupUserRank)
       setSelectedGroup(object)
-      setGroupForm({ ...groupForm, name: object.name, description: object.description, id: object.id })
+      setGroupForm({
+        ...groupForm,
+        name: object.name,
+        description: object.description,
+        id: object.id,
+        groupUsers: object.groupUsers
+      })
     }
   }
 
@@ -179,7 +189,12 @@ const CreateGroup = (props: Props) => {
           </Container>
         </Drawer>
       </div>
-      <GroupList setShowChat={setShowChat} toggleUpdateDrawer={toggleUpdateDrawer} openDetails={openDetails} />
+      <GroupList
+        setShowChat={setShowChat}
+        isUserRank={isUserRank}
+        toggleUpdateDrawer={toggleUpdateDrawer}
+        openDetails={openDetails}
+      />
     </div>
   )
 }

@@ -32,6 +32,7 @@ interface Props {
   setShowChat: any
   toggleUpdateDrawer: (anchor: string, open: boolean) => void
   openDetails: (e: any, type: string, object: any) => void
+  isUserRank: string
 }
 const initialGroupForm = {
   id: '',
@@ -50,11 +51,11 @@ const initialSelectedUserState = {
 }
 
 const GroupList = (props: Props) => {
-const { setShowChat, toggleUpdateDrawer, openDetails } = props
+  const { setShowChat, toggleUpdateDrawer, openDetails, isUserRank } = props
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [anchorEl, setAnchorEl] = React.useState(null)
-  const [groupForm, setGroupForm] = React.useState(initialGroupForm)
+  // const [groupForm, setGroupForm] = React.useState(initialGroupForm)
   const [groupFormMode, setGroupFormMode] = React.useState('create')
   const [selectedGroup, setSelectedGroup] = React.useState(initialGroupForm)
   const [openDrawer, setOpen] = React.useState(false)
@@ -89,7 +90,7 @@ const { setShowChat, toggleUpdateDrawer, openDetails } = props
   }
 
   const handleClose = () => {
-    setGroupForm(initialGroupForm)
+    // setGroupForm(initialGroupForm)
     setGroupFormMode('create')
     setSelectedGroup(initialGroupForm)
     setAnchorEl(null)
@@ -113,6 +114,8 @@ const { setShowChat, toggleUpdateDrawer, openDetails } = props
   const handleCreate = () => {
     setCreate(true)
   }
+
+  console.log(isUserRank)
 
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
@@ -193,12 +196,14 @@ const { setShowChat, toggleUpdateDrawer, openDetails } = props
                           </ListItemIcon>
                           <ListItemText>INVITE</ListItemText>
                         </MenuItem>
-                        <MenuItem className={classes.my2} onClick={(e) => confirmGroupDelete(e, selectedGroup.id)}>
-                          <ListItemIcon>
-                            <Delete fontSize="small" className={classes.danger} />
-                          </ListItemIcon>
-                          <ListItemText>DELETE</ListItemText>
-                        </MenuItem>
+                        {isUserRank === 'owner' && (
+                          <MenuItem className={classes.my2} onClick={(e) => confirmGroupDelete(e, selectedGroup.id)}>
+                            <ListItemIcon>
+                              <Delete fontSize="small" className={classes.danger} />
+                            </ListItemIcon>
+                            <ListItemText>DELETE</ListItemText>
+                          </MenuItem>
+                        )}
                       </MenuList>
                       <div className={classes.center}>
                         <a

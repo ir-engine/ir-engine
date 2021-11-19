@@ -3,6 +3,7 @@
     "@material-ui/core/styles",
     "@material-ui/icons",
     "@styled-icons/material/TouchApp",
-    "nipplejs"
+    "nipplejs",
+    "react-hot-keys"
   ]
 }
