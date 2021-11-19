@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": false,
-    "module": "esnext",
+    "module": "CommonJS",
     "strict": false,
     "noImplicitAny": false,
     "resolveJsonModule": true,
