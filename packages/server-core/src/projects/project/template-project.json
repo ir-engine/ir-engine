@@ -11,9 +11,7 @@
     },
     "xrengine": {
       "routes": [],
-      "thumbnail": "",
-      "moduleEntryPoints": [],
-      "clientReactEntryPoint": []
+      "thumbnail": ""
     },
     "license": "ISC"
   }
