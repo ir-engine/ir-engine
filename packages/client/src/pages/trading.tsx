@@ -6,7 +6,7 @@ const TradingPage = (props) => {
   return (
     <Switch>
       <Route
-        path="/trading"
+        path="/trading/:id"
         component={React.lazy(() => import('@xrengine/client-core/src/user/components/Trading/trading'))}
       />
     </Switch>
