@@ -54,7 +54,19 @@ export default {
               }
             }
           } else {
-            context.result.data[0].fromUserInventoryIds = []
+            context.result.data[0].toUserInventoryIds = []
+          }
+          if (context.result?.data[0]?.toUserInventoryIds) {
+            for (let x = 0; x < context.result.data.length; x++) {
+              context.result.data[x].toUserInventoryIds = JSON.parse(context.result.data[x].toUserInventoryIds)
+              for (let i = 0; i < context.result.data[0].toUserInventoryIds.length; i++) {
+                context.result.data[x].toUserInventoryIds[i].metadata = JSON.parse(
+                  context.result.data[x].toUserInventoryIds[i].metadata
+                )
+              }
+            }
+          } else {
+            context.result.data[0].toUserInventoryIds = []
           }
         } catch {
           context.result.data = []
