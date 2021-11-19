@@ -111,7 +111,8 @@ const gameserver = {
   releaseName: process.env.RELEASE_NAME,
   port: process.env.GAMESERVER_PORT,
   mode: process.env.SERVER_MODE,
-  locationName: process.env.PRELOAD_LOCATION_NAME
+  locationName: process.env.PRELOAD_LOCATION_NAME,
+  shutdownDelayMs: parseInt(process.env.GAMESERVER_SHUTDOWN_DELAY_MS) || 0
 }
 
 /**
