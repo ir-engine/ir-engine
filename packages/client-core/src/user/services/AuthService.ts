@@ -907,7 +907,7 @@ export const AuthService = {
     {
       await client.service('user').remove(userId)
       await client.service('identity-provider').remove(null, {
-        where: {
+        query: {
           userId: userId
         }
       })
