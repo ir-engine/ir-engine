@@ -142,7 +142,9 @@ export const setUserDataInteractUI = (xrEntity: Entity) => {
 }
 
 export const updateInteractUI = (xrEntity: Entity) => {
-  const interactUIObject = getComponent(xrEntity, Object3DComponent).value
+  const interactUIObjectComponent = getComponent(xrEntity, Object3DComponent)
+  if (!interactUIObjectComponent) return
+  const interactUIObject = interactUIObjectComponent.value
   if (!interactUIObject.visible) return
   const xrComponent = getComponent(xrEntity, XRUIComponent) as any
   if (!xrComponent && !xrComponent.layer) return
