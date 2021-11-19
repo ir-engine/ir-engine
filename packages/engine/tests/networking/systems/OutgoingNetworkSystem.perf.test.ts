@@ -43,7 +43,7 @@ describe('OutgoingNetworkSystem Performance Tests', async () => {
 		Engine.currentWorld = world
 	})
 
-  it('should serialize 500 entity positions in < 1 millisecond on average', async () => {
+  it('should serialize 500 entity positions in < 1.2 millisecond on average', async () => {
 
     /* mock */
     // make this engine user the host (world.isHosting === true)
@@ -87,7 +87,7 @@ describe('OutgoingNetworkSystem Performance Tests', async () => {
     const avg = timer.avg()
 
     /* assert */
-    assert(avg < 1, `${avg}`)
+    assert(avg < 1.2, `${avg}`)
 
   })
 
