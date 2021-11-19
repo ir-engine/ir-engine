@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 export const IndexPage = (): any => {
   const { t } = useTranslation()
+  console.log('login')
 
   useEffect(() => {
     AuthService.doLoginAuto(true)

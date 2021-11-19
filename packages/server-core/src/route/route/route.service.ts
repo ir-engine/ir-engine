@@ -7,6 +7,7 @@ import routeDocs from './route.docs'
 import fs from 'fs'
 import path from 'path'
 import { InstalledRoutesInterface, ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
+import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -23,11 +24,13 @@ export const getInstalledRoutes = () => {
   const data: InstalledRoutesInterface[] = []
   projects.forEach(async (project) => {
     try {
-      const routesJsonPath = path.resolve(__dirname, `../../../../projects/projects/${project}/package.json`)
+      const routesJsonPath = path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`)
       if (fs.existsSync(routesJsonPath)) {
-        const { routes } = JSON.parse(fs.readFileSync(routesJsonPath, 'utf8')).xrengine
+        const projectConfig: ProjectConfigInterface = (
+          await import(`@xrengine/projects/projects/${project}/xrengine.config.ts`)
+        ).default
         data.push({
-          routes,
+          routes: Object.keys(projectConfig.routes),
           project
         })
       }

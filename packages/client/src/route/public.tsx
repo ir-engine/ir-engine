@@ -1,17 +1,11 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
 import CircularProgress from '@mui/material/CircularProgress'
-import { getCustomRoutes } from './getCustomRoutes'
+import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 
 if (typeof globalThis.process === 'undefined') {
   ;(globalThis as any).process = { env: {} }
-}
-
-type CustomRoute = {
-  id: string
-  route: string
-  page: any
 }
 
 const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
@@ -51,7 +45,13 @@ function RouterComp(props) {
           }
         >
           <Switch>
-            {customRoutes?.length && customRoutes}
+            <Switch>
+              {customRoutes.map((route, i) => {
+                return (
+                  <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
+                )
+              })}
+            </Switch>
             {/* default to allowing admin access regardless */}
             <Route key={'default-admin'} path={'/admin'} component={$admin} />
             <Route key={'default-login'} path={'/login'} component={$login} />
