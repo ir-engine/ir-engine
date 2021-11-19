@@ -22,6 +22,7 @@ import { NavMeshComponent } from '../component/NavMeshComponent'
 import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import createSpeedFunction from '../functions/createSpeedFunction'
 
 export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -54,8 +55,11 @@ export default async function AutopilotSystem(world: World): Promise<System> {
 
   const navmeshesQuery = defineQuery([NavMeshComponent])
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
-  const ongoingQuery = defineQuery([AutoPilotComponent])
+  const autopilotQuery = defineQuery([AutoPilotComponent])
   const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
+
+  const ARRIVED_DISTANCE = 0.2
+  const getSpeed = createSpeedFunction(3, 1.1, 0.01)
 
   const vec3 = new Vector3()
   function getCameraDirection() {
@@ -149,15 +153,11 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       removeComponent(entity, AutoPilotRequestComponent)
     }
 
-    const allOngoing = ongoingQuery(world)
+    const allOngoing = autopilotQuery(world)
 
     // ongoing
     if (allOngoing.length) {
       // update our entity transform from vehicle
-      const ARRIVING_DISTANCE = 1
-      const ARRIVED_DISTANCE = 0.1
-      const MIN_SPEED = 0.2
-      const MAX_SPEED = 2
       for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
         if (!autopilot.path.current()) {
@@ -185,37 +185,30 @@ export default async function AutopilotSystem(world: World): Promise<System> {
           }
 
           autopilot.path.advance()
-          continue
+        } else {
+          const speed = getSpeed(targetFlatDistance)
+          direction.copy(targetFlatPosition).sub(avatarPositionFlat).normalize()
+          const targetAngle = Math.atan2(direction.x, direction.z)
+          stickValue
+            .copy(direction)
+            .multiplyScalar(speed)
+            // Avatar controller system assumes all movement is relative to camera, so cancel that out
+            .applyQuaternion(getCameraDirection().invert())
+
+          const stickPosition: NumericalType = [stickValue.z, stickValue.x, targetAngle]
+          // If position not set, set it with lifecycle started
+          Engine.inputState.set(GAMEPAD_STICK, {
+            type: InputType.TWODIM,
+            value: stickPosition,
+            lifecycleState: Engine.inputState.has(GAMEPAD_STICK) ? LifecycleValue.Started : LifecycleValue.Changed
+          })
+
+          avatarRotation.copy(quat.setFromUnitVectors(forward, direction))
         }
-
-        const speedModifier = Math.min(
-          MAX_SPEED,
-          Math.max(
-            MIN_SPEED,
-            targetFlatDistance < ARRIVING_DISTANCE ? (targetFlatDistance * MAX_SPEED) / ARRIVING_DISTANCE : MAX_SPEED
-          )
-        )
-        direction.copy(targetFlatPosition).sub(avatarPositionFlat).normalize()
-        const targetAngle = Math.atan2(direction.x, direction.z)
-        stickValue
-          .copy(direction)
-          .multiplyScalar(speedModifier)
-          // Avatar controller system assumes all movement is relative to camera, so cancel that out
-          .applyQuaternion(getCameraDirection().invert())
-
-        const stickPosition: NumericalType = [stickValue.z, stickValue.x, targetAngle]
-        // If position not set, set it with lifecycle started
-        Engine.inputState.set(GAMEPAD_STICK, {
-          type: InputType.TWODIM,
-          value: stickPosition,
-          lifecycleState: Engine.inputState.has(GAMEPAD_STICK) ? LifecycleValue.Started : LifecycleValue.Changed
-        })
-
-        avatarRotation.copy(quat.setFromUnitVectors(forward, direction))
       }
     }
 
-    if (ongoingQuery.exit(world).length) {
+    if (autopilotQuery.exit(world).length) {
       // send one relaxed gamepad state to stop movement
       Engine.inputState.set(GAMEPAD_STICK, {
         type: InputType.TWODIM,
