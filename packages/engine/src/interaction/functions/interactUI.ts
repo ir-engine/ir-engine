@@ -147,7 +147,7 @@ export const updateInteractUI = (xrEntity: Entity) => {
   const interactUIObject = interactUIObjectComponent.value
   if (!interactUIObject.visible) return
   const xrComponent = getComponent(xrEntity, XRUIComponent) as any
-  if (!xrComponent && !xrComponent.layer) return
+  if (!xrComponent) return
 
   const entityIndex = xrComponent.layer.userData.parentEntity
   const modelElement = xrComponent.layer.querySelector(`#interactive-ui-model-${entityIndex}`)
