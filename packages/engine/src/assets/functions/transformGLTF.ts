@@ -25,6 +25,7 @@ async function instanceGLTF(url) {
 
   const doc = await io.read(url)
 
+  // @ts-ignore
   await doc.transform(instance())
 
   // Remove draco mesh compression after transformation, as the output file is not going to be writtren to file
