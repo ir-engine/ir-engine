@@ -105,7 +105,6 @@ export class Project extends Service {
   private async _fetchDevLocalProjects() {
     const dbEntries = (await super.find()) as any
     const data: ProjectInterface[] = dbEntries.data
-    console.log(dbEntries)
 
     if (!fs.existsSync(projectsRootFolder)) {
       fs.mkdirSync(projectsRootFolder, { recursive: true })

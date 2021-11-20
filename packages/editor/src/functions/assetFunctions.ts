@@ -15,7 +15,6 @@ export const uploadProjectAsset = async (
         const response = await client.service('project').patch(projectName, {
           files: [`${pathName}/${file.name}`]
         })
-        console.log(response)
         resolve({ url: response[0] })
       })
     )
