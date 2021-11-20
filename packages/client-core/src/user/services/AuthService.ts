@@ -50,8 +50,24 @@ const state = createState({
   avatarList: [] as Array<UserAvatar>
 })
 
+export const avatarFetchedReceptor = (s: typeof state, action: ReturnType<typeof AuthAction.updateAvatarList>) => {
+  const resources = action.avatarList
+  const avatarData = {}
+  for (let resource of resources) {
+    const r = avatarData[(resource as any).name] || {}
+    if (!r) {
+      console.warn('Avatar resource is empty, have you synced avatars to your static file storage?')
+      return
+    }
+    r[(resource as any).staticResourceType] = resource
+    avatarData[(resource as any).name] = r
+  }
+
+  return s.merge({ avatarList: Object.keys(avatarData).map((key) => avatarData[key]) })
+}
+
 store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
-  state.batch((s) => {
+  state.batch((s: typeof state) => {
     switch (action.type) {
       case 'ACTION_PROCESSING':
         return s.merge({ isProcessing: action.processing, error: '' })
@@ -100,21 +116,8 @@ store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
       case 'UPDATE_USER_SETTINGS': {
         return s.user.merge({ user_setting: action.data })
       }
-      case 'AVATAR_FETCHED': {
-        const resources = action.avatarList
-        const avatarData = {}
-        for (let resource of resources) {
-          const r = avatarData[(resource as any).name] || {}
-          if (!r) {
-            console.warn('Avatar resource is empty, have you synced avatars to your static file storage?')
-            return
-          }
-          r[(resource as any).staticResourceType] = resource
-          avatarData[(resource as any).name] = r
-        }
-
-        return s.merge({ avatarList: Object.keys(avatarData).map((key) => avatarData[key]) })
-      }
+      case 'AVATAR_FETCHED':
+        return avatarFetchedReceptor(s, action)
     }
   }, action.type)
 })
@@ -766,7 +769,7 @@ export const AuthService = {
                 })
               : axios.post(thumbnailURL.url, thumbnailData)
           await thumbnailOperation
-            .then((res) => {
+            .then((res: any) => {
               // Save URLs to backend
               Promise.all([
                 existingModel.total > 0
@@ -1045,7 +1048,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
         query.set('instanceId', user?.instanceId || '')
         parsed.search = query.toString()
 
-        if (history.pushState) {
+        if (typeof history.pushState !== 'undefined') {
           window.history.replaceState({}, '', parsed.toString())
         }
       }
@@ -1095,7 +1098,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const selfUser = accessAuthState().user
     const party = accessPartyState().party.value
     const selfPartyUser =
-      party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value) : {}
+      party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value) : ({} as any)
     const currentLocation = accessLocationState().currentLocation.location
     const locationBan = params.locationBan
     if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
