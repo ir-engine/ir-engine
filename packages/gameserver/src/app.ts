@@ -32,6 +32,7 @@ export const createApp = (): Application => {
 
   // Don't remove this comment. It's needed to format import lines nicely.
 
+  // @ts-ignore
   const app = express(feathers()) as Application
   const agonesSDK = new AgonesSDK()
 
