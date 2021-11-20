@@ -30,7 +30,8 @@ import {
   hideInteractUI,
   getInteractUI,
   updateInteractUI,
-  setUserDataInteractUI
+  setUserDataInteractUI,
+  InteractiveUI
 } from '../functions/interactUI'
 
 export default async function InteractiveSystem(world: World): Promise<System> {
@@ -41,7 +42,6 @@ export default async function InteractiveSystem(world: World): Promise<System> {
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
   const interactedQuery = defineQuery([InteractedComponent])
   const xrComponentQuery = defineQuery([XRUIComponent, Object3DComponent])
-  const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
 
   return () => {
     for (const entity of interactiveQuery.enter(world)) {
@@ -98,13 +98,11 @@ export default async function InteractiveSystem(world: World): Promise<System> {
     }
 
     for (const entity of xrComponentQuery.enter()) {
-      setUserDataInteractUI(entity)
+      if (InteractiveUI.has(entity)) setUserDataInteractUI(entity)
     }
 
-    for (const xrEntity of xrComponentQuery()) {
-      for (const entity of localUserQuery()) {
-        updateInteractUI(entity, xrEntity)
-      }
+    for (const xrEntity of InteractiveUI.keys()) {
+      updateInteractUI(xrEntity)
     }
 
     for (const entity of interactedQuery.enter()) {
