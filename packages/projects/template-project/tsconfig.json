@@ -4,7 +4,8 @@
     "lib": [
       "esnext",
       "dom",
-      "dom.iterable"
+      "dom.iterable",
+      "WebWorker"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -12,13 +13,14 @@
     "noEmit": false,
     "module": "CommonJS",
     "strict": false,
+    "strictNullChecks": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "isolatedModules": true,
+    "isolatedModules": false,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
@@ -27,15 +29,12 @@
   },
   "exclude": [
     "**/node_modules/**",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.test.js",
-    "../../node_modules/k8s/*"
+    "./tests/**/*.ts"
   ],
   "include": [
     "./**/*.ts",
     "./**/*.tsx",
-    "../../PhysX.d.ts",
-    "../../PhysXDebug.d.ts"
+    "../../../../PhysX.d.ts",
+    "../../../../PhysXDebug.d.ts"
   ]
 }

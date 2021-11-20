@@ -94,6 +94,9 @@ export default (app: Application): void => {
     // If no real-time functionality has been configured just return
     return
   }
+
+  let shutdownTimeout
+
   app.on('connection', async (connection) => {
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
@@ -101,6 +104,7 @@ export default (app: Application): void => {
       config.gameserver.mode === 'local'
     ) {
       try {
+        clearTimeout(shutdownTimeout)
         const token = (connection as any).socketQuery?.token
         if (token != null) {
           const authResult = await (app.service('authentication') as any).strategies.jwt.authenticate(
@@ -371,33 +375,35 @@ export default (app: Application): void => {
               app.channel(`instanceIds/${instanceId as string}`).leave(connection)
 
               if (activeUsersCount < 1) {
-                console.log('Deleting instance ' + instanceId)
-                try {
-                  await app.service('instance').patch(instanceId, {
-                    ended: true
-                  })
-                } catch (err) {
-                  console.log(err)
-                }
-                if (app.gsSubdomainNumber != null) {
-                  const gsSubdomainProvision = (await app.service('gameserver-subdomain-provision').find({
-                    query: {
-                      gs_number: app.gsSubdomainNumber
-                    }
-                  })) as any
-                  await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
-                    allocated: false
-                  })
-                }
-                if (config.kubernetes.enabled) {
-                  delete app.instance
-                }
-                const gsName = app.gsName
-                if (gsName !== undefined) {
-                  logger.info("App's gameserver name:")
-                  logger.info(gsName)
-                }
-                await app.agonesSDK.shutdown()
+                shutdownTimeout = setTimeout(async () => {
+                  console.log('Deleting instance ' + instanceId)
+                  try {
+                    await app.service('instance').patch(instanceId, {
+                      ended: true
+                    })
+                  } catch (err) {
+                    console.log(err)
+                  }
+                  if (app.gsSubdomainNumber != null) {
+                    const gsSubdomainProvision = (await app.service('gameserver-subdomain-provision').find({
+                      query: {
+                        gs_number: app.gsSubdomainNumber
+                      }
+                    })) as any
+                    await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
+                      allocated: false
+                    })
+                  }
+                  if (config.kubernetes.enabled) {
+                    delete app.instance
+                  }
+                  const gsName = app.gsName
+                  if (gsName !== undefined) {
+                    logger.info("App's gameserver name:")
+                    logger.info(gsName)
+                  }
+                  await app.agonesSDK.shutdown()
+                }, config.gameserver.shutdownDelayMs)
               }
             }
           }
