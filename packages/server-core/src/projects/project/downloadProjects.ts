@@ -13,6 +13,7 @@ export const download = async (projectName) => {
     // default project is presumed read only
     if (projectName === 'default-project') {
       await uploadLocalProjectToProvider('default-project')
+      return true
     }
 
     console.log('[ProjectLoader]: Installing project', projectName, '...')
