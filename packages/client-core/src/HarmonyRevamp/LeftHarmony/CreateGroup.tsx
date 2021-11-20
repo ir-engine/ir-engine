@@ -27,10 +27,11 @@ interface Props {
   setShowChat: any
   setInvite: any
   setCreate: any
+  selfUser: any
 }
 
 const CreateGroup = (props: Props) => {
-  const { setShowChat, setInvite, setCreate } = props
+  const { setShowChat, setInvite, setCreate, selfUser } = props
   const classes = useHarmonyStyles()
   const { darkMode } = React.useContext(ModeContext)
   const [state, setState] = React.useState({ right: false })
@@ -45,7 +46,7 @@ const CreateGroup = (props: Props) => {
   const handleClose = () => {
     setGroupForm(initialGroupForm)
     setGroupFormMode('create')
-    setSelectedGroup(initialGroupForm)
+    // setSelectedGroup(initialGroupForm)
     setDetailsType('')
     setAnchorEl(null)
   }
@@ -78,7 +79,6 @@ const CreateGroup = (props: Props) => {
       })
     }
   }
-
   const toggleUpdateDrawer = (anchor, open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return
@@ -195,13 +195,13 @@ const CreateGroup = (props: Props) => {
         isUserRank={isUserRank}
         toggleUpdateDrawer={toggleUpdateDrawer}
         openDetails={openDetails}
-        groupForm={groupForm}
-        setGroupForm={setGroupForm}
-        setGroupFormMode={setGroupFormMode}
         anchorEl={anchorEl}
         setAnchorEl={setAnchorEl}
         setInvite={setInvite}
         setCreate={setCreate}
+        selfUser={selfUser}
+        selectedGroup={selectedGroup}
+        handleClose={handleClose}
       />
     </div>
   )

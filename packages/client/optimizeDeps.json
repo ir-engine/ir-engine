@@ -2,8 +2,6 @@
   "dependencies": [
     "@material-ui/core/styles",
     "@material-ui/icons",
-    "@styled-icons/material/TouchApp",
-    "nipplejs",
     "react-hot-keys"
   ]
 }

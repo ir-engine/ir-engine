@@ -2,16 +2,12 @@ import React, { useContext } from 'react'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import { useHarmonyStyles } from '../style'
-import { Add, Close, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
-import { AddCircleOutline, Check, PhotoCamera, Settings } from '@mui/icons-material'
+import { Delete, Edit, Forum, GroupAdd, MoreHoriz } from '@material-ui/icons'
+import { AddCircleOutline } from '@mui/icons-material'
 import {
-  Badge,
   Container,
-  IconButton,
   MenuList,
   MenuItem,
-  List,
-  ListItemAvatar,
   ListItemIcon,
   ListItemText,
   Popover,
@@ -19,18 +15,12 @@ import {
   DialogActions,
   DialogTitle,
   Button,
-  Typography,
   Avatar,
-  Box,
-  Drawer,
-  Switch,
-  Tabs,
-  Tab
+  Drawer
 } from '@mui/material'
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
 import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
 import ModeContext from '../context/modeContext'
-import { createJSHandle } from 'puppeteer'
 
 interface Props {
   setShowChat: any
@@ -39,26 +29,11 @@ interface Props {
   toggleUpdateDrawer: (anchor: string, open: boolean) => void
   openDetails: (e: any, type: string, object: any) => void
   isUserRank: string
-  setGroupForm: any
-  setGroupFormMode: any
-  groupForm: any
   anchorEl: any
   setAnchorEl: any
-}
-const initialGroupForm = {
-  id: '',
-  name: '',
-  groupUsers: [],
-  description: ''
-}
-const initialSelectedUserState = {
-  id: '',
-  name: '',
-  userRole: '',
-  identityProviders: [],
-  relationType: {},
-  inverseRelationType: {},
-  avatarUrl: ''
+  selfUser: any
+  selectedGroup: any
+  handleClose: () => void
 }
 
 const GroupList = (props: Props) => {
@@ -67,25 +42,17 @@ const GroupList = (props: Props) => {
     setInvite,
     setCreate,
     toggleUpdateDrawer,
-    groupForm,
-    setGroupForm,
-    setGroupFormMode,
     anchorEl,
-    setAnchorEl
+    setAnchorEl,
+    selfUser,
+    openDetails,
+    selectedGroup,
+    handleClose,
+    isUserRank
   } = props
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
-  // const [groupForm, setGroupForm] = React.useState(initialGroupForm)
-  // const [groupFormMode, setGroupFormMode] = React.useState('create')
-  const [selectedGroup, setSelectedGroup] = React.useState(initialGroupForm)
   const [openDrawer, setOpenDrawer] = React.useState(false)
-  const [state, setState] = React.useState({ right: false })
-  const [groupDeletePending, setGroupDeletePending] = React.useState('')
-  const [list, setList] = React.useState({ right: false })
-  const [detailsType, setDetailsType] = React.useState('')
-  const [selectedUser, setSelectedUser] = React.useState(initialSelectedUserState)
-  const [invite, setInvite] = React.useState('')
-  const [groupToDelete, setGroupToDelete] = React.useState('')
   const [showWarning, setShowWarning] = React.useState(false)
 
   //group state
@@ -98,23 +65,8 @@ const GroupList = (props: Props) => {
     ChatService.updateChatTarget(channelType, target)
   }
 
-  const toggleList = (anchor, open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return
-    }
-
-    setList({ ...state, [anchor]: open })
-  }
-
   const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
     InviteService.updateInviteTarget(targetObjectType, targetObjectId)
-  }
-
-  const handleClose = () => {
-    // setGroupForm(initialGroupForm)
-    setGroupFormMode('create')
-    // setSelectedGroup(initialGroupForm)
-    setAnchorEl(null)
   }
 
   const handleOpenDrawer = () => {
@@ -129,31 +81,14 @@ const GroupList = (props: Props) => {
   const cancelGroupDelete = (e: any) => {
     e.preventDefault()
     setShowWarning(false)
-    setSelectedGroup(initialGroupForm)
-    setGroupForm(initialGroupForm)
-    setGroupFormMode('create')
+    handleClose()
   }
 
   const confirmGroupDelete = (e) => {
     e.preventDefault()
     setShowWarning(false)
     GroupService.removeGroup(selectedGroup.id)
-    setSelectedGroup(initialGroupForm)
-    setGroupForm(initialGroupForm)
-    setGroupFormMode('create')
-  }
-
-  const handleClick = (event, type, object) => {
-    setAnchorEl(event.currentTarget)
-    setDetailsType(type)
-    setGroupFormMode('update')
-    event.stopPropagation()
-    if (type === 'user') {
-      setSelectedUser(object)
-    } else if (type === 'group') {
-      setSelectedGroup(object)
-      setGroupForm({ ...groupForm, name: object.name, description: object.description, id: object.id })
-    }
+    handleClose()
   }
 
   const open = Boolean(anchorEl)
@@ -186,7 +121,7 @@ const GroupList = (props: Props) => {
                     className={classes.border0}
                     onClick={(e) => {
                       openDetails(e, 'group', group)
-                      handleClick(e)
+                      // handleClick(e)
                     }}
                   >
                     <MoreHoriz className={darkMode ? classes.white : classes.textBlack} />
@@ -224,23 +159,27 @@ const GroupList = (props: Props) => {
                           </ListItemIcon>
                           <ListItemText>EDIT</ListItemText>
                         </MenuItem>
-                        <MenuItem
-                          className={classes.my2}
-                          onClick={() => {
-                            openInvite('group', selectedGroup.id), handleClose(), setCreate(true), setInvite('Group')
-                          }}
-                        >
-                          <ListItemIcon>
-                            <GroupAdd fontSize="small" className={classes.success} />
-                          </ListItemIcon>
-                          <ListItemText>INVITE</ListItemText>
-                        </MenuItem>
-                        <MenuItem className={classes.my2} onClick={showGroupDeleteConfirm}>
-                          <ListItemIcon>
-                            <Delete fontSize="small" className={classes.danger} />
-                          </ListItemIcon>
-                          <ListItemText>DELETE</ListItemText>
-                        </MenuItem>
+                        {(isUserRank === 'owner' || isUserRank === 'admin') && (
+                          <MenuItem
+                            className={classes.my2}
+                            onClick={() => {
+                              openInvite('group', selectedGroup.id), handleClose(), setCreate(true), setInvite('Group')
+                            }}
+                          >
+                            <ListItemIcon>
+                              <GroupAdd fontSize="small" className={classes.success} />
+                            </ListItemIcon>
+                            <ListItemText>INVITE</ListItemText>
+                          </MenuItem>
+                        )}
+                        {isUserRank === 'owner' && (
+                          <MenuItem className={classes.my2} onClick={showGroupDeleteConfirm}>
+                            <ListItemIcon>
+                              <Delete fontSize="small" className={classes.danger} />
+                            </ListItemIcon>
+                            <ListItemText>DELETE</ListItemText>
+                          </MenuItem>
+                        )}
                       </MenuList>
                       <div className={classes.center}>
                         <a
@@ -271,12 +210,12 @@ const GroupList = (props: Props) => {
             <AddCircleOutline />
             &nbsp;&nbsp;&nbsp;&nbsp;
             <h1>
-              GROUP TEST 1 <small>&nbsp;&nbsp; {selectedGroup.groupUsers.length} Members (s)</small>
+              {selectedGroup && selectedGroup.name.toUpperCase()}{' '}
+              <small>&nbsp;&nbsp; {selectedGroup && selectedGroup.groupUsers?.length} Members (s)</small>
             </h1>
           </div>
           {selectedGroup &&
-            selectedGroup.groupUsers &&
-            selectedGroup.groupUsers.length > 0 &&
+            selectedGroup.groupUsers?.length > 0 &&
             selectedGroup.groupUsers
               .sort((a, b) => a.name - b.name)
               .map((groupUser) => {
@@ -287,14 +226,14 @@ const GroupList = (props: Props) => {
                   >
                     <div className={`${classes.dFlex} ${classes.alignCenter}`}>
                       <Avatar src={groupUser.avatarUrl} />
-                      {selectedUser.id === groupUser.id && (
+                      {selfUser.id === groupUser.user.id && (
                         <div className={classes.mx2}>
-                          <h4 className={classes.fontBig}>{groupUser.name + ' (you)'}</h4>
+                          <h4 className={classes.fontBig}>{groupUser.user.name + ' (you)'}</h4>
                         </div>
                       )}
-                      {selectedUser.id !== groupUser.id && (
+                      {selfUser.id !== groupUser.user.id && (
                         <div className={classes.mx2}>
-                          <h4 className={classes.fontBig}>{groupUser.name + ' (you)'}</h4>
+                          <h4 className={classes.fontBig}>{groupUser.user.name}</h4>
                         </div>
                       )}
                     </div>
