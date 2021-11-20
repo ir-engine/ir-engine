@@ -139,7 +139,7 @@ const Harmony = (props: Props): any => {
   const targetObject = chatState.targetObject
   const targetObjectType = chatState.targetObjectType
   const targetChannelId = chatState.targetChannelId.value
-  const messageScrollInit = chatState.messageScrollInit
+  const messageScrollInit = chatState.messageScrollInit.value
   const [messageScrollUpdate, setMessageScrollUpdate] = useState(false)
   const [topMessage, setTopMessage] = useState({})
   const [messageCrudSelected, setMessageCrudSelected] = useState('')
@@ -220,7 +220,6 @@ const Harmony = (props: Props): any => {
   const callStartedFromButtonRef = useRef(callStartedFromButton)
   const channelAwaitingProvisionRef = useRef(channelAwaitingProvision)
   const lastConnectToWorldIdRef = useRef(lastConnectToWorldId)
-  const chatStateRef = useRef(chatState)
 
   const mediastream = useMediaStreamState()
 
@@ -312,23 +311,23 @@ const Harmony = (props: Props): any => {
     TransportService.updateChannelTypeState()
   }, [MediaStreams.instance.channelType, MediaStreams.instance.channelId])
 
-  // useEffect(() => {
-  //   setActiveAVChannelId(transportState.channelId.value)
+  useEffect(() => {
+    setActiveAVChannelId(transportState.channelId.value)
 
-  //   if (targetChannelId == null || targetChannelId === '') {
-  //     // TODO: fix this - it causes crashes for some reason
-  //     // -> Please open a Github issue documenting how to make these crashes occur and tag @barankyle
-  //     // -> Without this, a lot of things don't function properly
-  //     const matchingChannel = channelEntries.find((entry) => entry?.id === activeAVChannelIdRef.current)
-  //     if (matchingChannel)
-  //       setActiveChat(matchingChannel.channelType, {
-  //         id: matchingChannel.instanceId
-  //       })
-  //   }
-  // }, [transportState])
+    if (targetChannelId == null || targetChannelId === '') {
+      // TODO: fix this - it causes crashes for some reason
+      // -> Please open a Github issue documenting how to make these crashes occur and tag @barankyle
+      // -> Without this, a lot of things don't function properly
+      const matchingChannel = channelEntries.find((entry) => entry?.id === activeAVChannelIdRef.current)
+      if (matchingChannel)
+        setActiveChat(matchingChannel.channelType, {
+          id: matchingChannel.instanceId
+        })
+    }
+  }, [transportState.channelId.value])
 
   useEffect(() => {
-    if (channelConnectionState.connected.value === false && channelAwaitingProvision?.id?.length > 0) {
+    if (!channelConnectionState.connected.value && channelAwaitingProvision?.id?.length > 0) {
       ChannelConnectionService.provisionChannelServer(channelAwaitingProvision.id)
       if (channelAwaitingProvision?.audio === true) setProducerStarting('audio')
       if (channelAwaitingProvision?.video === true) setProducerStarting('video')
@@ -356,7 +355,7 @@ const Harmony = (props: Props): any => {
   }, [chatState])
 
   useEffect(() => {
-    if (channelState.updateNeeded.value === true) {
+    if (channelState.updateNeeded.value) {
       ChatService.getChannels()
     }
   }, [channelState.updateNeeded.value])
@@ -364,7 +363,7 @@ const Harmony = (props: Props): any => {
   useEffect(() => {
     channelRef.current = channels
     channelEntries.forEach((channel) => {
-      if (chatState.updateMessageScroll.value === true) {
+      if (chatState.updateMessageScroll.value) {
         dispatch(ChatAction.setUpdateMessageScroll(false))
         if (
           channel?.id === targetChannelId &&
