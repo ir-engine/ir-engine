@@ -148,8 +148,7 @@
     "@mui/styles": "5.1.0",
     "depcheck": "1.4.2",
     "react-dnd": "14.0.4",
-    "ts-node": "10.4.0"
-    "react-dnd": "14.0.4",
+    "ts-node": "10.4.0",
     "styled-components": "^5.3.3",
     "vite": "^2.6.13"
   }
