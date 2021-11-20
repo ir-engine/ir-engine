@@ -1,11 +1,12 @@
 import * as authentication from '@feathersjs/authentication'
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
 import createPartyOwner from '@xrengine/server-core/src/hooks/create-party-owner'
 import removePartyUsers from '@xrengine/server-core/src/hooks/remove-party-users'
 import { HookContext } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import addAssociations from '../../hooks/add-associations'
+import restrictUserRole from "../../hooks/restrict-user-role";
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks
@@ -14,6 +15,7 @@ export default {
   before: {
     all: [authenticate('jwt')],
     find: [
+      iff(isProvider('external'), restrictUserRole('admin') as any),
       addAssociations({
         models: [
           {
@@ -21,6 +23,9 @@ export default {
           },
           {
             model: 'instance'
+          },
+          {
+            model: 'party-user'
           }
         ]
       })
@@ -48,7 +53,7 @@ export default {
       }
     ],
     update: [disallow()],
-    patch: [],
+    patch: [partyPermissionAuthenticate()],
     // TODO: Need to ask if we allow user to remove party or not
     remove: [partyPermissionAuthenticate(), removePartyUsers()]
   },

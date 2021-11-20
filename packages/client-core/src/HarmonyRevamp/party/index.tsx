@@ -53,105 +53,92 @@ const Party = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (partyState.updateNeeded.value === true) {
+    if (partyState.updateNeeded.value) {
       PartyService.getParty()
     }
-  }, [partyState.updateNeeded])
+  }, [partyState.updateNeeded.value])
 
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
+  const partyUsers = party?.partyUsers?.length ? party.partyUsers : []
+  let selfPartyUser
+  for (const partyUser of partyUsers) {
+    if (partyUser.userId === user.id) selfPartyUser = { ...partyUser }
+  }
 
   return (
     <>
-      {[...party]
-        .sort((a, b) => a.createdAt - b.createdAt)
-        .map((part) => {
-          const partyUsers = party?.partyUsers?.length ? party.partyUsers : []
-          let selfPartyUser
-          for (const user of partyUsers) {
-            if (user.user.id === user.id) selfPartyUser = { ...user }
-          }
-          // const selfPartyUser = partyUsers.find((partyUser) => {
-          //   console.log("5555555555555555555", partyUser.user.id === user.id)
-          //   console.log("6666666666666666666", partyUser)
-          //   return partyUser.user.id === user.id
-          // })
+      {
+        <div key={party.id} className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}>
+          <div
+              onClick={() => {
+                setShowChat(true), setActiveChat('party', party)
+              }}
+              className={`${classes.mx2} ${classes.flexGrow2}`}
+          >
+            <h4 className={classes.fontBig}>{party.name}</h4>
+            <small className={classes.textMuted}>Party id: </small>
+            <small className={classes.textMuted}>{party.instance?.ipAddress}</small>
+          </div>
 
-          // console.log("KKKKKKKLL", user.id)
-          // console.log("LLLLLLLLLL", party.partyUsers)
-
-          return (
-            <div key={part.id} className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}>
-              <div
-                onClick={() => {
-                  setShowChat(true), setActiveChat('party', part)
+          <div>
+            <a href="#" className={classes.border0} onClick={handleClick}>
+              <MoreHoriz/>
+            </a>
+            <Popover
+                id={id}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right'
                 }}
-                className={`${classes.mx2} ${classes.flexGrow2}`}
-              >
-                <h4 className={classes.fontBig}>{part.name}</h4>
-                <small className={classes.textMuted}>Party id: </small>
-                <small className={classes.textMuted}>{part.instance?.ipAddress}</small>
-              </div>
-
-              <div>
-                <a href="#" className={classes.border0} onClick={handleClick}>
-                  <MoreHoriz />
-                </a>
-                <Popover
-                  id={id}
-                  open={open}
-                  anchorEl={anchorEl}
-                  onClose={handleClose}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right'
-                  }}
-                  transformOrigin={{
-                    vertical: 'center',
-                    horizontal: 'left'
-                  }}
-                >
-                  <div className={classes.bgDark}>
-                    <MenuList sx={{ width: 210, maxWidth: '100%', borderRadius: 10 }}>
+                transformOrigin={{
+                  vertical: 'center',
+                  horizontal: 'left'
+                }}
+            >
+              <div className={classes.bgDark}>
+                <MenuList sx={{width: 210, maxWidth: '100%', borderRadius: 10}}>
+                  <MenuItem
+                      className={classes.my2}
+                      onClick={() => {
+                        setActiveChat('party', party), setShowChat(true), handleClose()
+                      }}
+                  >
+                    <ListItemIcon>
+                      <Forum fontSize="small" className={classes.info}/>
+                    </ListItemIcon>
+                    <ListItemText>CHAT</ListItemText>
+                  </MenuItem>
+                  {(selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
                       <MenuItem
-                        className={classes.my2}
-                        onClick={() => {
-                          setActiveChat('party', party), setShowChat(true), handleClose()
-                        }}
-                      >
-                        <ListItemIcon>
-                          <Forum fontSize="small" className={classes.info} />
-                        </ListItemIcon>
-                        <ListItemText>CHAT</ListItemText>
-                      </MenuItem>
-                      {selfPartyUser?.isOwner === true && (
-                        <MenuItem
                           className={classes.my2}
                           onClick={() => {
-                            openInvite('party', part.id), handleClose(), setInvite('Party'), handleCreate()
+                            openInvite('party', party.id), handleClose(), setInvite('Party'), handleCreate()
                           }}
-                        >
-                          <ListItemIcon>
-                            <GroupAdd fontSize="small" className={classes.success} />
-                          </ListItemIcon>
-                          <ListItemText>INVITE</ListItemText>
-                        </MenuItem>
-                      )}
-                      {partyDeletePending !== true && selfPartyUser?.isOwner === true && (
-                        <MenuItem className={classes.my2}>
-                          <ListItemIcon>
-                            <Delete fontSize="small" className={classes.danger} />
-                          </ListItemIcon>
-                          <ListItemText>Delete</ListItemText>
-                        </MenuItem>
-                      )}
-                    </MenuList>
-                  </div>
-                </Popover>
+                      >
+                        <ListItemIcon>
+                          <GroupAdd fontSize="small" className={classes.success}/>
+                        </ListItemIcon>
+                        <ListItemText>INVITE</ListItemText>
+                      </MenuItem>
+                  )}
+                  {!partyDeletePending && (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
+                      <MenuItem className={classes.my2}>
+                        <ListItemIcon>
+                          <Delete fontSize="small" className={classes.danger}/>
+                        </ListItemIcon>
+                        <ListItemText>Delete</ListItemText>
+                      </MenuItem>
+                  )}
+                </MenuList>
               </div>
-            </div>
-          )
-        })}
+            </Popover>
+          </div>
+        </div>
+      })
     </>
   )
 }

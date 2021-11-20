@@ -217,6 +217,7 @@ const GroupList = (props: Props) => {
           {selectedGroup &&
             selectedGroup.groupUsers?.length > 0 &&
             selectedGroup.groupUsers
+              .map((groupUser) => groupUser) //Makes a copy of the state; otherwise, .sort attempts to alter state directly, which hookState throws errors on
               .sort((a, b) => a.name - b.name)
               .map((groupUser) => {
                 return (
