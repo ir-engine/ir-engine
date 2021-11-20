@@ -110,7 +110,6 @@ export async function cleanupOldGameservers(): Promise<void> {
     },
     {
       query: {
-        instanceId: null,
         gs_id: {
           $nin: gsIds
         }

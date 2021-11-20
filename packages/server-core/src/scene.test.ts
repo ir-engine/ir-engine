@@ -17,7 +17,7 @@ const newSceneName = 'test_scene_name'
 
 const params = { isInternal: true }
 
-describe('Scene Service', () => {
+describe('scene.test', () => {
 
   // wait for initial project loading to occur in CI/CD
   before(async () => {
@@ -29,7 +29,7 @@ describe('Scene Service', () => {
       projectName: defaultProjectName,
       metadataOnly: false
     }, params)
-    assert.deepStrictEqual(parsedData, data.find(entry => entry.name === defaultSceneName).scene)
+    assert.deepStrictEqual(parsedData, data.find(entry => entry.name === 'empty').scene)
   })
 
   it("should get default scene data", async function() {
@@ -48,7 +48,6 @@ describe('Scene Service', () => {
     }, params)
     const { data } = await app.service('project').get(newProjectName)
     assert.strictEqual(data.name, newProjectName)
-    assert.strictEqual(data.routes.length, 0)
   })
 
   it("should add new scene", async function() {
