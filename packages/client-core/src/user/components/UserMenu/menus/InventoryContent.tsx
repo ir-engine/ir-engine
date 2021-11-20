@@ -69,7 +69,7 @@ const useStyles = makeStyles({
 
 const ITEM_HEIGHT = 48
 
-const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer, type }: any) => {
+const InventoryContent = ({ coinData,data, user, handleTransfer, isLoadingtransfer, type }: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
@@ -106,6 +106,7 @@ const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer, type 
   }
 
   useEffect(() => {
+    console.log("data ", coinData)
     if (data.length !== 0) {
       setState((prevState: any) => ({
         ...prevState,
@@ -115,6 +116,18 @@ const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer, type 
         inventory: [...data]
       }))
     }
+  
+    return () => {
+      setState({
+        url: '',
+        metadata: '',
+        selectedid: '',
+        userid: '',
+        anchorEl: null,
+        selectedtype: '',
+        inventory: []
+      }); // This worked for me
+    };
   }, [])
 
   useEffect(() => {
@@ -165,7 +178,7 @@ const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer, type 
       <Divider />
       {data.length !== 0 ? (
         <Grid container spacing={2} className={`${classes.p10} ${classes.contents}`}>
-          <Grid item md={2}>
+          <Grid item md={4} mx={2}>
             <Stack className={classes.card}>
               <IconButton
                 aria-label="more"
@@ -192,11 +205,12 @@ const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer, type 
                   }
                 }}
               >
-                <MenuItem selected={selectedtype === ''} onClick={(e) => handletypeselect('')}>
+                <MenuItem style={{display:"block"}} selected={selectedtype === ''} onClick={(e) => handletypeselect('')}>
                   All
                 </MenuItem>
                 {type.map((option) => (
                   <MenuItem
+                  style={{display:"block"}}
                     key={option.inventoryItemTypeId}
                     selected={option.inventoryItemTypeId === selectedtype}
                     onClick={(e) => handletypeselect(option.inventoryItemTypeId)}
@@ -210,6 +224,7 @@ const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer, type 
                   {inventory.map((value: any, index: number) => (
                     <Card
                       key={index}
+                      style={{marginBottom:"8px",padding:"2px"}}
                       onClick={() => {
                         setState((prevState) => ({
                           ...prevState,
@@ -227,6 +242,39 @@ const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer, type 
                         <img src={value.url} height="100" width="100" alt="" />
                         <Typography>{`Name: ${value.name}`}</Typography>
                         <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                      </Stack>
+                    </Card>
+                  ))}
+                </Stack>
+              ) : (
+                <Stack sx={{ color: 'black' }}>
+                  <Typography>No Data Found</Typography>
+                </Stack>
+              )}
+            </Stack>
+            {/* {console.log("in render ", coinData)}
+            {
+              coinData.map((value: any, index: number) =>
+                 <div>{value.name}</div>
+              )
+            } */}
+
+            <Stack className={classes.card} sx={{marginTop:"15px"}}>
+             
+              {coinData.length !== 0 ? (
+                <Stack >
+                  {coinData.map((value: any, index: number) => (
+                    <Card
+                      key={index}
+                      style={{marginBottom:"8px",padding:"2px"}}
+                    >
+                      <Stack
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        <img src={value.url} height="100" width="100" alt="" />
+                        <Typography>{`${value.name}`}</Typography>
+                        <Typography>{`Quantity: ${value.user_inventory.quantity}`}</Typography>
                       </Stack>
                     </Card>
                   ))}
@@ -264,7 +312,7 @@ const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer, type 
                     )}
                   </Grid>
                 </Stack>
-                <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
+                <Stack justifyContent="center" alignItems="center" spacing={3} direction="row" className={classes.p10}>
                   <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">User</InputLabel>
                     <Select
@@ -280,13 +328,16 @@ const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer, type 
                       }}
                     >
                       {user.map((datas, index) => (
-                        <MenuItem key={index} value={datas.id}>
+                        <MenuItem style={{display:"block", marginRight:"18px"}} key={index} value={datas.id}>
                           {datas.name}
                         </MenuItem>
                       ))}
+                      
                     </Select>
+                    
                   </FormControl>
                   <Button
+                  
                     variant="outlined"
                     disabled={isLoadingtransfer}
                     onClick={() => handleTransfer(userid, selectedid)}
