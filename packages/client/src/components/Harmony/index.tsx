@@ -312,7 +312,6 @@ const Harmony = (props: Props): any => {
   }, [MediaStreams.instance.channelType, MediaStreams.instance.channelId])
 
   useEffect(() => {
-    console.log('transportState.channelId changed', transportState.channelId.value)
     setActiveAVChannelId(transportState.channelId.value)
 
     if (targetChannelId == null || targetChannelId === '') {
@@ -341,7 +340,6 @@ const Harmony = (props: Props): any => {
   }, [channelConnectionState.connected.value])
 
   useEffect(() => {
-    console.log('messageScrollInit changed', messageScrollInit)
     if (messageScrollInit && messageEl != null && (messageEl as any).scrollTop != null) {
       ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
       ChatService.updateMessageScrollInit(false)
