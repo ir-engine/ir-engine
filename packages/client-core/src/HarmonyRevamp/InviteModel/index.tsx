@@ -59,7 +59,7 @@ const Index = (props: Props) => {
   const { invite, handleCloseModal } = props
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
-  const [value, setValue] = React.useState(invite === 'Group' ? 2 : 0)
+  const [value, setValue] = React.useState(invite === 'Group' ? 2 : invite === 'Party' ? 1 : 0)
 
   const handleChange = (event, newValue) => {
     setValue(newValue)

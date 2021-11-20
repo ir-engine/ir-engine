@@ -393,6 +393,7 @@ const LeftDrawer = (props: Props): any => {
     }
 
     return (
+      // start of the party functionality
       <div>
         <SwipeableDrawer
           className={classNames({
@@ -698,6 +699,8 @@ const LeftDrawer = (props: Props): any => {
               )}
             </div>
           )}
+
+          {/* End of the party functionality */}
 
           {groupFormOpen === false && detailsType === 'group' && (
             <div className={styles['details-container']}>

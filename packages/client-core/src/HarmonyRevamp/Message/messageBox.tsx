@@ -22,6 +22,8 @@ import {
 import { AttachFile, LocalPhone, PhotoCamera, Send } from '@material-ui/icons'
 import { useHarmonyStyles } from '../style'
 import { styled } from '@mui/material/styles'
+import { store } from '@xrengine/client-core/src/store'
+import { ChatAction } from '@xrengine/client-core/src/social/services/ChatService'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
@@ -35,20 +37,88 @@ const Input = styled('input')({
 const MessageBox: React.FunctionComponent = () => {
   const [composingMessage, setComposingMessage] = useState('')
   const { darkMode } = useContext(ModeContext)
+
+  const dispatch = store.dispatch
   const chatState = useChatState()
   const selfUser = useAuthState().user.value
   const channelState = chatState.channels
   const channels = channelState.channels.value
+  const messageRef = React.useRef()
+  const messageEl = messageRef.current
   const channelEntries = Object.values(channels).filter((channel) => !!channel)!
   const targetChannelId = chatState.targetChannelId.value
   const [anchorEl, setAnchorEl] = React.useState(null)
   const activeChannel = channels.find((c) => c.id === targetChannelId)!
+  const channelRef = React.useRef(channels)
+  const messageScrollInit = chatState.messageScrollInit
+  const chatStateRef = React.useRef(chatState)
 
   const [messageUpdatePending, setMessageUpdatePending] = useState('')
   const [editingMessage, setEditingMessage] = useState({})
   const [editingMessageText, setEditingMessageText] = useState('')
   const [messageTodelete, setMessageToDelete] = useState('')
   const [showWarning, setShowWarning] = React.useState(false)
+
+  const [messageScrollUpdate, setMessageScrollUpdate] = useState(false)
+  const [topMessage, setTopMessage] = useState({})
+
+  React.useEffect(() => {
+    channelRef.current = channels
+    channelEntries.forEach((channel) => {
+      if (chatState.updateMessageScroll.value === true) {
+        dispatch(ChatAction.setUpdateMessageScroll(false))
+        if (
+          channel?.id === targetChannelId &&
+          messageEl != null &&
+          (messageEl as any).scrollHeight -
+            (messageEl as any).scrollTop -
+            (messageEl as any).firstElementChild?.offsetHeight <=
+            (messageEl as any).clientHeight + 20
+        ) {
+          ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
+        }
+      }
+      if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
+        ChatService.getChannelMessages(channel.id)
+      }
+    })
+  }, [channels])
+
+  React.useEffect(() => {
+    chatStateRef.current = chatState
+    if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
+      ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
+      ChatService.updateMessageScrollInit(false)
+      setMessageScrollUpdate(false)
+    }
+    if (messageScrollUpdate === true) {
+      setMessageScrollUpdate(false)
+      if (messageEl != null && (messageEl as any).scrollTop != null) {
+        ;(messageEl as any).scrollTop = (topMessage as any).offsetTop
+      }
+    }
+  }, [chatState])
+
+  const nextMessagePage = (): void => {
+    if (activeChannel.skip + activeChannel.limit < activeChannel.total) {
+      ChatService.getChannelMessages(targetChannelId, activeChannel.skip + activeChannel.limit)
+    } else {
+      setMessageScrollUpdate(false)
+    }
+  }
+
+  const onMessageScroll = (e): void => {
+    if (
+      e.target.scrollTop === 0 &&
+      e.target.scrollHeight > e.target.clientHeight &&
+      messageScrollInit.value !== true &&
+      activeChannel.skip + activeChannel.limit < activeChannel.total
+    ) {
+      setMessageScrollUpdate(true)
+      setTopMessage((messageEl as any).firstElementChild)
+      nextMessagePage()
+    }
+  }
 
   const composingMessageChangedHandler = (event: any): void => {
     const message = event.target.value
@@ -127,14 +197,6 @@ const MessageBox: React.FunctionComponent = () => {
     }
   }, [channelState.updateNeeded.value])
 
-  React.useEffect(() => {
-    channelEntries.forEach((channel) => {
-      if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
-        ChatService.getChannelMessages(channel.id)
-      }
-    })
-  }, [channels])
-
   let sortedMessages
   if (activeChannel != null && activeChannel.messages) {
     sortedMessages = [...activeChannel.messages].sort(
@@ -153,7 +215,7 @@ const MessageBox: React.FunctionComponent = () => {
       </div>
       <Container>
         <div className={`${classes.dFlex} ${classes.flexColumn} ${classes.justifyContentBetween} ${classes.h100}`}>
-          <div className={classes.scroll}>
+          <div ref={messageRef as any} className={classes.scroll} onScroll={(e) => onMessageScroll(e)}>
             {sortedMessages?.map((message: Message, index: number) => {
               return (
                 <div key={message.id} className={`${classes.dFlex} ${classes.flexColumn} ${classes.my2}`}>
