@@ -1,6 +1,6 @@
 import { Add, Notifications, Search } from '@material-ui/icons'
 import { Settings } from '@mui/icons-material'
-import { Badge, IconButton, List, Dialog, Avatar, Switch } from '@mui/material'
+import { Badge, IconButton, List, Dialog, Avatar, Switch, DialogActions, Button } from '@mui/material'
 import queryString from 'querystring'
 import { useHistory } from 'react-router-dom'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
@@ -20,6 +20,7 @@ import { PartyService } from '@xrengine/client-core/src/social/services/PartySer
 import ModeContext from '../context/modeContext'
 import Party from '../party'
 import FriendList from './FriendList'
+import { DialogTitle } from '@material-ui/core'
 
 interface Props {
   setShowChat: any
@@ -42,6 +43,8 @@ const LeftHarmony = (props: Props) => {
   const [showNot, setShowNot] = React.useState(false)
   const [tabIndex, setTabIndex] = React.useState(0)
   const [openDrawer, setOpen] = React.useState(false)
+  const [showWarning, setShowWarning] = React.useState(false)
+  const [friendDeletePending, setFriendDeletePending] = React.useState({})
 
   React.useEffect(() => {
     if (!persed['?channel']) {
@@ -115,6 +118,26 @@ const LeftHarmony = (props: Props) => {
     if (groupSubState.skip.value + groupSubState.limit.value < groupSubState.total.value) {
       GroupService.getGroups(groupSubState.skip.value + groupSubState.limit.value)
     }
+  }
+
+  const showUnfriendConfirm = () => {
+    setAnchorEl(null)
+    setShowWarning(true)
+    //setMessageUpdatePending('')
+    //setEditingMessage('')
+  }
+
+  const cancelFriendDelete = (e) => {
+    e.preventDefault()
+    setFriendDeletePending({})
+    setShowWarning(false)
+  }
+
+  const confirmFriendDelete = (e) => {
+    e.preventDefault()
+    FriendService.unfriend(friendDeletePending.id)
+    setFriendDeletePending('')
+    setShowWarning(false)
   }
 
   const onListScroll = (e): void => {
@@ -233,7 +256,11 @@ const LeftHarmony = (props: Props) => {
                 </a>
               </div>
               <List onScroll={(e) => onListScroll(e)}>
-                <FriendList setShowChat={setShowChat} />
+                <FriendList
+                  setShowChat={setShowChat}
+                  setFriendDeletePending={setFriendDeletePending}
+                  showUnfriendConfirm={showUnfriendConfirm}
+                />
               </List>
             </>
           )}
@@ -290,6 +317,23 @@ const LeftHarmony = (props: Props) => {
           </div>
         </div>
       </div>
+      <Dialog
+        open={showWarning}
+        onClose={() => setShowWarning(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        classes={{ paper: classes.paperDialog }}
+      >
+        <DialogTitle id="alert-dialog-title">Confirm to unfriend {friendDeletePending.name}</DialogTitle>
+        <DialogActions>
+          <Button onClick={cancelFriendDelete} className={classes.spanNone}>
+            Cancel
+          </Button>
+          <Button onClick={(e) => confirmFriendDelete(e)} className={classes.spanDange} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Dialog fullWidth={true} maxWidth={'md'} open={create} onClose={() => handleCloseModal()}>
         <InviteModel handleCloseModal={handleCloseModal} invite={invite} />
       </Dialog>
