@@ -64,6 +64,7 @@ export default class HashMap<Key extends ITuple, Value> {
 
   clear() {
     this.map = {}
+    this._size = 0
   }
 
   get size() {

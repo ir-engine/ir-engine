@@ -1,7 +1,7 @@
 import { MapStateUnwrapped } from '../types'
 import unifyCachedFeatures from '../functions/unifyCachedFeatures'
 
-export const name = 'unify features'
+export const name = 'UnifyFeatures'
 export const isAsyncPhase = false
 export const isCachingPhase = false
 

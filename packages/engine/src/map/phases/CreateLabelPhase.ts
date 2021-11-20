@@ -3,7 +3,7 @@ import { FeatureKey, TaskStatus, MapStateUnwrapped } from '../types'
 import createUsingCache from '../functions/createUsingCache'
 import createFeatureLabel from '../functions/createFeatureLabel'
 
-export const name = 'create label'
+export const name = 'CreateLabel'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 
