@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import { useHarmonyStyles } from '../style'
@@ -26,6 +26,7 @@ import {
 } from '@mui/material'
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
 import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
+import ModeContext from '../context/modeContext'
 
 interface Props {
   setShowChat: any
@@ -49,6 +50,7 @@ const initialSelectedUserState = {
 
 const GroupList = (props: Props) => {
   const { setShowChat, toggleUpdateDrawer } = props
+  const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [groupForm, setGroupForm] = React.useState(initialGroupForm)
@@ -150,14 +152,14 @@ const GroupList = (props: Props) => {
                 }}
               >
                 <div className={`${classes.mx2} ${classes.flexGrow2}`}>
-                  <h4 className={classes.fontBig}>{group.name}</h4>
+                  <h4 className={`${classes.fontBig} ${darkMode ? classes.white : classes.textBlack}`}>{group.name}</h4>
                   <small className={classes.textMuted}>You:</small>
                   <small className={classes.textMuted}>{group.description}</small>
                 </div>
 
                 <div>
                   <a href="#" className={classes.border0} onClick={(e) => openDetails(e, 'group', group)}>
-                    <MoreHoriz />
+                    <MoreHoriz className={darkMode ? classes.white : classes.textBlack} />
                   </a>
                   <Popover
                     id={id}
@@ -216,7 +218,7 @@ const GroupList = (props: Props) => {
                           onClick={() => {
                             handleOpenDrawer(), handleClose()
                           }}
-                          className={`${classes.my2} ${classes.btn}`}
+                          className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
                         >
                           <small>VIEW MEMBERS</small>
                         </a>

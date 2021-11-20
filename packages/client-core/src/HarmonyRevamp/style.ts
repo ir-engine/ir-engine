@@ -8,6 +8,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       height: '100vh',
       backgroundColor: '#2E2B45'
     },
+    bgDarkusers: {
+      backgroundColor: '#2E2B45'
+    },
     darkBg: {
       backgroundColor: '#261F34'
     },
@@ -60,6 +63,9 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     mx2: {
       margin: '7px 10px'
     },
+    my4: {
+      margin: '10px 0px'
+    },
     mx0: {
       margin: '0px 10px'
     },
@@ -87,8 +93,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     fontBig: {
       fontSize: '15px',
-      marginBottom: '5px',
-      color: '#000'
+      marginBottom: '5px'
     },
     textMuted: {
       fontSize: 12,
@@ -116,15 +121,15 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       borderRadius: '5px',
       color: '#ccc'
     },
-    formControls: {
-      width: '100%',
-      backgroundColor: 'transparent',
-      border: '1px solid #FFF',
-      padding: '12px',
-      marginTop: 15,
-      borderRadius: '2px',
-      color: '#ccc'
-    },
+    // formControls: {
+    //   width: '100%',
+    //   backgroundColor: 'transparent',
+    //   border: '1px solid #FFF',
+    //   padding: '12px',
+    //   marginTop: 15,
+    //   borderRadius: '2px',
+    //   color: '#ccc'
+    // },
     box: {
       padding: '13px 16px',
       borderRadius: '5px'

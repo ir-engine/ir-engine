@@ -1,6 +1,8 @@
 {
   "dependencies": [
     "@material-ui/core/styles",
-    "@material-ui/icons"
+    "@material-ui/icons",
+    "@styled-icons/material/TouchApp",
+    "nipplejs"
   ]
 }

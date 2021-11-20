@@ -46,7 +46,7 @@ const RightHarmony = () => {
             <small className={classes.textMuted}>482 KB</small>
           </div>
         </div>
-        <a href="#" className="btn">
+        <a href="#" className="btn" download>
           <Download fontSize="small" className={!darkMode && classes.secondaryText} />
         </a>
       </div>
@@ -58,7 +58,7 @@ const RightHarmony = () => {
             <small className={classes.textMuted}>482 KB</small>
           </div>
         </div>
-        <a href="#" className="btn">
+        <a href="#" className="btn" download>
           <Download fontSize="small" className={!darkMode && classes.secondaryText} />
         </a>
       </div>
@@ -70,7 +70,7 @@ const RightHarmony = () => {
             <small className={classes.textMuted}>482 KB</small>
           </div>
         </div>
-        <a href="#" className="btn">
+        <a href="#" className="btn" download>
           <Download fontSize="small" className={!darkMode && classes.secondaryText} />
         </a>
       </div>

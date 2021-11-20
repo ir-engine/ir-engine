@@ -20,7 +20,7 @@ interface Props {
 const CreateGroup = (props: Props) => {
   const { setShowChat } = props
   const classes = useHarmonyStyles()
-  const { darkMode, setDarkMode } = React.useContext(ModeContext)
+  const { darkMode } = React.useContext(ModeContext)
   const [state, setState] = React.useState({ right: false })
   const [groupFormMode, setGroupFormMode] = React.useState('create')
   const [groupForm, setGroupForm] = React.useState(initialGroupForm)
@@ -116,7 +116,7 @@ const CreateGroup = (props: Props) => {
                   </label>
                   <input
                     type="text"
-                    className={classes.formControls}
+                    className={darkMode ? classes.formControlsLight : classes.formControls}
                     id="name"
                     name="name"
                     value={groupForm.name}
@@ -131,7 +131,7 @@ const CreateGroup = (props: Props) => {
                   </label>
                   <input
                     type="text"
-                    className={classes.formControls}
+                    className={darkMode ? classes.formControlsLight : classes.formControls}
                     id="description"
                     name="description"
                     value={groupForm.description}

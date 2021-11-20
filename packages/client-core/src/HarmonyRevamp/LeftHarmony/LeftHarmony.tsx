@@ -272,12 +272,12 @@ const LeftHarmony = (props: Props) => {
         <div
           className={`${classes.dFlex} ${classes.justifyContentBetween} ${
             darkMode ? classes.darkBg : classes.whiteBg
-          } ${classes.mx2}`}
+          } ${classes.mx2} ${classes.px2}`}
         >
-          <div className={`${classes.dFlex} ${classes.box}`}>
+          <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.box}`}>
             <Avatar src={selfUser.avatarUrl} />
             <div className={classes.mx2}>
-              <h4 className={`${classes.fontBig} ${darkMode && classes.white}`}>{selfUser.name}</h4>
+              <h4 className={`${classes.fontBig} ${darkMode ? classes.white : classes.textBlack}`}>{selfUser.name}</h4>
               <small className={`${classes.textMuted} ${darkMode && classes.white}`}>You're: </small>
               <small className={`${classes.textMuted} ${darkMode && classes.white}`}>{selfUser.userRole}</small>
             </div>
