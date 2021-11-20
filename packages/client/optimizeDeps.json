@@ -1,5 +1,6 @@
 {
   "dependencies": [
+    "@material-ui/core",
     "@material-ui/core/styles",
     "@material-ui/icons",
     "react-hot-keys"

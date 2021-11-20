@@ -21,7 +21,7 @@ interface Props {
 }
 
 const FriendList = (props: Props) => {
-  const { setShowChat } = props
+  const { setShowChat, setFriendDeletePending, showUnfriendConfirm } = props
   const classes = useHarmonyStyles()
 
   const [anchorEl, setAnchorEl] = React.useState(null)
@@ -122,7 +122,12 @@ const FriendList = (props: Props) => {
                               </ListItemIcon>
                               <ListItemText>INVITE</ListItemText>
                             </MenuItem>
-                            <MenuItem className={classes.my2}>
+                            <MenuItem
+                              className={classes.my2}
+                              onClick={() => {
+                                showUnfriendConfirm(), handleClose(), setFriendDeletePending(friend)
+                              }}
+                            >
                               <ListItemIcon>
                                 <Delete fontSize="small" className={classes.danger} />
                               </ListItemIcon>
