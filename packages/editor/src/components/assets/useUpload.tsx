@@ -4,13 +4,8 @@ import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { useDialog } from '../hooks/useDialog'
-import { uploadProjectAsset } from '../../functions/assetFunctions'
+import { getEntries, uploadProjectAsset } from '../../functions/assetFunctions'
 import { accessEditorState } from '../../services/EditorServices'
-
-//todo
-const upload = (files: any): any => {
-  console.log(files)
-}
 
 type Props = {
   multiple?: boolean
@@ -25,42 +20,51 @@ export default function useUpload(options: Props = {}) {
   const multiple = !!options.multiple
   const accepts = options.accepts || AllFileTypes
 
+  const validateEntry = async (item) => {
+    if (item.isDirectory) {
+      let directoryReader = item.createReader()
+      const entries = await getEntries(directoryReader)
+      for (let index = 0; index < entries.length; index++) {
+        await validateEntry(entries[index])
+      }
+    }
+
+    if (item.isFile) {
+      let accepted = false
+      for (const pattern of accepts) {
+        if (item.name.endsWith(pattern)) {
+          accepted = true
+          break
+        }
+      }
+      if (!accepted) {
+        throw new Error(t('editor:asset.useUpload.mineTypeError', { name: item.name, types: accepts.join(', ') }))
+      }
+    }
+  }
+
   const onUpload = useCallback(
     //initailizing files by using assets files after upload.
-    async (files) => {
+    async (entries: FileSystemEntry[]) => {
       // initializing assets as an empty array
       let assets = []
       try {
         //check if not multiple and files contains length greator
-        if (!multiple && files.length > 1) {
+        if (!multiple && entries.length > 1) {
           throw new Error(t('editor:asset.useUpload.multipleFileError'))
         }
 
         //check if assets is not empty.
         if (accepts) {
-          for (const file of files) {
-            let accepted = false
-            for (const pattern of accepts) {
-              if (pattern.startsWith('.')) {
-                if (file.name.endsWith(pattern)) {
-                  accepted = true
-                  break
-                }
-              } else if (file.type.startsWith(pattern)) {
-                accepted = true
-                break
-              }
-            }
-            if (!accepted) {
-              throw new Error(t('editor:asset.useUpload.mineTypeError', { name: file.name, types: accepts.join(', ') }))
-            }
+          for (let index = 0; index < entries.length; index++) {
+            await validateEntry(entries[index])
           }
         }
         const abortController = new AbortController()
         setDialogComponent(
           <ProgressDialog
             title={t('editor:asset.useUpload.progressTitle')}
-            message={t('editor:asset.useUpload.progressMsg', { uploaded: 0, total: files.length, percentage: 0 })}
+            message={t('editor:asset.useUpload.progressMsg', { uploaded: 0, total: entries.length, percentage: 0 })}
             cancelable={true}
             onCancel={() => {
               abortController.abort()
@@ -69,7 +73,7 @@ export default function useUpload(options: Props = {}) {
           />
         )
         const { projectName } = accessEditorState().value
-        assets = await uploadProjectAsset(projectName, files, (item, total, progress) => {
+        assets = await uploadProjectAsset(projectName, entries, (item, total, progress) => {
           setDialogComponent(
             <ProgressDialog
               title={t('editor:asset.useUpload.progressTitle')}

@@ -1,3 +1,4 @@
+import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import React from 'react'
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
@@ -11,7 +12,14 @@ import FileBrowserInput from './FileBrowserInput'
  * @constructor
  */
 export function FolderInput({ onChange, ...rest }) {
-  return <FileBrowserInput acceptFileTypes={[]} acceptDropItems={[ItemTypes.Folder]} onChange={onChange} {...rest} />
+  return (
+    <FileBrowserInput
+      acceptFileTypes={AllFileTypes}
+      acceptDropItems={[ItemTypes.Folder]}
+      onChange={onChange}
+      {...rest}
+    />
+  )
 }
 
 export default FolderInput

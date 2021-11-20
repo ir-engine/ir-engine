@@ -1,6 +1,6 @@
 import React from 'react'
 import { ControlledStringInput } from './StringInput'
-import { useDrop } from 'react-dnd'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
 import useUpload from '../assets/useUpload'
 import { ItemTypes } from '../../constants/AssetTypes'
 
@@ -21,14 +21,18 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
 
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [...acceptDropItems, ItemTypes.File],
-    drop(item: any) {
+    async drop(item: any, monitor) {
       const isDropType = acceptDropItems.find((element) => element === item.type)
       if (isDropType) {
         onChange(item.url, item.initialProps || {})
       } else {
-        onUpload(item.files).then((assets) => {
-          if (assets && assets.length > 0) {
-            onChange(assets[0].url, {})
+        // https://github.com/react-dnd/react-dnd/issues/1345#issuecomment-538728576
+        const dndItem: any = monitor.getItem()
+        const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+
+        onUpload(entries).then((assets) => {
+          for (let index = 0; index < assets.length; index++) {
+            onChange(assets[index].url, {})
           }
         })
       }
