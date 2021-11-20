@@ -11,8 +11,8 @@ import TradingContent from '../UserMenu/menus/TradingContent'
 export const TradingPage = (): any => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const [state, setState] = useState<any>({ data: [],inventory:[], user: [], type: [], isLoading: true, isLoadingtransfer: false })
-  const { data, user, type, isLoading, isLoadingtransfer ,inventory} = state
+  const [state, setState] = useState<any>({ data: [],data1: [], inventory: [], user: [], type: [], isLoading: true, isLoadingtransfer: false })
+  const { data, user, type, isLoading, isLoadingtransfer, inventory,data1 } = state
 
   const authState = useAuthState()
 
@@ -23,18 +23,32 @@ export const TradingPage = (): any => {
   useEffect(() => {
     if (authState.isLoggedIn.value) {
       fetchInventoryList()
-      fetchTradingList()
-      // fetchtypeList()
+      fetchfromTradingList()
+      fetchtoTradingList(),
+      fetchUserList()
     }
   }, [authState.isLoggedIn.value])
 
-  const handleTransfer = async (ids, itemid) => {
+  const handleTransfer = async (ids, items) => {
     setState((prevState) => ({
       ...prevState,
       isLoadingtransfer: true
     }))
+    const data={
+      fromUserId: id,
+      toUserId: ids,
+      fromUserInventoryIds: [...items],
+      fromUserStatus: "REQUEST",
+      toUserStatus: "REQUEST"
+  }
     try {
-      fetchInventoryList()
+      const response = await client.service('user-trade').create(data)
+      console.log(response,"trade")
+      if(response){
+        fetchInventoryList()
+      fetchfromTradingList()
+      fetchtoTradingList()
+      }
       console.log('success')
     } catch (err) {
       console.error(err, 'error')
@@ -46,17 +60,35 @@ export const TradingPage = (): any => {
     }
   }
 
-  const fetchTradingList = async () => {
+  const fetchfromTradingList = async () => {
     setState((prevState) => ({
       ...prevState,
       isLoading: true
     }))
     try {
-      const response = await client.service('user-trade').find()
-      console.log(response, 'tradelist')
+      const response = await client.service('user-trade').find({ query: { fromUserId: id } })
+      console.log(response, 'fromtradelist')
       setState((prevState) => ({
         ...prevState,
         data: [...response.data],
+        isLoading: false
+      }))
+    } catch (err) {
+      console.error(err, 'error')
+    }
+  }
+
+  const fetchtoTradingList = async () => {
+    setState((prevState) => ({
+      ...prevState,
+      isLoading: true
+    }))
+    try {
+      const response = await client.service('user-trade').find({ query: { toUserId: id } })
+      console.log(response, 'totradelist')
+      setState((prevState) => ({
+        ...prevState,
+        data1: [...response.data],
         isLoading: false
       }))
     } catch (err) {
@@ -74,7 +106,7 @@ export const TradingPage = (): any => {
       console.log(response, 'inventorylist')
       setState((prevState) => ({
         ...prevState,
-        inventory: [...response.inventory_items],
+        inventory: [...response.inventory_items.filter((val)=>(val.isCoin===false))],
         isLoading: false
       }))
     } catch (err) {
@@ -82,47 +114,47 @@ export const TradingPage = (): any => {
     }
   }
 
-  const removeiteminventory =(index)=>{
-    const inventorytemp =[...inventory]
-    inventorytemp.splice(index,1)
+  const removeiteminventory = (index) => {
+    const inventorytemp = [...inventory]
+    inventorytemp.splice(index, 1)
     setState((prevState) => ({
       ...prevState,
       inventory: [...inventorytemp]
-      
+
     }))
   }
 
-  const additeminventory =(values)=>{
-    const inventorytemp =[...inventory]
+  const additeminventory = (values) => {
+    const inventorytemp = [...inventory]
     inventorytemp.push(values)
     setState((prevState) => ({
       ...prevState,
       inventory: [...inventorytemp]
-      
+
     }))
   }
 
-  // const fetchUserList = async () => {
-  //   try {
-  //     const response = await client.service('user').find({
-  //       query: {
-  //         action: 'inventory'
-  //       }
-  //     })
-  //     console.log(response,"userlist")
-  //     if (response.data && response.data.length !== 0) {
-  //       const activeUser = response.data.filter((val: any) => val.inviteCode !== null)
-  //       setState((prevState: any) => ({
-  //         ...prevState,
-  //         user: [...activeUser],
-  //         isLoading: false
-  //       }))
-  //     }
-  //   } catch (err) {
-  //     console.error(err, 'error')
-  //   }
-  // }
-  console.log(inventory,"parent")
+  const fetchUserList = async () => {
+    try {
+      const response = await client.service('user').find({
+        query: {
+          action: 'inventory'
+        }
+      })
+      console.log(response,"userlist")
+      if (response.data && response.data.length !== 0) {
+        const activeUser = response.data.filter((val: any) => val.inviteCode !== null)
+        setState((prevState: any) => ({
+          ...prevState,
+          user: [...activeUser],
+          isLoading: false
+        }))
+      }
+    } catch (err) {
+      console.error(err, 'error')
+    }
+  }
+  console.log(inventory, "parent")
   return (
     <EmptyLayout pageTitle={t('Inventory.pageTitle')}>
       <style>
@@ -139,6 +171,7 @@ export const TradingPage = (): any => {
       ) : (
         <TradingContent
           data={data}
+          data1={data1}
           inventory={inventory}
           user={user}
           type={type}

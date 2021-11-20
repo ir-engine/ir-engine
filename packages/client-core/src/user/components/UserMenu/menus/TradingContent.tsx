@@ -57,7 +57,7 @@ const useStyles = makeStyles({
     padding: '10px'
   },
   selecteditem: {
-    border: '1px solid #d7d7d7'
+    border: '1px solid #800000'
   },
   card: {
     boxShadow: '16px 16px 16px 16px #11111159'
@@ -69,7 +69,7 @@ const useStyles = makeStyles({
 
 const ITEM_HEIGHT = 48
 
-const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory }: any) => {
+const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory, data1 }: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
@@ -167,10 +167,10 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
         <IconButton onClick={() => history.goBack()}>
           <ArrowBackIos /> Back
         </IconButton>
-        <Typography className={classes.title}>Inventory</Typography>
+        <Typography className={classes.title}>Trade</Typography>
       </Stack>
       <Divider />
-      {data.length !== 0 ? (
+     
         <Grid container spacing={2} className={`${classes.p10} ${classes.contents}`}>
           <Grid item md={2}>
             <Stack className={classes.card} onDragOver={(e) => onDragOver(e)}
@@ -277,86 +277,187 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                     <Typography>No Data Found</Typography>
                   </Stack>
                 )}
+                {
+                  fortrading.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">User</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={userid}
+                        label="user"
+                        onChange={(e: any) => {
+                          setState((prevState) => ({
+                            ...prevState,
+                            userid: e.target.value
+                          }))
+                        }}
+                      >
+                        {user.map((datas, index) => (
+                          <MenuItem key={index} value={datas.id}>
+                            {datas.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <Button
+                      variant="outlined"
+                      disabled={isLoadingtransfer}
+                      onClick={() => handleTransfer(userid, fortrading)}
+                    >
+                      {isLoadingtransfer ? <CircularProgress size={30} /> : 'Trade'}
+                    </Button>
+                  </Stack>
+                }
+
               </Stack>
             </Card>
           </Grid>
           <Grid item md={4}>
-            <Card>
-              <Stack justifyContent="center" alignItems="center">
-                <Typography className={classes.title}>Trade Items From User</Typography>
-                {data[0].fromUserInventoryIds.length !== 0 ? (
-                  <Stack direction="row" spacing={1}>
-                    {data[0].fromUserInventoryIds.map((value: any, index: number) => (
-                      <Card
-                        key={index}
-                        onClick={() => {
-                          setState((prevState) => ({
-                            ...prevState,
-                            url: value.url,
-                            metadata: value.metadata,
-                            selectedid: value.inventoryItemTypeId
-                          }))
-                        }}
-                      >
-                        <Stack
-                          justifyContent="center"
-                          alignItems="center"
-                          className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+            <Stack>
+              <Card>
+                <Stack justifyContent="center" alignItems="center">
+                  <Typography className={classes.title}>Trade Offer Sent</Typography>
+                  {data.length !== 0 ? (
+                    <Stack direction="row" spacing={1}>
+                      {data[0].fromUserInventoryIds.map((value: any, index: number) => (
+                        <Card
+                          key={index}
+                          onClick={() => {
+                            setState((prevState) => ({
+                              ...prevState,
+                              url: value.url,
+                              metadata: value.metadata,
+                              selectedid: value.inventoryItemTypeId
+                            }))
+                          }}
                         >
-                          <img src={value.url} height="100" width="100" alt="" />
-                          <Typography>{`Name: ${value.name}`}</Typography>
-                          <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
-                        </Stack>
-                      </Card>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Stack sx={{ color: 'black' }}>
-                    <Typography>No Data Found</Typography>
-                  </Stack>
-                )}
-                <Divider />
-                <Typography className={classes.title}>Trade Items To User</Typography>
-                {data[0].fromUserInventoryIds.length !== 0 ? (
-                  <Stack direction="row" spacing={1}>
-                    {data[0].fromUserInventoryIds.map((value: any, index: number) => (
-                      <Card
-                        key={index}
-                        onClick={() => {
-                          setState((prevState) => ({
-                            ...prevState,
-                            url: value.url,
-                            metadata: value.metadata,
-                            selectedid: value.inventoryItemTypeId
-                          }))
-                        }}
-                      >
-                        <Stack
-                          justifyContent="center"
-                          alignItems="center"
-                          className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                          <Stack
+                            justifyContent="center"
+                            alignItems="center"
+                            className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                          >
+                            <img src={value.url} height="100" width="100" alt="" />
+                            <Typography>{`Name: ${value.name} --->`}  </Typography>
+                            <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                          </Stack>
+                        </Card>
+                      ))}
+                    </Stack> 
+                  ) : (
+                    <Stack sx={{ color: 'black' }}>
+                      <Typography>No Data Found</Typography>
+                    </Stack>
+                  )} 
+                  <Divider />
+                  {data.length !== 0 ? (
+                    <Stack direction="row" spacing={1}>
+                      {data[0].toUserInventoryIds.map((value: any, index: number) => (
+                        <Card
+                          key={index}
+                          onClick={() => {
+                            setState((prevState) => ({
+                              ...prevState,
+                              url: value.url,
+                              metadata: value.metadata,
+                              selectedid: value.inventoryItemTypeId
+                            }))
+                          }}
                         >
-                          <img src={value.url} height="100" width="100" alt="" />
-                          <Typography>{`Name: ${value.name}`}</Typography>
-                          <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
-                        </Stack>
-                      </Card>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Stack sx={{ color: 'black' }}>
-                    <Typography>No Data Found</Typography>
-                  </Stack>
-                )}
-              </Stack>
-            </Card>
+                          <Stack
+                            justifyContent="center"
+                            alignItems="center"
+                            className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                          >
+                            <img src={value.url} height="100" width="100" alt="" />
+                            <Typography>{`Name: ${value.name} <---`}</Typography>
+                            <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                          </Stack>
+                        </Card>
+                      ))}
+                    </Stack>  
+                  ) : (
+                    <Stack sx={{ color: 'black' }}>
+                      <Typography>No Data Found</Typography>
+                    </Stack>
+                  )}
+                  
+                  
+                </Stack>
+              </Card>
+              <Card>
+                <Stack justifyContent="center" alignItems="center">
+                  <Typography className={classes.title}>Trade Offer Received</Typography>
+                  {data1.length !== 0 ? (
+                    <Stack direction="row" spacing={1}>
+                      {data1[0].toUserInventoryIds.map((value: any, index: number) => (
+                        <Card
+                          key={index}
+                          onClick={() => {
+                            setState((prevState) => ({
+                              ...prevState,
+                              url: value.url,
+                              metadata: value.metadata,
+                              selectedid: value.inventoryItemTypeId
+                            }))
+                          }}
+                        >
+                          <Stack
+                            justifyContent="center"
+                            alignItems="center"
+                            className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                          >
+                            <img src={value.url} height="100" width="100" alt="" />
+                            <Typography>{`Name: ${value.name} --->`}</Typography>
+                            <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                          </Stack>
+                        </Card>
+                      ))}
+                    </Stack>
+                  ) : (
+                    <Stack sx={{ color: 'black' }}>
+                      <Typography>No Data Found</Typography>
+                    </Stack>
+                  )}
+                  <Divider />
+                  {data1.length !== 0 ? (
+                    <Stack direction="row" spacing={1}>
+                      {data1[0].fromUserInventoryIds.map((value: any, index: number) => (
+                        <Card
+                          key={index}
+                          onClick={() => {
+                            setState((prevState) => ({
+                              ...prevState,
+                              url: value.url,
+                              metadata: value.metadata,
+                              selectedid: value.inventoryItemTypeId
+                            }))
+                          }}
+                        >
+                          <Stack
+                            justifyContent="center"
+                            alignItems="center"
+                            className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                          >
+                            <img src={value.url} height="100" width="100" alt="" />
+                            <Typography>{`Name: ${value.name} <---`}</Typography>
+                            <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                          </Stack>
+                        </Card>
+                      ))}
+                    </Stack>
+                  ) : (
+                    <Stack sx={{ color: 'black' }}>
+                      <Typography>No Data Found</Typography>
+                    </Stack>
+                  )}
+                </Stack>
+              </Card>
+            </Stack>
+
           </Grid>
         </Grid>
-      ) : (
-        <Stack justifyContent="center" alignItems="center">
-          <Typography className={classes.title}>NO ITEMS FOUND</Typography>
-        </Stack>
-      )}
+     
       {/* </Stack> */}
     </Box>
   )

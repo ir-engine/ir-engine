@@ -57,7 +57,7 @@ const useStyles = makeStyles({
     padding: '10px'
   },
   selecteditem: {
-    border: '1px solid #d7d7d7'
+    border: '2px solid #800000'
   },
   card: {
     boxShadow: '16px 16px 16px 16px #11111159'
@@ -310,6 +310,7 @@ const InventoryContent = ({ data, user, handleTransfer, isLoadingtransfer, type 
       )}
       {/* </Stack> */}
     </Box>
+    
   )
 }
 

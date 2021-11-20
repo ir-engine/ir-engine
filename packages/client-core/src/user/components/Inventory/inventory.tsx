@@ -60,7 +60,7 @@ export const InventoryPage = (): any => {
       console.log(response, 'inventorylist')
       setState((prevState) => ({
         ...prevState,
-        data: [...response.inventory_items],
+        data: [...response.inventory_items.filter((val)=>(val.isCoin===false))],
         isLoading: false
       }))
     } catch (err) {
