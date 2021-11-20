@@ -27,7 +27,7 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
           if (!config.databaseSeed) return null
           return path.join(dirent.name, config.databaseSeed)
         } catch (e) {
-          console.log(e)
+          // console.log(e)
         }
       })
       .filter((hasServices) => !!hasServices)

@@ -4,7 +4,6 @@
   "main": "index.ts",
   "description": "",
   "scripts": {
-    "create-pack": "ts-node scripts/create-project.ts",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "repository": {
