@@ -37,7 +37,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   const state = mapReducer(null, MapAction.initialize(center, args.scale?.x))
 
   // TODO fix hardcoded URL
-  const spinnerGLTF = await LoadGLTF('https://localhost:8642/projects/default-project/assets/EarthLowPoly.glb')
+  const spinnerGLTF = await LoadGLTF(Engine.publicPath + '/projects/default-project/EarthLowPoly.glb')
   const spinner = spinnerGLTF.scene as Mesh
   spinner.position.y = avatarHalfHeight * 2
   spinner.position.z = -150
