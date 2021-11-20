@@ -1,6 +1,6 @@
 import { Add, Notifications, Search } from '@material-ui/icons'
 import { Settings } from '@mui/icons-material'
-import { Badge, IconButton, List, Dialog, Avatar, Switch } from '@mui/material'
+import { Badge, IconButton, List, Dialog, Avatar, Switch, Tooltip } from '@mui/material'
 import queryString from 'querystring'
 import { useHistory } from 'react-router-dom'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
@@ -141,14 +141,18 @@ const LeftHarmony = (props: Props) => {
             <div className={`${classes.dFlex} ${classes.alignCenter}`}>
               <IconButton color="primary" component="span" onClick={handleClickOpen}>
                 <Badge color="secondary" variant={showNot ? 'dot' : ''}>
-                  <Notifications className={classes.primaryText} />
+                  <Tooltip title="Invite" placement="top">
+                    <Notifications className={classes.primaryText} />
+                  </Tooltip>
                 </Badge>
               </IconButton>
               <IconButton component="span">
                 <Search className={classes.primaryText} />
               </IconButton>
               <IconButton component="span" onClick={handleCreate}>
-                <Add className={classes.secondaryText} />
+                <Tooltip title="Create Invite" placement="top">
+                  <Add className={classes.secondaryText} />
+                </Tooltip>
               </IconButton>
             </div>
           </div>
@@ -253,10 +257,11 @@ const LeftHarmony = (props: Props) => {
               </div>
               {party && party.length > 0 && (
                 <Party
-                  party={party}
+                  // party={party}
                   setActiveChat={setActiveChat}
                   setShowChat={setShowChat}
-                  handleClick={handleClick}
+                  setInvite={setInvite}
+                  handleCreate={handleCreate}
                 />
               )}
             </>
