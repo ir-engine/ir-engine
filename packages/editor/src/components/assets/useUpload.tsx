@@ -4,7 +4,7 @@ import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { useDialog } from '../hooks/useDialog'
-import { getEntries, uploadProjectAsset } from '../../functions/assetFunctions'
+import { getEntries, uploadProjectAssetFromEntries } from '../../functions/assetFunctions'
 import { accessEditorState } from '../../services/EditorServices'
 
 type Props = {
@@ -73,7 +73,7 @@ export default function useUpload(options: Props = {}) {
           />
         )
         const { projectName } = accessEditorState().value
-        assets = await uploadProjectAsset(projectName, entries, (item, total, progress) => {
+        assets = await uploadProjectAssetFromEntries(projectName, entries, (item, total, progress) => {
           setDialogComponent(
             <ProgressDialog
               title={t('editor:asset.useUpload.progressTitle')}
