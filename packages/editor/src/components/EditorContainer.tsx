@@ -178,6 +178,10 @@ const EditorContainer = (props) => {
     if (sceneName !== locationSceneName) {
       locationSceneName && dispatch(EditorAction.sceneLoaded(locationSceneName))
     }
+
+    if (!locationProjectName && !sceneName) {
+      projectName && props.history.push(`editor/${projectName}`)
+    }
   }, [])
 
   useEffect(() => {
@@ -186,6 +190,10 @@ const EditorContainer = (props) => {
       loadScene(sceneName)
     }
   }, [editorReady, sceneLoaded])
+
+  const reRouteToLoadScene = (sceneName) => {
+    projectName && sceneName && props.history.push(`/editor/${projectName}/${sceneName}`)
+  }
 
   const loadScene = async (sceneName) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
@@ -553,7 +561,7 @@ const EditorContainer = (props) => {
                       <PanelTitle>Scenes</PanelTitle>
                     </PanelDragContainer>
                   ),
-                  content: <ScenesPanel newScene={newScene} loadScene={loadScene} projectName={projectName} />
+                  content: <ScenesPanel newScene={newScene} loadScene={reRouteToLoadScene} projectName={projectName} />
                 },
                 {
                   id: 'filesPanel',
