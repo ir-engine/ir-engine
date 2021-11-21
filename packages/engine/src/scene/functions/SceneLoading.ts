@@ -105,6 +105,32 @@ export class WorldScene {
 
       addComponent(entity, NameComponent, { name: sceneEntity.name })
 
+      console.log(sceneEntity)
+
+      if (!isClient) {
+        let shouldBeNetworkbject = false
+        for (let index = 0; index < sceneEntity.components.length; index++) {
+          const element = sceneEntity.components[index]
+          if (element.name === 'interact' && element.props.interactionType === 'equippable') {
+            shouldBeNetworkbject = true
+          }
+        }
+
+        if (shouldBeNetworkbject) {
+          sceneEntity.sceneEntityId = key
+          const world = useWorld()
+          dispatchFrom(world.hostId, () =>
+            NetworkWorldAction.spawnObject({
+              userId: Engine.userId,
+              prefab: '',
+              parameters: {
+                sceneEntity: JSON.parse(JSON.stringify(sceneEntity)) // TODO: Find a better way to pass this data?
+              }
+            })
+          )
+        }
+      }
+
       sceneEntity.components.forEach((component: SceneDataComponent) => {
         component.data = component.props
         component.data.sceneEntityId = key
@@ -204,18 +230,17 @@ export class WorldScene {
         break
 
       case 'gltf-model':
-        loadGLTFModel(this, entity, component, sceneProperty)
-        // To Do: Do this only for dynamic objects
+        // To Do: Do this only for networked objects
         if (!isClient) {
-          dispatchFrom(world.hostId, () =>
-            NetworkWorldAction.spawnObject({
-              userId: Engine.userId,
-              prefab: component.data.src,
-              parameters: {
-                eid: entity
-              }
-            })
-          )
+          console.log('loaded entity num', entity)
+          loadGLTFModel(this, entity, component, sceneProperty)
+        }
+        break
+
+      case 'gltf-model-networked':
+        if (isClient) {
+          console.log('loaded network entity num', entity)
+          loadGLTFModel(this, entity, component, sceneProperty)
         }
         break
 
@@ -459,5 +484,24 @@ export class WorldScene {
   static load = (scene: SceneJson, onProgress?: Function): Promise<void> => {
     const world = new WorldScene(onProgress)
     return world.loadScene(scene)
+  }
+
+  // For loading a single scene entity on receiving network action
+  static loadComponentLate = (entity: Entity, sceneEntity: any): void => {
+    const world = new WorldScene(() => {
+      //Component load progress
+    })
+
+    const sceneProperty: ScenePropertyType = {
+      directionalLights: [],
+      isCSMEnabled: true
+    }
+
+    let id = sceneEntity.sceneEntityId
+    sceneEntity.components.forEach((component) => {
+      component.data = component.props
+      component.data.sceneEntityId = id
+      world.loadComponent(entity, component, sceneProperty)
+    })
   }
 }

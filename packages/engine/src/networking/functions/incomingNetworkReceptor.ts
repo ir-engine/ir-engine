@@ -8,7 +8,8 @@ import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchFrom } from './dispatchFrom'
-import { loadGLTFModel } from '../../scene/functions/loadGLTFModel'
+import { getEntityComponents } from 'bitecs'
+import { WorldScene } from '../../scene/functions/SceneLoading'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -65,23 +66,39 @@ export function incomingNetworkReceptor(action) {
           console.log('network object: ', networkObject)
           entity = networkObject
         } else {
+          entity = createEntity()
+          console.log('create entity, ', entity)
+
           let params = a.parameters
-          if (params && params.eid) {
-            console.log('get from eid')
-            entity = params.eid
-          } else {
-            console.log('create entity')
-            entity = createEntity()
+          console.log(params)
+          if (params.sceneEntity) {
+            let sceneEntity = params.sceneEntity
+            console.log('scene entity received in network action', sceneEntity)
+            for (let index = 0; index < sceneEntity.components.length; index++) {
+              const element = sceneEntity.components[index]
+              if (element.name === 'gltf-model') {
+                // Hackish fix for now
+                element.name = 'gltf-model-networked'
+              }
+            }
+            WorldScene.loadComponentLate(entity, sceneEntity)
           }
         }
       }
+      console.log(isOwnedByMe)
       if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
       addComponent(entity, NetworkObjectComponent, a)
+      let components = getEntityComponents(world, entity)
+      console.log(components)
     })
 
     .when(NetworkWorldAction.destroyObject.matches, (a) => {
       const entity = world.getNetworkObject(a.networkId)
       if (entity === world.localClientEntity) return
       if (entity) removeEntity(entity)
+    })
+
+    .when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
+      console.log('netowrk action received in equip receptor', a)
     })
 }

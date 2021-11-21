@@ -36,7 +36,7 @@ const upVec = new Vector3(0, 1, 0)
 
 export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])
-  const interactiveQuery = defineQuery([InteractableComponent])
+  const interactiveQuery = defineQuery([InteractableComponent, Object3DComponent]) // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const focusQuery = defineQuery([InteractableComponent, InteractiveFocusedComponent])
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
@@ -101,6 +101,8 @@ export default async function InteractiveSystem(world: World): Promise<System> {
         }
       }
     }
+
+    // Hide and unfocus when equipped
 
     // removal is the first because the hint must first be deleted, and then a new one appears
     for (const entity of focusQuery.exit()) {
