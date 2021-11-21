@@ -31,8 +31,10 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
         const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
 
         onUpload(entries).then((assets) => {
-          for (let index = 0; index < assets.length; index++) {
-            onChange(assets[index].url, {})
+          if (assets) {
+            for (let index = 0; index < assets.length; index++) {
+              onChange(assets[index].url, {})
+            }
           }
         })
       }
