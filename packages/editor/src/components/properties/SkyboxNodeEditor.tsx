@@ -1,5 +1,6 @@
 import { Cloud } from '@styled-icons/fa-solid/Cloud'
 import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
+import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
@@ -11,7 +12,6 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
-import { ControlledStringInput } from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 
 const hoursToRadians = (hours) => hours / 24
@@ -124,8 +124,11 @@ export const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
   }
 
   const onChangeCubemapPathOption = (path) => {
-    CommandManager.instance.setPropertyOnSelection('cubemapPath', path)
-    forceUpdate()
+    const directory = getDirectoryFromUrl(path)
+    if (directory !== (node as any).cubemapPath) {
+      CommandManager.instance.setPropertyOnSelection('cubemapPath', directory)
+      forceUpdate()
+    }
   }
 
   //function to handle the changes backgroundPath
