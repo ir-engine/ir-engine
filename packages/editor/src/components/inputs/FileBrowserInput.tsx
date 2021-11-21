@@ -24,7 +24,13 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
     async drop(item: any, monitor) {
       const isDropType = acceptDropItems.find((element) => element === item.type)
       if (isDropType) {
-        onChange(item.url, item.initialProps || {})
+        // Below url fix is applied when item is folder
+        let url = item.url
+        if (url.endsWith(item.id) === false) {
+          url += item.id
+        }
+
+        onChange(url, item.initialProps || {})
       } else {
         // https://github.com/react-dnd/react-dnd/issues/1345#issuecomment-538728576
         const dndItem: any = monitor.getItem()
