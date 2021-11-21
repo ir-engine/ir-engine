@@ -4,7 +4,7 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { AuthAction, avatarFetchedReceptor } from '../../src/user/services/AuthService'
+import { AuthAction, avatarFetchedReceptor } from './AuthService'
 
 // make browser globals defined
 ;(globalThis as any).document = {}
