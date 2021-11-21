@@ -12,14 +12,13 @@
     "noEmit": false,
     "module": "CommonJS",
     "strict": false,
-    "strictNullChecks": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "isolatedModules": false,
+    "isolatedModules": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
@@ -35,6 +34,8 @@
   ],
   "include": [
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx",
+    "../../PhysX.d.ts",
+    "../../PhysXDebug.d.ts"
   ]
 }

@@ -45,6 +45,7 @@ export default class HashSet<Value extends ITuple> {
 
   clear() {
     this.map = {}
+    this._size = 0
   }
 
   get size() {

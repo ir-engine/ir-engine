@@ -5,13 +5,6 @@
   "main": "",
   "scripts": {},
   "dependencies": {},
-  "peerDependencies": {
-    "@xrengine/client": "^0.4.10",
-    "@xrengine/client-core": "^0.4.10"
-  },
-  "xrengine": {
-    "routes": ["/", "/login", "/harmony", "/admin", "/location", "/auth", "/editor"],
-    "thumbnail": "/static/xrengine_thumbnail.jpg"
-  },
+  "peerDependencies": {},
   "license": "ISC"
 }
