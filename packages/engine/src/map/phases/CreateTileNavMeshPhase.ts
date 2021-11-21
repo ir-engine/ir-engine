@@ -11,7 +11,7 @@ import * as PC from 'polygon-clipping'
 import tesselatePolygon from '../functions/tesselatePolygon'
 import stringifyArray from '../functions/stringifyArray'
 
-export const name = 'create navigation mesh polygons for tile'
+export const name = 'CreateTileNavMesh'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 

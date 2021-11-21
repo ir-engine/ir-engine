@@ -1,4 +1,15 @@
-import { ArrowHelper, Material, MathUtils, Matrix4, Object3D, Quaternion, Raycaster, SkinnedMesh, Vector3 } from 'three'
+import {
+  ArrowHelper,
+  Clock,
+  Material,
+  MathUtils,
+  Matrix4,
+  Object3D,
+  Quaternion,
+  Raycaster,
+  SkinnedMesh,
+  Vector3
+} from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -23,11 +34,16 @@ const empty = new Vector3()
 const mx = new Matrix4()
 const tempVec = new Vector3()
 const tempVec1 = new Vector3()
-const cameraRayCount = 3
+const cameraRayCount = 6
 const cameraRays: Vector3[] = []
 const rayConeAngle = Math.PI / 6
 const coneDebugHelpers: ArrowHelper[] = []
 const debugRays = false
+const camRayCastClock = new Clock()
+const camRayCastCache = {
+  maxDistance: -1,
+  targetHit: false
+}
 
 /**
  * Calculates and returns view vector for give angle. View vector will be at the given angle after the calculation
@@ -58,6 +74,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 const setAvatarOpacity = (entity: Entity, opacity: number): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
   object3DComponent?.value.traverse((obj) => {
+    if (!(obj as SkinnedMesh).isSkinnedMesh) return
     const mat = (obj as SkinnedMesh).material as Material
     if (!mat) return
     mat.opacity = opacity
@@ -90,12 +107,18 @@ const updateCameraTargetRotation = (entity: Entity, delta: number) => {
 }
 
 const getMaxCamDistance = (entity: Entity, target: Vector3) => {
+  // Cache the raycast result for 0.1 seconds
+  if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < 0.1) {
+    return camRayCastCache
+  }
+
+  camRayCastClock.start()
+
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
   const targetToCamVec = tempVec1.subVectors(cameraTransform.position, target)
-  // followCamera.raycaster.far = followCamera.maxDistance
 
   createConeOfVectors(targetToCamVec, cameraRays, rayConeAngle)
 
@@ -131,10 +154,10 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
     }
   })
 
-  return {
-    maxDistance,
-    targetHit: !!hits[0]
-  }
+  camRayCastCache.maxDistance = maxDistance
+  camRayCastCache.targetHit = !!hits[0]
+
+  return camRayCastCache
 }
 
 const calculateCameraTarget = (entity: Entity, target: Vector3) => {
@@ -170,8 +193,6 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
     const distanceResults = getMaxCamDistance(entity, tempVec)
     maxDistance = distanceResults.maxDistance
     isInsideWall = distanceResults.targetHit
-    // isInsideWall = newZoomDistance < followCamera.maxDistance
-    // console.log(newZoomDistance, maxDistance, followCamera.maxDistance)
   }
 
   const newZoomDistance = Math.min(followCamera.zoomLevel, maxDistance)
@@ -184,9 +205,15 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   // }
 
   // Zoom smoothing
-  followCamera.distance = isInsideWall
-    ? newZoomDistance
-    : smoothDamp(followCamera.distance, newZoomDistance, followCamera.zoomVelocity, 0.3, delta)
+  let smoothingSpeed = isInsideWall ? 0.06 : 0.3
+
+  followCamera.distance = smoothDamp(
+    followCamera.distance,
+    newZoomDistance,
+    followCamera.zoomVelocity,
+    smoothingSpeed,
+    delta
+  )
 
   const theta = followCamera.theta
   const thetaRad = MathUtils.degToRad(theta)
@@ -257,6 +284,7 @@ export default async function CameraSystem(world: World): Promise<System> {
     for (const entity of followCameraQuery.exit()) {
       setAvatarOpacity(entity, 1)
       Engine.activeCameraFollowTarget = null
+      camRayCastCache.maxDistance = -1
     }
 
     for (const entity of followCameraQuery(world)) {
