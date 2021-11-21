@@ -14,18 +14,24 @@ import { projectSeeds } from './projects/seeder-config'
 
 import fs from 'fs'
 import path from 'path'
+import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
   ? fs
       .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => {
-        console.log(dirent)
-        if (fs.existsSync(path.resolve(__dirname, '../../projects/projects', dirent.name, 'services/seeder-config.ts')))
-          return dirent.name
+        try {
+          const config: ProjectConfigInterface =
+            require(`../../projects/projects/${dirent.name}/xrengine.config.ts`).default
+          if (!config.databaseSeed) return null
+          return path.join(dirent.name, config.databaseSeed)
+        } catch (e) {
+          // console.log(e)
+        }
       })
       .filter((hasServices) => !!hasServices)
-      .map((name) => require(`../../projects/projects/${name}/services/seeder-config.ts`).default)
+      .map((seedDir) => require(`../../projects/projects/${seedDir}`).default)
       .flat()
   : []
 

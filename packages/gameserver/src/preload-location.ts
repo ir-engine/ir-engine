@@ -60,11 +60,11 @@ export default async function (locationName, app: Application) {
   app.instance = instanceResult
 
   if (app.gsSubdomainNumber != null) {
-    const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
+    const gsSubProvision = (await app.service('gameserver-subdomain-provision').find({
       query: {
         gs_number: app.gsSubdomainNumber
       }
-    })
+    })) as any
 
     if (gsSubProvision.total > 0) {
       const provision = gsSubProvision.data[0]
