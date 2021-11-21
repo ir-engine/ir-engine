@@ -1,4 +1,4 @@
-import { createState } from '@hookstate/core'
+import { createState, Downgraded } from '@hookstate/core'
 import assert from 'assert'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
@@ -39,11 +39,12 @@ describe('Auth Service', () => {
       
       // logic
       avatarFetchedReceptor(mockAuthState, mockAction)
-      console.log(mockAuthState.avatarList)
+
+      const dataResult = mockAuthState.attach(Downgraded).value
 
       // test
-      assert.deepEqual(mockAuthState.avatarList.length, 1)
-      // assert.deepEqual(mockAuthState.avatarList[0].avatar, mockData) // Fails...
+      assert.equal(mockAuthState.avatarList.length, 1)
+      assert.deepStrictEqual(dataResult.avatarList[0], { avatar: mockData }) // Fails...
     })
   })
 })

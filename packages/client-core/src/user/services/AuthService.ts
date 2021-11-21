@@ -63,7 +63,7 @@ export const avatarFetchedReceptor = (s: typeof state, action: ReturnType<typeof
     avatarData[(resource as any).name] = r
   }
 
-  return s.merge({ avatarList: Object.keys(avatarData).map((key) => avatarData[key]) })
+  return s.avatarList.set(Object.keys(avatarData).map((key) => avatarData[key]))
 }
 
 store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
