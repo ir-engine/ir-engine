@@ -11,7 +11,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   static nodeName = 'Shopify'
-  static legacyComponentName = 'gltf-shopify'
+  static legacyComponentName = 'shopify'
   static initialElementProps = {
     shopifyDomain: '',
     shopifyProducts: [],
@@ -37,7 +37,7 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
           shopifyProductId,
           shopifyProductItems,
           shopifyProductItemId
-        } = json.components.find((c) => c.name === 'gltf-shopify').props
+        } = json.components.find((c) => c.name === 'shopify').props
 
         if (shopifyProducts) node.shopifyProducts = shopifyProducts
         if (shopifyProductItems) node.shopifyProductItems = shopifyProductItems
@@ -130,12 +130,13 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
           node.interactionType = interactableComponent.props.interactionType
           node.interactionText = interactableComponent.props.interactionText
           node.interactionDistance = interactableComponent.props.interactionDistance
-          node.payloadName = interactableComponent.props.payloadName
-          node.payloadUrl = interactableComponent.props.payloadUrl
-          node.payloadBuyUrl = interactableComponent.props.payloadBuyUrl
-          node.payloadLearnMoreUrl = interactableComponent.props.payloadLearnMoreUrl
-          node.payloadHtmlContent = interactableComponent.props.payloadHtmlContent
-          node.payloadUrl = interactableComponent.props.payloadUrl
+          node.interactionThemeIndex = interactableComponent.props.interactionThemeIndex
+          node.interactionName = interactableComponent.props.interactionName
+          node.interactionDescription = interactableComponent.props.interactionDescription
+          node.interactionImages = interactableComponent.props.interactionImages
+          node.interactionVideos = interactableComponent.props.interactionVideos
+          node.interactionUrls = interactableComponent.props.interactionUrls
+          node.interactionModels = interactableComponent.props.interactionModels
         }
       })()
     )
@@ -219,21 +220,32 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
     let modelCount = 0
     let videoCount = 0
     let imageCount = 0
+    this.initInteractive()
+    this.shopifyProductItemId = ''
+
     if (this.shopifyProducts && this.shopifyProducts.length != 0) {
       const filtered = this.shopifyProducts.filter((product) => product.value == value)
       if (filtered && filtered.length != 0) {
         if (filtered[0] && filtered[0].media) {
+          this.interactionName = filtered[0].title
+          this.interactionText = filtered[0].title
+          this.interactionDescription = filtered[0].description
+          if (filtered[0].storeUrl) this.interactionUrls.push(filtered[0].storeUrl)
+
           filtered[0].media.forEach((media, index) => {
             let label = media.extendType.replace(/\b\w/g, (l) => l.toUpperCase())
             if (media.extendType == 'model') {
               modelCount++
               label += ` ${modelCount}`
+              this.interactionModels.push(media.url)
             } else if (media.extendType == 'video') {
               videoCount++
               label += ` ${videoCount}`
+              this.interactionVideos.push(media.url)
             } else {
               imageCount++
               label += ` ${imageCount}`
+              this.interactionImages.push(media.url)
             }
             this.shopifyProductItems.push({
               value: index,
@@ -250,6 +262,7 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   }
   set shopifyProductItemId(value) {
     this._shopifyProductItemId = value
+    if (value !== '') this.interactable = true
     this.setMediaNode(value)
   }
 
@@ -278,6 +291,21 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
 
     await this.extendNode.load(media.url)
     this.add(this.extendNode.children[0].clone())
+
+    //TODO active interactable
+  }
+
+  initInteractive() {
+    this.interactable = false
+    this.interactionType = 'infoBox'
+    this.interactionText = ''
+    this.interactionThemeIndex = 0
+    this.interactionName = ''
+    this.interactionDescription = ''
+    this.interactionImages = []
+    this.interactionVideos = []
+    this.interactionUrls = []
+    this.interactionModels = []
   }
 
   async getShopifyProduction() {
@@ -293,6 +321,8 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
                   node {
                     id
                     title
+                    description
+                    onlineStoreUrl 
                   }
                 }
               }
@@ -302,12 +332,16 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
         { headers: { 'X-Shopify-Storefront-Access-Token': this.shopifyToken, 'Content-Type': 'application/json' } }
       )
       if (!res || !res.data) return
+
+      this.initInteractive()
+
       const productData: any = res.data
       this.shopifyProducts = []
       this.shopifyProductItems = []
       this.shopifyProductItemIndex = ''
       if (productData.data && productData.data.products && productData.data.products.edges) {
         for (const edgeProduct of productData.data.products.edges) {
+          //TODO: interact data
           const response = await axios.post(
             `${this.shopifyDomain}/api/2021-07/graphql.json`,
             {
@@ -387,6 +421,9 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
                 }
               }
               this.shopifyProducts.push({
+                title: edgeProduct.node.title,
+                description: edgeProduct.node.description,
+                storeUrl: edgeProduct.node.onlineStoreUrl,
                 value: edgeProduct.node.id,
                 label: edgeProduct.node.title,
                 media: sourceData
@@ -465,13 +502,8 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
       }
     }
 
-    let shopifyJsonStr = ''
-    if (this.shopifyProductItems && this.shopifyProductItems.length > 0) {
-      shopifyJsonStr = JSON.stringify(this.shopifyProductItems)
-    }
-
     const components = {
-      'gltf-shopify': {
+      shopify: {
         shopifyProducts: this.shopifyProducts,
         shopifyDomain: this._shopifyDomain,
         shopifyToken: this._shopifyToken,
@@ -486,13 +518,13 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
         interactionType: this.interactionType,
         interactionText: this.interactionText,
         interactionDistance: this.interactionDistance,
-        payloadName: this.payloadName,
-        payloadUrl: this.payloadUrl,
-        payloadBuyUrl: this.payloadBuyUrl,
-        payloadLearnMoreUrl: this.payloadLearnMoreUrl,
-        payloadHtmlContent: this.payloadHtmlContent,
-        payloadModelUrl: this._canonicalUrl,
-        payloadJson: shopifyJsonStr
+        interactionThemeIndex: this.interactionThemeIndex,
+        interactionName: this.interactionName,
+        interactionDescription: this.interactionDescription,
+        interactionImages: this.interactionImages,
+        interactionVideos: this.interactionVideos,
+        interactionUrls: this.interactionUrls,
+        interactionModels: this.interactionModels
       }
     }
     return await super.serialize(projectID, components)

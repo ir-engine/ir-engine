@@ -216,7 +216,6 @@ export class S3Provider implements StorageProviderInterface {
   listFolderContent = async (folderName: string, recursive = false): Promise<FileContentType[]> => {
     const folderContent = await this.listObjects(folderName, recursive)
     // console.log('folderContent', folderContent)
-    const np = new RegExp(`${folderName}${'(?<filename>.*)'}`)
     const promises = []
     // Files
     for (let i = 0; i < folderContent.Contents.length; i++) {

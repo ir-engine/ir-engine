@@ -4,7 +4,7 @@ import zipIndexes from '../zipIndexes'
 import getFeaturesFromVectorTileLayer from '../functions/getFeaturesFromVectorTileLayer'
 import FeatureKey from '../classes/FeatureKey'
 
-export const name = 'extract tile features'
+export const name = 'ExtractTileFeatures'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 

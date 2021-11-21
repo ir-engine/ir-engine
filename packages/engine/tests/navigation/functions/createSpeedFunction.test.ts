@@ -1,7 +1,7 @@
 import assert from 'assert'
 import createSpeedFunction from '../../../src/navigation/functions/createSpeedFunction'
 
-describe.only("createSpeedFunction", () => {
+describe("createSpeedFunction", () => {
   it("returns an impure function that returns on each call a speed that increases to a point, then decreases", () => {
     const max = 3.6
     const accel = 1.2

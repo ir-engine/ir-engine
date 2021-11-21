@@ -2,7 +2,7 @@ import createUsingCache from '../functions/createUsingCache'
 import { createConvexMultiPolygonHelper } from '../helpers/PolygonHelpers'
 import { TaskStatus, TileKey, MapStateUnwrapped } from '../types'
 
-export const name = 'create helpers'
+export const name = 'CreateHelpers'
 export const isAsyncPhase = false
 export const isCachingPhase = true
 
