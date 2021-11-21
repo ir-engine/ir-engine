@@ -1,5 +1,5 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
-import { withRouter } from 'react-router-dom'
+import { useHistory, withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
@@ -140,6 +140,7 @@ const EditorContainer = (props) => {
   const [modified, setModified] = useState(false)
   const [sceneLoaded, setSceneLoaded] = useState(false)
   const dispatch = useDispatch()
+  const history = useHistory()
 
   const initializeEditor = async () => {
     await Promise.all([ProjectManager.instance.init()])
@@ -179,8 +180,9 @@ const EditorContainer = (props) => {
       locationSceneName && dispatch(EditorAction.sceneLoaded(locationSceneName))
     }
 
-    if (!locationProjectName && !sceneName) {
-      projectName && props.history.push(`editor/${projectName}`)
+    if (!projectName && !locationProjectName && !sceneName) {
+      dispatch(EditorAction.projectLoaded(projectName))
+      history.push(`/editor/${projectName}`)
     }
   }, [])
 
@@ -192,7 +194,7 @@ const EditorContainer = (props) => {
   }, [editorReady, sceneLoaded])
 
   const reRouteToLoadScene = (sceneName) => {
-    projectName && sceneName && props.history.push(`/editor/${projectName}/${sceneName}`)
+    projectName && sceneName && history.push(`/editor/${projectName}/${sceneName}`)
   }
 
   const loadScene = async (sceneName) => {
@@ -298,7 +300,7 @@ const EditorContainer = (props) => {
   }
 
   const onCloseProject = () => {
-    props.history.push('/editor')
+    history.push('/editor')
     dispatch(EditorAction.projectLoaded(null))
   }
 

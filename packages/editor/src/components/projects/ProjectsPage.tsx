@@ -86,6 +86,7 @@ const ProjectsPage = (props) => {
   const onClickExisting = (project) => {
     dispatch(EditorAction.sceneLoaded(null))
     dispatch(EditorAction.projectLoaded(project.name))
+    props.history.push(`/editor/${project.name}`)
   }
 
   const onCreateProject = async (name) => {

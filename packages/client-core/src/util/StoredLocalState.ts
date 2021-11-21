@@ -3,8 +3,7 @@ import { Config } from '@xrengine/common/src/config'
 import { store } from '../store'
 
 const state = createState({
-  authData: {} as any,
-  editorData: {} as any
+  authData: {} as any
 })
 
 type StateTypes = Partial<typeof state.value>
