@@ -64,11 +64,14 @@ export class NetworkWorldAction {
     networkId: matchesNetworkId
   })
 
-  static setEquippedObject = defineActionCreator({
-    type: 'network.SET_EQUIPPED_OBJECT',
-    networkId: matchesNetworkId,
-    equip: matches.boolean
-  })
+  static setEquippedObject = defineActionCreator(
+    {
+      type: 'network.SET_EQUIPPED_OBJECT',
+      networkId: matchesNetworkId,
+      equip: matches.boolean
+    },
+    { allowDispatchFromAny: true }
+  )
 
   static avatarAnimation = defineActionCreator(
     {

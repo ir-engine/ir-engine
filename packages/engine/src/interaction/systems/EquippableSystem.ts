@@ -14,20 +14,25 @@ import { NetworkWorldAction } from '../../networking/functions/NetworkWorldActio
 import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
+import { Engine } from '../../ecs/classes/Engine'
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { equipEntity } from '../functions/equippableFunctions'
 
 function equippableActionReceptor(action) {
-  matches(action).when(NetworkWorldAction.setEquippedObject.matches, (a) => {
-    // const world = useWorld()
-    // // const equipper = world.getUserAvatarEntity(a.$userId)
-    // // const equipped = world.getNetworkObject(a.$userId, a.networkId)
-    // if (!equipped) {
-    //   return console.warn(
-    //     `Equipped entity with id ${equipped} does not exist! You should probably reconnect...`
-    //   )
-    // }
-    // if (a.equip) {
-    //   equipEntity(equipper, equipped)
-    // } else {
+  const world = useWorld()
+
+  matches(action).when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
+    console.log('received in equip receptor', a)
+    if (a.$from === Engine.userId) return
+    const equipper = world.getUserAvatarEntity(a.$from)
+    const equipped = world.getNetworkObject(a.networkId)
+    if (!equipped) {
+      return console.warn(`Equipped entity with id ${equipped} does not exist! You should probably reconnect...`)
+    }
+    if (a.equip) {
+      equipEntity(equipper, equipped)
+    }
+    // else {
     //   unequipEntity(equipper)
     // }
   })
@@ -49,9 +54,12 @@ export default async function EquippableSystem(world: World): Promise<System> {
       // if (collider) collider.body.type = BodyType.KINEMATIC
       // send equip to clients
       console.log('send equip to clients')
-      dispatchFrom(world.hostId, () =>
+      console.log(equippedEntity)
+      let networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
+      console.log(networkComponet)
+      dispatchFrom(Engine.userId, () =>
         NetworkWorldAction.setEquippedObject({
-          networkId: getComponent(equippedEntity, NetworkObjectComponent).networkId,
+          networkId: networkComponet.networkId,
           equip: true
         })
       )
