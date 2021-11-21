@@ -69,7 +69,7 @@ const useStyles = makeStyles({
 
 const ITEM_HEIGHT = 48
 
-const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory, data1 }: any) => {
+const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory,addofferiteminventory, data1,removeofferinventory }: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
@@ -79,9 +79,10 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
     userid: '',
     anchorEl: null,
     selectedtype: '',
-    fortrading: []
+    fortrading: [],
+    offeredTrading:[]
   })
-  const { url, metadata, userid, selectedid, anchorEl, selectedtype, fortrading } = state
+  const { url, metadata, userid, selectedid, anchorEl, selectedtype, fortrading,offeredTrading } = state
   const prevState = usePrevious({ selectedtype })
   // const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl)
@@ -148,6 +149,14 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
     }))
     removeiteminventory(index)
   }
+  const offerfortrade = (value: any, index) => {
+    const offeredTrading = [...state.offeredTrading, { ...value }]
+    setState((prevState: any) => ({
+      ...prevState,
+      offeredTrading
+    }))
+    removeofferinventory(index)
+  }
 
   const inventoryback = (value: any, index) => {
     const fortradingtemp = [...state.fortrading]
@@ -157,6 +166,15 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
       fortrading: [...fortradingtemp]
     }))
     additeminventory(value)
+  }
+  const offeredback = (value: any, index) => {
+    const fofferedTradingtemp = [...state.offeredTrading]
+    fofferedTradingtemp.splice(index, 1)
+    setState((prevState: any) => ({
+      ...prevState,
+      offeredTrading: [...fofferedTradingtemp]
+    }))
+    addofferiteminventory(value)
   }
 
   console.log(data[0]?.toUserInventoryIds, "datas")
@@ -311,6 +329,69 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                 }
 
               </Stack>
+
+              <Stack justifyContent="center" alignItems="center" marginTop="5px" >
+                <Typography className={classes.title}>Trade Offer sent</Typography>
+                {offeredTrading.length !== 0 ? (
+                  <Stack direction="row" spacing={1}>
+                    {offeredTrading.map((value: any, index: number) => (
+                      <Card
+                        key={index}
+                        onClick={() => {
+                          offeredback(value, index)
+                        }}
+                      >
+                        <Stack
+                          justifyContent="center"
+                          alignItems="center"
+                        // className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                        >
+                          <img src={value.url} height="100" width="100" alt="" />
+                          <Typography>{`Name: ${value.name}`}</Typography>
+                          <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                        </Stack>
+                      </Card>
+                    ))}
+                  </Stack>
+                ) : (
+                  <Stack sx={{ color: 'black' }}>
+                    <Typography>No Data Found</Typography>
+                  </Stack>
+                )}
+                {
+                  offeredTrading.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
+                    <FormControl fullWidth>
+                      <InputLabel id="demo-simple-select-label">User</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={userid}
+                        label="user"
+                        onChange={(e: any) => {
+                          setState((prevState) => ({
+                            ...prevState,
+                            userid: e.target.value
+                          }))
+                        }}
+                      >
+                        {user.map((datas, index) => (
+                          <MenuItem key={index} value={datas.id}>
+                            {datas.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <Button
+                      variant="outlined"
+                      disabled={isLoadingtransfer}
+                      onClick={() => handleTransfer(userid, fortrading)}
+                    >
+                      {isLoadingtransfer ? <CircularProgress size={30} /> : 'Trade'}
+                    </Button>
+                  </Stack>
+                }
+
+              </Stack>
             </Card>
           </Grid>
           <Grid item md={4}>
@@ -324,6 +405,7 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                         <Card
                           key={index}
                           onClick={() => {
+                            offerfortrade(value, index);
                             setState((prevState) => ({
                               ...prevState,
                               url: value.url,

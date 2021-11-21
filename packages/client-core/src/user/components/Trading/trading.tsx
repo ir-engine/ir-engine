@@ -124,12 +124,32 @@ export const TradingPage = (): any => {
     }))
   }
 
+  const removeofferinventory = (index) => {
+    const datatemp = [...data]
+    datatemp.splice(index, 1)
+    setState((prevState) => ({
+      ...prevState,
+      data: [...datatemp]
+
+    }))
+  }
+
   const additeminventory = (values) => {
     const inventorytemp = [...inventory]
     inventorytemp.push(values)
     setState((prevState) => ({
       ...prevState,
       inventory: [...inventorytemp]
+
+    }))
+  }
+
+  const addofferiteminventory = (values) => {
+    const datatemp = [...data]
+    datatemp.push(values)
+    setState((prevState) => ({
+      ...prevState,
+      data: [...datatemp]
 
     }))
   }
@@ -176,7 +196,9 @@ export const TradingPage = (): any => {
           user={user}
           type={type}
           removeiteminventory={removeiteminventory}
+          removeofferinventory={removeofferinventory}
           additeminventory={additeminventory}
+          addofferiteminventory={addofferiteminventory}
           handleTransfer={handleTransfer}
           isLoadingtransfer={isLoadingtransfer}
         />
