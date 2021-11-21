@@ -16,7 +16,6 @@ export const LoadLocationScene = (props: Props) => {
   const authState = useAuthState()
   const locationState = useLocationState()
   const history = useHistory()
-  const locationNotFound = locationState.invalidLocation.value
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const dispatch = useDispatch()
 
@@ -43,7 +42,7 @@ export const LoadLocationScene = (props: Props) => {
     }
   }, [authState.isLoggedIn.value, authState.user.id.value])
 
-  if (isUserBanned) return <div className={styles['banned']}>{t('location.youHaveBeenBannedMsg')}</div>
+  if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
 
   return <> </>
 }
