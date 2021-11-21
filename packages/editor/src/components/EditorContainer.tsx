@@ -203,7 +203,7 @@ const EditorContainer = () => {
     setSceneLoaded(false)
     try {
       // TODO: replace with better template functionality
-      const project = await getScene('default-project', 'default', false)
+      const project = await getScene('default-project', 'empty', false)
       await ProjectManager.instance.loadProject(project.scene)
       setDialogComponent(null)
     } catch (error) {

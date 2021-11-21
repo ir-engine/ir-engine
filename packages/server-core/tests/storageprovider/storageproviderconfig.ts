@@ -3,24 +3,30 @@ import S3Provider from '../../src/media/storageprovider/s3.storage'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import { StartTestFileServer } from '../../src/createFileServer'
-import { v4 as uuid } from 'uuid'
 
-export const providerBeforeTest = (provider): Promise<any> => {
-  if (provider.constructor.name === 'LocalStorage') return localStorageBeforeTest(provider)
+export const providerBeforeTest = (
+  provider,
+  testFolderName: string,
+  folderKeyTemp: string,
+  folderKeyTemp2: string
+): Promise<any> => {
+  if (provider.constructor.name === 'LocalStorage')
+    return localStorageBeforeTest(testFolderName, folderKeyTemp, folderKeyTemp2)
   if (provider.constructor.name === 'S3Provider') return s3StorageBeforeTest(provider)
 }
 
-export const providerAfterTest = (provider): Promise<any> => {
-  if (provider.constructor.name === 'LocalStorage') return localStorageAfterTest(provider)
-  if (provider.constructor.name === 'S3Provider') return s3StorageAfterTest(provider)
+export const providerAfterTest = (provider, testFolderName: string): Promise<any> => {
+  if (provider.constructor.name === 'LocalStorage') return localStorageAfterTest(provider, testFolderName)
+  if (provider.constructor.name === 'S3Provider') return s3StorageAfterTest(provider, testFolderName)
 }
 
-const localStorageBeforeTest = (provider): Promise<any> => {
+const localStorageBeforeTest = (
+  testFolderName: string,
+  folderKeyTemp: string,
+  folderKeyTemp2: string
+): Promise<any> => {
   return new Promise<void>((resolve) => {
     StartTestFileServer()
-    const testFolderName = 'TestFolder'
-    const folderKeyTemp = path.join(testFolderName, 'temp')
-    const folderKeyTemp2 = path.join(testFolderName, 'temp2')
 
     const dir = path.join(appRootPath.path, `packages/server/upload`, testFolderName)
     if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true })
@@ -29,8 +35,7 @@ const localStorageBeforeTest = (provider): Promise<any> => {
     resolve()
   })
 }
-const localStorageAfterTest = (provider): Promise<any> => {
-  const testFolderName = 'TestFolder'
+const localStorageAfterTest = (provider, testFolderName): Promise<any> => {
   return new Promise<void>((resolve) => {
     const dir = path.join(appRootPath.path, `packages/server/upload`, testFolderName)
     fs.rmSync(dir, { recursive: true })
@@ -38,10 +43,10 @@ const localStorageAfterTest = (provider): Promise<any> => {
   })
 }
 
-const deleteS3Bucket = (provider: S3Provider): Promise<any> => {
+const clearS3TestFolder = (provider: S3Provider, testFolderName: string): Promise<any> => {
   return new Promise((resolve) => {
     provider.provider
-      .listObjectsV2({ Bucket: provider.bucket })
+      .listObjectsV2({ Bucket: provider.bucket, Prefix: testFolderName })
       .promise()
       .then((res) => {
         const promises = []
@@ -49,26 +54,21 @@ const deleteS3Bucket = (provider: S3Provider): Promise<any> => {
           promises.push(provider.provider.deleteObject({ Bucket: provider.bucket, Key: element.Key }).promise())
         })
 
-        Promise.all(promises).then(() => {
-          provider.provider
-            .deleteBucket({
-              Bucket: provider.bucket
-            })
-            .promise()
-            .then(resolve)
-        })
+        Promise.all(promises).then(resolve)
       })
   })
 }
 const s3StorageBeforeTest = async (provider: S3Provider): Promise<any> => {
-  provider.bucket = `xrengine-temp-${uuid()}`
+  provider.bucket = process.env.STORAGE_S3_TEST_RESOURCE_BUCKET
   let bucketExists
   try {
     bucketExists = await provider.provider.headBucket({ Bucket: provider.bucket }).promise()
   } catch (err) {
     if (err.code !== 'NotFound') throw err
   }
-  if (bucketExists != null) await deleteS3Bucket(provider)
-  return provider.provider.createBucket({ Bucket: provider.bucket, ACL: 'public-read' }).promise()
+  if (bucketExists == null)
+    await provider.provider.createBucket({ Bucket: provider.bucket, ACL: 'public-read' }).promise()
+  return
 }
-const s3StorageAfterTest = (provider: S3Provider): Promise<any> => deleteS3Bucket(provider)
+const s3StorageAfterTest = (provider: S3Provider, testFolderName): Promise<any> =>
+  clearS3TestFolder(provider, testFolderName)

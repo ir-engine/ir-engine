@@ -18,13 +18,13 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 
-const templateFolderDirectory = path.resolve(appRootPath.path, `packages/projects/template-project/`)
+const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
-const projectsRootFolder = path.resolve(appRootPath.path, 'packages/projects/projects/')
+const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
 export const copyDefaultProject = () => {
-  deleteFolderRecursive(path.resolve(projectsRootFolder, `default-project`))
-  copyFolderRecursiveSync(path.resolve(projectsRootFolder, 'default-project'), projectsRootFolder)
+  deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
+  copyFolderRecursiveSync(path.join(appRootPath.path, 'packages/projects/default-project'), projectsRootFolder)
 }
 
 const getRemoteURLFromGitData = (project) => {
@@ -105,7 +105,6 @@ export class Project extends Service {
   private async _fetchDevLocalProjects() {
     const dbEntries = (await super.find()) as any
     const data: ProjectInterface[] = dbEntries.data
-    console.log(dbEntries)
 
     if (!fs.existsSync(projectsRootFolder)) {
       fs.mkdirSync(projectsRootFolder, { recursive: true })
