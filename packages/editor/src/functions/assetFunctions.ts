@@ -15,7 +15,6 @@ export const uploadProjectAsset = async (
         const response = await client.service('project').patch(projectName, {
           files: [`${pathName}/${file.name}`]
         })
-
         resolve({ url: response[0] })
       })
     )
@@ -32,6 +31,7 @@ export const uploadProjectAssetFromEntries = async (
   for (const entry of entries) {
     await processEntry(entry, projectName, '', promises, onProgress)
   }
+
   return await Promise.all(promises)
 }
 
