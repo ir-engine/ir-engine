@@ -1,4 +1,4 @@
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -8,7 +8,6 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { System } from '../../ecs/classes/System'
-import { Not } from 'bitecs'
 import { World } from '../../ecs/classes/World'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import matches from 'ts-matches'
@@ -17,15 +16,18 @@ import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { equipEntity } from '../functions/equippableFunctions'
+import { isClient } from '../../common/functions/isClient'
+import { InteractableComponent } from '../components/InteractableComponent'
 
 function equippableActionReceptor(action) {
   const world = useWorld()
 
   matches(action).when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
     console.log('received in equip receptor', a)
-    if (a.$from === Engine.userId) return
-    const equipper = world.getUserAvatarEntity(a.$from)
+    if (a.userId === Engine.userId) return
+    const equipper = world.getUserAvatarEntity(a.userId)
     const equipped = world.getNetworkObject(a.networkId)
+    console.log(equipper, equipped)
     if (!equipped) {
       return console.warn(`Equipped entity with id ${equipped} does not exist! You should probably reconnect...`)
     }
@@ -44,7 +46,7 @@ function equippableActionReceptor(action) {
 export default async function EquippableSystem(world: World): Promise<System> {
   world.receptors.push(equippableActionReceptor)
 
-  const networkUserQuery = defineQuery([Not(LocalInputTagComponent), AvatarComponent, TransformComponent])
+  // const networkUserQuery = defineQuery([Not(LocalInputTagComponent), AvatarComponent, TransformComponent])
   const equippableQuery = defineQuery([EquipperComponent])
 
   return () => {
@@ -52,21 +54,24 @@ export default async function EquippableSystem(world: World): Promise<System> {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
       const collider = getComponent(equippedEntity, ColliderComponent)
       // if (collider) collider.body.type = BodyType.KINEMATIC
-      // send equip to clients
-      console.log('send equip to clients')
-      console.log(equippedEntity)
-      let networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
-      console.log(networkComponet)
-      dispatchFrom(Engine.userId, () =>
-        NetworkWorldAction.setEquippedObject({
-          networkId: networkComponet.networkId,
-          equip: true
-        })
-      )
+
+      if (isClient) {
+        console.log('send equip to clients')
+        console.log(equippedEntity)
+        let networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
+        console.log(networkComponet)
+        dispatchFrom(Engine.userId, () =>
+          NetworkWorldAction.setEquippedObject({
+            userId: Engine.userId,
+            networkId: networkComponet.networkId,
+            equip: true
+          })
+        )
+      }
     }
 
     for (const entity of equippableQuery()) {
-      console.log('equipping loop')
+      // console.log('equipping loop')
       const equipperComponent = getComponent(entity, EquipperComponent)
       const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
       const handTransform = getHandTransform(entity)
@@ -78,16 +83,19 @@ export default async function EquippableSystem(world: World): Promise<System> {
     for (const entity of equippableQuery.exit()) {
       const equipperComponent = getComponent(entity, EquipperComponent, true)
       const equippedEntity = equipperComponent.equippedEntity
-      const equippedTransform = getComponent(equippedEntity, TransformComponent)
-      const collider = getComponent(equippedEntity, ColliderComponent)
-      if (collider) {
-        // collider.body.type = BodyType.DYNAMIC
-        teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
-      }
+
+      // const equippedTransform = getComponent(equippedEntity, TransformComponent)
+      // const collider = getComponent(equippedEntity, ColliderComponent)
+      // if (collider) {
+      //   // collider.body.type = BodyType.DYNAMIC
+      //   teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
+      // }
+
       console.log('send un equip to clients')
       // send unequip to clients
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.setEquippedObject({
+          userId: Engine.userId,
           networkId: getComponent(equippedEntity, NetworkObjectComponent).networkId,
           equip: false
         })

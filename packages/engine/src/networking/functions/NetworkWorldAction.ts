@@ -67,6 +67,7 @@ export class NetworkWorldAction {
   static setEquippedObject = defineActionCreator(
     {
       type: 'network.SET_EQUIPPED_OBJECT',
+      userId: matchesUserId,
       networkId: matchesNetworkId,
       equip: matches.boolean
     },

@@ -31,12 +31,15 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { EquippedComponent } from '../components/EquippedComponent'
+import { Not } from 'bitecs'
 
 const upVec = new Vector3(0, 1, 0)
 
 export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])
-  const interactiveQuery = defineQuery([InteractableComponent, Object3DComponent]) // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
+  // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
+  const interactiveQuery = defineQuery([InteractableComponent, Object3DComponent, Not(EquippedComponent)])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const focusQuery = defineQuery([InteractableComponent, InteractiveFocusedComponent])
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
@@ -69,8 +72,21 @@ export default async function InteractiveSystem(world: World): Promise<System> {
     const { elapsedTime } = world
 
     for (const entity of interactiveQuery.enter(world)) {
-      if (!hasComponent(entity, BoundingBoxComponent) && hasComponent(entity, Object3DComponent)) {
+      if (!hasComponent(entity, BoundingBoxComponent)) {
         createBoxComponent(entity)
+      }
+    }
+
+    for (const entity of interactiveQuery.exit(world)) {
+      if (hasComponent(entity, BoundingBoxComponent)) {
+        // TODO: Does the Box3 object need to be destroyed before this?
+        removeComponent(entity, BoundingBoxComponent)
+      }
+      if (hasComponent(entity, InteractiveFocusedComponent)) {
+        removeComponent(entity, InteractiveFocusedComponent)
+      }
+      if (hasComponent(entity, SubFocusedComponent)) {
+        removeComponent(entity, SubFocusedComponent)
       }
     }
 
@@ -101,8 +117,6 @@ export default async function InteractiveSystem(world: World): Promise<System> {
         }
       }
     }
-
-    // Hide and unfocus when equipped
 
     // removal is the first because the hint must first be deleted, and then a new one appears
     for (const entity of focusQuery.exit()) {
