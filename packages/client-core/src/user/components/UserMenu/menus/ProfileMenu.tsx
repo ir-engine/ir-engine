@@ -16,6 +16,11 @@ import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import Tooltip from '@mui/material/Tooltip'
+import Grid from '@mui/material/Grid'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar'
 
 interface Props {
   changeActiveMenu?: any
@@ -35,6 +40,8 @@ const ProfileMenu = (props: Props): any => {
   const [emailPhone, setEmailPhone] = useState('')
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
+  const [showUserId, setShowUserId] = useState(false)
+  const [userIdState, setUserIdState] = useState({ value: '', copied: false, open: false })
 
   let type = ''
 
@@ -137,6 +144,15 @@ const ProfileMenu = (props: Props): any => {
     AuthService.loginUserByXRWallet(result)
   }
 
+  const handleShowId = () => {
+    setShowUserId(!showUserId)
+    setUserIdState({ ...userIdState, value: selfUser.id.value })
+  }
+
+  const handleClose = () => {
+    setUserIdState({ ...userIdState, open: false })
+  }
+
   return (
     <div className={styles.menuPanel}>
       <section className={styles.profilePanel}>
@@ -182,15 +198,30 @@ const ProfileMenu = (props: Props): any => {
                 }}
               />
             </span>
-            <h2>
-              {selfUser?.userRole?.value === 'admin'
-                ? t('user:usermenu.profile.youAreAn')
-                : t('user:usermenu.profile.youAreA')}{' '}
-              <span>{selfUser?.userRole?.value}</span>.
-            </h2>
+
+            <Grid container justifyContent="right">
+              <Grid item xs={6}>
+                <h2>
+                  {selfUser?.userRole?.value === 'admin'
+                    ? t('user:usermenu.profile.youAreAn')
+                    : t('user:usermenu.profile.youAreA')}{' '}
+                  <span>{selfUser?.userRole?.value}</span>.
+                </h2>
+              </Grid>
+              <Grid item container xs={6} alignItems="flex-start" direction="column">
+                <Tooltip title="Show User ID" placement="right">
+                  <h2 size="small" className={styles.showUserId} onClick={handleShowId}>
+                    {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
+                  </h2>
+                </Tooltip>
+              </Grid>
+            </Grid>
+
             <h4>
               {(selfUser.userRole.value === 'user' || selfUser.userRole.value === 'admin') && (
-                <div onClick={handleLogout}>{t('user:usermenu.profile.logout')}</div>
+                <div className={styles.logout} onClick={handleLogout}>
+                  {t('user:usermenu.profile.logout')}
+                </div>
               )}
             </h4>
             {selfUser?.inviteCode.value != null && (
@@ -200,6 +231,42 @@ const ProfileMenu = (props: Props): any => {
             )}
           </div>
         </section>
+
+        {showUserId && (
+          <section className={styles.emailPhoneSection}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              User id
+            </Typography>
+
+            <form>
+              <TextField
+                className={styles.emailField}
+                size="small"
+                placeholder={'user id'}
+                variant="outlined"
+                value={selfUser?.id.value}
+                onChange={({ target: { value } }) => setUserIdState({ ...userIdState, value, copied: false })}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <CopyToClipboard
+                        text={userIdState.value}
+                        onCopy={() => {
+                          setUserIdState({ ...userIdState, copied: true, open: true })
+                        }}
+                      >
+                        <a href="#" className={styles.materialIconBlock}>
+                          <ContentCopyIcon className={styles.primaryForeground} />
+                        </a>
+                      </CopyToClipboard>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </form>
+          </section>
+        )}
+
         {!hideLogin && (
           <>
             {selfUser?.userRole.value === 'guest' && (
@@ -281,6 +348,15 @@ const ProfileMenu = (props: Props): any => {
           </>
         )}
       </section>
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={userIdState.open}
+        onClose={handleClose}
+        message="User ID copied"
+        key={'top' + 'center'}
+        autoHideDuration={2000}
+      />
     </div>
   )
 }
