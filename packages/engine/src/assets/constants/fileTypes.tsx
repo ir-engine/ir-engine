@@ -6,17 +6,17 @@ export const VideoFileTypes = ['.mp4', 'video/mp4']
 export const ImageFileTypes = ['.png', '.jpeg', '.jpg', '.gif', 'image/png', 'image/jpeg', 'image/gif']
 //array containing model file type.
 export const ModelFileTypes = ['.glb', 'model/gltf-binary']
-//array containing shopify file type.
-export const ShopifyFileTypes = ['.glb', 'model/gltf-binary']
+//array containing volumetric file type.
+export const VolumetricFileTypes = ['.drcs', '.mp4', '.manifest']
 //array containing custom script type.
-export const CustomScriptFileTypes = ['.tsx', '.ts', '.js']
+export const CustomScriptFileTypes = ['.tsx', '.ts', '.js', '.jsx']
 //array contains arrays of all files types.
 export const AllFileTypes = [
   ...AudioFileTypes,
   ...VideoFileTypes,
   ...ImageFileTypes,
   ...ModelFileTypes,
-  ...ShopifyFileTypes,
+  ...VolumetricFileTypes,
   ...CustomScriptFileTypes
 ]
 
