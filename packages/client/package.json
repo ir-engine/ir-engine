@@ -24,18 +24,18 @@
   },
   "resolutions": {
     "socket.io": "4.4.0",
-    "@types/react": "17.0.35",
+    "@types/react": "17.0.36",
     "react": "17.0.2"
   },
   "peerDependencies": {
-    "@types/react": "17.0.35",
+    "@types/react": "17.0.36",
     "react": "17.0.2",
     "socket.io": "4.4.0"
   },
   "dependencies": {
     "@capacitor/core": "3.3.2",
     "@emotion/react": "11.6.0",
-    "@types/react": "17.0.35",
+    "@types/react": "17.0.36",
     "@emotion/styled": "11.6.0",
     "@feathersjs/client": "5.0.0-pre.9",
     "@hookstate/core": "3.0.13",
@@ -114,7 +114,7 @@
   "devDependencies": {
     "@rollup/plugin-typescript": "8.3.0",
     "@types/node": "16.11.9",
-    "@types/react": "17.0.35",
+    "@types/react": "17.0.36",
     "@types/react-dom": "17.0.11",
     "config": "3.3.6",
     "cross-env": "7.0.3",
