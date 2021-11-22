@@ -41,5 +41,9 @@ jobs:
       - run: npm run lint
       - run: npm run dev-docker
       - run: npm run dev-reinit
-      - run: npm run test:packages
+      - run: npm run test:packages 
+        env:
+          STORAGE_AWS_ACCESS_KEY_ID: ${{secrets.STORAGE_AWS_ACCESS_KEY_ID}}
+          STORAGE_AWS_ACCESS_KEY_SECRET: ${{secrets.STORAGE_AWS_ACCESS_KEY_SECRET}}
+          STORAGE_S3_TEST_RESOURCE_BUCKET: ${{secrets.STORAGE_S3_TEST_RESOURCE_BUCKET}}
       - run: npm run build-client

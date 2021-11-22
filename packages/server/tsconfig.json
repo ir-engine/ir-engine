@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": false,
-    "module": "esnext",
+    "module": "CommonJS",
     "strict": false,
     "noImplicitAny": false,
     "resolveJsonModule": true,
@@ -36,6 +36,8 @@
   ],
   "include": [
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx",
+    "../../PhysX.d.ts",
+    "../../PhysXDebug.d.ts"
   ]
 }

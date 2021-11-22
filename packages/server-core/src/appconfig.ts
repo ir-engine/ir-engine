@@ -63,6 +63,7 @@ const server = {
       : path.resolve(appRootPath.path, 'packages', 'server', 'public')),
   nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER,
+  localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT,
   // Used for CI/tests to force Sequelize init an empty database
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER,
@@ -110,7 +111,8 @@ const gameserver = {
   releaseName: process.env.RELEASE_NAME,
   port: process.env.GAMESERVER_PORT,
   mode: process.env.SERVER_MODE,
-  locationName: process.env.PRELOAD_LOCATION_NAME
+  locationName: process.env.PRELOAD_LOCATION_NAME,
+  shutdownDelayMs: parseInt(process.env.GAMESERVER_SHUTDOWN_DELAY_MS) || 0
 }
 
 /**

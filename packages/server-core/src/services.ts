@@ -13,6 +13,31 @@ import ScopeService from './scope/service'
 import SettingService from './setting/service'
 import RouteService from './route/service'
 
+import fs from 'fs'
+import path from 'path'
+import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
+
+const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
+  ? fs
+      .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => {
+        try {
+          const config: ProjectConfigInterface =
+            require(`../../projects/projects/${dirent.name}/xrengine.config.ts`).default
+          if (!config.services) return null
+          return path.join(dirent.name, config.services)
+        } catch (e) {
+          // console.log(e)
+        }
+      })
+      .filter((hasServices) => !!hasServices)
+      .map((servicesDir) => {
+        return require(`../../projects/projects/${servicesDir}`).default
+      })
+      .flat()
+  : []
+
 export default (app: Application): void => {
   ;[
     ...AnalyticsServices,
@@ -27,7 +52,8 @@ export default (app: Application): void => {
     ...BotService,
     ...ScopeService,
     ...SettingService,
-    ...RouteService
+    ...RouteService,
+    ...installedProjects
   ].forEach((service) => {
     app.configure(service)
   })

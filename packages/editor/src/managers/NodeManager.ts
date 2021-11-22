@@ -4,7 +4,6 @@ import BoxColliderNodeEditor from '../components/properties/BoxColliderNodeEdito
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import CubemapBakeNodeEditor from '../components/properties/CubemapBakeNodeEditor'
-import { ProjectNodeEditor } from '../components/properties/ProjectNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
 import GroupNodeEditor from '../components/properties/GroupNodeEditor'
@@ -38,7 +37,6 @@ import BoxColliderNode from '../nodes/BoxColliderNode'
 import CameraPropertiesNode from '../nodes/CameraPropertiesNode'
 import CloudsNode from '../nodes/CloudsNode'
 import CubemapBakeNode from '../nodes/CubemapBakeNode'
-import ProjectNode from '../nodes/ProjectNode'
 import DirectionalLightNode from '../nodes/DirectionalLightNode'
 import GroundPlaneNode from '../nodes/GroundPlaneNode'
 import GroupNode from '../nodes/GroupNode'
@@ -147,7 +145,6 @@ export class NodeManager {
 }
 
 export const registerPredefinedNodes = () => {
-  NodeManager.instance.registerNode(ProjectNode, ProjectNodeEditor)
   NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
   NodeManager.instance.registerNode(GroupNode, GroupNodeEditor)
   NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)

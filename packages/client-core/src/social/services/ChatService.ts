@@ -197,9 +197,8 @@ store.receptors.push((action: ChatActionType) => {
         })
 
       case 'SET_MESSAGE_SCROLL_INIT':
-        // const { value } = action
-        // s.merge({ messageScrollInit: value })
-        return
+        const { value } = action
+        return s.merge({ messageScrollInit: value })
 
       case 'FETCHING_INSTANCE_CHANNEL':
         return s.channels.merge({ fetchingInstanceChannel: true })
@@ -214,6 +213,8 @@ store.receptors.push((action: ChatActionType) => {
 export const accessChatState = () => state
 
 export const useChatState = () => useState(state) as any as typeof state
+
+globalThis.chatState = state
 
 //Service
 export const ChatService = {

@@ -250,7 +250,6 @@ const ViewLocation = (props: Props) => {
                   onChange={handleInputChange}
                 />
               </Paper>
-
               <label>Scene</label>
               <Paper
                 component="div"
@@ -271,8 +270,8 @@ const ViewLocation = (props: Props) => {
                     <MenuItem value="" disabled>
                       <em>Select scene</em>
                     </MenuItem>
-                    {adminScenes.value.map((el) => (
-                      <MenuItem value={el.sid} key={el.sid}>{`${el.name} (${el.sid})`}</MenuItem>
+                    {adminScenes.value.map((el, index) => (
+                      <MenuItem value={`${el.project}/${el.name}`} key={index}>{`${el.name} (${el.project})`}</MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -294,8 +293,8 @@ const ViewLocation = (props: Props) => {
                     <MenuItem value="" disabled>
                       <em>Select type</em>
                     </MenuItem>
-                    {locationTypes.value.map((el) => (
-                      <MenuItem value={el.type} key={el.type}>
+                    {locationTypes.value.map((el, index) => (
+                      <MenuItem value={el.type} key={index}>
                         {el.type}
                       </MenuItem>
                     ))}
@@ -422,7 +421,7 @@ const ViewLocation = (props: Props) => {
             {' '}
             <Paper elevation={3} className={classes.middlePaper}>
               <Grid container spacing={2} className={classes.pdl}>
-                <Grid item xs={6} className={classes.typo}>
+                <Grid item xs={5} className={classes.typo}>
                   <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
                     Max Users
                   </Typography>
@@ -433,8 +432,8 @@ const ViewLocation = (props: Props) => {
                     Slugy Name
                   </Typography>
                 </Grid>
-                <Grid item xs={6} className={classes.typo}>
-                  <Typography variant="h6" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
+                <Grid item xs={7} className={classes.typo}>
+                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
                     {(location as any)?.maxUsersPerInstance || <span className={classes.spanNone}>None</span>}
                   </Typography>
                   <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
