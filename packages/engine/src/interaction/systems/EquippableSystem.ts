@@ -14,10 +14,9 @@ import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { Engine } from '../../ecs/classes/Engine'
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { equipEntity } from '../functions/equippableFunctions'
+import { equipEntity, getParity } from '../functions/equippableFunctions'
 import { isClient } from '../../common/functions/isClient'
-import { InteractableComponent } from '../components/InteractableComponent'
+import { EquippedComponent } from '../components/EquippedComponent'
 
 function equippableActionReceptor(action) {
   const world = useWorld()
@@ -27,12 +26,13 @@ function equippableActionReceptor(action) {
     if (a.userId === Engine.userId) return
     const equipper = world.getUserAvatarEntity(a.userId)
     const equipped = world.getNetworkObject(a.networkId)
+    const attachmentPoint = a.attachmentPoint
     console.log(equipper, equipped)
     if (!equipped) {
       return console.warn(`Equipped entity with id ${equipped} does not exist! You should probably reconnect...`)
     }
     if (a.equip) {
-      equipEntity(equipper, equipped)
+      equipEntity(equipper, equipped, attachmentPoint)
     }
     // else {
     //   unequipEntity(equipper)
@@ -58,12 +58,15 @@ export default async function EquippableSystem(world: World): Promise<System> {
       if (isClient) {
         console.log('send equip to clients')
         console.log(equippedEntity)
-        let networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
+        const equippedComponent = getComponent(equippedEntity, EquippedComponent)
+        const attachmentPoint = equippedComponent.attachmentPoint
+        const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
         console.log(networkComponet)
         dispatchFrom(Engine.userId, () =>
           NetworkWorldAction.setEquippedObject({
             userId: Engine.userId,
             networkId: networkComponet.networkId,
+            attachmentPoint: attachmentPoint,
             equip: true
           })
         )
@@ -73,8 +76,10 @@ export default async function EquippableSystem(world: World): Promise<System> {
     for (const entity of equippableQuery()) {
       // console.log('equipping loop')
       const equipperComponent = getComponent(entity, EquipperComponent)
+      const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
+      const attachmentPoint = equippedComponent.attachmentPoint
       const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
-      const handTransform = getHandTransform(entity)
+      const handTransform = getHandTransform(entity, getParity(attachmentPoint))
       const { position, rotation } = handTransform
       equippableTransform.position.copy(position)
       equippableTransform.rotation.copy(rotation)
@@ -83,6 +88,8 @@ export default async function EquippableSystem(world: World): Promise<System> {
     for (const entity of equippableQuery.exit()) {
       const equipperComponent = getComponent(entity, EquipperComponent, true)
       const equippedEntity = equipperComponent.equippedEntity
+      const equippedComponent = getComponent(equippedEntity, EquippedComponent)
+      const attachmentPoint = equippedComponent.attachmentPoint
 
       // const equippedTransform = getComponent(equippedEntity, TransformComponent)
       // const collider = getComponent(equippedEntity, ColliderComponent)
@@ -97,6 +104,7 @@ export default async function EquippableSystem(world: World): Promise<System> {
         NetworkWorldAction.setEquippedObject({
           userId: Engine.userId,
           networkId: getComponent(equippedEntity, NetworkObjectComponent).networkId,
+          attachmentPoint: attachmentPoint,
           equip: false
         })
       )

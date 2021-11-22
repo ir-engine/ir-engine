@@ -26,7 +26,7 @@ import { InputAlias } from '../input/types/InputAlias'
 import { InteractableComponent } from '../interaction/components/InteractableComponent'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
-import { equipEntity } from '../interaction/functions/equippableFunctions'
+import { equipEntity, getAttachmentPoint } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -81,12 +81,11 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
   const interactor = getComponent(entity, InteractorComponent)
   if (!interactor?.focusedInteractive) return
 
-  console.log('interacting now', parityValue)
   const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent)
-  // Define interaction types in some enum?
+  // TODO: Define interaction types in some enum?
   if (interactiveComponent.data.interactionType === 'equippable') {
-    // Handle input hand cases
-    equipEntity(entity, interactor.focusedInteractive)
+    const attachmentPoint = getAttachmentPoint(parityValue)
+    equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
   } else {
     addComponent(interactor.focusedInteractive, InteractedComponent, { interactor: entity, parity: parityValue })
   }
