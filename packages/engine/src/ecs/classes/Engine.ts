@@ -43,13 +43,6 @@ export class Engine {
 
   /** Indicates whether engine is currently executing or not. */
   public static isExecuting = false
-
-  /**
-   * Frame rate for physics system.
-   *
-   * @default 60
-   */
-  public static physicsFrameRate = 60
   public static physxWorker: Worker = null!
 
   /**
