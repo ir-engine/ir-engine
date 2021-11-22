@@ -11,7 +11,7 @@ import DialogContentText from '@material-ui/core/DialogContentText/DialogContent
 import { Button, Typography } from '@material-ui/core'
 import { bindActionCreators, Dispatch } from 'redux'
 import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
-import { connect, useDispatch } from 'react-redux'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
 import { useHistory } from 'react-router-dom'
 
@@ -63,14 +63,12 @@ const TermsAndPolicy = () => {
   const handleAccept = () => {
     setOpenTerms(false)
     setOpenPolicy(false)
-    dispatch(
-      CreatorService.updateCreator({
-        id: creatorsState.creators.currentCreator?.id?.value,
-        terms: true,
-        policy: true,
-        name: creatorsState.creators.currentCreator?.name?.value
-      })
-    )
+    CreatorService.updateCreator({
+      id: creatorsState.creators.currentCreator?.id?.value,
+      terms: true,
+      policy: true,
+      name: creatorsState.creators.currentCreator?.name?.value
+    })
   }
 
   return (

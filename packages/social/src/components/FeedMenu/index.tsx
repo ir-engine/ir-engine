@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Button from '@mui/material/Button'
+import Button from '@material-ui/core/Button'
 import React, { useRef, useState, useEffect } from 'react'
 
 import Creators from '../Creators'

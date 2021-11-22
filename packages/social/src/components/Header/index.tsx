@@ -18,7 +18,8 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
   const history = useHistory()
   const { t } = useTranslation()
   const dispatch = useDispatch()
-  const [creator, setCreator] = useState({})
+  const creatorState = useCreatorState()
+  const creator = creatorState.creators.currentCreator.value
 
   const auth = useAuthState()
 
@@ -26,13 +27,6 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
     if (auth.user.id.value) {
       CreatorService.getLoggedCreator()
     }
-  }, [])
-  const creatorState = useCreatorState()
-
-  useEffect(() => {
-    setCreator(
-      creatorState.creators.fetchingCurrentCreator.value === false && creatorState.creators.currentCreator.value
-    )
   }, [])
 
   return (
@@ -50,23 +44,20 @@ const AppHeader = ({ setView, onGoRegistration }: any) => {
           })
         }}
       />
-      {creator &&
-        {
-          /*!checkGuest*/
-        } && (
-          <Avatar
-            onClick={() => {
-              onGoRegistration(() => {
-                history.push('/editCreator')
-              })
-            }}
-            alt={creator?.username}
-            src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
-            style={{
-              cursor: 'pointer'
-            }}
-          />
-        )}
+      {creator && (
+        <Avatar
+          onClick={() => {
+            onGoRegistration(() => {
+              history.push('/editCreator')
+            })
+          }}
+          alt={creator?.username}
+          src={creator?.avatar ? creator.avatar : '/assets/userpic.png'}
+          style={{
+            cursor: 'pointer'
+          }}
+        />
+      )}
     </nav>
   )
 }

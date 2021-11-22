@@ -42,19 +42,19 @@ export class Feed extends Service {
     //All Feeds as Admin
     if (action === 'admin') {
       const dataQuery = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
-      sr2.url as previewUrl, sr1.url as videoUrl, sr2.mimeType as previewType, sr1.mimeType as videoType, sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fl.id) as likes, COUNT(fb.id) as bookmarks 
-        FROM \`feed\` as feed
-        JOIN \`creator\` as creator ON creator.id=feed.creatorId
-        JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
-        JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
-        LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
-        LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id
-        LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id
-        LEFT JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
-        WHERE 1
-        GROUP BY feed.id
-        ORDER BY feed.createdAt DESC    
-        LIMIT :skip, :limit `
+       sr2.url as previewUrl, sr1.url as videoUrl, sr2.mimeType as previewType, sr1.mimeType as videoType, sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fl.id) as likes, COUNT(fb.id) as bookmarks 
+         FROM \`feed\` as feed
+         JOIN \`creator\` as creator ON creator.id=feed.creatorId
+         JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
+         JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
+         LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
+         LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id
+         LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id
+         LEFT JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
+         WHERE 1
+         GROUP BY feed.id
+         ORDER BY feed.createdAt DESC    
+         LIMIT :skip, :limit `
 
       const feeds = await this.app.get('sequelizeClient').query(dataQuery, {
         type: QueryTypes.SELECT,
@@ -96,16 +96,15 @@ export class Feed extends Service {
     //Featured menu item for Guest
     //Featured menu item
     if (action === 'featuredGuest' || action === 'featured') {
-      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType, feed.description as description, feed.title as title, COUNT(DISTINCT ff.id) as fires, COUNT(DISTINCT fl.id) as likes, isf.id as fired
-        FROM \`feed\` as feed
-       JOIN static_resource as sr ON sr.id=feed.previewId
-       LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id
-       LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id
-       LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId='${creatorId}'
-       WHERE feed.creatorId NOT IN (select blockedId from block_creator where 
-         creatorId = '${creatorId}')
-         AND feed.creatorId NOT IN (select creatorId from block_creator where blockedId = '${creatorId}')
-         GROUP BY feed.id`
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType, feed.description as description, feed.title as title, COUNT(DISTINCT ff.id) as fires, COUNT(DISTINCT fl.id) as likes
+         FROM \`feed\` as feed
+        JOIN static_resource as sr ON sr.id=feed.previewId
+        LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id
+        LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id
+        WHERE feed.creatorId NOT IN (select blockedId from block_creator where 
+          creatorId = '${creatorId}')
+          AND feed.creatorId NOT IN (select creatorId from block_creator where blockedId = '${creatorId}')
+          GROUP BY feed.id`
 
       const feeds = await this.app.get('sequelizeClient').query(dataQuery, {
         type: QueryTypes.SELECT,
@@ -123,11 +122,11 @@ export class Feed extends Service {
 
     if (action === 'creator') {
       const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured, feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType, feed.description as description, feed.title as title
-        FROM \`feed\` as feed
-        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
-        WHERE feed.creatorId=:creatorId
-        ORDER BY feed.createdAt DESC    
-        LIMIT :skip, :limit `
+         FROM \`feed\` as feed
+         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+         WHERE feed.creatorId=:creatorId
+         ORDER BY feed.createdAt DESC    
+         LIMIT :skip, :limit `
 
       queryParamsReplacements.creatorId = params.query?.creatorId ? params.query.creatorId : creatorId
       const feeds = await this.app.get('sequelizeClient').query(dataQuery, {
@@ -146,11 +145,11 @@ export class Feed extends Service {
 
     if (action === 'myFeatured') {
       const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured,  feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType, feed.description as description, feed.title as title 
-         FROM \`feed\` as feed
-         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
-         WHERE feed.creatorId=:creatorId AND feed.featured=1
-         ORDER BY feed.createdAt DESC    
-         LIMIT :skip, :limit `
+          FROM \`feed\` as feed
+          JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+          WHERE feed.creatorId=:creatorId AND feed.featured=1
+          ORDER BY feed.createdAt DESC    
+          LIMIT :skip, :limit `
       queryParamsReplacements.creatorId = creatorId
       const feeds = await this.app.get('sequelizeClient').query(dataQuery, {
         type: QueryTypes.SELECT,
@@ -169,12 +168,12 @@ export class Feed extends Service {
     //
     if (action === 'bookmark') {
       const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType 
-         FROM \`feed\` as feed
-         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
-         JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
-         WHERE fb.creatorId=:creatorId
-         ORDER BY feed.createdAt DESC    
-         LIMIT :skip, :limit `
+          FROM \`feed\` as feed
+          JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+          JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
+          WHERE fb.creatorId=:creatorId
+          ORDER BY feed.createdAt DESC    
+          LIMIT :skip, :limit `
 
       queryParamsReplacements.creatorId = creatorId
       const feeds = await this.app.get('sequelizeClient').query(dataQuery, {
@@ -193,15 +192,13 @@ export class Feed extends Service {
 
     //change this to fired!!!!!!
     if (action === 'fired') {
-      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType, feed.description as description, feed.title as title, isf.id as fired 
-         FROM \`feed\` as feed
-         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
-         JOIN \`feed_fires\` as fb ON fb.feedId=feed.id
-         LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId=:creatorId
-         WHERE fb.creatorId=:creatorId
-         GROUP BY feed.id
-         ORDER BY feed.createdAt DESC    
-         LIMIT :skip, :limit `
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl, sr.mimeType as previewType, feed.description as description, feed.title as title 
+          FROM \`feed\` as feed
+          JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+          JOIN \`feed_fires\` as fb ON fb.feedId=feed.id
+          WHERE fb.creatorId=:creatorId
+          ORDER BY feed.createdAt DESC    
+          LIMIT :skip, :limit `
 
       queryParamsReplacements.creatorId = creatorId
       const feeds = await this.app.get('sequelizeClient').query(dataQuery, {
@@ -221,20 +218,20 @@ export class Feed extends Service {
     //don't needed anymore, remove this after change TheFeed by filling it on Admin Panel
     if (action === 'theFeedGuest') {
       const select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
-
-       sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fl.id) as likes, sr1.url as videoUrl, sr2.url as previewUrl, sr2.mimeType as previewType, sr1.mimeType as videoType `
+ 
+        sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fl.id) as likes, sr1.url as videoUrl, sr2.url as previewUrl, sr2.mimeType as previewType, sr1.mimeType as videoType `
       const from = ` FROM \`feed\` as feed`
       const join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
-                     LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
-                     LEFT JOIN \`feed_likes\` as ff ON fl.feedId=feed.id
-                     JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
-                     JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
-                     LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
-                     `
+                      LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+                      LEFT JOIN \`feed_likes\` as ff ON fl.feedId=feed.id
+                      JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
+                      JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
+                      LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
+                      `
       const where = ` WHERE 1`
       const order = ` GROUP BY feed.id
-       ORDER BY feed.createdAt DESC    
-       LIMIT :skip, :limit `
+        ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit `
 
       const dataQuery = select + from + join + where + order
       const feeds = await this.app.get('sequelizeClient').query(dataQuery, {
@@ -279,28 +276,28 @@ export class Feed extends Service {
 
     // TheFeed menu item - just for followed creatos!!!!!
     let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
-    sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fl.id) as likes, sr1.url as videoUrl, sr2.url as previewUrl, sr2.mimeType as previewType, sr1.mimeType as videoType, fc.id as follow_id, fc.creatorId as fc_creatorId, 
-    fc.followerId as fc_follower_id  `
+     sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fl.id) as likes, sr1.url as videoUrl, sr2.url as previewUrl, sr2.mimeType as previewType, sr1.mimeType as videoType, fc.id as follow_id, fc.creatorId as fc_creatorId, 
+     fc.followerId as fc_follower_id  `
     const from = ` FROM \`feed\` as feed`
     let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
-                  LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId 
-                  LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
-                  LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id 
-                  JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
-                  JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
-                  LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
-                  `
+                   LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId 
+                   LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+                   LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id 
+                   JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
+                   JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
+                   LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
+                   `
 
     const where = ` WHERE fc.followerId=:creatorId OR feed.creatorId=:creatorId`
     const order = ` GROUP BY feed.id
-     ORDER BY feed.createdAt DESC    
-     LIMIT :skip, :limit `
+      ORDER BY feed.createdAt DESC    
+      LIMIT :skip, :limit `
 
     if (creatorId) {
       select += ` , isf.id as fired, isl.id as liked, isb.id as bookmarked `
       join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId=:creatorId
-                LEFT JOIN \`feed_likes\` as isl ON isl.feedId=feed.id  AND isl.creatorId=:creatorId
-                LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.creatorId=:creatorId`
+                 LEFT JOIN \`feed_likes\` as isl ON isl.feedId=feed.id  AND isl.creatorId=:creatorId
+                 LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.creatorId=:creatorId`
 
       queryParamsReplacements.creatorId = creatorId
     }
@@ -356,15 +353,15 @@ export class Feed extends Service {
    */
   async get(id: Id, params?: Params): Promise<any> {
     let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, sr3.url as avatar, 
-      creator.verified as creatorVerified, COUNT(ff.id) as fires,  COUNT(fl.id) as likes, sr1.url as videoUrl, sr2.url as previewUrl, sr2.mimeType as previewType, sr1.mimeType as videoType `
+       creator.verified as creatorVerified, COUNT(ff.id) as fires,  COUNT(fl.id) as likes, sr1.url as videoUrl, sr2.url as previewUrl, sr2.mimeType as previewType, sr1.mimeType as videoType `
     const from = ` FROM \`feed\` as feed`
     let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
-                    LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
-                    LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id 
-                    JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
-                    JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
-                    LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
-                    `
+                     LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+                     LEFT JOIN \`feed_likes\` as fl ON fl.feedId=feed.id 
+                     JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
+                     JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
+                     LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
+                     `
 
     const where = ` WHERE feed.id=:id`
 
@@ -380,8 +377,8 @@ export class Feed extends Service {
     if (creatorId) {
       select += ` , isf.id as fired, isl.id as liked, isb.id as bookmarked `
       join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId=:creatorId
-                LEFT JOIN \`feed_likes\` as isl ON isl.feedId=feed.id  AND isl.creatorId=:creatorId
-                  LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.creatorId=:creatorId`
+                 LEFT JOIN \`feed_likes\` as isl ON isl.feedId=feed.id  AND isl.creatorId=:creatorId
+                   LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.creatorId=:creatorId`
 
       queryParamsReplacements.creatorId = creatorId
     }
