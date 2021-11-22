@@ -1,26 +1,25 @@
+import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import React from 'react'
 import { ItemTypes } from '../../constants/AssetTypes'
-import { ImageFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import FileBrowserInput from './FileBrowserInput'
 
 /**
- * ImageInput used to render component view for image inputs.
+ * FolderInput used to render component view for folder inputs.
  *
- * @author Robert Long
  * @author Hanzla Mateen
  * @param       {function} onChange
  * @param       {any} rest
  * @constructor
  */
-export function ImageInput({ onChange, ...rest }) {
+export function FolderInput({ onChange, ...rest }) {
   return (
     <FileBrowserInput
-      acceptFileTypes={ImageFileTypes}
-      acceptDropItems={ItemTypes.Images}
+      acceptFileTypes={AllFileTypes}
+      acceptDropItems={[ItemTypes.Folder]}
       onChange={onChange}
       {...rest}
     />
   )
 }
 
-export default ImageInput
+export default FolderInput

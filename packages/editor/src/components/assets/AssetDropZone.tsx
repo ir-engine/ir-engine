@@ -52,9 +52,11 @@ export function AssetDropZone({ afterUpload }: AssetDropZoneProp) {
 
   const [{ canDrop, isOver, isDragging }, onDropTarget] = useDrop({
     accept: [ItemTypes.File],
-    drop(item: any) {
-      console.log(item)
-      onUpload(item.files).then((assets) => {
+    drop(item: any, monitor) {
+      const dndItem: any = monitor.getItem()
+      const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+
+      onUpload(entries).then((assets) => {
         if (assets) {
           if (afterUpload) {
             afterUpload(assets)
