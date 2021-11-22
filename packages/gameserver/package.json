@@ -105,7 +105,7 @@
     "serve-favicon": "2.5.0",
     "slugify": "1.6.3",
     "trace-unhandled": "2.0.1",
-    "universal-analytics": "0.5.0",
+    "universal-analytics": "0.5.1",
     "uuid": "8.3.2",
     "winston": "3.3.3"
   },
