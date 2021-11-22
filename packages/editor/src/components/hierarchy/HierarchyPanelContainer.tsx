@@ -465,11 +465,14 @@ function TreeNode({
     accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
 
     //function used to drop items
-    drop(item: any) {
+    drop(item: any, monitor) {
       //check if item contain files
       if (item.files) {
+        const dndItem: any = monitor.getItem()
+        const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+
         //uploading files then adding as media to the editor
-        onUpload(item.files).then((assets) => {
+        onUpload(entries).then((assets) => {
           if (assets) {
             for (const asset of assets) {
               CommandManager.instance.addMedia({ url: asset.url }, object.parent, object)
@@ -528,14 +531,17 @@ function TreeNode({
   const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
     // initializing accept with array containing types
     accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
-    drop(item: any) {
+    drop(item: any, monitor) {
       // initializing next and is true if not last child and object parent contains children property and contain childIndex
       const next = !lastChild && object.parent.children[childIndex + 1]
 
       //check if item contains files
       if (item.files) {
+        const dndItem: any = monitor.getItem()
+        const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+
         //uploading files then adding assets to editor media
-        onUpload(item.files).then((assets) => {
+        onUpload(entries).then((assets) => {
           if (assets) {
             for (const asset of assets) {
               CommandManager.instance.addMedia({ url: asset.url }, object.parent, next)
@@ -594,11 +600,14 @@ function TreeNode({
   const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
     //initializing accept with array containing types
     accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
-    drop(item: any) {
+    drop(item: any, monitor) {
       // check if item contain files
       if (item.files) {
+        const dndItem: any = monitor.getItem()
+        const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+
         //uploading files then adding assets to editor media
-        onUpload(item.files).then((assets) => {
+        onUpload(entries).then((assets) => {
           if (assets) {
             for (const asset of assets) {
               CommandManager.instance.addMedia({ url: asset.url }, object)
@@ -1131,8 +1140,11 @@ export default function HierarchyPanel() {
 
       // check if item contains files
       if (item.files) {
+        const dndItem: any = monitor.getItem()
+        const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+
         //uploading files then adding to editor media
-        onUpload(item.files).then((assets) => {
+        onUpload(entries).then((assets) => {
           if (assets) {
             for (const asset of assets) {
               CommandManager.instance.addMedia({ url: asset.url })
