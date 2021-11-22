@@ -1,38 +1,65 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { PerspectiveCamera } from 'three'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { EditorControlComponent } from '../classes/EditorControlComponent'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
-import EditorControls from '../controls/EditorControls'
-import { FlyControls } from '../controls/FlyControls'
+import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import InputManager from '../controls/InputManager'
 import PlayModeControls from '../controls/PlayModeControls'
+import { addInputActionMapping } from '../functions/parseInputActionMapping'
 import { CommandManager } from './CommandManager'
+import { SceneManager } from './SceneManager'
+import { setTransformMode } from '../systems/EditorControlSystem'
 
 export class ControlManager {
   static instance: ControlManager = new ControlManager()
 
   inputManager: InputManager
-  editorControls: EditorControls
-  flyControls: FlyControls
   playModeControls: PlayModeControls
   isInPlayMode: boolean
 
   constructor() {
     this.inputManager = null
-    this.editorControls = null
-    this.flyControls = null
     this.playModeControls = null
     this.isInPlayMode = false
   }
 
+  onBeforeSelectionChanged = () => {
+    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
+    if (editorControlComponent.transformMode === TransformMode.Grab) {
+      const checkpoint = editorControlComponent.grabHistoryCheckpoint
+      setTransformMode(editorControlComponent.transformModeOnCancel, null, editorControlComponent)
+      CommandManager.instance.revert(checkpoint)
+    } else if (editorControlComponent.transformMode === TransformMode.Placement) {
+      setTransformMode(editorControlComponent.transformModeOnCancel, null, editorControlComponent)
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
+    }
+  }
+
+  onSelectionChanged = () => {
+    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
+    editorControlComponent.selectionChanged = true
+  }
+
+  onObjectsChanged = (_objects, property) => {
+    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
+    if (property === 'position' || property === 'rotation' || property === 'scale' || property === 'matrix') {
+      editorControlComponent.transformPropertyChanged = true
+    }
+  }
+
   initControls() {
     this.inputManager = new InputManager(Engine.renderer.domElement)
-    this.flyControls = new FlyControls(Engine.camera as PerspectiveCamera, this.inputManager)
-    this.editorControls = new EditorControls(Engine.camera, this.inputManager, this.flyControls)
-    this.playModeControls = new PlayModeControls(this.inputManager, this.editorControls, this.flyControls)
+    this.playModeControls = new PlayModeControls(this.inputManager)
 
-    this.editorControls.center.set(0, 0, 0)
-    this.editorControls.enable()
+    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
+    editorControlComponent.enable = true
+    addInputActionMapping(ActionSets.EDITOR, EditorMapping)
+
+    CommandManager.instance.addListener(EditorEvents.BEFORE_SELECTION_CHANGED.toString(), this.onBeforeSelectionChanged)
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
+    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
   /**
@@ -70,14 +97,15 @@ export class ControlManager {
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
   }
 
-  update(delta: number) {
-    this.editorControls.update()
-  }
-
   dispose() {
     this.inputManager?.dispose()
-    this.editorControls?.dispose()
-    this.flyControls?.dispose()
     this.playModeControls?.dispose()
+
+    CommandManager.instance.removeListener(
+      EditorEvents.BEFORE_SELECTION_CHANGED.toString(),
+      this.onBeforeSelectionChanged
+    )
+    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
+    CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 }

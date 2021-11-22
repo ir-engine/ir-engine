@@ -1,11 +1,11 @@
 import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
-export type TransformGizmoComponentType = {
-  enable: Boolean
+export type FlyControlComponentType = {
+  enable: boolean
   moveSpeed: number
   boostSpeed: number
   lookSensitivity: number
   maxXRotation: number
 }
 
-export const FlyControlComponent = createMappedComponent<TransformGizmoComponentType>('FlyControlComponent')
+export const FlyControlComponent = createMappedComponent<FlyControlComponentType>('FlyControlComponent')

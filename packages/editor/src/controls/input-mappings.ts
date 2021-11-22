@@ -43,7 +43,6 @@ export const FlyActionSet = {
 /** Editor Action set. Defines all the editor action. */
 export const EditorActionSet = {
   grab: 'grab' as const,
-  focus: 'focus' as const,
   focusPosition: 'focusPosition' as const,
   focusSelection: 'focusSelection' as const,
   zoomDelta: 'zoomDelta' as const,
@@ -185,7 +184,7 @@ export const FlyMapping: InputActionMapping = {
 export const EditorMapping: InputActionMapping = {
   mouse: {
     dblclick: {
-      position: { key: EditorActionSet.focusPosition, defaultValue: { x: 0, y: 0 } }
+      position: { key: EditorActionSet.focusPosition, defaultValue: undefined }
     },
     wheel: {
       normalizedDeltaY: { key: EditorActionSet.zoomDelta, defaultValue: 0 }
@@ -218,7 +217,7 @@ export const EditorMapping: InputActionMapping = {
       }
     },
     move: {
-      position: { key: EditorActionSet.cursorPosition, defaultValue: 0 },
+      position: { key: EditorActionSet.cursorPosition, defaultValue: undefined },
       normalizedMovementX: { key: EditorActionSet.cursorDeltaX, defaultValue: 0 },
       normalizedMovementY: { key: EditorActionSet.cursorDeltaY, defaultValue: 0 }
     }

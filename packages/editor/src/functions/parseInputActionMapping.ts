@@ -140,8 +140,8 @@ export const parseInputActionMapping = (inputMapping: InputActionMapping) => {
     initializeValue(actionState, keyboard.pressed, defaultValues, resetKeys)
     initializeValue(actionState, keyboard.keydown, defaultValues, resetKeys)
     initializeValue(actionState, keyboard.keyup, defaultValues, resetKeys)
-    initializeValue(actionState, keyboard.hotkeys, defaultValues, resetKeys)
-    initializeValue(actionState, keyboard.globalHotkeys, defaultValues, resetKeys)
+    initializeValue(actionState, keyboard.hotkeys, defaultValues, resetKeys, true)
+    initializeValue(actionState, keyboard.globalHotkeys, defaultValues, resetKeys, true)
   }
 
   const mouse = inputMapping.mouse

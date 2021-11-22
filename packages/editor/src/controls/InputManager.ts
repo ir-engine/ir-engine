@@ -53,12 +53,12 @@ export default class InputManager {
   }
 
   handlePosition(state: ActionState, positionAction: ActionKey, event: MouseEvent): void {
-    const position = state[positionAction]
-    if (position) {
-      const rect = this.boundingClientRect
-      position.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-      position.y = ((event.clientY - rect.top) / rect.height) * -2 + 1
-    }
+    const rect = this.boundingClientRect
+
+    if (!state[positionAction]) state[positionAction] = {}
+
+    state[positionAction].x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+    state[positionAction].y = ((event.clientY - rect.top) / rect.height) * -2 + 1
   }
 
   // ------------- Keyboard Events ------------- //

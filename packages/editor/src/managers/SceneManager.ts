@@ -8,7 +8,9 @@ import {
   WebGLInfo,
   WebGLRenderer,
   MeshBasicMaterial,
-  MeshNormalMaterial
+  MeshNormalMaterial,
+  Intersection,
+  Object3D
 } from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import SceneNode from '../nodes/SceneNode'
@@ -18,7 +20,7 @@ import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from './CommandManager'
 import EditorCommands from '../constants/EditorCommands'
-import getIntersectingNode from '../functions/getIntersectingNode'
+import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import isEmptyObject from '../functions/isEmptyObject'
 import { ControlManager } from './ControlManager'
@@ -43,6 +45,9 @@ import { createGizmoEntity } from '../functions/createGizmoEntity'
 import { createCameraEntity } from '../functions/createCameraEntity'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { createEditorEntity } from '../functions/createEditorEntity'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EditorControlComponent } from '../classes/EditorControlComponent'
+import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()
@@ -56,6 +61,7 @@ export class SceneManager {
   audioListener: AudioListener
   grid: EditorInfiniteGridHelper
   raycaster: Raycaster
+  raycastTargets: Intersection<Object3D>[] = []
   centerScreenSpace: Vector2
   thumbnailRenderer = new ThumbnailRenderer()
   disableUpdate: boolean
@@ -129,7 +135,7 @@ export class SceneManager {
 
     this.sceneModified = false
 
-    if (error) return error
+    return error
   }
 
   /**
@@ -154,11 +160,13 @@ export class SceneManager {
       if (!Engine.renderer) {
         new EngineRenderer({ canvas, enabled: true })
         EngineRenderer.instance.automatic = false
-        ControlManager.instance.initControls()
         Engine.engineTimer.start()
       }
 
-      this.grid.setSize(ControlManager.instance.editorControls.translationSnap)
+      ControlManager.instance.initControls()
+
+      const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
+      this.grid.setSize(editorControlComponent.translationSnap)
       /** @todo */
       // Cascaded shadow maps
       // const csm = new CSM({
@@ -363,18 +371,18 @@ export class SceneManager {
    * @param target
    */
   getScreenSpaceSpawnPosition(screenSpacePosition, target) {
-    this.raycaster.setFromCamera(screenSpacePosition, Engine.camera)
-    const results = this.raycaster.intersectObject(Engine.scene as any, true)
-    const result = getIntersectingNode(results, Engine.scene)
+    this.raycastTargets.length = 0
+    const closestTarget = getIntersectingNodeOnScreen(this.raycaster, screenSpacePosition, this.raycastTargets)
 
-    if (result && result.distance < 1000) {
-      target.copy(result.point)
+    if (closestTarget && closestTarget.distance < 1000) {
+      target.copy(closestTarget.point)
     } else {
       this.raycaster.ray.at(20, target)
     }
 
-    if (ControlManager.instance.editorControls.shouldSnap()) {
-      const translationSnap = ControlManager.instance.editorControls.translationSnap
+    const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
+    if (editorControlComponent.snapMode === SnapMode.Grid) {
+      const translationSnap = editorControlComponent.translationSnap
 
       target.set(
         Math.round(target.x / translationSnap) * translationSnap,
@@ -494,7 +502,6 @@ export class SceneManager {
       }
     })
 
-    ControlManager.instance.update(delta)
     EngineRenderer.instance.execute(delta)
   }
 

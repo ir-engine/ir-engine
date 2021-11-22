@@ -2,16 +2,23 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Vector3, Matrix4, Quaternion } from 'three'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { Vector3, Matrix4, Quaternion, Matrix3 } from 'three'
+import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { FlyControlComponent } from '../classes/FlyControlComponent'
-import { FlyActionSet } from '../controls/input-mappings'
-import { getInput } from '../functions/parseInputActionMapping'
-import { ControlManager } from '../managers/ControlManager'
+import EditorEvents from '../constants/EditorEvents'
+import { ActionSets, EditorActionSet, FlyActionSet, FlyMapping } from '../controls/input-mappings'
+import { addInputActionMapping, getInput, removeInputActionMapping } from '../functions/parseInputActionMapping'
+import { CommandManager } from '../managers/CommandManager'
+import { SceneManager } from '../managers/SceneManager'
 
 const EPSILON = 10e-5
 const UP = new Vector3(0, 1, 0)
 const IDENTITY = new Matrix4().identity()
 
+/**
+ * @author Nayankumar Patel <github.com/NPatel10>
+ */
 export default async function FlyControlSystem(world: World): Promise<System> {
   const flyControlQuery = defineQuery([FlyControlComponent])
   const direction = new Vector3()
@@ -22,10 +29,32 @@ export default async function FlyControlSystem(world: World): Promise<System> {
   const worldQuat = new Quaternion()
   const worldScale = new Vector3()
   const candidateWorldQuat = new Quaternion()
+  const normalMatrix = new Matrix3()
 
   return () => {
     for (let entity of flyControlQuery()) {
       const flyControlComponent = getComponent(entity, FlyControlComponent)
+
+      if (getInput(EditorActionSet.disableFlyMode)) {
+        const cameraComponent = getComponent(SceneManager.instance.cameraEntity, EditorCameraComponent)
+        const cameraObject = getComponent(SceneManager.instance.cameraEntity, Object3DComponent)
+
+        flyControlComponent.enable = false
+        removeInputActionMapping(ActionSets.FLY)
+        const distance = cameraObject.value.position.distanceTo(cameraComponent.center)
+        cameraComponent.center.addVectors(
+          cameraObject.value.position,
+          tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(cameraObject.value.matrix))
+        )
+
+        CommandManager.instance.emitEvent(EditorEvents.FLY_MODE_CHANGED)
+      }
+
+      if (getInput(EditorActionSet.flying)) {
+        flyControlComponent.enable = true
+        addInputActionMapping(ActionSets.FLY, FlyMapping)
+        CommandManager.instance.emitEvent(EditorEvents.FLY_MODE_CHANGED)
+      }
 
       if (!flyControlComponent.enable) return
 

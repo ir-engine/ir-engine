@@ -211,7 +211,6 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), { tickRate: 60 })
 
   registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
-  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/GizmoSystem'))
 
   // Scene Systems
   // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
