@@ -1,15 +1,17 @@
 import { Cloud } from '@styled-icons/fa-solid/Cloud'
 import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
+import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import FolderInput from '../inputs/FolderInput'
+import ImageInput from '../inputs/ImageInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
-import { ControlledStringInput } from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 
 const hoursToRadians = (hours) => hours / 24
@@ -122,8 +124,11 @@ export const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
   }
 
   const onChangeCubemapPathOption = (path) => {
-    CommandManager.instance.setPropertyOnSelection('cubemapPath', path)
-    forceUpdate()
+    const directory = getDirectoryFromUrl(path)
+    if (directory !== (node as any).cubemapPath) {
+      CommandManager.instance.setPropertyOnSelection('cubemapPath', directory)
+      forceUpdate()
+    }
   }
 
   //function to handle the changes backgroundPath
@@ -196,11 +201,20 @@ export const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
     </>
   )
 
-  // creating editor view for cubemap Settings
-  const renderTextureSettings = (value, onChange) => (
+  // creating editor view for equirectangular Settings
+  const renderEquirectangularSettings = (value, onChange) => (
     <>
       <InputGroup name="Texture" label={t('editor:properties.skybox.lbl-texture')}>
-        <ControlledStringInput value={value} onChange={onChange} />
+        <ImageInput value={value} onChange={onChange} />
+      </InputGroup>
+    </>
+  )
+
+  // creating editor view for cubemap Settings
+  const renderCubemapSettings = (value, onChange) => (
+    <>
+      <InputGroup name="Texture" label={t('editor:properties.skybox.lbl-texture')}>
+        <FolderInput value={value} onChange={onChange} />
       </InputGroup>
     </>
   )
@@ -218,9 +232,9 @@ export const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
   const renderSkyBoxProps = (node) => {
     switch (node.backgroundType) {
       case SkyTypeEnum.equirectangular as any:
-        return renderTextureSettings((node as any).equirectangularPath, onChangeEquirectangularPathOption)
+        return renderEquirectangularSettings((node as any).equirectangularPath, onChangeEquirectangularPathOption)
       case SkyTypeEnum.cubemap as any:
-        return renderTextureSettings((node as any).cubemapPath, onChangeCubemapPathOption)
+        return renderCubemapSettings((node as any).cubemapPath, onChangeCubemapPathOption)
       case SkyTypeEnum.color as any:
         return renderColorSettings(node)
       default:
