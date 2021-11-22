@@ -41,7 +41,7 @@ const ProfileMenu = (props: Props): any => {
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
   const [showUserId, setShowUserId] = useState(false)
-  const [state, setState] = useState({ value: '', copied: false, open: false })
+  const [userIdState, setUserIdState] = useState({ value: '', copied: false, open: false })
 
   let type = ''
 
@@ -146,11 +146,11 @@ const ProfileMenu = (props: Props): any => {
 
   const handleShowId = () => {
     setShowUserId(!showUserId)
-    setState({ ...state, value: selfUser.id.value })
+    setUserIdState({ ...userIdState, value: selfUser.id.value })
   }
 
   const handleClose = () => {
-    setState({ ...state, open: false })
+    setUserIdState({ ...userIdState, open: false })
   }
 
   return (
@@ -208,18 +208,20 @@ const ProfileMenu = (props: Props): any => {
                   <span>{selfUser?.userRole?.value}</span>.
                 </h2>
               </Grid>
-              <Grid item container xs={6} alignItems="flex-end" direction="column">
+              <Grid item container xs={6} alignItems="flex-start" direction="column">
                 <Tooltip title="Show User ID" placement="right">
-                  <Button size="small" onClick={handleShowId}>
-                    {showUserId ? 'Hide User ID' : 'Show User ID'}{' '}
-                  </Button>
+                  <h2 size="small" className={styles.showUserId} onClick={handleShowId}>
+                    {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
+                  </h2>
                 </Tooltip>
               </Grid>
             </Grid>
 
             <h4>
               {(selfUser.userRole.value === 'user' || selfUser.userRole.value === 'admin') && (
-                <div onClick={handleLogout}>{t('user:usermenu.profile.logout')}</div>
+                <div className={styles.logout} onClick={handleLogout}>
+                  {t('user:usermenu.profile.logout')}
+                </div>
               )}
             </h4>
             {selfUser?.inviteCode.value != null && (
@@ -243,14 +245,14 @@ const ProfileMenu = (props: Props): any => {
                 placeholder={'user id'}
                 variant="outlined"
                 value={selfUser?.id.value}
-                onChange={({ target: { value } }) => setState({ ...state, value, copied: false })}
+                onChange={({ target: { value } }) => setUserIdState({ ...userIdState, value, copied: false })}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
                       <CopyToClipboard
-                        text={state.value}
+                        text={userIdState.value}
                         onCopy={() => {
-                          setState({ ...state, copied: true, open: true })
+                          setUserIdState({ ...userIdState, copied: true, open: true })
                         }}
                       >
                         <a href="#" className={styles.materialIconBlock}>
@@ -349,7 +351,7 @@ const ProfileMenu = (props: Props): any => {
 
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        open={state.open}
+        open={userIdState.open}
         onClose={handleClose}
         message="User ID copied"
         key={'top' + 'center'}
