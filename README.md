@@ -30,6 +30,10 @@ git clone -–depth 1 https://github.com/xrfoundation/xrengine
 Installation instructions are here:
 https://github.com/XRFoundation/XREngine/wiki/Installation
 
+## Tutorial
+
+The official XREngine tutorial can be found [here](/tutorial/00-start-here.md)
+
 ## Let's build it together
 We believe that projects like this are extremely complex and difficult, and can only be built when large groups of people work together, out in the open. If you believe that your calling is to build a free, open network that everyone, everywhere can get value from, then you are welcome in our community, and we'll do our best to get you set up.
 
