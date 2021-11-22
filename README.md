@@ -27,8 +27,7 @@ A lot has changed during development, and our monorepo has gotten quite large. T
 git clone -–depth 1 https://github.com/xrfoundation/xrengine
 ```
 
-Installation instructions are here:
-https://github.com/XRFoundation/XREngine/wiki/Installation
+Installation instructions are [here](/tutorial/01-installation.md)
 
 ## Tutorial
 
