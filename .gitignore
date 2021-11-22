@@ -156,7 +156,6 @@ certs/
 *.ts.bak
 
 # ignore all npm dist cti outputs
-/packages/bot/src/index.ts
 /packages/client-core/src/index.ts
 /packages/common/src/index.ts
 /packages/editor/src/index.ts

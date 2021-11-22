@@ -1,7 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { Op } from 'sequelize'
 
 /**
  * A class for Intance service
@@ -40,7 +40,8 @@ export class Instance extends Service {
           model: (this.app.service('location') as any).Model,
           required: false
         },
-        nest: false
+        nest: false,
+        where: { ended: { [Op.not]: true } }
       })
       return {
         skip: skip,
