@@ -110,7 +110,7 @@
     "s3-blob-store": "4.1.1",
     "sequelize": "6.11.0",
     "serve-favicon": "2.5.0",
-    "slugify": "1.6.2",
+    "slugify": "1.6.3",
     "ts-eager": "2.0.2",
     "universal-analytics": "0.5.0",
     "uuid": "8.3.2",
