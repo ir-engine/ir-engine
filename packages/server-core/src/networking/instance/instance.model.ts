@@ -42,6 +42,7 @@ export default (app: Application) => {
     ;(instance as any).hasMany(models.user, { foreignKey: { allowNull: true } })
     ;(instance as any).hasOne(models.gameserver_subdomain_provision, { foreignKey: { allowNull: true } })
     ;(instance as any).hasMany(models.bot, { foreignKey: { allowNull: true } })
+    ;(instance as any).belongsToMany(models.user, { through: 'instance_authorized_user' })
   }
   return instance
 }
