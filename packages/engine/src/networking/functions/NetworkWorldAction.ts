@@ -69,7 +69,8 @@ export class NetworkWorldAction {
       type: 'network.SET_EQUIPPED_OBJECT',
       userId: matchesUserId,
       networkId: matchesNetworkId,
-      equip: matches.boolean
+      equip: matches.boolean,
+      attachmentPoint: matches.number
     },
     { allowDispatchFromAny: true }
   )
