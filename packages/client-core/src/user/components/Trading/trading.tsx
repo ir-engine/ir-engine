@@ -68,10 +68,10 @@ export const TradingPage = (): any => {
       isLoadingtransfer: true
     }))
     const data={
-      fromUserInventoryIds: items,
+      /*fromUserInventoryIds: items,*/
       fromUserStatus: "ACCEPT",
   }
-  console.log("TRANSFER ", data);
+  console.log("acceptOfferSent ", data);
   console.log("tradeId ", tradeId);
 
     try {
@@ -101,11 +101,11 @@ export const TradingPage = (): any => {
       isLoadingtransfer: true
     }))
     const data={
-      "toUserInventoryIds": items,
+      /*"toUserInventoryIds": items,*/
       "toUserStatus": "ACCEPT"
 
   }
-  console.log("TRANSFER ", data);
+  console.log("acceptOfferReceived ", data);
   console.log("tradeId ", tradeId);
 
     try {
