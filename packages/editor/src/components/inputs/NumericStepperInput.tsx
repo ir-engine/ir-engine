@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react'
+import React from 'react'
 import NumericInput from './NumericInput'
 import styled from 'styled-components'
 import { CaretLeft } from '@styled-icons/boxicons-regular/CaretLeft'
@@ -63,16 +63,18 @@ const StepperButton = (styled as any).button`
  * @param {any} rest
  * @returns
  */
-export function NumericStepperInput({ style, className, decrementTooltip, incrementTooltip, ...rest }: any) {
-  const inputRef = useRef() as any
-
-  const onDecrement = useCallback(() => {
-    inputRef.current.decrement()
-  }, [inputRef])
-
-  const onIncrement = useCallback(() => {
-    inputRef.current.increment()
-  }, [inputRef])
+export function NumericStepperInput({
+  style,
+  className,
+  decrementTooltip,
+  incrementTooltip,
+  onChange,
+  value,
+  mediumStep,
+  ...rest
+}: any) {
+  const onIncrement = () => onChange(value + mediumStep)
+  const onDecrement = () => onChange(value - mediumStep)
 
   return (
     <StepperInputContainer style={style} className={className}>
@@ -81,7 +83,7 @@ export function NumericStepperInput({ style, className, decrementTooltip, increm
           <CaretLeft size={16} />
         </StepperButton>
       </InfoTooltip>
-      <NumericInput innerRef={inputRef} {...rest} />
+      <NumericInput {...rest} onChange={onChange} value={value} mediumStep={mediumStep} />
       <InfoTooltip info={incrementTooltip} position="bottom">
         <StepperButton right onClick={onIncrement}>
           <CaretRight size={16} />

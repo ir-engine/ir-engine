@@ -1,26 +1,26 @@
 import { Vector3 } from 'three'
 
 export const TransformPivot = {
-  Selection: 'Selection',
-  Center: 'Center',
-  Bottom: 'Bottom'
+  Selection: 'Selection' as const,
+  Center: 'Center' as const,
+  Bottom: 'Bottom' as const
 }
 export const TransformMode = {
-  Disabled: 'Disabled',
-  Grab: 'Grab',
-  Placement: 'Placement',
-  Translate: 'Translate',
-  Rotate: 'Rotate',
-  Scale: 'Scale'
+  Disabled: 'Disabled' as const,
+  Grab: 'Grab' as const,
+  Placement: 'Placement' as const,
+  Translate: 'Translate' as const,
+  Rotate: 'Rotate' as const,
+  Scale: 'Scale' as const
 }
 export const TransformAxis = {
-  X: 'X',
-  Y: 'Y',
-  Z: 'Z',
-  XY: 'XY',
-  YZ: 'YZ',
-  XZ: 'XZ',
-  XYZ: 'XYZ'
+  X: 'X' as const,
+  Y: 'Y' as const,
+  Z: 'Z' as const,
+  XY: 'XY' as const,
+  YZ: 'YZ' as const,
+  XZ: 'XZ' as const,
+  XYZ: 'XYZ' as const
 }
 export const TransformAxisConstraints = {
   X: new Vector3(1, 0, 0),
@@ -31,3 +31,20 @@ export const TransformAxisConstraints = {
   XZ: new Vector3(1, 0, 1),
   XYZ: new Vector3(1, 1, 1)
 }
+
+export const SnapMode = {
+  Disabled: 'Disabled' as const,
+  Grid: 'Grid' as const
+}
+
+export enum TransformSpace {
+  World,
+  Local,
+  LocalSelection // The local space of the last selected object
+  // TODO: Viewport, Cursor?
+}
+
+export type TransformModeType = keyof typeof TransformMode
+export type TransformPivotType = keyof typeof TransformPivot
+export type TransformAxisType = keyof typeof TransformAxis
+export type SnapModeType = keyof typeof SnapMode

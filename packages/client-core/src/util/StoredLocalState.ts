@@ -11,7 +11,7 @@ type StateTypes = Partial<typeof state.value>
 export const accessStoredLocalState = () => state
 export const useStoredLocalState = () => useState(state) as any as typeof state
 
-if (window) {
+if (typeof window !== 'undefined') {
   const rawState = localStorage.getItem(Config.publicRuntimeConfig.localStorageKey)
   if (rawState) {
     const newState = JSON.parse(rawState)
