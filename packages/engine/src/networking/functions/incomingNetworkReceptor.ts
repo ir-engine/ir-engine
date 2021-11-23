@@ -74,13 +74,6 @@ export function incomingNetworkReceptor(action) {
           if (params.sceneEntity) {
             let sceneEntity = params.sceneEntity
             console.log('scene entity received in network action', sceneEntity)
-            for (let index = 0; index < sceneEntity.components.length; index++) {
-              const element = sceneEntity.components[index]
-              if (element.name === 'gltf-model') {
-                // Hackish fix for now
-                element.name = 'gltf-model-networked'
-              }
-            }
             WorldScene.loadComponentLate(entity, sceneEntity)
           }
         }

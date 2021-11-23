@@ -170,10 +170,11 @@ export const parseGLTFModel = (
     })
   }
 
-  console.log(component)
-  // Need to set matrix auto update true currently for equippable objects, else transform not updated. Look into this.
-  // && component.props.interactionType !== 'undefined' && component.props.interactionType !== 'equippable'
-  if (typeof component.data.matrixAutoUpdate !== 'undefined' && component.data.matrixAutoUpdate === false) {
+  if (
+    component.data.isDynamicObject === false &&
+    typeof component.data.matrixAutoUpdate !== 'undefined' &&
+    component.data.matrixAutoUpdate === false
+  ) {
     scene.traverse((child) => {
       child.updateMatrixWorld(true)
       child.matrixAutoUpdate = false

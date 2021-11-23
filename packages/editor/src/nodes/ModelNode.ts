@@ -29,10 +29,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const node = await super.deserialize(json)
     loadAsync(
       (async () => {
-        const { src, envMapOverride, textureOverride, matrixAutoUpdate, isUsingGPUInstancing } = json.components.find(
-          (c) => c.name === 'gltf-model'
-        ).props
+        const { src, envMapOverride, textureOverride, matrixAutoUpdate, isUsingGPUInstancing, isDynamicObject } =
+          json.components.find((c) => c.name === 'gltf-model').props
 
+        node.isDynamicObject = isDynamicObject
         node.isUsingGPUInstancing = isUsingGPUInstancing
 
         await node.load(src, onError)
@@ -107,6 +107,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   _matrixAutoUpdate = false
   animations = []
   isUsingGPUInstancing = false
+  isDynamicObject = false
   model: Mesh
 
   constructor() {
@@ -269,7 +270,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
         textureOverride: this.textureOverride,
         matrixAutoUpdate: this._matrixAutoUpdate,
-        isUsingGPUInstancing: this.isUsingGPUInstancing
+        isUsingGPUInstancing: this.isUsingGPUInstancing,
+        isDynamicObject: this.isDynamicObject
       },
       shadow: {
         cast: this.castShadow,

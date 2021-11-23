@@ -107,16 +107,17 @@ export class WorldScene {
 
       console.log(sceneEntity)
 
-      if (!isClient) {
-        let shouldBeNetworkbject = false
-        for (let index = 0; index < sceneEntity.components.length; index++) {
-          const element = sceneEntity.components[index]
-          if (element.name === 'interact' && element.props.interactionType === 'equippable') {
-            shouldBeNetworkbject = true
-          }
+      let shouldBeNetworkSpawned = false
+      for (let index = 0; index < sceneEntity.components.length; index++) {
+        const element = sceneEntity.components[index]
+        if (element.name === 'gltf-model' && element.props.isDynamicObject) {
+          shouldBeNetworkSpawned = true
         }
+      }
 
-        if (shouldBeNetworkbject) {
+      console.log('should network spawn object?:', shouldBeNetworkSpawned)
+      if (shouldBeNetworkSpawned) {
+        if (!isClient) {
           sceneEntity.sceneEntityId = key
           const world = useWorld()
           dispatchFrom(world.hostId, () =>
@@ -124,18 +125,19 @@ export class WorldScene {
               userId: Engine.userId,
               prefab: '',
               parameters: {
-                sceneEntity: JSON.parse(JSON.stringify(sceneEntity)) // TODO: Find a better way to pass this data?
+                // TODO: Find a better way to pass scene data to network spawned objects?
+                sceneEntity: JSON.parse(JSON.stringify(sceneEntity))
               }
             })
           )
         }
+      } else {
+        sceneEntity.components.forEach((component: SceneDataComponent) => {
+          component.data = component.props
+          component.data.sceneEntityId = key
+          this.loadComponent(entity, component, sceneProperty)
+        })
       }
-
-      sceneEntity.components.forEach((component: SceneDataComponent) => {
-        component.data = component.props
-        component.data.sceneEntityId = key
-        this.loadComponent(entity, component, sceneProperty)
-      })
     })
 
     return Promise.all(this.loaders)
@@ -230,18 +232,7 @@ export class WorldScene {
         break
 
       case 'gltf-model':
-        // To Do: Do this only for networked objects
-        if (!isClient) {
-          console.log('loaded entity num', entity)
-          loadGLTFModel(this, entity, component, sceneProperty)
-        }
-        break
-
-      case 'gltf-model-networked':
-        if (isClient) {
-          console.log('loaded network entity num', entity)
-          loadGLTFModel(this, entity, component, sceneProperty)
-        }
+        loadGLTFModel(this, entity, component, sceneProperty)
         break
 
       case 'gltf-shopify':
