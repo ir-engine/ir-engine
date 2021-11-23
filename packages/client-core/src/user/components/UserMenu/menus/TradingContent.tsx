@@ -69,7 +69,7 @@ const useStyles = makeStyles({
 
 const ITEM_HEIGHT = 48
 
-const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory,addofferiteminventory, data1,removeofferinventory }: any) => {
+const TradingContent = ({ data, user, handleTransfer,acceptTransfer, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory,addofferiteminventory, data1,removeofferinventory }: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
@@ -80,9 +80,10 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
     anchorEl: null,
     selectedtype: '',
     fortrading: [],
-    offeredTrading:[]
+    offeredTrading:[],
+    userTradeId:""
   })
-  const { url, metadata, userid, selectedid, anchorEl, selectedtype, fortrading,offeredTrading } = state
+  const { url, metadata, userid, selectedid, anchorEl, selectedtype, fortrading,offeredTrading,userTradeId } = state
   const prevState = usePrevious({ selectedtype })
   // const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl)
@@ -107,15 +108,20 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
   }
 
   useEffect(() => {
+    
     if (data.length !== 0) {
+      console.log("DAATA ", data);
+      
       setState((prevState: any) => ({
         ...prevState,
         url: data[0].url,
         metadata: data[0].metadata,
-        selectedid: data[0].inventoryItemTypeId
+        selectedid: data[0].inventoryItemTypeId,
       }))
     }
   }, [])
+
+
 
   const onDragStart = (ev, id) => {
     console.log('dragstart:', id);
@@ -153,8 +159,12 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
     const offeredTrading = [...state.offeredTrading, { ...value }]
     setState((prevState: any) => ({
       ...prevState,
-      offeredTrading
+      offeredTrading,
+      userTradeId:data[0].userTradeId
     }))
+    console.log("offeredTrading ", data);
+    localStorage.setItem("tradeId", data[0].userTradeId)
+    
     removeofferinventory(index)
   }
 
@@ -177,7 +187,13 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
     addofferiteminventory(value)
   }
 
-  console.log(data[0]?.toUserInventoryIds, "datas")
+  const acceptOffer = () => {
+    console.log("ccept offer ", localStorage.getItem("tradeId"));
+    
+    acceptTransfer(localStorage.getItem("tradeId"), offeredTrading)
+  }
+
+  console.log(data, "datas")
   return (
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
@@ -323,7 +339,8 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                       disabled={isLoadingtransfer}
                       onClick={() => handleTransfer(userid, fortrading)}
                     >
-                      {isLoadingtransfer ? <CircularProgress size={30} /> : 'Trade'}
+                     
+                      {isLoadingtransfer ? <CircularProgress size={30} /> : 'Accept'}
                     </Button>
                   </Stack>
                 }
@@ -360,7 +377,7 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                 )}
                 {
                   offeredTrading.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
-                    <FormControl fullWidth>
+                    {/* <FormControl fullWidth>
                       <InputLabel id="demo-simple-select-label">User</InputLabel>
                       <Select
                         labelId="demo-simple-select-label"
@@ -375,7 +392,7 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                         }}
                       >
                         {user.map((datas, index) => (
-                          <MenuItem key={index} value={datas.id}>
+                          <MenuItem style={{display:"block"}} key={index} value={datas.id}>
                             {datas.name}
                           </MenuItem>
                         ))}
@@ -384,9 +401,15 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                     <Button
                       variant="outlined"
                       disabled={isLoadingtransfer}
-                      onClick={() => handleTransfer(userid, fortrading)}
+                      onClick={() => handleTransfer(userid, offeredTrading)}
+                    > */}
+                    {console.log("state.userTradeId ", state.userTradeId)}
+                    <Button
+                      variant="outlined"
+                      disabled={isLoadingtransfer}
+                      onClick={() => acceptOffer()}
                     >
-                      {isLoadingtransfer ? <CircularProgress size={30} /> : 'Trade'}
+                      {isLoadingtransfer ? <CircularProgress size={30} /> : 'Accept'}
                     </Button>
                   </Stack>
                 }
@@ -410,7 +433,8 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                               ...prevState,
                               url: value.url,
                               metadata: value.metadata,
-                              selectedid: value.inventoryItemTypeId
+                              selectedid: value.inventoryItemTypeId,
+                              userTradeId:value.userTradeId
                             }))
                           }}
                         >
@@ -422,6 +446,7 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                             <img src={value.url} height="100" width="100" alt="" />
                             <Typography>{`Name: ${value.name} --->`}  </Typography>
                             <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                            <Typography>{`Status: ${data[0].fromUserStatus}`}</Typography>
                           </Stack>
                         </Card>
                       ))}
@@ -432,7 +457,7 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                     </Stack>
                   )} 
                   <Divider />
-                  {data.length !== 0 ? (
+                   {data.length !== 0 ? (
                     <Stack direction="row" spacing={1}>
                       {data[0].toUserInventoryIds.map((value: any, index: number) => (
                         <Card
@@ -442,7 +467,9 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                               ...prevState,
                               url: value.url,
                               metadata: value.metadata,
-                              selectedid: value.inventoryItemTypeId
+                              selectedid: value.inventoryItemTypeId,
+                              userTradeId:value.userTradeId
+
                             }))
                           }}
                         >
@@ -454,6 +481,7 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                             <img src={value.url} height="100" width="100" alt="" />
                             <Typography>{`Name: ${value.name} <---`}</Typography>
                             <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                            <Typography>{`Status: ${data[0].toUserStatus}`}</Typography>
                           </Stack>
                         </Card>
                       ))}
@@ -462,7 +490,7 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                     <Stack sx={{ color: 'black' }}>
                       <Typography>No Data Found</Typography>
                     </Stack>
-                  )}
+                  )} 
                   
                   
                 </Stack>
@@ -492,6 +520,7 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                             <img src={value.url} height="100" width="100" alt="" />
                             <Typography>{`Name: ${value.name} --->`}</Typography>
                             <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                            <Typography>{`Status: ${data1[0].toUserStatus}`}</Typography>
                           </Stack>
                         </Card>
                       ))}
@@ -524,6 +553,7 @@ const TradingContent = ({ data, user, handleTransfer, isLoadingtransfer, type, i
                             <img src={value.url} height="100" width="100" alt="" />
                             <Typography>{`Name: ${value.name} <---`}</Typography>
                             <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                            <Typography>{`Status: ${data1[0].fromUserStatus}`}</Typography>
                           </Stack>
                         </Card>
                       ))}
