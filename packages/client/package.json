@@ -61,6 +61,7 @@
     "@xrengine/common": "^0.4.10",
     "@xrengine/editor": "^0.4.10",
     "@xrengine/engine": "^0.4.10",
+    "@xrengine/matchmaking": "^0.4.10",
     "@xrengine/projects": "^0.4.10",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
