@@ -1,5 +1,6 @@
 {
   "name": "@xrengine/matchmaking",
+  "version": "0.4.10",
   "author": {
     "name": "XREngine",
     "email": "shawmakesmagic@gmail.com",
@@ -13,6 +14,7 @@
   "license": "MIT",
   "main": "lib/engine.umd.js",
   "module": "lib/engine.es.js",
+  "npmClient": "npm",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/XRFoundation/XREngine.git"
@@ -27,7 +29,6 @@
     "local-minikube-stop": "minikube stop",
     "open-frontend-service-port": "kubectl port-forward --namespace open-match service/open-match-frontend 51504:51504"
   },
-  "version": "0.0.1",
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.4.1"
