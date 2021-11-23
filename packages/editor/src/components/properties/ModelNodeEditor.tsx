@@ -1,10 +1,9 @@
 import { Cube } from '@styled-icons/fa-solid/Cube'
 import ModelNode from '../../nodes/ModelNode'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
-import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { Object3D } from 'three'
@@ -13,6 +12,7 @@ import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import SceneNode from '../../nodes/SceneNode'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import ModelInput from '../inputs/ModelInput'
 
 /**
  * Declaring properties for ModalNodeEditor component.

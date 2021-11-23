@@ -9,8 +9,9 @@ import editorTheme from '@xrengine/client-core/src/util/theme'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
-import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { FlyControlComponent } from '../../classes/FlyControlComponent'
 
 /**
  * ViewportPanelContainer used to render viewport.
@@ -20,7 +21,7 @@ import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
  */
 export function ViewportPanelContainer() {
   const canvasRef = useRef<HTMLCanvasElement>()
-  const [flyModeEnabled, setFlyModeEnabled] = useState(false)
+  const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
   // const [showStats, setShowStats] = useState(false);
@@ -31,7 +32,8 @@ export function ViewportPanelContainer() {
   }, [])
 
   const onFlyModeChanged = useCallback(() => {
-    setFlyModeEnabled(ControlManager.instance.flyControls.enabled)
+    const flyControlComponent = getComponent(SceneManager.instance.editorEntity, FlyControlComponent)
+    setFlyModeEnabled(flyControlComponent.enable)
   }, [])
 
   const onTransformModeChanged = useCallback((mode) => {
@@ -40,11 +42,8 @@ export function ViewportPanelContainer() {
 
   const onEditorInitialized = useCallback(() => {
     CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-    ControlManager.instance.editorControls.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
-    ControlManager.instance.editorControls.addListener(
-      EditorEvents.TRANSFROM_MODE_CHANGED.toString(),
-      onTransformModeChanged
-    )
+    CommandManager.instance.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
+    CommandManager.instance.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
     CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
   }, [])
 
@@ -57,17 +56,8 @@ export function ViewportPanelContainer() {
     return () => {
       CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
       CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-
-      if (ControlManager.instance.editorControls) {
-        ControlManager.instance.editorControls.removeListener(
-          EditorEvents.FLY_MODE_CHANGED.toString(),
-          onFlyModeChanged
-        )
-        ControlManager.instance.editorControls.removeListener(
-          EditorEvents.TRANSFROM_MODE_CHANGED.toString(),
-          onTransformModeChanged
-        )
-      }
+      CommandManager.instance.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
+      CommandManager.instance.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
 
       SceneManager.instance.dispose()
     }

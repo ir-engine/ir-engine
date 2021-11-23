@@ -131,6 +131,8 @@
       "inviteCode": "Invite Code",
       "youAreAn": "You are an",
       "youAreA": "You are a",
+      "showUserId": "Show User ID",
+      "hideUserId": "Hide User ID",
       "logout": "Log out",
       "connectPhone": "Connect your email or phone number",
       "or": "Or",

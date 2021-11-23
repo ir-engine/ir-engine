@@ -33,8 +33,8 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "start": "cross-env APP_ENV=production ts-eager src/index.ts",
-    "dev": "cross-env APP_ENV=development ts-eager src/index.ts",
+    "start": "cross-env APP_ENV=production ts-node --transpile-only src/index.ts",
+    "dev": "cross-env APP_ENV=development ts-node-dev --inspect --respawn --transpile-only src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "validate": "npm run build && npm run test",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"

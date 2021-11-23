@@ -16,6 +16,7 @@ import { createInteractiveModalView } from '../ui/InteractiveModalView'
 
 import Hls from 'hls.js'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 /**
  * @author Ron Oyama <github.com/rondoor124>
@@ -23,7 +24,7 @@ import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 
 const upVec = new Vector3(0, 1, 0)
 
-export const InteactiveUI = new Map<Entity, ReturnType<typeof createInteractiveModalView>>()
+export const InteractiveUI = new Map<Entity, ReturnType<typeof createInteractiveModalView>>()
 
 //TODO: Create interactive UI
 export const createInteractUI = (entity: Entity) => {
@@ -35,7 +36,7 @@ export const createInteractUI = (entity: Entity) => {
   interactiveComponent.data.interactionUserData = {}
   interactiveComponent.data.interactionUserData.entity = entity
   const ui = createInteractiveModalView(interactiveComponent.data as any)
-  InteactiveUI.set(entity, ui)
+  InteractiveUI.set(entity, ui)
 
   //set transform
   const transform = getComponent(entity, TransformComponent)
@@ -140,11 +141,13 @@ export const setUserDataInteractUI = (xrEntity: Entity) => {
   }
 }
 
-export const updateInteractUI = (userEntity: Entity, xrEntity: Entity) => {
-  const interactUIObject = getComponent(xrEntity, Object3DComponent).value
+export const updateInteractUI = (xrEntity: Entity) => {
+  const interactUIObjectComponent = getComponent(xrEntity, Object3DComponent)
+  if (!interactUIObjectComponent) return
+  const interactUIObject = interactUIObjectComponent.value
   if (!interactUIObject.visible) return
   const xrComponent = getComponent(xrEntity, XRUIComponent) as any
-  if (!xrComponent && !xrComponent.layer) return
+  if (!xrComponent) return
 
   const entityIndex = xrComponent.layer.userData.parentEntity
   const modelElement = xrComponent.layer.querySelector(`#interactive-ui-model-${entityIndex}`)
@@ -157,7 +160,8 @@ export const updateInteractUI = (userEntity: Entity, xrEntity: Entity) => {
       MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
     )
   } else {
-    const { x, z } = getComponent(userEntity, TransformComponent).position
+    const world = useWorld()
+    const { x, z } = getComponent(world.localClientEntity, TransformComponent).position
     interactUIObject.lookAt(x, interactUIObject.position.y, z)
   }
 }
@@ -216,7 +220,7 @@ export const hideInteractUI = (entity: Entity) => {
 
 //TODO: Get interactive UI
 export const getInteractUI = (entity: Entity) => {
-  let ui = InteactiveUI.get(entity)
+  let ui = InteractiveUI.get(entity)
   if (ui) return ui
   return false
 }
@@ -224,7 +228,7 @@ export const getInteractUI = (entity: Entity) => {
 //TODO: Get interactive UI
 export const getParentInteractUI = (entity: Entity) => {
   let parentEntity
-  InteactiveUI.forEach((ui) => {
+  InteractiveUI.forEach((ui) => {
     if (ui.entity == entity) {
       parentEntity = ui.state.entityIndex.value
     }

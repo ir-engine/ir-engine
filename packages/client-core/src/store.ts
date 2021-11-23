@@ -1,12 +1,3 @@
-/**
- * if HMR is reloading this file, decline it, as it will import the globs more than once
- */
-//@ts-ignore
-if (import.meta.hot) {
-  //@ts-ignore
-  import.meta.hot.decline()
-}
-
 declare global {
   interface ImportMeta {
     globEager: (glob: string) => { [module: string]: any }

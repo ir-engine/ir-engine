@@ -4,7 +4,7 @@ import logger from '@xrengine/server-core/src/logger'
 import config from '@xrengine/server-core/src/appconfig'
 import psList from 'ps-list'
 import { exec } from 'child_process'
-import preloadLocation from './preload-location'
+// import preloadLocation from './preload-location'
 import { createApp } from './app'
 import { Application } from '@xrengine/server-core/declarations'
 
@@ -80,10 +80,10 @@ export const start = async (): Promise<Application> => {
 
   if (useSSL === true) app.setup(server)
 
-  if (config.gameserver.locationName != null) {
-    console.log('PRELOADING WORLD WITH LOCATION NAME', config.gameserver.locationName)
-    preloadLocation(config.gameserver.locationName, app)
-  }
+  // if (config.gameserver.locationName != null) {
+  //   console.log('PRELOADING WORLD WITH LOCATION NAME', config.gameserver.locationName)
+  //   preloadLocation(config.gameserver.locationName, app)
+  // }
 
   process.on('unhandledRejection', (reason, p) => logger.error('Unhandled Rejection at: Promise ', p, reason))
   // if (process.env.APP_ENV === 'production' && fs.existsSync('/var/log')) {
