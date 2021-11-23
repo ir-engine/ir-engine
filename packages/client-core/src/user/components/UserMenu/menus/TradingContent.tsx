@@ -69,7 +69,7 @@ const useStyles = makeStyles({
 
 const ITEM_HEIGHT = 48
 
-const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOfferReceived, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory,addofferiteminventory,addreceiveiteminventory, data1,removeofferinventory,removereceiveinventory }: any) => {
+const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOfferReceived, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory,addofferiteminventory,addreceiveiteminventory, data1,data0,removeofferinventory,removereceiveinventory }: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
@@ -161,10 +161,9 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
     setState((prevState: any) => ({
       ...prevState,
       offeredTrading,
-      userTradeId:data[0].userTradeId
+      userTradeId:data0[0].userTradeId
     }))
-    console.log("offeredTrading ", data);
-    localStorage.setItem("tradeId", data[0].userTradeId)
+    localStorage.setItem("tradeId", data0[0].userTradeId)
     
     removeofferinventory(index)
   }
@@ -430,7 +429,6 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
                       disabled={isLoadingtransfer}
                       onClick={() => handleTransfer(userid, offeredTrading)}
                     > */}
-                    {console.log("state.userTradeId ", state.userTradeId)}
                     <Button
                       variant="outlined"
                       disabled={isLoadingtransfer}
@@ -499,7 +497,6 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
                       disabled={isLoadingtransfer}
                       onClick={() => handleTransfer(userid, offeredTrading)}
                     > */}
-                    {console.log("state.userTradeId ", state.userTradeId)}
                     <Button
                       variant="outlined"
                       disabled={isLoadingtransfer}
@@ -518,9 +515,9 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
               <Card>
                 <Stack justifyContent="center" alignItems="center">
                   <Typography className={classes.title}>Trade Offer Sent</Typography>
-                  {data.length !== 0 ? (
+                  {data0.length !== 0 ? (
                     <Stack direction="row" spacing={1}>
-                      {data[0].fromUserInventoryIds.map((value: any, index: number) => (
+                      {data0[0].fromUserInventoryIds.map((value: any, index: number) => (
                         <Card
                           key={index}
                           onClick={() => {
@@ -542,7 +539,7 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
                             <img src={value.url} height="100" width="100" alt="" />
                             <Typography>{`Name: ${value.name} --->`}  </Typography>
                             <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
-                            <Typography>{`Status: ${data[0].fromUserStatus}`}</Typography>
+                            <Typography>{`Status: ${data0[0].fromUserStatus}`}</Typography>
                           </Stack>
                         </Card>
                       ))}
@@ -553,9 +550,9 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
                     </Stack>
                   )} 
                   <Divider />
-                   {data.length !== 0 ? (
+                   {data0.length !== 0 ? (
                     <Stack direction="row" spacing={1}>
-                      {data[0].toUserInventoryIds.map((value: any, index: number) => (
+                      {data0[0].toUserInventoryIds.map((value: any, index: number) => (
                         <Card
                           key={index}
                           onClick={() => {
@@ -577,7 +574,7 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
                             <img src={value.url} height="100" width="100" alt="" />
                             <Typography>{`Name: ${value.name} <---`}</Typography>
                             <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
-                            <Typography>{`Status: ${data[0].toUserStatus}`}</Typography>
+                            <Typography>{`Status: ${data0[0].toUserStatus}`}</Typography>
                           </Stack>
                         </Card>
                       ))}
