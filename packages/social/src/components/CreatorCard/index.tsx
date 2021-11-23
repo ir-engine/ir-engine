@@ -9,7 +9,7 @@ import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
-import Button from '@mui/material/Button'
+import Button from '@material-ui/core/Button'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
@@ -130,7 +130,7 @@ const CreatorCard = ({ creator }: Props) => {
             variant="text"
             className={styles.backButton}
             onClick={() => {
-              PopupsStateService.updateCreatorPageState(false)
+              history.back()
             }}
           >
             <ArrowBackIosIcon />

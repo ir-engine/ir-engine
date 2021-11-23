@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import VideoRecorder from 'react-video-recorder'
-import Button from '@mui/material/Button'
+import Button from '@material-ui/core/Button'
 import Card from '@mui/material/Card'
 import CardMedia from '@mui/material/CardMedia'
 import TextField from '@mui/material/TextField'
