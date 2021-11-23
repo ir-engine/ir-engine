@@ -47,20 +47,6 @@ export const CreateProjectModal = (props: Props): any => {
     handleClose()
   }
 
-  useEffect(() => {
-    const listener = (event) => {
-      if (event.code === 'Enter' || event.code === 'NumpadEnter') {
-        event.preventDefault()
-        onCreateProject()
-      }
-    }
-    document.addEventListener('keydown', listener)
-
-    return () => {
-      document.removeEventListener('keydown', listener)
-    }
-  }, [])
-
   return (
     <div>
       <Modal
