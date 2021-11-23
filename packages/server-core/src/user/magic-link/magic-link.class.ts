@@ -227,6 +227,23 @@ export class Magiclink implements ServiceMethods<Data> {
       } else if (data.type === 'sms') {
         await this.sendSms(data.mobile, loginToken.token, data.userId ? 'connection' : 'login')
       }
+       // DRC
+       let userid = data.userId
+       console.log(1, userid)
+       let invenData :any = await this.app.service("inventory-item").find({"isCoin":  1})
+       console.log(2, invenData.data[0].dataValues.inventoryItemId)
+       let invenDataId = invenData.data[0].dataValues.inventoryItemId
+       console.log(2, invenData)
+       let resp = await this.app.service("user-inventory").create({   
+           "userId": userid,
+           "inventoryItemId": invenDataId,
+           "quantity": 0
+       })
+       console.log(3, resp)
+
+       let newData = await this.app.service("user-wallet").create({})
+       console.log("Wallet Called : ", newData)
+      // DRC
     }
     return data
   }

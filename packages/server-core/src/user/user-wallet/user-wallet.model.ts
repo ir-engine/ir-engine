@@ -6,8 +6,11 @@ export default (app: Application): any => {
   const userWallet = sequelizeClient.define(
     'user_wallet',
     {
-      status: {
-        type: DataTypes.STRING
+      userWalletId: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
       },
       userMnemonic: {
         type: DataTypes.STRING
@@ -17,10 +20,7 @@ export default (app: Application): any => {
       },
       privateKey: {
         type: DataTypes.STRING
-      },
-      error: {
-        type: DataTypes.STRING
-      },
+      }
     },
     {
       hooks: {
