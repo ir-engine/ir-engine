@@ -45,6 +45,15 @@ const MainMenu = (props: MainMenuProp) => {
           {command.hotkey && <div>{command.hotkey}</div>}
         </MenuItem>
       )
+
+      if (command.hotkey) {
+        return (
+          <Hotkeys key={command.name} keyName={command.hotkey} onKeyUp={command.action}>
+            {menuItem}
+          </Hotkeys>
+        )
+      }
+      return menuItem
     } else {
       return (
         <SubMenu key={command.name} title={command.name} hoverDelay={0}>

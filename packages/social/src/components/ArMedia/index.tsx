@@ -84,17 +84,9 @@ const ArMedia = (props: Props) => {
       {!selectedItem ? null : (
         <Button
           className={styles.startRecirding}
-          onClick={async () => {
-            setPreloading(true)
-            if (XRPlugin.uploadFiles !== undefined) {
-              await XRPlugin.uploadFiles({
-                audioPath: selectedItem.audioUrl,
-                audioId: selectedItem.audioId
-              })
-            }
-            setPreloading(false)
+          onClick={() => {
             PopupsStateService.updateArMediaState(false)
-            PopupsStateService.updateWebXRState(true, selectedItem.id)
+            history.push(`/camera/${selectedItem.id}`)
           }}
           variant="contained"
         >

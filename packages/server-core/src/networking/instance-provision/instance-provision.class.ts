@@ -12,10 +12,64 @@ const releaseRegex = /^([a-zA-Z0-9]+)-/
 interface Data {}
 
 interface ServiceOptions {}
+interface GameserverAddress {
+  ipAddress: string | null
+  port: string | null
+}
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 const pressureThresholdPercent = 0.8
 
+/**
+ * An method which start server for instance
+ * @author Vyacheslav Solovjov
+ */
+export async function getFreeGameserver(app: Application, isChannelInstance?: boolean): Promise<GameserverAddress> {
+  if (!config.kubernetes.enabled) {
+    console.log('Local server spinning up new instance')
+    return getLocalServerIp(isChannelInstance)
+  }
+  logger.info('Getting free gameserver')
+  const serverResult = await (app as any).k8AgonesClient.get('gameservers')
+  const readyServers = _.filter(serverResult.items, (server: any) => {
+    const releaseMatch = releaseRegex.exec(server.metadata.name)
+    return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
+  })
+  let foundServer = false
+  let server = readyServers[Math.floor(Math.random() * readyServers.length)]
+  if (server == null) {
+    return {
+      ipAddress: null,
+      port: null
+    }
+  }
+  let count = 0
+  while (!foundServer) {
+    const instanceExistsResult = await app.service('instance').find({
+      query: {
+        ipAddress: `${server.status.address}:${server.status.ports[0].port}`
+      }
+    })
+    if (instanceExistsResult.total > 0) {
+      console.log('server already claimed by an instance', instanceExistsResult)
+      server = readyServers[Math.floor(Math.random() * readyServers.length)]
+      count++
+      if (count >= 10) {
+        foundServer = true
+        return {
+          ipAddress: null,
+          port: null
+        }
+      }
+    } else {
+      foundServer = true
+      return {
+        ipAddress: server.status.address,
+        port: server.status.ports[0].port
+      }
+    }
+  }
+}
 /**
  * @class for InstanceProvision service
  *
@@ -31,34 +85,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
   }
 
   async setup() {}
-
-  /**
-   * An method which start server for instance
-   * @author Vyacheslav Solovjov
-   */
-  async getFreeGameserver(isChannelInstance?: boolean): Promise<any> {
-    if (!config.kubernetes.enabled) {
-      console.log('Local server spinning up new instance')
-      return getLocalServerIp(isChannelInstance)
-    }
-    logger.info('Getting free gameserver')
-    const serverResult = await (this.app as any).k8AgonesClient.get('gameservers')
-    const readyServers = _.filter(serverResult.items, (server: any) => {
-      const releaseMatch = releaseRegex.exec(server.metadata.name)
-      return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
-    })
-    const server = readyServers[Math.floor(Math.random() * readyServers.length)]
-    if (server == null) {
-      return {
-        ipAddress: null,
-        port: null
-      }
-    }
-    return {
-      ipAddress: server.status.address,
-      port: server.status.ports[0].port
-    }
-  }
 
   /**
    * A method which get instance of GameServerr
@@ -82,7 +108,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
     if (gsCleanup === true) {
       logger.info('GS did not exist and was cleaned up')
       if (availableLocationInstances.length > 1) return this.getGSInService(availableLocationInstances.slice(1))
-      else return this.getFreeGameserver()
+      else return getFreeGameserver(this.app)
     }
     logger.info('GS existed, using it')
     const ipAddressSplit = instances[0].ipAddress.split(':')
@@ -169,7 +195,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             ended: false
           }
         })
-        if (channelInstance == null) return this.getFreeGameserver(true)
+        if (channelInstance == null) return getFreeGameserver(this.app, true)
         else {
           const ipAddressSplit = channelInstance.ipAddress.split(':')
           return {
@@ -314,6 +340,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             port: ipAddressSplit[1]
           }
         }
+        console.log('Getting available location instances', location.id)
         const availableLocationInstances = await (this.app.service('instance') as any).Model.findAll({
           where: {
             locationId: location.id,
@@ -330,7 +357,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             }
           ]
         })
-        if (availableLocationInstances.length === 0) return this.getFreeGameserver()
+        if (availableLocationInstances.length === 0) return getFreeGameserver(this.app)
         else return this.getGSInService(availableLocationInstances)
       }
     } catch (err) {

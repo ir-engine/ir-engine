@@ -19,6 +19,11 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import { IconButton, Stack } from '@mui/material'
 import { DialogTitle, Dialog, DialogContent } from '@material-ui/core'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import Tooltip from '@mui/material/Tooltip'
+import Grid from '@mui/material/Grid'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar'
 
 interface Props {
   changeActiveMenu?: any
@@ -41,6 +46,8 @@ const ProfileMenu = (props: Props): any => {
   const [modal, setModal] = useState(false)
 
   const userId = selfUser.id.value!
+  const [showUserId, setShowUserId] = useState(false)
+  const [userIdState, setUserIdState] = useState({ value: '', copied: false, open: false })
 
   let type = ''
 
@@ -143,22 +150,84 @@ const ProfileMenu = (props: Props): any => {
     AuthService.loginUserByXRWallet(result)
   }
 
+  const handleShowId = () => {
+    setShowUserId(!showUserId)
+    setUserIdState({ ...userIdState, value: selfUser.id.value })
+  }
+
+  const handleClose = () => {
+    setUserIdState({ ...userIdState, open: false })
+  }
+
   return (
-    <>
-      <div className={styles.menuPanel}>
-        <section className={styles.profilePanel}>
-          <section className={styles.profileBlock}>
-            <div className={styles.avatarBlock}>
-              <img src={getAvatarURLForUser(selfUser?.id?.value)} />
-              {changeActiveMenu != null && (
-                <Button
-                  className={styles.avatarBtn}
-                  id="select-avatar"
-                  onClick={() => changeActiveMenu(Views.Avatar)}
-                  disableRipple
-                >
-                  <Create />
-                </Button>
+    <div className={styles.menuPanel}>
+      <section className={styles.profilePanel}>
+        <section className={styles.profileBlock}>
+          <div className={styles.avatarBlock}>
+            <img src={getAvatarURLForUser(selfUser?.id?.value)} />
+            {changeActiveMenu != null && (
+              <Button
+                className={styles.avatarBtn}
+                id="select-avatar"
+                onClick={() => changeActiveMenu(Views.Avatar)}
+                disableRipple
+              >
+                <Create />
+              </Button>
+            )}
+          </div>
+          <div className={styles.headerBlock}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              {t('user:usermenu.profile.lbl-username')}
+            </Typography>
+            <span className={styles.inputBlock}>
+              <TextField
+                margin="none"
+                size="small"
+                name="username"
+                variant="outlined"
+                value={username || ''}
+                onChange={handleUsernameChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') updateUserName(e)
+                }}
+                className={styles.usernameInput}
+                error={errorUsername}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
+                        <Check className={styles.primaryForeground} />
+                      </a>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </span>
+
+            <Grid container justifyContent="right">
+              <Grid item xs={6}>
+                <h2>
+                  {selfUser?.userRole?.value === 'admin'
+                    ? t('user:usermenu.profile.youAreAn')
+                    : t('user:usermenu.profile.youAreA')}{' '}
+                  <span>{selfUser?.userRole?.value}</span>.
+                </h2>
+              </Grid>
+              <Grid item container xs={6} alignItems="flex-start" direction="column">
+                <Tooltip title="Show User ID" placement="right">
+                  <h2 size="small" className={styles.showUserId} onClick={handleShowId}>
+                    {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
+                  </h2>
+                </Tooltip>
+              </Grid>
+            </Grid>
+
+            <h4>
+              {(selfUser.userRole.value === 'user' || selfUser.userRole.value === 'admin') && (
+                <div className={styles.logout} onClick={handleLogout}>
+                  {t('user:usermenu.profile.logout')}
+                </div>
               )}
             </div>
             <div className={styles.headerBlock}>
@@ -220,6 +289,52 @@ const ProfileMenu = (props: Props): any => {
                   <Typography variant="h1" className={styles.panelHeader}>
                     {t('user:usermenu.profile.connectPhone')}
                   </Typography>
+            )}
+          </div>
+        </section>
+
+        {showUserId && (
+          <section className={styles.emailPhoneSection}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              User id
+            </Typography>
+
+            <form>
+              <TextField
+                className={styles.emailField}
+                size="small"
+                placeholder={'user id'}
+                variant="outlined"
+                value={selfUser?.id.value}
+                onChange={({ target: { value } }) => setUserIdState({ ...userIdState, value, copied: false })}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <CopyToClipboard
+                        text={userIdState.value}
+                        onCopy={() => {
+                          setUserIdState({ ...userIdState, copied: true, open: true })
+                        }}
+                      >
+                        <a href="#" className={styles.materialIconBlock}>
+                          <ContentCopyIcon className={styles.primaryForeground} />
+                        </a>
+                      </CopyToClipboard>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </form>
+          </section>
+        )}
+
+        {!hideLogin && (
+          <>
+            {selfUser?.userRole.value === 'guest' && (
+              <section className={styles.emailPhoneSection}>
+                <Typography variant="h1" className={styles.panelHeader}>
+                  {t('user:usermenu.profile.connectPhone')}
+                </Typography>
 
                   <form onSubmit={handleSubmit}>
                     <TextField
@@ -332,6 +447,29 @@ const ProfileMenu = (props: Props): any => {
         </DialogContent>
       </Dialog>
     </>
+                <Typography variant="h4" className={styles.smallTextBlock}>
+                  {t('user:usermenu.profile.createOne')}
+                </Typography>
+              </section>
+            )}
+            {setProfileMenuOpen != null && (
+              <div className={styles.closeButton} onClick={() => setProfileMenuOpen(false)}>
+                <Close />
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={userIdState.open}
+        onClose={handleClose}
+        message="User ID copied"
+        key={'top' + 'center'}
+        autoHideDuration={2000}
+      />
+    </div>
   )
 }
 
