@@ -4,8 +4,7 @@
     "lib": [
       "esnext",
       "dom",
-      "dom.iterable",
-      "WebWorker"
+      "dom.iterable"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -28,10 +27,7 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "node_modules/",
-    "**/node_modules/**",
-    "../../node_modules/volumetric/**",
-    "tests old/*"
+    "**/node_modules/**"
   ],
   "include": [
     "./**/*.ts",
