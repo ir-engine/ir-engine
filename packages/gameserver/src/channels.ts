@@ -12,7 +12,7 @@ import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 // import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { getPacksFromSceneData } from '@xrengine/projects/loader'
+import { getSystemsFromSceneData } from '@xrengine/projects/loader'
 import { initializeServerEngine } from './initializeServerEngine'
 
 const loadScene = async (app: Application, scene: string) => {
@@ -20,9 +20,9 @@ const loadScene = async (app: Application, scene: string) => {
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
   const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false })
   const sceneData = sceneResult.data.scene as any // SceneData
-  const packs = await getPacksFromSceneData(sceneData, false)
+  const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
-  if (!Engine.isInitialized) await initializeServerEngine(packs.systems, app.isChannelInstance)
+  if (!Engine.isInitialized) await initializeServerEngine(systems, app.isChannelInstance)
   console.log('Initialized new gameserver instance')
 
   let entitiesLeft = -1
@@ -74,11 +74,11 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
   app.instance = instanceResult
 
   if (app.gsSubdomainNumber != null) {
-    const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
+    const gsSubProvision = (await app.service('gameserver-subdomain-provision').find({
       query: {
         gs_number: app.gsSubdomainNumber
       }
-    })
+    })) as any
 
     if (gsSubProvision.total > 0) {
       const provision = gsSubProvision.data[0]
@@ -89,11 +89,39 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
   }
 }
 
+const assignExistingInstance = async (app: Application, existingInstance, agonesSDK) => {
+  console.log('assignExistingInstance', existingInstance)
+  await agonesSDK.allocate()
+  app.instance = existingInstance
+
+  await app.service('instance').patch(existingInstance.id, {
+    currentUsers: existingInstance.currentUsers + 1
+  })
+
+  if (app.gsSubdomainNumber != null) {
+    const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
+      query: {
+        gs_number: app.gsSubdomainNumber
+      }
+    })
+
+    if (gsSubProvision.total > 0) {
+      const provision = gsSubProvision.data[0]
+      await app.service('gameserver-subdomain-provision').patch(provision.id, {
+        instanceId: existingInstance.id
+      })
+    }
+  }
+}
+
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
     return
   }
+
+  let shutdownTimeout
+
   app.on('connection', async (connection) => {
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
@@ -101,6 +129,7 @@ export default (app: Application): void => {
       config.gameserver.mode === 'local'
     ) {
       try {
+        clearTimeout(shutdownTimeout)
         const token = (connection as any).socketQuery?.token
         if (token != null) {
           const authResult = await (app.service('authentication') as any).strategies.jwt.authenticate(
@@ -157,19 +186,74 @@ export default (app: Application): void => {
               console.log('Initialized new gameserver instance')
 
               const localIp = await getLocalServerIp(app.isChannelInstance)
+
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
-              const newInstance = {
-                currentUsers: 1,
-                sceneId: sceneId,
-                ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
-              } as any
-              await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
+              const ipAddress =
+                config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
+              const existingInstanceQuery = {
+                ipAddress: ipAddress,
+                ended: false
+              }
+              if (locationId) existingInstanceQuery.locationId = locationId
+              else if (channelId) existingInstanceQuery.channelId = channelId
+              const existingInstanceResult = await app.service('instance').find({
+                query: existingInstanceQuery
+              })
+              if (existingInstanceResult.total === 0) {
+                const newInstance = {
+                  currentUsers: 1,
+                  locationId: locationId,
+                  channelId: channelId,
+                  ipAddress: ipAddress
+                } as any
+                await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
+              } else {
+                const instance = existingInstanceResult.data[0]
+                const authorizedUsers = await app.service('instance-authorized-user').find({
+                  query: {
+                    instanceId: instance.id,
+                    $limit: 0
+                  }
+                })
+                if (authorizedUsers.total > 0) {
+                  const thisUserAuthorized = await app.service('instance-authorized-user').find({
+                    query: {
+                      instanceId: instance.id,
+                      userId: identityProvider.userId,
+                      $limit: 0
+                    }
+                  })
+                  if (thisUserAuthorized.total === 0) {
+                    return console.log('User', identityProvider.userId, 'not authorized to be on this server')
+                  }
+                }
+                await assignExistingInstance(app, instance, agonesSDK)
+              }
               if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
+                console.log('loading scene')
                 await loadScene(app, sceneId)
               }
             } else {
               try {
                 const instance = await app.service('instance').get(app.instance.id)
+                const authorizedUsers = await app.service('instance-authorized-user').find({
+                  query: {
+                    instanceId: instance.id,
+                    $limit: 0
+                  }
+                })
+                if (authorizedUsers.total > 0) {
+                  const thisUserAuthorized = await app.service('instance-authorized-user').find({
+                    query: {
+                      instanceId: instance.id,
+                      userId: identityProvider.userId,
+                      $limit: 0
+                    }
+                  })
+                  if (thisUserAuthorized.total === 0) {
+                    return console.log('User', identityProvider.userId, 'not authorized to be on this server')
+                  }
+                }
                 await agonesSDK.allocate()
                 await app.service('instance').patch(app.instance.id, {
                   currentUsers: (instance.currentUsers as number) + 1
@@ -371,33 +455,35 @@ export default (app: Application): void => {
               app.channel(`instanceIds/${instanceId as string}`).leave(connection)
 
               if (activeUsersCount < 1) {
-                console.log('Deleting instance ' + instanceId)
-                try {
-                  await app.service('instance').patch(instanceId, {
-                    ended: true
-                  })
-                } catch (err) {
-                  console.log(err)
-                }
-                if (app.gsSubdomainNumber != null) {
-                  const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
-                    query: {
-                      gs_number: app.gsSubdomainNumber
-                    }
-                  })
-                  await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
-                    allocated: false
-                  })
-                }
-                if (config.kubernetes.enabled) {
-                  delete app.instance
-                }
-                const gsName = app.gsName
-                if (gsName !== undefined) {
-                  logger.info("App's gameserver name:")
-                  logger.info(gsName)
-                }
-                await app.agonesSDK.shutdown()
+                shutdownTimeout = setTimeout(async () => {
+                  console.log('Deleting instance ' + instanceId)
+                  try {
+                    await app.service('instance').patch(instanceId, {
+                      ended: true
+                    })
+                  } catch (err) {
+                    console.log(err)
+                  }
+                  if (app.gsSubdomainNumber != null) {
+                    const gsSubdomainProvision = (await app.service('gameserver-subdomain-provision').find({
+                      query: {
+                        gs_number: app.gsSubdomainNumber
+                      }
+                    })) as any
+                    await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
+                      allocated: false
+                    })
+                  }
+                  if (config.kubernetes.enabled) {
+                    delete app.instance
+                  }
+                  const gsName = app.gsName
+                  if (gsName !== undefined) {
+                    logger.info("App's gameserver name:")
+                    logger.info(gsName)
+                  }
+                  await app.agonesSDK.shutdown()
+                }, config.gameserver.shutdownDelayMs)
               }
             }
           }

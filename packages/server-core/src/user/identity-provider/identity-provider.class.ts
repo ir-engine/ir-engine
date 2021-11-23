@@ -7,6 +7,10 @@ import { random } from 'lodash'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { AuthenticationService } from '@feathersjs/authentication'
 import config from '../../appconfig'
+import { Params } from '@feathersjs/feathers'
+import Paginated from '../../types/PageObject'
+
+interface Data {}
 
 /**
  * A class for identity-provider service
@@ -30,11 +34,10 @@ export class IdentityProvider extends Service {
    * @param params
    * @returns accessToken
    */
-  async create(data: any, params: any): Promise<any> {
-    const { token, type, password } = data
+  async create(data: any, params: Params): Promise<any> {
+    let { token, type, password } = data
 
-    // if userId is in data, the we add this identity provider to the user with userId
-    // if not, we create a new user
+    if (params.provider && type !== 'password') type = 'guest' //Non-password create requests must always be for guests
     let userId = data.userId
     let identityProvider: any
 
@@ -178,5 +181,10 @@ export class IdentityProvider extends Service {
       result.accessToken = await authService.createAccessToken({}, { subject: result.id.toString() })
     }
     return result
+  }
+
+  async find(params: Params): Promise<Data[] | Paginated<Data>> {
+    if (params.provider) params.query.userId = params['identity-provider'].userId
+    return super.find(params)
   }
 }

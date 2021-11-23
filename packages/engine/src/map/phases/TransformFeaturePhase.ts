@@ -7,7 +7,7 @@ import createWorkerFunction from '../functions/createWorkerFunction'
 
 const transformFeature = createWorkerFunction<WorkerApi>(createWorker())
 
-export const name = 'transform feature'
+export const name = 'TransformFeature'
 export const isAsyncPhase = true
 export const isCachingPhase = true
 

@@ -1,4 +1,4 @@
-import { AnimationMixer, BufferGeometry, MathUtils, Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import { AnimationMixer, BufferGeometry, MathUtils, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -16,8 +16,9 @@ import { delay } from '../../common/functions/delay'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { NameComponent } from '../components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { CameraLayers } from '../../camera/constants/CameraLayers'
 
-export const parseObjectComponents = (entity: Entity, res: Mesh, loadComponent) => {
+export const parseObjectComponents = (entity: Entity, res: Mesh | Scene, loadComponent) => {
   const meshesToProcess: Mesh[] = []
 
   res.traverse((mesh: Mesh) => {
@@ -89,9 +90,14 @@ export const parseGLTFModel = (
   entity: Entity,
   component: SceneDataComponent,
   sceneProperty: ScenePropertyType,
-  scene: Mesh
+  scene: Mesh | Scene
 ) => {
   // console.log(sceneLoader, entity, component, sceneProperty, scene)
+
+  // Enable scene layer
+  scene.traverse((obj: Object3D) => {
+    obj.layers.enable(CameraLayers.Scene)
+  })
 
   addComponent(entity, Object3DComponent, { value: scene })
 

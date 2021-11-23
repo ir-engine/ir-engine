@@ -45,4 +45,5 @@ jobs:
         env:
           STORAGE_AWS_ACCESS_KEY_ID: ${{secrets.STORAGE_AWS_ACCESS_KEY_ID}}
           STORAGE_AWS_ACCESS_KEY_SECRET: ${{secrets.STORAGE_AWS_ACCESS_KEY_SECRET}}
+          STORAGE_S3_TEST_RESOURCE_BUCKET: ${{secrets.STORAGE_S3_TEST_RESOURCE_BUCKET}}
       - run: npm run build-client

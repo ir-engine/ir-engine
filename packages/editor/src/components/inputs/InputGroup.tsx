@@ -41,6 +41,43 @@ export const InputGroupContent = (styled as any).div`
   flex-direction: row;
   flex: 1;
   padding-left: 8px;
+  
+  & > label {
+    display: block;
+    width: 25%;
+    color: ${(props) => props.theme.text2};
+    padding-bottom: 2px;
+    padding-top: 4px;
+  }
+`
+
+export const InputGroupVerticalContainer = (styled as any).div`
+  display: flex;
+  flex-direction: column;
+  padding: 4px 8px;
+  flex: 1;
+
+  ${(props) =>
+    props.disabled &&
+    `
+    pointer-events: none;
+    opacity: 0.3;
+  `}
+
+  & > label {
+    display: block;
+    width: 25%;
+    color: ${(props) => props.theme.text2};
+    padding-bottom: 2px;
+    padding-top: 4px;
+  }
+`
+
+export const InputGroupVerticalContent = (styled as any).div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-left: 8px;
 `
 
 /**

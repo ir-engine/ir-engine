@@ -108,6 +108,7 @@ describe.skip('MapUpdateSystem', () => {
     mock.stopAll()
   })
 
+  // TODO change to: "resets phases when the center point changes enough to invalidate cache" i.e. the distance from the previous center point >= 2 * state.triggerRefreshRadius
   it('resets and starts the flow when external code changes the map center point', () => {
     state.center = [12, 12]
     execute()
@@ -156,10 +157,19 @@ describe.skip('MapUpdateSystem', () => {
     assert(startPhases.calledTwice)
   })
 
-  it('updates the scene when `needsUpdate` flag is set', () => {
+  it('replaces the map with a spinner when the complete object cache is empty and an update is in progress', () => {
+    state.activePhase = "DoingThingsAndStuff"
+    const subScene = getComponent(mapEntity, Object3DComponent)
+
+    execute()
+
+    assert.deepEqual(subScene.value.children, [state.updateSpinner])
+  })
+
+  it('updates the scene using the cached complete objects when active phase is "UpdateScene"', () => {
     const mesh = new Mesh()
     const subScene = getComponent(mapEntity, Object3DComponent)
-    state.needsUpdate = true
+    state.activePhase = 'UpdateScene'
     state.completeObjects.set(new FeatureKey('road', 0, 0, '0'), {
       centerPoint: [0, 0],
       boundingCircleRadius: 5,
@@ -172,11 +182,11 @@ describe.skip('MapUpdateSystem', () => {
   })
 
   it('unsets the flag after the scene has been updated', () => {
-    state.needsUpdate = true
+    state.activePhase = 'UpdateScene'
 
     execute()
 
-    assert.equal(state.needsUpdate, false)
+    assert.equal(state.activePhase, null)
   })
 
   it('does nothing while player moves within refresh boundary', () => {
@@ -199,7 +209,7 @@ describe.skip('MapUpdateSystem', () => {
     const label = createFeatureLabel('123 sesame st', feature, [0, 0])
 
     state.labelCache.set(new FeatureKey('road', 0, 0, '0'), label)
-    state.needsUpdate = true
+    state.activePhase = 'UpdateScene'
 
     world.fixedDelta = 0.16
     world.fixedElapsedTime = world.fixedDelta * 20
@@ -214,8 +224,12 @@ describe.skip('MapUpdateSystem', () => {
   it('adds meshes to the navigation plane as they become available', () => {
     const mesh = new Mesh()
     const navTarget = getComponent(mapEntity, NavMeshComponent).navTarget
-    state.completeObjects.set(new FeatureKey('landuse_fallback', 0, 0, '0'), { mesh, centerPoint: [0, 0], boundingCircleRadius: 1 })
-    state.needsUpdate = true
+    state.completeObjects.set(new FeatureKey('landuse_fallback', 0, 0, '0'), {
+      mesh,
+      centerPoint: [0, 0],
+      boundingCircleRadius: 1
+    })
+    state.activePhase = 'UpdateScene'
 
     world.fixedDelta = 0.16
     world.fixedElapsedTime = world.fixedDelta * 20

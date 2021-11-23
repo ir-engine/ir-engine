@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/editor",
-  "version": "0.4.10",
+  "version": "0.4.13",
   "main": "lib/editor.umd.js",
   "module": "lib/editor.es.js",
   "types": "lib/index.d.ts",
@@ -18,7 +18,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=8192 APP_ENV=production vite build --config vite.build.js",
-    "test": "exit 0",
+    "test": "mocha --config .mocharc.js",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
@@ -55,10 +55,10 @@
     "@types/styled-components": "5.1.15",
     "@typescript-eslint/eslint-plugin": "5.3.1",
     "@typescript-eslint/parser": "5.3.1",
-    "@xrengine/client-core": "^0.4.10",
-    "@xrengine/common": "^0.4.10",
-    "@xrengine/engine": "^0.4.10",
-    "@xrengine/projects": "^0.4.10",
+    "@xrengine/client-core": "^0.4.13",
+    "@xrengine/common": "^0.4.13",
+    "@xrengine/engine": "^0.4.13",
+    "@xrengine/projects": "^0.4.13",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
     "autoprefixer": "10.4.0",

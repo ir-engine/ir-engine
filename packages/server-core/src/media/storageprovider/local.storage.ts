@@ -11,16 +11,20 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { getContentType } from '../../util/fileUtils'
 
 const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 
 export class LocalStorage implements StorageProviderInterface {
   path = './upload'
   cacheDomain = config.server.localStorageProvider
-  getObject = async (key: string): Promise<any> => {
+  getObject = async (key: string): Promise<StorageObjectInterface> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, key)
     const result = await fs.promises.readFile(filePath)
-    return { Body: result }
+    return {
+      Body: result,
+      ContentType: getContentType(filePath)
+    }
   }
 
   listObjects = async (prefix: string, recursive = false): Promise<StorageListObjectInterface> => {
@@ -70,7 +74,7 @@ export class LocalStorage implements StorageProviderInterface {
       fields: {
         Key: key
       },
-      url: `https://${this.cacheDomain}${key}`,
+      url: `https://${this.cacheDomain}`,
       local: true,
       cacheDomain: this.cacheDomain
     }
@@ -116,7 +120,8 @@ export class LocalStorage implements StorageProviderInterface {
       const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
       const regexx = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
       const query = regexx.exec(key)
-      const url = this.getSignedUrl(key, 3600, null).url
+      const signedUrl = this.getSignedUrl(key, 3600, null)
+      const url = signedUrl.url + signedUrl.fields.Key
       const res: FileContentType = {
         key,
         name: query.groups.name,

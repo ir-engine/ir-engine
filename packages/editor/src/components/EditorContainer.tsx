@@ -1,5 +1,5 @@
 import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
-import { withRouter } from 'react-router-dom'
+import { useHistory, withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
@@ -130,7 +130,7 @@ type EditorContainerProps = {
  *
  *  @author Robert Long
  */
-const EditorContainer = () => {
+const EditorContainer = (props) => {
   const projectName = useEditorState().projectName.value
   const sceneName = useEditorState().sceneName.value
 
@@ -140,6 +140,7 @@ const EditorContainer = () => {
   const [modified, setModified] = useState(false)
   const [sceneLoaded, setSceneLoaded] = useState(false)
   const dispatch = useDispatch()
+  const history = useHistory()
 
   const initializeEditor = async () => {
     await Promise.all([ProjectManager.instance.init()])
@@ -168,11 +169,33 @@ const EditorContainer = () => {
   }
 
   useEffect(() => {
+    const locationSceneName = props?.match?.params?.sceneName
+    const locationProjectName = props?.match?.params?.projectName
+
+    if (projectName !== locationProjectName) {
+      locationProjectName && dispatch(EditorAction.projectLoaded(locationProjectName))
+    }
+
+    if (sceneName !== locationSceneName) {
+      locationSceneName && dispatch(EditorAction.sceneLoaded(locationSceneName))
+    }
+
+    if (!projectName && !locationProjectName && !sceneName) {
+      dispatch(EditorAction.projectLoaded(projectName))
+      history.push(`/editor/${projectName}`)
+    }
+  }, [])
+
+  useEffect(() => {
     if (editorReady && !sceneLoaded && sceneName) {
       console.log(`Loading scene ${sceneName} via given url`)
       loadScene(sceneName)
     }
   }, [editorReady, sceneLoaded])
+
+  const reRouteToLoadScene = (sceneName) => {
+    projectName && sceneName && history.push(`/editor/${projectName}/${sceneName}`)
+  }
 
   const loadScene = async (sceneName) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
@@ -203,7 +226,7 @@ const EditorContainer = () => {
     setSceneLoaded(false)
     try {
       // TODO: replace with better template functionality
-      const project = await getScene('default-project', 'default', false)
+      const project = await getScene('default-project', 'empty', false)
       await ProjectManager.instance.loadProject(project.scene)
       setDialogComponent(null)
     } catch (error) {
@@ -277,6 +300,7 @@ const EditorContainer = () => {
   }
 
   const onCloseProject = () => {
+    history.push('/editor')
     dispatch(EditorAction.projectLoaded(null))
   }
 
@@ -539,7 +563,7 @@ const EditorContainer = () => {
                       <PanelTitle>Scenes</PanelTitle>
                     </PanelDragContainer>
                   ),
-                  content: <ScenesPanel newScene={newScene} loadScene={loadScene} projectName={projectName} />
+                  content: <ScenesPanel newScene={newScene} loadScene={reRouteToLoadScene} projectName={projectName} />
                 },
                 {
                   id: 'filesPanel',

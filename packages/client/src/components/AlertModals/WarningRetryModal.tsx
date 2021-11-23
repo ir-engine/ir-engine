@@ -43,12 +43,12 @@ const WarningRetryModal = ({
   }
 
   useEffect(() => {
-    setTimeRemaining((timeout || 10000) / 1000)
+    !noCountdown && setTimeRemaining((timeout || 10000) / 1000)
   }, [open, timeout])
 
   useEffect(() => {
     if (!open) return
-    if (timeRemaining <= 0) {
+    if (!noCountdown && timeRemaining <= 0) {
       if (typeof action === 'function') {
         action(...(parameters || []))
       }
@@ -59,7 +59,7 @@ const WarningRetryModal = ({
     }
 
     let timeout = undefined! as number
-    if (timeRemaining > 0) {
+    if (!noCountdown && timeRemaining > 0) {
       timeout = setTimeout(() => {
         setTimeRemaining(timeRemaining - 1)
       }, 1000) as any

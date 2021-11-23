@@ -5,9 +5,9 @@ import React, { useEffect, useState } from 'react'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { FeedCommentService, useFeedCommentsState } from '@xrengine/client-core/src/social/services/FeedCommentService'
-import TextField from '@mui/material/TextField'
+import TextField from '@material-ui/core/TextField'
 import SendIcon from '@mui/icons-material/Send'
-import Grid from '@mui/material/Grid'
+import Grid from '@material-ui/core/Grid'
 
 import CommentCard from '../CommentCard'
 

@@ -7,7 +7,7 @@ import fetchVectorTile from '../functions/fetchVectorTile'
 
 const fetchVectorTileUsingCache = fetchUsingCache<TileKey, VectorTile>(fetchVectorTile)
 
-export const name = 'fetch tiles'
+export const name = 'FetchTiles'
 export const isAsyncPhase = true
 export const isCachingPhase = true
 

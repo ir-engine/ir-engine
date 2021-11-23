@@ -2,24 +2,20 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from 'react'
-// import WhatshotIcon from '@mui/icons-material/Whatshot';
+// import WhatshotIcon from '@material-ui/icons/Whatshot';
 
 // @ts-ignore
 import styles from './Footer.module.scss'
-import Avatar from '@mui/material/Avatar'
+import Avatar from '@material-ui/core/Avatar'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
 import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
-// import { PopupLogin } from "../PopupLogin/PopupLogin";
-// import IndexPage from "@xrengine/social/pages/login";
-import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import ViewMode from '../ViewMode/ViewMode'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useHistory } from 'react-router-dom'
 
-interface Props {
-  setView?: any
-}
-const AppFooter = ({ setView, onGoRegistration }: any) => {
+const AppFooter = ({ onGoRegistration, setView }: any) => {
+  const history = useHistory()
   const dispatch = useDispatch()
   const creatorState = useCreatorState()
   const auth = useAuthState()
@@ -30,24 +26,23 @@ const AppFooter = ({ setView, onGoRegistration }: any) => {
   }, [])
 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
-  const handleOpenCreatorPage = (id) => {
-    PopupsStateService.updateCreatorPageState(true, id)
-  }
-
-  const onGoHome = () => {
-    PopupsStateService.updateCreatorPageState(false)
-    PopupsStateService.updateCreatorFormState(false)
-    PopupsStateService.updateFeedPageState(false)
-    PopupsStateService.updateNewFeedPageState(false)
-    PopupsStateService.updateArMediaState(false)
-    PopupsStateService.updateShareFormState(false)
-    setView('featured')
-  }
 
   return (
     <nav className={styles.footerContainer}>
       {/* <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/');}} fontSize="large" className={styles.footerItem}/> */}
-      <img src="/assets/tabBar.png" onClick={() => onGoHome()} className={styles.footerItem} />
+      <img
+        src="/assets/tabBar.png"
+        onClick={() => {
+          if (setView) {
+            setView('featured')
+          }
+          history.push('/')
+        }}
+        className={styles.footerItem}
+        style={{
+          cursor: 'pointer'
+        }}
+      />
       {/* <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
           <IndexPage />
         </PopupLogin> */}
@@ -63,8 +58,11 @@ const AppFooter = ({ setView, onGoRegistration }: any) => {
       <Avatar
         onClick={() => {
           // onGoRegistration(() => {
-          handleOpenCreatorPage(creatorState.creators.currentCreator?.id?.value)
+          history.push(`/creator/${creatorState.creators.currentCreator?.id?.value}`)
           // })
+        }}
+        style={{
+          cursor: 'pointer'
         }}
         alt={creatorState.creators.currentCreator?.username?.value}
         className={styles.footerAvatar}

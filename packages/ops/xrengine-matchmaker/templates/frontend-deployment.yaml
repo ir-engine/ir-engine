@@ -1,0 +1,96 @@
+{{- if .Values.frontend.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xrengine.frontend.fullname" . }}
+  labels:
+    {{- include "xrengine.frontend.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "xrengine.frontend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "xrengine.frontend.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/frontend-configmap.yaml") . | sha256sum }}
+    spec:
+    {{- with .Values.frontend.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "xrengine.frontend.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.frontend.podSecurityContext | nindent 8 }}
+      {{- $releaseName := .Release.Name }}
+      {{ if not (empty .Values.release) }}
+      {{- $releaseName = .Values.release.name | default .Release.Name }}
+      {{ end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.frontend.securityContext | nindent 12 }}
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "xrengine.frontend.fullname" . }}
+                optional: true
+          env:
+            - name: KUBERNETES
+              value: "true"
+            - name: MYSQL_USER
+              value: {{ .Values.mariadb.db.user }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mariadb.db.name }}
+            - name: MYSQL_PASSWORD
+              {{- if not .Values.mariadb.enabled }}
+              value: {{ .Values.mariadb.db.password | quote }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mariadb.existingSecret }}
+                  key: mariadb-password
+              {{- end }}
+            - name: MYSQL_HOST
+              value: {{ .Values.mariadb.externalHost }}
+            - name: RELEASE_NAME
+              value: {{ $releaseName }}
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+            - name: TAG
+              value: {{ .Values.frontend.image.tag }}
+          ports:
+            - name: http
+              containerPort: 3030
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - echo true
+            initialDelaySeconds: 30
+          readinessProbe:
+            exec:
+              command:
+                - echo true
+            initialDelaySeconds: 30
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+      volumes:
+      - name: dind-storage
+        emptyDir: {}
+      {{- with .Values.frontend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.frontend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.frontend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

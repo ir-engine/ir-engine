@@ -79,7 +79,8 @@ const server = {
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
   local: process.env.LOCAL === 'true',
-  releaseName: process.env.RELEASE_NAME
+  releaseName: process.env.RELEASE_NAME,
+  matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true'
 }
 const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL || url.format(obj)
@@ -111,7 +112,8 @@ const gameserver = {
   releaseName: process.env.RELEASE_NAME,
   port: process.env.GAMESERVER_PORT,
   mode: process.env.SERVER_MODE,
-  locationName: process.env.PRELOAD_LOCATION_NAME
+  locationName: process.env.PRELOAD_LOCATION_NAME,
+  shutdownDelayMs: parseInt(process.env.GAMESERVER_SHUTDOWN_DELAY_MS) || 0
 }
 
 /**

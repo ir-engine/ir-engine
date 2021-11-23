@@ -7,14 +7,13 @@ import { AnimationRenderer } from './animations/AnimationRenderer'
 import { loadAvatarForEntity } from './functions/avatarFunctions'
 import { AnimationManager } from './AnimationManager'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
-import { Network } from '../networking/classes/Network'
 import { AnimationGraph } from './animations/AnimationGraph'
 import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
 import { Engine } from '../ecs/classes/Engine'
-import { matches } from 'ts-matches'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import matches from 'ts-matches'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 
 const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
@@ -23,8 +22,11 @@ export default async function AnimationSystem(world: World): Promise<System> {
   world.receptors.push(animationActionReceptor)
 
   function animationActionReceptor(action) {
-    matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
-      if ($from === Engine.userId) return
+    matches(action).when(NetworkWorldAction.avatarAnimation.matchesFromAny, ({ $from }) => {
+      if ($from === Engine.userId) {
+        return
+      }
+
       const avatarEntity = world.getUserAvatarEntity($from)
       const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
       if (!networkObject) {
