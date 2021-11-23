@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -55,8 +55,8 @@
     "@types/styled-components": "5.1.15",
     "@typescript-eslint/eslint-plugin": "5.3.1",
     "@typescript-eslint/parser": "5.3.1",
-    "@xrengine/common": "^0.4.10",
-    "@xrengine/engine": "^0.4.10",
+    "@xrengine/common": "^0.4.11",
+    "@xrengine/engine": "^0.4.11",
     "apexcharts": "^3.28.3",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
