@@ -35,12 +35,14 @@ export const TradingPage = (): any => {
       isLoadingtransfer: true
     }))
     const data={
-      fromUserId: id,
-      toUserId: ids,
+      /*fromUserId: id,*/
+      /*toUserId: ids,*/
       fromUserInventoryIds: [...items],
-      fromUserStatus: "REQUEST",
-      toUserStatus: "REQUEST"
+      fromUserStatus: "ACCEPT"/*,
+      toUserStatus: "REQUEST"*/
   }
+  console.log("TRANSFER ", data);
+  
     try {
       const response = await client.service('user-trade').create(data)
       console.log(response,"trade")
@@ -57,6 +59,38 @@ export const TradingPage = (): any => {
         ...prevState,
         isLoadingtransfer: false
       }))
+    }
+  }
+
+  const acceptTransfer = async (tradeId, items) => {
+    setState((prevState) => ({
+      ...prevState,
+      isLoadingtransfer: true
+    }))
+    const data={
+      fromUserStatus: "ACCEPT",
+  }
+  console.log("TRANSFER ", data);
+  console.log("tradeId ", tradeId);
+
+    try {
+      const response = await client.service('user-trade').patch(tradeId,data)
+      console.log(response,"trade")
+      if(response){
+        fetchInventoryList()
+      fetchfromTradingList()
+      fetchtoTradingList()
+      }
+      console.log('success')
+    } catch (err) {
+      console.error(err, 'error')
+    } finally {
+      setState((prevState) => ({
+        ...prevState,
+        isLoadingtransfer: false
+      }))
+      localStorage.removeItem('tradeId');
+
     }
   }
 
@@ -200,6 +234,7 @@ export const TradingPage = (): any => {
           additeminventory={additeminventory}
           addofferiteminventory={addofferiteminventory}
           handleTransfer={handleTransfer}
+          acceptTransfer={acceptTransfer}
           isLoadingtransfer={isLoadingtransfer}
         />
       )}
