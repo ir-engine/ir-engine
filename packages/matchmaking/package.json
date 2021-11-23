@@ -27,7 +27,8 @@
     "validate": "npm run test",
     "local-minikube-start": "minikube start",
     "local-minikube-stop": "minikube stop",
-    "open-frontend-service-port": "kubectl port-forward --namespace open-match service/open-match-frontend 51504:51504"
+    "open-frontend-service-port": "kubectl port-forward --namespace open-match service/open-match-frontend 51504:51504",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
