@@ -28,7 +28,7 @@ const elementPlaying = (element: HTMLMediaElement): boolean => {
 
 export default class AudioSource extends Object3D {
   el: any
-  src: string
+  _src: string
   audioListener: any
   controls: boolean
   _audioType: any
@@ -64,6 +64,14 @@ export default class AudioSource extends Object3D {
     this.controls = true
     this.audioType = AudioType.PannerNode
     this.volume = 1
+  }
+
+  get src() {
+    return this._src
+  }
+  set src(value) {
+    this._src = value
+    this.load().catch(console.error)
   }
   get duration() {
     return this.el.duration
@@ -209,7 +217,7 @@ export default class AudioSource extends Object3D {
   }
   loadMedia(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.el.src = this.src
+      this.el.src = this._src
 
       // If media source requires to be synchronized then pause it for now.
       if (this.isSynced) {
@@ -239,8 +247,10 @@ export default class AudioSource extends Object3D {
   async load(src?: string, contentType?: string): Promise<this> {
     await this.loadMedia()
     if (!Engine.useAudioSystem) return this
-    this.audioSource = this.audioListener.context.createMediaElementSource(this.el)
-    this.audio.setNodeSource(this.audioSource)
+    if (!this.audioSource) {
+      this.audioSource = this.audioListener.context.createMediaElementSource(this.el)
+      this.audio.setNodeSource(this.audioSource)
+    }
     return this
   }
   copy(source, recursive = true) {
@@ -265,7 +275,7 @@ export default class AudioSource extends Object3D {
     this.coneInnerAngle = source.coneInnerAngle
     this.coneOuterAngle = source.coneOuterAngle
     this.coneOuterGain = source.coneOuterGain
-    this.src = source.src
+    this._src = source._src
     this.isSynced = source.synchronize
     return this
   }

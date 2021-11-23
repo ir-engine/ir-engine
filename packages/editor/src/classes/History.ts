@@ -15,7 +15,7 @@ export default class History {
     this.redos = []
     this.lastCmdTime = new Date()
     this.idCounter = 0
-    this.commandUpdatesEnabled = false // Used for testing
+    this.commandUpdatesEnabled = true // Used for testing
     this.debug = false
   }
 

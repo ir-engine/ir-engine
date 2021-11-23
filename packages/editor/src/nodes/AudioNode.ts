@@ -18,10 +18,10 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
   }
   static async deserialize(json, loadAsync, onError) {
     const node = (await super.deserialize(json)) as AudioNode
-    const props = json.components.find((c) => c.name === 'audio')
+    const { props } = json.components.find((c) => c.name === 'audio')
     loadAsync(
       (async () => {
-        node.src = props.src
+        await node.load(props.src, onError)
         node.interactable = props.interactable
         node.controls = props.controls || false
         node.autoPlay = props.autoPlay

@@ -1,5 +1,5 @@
 import Command, { CommandParams } from './Command'
-import { TransformSpace } from '../constants/TransformSpace'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeEuler } from '../functions/debug'
 import { Matrix4, Quaternion, Vector3 } from 'three'
