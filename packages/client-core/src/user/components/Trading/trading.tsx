@@ -35,11 +35,11 @@ export const TradingPage = (): any => {
       isLoadingtransfer: true
     }))
     const data={
-      /*fromUserId: id,*/
-      /*toUserId: ids,*/
+      fromUserId: id,
+      toUserId: ids,
       fromUserInventoryIds: [...items],
-      fromUserStatus: "ACCEPT"/*,
-      toUserStatus: "REQUEST"*/
+      fromUserStatus: "REQUEST",
+      toUserStatus: "REQUEST"
   }
   console.log("TRANSFER ", data);
   
@@ -62,13 +62,48 @@ export const TradingPage = (): any => {
     }
   }
 
-  const acceptTransfer = async (tradeId, items) => {
+  const acceptOfferSent = async (tradeId, items) => {
     setState((prevState) => ({
       ...prevState,
       isLoadingtransfer: true
     }))
     const data={
+      fromUserInventoryIds: items,
       fromUserStatus: "ACCEPT",
+  }
+  console.log("TRANSFER ", data);
+  console.log("tradeId ", tradeId);
+
+    try {
+      const response = await client.service('user-trade').patch(tradeId,data)
+      console.log(response,"trade")
+      if(response){
+        fetchInventoryList()
+      fetchfromTradingList()
+      fetchtoTradingList()
+      }
+      console.log('success')
+    } catch (err) {
+      console.error(err, 'error')
+    } finally {
+      setState((prevState) => ({
+        ...prevState,
+        isLoadingtransfer: false
+      }))
+      localStorage.removeItem('tradeId');
+
+    }
+  }
+
+  const acceptOfferReceived = async (tradeId, items) => {
+    setState((prevState) => ({
+      ...prevState,
+      isLoadingtransfer: true
+    }))
+    const data={
+      "toUserInventoryIds": items,
+      "toUserStatus": "ACCEPT"
+
   }
   console.log("TRANSFER ", data);
   console.log("tradeId ", tradeId);
@@ -167,6 +202,17 @@ export const TradingPage = (): any => {
 
     }))
   }
+  const removereceiveinventory = (index) => {
+    const datatemp = [...data1]
+    datatemp.splice(index, 1);
+    console.log("data1 ", data1);
+    
+    setState((prevState) => ({
+      ...prevState,
+      data1: [...datatemp]
+
+    }))
+  }
 
   const additeminventory = (values) => {
     const inventorytemp = [...inventory]
@@ -184,6 +230,16 @@ export const TradingPage = (): any => {
     setState((prevState) => ({
       ...prevState,
       data: [...datatemp]
+
+    }))
+  }
+
+  const addreceiveiteminventory = (values) => {
+    const datatemp = [...data1]
+    datatemp.push(values)
+    setState((prevState) => ({
+      ...prevState,
+      data1: [...datatemp]
 
     }))
   }
@@ -231,10 +287,13 @@ export const TradingPage = (): any => {
           type={type}
           removeiteminventory={removeiteminventory}
           removeofferinventory={removeofferinventory}
+          removereceiveinventory={removereceiveinventory}
           additeminventory={additeminventory}
           addofferiteminventory={addofferiteminventory}
+          addreceiveiteminventory={addreceiveiteminventory}
           handleTransfer={handleTransfer}
-          acceptTransfer={acceptTransfer}
+          acceptOfferSent={acceptOfferSent}
+          acceptOfferReceived={acceptOfferReceived}
           isLoadingtransfer={isLoadingtransfer}
         />
       )}
