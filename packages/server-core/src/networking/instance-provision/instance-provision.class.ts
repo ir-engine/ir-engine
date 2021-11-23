@@ -43,6 +43,7 @@ export async function getFreeGameserver(app: Application, isChannelInstance?: bo
       port: null
     }
   }
+  let count = 0
   while (!foundServer) {
     const instanceExistsResult = await app.service('instance').find({
       query: {
@@ -52,6 +53,14 @@ export async function getFreeGameserver(app: Application, isChannelInstance?: bo
     if (instanceExistsResult.total > 0) {
       console.log('server already claimed by an instance', instanceExistsResult)
       server = readyServers[Math.floor(Math.random() * readyServers.length)]
+      count++
+      if (count >= 10) {
+        foundServer = true
+        return {
+          ipAddress: null,
+          port: null
+        }
+      }
     } else {
       foundServer = true
       return {
