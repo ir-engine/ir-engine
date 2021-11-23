@@ -66,6 +66,7 @@ export default (app: Application) => {
     ;(User as any).belongsToMany(models.inventory_item, { through: models.user_inventory, foreignKey: 'userId' })
     ;(User as any).hasMany(models.user_trade, { foreignKey: 'fromUserId', required: true })
     ;(User as any).hasMany(models.user_trade, { foreignKey: 'toUserId', required: true })
+    ;(User as any).hasMany(models.user_wallet, { foreignKey: 'userId', required: true })
   }
 
   return User
