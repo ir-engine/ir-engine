@@ -1,7 +1,6 @@
 import classNames from 'classnames'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styles from '@xrengine/client-core/src/admin/components/Project/Projects.module.scss'
-import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
@@ -48,6 +47,20 @@ export const CreateProjectModal = (props: Props): any => {
     handleClose()
   }
 
+  useEffect(() => {
+    const listener = (event) => {
+      if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+        event.preventDefault()
+        onCreateProject()
+      }
+    }
+    document.addEventListener('keydown', listener)
+
+    return () => {
+      document.removeEventListener('keydown', listener)
+    }
+  }, [])
+
   return (
     <div>
       <Modal
@@ -57,10 +70,6 @@ export const CreateProjectModal = (props: Props): any => {
         open={open}
         onClose={closeModal}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={props.open}>
           <div
@@ -71,17 +80,18 @@ export const CreateProjectModal = (props: Props): any => {
           >
             {processing === false && (
               <div>
-                <FormControl>
+                <FormControl onClick={onCreateProject}>
                   <div>
-                    <InputLabel id="nameSelect">Name</InputLabel>
                     <TextField
+                      label="Name"
                       className={styles['pack-select']}
                       id="nameSelect"
                       value={projectName}
+                      required={true}
                       onChange={(e) => setProjectName(e.target.value)}
                     />
                   </div>
-                  <Button type="submit" variant="contained" color="primary" onClick={onCreateProject}>
+                  <Button type="submit" variant="contained" color="primary">
                     Create Project
                   </Button>
                 </FormControl>
