@@ -32,7 +32,8 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "cross-env APP_ENV=development concurrently -n server,gameserver,files \"ts-node-dev --inspect --respawn --transpile-only  src/index.ts\" \"cd ../gameserver && npm run dev\" \"npm run serve-local-files\"",
-    "start": "cross-env APP_ENV=production ts-node-dev src/index.ts",
+    "dev-windows": "cross-env APP_ENV=development concurrently -n server,gameserver,files -i \"nodemon --watch src/** -r ts-node/register src/index.ts\" \"cd ../gameserver && npm run dev\" \"npm run serve-local-files\"",
+    "start": "cross-env APP_ENV=production ts-node --transpile-only src/index.ts",
     "dev-api-server": "ts-node-dev --inspect --respawn --transpile-only  src/index.ts",
     "dev-api-server-nossl": "cross-env NOSSL=true ts-node-dev --inspect --respawn --transpile-only src/index.ts",
     "dev-nossl": "concurrently \"cross-env NOSSL=true ts-node src/index.ts\" \"cd ../gameserver && cross-env NOSSL=true ts-node-dev --inspect --respawn --transpile-only src/index.ts\"",
