@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { MoreHoriz, Forum, GroupAdd, Delete } from '@material-ui/icons'
 import { MenuList, MenuItem, ListItemIcon, ListItemText, Popover } from '@mui/material'
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
@@ -6,9 +6,9 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { PartyService } from '@xrengine/client-core/src/social/services/PartyService'
 import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import { useHarmonyStyles } from '../style'
+import ModeContext from '../context/modeContext'
 
 interface Props {
-  party?: any
   setActiveChat: any
   setShowChat: any
   setInvite: any
@@ -17,6 +17,7 @@ interface Props {
 
 const Party = (props: Props) => {
   const classes = useHarmonyStyles()
+  const { darkMode } = useContext(ModeContext)
   const { setActiveChat, setShowChat, setInvite, handleCreate } = props
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [partyDeletePending, setPartyDeletePending] = React.useState(false)
@@ -71,10 +72,10 @@ const Party = (props: Props) => {
       {
         <div key={party.id} className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}>
           <div
-              onClick={() => {
-                setShowChat(true), setActiveChat('party', party)
-              }}
-              className={`${classes.mx2} ${classes.flexGrow2}`}
+            onClick={() => {
+              setShowChat(true), setActiveChat('party', party)
+            }}
+            className={`${classes.mx2} ${classes.flexGrow2}`}
           >
             <h4 className={classes.fontBig}>{party.name}</h4>
             <small className={classes.textMuted}>Party id: </small>
@@ -83,62 +84,63 @@ const Party = (props: Props) => {
 
           <div>
             <a href="#" className={classes.border0} onClick={handleClick}>
-              <MoreHoriz/>
+              <MoreHoriz />
             </a>
             <Popover
-                id={id}
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right'
-                }}
-                transformOrigin={{
-                  vertical: 'center',
-                  horizontal: 'left'
-                }}
+              id={id}
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right'
+              }}
+              transformOrigin={{
+                vertical: 'center',
+                horizontal: 'left'
+              }}
             >
-              <div className={classes.bgDark}>
-                <MenuList sx={{width: 210, maxWidth: '100%', borderRadius: 10}}>
+              <div className={darkMode ? classes.bgDark : classes.bgLight}>
+                <MenuList sx={{ width: 210, maxWidth: '100%', borderRadius: 10 }}>
                   <MenuItem
-                      className={classes.my2}
-                      onClick={() => {
-                        setActiveChat('party', party), setShowChat(true), handleClose()
-                      }}
+                    className={classes.my2}
+                    onClick={() => {
+                      setActiveChat('party', party), setShowChat(true), handleClose()
+                    }}
                   >
                     <ListItemIcon>
-                      <Forum fontSize="small" className={classes.info}/>
+                      <Forum fontSize="small" className={classes.info} />
                     </ListItemIcon>
                     <ListItemText>CHAT</ListItemText>
                   </MenuItem>
                   {(selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
-                      <MenuItem
-                          className={classes.my2}
-                          onClick={() => {
-                            openInvite('party', party.id), handleClose(), setInvite('Party'), handleCreate()
-                          }}
-                      >
-                        <ListItemIcon>
-                          <GroupAdd fontSize="small" className={classes.success}/>
-                        </ListItemIcon>
-                        <ListItemText>INVITE</ListItemText>
-                      </MenuItem>
+                    <MenuItem
+                      className={classes.my2}
+                      onClick={() => {
+                        openInvite('party', party.id), handleClose(), setInvite('Party'), handleCreate()
+                      }}
+                    >
+                      <ListItemIcon>
+                        <GroupAdd fontSize="small" className={classes.success} />
+                      </ListItemIcon>
+                      <ListItemText>INVITE</ListItemText>
+                    </MenuItem>
                   )}
                   {!partyDeletePending && (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
-                      <MenuItem className={classes.my2}>
-                        <ListItemIcon>
-                          <Delete fontSize="small" className={classes.danger}/>
-                        </ListItemIcon>
-                        <ListItemText>Delete</ListItemText>
-                      </MenuItem>
+                    <MenuItem className={classes.my2}>
+                      <ListItemIcon>
+                        <Delete fontSize="small" className={classes.danger} />
+                      </ListItemIcon>
+                      <ListItemText>Delete</ListItemText>
+                    </MenuItem>
                   )}
                 </MenuList>
               </div>
             </Popover>
           </div>
         </div>
-      })
+      }
+      )
     </>
   )
 }

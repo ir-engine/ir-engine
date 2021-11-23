@@ -6,7 +6,6 @@ import { useHistory } from 'react-router-dom'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
-import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
 import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
@@ -73,11 +72,6 @@ const LeftHarmony = (props: Props) => {
   //group state
   const groupState = useGroupState()
   const groupSubState = groupState.groups
-
-  //party state
-  const party = usePartyState().party?.value
-
-  console.log(party)
 
   const handleChange = (event) => {
     const mode = event.target.checked
@@ -279,20 +273,17 @@ const LeftHarmony = (props: Props) => {
                 <a
                   href="#"
                   className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
-                  onClick={() => createNewParty()}
+                  // onClick={() => createNewParty()}
                 >
                   <b>CREATE PARTY</b>
                 </a>
               </div>
-              {party && party.length > 0 && (
-                <Party
-                  // party={party}
-                  setActiveChat={setActiveChat}
-                  setShowChat={setShowChat}
-                  setInvite={setInvite}
-                  handleCreate={handleCreate}
-                />
-              )}
+              <Party
+                setActiveChat={setActiveChat}
+                setShowChat={setShowChat}
+                setInvite={setInvite}
+                handleCreate={handleCreate}
+              />
             </>
           )}
           {chat !== 'group' ? (
