@@ -12,6 +12,7 @@ import BotService from './bot/services'
 import ScopeService from './scope/service'
 import SettingService from './setting/service'
 import RouteService from './route/service'
+import MatchMakingServices from './matchmaking/services'
 
 import fs from 'fs'
 import path from 'path'
@@ -53,7 +54,8 @@ export default (app: Application): void => {
     ...ScopeService,
     ...SettingService,
     ...RouteService,
-    ...installedProjects
+    ...installedProjects,
+    ...MatchMakingServices
   ].forEach((service) => {
     app.configure(service)
   })
