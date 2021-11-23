@@ -64,12 +64,15 @@ const useStyles = makeStyles({
   },
   contents: {
     justifyContent: 'center'
+  },
+  titlesize:{
+    fontSize: '30px'
   }
 })
 
 const ITEM_HEIGHT = 48
 
-const InventoryContent = ({ coinData,data, user, handleTransfer, isLoadingtransfer, type }: any) => {
+const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtransfer, type }: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
@@ -116,7 +119,7 @@ const InventoryContent = ({ coinData,data, user, handleTransfer, isLoadingtransf
         inventory: [...data]
       }))
     }
-  
+
     return () => {
       setState({
         url: '',
@@ -173,7 +176,37 @@ const InventoryContent = ({ coinData,data, user, handleTransfer, isLoadingtransf
         <IconButton onClick={() => history.goBack()}>
           <ArrowBackIos /> Back
         </IconButton>
-        <Typography className={classes.title}>Inventory</Typography>
+        <Typography className={`${classes.title} ${classes.titlesize}`}>Inventory</Typography>
+        <Stack direction="row" justifyContent="center">
+
+          <Stack sx={{ marginTop: "15px" }}>
+
+            {coinData.length !== 0 ? (
+              <Stack >
+                {coinData.map((value: any, index: number) => (
+                  // <Card
+                  //   key={index}
+                  //   style={{marginBottom:"8px",padding:"2px"}}
+                  // >
+                  <Stack
+                    key={index}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <img src={value.url} height="50" width="50" alt="" />
+                    <Typography>{`${value.name}`}</Typography>
+                    <Typography>{`Quantity: ${value.user_inventory.quantity}`}</Typography>
+                  </Stack>
+                  // </Card>
+                ))}
+              </Stack>
+            ) : (
+              <Stack sx={{ color: 'black' }}>
+                <Typography>No Data Found</Typography>
+              </Stack>
+            )}
+          </Stack>
+        </Stack>
       </Stack>
       <Divider />
       {data.length !== 0 ? (
@@ -205,12 +238,12 @@ const InventoryContent = ({ coinData,data, user, handleTransfer, isLoadingtransf
                   }
                 }}
               >
-                <MenuItem style={{display:"block"}} selected={selectedtype === ''} onClick={(e) => handletypeselect('')}>
+                <MenuItem style={{ display: "block" }} selected={selectedtype === ''} onClick={(e) => handletypeselect('')}>
                   All
                 </MenuItem>
                 {type.map((option) => (
                   <MenuItem
-                  style={{display:"block"}}
+                    style={{ display: "block" }}
                     key={option.inventoryItemTypeId}
                     selected={option.inventoryItemTypeId === selectedtype}
                     onClick={(e) => handletypeselect(option.inventoryItemTypeId)}
@@ -224,7 +257,7 @@ const InventoryContent = ({ coinData,data, user, handleTransfer, isLoadingtransf
                   {inventory.map((value: any, index: number) => (
                     <Card
                       key={index}
-                      style={{marginBottom:"8px",padding:"2px"}}
+                      style={{ marginBottom: "8px", padding: "2px" }}
                       onClick={() => {
                         setState((prevState) => ({
                           ...prevState,
@@ -259,32 +292,7 @@ const InventoryContent = ({ coinData,data, user, handleTransfer, isLoadingtransf
               )
             } */}
 
-            <Stack className={classes.card} sx={{marginTop:"15px"}}>
-             
-              {coinData.length !== 0 ? (
-                <Stack >
-                  {coinData.map((value: any, index: number) => (
-                    <Card
-                      key={index}
-                      style={{marginBottom:"8px",padding:"2px"}}
-                    >
-                      <Stack
-                        justifyContent="center"
-                        alignItems="center"
-                      >
-                        <img src={value.url} height="100" width="100" alt="" />
-                        <Typography>{`${value.name}`}</Typography>
-                        <Typography>{`Quantity: ${value.user_inventory.quantity}`}</Typography>
-                      </Stack>
-                    </Card>
-                  ))}
-                </Stack>
-              ) : (
-                <Stack sx={{ color: 'black' }}>
-                  <Typography>No Data Found</Typography>
-                </Stack>
-              )}
-            </Stack>
+
           </Grid>
           <Grid item md={6}>
             {url !== '' && metadata.length !== 0 && (
@@ -328,16 +336,16 @@ const InventoryContent = ({ coinData,data, user, handleTransfer, isLoadingtransf
                       }}
                     >
                       {user.map((datas, index) => (
-                        <MenuItem style={{display:"block", marginRight:"18px"}} key={index} value={datas.id}>
+                        <MenuItem style={{ display: "block", marginRight: "18px" }} key={index} value={datas.id}>
                           {datas.name}
                         </MenuItem>
                       ))}
-                      
+
                     </Select>
-                    
+
                   </FormControl>
                   <Button
-                  
+
                     variant="outlined"
                     disabled={isLoadingtransfer}
                     onClick={() => handleTransfer(userid, selectedid)}
@@ -361,7 +369,7 @@ const InventoryContent = ({ coinData,data, user, handleTransfer, isLoadingtransf
       )}
       {/* </Stack> */}
     </Box>
-    
+
   )
 }
 
