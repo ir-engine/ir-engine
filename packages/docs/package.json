@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/docs",
-  "version": "0.4.10",
+  "version": "0.4.12",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",

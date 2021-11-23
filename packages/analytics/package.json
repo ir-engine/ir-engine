@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/analytics",
   "description": "Analytics generator for XREngine platform",
-  "version": "0.4.10",
+  "version": "0.4.12",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -48,8 +48,8 @@
     "@feathersjs/feathers": "5.0.0-pre.9",
     "@feathersjs/rest-client": "5.0.0-pre.9",
     "@feathersjs/transport-commons": "5.0.0-pre.9",
-    "@xrengine/common": "^0.4.10",
-    "@xrengine/server-core": "^0.4.10",
+    "@xrengine/common": "^0.4.12",
+    "@xrengine/server-core": "^0.4.12",
     "cross-env": "7.0.3",
     "dotenv-flow": "3.2.0",
     "feathers-hooks-common": "5.0.6",
