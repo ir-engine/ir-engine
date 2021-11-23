@@ -175,8 +175,9 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
     setState((prevState: any) => ({
       ...prevState,
       receivedTrading,
+      userTradeId:data1[0].userTradeId
     }))
-    localStorage.setItem("tradeId", data[0].userTradeId)
+    localStorage.setItem("tradeId", data1[0].userTradeId)
     
     removereceiveinventory(index)
   }
@@ -191,11 +192,11 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
     additeminventory(value)
   }
   const offeredback = (value: any, index) => {
-    const fofferedTradingtemp = [...state.offeredTrading]
-    fofferedTradingtemp.splice(index, 1)
+    const offeredTradingtemp = [...state.offeredTrading]
+    offeredTradingtemp.splice(index, 1)
     setState((prevState: any) => ({
       ...prevState,
-      offeredTrading: [...fofferedTradingtemp]
+      offeredTrading: [...offeredTradingtemp]
     }))
     addofferiteminventory(value)
   }
@@ -209,14 +210,14 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
     addreceiveiteminventory(value)
   }
 
-  const acceptOffer = () => {
+  const acceptOfferSentId = () => {
     console.log("ccept offer ", localStorage.getItem("tradeId"));
-    acceptTransfer(localStorage.getItem("tradeId"), offeredTrading)
+    acceptOfferSent(localStorage.getItem("tradeId"), offeredTrading)
   }
 
-  const acceptransfer = () => {
+  const acceptOfferReceivedId = () => {
     console.log("ccept offer ", localStorage.getItem("tradeId"));
-    acceptOfferTrade(localStorage.getItem("tradeId"), offeredTrading)
+    acceptOfferReceived(localStorage.getItem("tradeId"), receivedTrading)
   }
 
   console.log(data, "datas")
@@ -433,7 +434,7 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
                     <Button
                       variant="outlined"
                       disabled={isLoadingtransfer}
-                      onClick={() => acceptOfferSent()}
+                      onClick={() => acceptOfferSentId()}
                     >
                       {isLoadingtransfer ? <CircularProgress size={30} /> : 'Accept'}
                     </Button>
@@ -502,7 +503,7 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
                     <Button
                       variant="outlined"
                       disabled={isLoadingtransfer}
-                      onClick={() => acceptOfferReceived()}
+                      onClick={() => acceptOfferReceivedId()}
                     >
                       {isLoadingtransfer ? <CircularProgress size={30} /> : 'Accept'}
                     </Button>
