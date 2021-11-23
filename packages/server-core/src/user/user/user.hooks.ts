@@ -123,6 +123,25 @@ export default {
   after: {
     all: [],
     find: [
+      (context: HookContext): HookContext => {
+        try {
+          if (context.result?.data[0]) {
+            for (let x = 0; x < context.result.data.length; x++) {
+              //context.result.data[x].inventory_items.metadata = JSON.parse(context.result.data[x].inventory_items.metadata)
+              for (let i = 0; i < context.result.data[x].inventory_items.length; i++) {
+                context.result.data[x].inventory_items[i].metadata = JSON.parse(
+                  context.result.data[x].inventory_items[i].metadata
+                )
+              }
+            }
+          } else {
+            context.result.data= []
+          }
+        } catch {
+          context.result.data = []
+        }
+        return context
+      }
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     const { app, result } = context
@@ -157,6 +176,25 @@ export default {
       // }
     ],
     get: [
+      (context: HookContext): HookContext => {
+        try {
+          if (context.result?.data[0]) {
+            for (let x = 0; x < context.result.data.length; x++) {
+              //context.result.data[x].inventory_items.metadata = JSON.parse(context.result.data[x].inventory_items.metadata)
+              for (let i = 0; i < context.result.data[x].inventory_items.length; i++) {
+                context.result.data[x].inventory_items[i].metadata = JSON.parse(
+                  context.result.data[x].inventory_items[i].metadata
+                )
+              }
+            }
+          } else {
+            context.result.data= []
+          }
+        } catch {
+          context.result.data = []
+        }
+        return context
+      }
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     if (context.result.subscriptions && context.result.subscriptions.length > 0) {
@@ -207,7 +245,7 @@ export default {
           if (Array.isArray(result)) result = result[0]
           if (result?.userRole !== 'guest' && result?.inviteCode == null) {
             const code = await getFreeInviteCode(app)
-
+            console.log("I am in create user with non guest")
             await app.service('user').patch(result.id, {
               inviteCode: code
             })
@@ -228,6 +266,7 @@ export default {
           if (Array.isArray(result)) result = result[0]
           if (result && result.userRole !== 'guest' && result.inviteCode == null) {
             const code = await getFreeInviteCode(app)
+            console.log("I am in patch user with non guest")
             await app.service('user').patch(result.id, {
               inviteCode: code
             })
