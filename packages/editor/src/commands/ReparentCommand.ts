@@ -7,7 +7,7 @@ import reverseDepthFirstTraverse from '../functions/reverseDepthFirstTraverse'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
-import { TransformSpace } from '../constants/TransformSpace'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 export interface ReparentCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */

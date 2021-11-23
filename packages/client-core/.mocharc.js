@@ -1,7 +1,7 @@
 module.exports = {
   'fail-zero': false,
   parallel: true,
-  spec: ['tests/**/*.test.ts'],
+  spec: ['**/*.test.ts'],
   require: [
     'tests/mocha.env', // init env here
     'ts-node/register'
