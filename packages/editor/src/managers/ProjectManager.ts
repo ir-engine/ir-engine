@@ -64,6 +64,7 @@ export class ProjectManager {
 
     await ProjectManager.instance.init()
 
+    ControlManager.instance.dispose()
     const errors = await SceneManager.instance.initializeScene(projectFile)
 
     CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, Engine.scene)
