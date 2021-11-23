@@ -208,9 +208,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 }
 
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
-  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
-    tickRate: 5
-  })
+  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), { tickRate: 60 })
 
   registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
 
