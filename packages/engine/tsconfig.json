@@ -10,7 +10,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": false,
+    "noEmit": true,
     "module": "CommonJS",
     "strict": false,
     "strictNullChecks": true,
@@ -28,7 +28,9 @@
     "outDir": "./lib"
   },
   "exclude": [
+    "node_modules/",
     "**/node_modules/**",
+    "../../node_modules/volumetric/**",
     "tests old/*"
   ],
   "include": [

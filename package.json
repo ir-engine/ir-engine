@@ -80,6 +80,7 @@
     "format-staged"
   ],
   "pre-push": [
+    "check-errors",
     "test:packages",
     "build-client"
   ],
