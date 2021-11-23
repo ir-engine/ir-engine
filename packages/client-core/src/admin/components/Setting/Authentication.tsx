@@ -131,13 +131,16 @@ const Account = (props: Props) => {
       })
     })
 
-    setKeySecret({
-      github: authSetting?.oauth.github,
-      google: authSetting?.oauth.google,
-      twitter: authSetting?.oauth.twitter,
-      linkedin: authSetting?.oauth.linkedin,
-      facebook: authSetting?.oauth.facebook
-    })
+    let tempKeySecret = JSON.parse(
+      JSON.stringify({
+        github: authSetting?.oauth.github,
+        google: authSetting?.oauth.google,
+        twitter: authSetting?.oauth.twitter,
+        linkedin: authSetting?.oauth.linkedin,
+        facebook: authSetting?.oauth.facebook
+      })
+    )
+    setKeySecret(tempKeySecret)
     setState(temp)
   }
 

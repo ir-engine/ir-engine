@@ -16,6 +16,8 @@ store.receptors.push((action: ClientSettingActionType): any => {
     switch (action.type) {
       case 'CLIENT_SETTING_DISPLAY':
         return s.merge({ client: action.clientSettingResult.data, updateNeeded: false })
+      case 'CLIENT_SETTING_PATCHED':
+        return s.updateNeeded.set(true)
     }
   }, action.type)
 })
@@ -35,6 +37,18 @@ export const ClientSettingService = {
       console.error(error.message)
       AlertService.dispatchAlertError(error.message)
     }
+  },
+  pathClientSetting: async (data: any, id: string) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        await client.service('client-setting').patch(id, data)
+        dispatch(ClientSettingAction.clientSettingPatched())
+      } catch (err) {
+        console.log(err)
+        AlertService.dispatchAlertError(err.message)
+      }
+    }
   }
 }
 
@@ -44,6 +58,11 @@ export const ClientSettingAction = {
     return {
       type: 'CLIENT_SETTING_DISPLAY' as const,
       clientSettingResult: clientSettingResult
+    }
+  },
+  clientSettingPatched: () => {
+    return {
+      type: 'CLIENT_SETTING_PATCHED' as const
     }
   }
 }

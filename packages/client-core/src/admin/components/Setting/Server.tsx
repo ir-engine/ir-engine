@@ -70,7 +70,11 @@ const Server = (props: serverProps) => {
 
   const handleSave = (event) => {
     event.preventDefault()
-    ServerSettingService.pathAuthSetting({ gaTrackingId: gaTrackingId }, id)
+    ServerSettingService.pathServerSetting({ gaTrackingId: gaTrackingId }, id)
+  }
+
+  const handleCancel = () => {
+    setGaTrackingId(serverSetting?.gaTrackingId)
   }
 
   useEffect(() => {
@@ -298,7 +302,7 @@ const Server = (props: serverProps) => {
           </Paper>
         </Grid>
       </Grid>
-      <Button variant="outlined" style={{ color: '#fff' }}>
+      <Button variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
         Cancel
       </Button>
       &nbsp; &nbsp;

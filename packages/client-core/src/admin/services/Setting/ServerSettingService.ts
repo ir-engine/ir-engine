@@ -38,7 +38,7 @@ export const ServerSettingService = {
       AlertService.dispatchAlertError(error.message)
     }
   },
-  pathAuthSetting: async (data: any, id: string) => {
+  pathServerSetting: async (data: any, id: string) => {
     const dispatch = useDispatch()
     {
       try {
