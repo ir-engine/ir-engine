@@ -86,7 +86,7 @@ const Account = (props: Props) => {
     if (user?.id?.value != null && authSettingState.updateNeeded.value) {
       AuthSettingService.fetchAuthSetting()
     }
-  }, [authState.user?.id?.value])
+  }, [authState])
 
   useEffect(() => {
     if (authSetting) {
@@ -98,19 +98,27 @@ const Account = (props: Props) => {
       })
       setState(temp)
       setHoldAuth(temp)
-      setKeySecret({
-        github: authSetting?.oauth.github,
-        google: authSetting?.oauth.google,
-        twitter: authSetting?.oauth.twitter,
-        linkedin: authSetting?.oauth.linkedin,
-        facebook: authSetting?.oauth.facebook
-      })
+
+      let tempKeySecret = JSON.parse(
+        JSON.stringify({
+          github: authSetting?.oauth.github,
+          google: authSetting?.oauth.google,
+          twitter: authSetting?.oauth.twitter,
+          linkedin: authSetting?.oauth.linkedin,
+          facebook: authSetting?.oauth.facebook
+        })
+      )
+      setKeySecret(tempKeySecret)
     }
   }, [authSettingState?.updateNeeded?.value])
 
   const handleSubmit = () => {
     const auth = Object.keys(state).map((prop) => ({ [prop]: state[prop] }))
-    const oauth = Object.keys({ ...authSetting.oauth, ...keySecret }).map((item) => JSON.stringify(item))
+    const oauth = { ...authSetting.oauth, ...keySecret }
+
+    for (let key of Object.keys(oauth)) {
+      oauth[key] = JSON.stringify(oauth[key])
+    }
 
     AuthSettingService.pathAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
   }
