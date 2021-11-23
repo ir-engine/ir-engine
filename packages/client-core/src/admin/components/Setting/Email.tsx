@@ -18,7 +18,7 @@ const Email = (props: emailProps) => {
   const id = emailSetting?.id
   const [showPassword, setShowPassword] = useState(false)
   const [smtp, setSmtp] = useState(emailSetting?.smtp)
-  const [auth, setAuth] = useState(emailSetting?.auth)
+  const [auth, setAuth] = useState(emailSetting?.smtp?.auth)
   const [from, setFrom] = useState(emailSetting?.from)
   const [subject, setSubject] = useState(emailSetting?.subject)
 
