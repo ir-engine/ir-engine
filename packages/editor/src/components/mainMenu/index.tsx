@@ -49,7 +49,7 @@ const MainMenu = (props: MainMenuProp) => {
 
       if (command.hotkey) {
         return (
-          <Hotkeys keyName={command.hotkey} onKeyUp={command.action}>
+          <Hotkeys key={command.hotkey} onKeyUp={command.action}>
             {menuItem}
           </Hotkeys>
         )

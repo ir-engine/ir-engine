@@ -19,10 +19,12 @@ import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { NodeManager } from '../../managers/NodeManager'
-import { ControlManager } from '../../managers/ControlManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Hotkeys from 'react-hot-keys'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
+import { SceneManager } from '../../managers/SceneManager'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -944,7 +946,9 @@ export default function HierarchyPanel() {
    */
   const onClick = useCallback((e, node) => {
     if (e.detail === 2) {
-      ControlManager.instance.editorControls.focus([node.object])
+      const cameraComponent = getComponent(SceneManager.instance.cameraEntity, EditorCameraComponent)
+      cameraComponent.focusedObjects = [node.object]
+      cameraComponent.dirty = true
     }
   }, [])
 
