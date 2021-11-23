@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useStyles } from './styles'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -21,12 +21,12 @@ interface serverProps {
 
 const Server = (props: serverProps) => {
   const classes = useStyles()
-  const [open, setOpen] = React.useState(false)
-  const [openPaginate, setOpenPginate] = React.useState(false)
+  const [open, setOpen] = useState(false)
+  const [openPaginate, setOpenPginate] = useState(false)
   const serverSettingState = useServerSettingState()
   const [serverSetting] = serverSettingState?.server?.value || []
   const id = serverSetting?.id
-  const [gaTrackingId, setGaTrackingId] = React.useState(serverSetting?.gaTrackingId)
+  const [gaTrackingId, setGaTrackingId] = useState(serverSetting?.gaTrackingId)
 
   useEffect(() => {
     if (serverSetting) {
@@ -34,15 +34,15 @@ const Server = (props: serverProps) => {
     }
   }, [serverSettingState?.updateNeeded?.value])
 
-  const [enabled, setEnabled] = React.useState({
+  const [enabled, setEnabled] = useState({
     checkedA: true,
     checkedB: true
   })
-  const [dryRun, setDryRun] = React.useState({
+  const [dryRun, setDryRun] = useState({
     checkedA: true,
     checkedB: true
   })
-  const [local, setLocal] = React.useState({
+  const [local, setLocal] = useState({
     checkedA: true,
     checkedB: true
   })
