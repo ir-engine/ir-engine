@@ -16,7 +16,11 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     },
     bgPrimary: {
       backgroundColor: '#935CFF',
-      padding: '7px 18px'
+      padding: '7px 18px',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: '#935CCC'
+      }
     },
     rightGrid: {
       backgroundColor: '#181A1C',
@@ -119,7 +123,7 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       padding: '12px',
       marginTop: 15,
       borderRadius: '5px',
-      color: '#ccc'
+      color: '#3F3960'
     },
     // formControls: {
     //   width: '100%',
@@ -365,7 +369,16 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
       color: '#f1f1f1'
     },
     select: {
-      color: '#f1f1f1 !important'
+      color: '#ccc !important',
+      border: '1px solid #f1f1f1'
+    },
+    selectPaperLight: {
+      backgroundColor: '#fff',
+      color: '#3F3960'
+    },
+    selectLigth: {
+      color: '#3F3960',
+      border: '1px solid #787589'
     }
   })
 )

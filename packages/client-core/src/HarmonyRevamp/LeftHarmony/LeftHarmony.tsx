@@ -77,6 +77,8 @@ const LeftHarmony = (props: Props) => {
   //party state
   const party = usePartyState().party?.value
 
+  console.log(party)
+
   const handleChange = (event) => {
     const mode = event.target.checked
     setDarkMode(mode)

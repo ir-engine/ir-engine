@@ -340,7 +340,7 @@ const Harmony = (props: Props): any => {
   }, [channelConnectionState.connected.value])
 
   useEffect(() => {
-    chatStateRef.current = chatState
+    // chatStateRef.current = chatState
     if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
       ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
       ChatService.updateMessageScrollInit(false)

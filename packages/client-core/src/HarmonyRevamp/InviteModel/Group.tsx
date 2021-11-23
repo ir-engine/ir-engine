@@ -17,6 +17,7 @@ const Group = (props: Props) => {
 
   const [tabIndex, setTabIndex] = useState(0)
   const [userToken, setUserToken] = useState('')
+  const [group, setGroup] = useState('1')
   const [inviteTypeIndex, setInviteTypeIndex] = useState(0)
   const inviteState = useInviteState()
   const groupState = useGroupState()
@@ -66,6 +67,7 @@ const Group = (props: Props) => {
     handleCloseModal()
     setUserToken('')
   }
+  console.log(inviteState.targetObjectId.value)
   return (
     <React.Fragment>
       <div className={`${classes.dFlex} ${classes.FlexWrap} ${classes.alignCenter} ${classes.mx0}`}>
@@ -116,12 +118,12 @@ const Group = (props: Props) => {
               <Select
                 labelId="invite-group-select-label"
                 id="invite-group-select"
-                className={classes.select}
-                value={inviteState.targetObjectId.value}
-                //onChange={handleInviteGroupChange}
-                MenuProps={{ classes: { paper: classes.selectPaper } }}
+                className={!darkMode ? classes.selectLigth : classes.select}
+                value={group}
+                onChange={(e) => setGroup(e.target.value)}
+                MenuProps={{ classes: { paper: darkMode ? classes.selectPaper : classes.selectPaperLight } }}
               >
-                <MenuItem value="" disabled>
+                <MenuItem value="1" disabled>
                   <em>Select group</em>
                 </MenuItem>
                 {invitableGroups.value.map((group) => {

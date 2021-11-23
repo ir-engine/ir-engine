@@ -155,7 +155,7 @@ const CreateGroup = (props: Props) => {
                   </label>
                   <input
                     type="text"
-                    className={darkMode ? classes.formControlsLight : classes.formControls}
+                    className={darkMode ? classes.formControls : classes.formControlsLight}
                     id="name"
                     name="name"
                     value={groupForm.name}
@@ -170,7 +170,7 @@ const CreateGroup = (props: Props) => {
                   </label>
                   <input
                     type="text"
-                    className={darkMode ? classes.formControlsLight : classes.formControls}
+                    className={darkMode ? classes.formControls : classes.formControlsLight}
                     id="description"
                     name="description"
                     value={groupForm.description}
@@ -182,7 +182,7 @@ const CreateGroup = (props: Props) => {
                   <button
                     className={`${classes.selfEnd} ${classes.roundedCircle} ${classes.borderNone} ${classes.mx2} ${classes.bgPrimary}`}
                   >
-                    <b className={classes.white}>{groupFormMode === 'create' ? 'Create' : 'Update'} Now</b>
+                    <b className={classes.white}>{groupFormMode === 'create' ? 'Create' : 'Update'} Group </b>
                   </button>
                 </div>
               </form>

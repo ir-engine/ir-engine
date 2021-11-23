@@ -3,6 +3,7 @@
     "@material-ui/core",
     "@material-ui/core/styles",
     "@material-ui/icons",
-    "react-hot-keys"
+    "@mui/icons-material/ContentCopy",
+    "react-copy-to-clipboard"
   ]
 }
