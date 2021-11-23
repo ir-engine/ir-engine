@@ -305,7 +305,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
       console.log('add navmesh helper!')
       const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
       const convexHelper = createConvexRegionHelper(navMesh)
-      const graphHelper = createGraphHelper(navMesh.graph, 0.2)
+      const graphHelper = createGraphHelper(navMesh!.graph, 0.2)
       const helper = new Group()
       helper.add(convexHelper)
       helper.add(graphHelper)
