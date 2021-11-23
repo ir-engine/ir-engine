@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/social",
-  "version": "0.4.10",
+  "version": "0.4.13",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -39,14 +39,14 @@
     "@capacitor/ios": "3.3.1",
     "@capacitor/share": "1.0.7",
     "@material-ui/core": "4.12.3",
-    "@types/react-redux": "7.1.20",
-    "@xrengine/client-core": "^0.4.10",
-    "@xrengine/common": "^0.4.10",
-    "@xrengine/editor": "^0.4.10",
-    "@xrengine/engine": "^0.4.10",
     "@mui/icons-material": "5.1.0",
     "@mui/material": "5.1.0",
     "@mui/styles": "5.1.0",
+    "@types/react-redux": "7.1.20",
+    "@xrengine/client-core": "^0.4.13",
+    "@xrengine/common": "^0.4.13",
+    "@xrengine/editor": "^0.4.13",
+    "@xrengine/engine": "^0.4.13",
     "app-root-path": "3.0.0",
     "cross-env": "7.0.3",
     "formik": "2.2.9",

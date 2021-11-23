@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server-core",
   "description": "Shared components for XREngine server",
-  "version": "0.4.10",
+  "version": "0.4.13",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -64,9 +64,9 @@
     "@feathersjs/socketio-client": "^5.0.0-pre.9",
     "@feathersjs/transport-commons": "^5.0.0-pre.9",
     "@google-cloud/agones-sdk": "1.18.0",
-    "@xrengine/common": "^0.4.10",
-    "@xrengine/engine": "^0.4.10",
-    "@xrengine/matchmaking": "^0.4.10",
+    "@xrengine/common": "^0.4.13",
+    "@xrengine/engine": "^0.4.13",
+    "@xrengine/matchmaking": "^0.4.13",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
