@@ -66,7 +66,7 @@ export const CreateProjectModal = (props: Props): any => {
           >
             {processing === false && (
               <div>
-                <FormControl onClick={onCreateProject}>
+                <FormControl>
                   <div>
                     <TextField
                       label="Name"
@@ -77,7 +77,7 @@ export const CreateProjectModal = (props: Props): any => {
                       onChange={(e) => setProjectName(e.target.value)}
                     />
                   </div>
-                  <Button type="submit" variant="contained" color="primary">
+                  <Button type="submit" variant="contained" color="primary" onClick={onCreateProject}>
                     Create Project
                   </Button>
                 </FormControl>
