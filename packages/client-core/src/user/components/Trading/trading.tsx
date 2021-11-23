@@ -11,8 +11,8 @@ import TradingContent from '../UserMenu/menus/TradingContent'
 export const TradingPage = (): any => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const [state, setState] = useState<any>({ data: [],data1: [], inventory: [], user: [], type: [], isLoading: true, isLoadingtransfer: false })
-  const { data, user, type, isLoading, isLoadingtransfer, inventory,data1 } = state
+  const [state, setState] = useState<any>({ data: [],data1: [],data0: [], inventory: [], user: [], type: [], isLoading: true, isLoadingtransfer: false })
+  const { data, user, type, isLoading, isLoadingtransfer, inventory,data1,data0 } = state
 
   const authState = useAuthState()
 
@@ -139,7 +139,7 @@ export const TradingPage = (): any => {
       console.log(response, 'fromtradelist')
       setState((prevState) => ({
         ...prevState,
-        data: [...response.data],
+        data0: [...response.data],
         isLoading: false
       }))
     } catch (err) {
@@ -194,18 +194,17 @@ export const TradingPage = (): any => {
   }
 
   const removeofferinventory = (index) => {
-    const datatemp = [...data]
+    const datatemp = [...data0]
     datatemp.splice(index, 1)
     setState((prevState) => ({
       ...prevState,
-      data: [...datatemp]
+      data0: [...datatemp]
 
     }))
   }
   const removereceiveinventory = (index) => {
     const datatemp = [...data1]
     datatemp.splice(index, 1);
-    console.log("data1 ", data1);
     
     setState((prevState) => ({
       ...prevState,
@@ -225,11 +224,11 @@ export const TradingPage = (): any => {
   }
 
   const addofferiteminventory = (values) => {
-    const datatemp = [...data]
+    const datatemp = [...data0]
     datatemp.push(values)
     setState((prevState) => ({
       ...prevState,
-      data: [...datatemp]
+      data0: [...datatemp]
 
     }))
   }
@@ -282,6 +281,7 @@ export const TradingPage = (): any => {
         <TradingContent
           data={data}
           data1={data1}
+          data0={data0}
           inventory={inventory}
           user={user}
           type={type}
