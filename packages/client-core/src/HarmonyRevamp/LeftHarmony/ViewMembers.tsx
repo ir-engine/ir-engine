@@ -1,9 +1,11 @@
 import React, { useContext } from 'react'
-import { Container, Avatar, Drawer } from '@mui/material'
+import { Container, Avatar, Drawer, Dialog, DialogActions, DialogTitle, Button } from '@mui/material'
 import { useHarmonyStyles } from '../style'
 import ModeContext from '../context/modeContext'
 import { AddCircleOutline } from '@mui/icons-material'
 import { Delete } from '@material-ui/icons'
+import IconButton from '@mui/material/IconButton'
+import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
 
 interface Props {
   selectedGroup: any
@@ -15,7 +17,25 @@ interface Props {
 const ViewMembers = ({ selectedGroup, selfUser, openDrawer, setOpenDrawer }: Props) => {
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
+  const [showWarning, setShowWarning] = React.useState(false)
+  const [groupUserId, setGroupUserId] = React.useState('')
   //   const [openDrawer, setOpenDrawer] = React.useState(false)
+
+  const removeUser = (id) => {
+    setGroupUserId(id)
+    setShowWarning(true)
+  }
+
+  const cancelGroupUserDelete = (e: any) => {
+    e.preventDefault()
+    setShowWarning(false)
+  }
+
+  const confirmGroupUserDelete = (e) => {
+    e.preventDefault()
+    setShowWarning(false)
+    GroupService.removeGroupUser(groupUserId)
+  }
 
   return (
     <div>
@@ -63,15 +83,33 @@ const ViewMembers = ({ selectedGroup, selfUser, openDrawer, setOpenDrawer }: Pro
                           </div>
                         )}
                       </div>
-                      <a href="#" className={classes.border0}>
+                      <IconButton className={classes.border0} onClick={() => removeUser(groupUser.id)}>
                         <Delete fontSize="small" className={classes.danger} />
-                      </a>
+                      </IconButton>
                     </div>
                   )
                 })}
           </Container>
         )}
       </Drawer>
+
+      <Dialog
+        open={showWarning}
+        onClose={() => setShowWarning(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        classes={{ paper: classes.paperDialog }}
+      >
+        <DialogTitle id="alert-dialog-title">Confirm group user deletion!</DialogTitle>
+        <DialogActions>
+          <Button onClick={cancelGroupUserDelete} className={classes.spanNone}>
+            Cancel
+          </Button>
+          <Button className={classes.spanDange} onClick={confirmGroupUserDelete} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }
