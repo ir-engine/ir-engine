@@ -277,7 +277,7 @@ const LeftHarmony = (props: Props) => {
                   <a
                     href="#"
                     className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
-                    // onClick={() => createNewParty()}
+                    onClick={() => createNewParty()}
                   >
                     <b>CREATE PARTY</b>
                   </a>
