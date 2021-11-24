@@ -4,10 +4,11 @@ import React from 'react'
 import InputGroup from '../inputs/InputGroup'
 import AudioSourceProperties from './AudioSourceProperties'
 import NodeEditor from './NodeEditor'
-import useSetPropertySelected from './useSetPropertySelected'
 import i18n from 'i18next'
 import { useTranslation } from 'react-i18next'
-import FolderInput from '../inputs/FolderInput'
+import { CommandManager } from '../../managers/CommandManager'
+import SelectInput from '../inputs/SelectInput'
+import ArrayInputGroup from '../inputs/ArrayInputGroup'
 
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.
@@ -23,13 +24,27 @@ export function VolumetricNodeEditor(props) {
   VolumetricNodeEditor.description = t('editor:properties.volumetric.description')
 
   //function to handle the change in src property
-  const onChangeSrc = useSetPropertySelected('srcUrl')
+
+  const onChangePlayMode = (id) => {
+    CommandManager.instance.setPropertyOnSelection('playMode', id)
+  }
+
+  const onChangePaths = (paths) => {
+    CommandManager.instance.setPropertyOnSelection('paths', paths)
+  }
 
   //returning editor view
   return (
     <NodeEditor description={VolumetricNodeEditor.description} {...props}>
-      <InputGroup name="Volumetric" label={t('editor:properties.volumetric.lbl-volumetric')}>
-        <FolderInput value={node.srcUrl} onChange={onChangeSrc} />
+      <ArrayInputGroup
+        name="UVOL Paths"
+        prefix="uvol"
+        values={node.paths}
+        onChange={onChangePaths}
+        label={t('editor:properties.volumetric.uvolPaths')}
+      ></ArrayInputGroup>
+      <InputGroup name="Play Mode" label={t('editor:properties.volumetric.playmode')}>
+        <SelectInput options={node.playModeItems} value={node.playMode} onChange={onChangePlayMode} />
       </InputGroup>
       <AudioSourceProperties {...props} />
     </NodeEditor>

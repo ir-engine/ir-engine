@@ -18,9 +18,10 @@ let DracosisSequence = null as any
 
 if (isClient) {
   Promise.all([
+    //@ts-ignore
     import('volumetric/web/decoder/Player'),
     //@ts-ignore
-    import('volumetric/web/decoder/workerFunction.ts?worker')
+    import('volumetric/web/decoder/workerFunction.js?worker')
   ]).then(([module1, module2]) => {
     DracosisPlayer = module1.default
     DracosisPlayerWorker = module2.default
@@ -78,7 +79,8 @@ export function createVideo(entity, props: VideoProps): void {
 }
 
 interface VolumetricProps {
-  src: string
+  paths: any
+  playMode: any
   loop: number
   autoPlay: boolean
   interactable: boolean
@@ -87,7 +89,6 @@ interface VolumetricProps {
 export const createVolumetric = (entity, props: VolumetricProps) => {
   const container = new UpdateableObject3D()
   const worker = new DracosisPlayerWorker()
-  const resourceUrl = props.src
   let isBuffering = false
   let timer: any
   let isPlayed = false
@@ -96,9 +97,8 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
     scene: container,
     renderer: Engine.renderer,
     worker: worker,
-    manifestFilePath: resourceUrl.replace('.drcs', '.manifest'),
-    meshFilePath: resourceUrl,
-    videoFilePath: resourceUrl.replace('.drcs', '.mp4'),
+    paths: props.paths,
+    playMode: props.playMode,
     loop: props.loop,
     autoplay: props.autoPlay,
     scale: 1,
