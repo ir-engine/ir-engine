@@ -1,9 +1,7 @@
 import { download } from "@xrengine/server-core/src/projects/project/downloadProjects";
+import { copyDefaultProject } from '@xrengine/server-core/src/projects/project/project.class';
 import dotenv from 'dotenv';
 import Sequelize from 'sequelize';
-import fs from 'fs'
-import path from 'path'
-import appRootPath from 'app-root-path'
 
 dotenv.config();
 const db = {
@@ -48,9 +46,8 @@ async function installAllProjects() {
     const projects = await Projects.findAll()
     console.log('found projects', projects)
     
-    const projectsFolder = path.resolve(appRootPath.path, 'packages/projects/projects')
-    if(!fs.existsSync(projectsFolder)) fs.mkdirSync(projectsFolder, { recursive: true })
-    
+    copyDefaultProject()
+
     for(const project of projects) {
       await download(project.name)
     }

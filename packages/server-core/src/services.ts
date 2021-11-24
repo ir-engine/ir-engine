@@ -12,21 +12,30 @@ import BotService from './bot/services'
 import ScopeService from './scope/service'
 import SettingService from './setting/service'
 import RouteService from './route/service'
+import MatchMakingServices from './matchmaking/services'
 
 import fs from 'fs'
 import path from 'path'
+import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
   ? fs
       .readdirSync(path.resolve(__dirname, '../../projects/projects'), { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => {
-        console.log(dirent)
-        if (fs.existsSync(path.resolve(__dirname, '../../projects/projects', dirent.name, 'services/services.ts')))
-          return dirent.name
+        try {
+          const config: ProjectConfigInterface =
+            require(`../../projects/projects/${dirent.name}/xrengine.config.ts`).default
+          if (!config.services) return null
+          return path.join(dirent.name, config.services)
+        } catch (e) {
+          // console.log(e)
+        }
       })
       .filter((hasServices) => !!hasServices)
-      .map((name) => require(`../../projects/projects/${name}/services/services.ts`).default)
+      .map((servicesDir) => {
+        return require(`../../projects/projects/${servicesDir}`).default
+      })
       .flat()
   : []
 
@@ -45,7 +54,8 @@ export default (app: Application): void => {
     ...ScopeService,
     ...SettingService,
     ...RouteService,
-    ...installedProjects
+    ...installedProjects,
+    ...MatchMakingServices
   ].forEach((service) => {
     app.configure(service)
   })

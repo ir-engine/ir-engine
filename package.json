@@ -65,13 +65,13 @@
     "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "validate": "npm run lint && lerna run validate",
-    "build-publish": "lerna run --ignore @xrengine/bot build-publish --parallel",
+    "build-publish": "lerna run build-publish --parallel",
     "build-client": "cd packages/client && npm run build",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
     "precommit": "no-master-commits -b master",
-    "make-user-admin": "ts-eager scripts/make-user-admin.js",
-    "install-projects": "ts-eager scripts/install-projects.js",
+    "make-user-admin": "ts-node scripts/make-user-admin.js",
+    "install-projects": "ts-node scripts/install-projects.js",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "depcheck": "lerna exec --no-bail --stream -- depcheck"
   },
@@ -140,13 +140,14 @@
     "react-dnd": "14.0.4",
     "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
-    "ts-eager": "2.0.2",
+    "ts-node-dev": "1.1.8",
     "yuka": "0.7.6"
   },
   "dependencies": {
     "@iconify/react": "3.1.0",
     "@mui/styles": "5.1.0",
     "depcheck": "1.4.2",
-    "react-dnd": "14.0.4"
+    "react-dnd": "14.0.4",
+    "ts-node": "10.4.0"
   }
 }

@@ -75,6 +75,7 @@ export async function startPhases(state: MapStateUnwrapped, phases: readonly IPh
     // console.log("starting phase", phase.name)
     const keys = phase.getTaskKeys(state)
     if (phase.isCachingPhase || phase.isAsyncPhase) {
+      state.activePhase = phase.name
       // TODO remove
       const promises = [] as Promise<any>[]
       let promise: Promise<any>
@@ -104,6 +105,6 @@ export async function startPhases(state: MapStateUnwrapped, phases: readonly IPh
     }
     phase.cleanup(state)
   }
-  state.needsUpdate = true
+  state.activePhase = 'UpdateScene'
   return results
 }

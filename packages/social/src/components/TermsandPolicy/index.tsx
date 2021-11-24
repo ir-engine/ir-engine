@@ -1,19 +1,19 @@
 import React, { forwardRef, useState } from 'react'
-import Dialog from '@mui/material/Dialog'
-import Slide from '@mui/material/Slide'
-import { TransitionProps } from '@mui/material/transitions'
+import Dialog from '@material-ui/core/Dialog'
+import Slide from '@material-ui/core/Slide'
+import { TransitionProps } from '@material-ui/core/transitions'
 import { useTranslation } from 'react-i18next'
 
 // @ts-ignore
 import styles from './TermsandPolicy.module.scss'
-import DialogContent from '@mui/material/DialogContent/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText/DialogContentText'
-import { Button, Typography } from '@mui/material'
-
+import DialogContent from '@material-ui/core/DialogContent/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText/DialogContentText'
+import { Button, Typography } from '@material-ui/core'
+import { bindActionCreators, Dispatch } from 'redux'
 import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
-import { Link } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 
 const Transition = React.forwardRef(
   (props: TransitionProps & { children?: React.ReactElement<any, any> }, ref: React.Ref<unknown>) => {
@@ -21,7 +21,8 @@ const Transition = React.forwardRef(
   }
 )
 
-const TermsAndPolicy = ({ setView }: any) => {
+const TermsAndPolicy = () => {
+  const history = useHistory()
   const creatorsState = useCreatorState()
   const currentCreator = creatorsState.creators.currentCreator.value
   const dispatch = useDispatch()
@@ -62,14 +63,12 @@ const TermsAndPolicy = ({ setView }: any) => {
   const handleAccept = () => {
     setOpenTerms(false)
     setOpenPolicy(false)
-    dispatch(
-      CreatorService.updateCreator({
-        id: creatorsState.creators.currentCreator?.id?.value,
-        terms: true,
-        policy: true,
-        name: creatorsState.creators.currentCreator?.name?.value
-      })
-    )
+    CreatorService.updateCreator({
+      id: creatorsState.creators.currentCreator?.id?.value,
+      terms: true,
+      policy: true,
+      name: creatorsState.creators.currentCreator?.name?.value
+    })
   }
 
   return (
@@ -94,29 +93,23 @@ const TermsAndPolicy = ({ setView }: any) => {
           <DialogContentText>
             <Typography align="center" variant="subtitle1">
               {'By tapping "I agree to Terms of Service and Policy of Service", you agree to our '}
-              {/* <Link className={styles.styleLink} to="/terms">
-                Terms of Service
-              </Link> */}
               <Button
                 style={{
                   padding: '0'
                 }}
                 onClick={() => {
-                  setView('terms')
+                  history.push('terms')
                 }}
               >
                 <b>Terms of Service</b>
               </Button>
               {' and acknowledge that you have our '}
-              {/* <Link className={styles.styleLink} to="/policy">
-                Privacy Policy
-              </Link> */}
               <Button
                 style={{
                   padding: '0'
                 }}
                 onClick={() => {
-                  setView('policy')
+                  history.push('policy')
                 }}
               >
                 <b>Privacy Policy</b>
