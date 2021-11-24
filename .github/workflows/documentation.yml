@@ -44,7 +44,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '16.x'
-      - uses: webfactory/ssh-agent@v0.5.3
+      - uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
       - name: Release to GitHub Pages
