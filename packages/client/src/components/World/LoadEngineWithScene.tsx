@@ -44,14 +44,11 @@ const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 interface Props {
   engineInitializeOptions?: InitializeOptions
-  connectToInstanceServer?: boolean
   setLoadingItemCount?: any
 }
 
 export const LoadEngineWithScene = (props: Props) => {
-  const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const locationState = useLocationState()
-  const connectToInstanceServer = props.connectToInstanceServer !== undefined ? props.connectToInstanceServer : true
   const history = useHistory()
   const dispatch = useDispatch()
 
@@ -65,14 +62,9 @@ export const LoadEngineWithScene = (props: Props) => {
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value) {
       console.log('init', locationState.currentLocation.location.sceneId.value)
-      dispatch(EngineAction.setTeleporting(false))
+      dispatch(EngineAction.setTeleporting(null!))
       const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-      loadLocation(
-        locationState.currentLocation.location.sceneId.value,
-        engineInitializeOptions,
-        newSpawnPos,
-        connectToInstanceServer
-      )
+      loadLocation(locationState.currentLocation.location.sceneId.value, engineInitializeOptions)
     }
   }, [locationState.currentLocation.location.sceneId.value])
 
@@ -80,11 +72,10 @@ export const LoadEngineWithScene = (props: Props) => {
     const slugifiedName = locationState.currentLocation.location.slugifiedName.value
 
     teleportToLocation(portalComponent, slugifiedName, () => {
-      dispatch(EngineAction.setTeleporting(true))
+      dispatch(EngineAction.setTeleporting(portalComponent))
 
       // change our browser URL
       history.push('/location/' + portalComponent.location)
-      setNewSpawnPos(portalComponent)
     })
   }
 
