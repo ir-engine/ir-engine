@@ -28,7 +28,7 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [],
     find: [],
     get: [],
     create: [
@@ -46,20 +46,22 @@ export default {
         try {
           if (context.result?.data[0]?.fromUserInventoryIds) {
             for (let x = 0; x < context.result.data.length; x++) {
-              context.result.data[x].fromUserInventoryIds = JSON.parse(context.result.data[x].fromUserInventoryIds)
-              for (let i = 0; i < context.result.data[0].fromUserInventoryIds.length; i++) {
+              for (let i = 0; i < context.result.data[x].fromUserInventoryIds.length; i++) {
                 context.result.data[x].fromUserInventoryIds[i].metadata = JSON.parse(
                   context.result.data[x].fromUserInventoryIds[i].metadata
                 )
               }
             }
           } else {
-            context.result.data[0].toUserInventoryIds = []
+            context.result.data[0].fromUserInventoryIds = []
           }
+        } catch {
+          context.result.data[0].fromUserInventoryIds = []
+        }
+        try{
           if (context.result?.data[0]?.toUserInventoryIds) {
             for (let x = 0; x < context.result.data.length; x++) {
-              context.result.data[x].toUserInventoryIds = JSON.parse(context.result.data[x].toUserInventoryIds)
-              for (let i = 0; i < context.result.data[0].toUserInventoryIds.length; i++) {
+              for (let i = 0; i < context.result.data[x].toUserInventoryIds.length; i++) {
                 context.result.data[x].toUserInventoryIds[i].metadata = JSON.parse(
                   context.result.data[x].toUserInventoryIds[i].metadata
                 )
@@ -69,12 +71,46 @@ export default {
             context.result.data[0].toUserInventoryIds = []
           }
         } catch {
-          context.result.data = []
+          context.result.data[0].toUserInventoryIds = []
         }
         return context
       }
     ],
-    get: [],
+    get: [
+      (context: HookContext): HookContext => {
+        try {
+          if (context.result?.data[0]?.fromUserInventoryIds) {
+            for (let x = 0; x < context.result.data.length; x++) {
+              for (let i = 0; i < context.result.data[x].fromUserInventoryIds.length; i++) {
+                context.result.data[x].fromUserInventoryIds[i].metadata = JSON.parse(
+                  context.result.data[x].fromUserInventoryIds[i].metadata
+                )
+              }
+            }
+          } else {
+            context.result.data[0].fromUserInventoryIds = []
+          }
+        } catch {
+          context.result.data[0].fromUserInventoryIds = []
+        }
+        try{
+          if (context.result?.data[0]?.toUserInventoryIds) {
+            for (let x = 0; x < context.result.data.length; x++) {
+              for (let i = 0; i < context.result.data[x].toUserInventoryIds.length; i++) {
+                context.result.data[x].toUserInventoryIds[i].metadata = JSON.parse(
+                  context.result.data[x].toUserInventoryIds[i].metadata
+                )
+              }
+            }
+          } else {
+            context.result.data[0].toUserInventoryIds = []
+          }
+        } catch {
+          context.result.data[0].toUserInventoryIds = []
+        }
+        return context
+      }
+    ],
     create: [],
     update: [],
     patch: [],
