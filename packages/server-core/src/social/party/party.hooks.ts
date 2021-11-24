@@ -6,7 +6,7 @@ import removePartyUsers from '@xrengine/server-core/src/hooks/remove-party-users
 import { HookContext } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import addAssociations from '../../hooks/add-associations'
-import restrictUserRole from "../../hooks/restrict-user-role";
+import restrictUserRole from '../../hooks/restrict-user-role'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks

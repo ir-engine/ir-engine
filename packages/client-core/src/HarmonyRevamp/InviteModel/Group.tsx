@@ -55,7 +55,7 @@ const Group = (props: Props) => {
     const mappedIDProvider = type
     event.preventDefault()
     const sendData = {
-      type: inviteState.targetObjectType.value === 'user' ? 'friend' : inviteState.targetObjectType.value,
+      type: 'group',
       token: mappedIDProvider !== 'code' ? userToken : null,
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
       identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
@@ -67,7 +67,7 @@ const Group = (props: Props) => {
     handleCloseModal()
     setUserToken('')
   }
-  console.log(inviteState.targetObjectId.value)
+
   return (
     <React.Fragment>
       <div className={`${classes.dFlex} ${classes.FlexWrap} ${classes.alignCenter} ${classes.mx0}`}>

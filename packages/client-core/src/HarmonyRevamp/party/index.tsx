@@ -7,18 +7,21 @@ import { PartyService } from '@xrengine/client-core/src/social/services/PartySer
 import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import { useHarmonyStyles } from '../style'
 import ModeContext from '../context/modeContext'
+import ViewMembers from './ViewMembers'
 
 interface Props {
   setActiveChat: any
   setShowChat: any
   setInvite: any
   handleCreate: any
+  selfUser: any
 }
 
 const Party = (props: Props) => {
   const classes = useHarmonyStyles()
   const { darkMode } = useContext(ModeContext)
-  const { setActiveChat, setShowChat, setInvite, handleCreate } = props
+  const [openDrawer, setOpenDrawer] = React.useState(false)
+  const { setActiveChat, setShowChat, setInvite, handleCreate, selfUser } = props
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [partyDeletePending, setPartyDeletePending] = React.useState(false)
   const user = useAuthState().user.value
@@ -35,6 +38,10 @@ const Party = (props: Props) => {
 
   const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
     InviteService.updateInviteTarget(targetObjectType, targetObjectId)
+  }
+
+  const handleOpenDrawer = () => {
+    setOpenDrawer(true)
   }
 
   const showPartyDeleteConfirm = (e) => {
@@ -69,8 +76,8 @@ const Party = (props: Props) => {
 
   return (
     <>
-      {
-        <div key={party.id} className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}>
+      {party && (
+        <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}>
           <div
             onClick={() => {
               setShowChat(true), setActiveChat('party', party)
@@ -113,7 +120,7 @@ const Party = (props: Props) => {
                     </ListItemIcon>
                     <ListItemText>CHAT</ListItemText>
                   </MenuItem>
-                  {(selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
+                  {(selfPartyUser?.isOwner !== true || selfPartyUser?.isOwner === 1) && (
                     <MenuItem
                       className={classes.my2}
                       onClick={() => {
@@ -135,12 +142,25 @@ const Party = (props: Props) => {
                     </MenuItem>
                   )}
                 </MenuList>
+
+                <div className={classes.center}>
+                  <a
+                    href="#"
+                    onClick={() => {
+                      handleOpenDrawer(), handleClose()
+                    }}
+                    className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
+                  >
+                    <small>VIEW MEMBERS</small>
+                  </a>
+                </div>
               </div>
             </Popover>
           </div>
         </div>
-      }
+      )}
       )
+      <ViewMembers selectedParty={party} selfUser={selfUser} setOpenDrawer={setOpenDrawer} openDrawer={openDrawer} />
     </>
   )
 }

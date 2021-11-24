@@ -23,7 +23,7 @@ const Party = (props: Props) => {
     const mappedIDProvider = type
     event.preventDefault()
     const sendData = {
-      type: inviteState.targetObjectType.value === 'user' ? 'friend' : inviteState.targetObjectType.value,
+      type: 'party',
       token: mappedIDProvider !== 'code' ? userToken : null,
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
       identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,

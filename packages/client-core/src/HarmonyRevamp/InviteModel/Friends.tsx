@@ -24,7 +24,7 @@ const Friends = (props: Props) => {
     const mappedIDProvider = type
     event.preventDefault()
     const sendData = {
-      type: inviteState.targetObjectType.value === 'user' ? 'friend' : inviteState.targetObjectType.value,
+      type: 'friend',
       token: mappedIDProvider !== 'code' ? userToken : null,
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
       identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
@@ -36,6 +36,8 @@ const Friends = (props: Props) => {
     setUserToken('')
     handleCloseModal()
   }
+
+  console.log(inviteState.targetObjectType.value)
 
   return (
     <React.Fragment>

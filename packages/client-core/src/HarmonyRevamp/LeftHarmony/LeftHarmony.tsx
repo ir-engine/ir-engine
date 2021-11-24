@@ -9,6 +9,7 @@ import { useGroupState } from '@xrengine/client-core/src/social/services/GroupSe
 import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
 import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import * as React from 'react'
 import InviteHarmony from '../InviteHarmony'
 import { useHarmonyStyles } from '../style'
@@ -44,6 +45,8 @@ const LeftHarmony = (props: Props) => {
   const [openDrawer, setOpen] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)
   const [friendDeletePending, setFriendDeletePending] = React.useState({})
+  const partyState = usePartyState()
+  const party = partyState.party.value
 
   React.useEffect(() => {
     if (!persed['?channel']) {
@@ -269,21 +272,26 @@ const LeftHarmony = (props: Props) => {
             ''
           ) : (
             <>
-              <div className={classes.center}>
-                <a
-                  href="#"
-                  className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
-                  // onClick={() => createNewParty()}
-                >
-                  <b>CREATE PARTY</b>
-                </a>
-              </div>
-              <Party
-                setActiveChat={setActiveChat}
-                setShowChat={setShowChat}
-                setInvite={setInvite}
-                handleCreate={handleCreate}
-              />
+              {!party && (
+                <div className={classes.center}>
+                  <a
+                    href="#"
+                    className={`${classes.my2} ${classes.btn} ${darkMode ? classes.btnDark : classes.whiteBg}`}
+                    // onClick={() => createNewParty()}
+                  >
+                    <b>CREATE PARTY</b>
+                  </a>
+                </div>
+              )}
+              {party && (
+                <Party
+                  setActiveChat={setActiveChat}
+                  setShowChat={setShowChat}
+                  setInvite={setInvite}
+                  handleCreate={handleCreate}
+                  selfUser={selfUser}
+                />
+              )}
             </>
           )}
           {chat !== 'group' ? (
