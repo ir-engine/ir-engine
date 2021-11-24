@@ -96,15 +96,18 @@ export class AcceptInvite implements ServiceMethods<Data> {
         if (invite.inviteType === 'friend') {
           const existingRelationshipResult = await this.app.service('user-relationship').find({
             query: {
-              $or: [{
-                userRelationshipType: 'requested'
-              }, {
-                userRelationshipType: 'friend'
-              }],
+              $or: [
+                {
+                  userRelationshipType: 'requested'
+                },
+                {
+                  userRelationshipType: 'friend'
+                }
+              ],
               userId: invite.userId,
               relatedUserId: inviteeIdentityProvider.userId
             }
-          })
+          }) as any
 
           if ((existingRelationshipResult as any).total === 0) {
             await this.app.service('user-relationship').create(
@@ -116,18 +119,25 @@ export class AcceptInvite implements ServiceMethods<Data> {
               params
             )
           } else {
-            await this.app.service('user-relationship').patch(existingRelationshipResult.data[0].id, {
-              userRelationshipType: 'friend'
-            }, params)
+            await this.app.service('user-relationship').patch(
+              existingRelationshipResult.data[0].id,
+              {
+                userRelationshipType: 'friend'
+              },
+              params
+            )
           }
 
           const relationshipToPatch = (await this.app.service('user-relationship').find({
             query: {
-              $or: [{
-                userRelationshipType: 'requested'
-              }, {
-                userRelationshipType: 'friend'
-              }],
+              $or: [
+                {
+                  userRelationshipType: 'requested'
+                },
+                {
+                  userRelationshipType: 'friend'
+                }
+              ],
               userId: inviteeIdentityProvider.userId,
               relatedUserId: invite.userId
             }
@@ -213,15 +223,18 @@ export class AcceptInvite implements ServiceMethods<Data> {
         if (invite.inviteType === 'friend') {
           const existingRelationshipResult = await this.app.service('user-relationship').find({
             query: {
-              $or: [{
-                userRelationshipType: 'requested'
-              }, {
-                userRelationshipType: 'friend'
-              }],
+              $or: [
+                {
+                  userRelationshipType: 'requested'
+                },
+                {
+                  userRelationshipType: 'friend'
+                }
+              ],
               userId: invite.userId,
               relatedUserId: invite.inviteeId
             }
-          })
+          }) as any
 
           if ((existingRelationshipResult as any).total === 0) {
             await this.app.service('user-relationship').create(
@@ -233,18 +246,25 @@ export class AcceptInvite implements ServiceMethods<Data> {
               params
             )
           } else {
-            await this.app.service('user-relationship').patch(existingRelationshipResult.data[0].id, {
-              userRelationshipType: 'friend'
-            }, params)
+            await this.app.service('user-relationship').patch(
+              existingRelationshipResult.data[0].id,
+              {
+                userRelationshipType: 'friend'
+              },
+              params
+            )
           }
 
           const relationshipToPatch = (await this.app.service('user-relationship').find({
             query: {
-              $or: [{
-                userRelationshipType: 'requested'
-              }, {
-                userRelationshipType: 'friend'
-              }],
+              $or: [
+                {
+                  userRelationshipType: 'requested'
+                },
+                {
+                  userRelationshipType: 'friend'
+                }
+              ],
               userId: invite.inviteeId,
               relatedUserId: invite.userId
             }

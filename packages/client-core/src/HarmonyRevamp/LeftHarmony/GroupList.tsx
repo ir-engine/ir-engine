@@ -208,7 +208,7 @@ const GroupList = (props: Props) => {
         aria-describedby="alert-dialog-description"
         classes={{ paper: classes.paperDialog }}
       >
-        <DialogTitle id="alert-dialog-title">Confirm to delete this group!</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Confirm group deletion!</DialogTitle>
         <DialogActions>
           <Button onClick={cancelGroupDelete} className={classes.spanNone}>
             Cancel

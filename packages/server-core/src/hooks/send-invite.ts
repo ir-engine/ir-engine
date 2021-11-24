@@ -110,11 +110,14 @@ export default () => {
         if (inviteType === 'friend') {
           const existingRelationshipStatus = await app.service('user-relationship').find({
             query: {
-              $or: [{
-                userRelationshipType: 'friend'
-              }, {
-                userRelationshipType: 'requested'
-              }],
+              $or: [
+                {
+                  userRelationshipType: 'friend'
+                },
+                {
+                  userRelationshipType: 'requested'
+                }
+              ],
               userId: result.userId,
               relatedUserId: result.inviteeId
             }

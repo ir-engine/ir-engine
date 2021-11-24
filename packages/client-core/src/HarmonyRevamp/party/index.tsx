@@ -1,6 +1,16 @@
 import React, { useContext } from 'react'
 import { MoreHoriz, Forum, GroupAdd, Delete } from '@material-ui/icons'
-import { MenuList, MenuItem, ListItemIcon, ListItemText, Popover } from '@mui/material'
+import {
+  MenuList,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Popover,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  Button
+} from '@mui/material'
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { PartyService } from '@xrengine/client-core/src/social/services/PartyService'
@@ -23,7 +33,7 @@ const Party = (props: Props) => {
   const [openDrawer, setOpenDrawer] = React.useState(false)
   const { setActiveChat, setShowChat, setInvite, handleCreate, selfUser } = props
   const [anchorEl, setAnchorEl] = React.useState(null)
-  const [partyDeletePending, setPartyDeletePending] = React.useState(false)
+  const [showWarning, setShowWarning] = React.useState(false)
   const user = useAuthState().user.value
   const partyState = usePartyState()
   const party = partyState.party.value
@@ -46,17 +56,17 @@ const Party = (props: Props) => {
 
   const showPartyDeleteConfirm = (e) => {
     e.preventDefault()
-    setPartyDeletePending(true)
+    setShowWarning(true)
   }
 
   const cancelPartyDelete = (e) => {
     e.preventDefault()
-    setPartyDeletePending(false)
+    setShowWarning(false)
   }
 
   const confirmPartyDelete = (e, partyId) => {
     e.preventDefault()
-    setPartyDeletePending(false)
+    setShowWarning(false)
     PartyService.removeParty(partyId)
   }
 
@@ -85,7 +95,7 @@ const Party = (props: Props) => {
             className={`${classes.mx2} ${classes.flexGrow2}`}
           >
             <h4 className={classes.fontBig}>{party.name}</h4>
-            <small className={classes.textMuted}>Party id: </small>
+            <small className={classes.textMuted}>Current party </small>
             <small className={classes.textMuted}>{party.instance?.ipAddress}</small>
           </div>
 
@@ -133,8 +143,8 @@ const Party = (props: Props) => {
                       <ListItemText>INVITE</ListItemText>
                     </MenuItem>
                   )}
-                  {!partyDeletePending && (selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
-                    <MenuItem className={classes.my2}>
+                  {(selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
+                    <MenuItem className={classes.my2} onClick={showPartyDeleteConfirm}>
                       <ListItemIcon>
                         <Delete fontSize="small" className={classes.danger} />
                       </ListItemIcon>
@@ -159,8 +169,24 @@ const Party = (props: Props) => {
           </div>
         </div>
       )}
-      )
       <ViewMembers selectedParty={party} selfUser={selfUser} setOpenDrawer={setOpenDrawer} openDrawer={openDrawer} />
+      <Dialog
+        open={showWarning}
+        onClose={() => setShowWarning(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        classes={{ paper: classes.paperDialog }}
+      >
+        <DialogTitle id="alert-dialog-title">Confirm party deletion!</DialogTitle>
+        <DialogActions>
+          <Button onClick={cancelPartyDelete} className={classes.spanNone}>
+            Cancel
+          </Button>
+          <Button className={classes.spanDange} onClick={confirmPartyDelete} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }
