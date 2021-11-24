@@ -71,10 +71,12 @@ store.receptors.push((action: UserActionType): void => {
       }
       case 'REMOVED_CHANNEL_LAYER_USER':
         const newUser = action.user
-        const idx = s.channelLayerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.value.id === newUser.id
-        })
-        return s.channelLayerUsers[idx].set(none)
+          if (newUser) {
+            const idx = s.channelLayerUsers.findIndex((layerUser) => {
+              return layerUser != null && layerUser.value.id === newUser.id
+            })
+            return s.channelLayerUsers[idx].set(none)
+          } else return s
       case 'USER_TOAST':
         return s.toastMessages.merge([action.message])
     }

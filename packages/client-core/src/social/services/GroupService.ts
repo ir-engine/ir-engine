@@ -238,6 +238,7 @@ export const GroupService = {
       try {
         const channelResult = (await client.service('channel').find({
           query: {
+            channelType: 'group',
             groupId: groupId
           }
         })) as any

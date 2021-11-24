@@ -1,18 +1,7 @@
 import React, { useContext } from 'react'
-import { Add, Close, Delete, Edit, Forum, GroupAdd, Inbox, MoreHoriz, Notifications, Search } from '@material-ui/icons'
 import { AddCircleOutline, Check } from '@mui/icons-material'
-import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
 import {
-  Badge,
-  IconButton,
-  MenuList,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Popover,
-  Dialog,
   Typography,
-  Avatar,
   Box,
   Tabs,
   Tab
@@ -22,6 +11,8 @@ import Group from './Group'
 import Party from './Party'
 import { useHarmonyStyles } from '../style'
 import ModeContext from '../context/modeContext'
+import { User as UserType } from '@xrengine/common/src/interfaces/User'
+import { Party as PartyType } from '@xrengine/common/src/interfaces/Party'
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props
@@ -51,8 +42,10 @@ function a11yProps(index) {
 }
 
 interface Props {
-  invite: string
   handleCloseModal: any
+  invite: string
+  party: PartyType
+  selfUser: UserType
 }
 
 const Index = (props: Props) => {
@@ -60,6 +53,13 @@ const Index = (props: Props) => {
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [value, setValue] = React.useState(invite === 'Group' ? 2 : invite === 'Party' ? 1 : 0)
+
+  const party = props.party
+  const partyUsers = party?.partyUsers?.length ? party.partyUsers : []
+  let selfPartyUser
+  for (const partyUser of partyUsers) {
+    if (partyUser.userId === props.selfUser.id) selfPartyUser = { ...partyUser }
+  }
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
@@ -83,7 +83,7 @@ const Index = (props: Props) => {
             sx={{ borderRight: 1, borderColor: 'divider' }}
           >
             <Tab label="FRIENDS" {...a11yProps(0)} />
-            <Tab label="PARTY" {...a11yProps(1)} />
+            { selfPartyUser && selfPartyUser.isOwner && <Tab label="PARTY" {...a11yProps(1)} /> }
             <Tab label="GROUP" {...a11yProps(2)} />
           </Tabs>
           <TabPanel value={value} index={0}>

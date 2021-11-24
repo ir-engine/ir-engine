@@ -71,7 +71,7 @@ const Party = (props: Props) => {
   const confirmPartyDelete = (e, partyId) => {
     e.preventDefault()
     setShowWarning(false)
-    PartyService.removeParty(partyId)
+    if (party && party.id) PartyService.removeParty(party.id)
     handleClose()
   }
 

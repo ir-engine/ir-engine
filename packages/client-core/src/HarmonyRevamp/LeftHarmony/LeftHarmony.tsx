@@ -353,7 +353,7 @@ const LeftHarmony = (props: Props) => {
         </DialogActions>
       </Dialog>
       <Dialog fullWidth={true} maxWidth={'md'} open={create} onClose={() => handleCloseModal()}>
-        <InviteModel handleCloseModal={handleCloseModal} invite={invite} />
+        <InviteModel handleCloseModal={handleCloseModal} invite={invite} selfUser={selfUser} party={party}/>
       </Dialog>
       <InviteHarmony setShowNot={setShowNot} show={show} setShow={setShow} />
     </>

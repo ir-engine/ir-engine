@@ -170,6 +170,7 @@ export const PartyService = {
       try {
         const channelResult = await client.service('channel').find({
           query: {
+            channelType: 'party',
             partyId: partyId
           }
         })

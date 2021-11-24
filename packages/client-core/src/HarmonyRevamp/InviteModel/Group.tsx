@@ -39,6 +39,7 @@ const Group = (props: Props) => {
   }
 
   const handleInviteGroupChange = (event: React.ChangeEvent<{ value: string }>): void => {
+    setGroup(event.target.value)
     InviteService.updateInviteTarget('group', event.target.value)
   }
 
@@ -120,7 +121,7 @@ const Group = (props: Props) => {
                 id="invite-group-select"
                 className={!darkMode ? classes.selectLigth : classes.select}
                 value={group}
-                onChange={(e) => setGroup(e.target.value)}
+                onChange={(e) => handleInviteGroupChange(e)}
                 MenuProps={{ classes: { paper: darkMode ? classes.selectPaper : classes.selectPaperLight } }}
               >
                 <MenuItem value="1" disabled>
@@ -129,7 +130,7 @@ const Group = (props: Props) => {
                 {invitableGroups.value.map((group) => {
                   return (
                     <MenuItem key={group.id} value={group.id}>
-                      {group.description}
+                      {group.name}
                     </MenuItem>
                   )
                 })}
