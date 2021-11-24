@@ -177,7 +177,7 @@ describe('Physics', () => {
       new PhysX.PxCapsuleGeometry(avatarRadius, capsuleHeight / 2),
       world.physics.physics.createMaterial(0, 0, 0),
       {
-        // isTrigger: true,
+        isTrigger: true,
         collisionLayer: CollisionGroups.Trigger,
         collisionMask: CollisionGroups.Avatars
       }
