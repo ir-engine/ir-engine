@@ -67,7 +67,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         try {
           const node = await EntityNodeConstructor.deserialize(entity, loadAsync, onError)
           node.uuid = entityId
-          if (entity.parent) {
+          if (entity.parent && !node.parent) {
             const parent = getNodeWithUUID(scene, entity.parent)
             if (!parent) {
               throw new Error(

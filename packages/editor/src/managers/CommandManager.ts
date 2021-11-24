@@ -31,6 +31,8 @@ import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from '../nodes/SceneNode'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -112,6 +114,19 @@ export class CommandManager extends EventEmitter {
     } else {
       this.executeCommand(EditorCommands.MODIFY_PROPERTY, this.selected, { properties })
     }
+  }
+
+  setPropertyOnEntity(entity: Entity, component: ComponentConstructor<any, any>, name: string, value: any, withHistory = true) {
+    const comp = getComponent(entity, component)
+
+    const properties = { [name]: value }
+    if (withHistory) {
+      this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, comp, { properties })
+    } else {
+      this.executeCommand(EditorCommands.MODIFY_PROPERTY, comp, { properties })
+    }
+
+    comp.dirty = true
   }
 
   emitEvent = (event: EditorEvents, ...args: any[]): void => {

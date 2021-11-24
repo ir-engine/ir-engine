@@ -111,7 +111,7 @@ export default class AddObjectCommand extends Command {
             makeUniqueName(Engine.scene, child)
           }
 
-          child.onAdd()
+          if (child.onAdd) child.onAdd()
           NodeManager.instance.add(child)
         }
       })

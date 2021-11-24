@@ -61,7 +61,7 @@ export default class ReplaceSelectionCommand extends Command {
       const object = CommandManager.instance.selected[i]
 
       if (object.isNode && !objects.includes(object)) {
-        object.onDeselect()
+        if (object.onDeselect) object.onDeselect()
       }
     }
 
@@ -74,7 +74,7 @@ export default class ReplaceSelectionCommand extends Command {
       CommandManager.instance.selected.push(object)
 
       if (object.isNode && !prevSelected.includes(object)) {
-        object.onSelect()
+        if (object.onSelect) object.onSelect()
       }
     }
 

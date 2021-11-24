@@ -6,6 +6,7 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import { Vector2 } from 'three'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
+import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 /**
  *  Array containing options for shadow resolution
@@ -38,6 +39,7 @@ const ShadowMapResolutionOptions = [
 //creating properties for LightShadowProperties component
 type LightShadowPropertiesProps = {
   node?: any
+  comp?: ComponentConstructor<any, any>
 }
 
 /**
@@ -52,35 +54,38 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
 
   // function to handle the change in shadowMapResolution propery
   const onChangeShadowMapResolution = (shadowMapResolution) => {
-    CommandManager.instance.setPropertyOnSelection('shadowMapResolution', shadowMapResolution)
+    CommandManager.instance.setPropertyOnEntity(props.node.entity, props.comp, 'shadowMapResolution', shadowMapResolution)
   }
 
   // function to handle changes in castShadow propery
   const onChangeCastShadow = (castShadow) => {
     CommandManager.instance.setPropertyOnSelection('castShadow', castShadow)
+    CommandManager.instance.setPropertyOnEntity(props.node.entity, props.comp, 'castShadow', castShadow)
   }
 
   // fucntion to handle changes in shadowBias property
   const onChangeShadowBias = (shadowBias) => {
     CommandManager.instance.setPropertyOnSelection('shadowBias', shadowBias)
+    CommandManager.instance.setPropertyOnEntity(props.node.entity, props.comp, 'shadowBias', shadowBias)
   }
 
   // function to handle changes shadowRadius property
   const onChangeShadowRadius = (shadowRadius) => {
     CommandManager.instance.setPropertyOnSelection('shadowRadius', shadowRadius)
+    CommandManager.instance.setPropertyOnEntity(props.node.entity, props.comp, 'shadowRadius', shadowRadius)
   }
 
-  const node = props.node
+  const lightComponent = getComponent(props.node.entity, props.comp)
 
   return (
     <Fragment>
       <InputGroup name="Cast Shadow" label={t('editor:properties.directionalLight.lbl-castShadow')}>
-        <BooleanInput value={node.castShadow} onChange={onChangeCastShadow} />
+        <BooleanInput value={lightComponent.castShadow} onChange={onChangeCastShadow} />
       </InputGroup>
       <InputGroup name="Shadow Map Resolution" label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}>
         <SelectInput
           options={ShadowMapResolutionOptions}
-          value={node.shadowMapResolution}
+          value={lightComponent.shadowMapResolution}
           onChange={onChangeShadowMapResolution}
         />
       </InputGroup>
@@ -91,7 +96,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
         smallStep={0.0001}
         largeStep={0.001}
         displayPrecision={0.000001}
-        value={node.shadowBias}
+        value={lightComponent.shadowBias}
         onChange={onChangeShadowBias}
       />
       <NumericInputGroup
@@ -101,7 +106,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
         smallStep={0.1}
         largeStep={1}
         displayPrecision={0.0001}
-        value={node.shadowRadius}
+        value={lightComponent.shadowRadius}
         onChange={onChangeShadowRadius}
       />
     </Fragment>

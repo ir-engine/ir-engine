@@ -95,6 +95,8 @@ export default class ModifyPropertyCommand extends Command {
         if (object.onChange) {
           object.onChange(propertyName)
         }
+
+        object.dirty = true
       }
 
       CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, propertyName)

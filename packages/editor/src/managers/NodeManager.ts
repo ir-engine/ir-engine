@@ -64,6 +64,7 @@ import TriggerVolumeNode from '../nodes/TriggerVolumeNode'
 import VideoNode from '../nodes/VideoNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
+import { DirectionalLight } from 'three'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -73,10 +74,12 @@ export class NodeManager {
   nodeTypes: Set<any>
 
   nodeEditors: Map<any, any>
+  entityEditors: Map<any, any>
 
   constructor() {
     this.nodeTypes = new Set()
     this.nodeEditors = new Map()
+    this.entityEditors = new Map()
 
     this.nodes = []
   }
@@ -88,9 +91,11 @@ export class NodeManager {
    * @param  {any} nodeConstructor contains constructor properties
    * @param  {any} nodeEditor      contains editor properties
    */
-  registerNode(nodeConstructor, nodeEditor) {
+  registerNode(nodeConstructor, nodeEditor, entityConstructor?) {
     this.nodeTypes.add(nodeConstructor)
     this.nodeEditors.set(nodeConstructor, nodeEditor)
+
+    if (entityConstructor) this.entityEditors.set(entityConstructor, nodeEditor)
   }
 
   /**
@@ -100,7 +105,7 @@ export class NodeManager {
    * @param  {any} node contains properties of node
    */
   getEditorFromNode(node) {
-    return this.nodeEditors.get(node.constructor)
+    return this.nodeEditors.get(node.constructor) ?? this.entityEditors.get(node.constructor)
   }
 
   /**
@@ -110,7 +115,7 @@ export class NodeManager {
    * @param  {any} nodeClass contains properties of node
    */
   getEditorFromClass(nodeClass) {
-    return this.nodeEditors.get(nodeClass)
+    return this.nodeEditors.get(nodeClass) ?? this.entityEditors.get(nodeClass)
   }
 
   getCopy(): any[] {
@@ -153,7 +158,7 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
   NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
   NodeManager.instance.registerNode(AmbientLightNode, AmbientLightNodeEditor)
-  NodeManager.instance.registerNode(DirectionalLightNode, DirectionalLightNodeEditor)
+  NodeManager.instance.registerNode(DirectionalLightNode, DirectionalLightNodeEditor, DirectionalLight)
   NodeManager.instance.registerNode(HemisphereLightNode, HemisphereLightNodeEditor)
   NodeManager.instance.registerNode(SpotLightNode, SpotLightNodeEditor)
   NodeManager.instance.registerNode(PointLightNode, PointLightNodeEditor)

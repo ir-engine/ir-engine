@@ -210,11 +210,15 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), { tickRate: 60 })
 
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
+
   registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/LightSystem'))
+
 
   // Scene Systems
   // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
-  // registerSystem(SystemUpdateType.FIXED, import('./transform/systems/TransformSystem'))
   // registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
   //   simulationEnabled: options.physics.simulationEnabled
   // })

@@ -184,7 +184,7 @@ export class SceneManager {
         if (!node.isNode) return
 
         if (node.name === 'post processing') this.postProcessingNode = node
-        node.onChange()
+        if (node.onChange) node.onChange()
       })
 
       configureEffectComposer(this.postProcessingNode?.postProcessingOptions)
@@ -497,7 +497,7 @@ export class SceneManager {
         resizeShadowCameraFrustum(node, Engine.scene)
       }
 
-      if (node.isNode) {
+      if (node.isNode && node.onUpdate) {
         node.onUpdate(delta, time)
       }
     })
