@@ -352,8 +352,6 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       console.error(e)
     }
 
-    if (Engine.offlineMode) return
-
     queueAllOutgoingPoses(world)
 
     // side effect - network IO
