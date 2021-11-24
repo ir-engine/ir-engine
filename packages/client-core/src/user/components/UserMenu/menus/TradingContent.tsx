@@ -219,7 +219,7 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
     acceptOfferReceived(localStorage.getItem("tradeId"), receivedTrading)
   }
 
-  console.log(data, "datas")
+  console.log(data,data0,data1, "datas")
   return (
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
