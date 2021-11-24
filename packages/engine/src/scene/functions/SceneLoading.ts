@@ -118,7 +118,6 @@ export class WorldScene {
       console.log('should network spawn object?:', shouldBeNetworkSpawned)
       if (shouldBeNetworkSpawned) {
         if (!isClient) {
-          sceneEntity.sceneEntityId = key
           const world = useWorld()
           dispatchFrom(world.hostId, () =>
             NetworkWorldAction.spawnObject({
