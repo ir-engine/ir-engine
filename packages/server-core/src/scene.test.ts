@@ -95,7 +95,7 @@ describe('scene.test', () => {
     const { data } = await app.service('project').get(newProjectName, params)
     await app.service('project').remove(data.id, params)
     const project = await app.service('project').get(newProjectName, params)
-    assert.strictEqual(project, undefined)
+    assert.strictEqual(project, null)
   })
 
   after(() => {
