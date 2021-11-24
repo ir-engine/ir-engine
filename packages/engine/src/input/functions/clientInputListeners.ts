@@ -103,6 +103,9 @@ export const addClientInputListeners = (canvas: HTMLCanvasElement) => {
 }
 
 export const removeClientInputListeners = () => {
+  // if not client, no listeners will exist
+  if (!boundListeners.length) return
+
   window.removeEventListener('DOMMouseScroll', preventDefault, false)
   window.removeEventListener('keydown', preventDefaultForScrollKeys, false)
 

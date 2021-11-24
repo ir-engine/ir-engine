@@ -267,8 +267,6 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   const sceneWorld = createWorld()
   Engine.currentWorld = sceneWorld
 
-  Engine.initOptions = options
-  Engine.offlineMode = false // TODO
   Engine.publicPath = options.publicPath
 
   // Browser state set
@@ -348,9 +346,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 }
 
 export const shutdownEngine = async () => {
-  if (Engine.initOptions?.type === EngineSystemPresets.CLIENT) {
-    removeClientInputListeners()
-  }
+  removeClientInputListeners()
 
   Engine.engineTimer?.clear()
   Engine.engineTimer = null!
