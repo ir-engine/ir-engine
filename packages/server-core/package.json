@@ -63,7 +63,7 @@
     "@feathersjs/socketio": "5.0.0-pre.9",
     "@feathersjs/socketio-client": "^5.0.0-pre.9",
     "@feathersjs/transport-commons": "^5.0.0-pre.9",
-    "@google-cloud/agones-sdk": "1.18.0",
+    "@google-cloud/agones-sdk": "1.19.0",
     "@xrengine/common": "^0.4.10",
     "@xrengine/engine": "^0.4.10",
     "aws-sdk": "^2.811.0",

@@ -22,7 +22,7 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {
-    "@google-cloud/agones-sdk": "1.18.0",
+    "@google-cloud/agones-sdk": "1.19.0",
     "cross-env": "7.0.3",
     "puppeteer": "11.0.0"
   },
