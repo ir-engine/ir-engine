@@ -26,10 +26,10 @@ describe('loadPhysX', () => {
   it('should load physx a second time', async () => {
     await loadPhysX()
     assert(PhysX)
+    assert((globalThis as any).PhysX)
     assert.notEqual(originalPhysX, PhysX)
     assert.notDeepEqual(originalPhysX, PhysX)
     assert.notDeepStrictEqual(originalPhysX, PhysX)
-    assert((globalThis as any).PhysX)
 
     const tolerance = new PhysX.PxTolerancesScale()
     assert.deepStrictEqual(tolerance.length, 1)
