@@ -44,32 +44,20 @@ export default {
     find: [
       (context: HookContext): HookContext => {
         try {
-          if (context.result?.data[0]?.fromUserInventoryIds) {
             for (let x = 0; x < context.result.data.length; x++) {
-              for (let i = 0; i < context.result.data[x].fromUserInventoryIds.length; i++) {
-                context.result.data[x].fromUserInventoryIds[i].metadata = JSON.parse(
-                  context.result.data[x].fromUserInventoryIds[i].metadata
-                )
-              }
+              let data =[...JSON.parse(
+                context.result.data[x].fromUserInventoryIds)]
+              context.result.data[x].fromUserInventoryIds = data
             }
-          } else {
-            context.result.data[0].fromUserInventoryIds = []
-          }
         } catch {
           context.result.data[0].fromUserInventoryIds = []
         }
         try{
-          if (context.result?.data[0]?.toUserInventoryIds) {
             for (let x = 0; x < context.result.data.length; x++) {
-              for (let i = 0; i < context.result.data[x].toUserInventoryIds.length; i++) {
-                context.result.data[x].toUserInventoryIds[i].metadata = JSON.parse(
-                  context.result.data[x].toUserInventoryIds[i].metadata
-                )
-              }
+              let data =[...JSON.parse(
+                context.result.data[x].toUserInventoryIds)]
+              context.result.data[x].toUserInventoryIds = data
             }
-          } else {
-            context.result.data[0].toUserInventoryIds = []
-          }
         } catch {
           context.result.data[0].toUserInventoryIds = []
         }
@@ -77,39 +65,6 @@ export default {
       }
     ],
     get: [
-      (context: HookContext): HookContext => {
-        try {
-          if (context.result?.data[0]?.fromUserInventoryIds) {
-            for (let x = 0; x < context.result.data.length; x++) {
-              for (let i = 0; i < context.result.data[x].fromUserInventoryIds.length; i++) {
-                context.result.data[x].fromUserInventoryIds[i].metadata = JSON.parse(
-                  context.result.data[x].fromUserInventoryIds[i].metadata
-                )
-              }
-            }
-          } else {
-            context.result.data[0].fromUserInventoryIds = []
-          }
-        } catch {
-          context.result.data[0].fromUserInventoryIds = []
-        }
-        try{
-          if (context.result?.data[0]?.toUserInventoryIds) {
-            for (let x = 0; x < context.result.data.length; x++) {
-              for (let i = 0; i < context.result.data[x].toUserInventoryIds.length; i++) {
-                context.result.data[x].toUserInventoryIds[i].metadata = JSON.parse(
-                  context.result.data[x].toUserInventoryIds[i].metadata
-                )
-              }
-            }
-          } else {
-            context.result.data[0].toUserInventoryIds = []
-          }
-        } catch {
-          context.result.data[0].toUserInventoryIds = []
-        }
-        return context
-      }
     ],
     create: [],
     update: [],
