@@ -310,7 +310,7 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
           <Grid item md={6}>
             <Card>
               <Stack justifyContent="center" alignItems="center">
-                <Typography className={classes.title}>Selected Items For Trade</Typography>
+              {fortrading.length>0  ? <Typography className={classes.title}>Selected Items For Trade</Typography>:""}
                 {fortrading.length !== 0 ? (
                   <Stack direction="row" spacing={1}>
                     {fortrading.map((value: any, index: number) => (
@@ -333,9 +333,10 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
                     ))}
                   </Stack>
                 ) : (
-                  <Stack sx={{ color: 'black' }}>
-                    <Typography>No Data Found</Typography>
-                  </Stack>
+                  // <Stack sx={{ color: 'black' }}>
+                  //   <Typography>No Data Found</Typography>
+                  // </Stack>
+                  ""
                 )}
                 {
                   fortrading.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
@@ -374,7 +375,7 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
               </Stack>
 
               <Stack justifyContent="center" alignItems="center" marginTop="5px" >
-                <Typography className={classes.title}>Trade Offer sent</Typography>
+                {offeredTrading.length ?<Typography className={classes.title}>Trade Offer sent</Typography>:""}
                 {offeredTrading.length !== 0 ? (
                   <Stack direction="row" spacing={1}>
                     {offeredTrading.map((value: any, index: number) => (
@@ -397,9 +398,10 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
                     ))}
                   </Stack>
                 ) : (
-                  <Stack sx={{ color: 'black' }}>
-                    <Typography>No Data Found</Typography>
-                  </Stack>
+                  // <Stack sx={{ color: 'black' }}>
+                  //   <Typography>No Data Found</Typography>
+                  // </Stack>
+                  ""
                 )}
                 {
                   offeredTrading.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
@@ -442,7 +444,7 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
               </Stack>
 
               <Stack justifyContent="center" alignItems="center" marginTop="5px" >
-                <Typography className={classes.title}>Trade Offer received</Typography>
+               {receivedTrading.length ? <Typography className={classes.title}>Trade Offer received</Typography>:""}
                 {receivedTrading.length !== 0 ? (
                   <Stack direction="row" spacing={1}>
                     {receivedTrading.map((value: any, index: number) => (
@@ -465,9 +467,10 @@ const TradingContent = ({ data, user, handleTransfer,acceptOfferSent,acceptOffer
                     ))}
                   </Stack>
                 ) : (
-                  <Stack sx={{ color: 'black' }}>
-                    <Typography>No Data Found</Typography>
-                  </Stack>
+                  // <Stack sx={{ color: 'black' }}>
+                  //   <Typography>No Data Found</Typography>
+                  // </Stack>
+                  ""
                 )}
                 {
                   receivedTrading.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
