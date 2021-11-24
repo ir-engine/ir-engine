@@ -20,7 +20,6 @@ export function incomingNetworkReceptor(action) {
 
   matches(action)
     .when(NetworkWorldAction.createClient.matches, ({ userId, name, avatarDetail }) => {
-      console.log('create client')
       if (!isClient) return
       world.clients.set(userId, {
         userId,
@@ -58,7 +57,6 @@ export function incomingNetworkReceptor(action) {
       const isOwnedByMe = a.userId === Engine.userId
       let entity
       if (isSpawningAvatar && isOwnedByMe) {
-        console.log('local client entity')
         entity = world.localClientEntity
       } else {
         let networkObject = world.getNetworkObject(a.networkId)
@@ -67,10 +65,7 @@ export function incomingNetworkReceptor(action) {
           entity = networkObject
         } else {
           entity = createEntity()
-          console.log('create entity, ', entity)
-
           let params = a.parameters
-          console.log(params)
           if (params.sceneEntity) {
             let sceneEntity = params.sceneEntity
             console.log('scene entity received in network action', sceneEntity)
@@ -78,11 +73,8 @@ export function incomingNetworkReceptor(action) {
           }
         }
       }
-      console.log(isOwnedByMe)
       if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
       addComponent(entity, NetworkObjectComponent, a)
-      let components = getEntityComponents(world, entity)
-      console.log(components)
     })
 
     .when(NetworkWorldAction.destroyObject.matches, (a) => {
@@ -91,7 +83,7 @@ export function incomingNetworkReceptor(action) {
       if (entity) removeEntity(entity)
     })
 
-    .when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
-      console.log('netowrk action received in equip receptor', a)
-    })
+  // .when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
+  //   console.log('netowrk action received in equip receptor', a)
+  // })
 }
