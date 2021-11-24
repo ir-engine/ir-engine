@@ -68,7 +68,7 @@ export const TradingPage = (): any => {
       isLoadingtransfer: true
     }))
     const data={
-      /*fromUserInventoryIds: items,*/
+      fromUserInventoryIds: items,
       fromUserStatus: "ACCEPT",
   }
   console.log("acceptOfferSent ", data);
@@ -101,8 +101,8 @@ export const TradingPage = (): any => {
       isLoadingtransfer: true
     }))
     const data={
-      /*"toUserInventoryIds": items,*/
-      "toUserStatus": "ACCEPT"
+      toUserInventoryIds: items,
+      toUserStatus: "ACCEPT"
 
   }
   console.log("acceptOfferReceived ", data);
@@ -171,11 +171,11 @@ export const TradingPage = (): any => {
       isLoading: true
     }))
     try {
-      const response = await client.service('user').get(id)
+      const response = await client.service('user').find({ query: { id: id } }) //get(id)
       console.log(response, 'inventorylist')
       setState((prevState) => ({
         ...prevState,
-        inventory: [...response.inventory_items.filter((val)=>(val.isCoin===false))],
+        inventory: [...response.data[0].inventory_items.filter((val)=>(val.isCoin===false))],
         isLoading: false
       }))
     } catch (err) {
