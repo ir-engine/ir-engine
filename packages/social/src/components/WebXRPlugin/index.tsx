@@ -13,18 +13,17 @@ import {
   Vector3,
   WebGLRenderer
 } from 'three'
-import VideocamIcon from '@mui/icons-material/Videocam'
-import FlipCameraIosIcon from '@mui/icons-material/FlipCameraIos'
-import Player from 'volumetric/web/decoder/Player'
+import VideocamIcon from '@material-ui/icons/Videocam'
+import FlipCameraIosIcon from '@material-ui/icons/FlipCameraIos'
+import Player from '@xrengine/social/src/components/VolumetricPlayer/decoder/Player'
 // @ts-ignore
-import PlayerWorker from 'volumetric/web/decoder/workerFunction.ts?worker'
+import PlayerWorker from '@xrengine/social/src/components/VolumetricPlayer/decoder/workerFunction.ts?worker'
 
 //@ts-ignore
 import styles from './WebXRPlugin.module.scss'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { connect, useDispatch } from 'react-redux'
 import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
-import { useArMediaState } from '@xrengine/client-core/src/social/services/ArMediaService'
+import { useArMediaState } from '../../reducers/arMedia/ArMediaState'
 import { ArMediaService } from '@xrengine/client-core/src/social/services/ArMediaService'
 // import HintOne from '../WebXrHints/HintOne'
 // import HintTwo from '../WebXrHints/HintTwo'
@@ -38,6 +37,7 @@ interface Props {
   webxrRecorderActivity?: any
   feedHintsOnborded?: any
   setFeedHintsOnborded?: any
+  itemId: string
 }
 
 const { isNative } = Capacitor
@@ -59,7 +59,8 @@ export const WebXRPlugin = ({
   setContentHidden,
   webxrRecorderActivity,
   feedHintsOnborded,
-  setFeedHintsOnborded
+  setFeedHintsOnborded,
+  itemId
 }: Props) => {
   const canvasRef = React.useRef()
   const [initializationResponse, setInitializationResponse] = useState('')
@@ -88,7 +89,6 @@ export const WebXRPlugin = ({
     recordingStateRef.current = data
     _setRecordingState(data)
   }
-  const popupsState = usePopupsStateState()
   const mediaItemRef = React.useRef(mediaItem)
   const setMediaItem = (data) => {
     mediaItemRef.current = data
@@ -121,7 +121,7 @@ export const WebXRPlugin = ({
     closeBtnAction.current = true
     finishRecord()
     // exit this popup
-    PopupsStateService.updateWebXRState(false, null)
+    // dispatch(PopupsStateService.updateWebXRState(false, null))
 
     showContent()
   }
@@ -219,15 +219,15 @@ export const WebXRPlugin = ({
     }
   }
 
-  const itemId = popupsState.popups.itemId?.value
   useEffect(() => {
-    ArMediaService.getArMediaItem(itemId)
+    console.log(itemId)
+    dispatch(ArMediaService.getArMediaItem(itemId))
   }, [itemId])
   useEffect(() => {
     if (!arMediaState.fetchingItem.value) {
       setMediaItem(arMediaState.item.value)
     }
-  }, [arMediaState.fetchingItem.value, arMediaState, itemId])
+  }, [arMediaState.fetchingItem.value, itemId])
 
   const mediaItemId = mediaItem?.id
   useEffect(() => {
@@ -343,7 +343,7 @@ export const WebXRPlugin = ({
           videoFilePath: mediaItem.audioUrl,
           manifestFilePath: mediaItem.manifestUrl,
           onMeshBuffering: (progress) => {
-            // console.warn('BUFFERING!!', progress);
+            console.warn('BUFFERING!!', progress)
             // setBufferingProgress(Math.round(progress * 100));
             // setIsBuffering(true);
           },
@@ -363,7 +363,6 @@ export const WebXRPlugin = ({
       await XRPlugin.initialize({})
         .then((response) => {
           setInitializationResponse(response.status)
-          setContentHidden()
         })
         .catch((error) => console.log(error.message))
 
@@ -524,19 +523,20 @@ export const WebXRPlugin = ({
         clipTime: clipTime
       })
         // @ts-ignore
-        .then(({ result, filePath, nameId }) => {
+        .then(({ result, filePath, nameId, trimPath }) => {
           //console.log('END RECORDING, result IS', result)
           // console.log('filePath is', filePath)
-          FeedService.setLastFeedVideoUrl(filePath)
-          ArMediaService.getArMediaItem(null)
+          dispatch(FeedService.setLastFeedVideoUrl(filePath))
+          dispatch(ArMediaService.getArMediaItem(null))
           setSavedFilePath('file://' + filePath)
           if (!closeBtnAction.current) {
             const videoPath = Capacitor.convertFileSrc(filePath)
             console.log(videoPath)
-            PopupsStateService.updateNewFeedPageState(true, videoPath, filePath, nameId)
+            dispatch(PopupsStateService.updateNewFeedPageState(true, videoPath, filePath, nameId, trimPath))
           }
           setRecordingState(RecordingStates.OFF)
-          PopupsStateService.updateWebXRState(false, null)
+          setContentHidden()
+          // dispatch(PopupsStateService.updateWebXRState(false, null))
 
           // if (playerRef.current) {
           //     const video = playerRef.current.video as HTMLMediaElement;
@@ -611,10 +611,18 @@ export const WebXRPlugin = ({
     }
 
     if (playerRef.current && playerRef.current.currentFrame <= 0) {
-      playerRef.current.playOneFrame()
+      try {
+        playerRef.current.playOneFrame()
+      } catch (e) {
+        alert(e)
+      }
     }
     // @ts-ignore
     XRPlugin.handleTap(params)
+  }
+
+  const handleFrame = () => {
+    alert(playerRef.current.currentFrame)
   }
 
   const playVideo = () => {
@@ -661,7 +669,7 @@ export const WebXRPlugin = ({
               <section className={styles.subContainer} />
             </section>
           </section>
-          <button type="button" className={styles.flipCamera} onClick={() => {}}>
+          <button type="button" className={styles.flipCamera} onClick={() => handleFrame()}>
             <FlipCameraIosIcon />
           </button>
           {/*                 <button type="button" className={styles.changeOrientation} onClick={() => {setHorizontalOrientation(!horizontalOrientation);}}><FlipCameraIosIcon /></button> */}

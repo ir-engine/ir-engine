@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
 import Drawer from '@mui/material/Drawer'
-import Button from '@mui/material/Button'
+import Button from '@material-ui/core/Button'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import DialogActions from '@mui/material/DialogActions'
 import Container from '@mui/material/Container'

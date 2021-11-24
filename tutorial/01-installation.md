@@ -6,6 +6,7 @@ Getting up and running requires just a few steps, but this can be tricky, depend
 `git clone https://github.com/XRFoundation/XREngine --depth 1`
 
 ### Ensure you are on Node 16 or above
+
 You **must** have Node 16 or above installed.
 
 NVM can be a useful tool for this https://github.com/nvm-sh/nvm
@@ -14,9 +15,23 @@ Before running the engine, please check `node --version`
 If you are using a node version below 16, please update or nothing will work. You will know you are having issues if you try to install at root and are getting dependency errors.
 
 ### Docker is your friend
+
 You don't need to use Docker, but it will make your life much easier.
 You can get it [here](https://docs.docker.com/).
 If you don't wish to use Docker, you will need to setup mariadb and redis on your machine. You can find credentials in `xrengine/scripts/docker-compose.yml`
+
+You can quickstart locally using docker, if you don't have node installed or just want to test the latest.
+
+``` bash
+## Build the image
+docker build --tag xrengine .
+
+## Run the image (deletes itself when you close it)
+docker run -d --rm --name server -e "MYSQL_URL=mysql://server:password@db:3306/xrengine" -p "3030:3030"  xrengine
+
+## Stop the server
+docker stop server
+```
 
 ### Mediasoup is a powerful beast you must tame
 The vast majority of people get stuck on the mediasoup installation because it requires C++ source code to be compiled on your machine, which requires node-gyp and python and other dependencies.
