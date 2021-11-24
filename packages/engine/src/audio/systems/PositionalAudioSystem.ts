@@ -38,9 +38,6 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
 
   const avatarAudioStream: Map<Entity, any> = new Map()
 
-  Engine.useAudioSystem = true
-  Engine.spatialAudio = true
-
   let audioContextSuspended = true
   let startSuspendedContexts = false
   let suspendPositionalAudio = false
