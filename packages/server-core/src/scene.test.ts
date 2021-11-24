@@ -29,7 +29,7 @@ describe('scene.test', () => {
       projectName: defaultProjectName,
       metadataOnly: false
     }, params)
-    assert.deepStrictEqual(parsedData, data.find(entry => entry.name === 'empty').scene)
+    assert.deepStrictEqual(parsedData, data.find(entry => entry.name === 'empty')!.scene)
   })
 
   it("should get default scene data", async function() {
@@ -37,8 +37,8 @@ describe('scene.test', () => {
       projectName: defaultProjectName,
       sceneName: defaultSceneName,
       metadataOnly: false
-    })
-    const entities = Object.values(data.scene.entities)
+    }, params)
+    const entities = Object.values(data.scene!.entities)
     assert.strictEqual(entities.length, 9)
   })
 
@@ -46,7 +46,7 @@ describe('scene.test', () => {
     await app.service('project').create({ 
       name: newProjectName
     }, params)
-    const { data } = await app.service('project').get(newProjectName)
+    const { data } = await app.service('project').get(newProjectName, params)
     assert.strictEqual(data.name, newProjectName)
   })
 

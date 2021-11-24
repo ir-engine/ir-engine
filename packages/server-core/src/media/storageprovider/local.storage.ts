@@ -39,7 +39,7 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   putObject = async (params: StorageObjectInterface): Promise<any> => {
-    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, params.Key)
+    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, params.Key!)
     const pathWithoutFileExec = keyPathRegex.exec(filePath)
     if (filePath.substr(-1) === '/') {
       if (!fs.existsSync(filePath)) {
@@ -124,8 +124,8 @@ export class LocalStorage implements StorageProviderInterface {
       const url = signedUrl.url + signedUrl.fields.Key
       const res: FileContentType = {
         key,
-        name: query.groups.name,
-        type: query.groups.extension,
+        name: query!.groups!.name,
+        type: query!.groups!.extension,
         url
       }
       return res
@@ -158,7 +158,7 @@ export class LocalStorage implements StorageProviderInterface {
     current: string,
     destination: string,
     isCopy = false,
-    renameTo: string = null
+    renameTo: string = null!
   ): Promise<boolean> => {
     const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
     let fileName = renameTo != null ? renameTo : path.basename(current)

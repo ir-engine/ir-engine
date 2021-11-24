@@ -351,7 +351,7 @@ export class Feed extends Service {
    * @returns {@Object} contains specific feed
    * @author Vykliuk Tetiana
    */
-  async get(id: Id, params?: Params): Promise<any> {
+  async get(id: Id, params: Params): Promise<any> {
     let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, sr3.url as avatar, 
        creator.verified as creatorVerified, COUNT(ff.id) as fires,  COUNT(fl.id) as likes, sr1.url as videoUrl, sr2.url as previewUrl, sr2.mimeType as previewType, sr1.mimeType as videoType `
     const from = ` FROM \`feed\` as feed`
@@ -415,7 +415,7 @@ export class Feed extends Service {
     return newFeed
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params: Params): Promise<any> {
     const { feed: feedModel } = this.app.get('sequelizeClient').models
     data.creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
@@ -433,7 +433,7 @@ export class Feed extends Service {
    * @returns updated feed
    * @author
    */
-  async patch(id: string, data?: any, params?: Params): Promise<any> {
+  async patch(id: string, data: any, params: Params): Promise<any> {
     const { feed: feedModel } = this.app.get('sequelizeClient').models
     let result = null
     if (data.viewsCount) {
