@@ -153,13 +153,14 @@ export const InviteService = {
         const params = {
           inviteType: data.type,
           token: data.token,
-          inviteCode: data.inviteCode,
           targetObjectId: data.targetObjectId,
           identityProviderType: data.identityProviderType,
           inviteeId: data.invitee
         }
 
-        const existingInviteResult = await client.service('invite').find(params)
+        const existingInviteResult = await client.service('invite').find({
+          query: params
+        })
 
         let inviteResult
         if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)

@@ -96,7 +96,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
         if (invite.inviteType === 'friend') {
           const existingRelationshipResult = await this.app.service('user-relationship').find({
             query: {
-              userRelationshipType: invite.inviteType,
+              $or: [{
+                userRelationshipType: 'requested'
+              }, {
+                userRelationshipType: 'friend'
+              }],
               userId: invite.userId,
               relatedUserId: inviteeIdentityProvider.userId
             }
@@ -105,17 +109,25 @@ export class AcceptInvite implements ServiceMethods<Data> {
           if ((existingRelationshipResult as any).total === 0) {
             await this.app.service('user-relationship').create(
               {
-                userRelationshipType: invite.inviteType,
+                userRelationshipType: 'friend',
                 userId: invite.userId,
                 relatedUserId: inviteeIdentityProvider.userId
               },
               params
             )
+          } else {
+            await this.app.service('user-relationship').patch(existingRelationshipResult.data[0].id, {
+              userRelationshipType: 'friend'
+            }, params)
           }
 
           const relationshipToPatch = (await this.app.service('user-relationship').find({
             query: {
-              userRelationshipType: 'requested',
+              $or: [{
+                userRelationshipType: 'requested'
+              }, {
+                userRelationshipType: 'friend'
+              }],
               userId: inviteeIdentityProvider.userId,
               relatedUserId: invite.userId
             }
@@ -125,7 +137,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             await this.app.service('user-relationship').patch(
               relationshipToPatch.data[0].id,
               {
-                userRelationshipType: invite.inviteType
+                userRelationshipType: 'friend'
               },
               params
             )
@@ -201,7 +213,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
         if (invite.inviteType === 'friend') {
           const existingRelationshipResult = await this.app.service('user-relationship').find({
             query: {
-              userRelationshipType: invite.inviteType,
+              $or: [{
+                userRelationshipType: 'requested'
+              }, {
+                userRelationshipType: 'friend'
+              }],
               userId: invite.userId,
               relatedUserId: invite.inviteeId
             }
@@ -210,17 +226,25 @@ export class AcceptInvite implements ServiceMethods<Data> {
           if ((existingRelationshipResult as any).total === 0) {
             await this.app.service('user-relationship').create(
               {
-                userRelationshipType: invite.inviteType,
+                userRelationshipType: 'friend',
                 userId: invite.userId,
                 relatedUserId: invite.inviteeId
               },
               params
             )
+          } else {
+            await this.app.service('user-relationship').patch(existingRelationshipResult.data[0].id, {
+              userRelationshipType: 'friend'
+            }, params)
           }
 
           const relationshipToPatch = (await this.app.service('user-relationship').find({
             query: {
-              userRelationshipType: 'requested',
+              $or: [{
+                userRelationshipType: 'requested'
+              }, {
+                userRelationshipType: 'friend'
+              }],
               userId: invite.inviteeId,
               relatedUserId: invite.userId
             }
@@ -230,7 +254,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             await this.app.service('user-relationship').patch(
               relationshipToPatch.data[0].id,
               {
-                userRelationshipType: invite.inviteType
+                userRelationshipType: 'friend'
               },
               params
             )
@@ -296,6 +320,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         }
       }
 
+      params.preventUserRelationshipRemoval = true
       await this.app.service('invite').remove(invite.id, params)
       const token = await (this.app.service('authentication') as any).createAccessToken(
         {},

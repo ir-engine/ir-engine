@@ -1,6 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 /**
  * A class for Invite service
@@ -61,7 +62,7 @@ export class Invite extends Service {
       )
 
       return result
-    } else {
+    } else if (query.type === 'sent') {
       const result = await super.find({
         query: {
           userId: query.userId,
@@ -84,6 +85,18 @@ export class Invite extends Service {
       )
 
       return result
+    } else {
+      return super.find(params)
     }
+  }
+
+  async remove(id: string, params: Params): Promise<any> {
+    const invite = await this.app.service('invite').get(id)
+    if (invite.inviteType === 'friend' && invite.inviteeId != null && !params.preventUserRelationshipRemoval) {
+      const selfUser = extractLoggedInUserFromParams(params)
+      const relatedUserId = invite.userId === selfUser.userId ? invite.inviteeId : invite.userId
+      await this.app.service('user-relationship').remove(relatedUserId, params)
+    }
+    return super.remove(id)
   }
 }
