@@ -1,9 +1,11 @@
 import React, { useContext } from 'react'
-import { Container, Avatar, Drawer } from '@mui/material'
+import { Container, Avatar, Drawer, Dialog, DialogActions, DialogTitle, Button } from '@mui/material'
 import { useHarmonyStyles } from '../style'
 import ModeContext from '../context/modeContext'
 import { AddCircleOutline } from '@mui/icons-material'
 import { Delete } from '@material-ui/icons'
+import IconButton from '@mui/material/IconButton'
+import { PartyService } from '@xrengine/client-core/src/social/services/PartyService'
 
 interface Props {
   selectedParty: any
@@ -15,8 +17,26 @@ interface Props {
 const ViewMembers = ({ selectedParty, selfUser, openDrawer, setOpenDrawer }: Props) => {
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
+  const [showWarning, setShowWarning] = React.useState(false)
+  const [partyUserId, setPartyUserId] = React.useState('')
+
   //   const [openDrawer, setOpenDrawer] = React.useState(false)
-  console.log(selectedParty)
+
+  const removeUser = (id) => {
+    setPartyUserId(id)
+    setShowWarning(true)
+  }
+
+  const cancelPartyUserDelete = (e: any) => {
+    e.preventDefault()
+    setShowWarning(false)
+  }
+
+  const confirmPartyUserDelete = (e) => {
+    e.preventDefault()
+    setShowWarning(false)
+    PartyService.removePartyUser(partyUserId)
+  }
   return (
     <div>
       <Drawer
@@ -63,15 +83,33 @@ const ViewMembers = ({ selectedParty, selfUser, openDrawer, setOpenDrawer }: Pro
                           </div>
                         )}
                       </div>
-                      <a href="#" className={classes.border0}>
+                      <IconButton className={classes.border0} onClick={() => removeUser(partyUser.id)}>
                         <Delete fontSize="small" className={classes.danger} />
-                      </a>
+                      </IconButton>
                     </div>
                   )
                 })}
           </Container>
         )}
       </Drawer>
+
+      <Dialog
+        open={showWarning}
+        onClose={() => setShowWarning(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        classes={{ paper: classes.paperDialog }}
+      >
+        <DialogTitle id="alert-dialog-title">Confirm group user deletion!</DialogTitle>
+        <DialogActions>
+          <Button onClick={cancelPartyUserDelete} className={classes.spanNone}>
+            Cancel
+          </Button>
+          <Button className={classes.spanDange} onClick={confirmPartyUserDelete} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }
