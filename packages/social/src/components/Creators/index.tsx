@@ -12,10 +12,12 @@ import { CreatorService } from '@xrengine/client-core/src/social/services/Creato
 // @ts-ignore
 import styles from './Creators.module.scss'
 import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { useHistory } from 'react-router-dom'
 
 interface Props {}
 
 const Creators = (props: Props) => {
+  const history = useHistory()
   const creatorsState = useCreatorState()
   const dispatch = useDispatch()
   useEffect(() => {
@@ -50,7 +52,9 @@ const Creators = (props: Props) => {
               className={styles.creatorItem}
               elevation={0}
               key={itemIndex}
-              onClick={() => handleCreatorView(item.id)}
+              onClick={() => {
+                history.push(`/creator/${item.id}`)
+              }}
             >
               {item.avatar ? (
                 <CardMedia className={styles.previewImage} image={item.avatar || <PersonPinIcon />} title={item.name} />

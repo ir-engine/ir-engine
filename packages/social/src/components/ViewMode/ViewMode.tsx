@@ -1,13 +1,12 @@
 import React, { forwardRef, useState } from 'react'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import Slide from '@mui/material/Slide'
-import { TransitionProps } from '@mui/material/transitions'
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import Slide from '@material-ui/core/Slide'
+import { TransitionProps } from '@material-ui/core/transitions'
 import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
-import { Box, CardMedia, Typography } from '@mui/material'
-import makeStyles from '@mui/styles/makeStyles'
+import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core'
 import { useTranslation } from 'react-i18next'
 import StepWizard from 'react-step-wizard'
 // import { Plugins } from '@capacitor/core';
@@ -145,14 +144,12 @@ export const ViewMode = ({ onGoRegistration }: any) => {
   })
 
   const handleSteps = () => {
-    dispatch(
-      CreatorService.updateCreator({
-        id: creatorsState.creators.currentCreator?.id?.value,
-        steps: true,
-        name: creatorsState.creators.currentCreator?.name?.value,
-        username: creatorsState.creators.currentCreator?.username?.value
-      })
-    )
+    CreatorService.updateCreator({
+      id: creatorsState.creators.currentCreator?.id?.value,
+      steps: true,
+      name: creatorsState.creators.currentCreator?.name?.value,
+      username: creatorsState.creators.currentCreator?.username?.value
+    })
     handleOpenNewFeedPage()
   }
 
@@ -163,13 +160,19 @@ export const ViewMode = ({ onGoRegistration }: any) => {
 
   return (
     <div
-      onClick={() => {
-        onGoRegistration()
-      }}
+      // onClick={() => {
+      //   onGoRegistration()
+      // }}
       className={classes.mainBlock}
     >
       {/*     <AddCircleIcon onClick={handleClickOpen} style={{fontSize: '5em'}} /> */}
-      <img src="/assets/tabBar(1).svg" onClick={handleClickOpen} />
+      <img
+        src="/assets/tabBar(1).svg"
+        onClick={handleClickOpen}
+        style={{
+          cursor: 'pointer'
+        }}
+      />
       <Dialog
         open={open}
         TransitionComponent={Transition}

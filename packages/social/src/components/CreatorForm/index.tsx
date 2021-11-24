@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useHistory } from 'react-router-dom'
 
-import { CardMedia, Typography, Button } from '@mui/material'
+import { CardMedia, Typography, Button } from '@material-ui/core'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { useSnackbar, SnackbarOrigin } from 'notistack'
 
@@ -21,7 +21,7 @@ import SubjectIcon from '@mui/icons-material/Subject'
 // import InstagramIcon from '@mui/icons-material/Instagram';
 // import TitleIcon from '@mui/icons-material/Title';
 
-import TextField from '@mui/material/TextField'
+import TextField from '@material-ui/core/TextField'
 
 import { useCreatorState } from '@xrengine/client-core/src/social/services/CreatorService'
 import { CreatorService } from '@xrengine/client-core/src/social/services/CreatorService'
@@ -106,7 +106,7 @@ const CreatorForm = ({ creatorData }: Props) => {
                 variant="text"
                 className={styles.backButton}
                 onClick={() => {
-                  PopupsStateService.updateCreatorFormState(false)
+                  history.goBack()
                 }}
               >
                 <ArrowBackIosIcon />

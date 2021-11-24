@@ -1,11 +1,13 @@
 import React, { useCallback } from 'react'
-import { ControlManager } from '../../managers/ControlManager'
 import AssetGrid from './AssetGrid'
 import { AssetPanelContentContainer } from './AssetsPanel'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import EditorCommands from '../../constants/EditorCommands'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
+import { setTransformMode, setTransformPivot } from '../../systems/EditorControlSystem'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EditorControlComponent } from '../../classes/EditorControlComponent'
 
 /**
  * MediaSourcePanel used to render view for AssetsPanelContainer and AssetsPanelToolbarContainer.
@@ -16,7 +18,8 @@ import { SceneManager } from '../../managers/SceneManager'
  */
 export function NodesListPanel() {
   const spawnGrabbedObject = useCallback((object) => {
-    if (ControlManager.instance.editorControls.transformMode === TransformMode.Placement) {
+    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
+    if (editorControlComponent.transformMode === TransformMode.Placement) {
       CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
     }
 
@@ -27,7 +30,7 @@ export function NodesListPanel() {
     CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, object)
 
     if (!object.disableTransform) {
-      ControlManager.instance.editorControls.setTransformMode(TransformMode.Placement, object.useMultiplePlacementMode)
+      setTransformMode(TransformMode.Placement, object.useMultiplePlacementMode, editorControlComponent)
     }
   }, [])
 
@@ -43,7 +46,7 @@ export function NodesListPanel() {
     const transformPivot = item.transformPivot
 
     if (transformPivot) {
-      ControlManager.instance.editorControls.setTransformPivot(transformPivot)
+      setTransformPivot(transformPivot)
     }
 
     spawnGrabbedObject(node)

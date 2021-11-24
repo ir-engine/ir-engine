@@ -65,7 +65,7 @@
     "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "validate": "npm run lint && lerna run validate",
-    "build-publish": "lerna run --ignore @xrengine/bot build-publish --parallel",
+    "build-publish": "lerna run build-publish --parallel",
     "build-client": "cd packages/client && npm run build",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",

@@ -1,6 +1,6 @@
 import React from 'react'
 import Grid from '@mui/material/Grid'
-import Button from '@mui/material/Button'
+import Button from '@material-ui/core/Button'
 import { useFeedStyles } from './styles'
 import SearchFeed from './SearchFeed'
 import FeedTable from './FeedTable'

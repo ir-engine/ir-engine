@@ -17,6 +17,20 @@ export const locationSettingsSeed = {
       locationType: 'public',
       videoEnabled: true,
       instanceMediaChatEnabled: true
+    },
+    {
+      id: '37ce32f0-208d-11eb-b02f-37cfdadfe511',
+      locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d11',
+      locationType: 'public',
+      videoEnabled: false,
+      instanceMediaChatEnabled: true
+    },
+    {
+      id: '37ce32f0-208d-11eb-b02f-37cfdadfe512',
+      locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d12',
+      locationType: 'public',
+      videoEnabled: false,
+      instanceMediaChatEnabled: true
     }
   ]
 }
