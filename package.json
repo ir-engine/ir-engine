@@ -37,7 +37,7 @@
   "npmClient": "npm",
   "scripts": {
     "check": "npm run lint && npm run check-errors && npm run test:packages && npm run build-client",
-    "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
+    "check-errors": "lerna run check-errors --parallel",
     "start": "npm run dev",
     "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently npm:dev-agones \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
     "dev": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones npm:dev-server npm:dev-client",
