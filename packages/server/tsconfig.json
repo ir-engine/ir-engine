@@ -26,6 +26,8 @@
     "outDir": "./lib"
   },
   "exclude": [
+    "./upload/**",
+    "./tests old/**",
     "../projects/projects/**",
     "**/node_modules/**",
     "../../node_modules/k8s/*"
