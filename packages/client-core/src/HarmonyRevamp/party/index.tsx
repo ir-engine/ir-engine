@@ -120,7 +120,7 @@ const Party = (props: Props) => {
                     </ListItemIcon>
                     <ListItemText>CHAT</ListItemText>
                   </MenuItem>
-                  {(selfPartyUser?.isOwner !== true || selfPartyUser?.isOwner === 1) && (
+                  {(selfPartyUser?.isOwner === true || selfPartyUser?.isOwner === 1) && (
                     <MenuItem
                       className={classes.my2}
                       onClick={() => {
