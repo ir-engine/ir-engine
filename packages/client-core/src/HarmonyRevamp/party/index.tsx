@@ -18,6 +18,8 @@ import { usePartyState } from '@xrengine/client-core/src/social/services/PartySe
 import { useHarmonyStyles } from '../style'
 import ModeContext from '../context/modeContext'
 import ViewMembers from './ViewMembers'
+import ListItem from '@mui/material/ListItem'
+import queryString from 'querystring'
 
 interface Props {
   setActiveChat: any
@@ -37,6 +39,7 @@ const Party = (props: Props) => {
   const user = useAuthState().user.value
   const partyState = usePartyState()
   const party = partyState.party.value
+  const persed = queryString.parse(location.search)
 
   const handleClose = () => {
     setAnchorEl(null)
@@ -56,6 +59,7 @@ const Party = (props: Props) => {
 
   const showPartyDeleteConfirm = (e) => {
     e.preventDefault()
+    setAnchorEl(null)
     setShowWarning(true)
   }
 
@@ -68,6 +72,7 @@ const Party = (props: Props) => {
     e.preventDefault()
     setShowWarning(false)
     PartyService.removeParty(partyId)
+    handleClose()
   }
 
   React.useEffect(() => {
@@ -88,16 +93,18 @@ const Party = (props: Props) => {
     <>
       {party && (
         <div className={`${classes.dFlex} ${classes.alignCenter} ${classes.my2} ${classes.cpointer}`}>
-          <div
+          <ListItem
             onClick={() => {
               setShowChat(true), setActiveChat('party', party)
             }}
-            className={`${classes.mx2} ${classes.flexGrow2}`}
+            classes={{ selected: darkMode ? classes.selected : classes.selectedLigth }}
+            selected={persed.id === party.id}
+            className={`${classes.mx2} ${classes.flexGrow2} ${darkMode ? classes.bgActive : classes.bgActiveLight}`}
           >
             <h4 className={classes.fontBig}>{party.name}</h4>
             <small className={classes.textMuted}>Current party </small>
             <small className={classes.textMuted}>{party.instance?.ipAddress}</small>
-          </div>
+          </ListItem>
 
           <div>
             <a href="#" className={classes.border0} onClick={handleClick}>

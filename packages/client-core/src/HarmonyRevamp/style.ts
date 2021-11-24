@@ -379,6 +379,22 @@ export const useHarmonyStyles = makeStyles((theme: Theme) =>
     selectLigth: {
       color: '#3F3960',
       border: '1px solid #787589'
+    },
+    selected: {
+      background: '#070809 !important'
+    },
+    selectedLigth: {
+      background: '#FFF !important'
+    },
+    bgActive: {
+      '&:hover': {
+        background: '#070809 !important'
+      }
+    },
+    bgActiveLight: {
+      '&:hover': {
+        background: '#FFF !important'
+      }
     }
   })
 )

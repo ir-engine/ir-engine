@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
 import { useHarmonyStyles } from '../style'
 import { Delete, Forum, GroupAdd, MoreHoriz } from '@material-ui/icons'
@@ -15,6 +15,9 @@ import {
   ListItem,
   Divider
 } from '@mui/material'
+import ModeContext from '../context/modeContext'
+import { useHistory } from 'react-router-dom'
+import queryString from 'querystring'
 
 interface Props {
   setShowChat: any
@@ -23,10 +26,13 @@ interface Props {
 const FriendList = (props: Props) => {
   const { setShowChat, setFriendDeletePending, showUnfriendConfirm } = props
   const classes = useHarmonyStyles()
+  const { darkMode } = useContext(ModeContext)
 
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [invite, setInvite] = React.useState('')
   const [create, setCreate] = React.useState(false)
+  const history = useHistory()
+  const persed = queryString.parse(location.search)
 
   //friend state
   const friendState = useFriendState()
@@ -34,6 +40,10 @@ const FriendList = (props: Props) => {
   const friends = friendSubState.friends.value
 
   const setActiveChat = (channelType, target): void => {
+    history.push({
+      pathname: '/harmony',
+      search: `?channel=${channelType}&&id=${target.id}`
+    })
     ChatService.updateMessageScrollInit(true)
     ChatService.updateChatTarget(channelType, target)
   }
@@ -66,7 +76,12 @@ const FriendList = (props: Props) => {
           .map((friend, index) => {
             return (
               <div key={friend.id}>
-                <ListItem className={classes.cpointer}>
+                <ListItem
+                  classes={{ selected: darkMode ? classes.selected : classes.selectedLigth }}
+                  className={`${classes.cpointer} ${darkMode ? classes.bgActive : classes.bgActiveLight}`}
+                  selected={persed.id === friend.id}
+                  button
+                >
                   <ListItemAvatar>
                     <Avatar src={friend.avatarUrl} />
                   </ListItemAvatar>
@@ -110,17 +125,6 @@ const FriendList = (props: Props) => {
                                 <Forum fontSize="small" className={classes.info} />
                               </ListItemIcon>
                               <ListItemText>CHAT</ListItemText>
-                            </MenuItem>
-                            <MenuItem
-                              className={classes.my2}
-                              onClick={() => {
-                                openInvite('user', friend.id), handleClose(), setInvite('Friends'), handleCreate()
-                              }}
-                            >
-                              <ListItemIcon>
-                                <GroupAdd fontSize="small" className={classes.success} />
-                              </ListItemIcon>
-                              <ListItemText>INVITE</ListItemText>
                             </MenuItem>
                             <MenuItem
                               className={classes.my2}

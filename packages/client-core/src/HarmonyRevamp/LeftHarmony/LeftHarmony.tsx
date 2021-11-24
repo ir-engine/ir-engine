@@ -150,6 +150,10 @@ const LeftHarmony = (props: Props) => {
   }
 
   const setActiveChat = (channelType, target): void => {
+    history.push({
+      pathname: '/harmony',
+      search: `?channel=${channelType}&&id=${target?.id}`
+    })
     ChatService.updateMessageScrollInit(true)
     ChatService.updateChatTarget(channelType, target)
   }
@@ -161,19 +165,27 @@ const LeftHarmony = (props: Props) => {
           <div className={`${classes.dFlex} ${classes.justifyContentBetween}`}>
             <h4 className={darkMode ? classes.white : classes.textBlack}>Chats</h4>
             <div className={`${classes.dFlex} ${classes.alignCenter}`}>
-              <IconButton color="primary" component="span" onClick={handleClickOpen}>
+              <IconButton
+                className={darkMode ? classes.bgActive : classes.bgActiveLight}
+                component="span"
+                onClick={handleClickOpen}
+              >
                 <Badge color="secondary" variant={showNot ? 'dot' : ''}>
                   <Tooltip title="Invite" placement="top">
-                    <Notifications className={classes.primaryText} />
+                    <Notifications className={darkMode ? classes.white : classes.primaryText} />
                   </Tooltip>
                 </Badge>
               </IconButton>
-              <IconButton component="span">
-                <Search className={classes.primaryText} />
+              <IconButton className={darkMode ? classes.bgActive : classes.bgActiveLight} component="span">
+                <Search className={darkMode ? classes.white : classes.primaryText} />
               </IconButton>
-              <IconButton component="span" onClick={handleCreate}>
+              <IconButton
+                className={darkMode ? classes.bgActive : classes.bgActiveLight}
+                component="span"
+                onClick={handleCreate}
+              >
                 <Tooltip title="Create Invite" placement="top">
-                  <Add className={classes.secondaryText} />
+                  <Add className={darkMode ? classes.white : classes.secondaryText} />
                 </Tooltip>
               </IconButton>
             </div>

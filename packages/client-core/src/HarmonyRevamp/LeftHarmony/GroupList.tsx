@@ -18,6 +18,10 @@ import { InviteService } from '@xrengine/client-core/src/social/services/InviteS
 import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
 import ModeContext from '../context/modeContext'
 import ViewMembers from './ViewMembers'
+import ListItem from '@mui/material/ListItem'
+import List from '@mui/material/List'
+import { useHistory } from 'react-router-dom'
+import queryString from 'querystring'
 
 interface Props {
   setShowChat: any
@@ -51,6 +55,8 @@ const GroupList = (props: Props) => {
   const classes = useHarmonyStyles()
   const [openDrawer, setOpenDrawer] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)
+  const history = useHistory()
+  const persed = queryString.parse(location.search)
 
   //group state
   const groupState = useGroupState()
@@ -58,6 +64,10 @@ const GroupList = (props: Props) => {
   const groups = groupSubState.groups.value
 
   const setActiveChat = (channelType, target): void => {
+    history.push({
+      pathname: '/harmony',
+      search: `?channel=${channelType}&&id=${target.id}`
+    })
     ChatService.updateMessageScrollInit(true)
     ChatService.updateChatTarget(channelType, target)
   }
@@ -92,19 +102,24 @@ const GroupList = (props: Props) => {
   const id = open ? 'simple-popover' : undefined
 
   return (
-    <div>
+    <List>
       {groups &&
         groups.length > 0 &&
         [...groups]
           .sort((a, b) => a.name - b.name)
           .map((group, index) => {
             return (
-              <div
+              <ListItem
                 key={group.id}
-                className={`${classes.dFlex} ${classes.alignCenter} ${classes.flexGrow2} ${classes.my2} ${classes.cpointer}`}
+                classes={{ selected: darkMode ? classes.selected : classes.selectedLigth }}
+                className={`${classes.dFlex} ${classes.alignCenter} ${classes.flexGrow2} ${classes.my2} ${
+                  classes.cpointer
+                } ${darkMode ? classes.bgActive : classes.bgActiveLight}`}
                 onClick={() => {
                   setActiveChat('group', group), setShowChat(true)
                 }}
+                selected={persed.id === group.id}
+                button
               >
                 <div className={`${classes.mx2} ${classes.flexGrow2}`}>
                   <h4 className={`${classes.fontBig} ${darkMode ? classes.white : classes.textBlack}`}>{group.name}</h4>
@@ -192,7 +207,7 @@ const GroupList = (props: Props) => {
                     </div>
                   </Popover>
                 </div>
-              </div>
+              </ListItem>
             )
           })}
       <ViewMembers
@@ -218,7 +233,7 @@ const GroupList = (props: Props) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </List>
   )
 }
 

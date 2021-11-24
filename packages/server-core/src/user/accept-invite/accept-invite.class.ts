@@ -94,7 +94,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider
 
         if (invite.inviteType === 'friend') {
-          const existingRelationshipResult = await this.app.service('user-relationship').find({
+          const existingRelationshipResult = (await this.app.service('user-relationship').find({
             query: {
               $or: [
                 {
@@ -107,7 +107,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
               userId: invite.userId,
               relatedUserId: inviteeIdentityProvider.userId
             }
-          }) as any
+          })) as any
 
           if ((existingRelationshipResult as any).total === 0) {
             await this.app.service('user-relationship').create(
@@ -221,7 +221,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         if (params['identity-provider'] == null) params['identity-provider'] = invitee.identityProvider
 
         if (invite.inviteType === 'friend') {
-          const existingRelationshipResult = await this.app.service('user-relationship').find({
+          const existingRelationshipResult = (await this.app.service('user-relationship').find({
             query: {
               $or: [
                 {
@@ -234,7 +234,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
               userId: invite.userId,
               relatedUserId: invite.inviteeId
             }
-          }) as any
+          })) as any
 
           if ((existingRelationshipResult as any).total === 0) {
             await this.app.service('user-relationship').create(

@@ -167,7 +167,6 @@ export const PartyService = {
   removeParty: async (partyId: string) => {
     const dispatch = useDispatch()
     {
-      console.log('CALLING FEATHERS REMOVE PARTY')
       try {
         const channelResult = await client.service('channel').find({
           query: {
@@ -177,7 +176,8 @@ export const PartyService = {
         if (channelResult.total > 0) {
           await client.service('channel').remove(channelResult.data[0].id)
         }
-        await client.service('party').remove(partyId)
+        const party = await client.service('party').remove(partyId)
+        dispatch(PartyAction.removedParty(party))
       } catch (err) {
         console.log(err)
         AlertService.dispatchAlertError(err.message)
