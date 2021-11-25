@@ -24,11 +24,11 @@
   },
   "resolutions": {
     "socket.io": "4.4.0",
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.37",
     "react": "17.0.2"
   },
   "peerDependencies": {
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.37",
     "react": "17.0.2",
     "socket.io": "4.4.0"
   },
@@ -51,7 +51,7 @@
     "@styled-icons/boxicons-solid": "10.38.0",
     "@styled-icons/fa-regular": "10.34.0",
     "@styled-icons/fa-solid": "10.34.0",
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.37",
     "@types/react-redux": "7.1.20",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.15",
@@ -116,7 +116,7 @@
     "@hookstate/devtools": "3.0.1",
     "@rollup/plugin-typescript": "8.3.0",
     "@types/node": "16.11.10",
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.37",
     "@types/react-dom": "17.0.11",
     "config": "3.3.6",
     "cross-env": "7.0.3",
