@@ -39,7 +39,6 @@ export function incomingNetworkReceptor(action) {
     })
 
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
-      console.log('Spawning object: ', a)
       const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
       /**
        * When changing location via a portal, the local client entity will be
