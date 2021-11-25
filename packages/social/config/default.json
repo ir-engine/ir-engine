@@ -5,6 +5,7 @@
     "loginDisabled": false,
     "logo": "./logo.svg",
     "apiServer": "https://${VITE_SERVER_HOST}:${VITE_SERVER_PORT}",
+    "corsServer": "https://${VITE_SERVER_HOST}:${VITE_CORS_SERVER_PORT}",
     "appServer": "https://${VITE_APP_HOST}:${VITE_APP_PORT}",
     "readyPlayerMeUrl":"${VITE_READY_PLAYER_ME_URL}",
     "siteTitle": "ARC",

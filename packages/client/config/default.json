@@ -14,6 +14,7 @@
     "gameserverHost": "${VITE_GAMESERVER_HOST}",
     "gameserverPort": "${VITE_GAMESERVER_PORT}",
     "apiServer": "https://${VITE_SERVER_HOST}:${VITE_SERVER_PORT}",
+    "corsServer": "https://${VITE_SERVER_HOST}:${VITE_CORS_SERVER_PORT}",
     "gameserver": "https://${VITE_GAMESERVER_HOST}:${VITE_GAMESERVER_PORT}",
     "readyPlayerMeUrl":"${VITE_READY_PLAYER_ME_URL}",
     "mediatorServer": "${VITE_MEDIATOR_SERVER}",
