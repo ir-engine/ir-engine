@@ -1,20 +1,20 @@
 # Deploying XREngine on minikube
 
-##Install kubectl, Helm, Docker, and VirtualBox
+## Install kubectl, Helm, Docker, and VirtualBox
 If [kubectl](https://kubernetes.io/docs/tasks/tools/), [Helm](https://helm.sh/docs/intro/install/),
 [Docker](https://docs.docker.com/get-docker/) and/or [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 aren't already installed on your machine, install them.
 
 You may also need to install [Docker Compose](https://docs.docker.com/compose/install/)
 
-##Download and install minikube
+## Download and install minikube
 Instructions can be found [here](https://minikube.sigs.k8s.io/docs/start/)
 
 While you can follow the demo instructions there about starting minikube, deploying
 some demo deployments, etc. to get a feel for it, before deploying XREngine you should delete
 your minikube cluster, since we have some specific starting requirements.
 
-##Start MariaDB server locally via Docker
+## Start MariaDB server locally via Docker
 For simplicity, we recommend running a MariaDB server on your local machine outside of minikube.
 Later instructions will set up minikube so that it can access this server
 
@@ -25,7 +25,7 @@ MariaDB Docker image is stopped, you can start it again by running `docker start
 Alternatively, if you want to just run MariaDB on its own without Docker, that's fine too.
 You'll just have to configure the Helm config file to have the appropriate SQL server configuration.
 
-##Create minikube cluster
+## Create minikube cluster
 Run the following command:
 `minikube start --disk-size 40000m --cpus 4 --memory 10124m --addons ingress --driver virtualbox`
 
@@ -46,7 +46,7 @@ it gets maxed out on RAM, and the Docker build process might freeze indefinitely
 If you forget to use `--addons ingress` when starting minikube, you can start nginx later by
 running `minikube addons enable ingress`
 
-##Get minikube IP address and edit system hostfile to point to 
+## Get minikube IP address and edit system hostfile to point to 
 Run this command after minikube has started: `minikube ip`
 This will get you the address that minikube is running on.
 
@@ -65,7 +65,7 @@ can access the MariaDB server.
 Make sure to save this file after you've edited it. On Linux, at least, you need root permissions
 to edit it.
 
-##Add Helm repos
+## Add Helm repos
 You'll need to add a few Helm repos. Run the following:
 `helm repo add https://agones.dev/chart/stable agones`
 `helm repo add https://charts.bitnami.com/bitnami redis`
@@ -73,7 +73,7 @@ You'll need to add a few Helm repos. Run the following:
 
 This will add the Helm charts for Agones, redis, and XREngine, respectively.
 
-##Install Agones and redis deployments
+## Install Agones and redis deployments
 After adding those Helm repos, you'll start installing deployments using Helm repos.
 
 Make sure that kubectl is pointed at minikube by running `kubectl config current-context`,
@@ -88,7 +88,7 @@ and `helm install local-redis redis/redis` to install redis.
 You can run `kubectl get pods -A` to list all of the pods running in minikube. After a minute or so,
 all of these pods should be in the Running state.
 
-##Point Docker to minikube environment and build Docker file
+## Point Docker to minikube environment and build Docker file
 When minikube is running, run the following command
 `eval $(minikube docker-env)`
 
@@ -105,13 +105,13 @@ This will build an image of the entire XREngine repo into a single Docker file. 
 different services, it will only run the parts needed for that service. This may take up to 15 minutes,
 though later builds should take less time as things are cached.
 
-##Deploy XREngine Helm chart
+## Deploy XREngine Helm chart
 Run the following command: `helm install -f </path/to/local.values.yaml> local xrengine/xrengine`.
 This will use a Helm config file titled 'local.values.yaml' to configure the deployment.
 After a minute or so, running `kubectl get pods` should show one or more gameservers, one or more api
 servers, and one client server in the Running state.
 
-##Accept invalid certs
+## Accept invalid certs
 Since there are no valid certificates for this domain, you'll have to tell your browser to ignore the
 insecure connections when you try to load the application.
 
