@@ -36,7 +36,8 @@ jobs:
   gh-release:
     needs:
       - secrets-gate
-    if: ${{ needs.secrets-gate.outputs.ok == 'enabled' && github.event_name != 'pull_request' }}
+    # if: ${{ needs.secrets-gate.outputs.ok == 'enabled' && github.event_name != 'pull_request' }}
+    if: ${{ needs.secrets-gate.outputs.ok == 'enabled' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
