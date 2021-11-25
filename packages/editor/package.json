@@ -114,7 +114,6 @@
     "use-http": "1.0.26",
     "uuid": "8.3.2",
     "video-react": "0.14.1",
-    "volumetric": "0.2.30",
     "yup": "0.32.11"
   },
   "devDependencies": {
