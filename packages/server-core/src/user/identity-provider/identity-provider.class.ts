@@ -184,7 +184,7 @@ export class IdentityProvider extends Service {
   }
 
   async find(params: Params): Promise<Data[] | Paginated<Data>> {
-    if (params.provider) params.query.userId = params['identity-provider'].userId
+    if (params.provider) params.query!.userId = params['identity-provider'].userId
     return super.find(params)
   }
 }

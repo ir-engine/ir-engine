@@ -58,7 +58,7 @@ export class Party extends Service {
    * @returns {@Object} of single party
    * @author Vyacheslav Solovjov
    */
-  async get(id: string | null, params?: Params): Promise<any> {
+  async get(id: string, params: Params): Promise<any> {
     if (id == null) {
       const loggedInUser = extractLoggedInUserFromParams(params)
       const partyUserResult = await this.app.service('party-user').find({
