@@ -57,16 +57,10 @@ export default async function InteractiveSystem(world: World): Promise<System> {
     }
 
     for (const entity of interactiveQuery.exit(world)) {
-      if (hasComponent(entity, BoundingBoxComponent)) {
-        // TODO: Does the Box3 object need to be destroyed before this?
-        removeComponent(entity, BoundingBoxComponent)
-      }
-      if (hasComponent(entity, InteractiveFocusedComponent)) {
-        removeComponent(entity, InteractiveFocusedComponent)
-      }
-      if (hasComponent(entity, SubFocusedComponent)) {
-        removeComponent(entity, SubFocusedComponent)
-      }
+      // TODO: Does the Box3 object need to be destroyed before this?
+      removeComponent(entity, BoundingBoxComponent)
+      removeComponent(entity, InteractiveFocusedComponent)
+      removeComponent(entity, SubFocusedComponent)
     }
 
     const interactives = interactiveQuery(world)
