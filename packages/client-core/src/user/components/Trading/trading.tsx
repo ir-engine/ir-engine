@@ -129,6 +129,73 @@ export const TradingPage = (): any => {
     }
   }
 
+  const rejectOfferSent = async (tradeId, items) => {
+    setState((prevState) => ({
+      ...prevState,
+      isLoadingtransfer: true
+    }))
+    const data={
+      fromUserInventoryIds: items,
+      fromUserStatus: "REJECT",
+  }
+  console.log("acceptOfferSent ", data);
+  console.log("tradeId ", tradeId);
+
+    try {
+      const response = await client.service('user-trade').patch(tradeId,data)
+      console.log(response,"trade")
+      if(response){
+        fetchInventoryList()
+      fetchfromTradingList()
+      fetchtoTradingList()
+      }
+      console.log('success')
+    } catch (err) {
+      console.error(err, 'error')
+    } finally {
+      setState((prevState) => ({
+        ...prevState,
+        isLoadingtransfer: false
+      }))
+      localStorage.removeItem('tradeId');
+
+    }
+  }
+  
+  const rejectOfferReceived = async (tradeId, items) => {
+    setState((prevState) => ({
+      ...prevState,
+      isLoadingtransfer: true
+    }))
+    const data={
+      toUserInventoryIds: items,
+      toUserStatus: "REJECT"
+
+  }
+  console.log("acceptOfferReceived ", data);
+  console.log("tradeId ", tradeId);
+
+    try {
+      const response = await client.service('user-trade').patch(tradeId,data)
+      console.log(response,"trade")
+      if(response){
+        fetchInventoryList()
+      fetchfromTradingList()
+      fetchtoTradingList()
+      }
+      console.log('success')
+    } catch (err) {
+      console.error(err, 'error')
+    } finally {
+      setState((prevState) => ({
+        ...prevState,
+        isLoadingtransfer: false
+      }))
+      localStorage.removeItem('tradeId');
+
+    }
+  }
+
   const fetchfromTradingList = async () => {
     setState((prevState) => ({
       ...prevState,
@@ -295,6 +362,8 @@ export const TradingPage = (): any => {
           acceptOfferSent={acceptOfferSent}
           acceptOfferReceived={acceptOfferReceived}
           isLoadingtransfer={isLoadingtransfer}
+          rejectOfferSent={rejectOfferSent} 
+          rejectOfferReceived={rejectOfferReceived}
         />
       )}
     </EmptyLayout>
