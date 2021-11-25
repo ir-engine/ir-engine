@@ -48,7 +48,7 @@ class Kubectl {
   }
 
   private spawn(args, done) {
-    const ops = []
+    const ops: any[] = []
 
     if (this.kubeconfig) {
       ops.push('--kubeconfig=' + this.kubeconfig)
@@ -66,8 +66,8 @@ class Kubectl {
     }
 
     const kube = ChildProcess.spawn(this.binary, ops.concat(args)),
-      stdout = [],
-      stderr = []
+      stdout: any[] = [],
+      stderr: any[] = []
 
     kube.stdout.on('data', (data) => {
       stdout.push(data.toString())

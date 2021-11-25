@@ -29,24 +29,24 @@ export interface GitData {
 export function getGitData(dir): GitData {
   if (!fs.existsSync(dir)) {
     console.log('[Projects]: Could not find git config file at', dir)
-    return
+    return null!
   }
   const data = fs.readFileSync(dir)
   try {
-    var formatted = format(ini.parse(data.toString()))
+    return format(ini.parse(data.toString())) as GitData
   } catch (e) {
     console.log(e)
   }
-  return formatted as GitData
+  return null!
 }
 
 function format(data) {
-  var out = {}
+  const out = {}
   Object.keys(data).forEach(function (k) {
     if (k.indexOf('"') > -1) {
-      var parts = k.split('"')
-      var parentKey = parts.shift().trim()
-      var childKey = parts.shift().trim()
+      const parts = k.split('"')
+      const parentKey = parts.shift()!.trim()
+      const childKey = parts.shift()!.trim()
       if (!out[parentKey]) out[parentKey] = {}
       out[parentKey][childKey] = data[k]
     } else {
@@ -60,7 +60,7 @@ function format(data) {
 }
 
 function merge() {
-  var a = {}
+  const a = {}
   for (var i = arguments.length; i >= 0; --i) {
     Object.keys(arguments[i] || {}).forEach((k) => {
       a[k] = arguments[i][k]

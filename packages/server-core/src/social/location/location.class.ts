@@ -120,12 +120,12 @@ export class Location extends Service {
    * @author Vyacheslav Solovjov
    */
   async find(params: Params): Promise<any> {
-    let { $skip, $limit, $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params.query
+    let { $skip, $limit, $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params.query!
 
     if ($skip == null) $skip = 0
     if ($limit == null) $limit = 10
 
-    const order = []
+    const order: any[] = []
     if ($sort != null)
       Object.keys($sort).forEach((name, val) => {
         order.push([name, $sort[name] === -1 ? 'DESC' : 'ASC'])

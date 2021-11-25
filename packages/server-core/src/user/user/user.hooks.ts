@@ -193,6 +193,7 @@ export default {
           logger.error('USER AFTER CREATE ERROR')
           logger.error(err)
         }
+        return null!
       }
     ],
     update: [],

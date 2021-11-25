@@ -74,7 +74,7 @@ export class TheFeedsFires extends Service {
     return thefeedsResult
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params: Params): Promise<any> {
     const { thefeeds_fires: thefeedsFiresModel } = this.app.get('sequelizeClient').models
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
@@ -84,7 +84,7 @@ export class TheFeedsFires extends Service {
     return newFire
   }
 
-  async remove(thefeedsId: string, params?: Params): Promise<any> {
+  async remove(thefeedsId: string, params: Params): Promise<any> {
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')
