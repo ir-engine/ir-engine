@@ -60,7 +60,7 @@ export class Scene implements ServiceMethods<any> {
   async find(params): Promise<{ data: SceneDetailInterface[] }> {
     const projects = await this.app.service('project').find(params)
 
-    const scenes = []
+    const scenes: SceneDetailInterface[] = []
     for (const project of projects.data) {
       const { data } = await this.app.service('scenes').get({ projectName: project.name, metadataOnly: true }, params)
       scenes.push(
@@ -77,7 +77,7 @@ export class Scene implements ServiceMethods<any> {
   }
 
   // @ts-ignore
-  async get({ projectName, sceneName, metadataOnly }, params?: Params): Promise<{ data: SceneDetailInterface }> {
+  async get({ projectName, sceneName, metadataOnly }, params: Params): Promise<{ data: SceneDetailInterface }> {
     const project = await this.app.service('project').get(projectName, params)
     if (!project?.data) throw new Error(`No project named ${projectName} exists`)
 
@@ -88,7 +88,7 @@ export class Scene implements ServiceMethods<any> {
     }
   }
 
-  async update(projectName: string, data: UpdateParams, params?: Params): Promise<any> {
+  async update(projectName: string, data: UpdateParams, params: Params): Promise<any> {
     const { sceneName, sceneData, thumbnailBuffer } = data
     console.log('[scene.update]:', projectName, data)
 
@@ -128,7 +128,7 @@ export class Scene implements ServiceMethods<any> {
   // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}
 
   // @ts-ignore
-  async remove({ projectName, sceneName }, params?: Params): Promise<any> {
+  async remove({ projectName, sceneName }, params: Params): Promise<any> {
     const name = cleanString(sceneName)
 
     if (projectName === 'default-project') return

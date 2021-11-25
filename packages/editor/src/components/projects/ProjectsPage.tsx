@@ -92,6 +92,7 @@ const ProjectsPage = (props) => {
   const onCreateProject = async (name) => {
     console.log('onCreateProject', name)
     await ProjectService.createProject(name)
+    fetchItems()
   }
 
   /**

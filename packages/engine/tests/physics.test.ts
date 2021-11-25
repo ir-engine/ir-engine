@@ -12,6 +12,10 @@ import { delay } from '../src/common/functions/delay'
 import { CollisionComponent } from '../src/physics/components/CollisionComponent'
 import { addComponent } from '../src/ecs/functions/ComponentFunctions'
 import { Engine } from '../src/ecs/classes/Engine'
+import { createWorld } from '../src/ecs/classes/World'
+import { loadPhysX } from '../src/physics/physx/loadPhysX'
+import PhysicsSystem from '../src/physics/systems/PhysicsSystem'
+import { SystemUpdateType } from '../src/ecs/functions/SystemUpdateType'
 
 
 const avatarRadius = 0.25
@@ -21,7 +25,20 @@ const avatarHalfHeight = avatarHeight / 2
 const mockDelta = 1/60
 let mockElapsedTime = 0
 
-describe.skip('Physics', () => {
+describe('Physics', () => {
+
+  beforeEach(async () => {
+    Engine.currentWorld = createWorld()
+    Engine.defaultWorld = Engine.currentWorld
+    await loadPhysX()
+    await Engine.currentWorld.physics.createScene({ verbose: true })
+  })
+
+  afterEach(() => {
+    Engine.currentWorld = null!
+    Engine.defaultWorld = null!
+    delete (globalThis as any).PhysX
+  })
 
   // face indexed cube data
   const vertices = [
@@ -49,8 +66,8 @@ describe.skip('Physics', () => {
     0, 2, 4
   ]
 
+  // this has problems with the PhysX bindings itself
   it.skip('Can load physics convex mesh', async () => {
-    await initializeEngine(engineTestSetup)
     const world = useWorld()
 
     const verticesPtr = putIntoPhysXHeap(PhysX.HEAPF32, vertices)
@@ -69,7 +86,6 @@ describe.skip('Physics', () => {
 
 
   it('Can load physics trimesh', async () => {
-    await initializeEngine(engineTestSetup)
     const world = useWorld()
 
     const verticesPtr = putIntoPhysXHeap(PhysX.HEAPF32, vertices)
@@ -101,22 +117,17 @@ describe.skip('Physics', () => {
   })
 
   /**
-   * this is a hacky quick fix - replace this with proper unit tests
+   * this is a hacky quick fix - split PhysicsSystem into lots of little functions and replace this with proper unit tests
    */
-  it.skip('Can detect dynamic and trigger collision', async () => {
-    await initializeEngine(engineTestSetup)
-    Engine.engineTimer?.clear()
+  it('Can detect dynamic and trigger collision', async () => {
+    const world = useWorld()
+    const runPhysics = await PhysicsSystem(world, null!)
 
     const execute = () => {
-      mockElapsedTime += mockDelta
-      for (const world of Engine.worlds) {
-        Engine.currentWorld = world
-        world.execute(mockDelta, mockElapsedTime)
-      }
-      Engine.currentWorld = null
+      world.fixedTick += 1
+      world.elapsedTime += mockDelta 
+      runPhysics()
     }
-
-    const world = useWorld()
 
     // const controllerEntity = createEntity()
     // const controller = world.physics.createController({
@@ -182,6 +193,8 @@ describe.skip('Physics', () => {
         entity: triggerEntity
       }
     })
+
+    execute()
 
     avatarBody.setGlobalPose({
       translation: new Vector3(),

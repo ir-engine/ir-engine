@@ -9,7 +9,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": false,
+    "noEmit": true,
     "module": "esnext",
     "strict": false,
     "noImplicitAny": false,
@@ -26,10 +26,8 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "**/node_modules/**",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.test.js"
+    "../projects/projects/**",
+    "**/node_modules/**"
   ],
   "include": [
     "./**/*.ts",

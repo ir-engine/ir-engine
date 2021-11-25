@@ -89,7 +89,7 @@ export class Comments extends Service {
     return feedsResult
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params: Params): Promise<any> {
     const { comments: commentsModel, creator: creatorModel } = this.app.get('sequelizeClient').models
 
     const creatorId = await getCreatorByUserId(

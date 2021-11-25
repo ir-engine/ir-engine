@@ -64,7 +64,7 @@ export class BlockCreator extends Service {
     }
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params: Params): Promise<any> {
     const { block_creator: blockCreator } = this.app.get('sequelizeClient').models
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
@@ -73,7 +73,7 @@ export class BlockCreator extends Service {
     const newRecord = await blockCreator.create({ creatorId: creatorId, blockedId: data.creatorId })
     return newRecord
   }
-  async remove(data: any, params?: Params): Promise<any> {
+  async remove(data: any, params: Params): Promise<any> {
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')
