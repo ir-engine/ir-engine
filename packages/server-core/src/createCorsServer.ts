@@ -7,6 +7,10 @@ const createCorsServer = (port: number) => {
   const host = config.server.hostname
   cors_proxy
     .createServer({
+      httpsOptions: {
+        key: fs.readFileSync('../../certs/key.pem'),
+        cert: fs.readFileSync('../../certs/cert.pem')
+      },
       originWhitelist: [], // Allow all origins
       requireHeader: ['origin', 'x-requested-with'],
       removeHeaders: ['cookie', 'cookie2']
