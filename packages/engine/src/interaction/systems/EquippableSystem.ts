@@ -74,7 +74,6 @@ export default async function EquippableSystem(world: World): Promise<System> {
     }
 
     for (const entity of equippableQuery()) {
-      // console.log('equipping loop')
       const equipperComponent = getComponent(entity, EquipperComponent)
       const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
       const attachmentPoint = equippedComponent.attachmentPoint
