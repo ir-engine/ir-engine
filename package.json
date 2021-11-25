@@ -147,7 +147,7 @@
   },
   "dependencies": {
     "@iconify/react": "3.1.0",
-    "@mui/styles": "5.2.0",
+    "@mui/styles": "5.2.1",
     "depcheck": "1.4.2",
     "react-dnd": "14.0.4",
     "ts-node": "10.4.0"
