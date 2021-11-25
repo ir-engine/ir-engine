@@ -5,7 +5,7 @@ import { Application } from '../../../declarations'
 import { parseScenePortals } from './scene-parser'
 
 export const getAllPortals = (app: Application): any => {
-  return async (params?: Params) => {
+  return async (params: Params) => {
     params.metadataOnly = false
     const scenes = await (await app.service('scenes').find(params)).data
     return {
@@ -15,7 +15,7 @@ export const getAllPortals = (app: Application): any => {
 }
 
 export const getPortal = (app: any): any => {
-  return async (id: string, params?: Params) => {
+  return async (id: string, params: Params) => {
     params.metadataOnly = false
     const scenes = await (await app.service('scenes').find(params)).data
     const portals = scenes.map((scene) => parseScenePortals(scene)).flat() as PortalDetail[]

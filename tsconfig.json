@@ -9,7 +9,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": false,
+    "noEmit": true,
     "module": "CommonJS",
     "strict": false,
     "noImplicitAny": false,

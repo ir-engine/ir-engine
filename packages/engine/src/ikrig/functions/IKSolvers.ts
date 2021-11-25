@@ -20,7 +20,6 @@ export type IKSolverFunction = (
 const tempQuat1 = new Quaternion()
 const tempQuat2 = new Quaternion()
 const tempQuat3 = new Quaternion()
-const tempVec1 = new Vector3()
 
 /**
  *

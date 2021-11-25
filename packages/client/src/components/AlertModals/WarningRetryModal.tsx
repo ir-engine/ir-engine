@@ -1,7 +1,6 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
 import styles from './AlertModals.module.scss'
-import Backdrop from '@mui/material/Backdrop'
 import Fade from '@mui/material/Fade'
 import Modal from '@mui/material/Modal'
 import IconButton from '@mui/material/IconButton'
@@ -43,12 +42,12 @@ const WarningRetryModal = ({
   }
 
   useEffect(() => {
-    setTimeRemaining((timeout || 10000) / 1000)
+    !noCountdown && setTimeRemaining((timeout || 10000) / 1000)
   }, [open, timeout])
 
   useEffect(() => {
     if (!open) return
-    if (timeRemaining <= 0) {
+    if (!noCountdown && timeRemaining <= 0) {
       if (typeof action === 'function') {
         action(...(parameters || []))
       }
@@ -59,7 +58,7 @@ const WarningRetryModal = ({
     }
 
     let timeout = undefined! as number
-    if (timeRemaining > 0) {
+    if (!noCountdown && timeRemaining > 0) {
       timeout = setTimeout(() => {
         setTimeRemaining(timeRemaining - 1)
       }, 1000) as any
@@ -80,10 +79,6 @@ const WarningRetryModal = ({
           else if (typeof handleClose === 'function') handleClose(event, reason)
         }}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={open}>
           <div

@@ -26,6 +26,14 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         <Route path="/" component={React.lazy(() => import('./pages/index'))} exact />
         <Route path="/login" component={React.lazy(() => import('./pages/login'))} />
 
+        {/* NEW */}
+        <Route path="/feed/:feedId" component={React.lazy(() => import('./components/popups/FeedPopup'))} />
+        <Route path="/camera/:videoId" component={React.lazy(() => import('./components/popups/WebXR'))} />
+        <Route path="/editCreator" component={React.lazy(() => import('./components/popups/CreatorFormPopup'))} />
+        <Route path="/creator/:creatorId" component={React.lazy(() => import('./components/popups/CreatorPopup'))} />
+        <Route path="/terms" component={React.lazy(() => import('./pages/TermsAndPolicy/terms'))} />
+        <Route path="/policy" component={React.lazy(() => import('./pages/TermsAndPolicy/policy'))} />
+
         {/* Debug Routes */}
         <Route path="/webxr" component={React.lazy(() => import('./pages/webxr'))} />
 
@@ -37,15 +45,15 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         <Route path="/admin" component={React.lazy(() => import('./pages/admin/index'))} />
 
         {/* Editor Routes */}
-        <Route
-          path="/editor/:projectId"
+        {/* <Route
+          path="/editor/projects/:projectId"
           component={React.lazy(() => import('@xrengine/editor/src/pages/projects/[projectId]'))}
-        />
-        <Route path="/editor" component={React.lazy(() => import('@xrengine/editor/src/pages/projects'))} />
+        /> */}
+        <Route path="/editor/projects" component={React.lazy(() => import('@xrengine/editor/src/pages/projects'))} />
         {/* <Route path="/editor/create" component={React.lazy(() => import('@xrengine/editor/src/pages/create'))} /> */}
-        {/* <Redirect path="/editor" to="/editor" /> */}
+        {/* <Redirect path="/editor" to="/editor/projects" /> */}
 
-        {/* <Route path="/editor/create" component={React.lazy(() => import('./pages/admin/editor'))} /> */}
+        {/* <Route path="/editor/projects/create" component={React.lazy(() => import('./pages/admin/editor'))} /> */}
 
         {/* Auth Routes */}
         <Route path="/auth/oauth/facebook" component={React.lazy(() => import('./pages/auth/oauth/facebook'))} />
@@ -66,7 +74,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         <Route path="/creator" component={React.lazy(() => import('./pages/creator'))} />
         <Route path="/creatorEdit" component={React.lazy(() => import('./pages/creatorEdit'))} />
         <Route path="/explore" component={React.lazy(() => import('./pages/creatorEdit'))} />
-        <Route path="/feed" component={React.lazy(() => import('./pages/feed'))} />
+        {/* <Route path="/feed" component={React.lazy(() => import('./pages/feed'))} /> */}
         <Route path="/login" component={React.lazy(() => import('./pages/login'))} />
         <Route path="/messages" component={React.lazy(() => import('./pages/messages'))} />
         <Route path="/newfeed" component={React.lazy(() => import('./pages/newfeed'))} />
@@ -74,10 +82,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
         <Route path="/onboarding" component={React.lazy(() => import('./pages/onboarding'))} />
         <Route path="/videorecord" component={React.lazy(() => import('./pages/videorecord'))} />
         <Route path="/privacypolicy" component={React.lazy(() => import('./pages/privacypolicy'))} />
-
-        {/* Terms and Policy */}
-        <Route path="/terms" component={React.lazy(() => import('./pages/TermsAndPolicy/terms'))} />
-        <Route path="/policy" component={React.lazy(() => import('./pages/TermsAndPolicy/policy'))} />
+        {/* <Route path="/volumetric" component={React.lazy(() => import('./pages/volumetric'))} /> */}
 
         <Route path="/:pid" component={React.lazy(() => import('./pages/[pid]'))} />
 

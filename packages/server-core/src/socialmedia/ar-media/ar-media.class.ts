@@ -101,7 +101,7 @@ export class ArMedia extends Service {
    * @returns {@Object} contains specific item
    * @author Vykliuk Tetiana <tanya.vykliuk@gmail.com>
    */
-  async get(id: Id, params?: Params): Promise<any> {
+  async get(id: Id, params: Params): Promise<any> {
     const dataQuery = `SELECT ar.*,
                                 sr1.url as manifestUrl, sr2.url as previewUrl, sr3.url as dracosisUrl, sr4.url as audioUrl
                          FROM \`ar_media\` as ar
@@ -121,7 +121,7 @@ export class ArMedia extends Service {
     return item
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params: Params): Promise<any> {
     const { ar_media: ArMediaModel } = this.app.get('sequelizeClient').models
     return await ArMediaModel.create(data)
   }
@@ -134,7 +134,7 @@ export class ArMedia extends Service {
    * @returns updated
    * @author Vykliuk Tetiana <tanya.vykliuk@gmail.com>
    */
-  async patch(id: string, data?: any, params?: Params): Promise<any> {
+  async patch(id: string, data: any, params: Params): Promise<any> {
     return await super.patch(id, data)
   }
 }

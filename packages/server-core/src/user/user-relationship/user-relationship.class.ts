@@ -39,7 +39,7 @@ export class UserRelationship extends Service {
         raw: false
       })
 
-      const resolvedData = []
+      const resolvedData: any[] = []
       for (const userRelation of userRelations) {
         const userData = resolveModelData(await userRelation.getRelatedUser())
         // add second relation type
