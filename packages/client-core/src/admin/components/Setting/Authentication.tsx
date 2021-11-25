@@ -12,13 +12,13 @@ import { Icon } from '@iconify/react'
 interface Props {}
 
 const initialState = {
-  jwt: true,
-  local: true,
-  facebook: true,
-  github: true,
-  google: true,
-  linkedin: true,
-  twitter: true
+  jwt: false,
+  local: false,
+  facebook: false,
+  github: false,
+  google: false,
+  linkedin: false,
+  twitter: false
 }
 
 const OAUTH_TYPES = {
@@ -90,7 +90,7 @@ const Account = (props: Props) => {
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...state }
+      let temp = { ...initialState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -113,7 +113,11 @@ const Account = (props: Props) => {
   }, [authSettingState?.updateNeeded?.value])
 
   const handleSubmit = () => {
-    const auth = Object.keys(state).map((prop) => ({ [prop]: state[prop] }))
+    const auth = Object.keys(state)
+      .filter((item) => (state[item] ? item : null))
+      .filter(Boolean)
+      .map((prop) => ({ [prop]: state[prop] }))
+
     const oauth = { ...authSetting.oauth, ...keySecret }
 
     for (let key of Object.keys(oauth)) {
@@ -124,7 +128,7 @@ const Account = (props: Props) => {
   }
 
   const handleCancel = () => {
-    let temp = { ...state }
+    let temp = { ...initialState }
     authSetting?.authStrategies?.forEach((el) => {
       Object.entries(el).forEach(([strategyName, strategy]) => {
         temp[strategyName] = strategy
@@ -173,7 +177,6 @@ const Account = (props: Props) => {
       <Typography component="h1" className={classes.settingsHeading}>
         AUTHENTICATION
       </Typography>
-
       <form autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
           <Grid item xs={6} sm={4}>
@@ -210,29 +213,23 @@ const Account = (props: Props) => {
             <Typography component="h1" className={classes.settingsHeading}>
               Authentication Strategies
             </Typography>
-
-            {authSetting?.authStrategies.map((el, i) => {
-              return Object.entries(el).map(([strategyName, strategy]) => (
-                <React.Fragment key={i}>
-                  <Paper component="div" className={classes.createInput} style={{ height: '2.5rem' }}>
-                    <Grid container direction="row" justifyContent="space-between" alignItems="stretch">
-                      <label>{strategyName}</label>
-                      <Switch
-                        // disabled
-                        checked={state[strategyName]}
-                        color="primary"
-                        name={strategyName}
-                        disabled={strategyName === 'jwt' ? true : false}
-                        onChange={onSwitchHandle}
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                      />
-                    </Grid>
-                  </Paper>
-                </React.Fragment>
-              ))
-            })}
+            {Object.keys(state).map((strategyName, i) => (
+              <React.Fragment key={i}>
+                <Paper component="div" className={classes.createInput} style={{ height: '2.5rem' }}>
+                  <Grid container direction="row" justifyContent="space-between" alignItems="stretch">
+                    <label>{strategyName}</label>
+                    <Switch
+                      checked={state[strategyName]}
+                      color="primary"
+                      name={strategyName}
+                      onChange={onSwitchHandle}
+                      inputProps={{ 'aria-label': 'primary checkbox' }}
+                    />
+                  </Grid>
+                </Paper>
+              </React.Fragment>
+            ))}
           </Grid>
-
           <Grid item xs={12} sm={4}>
             <label>Local</label>
             <Paper component="div" className={classes.createInput}>
@@ -439,7 +436,6 @@ const Account = (props: Props) => {
                 </Paper>
               </Paper>
             )}
-
             {holdAuth?.linkedin && (
               <Paper className={classes.Paper} style={{ marginBottom: '10px' }} elevation={0}>
                 <label style={{ color: '#fff' }}>LinkedIn</label>
@@ -489,7 +485,6 @@ const Account = (props: Props) => {
                 </Paper>
               </Paper>
             )}
-
             {holdAuth?.twitter && (
               <Paper className={classes.Paper} elevation={0} style={{ marginBottom: '10px' }}>
                 <label style={{ color: '#ffff' }}>Twitter</label>
