@@ -100,6 +100,26 @@ const Client = (props: clientProps) => {
             inputProps={{ 'aria-label': 'primary checkbox' }}
           />
         </Paper>
+        <label>Title</label>
+        <Paper component="div" className={classes.createInput}>
+          <InputBase
+            name="title"
+            className={classes.input}
+            style={{ color: '#fff' }}
+            value={title || ''}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </Paper>
+        <label>Description</label>
+        <Paper component="div" className={classes.createInput}>
+          <InputBase
+            name="title"
+            className={classes.input}
+            style={{ color: '#fff' }}
+            value={siteDescription || ''}
+            onChange={(e) => setSiteDescription(e.target.value)}
+          />
+        </Paper>
         <label>Logo</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
@@ -148,26 +168,6 @@ const Client = (props: clientProps) => {
             style={{ color: '#fff' }}
             value={favicon32px || ''}
             onChange={(e) => setFavicon32px(e.target.value)}
-          />
-        </Paper>
-        <label>Title</label>
-        <Paper component="div" className={classes.createInput}>
-          <InputBase
-            name="title"
-            className={classes.input}
-            style={{ color: '#fff' }}
-            value={title || ''}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </Paper>
-        <label>Description</label>
-        <Paper component="div" className={classes.createInput}>
-          <InputBase
-            name="title"
-            className={classes.input}
-            style={{ color: '#fff' }}
-            value={siteDescription || ''}
-            onChange={(e) => setSiteDescription(e.target.value)}
           />
         </Paper>
         <label>URL</label>
