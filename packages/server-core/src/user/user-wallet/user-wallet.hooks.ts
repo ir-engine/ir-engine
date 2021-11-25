@@ -14,6 +14,7 @@ export default {
     create: [
       async (context: HookContext): Promise<HookContext> => {
 
+        let userId = context.data.userId
         // GET RESPONSE FOR TOKEN
         var response = await axios.post("http://af2fc18b539ee488984fa4e58de37686-1454411376.us-west-1.elb.amazonaws.com/api/v1/authorizeServer",{
           "authSecretKey": "secret"
@@ -33,6 +34,8 @@ export default {
 
         // PUSH WALLET API DATA TO MODEL
         context.data = walletData.data
+        context.data.userId = userId
+        console.log(12345,context.data)
         return context
       }
     ],
