@@ -20,7 +20,7 @@ declare module '@mui/styles/defaultTheme' {
   interface DefaultTheme extends Theme {}
 }
 
-const siteTitle: string = Config.publicRuntimeConfig.siteTitle
+const title: string = Config.publicRuntimeConfig.title
 
 const initialSelectedUserState = {
   id: '',
@@ -95,7 +95,7 @@ const Layout = (props: Props): any => {
         <section>
           <Helmet>
             <title>
-              {siteTitle} | {pageTitle}
+              {title} | {pageTitle}
             </title>
           </Helmet>
           <Harmony />
