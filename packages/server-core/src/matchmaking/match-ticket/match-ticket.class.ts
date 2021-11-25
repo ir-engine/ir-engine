@@ -37,11 +37,11 @@ export class MatchTicket implements ServiceMethods<Data> {
 
   async setup() {}
 
-  async find(params?: Params): Promise<Data[]> {
+  async find(params: Params): Promise<Data[]> {
     return []
   }
 
-  async get(id: Id, params?: Params): Promise<OpenMatchTicket> {
+  async get(id: Id, params: Params): Promise<OpenMatchTicket> {
     if (typeof id !== 'string' || id.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
@@ -60,7 +60,7 @@ export class MatchTicket implements ServiceMethods<Data> {
     return ticket as OpenMatchTicket
   }
 
-  async create(data: unknown, params?: Params): Promise<OpenMatchTicket | OpenMatchTicket[]> {
+  async create(data: unknown, params: Params): Promise<OpenMatchTicket | OpenMatchTicket[]> {
     if (Array.isArray(data)) {
       return await Promise.all(data.map((current) => this.create(current, params) as OpenMatchTicket))
     }
@@ -78,17 +78,17 @@ export class MatchTicket implements ServiceMethods<Data> {
     return await createTicket(data.gamemode)
   }
 
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
     // not implemented for tickets
     return data
   }
 
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
     // not implemented for tickets
     return data
   }
 
-  async remove(id: Id, params?: Params): Promise<Data> {
+  async remove(id: Id, params: Params): Promise<Data> {
     // skip delete in emulation, user-match will be deleted in hook
     if (!config.server.matchmakerEmulationMode) {
       await deleteTicket(String(id))
