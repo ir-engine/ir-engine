@@ -93,7 +93,7 @@ type StateType = {
 
 const ITEM_HEIGHT = 48
 
-const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOfferReceived, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory, addofferiteminventory, addreceiveiteminventory, data1, data0, removeofferinventory, removereceiveinventory }: any) => {
+const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, handleTransfer, acceptOfferSent, acceptOfferReceived, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory, addofferiteminventory, addreceiveiteminventory, data1, data0, removeofferinventory, removereceiveinventory }: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState<StateType>({
@@ -233,20 +233,36 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
     addreceiveiteminventory(value)
   }
 
-  const acceptOfferSentId = (id,items) => {
+  const acceptOfferSentId = (id, items) => {
     console.log("OfferSent ", localStorage.getItem("tradeId"));
     //acceptOfferSent(localStorage.getItem("tradeId"), offeredTrading)
-    console.log("id",id)
-    console.log("items",items)
+    console.log("id", id)
+    console.log("items", items)
     acceptOfferSent(id, items)
   }
 
-  const acceptOfferReceivedId = (id,items) => {
+  const acceptOfferReceivedId = (id, items) => {
     console.log("OfferReceived ", localStorage.getItem("tradeId"));
     //acceptOfferReceived(localStorage.getItem("tradeId"), receivedTrading)
-    console.log("id",id)
-    console.log("items",items)
+    console.log("id", id)
+    console.log("items", items)
     acceptOfferReceived(id, items)
+  }
+
+  const rejectOfferSentId = (id, items) => {
+    console.log("OfferSent ", localStorage.getItem("tradeId"));
+    //acceptOfferSent(localStorage.getItem("tradeId"), offeredTrading)
+    console.log("id", id)
+    console.log("items", items)
+    rejectOfferSent(id, items)
+  }
+
+  const rejectOfferReceivedId = (id, items) => {
+    console.log("OfferReceived ", localStorage.getItem("tradeId"));
+    //acceptOfferReceived(localStorage.getItem("tradeId"), receivedTrading)
+    console.log("id", id)
+    console.log("items", items)
+    rejectOfferReceived(id, items)
   }
 
   console.log(data, "data")
@@ -467,9 +483,16 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
                   <Button
                     variant="outlined"
                     disabled={isLoadingtransfer}
-                    onClick={() => acceptOfferSentId(data0[0].userTradeId,fortrading)}
+                    onClick={() => acceptOfferSentId(data0[0].userTradeId, fortrading)}
                   >
                     {isLoadingtransfer ? <CircularProgress size={30} /> : 'Accept Offer Sent'}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    disabled={isLoadingtransfer}
+                    onClick={() => rejectOfferSentId(data0[0].userTradeId, fortrading)}
+                  >
+                    {isLoadingtransfer ? <CircularProgress size={30} /> : 'Reject Offer Sent'}
                   </Button>
                 </Stack>
               }
@@ -506,7 +529,7 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
                 ""
               )}
               {
-               fortrading.length !== 0 && data1.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
+                fortrading.length !== 0 && data1.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
                   {/* <FormControl fullWidth>
                       <InputLabel id="demo-simple-select-label">User</InputLabel>
                       <Select
@@ -536,9 +559,16 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
                   <Button
                     variant="outlined"
                     disabled={isLoadingtransfer}
-                    onClick={() => acceptOfferReceivedId(data1[0].userTradeId,fortrading)}
+                    onClick={() => acceptOfferReceivedId(data1[0].userTradeId, fortrading)}
                   >
                     {isLoadingtransfer ? <CircularProgress size={30} /> : 'Accept Offer Received'}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    disabled={isLoadingtransfer}
+                    onClick={() => rejectOfferReceivedId(data1[0].userTradeId, fortrading)}
+                  >
+                    {isLoadingtransfer ? <CircularProgress size={30} /> : 'Reject Offer Received'}
                   </Button>
                 </Stack>
               }
@@ -556,16 +586,16 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
                     {data0[0].fromUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                        onClick={() => {
-                          offerfortrade(value, index);
-                          setState((prevState) => ({
-                            ...prevState,
-                            url: value.url,
-                            metadata: value.metadata,
-                            selectedid: value.inventoryItemTypeId,
-                            userTradeId: value.userTradeId
-                          }))
-                        }}
+                        // onClick={() => {
+                        //   offerfortrade(value, index);
+                        //   setState((prevState) => ({
+                        //     ...prevState,
+                        //     url: value.url,
+                        //     metadata: value.metadata,
+                        //     selectedid: value.inventoryItemTypeId,
+                        //     userTradeId: value.userTradeId
+                        //   }))
+                        // }}
                       >
                         <Stack
                           justifyContent="center"
@@ -591,16 +621,16 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
                     {data0[0].toUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                        onClick={() => {
-                          setState((prevState) => ({
-                            ...prevState,
-                            url: value.url,
-                            metadata: value.metadata,
-                            selectedid: value.inventoryItemTypeId,
-                            userTradeId: value.userTradeId
+                        // onClick={() => {
+                        //   setState((prevState) => ({
+                        //     ...prevState,
+                        //     url: value.url,
+                        //     metadata: value.metadata,
+                        //     selectedid: value.inventoryItemTypeId,
+                        //     userTradeId: value.userTradeId
 
-                          }))
-                        }}
+                        //   }))
+                        // }}
                       >
                         <Stack
                           justifyContent="center"
@@ -632,15 +662,15 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
                     {data1[0].toUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                        onClick={() => {
-                          receivefortrade(value, index)
-                          setState((prevState) => ({
-                            ...prevState,
-                            url: value.url,
-                            metadata: value.metadata,
-                            selectedid: value.inventoryItemTypeId
-                          }))
-                        }}
+                        // onClick={() => {
+                        //   receivefortrade(value, index)
+                        //   setState((prevState) => ({
+                        //     ...prevState,
+                        //     url: value.url,
+                        //     metadata: value.metadata,
+                        //     selectedid: value.inventoryItemTypeId
+                        //   }))
+                        // }}
                       >
                         <Stack
                           justifyContent="center"
@@ -666,15 +696,15 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
                     {data1[0].fromUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                        onClick={() => {
+                        // onClick={() => {
 
-                          setState((prevState) => ({
-                            ...prevState,
-                            url: value.url,
-                            metadata: value.metadata,
-                            selectedid: value.inventoryItemTypeId
-                          }))
-                        }}
+                        //   setState((prevState) => ({
+                        //     ...prevState,
+                        //     url: value.url,
+                        //     metadata: value.metadata,
+                        //     selectedid: value.inventoryItemTypeId
+                        //   }))
+                        // }}
                       >
                         <Stack
                           justifyContent="center"
