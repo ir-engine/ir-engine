@@ -9,6 +9,7 @@ const commonExludePaths = [
 /**
  *
  * @author Abhinav Shah
+ * @author Hanzla Mateen
  */
 module.exports = {
   title: 'xrengine',
@@ -23,54 +24,12 @@ module.exports = {
   organizationName: 'XRFoundation', // Usually your GitHub org/user name.
   projectName: 'xrengine-docs', // Usually your repo name.
   plugins: [
-    [
-      'docusaurus-plugin-typedoc',
-      {
-        id: 'client-core',
-        entryPoints: ['../test/src/index.tsx'],
-        tsconfig: '../test/tsconfig.json',
-        exclude: [
-          ...commonExludePaths,
-          '../test/build.js',
-          '../test/rollup.config.js',
-          '../test/jest.config.js',
-          '../test/scripts/**',
-        ],
-        out: 'docs-client-core',
-        readme: 'none',
-        // sidebar: {
-        //   // sidebarFile: 'sidebar/typedoc-client-core.js',
-        //   categoryLabel: 'API XYZ',
-        //   position: 0,
-        //   fullNames: true
-        // },
-      },
-    ],
-    // [
-    //   'docusaurus-plugin-typedoc',
-    //   {
-    //     id: 'client-core',
-    //     entryPoints: ['../packages/client-core'],
-    //     tsconfig: '../packages/client-core/tsconfig.json',
-    //     exclude: [
-    //       ...commonExludePaths,
-    //       '../packages/client-core/build.js',
-    //       '../packages/client-core/rollup.config.js',
-    //       '../packages/client-core/jest.config.js',
-    //       '../packages/client-core/scripts/**',
-    //     ],
-    //     out: 'docs-client-core',
-    //     readme: 'none',
-    //     sidebar: {
-    //       sidebarFile: 'sidebar/typedoc-client-core.js',
-    //     },
-    //   },
-    // ],
     // [
     //   'docusaurus-plugin-typedoc',
     //   {
     //     id: 'client',
     //     entryPoints: ['../packages/client/src/main.tsx'],
+    //     entryPointStrategy: 'expand',
     //     tsconfig: '../packages/client/tsconfig.json',
     //     exclude: [
     //       ...commonExludePaths,
@@ -80,102 +39,120 @@ module.exports = {
     //       '../packages/client/lib/**',
     //       '../packages/client/scripts/**'
     //     ],
-    //     out: 'docs-client',
+    //     out: 'generated/client',
     //     readme: 'none',
-    //     sidebar: {
-    //       sidebarFile: 'sidebar/typedoc-client.js',
-    //     },
     //   },
     // ],
     // [
     //   'docusaurus-plugin-typedoc',
     //   {
-    //     id: 'server',
-    //     entryPoints: ['../packages/server'],
-    //     tsconfig: '../packages/server/tsconfig.json',
+    //     id: 'client-core',
+    //     entryPoints: ['../packages/client-core'],
+    //     entryPointStrategy: 'expand',
+    //     tsconfig: '../packages/client-core/tsconfig.json',
     //     exclude: [
     //       ...commonExludePaths,
-    //       '../packages/server/.eslintrc.js',
-    //       '../packages/server/vite.config.js',
-    //       '../packages/server/jest.config.js',
-    //       '../packages/server/public/**',
-    //       '../packages/server/scripts/**',
-    //       '../packages/server/tests old/**'
+    //       '../packages/client-core/build.js',
+    //       '../packages/client-core/rollup.config.js',
+    //       '../packages/client-core/jest.config.js',
+    //       '../packages/client-core/scripts/**',
     //     ],
-    //     out: 'docs-server',
+    //     out: 'generated/client-core',
     //     readme: 'none',
-    //     sidebar: {
-    //       sidebarFile: 'sidebar/typedoc-server.js',
-    //     },
-    //   },
-    // ],
-    // [
-    //   'docusaurus-plugin-typedoc',
-    //   {
-    //     id: 'common',
-    //     entryPoints: ['../packages/common'],
-    //     tsconfig: '../packages/common/tsconfig.json',
-    //     exclude: [
-    //       ...commonExludePaths,
-    //       '../packages/common/rollup.config.js',
-    //       '../packages/common/scripts/**'
-    //     ],
-    //     out: 'docs-common',
-    //     readme: 'none',
-    //     sidebar: {
-    //       sidebarFile: 'sidebar/typedoc-common.js',
-    //     },
-    //   },
-    // ],
-    // [
-    //   'docusaurus-plugin-typedoc',
-    //   {
-    //     id: 'engine',
-    //     entryPoints: ['../packages/engine/src/'],
-    //     tsconfig: '../packages/engine/tsconfig.json',
-    //     exclude: [
-    //       ...commonExludePaths,
-    //       '../packages/engine/src/physics/functions/physx.release.cjs.js',
-    //     ],
-    //     out: 'docs-engine',
-    //     readme: 'none',
-    //     sidebar: {
-    //       sidebarFile: 'sidebar/typedoc-engine.js',
-    //     },
     //   },
     // ],
     [
       'docusaurus-plugin-typedoc',
       {
+        id: 'server',
+        entryPoints: ['../packages/server'],
+        entryPointStrategy: 'expand',
+        tsconfig: '../packages/server/tsconfig.json',
+        exclude: [
+          ...commonExludePaths,
+          '../packages/server/public/**',
+          '../packages/server/scripts/**',
+          '../packages/server/tests old/**',
+          '../packages/server/.eslintrc.js',
+        ],
+        out: 'generated/server',
+        readme: 'none',
+      },
+    ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        id: 'server-core',
+        entryPoints: ['../packages/server-core/src/'],
+        entryPointStrategy: 'expand',
+        tsconfig: '../packages/server-core/tsconfig.json',
+        exclude: [ 
+          ...commonExludePaths,
+          '../packages/server-core/scripts/**',
+          '../packages/server-core/.eslintrc.js',
+          '../packages/server-core/.mocharc.js',
+          '../packages/server-core/rollup.config.js',
+          '../packages/server-core/vite.build.js'
+        ],
+        out: 'generated/server-core',
+        readme: 'none',
+      },
+    ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        id: 'common',
+        entryPoints: ['../packages/common'],
+        entryPointStrategy: 'expand',
+        tsconfig: '../packages/common/tsconfig.json',
+        exclude: [
+          ...commonExludePaths,
+          '../packages/common/scripts/**',
+          '../packages/common/.eslintrc.cjs',
+          '../packages/common/rollup.config.js',
+          '../packages/common/vite.build.js'
+        ],
+        out: 'generated/common',
+        readme: 'none',
+      }, 
+    ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        id: 'engine',
+        entryPoints: ['../packages/engine/src/'],
+        entryPointStrategy: 'expand',
+        tsconfig: '../packages/engine/tsconfig.json',
+        exclude: [
+          ...commonExludePaths,
+          '../packages/engine/scripts/**',
+          '../packages/engine/.mocharc.js',
+          '../packages/engine/rollup.config.js',
+          '../packages/engine/vite.build.js',
+          '../packages/engine/src/physics/physx/physx.release.cjs.js',
+          '../packages/engine/src/physics/physx/physx.release.esm.js',
+        ],
+        out: 'generated/engine',
+        readme: 'none',
+      },
+    ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
         id: 'gameserver',
         entryPoints: ['../packages/gameserver/src/'],
+        entryPointStrategy: 'expand',
         tsconfig: '../packages/gameserver/tsconfig.json',
         exclude: [
           ...commonExludePaths,
-          '../packages/gameserver/src/physx/physx.release.cjs.js',
-          '../packages/gameserver/src/physx/physx.release.esm.js',
+          '../packages/gameserver/.eslintrc.cjs',
+          '../packages/gameserver/.mocharc.js',
+          '../packages/gameserver/vite.build.js'
         ],
-        out: 'docs-gameserver',
+        out: 'generated/gameserver',
         readme: 'none',
-        // sidebar: {
-        //   sidebarFile: 'sidebar/typedoc-gameserver.js',
-        // },
       },
     ],
-    // [
-    //   'docusaurus-plugin-typedoc',
-    //   {
-    //     id: 'server-core',
-    //     entryPoints: ['../packages/server-core/src/'],
-    //     tsconfig: '../packages/server-core/tsconfig.json',
-    //     exclude: [ ...commonExludePaths ],
-    //     out: 'docs-server-core',
-    //     readme: 'none',
-    //     sidebar: {
-    //       sidebarFile: 'sidebar/typedoc-server-core.js',
-    //     },
-    //   },
-    // ],
   ],
   themeConfig: {
     navbar: {
