@@ -61,7 +61,6 @@ export function incomingNetworkReceptor(action) {
       } else {
         let networkObject = world.getNetworkObject(a.networkId)
         if (networkObject) {
-          console.log('network object: ', networkObject)
           entity = networkObject
         } else {
           entity = createEntity()
