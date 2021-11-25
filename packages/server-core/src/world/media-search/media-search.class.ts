@@ -40,7 +40,7 @@ export class MediaSearch implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    * @author Abhishek Pathak
    */
-  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
+  async find(params: Params): Promise<Data[] | Paginated<Data>> {
     const source = params?.query?.source
     let result
 
@@ -52,7 +52,7 @@ export class MediaSearch implements ServiceMethods<Data> {
     // TODO: Add more sources
     switch (source) {
       case 'assets': {
-        const loggedInUser = extractLoggedInUserFromParams(params.query.user)
+        const loggedInUser = extractLoggedInUserFromParams(params.query!.user)
         const projects = await this.models.collection.findAll({
           attributes: ['name', 'sid', 'ownedFileIds']
         })
@@ -83,7 +83,7 @@ export class MediaSearch implements ServiceMethods<Data> {
    * @returns {@Object} with id and message
    * @author Vyacheslav Solovjov
    */
-  async get(id: Id, params?: Params): Promise<Data> {
+  async get(id: Id, params: Params): Promise<Data> {
     console.log('Get')
 
     return {
@@ -97,7 +97,7 @@ export class MediaSearch implements ServiceMethods<Data> {
    * @param data
    * @param params
    */
-  async create(data: Data, params?: Params): Promise<Data> {
+  async create(data: Data, params: Params): Promise<Data> {
     console.log('Create')
     return await Promise.resolve({})
   }
@@ -110,7 +110,7 @@ export class MediaSearch implements ServiceMethods<Data> {
    * @param params
    * @returns data
    */
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
     return data
   }
   /**
@@ -121,7 +121,7 @@ export class MediaSearch implements ServiceMethods<Data> {
    * @param params
    * @returns data
    */
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
     return data
   }
 
@@ -132,7 +132,7 @@ export class MediaSearch implements ServiceMethods<Data> {
    * @param params
    * @returns id
    */
-  async remove(id: NullableId, params?: Params): Promise<Data> {
+  async remove(id: NullableId, params: Params): Promise<Data> {
     return { id }
   }
 }

@@ -72,12 +72,12 @@ export default {
         if (params.groupUsersRemoved !== true) {
           const groupUserCount = await app.service('group-user').find({
             query: {
-              groupId: params.query.groupId,
+              groupId: params.query!.groupId,
               $limit: 0
             }
           })
           if (groupUserCount.total < 1) {
-            await app.service('group').remove(params.query.groupId, params)
+            await app.service('group').remove(params.query!.groupId, params)
           }
         }
         return context

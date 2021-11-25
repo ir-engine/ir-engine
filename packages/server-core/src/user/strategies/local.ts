@@ -10,7 +10,7 @@ export class MyLocalStrategy extends LocalStrategy {
       throw new NotAuthenticated(errorMessage)
     }
 
-    const entityService = this.app?.service(service)
+    const entityService = this.app?.service(service)!
 
     const result = (await entityService.find({
       query: {

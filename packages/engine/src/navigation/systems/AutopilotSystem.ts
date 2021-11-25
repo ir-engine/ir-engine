@@ -23,6 +23,7 @@ import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideCompon
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import createSpeedFunction from '../functions/createSpeedFunction'
+import { Entity } from '../../ecs/classes/Entity'
 
 export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
@@ -38,6 +39,12 @@ export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vec
     path.add(worldPoint)
   }
   return path
+}
+
+interface ClickResult {
+  distance: number
+  point: Vector3
+  entity: Entity
 }
 
 export default async function AutopilotSystem(world: World): Promise<System> {
@@ -77,7 +84,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
       raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults: Intersection[] = []
-      let _entity = -1
+      let _entity = -1 as Entity
 
       const clickResult = navmeshesQuery().reduce(
         (previousEntry, currentEntity) => {
@@ -100,7 +107,7 @@ export default async function AutopilotSystem(world: World): Promise<System> {
           return previousEntry
         },
         { distance: Infinity, point: null, entity: null }
-      )
+      ) as ClickResult
 
       if (clickResult.point) {
         if (overrideComponent?.overrideCoords) clickResult.point = overrideComponent.overridePosition

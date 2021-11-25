@@ -58,7 +58,7 @@ export default async function AudioSystem(world: World): Promise<System> {
     }
 
     callbacks.forEach((cb) => cb())
-    callbacks = null
+    callbacks = null!
   }
 
   /**

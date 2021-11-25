@@ -8,10 +8,10 @@ export default () => {
   return async (context: HookContext): Promise<any> => {
     const { params, app } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const partyId = params.query.partyId
-    const userId = params.query.userId || loggedInUser.userId
+    const partyId = params.query!.partyId
+    const userId = params.query!.userId || loggedInUser.userId
     const paramsClone = _.cloneDeep(context.params)
-    paramsClone.provider = null
+    paramsClone.provider = null!
     if (params.partyUsersRemoved !== true) {
       const partyUserResult = await app.service('party-user').find(
         {
