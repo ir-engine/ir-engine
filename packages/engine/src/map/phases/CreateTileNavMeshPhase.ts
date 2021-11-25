@@ -38,12 +38,13 @@ function fixLastPair(coordinates: Polygon) {
   const outerRing = coordinates[0]
   outerRing[outerRing.length - 1] = outerRing[0].slice() as PC.Pair
 }
-
+// @ts-ignore
 const createNavMeshUsingCache = createUsingCache((state: MapStateUnwrapped, ...key: TileKey) => {
   const [x, y] = key
 
-  const keyHash = stringifyArray(key)
+  const keyHash = stringifyArray(key as any)
   const relevantFeatures: MapTransformedFeature[] = []
+  // @ts-ignore
   for (const featureKey of state.tileMeta.get(keyHash).cachedFeatureKeys) {
     if (featureKey[0] === 'building') {
       const feature = state.transformedFeatureCache.get(featureKey)

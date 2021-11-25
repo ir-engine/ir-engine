@@ -9,9 +9,10 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": false,
-    "module": "esnext",
+    "noEmit": true,
+    "module": "CommonJS",
     "strict": false,
+    "strictNullChecks": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -26,16 +27,16 @@
     "outDir": "./lib"
   },
   "exclude": [
+    "./upload/**",
+    "./tests old/**",
+    "../projects/projects/**",
     "**/node_modules/**",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.test.js",
-    "../../node_modules/k8s/*",
-    "tests/*",
-    "tests old/*"
+    "../../node_modules/k8s/*"
   ],
   "include": [
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx",
+    "../../PhysX.d.ts",
+    "../../PhysXDebug.d.ts"
   ]
 }

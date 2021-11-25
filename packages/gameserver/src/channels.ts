@@ -18,7 +18,7 @@ import { initializeServerEngine } from './initializeServerEngine'
 const loadScene = async (app: Application, scene: string) => {
   const [projectName, sceneName] = scene.split('/')
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
-  const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false })
+  const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
   const sceneData = sceneResult.data.scene as any // SceneData
   const packs = await getPacksFromSceneData(sceneData, false)
 
@@ -99,11 +99,11 @@ const assignExistingInstance = async (app: Application, existingInstance, agones
   })
 
   if (app.gsSubdomainNumber != null) {
-    const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
+    const gsSubProvision = (await app.service('gameserver-subdomain-provision').find({
       query: {
         gs_number: app.gsSubdomainNumber
       }
-    })
+    })) as any
 
     if (gsSubProvision.total > 0) {
       const provision = gsSubProvision.data[0]
@@ -189,7 +189,7 @@ export default (app: Application): void => {
               const existingInstanceQuery = {
                 ipAddress: ipAddress,
                 ended: false
-              }
+              } as any
               if (locationId) existingInstanceQuery.locationId = locationId
               else if (channelId) existingInstanceQuery.channelId = channelId
               const existingInstanceResult = await app.service('instance').find({
@@ -205,20 +205,20 @@ export default (app: Application): void => {
                 await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
               } else {
                 const instance = existingInstanceResult.data[0]
-                const authorizedUsers = await app.service('instance-authorized-user').find({
+                const authorizedUsers = (await app.service('instance-authorized-user').find({
                   query: {
                     instanceId: instance.id,
                     $limit: 0
                   }
-                })
+                })) as any
                 if (authorizedUsers.total > 0) {
-                  const thisUserAuthorized = await app.service('instance-authorized-user').find({
+                  const thisUserAuthorized = (await app.service('instance-authorized-user').find({
                     query: {
                       instanceId: instance.id,
                       userId: identityProvider.userId,
                       $limit: 0
                     }
-                  })
+                  })) as any
                   if (thisUserAuthorized.total === 0) {
                     return console.log('User', identityProvider.userId, 'not authorized to be on this server')
                   }
@@ -232,20 +232,20 @@ export default (app: Application): void => {
             } else {
               try {
                 const instance = await app.service('instance').get(app.instance.id)
-                const authorizedUsers = await app.service('instance-authorized-user').find({
+                const authorizedUsers = (await app.service('instance-authorized-user').find({
                   query: {
                     instanceId: instance.id,
                     $limit: 0
                   }
-                })
+                })) as any
                 if (authorizedUsers.total > 0) {
-                  const thisUserAuthorized = await app.service('instance-authorized-user').find({
+                  const thisUserAuthorized = (await app.service('instance-authorized-user').find({
                     query: {
                       instanceId: instance.id,
                       userId: identityProvider.userId,
                       $limit: 0
                     }
-                  })
+                  })) as any
                   if (thisUserAuthorized.total === 0) {
                     return console.log('User', identityProvider.userId, 'not authorized to be on this server')
                   }
@@ -308,7 +308,7 @@ export default (app: Application): void => {
                   partyId: user.partyId
                 }
               })
-              const party = await app.service('party').get(user.partyId)
+              const party = await app.service('party').get(user.partyId, null!)
               const partyUsers = (partyUserResult as any).data
               const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1)
               if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {

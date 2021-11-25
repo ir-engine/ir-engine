@@ -174,9 +174,9 @@ export class User extends Service {
       if (loggedInUser) user = await super.get(loggedInUser.userId)
       return super.find({
         query: {
-          $limit: params.query.$limit || 10,
-          $skip: params.query.$skip || 0,
-          instanceId: params.query.instanceId || user.instanceId || 'intentionalBadId'
+          $limit: params.query!.$limit || 10,
+          $skip: params.query!.$skip || 0,
+          instanceId: params.query!.instanceId || user.instanceId || 'intentionalBadId'
         }
       })
     } else if (action === 'channel-users') {
@@ -185,9 +185,9 @@ export class User extends Service {
       if (loggedInUser) user = await super.get(loggedInUser.userId)
       return super.find({
         query: {
-          $limit: params.query.$limit || 10,
-          $skip: params.query.$skip || 0,
-          channelInstanceId: params.query.channelId || user.channelInstanceId || 'intentionalBadId'
+          $limit: params.query!.$limit || 10,
+          $skip: params.query!.$skip || 0,
+          channelInstanceId: params.query!.channelId || user.channelInstanceId || 'intentionalBadId'
         }
       })
     } else if (action === 'admin') {
@@ -195,7 +195,7 @@ export class User extends Service {
       const user = await super.get(loggedInUser.userId)
       if (user.userRole !== 'admin') throw new Forbidden('Must be system admin to execute this action')
 
-      delete params.query.action
+      delete params.query!.action
       // return await super.find(params)
       const users = await super.find({
         ...params,
@@ -244,9 +244,9 @@ export class User extends Service {
     } else if (action === 'invite-code-lookup') {
       return super.find({
         query: {
-          $skip: params.query.$skip || 0,
-          $limit: params.query.$limit || 10,
-          inviteCode: params.query.inviteCode
+          $skip: params.query!.$skip || 0,
+          $limit: params.query!.$limit || 10,
+          inviteCode: params.query!.inviteCode
         }
       })
     } else {
