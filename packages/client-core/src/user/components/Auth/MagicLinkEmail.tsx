@@ -13,6 +13,18 @@ import styles from './Auth.module.scss'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
+import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
+import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+
+const initialState = {
+  jwt: false,
+  local: false,
+  facebook: false,
+  github: false,
+  google: false,
+  linkedin: false,
+  twitter: false
+}
 
 interface Props {
   type?: 'email' | 'sms' | undefined
@@ -36,6 +48,25 @@ const MagicLinkEmail = (props: Props): any => {
   const auth = useAuthState()
   const [state, setState] = useState(defaultState)
   const { t } = useTranslation()
+  const authSettingState = useAdminAuthSettingState()
+  const [authSetting] = authSettingState?.authSettings?.value || []
+  const [authState, setAuthState] = useState(initialState)
+
+  useEffect(() => {
+    !authSetting && AuthSettingService.fetchAuthSetting()
+  }, [])
+
+  useEffect(() => {
+    if (authSetting) {
+      let temp = { ...initialState }
+      authSetting?.authStrategies?.forEach((el) => {
+        Object.entries(el).forEach(([strategyName, strategy]) => {
+          temp[strategyName] = strategy
+        })
+      })
+      setAuthState(temp)
+    }
+  }, [authSettingState?.updateNeeded?.value])
 
   const handleInput = (e: any): any => {
     setState({ ...state, [e.target.name]: e.target.value })
@@ -48,7 +79,7 @@ const MagicLinkEmail = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!isAddConnection) {
-      AuthService.createMagicLink(state.emailPhone)
+      AuthService.createMagicLink(state.emailPhone, authState)
       setState({ ...state, isSubmitted: true })
       return
     }
@@ -74,20 +105,16 @@ const MagicLinkEmail = (props: Props): any => {
       descr = t('user:auth.magiklink.descriptionSMS')
       label = t('user:auth.magiklink.lbl-phone')
       return
-    } else if (!Config.publicRuntimeConfig.auth) {
+    } else if (!authSetting) {
       descr = t('user:auth.magiklink.descriptionEmail')
       label = t('user:auth.magiklink.lbl-email')
       return
     }
     // Auth config is using Sms and Email, so handle both
-    if (
-      Config.publicRuntimeConfig.auth.enableSmsMagicLink &&
-      Config.publicRuntimeConfig.auth.enableEmailMagicLink &&
-      !type
-    ) {
+    if (authState?.jwt && !type) {
       descr = t('user:auth.magiklink.descriptionEmailSMS')
       label = t('user:auth.magiklink.lbl-emailPhone')
-    } else if (Config.publicRuntimeConfig.auth.enableSmsMagicLink) {
+    } else if (authState?.jwt) {
       descr = t('user:auth.magiklink.descriptionSMSUS')
       label = t('user:auth.magiklink.lbl-phone')
     } else {

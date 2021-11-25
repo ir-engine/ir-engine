@@ -24,6 +24,8 @@ import styles from './Layout.module.scss'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { ClientSettingService } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -67,6 +69,8 @@ const Layout = (props: Props): any => {
   const { pageTitle, children, login } = props
   const userHasInteracted = useAppState().userHasInteracted
   const authUser = useAuthState().authUser
+  const clientSettingState = useClientSettingState()
+  const [clientSetting] = clientSettingState?.client?.value || []
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [topDrawerOpen, setTopDrawerOpen] = useState(false)
@@ -80,6 +84,7 @@ const Layout = (props: Props): any => {
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
   const user = useAuthState().user
   const handle = useFullScreenHandle()
+  const [ctitle, setTitle] = useState(clientSetting?.title)
 
   const dispatch = useDispatch()
 
@@ -94,7 +99,14 @@ const Layout = (props: Props): any => {
       window.addEventListener('click', initialClickListener)
       window.addEventListener('touchend', initialClickListener)
     }
+    !clientSetting && ClientSettingService.fetchedClientSettings()
   }, [])
+
+  useEffect(() => {
+    if (clientSetting) {
+      setTitle(clientSetting?.title)
+    }
+  }, [clientSettingState?.updateNeeded?.value])
 
   const openInvite = (): void => {
     setLeftDrawerOpen(false)
@@ -139,7 +151,7 @@ const Layout = (props: Props): any => {
             <section>
               <Helmet>
                 <title>
-                  {title} | {pageTitle}
+                  {ctitle || title} | {pageTitle}
                 </title>
               </Helmet>
               <header>

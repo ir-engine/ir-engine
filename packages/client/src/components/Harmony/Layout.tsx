@@ -5,6 +5,8 @@ import { AppAction } from '@xrengine/client-core/src/common/services/AppService'
 import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { ClientSettingService } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { theme } from '@xrengine/client-core/src/theme'
 import { Config } from '@xrengine/common/src/config'
 import { Helmet } from 'react-helmet'
@@ -48,7 +50,8 @@ interface Props {
 
 const Layout = (props: Props): any => {
   const { pageTitle, children } = props
-
+  const clientSettingState = useClientSettingState()
+  const [clientSetting] = clientSettingState?.client?.value || []
   const dispatch = useDispatch()
   const userHasInteracted = useAppState().userHasInteracted
   const authUser = useAuthState().authUser
@@ -63,6 +66,7 @@ const Layout = (props: Props): any => {
   const [selectedUser, setSelectedUser] = useState(initialSelectedUserState)
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
   const user = useAuthState().user
+  const [ctitle, setTitle] = useState(clientSetting?.title)
 
   const childrenWithProps = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
@@ -84,7 +88,14 @@ const Layout = (props: Props): any => {
     }
 
     AuthService.doLoginAuto(true)
+    !clientSetting && ClientSettingService.fetchedClientSettings()
   }, [])
+
+  useEffect(() => {
+    if (clientSetting) {
+      setTitle(clientSetting?.title)
+    }
+  }, [clientSettingState?.updateNeeded?.value])
 
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
@@ -95,7 +106,7 @@ const Layout = (props: Props): any => {
         <section>
           <Helmet>
             <title>
-              {title} | {pageTitle}
+              {ctitle || title} | {pageTitle}
             </title>
           </Helmet>
           <Harmony />

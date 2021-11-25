@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import EmailIcon from '@mui/icons-material/Email'
 import SocialIcon from '@mui/icons-material/Public'
 import UserIcon from '@mui/icons-material/Person'
@@ -9,6 +9,18 @@ import Tab from '@mui/material/Tab'
 import SocialLogin from './SocialLogin'
 import PasswordLogin from './PasswordLogin'
 import { useTranslation } from 'react-i18next'
+import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
+import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+
+const initialState = {
+  jwt: false,
+  local: false,
+  facebook: false,
+  github: false,
+  google: false,
+  linkedin: false,
+  twitter: false
+}
 
 const TabPanel = (props: any): any => {
   const { children, value, index } = props
@@ -17,6 +29,26 @@ const TabPanel = (props: any): any => {
 }
 
 const SignIn = (): any => {
+  const authSettingState = useAdminAuthSettingState()
+  const [authSetting] = authSettingState?.authSettings?.value || []
+  const [state, setState] = useState(initialState)
+
+  useEffect(() => {
+    !authSetting && AuthSettingService.fetchAuthSetting()
+  }, [])
+
+  useEffect(() => {
+    if (authSetting) {
+      let temp = { ...initialState }
+      authSetting?.authStrategies?.forEach((el) => {
+        Object.entries(el).forEach(([strategyName, strategy]) => {
+          temp[strategyName] = strategy
+        })
+      })
+      setState(temp)
+    }
+  }, [authSettingState?.updateNeeded?.value])
+
   let enableSmsMagicLink = true
   let enableEmailMagicLink = true
   let enableUserPassword = false
@@ -35,14 +67,14 @@ const SignIn = (): any => {
   }
 
   if (Config.publicRuntimeConfig?.auth) {
-    enableSmsMagicLink = Config.publicRuntimeConfig.auth.enableSmsMagicLink
-    enableEmailMagicLink = Config.publicRuntimeConfig.auth.enableEmailMagicLink
-    enableUserPassword = Config.publicRuntimeConfig.auth.enableUserPassword
-    enableGithubSocial = Config.publicRuntimeConfig.auth.enableGithubSocial
-    enableGoogleSocial = Config.publicRuntimeConfig.auth.enableGoogleSocial
-    enableFacebookSocial = Config.publicRuntimeConfig.auth.enableFacebookSocial
-    enableLinkedInSocial = Config.publicRuntimeConfig.auth.enableLinkedInSocial
-    enableTwitterSocial = Config.publicRuntimeConfig.auth.enableTwitterSocial
+    enableSmsMagicLink = state.jwt
+    enableEmailMagicLink = state.jwt
+    enableUserPassword = state.local
+    enableGithubSocial = state.github
+    enableGoogleSocial = state.google
+    enableFacebookSocial = state.facebook
+    enableLinkedInSocial = state.linkedin
+    enableTwitterSocial = state.twitter
   }
 
   const socials = [
