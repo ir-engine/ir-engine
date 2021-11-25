@@ -4,6 +4,7 @@ import https from 'https'
 import app from './app'
 import logger from '@xrengine/server-core/src/logger'
 import psList from 'ps-list'
+import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
@@ -68,4 +69,6 @@ process.on('unhandledRejection', (error, promise) => {
   server.on('listening', () =>
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
   )
+
+  StartCorsServer()
 })()
