@@ -61,7 +61,6 @@ export default async function EquippableSystem(world: World): Promise<System> {
         const equippedComponent = getComponent(equippedEntity, EquippedComponent)
         const attachmentPoint = equippedComponent.attachmentPoint
         const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
-        console.log(networkComponet)
         dispatchFrom(Engine.userId, () =>
           NetworkWorldAction.setEquippedObject({
             userId: Engine.userId,
