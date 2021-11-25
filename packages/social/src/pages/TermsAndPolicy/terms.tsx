@@ -1,7 +1,7 @@
 import React from 'react'
 import './TermsandPolicy.module.scss'
-import { Button } from '@mui/material'
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
+import { Button } from '@material-ui/core'
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import terms from '../../components/TermsandPolicy/terms'
@@ -9,21 +9,21 @@ import Heading from './components/Heading'
 import SubHeading from './components/SubHeading'
 import Paragraph from './components/Paragraph'
 
-const Terms = ({ setView }) => {
+const Terms = () => {
   const { t } = useTranslation()
   const history = useHistory()
   return (
     <div
       style={{
-        padding: '2% 5%'
+        padding: '2% 5%',
+        backgroundColor: 'white'
       }}
     >
       <Button
         variant="text"
         className="backButton"
         onClick={() => {
-          // history.goBack()
-          setView('featured')
+          history.goBack()
         }}
       >
         <ArrowBackIosIcon />

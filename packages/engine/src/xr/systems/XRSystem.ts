@@ -102,10 +102,8 @@ export default async function XRSystem(world: World): Promise<System> {
       }
     }
 
-    if (Engine.xrControllerModel) {
-      for (const entity of localXRControllerQuery.enter()) {
-        initializeXRInputs(entity)
-      }
+    for (const entity of localXRControllerQuery.enter()) {
+      initializeXRInputs(entity)
     }
 
     //XR Controller mesh animation update

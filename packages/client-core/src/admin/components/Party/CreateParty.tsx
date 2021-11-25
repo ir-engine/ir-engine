@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import Fade from '@mui/material/Fade'
 import Modal from '@mui/material/Modal'
 import styles from '../Admin.module.scss'
-import Backdrop from '@mui/material/Backdrop'
 import classNames from 'classnames'
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
@@ -83,10 +82,6 @@ const CreateParty = (props: PartyProps) => {
         open={open}
         onClose={handleClose}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={props.open}>
           <div

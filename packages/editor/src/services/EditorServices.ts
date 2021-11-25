@@ -1,34 +1,17 @@
-import { store, useDispatch } from '@xrengine/client-core/src/store'
-import { createState, Downgraded, useState } from '@hookstate/core'
-import {
-  accessStoredLocalState,
-  StoredLocalAction,
-  StoredLocalActionType
-} from '@xrengine/client-core/src/util/StoredLocalState'
+import { store } from '@xrengine/client-core/src/store'
+import { createState, useState } from '@hookstate/core'
 
 const state = createState({
   projectName: null as string,
   sceneName: null as string
 })
-console.log('editor')
 
-const restoreLocalData = (s) => {
-  const stored = accessStoredLocalState().attach(Downgraded).editorData.value
-  console.log(stored)
-  return s.merge(stored)
-}
-
-store.receptors.push((action: EditorActionType | StoredLocalActionType): any => {
-  const dispatch = useDispatch()
+store.receptors.push((action: EditorActionType): any => {
   state.batch((s) => {
     switch (action.type) {
-      case 'RESTORE':
-        return restoreLocalData(s)
       case 'SCENE_LOADED':
-        // dispatch(StoredLocalAction.storedLocal({ editorData: { sceneName: action.sceneName } }))
         return s.merge({ sceneName: action.sceneName })
       case 'PROJECT_LOADED':
-        dispatch(StoredLocalAction.storedLocal({ editorData: { projectName: action.projectName } }))
         return s.merge({ projectName: action.projectName })
     }
   }, action.type)
@@ -58,6 +41,3 @@ export const EditorAction = {
 }
 
 export type EditorActionType = ReturnType<typeof EditorAction[keyof typeof EditorAction]>
-
-// restore manually since the editor is lazy loaded and the restore event is missed
-restoreLocalData(state)

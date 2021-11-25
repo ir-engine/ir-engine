@@ -1,7 +1,6 @@
 import classNames from 'classnames'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styles from '@xrengine/client-core/src/admin/components/Project/Projects.module.scss'
-import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
@@ -57,10 +56,6 @@ export const CreateProjectModal = (props: Props): any => {
         open={open}
         onClose={closeModal}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={props.open}>
           <div
@@ -73,11 +68,12 @@ export const CreateProjectModal = (props: Props): any => {
               <div>
                 <FormControl>
                   <div>
-                    <InputLabel id="nameSelect">Name</InputLabel>
                     <TextField
+                      label="Name"
                       className={styles['pack-select']}
                       id="nameSelect"
                       value={projectName}
+                      required={true}
                       onChange={(e) => setProjectName(e.target.value)}
                     />
                   </div>

@@ -1,7 +1,6 @@
 import classNames from 'classnames'
 import React, { useState, useEffect } from 'react'
 import styles from './AlertModals.module.scss'
-import Backdrop from '@mui/material/Backdrop'
 import Fade from '@mui/material/Fade'
 import Modal from '@mui/material/Modal'
 import IconButton from '@mui/material/IconButton'
@@ -80,10 +79,6 @@ const WarningRetryModal = ({
           else if (typeof handleClose === 'function') handleClose(event, reason)
         }}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={open}>
           <div
