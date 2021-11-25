@@ -335,17 +335,26 @@ export const WooCommerceNodeEditor = (props: WooCommerceNodeEditorProps) => {
         <StringInput value={node.wooCommerceConsumerSecret} onChange={onChangeConsumerSecret} />
       </InputGroup>
 
-      <InputGroup name="WooCommerce Products" label={t('editor:properties.woocommerce.lbl-products')}>
-        <SelectInput options={node.wooCommerceProducts} value={node.wooCommerceProductId} onChange={onChangeProducts} />
-      </InputGroup>
+      {node.wooCommerceProducts && node.wooCommerceProducts.length > 0 && (
+        <InputGroup name="WooCommerce Products" label={t('editor:properties.woocommerce.lbl-products')}>
+          <SelectInput
+            options={node.wooCommerceProducts}
+            value={node.wooCommerceProductId}
+            onChange={onChangeProducts}
+          />
+        </InputGroup>
+      )}
 
-      <InputGroup name="WooCommerce Product Items" label={t('editor:properties.woocommerce.lbl-productItems')}>
-        <SelectInput
-          options={node.wooCommerceProductItems}
-          value={node.wooCommerceProductItemId}
-          onChange={onChangeProductItems}
-        />
-      </InputGroup>
+      {node.wooCommerceProductItemId && node.wooCommerceProductItemId != '' && (
+        <InputGroup name="WooCommerce Product Items" label={t('editor:properties.woocommerce.lbl-productItems')}>
+          <SelectInput
+            options={node.wooCommerceProductItems}
+            value={node.wooCommerceProductItemId}
+            onChange={onChangeProductItems}
+          />
+        </InputGroup>
+      )}
+
       {renderPropertiesFields(node)}
       {node.wooCommerceProductItemId != '' && (
         <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
