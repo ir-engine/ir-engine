@@ -67,7 +67,6 @@ export function incomingNetworkReceptor(action) {
           let params = a.parameters
           if (params.sceneEntity) {
             let sceneEntity = params.sceneEntity
-            console.log('scene entity received in network action', sceneEntity)
             WorldScene.loadComponentLate(entity, sceneEntity)
           }
         }
