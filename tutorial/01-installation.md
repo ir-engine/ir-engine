@@ -20,19 +20,6 @@ You don't need to use Docker, but it will make your life much easier.
 You can get it [here](https://docs.docker.com/).
 If you don't wish to use Docker, you will need to setup mariadb and redis on your machine. You can find credentials in `xrengine/scripts/docker-compose.yml`
 
-You can quickstart locally using docker, if you don't have node installed or just want to test the latest.
-
-``` bash
-## Build the image
-docker build --tag xrengine .
-
-## Run the image (deletes itself when you close it)
-docker run -d --rm --name server -e "MYSQL_URL=mysql://server:password@db:3306/xrengine" -p "3030:3030"  xrengine
-
-## Stop the server
-docker stop server
-```
-
 ### Mediasoup is a powerful beast you must tame
 The vast majority of people get stuck on the mediasoup installation because it requires C++ source code to be compiled on your machine, which requires node-gyp and python and other dependencies.
 
