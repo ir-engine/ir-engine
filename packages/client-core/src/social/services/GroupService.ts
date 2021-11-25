@@ -115,6 +115,7 @@ store.receptors.push((action: GroupActionType): any => {
           }
         }
 
+        return s.merge({ updateNeeded: true })
       case 'PATCHED_GROUP_USER':
         newValues = action
         groupUser = newValues.groupUser
@@ -163,7 +164,6 @@ store.receptors.push((action: GroupActionType): any => {
             })
           }
         }
-
         return self === true ? s.merge({ closeDetails: groupUser.groupId, updateNeeded: true }) : s
 
       case 'REMOVE_CLOSE_GROUP_DETAIL':

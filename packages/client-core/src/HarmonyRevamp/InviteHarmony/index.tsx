@@ -2,10 +2,10 @@ import { Close } from '@material-ui/icons'
 import { Check } from '@mui/icons-material'
 import { Dialog, Avatar } from '@mui/material'
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
-import { useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import * as React from 'react'
 import ModeContext from '../context/modeContext'
 import { useHarmonyStyles } from '../style'
+import { useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 
 interface Props {
   setShow: any

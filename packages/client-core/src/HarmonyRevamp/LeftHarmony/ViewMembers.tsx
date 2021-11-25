@@ -6,6 +6,7 @@ import { AddCircleOutline } from '@mui/icons-material'
 import { Delete } from '@material-ui/icons'
 import IconButton from '@mui/material/IconButton'
 import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
+import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 
 interface Props {
   selectedGroup: any
@@ -14,12 +15,16 @@ interface Props {
   setOpenDrawer: any
 }
 
-const ViewMembers = ({ selectedGroup, selfUser, openDrawer, setOpenDrawer }: Props) => {
+const ViewMembers = ({ selectedGroup, selfUser, openDrawer, setOpenDrawer, handleClose }: Props) => {
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [showWarning, setShowWarning] = React.useState(false)
   const [groupUserId, setGroupUserId] = React.useState('')
   //   const [openDrawer, setOpenDrawer] = React.useState(false)
+
+  //group state
+  const groupState = useGroupState()
+  const groupSubState = groupState.groups
 
   const removeUser = (id) => {
     setGroupUserId(id)
@@ -34,12 +39,14 @@ const ViewMembers = ({ selectedGroup, selfUser, openDrawer, setOpenDrawer }: Pro
   const confirmGroupUserDelete = (e) => {
     e.preventDefault()
     setShowWarning(false)
+    setOpenDrawer(false)
     GroupService.removeGroupUser(groupUserId)
   }
 
   const selfGroupUser =
     selectedGroup &&
-    selectedGroup.groupUsers?.length &&
+    groupSubState.groups.value.length > 0 &&
+    selectedGroup?.groupUsers?.length &&
     selectedGroup.groupUsers.find((groupUser) => groupUser.userId === selfUser.id)
 
   return (
@@ -88,8 +95,8 @@ const ViewMembers = ({ selectedGroup, selfUser, openDrawer, setOpenDrawer }: Pro
                           </div>
                         )}
                       </div>
-                      {(selfGroupUser.groupUserRank === 'owner' ||
-                        selfGroupUser.groupUserRank === 'admin' ||
+                      {(selfGroupUser?.groupUserRank === 'owner' ||
+                        selfGroupUser?.groupUserRank === 'admin' ||
                         groupUser.id === selfGroupUser.id) && (
                         <IconButton className={classes.border0} onClick={() => removeUser(groupUser.id)}>
                           <Delete fontSize="small" className={classes.danger} />

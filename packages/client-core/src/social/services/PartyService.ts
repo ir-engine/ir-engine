@@ -53,7 +53,7 @@ store.receptors.push((action: PartyActionType): any => {
             : [partyUser]
           updateMap.partyUsers = updateMapPartyUsers
         }
-        return s.party.set(updateMap)
+        return s.merge({ party: updateMap, updateNeeded: true })
 
       case 'PATCHED_PARTY_USER':
         newValues = action

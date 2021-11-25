@@ -216,6 +216,7 @@ const GroupList = (props: Props) => {
         setOpenDrawer={setOpenDrawer}
         openDrawer={openDrawer}
       />
+
       <Dialog
         open={showWarning}
         onClose={() => setShowWarning(false)}
