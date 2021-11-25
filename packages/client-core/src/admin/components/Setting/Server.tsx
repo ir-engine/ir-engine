@@ -81,7 +81,7 @@ const Server = (props: serverProps) => {
     if (user?.id?.value != null && serverSettingState?.updateNeeded?.value === true) {
       ServerSettingService.fetchServerSettings()
     }
-  }, [authState])
+  }, [authState?.user?.id?.value, serverSettingState?.updateNeeded?.value])
 
   return (
     <form onSubmit={handleSave}>

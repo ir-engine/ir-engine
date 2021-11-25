@@ -55,7 +55,7 @@ const Aws = (props: Props) => {
     if (user?.id?.value != null && awsSettingState?.updateNeeded?.value) {
       AwsSettingService.fetchAwsSetting()
     }
-  }, [authState])
+  }, [authState?.user?.id?.value, awsSettingState?.updateNeeded?.value])
 
   return (
     <div>

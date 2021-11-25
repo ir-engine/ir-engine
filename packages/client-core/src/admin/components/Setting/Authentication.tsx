@@ -83,10 +83,10 @@ const Account = (props: Props) => {
   const user = authState.user
 
   useEffect(() => {
-    if (user?.id?.value != null && authSettingState.updateNeeded.value) {
+    if (user?.id?.value != null && authSettingState?.updateNeeded?.value) {
       AuthSettingService.fetchAuthSetting()
     }
-  }, [authState])
+  }, [authState?.user?.id?.value, authSettingState?.updateNeeded?.value])
 
   useEffect(() => {
     if (authSetting) {

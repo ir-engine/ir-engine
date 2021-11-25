@@ -54,7 +54,7 @@ const Email = (props: emailProps) => {
     if (user?.id?.value != null && emailSettingState?.updateNeeded?.value === true) {
       EmailSettingService.fetchedEmailSettings()
     }
-  }, [authState])
+  }, [authState?.user?.id?.value, emailSettingState?.updateNeeded?.value])
 
   useEffect(() => {
     if (emailSetting) {
