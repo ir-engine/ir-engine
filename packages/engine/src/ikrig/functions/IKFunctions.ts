@@ -143,12 +143,16 @@ const skeletonTransform = {
 
 /**
  * Update pose bones from animated skeleton bones
+ *
+ * Takes the actual positions relative to the parent of the root bone and applies this transform to the new pose
  * @param rig
  */
 function updatePoseBonesFromSkeleton(rig: IKRigComponentType): void {
   skeletonTransform.reset()
 
+  // todo cache
   const rootBone = rig.pose.skeleton.bones.find((b) => !(b.parent instanceof Bone))
+  rootBone.updateWorldMatrix(true, true)
 
   if (rootBone.parent) {
     rootBone.parent.getWorldPosition(skeletonTransform.position)
@@ -161,7 +165,6 @@ function updatePoseBonesFromSkeleton(rig: IKRigComponentType): void {
     const bone = rig.pose.skeleton.bones[i]
     const pose = rig.pose.bones[i]
 
-    bone.updateWorldMatrix(true, false)
     bone.matrixWorld.decompose(pose.world.position, pose.world.quaternion, pose.world.scale)
 
     worldToModel(pose.world.position, pose.world.quaternion, pose.world.scale, skeletonTransform)
