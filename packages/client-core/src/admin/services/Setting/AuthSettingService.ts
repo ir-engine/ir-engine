@@ -46,7 +46,7 @@ export const AuthSettingService = {
         const authSetting = await client.service('authentication-setting').find()
         dispatch(AuthSettingAction.authSettingRetrieved(authSetting))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -57,8 +57,7 @@ export const AuthSettingService = {
         const result = await client.service('authentication-setting').patch(id, data)
         dispatch(AuthSettingAction.authSettingPatched(result))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

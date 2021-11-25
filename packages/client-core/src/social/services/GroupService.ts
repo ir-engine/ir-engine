@@ -191,8 +191,7 @@ export const GroupService = {
         })
         dispatch(GroupAction.loadedGroups(groupResults))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -205,8 +204,7 @@ export const GroupService = {
           description: values.description
         })
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -223,8 +221,7 @@ export const GroupService = {
       try {
         await client.service('group').patch(values.id, patch)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -242,8 +239,7 @@ export const GroupService = {
         }
         await client.service('group').remove(groupId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -253,8 +249,7 @@ export const GroupService = {
       try {
         await client.service('group-user').remove(groupUserId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -274,8 +269,7 @@ export const GroupService = {
         })
         dispatch(GroupAction.loadedInvitableGroups(groupResults))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
         dispatch(GroupAction.loadedInvitableGroups({ data: [], limit: 0, skip: 0, total: 0 }))
       }
     }

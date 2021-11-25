@@ -48,8 +48,7 @@ export const TheFeedsFiresService = {
         //       dispatch(thefeedsFiresRetrieved(thefeedsResults.data, thefeedsId));
         setThefeedsFires(thefeedsResults)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -64,8 +63,7 @@ export const TheFeedsFiresService = {
         //@ts-ignore
         dispatch(addTheFeedsFire(feedsFireStore))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -76,8 +74,7 @@ export const TheFeedsFiresService = {
         await client.service('thefeeds-fires').remove(thefeedsId)
         dispatch(TheFeedsAction.removeTheFeedsFire(thefeedsId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }
