@@ -1,7 +1,10 @@
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import fs from 'fs'
+import path from 'path'
+import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
+import appRootPath from 'app-root-path'
 
 export const retriggerBuilderService = async (app: Application) => {
   try {
@@ -36,5 +39,27 @@ export const retriggerBuilderService = async (app: Application) => {
       console.log(e)
       return e
     }
+  }
+}
+
+const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
+
+export const onProjectEvent = async (
+  app: Application,
+  projectName: string,
+  hookPath: string,
+  eventType: keyof ProjectEventHooks
+) => {
+  await require(path.resolve(projectsRootFolder, projectName, hookPath)).default.hookPath(app)
+}
+
+export const getProjectConfig = async (projectName: string): Promise<ProjectConfigInterface> => {
+  try {
+    return (await import(`../../../../projects/projects/${projectName}/xrengine.config.ts`)).default
+  } catch (e) {
+    console.log(
+      `[Projects]: WARNING project with name ${projectName} has no xrengine.config.ts file - this is not recommended`
+    )
+    return null!
   }
 }

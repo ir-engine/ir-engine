@@ -1,6 +1,7 @@
 import type { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 const config: ProjectConfigInterface = {
+  onInstall: undefined,
   thumbnail: '/static/xrengine_thumbnail.jpg',
   routes: {
     '/': {
