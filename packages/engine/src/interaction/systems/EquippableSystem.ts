@@ -98,7 +98,6 @@ export default async function EquippableSystem(world: World): Promise<System> {
       //   teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
       // }
 
-      console.log('send un equip to clients')
       // send unequip to clients
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.setEquippedObject({
