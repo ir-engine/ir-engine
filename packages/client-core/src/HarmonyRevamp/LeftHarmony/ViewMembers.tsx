@@ -37,6 +37,11 @@ const ViewMembers = ({ selectedGroup, selfUser, openDrawer, setOpenDrawer }: Pro
     GroupService.removeGroupUser(groupUserId)
   }
 
+  const selfGroupUser =
+    selectedGroup &&
+    selectedGroup.groupUsers?.length &&
+    selectedGroup.groupUsers.find((groupUser) => groupUser.userId === selfUser.id)
+
   return (
     <div>
       <Drawer
@@ -83,9 +88,13 @@ const ViewMembers = ({ selectedGroup, selfUser, openDrawer, setOpenDrawer }: Pro
                           </div>
                         )}
                       </div>
-                      <IconButton className={classes.border0} onClick={() => removeUser(groupUser.id)}>
-                        <Delete fontSize="small" className={classes.danger} />
-                      </IconButton>
+                      {(selfGroupUser.groupUserRank === 'owner' ||
+                        selfGroupUser.groupUserRank === 'admin' ||
+                        groupUser.id === selfGroupUser.id) && (
+                        <IconButton className={classes.border0} onClick={() => removeUser(groupUser.id)}>
+                          <Delete fontSize="small" className={classes.danger} />
+                        </IconButton>
+                      )}
                     </div>
                   )
                 })}

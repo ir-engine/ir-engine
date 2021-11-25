@@ -1,11 +1,6 @@
 import React, { useContext } from 'react'
 import { AddCircleOutline, Check } from '@mui/icons-material'
-import {
-  Typography,
-  Box,
-  Tabs,
-  Tab
-} from '@mui/material'
+import { Typography, Box, Tabs, Tab } from '@mui/material'
 import Friends from './Friends'
 import Group from './Group'
 import Party from './Party'
@@ -52,7 +47,7 @@ const Index = (props: Props) => {
   const { invite, handleCloseModal } = props
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
-  const [value, setValue] = React.useState(invite === 'Group' ? 2 : invite === 'Party' ? 1 : 0)
+  const [value, setValue] = React.useState(invite === 'Group' ? 1 : invite === 'Party' ? 2 : 0)
 
   const party = props.party
   const partyUsers = party?.partyUsers?.length ? party.partyUsers : []
@@ -83,17 +78,17 @@ const Index = (props: Props) => {
             sx={{ borderRight: 1, borderColor: 'divider' }}
           >
             <Tab label="FRIENDS" {...a11yProps(0)} />
-            { selfPartyUser && selfPartyUser.isOwner && <Tab label="PARTY" {...a11yProps(1)} /> }
-            <Tab label="GROUP" {...a11yProps(2)} />
+            <Tab label="GROUP" {...a11yProps(1)} />
+            {selfPartyUser && selfPartyUser.isOwner && <Tab label="PARTY" {...a11yProps(2)} />}
           </Tabs>
           <TabPanel value={value} index={0}>
             <Friends handleCloseModal={handleCloseModal} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <Party handleCloseModal={handleCloseModal} />
+            <Group handleCloseModal={handleCloseModal} />
           </TabPanel>
           <TabPanel value={value} index={2}>
-            <Group handleCloseModal={handleCloseModal} />
+            <Party handleCloseModal={handleCloseModal} />
           </TabPanel>
         </Box>
       </div>

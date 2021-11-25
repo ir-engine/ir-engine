@@ -20,6 +20,11 @@ const ViewMembers = ({ selectedParty, selfUser, openDrawer, setOpenDrawer }: Pro
   const [showWarning, setShowWarning] = React.useState(false)
   const [partyUserId, setPartyUserId] = React.useState('')
 
+  const selfPartyUser =
+    selectedParty &&
+    selectedParty.partyUsers?.length > 0 &&
+    selectedParty.partyUsers.find((partyUser) => partyUser.userId === selfUser.id)
+
   //   const [openDrawer, setOpenDrawer] = React.useState(false)
 
   const removeUser = (id) => {
@@ -83,9 +88,11 @@ const ViewMembers = ({ selectedParty, selfUser, openDrawer, setOpenDrawer }: Pro
                           </div>
                         )}
                       </div>
-                      <IconButton className={classes.border0} onClick={() => removeUser(partyUser.id)}>
-                        <Delete fontSize="small" className={classes.danger} />
-                      </IconButton>
+                      {(selfPartyUser?.isOwner || selfPartyUser.id === partyUser.id) && (
+                        <IconButton className={classes.border0} onClick={() => removeUser(partyUser.id)}>
+                          <Delete fontSize="small" className={classes.danger} />
+                        </IconButton>
+                      )}
                     </div>
                   )
                 })}
@@ -100,7 +107,7 @@ const ViewMembers = ({ selectedParty, selfUser, openDrawer, setOpenDrawer }: Pro
         aria-describedby="alert-dialog-description"
         classes={{ paper: classes.paperDialog }}
       >
-        <DialogTitle id="alert-dialog-title">Confirm group user deletion!</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Confirm party user deletion!</DialogTitle>
         <DialogActions>
           <Button onClick={cancelPartyUserDelete} className={classes.spanNone}>
             Cancel
