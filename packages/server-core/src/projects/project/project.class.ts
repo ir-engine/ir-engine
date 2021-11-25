@@ -236,7 +236,7 @@ export class Project extends Service {
 
     // run project install script
     if (projectConfig.onEvent) {
-      onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
+      await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
   }
 
@@ -252,7 +252,7 @@ export class Project extends Service {
 
     // run project uninstall script
     if (projectConfig.onEvent) {
-      onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onUpdate')
+      await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onUpdate')
     }
 
     if (data?.files?.length) {
@@ -269,9 +269,9 @@ export class Project extends Service {
           })
         )
       }
-      await Promise.all(promises)
+      return Promise.all(promises)
     } else {
-      await uploadLocalProjectToProvider(projectName)
+      return uploadLocalProjectToProvider(projectName)
     }
   }
 
@@ -283,7 +283,7 @@ export class Project extends Service {
 
       // run project uninstall script
       if (projectConfig.onEvent) {
-        onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
+        await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
       }
 
       console.log('[Projects]: removing project', id, name)
