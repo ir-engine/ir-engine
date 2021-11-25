@@ -41,7 +41,6 @@ export function incomingNetworkReceptor(action) {
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
       console.log('Spawning object: ', a)
       const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
-      console.log(isSpawningAvatar)
       /**
        * When changing location via a portal, the local client entity will be
        * defined when the new world dispatches this action, so ignore it
