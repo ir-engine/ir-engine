@@ -32,8 +32,8 @@ export default {
     get: [],
     create: [
       reformatUploadResult(),
-      removePreviousFile(),
-      createOwnedFile(),
+      // removePreviousFile(),
+      // createOwnedFile(),
       (context) => (context[SYNC] = false),
       setResponseStatus(200)
     ],

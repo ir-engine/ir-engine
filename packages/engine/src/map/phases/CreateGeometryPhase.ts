@@ -40,7 +40,7 @@ const createGeometryUsingCache = fetchUsingCache(async (state: MapStateUnwrapped
   }
 })
 
-export const name = 'create geometry'
+export const name = 'CreateGeometry'
 export const isAsyncPhase = true
 export const isCachingPhase = true
 

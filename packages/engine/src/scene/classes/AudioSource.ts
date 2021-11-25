@@ -28,7 +28,7 @@ const elementPlaying = (element: HTMLMediaElement): boolean => {
 
 export default class AudioSource extends Object3D {
   el: any
-  src: string
+  _src: string
   audioListener: any
   controls: boolean
   _audioType: any
@@ -65,6 +65,14 @@ export default class AudioSource extends Object3D {
     this.audioType = AudioType.PannerNode
     this.volume = 1
   }
+
+  get src() {
+    return this._src
+  }
+  set src(value) {
+    this._src = value
+    this.load().catch(console.error)
+  }
   get duration() {
     return this.el.duration
   }
@@ -85,7 +93,6 @@ export default class AudioSource extends Object3D {
   }
   set audioType(type) {
     if (type === this._audioType) return
-    if (!Engine.useAudioSystem) return
     let audio
     const oldAudio = this.audio
     if (type === AudioType.PannerNode) {
@@ -108,108 +115,92 @@ export default class AudioSource extends Object3D {
     this._audioType = type
   }
   get volume() {
-    if (!Engine.useAudioSystem) return 1
     return this.audio.getVolume()
   }
   set volume(value) {
-    if (!Engine.useAudioSystem) return
     this.audio.gain.gain.value = value
   }
   get distanceModel() {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       return this.audio.getDistanceModel()
     }
     return null
   }
   set distanceModel(value) {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       this.audio.setDistanceModel(value)
     }
   }
   get rolloffFactor() {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       return this.audio.getRolloffFactor()
     }
     return null
   }
   set rolloffFactor(value) {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       this.audio.setRolloffFactor(value)
       return
     }
   }
   get refDistance() {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       return this.audio.getRefDistance()
     }
     return null
   }
   set refDistance(value) {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       this.audio.setRefDistance(value)
     }
   }
   get maxDistance() {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       return this.audio.getMaxDistance()
     }
     return null
   }
   set maxDistance(value) {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       this.audio.setMaxDistance(value)
     }
   }
   get coneInnerAngle() {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       return this.audio.panner.coneInnerAngle
     }
     return null
   }
   set coneInnerAngle(value) {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       this.audio.panner.coneInnerAngle = value
     }
   }
   get coneOuterAngle() {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       return this.audio.panner.coneOuterAngle
     }
     return null
   }
   set coneOuterAngle(value) {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       this.audio.panner.coneOuterAngle = value
     }
   }
   get coneOuterGain() {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       return this.audio.panner.coneOuterGain
     }
     return null
   }
   set coneOuterGain(value) {
-    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
       this.audio.panner.coneOuterGain = value
     }
   }
   loadMedia(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.el.src = this.src
+      this.el.src = this._src
 
       // If media source requires to be synchronized then pause it for now.
       if (this.isSynced) {
@@ -238,9 +229,10 @@ export default class AudioSource extends Object3D {
   }
   async load(src?: string, contentType?: string): Promise<this> {
     await this.loadMedia()
-    if (!Engine.useAudioSystem) return this
-    this.audioSource = this.audioListener.context.createMediaElementSource(this.el)
-    this.audio.setNodeSource(this.audioSource)
+    if (!this.audioSource) {
+      this.audioSource = this.audioListener.context.createMediaElementSource(this.el)
+      this.audio.setNodeSource(this.audioSource)
+    }
     return this
   }
   copy(source, recursive = true) {
@@ -265,7 +257,7 @@ export default class AudioSource extends Object3D {
     this.coneInnerAngle = source.coneInnerAngle
     this.coneOuterAngle = source.coneOuterAngle
     this.coneOuterGain = source.coneOuterGain
-    this.src = source.src
+    this._src = source._src
     this.isSynced = source.synchronize
     return this
   }

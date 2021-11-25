@@ -1,0 +1,15 @@
+{{- if .Values.director.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "xrengine.director.fullname" . }}
+  labels:
+    {{- include "xrengine.director.labels" . | nindent 4 }}
+data:
+{{- if .Values.director.extraEnv }}
+{{ toYaml .Values.director.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.director.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.director.config }}'
+{{- end }}
+{{- end -}}

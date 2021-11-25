@@ -23,7 +23,7 @@ export class Meta implements ServiceMethods<Data> {
    * @param params
    * @returns {@Object}
    */
-  async find(params?: Params): Promise<Data> {
+  async find(params: Params): Promise<Data> {
     // SPOKE HACK: This method is just returning the collection API endpoint for uploading the file from editor
     return {
       phx_host: config.server.url // FIXME
@@ -38,7 +38,7 @@ export class Meta implements ServiceMethods<Data> {
    * @returns {@Object} contains meta id and message
    * @author  Vyacheslav Solovjov
    */
-  async get(id: Id, params?: Params): Promise<Data> {
+  async get(id: Id, params: Params): Promise<Data> {
     return {
       id,
       text: `A new message with ID: ${id}!`
@@ -53,7 +53,7 @@ export class Meta implements ServiceMethods<Data> {
    * @returns {@Object} created meta
    * @author  Vyacheslav Solovjov
    */
-  async create(data: Data, params?: Params): Promise<Data> {
+  async create(data: Data, params: Params): Promise<Data> {
     if (Array.isArray(data)) {
       return await Promise.all(data.map((current) => this.create(current, params)))
     }
@@ -70,7 +70,7 @@ export class Meta implements ServiceMethods<Data> {
    * @returns {@Object} update meta
    * @author  Vyacheslav Solovjov
    */
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
     return data
   }
 
@@ -83,7 +83,7 @@ export class Meta implements ServiceMethods<Data> {
    * @returns {@Object} update meta
    * @author  Vyacheslav Solovjov
    */
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
     return data
   }
 
@@ -94,7 +94,7 @@ export class Meta implements ServiceMethods<Data> {
    * @param params
    * @returns {@Object} removed data
    */
-  async remove(id: NullableId, params?: Params): Promise<Data> {
+  async remove(id: NullableId, params: Params): Promise<Data> {
     return { id }
   }
 }

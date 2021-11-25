@@ -11,7 +11,8 @@ import {
   TaskStatus,
   VectorTile,
   TileKey,
-  FeatureKey
+  FeatureKey,
+  Text3D
 } from './types'
 import { MAX_CACHED_TILES, MAX_CACHED_FEATURES } from './constants'
 import FeatureCache from './classes/FeatureCache'
@@ -19,6 +20,8 @@ import { MultiPolygon } from 'polygon-clipping'
 import MutableNavMesh from './classes/MutableNavMesh'
 import { LongLat } from './functions/UnitConversionFunctions'
 import HashSet from './classes/HashSet'
+import { isClient } from '../common/functions/isClient'
+import { Mesh } from 'three'
 
 const state = createState({
   center: [0, 0],
@@ -50,7 +53,9 @@ const state = createState({
   }),
   featureMeta: new HashMap<FeatureKey, { tileKey: TileKey }>(),
   navMesh: new MutableNavMesh(),
-  needsUpdate: false
+  activePhase: null as null | string,
+  updateSpinner: null as null | Mesh,
+  updateTextContainer: null as null | Text3D
 })
 
 export type _MapStateUnwrapped = ReturnType<typeof state['get']>
@@ -103,3 +108,9 @@ export const mapReceptor = (action: MapActionType) => {
 }
 
 export const accessMapState = () => state
+
+if (process.env.APP_ENV === 'development' && isClient) {
+  ;(window as any).mapReceptor = mapReceptor
+  ;(window as any).MapAction = MapAction
+  ;(window as any).accessMapState = accessMapState
+}

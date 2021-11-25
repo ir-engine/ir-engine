@@ -11,7 +11,7 @@ import {
 import templates from './templates'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useHistory } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from '../../pages/projectUtility'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { getProjects } from '../../functions/projectFunctions'
@@ -22,8 +22,7 @@ import { EditorAction } from '../../services/EditorServices'
 
 const contextMenuId = 'project-menu'
 
-const ProjectsPage = () => {
-  const router = useHistory()
+const ProjectsPage = (props) => {
   const [projects, setProjects] = useState([]) // constant projects initialized with an empty array.
   const [loading, setLoading] = useState(false) // constant loading initialized with false.
   const [error, setError] = useState(null) // constant error initialized with null.
@@ -56,6 +55,14 @@ const ProjectsPage = () => {
     }
   }, [authUser.accessToken.value])
 
+  useEffect(() => {
+    const locationSceneName = props?.match?.params?.sceneName
+    const locationProjectName = props?.match?.params?.projectName
+
+    locationProjectName && dispatch(EditorAction.projectLoaded(locationProjectName))
+    locationSceneName && dispatch(EditorAction.sceneLoaded(locationSceneName))
+  }, [])
+
   /**
    *function to delete project
    */
@@ -79,11 +86,13 @@ const ProjectsPage = () => {
   const onClickExisting = (project) => {
     dispatch(EditorAction.sceneLoaded(null))
     dispatch(EditorAction.projectLoaded(project.name))
+    props.history.push(`/editor/${project.name}`)
   }
 
   const onCreateProject = async (name) => {
     console.log('onCreateProject', name)
     await ProjectService.createProject(name)
+    fetchItems()
   }
 
   /**
@@ -170,4 +179,4 @@ const ProjectsPage = () => {
   )
 }
 
-export default ProjectsPage
+export default withRouter(ProjectsPage)

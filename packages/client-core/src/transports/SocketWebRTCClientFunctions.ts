@@ -371,6 +371,7 @@ export async function endVideoChat(options: { leftParty?: boolean; endConsumers?
       console.log(err)
     }
   }
+  return true // should this return true or false??
 }
 
 export function resetProducer(): void {
@@ -387,8 +388,8 @@ export function resetProducer(): void {
     MediaStreams.instance.camAudioProducer = null
     MediaStreams.instance.screenVideoProducer = null
     MediaStreams.instance.screenAudioProducer = null
-    MediaStreams.instance.audioStream = null
-    MediaStreams.instance.videoStream = null
+    MediaStreams.instance.audioStream = null!
+    MediaStreams.instance.videoStream = null!
     MediaStreams.instance.localScreen = null
     // MediaStreams.instance.instance?.consumers = [];
   }
@@ -440,7 +441,7 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
     } else if (existingConsumer?._track?.muted) {
       await closeConsumer(existingConsumer)
       console.log('consumers before splice', MediaStreams.instance?.consumers)
-      MediaStreams.instance?.consumers.splice(existingConsumerIndex, 0, consumer)
+      // MediaStreams.instance?.consumers.splice(existingConsumerIndex, 0, consumer) // existingConsumerIndex is undefined...
       console.log('consumers after splice', MediaStreams.instance?.consumers)
       EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS })
 
@@ -554,8 +555,8 @@ export async function leave(instance: boolean, kicked?: boolean): Promise<boolea
         MediaStreams.instance.camAudioProducer = null
         MediaStreams.instance.screenVideoProducer = null
         MediaStreams.instance.screenAudioProducer = null
-        MediaStreams.instance.videoStream = null
-        MediaStreams.instance.audioStream = null
+        MediaStreams.instance.videoStream = null!
+        MediaStreams.instance.audioStream = null!
         MediaStreams.instance.localScreen = null
         MediaStreams.instance.consumers = []
       }
@@ -569,6 +570,7 @@ export async function leave(instance: boolean, kicked?: boolean): Promise<boolea
       networkTransport.leaving = false
     }
   }
+  return true // should this return true or false??
 }
 
 // async startScreenshare(): Promise<boolean> {

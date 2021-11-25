@@ -3,10 +3,11 @@ import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'thr
 import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import styled from 'styled-components'
 import { SceneManager } from '../../../managers/SceneManager'
-import { ControlManager } from '../../../managers/ControlManager'
 import EditorEvents from '../../../constants/EditorEvents'
 import { ProjectManager } from '../../../managers/ProjectManager'
 import { CommandManager } from '../../../managers/CommandManager'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { FlyControlComponent } from '../../../classes/FlyControlComponent'
 
 /**
  * @author Abhishek Pathak
@@ -68,11 +69,12 @@ export const ModelPreviewPanel = (props) => {
   }
 
   const onFlyModeChanged = useCallback(() => {
-    setFlyModeEnabled(ControlManager.instance.flyControls.enabled)
+    const flyControlComponent = getComponent(SceneManager.instance.editorEntity, FlyControlComponent)
+    setFlyModeEnabled(flyControlComponent.enable)
   }, [setFlyModeEnabled])
 
   const onEditorInitialized = useCallback(() => {
-    ControlManager.instance.editorControls.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
+    CommandManager.instance.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
     CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
   }, [onFlyModeChanged])
 
@@ -80,14 +82,9 @@ export const ModelPreviewPanel = (props) => {
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
     SceneManager.instance.initializeRenderer(assestPanelRef.current)
     renderScene()
-    return () => {
-      if (ControlManager.instance.editorControls) {
-        ControlManager.instance.editorControls.removeListener(
-          EditorEvents.FLY_MODE_CHANGED.toString(),
-          onFlyModeChanged
-        )
-      }
 
+    return () => {
+      CommandManager.instance.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
       ProjectManager.instance.dispose()
     }
   }, [])

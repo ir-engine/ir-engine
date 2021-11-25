@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "WebWorker"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "module": "CommonJS",
+    "strict": false,
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "jsx": "react",
+    "isolatedModules": false,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
+    "declaration": true,
+    "outDir": "./lib"
+  },
+  "exclude": [
+    "../projects/projects/**",
+    "**/node_modules/**"
+  ],
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+  ]
+}

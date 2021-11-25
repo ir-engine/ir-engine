@@ -1,41 +1,18 @@
 import { Cube } from '@styled-icons/fa-solid/Cube'
 import ModelNode from '../../nodes/ModelNode'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
-import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import dompurify from 'dompurify'
 import { Object3D } from 'three'
-import NumericInputGroup from '../inputs/NumericInputGroup'
+import InteractableGroup from '../inputs/InteractableGroup'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import SceneNode from '../../nodes/SceneNode'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-
-/**
- * Array containing options for InteractableOption.
- *
- * @author Robert Long
- * @type {Array}
- */
-const InteractableOption = [
-  {
-    label: 'InfoBox',
-    value: 'infoBox'
-  },
-  {
-    label: 'Open link',
-    value: 'link'
-  },
-  {
-    label: 'Equippable',
-    value: 'equippable'
-  }
-]
+import ModelInput from '../inputs/ModelInput'
 
 /**
  * Declaring properties for ModalNodeEditor component.
@@ -132,57 +109,9 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
     CommandManager.instance.setPropertyOnSelection('_matrixAutoUpdate', matrixAutoUpdate)
   }
 
-  // function to handle changes in interactionType property
-  const onChangeInteractionType = (interactionType) => {
-    CommandManager.instance.setPropertyOnSelection('interactionType', interactionType)
-  }
-
-  // function to handle changes in interactionText property
-  const onChangeInteractionText = (interactionText) => {
-    CommandManager.instance.setPropertyOnSelection('interactionText', interactionText)
-  }
-
-  // function to handle changes in interactionText property
-  const onChangeInteractionDistance = (interactionDistance) => {
-    CommandManager.instance.setPropertyOnSelection('interactionDistance', interactionDistance)
-  }
-
-  // function to handle changes in payloadName property
-  const onChangePayloadName = (payloadName) => {
-    CommandManager.instance.setPropertyOnSelection('payloadName', payloadName)
-  }
-
   // function to handle changes in payloadName property
   const onChangeRole = (role, selected) => {
     CommandManager.instance.setPropertyOnSelection('role', selected.label)
-  }
-
-  //function to handle the changes in target
-  const onChangeTarget = (target) => {
-    CommandManager.instance.setPropertyOnSelection('target', target)
-  }
-
-  // function to handle changes in payloadUrl
-  const onChangePayloadUrl = (payloadUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadUrl', payloadUrl)
-  }
-
-  // function to handle changes in payloadBuyUrl
-  const onChangePayloadBuyUrl = (payloadBuyUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadBuyUrl', payloadBuyUrl)
-  }
-
-  // function to handle changes in payloadLearnMoreUrl
-  const onChangePayloadLearnMoreUrl = (payloadLearnMoreUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadLearnMoreUrl', payloadLearnMoreUrl)
-  }
-
-  // function to handle changes in payloadHtmlContent
-  const onChangePayloadHtmlContent = (payloadHtmlContent) => {
-    const sanitizedHTML = dompurify.sanitize(payloadHtmlContent)
-    if (sanitizedHTML !== payloadHtmlContent)
-      console.warn("Code has been sanitized, don't try anything sneaky please...")
-    CommandManager.instance.setPropertyOnSelection('payloadHtmlContent', sanitizedHTML)
   }
 
   // function to handle changes in isAnimationPropertyDisabled
@@ -192,68 +121,6 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
       return CommandManager.instance.selected.some((selectedNode) => selectedNode.src !== node.src)
     }
     return false
-  }
-
-  // creating view for interactable type
-  const renderInteractableTypeOptions = (node) => {
-    switch (node.interactionType) {
-      case 'infoBox':
-        return (
-          <>
-            <InputGroup name="Name" label={t('editor:properties.model.lbl-name')}>
-              <StringInput value={node.payloadName} onChange={onChangePayloadName} />
-            </InputGroup>
-            <InputGroup name="Url" label={t('editor:properties.model.lbl-url')}>
-              <StringInput value={node.payloadUrl} onChange={onChangePayloadUrl} />
-            </InputGroup>
-            <InputGroup name="BuyUrl" label={t('editor:properties.model.lbl-buy')}>
-              <StringInput value={node.payloadBuyUrl} onChange={onChangePayloadBuyUrl} />
-            </InputGroup>
-            <InputGroup name="LearnMoreUrl" label={t('editor:properties.model.lbl-learnMore')}>
-              <StringInput value={node.payloadLearnMoreUrl} onChange={onChangePayloadLearnMoreUrl} />
-            </InputGroup>
-            <InputGroup name="HtmlContent" label={t('editor:properties.model.lbl-htmlContent')}>
-              <StringInput value={node.payloadHtmlContent} onChange={onChangePayloadHtmlContent} />
-            </InputGroup>
-          </>
-        )
-      default:
-        break
-    }
-  }
-
-  // creating view for dependent fields
-  const renderInteractableDependantFields = (node) => {
-    switch (node.interactable) {
-      case true:
-        return (
-          <Fragment>
-            <InputGroup name="Interaction Text" label={t('editor:properties.model.lbl-interactionText')}>
-              <StringInput value={node.interactionText} onChange={onChangeInteractionText} />
-            </InputGroup>
-            <InputGroup name="Interaction Type" label={t('editor:properties.model.lbl-interactionType')}>
-              <SelectInput
-                options={InteractableOption}
-                value={node.interactionType}
-                onChange={onChangeInteractionType}
-              />
-            </InputGroup>
-            <NumericInputGroup
-              name="Interaction Distance"
-              label={t('editor:properties.model.lbl-interactionDistance')}
-              onChange={onChangeInteractionDistance}
-              min={0}
-              smallStep={0.001}
-              mediumStep={0.01}
-              largeStep={0.1}
-              value={(node as any).intensity}
-            />
-            {renderInteractableTypeOptions(node)}
-          </Fragment>
-        )
-      default:
-        break
-    }
   }
 
   // rendering view of ModelNodeEditor
@@ -320,7 +187,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput value={node._matrixAutoUpdate} onChange={onChangeUpdateDataMatrix} />
       </InputGroup>
-      {renderInteractableDependantFields(node)}
+      {node.interactable && <InteractableGroup node={node} t={t}></InteractableGroup>}
     </NodeEditor>
   )
 }
