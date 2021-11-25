@@ -372,7 +372,7 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
                 ""
               )}
               {
-                fortrading.length !== 0 /*&& (data1[0].userTradeId === null||data1[0].userTradeId === null)*/ && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
+                fortrading.length !== 0 && data0.length === 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
                   <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">User</InputLabel>
                     <Select
@@ -437,7 +437,7 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
                 ""
               )}
               {
-                fortrading.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
+                fortrading.length !== 0 && data0.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
                   {/* <FormControl fullWidth>
                       <InputLabel id="demo-simple-select-label">User</InputLabel>
                       <Select
@@ -506,7 +506,7 @@ const TradingContent = ({ data, user, handleTransfer, acceptOfferSent, acceptOff
                 ""
               )}
               {
-               fortrading.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
+               fortrading.length !== 0 && data1.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
                   {/* <FormControl fullWidth>
                       <InputLabel id="demo-simple-select-label">User</InputLabel>
                       <Select
