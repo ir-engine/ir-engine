@@ -174,6 +174,7 @@ export default () => {
       return context
     } catch (err) {
       logger.error(err)
+      return null!
     }
   }
 }

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'
 import FormGroup from '@mui/material/FormGroup'
@@ -242,10 +241,6 @@ const InviteModel = (props: Props) => {
         open={open}
         onClose={handleClose}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={props.open} style={{ backgroundColor: '#343b41' }}>
           <div

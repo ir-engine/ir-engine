@@ -23,7 +23,7 @@ export class Channel extends Service {
    */
 
   async find(params: Params): Promise<any> {
-    const { query } = params
+    const query = params.query!
     const skip = query?.skip || 0
     const limit = query?.limit || 10
     const loggedInUser = extractLoggedInUserFromParams(params)

@@ -5,7 +5,7 @@ export const emailSeed = {
     {
       smtp: JSON.stringify({
         host: process.env.SMTP_HOST || 'test',
-        port: parseInt(process.env.SMTP_PORT) || 'test',
+        port: parseInt(process.env.SMTP_PORT!) || 'test',
         secure: process.env.SMTP_SECURE === 'true' || true,
         auth: JSON.stringify({
           user: process.env.SMTP_USER || 'test',

@@ -39,7 +39,7 @@ export default async function SkeletonRigSystem(world: World): Promise<System> {
       const rig = getComponent(entity, IKRigComponent)
       const targetRig = getComponent(entity, IKRigTargetComponent)
 
-      logCustomTargetRigBones(targetRig)
+      // logCustomTargetRigBones(targetRig)
       computeIKPose(rig, ikPose)
       applyIKPoseToIKRig(targetRig, ikPose)
     }

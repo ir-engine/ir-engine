@@ -39,6 +39,7 @@ jobs:
       - run: cp .env.local.default .env.local
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
+      - run: npm run check-errors
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: npm run test:packages 

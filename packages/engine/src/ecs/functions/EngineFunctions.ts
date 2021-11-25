@@ -49,8 +49,6 @@ export async function reset(): Promise<void> {
   //   throw new Error('Engine.defaultWorld.entities cleanup not complete')
   // }
 
-  Engine.tick = 0
-
   Engine.defaultWorld.entities.length = 0
 
   // delete all what is left on scene

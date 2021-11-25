@@ -41,7 +41,7 @@ export default {
         if (ownedSubscription.total === 0) {
           throw new BadRequest('NO SUBSCRIPTION')
         }
-        const seatResult = await app.service('seat').get(id)
+        const seatResult = await app.service('seat').get(id!)
         if (seatResult == null) {
           throw new NotFound()
         }
