@@ -339,7 +339,7 @@ export async function handleDisconnect(socket): Promise<any> {
   const world = Engine.defaultWorld
   const userId = getUserIdFromSocketId(socket.id) as UserId
   const disconnectedClient = world?.clients.get(userId)
-  if (disconnectedClient === undefined)
+  if (!disconnectedClient)
     return console.warn(
       'Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake'
     )
