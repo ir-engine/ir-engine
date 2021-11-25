@@ -1,4 +1,3 @@
-import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'
 import Modal from '@mui/material/Modal'
@@ -138,10 +137,6 @@ const InstanceModal = (props: Props): any => {
         open={open}
         onClose={handleClose}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={props.open}>
           <div
