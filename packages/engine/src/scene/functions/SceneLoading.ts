@@ -105,8 +105,6 @@ export class WorldScene {
 
       addComponent(entity, NameComponent, { name: sceneEntity.name })
 
-      console.log(sceneEntity)
-
       let shouldBeNetworkSpawned = false
       for (let index = 0; index < sceneEntity.components.length; index++) {
         const element = sceneEntity.components[index]
@@ -115,7 +113,6 @@ export class WorldScene {
         }
       }
 
-      console.log('should network spawn object?:', shouldBeNetworkSpawned)
       if (shouldBeNetworkSpawned) {
         if (!isClient) {
           const world = useWorld()

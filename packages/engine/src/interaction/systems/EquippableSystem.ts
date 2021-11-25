@@ -22,12 +22,10 @@ function equippableActionReceptor(action) {
   const world = useWorld()
 
   matches(action).when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
-    console.log('received in equip receptor', a)
     if (a.userId === Engine.userId) return
     const equipper = world.getUserAvatarEntity(a.userId)
     const equipped = world.getNetworkObject(a.networkId)
     const attachmentPoint = a.attachmentPoint
-    console.log(equipper, equipped)
     if (!equipped) {
       return console.warn(`Equipped entity with id ${equipped} does not exist! You should probably reconnect...`)
     }
@@ -56,8 +54,6 @@ export default async function EquippableSystem(world: World): Promise<System> {
       // if (collider) collider.body.type = BodyType.KINEMATIC
 
       if (isClient) {
-        console.log('send equip to clients')
-        console.log(equippedEntity)
         const equippedComponent = getComponent(equippedEntity, EquippedComponent)
         const attachmentPoint = equippedComponent.attachmentPoint
         const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
