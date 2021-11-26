@@ -85,6 +85,9 @@ const Layout = (props: Props): any => {
   const user = useAuthState().user
   const handle = useFullScreenHandle()
   const [ctitle, setTitle] = useState(clientSetting?.title)
+  const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
+  const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
+  const [description, setDescription] = useState(clientSetting?.siteDescription)
 
   const dispatch = useDispatch()
 
@@ -105,6 +108,9 @@ const Layout = (props: Props): any => {
   useEffect(() => {
     if (clientSetting) {
       setTitle(clientSetting?.title)
+      setFavicon16(clientSetting?.favicon16px)
+      setFavicon32(clientSetting?.favicon32px)
+      setDescription(clientSetting?.siteDescription)
     }
   }, [clientSettingState?.updateNeeded?.value])
 
@@ -153,6 +159,9 @@ const Layout = (props: Props): any => {
                 <title>
                   {ctitle || title} | {pageTitle}
                 </title>
+                {description && <meta name="description" content={description}></meta>}
+                {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
+                {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
               </Helmet>
               <header>
                 {path === '/login' && <NavMenu login={login} />}
