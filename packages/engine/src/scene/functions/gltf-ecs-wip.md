@@ -7,9 +7,9 @@ Model userData properties
 
 ```ts
 {
-  [project.entity]: name
-  [project.prefab-type.property]: value
-  [project.component-type.property]: value
+  [xrengine.entity]: name
+  [xrengine.prefab-type.property]: value
+  [xrengine.component-type.property]: value
 }
 ```
 
@@ -17,9 +17,9 @@ Golf holes example
 
 ```ts
 {
-  "project.entity": “GolfHole-0"
-  "project.box-collider.isTrigger": true
-  "project.CustomComponent.value": 12345
+  "xrengine.entity": “GolfHole-0"
+  "xrengine.box-collider.isTrigger": true
+  "xrengine.CustomComponent.value": 12345
 }
 ```
 
