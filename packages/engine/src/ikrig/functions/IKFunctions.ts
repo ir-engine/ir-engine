@@ -17,6 +17,7 @@ import { addChain, addPoint } from './RigFunctions'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import { Chain } from '../classes/Chain'
 import { solveThreeBone } from './IKSolvers'
+import { glMatrix, mat4 } from 'gl-matrix'
 
 const tempMat = new Matrix4()
 const tempQuat1 = new Quaternion()
@@ -127,19 +128,8 @@ export function computeIKPose(rig: IKRigComponentType, ikPose: IKPoseComponentTy
   computeLookTwist(rig, rig.points.head, ikPose.head, FORWARD, UP)
 }
 
-const skeletonTransform = {
-  position: new Vector3(),
-  quaternion: new Quaternion(),
-  invQuaternion: new Quaternion(),
-  scale: new Vector3(),
-
-  reset: function () {
-    this.position.setScalar(0)
-    this.quaternion.identity()
-    this.invQuaternion.identity()
-    this.scale.setScalar(0)
-  }
-}
+const rootParentWorldInverseMatrix = new Matrix4()
+const boneModelMatrix = new Matrix4()
 
 /**
  * Update pose bones from animated skeleton bones
@@ -148,26 +138,20 @@ const skeletonTransform = {
  * @param rig
  */
 function updatePoseBonesFromSkeleton(rig: IKRigComponentType): void {
-  skeletonTransform.reset()
-
   // todo cache
-  const rootBone = rig.pose.skeleton.bones.find((b) => !(b.parent instanceof Bone))
-  rootBone.updateWorldMatrix(true, true)
+  const { rootParent } = rig
+  rootParent.updateWorldMatrix(true, true)
 
-  if (rootBone.parent) {
-    rootBone.parent.getWorldPosition(skeletonTransform.position)
-    rootBone.parent.getWorldQuaternion(skeletonTransform.quaternion)
-    rootBone.parent.getWorldScale(skeletonTransform.scale)
-    skeletonTransform.invQuaternion.copy(skeletonTransform.quaternion).invert()
-  }
+  if (!rootParent) return
+
+  rootParentWorldInverseMatrix.copy(rootParent.matrixWorld).invert()
 
   for (let i = 0; i < rig.pose.skeleton.bones.length; i++) {
     const bone = rig.pose.skeleton.bones[i]
     const pose = rig.pose.bones[i]
 
-    bone.matrixWorld.decompose(pose.world.position, pose.world.quaternion, pose.world.scale)
-
-    worldToModel(pose.world.position, pose.world.quaternion, pose.world.scale, skeletonTransform)
+    boneModelMatrix.multiplyMatrices(rootParentWorldInverseMatrix, bone.matrixWorld)
+    boneModelMatrix.decompose(pose.world.position, pose.world.quaternion, pose.world.scale)
 
     pose.local.position.copy(bone.position)
     pose.local.quaternion.copy(bone.quaternion)
