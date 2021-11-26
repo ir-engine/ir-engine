@@ -39,6 +39,18 @@ import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
 
+type AuthStrategies = {
+  jwt: Boolean
+  local: Boolean
+  facebook: Boolean
+  github: Boolean
+  google: Boolean
+  linkedin: Boolean
+  twitter: Boolean
+  smsMagicLink: Boolean
+  emailMagicLink: Boolean
+}
+
 //State
 const state = createState({
   isLoggedIn: false,
@@ -488,17 +500,15 @@ export const AuthService = {
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
   },
-  createMagicLink: async (emailPhone: string, linkType?: 'email' | 'sms') => {
+  createMagicLink: async (emailPhone: string, authState: AuthStrategies, linkType?: 'email' | 'sms') => {
     const dispatch = useDispatch()
     {
       dispatch(AuthAction.actionProcessing(true))
 
       let type = 'email'
       let paramName = 'email'
-      const enableEmailMagicLink =
-        (Config.publicRuntimeConfig.auth && Config.publicRuntimeConfig.auth.enableEmailMagicLink) ?? true
-      const enableSmsMagicLink =
-        (Config.publicRuntimeConfig.auth && Config.publicRuntimeConfig.auth.enableSmsMagicLink) ?? false
+      const enableEmailMagicLink = authState?.emailMagicLink
+      const enableSmsMagicLink = authState?.smsMagicLink
 
       if (linkType === 'email') {
         type = 'email'

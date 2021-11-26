@@ -50,12 +50,12 @@ export const AuthSettingService = {
       }
     }
   },
-  pathAuthSetting: async (data: any, id: string) => {
+  patchAuthSetting: async (data: any, id: string) => {
     const dispatch = useDispatch()
     {
       try {
-        const result = await client.service('authentication-setting').patch(id, data)
-        dispatch(AuthSettingAction.authSettingPatched(result))
+        await client.service('authentication-setting').patch(id, data)
+        dispatch(AuthSettingAction.authSettingPatched())
       } catch (err) {
         console.log(err)
         AlertService.dispatchAlertError(err.message)
@@ -72,7 +72,7 @@ export const AuthSettingAction = {
       adminRedisSettingResult: adminRedisSettingResult
     }
   },
-  authSettingPatched: (data: AdminRedisSettingResult) => {
+  authSettingPatched: () => {
     return {
       type: 'ADMIN_AUTH_SETTING_PATCHED' as const
     }

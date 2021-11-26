@@ -31,6 +31,26 @@ export default (app: Application) => {
       releaseName: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+      siteDescription: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      favicon32px: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      favicon16px: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      icon192px: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      icon512px: {
+        type: DataTypes.STRING,
+        allowNull: true
       }
     },
     {
