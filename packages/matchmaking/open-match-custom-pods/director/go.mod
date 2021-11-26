@@ -9,7 +9,7 @@ require (
 	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1
 	lagunalabs/matchmaking/common v0.0.0-00010101000000-000000000000
-	open-match.dev/open-match v1.2.0
+	open-match.dev/open-match v1.3.0
 )
 
 require (
