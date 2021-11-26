@@ -55,7 +55,7 @@ export const onProjectEvent = async (
 
 export const getProjectConfig = async (projectName: string): Promise<ProjectConfigInterface> => {
   try {
-    return (await import(`../../../../projects/projects/${projectName}/xrengine.config.ts`)).default
+    return (await import(`@xrengine/projects/projects/${projectName}/xrengine.config.ts`)).default
   } catch (e) {
     console.log(
       `[Projects]: WARNING project with name ${projectName} has no xrengine.config.ts file - this is not recommended`

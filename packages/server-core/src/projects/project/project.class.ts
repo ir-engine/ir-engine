@@ -122,7 +122,7 @@ export class Project extends Service {
       if (!data.find((e) => e.name === projectName)) {
         try {
           console.warn('[Projects]: Found new locally installed project', projectName)
-          const projectConfig = await getProjectConfig(projectName)
+          const projectConfig = (await getProjectConfig(projectName)) ?? {}
           await super.create({
             thumbnail: projectConfig.thumbnail,
             name: projectName,
@@ -221,7 +221,7 @@ export class Project extends Service {
 
     await uploadLocalProjectToProvider(projectName)
 
-    const projectConfig = await getProjectConfig(projectName)
+    const projectConfig = (await getProjectConfig(projectName)) ?? {}
 
     // Add to DB
     await super.create(
@@ -249,6 +249,7 @@ export class Project extends Service {
    */
   async patch(projectName: string, data: { files: string[] }, params: Params) {
     const projectConfig = await getProjectConfig(projectName)
+    if (!projectConfig) return
 
     // run project uninstall script
     if (projectConfig.onEvent) {
