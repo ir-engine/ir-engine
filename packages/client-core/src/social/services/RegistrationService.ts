@@ -46,8 +46,7 @@ export const RegistrationService = {
 
         // dispatch(creatorLoggedRetrieved(creator))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

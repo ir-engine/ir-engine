@@ -264,8 +264,7 @@ export const FeedService = {
           dispatch(FeedAction.feedsRetrieved(feedsResults.data))
         }
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -277,8 +276,7 @@ export const FeedService = {
         const feed = await client.service('feed').get(feedId)
         dispatch(FeedAction.feedRetrieved(feed))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -289,8 +287,7 @@ export const FeedService = {
         await client.service('feed').patch(feedId, { viewsCount: feedId })
         dispatch(FeedAction.addFeedView(feedId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -311,8 +308,7 @@ export const FeedService = {
           return mediaLinks
         }
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -333,8 +329,7 @@ export const FeedService = {
         const updatedFeed = await client.service('feed').patch(feedId, feed)
         dispatch(FeedAction.updateFeedInList(updatedFeed))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -345,8 +340,7 @@ export const FeedService = {
         await client.service('feed').patch(feedId, { featured: 1 })
         dispatch(FeedAction.feedAsFeatured(feedId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -357,8 +351,7 @@ export const FeedService = {
         await client.service('feed').patch(feedId, { featured: 0 })
         dispatch(FeedAction.feedNotFeatured(feedId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -378,8 +371,7 @@ export const FeedService = {
         await client.service('feed').remove(feedId)
         dispatch(FeedAction.deleteFeed(feedId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -395,8 +387,7 @@ export const FeedService = {
       try {
         dispatch(FeedAction.lastFeedVideoUrl(filepath))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

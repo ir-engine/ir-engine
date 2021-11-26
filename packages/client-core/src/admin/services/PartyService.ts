@@ -46,8 +46,7 @@ export const PartyService = {
         const result = await client.service('party').create(data)
         dispatch(PartyAction.partyAdminCreated(result))
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -72,8 +71,7 @@ export const PartyService = {
           dispatch(PartyAction.partyRetrievedAction(parties))
         }
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }
