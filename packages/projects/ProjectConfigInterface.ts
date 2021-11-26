@@ -1,7 +1,7 @@
 import type { Application } from '@xrengine/server-core/declarations'
 
 export interface ProjectConfigInterface {
-  onEvent?: string // returns ProjectEventHooks
+  onEvent?: string // returns ProjectEventHooks import
   thumbnail?: string
   routes?: {
     [route: string]: {
@@ -16,7 +16,7 @@ export interface ProjectConfigInterface {
   databaseSeed?: string
 }
 
-type InstallFunctionType = Promise<{ default: (app: Application) => void }>
+type InstallFunctionType = (app: Application) => Promise<any>
 
 export interface ProjectEventHooks {
   onInstall?: InstallFunctionType
