@@ -84,7 +84,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           open: true,
           title: 'No Available Servers',
           body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
-          action: async () => InstanceConnectionService.provisionInstanceServer(currentLocation.id),
+          action: async () => InstanceConnectionService.provisionInstanceServer(),
           parameters: [currentLocation.id, props.instanceId, currentLocation.sceneId],
           noCountdown: false
         })

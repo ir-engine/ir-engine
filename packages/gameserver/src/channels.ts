@@ -89,22 +89,13 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
   }
 }
 
-const assignExistingInstance = async (
-  app: Application,
-  existingInstance,
-  channelId: string,
-  locationId: string,
-  agonesSDK
-) => {
+const assignExistingInstance = async (app: Application, existingInstance, agonesSDK) => {
+  console.log('assignExistingInstance', existingInstance)
   await agonesSDK.allocate()
   app.instance = existingInstance
 
   await app.service('instance').patch(existingInstance.id, {
-    currentUsers: existingInstance.currentUsers + 1,
-    channelId: channelId,
-    locationId: locationId,
-    assigned: false,
-    assignedAt: null
+    currentUsers: existingInstance.currentUsers + 1
   })
 
   if (app.gsSubdomainNumber != null) {
@@ -195,6 +186,7 @@ export default (app: Application): void => {
               console.log('Initialized new gameserver instance')
 
               const localIp = await getLocalServerIp(app.isChannelInstance)
+
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
               const ipAddress =
                 config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
@@ -235,10 +227,10 @@ export default (app: Application): void => {
                     return console.log('User', identityProvider.userId, 'not authorized to be on this server')
                   }
                 }
-                await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId, agonesSDK)
+                await assignExistingInstance(app, instance, agonesSDK)
               }
-
               if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
+                console.log('loading scene')
                 await loadScene(app, sceneId)
               }
             } else {
@@ -264,9 +256,7 @@ export default (app: Application): void => {
                 }
                 await agonesSDK.allocate()
                 await app.service('instance').patch(app.instance.id, {
-                  currentUsers: (instance.currentUsers as number) + 1,
-                  assigned: false,
-                  assignedAt: null
+                  currentUsers: (instance.currentUsers as number) + 1
                 })
               } catch (err) {
                 console.log('Could not update instance, likely because it is a local one that does not exist')
