@@ -120,8 +120,8 @@ const ProfileMenu = (props: Props): any => {
 
   const validate = () => {
     if (emailPhone === '') return false
-    if (validateEmail(emailPhone.trim())) type = 'email'
-    else if (validatePhoneNumber(emailPhone.trim())) type = 'sms'
+    if (validateEmail(emailPhone.trim()) && authState?.emailMagicLink) type = 'email'
+    else if (validatePhoneNumber(emailPhone.trim()) && authState.smsMagicLink) type = 'sms'
     else {
       setError(true)
       return false
@@ -134,8 +134,8 @@ const ProfileMenu = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value)
-    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value)
+    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value!)
+    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value!)
     return
   }
 
@@ -193,6 +193,18 @@ const ProfileMenu = (props: Props): any => {
       return t('user:usermenu.profile.connectEmail')
     } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
       return t('user:usermenu.profile.connectPhone')
+    } else {
+      return ''
+    }
+  }
+
+  const getErrorText = () => {
+    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.phoneEmailError')
+    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+      return t('user:usermenu.profile.emailError')
+    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.phoneError')
     } else {
       return ''
     }
@@ -346,7 +358,7 @@ const ProfileMenu = (props: Props): any => {
                     onChange={handleInputChange}
                     onBlur={validate}
                     error={error}
-                    helperText={error ? t('user:usermenu.profile.phoneEmailError') : null}
+                    helperText={error ? getErrorText() : null}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end" onClick={handleSubmit}>

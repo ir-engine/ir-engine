@@ -142,9 +142,11 @@
       "ph-email": "Email",
       "ph-phone": "Phone Number",
       "ph-phoneEmail": "Phone Number / Email",
-      "phoneEmailError": "Invalid phone or email address",
+      "phoneEmailError": "Invalid phone # or email address",
+      "phoneError": "Invalid phone #",
+      "emailError": "Invalid email address",
       "loginWithReadyPlayerMe": "Login with Ready Player Me",
-      "connectSocial": "Or connect with social accounts",
+      "connectSocial": "Connect with social accounts",
       "createOne": "If you don't have an account, a new one will be created for you",
       "connections": {
         "title": "Connections",
