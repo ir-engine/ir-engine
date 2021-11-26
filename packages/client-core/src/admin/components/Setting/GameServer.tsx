@@ -37,7 +37,7 @@ const GameServer = (props: gameServerProps) => {
     if (user?.id?.value != null && gameServerSettingState?.updateNeeded?.value === true) {
       GameServerSettingService.fetchedGameServerSettings()
     }
-  }, [authState])
+  }, [authState?.user?.id?.value, gameServerSettingState?.updateNeeded?.value])
 
   return (
     <div>
