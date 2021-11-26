@@ -13,7 +13,7 @@ import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingS
 import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 
 const initialState = {
-  jwt: false,
+  jwt: true,
   local: false,
   facebook: false,
   github: false,

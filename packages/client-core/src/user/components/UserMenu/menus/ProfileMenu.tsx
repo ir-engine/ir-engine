@@ -21,12 +21,26 @@ import Tooltip from '@mui/material/Tooltip'
 import Grid from '@mui/material/Grid'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar'
+import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
+import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 
 interface Props {
   changeActiveMenu?: any
   setProfileMenuOpen?: any
 
   hideLogin?: any
+}
+
+const initialState = {
+  jwt: true,
+  local: false,
+  facebook: false,
+  github: false,
+  google: false,
+  linkedin: false,
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
 }
 
 const ProfileMenu = (props: Props): any => {
@@ -42,6 +56,25 @@ const ProfileMenu = (props: Props): any => {
   const [errorUsername, setErrorUsername] = useState(false)
   const [showUserId, setShowUserId] = useState(false)
   const [userIdState, setUserIdState] = useState({ value: '', copied: false, open: false })
+  const authSettingState = useAdminAuthSettingState()
+  const [authSetting] = authSettingState?.authSettings?.value || []
+  const [authState, setAuthState] = useState(initialState)
+
+  useEffect(() => {
+    !authSetting && AuthSettingService.fetchAuthSetting()
+  }, [])
+
+  useEffect(() => {
+    if (authSetting) {
+      let temp = { ...initialState }
+      authSetting?.authStrategies?.forEach((el) => {
+        Object.entries(el).forEach(([strategyName, strategy]) => {
+          temp[strategyName] = strategy
+        })
+      })
+      setAuthState(temp)
+    }
+  }, [authSettingState?.updateNeeded?.value])
 
   let type = ''
 
@@ -152,6 +185,35 @@ const ProfileMenu = (props: Props): any => {
   const handleClose = () => {
     setUserIdState({ ...userIdState, open: false })
   }
+
+  const getConnectText = () => {
+    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.connectPhoneEmail')
+    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+      return t('user:usermenu.profile.connectEmail')
+    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.connectPhone')
+    } else {
+      return ''
+    }
+  }
+
+  const getConnectPlaceholder = () => {
+    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.ph-phoneEmail')
+    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+      return t('user:usermenu.profile.ph-email')
+    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.ph-phone')
+    } else {
+      return ''
+    }
+  }
+
+  const enableSocial =
+    authState?.facebook || authState?.github || authState?.google || authState?.linkedin || authState?.twitter
+
+  const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
   return (
     <div className={styles.menuPanel}>
@@ -269,17 +331,17 @@ const ProfileMenu = (props: Props): any => {
 
         {!hideLogin && (
           <>
-            {selfUser?.userRole.value === 'guest' && (
+            {selfUser?.userRole.value === 'guest' && enableConnect && (
               <section className={styles.emailPhoneSection}>
                 <Typography variant="h1" className={styles.panelHeader}>
-                  {t('user:usermenu.profile.connectPhone')}
+                  {getConnectText()}
                 </Typography>
 
                 <form onSubmit={handleSubmit}>
                   <TextField
                     className={styles.emailField}
                     size="small"
-                    placeholder={t('user:usermenu.profile.ph-phoneEmail')}
+                    placeholder={getConnectPlaceholder()}
                     variant="outlined"
                     onChange={handleInputChange}
                     onBlur={validate}
@@ -313,27 +375,37 @@ const ProfileMenu = (props: Props): any => {
               </section>
             )}
 
-            {selfUser?.userRole.value === 'guest' && (
+            {selfUser?.userRole.value === 'guest' && enableSocial && (
               <section className={styles.socialBlock}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.connectSocial')}
                 </Typography>
                 <div className={styles.socialContainer}>
-                  <a href="#" id="google" onClick={handleOAuthServiceClick}>
-                    <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
-                    <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="twitter" onClick={handleOAuthServiceClick}>
-                    <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="github" onClick={handleOAuthServiceClick}>
-                    <GitHub />
-                  </a>
+                  {authState?.google && (
+                    <a href="#" id="google" onClick={handleOAuthServiceClick}>
+                      <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.facebook && (
+                    <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
+                      <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.linkedin && (
+                    <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
+                      <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.twitter && (
+                    <a href="#" id="twitter" onClick={handleOAuthServiceClick}>
+                      <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.github && (
+                    <a href="#" id="github" onClick={handleOAuthServiceClick}>
+                      <GitHub />
+                    </a>
+                  )}
                 </div>
                 <Typography variant="h4" className={styles.smallTextBlock}>
                   {t('user:usermenu.profile.createOne')}
