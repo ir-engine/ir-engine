@@ -207,7 +207,7 @@ The default username is 'server', the default password is 'password', the defaul
 ### 4. Start the server in database seed mode
 
    Several tables in the database need to be seeded with default values.
-   Run ```cd packages/server```, then run ```npm run dev-reinit-db```.
+   Run ```npm run dev-reinit``` or if on windows ```npm run dev-reinit-windows```
    After several seconds, there should be no more logging.
    Some of the final lines should read like this:
    ```Executing (default): SELECT 'id', 'name', 'sceneId', 'locationSettingsId', 'slugifiedName', 'maxUsersPerInstance', 'createdAt', 'updatedAt' FROM 'location' AS 'location' WHERE ('location'.'id' = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61') AND 'location'.'id' IN ('98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'); Seeded```

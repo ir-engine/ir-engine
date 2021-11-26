@@ -3,12 +3,12 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createCollider } from '../../physics/functions/createCollider'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { addObject3DComponent } from './addObject3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { MapAction, mapReducer } from '../../map/MapReceptor'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { getPhases, startPhases } from '../../map/functions/PhaseFunctions'
+import { Object3DComponent } from '../components/Object3DComponent'
 
 type GroundProps = {
   color: string
@@ -21,14 +21,15 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
   const mesh = new Mesh(
     new CircleBufferGeometry(1000, 32),
     new MeshStandardMaterial({
-      color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
+      color: args.color ?? new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
       roughness: 0
     })
   )
+  mesh.receiveShadow = true
 
   getComponent(entity, TransformComponent).rotation.multiply(halfTurnX)
 
-  addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
+  addComponent(entity, Object3DComponent, { value: mesh })
 
   mesh.userData = {
     type: 'ground',
