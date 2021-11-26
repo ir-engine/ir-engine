@@ -47,8 +47,7 @@ export const RouteService = {
         dispatch(RouteActions.installedRoutesRetrievedAction(routes))
       }
     } catch (err) {
-      console.error(err)
-      AlertService.dispatchAlertError(err.message)
+      AlertService.dispatchAlertError(err)
     }
   }
 }

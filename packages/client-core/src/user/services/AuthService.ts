@@ -257,8 +257,7 @@ export const AuthService = {
         dispatch(AuthAction.loadedUserData(user))
       })
       .catch((err: any) => {
-        console.log(err)
-        AlertService.dispatchAlertError('Failed to load user data')
+        AlertService.dispatchAlertError(new Error('Failed to load user data'))
       })
   },
   loginUserByPassword: async (form: EmailLoginForm) => {
@@ -266,7 +265,7 @@ export const AuthService = {
     {
       // check email validation.
       if (!validateEmail(form.email)) {
-        AlertService.dispatchAlertError('Please input valid email address')
+        AlertService.dispatchAlertError(new Error('Please input valid email address'))
 
         return
       }
@@ -293,10 +292,8 @@ export const AuthService = {
           AuthService.loadUserData(authUser.identityProvider.userId).then(() => (window.location.href = '/'))
         })
         .catch((err: any) => {
-          console.log(err)
-
           dispatch(AuthAction.loginUserError('Failed to login'))
-          AlertService.dispatchAlertError(err.message)
+          AlertService.dispatchAlertError(err)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -319,9 +316,8 @@ export const AuthService = {
         loadXRAvatarForUpdatedUser(walletUser)
         dispatch(AuthAction.loadedUserData(walletUser))
       } catch (err) {
-        console.log(err)
         dispatch(AuthAction.loginUserError('Failed to login'))
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       } finally {
         dispatch(AuthAction.actionProcessing(false))
       }
@@ -364,9 +360,8 @@ export const AuthService = {
         dispatch(AuthAction.actionProcessing(false))
         window.location.href = redirectSuccess
       } catch (err) {
-        console.log(err)
         dispatch(AuthAction.loginUserError('Failed to login'))
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
         window.location.href = `${redirectError}?error=${err.message}`
         dispatch(AuthAction.actionProcessing(false))
       }
@@ -407,7 +402,7 @@ export const AuthService = {
         .catch((err: any) => {
           console.log('error', err)
           dispatch(AuthAction.registerUserByEmailError(err.message))
-          AlertService.dispatchAlertError(err.message)
+          AlertService.dispatchAlertError(err)
         })
         .finally(() => {
           console.log('4 finally', dispatch)
@@ -431,9 +426,8 @@ export const AuthService = {
           AuthService.loginUserByJwt(res.accessToken, '/', '/')
         })
         .catch((err: any) => {
-          console.log(err)
           dispatch(AuthAction.didVerifyEmail(false))
-          AlertService.dispatchAlertError(err.message)
+          AlertService.dispatchAlertError(err)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -493,7 +487,6 @@ export const AuthService = {
           window.location.href = '/'
         })
         .catch((err: any) => {
-          console.log(err)
           dispatch(AuthAction.didResetPassword(false))
           window.location.href = '/'
         })
@@ -520,7 +513,7 @@ export const AuthService = {
         const stripped = emailPhone.replace(/-/g, '')
         if (validatePhoneNumber(stripped)) {
           if (!enableSmsMagicLink) {
-            AlertService.dispatchAlertError('Please input valid email address')
+            AlertService.dispatchAlertError(new Error('Please input valid email address'))
 
             return
           }
@@ -529,13 +522,13 @@ export const AuthService = {
           emailPhone = '+1' + stripped
         } else if (validateEmail(emailPhone)) {
           if (!enableEmailMagicLink) {
-            AlertService.dispatchAlertError('Please input valid phone number')
+            AlertService.dispatchAlertError(new Error('Please input valid phone number'))
 
             return
           }
           type = 'email'
         } else {
-          AlertService.dispatchAlertError('Please input valid email or phone number')
+          AlertService.dispatchAlertError(new Error('Please input valid email or phone number'))
 
           return
         }
@@ -553,9 +546,8 @@ export const AuthService = {
           AlertService.dispatchAlertSuccess('Login Magic Link was sent. Please check your Email or SMS.')
         })
         .catch((err: any) => {
-          console.log(err)
           dispatch(AuthAction.didCreateMagicLink(false))
-          AlertService.dispatchAlertError(err.message)
+          AlertService.dispatchAlertError(err)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -578,8 +570,7 @@ export const AuthService = {
           return AuthService.loadUserData(identityProvider.userId)
         })
         .catch((err: any) => {
-          console.log(err)
-          AlertService.dispatchAlertError(err.message)
+          AlertService.dispatchAlertError(err)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -600,8 +591,7 @@ export const AuthService = {
           if (identityProvider.userId != null) return AuthService.loadUserData(identityProvider.userId)
         })
         .catch((err: any) => {
-          console.log(err)
-          AlertService.dispatchAlertError(err.message)
+          AlertService.dispatchAlertError(err)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -628,8 +618,7 @@ export const AuthService = {
           if (identityProvider.userId != null) return AuthService.loadUserData(identityProvider.userId)
         })
         .catch((err: any) => {
-          console.log(err)
-          AlertService.dispatchAlertError(err.message)
+          AlertService.dispatchAlertError(err)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
@@ -652,8 +641,7 @@ export const AuthService = {
           return AuthService.loadUserData(userId)
         })
         .catch((err: any) => {
-          console.log(err)
-          AlertService.dispatchAlertError(err.message)
+          AlertService.dispatchAlertError(err)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
