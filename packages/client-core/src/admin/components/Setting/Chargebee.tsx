@@ -20,7 +20,7 @@ const ChargeBee = (props: Props) => {
     if (user?.id?.value != null && chargeBeeSettingState?.updateNeeded?.value) {
       ChargebeeSettingService.fetchChargeBee()
     }
-  }, [authState])
+  }, [authState?.user?.id?.value, chargeBeeSettingState?.updateNeeded?.value])
 
   return (
     <div>

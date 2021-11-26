@@ -5,6 +5,8 @@ import { AppAction } from '@xrengine/client-core/src/common/services/AppService'
 import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { ClientSettingService } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { theme } from '@xrengine/client-core/src/theme'
 import { Config } from '@xrengine/common/src/config'
 import { Helmet } from 'react-helmet'
@@ -20,7 +22,7 @@ declare module '@mui/styles/defaultTheme' {
   interface DefaultTheme extends Theme {}
 }
 
-const siteTitle: string = Config.publicRuntimeConfig.siteTitle
+const title: string = Config.publicRuntimeConfig.title
 
 const initialSelectedUserState = {
   id: '',
@@ -48,7 +50,8 @@ interface Props {
 
 const Layout = (props: Props): any => {
   const { pageTitle, children } = props
-
+  const clientSettingState = useClientSettingState()
+  const [clientSetting] = clientSettingState?.client?.value || []
   const dispatch = useDispatch()
   const userHasInteracted = useAppState().userHasInteracted
   const authUser = useAuthState().authUser
@@ -63,6 +66,10 @@ const Layout = (props: Props): any => {
   const [selectedUser, setSelectedUser] = useState(initialSelectedUserState)
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
   const user = useAuthState().user
+  const [ctitle, setTitle] = useState(clientSetting?.title)
+  const [description, setDescription] = useState(clientSetting?.siteDescription)
+  const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
+  const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
 
   const childrenWithProps = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
@@ -84,7 +91,17 @@ const Layout = (props: Props): any => {
     }
 
     AuthService.doLoginAuto(true)
+    !clientSetting && ClientSettingService.fetchedClientSettings()
   }, [])
+
+  useEffect(() => {
+    if (clientSetting) {
+      setTitle(clientSetting?.title)
+      setFavicon16(clientSetting?.favicon16px)
+      setFavicon32(clientSetting?.favicon32px)
+      setDescription(clientSetting?.siteDescription)
+    }
+  }, [clientSettingState?.updateNeeded?.value])
 
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
@@ -95,8 +112,11 @@ const Layout = (props: Props): any => {
         <section>
           <Helmet>
             <title>
-              {siteTitle} | {pageTitle}
+              {ctitle || title} | {pageTitle}
             </title>
+            {description && <meta name="description" content={description}></meta>}
+            {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
+            {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
           </Helmet>
           <Harmony />
           {/* <Harmony
