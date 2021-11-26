@@ -135,7 +135,6 @@ export const TradingPage = (): any => {
       isLoadingtransfer: true
     }))
     const data={
-      fromUserInventoryIds: items,
       fromUserStatus: "REJECT",
   }
   console.log("acceptOfferSent ", data);
@@ -168,7 +167,6 @@ export const TradingPage = (): any => {
       isLoadingtransfer: true
     }))
     const data={
-      toUserInventoryIds: items,
       toUserStatus: "REJECT"
 
   }
