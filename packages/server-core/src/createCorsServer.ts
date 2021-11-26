@@ -1,16 +1,17 @@
 import cors_proxy from 'cors-anywhere'
 import config from './appconfig'
-import fs from 'fs'
 import net from 'net'
 
-const createCorsServer = (port: number) => {
+const createCorsServer = (useSSL, certOptions, port) => {
   const host = config.server.hostname
   cors_proxy
     .createServer({
-      httpsOptions: {
-        key: fs.readFileSync('../../certs/key.pem'),
-        cert: fs.readFileSync('../../certs/cert.pem')
-      },
+      httpsOptions: useSSL
+        ? {
+            key: certOptions.key,
+            cert: certOptions.cert
+          }
+        : null,
       originWhitelist: [], // Allow all origins
       requireHeader: ['origin', 'x-requested-with'],
       removeHeaders: ['cookie', 'cookie2']
@@ -20,21 +21,23 @@ const createCorsServer = (port: number) => {
     })
 }
 
-export const StartCorsServer = () => {
+export const StartCorsServer = (useSSL, certOptions) => {
   const port = config.server.corsServerPort
-  isPortTaken(port, createCorsServer)
+  isPortTaken(port, () => {
+    createCorsServer(useSSL, certOptions, port)
+  })
 }
 
 const isPortTaken = (port, fn) => {
   const tester = net
     .createServer()
     .once('error', (err) => {
-      if (err.name === 'EADDRINUSE') return fn(port, true)
+      if (err.name === 'EADDRINUSE') return fn()
     })
     .once('listening', () => {
       tester
         .once('close', () => {
-          fn(port, false)
+          fn()
         })
         .close()
     })
