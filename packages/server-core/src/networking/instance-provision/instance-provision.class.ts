@@ -24,120 +24,56 @@ const pressureThresholdPercent = 0.8
  * An method which start server for instance
  * @author Vyacheslav Solovjov
  */
-export async function getFreeGameserver(
-  app: Application,
-  iteration: number,
-  locationId: string,
-  channelId: string
-): Promise<any> {
-  await app.service('instance').Model.destroy({
-    where: {
-      assigned: true,
-      assignedAt: {
-        [Op.lt]: new Date(new Date().getTime() - 30000)
-      }
-    }
-  })
+export async function getFreeGameserver(app: Application, isChannelInstance?: boolean): Promise<GameserverAddress> {
   if (!config.kubernetes.enabled) {
-    //Clear any instance assignments older than 30 seconds - those assignments have not been
-    //used, so they should be cleared and the GS they were attached to can be used for something else.
     console.log('Local server spinning up new instance')
-    const localIp = await getLocalServerIp(channelId != null)
-    const stringIp = `${localIp.ipAddress}:${localIp.port}`
-    return checkForDuplicatedAssignments(app, stringIp, iteration, locationId, channelId)
+    return getLocalServerIp(isChannelInstance)
   }
-  console.log('Getting free gameserver')
+  logger.info('Getting free gameserver')
   const serverResult = await (app as any).k8AgonesClient.get('gameservers')
   const readyServers = _.filter(serverResult.items, (server: any) => {
     const releaseMatch = releaseRegex.exec(server.metadata.name)
     return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
   })
-  const ipAddresses = readyServers.map((server) => `${server.status.address}:${server.status.ports[0].port}`)
-  const assignedInstances = await app.service('instance').find({
-    query: {
-      ipAddress: {
-        $in: ipAddresses
-      },
-      ended: false
-    }
-  })
-  const nonAssignedInstances = ipAddresses.filter(
-    (ipAddress) => !assignedInstances.data.find((instance) => instance.ipAddress === ipAddress)
-  )
-  const instanceIpAddress = nonAssignedInstances[Math.floor(Math.random() * nonAssignedInstances.length)]
-  if (instanceIpAddress == null) {
+  let foundServer = false
+  let server = readyServers[Math.floor(Math.random() * readyServers.length)]
+  if (server == null) {
     return {
       ipAddress: null,
       port: null
     }
   }
-  return checkForDuplicatedAssignments(app, instanceIpAddress, iteration, locationId, channelId)
-}
-
-export async function checkForDuplicatedAssignments(
-  app: Application,
-  ipAddress: string,
-  iteration: number,
-  locationId: string,
-  channelId: string
-) {
-  //Create an assigned instance at this IP
-  const assignResult = await app.service('instance').create({
-    ipAddress: ipAddress,
-    locationId: locationId,
-    channelId: channelId,
-    assigned: true,
-    assignedAt: new Date()
-  })
-  //Check to see if there are any other non-ended instances assigned to this IP
-  const duplicateAssignment = await app.service('instance').find({
-    query: {
-      ipAddress: ipAddress,
-      assigned: true,
-      ended: false
-    }
-  })
-
-  //If there's more than one instance assigned to this IP, then one of them was made in error, possibly because
-  //there were two instance-provision calls at almost the same time.
-  if (duplicateAssignment.total > 1) {
-    let isFirstAssignment = true
-    //Iterate through all of the assignments to this IP address. If this one is later than any other one,
-    //then this one needs to find a different GS
-    for (let instance of duplicateAssignment.data) {
-      if (instance.id !== assignResult.id && instance.assignedAt < assignResult.assignedAt) {
-        isFirstAssignment = false
-        break
+  let count = 0
+  while (!foundServer) {
+    const instanceExistsResult = await app.service('instance').find({
+      query: {
+        ipAddress: `${server.status.address}:${server.status.ports[0].port}`
       }
-    }
-    if (!isFirstAssignment) {
-      //If this is not the first assignment to this IP, remove the assigned instance row
-      await app.service('instance').remove(assignResult.id)
-      //If this is the 10th or more attempt to get a free gameserver, then there probably aren't any free ones,
-      //
-      if (iteration < 10) {
-        return getFreeGameserver(app, iteration + 1, locationId, channelId)
-      } else {
-        console.log('Made 10 attempts to get free gameserver without success, returning null')
+    })
+    if (instanceExistsResult.total > 0) {
+      console.log('server already claimed by an instance', instanceExistsResult)
+      server = readyServers[Math.floor(Math.random() * readyServers.length)]
+      count++
+      if (count >= 10) {
+        foundServer = true
         return {
           ipAddress: null,
           port: null
         }
       }
+    } else {
+      foundServer = true
+      return {
+        ipAddress: server.status.address,
+        port: server.status.ports[0].port
+      }
     }
-  }
-
-  const split = ipAddress.split(':')
-  return {
-    ipAddress: split[0],
-    port: split[1]
   }
   return {
     ipAddress: null,
     port: null
   }
 }
-
 /**
  * @class for InstanceProvision service
  *
@@ -155,23 +91,13 @@ export class InstanceProvision implements ServiceMethods<Data> {
   async setup() {}
 
   /**
-   * A method which get instance of GameServer
+   * A method which get instance of GameServerr
    * @param availableLocationInstances for Gameserver
-   * @param locationId
-   * @param channelId
    * @returns ipAddress and port
    * @author Vyacheslav Solovjov
    */
 
-  async getGSInService(availableLocationInstances, locationId: string, channelId: string): Promise<any> {
-    await this.app.service('instance').Model.destroy({
-      where: {
-        assigned: true,
-        assignedAt: {
-          [Op.lt]: new Date(new Date().getTime() - 30000)
-        }
-      }
-    })
+  async getGSInService(availableLocationInstances): Promise<any> {
     const instanceModel = (this.app.service('instance') as any).Model
     const instanceUserSort = _.orderBy(availableLocationInstances, ['currentUsers'], ['desc'])
     const nonPressuredInstances = instanceUserSort.filter((instance: typeof instanceModel) => {
@@ -185,9 +111,8 @@ export class InstanceProvision implements ServiceMethods<Data> {
     const gsCleanup = await this.gsCleanup(instances[0])
     if (gsCleanup === true) {
       logger.info('GS did not exist and was cleaned up')
-      if (availableLocationInstances.length > 1)
-        return this.getGSInService(availableLocationInstances.slice(1), locationId, channelId)
-      else return getFreeGameserver(this.app, 0, locationId, channelId)
+      if (availableLocationInstances.length > 1) return this.getGSInService(availableLocationInstances.slice(1))
+      else return getFreeGameserver(this.app)
     }
     logger.info('GS existed, using it')
     const ipAddressSplit = instances[0].ipAddress.split(':')
@@ -235,14 +160,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
       return true
     }
 
-    await this.app.service('instance').Model.destroy({
-      where: {
-        assigned: true,
-        assignedAt: {
-          [Op.lt]: new Date(new Date().getTime() - 30000)
-        }
-      }
-    })
     return false
   }
 
@@ -282,7 +199,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             ended: false
           }
         })
-        if (channelInstance == null) return getFreeGameserver(this.app, 0, null!, channelId)
+        if (channelInstance == null) return getFreeGameserver(this.app, true)
         else {
           const ipAddressSplit = channelInstance.ipAddress.split(':')
           return {
@@ -324,7 +241,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             throw new BadRequest('Invalid user credentials')
           }
         }
-        // const user = await this.app.service('user').get(userId)
+        const user = await this.app.service('user').get(userId)
         // If the user is in a party, they should be sent to their party's server as long as they are
         // trying to go to the scene their party is in.
         // If the user is going to a different scene, they will be removed from the party and sent to a random instance
@@ -427,6 +344,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             port: ipAddressSplit[1]
           }
         }
+        console.log('Getting available location instances', location.id)
         const availableLocationInstances = await (this.app.service('instance') as any).Model.findAll({
           where: {
             locationId: location.id,
@@ -440,22 +358,11 @@ export class InstanceProvision implements ServiceMethods<Data> {
                   [Op.gt]: Sequelize.col('instance.currentUsers')
                 }
               }
-            },
-            {
-              model: (this.app.service('instance-authorized-user') as any).Model,
-              required: false
             }
           ]
         })
-        const allowedLocationInstances = availableLocationInstances.filter(
-          (instance) =>
-            instance.instance_authorized_users.length === 0 ||
-            instance.instance_authorized_users.find(
-              (instanceAuthorizedUser) => instanceAuthorizedUser.userId === userId
-            )
-        )
-        if (allowedLocationInstances.length === 0) return getFreeGameserver(this.app, 0, locationId, null!)
-        else return this.getGSInService(allowedLocationInstances, locationId, channelId)
+        if (availableLocationInstances.length === 0) return getFreeGameserver(this.app)
+        else return this.getGSInService(availableLocationInstances)
       }
     } catch (err) {
       logger.error(err)

@@ -285,10 +285,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     let stringSubdomainNumber, gsResult
     if (!config.kubernetes.enabled)
       try {
-        await (this.app.service('instance') as any).Model.update(
-          { ended: true, assigned: false, assignedAt: null },
-          { where: {} }
-        )
+        await (this.app.service('instance') as any).Model.patch(null, { ended: true }, { where: {} })
       } catch (error) {
         logger.warn(error)
       }
