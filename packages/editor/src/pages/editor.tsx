@@ -82,21 +82,21 @@ const EditorProtectedRoutes = () => {
     </>
   )
 
-  const projectReroute = (props) => {
-    if (props?.match?.params?.projectName) dispatch(EditorAction.projectLoaded(props?.match?.params?.projectName))
-    if (props?.match?.params?.sceneName) dispatch(EditorAction.sceneLoaded(props?.match?.params?.sceneName))
-    useEffect(() => {
-      props.history.push('/editor')
-    }, [])
-    return <></>
-  }
+  // const projectReroute = (props) => {
+  //   if (props?.match?.params?.projectName) dispatch(EditorAction.projectLoaded(props?.match?.params?.projectName))
+  //   if (props?.match?.params?.sceneName) dispatch(EditorAction.sceneLoaded(props?.match?.params?.sceneName))
+  //   useEffect(() => {
+  //     props.history.push('/editor')
+  //   }, [])
+  //   return <></>
+  // }
 
   return (
     <>
       <Suspense fallback={React.Fragment}>
         <Switch>
-          <Route path="/editor/:projectName/:sceneName" component={projectReroute} />
-          <Route path="/editor/:projectName" component={projectReroute} />
+          <Route path="/editor/:projectName/:sceneName" component={editorRoute} />
+          <Route path="/editor/:projectName" component={editorRoute} />
           <Route path="/editor" component={editorRoute} />
         </Switch>
       </Suspense>

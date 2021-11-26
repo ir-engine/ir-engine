@@ -8,7 +8,7 @@ import {
 import { Hook, HookContext } from '@feathersjs/feathers'
 
 export const validateGet = async (context: HookContext): Promise<HookContext> => {
-  const q = context.params.query
+  const q = context.params.query!
   switch (q.type) {
     case 'user-thumbnail':
       if (q.fileSize < MIN_THUMBNAIL_FILE_SIZE || q.fileSize > MAX_THUMBNAIL_FILE_SIZE)
@@ -29,7 +29,7 @@ export const validateGet = async (context: HookContext): Promise<HookContext> =>
 }
 
 export const checkDefaultResources = async (context: HookContext): Promise<HookContext> => {
-  const q = context.params.query.keys
+  const q = context.params.query!.keys
 
   const defaultResources = await context.app.service('static-resource').find({
     query: {

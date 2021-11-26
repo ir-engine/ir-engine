@@ -64,6 +64,7 @@ export default {
         } catch (error) {
           logger.error('GROUP AFTER CREATE ERROR')
           logger.error(error)
+          return null!
         }
       }
     ],

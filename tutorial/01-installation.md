@@ -6,6 +6,7 @@ Getting up and running requires just a few steps, but this can be tricky, depend
 `git clone https://github.com/XRFoundation/XREngine --depth 1`
 
 ### Ensure you are on Node 16 or above
+
 You **must** have Node 16 or above installed.
 
 NVM can be a useful tool for this https://github.com/nvm-sh/nvm
@@ -14,6 +15,7 @@ Before running the engine, please check `node --version`
 If you are using a node version below 16, please update or nothing will work. You will know you are having issues if you try to install at root and are getting dependency errors.
 
 ### Docker is your friend
+
 You don't need to use Docker, but it will make your life much easier.
 You can get it [here](https://docs.docker.com/).
 If you don't wish to use Docker, you will need to setup mariadb and redis on your machine. You can find credentials in `xrengine/scripts/docker-compose.yml`
@@ -205,7 +207,7 @@ The default username is 'server', the default password is 'password', the defaul
 ### 4. Start the server in database seed mode
 
    Several tables in the database need to be seeded with default values.
-   Run ```cd packages/server```, then run ```npm run dev-reinit-db```.
+   Run ```npm run dev-reinit``` or if on windows ```npm run dev-reinit-windows```
    After several seconds, there should be no more logging.
    Some of the final lines should read like this:
    ```Executing (default): SELECT 'id', 'name', 'sceneId', 'locationSettingsId', 'slugifiedName', 'maxUsersPerInstance', 'createdAt', 'updatedAt' FROM 'location' AS 'location' WHERE ('location'.'id' = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61') AND 'location'.'id' IN ('98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'); Seeded```

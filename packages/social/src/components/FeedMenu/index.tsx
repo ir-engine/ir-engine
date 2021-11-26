@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Button from '@mui/material/Button'
+import Button from '@material-ui/core/Button'
 import React, { useRef, useState, useEffect } from 'react'
 
 import Creators from '../Creators'
@@ -12,6 +12,9 @@ import { useTranslation } from 'react-i18next'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
 import { useFeedState } from '@xrengine/client-core/src/social/services/FeedService'
+import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useWebxrNativeState } from '@xrengine/client-core/src/social/services/WebxrNativeService'
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss'
@@ -25,10 +28,16 @@ const FeedMenu = ({ view, setView }) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const feedsState = useFeedState()
+  const popupsState = usePopupsStateState()
+  const auth = useAuthState()
 
+  const webxrnativeState = useWebxrNativeState()
+  const webxrRecorderActivity = webxrnativeState.webxrnative.value
   useEffect(() => {
-    FeedService.getFeeds('featured')
-  }, [])
+    if (view === 'featured' && auth.user.id.value) {
+      FeedService.getFeeds('featured')
+    }
+  }, [view, webxrRecorderActivity, auth.user.id.value])
 
   const padding = 40
   const handleMenuClick = (view) => {
@@ -63,7 +72,7 @@ const FeedMenu = ({ view, setView }) => {
     //   content = <TipsAndTricks />
     //   break
     default:
-      content = <Featured thisData={feedsState.feeds.feedsFeatured.value} />
+      content = <Featured thisData={feedsState.feeds.feedsFeatured.value} containerId="wrapScroll" />
       break
   }
   const classes = {
@@ -112,7 +121,9 @@ const FeedMenu = ({ view, setView }) => {
           </section>
         </section>
       </nav>
-      <section className={styles.content}>{content}</section>
+      <section id="wrapScroll" className={styles.content}>
+        {content}
+      </section>
     </>
   )
 }

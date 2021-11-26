@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/social",
-  "version": "0.4.10",
+  "version": "0.4.13",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -13,7 +13,7 @@
   },
   "npmClient": "npm",
   "scripts": {
-    "check-errors": "tsc --noemit",
+    "check-errors": "exit 0",
     "dev": "vite --host",
     "build": "cross-env APP_ENV=production NODE_OPTIONS=--max_old_space_size=6144 vite build && cp src/server.js www/server.js",
     "validate": "npm run test",
@@ -21,32 +21,32 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "socket.io": "4.3.2",
-    "@types/react": "17.0.34",
+    "socket.io": "4.4.0",
+    "@types/react": "17.0.36",
     "react": "17.0.2"
   },
   "peerDependencies": {
-    "@types/react": "17.0.34",
+    "@types/react": "17.0.36",
     "react": "17.0.2",
-    "socket.io": "4.3.2"
+    "socket.io": "4.4.0"
   },
   "dependencies": {
     "@capacitor-community/http": "1.4.1",
-    "@capacitor/android": "3.3.1",
+    "@capacitor/android": "3.3.2",
     "@capacitor/app": "1.0.6",
-    "@capacitor/cli": "3.3.1",
+    "@capacitor/cli": "3.3.2",
     "@capacitor/filesystem": "1.0.6",
-    "@capacitor/ios": "3.3.1",
+    "@capacitor/ios": "3.3.2",
     "@capacitor/share": "1.0.7",
     "@material-ui/core": "4.12.3",
+    "@mui/icons-material": "5.2.0",
+    "@mui/material": "5.2.0",
+    "@mui/styles": "5.2.0",
     "@types/react-redux": "7.1.20",
-    "@xrengine/client-core": "^0.4.10",
-    "@xrengine/common": "^0.4.10",
-    "@xrengine/editor": "^0.4.10",
-    "@xrengine/engine": "^0.4.10",
-    "@mui/icons-material": "5.1.0",
-    "@mui/material": "5.1.0",
-    "@mui/styles": "5.1.0",
+    "@xrengine/client-core": "^0.4.13",
+    "@xrengine/common": "^0.4.13",
+    "@xrengine/editor": "^0.4.13",
+    "@xrengine/engine": "^0.4.13",
     "app-root-path": "3.0.0",
     "cross-env": "7.0.3",
     "formik": "2.2.9",
@@ -59,16 +59,15 @@
     "redux": "4.1.2",
     "sass": "1.43.4",
     "styled-components": "5.3.3",
-    "volumetric": "0.2.28",
     "webxr-native": "0.3.0"
   },
   "devDependencies": {
-    "@types/node": "16.11.7",
-    "@types/react": "17.0.34",
+    "@types/node": "16.11.10",
+    "@types/react": "17.0.36",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "8.2.0",
-    "typescript": "4.4.4",
+    "eslint": "8.3.0",
+    "typescript": "4.5.2",
     "vite": "2.6.14"
   },
   "browser": {

@@ -18,7 +18,7 @@ import { initializeServerEngine } from './initializeServerEngine'
 const loadScene = async (app: Application, scene: string) => {
   const [projectName, sceneName] = scene.split('/')
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
-  const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false })
+  const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
   const sceneData = sceneResult.data.scene as any // SceneData
   const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
@@ -84,6 +84,31 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
       const provision = gsSubProvision.data[0]
       await app.service('gameserver-subdomain-provision').patch(provision.id, {
         instanceId: instanceResult.id
+      })
+    }
+  }
+}
+
+const assignExistingInstance = async (app: Application, existingInstance, agonesSDK) => {
+  console.log('assignExistingInstance', existingInstance)
+  await agonesSDK.allocate()
+  app.instance = existingInstance
+
+  await app.service('instance').patch(existingInstance.id, {
+    currentUsers: existingInstance.currentUsers + 1
+  })
+
+  if (app.gsSubdomainNumber != null) {
+    const gsSubProvision = (await app.service('gameserver-subdomain-provision').find({
+      query: {
+        gs_number: app.gsSubdomainNumber
+      }
+    })) as any
+
+    if (gsSubProvision.total > 0) {
+      const provision = gsSubProvision.data[0]
+      await app.service('gameserver-subdomain-provision').patch(provision.id, {
+        instanceId: existingInstance.id
       })
     }
   }
@@ -161,19 +186,74 @@ export default (app: Application): void => {
               console.log('Initialized new gameserver instance')
 
               const localIp = await getLocalServerIp(app.isChannelInstance)
+
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
-              const newInstance = {
-                currentUsers: 1,
-                sceneId: sceneId,
-                ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
+              const ipAddress =
+                config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
+              const existingInstanceQuery = {
+                ipAddress: ipAddress,
+                ended: false
               } as any
-              await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
+              if (locationId) existingInstanceQuery.locationId = locationId
+              else if (channelId) existingInstanceQuery.channelId = channelId
+              const existingInstanceResult = await app.service('instance').find({
+                query: existingInstanceQuery
+              })
+              if (existingInstanceResult.total === 0) {
+                const newInstance = {
+                  currentUsers: 1,
+                  locationId: locationId,
+                  channelId: channelId,
+                  ipAddress: ipAddress
+                } as any
+                await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
+              } else {
+                const instance = existingInstanceResult.data[0]
+                const authorizedUsers = (await app.service('instance-authorized-user').find({
+                  query: {
+                    instanceId: instance.id,
+                    $limit: 0
+                  }
+                })) as any
+                if (authorizedUsers.total > 0) {
+                  const thisUserAuthorized = (await app.service('instance-authorized-user').find({
+                    query: {
+                      instanceId: instance.id,
+                      userId: identityProvider.userId,
+                      $limit: 0
+                    }
+                  })) as any
+                  if (thisUserAuthorized.total === 0) {
+                    return console.log('User', identityProvider.userId, 'not authorized to be on this server')
+                  }
+                }
+                await assignExistingInstance(app, instance, agonesSDK)
+              }
               if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
+                console.log('loading scene')
                 await loadScene(app, sceneId)
               }
             } else {
               try {
                 const instance = await app.service('instance').get(app.instance.id)
+                const authorizedUsers = (await app.service('instance-authorized-user').find({
+                  query: {
+                    instanceId: instance.id,
+                    $limit: 0
+                  }
+                })) as any
+                if (authorizedUsers.total > 0) {
+                  const thisUserAuthorized = (await app.service('instance-authorized-user').find({
+                    query: {
+                      instanceId: instance.id,
+                      userId: identityProvider.userId,
+                      $limit: 0
+                    }
+                  })) as any
+                  if (thisUserAuthorized.total === 0) {
+                    return console.log('User', identityProvider.userId, 'not authorized to be on this server')
+                  }
+                }
                 await agonesSDK.allocate()
                 await app.service('instance').patch(app.instance.id, {
                   currentUsers: (instance.currentUsers as number) + 1
@@ -232,7 +312,7 @@ export default (app: Application): void => {
                   partyId: user.partyId
                 }
               })
-              const party = await app.service('party').get(user.partyId)
+              const party = await app.service('party').get(user.partyId, null!)
               const partyUsers = (partyUserResult as any).data
               const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1)
               if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {

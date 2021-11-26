@@ -1,42 +1,13 @@
-import React, { useEffect } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
-import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
+import React from 'react'
 import Creator from '../../Creator'
-import SharedModal from '../../SharedModal'
-import AppFooter from '../../Footer'
+import { useParams } from 'react-router-dom'
 
 //@ts-ignore
 import styles from './CreatorPopup.module.scss'
 
-interface Props {
-  webxrRecorderActivity: any
-  setView?: any
-}
-export const CreatorPopup = ({ webxrRecorderActivity, setView }: Props) => {
-  const popupsState = usePopupsStateState()
-  const dispatch = useDispatch()
-
-  const handleCreatorClose = () => {
-    PopupsStateService.updateCreatorPageState(false)
-  }
-  const renderCreatorModal = () =>
-    popupsState?.popups?.creatorPage?.value === true &&
-    popupsState?.popups?.creatorId?.value &&
-    !webxrRecorderActivity && (
-      <SharedModal
-        open={popupsState?.popups?.creatorPage?.value}
-        onClose={handleCreatorClose}
-        className={styles.creatorPopup}
-      >
-        <Creator creatorId={popupsState?.popups?.creatorId?.value} />
-        <AppFooter setView={setView} />
-      </SharedModal>
-    )
-  useEffect(() => {
-    renderCreatorModal()
-  }, [popupsState?.popups?.creatorPage?.value, popupsState?.popups?.creatorId?.value])
-  return renderCreatorModal()
+export const CreatorPopup = () => {
+  const { creatorId } = useParams()
+  return <Creator creatorId={creatorId} />
 }
 
 export default CreatorPopup

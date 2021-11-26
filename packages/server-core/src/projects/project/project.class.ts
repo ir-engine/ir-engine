@@ -115,7 +115,7 @@ export class Project extends Service {
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
 
-    const promises = []
+    const promises: Promise<any>[] = []
 
     for (const projectName of locallyInstalledProjects) {
       if (!data.find((e) => e.name === projectName)) {
@@ -138,6 +138,8 @@ export class Project extends Service {
       promises.push(uploadLocalProjectToProvider(projectName))
     }
 
+    await Promise.all(promises)
+
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
         console.warn(`[Projects]: Project ${name} not found, assuming removed`)
@@ -146,7 +148,7 @@ export class Project extends Service {
     }
   }
 
-  async create(data: { name: string }, params?: Params) {
+  async create(data: { name: string }, params: Params) {
     const projectName = cleanString(data.name)
 
     if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
@@ -248,9 +250,9 @@ export class Project extends Service {
    * @param app
    * @returns
    */
-  async patch(projectName: string, data?: { files: string[] }, params?: Params) {
+  async patch(projectName: string, data: { files: string[] }, params: Params) {
     if (data?.files?.length) {
-      const promises = []
+      const promises: Promise<any>[] = []
       for (const filePath of data.files) {
         promises.push(
           new Promise<string>(async (resolve) => {
@@ -269,7 +271,7 @@ export class Project extends Service {
     }
   }
 
-  async remove(id: Id, params?: Params) {
+  async remove(id: Id, params: Params) {
     try {
       const { name } = await super.get(id, params)
       console.log('[Projects]: removing project', id, name)
@@ -281,17 +283,17 @@ export class Project extends Service {
     }
   }
 
-  async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
+  async get(name: string, params: Params): Promise<{ data: ProjectInterface }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     const project = data.find((e) => e.name === name)
-    if (!project) return
+    if (!project) return null!
     return {
       data: project
     }
   }
 
   //@ts-ignore
-  async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
+  async find(params: Params): Promise<{ data: ProjectInterface[] }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     return {
       data

@@ -29,6 +29,10 @@ export const routeSeedData = {
     {
       project: 'default-project',
       route: '/editor'
+    },
+    {
+      project: 'default-project',
+      route: '/examples'
     }
   ]
 }

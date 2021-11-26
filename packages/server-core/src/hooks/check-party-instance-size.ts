@@ -105,6 +105,7 @@ export default () => {
     } catch (err) {
       logger.error('check-party-instance error')
       logger.error(err)
+      return null!
     }
   }
 }

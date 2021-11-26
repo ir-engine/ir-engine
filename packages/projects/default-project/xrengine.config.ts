@@ -26,6 +26,9 @@ const config: ProjectConfigInterface = {
     },
     '/editor': {
       component: () => import('@xrengine/client/src/pages/editor/editor')
+    },
+    '/examples': {
+      component: () => import('@xrengine/client/src/pages/examples/index')
     }
   },
   services: undefined,
