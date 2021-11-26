@@ -39,6 +39,9 @@ export default {
           {
             model: 'scope'
           },
+          { 
+            model: 'user-wallet'
+          },
           {
             model: 'inventory-item',
             include: [
@@ -70,6 +73,9 @@ export default {
           },
           {
             model: 'scope'
+          },
+          { 
+            model: 'user-wallet'
           },
           {
             model: 'inventory-item',
@@ -104,6 +110,9 @@ export default {
           },
           {
             model: 'scope'
+          },
+          { 
+            model: 'user-wallet'
           },
           {
             model: 'inventory-item',
@@ -228,6 +237,7 @@ export default {
     ],
     create: [
       async (context: HookContext): Promise<HookContext> => {
+        
         try {
           await context.app.service('user-settings').create({
             userId: context.result.id
