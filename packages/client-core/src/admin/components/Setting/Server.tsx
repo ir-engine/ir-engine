@@ -70,7 +70,7 @@ const Server = (props: serverProps) => {
 
   const handleSave = (event) => {
     event.preventDefault()
-    ServerSettingService.pathServerSetting({ gaTrackingId: gaTrackingId }, id)
+    ServerSettingService.patchServerSetting({ gaTrackingId: gaTrackingId }, id)
   }
 
   const handleCancel = () => {

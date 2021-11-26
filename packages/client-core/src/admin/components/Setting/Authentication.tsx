@@ -124,7 +124,7 @@ const Account = (props: Props) => {
       oauth[key] = JSON.stringify(oauth[key])
     }
 
-    AuthSettingService.pathAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
+    AuthSettingService.patchAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
   }
 
   const handleCancel = () => {

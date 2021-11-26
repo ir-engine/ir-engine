@@ -50,7 +50,7 @@ export const AuthSettingService = {
       }
     }
   },
-  pathAuthSetting: async (data: any, id: string) => {
+  patchAuthSetting: async (data: any, id: string) => {
     const dispatch = useDispatch()
     {
       try {

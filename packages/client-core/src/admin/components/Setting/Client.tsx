@@ -59,7 +59,7 @@ const Client = (props: clientProps) => {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    ClientSettingService.pathClientSetting(
+    ClientSettingService.patchClientSetting(
       {
         logo: logo,
         title: title,

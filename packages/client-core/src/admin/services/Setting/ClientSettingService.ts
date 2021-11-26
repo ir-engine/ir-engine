@@ -38,7 +38,7 @@ export const ClientSettingService = {
       AlertService.dispatchAlertError(error.message)
     }
   },
-  pathClientSetting: async (data: any, id: string) => {
+  patchClientSetting: async (data: any, id: string) => {
     const dispatch = useDispatch()
     {
       try {

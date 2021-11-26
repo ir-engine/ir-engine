@@ -72,7 +72,7 @@ const Email = (props: emailProps) => {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    EmailSettingService.pathEmailSetting(
+    EmailSettingService.patchEmailSetting(
       {
         smtp: JSON.stringify({ ...smtp, auth: JSON.stringify(auth) }),
         from: from,

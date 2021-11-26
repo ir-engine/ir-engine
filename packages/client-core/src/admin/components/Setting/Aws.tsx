@@ -36,7 +36,7 @@ const Aws = (props: Props) => {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    AwsSettingService.pathAwsSetting({ sms: JSON.stringify(sms) }, id)
+    AwsSettingService.patchAwsSetting({ sms: JSON.stringify(sms) }, id)
   }
 
   const handleCancel = () => {

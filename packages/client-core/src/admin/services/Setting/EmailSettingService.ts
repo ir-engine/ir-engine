@@ -38,7 +38,7 @@ export const EmailSettingService = {
       AlertService.dispatchAlertError(error.message)
     }
   },
-  pathEmailSetting: async (data: any, id: string) => {
+  patchEmailSetting: async (data: any, id: string) => {
     const dispatch = useDispatch()
     {
       try {

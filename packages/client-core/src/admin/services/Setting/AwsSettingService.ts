@@ -42,7 +42,7 @@ export const AwsSettingService = {
       }
     }
   },
-  pathAwsSetting: async (data: any, id: string) => {
+  patchAwsSetting: async (data: any, id: string) => {
     const dispatch = useDispatch()
     {
       try {
