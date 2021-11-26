@@ -23,7 +23,9 @@ const initialState = {
   github: false,
   google: false,
   linkedin: false,
-  twitter: false
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
 }
 
 interface Props {
@@ -111,10 +113,10 @@ const MagicLinkEmail = (props: Props): any => {
       return
     }
     // Auth config is using Sms and Email, so handle both
-    if (authState?.jwt && !type) {
+    if (authState?.emailMagicLink && authState?.smsMagicLink && !type) {
       descr = t('user:auth.magiklink.descriptionEmailSMS')
       label = t('user:auth.magiklink.lbl-emailPhone')
-    } else if (authState?.jwt) {
+    } else if (authState?.smsMagicLink) {
       descr = t('user:auth.magiklink.descriptionSMSUS')
       label = t('user:auth.magiklink.lbl-phone')
     } else {

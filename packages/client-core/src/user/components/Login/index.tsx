@@ -25,7 +25,9 @@ const initialState = {
   github: false,
   google: false,
   linkedin: false,
-  twitter: false
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
 }
 
 interface Props {

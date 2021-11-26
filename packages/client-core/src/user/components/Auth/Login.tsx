@@ -19,7 +19,9 @@ const initialState = {
   github: false,
   google: false,
   linkedin: false,
-  twitter: false
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
 }
 
 const TabPanel = (props: any): any => {
@@ -67,8 +69,8 @@ const SignIn = (): any => {
   }
 
   if (Config.publicRuntimeConfig?.auth) {
-    enableSmsMagicLink = state.jwt
-    enableEmailMagicLink = state.jwt
+    enableSmsMagicLink = state.smsMagicLink
+    enableEmailMagicLink = state.emailMagicLink
     enableUserPassword = state.local
     enableGithubSocial = state.github
     enableGoogleSocial = state.google

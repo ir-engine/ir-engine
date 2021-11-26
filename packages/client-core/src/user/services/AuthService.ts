@@ -47,6 +47,8 @@ type AuthStrategies = {
   google: Boolean
   linkedin: Boolean
   twitter: Boolean
+  smsMagicLink: Boolean
+  emailMagicLink: Boolean
 }
 
 //State
@@ -505,8 +507,8 @@ export const AuthService = {
 
       let type = 'email'
       let paramName = 'email'
-      const enableEmailMagicLink = authState?.jwt ?? true
-      const enableSmsMagicLink = authState?.jwt ?? false
+      const enableEmailMagicLink = authState?.emailMagicLink
+      const enableSmsMagicLink = authState?.smsMagicLink
 
       if (linkType === 'email') {
         type = 'email'

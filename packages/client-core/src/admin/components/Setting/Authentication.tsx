@@ -12,13 +12,15 @@ import { Icon } from '@iconify/react'
 interface Props {}
 
 const initialState = {
-  jwt: false,
+  jwt: true,
   local: false,
   facebook: false,
   github: false,
   google: false,
   linkedin: false,
-  twitter: false
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
 }
 
 const OAUTH_TYPES = {
@@ -222,6 +224,7 @@ const Account = (props: Props) => {
                       checked={state[strategyName]}
                       color="primary"
                       name={strategyName}
+                      disabled={strategyName === 'jwt'}
                       onChange={onSwitchHandle}
                       inputProps={{ 'aria-label': 'primary checkbox' }}
                     />
