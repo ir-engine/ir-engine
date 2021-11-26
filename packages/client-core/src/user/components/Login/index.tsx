@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch } from '../../../store'
 import CardMedia from '@mui/material/CardMedia'
 import { Google } from '@styled-icons/bootstrap/Google'
@@ -15,6 +15,20 @@ import RegisterApp from '../../../user/components/Auth/RegisterApp'
 import ResetPassword from '../../../user/components/Auth/ResetPassword'
 import { AuthService } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
+import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
+import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+
+const initialState = {
+  jwt: true,
+  local: false,
+  facebook: false,
+  github: false,
+  google: false,
+  linkedin: false,
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
+}
 
 interface Props {
   auth?: any
@@ -26,24 +40,38 @@ interface Props {
 }
 const FlatSignIn = (props: Props) => {
   const [view, setView] = useState('login')
-  const enableUserPassword = Config.publicRuntimeConfig?.auth
-    ? Config.publicRuntimeConfig.auth.enableUserPassword
-    : false
-  const enableGoogleSocial = Config.publicRuntimeConfig?.auth
-    ? Config.publicRuntimeConfig.auth.enableGoogleSocial
-    : false
-  const enableFacebookSocial = Config.publicRuntimeConfig?.auth
-    ? Config.publicRuntimeConfig.auth.enableFacebookSocial
-    : false
+
   const { t } = useTranslation()
 
-  const dispatch = useDispatch()
+  const authSettingState = useAdminAuthSettingState()
+  const [authSetting] = authSettingState?.authSettings?.value || []
+  const [authState, setAuthState] = useState(initialState)
+
+  const enableUserPassword = authState?.local
+  const enableGoogleSocial = authState?.google
+  const enableFacebookSocial = authState?.facebook
 
   const socials = [enableGoogleSocial, enableFacebookSocial]
 
   const socialCount = socials.filter((v) => v).length
 
   const userTabPanel = enableUserPassword && <PasswordLoginApp />
+
+  useEffect(() => {
+    !authSetting && AuthSettingService.fetchAuthSetting()
+  }, [])
+
+  useEffect(() => {
+    if (authSetting) {
+      let temp = { ...initialState }
+      authSetting?.authStrategies?.forEach((el) => {
+        Object.entries(el).forEach(([strategyName, strategy]) => {
+          temp[strategyName] = strategy
+        })
+      })
+      setAuthState(temp)
+    }
+  }, [authSettingState?.updateNeeded?.value])
 
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
