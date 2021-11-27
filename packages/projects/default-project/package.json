@@ -5,6 +5,8 @@
   "main": "",
   "scripts": {},
   "dependencies": {},
-  "peerDependencies": {},
+  "peerDependencies": {
+    "@xrengine/server-core": "^0.4.13"
+  },
   "license": "ISC"
 }

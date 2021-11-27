@@ -8,7 +8,6 @@ import { AvatarComponent } from '../../../src/avatar/components/AvatarComponent'
 import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
 import { AvatarControllerComponent } from '../../../src/avatar/components/AvatarControllerComponent'
 import { Group, PerspectiveCamera, Vector3 } from 'three'
-import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
 import { VectorSpringSimulator } from '../../../src/physics/classes/springs/VectorSpringSimulator'
 import { CollisionGroups } from '../../../src/physics/enums/CollisionGroups'
 import { Engine } from '../../../src/ecs/classes/Engine'
@@ -27,7 +26,6 @@ const createMovingAvatar = (world) => {
   modelContainer.name = 'Actor (modelContainer)' + entity
 
   addComponent(entity, AvatarComponent, {
-    avatarId: DEFAULT_AVATAR_ID,
     avatarHalfHeight: 10,
     avatarHeight: 20,
     modelContainer,

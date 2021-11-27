@@ -34,10 +34,9 @@ import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/compo
 import { ArmatureType } from '../../ikrig/enums/ArmatureType'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 
-export const setAvatar = (entity, avatarId, avatarURL) => {
+export const setAvatar = (entity, avatarURL) => {
   const avatar = getComponent(entity, AvatarComponent)
   if (avatar) {
-    avatar.avatarId = avatarId
     avatar.avatarURL = avatarURL
   }
   loadAvatarForEntity(entity)

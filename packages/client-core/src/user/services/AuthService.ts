@@ -959,7 +959,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       return
     }
 
-    if (networkUser?.avatarDetail?.avatarId === user.avatarId) {
+    if (networkUser?.avatarDetail?.avatarURL === user.avatarURL) {
       resolve(true)
       return
     }
@@ -972,12 +972,12 @@ const loadAvatarForUpdatedUser = async (user) => {
       const thumbnailURL =
         avatars?.data[0].staticResourceType === 'user-thumbnail' ? avatars?.data[0].url : avatars?.data[1].url
 
-      networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
+      networkUser.avatarDetail = { avatarURL, thumbnailURL }
 
       //Find entityId from network objects of updated user and dispatch avatar load event.
       const world = Engine.defaultWorld
       const userEntity = world.getUserAvatarEntity(user.id)
-      setAvatar(userEntity, user.avatarId, avatarURL)
+      setAvatar(userEntity, avatarURL)
     } else {
       await loadAvatarForUpdatedUser(user)
     }
@@ -1003,12 +1003,12 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     const avatarURL = user.avatarUrl
     const thumbnailURL = user.avatarUrl
 
-    networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId }
+    networkUser.avatarDetail = { avatarURL, thumbnailURL }
 
     //Find entityId from network objects of updated user and dispatch avatar load event.
     const world = Engine.defaultWorld
     const userEntity = world.getUserAvatarEntity(user.id)
-    setAvatar(userEntity, user.avatarId, avatarURL)
+    setAvatar(userEntity, avatarURL)
     resolve(true)
   })
 }
