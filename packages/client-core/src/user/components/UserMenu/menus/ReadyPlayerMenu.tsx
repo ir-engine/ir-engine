@@ -206,13 +206,7 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
     var thumbnailName = this.state.avatarUrl.substring(0, this.state.avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
-      await this.props.uploadAvatarModel(
-        this.state.selectedFile,
-        new File([blob], thumbnailName),
-
-        this.state.avatarName,
-        this.props.isPublicAvatar
-      )
+      await this.props.uploadAvatarModel(this.state.selectedFile, this.state.avatarName, this.props.isPublicAvatar)
       this.props.changeActiveMenu(Views.Profile)
     })
   }

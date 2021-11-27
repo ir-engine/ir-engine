@@ -38,6 +38,7 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
+import { AssetUploadArguments, UploadAssetInterface } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
 type AuthStrategies = {
   jwt: Boolean
@@ -673,7 +674,17 @@ export const AuthService = {
       dispatch(AuthAction.avatarUpdated(result))
     }
   },
-  uploadAvatarModel: async (model: any, avatarName?: string, isPublicAvatar?: boolean) => {
+  uploadAvatarModel: async (model: Blob, avatarName: string, isPublicAvatar?: boolean) => {
+    const uploadArguments: UploadAssetInterface = {
+      avatar: model,
+      args: {
+        avatarName,
+        isPublicAvatar
+      } as AssetUploadArguments
+    }
+    const response = await client.service('upload-asset').create(uploadArguments)
+    console.log(response)
+    return
     const dispatch = useDispatch()
     {
       const token = accessAuthState().authUser.accessToken.value

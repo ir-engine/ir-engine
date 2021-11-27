@@ -179,8 +179,8 @@ const Avatars = (props: Props) => {
     })
   }
 
-  const uploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
-    AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar)
+  const uploadAvatarModel = (model: any, avatarName?: string, isPublicAvatar?: boolean): any => {
+    AuthService.uploadAvatarModel(model, avatarName, isPublicAvatar)
   }
 
   return (

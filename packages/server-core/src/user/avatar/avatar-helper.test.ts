@@ -1,5 +1,5 @@
 import app from '../../../../server/src/app'
-import { getAvatarFromStaticResources } from './avatar.class'
+import { getAvatarFromStaticResources } from './avatar-helper'
 import assert from 'assert'
 
 describe(('avatar.class'), () => {

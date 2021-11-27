@@ -17,7 +17,7 @@ const config = {
     for (const avatarName of avatarsToInstall) {
       const avatarUrl = getCachedAsset(avatarName, storageProvider.cacheDomain)
       // todo: render thumbnail
-      // addAvatarToDatabase(app, avatarName, avatarUrl, null!)
+      // uploadAvatarStaticResource(app, avatarName, avatarUrl, null!)
     }
   },
   onUninstall: async (app: Application) => {

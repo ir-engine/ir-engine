@@ -251,12 +251,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
         this.props.changeActiveMenu(Views.Profile)
       })
     else {
-      this.props.uploadAvatarModel(
-        this.state.selectedFile,
-        this.state.selectedThumbnail,
-        this.state.avatarName,
-        this.props.isPublicAvatar
-      )
+      this.props.uploadAvatarModel(this.state.selectedFile, this.state.avatarName, this.props.isPublicAvatar)
       this.props.changeActiveMenu(Views.Profile)
     }
   }
