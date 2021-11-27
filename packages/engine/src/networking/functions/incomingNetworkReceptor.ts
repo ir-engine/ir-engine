@@ -9,25 +9,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchFrom } from './dispatchFrom'
 
-export const spawnObjectRecetor = (a) => {
-  console.log('spawn object')
-  const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
-  /**
-   * When changing location via a portal, the local client entity will be
-   * defined when the new world dispatches this action, so ignore it
-   */
-  if (isSpawningAvatar && Engine.userId === a.userId && hasComponent(world.localClientEntity, NetworkObjectComponent)) {
-    getComponent(world.localClientEntity, NetworkObjectComponent).networkId = a.networkId
-    return
-  }
-  const isOwnedByMe = a.userId === Engine.userId
-  const entity =
-    isSpawningAvatar && isOwnedByMe ? world.localClientEntity : world.getNetworkObject(a.networkId) ?? createEntity()
-  if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
-  console.log('spawn object', entity)
-  addComponent(entity, NetworkObjectComponent, a)
-}
-
 /**
  * @author Gheric Speiginer <github.com/speigg>
  * @author Josh Field <github.com/HexaField>
@@ -38,6 +19,7 @@ export function incomingNetworkReceptor(action) {
   matches(action)
     .when(NetworkWorldAction.createClient.matches, ({ userId, name, avatarDetail }) => {
       if (!isClient) return
+      console.log('avatarDetail', avatarDetail)
       world.clients.set(userId, {
         userId,
         name,
@@ -56,7 +38,6 @@ export function incomingNetworkReceptor(action) {
     })
 
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
-      console.log('spawn object')
       const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
       /**
        * When changing location via a portal, the local client entity will be
@@ -76,7 +57,6 @@ export function incomingNetworkReceptor(action) {
           ? world.localClientEntity
           : world.getNetworkObject(a.networkId) ?? createEntity()
       if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
-      console.log('spawn object', entity)
       addComponent(entity, NetworkObjectComponent, a)
     })
 

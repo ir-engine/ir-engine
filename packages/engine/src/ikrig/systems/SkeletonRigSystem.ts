@@ -36,36 +36,28 @@ const logCustomTargetRigBones = (targetRig) => {
 }
 
 const mockAvatars = () => {
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 50; i++) {
     const avatarDetail = {
-      thumbnailURL: '',
-      avatarURL: '/static/avatars/Allison.glb',
+      thumbnailURL: '/static/Allison.png',
+      avatarURL: '/models/avatars/Allison.glb',
       avatarId: 'Allison'
     } as any
     const userId = ('user' + i) as UserId
     const parameters = {
-      position: new Vector3(44, 3, 0).random().multiplyScalar(3),
+      position: new Vector3(0, 0, 0).random().setY(0).multiplyScalar(10),
       rotation: new Quaternion()
     }
 
-    const networkId = Network.getNetworkId()
+    const networkId = (1000 + i) as NetworkId
 
-    dispatchLocal(
-      Object.assign({}, NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }) as any, {
-        allowDispatchFromAny: true
-      })
-    )
-    dispatchLocal(
-      Object.assign({}, NetworkWorldAction.spawnAvatar({ userId, networkId, parameters }) as any, {
-        allowDispatchFromAny: true
-      })
-    )
+    dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }) as any)
+    dispatchLocal({ ...NetworkWorldAction.spawnAvatar({ userId, parameters }), networkId } as any)
   }
 }
 
 export default async function SkeletonRigSystem(world: World): Promise<System> {
   const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
-  // mockAvatars()
+  mockAvatars()
   return () => {
     for (const entity of ikposeQuery()) {
       const ikPose = getComponent(entity, IKPoseComponent)
