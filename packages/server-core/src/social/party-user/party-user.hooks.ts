@@ -42,6 +42,7 @@ export default {
           return context
         } catch (err) {
           logger.error(err)
+          return null!
         }
       },
       partyPermissionAuthenticate()
@@ -101,15 +102,15 @@ export default {
       async (context: HookContext): Promise<HookContext> => {
         const { app, params } = context
         if (params.partyUsersRemoved !== true) {
-          const party = await app.service('party').get(params.query.partyId)
+          const party = await app.service('party').get(params.query!.partyId)
           const partyUserCount = await app.service('party-user').find({
             query: {
-              partyId: params.query.partyId,
+              partyId: params.query!.partyId,
               $limit: 0
             }
           })
           if (partyUserCount.total < 1 && party.locationId == null) {
-            await app.service('party').remove(params.query.partyId, params)
+            await app.service('party').remove(params.query!.partyId, params)
           }
         }
         return context

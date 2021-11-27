@@ -13,6 +13,7 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
   let elapsedTime = 0
   let delta = 0
   let frameId
+  let debugTick = 0
 
   const newEngineTicks = {
     fixed: 0,
@@ -84,17 +85,17 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
       measureData = { time: 0, ticks: 0 }
       tpsMeasureStartData.set(name, measureData)
     }
-    measureData.ticks = Engine.tick
+    measureData.ticks = debugTick
     measureData.time = nowMilliseconds()
   }
   function tpsSubMeasureEnd(name) {
     const measureData = tpsMeasureStartData.get(name)!
-    newEngineTicks[name] += Engine.tick - measureData.ticks
+    newEngineTicks[name] += debugTick - measureData.ticks
     newEngineTimeSpent[name] += nowMilliseconds() - measureData.time
   }
 
   function tpsReset() {
-    tpsPrevTicks = Engine.tick
+    tpsPrevTicks = debugTick
     timerStartTime = nowMilliseconds()
     tpsPrevTime = nowMilliseconds()
     nextTpsReportTime = nowMilliseconds() + TPS_REPORT_INTERVAL_MS
@@ -102,19 +103,10 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
 
   function tpsPrintReport(time: number): void {
     const seconds = (time - tpsPrevTime) / 1000
-    const newTicks = Engine.tick - tpsPrevTicks
+    const newTicks = debugTick - tpsPrevTicks
     const tps = newTicks / seconds
 
-    console.log(
-      'Timer - tick:',
-      Engine.tick,
-      ' (+',
-      newTicks,
-      '), seconds',
-      seconds.toFixed(1),
-      ' tps:',
-      tps.toFixed(1)
-    )
+    console.log('Timer - tick:', debugTick, ' (+', newTicks, '), seconds', seconds.toFixed(1), ' tps:', tps.toFixed(1))
     console.log(((time - timerStartTime) / timerRuns).toFixed(3), 'ms per onFrame')
 
     console.log(
@@ -146,7 +138,7 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
 
     tpsPrevTime = time
     nextTpsReportTime = time + TPS_REPORT_INTERVAL_MS
-    tpsPrevTicks = Engine.tick
+    tpsPrevTicks = debugTick
     newEngineTicks.fixed = 0
     newEngineTicks.net = 0
     newEngineTicks.update = 0

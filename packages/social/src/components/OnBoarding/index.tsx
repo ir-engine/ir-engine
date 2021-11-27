@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Button from '@mui/material/Button'
+import Button from '@material-ui/core/Button'
 import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import { useHistory } from 'react-router-dom'

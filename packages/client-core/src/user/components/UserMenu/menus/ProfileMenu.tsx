@@ -16,12 +16,31 @@ import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import Tooltip from '@mui/material/Tooltip'
+import Grid from '@mui/material/Grid'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar'
+import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
+import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 
 interface Props {
   changeActiveMenu?: any
   setProfileMenuOpen?: any
 
   hideLogin?: any
+}
+
+const initialState = {
+  jwt: true,
+  local: false,
+  facebook: false,
+  github: false,
+  google: false,
+  linkedin: false,
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
 }
 
 const ProfileMenu = (props: Props): any => {
@@ -35,6 +54,27 @@ const ProfileMenu = (props: Props): any => {
   const [emailPhone, setEmailPhone] = useState('')
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
+  const [showUserId, setShowUserId] = useState(false)
+  const [userIdState, setUserIdState] = useState({ value: '', copied: false, open: false })
+  const authSettingState = useAdminAuthSettingState()
+  const [authSetting] = authSettingState?.authSettings?.value || []
+  const [authState, setAuthState] = useState(initialState)
+
+  useEffect(() => {
+    !authSetting && AuthSettingService.fetchAuthSetting()
+  }, [])
+
+  useEffect(() => {
+    if (authSetting) {
+      let temp = { ...initialState }
+      authSetting?.authStrategies?.forEach((el) => {
+        Object.entries(el).forEach(([strategyName, strategy]) => {
+          temp[strategyName] = strategy
+        })
+      })
+      setAuthState(temp)
+    }
+  }, [authSettingState?.updateNeeded?.value])
 
   let type = ''
 
@@ -80,8 +120,8 @@ const ProfileMenu = (props: Props): any => {
 
   const validate = () => {
     if (emailPhone === '') return false
-    if (validateEmail(emailPhone.trim())) type = 'email'
-    else if (validatePhoneNumber(emailPhone.trim())) type = 'sms'
+    if (validateEmail(emailPhone.trim()) && authState?.emailMagicLink) type = 'email'
+    else if (validatePhoneNumber(emailPhone.trim()) && authState.smsMagicLink) type = 'sms'
     else {
       setError(true)
       return false
@@ -94,8 +134,8 @@ const ProfileMenu = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value)
-    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value)
+    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value!)
+    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value!)
     return
   }
 
@@ -136,6 +176,56 @@ const ProfileMenu = (props: Props): any => {
 
     AuthService.loginUserByXRWallet(result)
   }
+
+  const handleShowId = () => {
+    setShowUserId(!showUserId)
+    setUserIdState({ ...userIdState, value: selfUser.id.value })
+  }
+
+  const handleClose = () => {
+    setUserIdState({ ...userIdState, open: false })
+  }
+
+  const getConnectText = () => {
+    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.connectPhoneEmail')
+    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+      return t('user:usermenu.profile.connectEmail')
+    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.connectPhone')
+    } else {
+      return ''
+    }
+  }
+
+  const getErrorText = () => {
+    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.phoneEmailError')
+    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+      return t('user:usermenu.profile.emailError')
+    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.phoneError')
+    } else {
+      return ''
+    }
+  }
+
+  const getConnectPlaceholder = () => {
+    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.ph-phoneEmail')
+    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+      return t('user:usermenu.profile.ph-email')
+    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.ph-phone')
+    } else {
+      return ''
+    }
+  }
+
+  const enableSocial =
+    authState?.facebook || authState?.github || authState?.google || authState?.linkedin || authState?.twitter
+
+  const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
   return (
     <div className={styles.menuPanel}>
@@ -182,15 +272,30 @@ const ProfileMenu = (props: Props): any => {
                 }}
               />
             </span>
-            <h2>
-              {selfUser?.userRole?.value === 'admin'
-                ? t('user:usermenu.profile.youAreAn')
-                : t('user:usermenu.profile.youAreA')}{' '}
-              <span>{selfUser?.userRole?.value}</span>.
-            </h2>
+
+            <Grid container justifyContent="right">
+              <Grid item xs={6}>
+                <h2>
+                  {selfUser?.userRole?.value === 'admin'
+                    ? t('user:usermenu.profile.youAreAn')
+                    : t('user:usermenu.profile.youAreA')}{' '}
+                  <span>{selfUser?.userRole?.value}</span>.
+                </h2>
+              </Grid>
+              <Grid item container xs={6} alignItems="flex-start" direction="column">
+                <Tooltip title="Show User ID" placement="right">
+                  <h2 size="small" className={styles.showUserId} onClick={handleShowId}>
+                    {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
+                  </h2>
+                </Tooltip>
+              </Grid>
+            </Grid>
+
             <h4>
               {(selfUser.userRole.value === 'user' || selfUser.userRole.value === 'admin') && (
-                <div onClick={handleLogout}>{t('user:usermenu.profile.logout')}</div>
+                <div className={styles.logout} onClick={handleLogout}>
+                  {t('user:usermenu.profile.logout')}
+                </div>
               )}
             </h4>
             {selfUser?.inviteCode.value != null && (
@@ -200,24 +305,60 @@ const ProfileMenu = (props: Props): any => {
             )}
           </div>
         </section>
+
+        {showUserId && (
+          <section className={styles.emailPhoneSection}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              User id
+            </Typography>
+
+            <form>
+              <TextField
+                className={styles.emailField}
+                size="small"
+                placeholder={'user id'}
+                variant="outlined"
+                value={selfUser?.id.value}
+                onChange={({ target: { value } }) => setUserIdState({ ...userIdState, value, copied: false })}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <CopyToClipboard
+                        text={userIdState.value}
+                        onCopy={() => {
+                          setUserIdState({ ...userIdState, copied: true, open: true })
+                        }}
+                      >
+                        <a href="#" className={styles.materialIconBlock}>
+                          <ContentCopyIcon className={styles.primaryForeground} />
+                        </a>
+                      </CopyToClipboard>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </form>
+          </section>
+        )}
+
         {!hideLogin && (
           <>
-            {selfUser?.userRole.value === 'guest' && (
+            {selfUser?.userRole.value === 'guest' && enableConnect && (
               <section className={styles.emailPhoneSection}>
                 <Typography variant="h1" className={styles.panelHeader}>
-                  {t('user:usermenu.profile.connectPhone')}
+                  {getConnectText()}
                 </Typography>
 
                 <form onSubmit={handleSubmit}>
                   <TextField
                     className={styles.emailField}
                     size="small"
-                    placeholder={t('user:usermenu.profile.ph-phoneEmail')}
+                    placeholder={getConnectPlaceholder()}
                     variant="outlined"
                     onChange={handleInputChange}
                     onBlur={validate}
                     error={error}
-                    helperText={error ? t('user:usermenu.profile.phoneEmailError') : null}
+                    helperText={error ? getErrorText() : null}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end" onClick={handleSubmit}>
@@ -246,27 +387,37 @@ const ProfileMenu = (props: Props): any => {
               </section>
             )}
 
-            {selfUser?.userRole.value === 'guest' && (
+            {selfUser?.userRole.value === 'guest' && enableSocial && (
               <section className={styles.socialBlock}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.connectSocial')}
                 </Typography>
                 <div className={styles.socialContainer}>
-                  <a href="#" id="google" onClick={handleOAuthServiceClick}>
-                    <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
-                    <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="twitter" onClick={handleOAuthServiceClick}>
-                    <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                  <a href="#" id="github" onClick={handleOAuthServiceClick}>
-                    <GitHub />
-                  </a>
+                  {authState?.google && (
+                    <a href="#" id="google" onClick={handleOAuthServiceClick}>
+                      <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.facebook && (
+                    <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
+                      <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.linkedin && (
+                    <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
+                      <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.twitter && (
+                    <a href="#" id="twitter" onClick={handleOAuthServiceClick}>
+                      <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.github && (
+                    <a href="#" id="github" onClick={handleOAuthServiceClick}>
+                      <GitHub />
+                    </a>
+                  )}
                 </div>
                 <Typography variant="h4" className={styles.smallTextBlock}>
                   {t('user:usermenu.profile.createOne')}
@@ -281,6 +432,15 @@ const ProfileMenu = (props: Props): any => {
           </>
         )}
       </section>
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={userIdState.open}
+        onClose={handleClose}
+        message="User ID copied"
+        key={'top' + 'center'}
+        autoHideDuration={2000}
+      />
     </div>
   )
 }

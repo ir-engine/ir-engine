@@ -4,18 +4,13 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import { StartTestFileServer } from '../../src/createFileServer'
 
-export const providerBeforeTest = (
-  provider,
-  testFolderName: string,
-  folderKeyTemp: string,
-  folderKeyTemp2: string
-): Promise<any> => {
+export const providerBeforeTest = (provider, testFolderName: string, folderKeyTemp: string, folderKeyTemp2: string) => {
   if (provider.constructor.name === 'LocalStorage')
     return localStorageBeforeTest(testFolderName, folderKeyTemp, folderKeyTemp2)
   if (provider.constructor.name === 'S3Provider') return s3StorageBeforeTest(provider)
 }
 
-export const providerAfterTest = (provider, testFolderName: string): Promise<any> => {
+export const providerAfterTest = (provider, testFolderName: string) => {
   if (provider.constructor.name === 'LocalStorage') return localStorageAfterTest(provider, testFolderName)
   if (provider.constructor.name === 'S3Provider') return s3StorageAfterTest(provider, testFolderName)
 }
@@ -49,9 +44,9 @@ const clearS3TestFolder = (provider: S3Provider, testFolderName: string): Promis
       .listObjectsV2({ Bucket: provider.bucket, Prefix: testFolderName })
       .promise()
       .then((res) => {
-        const promises = []
-        res.Contents.forEach((element) => {
-          promises.push(provider.provider.deleteObject({ Bucket: provider.bucket, Key: element.Key }).promise())
+        const promises: any[] = []
+        res.Contents!.forEach((element) => {
+          promises.push(provider.provider.deleteObject({ Bucket: provider.bucket!, Key: element.Key! }).promise())
         })
 
         Promise.all(promises).then(resolve)
@@ -59,7 +54,7 @@ const clearS3TestFolder = (provider: S3Provider, testFolderName: string): Promis
   })
 }
 const s3StorageBeforeTest = async (provider: S3Provider): Promise<any> => {
-  provider.bucket = process.env.STORAGE_S3_TEST_RESOURCE_BUCKET
+  provider.bucket = process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
   let bucketExists
   try {
     bucketExists = await provider.provider.headBucket({ Bucket: provider.bucket }).promise()

@@ -1,13 +1,15 @@
 import CustomOAuthStrategy from './custom-oauth'
 import { Params } from '@feathersjs/feathers'
 import config from '../../appconfig'
+import { Application } from '../../../declarations'
 
 export class Googlestrategy extends CustomOAuthStrategy {
+  app: Application
   constructor(app) {
     super()
     this.app = app
   }
-  async getEntityData(profile: any, entity: any, params?: Params): Promise<any> {
+  async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
     const userId = params?.query ? params.query.userId : undefined
     return {
@@ -18,7 +20,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
     }
   }
 
-  async updateEntity(entity: any, profile: any, params?: Params): Promise<any> {
+  async updateEntity(entity: any, profile: any, params: Params): Promise<any> {
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
       {}
@@ -40,7 +42,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
     return super.updateEntity(entity, profile, params)
   }
 
-  async getRedirect(data: any, params?: Params): Promise<string> {
+  async getRedirect(data: any, params: Params): Promise<string> {
     const redirectHost = config.authentication.callback.google
     const type = params?.query?.userId ? 'connection' : 'login'
     if (Object.getPrototypeOf(data) === Error.prototype) {

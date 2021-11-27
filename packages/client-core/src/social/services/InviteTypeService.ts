@@ -45,8 +45,7 @@ export const InviteTypeService = {
         const inviteTypeResult = await client.service('invite-type').find()
         dispatch(InviteTypeAction.retrievedInvitesTypes(inviteTypeResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

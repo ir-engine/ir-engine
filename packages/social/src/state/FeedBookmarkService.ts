@@ -14,8 +14,7 @@ export const FeedBookmarkService = {
         await client.service('feed-bookmark').create({ feedId })
         dispatch(FeedAction.addFeedBookmark(feedId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -26,8 +25,7 @@ export const FeedBookmarkService = {
         await client.service('feed-bookmark').remove(feedId)
         dispatch(FeedAction.removeFeedBookmark(feedId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

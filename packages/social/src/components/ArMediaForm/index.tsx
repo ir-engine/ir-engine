@@ -6,7 +6,7 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 
 import { useTranslation } from 'react-i18next'
 
-import Button from '@mui/material/Button'
+import Button from '@material-ui/core/Button'
 import TextField from '@mui/material/TextField'
 import { FormControl, InputLabel, MenuItem, Select, Typography, Card } from '@mui/material'
 import BackupIcon from '@mui/icons-material/Backup'

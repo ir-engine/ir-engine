@@ -97,15 +97,10 @@ export const initEngine = async (initOptions: InitializeOptions) => {
   Network.instance.transport = new SocketWebRTCClientTransport()
   await initializeEngine(initOptions)
   const dispatch = useDispatch()
-  dispatch(EngineAction.setInitialised(false))
+  dispatch(EngineAction.setInitialised(true))
 }
 
-export const loadLocation = async (
-  sceneName: string,
-  initOptions: InitializeOptions,
-  newSpawnPos?: ReturnType<typeof PortalComponent.get>,
-  connectToInstanceServer: boolean = true
-): Promise<any> => {
+export const loadLocation = async (sceneName: string, initOptions: InitializeOptions): Promise<any> => {
   const [project, scene] = sceneName.split('/')
 
   // 1. Get scene data
@@ -122,50 +117,16 @@ export const loadLocation = async (
     await initEngine(initOptions)
   }
 
-  // 3. Connect to server
-  if (connectToInstanceServer) {
-    const didConnect = new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
-    })
-    await Promise.all([InstanceConnectionService.connectToInstanceServer('instance'), didConnect])
-  }
+  const dispatch = useDispatch()
 
   // 4. Start scene loading
-  store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
-
-  console.log('Awaiting scene load')
-
-  const dispatch = useDispatch()
+  dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
   await WorldScene.load(sceneData, (count: number) => {
     dispatch(EngineAction.loadingProgress(count))
   })
-
   getPortalDetails()
-  store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
-  store.dispatch(AppAction.setAppLoaded(true))
-
-  // 5. Join to new world
-  if (connectToInstanceServer) {
-    // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-    let spawnTransform
-    if (newSpawnPos) {
-      spawnTransform = { position: newSpawnPos.remoteSpawnPosition, rotation: newSpawnPos.remoteSpawnRotation }
-    }
-
-    await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
-      MessageTypes.JoinWorld.toString(),
-      { spawnTransform }
-    )
-  }
-
-  if (!connectToInstanceServer) {
-    createOfflineUser(sceneData)
-  }
-
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
-
-  // 6. Dispatch success
-  store.dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
+  dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
+  dispatch(EngineAction.setSceneLoaded(true))
 }
 
 export const teleportToLocation = async (

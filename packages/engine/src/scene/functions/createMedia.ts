@@ -20,7 +20,7 @@ if (isClient) {
   Promise.all([
     import('volumetric/web/decoder/Player'),
     //@ts-ignore
-    import('volumetric/web/decoder/workerFunction.ts?worker')
+    import('volumetric/web/decoder/workerFunction.js?worker')
   ]).then(([module1, module2]) => {
     DracosisPlayer = module1.default
     DracosisPlayerWorker = module2.default

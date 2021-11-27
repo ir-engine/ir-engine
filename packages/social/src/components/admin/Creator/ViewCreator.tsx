@@ -1,7 +1,7 @@
 import React from 'react'
 import { Drawer, Paper, Typography } from '@mui/material'
 import Container from '@mui/material/Container'
-import Button from '@mui/material/Button'
+import Button from '@material-ui/core/Button'
 import { DialogActions } from '@mui/material'
 import DialogTitle from '@mui/material/DialogTitle'
 import Grid from '@mui/material/Grid'

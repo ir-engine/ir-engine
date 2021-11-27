@@ -1,6 +1,4 @@
-
-![xrengine](https://github.com/XRFoundation/XREngine/raw/dev/xrengine%20black.png)
-
+![xrengine black](https://user-images.githubusercontent.com/5104160/142821267-7e131891-0caa-496b-9cda-a82dee8a04b6.png)
 
 
 
