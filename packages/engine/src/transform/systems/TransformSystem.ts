@@ -1,4 +1,6 @@
+import { Not } from 'bitecs'
 import { Euler, Quaternion } from 'three'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -122,7 +124,7 @@ export default async function TransformSystem(world: World): Promise<System> {
       object3DComponent.value.position.copy(transform.position)
       object3DComponent.value.quaternion.copy(transform.rotation)
       object3DComponent.value.scale.copy(transform.scale)
-      object3DComponent.value.updateMatrixWorld()
+      if (!hasComponent(entity, AvatarComponent)) object3DComponent.value.updateMatrixWorld()
     }
   }
 }

@@ -140,7 +140,7 @@ const boneModelMatrix = new Matrix4()
 function updatePoseBonesFromSkeleton(rig: IKRigComponentType): void {
   // todo cache
   const { rootParent } = rig
-  rootParent.updateWorldMatrix(true, true)
+  rootParent.updateWorldMatrix(false, true)
 
   if (!rootParent) return
 
