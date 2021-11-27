@@ -139,6 +139,7 @@ export class IdentityProvider extends Service {
         userRole: 'admin'
       }
     })
+    const avatars = await this.app.service('avatar').find(null!)
     const result = await super.create(
       {
         ...data,
@@ -146,8 +147,8 @@ export class IdentityProvider extends Service {
         user: {
           id: userId,
           userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
-          inviteCode: type === 'guest' ? null : code
-          // avatarId: DEFAULT_AVATARS[random(DEFAULT_AVATARS.length - 1)]
+          inviteCode: type === 'guest' ? null : code,
+          avatarId: avatars[random(avatars.length - 1)].avatarId
         }
       },
       params
