@@ -216,8 +216,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         connectedClients,
         instance: instance === true
       })
-      const dispatch = useDispatch()
-      dispatch(EngineAction.setConnectedWorld(true))
+      if ((socket as any).instance) {
+        const dispatch = useDispatch()
+        dispatch(EngineAction.setConnectedWorld(true))
+      }
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
