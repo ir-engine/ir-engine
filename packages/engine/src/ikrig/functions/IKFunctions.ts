@@ -3,7 +3,7 @@
 // https://github.com/sketchpunk/FunWithWebGL2/tree/master/lesson_137_ik_rigs
 
 // @ts-nocheck
-import { IKRigComponentType } from '../components/IKRigComponent'
+import { IKRigComponentType, PointData } from '../components/IKRigComponent'
 import { Bone, Object3D, Quaternion, Vector3, Matrix4 } from 'three'
 import {
   IKPoseComponent,
@@ -253,7 +253,13 @@ export function computeLimb(pose: Pose, chain: Chain, ikLimb) {
  * @param lookDirection
  * @param twistDirection
  */
-export function computeLookTwist(rig: IKRigComponentType, boneInfo, ik, lookDirection, twistDirection) {
+export function computeLookTwist(
+  rig: IKRigComponentType,
+  boneInfo: PointData,
+  ik: IKPoseLookTwist,
+  lookDirection: Vector3,
+  twistDirection: Vector3
+) {
   const pose = rig.pose.bones[boneInfo.index],
     bind = rig.tpose.bones[boneInfo.index] // TPose Bone
 
@@ -891,7 +897,13 @@ function fromQuat(out: Vector3, q: Quaternion, v: Vector3) {
  * @param out {swing: Quaternion, twist: number}
  * @returns
  */
-export function computeSwingAndTwist(source: Quaternion, target: Quaternion, forward: Vector3, up: Vector3, out: any) {
+export function computeSwingAndTwist(
+  source: Quaternion,
+  target: Quaternion,
+  forward: Vector3,
+  up: Vector3,
+  out: { swing: Quaternion; twist: number }
+) {
   const quatInverse = tempQuat1.copy(target).invert(),
     altForward = tempVec1.copy(forward).applyQuaternion(quatInverse),
     altUp = tempVec2.copy(up).applyQuaternion(quatInverse)
