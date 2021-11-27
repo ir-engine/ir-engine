@@ -7,7 +7,6 @@ import defaultSceneSeed from '@xrengine/projects/default-project/empty.scene.jso
 import { useStorageProvider } from './media/storageprovider/storageprovider'
 import { parseSceneDataCacheURLs } from './world/scene/scene-parser'
 import _ from 'lodash'
-import sinon from 'sinon'
 
 const storageProvider = useStorageProvider()
 const parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
@@ -41,7 +40,7 @@ describe('scene.test', () => {
       metadataOnly: false
     }, params)
     const entities = Object.values(data.scene!.entities)
-    assert.strictEqual(entities.length, 9)
+    assert.strictEqual(entities.length, 8)
   })
 
   it("should add new project", async function() {
