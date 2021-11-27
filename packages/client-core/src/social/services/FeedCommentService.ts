@@ -64,8 +64,7 @@ export const FeedCommentService = {
         const comments = await client.service('comments').find({ query: { feedId } })
         dispatch(FeedCommentAction.feedsCommentsRetrieved(comments.data))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -76,8 +75,7 @@ export const FeedCommentService = {
         const newComment = await client.service('comments').create({ feedId, text })
         dispatch(FeedCommentAction.addFeedComment(newComment))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -88,8 +86,7 @@ export const FeedCommentService = {
         await client.service('comments-fires').create({ commentId })
         dispatch(FeedCommentAction.addFeedCommentFire(commentId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -100,8 +97,7 @@ export const FeedCommentService = {
         await client.service('comments-fires').remove(commentId)
         dispatch(FeedCommentAction.removeFeedCommentFire(commentId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -112,8 +108,7 @@ export const FeedCommentService = {
         const comments = await client.service('comments-fires').find({ query: { action: 'comment-fires', commentId } })
         dispatch(FeedCommentAction.commentFires(comments.data))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

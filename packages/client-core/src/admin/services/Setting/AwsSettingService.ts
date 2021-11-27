@@ -38,7 +38,7 @@ export const AwsSettingService = {
         const awsSetting = await client.service('aws-setting').find()
         dispatch(AwsSettingAction.awsSettingRetrieved(awsSetting))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },

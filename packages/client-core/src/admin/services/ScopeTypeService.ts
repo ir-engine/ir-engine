@@ -59,8 +59,7 @@ export const ScopeTypeService = {
         })
         dispatch(ScopeTypeAction.getScopeTypes(result))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

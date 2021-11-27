@@ -40,8 +40,7 @@ export const FeedFiresService = {
         const feedsResults = await client.service('feed-fires').find({ query: { feedId: feedId } })
         dispatch(FeedFiresAction.feedFiresRetrieved(feedsResults.data))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -52,8 +51,7 @@ export const FeedFiresService = {
         await client.service('feed-fires').create({ feedId })
         dispatch(FeedAction.addFeedFire(feedId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -64,8 +62,7 @@ export const FeedFiresService = {
         await client.service('feed-fires').remove(feedId)
         dispatch(FeedAction.removeFeedFire(feedId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

@@ -82,8 +82,7 @@ export const LocationService = {
         const result = await client.service('location').patch(id, location)
         dispatch(LocationAction.locationPatched(result))
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -101,8 +100,7 @@ export const LocationService = {
         const result = await client.service('location').create(location)
         dispatch(LocationAction.locationCreated(result))
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
