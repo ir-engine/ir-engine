@@ -19,7 +19,6 @@ export function incomingNetworkReceptor(action) {
   matches(action)
     .when(NetworkWorldAction.createClient.matches, ({ userId, name, avatarDetail }) => {
       if (!isClient) return
-      console.log('avatarDetail', avatarDetail)
       world.clients.set(userId, {
         userId,
         name,
