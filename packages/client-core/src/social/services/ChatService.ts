@@ -234,8 +234,7 @@ export const ChatService = {
         })
         dispatch(ChatAction.loadedChannels(channelResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -250,7 +249,7 @@ export const ChatService = {
         })
         dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -272,8 +271,7 @@ export const ChatService = {
         }
         await client.service('message').create(data)
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -313,8 +311,7 @@ export const ChatService = {
         })
         dispatch(ChatAction.loadedMessages(channelId, messageResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -324,8 +321,7 @@ export const ChatService = {
       try {
         await client.service('message').remove(messageId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -337,8 +333,7 @@ export const ChatService = {
           text: text
         })
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },

@@ -46,8 +46,7 @@ export const UserROleService = {
         const userRole = await client.service('user-role').find()
         dispatch(UserRoleAction.userRoleRetrieved(userRole))
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -65,8 +64,7 @@ export const UserROleService = {
         const userRole = await client.service('user').patch(id, { userRole: role })
         dispatch(UserRoleAction.userRoleUpdated(userRole))
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

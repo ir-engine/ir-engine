@@ -32,7 +32,7 @@ export const ChargebeeSettingService = {
         const chargeBee = await client.service('chargebee-setting').find()
         dispatch(ChargebeeSettingAction.fetchedChargebee(chargeBee))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

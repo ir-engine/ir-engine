@@ -13,7 +13,7 @@ export const FeedLikesService = {
         const feedsResults = await client.service('feed-likes').find({ query: { feedId: feedId } })
         dispatch(FeedLikesAction.feedLikesRetrieved(feedsResults.data))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -24,7 +24,7 @@ export const FeedLikesService = {
         await client.service('feed-likes').create({ feedId })
         dispatch(FeedAction.addFeedLike(feedId))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -35,7 +35,7 @@ export const FeedLikesService = {
         await client.service('feed-likes').remove(feedId)
         dispatch(FeedAction.removeFeedLike(feedId))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

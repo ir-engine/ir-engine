@@ -138,8 +138,8 @@ bin/
 # JetBrains WebStorm/PhpStorm
 .idea
 
-# Hugo publish files
-packages/docs/public/
+# Docs generated file
+/docs/docs/generated/
 
 .history
 .history/*
@@ -168,3 +168,4 @@ certs/
 /packages/client/public/projects/*
 /packages/projects/projects/*
 /packages/client/optimizeDeps.json
+

@@ -50,6 +50,7 @@
     "dev-server-windows": "cd packages/server && npm run dev-windows",
     "dev-client": "cd packages/client && npm run dev",
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
+    "dev-reinit-windows": "cd packages/server && npm run dev-reinit-db-windows",
     "dev-nginx": "",
     "cleanup-tests": "node tests/cleanup-tests.js",
     "test": "npm run test:projects && npm run test:packages",
