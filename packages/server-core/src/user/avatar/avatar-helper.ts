@@ -18,7 +18,7 @@ export const uploadAvatarStaticResource = async (
   // make userId optional and safe for feathers create
   const userIdQuery = data.userId ? { userId: data.userId } : {}
 
-  const thumbnail = await generateAvatarThumbnail(data.avatar)
+  const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
 
   await provider.putObject({
     Key: key,

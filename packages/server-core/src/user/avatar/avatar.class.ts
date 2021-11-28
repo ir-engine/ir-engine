@@ -10,7 +10,7 @@ export class Avatar implements ServiceMethods<any> {
   app: Application
   options: ServiceOptions
 
-  constructor(options: ServiceOptions = {}, app: Application) {
+  constructor(options = {}, app: Application) {
     this.options = options
     this.app = app
   }

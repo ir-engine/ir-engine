@@ -1,14 +1,50 @@
-import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, sRGBEncoding, WebGLRenderer } from 'three'
+import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, sRGBEncoding, WebGLRenderer, Box3 } from 'three'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
+import {
+  MAX_ALLOWED_TRIANGLES,
+  THUMBNAIL_HEIGHT,
+  THUMBNAIL_WIDTH
+} from '@xrengine/common/src/constants/AvatarConstants'
 import { createGLTFLoader } from '@xrengine/engine/src/assets/functions/createGLTFLoader'
-import { Canvas } from 'canvas'
+import { Canvas, Image } from 'canvas'
 import gl from 'gl'
+// import Blob from 'cross-blob'
+// ;(globalThis as any).Blob = Blob
+
+// patch globals
+import { loadDRACODecoder } from '../../../../engine/src/assets/loaders/gltf/NodeDracoLoader'
+;(globalThis as any).URL = require('url')
+;(globalThis as any).self = { URL }
+// ;(globalThis as any).self.URL.createObjectURL = (blob) => {
+//   return new Promise(resolve => {
+//     blob.arrayBuffer().then(buffer => {
+//       const base64 = Buffer.from(buffer).toString('base64');
+//       const completedURI = `data:image/jpeg;base64,` + base64;
+//       resolve(completedURI);
+//     });
+//   })
+// };
 
 // todo: move this out of module scope
 function addEventListener(event, func, bind_) {}
 // patch window prop for three
 ;(globalThis as any).window = { innerWidth: THUMBNAIL_WIDTH, innerHeight: THUMBNAIL_HEIGHT, addEventListener }
+
+// patch ImageLoader
+;(globalThis as any).document = {
+  createElementNS: (ns, type) => {
+    if (type === 'img') {
+      const img = new Image() as any
+      img.addEventListener = (type, handler) => {
+        img['on' + type] = handler.bind(img)
+      }
+      img.removeEventListener = (type) => {
+        img['on' + type] = null
+      }
+      return img
+    }
+  }
+}
 
 const camera = new PerspectiveCamera(45, THUMBNAIL_WIDTH / THUMBNAIL_HEIGHT, 0.25, 20)
 camera.position.set(0, 1.25, 1.25)
@@ -46,61 +82,45 @@ controls.target.set(0, 1.25, 0)
 controls.update()
 
 const loader = createGLTFLoader(true)
-
-export const generateAvatarThumbnail = async (avatarModel: Buffer) => {}
-
-/*
-const validate = (scene) => {
-  const objBoundingBox = new THREE.Box3().setFromObject(scene)
-  if (this.renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES)
-    return this.t('user:avatar.selectValidFile', { allowedTriangles: MAX_ALLOWED_TRIANGLES })
-
-  if (this.renderer.info.render.triangles <= 0) return this.t('user:avatar.emptyObj')
-
-  const size = new THREE.Vector3().subVectors(this.maxBB, objBoundingBox.getSize(new THREE.Vector3()))
-  if (size.x <= 0 || size.y <= 0 || size.z <= 0) return this.t('user:avatar.outOfBound')
-
-  let bone = false
-  let skinnedMesh = false
-  scene.traverse((o) => {
-    if (o.type.toLowerCase() === 'bone') bone = true
-    if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true
-  })
-
-  if (!bone || !skinnedMesh) return this.t('user:avatar.noBone')
-
-  return ''
+const toArrayBuffer = (buf) => {
+  const arrayBuffer = new ArrayBuffer(buf.length)
+  const view = new Uint8Array(arrayBuffer)
+  for (let i = 0; i < buf.length; ++i) {
+    view[i] = buf[i]
+  }
+  return arrayBuffer
 }
 
-const uploadAvatar = () => {
-  if (this.state.obj == null) return
-  const error = this.validate(this.state.obj)
-  if (error) {
-    this.setState({ error })
-    return
-  }
+export const generateAvatarThumbnail = async (avatarModel: Buffer): Promise<Buffer> => {
+  await loadDRACODecoder()
+  const model: any = await new Promise((resolve, reject) =>
+    loader.parse(toArrayBuffer(avatarModel), '', resolve, reject)
+  )
+  scene.add(model.scene)
+  renderer.render(scene, camera)
+  scene.remove(model.scene)
+  const outputBuffer = canvas.toBuffer()
+  return outputBuffer
+}
 
-  const canvas = document.createElement('canvas')
-  ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
-  const newContext = canvas.getContext('2d')
-  newContext?.drawImage(this.renderer.domElement, 0, 0)
+// const validate = (scene) => {
+//   const objBoundingBox = new Box3().setFromObject(scene)
+//   if (renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES)
+//     return this.t('user:avatar.selectValidFile', { allowedTriangles: MAX_ALLOWED_TRIANGLES })
 
-  if (this.state.selectedThumbnail == null)
-    canvas.toBlob(async (blob) => {
-      await this.props.uploadAvatarModel(
-        this.state.selectedFile,
-        blob,
-        this.state.avatarName,
-        this.props.isPublicAvatar
-      )
-      this.props.changeActiveMenu(Views.Profile)
-    })
-  else {
-    this.props.uploadAvatarModel(
-      this.state.selectedFile,
-      this.state.avatarName,
-      this.props.isPublicAvatar
-    )
-    this.props.changeActiveMenu(Views.Profile)
-  }
-}*/
+//   if (renderer.info.render.triangles <= 0) return this.t('user:avatar.emptyObj')
+
+//   const size = new THREE.Vector3().subVectors(this.maxBB, objBoundingBox.getSize(new THREE.Vector3()))
+//   if (size.x <= 0 || size.y <= 0 || size.z <= 0) return this.t('user:avatar.outOfBound')
+
+//   let bone = false
+//   let skinnedMesh = false
+//   scene.traverse((o) => {
+//     if (o.type.toLowerCase() === 'bone') bone = true
+//     if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true
+//   })
+
+//   if (!bone || !skinnedMesh) return this.t('user:avatar.noBone')
+
+//   return ''
+// }
