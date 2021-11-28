@@ -36,7 +36,7 @@ const logCustomTargetRigBones = (targetRig) => {
 }
 
 const mockAvatars = () => {
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 50; i++) {
     const avatarDetail = {
       thumbnailURL: '/static/Allison.png',
       avatarURL: '/models/avatars/Allison.glb',
@@ -57,7 +57,7 @@ const mockAvatars = () => {
 
 export default async function SkeletonRigSystem(world: World): Promise<System> {
   const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
-  // mockAvatars()
+  mockAvatars()
   return () => {
     for (const entity of ikposeQuery()) {
       const ikPose = getComponent(entity, IKPoseComponent)

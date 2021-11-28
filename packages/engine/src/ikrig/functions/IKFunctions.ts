@@ -140,10 +140,10 @@ const boneModelMatrix = new Matrix4()
 function updatePoseBonesFromSkeleton(rig: IKRigComponentType): void {
   // todo cache
   const { rootParent } = rig
-  rootParent.updateWorldMatrix(false, true)
 
   if (!rootParent) return
 
+  rootParent.updateWorldMatrix(false, true)
   rootParentWorldInverseMatrix.copy(rootParent.matrixWorld).invert()
 
   for (let i = 0; i < rig.pose.skeleton.bones.length; i++) {
@@ -351,7 +351,6 @@ export function applyPoseToRig(targetRig: IKRigComponentType) {
   for (let i = 0; i < targetRig.pose.bones.length; i++) {
     const poseBone = targetRig.pose.bones[i]
     const armatureBone = poseBone.bone
-
     armatureBone.position.copy(poseBone.local.position)
     armatureBone.quaternion.copy(poseBone.local.quaternion)
     armatureBone.scale.copy(poseBone.local.scale)
@@ -411,6 +410,17 @@ export function applyHip(ikPose: ReturnType<typeof IKPoseComponent.get>, rig: IK
   pose.world.quaternion.copy(rig.pose.bones[boneInfo.index].local.quaternion)
 }
 
+const parentTransform = {
+  position: tempVec1,
+  quaternion: tempQuat1,
+  scale: tempVec2
+}
+const childTransform = {
+  position: tempVec3,
+  quaternion: tempQuat2,
+  scale: tempVec4
+}
+
 /**
  * Applies limbs of the ik pose to ik rig
  * @param ikPose
@@ -429,17 +439,6 @@ export function applyLimb(
   // Setup IK Target
   const bindBoneData = rig.pose.bones[chain.first()]
   const bindBone = bindBoneData.bone
-
-  const parentTransform = {
-    position: tempVec1,
-    quaternion: tempQuat1,
-    scale: tempVec2
-  }
-  const childTransform = {
-    position: tempVec3,
-    quaternion: tempQuat2,
-    scale: tempVec4
-  }
 
   //bindBone.parent.matrixWorld.decompose(parentTransform.position, parentTransform.quaternion, parentTransform.scale)
   //bindBone.matrixWorld.decompose(childTransform.position, childTransform.quaternion, childTransform.scale)
@@ -462,13 +461,12 @@ export function applyLimb(
   chain.ikSolver(chain, rig.tpose, rig.pose, ikPose.axis, ikPose.length, parentTransform)
 
   // apply calculated positions to "real" bones
-  chain.chainBones.forEach(({ index: boneIndex }) => {
-    const poseBone = rig.pose.bones[boneIndex]
-
+  for (const bone of chain.chainBones) {
+    const poseBone = rig.pose.bones[bone.index]
     poseBone.bone.position.copy(poseBone.local.position)
     poseBone.bone.quaternion.copy(poseBone.local.quaternion)
     poseBone.bone.scale.copy(poseBone.local.scale)
-  })
+  }
 }
 
 /**

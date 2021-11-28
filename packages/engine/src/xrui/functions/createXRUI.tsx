@@ -7,7 +7,8 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { XRUIStateContext } from '../XRUIStateContext'
 import { Engine } from '../../ecs/classes/Engine'
-import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
 
@@ -46,10 +47,7 @@ export function createXRUI<S extends State<any>>(
     // TODO: revise this pattern after refactor
     if (Engine.defaultWorld.entities.indexOf(entity) === -1) return
     addComponent(entity, Object3DComponent, { value: uiRoot })
-    uiRoot.traverse((o) => {
-      o.layers.disable(CameraLayers.Scene)
-      o.layers.enable(CameraLayers.UI)
-    })
+    setObjectLayers(uiRoot, ObjectLayers.Render, ObjectLayers.UI)
     addComponent(entity, XRUIComponent, { layer: uiRoot })
   })
   return { entity, state }

@@ -41,6 +41,12 @@ function _addRig(
   // NOTE: rootObject should contain skinnedMesh and it's bones
   const skinnedMesh = rootObject.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
 
+  // remove change callbacks for perf optimization
+  rootObject.traverse((child) => {
+    child.quaternion._onChange(noop)
+    child.rotation._onChange(noop)
+  })
+
   addComponent(entity, IKObj, { ref: skinnedMesh })
   const rig = addComponent(entity, componentClass, {
     rootParent: rootObject,
@@ -90,6 +96,8 @@ function _addRig(
 
   return rig
 }
+
+const noop = () => {}
 
 function initMixamoRig(armature, rig) {
   console.error('initMixamoRig NOT IMPLEMENTED')
