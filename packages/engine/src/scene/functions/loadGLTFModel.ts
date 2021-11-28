@@ -16,7 +16,8 @@ import { delay } from '../../common/functions/delay'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { NameComponent } from '../components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from './setObjectLayers'
 
 export const parseObjectComponents = (entity: Entity, res: Mesh | Scene, loadComponent) => {
   const meshesToProcess: Mesh[] = []
@@ -94,11 +95,7 @@ export const parseGLTFModel = (
 ) => {
   // console.log(sceneLoader, entity, component, sceneProperty, scene)
 
-  // Enable scene layer
-  scene.traverse((obj: Object3D) => {
-    obj.layers.enable(CameraLayers.Scene)
-  })
-
+  setObjectLayers(scene, ObjectLayers.Render, ObjectLayers.Scene)
   addComponent(entity, Object3DComponent, { value: scene })
 
   const transform = getComponent(entity, TransformComponent)

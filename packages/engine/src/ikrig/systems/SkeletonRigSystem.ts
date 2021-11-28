@@ -36,7 +36,7 @@ const logCustomTargetRigBones = (targetRig) => {
 }
 
 const mockAvatars = () => {
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 50; i++) {
     const avatarDetail = {
       thumbnailURL: '/static/Allison.png',
       avatarURL: '/models/avatars/Allison.glb',
