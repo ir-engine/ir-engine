@@ -1,7 +1,6 @@
 import { Params } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { AssetUploadArguments } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 // import { generateAvatarThumbnail } from './generateAvatarThumbnail'
@@ -20,14 +19,21 @@ export type AvatarUploadArguments = {
 }
 
 export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
-  const avatarsToInstall = fs.readdirSync(avatarsFolder, { withFileTypes: true }).map((dirent) => {
-    return {
-      avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
-      thumbnail: Buffer.from([]), // todo
-      avatarName: dirent.name.replace(/\..+$/, ''), // remove extension
-      isPublicAvatar: true
-    }
-  })
+  const avatarsToInstall = fs
+    .readdirSync(avatarsFolder, { withFileTypes: true })
+    .filter((dirent) => dirent.name.split('.').pop() === 'glb')
+    .map((dirent) => {
+      const avatarName = dirent.name.replace(/\..+$/, '') // remove extension
+      const thumbnail = fs.existsSync(path.join(avatarsFolder, avatarName + '.png'))
+        ? fs.readFileSync(path.join(avatarsFolder, avatarName + '.png'))
+        : Buffer.from([])
+      return {
+        avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
+        thumbnail,
+        avatarName,
+        isPublicAvatar: true
+      }
+    })
   const promises: Promise<any>[] = []
   for (const avatar of avatarsToInstall) {
     promises.push(uploadAvatarStaticResource(app, avatar))
@@ -166,7 +172,8 @@ export const getAvatarFromStaticResources = async (app: Application, name?: stri
       staticResourceType: {
         $in: ['user-thumbnail', 'avatar']
       }
-    }
+    },
+    isInternal: true
   })
   const avatars = avatarQueryResult.reduce((acc, curr) => {
     const val = acc[curr.name]

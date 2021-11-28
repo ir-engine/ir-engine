@@ -139,7 +139,7 @@ export class IdentityProvider extends Service {
         userRole: 'admin'
       }
     })
-    const avatars = await this.app.service('avatar').find(null!)
+    const avatars = await this.app.service('avatar').find({ isInternal: true })
     const result = await super.create(
       {
         ...data,
