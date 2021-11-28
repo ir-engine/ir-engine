@@ -28,6 +28,13 @@ Object.assign((globalThis as any).window, {
 // patch three ImageLoader
 if (!globalThis.document) (globalThis as any).document = {}
 Object.assign((globalThis as any).document, {
+  createElement: (type, ...args) => {
+    switch (type) {
+      case 'div': // patch for sinon
+      default:
+        return
+    }
+  },
   createElementNS: (ns, type) => {
     if (type === 'img') {
       const img = new Image() as any

@@ -35,7 +35,6 @@ describe(('avatar.class'), () => {
     })
     it('should get single avatar and thumbnail', async () => {
       const result = await getAvatarFromStaticResources(app)
-      assert.equal(result.length, 7)
       for(const avatar of result) {
         assert(avatar.avatarId)
         assert(avatar.avatarURL)
