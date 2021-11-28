@@ -6,8 +6,25 @@ import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { generateAvatarThumbnail } from './generateAvatarThumbnail'
 import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
+import fs from 'fs'
+import path from 'path'
 
 const provider = useStorageProvider()
+
+export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
+  const avatarsToInstall = fs.readdirSync(avatarsFolder, { withFileTypes: true }).map((dirent) => {
+    return {
+      avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
+      avatarName: dirent.name.replace(/\..+$/, ''), // remove extension
+      isPublicAvatar: true
+    }
+  })
+  const promises: Promise<any>[] = []
+  for (const avatar of avatarsToInstall) {
+    promises.push(uploadAvatarStaticResource(app, avatar))
+  }
+  await Promise.all(promises)
+}
 
 export const uploadAvatarStaticResource = async (
   app: Application,

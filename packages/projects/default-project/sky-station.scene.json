@@ -204,9 +204,7 @@
         },
         {
           "name": "interact",
-          "props": {
-            "payloadModelUrl": "__$project$__/default-project/assets/Skybase.glb"
-          }
+          "props": {}
         },
         {
           "name": "collidable",
@@ -381,9 +379,9 @@
             "locationName": "black-sun",
             "linkedPortalId": "0EA643B7-AA51-4577-8380-30817ED665C9",
             "spawnPosition": {
-              "x": 49.45498515651021,
+              "x": 49.4549851565102,
               "y": 1.979821728775554,
-              "z": -0.00805337255477836
+              "z": -0.008053372554778377
             },
             "spawnRotation": {
               "x": 3.141592653589793,
@@ -411,16 +409,16 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 6
     },
-    "A4B9313F-C244-4A83-813D-281C43B671EB": {
-      "name": "Image",
+    "78007030-F875-4F6A-8EA2-4F7472CAD25A": {
+      "name": "Model",
       "components": [
         {
           "name": "transform",
           "props": {
             "position": {
-              "x": 2.5,
-              "y": 4,
-              "z": -13.5
+              "x": 3.6999999999999997,
+              "y": 2.6,
+              "z": 10.6
             },
             "rotation": {
               "x": 0,
@@ -428,9 +426,9 @@
               "z": 0
             },
             "scale": {
-              "x": 2,
-              "y": 2,
-              "z": 2
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         },
@@ -441,14 +439,50 @@
           }
         },
         {
-          "name": "image",
+          "name": "gltf-model",
           "props": {
-            "src": "/static/xrengine.png",
-            "controls": true,
-            "alphaMode": "opaque",
-            "alphaCutoff": 0.5,
-            "projection": "flat"
+            "src": "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb",
+            "textureOverride": "",
+            "matrixAutoUpdate": false
           }
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": false,
+            "receive": false
+          }
+        },
+        {
+          "name": "interact",
+          "props": {
+            "interactable": true,
+            "interactionType": "infoBox",
+            "interactionText": "Laptop",
+            "interactionName": "ThinkPad X1 Carbon Gen 9 Intel (14\")",
+            "interactionDescription": "With the Intel® Evo™ platform, the ThinkPad X1 Carbon Gen 9 laptop delivers a powerhouse combination of performance, responsiveness, battery life, and stunning visuals. With up to 11th Gen Intel® Core™ i7 vPro® processors, you can count on an exceptional experience, anywhere.",
+            "interactionImages": [
+              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558",
+              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/hqdefault.jpg?v=1636657508"
+            ],
+            "interactionVideos": [
+              "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8"
+            ],
+            "interactionUrls": [
+              "https://www.lenovo.com/us/en/p/laptops/thinkpad/thinkpade/e15-g2/20td001jus"
+            ],
+            "interactionModels": [
+              "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb"
+            ]
+          }
+        },
+        {
+          "name": "collidable",
+          "props": {}
+        },
+        {
+          "name": "walkable",
+          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -494,6 +528,13 @@
             "synchronize": 0,
             "loop": true,
             "volume": 0.5,
+            "distanceModel": null,
+            "rolloffFactor": null,
+            "refDistance": null,
+            "maxDistance": null,
+            "coneInnerAngle": null,
+            "coneOuterAngle": null,
+            "coneOuterGain": null,
             "projection": "flat"
           }
         }
@@ -724,6 +765,297 @@
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 11
+    },
+    "9E159A4E-08FE-4B2B-A927-D86D378F1E07": {
+      "name": "Shopify",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 4.1,
+              "y": 2.6,
+              "z": 9.8
+            },
+            "rotation": {
+              "x": 0,
+              "y": -1.5707963267948966,
+              "z": 0
+            },
+            "scale": {
+              "x": 1.0000000000000002,
+              "y": 1,
+              "z": 1.0000000000000002
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "shopify",
+          "props": {
+            "shopifyProducts": [
+              {
+                "title": "ThinkPad Laptop X1",
+                "description": "With the Intel® Evo™ platform, the ThinkPad X1 Carbon Gen 9 laptop delivers a powerhouse combination of performance, responsiveness, battery life, and stunning visuals. With up to 11th Gen Intel® Core™ i7 vPro® processors, you can count on an exceptional experience, anywhere.",
+                "storeUrl": null,
+                "value": "Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0LzY2MTAxNTI1ODcyODc=",
+                "label": "ThinkPad Laptop X1",
+                "media": [
+                  {
+                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image_1.jpg?v=1636577558",
+                    "mimeType": "image/png",
+                    "format": "png",
+                    "extendType": "image"
+                  },
+                  {
+                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558",
+                    "mimeType": "image/png",
+                    "format": "png",
+                    "extendType": "image"
+                  },
+                  {
+                    "url": "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8",
+                    "mimeType": "application/x-mpegURL",
+                    "format": "m3u8",
+                    "height": 720,
+                    "width": 1280,
+                    "extendType": "video"
+                  },
+                  {
+                    "url": "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb",
+                    "mimeType": "model/gltf-binary",
+                    "format": "glb",
+                    "filesize": 1101196,
+                    "extendType": "model"
+                  }
+                ]
+              },
+              {
+                "title": "Snowball iCE Plug",
+                "description": "Custom condenser capsule: Powered by Blue’s custom condenser capsule, Snowball iCE microphone delivers crystal-clear audio quality that’s light-years ahead of your built-in computer microphone Cardioid pickup pattern: Captures your voice with clear, focused sound for streaming, podcasting, broadcasting, Skype calls and Zoom meetings Stylish retro design: Record or stream in style with a classic recording",
+                "storeUrl": null,
+                "value": "Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0LzY2MTA0MTY5NTk1MTE=",
+                "label": "Snowball iCE Plug",
+                "media": [
+                  {
+                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/download.jpg?v=1636657508",
+                    "mimeType": "image/png",
+                    "format": "png",
+                    "extendType": "image"
+                  },
+                  {
+                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/hqdefault.jpg?v=1636657508",
+                    "mimeType": "image/png",
+                    "format": "png",
+                    "extendType": "image"
+                  },
+                  {
+                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/aHR0cDovL3d3dy5ibG9nY2RuLmNvbS93d3cuZW5nYWRnZXQuY29tL21lZGlhLzIwMTIvMDgvZHNjMDE3NTktMTM0NTc5MDE3OS5qcGc.jpg?v=1636657509",
+                    "mimeType": "image/png",
+                    "format": "png",
+                    "extendType": "image"
+                  },
+                  {
+                    "url": "https://model3d.shopifycdn.com/models/o/3b98ad3c84c2a82c/Mic_Pink.glb",
+                    "mimeType": "model/gltf-binary",
+                    "format": "glb",
+                    "filesize": 506112,
+                    "extendType": "model"
+                  },
+                  {
+                    "url": "https://model3d.shopifycdn.com/models/o/893462f2d5e575eb/Mic_White.glb",
+                    "mimeType": "model/gltf-binary",
+                    "format": "glb",
+                    "filesize": 506344,
+                    "extendType": "model"
+                  },
+                  {
+                    "url": "https://model3d.shopifycdn.com/models/o/5d9ec3a38428f700/Mic_Black.glb",
+                    "mimeType": "model/gltf-binary",
+                    "format": "glb",
+                    "filesize": 504220,
+                    "extendType": "model"
+                  }
+                ]
+              },
+              {
+                "title": "Sennheiser Headphones",
+                "description": "These comfortable and reliable headphones are designed for professional monitoring. Among the features, it is worth highlighting a durable coiled cable, a foldable design and a 32 dB reduction in external noise.",
+                "storeUrl": null,
+                "value": "Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0LzY2MTA0MjU2NDMwMzE=",
+                "label": "Sennheiser Headphones",
+                "media": [
+                  {
+                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/photo-1484704849700-f032a568e944.jpg?v=1636658743",
+                    "mimeType": "image/png",
+                    "format": "png",
+                    "extendType": "image"
+                  },
+                  {
+                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/headphones.jpg?v=1636658742",
+                    "mimeType": "image/png",
+                    "format": "png",
+                    "extendType": "image"
+                  },
+                  {
+                    "url": "https://model3d.shopifycdn.com/models/o/9b220a1a1e22e637/Headphones_Pink.glb",
+                    "mimeType": "model/gltf-binary",
+                    "format": "glb",
+                    "filesize": 941852,
+                    "extendType": "model"
+                  },
+                  {
+                    "url": "https://model3d.shopifycdn.com/models/o/4c676cca63154c94/Headphones_White.glb",
+                    "mimeType": "model/gltf-binary",
+                    "format": "glb",
+                    "filesize": 951492,
+                    "extendType": "model"
+                  },
+                  {
+                    "url": "https://model3d.shopifycdn.com/models/o/d678bc2e5d597b8c/Headphones_Black.glb",
+                    "mimeType": "model/gltf-binary",
+                    "format": "glb",
+                    "filesize": 1379104,
+                    "extendType": "model"
+                  }
+                ]
+              }
+            ],
+            "shopifyDomain": "https://xrengine-test-site.myshopify.com/",
+            "shopifyToken": "878e6efb8645b374a57b0439ac204ad3",
+            "shopifyProductId": "Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0LzY2MTAxNTI1ODcyODc=",
+            "shopifyProductItemId": 3,
+            "shopifyProductItems": [
+              {
+                "value": 0,
+                "label": "Image 1",
+                "media": {
+                  "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image_1.jpg?v=1636577558",
+                  "mimeType": "image/png",
+                  "format": "png",
+                  "extendType": "image"
+                }
+              },
+              {
+                "value": 1,
+                "label": "Image 2",
+                "media": {
+                  "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558",
+                  "mimeType": "image/png",
+                  "format": "png",
+                  "extendType": "image"
+                }
+              },
+              {
+                "value": 2,
+                "label": "Video 1",
+                "media": {
+                  "url": "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8",
+                  "mimeType": "application/x-mpegURL",
+                  "format": "m3u8",
+                  "height": 720,
+                  "width": 1280,
+                  "extendType": "video"
+                }
+              },
+              {
+                "value": 3,
+                "label": "Model 1",
+                "media": {
+                  "url": "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb",
+                  "mimeType": "model/gltf-binary",
+                  "format": "glb",
+                  "filesize": 1101196,
+                  "extendType": "model"
+                }
+              }
+            ],
+            "extendType": "model",
+            "extend": {
+              "src": "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb",
+              "textureOverride": "",
+              "castShadow": false,
+              "receiveShadow": false,
+              "loop-animation": {
+                "activeClipIndex": -1,
+                "hasAvatarAnimations": false
+              }
+            }
+          }
+        },
+        {
+          "name": "interact",
+          "props": {
+            "interactable": true,
+            "interactionType": "infoBox",
+            "interactionText": "ThinkPad Laptop X1",
+            "interactionThemeIndex": 0,
+            "interactionName": "ThinkPad Laptop X1",
+            "interactionDescription": "With the Intel® Evo™ platform, the ThinkPad X1 Carbon Gen 9 laptop delivers a powerhouse combination of performance, responsiveness, battery life, and stunning visuals. With up to 11th Gen Intel® Core™ i7 vPro® processors, you can count on an exceptional experience, anywhere.",
+            "interactionImages": [
+              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image_1.jpg?v=1636577558",
+              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558"
+            ],
+            "interactionVideos": [
+              "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8"
+            ],
+            "interactionUrls": [],
+            "interactionModels": [
+              "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb"
+            ]
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 12
+    },
+    "A4B9313F-C244-4A83-813D-281C43B671EB": {
+      "name": "Image",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 2.5,
+              "y": 4,
+              "z": -13.5
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 2,
+              "y": 2,
+              "z": 2
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "image",
+          "props": {
+            "src": "/static/xrengine.png",
+            "controls": true,
+            "alphaMode": "opaque",
+            "alphaCutoff": 0.5,
+            "projection": "flat"
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 13
     }
   }
 }
