@@ -705,7 +705,7 @@ export const AuthService = {
     const dispatch = useDispatch()
     {
       await client
-        .service('upload-presigned')
+        .service('avatar')
         .remove('', {
           query: { keys }
         })

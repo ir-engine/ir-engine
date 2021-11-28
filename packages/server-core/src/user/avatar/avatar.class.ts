@@ -2,10 +2,6 @@ import { Params, ServiceMethods, ServiceOptions } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { uploadAvatarStaticResource, getAvatarFromStaticResources } from './avatar-helper'
 
-/**
- * This class used to find user
- * and returns founded users
- */
 export class Avatar implements ServiceMethods<any> {
   app: Application
   options: ServiceOptions
@@ -30,5 +26,7 @@ export class Avatar implements ServiceMethods<any> {
 
   async update(id: string, data: any, params: Params): Promise<void> {}
   async patch(id: string, data: any, params: Params): Promise<void> {}
-  async remove(id: string, params: Params): Promise<void> {}
+  async remove(id: string, params: Params): Promise<void> {
+    // TODO: implement avatar removal
+  }
 }
