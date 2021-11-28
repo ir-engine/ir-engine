@@ -6,6 +6,8 @@ import fs from 'fs'
 import path from 'path'
 import appRootPath from 'app-root-path'
 
+const debugThumbnail = false
+
 describe(('avatar.class'), () => {
   describe('generateAvatarThumbnail', () => {
     it('should generate thumbnail', async () => {
@@ -13,6 +15,14 @@ describe(('avatar.class'), () => {
       const thumbnailBuffer = await generateAvatarThumbnail(inputGLBBuffer)
       assert(thumbnailBuffer instanceof Buffer)
       assert(thumbnailBuffer.length > 0)
+      if(debugThumbnail) {
+        const debugOutputPath = path.join(__dirname, 'avatar.png')
+        if(fs.existsSync(debugOutputPath)) fs.rmSync(debugOutputPath)
+        fs.writeFileSync(debugOutputPath, thumbnailBuffer)
+        const debugOutputPath2 = path.join(__dirname, 'avatar.jpg')
+        if(fs.existsSync(debugOutputPath2)) fs.rmSync(debugOutputPath2)
+        fs.writeFileSync(debugOutputPath2, thumbnailBuffer)
+      }
     })
   })
   describe('getAvatarFromStaticResources', () => {

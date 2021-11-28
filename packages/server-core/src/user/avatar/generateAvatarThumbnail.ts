@@ -1,51 +1,33 @@
-import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, sRGBEncoding, WebGLRenderer, Box3 } from 'three'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import {
+  DirectionalLight,
+  HemisphereLight,
+  PerspectiveCamera,
+  Scene,
+  sRGBEncoding,
+  LinearEncoding,
+  WebGLRenderer,
+  Box3,
+  Vector3,
+  DoubleSide,
+  MeshNormalMaterial,
+  BoxGeometry,
+  Mesh,
+  Texture,
+  Vector2
+} from 'three'
 import {
   MAX_ALLOWED_TRIANGLES,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { createGLTFLoader } from '@xrengine/engine/src/assets/functions/createGLTFLoader'
-import { Canvas, Image } from 'canvas'
+import { createCanvas } from 'canvas'
 import gl from 'gl'
 import { loadDRACODecoder } from '@xrengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
+import encode from 'image-encode'
 
-const camera = new PerspectiveCamera(45, THUMBNAIL_WIDTH / THUMBNAIL_HEIGHT, 0.25, 20)
-camera.position.set(0, 1.25, 1.25)
-const scene = new Scene()
-const backLight = new DirectionalLight(0xfafaff, 1)
-backLight.position.set(1, 3, -1)
-backLight.target.position.set(0, 1.5, 0)
-const frontLight = new DirectionalLight(0xfafaff, 0.7)
-frontLight.position.set(-1, 3, 1)
-frontLight.target.position.set(0, 1.5, 0)
-const hemi = new HemisphereLight(0xeeeeff, 0xebbf2c, 1)
-scene.add(backLight)
-scene.add(backLight.target)
-scene.add(frontLight)
-scene.add(frontLight.target)
-scene.add(hemi)
+let camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer, loader, canvas, context
 
-const canvas = new Canvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT) as any
-canvas.addEventListener = () => {} // mock function to avoid errors inside THREE.WebGlRenderer()
-const context = gl(1, 1)
-const renderer = new WebGLRenderer({
-  canvas,
-  context,
-  antialias: true,
-  preserveDrawingBuffer: true,
-  alpha: true
-})
-renderer.setPixelRatio(window.devicePixelRatio)
-renderer.outputEncoding = sRGBEncoding
-
-const controls = getOrbitControls(camera, renderer.domElement)
-controls.minDistance = 0.1
-controls.maxDistance = 10
-controls.target.set(0, 1.25, 0)
-controls.update()
-
-const loader = createGLTFLoader(true)
 const toArrayBuffer = (buf) => {
   const arrayBuffer = new ArrayBuffer(buf.length)
   const view = new Uint8Array(arrayBuffer)
@@ -55,36 +37,80 @@ const toArrayBuffer = (buf) => {
   return arrayBuffer
 }
 
+const createThreeScene = () => {
+  camera = new PerspectiveCamera(45, THUMBNAIL_WIDTH / THUMBNAIL_HEIGHT, 0.1, 200)
+  camera.position.set(0, 1.25, 2)
+  camera.lookAt(0, 1.25, 0)
+  camera.rotateZ(Math.PI)
+  scene = new Scene()
+  const backLight = new DirectionalLight(0xfafaff, 1)
+  backLight.position.set(1, 3, -1)
+  backLight.target.position.set(0, 1.5, 0)
+  const frontLight = new DirectionalLight(0xfafaff, 0.7)
+  frontLight.position.set(-1, 3, 1)
+  frontLight.target.position.set(0, 1.5, 0)
+  const hemi = new HemisphereLight(0xeeeeff, 0xebbf2c, 1)
+  scene.add(backLight)
+  scene.add(backLight.target)
+  scene.add(frontLight)
+  scene.add(frontLight.target)
+  scene.add(hemi)
+
+  canvas = createCanvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
+  canvas.addEventListener = () => {} // mock function to avoid errors inside THREE.WebGlRenderer()
+  context = gl(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, { preserveDrawingBuffer: true })
+  renderer = new WebGLRenderer({
+    canvas,
+    context,
+    antialias: true,
+    preserveDrawingBuffer: true,
+    alpha: true
+  })
+  renderer.autoClear = false
+  renderer.setClearColor(0xffffff, 1)
+  renderer.setPixelRatio(1)
+  renderer.setSize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, false)
+  renderer.outputEncoding = sRGBEncoding
+
+  loader = createGLTFLoader(true)
+}
+
 export const generateAvatarThumbnail = async (avatarModel: Buffer): Promise<Buffer> => {
+  if (!renderer) createThreeScene()
   await loadDRACODecoder()
   const model: any = await new Promise((resolve, reject) =>
     loader.parse(toArrayBuffer(avatarModel), '', resolve, reject)
   )
   scene.add(model.scene)
   renderer.render(scene, camera)
+
   scene.remove(model.scene)
-  const outputBuffer = canvas.toBuffer()
+  validate(model.scene)
+
+  const pixels = new Uint8Array(THUMBNAIL_WIDTH * THUMBNAIL_HEIGHT * 4)
+  context.readPixels(0, 0, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, context.RGBA, context.UNSIGNED_BYTE, pixels)
+  const outputBuffer = Buffer.from(encode(pixels.buffer, [THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT], 'png'))
   return outputBuffer
 }
 
-// const validate = (scene) => {
-//   const objBoundingBox = new Box3().setFromObject(scene)
-//   if (renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES)
-//     return this.t('user:avatar.selectValidFile', { allowedTriangles: MAX_ALLOWED_TRIANGLES })
+const maxBB = new Vector3(2, 2, 2)
+const validate = (model) => {
+  if (renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES)
+    throw new Error(`Max allowed triangles of ${MAX_ALLOWED_TRIANGLES} surpassed, try another avatar`)
 
-//   if (renderer.info.render.triangles <= 0) return this.t('user:avatar.emptyObj')
+  if (renderer.info.render.triangles <= 0) throw new Error(`Avatar model seems empty, try another avatar`)
 
-//   const size = new THREE.Vector3().subVectors(this.maxBB, objBoundingBox.getSize(new THREE.Vector3()))
-//   if (size.x <= 0 || size.y <= 0 || size.z <= 0) return this.t('user:avatar.outOfBound')
+  const objBoundingBox = new Box3().setFromObject(model)
+  const size = new Vector3().subVectors(maxBB, objBoundingBox.getSize(new Vector3()))
+  if (size.x <= 0 || size.y <= 0 || size.z <= 0)
+    throw new Error(`Avatar model seems too big or off center, check the model file`)
 
-//   let bone = false
-//   let skinnedMesh = false
-//   scene.traverse((o) => {
-//     if (o.type.toLowerCase() === 'bone') bone = true
-//     if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true
-//   })
+  let bone = false
+  let skinnedMesh = false
+  model.traverse((o) => {
+    if (o.type.toLowerCase() === 'bone') bone = true
+    if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true
+  })
 
-//   if (!bone || !skinnedMesh) return this.t('user:avatar.noBone')
-
-//   return ''
-// }
+  if (!bone || !skinnedMesh) throw new Error(`Avatar skeleton not detected, check the model files`)
+}

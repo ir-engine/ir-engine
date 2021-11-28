@@ -129,6 +129,10 @@ export class Project extends Service {
             storageProviderPath: getStorageProviderPath(projectName),
             repositoryPath: getRemoteURLFromGitData(projectName)
           })
+          // run project install script
+          if (projectConfig.onEvent) {
+            promises.push(onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall'))
+          }
         } catch (e) {
           console.log(e)
         }

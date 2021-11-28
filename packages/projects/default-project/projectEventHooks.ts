@@ -2,23 +2,24 @@ import { ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
 import { Application } from '@xrengine/server-core/declarations'
 import fs from 'fs'
 import path from 'path'
-import { getCachedAsset } from '@xrengine/server-core/src/media/storageprovider/getCachedAsset'
-import { useStorageProvider } from '@xrengine/server-core/src/media/storageprovider/storageprovider'
+import { uploadAvatarStaticResource } from '@xrengine/server-core/src/user/avatar/avatar-helper'
 
-const avatarsFolder = path.resolve('./avatars')
+const avatarsFolder = path.resolve(__dirname, 'avatars')
 
 const config = {
   onInstall: async (app: Application) => {
-    const storageProvider = useStorageProvider()
-    const avatarsToInstall = fs
-      .readdirSync(avatarsFolder, { withFileTypes: true })
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => dirent.name)
-    for (const avatarName of avatarsToInstall) {
-      const avatarUrl = getCachedAsset(avatarName, storageProvider.cacheDomain)
-      // todo: render thumbnail
-      // uploadAvatarStaticResource(app, avatarName, avatarUrl, null!)
+    const avatarsToInstall = fs.readdirSync(avatarsFolder, { withFileTypes: true }).map((dirent) => {
+      return {
+        avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
+        avatarName: dirent.name.replace(/\..+$/, ''), // remove extension
+        isPublicAvatar: true
+      }
+    })
+    const promises: Promise<any>[] = []
+    for (const avatar of avatarsToInstall) {
+      promises.push(uploadAvatarStaticResource(app, avatar))
     }
+    await Promise.all(promises)
   },
   onUninstall: async (app: Application) => {
     // TODO: remove avatars

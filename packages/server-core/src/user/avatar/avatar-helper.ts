@@ -11,90 +11,110 @@ const provider = useStorageProvider()
 
 export const uploadAvatarStaticResource = async (
   app: Application,
-  data: AssetUploadArguments & { userId: string },
+  data: AssetUploadArguments & { userId?: string },
   params?: Params
 ) => {
-  const key = `avatars/${data.userId}/${data.avatarName}`
-  // make userId optional and safe for feathers create
-  const userIdQuery = data.userId ? { userId: data.userId } : {}
+  const key = `avatars/${data.userId ?? 'public'}/${data.avatarName}`
 
   const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
 
-  await provider.putObject({
-    Key: `${key}.glb`,
-    Body: data.avatar as Buffer,
-    ContentType: CommonKnownContentTypes.glb
-  })
-  await app.service('static-resource').create(
-    {
-      name: data.avatarName,
-      mimeType: CommonKnownContentTypes.glb,
-      url: getCachedAsset(`${key}.glb`, provider.cacheDomain),
-      key: `${key}.glb`,
-      staticResourceType: 'avatar',
-      ...userIdQuery
-    },
-    null!
-  )
-  await provider.putObject({
-    Key: `${key}.png`,
-    Body: thumbnail,
-    ContentType: CommonKnownContentTypes.png
-  })
-  await app.service('static-resource').create(
-    {
-      name: data.avatarName,
-      mimeType: CommonKnownContentTypes.png,
-      url: getCachedAsset(`${key}.png`, provider.cacheDomain),
-      key: `${key}.png`,
-      staticResourceType: 'user-thumbnail',
-      ...userIdQuery
-    },
-    null!
+  if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
+
+  // make userId optional and safe for feathers create
+  const userIdQuery = data.userId ? { userId: data.userId } : {}
+
+  const [existingModel, existingThumbnail] = await Promise.all([
+    app.service('static-resource').find({
+      query: {
+        name: data.avatarName,
+        staticResourceType: 'avatar',
+        ...userIdQuery
+      }
+    }),
+    app.service('static-resource').find({
+      query: {
+        name: data.avatarName,
+        staticResourceType: 'user-thumbnail',
+        ...userIdQuery
+      }
+    })
+  ])
+
+  console.log(existingModel, existingThumbnail)
+
+  const promises: Promise<any>[] = []
+
+  // upload model to storage provider
+  promises.push(
+    provider.putObject({
+      Key: `${key}.glb`,
+      Body: data.avatar as Buffer,
+      ContentType: CommonKnownContentTypes.glb
+    })
   )
 
-  // const existingModel = await app.service('static-resource').find({
-  //   query: {
-  //     name: name,
-  //     staticResourceType: 'avatar',
-  //     ...userIdQuery
-  //   }
-  // })
-  // const existingThumbnail = await app.service('static-resource').find({
-  //   query: {
-  //     name: name,
-  //     staticResourceType: 'user-thumbnail',
-  //     ...userIdQuery
-  //   }
-  // })
-  // existingModel.total > 0
-  //   ? app.service('static-resource').patch(existingModel.data[0].id, {
-  //       url: modelUrl,
-  //       key: modelURL.fields.Key
-  //     })
-  //   : app.service('static-resource').create(
-  //       {
-  //         name,
-  //         staticResourceType: 'avatar',
-  //         url: modelUrl,
-  //         key: modelURL.fields.Key,
-  //         ...userIdQuery
-  //       },
-  //       null!
-  //     )
-  // existingThumbnail.total > 0
-  //   ? client.service('static-resource').patch(existingThumbnail.data[0].id, {
-  //       url: thumbnailUrl,
-  //       key: thumbnailURL.fields.Key
-  //     })
-  //   : client.service('static-resource').create({
-  //       name,
-  //       staticResourceType: 'user-thumbnail',
-  //       url: thumbnailUrl,
-  //       mimeType: 'image/png',
-  //       key: thumbnailURL.fields.Key,
-  //       userId: isPublicAvatar ? null : selfUser.id.value
-  //     })
+  // add model to static resources
+  const modelURL = getCachedAsset(`${key}.glb`, provider.cacheDomain)
+  if (existingModel.data.length) {
+    promises.push(provider.deleteResources([existingModel.data[0].id]))
+    promises.push(
+      app.service('static-resource').patch(existingModel.data[0].id, {
+        url: modelURL,
+        key: `${key}.glb`
+      })
+    )
+  } else {
+    promises.push(
+      app.service('static-resource').create(
+        {
+          name: data.avatarName,
+          mimeType: CommonKnownContentTypes.glb,
+          url: modelURL,
+          key: `${key}.glb`,
+          staticResourceType: 'avatar',
+          ...userIdQuery
+        },
+        null!
+      )
+    )
+  }
+
+  // upload thumbnail to storage provider
+  promises.push(
+    provider.putObject({
+      Key: `${key}.png`,
+      Body: thumbnail,
+      ContentType: CommonKnownContentTypes.png
+    })
+  )
+
+  // add thumbnail to static resources
+  const thumbnailURL = getCachedAsset(`${key}.png`, provider.cacheDomain)
+  if (existingThumbnail.data.length) {
+    promises.push(provider.deleteResources([existingThumbnail.data[0].id]))
+    promises.push(
+      app.service('static-resource').patch(existingThumbnail.data[0].id, {
+        url: thumbnailURL,
+        key: `${key}.png`
+      })
+    )
+  } else {
+    promises.push(
+      app.service('static-resource').create(
+        {
+          name: data.avatarName,
+          mimeType: CommonKnownContentTypes.png,
+          url: thumbnailURL,
+          key: `${key}.png`,
+          staticResourceType: 'user-thumbnail',
+          ...userIdQuery
+        },
+        null!
+      )
+    )
+  }
+
+  await Promise.all(promises)
 }
 
 export const removeAvatarFromDatabase = async (app: Application, name: string) => {}

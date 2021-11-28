@@ -1,4 +1,5 @@
 import { XMLHttpRequest } from 'xmlhttprequest'
+import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 // Patch XHR for FileLoader in threejs
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
@@ -18,7 +19,11 @@ function addEventListener(event, func, bind_) {}
 
 // patch window prop for three
 if (!globalThis.window) (globalThis as any).window = {}
-Object.assign((globalThis as any).window, { innerWidth: 0, innerHeight: 0, addEventListener })
+Object.assign((globalThis as any).window, {
+  innerWidth: THUMBNAIL_WIDTH,
+  innerHeight: THUMBNAIL_HEIGHT,
+  addEventListener
+})
 
 // patch three ImageLoader
 if (!globalThis.document) (globalThis as any).document = {}
