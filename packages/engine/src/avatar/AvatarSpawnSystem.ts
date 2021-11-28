@@ -64,7 +64,6 @@ export default async function AvatarSpawnSystem(world: World): Promise<System> {
           return
         }
       }
-
       const entity = createAvatar(spawnAction)
       if (isClient) {
         addComponent(entity, AudioTagComponent, {})
