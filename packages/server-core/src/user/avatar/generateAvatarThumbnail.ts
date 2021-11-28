@@ -8,43 +8,7 @@ import {
 import { createGLTFLoader } from '@xrengine/engine/src/assets/functions/createGLTFLoader'
 import { Canvas, Image } from 'canvas'
 import gl from 'gl'
-// import Blob from 'cross-blob'
-// ;(globalThis as any).Blob = Blob
-
-// patch globals
-import { loadDRACODecoder } from '../../../../engine/src/assets/loaders/gltf/NodeDracoLoader'
-;(globalThis as any).URL = require('url')
-;(globalThis as any).self = { URL }
-// ;(globalThis as any).self.URL.createObjectURL = (blob) => {
-//   return new Promise(resolve => {
-//     blob.arrayBuffer().then(buffer => {
-//       const base64 = Buffer.from(buffer).toString('base64');
-//       const completedURI = `data:image/jpeg;base64,` + base64;
-//       resolve(completedURI);
-//     });
-//   })
-// };
-
-// todo: move this out of module scope
-function addEventListener(event, func, bind_) {}
-// patch window prop for three
-;(globalThis as any).window = { innerWidth: THUMBNAIL_WIDTH, innerHeight: THUMBNAIL_HEIGHT, addEventListener }
-
-// patch ImageLoader
-;(globalThis as any).document = {
-  createElementNS: (ns, type) => {
-    if (type === 'img') {
-      const img = new Image() as any
-      img.addEventListener = (type, handler) => {
-        img['on' + type] = handler.bind(img)
-      }
-      img.removeEventListener = (type) => {
-        img['on' + type] = null
-      }
-      return img
-    }
-  }
-}
+import { loadDRACODecoder } from '@xrengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
 
 const camera = new PerspectiveCamera(45, THUMBNAIL_WIDTH / THUMBNAIL_HEIGHT, 0.25, 20)
 camera.position.set(0, 1.25, 1.25)
@@ -63,7 +27,7 @@ scene.add(frontLight.target)
 scene.add(hemi)
 
 const canvas = new Canvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT) as any
-canvas.addEventListener = addEventListener // mock function to avoid errors inside THREE.WebGlRenderer()
+canvas.addEventListener = () => {} // mock function to avoid errors inside THREE.WebGlRenderer()
 const context = gl(1, 1)
 const renderer = new WebGLRenderer({
   canvas,

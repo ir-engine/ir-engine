@@ -1,12 +1,12 @@
-import { Params, ServiceMethods, ServiceOptions } from '@feathersjs/feathers'
+import { Params } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetUploadArguments } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { generateAvatarThumbnail } from './generateAvatarThumbnail'
+import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
 
-const mimeType = 'model/gltf-binary'
 const provider = useStorageProvider()
 
 export const uploadAvatarStaticResource = async (
@@ -14,24 +14,40 @@ export const uploadAvatarStaticResource = async (
   data: AssetUploadArguments & { userId: string },
   params?: Params
 ) => {
-  const key = `avatars/${data.userId}/${data.avatarName}.glb`
+  const key = `avatars/${data.userId}/${data.avatarName}`
   // make userId optional and safe for feathers create
   const userIdQuery = data.userId ? { userId: data.userId } : {}
 
   const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
 
   await provider.putObject({
-    Key: key,
+    Key: `${key}.glb`,
     Body: data.avatar as Buffer,
-    ContentType: mimeType
+    ContentType: CommonKnownContentTypes.glb
   })
   await app.service('static-resource').create(
     {
       name: data.avatarName,
-      mimeType,
-      url: getCachedAsset(key, provider.cacheDomain),
-      key: key,
+      mimeType: CommonKnownContentTypes.glb,
+      url: getCachedAsset(`${key}.glb`, provider.cacheDomain),
+      key: `${key}.glb`,
       staticResourceType: 'avatar',
+      ...userIdQuery
+    },
+    null!
+  )
+  await provider.putObject({
+    Key: `${key}.png`,
+    Body: thumbnail,
+    ContentType: CommonKnownContentTypes.png
+  })
+  await app.service('static-resource').create(
+    {
+      name: data.avatarName,
+      mimeType: CommonKnownContentTypes.png,
+      url: getCachedAsset(`${key}.png`, provider.cacheDomain),
+      key: `${key}.png`,
+      staticResourceType: 'user-thumbnail',
       ...userIdQuery
     },
     null!

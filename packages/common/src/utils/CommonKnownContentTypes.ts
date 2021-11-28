@@ -17,16 +17,3 @@ export const CommonKnownContentTypes = {
   ts: 'application/octet-stream',
   js: 'application/octet-stream'
 }
-
-/**
- * guessContentType function to get contentType from url.
- *
- * @author Robert Long
- * @param  {any} url
- * @return {string}     [contentType]
- */
-
-export function guessContentType(url): string {
-  const extension = new URL(url).pathname.split('.').pop()!
-  return CommonKnownContentTypes[extension]
-}
