@@ -4,7 +4,7 @@ import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetUploadArguments } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
-import { generateAvatarThumbnail } from './generateAvatarThumbnail'
+// import { generateAvatarThumbnail } from './generateAvatarThumbnail'
 import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
 import fs from 'fs'
 import path from 'path'
@@ -15,6 +15,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
   const avatarsToInstall = fs.readdirSync(avatarsFolder, { withFileTypes: true }).map((dirent) => {
     return {
       avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
+      thumbnail: Buffer.from([]), // todo
       avatarName: dirent.name.replace(/\..+$/, ''), // remove extension
       isPublicAvatar: true
     }
@@ -33,9 +34,8 @@ export const uploadAvatarStaticResource = async (
 ) => {
   const key = `avatars/${data.userId ?? 'public'}/${data.avatarName}`
 
-  const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
-
-  if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
+  // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
+  // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
 
   // make userId optional and safe for feathers create
   const userIdQuery = data.userId ? { userId: data.userId } : {}
@@ -102,7 +102,7 @@ export const uploadAvatarStaticResource = async (
   promises.push(
     provider.putObject({
       Key: `${key}.png`,
-      Body: thumbnail,
+      Body: data.thumbnail as Buffer,
       ContentType: CommonKnownContentTypes.png
     })
   )

@@ -4,16 +4,9 @@ import {
   PerspectiveCamera,
   Scene,
   sRGBEncoding,
-  LinearEncoding,
   WebGLRenderer,
   Box3,
-  Vector3,
-  DoubleSide,
-  MeshNormalMaterial,
-  BoxGeometry,
-  Mesh,
-  Texture,
-  Vector2
+  Vector3
 } from 'three'
 import {
   MAX_ALLOWED_TRIANGLES,
@@ -22,9 +15,13 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { createGLTFLoader } from '@xrengine/engine/src/assets/functions/createGLTFLoader'
 import { createCanvas } from 'canvas'
-import gl from 'gl'
+// import gl from '@fable/gl'
 import { loadDRACODecoder } from '@xrengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
-import encode from 'image-encode'
+// import encode from 'image-encode'
+
+/**
+ * gl is problematic, we need to look into a better way to handle this
+ */
 
 let camera: PerspectiveCamera, scene: Scene, renderer: WebGLRenderer, loader, canvas, context
 
@@ -58,10 +55,11 @@ const createThreeScene = () => {
 
   canvas = createCanvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
   canvas.addEventListener = () => {} // mock function to avoid errors inside THREE.WebGlRenderer()
-  context = gl(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, { preserveDrawingBuffer: true })
+  // context = gl(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, { preserveDrawingBuffer: true })
+  console.log(canvas, context)
   renderer = new WebGLRenderer({
     canvas,
-    context,
+    // context,
     antialias: true,
     preserveDrawingBuffer: true,
     alpha: true
@@ -86,10 +84,10 @@ export const generateAvatarThumbnail = async (avatarModel: Buffer): Promise<Buff
 
   scene.remove(model.scene)
   validate(model.scene)
-
-  const pixels = new Uint8Array(THUMBNAIL_WIDTH * THUMBNAIL_HEIGHT * 4)
-  context.readPixels(0, 0, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, context.RGBA, context.UNSIGNED_BYTE, pixels)
-  const outputBuffer = Buffer.from(encode(pixels.buffer, [THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT], 'png'))
+  const outputBuffer = canvas.toBuffer()
+  // const pixels = new Uint8Array(THUMBNAIL_WIDTH * THUMBNAIL_HEIGHT * 4)
+  // context.readPixels(0, 0, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, context.RGBA, context.UNSIGNED_BYTE, pixels)
+  // const outputBuffer = Buffer.from(encode(pixels.buffer, [THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT], 'png'))
   return outputBuffer
 }
 
