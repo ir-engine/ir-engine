@@ -22,18 +22,20 @@ export const uploadAvatarStaticResource = async (
 
   // make userId optional and safe for feathers create
   const userIdQuery = data.userId ? { userId: data.userId } : {}
+  console.log(data)
+  const name = data.avatarName ?? 'Avatar-' + Math.round(Math.random() * 10000)
 
   const [existingModel, existingThumbnail] = await Promise.all([
     app.service('static-resource').find({
       query: {
-        name: data.avatarName,
+        name,
         staticResourceType: 'avatar',
         ...userIdQuery
       }
     }),
     app.service('static-resource').find({
       query: {
-        name: data.avatarName,
+        name,
         staticResourceType: 'user-thumbnail',
         ...userIdQuery
       }
@@ -54,12 +56,12 @@ export const uploadAvatarStaticResource = async (
   )
 
   // add model to static resources
-  const modelURL = getCachedAsset(`${key}.glb`, provider.cacheDomain)
+  const avatarURL = getCachedAsset(`${key}.glb`, provider.cacheDomain)
   if (existingModel.data.length) {
     promises.push(provider.deleteResources([existingModel.data[0].id]))
     promises.push(
       app.service('static-resource').patch(existingModel.data[0].id, {
-        url: modelURL,
+        url: avatarURL,
         key: `${key}.glb`
       })
     )
@@ -69,7 +71,7 @@ export const uploadAvatarStaticResource = async (
         {
           name: data.avatarName,
           mimeType: CommonKnownContentTypes.glb,
-          url: modelURL,
+          url: avatarURL,
           key: `${key}.glb`,
           staticResourceType: 'avatar',
           ...userIdQuery
@@ -115,6 +117,13 @@ export const uploadAvatarStaticResource = async (
   }
 
   await Promise.all(promises)
+
+  console.log('Successfully uploaded avatar!', avatarURL)
+
+  return {
+    avatarURL,
+    thumbnailURL
+  }
 }
 
 export const removeAvatarFromDatabase = async (app: Application, name: string) => {}

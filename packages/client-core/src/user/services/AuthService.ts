@@ -38,7 +38,7 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
-import { AssetUploadArguments, UploadAssetInterface } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+import { AssetUploadArguments } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
 type AuthStrategies = {
   jwt: Boolean
@@ -675,140 +675,30 @@ export const AuthService = {
     }
   },
   uploadAvatarModel: async (model: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    const uploadArguments: UploadAssetInterface = {
+    const uploadArguments: AssetUploadArguments = {
       avatar: model,
-      args: {
-        avatarName,
-        isPublicAvatar
-      } as AssetUploadArguments
+      avatarName,
+      isPublicAvatar
     }
     const response = await client.service('upload-asset').create(uploadArguments)
-    console.log(response)
-    return
-    const dispatch = useDispatch()
-    {
-      const token = accessAuthState().authUser.accessToken.value
-      const name = avatarName ? avatarName : model.name.substring(0, model.name.lastIndexOf('.'))
-      // const [modelURL, thumbnailURL] = await Promise.all([
-      //   client.service('upload-presigned').get('', {
-      //     query: { type: 'avatar', fileName: name + '.glb', fileSize: model.size, isPublicAvatar: isPublicAvatar }
-      //   }),
-      //   client.service('upload-presigned').get('', {
-      //     query: {
-      //       type: 'user-thumbnail',
-      //       fileName: name + '.png',
-      //       fileSize: thumbnail.size,
-      //       mimeType: thumbnail.type,
-      //       isPublicAvatar: isPublicAvatar
-      //     }
-      //   })
-      // ])
-
-      // const modelData = new FormData()
-      // Object.keys(modelURL.fields).forEach((key) => modelData.append(key, modelURL.fields[key]))
-      // modelData.append('acl', 'public-read')
-      // modelData.append(modelURL.local ? 'media' : 'file', model)
-      // if (modelURL.local) {
-      //   let uploadPath = 'avatars'
-
-      //   if (modelURL.fields.Key) {
-      //     uploadPath = modelURL.fields.Key
-      //     uploadPath = uploadPath.substring(0, uploadPath.lastIndexOf('/'))
-      //   }
-
-      //   modelData.append('uploadPath', uploadPath)
-      //   modelData.append('id', `${name}.glb`)
-      //   modelData.append('skipStaticResource', 'true')
-      // }
-
-      // console.log('modelData', modelData)
-      // // Upload Model file to S3
-      // const modelOperation =
-      //   modelURL.local === true
-      //     ? axios.post(`${Config.publicRuntimeConfig.apiServer}/media`, modelData, {
-      //         headers: {
-      //           'Content-Type': 'multipart/form-data',
-      //           Authorization: 'Bearer ' + token
-      //         }
-      //       })
-      //     : axios.post(modelURL.url, modelData)
-      // return modelOperation
-      //   .then(async (res) => {
-      // const thumbnailData = new FormData()
-      // Object.keys(thumbnailURL.fields).forEach((key) => thumbnailData.append(key, thumbnailURL.fields[key]))
-      // thumbnailData.append('acl', 'public-read')
-      // thumbnailData.append(thumbnailURL.local === true ? 'media' : 'file', thumbnail)
-      // if (thumbnailURL.local) {
-      //   let uploadPath = 'avatars'
-
-      //   if (thumbnailURL.fields.Key) {
-      //     uploadPath = thumbnailURL.fields.Key
-      //     uploadPath = uploadPath.substring(0, uploadPath.lastIndexOf('/'))
-      //   }
-      //   thumbnailData.append('uploadPath', uploadPath)
-      //   thumbnailData.append('name', `${name}.png`)
-      //   thumbnailData.append('skipStaticResource', 'true')
-      // }
-
-      const modelCloudfrontURL = `https://${modelURL.cacheDomain}/${modelURL.fields.Key}`
-      const thumbnailCloudfrontURL = `https://${thumbnailURL.cacheDomain}/${thumbnailURL.fields.Key}`
+    if (response && !isPublicAvatar) {
+      const dispatch = useDispatch()
+      dispatch(AuthAction.userAvatarIdUpdated(response))
       const selfUser = accessAuthState().user
-      // Upload Thumbnail file to S3
-      // const thumbnailOperation =
-      //   thumbnailURL.local === true
-      //     ? axios.post(`${Config.publicRuntimeConfig.apiServer}/media`, thumbnailData, {
-      //         headers: {
-      //           'Content-Type': 'multipart/form-data',
-      //           Authorization: 'Bearer ' + token
-      //         }
-      //       })
-      //     : axios.post(thumbnailURL.url, thumbnailData)
-      // await thumbnailOperation
-      // .then((res: any) => {
       client
-        .service('avatar')
-        .patch({
-          userId: isPublicAvatar ? null : selfUser.id.value
-          // todo
+        .service('user')
+        .patch(selfUser.id.value, { avatarId: avatarName })
+        .then((_) => {
+          AlertService.dispatchAlertSuccess('Avatar Uploaded Successfully.')
+          if (Network?.instance?.transport)
+            (Network.instance.transport as any).sendNetworkStatUpdateMessage({
+              type: MessageTypes.AvatarUpdated,
+              userId: selfUser.id.value,
+              avatarId: avatarName,
+              avatarURL: response.avatarURL,
+              thumbnailURL: response.thumbnailURL
+            })
         })
-        .then((res) => {
-          if (isPublicAvatar !== true) {
-            dispatch(AuthAction.userAvatarIdUpdated(res))
-            client
-              .service('user')
-              .patch(selfUser.id.value, { avatarId: name })
-              .then((_) => {
-                AlertService.dispatchAlertSuccess('Avatar Uploaded Successfully.')
-                if (Network?.instance?.transport)
-                  (Network.instance.transport as any).sendNetworkStatUpdateMessage({
-                    type: MessageTypes.AvatarUpdated,
-                    userId: selfUser.id.value,
-                    avatarId: name,
-                    avatarURL: modelCloudfrontURL,
-                    thumbnailURL: thumbnailCloudfrontURL
-                  })
-              })
-          }
-        })
-        .catch((err) => {
-          console.error('Error occurred while saving Avatar.', err)
-
-          // IF error occurs then removed Model and thumbnail from S3
-          // client
-          //   .service('upload-presigned')
-          //   .remove('', { query: { keys: [modelURL.fields.Key, thumbnailURL.fields.Key] } })
-        })
-      // })
-      // .catch((err) => {
-      //   console.error('Error occurred while uploading thumbnail.', err)
-
-      //   // IF error occurs then removed Model and thumbnail from S3
-      //   client.service('upload-presigned').remove('', { query: { keys: [modelURL.fields.Key] } })
-      // })
-      // })
-      // .catch((err) => {
-      //   console.error('Error occurred while uploading model.', err)
-      // })
     }
   },
   removeAvatar: async (keys: [string]) => {

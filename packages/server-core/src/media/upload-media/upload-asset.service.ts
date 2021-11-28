@@ -3,11 +3,11 @@ import multer from 'multer'
 import { Params } from '@feathersjs/feathers'
 import hooks from './upload-asset.hooks'
 
-const multipartMiddleware = multer()
+const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    upload: any
+    'upload-asset': any
   }
 }
 
@@ -21,7 +21,7 @@ export default (app: Application): void => {
       console.log('\n\nupload-asset', data, params, '\n\n')
       // TODO: make this an exposable abstraction or something
       if (data.avatar) {
-        await app.service('avatar').create(data, null!)
+        return await app.service('avatar').create(data, null!)
       }
     }
   })
