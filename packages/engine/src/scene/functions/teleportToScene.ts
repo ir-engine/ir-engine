@@ -73,7 +73,7 @@ export const teleportToScene = async (
   Engine.camera.layers.enable(ObjectLayers.Avatar)
   Engine.camera.layers.disable(ObjectLayers.Scene)
 
-  // setObjectLayers(playerObj.value, ObjectLayers.Render, ObjectLayers.Avatar)
+  setObjectLayers(playerObj.value, ObjectLayers.Render, ObjectLayers.Avatar)
 
   // TODO: add BPCEM of old and new scenes and fade them in and out too
   await hyperspaceEffect.fadeIn(delta)
@@ -111,7 +111,7 @@ export const teleportToScene = async (
 
   await hyperspaceEffect.fadeOut(delta)
 
-  // setObjectLayers(playerObj.value, ObjectLayers.Render, ObjectLayers.Scene)
+  setObjectLayers(playerObj.value, ObjectLayers.Render, ObjectLayers.Scene)
 
   Engine.camera.layers.disable(ObjectLayers.Portal)
   Engine.camera.layers.disable(ObjectLayers.Avatar)
