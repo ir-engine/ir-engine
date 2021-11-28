@@ -27,7 +27,7 @@ describe(('avatar.class'), () => {
   // })
   describe('getAvatarFromStaticResources', () => {
     it('should get single avatar and thumbnail', async () => {
-      const avatar = await getAvatarFromStaticResources(app, 'Allison')
+      const avatar = await getAvatarFromStaticResources(app, 'CyberbotGreen')
       assert.equal(avatar.length, 1)
       assert(avatar[0].avatarId)
       assert(avatar[0].avatarURL)
