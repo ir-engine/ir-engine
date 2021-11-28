@@ -3,7 +3,6 @@ import config from './appconfig'
 import net from 'net'
 
 const createCorsServer = (useSSL, certOptions, port) => {
-  const host = config.server.hostname
   cors_proxy
     .createServer({
       httpsOptions: useSSL
@@ -16,8 +15,8 @@ const createCorsServer = (useSSL, certOptions, port) => {
       requireHeader: ['origin', 'x-requested-with'],
       removeHeaders: ['cookie', 'cookie2']
     })
-    .listen(port, host, function () {
-      console.info('Running CORS on ' + host + ':' + port)
+    .listen(port, function () {
+      console.info('Running CORS on port:' + port)
     })
 }
 
