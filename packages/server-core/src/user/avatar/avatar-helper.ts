@@ -11,6 +11,14 @@ import path from 'path'
 
 const provider = useStorageProvider()
 
+export type AvatarUploadArguments = {
+  avatar: Buffer
+  thumbnail: Buffer
+  avatarName: string
+  isPublicAvatar?: boolean
+  userId?: string
+}
+
 export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
   const avatarsToInstall = fs.readdirSync(avatarsFolder, { withFileTypes: true }).map((dirent) => {
     return {
@@ -27,11 +35,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
   await Promise.all(promises)
 }
 
-export const uploadAvatarStaticResource = async (
-  app: Application,
-  data: AssetUploadArguments & { userId?: string },
-  params?: Params
-) => {
+export const uploadAvatarStaticResource = async (app: Application, data: AvatarUploadArguments, params?: Params) => {
   const key = `avatars/${data.userId ?? 'public'}/${data.avatarName}`
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
@@ -39,7 +43,6 @@ export const uploadAvatarStaticResource = async (
 
   // make userId optional and safe for feathers create
   const userIdQuery = data.userId ? { userId: data.userId } : {}
-  console.log(data)
   const name = data.avatarName ?? 'Avatar-' + Math.round(Math.random() * 10000)
 
   const [existingModel, existingThumbnail] = await Promise.all([
@@ -77,10 +80,14 @@ export const uploadAvatarStaticResource = async (
   if (existingModel.data.length) {
     promises.push(provider.deleteResources([existingModel.data[0].id]))
     promises.push(
-      app.service('static-resource').patch(existingModel.data[0].id, {
-        url: avatarURL,
-        key: `${key}.glb`
-      })
+      app.service('static-resource').patch(
+        existingModel.data[0].id,
+        {
+          url: avatarURL,
+          key: `${key}.glb`
+        },
+        { isInternal: true }
+      )
     )
   } else {
     promises.push(
@@ -93,7 +100,7 @@ export const uploadAvatarStaticResource = async (
           staticResourceType: 'avatar',
           ...userIdQuery
         },
-        null!
+        { isInternal: true }
       )
     )
   }
@@ -112,10 +119,14 @@ export const uploadAvatarStaticResource = async (
   if (existingThumbnail.data.length) {
     promises.push(provider.deleteResources([existingThumbnail.data[0].id]))
     promises.push(
-      app.service('static-resource').patch(existingThumbnail.data[0].id, {
-        url: thumbnailURL,
-        key: `${key}.png`
-      })
+      app.service('static-resource').patch(
+        existingThumbnail.data[0].id,
+        {
+          url: thumbnailURL,
+          key: `${key}.png`
+        },
+        { isInternal: true }
+      )
     )
   } else {
     promises.push(
@@ -128,7 +139,7 @@ export const uploadAvatarStaticResource = async (
           staticResourceType: 'user-thumbnail',
           ...userIdQuery
         },
-        null!
+        { isInternal: true }
       )
     )
   }

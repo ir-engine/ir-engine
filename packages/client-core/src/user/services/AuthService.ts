@@ -674,11 +674,13 @@ export const AuthService = {
       dispatch(AuthAction.avatarUpdated(result))
     }
   },
-  uploadAvatarModel: async (model: Blob, avatarName: string, isPublicAvatar?: boolean) => {
+  uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
     const uploadArguments: AssetUploadArguments = {
-      avatar: model,
-      avatarName,
-      isPublicAvatar
+      files: [avatar, thumbnail],
+      args: {
+        avatarName,
+        isPublicAvatar
+      }
     }
     const response = await client.service('upload-asset').create(uploadArguments)
     if (response && !isPublicAvatar) {

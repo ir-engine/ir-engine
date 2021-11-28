@@ -231,13 +231,36 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
   uploadAvatar = () => {
     if (this.state.obj == null) return
     const error = this.validate(this.state.obj)
-    // if (error) {
-    //   this.setState({ error })
-    //   return
-    // }
+    if (error) {
+      this.setState({ error })
+      return
+    }
     console.log('upload', this.state, error)
 
-    AuthService.uploadAvatarModel(this.state.selectedFile, this.state.avatarName, this.props.isPublicAvatar)
+    const canvas = document.createElement('canvas')
+    ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
+    const newContext = canvas.getContext('2d')
+    newContext?.drawImage(this.renderer.domElement, 0, 0)
+
+    if (this.state.selectedThumbnail == null)
+      canvas.toBlob(async (blob) => {
+        await AuthService.uploadAvatarModel(
+          this.state.selectedFile,
+          blob!,
+          this.state.avatarName,
+          this.props.isPublicAvatar
+        )
+        this.props.changeActiveMenu(Views.Profile)
+      })
+    else {
+      AuthService.uploadAvatarModel(
+        this.state.selectedFile,
+        this.state.selectedThumbnail,
+        this.state.avatarName,
+        this.props.isPublicAvatar
+      )
+      this.props.changeActiveMenu(Views.Profile)
+    }
   }
 
   render() {

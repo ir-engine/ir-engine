@@ -13,6 +13,7 @@ import { withTranslation } from 'react-i18next'
 import * as THREE from 'three'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
+import { AuthService } from '../../../services/AuthService'
 
 interface State {
   selectedFile: any
@@ -206,7 +207,12 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
     var thumbnailName = this.state.avatarUrl.substring(0, this.state.avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
-      await this.props.uploadAvatarModel(this.state.selectedFile, this.state.avatarName, this.props.isPublicAvatar)
+      await AuthService.uploadAvatarModel(
+        this.state.selectedFile,
+        new File([blob!], thumbnailName),
+        this.state.avatarName,
+        this.props.isPublicAvatar
+      )
       this.props.changeActiveMenu(Views.Profile)
     })
   }
