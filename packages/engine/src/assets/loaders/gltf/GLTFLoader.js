@@ -270,7 +270,6 @@ class GLTFLoader extends Loader {
 		let content;
 		const extensions = {};
 		const plugins = {};
-    console.log(data)
 
 		if ( typeof data === 'string' ) {
 
@@ -279,7 +278,6 @@ class GLTFLoader extends Loader {
 		} else {
 
 			const magic = LoaderUtils.decodeText( new Uint8Array( data, 0, 4 ) );
-      console.log(magic)
 
 			if ( magic === BINARY_EXTENSION_HEADER_MAGIC ) {
 
