@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@capacitor/core": "3.3.2",
-    "@feathersjs/client": "5.0.0-pre.9",
+    "@feathersjs/client": "5.0.0-pre.10",
     "@hookstate/core": "3.0.13",
     "@mui/icons-material": "5.2.0",
     "@mui/material": "5.2.0",
@@ -76,7 +76,6 @@
     "@types/yuka": "0.7.1",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "socket.io-client": "4.4.0",
     "trace-unhandled": "2.0.1",
     "vite": "2.6.14",
     "vite-plugin-html": "2.1.1",
