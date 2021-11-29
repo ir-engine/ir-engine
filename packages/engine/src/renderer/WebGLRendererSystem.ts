@@ -97,6 +97,8 @@ export class EngineRenderer {
   qualityLevel: number = this.maxQualityLevel
   /** Previous Quality leve. */
   prevQualityLevel: number = this.qualityLevel
+  /** Sensitive Quality leve. */
+  qualityLevelSensitivity = 0.1
   /** point at which we downgrade quality level (large delta) */
   maxRenderDelta = 1000 / 40 // 40 fps = 25 ms
   /** point at which we upgrade quality level (small delta) */
@@ -275,15 +277,15 @@ export class EngineRenderer {
     const averageDelta = this.calculateMovingAverage(delta)
 
     // dont downgrade when scene is still loading in
-    if (useWorld().elapsedTime > 5) {
+    if (Engine.sceneLoaded) {
       if (averageDelta > this.minRenderDelta) {
-        this.qualityLevel--
+        this.qualityLevel -= this.qualityLevelSensitivity
       }
       if (averageDelta < this.maxRenderDelta) {
-        this.qualityLevel++
+        this.qualityLevel += this.qualityLevelSensitivity
       }
     }
-    this.qualityLevel = Math.round(MathUtils.clamp(this.qualityLevel, 1, this.maxQualityLevel))
+    this.qualityLevel = MathUtils.clamp(this.qualityLevel, 1, this.maxQualityLevel)
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
