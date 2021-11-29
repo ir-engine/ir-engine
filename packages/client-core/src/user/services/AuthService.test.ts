@@ -29,9 +29,9 @@ describe('Auth Service', () => {
       const mockAuthState = mockState()
       const mockData = {
         "id": "c7456310-48d5-11ec-8706-c7fb367d91f0",
-        "key": "avatars/Allison.glb",
-        "name": "Allison",
-        "url": "/models/avatars/Allison.glb",
+        "key": "avatars/public/CyberbotGreen.glb",
+        "name": "CyberbotGreen",
+        "url": "https://host.name/avatars/public/CyberbotGreen.glb",
         "staticResourceType": "avatar",
         "userId": null
       } as any
