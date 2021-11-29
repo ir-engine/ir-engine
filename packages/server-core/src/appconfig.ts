@@ -3,6 +3,7 @@ import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
 import path from 'path'
 import url from 'url'
+import '@xrengine/engine/src/patchEngineNode'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 

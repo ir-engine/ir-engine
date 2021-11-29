@@ -19,6 +19,8 @@ store.receptors.push((action: AwsSettingActionType): any => {
     switch (action.type) {
       case 'ADMIN_AWS_SETTING_FETCHED':
         return s.merge({ awsSettings: action.adminAWSSettingResult.data, updateNeeded: false })
+      case 'ADMIN_AWS_SETTING_PATCHED':
+        return s.updateNeeded.set(true)
     }
   }, action.type)
 })
@@ -36,6 +38,18 @@ export const AwsSettingService = {
         const awsSetting = await client.service('aws-setting').find()
         dispatch(AwsSettingAction.awsSettingRetrieved(awsSetting))
       } catch (err) {
+        AlertService.dispatchAlertError(err)
+      }
+    }
+  },
+  patchAwsSetting: async (data: any, id: string) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        await client.service('aws-setting').patch(id, data)
+        dispatch(AwsSettingAction.awsSettingPatched())
+      } catch (err) {
+        console.log(err)
         AlertService.dispatchAlertError(err.message)
       }
     }
@@ -49,6 +63,11 @@ export const AwsSettingAction = {
     return {
       type: 'ADMIN_AWS_SETTING_FETCHED' as const,
       adminAWSSettingResult: adminAWSSettingResult
+    }
+  },
+  awsSettingPatched: () => {
+    return {
+      type: 'ADMIN_AWS_SETTING_PATCHED' as const
     }
   }
 }

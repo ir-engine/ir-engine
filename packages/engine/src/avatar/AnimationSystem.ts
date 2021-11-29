@@ -37,7 +37,7 @@ export default async function AnimationSystem(world: World): Promise<System> {
     })
   }
 
-  await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
+  await AnimationManager.instance.getAnimations()
 
   return () => {
     const { delta } = world

@@ -18,8 +18,7 @@ export const TheFeedsBookmarkService = {
         let thefeeds = await client.service('thefeeds-bookmark').create({ thefeedsId })
         dispatch(TheFeedsBookmarkAction.addTheFeedsBookmark(thefeeds))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -30,8 +29,7 @@ export const TheFeedsBookmarkService = {
         await client.service('thefeeds-bookmark').remove(thefeedsId)
         dispatch(TheFeedsBookmarkAction.removeTheFeedsBookmark(thefeedsId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }
