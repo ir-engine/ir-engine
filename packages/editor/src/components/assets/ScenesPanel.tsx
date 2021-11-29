@@ -13,7 +13,7 @@ import { getScenes } from '../../functions/sceneFunctions'
 
 const contextMenuId = 'scenes-menu'
 
-export default function ScenesPanel({ projectName, loadScene, newScene }) {
+export default function ScenesPanel({ projectName, loadScene, newScene, refetchScenes, setRefetchScenes }) {
   const { t } = useTranslation()
   const panelRef = useRef(null)
   const [loading, setLoading] = useState(true)
@@ -34,8 +34,10 @@ export default function ScenesPanel({ projectName, loadScene, newScene }) {
   }
 
   useEffect(() => {
+    console.log('--------Fetching Items useEffect------')
     fetchItems()
-  }, [])
+    refetchScenes && setRefetchScenes(false)
+  }, [refetchScenes])
 
   const onClickExisting = (scene) => {
     if (currentSceneName !== scene.name) {
@@ -47,6 +49,8 @@ export default function ScenesPanel({ projectName, loadScene, newScene }) {
   useEffect(() => {
     setLoading(false)
   }, [scenes])
+
+  console.log('---------Child Component Value--------', refetchScenes)
 
   return (
     <>

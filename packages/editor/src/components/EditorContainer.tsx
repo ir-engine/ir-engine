@@ -139,6 +139,7 @@ const EditorContainer = (props) => {
   const [DialogComponent, setDialogComponent] = useState(null)
   const [modified, setModified] = useState(false)
   const [sceneLoaded, setSceneLoaded] = useState(false)
+  const [refetchScenes, setRefetchScenes] = useState(false)
   const dispatch = useDispatch()
   const history = useHistory()
 
@@ -482,6 +483,10 @@ const EditorContainer = (props) => {
       setDialogComponent(
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
       )
+    } finally {
+      console.log('--------Setting Refetch------')
+      setRefetchScenes(true)
+      console.log(refetchScenes)
     }
   }
 
@@ -545,7 +550,9 @@ const EditorContainer = (props) => {
   const toolbarMenu = generateToolbarMenu()
   if (!editorReady) return <></>
 
-  let defaultLayout: LayoutData = {
+  console.log('Value', refetchScenes)
+
+  const defaultLayout: LayoutData = {
     dockbox: {
       mode: 'horizontal' as DockMode,
       children: [
@@ -563,7 +570,15 @@ const EditorContainer = (props) => {
                       <PanelTitle>Scenes</PanelTitle>
                     </PanelDragContainer>
                   ),
-                  content: <ScenesPanel newScene={newScene} loadScene={reRouteToLoadScene} projectName={projectName} />
+                  content: (
+                    <ScenesPanel
+                      newScene={newScene}
+                      projectName={projectName}
+                      refetchScenes={refetchScenes}
+                      loadScene={reRouteToLoadScene}
+                      setRefetchScenes={setRefetchScenes}
+                    />
+                  )
                 },
                 {
                   id: 'filesPanel',
