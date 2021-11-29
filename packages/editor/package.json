@@ -33,6 +33,7 @@
     "@hookstate/core": "3.0.13",
     "@mui/icons-material": "5.2.0",
     "@mui/material": "5.2.0",
+    "@mui/styles": "5.2.0",
     "@styled-icons/boxicons-regular": "10.38.0",
     "@styled-icons/boxicons-solid": "^10.38.0",
     "@styled-icons/fa-regular": "10.34.0",
@@ -91,6 +92,7 @@
     "rollup-plugin-sass": "1.2.9",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.31.1",
+    "trace-unhandled": "2.0.1",
     "typescript": "4.5.2"
   },
   "license": "MIT",

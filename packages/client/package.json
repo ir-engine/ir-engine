@@ -65,16 +65,19 @@
     "sass": "1.43.4",
     "socket.io-client": "4.4.0",
     "three": "0.135.0",
-    "webxr-native": "0.3.0"
+    "webxr-native": "0.3.0",
+    "yuka": "0.7.6"
   },
   "devDependencies": {
     "@hookstate/devtools": "3.0.1",
     "@types/node": "16.11.10",
     "@types/react": "17.0.36",
     "@types/react-dom": "17.0.11",
+    "@types/yuka": "0.7.1",
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "socket.io-client": "4.4.0",
+    "trace-unhandled": "2.0.1",
     "vite": "2.6.14",
     "vite-plugin-html": "2.1.1",
     "vite-plugin-optimize-persist": "0.1.0",
