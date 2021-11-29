@@ -376,12 +376,14 @@
         {
           "name": "portal",
           "props": {
-            "locationName": "black-sun",
-            "linkedPortalId": "0EA643B7-AA51-4577-8380-30817ED665C9",
+            "locationName": "apartment",
+            "linkedPortalId": "BF989CD9-DEFB-41D0-B536-0F723D5A8DBD",
+            "modelUrl": "__$project$__/default-project/assets/portal_frame.glb",
+            "displayText": "Apartment",
             "spawnPosition": {
-              "x": 49.4549851565102,
+              "x": 49.45498515651019,
               "y": 1.979821728775554,
-              "z": -0.008053372554778377
+              "z": -0.008053372554778386
             },
             "spawnRotation": {
               "x": 3.141592653589793,
