@@ -115,7 +115,7 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = [...Engine.objectLayerList[ObjectLayers.Scene]]
+  const sceneObjects = Array.from(Engine.objectLayerList[ObjectLayers.Scene] || [])
 
   const followCamera = getComponent(entity, FollowCameraComponent)
 
