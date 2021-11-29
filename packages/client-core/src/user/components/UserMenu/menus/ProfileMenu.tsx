@@ -23,6 +23,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar'
 import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import { useHistory } from 'react-router-dom'
 
 interface Props {
   changeActiveMenu?: any
@@ -43,6 +44,8 @@ const initialState = {
   emailMagicLink: false
 }
 
+const history = useHistory()
+const selfUser = useAuthState().user
 const ProfileMenu = (props: Props): any => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
