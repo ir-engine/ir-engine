@@ -36,7 +36,7 @@
     "@capacitor/core": "3.3.2",
     "@emotion/react": "11.7.0",
     "@emotion/styled": "11.6.0",
-    "@feathersjs/client": "5.0.0-pre.9",
+    "@feathersjs/client": "5.0.0-pre.15",
     "@hookstate/core": "3.0.13",
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",
