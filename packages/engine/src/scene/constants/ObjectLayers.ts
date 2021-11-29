@@ -1,4 +1,4 @@
-export const CameraLayers = {
+export const ObjectLayers = {
   Render: 0, // DEFAULT: TRUE - everything to render should have layer 0 enabled
   Scene: 1, // DEFAULT: TRUE
   Portal: 2,

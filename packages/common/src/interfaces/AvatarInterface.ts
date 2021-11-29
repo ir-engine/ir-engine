@@ -7,3 +7,9 @@ export interface AvatarInterface {
   staticResourceType?: string
   userId: string
 }
+
+export type AvatarProps = {
+  avatarId: string
+  avatarURL: string
+  thumbnailURL?: string
+}

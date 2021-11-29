@@ -11,6 +11,7 @@ import { addInputActionMapping } from '../functions/parseInputActionMapping'
 import { CommandManager } from './CommandManager'
 import { SceneManager } from './SceneManager'
 import { setTransformMode } from '../systems/EditorControlSystem'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 export class ControlManager {
   static instance: ControlManager = new ControlManager()
@@ -87,7 +88,7 @@ export class ControlManager {
    */
   leavePlayMode() {
     this.isInPlayMode = false
-    Engine.camera.layers.enable(1)
+    Engine.camera.layers.enable(ObjectLayers.Scene)
     this.playModeControls.disable()
     Engine.scene.traverse((node: any) => {
       if (node.isNode) {
