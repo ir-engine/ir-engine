@@ -1,5 +1,5 @@
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
-import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { beforeMaterialCompile } from '../../scene/classes/BPCEMShader'
@@ -110,7 +110,7 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
     for (const entity of persistQuery.enter()) {
       const object3DComponent = getComponent(entity, Object3DComponent)
       object3DComponent?.value?.traverse((obj) => {
-        obj.layers.enable(CameraLayers.Portal)
+        obj.layers.enable(ObjectLayers.Portal)
       })
     }
 

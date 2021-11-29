@@ -19,6 +19,7 @@ import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { ObjectLayers } from './scene/constants/ObjectLayers'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -58,7 +59,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
 
   if (options.scene.disabled !== true) {
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-    Engine.camera.layers.set(0)
+    Engine.camera.layers.set(ObjectLayers.Render)
     Engine.scene.add(Engine.camera)
     Engine.camera.add(Engine.audioListener)
     addClientInputListeners(canvas)
@@ -76,7 +77,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
 
 const configureEditor = async (options: Required<InitializeOptions>) => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-  Engine.camera.layers.enable(1)
+  Engine.camera.layers.enable(ObjectLayers.Scene)
   Engine.camera.name = 'Camera'
 
   await registerEditorSystems(options)
@@ -117,6 +118,8 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.UPDATE, import('./xr/systems/XRSystem'))
   registerSystem(SystemUpdateType.UPDATE, import('./input/systems/ClientInputSystem'))
   registerSystem(SystemUpdateType.UPDATE, import('./navigation/systems/AutopilotSystem'))
+  // Avatar IKRig
+  registerSystem(SystemUpdateType.UPDATE, import('./ikrig/systems/SkeletonRigSystem'))
 
   registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
 
@@ -149,8 +152,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarControllerSystem'))
-  // Avatar IKRig
-  registerSystem(SystemUpdateType.FIXED, import('./ikrig/systems/SkeletonRigSystem'))
 
   registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
 

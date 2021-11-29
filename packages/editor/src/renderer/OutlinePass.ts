@@ -21,6 +21,7 @@ import {
 } from 'three'
 import { CopyShader } from 'three/examples/jsm/shaders/CopyShader'
 import { Pass } from 'three/examples/jsm/postprocessing/Pass'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 /**
  * Adapted from THREE.OutlinePass
  * Original author spidersharma / http://eduperiment.com/
@@ -268,7 +269,7 @@ export default class OutlinePass extends Pass {
       for (const mesh of this.selectedRenderables) {
         mesh.visible = mesh.userData.prevVisible
         if (!mesh.layers.test(this.renderableLayers)) {
-          mesh.layers.enable(0)
+          mesh.layers.enable(ObjectLayers.Render)
           mesh.userData.prevDisableRenderLayer = true
         }
         delete mesh.userData.prevVisible

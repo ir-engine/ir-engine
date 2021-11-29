@@ -107,7 +107,7 @@ export const PartyService = {
         const partyResult = await client.service('party').get(null)
         dispatch(PartyAction.loadedParty(partyResult))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -161,8 +161,7 @@ export const PartyService = {
       try {
         await client.service('party').create({})
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -181,8 +180,7 @@ export const PartyService = {
         }
         await client.service('party').remove(partyId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -192,8 +190,7 @@ export const PartyService = {
       try {
         await client.service('party-user').remove(partyUserId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -205,8 +202,7 @@ export const PartyService = {
           isOwner: 1
         })
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

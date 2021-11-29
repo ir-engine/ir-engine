@@ -29,8 +29,7 @@ export const FeedReportsService = {
         await client.service('feed-report').create({ feedId })
         // dispatch(addFeedReport(feedId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }
