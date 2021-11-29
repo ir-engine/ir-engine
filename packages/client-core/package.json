@@ -30,7 +30,7 @@
     "react": "17.0.2"
   },
   "dependencies": {
-    "@feathersjs/client": "5.0.0-pre.10",
+    "@feathersjs/client": "5.0.0-pre.15",
     "@google/model-viewer": "1.9.2",
     "@hookstate/core": "3.0.13",
     "@hookstate/devtools": "^3.0.1",

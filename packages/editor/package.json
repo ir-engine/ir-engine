@@ -30,9 +30,9 @@
     "react": "17.0.2"
   },
   "dependencies": {
-    "@feathersjs/client": "5.0.0-pre.10",
-    "@feathersjs/feathers": "5.0.0-pre.10",
-    "@feathersjs/rest-client": "5.0.0-pre.10",
+    "@feathersjs/client": "5.0.0-pre.15",
+    "@feathersjs/feathers": "5.0.0-pre.15",
+    "@feathersjs/rest-client": "5.0.0-pre.15",
     "@gltf-transform/core": "1.2.1",
     "@gltf-transform/functions": "1.2.1",
     "@gltf-transform/extensions": "1.2.1",
