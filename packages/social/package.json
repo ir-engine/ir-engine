@@ -21,14 +21,12 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "socket.io": "4.4.0",
     "@types/react": "17.0.36",
     "react": "17.0.2"
   },
   "peerDependencies": {
     "@types/react": "17.0.36",
-    "react": "17.0.2",
-    "socket.io": "4.4.0"
+    "react": "17.0.2"
   },
   "dependencies": {
     "@capacitor-community/http": "1.4.1",
@@ -48,8 +46,6 @@
     "@xrengine/editor": "^0.4.13",
     "@xrengine/engine": "^0.4.13",
     "app-root-path": "3.0.0",
-    "cross-env": "7.0.3",
-    "formik": "2.2.9",
     "notistack": "2.0.3",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -66,7 +62,6 @@
     "@types/react": "17.0.36",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "8.3.0",
     "typescript": "4.5.2",
     "vite": "2.6.14"
   },

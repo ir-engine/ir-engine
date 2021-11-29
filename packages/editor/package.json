@@ -47,6 +47,7 @@
     "axios": "0.24.0",
     "classnames": "2.3.1",
     "dompurify": "2.3.3",
+    "element-resize-event": "^3.0.6",
     "esbuild-plugin-sass": "0.6.0",
     "i18next": "21.5.3",
     "lodash": "4.17.21",
