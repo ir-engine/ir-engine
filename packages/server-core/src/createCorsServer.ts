@@ -31,7 +31,7 @@ const isPortTaken = (port, fn) => {
   const tester = net
     .createServer()
     .once('error', (err) => {
-      if (err.name === 'EADDRINUSE') return fn()
+      console.error(err)
     })
     .once('listening', () => {
       tester
