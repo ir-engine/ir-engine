@@ -2,7 +2,7 @@ import { Engine } from '../../ecs/classes/Engine'
 
 //updates the client list with the right username for the user
 export async function _updateUsername(userId, username) {
-  for (let [_, client] of Engine.defaultWorld.clients) {
+  for (let [_, client] of Engine.defaultWorld?.clients) {
     if (client.userId === userId) {
       client.name = username
       return

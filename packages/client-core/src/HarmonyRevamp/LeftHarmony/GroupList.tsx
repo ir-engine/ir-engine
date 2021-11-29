@@ -115,13 +115,15 @@ const GroupList = (props: Props) => {
                 className={`${classes.dFlex} ${classes.alignCenter} ${classes.flexGrow2} ${classes.my2} ${
                   classes.cpointer
                 } ${darkMode ? classes.bgActive : classes.bgActiveLight}`}
-                onClick={() => {
-                  setActiveChat('group', group), setShowChat(true)
-                }}
                 selected={persed.id === group.id}
                 button
               >
-                <div className={`${classes.mx2} ${classes.flexGrow2}`}>
+                <div
+                  className={`${classes.mx2} ${classes.flexGrow2}`}
+                  onClick={() => {
+                    setActiveChat('group', group), setShowChat(true)
+                  }}
+                >
                   <h4 className={`${classes.fontBig} ${darkMode ? classes.white : classes.textBlack}`}>{group.name}</h4>
                   <small className={classes.textMuted}>You:</small>
                   <small className={classes.textMuted}>{group.description}</small>
@@ -210,12 +212,14 @@ const GroupList = (props: Props) => {
               </ListItem>
             )
           })}
-      <ViewMembers
-        selectedGroup={selectedGroup}
-        selfUser={selfUser}
-        setOpenDrawer={setOpenDrawer}
-        openDrawer={openDrawer}
-      />
+      {openDrawer && (
+        <ViewMembers
+          selectedGroup={selectedGroup}
+          selfUser={selfUser}
+          setOpenDrawer={setOpenDrawer}
+          openDrawer={openDrawer}
+        />
+      )}
 
       <Dialog
         open={showWarning}

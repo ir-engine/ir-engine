@@ -257,6 +257,7 @@ export const GroupService = {
     {
       try {
         await client.service('group-user').remove(groupUserId)
+        dispatch(GroupAction.leftGroup())
       } catch (err) {
         console.log(err)
         AlertService.dispatchAlertError(err.message)

@@ -65,8 +65,8 @@ const ViewMembers = ({ selectedParty, selfUser, openDrawer, setOpenDrawer }: Pro
               </h1>
             </div>
             {selectedParty &&
-              selectedParty.partyUsers?.length > 0 &&
-              selectedParty.partyUsers
+              selectedParty?.partyUsers?.length > 0 &&
+              selectedParty?.partyUsers
                 .map((partyUser) => partyUser) //Makes a copy of the state; otherwise, .sort attempts to alter state directly, which hookState throws errors on
                 .sort((a, b) => a.name - b.name)
                 .map((partyUser) => {
@@ -88,7 +88,7 @@ const ViewMembers = ({ selectedParty, selfUser, openDrawer, setOpenDrawer }: Pro
                           </div>
                         )}
                       </div>
-                      {(selfPartyUser?.isOwner || selfPartyUser.id === partyUser.id) && (
+                      {(selfPartyUser?.isOwner || selfPartyUser?.id === partyUser?.id) && (
                         <IconButton className={classes.border0} onClick={() => removeUser(partyUser.id)}>
                           <Delete fontSize="small" className={classes.danger} />
                         </IconButton>

@@ -127,7 +127,7 @@ const Group = (props: Props) => {
                 <MenuItem value="1" disabled>
                   <em>Select group</em>
                 </MenuItem>
-                {invitableGroups.value.map((group) => {
+                {invitableGroups?.value.map((group) => {
                   return (
                     <MenuItem key={group.id} value={group.id}>
                       {group.name}

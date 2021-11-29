@@ -1,6 +1,8 @@
 import React, { useContext } from 'react'
 import { AddCircleOutline, Check } from '@mui/icons-material'
 import { Typography, Box, Tabs, Tab } from '@mui/material'
+import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
+import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import Friends from './Friends'
 import Group from './Group'
 import Party from './Party'
@@ -48,6 +50,13 @@ const Index = (props: Props) => {
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [value, setValue] = React.useState(invite === 'Group' ? 1 : invite === 'Party' ? 2 : 0)
+  const groupState = useGroupState()
+
+  React.useEffect(() => {
+    if (groupState.invitableUpdateNeeded.value === true && groupState.getInvitableGroupsInProgress.value !== true) {
+      GroupService.getInvitableGroups(0)
+    }
+  }, [groupState.invitableUpdateNeeded.value, groupState.getInvitableGroupsInProgress.value])
 
   const party = props.party
   const partyUsers = party?.partyUsers?.length ? party.partyUsers : []

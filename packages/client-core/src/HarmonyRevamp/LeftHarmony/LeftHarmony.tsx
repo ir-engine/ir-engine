@@ -77,6 +77,24 @@ const LeftHarmony = (props: Props) => {
   const groupState = useGroupState()
   const groupSubState = groupState.groups
 
+  React.useEffect(() => {
+    if (groupState.updateNeeded.value === true && groupState.getGroupsInProgress.value !== true) {
+      GroupService.getGroups(0)
+    }
+  }, [groupState.updateNeeded.value, groupState.getGroupsInProgress.value])
+
+  React.useEffect(() => {
+    if (friendState.updateNeeded.value === true && friendState.getFriendsInProgress.value !== true) {
+      FriendService.getFriends('', 0)
+    }
+  }, [friendState.updateNeeded.value, friendState.getFriendsInProgress.value])
+
+  React.useEffect(() => {
+    if (partyState.updateNeeded.value === true) {
+      PartyService.getParty()
+    }
+  }, [partyState.updateNeeded.value])
+
   const handleChange = (event) => {
     const mode = event.target.checked
     setDarkMode(mode)
@@ -336,26 +354,30 @@ const LeftHarmony = (props: Props) => {
           </div>
         </div>
       </div>
-      <Dialog
-        open={showWarning}
-        onClose={() => setShowWarning(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        classes={{ paper: classes.paperDialog }}
-      >
-        <DialogTitle id="alert-dialog-title">Confirm to unfriend {friendDeletePending.name}</DialogTitle>
-        <DialogActions>
-          <Button onClick={cancelFriendDelete} className={classes.spanNone}>
-            Cancel
-          </Button>
-          <Button onClick={(e) => confirmFriendDelete(e)} className={classes.spanDange} autoFocus>
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog fullWidth={true} maxWidth={'md'} open={create} onClose={() => handleCloseModal()}>
-        <InviteModel handleCloseModal={handleCloseModal} invite={invite} selfUser={selfUser} party={party} />
-      </Dialog>
+      {showWarning && (
+        <Dialog
+          open={showWarning}
+          onClose={() => setShowWarning(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          classes={{ paper: classes.paperDialog }}
+        >
+          <DialogTitle id="alert-dialog-title">Confirm to unfriend {friendDeletePending.name}</DialogTitle>
+          <DialogActions>
+            <Button onClick={cancelFriendDelete} className={classes.spanNone}>
+              Cancel
+            </Button>
+            <Button onClick={(e) => confirmFriendDelete(e)} className={classes.spanDange} autoFocus>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+      {create && (
+        <Dialog fullWidth={true} maxWidth={'md'} open={create} onClose={() => handleCloseModal()}>
+          <InviteModel handleCloseModal={handleCloseModal} invite={invite} selfUser={selfUser} party={party} />
+        </Dialog>
+      )}
       <InviteHarmony setShowNot={setShowNot} show={show} setShow={setShow} />
     </>
   )

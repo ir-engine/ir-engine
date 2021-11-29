@@ -825,6 +825,7 @@ const LeftDrawer = (props: Props): any => {
                     selectedGroup.groupUsers &&
                     selectedGroup.groupUsers.length > 0 &&
                     selectedGroup.groupUsers
+                      .map((groupUser) => groupUser)
                       .sort((a, b) => a.name - b.name)
                       .map((groupUser) => {
                         return (
