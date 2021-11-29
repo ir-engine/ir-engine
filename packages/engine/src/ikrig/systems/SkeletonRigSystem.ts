@@ -60,7 +60,7 @@ const mockAvatars = () => {
 
 export default async function SkeletonRigSystem(world: World): Promise<System> {
   const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
-  mockAvatars()
+  // mockAvatars()
   return () => {
     for (const entity of ikposeQuery()) {
       const ikPose = getComponent(entity, IKPoseComponent)
