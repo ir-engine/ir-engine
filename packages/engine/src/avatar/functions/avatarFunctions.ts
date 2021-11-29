@@ -37,30 +37,26 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 export const setAvatar = (entity, avatarURL) => {
   const avatar = getComponent(entity, AvatarComponent)
-  if (avatar) {
-    avatar.avatarURL = avatarURL
-  }
+  if (!avatar) return
+  avatar.avatarURL = avatarURL
   loadAvatarForEntity(entity)
 }
 
 export const loadAvatarForEntity = (entity: Entity) => {
   if (!isClient) return
   const avatarURL = getComponent(entity, AvatarComponent)?.avatarURL
-  if (avatarURL) {
-    AssetLoader.load(
-      {
-        url: avatarURL,
-        castShadow: true,
-        receiveShadow: true
-      },
-      (gltf: any) => {
-        console.log(gltf.scene)
-        setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarURL)
-      }
-    )
-  } else {
-    setupAvatar(entity, SkeletonUtils.clone(AnimationManager.instance._defaultModel))
-  }
+  if (!avatarURL) return
+  AssetLoader.load(
+    {
+      url: avatarURL,
+      castShadow: true,
+      receiveShadow: true
+    },
+    (gltf: any) => {
+      console.log(gltf.scene)
+      setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarURL)
+    }
+  )
 }
 
 export const setAvatarLayer = (obj: Object3D) => {

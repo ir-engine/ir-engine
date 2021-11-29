@@ -3,7 +3,7 @@ import { Application } from '@xrengine/server-core/declarations'
 import path from 'path'
 import { installAvatarsFromProject } from '@xrengine/server-core/src/user/avatar/avatar-helper'
 
-const avatarsFolder = path.resolve(__dirname, 'avatars')
+const avatarsFolder = path.resolve(__dirname, 'public/avatars')
 
 const config = {
   onInstall: (app: Application) => {
