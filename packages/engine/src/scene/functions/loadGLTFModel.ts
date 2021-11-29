@@ -174,7 +174,11 @@ export const parseGLTFModel = (
     })
   }
 
-  if (typeof component.data.matrixAutoUpdate !== 'undefined' && component.data.matrixAutoUpdate === false) {
+  if (
+    component.data.isDynamicObject === false &&
+    typeof component.data.matrixAutoUpdate !== 'undefined' &&
+    component.data.matrixAutoUpdate === false
+  ) {
     scene.traverse((child) => {
       child.updateMatrixWorld(true)
       child.matrixAutoUpdate = false
