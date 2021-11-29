@@ -81,8 +81,7 @@ export const ArMediaService = {
         })
         dispatch(ArMediaAction.setAdminArMedia(list))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -94,8 +93,7 @@ export const ArMediaService = {
         const list = await client.service('ar-media').find({ query: { action: type || null } })
         dispatch(ArMediaAction.setArMedia(list.data))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -107,8 +105,7 @@ export const ArMediaService = {
         const item = await client.service('ar-media').get(itemId)
         dispatch(ArMediaAction.retrievedArMediaItem(item))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -135,8 +132,7 @@ export const ArMediaService = {
         })
         dispatch(ArMediaAction.addAdminArMedia(newItem))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -163,8 +159,7 @@ export const ArMediaService = {
         await client.service('ar-media').remove(mediaItemId)
         dispatch(ArMediaAction.removeArMediaItem(mediaItemId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

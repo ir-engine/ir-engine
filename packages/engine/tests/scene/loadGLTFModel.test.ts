@@ -10,7 +10,7 @@ import { WorldScene } from "../../src/scene/functions/SceneLoading"
 import { isTriggerShape } from "../../src/physics/classes/Physics"
 import assert from 'assert'
 import { createWorld } from "../../src/ecs/classes/World"
-import { CameraLayers } from '../../src/camera/constants/CameraLayers'
+import { ObjectLayers } from '../../src/scene/constants/ObjectLayers'
 import { SpawnPointComponent } from '../../src/scene/components/SpawnPointComponent'
 import { Engine } from '../../src/ecs/classes/Engine'
 
@@ -51,7 +51,7 @@ describe('loadGLTFModel', () => {
     parseGLTFModel(sceneLoader, entity, mockComponentData, undefined!, scene)
     
     const expectedLayer = new Layers()
-    expectedLayer.set(CameraLayers.Scene)
+    expectedLayer.set(ObjectLayers.Scene)
 
     const [mockModelEntity] = modelQuery(world)
     const [mockSpawnPointEntity] = childQuery(world)

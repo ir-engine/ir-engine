@@ -52,8 +52,7 @@ export const TheFeedsService = {
         const thefeeds = await client.service('thefeeds').find()
         dispatch(TheFeedsAction.thefeedsRetrieved(thefeeds.data))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -70,8 +69,7 @@ export const TheFeedsService = {
         })
         dispatch(TheFeedsAction.addTheFeeds(thefeeds))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -87,8 +85,7 @@ export const TheFeedsService = {
         const updatedItem = await client.service('thefeeds').patch(thefeeds.id, thefeeds)
         dispatch(TheFeedsAction.updateTheFeedsInList(updatedItem))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -99,8 +96,7 @@ export const TheFeedsService = {
         await client.service('thefeeds').remove(thefeedsId)
         dispatch(TheFeedsAction.deleteTheFeeds(thefeedsId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

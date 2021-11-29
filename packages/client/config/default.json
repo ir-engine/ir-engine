@@ -6,7 +6,6 @@
     "icon192px": "https://xrengine-static-resources.s3.us-west-1.amazonaws.com/test/guinea-pig.jpg",
     "icon512px": "https://xrengine-static-resources.s3.us-west-1.amazonaws.com/test/guinea-pig.jpg",
     "webmanifestLink": "/site.webmanifest",
-    "siteTitle": "The Overlay",
     "siteDescription": "Connected Worlds for Everyone",
     "dev": false,
     "loginDisabled": false,

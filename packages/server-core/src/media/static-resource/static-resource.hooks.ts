@@ -5,6 +5,7 @@ import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbn
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
 import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
+import restrictUserRole from '../../hooks/restrict-user-role'
 
 const { authenticate } = hooks
 
@@ -15,6 +16,7 @@ export default {
     get: [],
     create: [
       authenticate('jwt'),
+      restrictUserRole('admin'),
       (context: HookContext): HookContext => {
         if (!context.data.uri && context.params.file) {
           const file = context.params.file
@@ -29,9 +31,9 @@ export default {
         return context
       }
     ],
-    update: [authenticate('jwt')],
-    patch: [authenticate('jwt'), replaceThumbnailLink()],
-    remove: [authenticate('jwt'), attachOwnerIdInQuery('userId')]
+    update: [authenticate('jwt'), restrictUserRole('admin')],
+    patch: [authenticate('jwt'), restrictUserRole('admin'), replaceThumbnailLink()],
+    remove: [authenticate('jwt'), restrictUserRole('admin'), attachOwnerIdInQuery('userId')]
   },
 
   after: {

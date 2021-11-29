@@ -16,6 +16,7 @@ import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { XRHandsInputComponent } from '@xrengine/engine/src/xr/components/XRHandsInputComponent'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -199,12 +200,7 @@ export async function validateNetworkObjects(): Promise<void> {
 }
 
 export async function handleConnectToWorld(socket, data, callback, userId: UserId, user, avatarDetail): Promise<any> {
-  const transport = Network.instance.transport as any
-  if (!Engine.sceneLoaded && transport.app.isChannelInstance !== true) {
-    await new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
-    })
-  }
+  const transport = Network.instance.transport as SocketWebRTCServerTransport
 
   console.log('Connect to world from ' + userId)
   // console.log("Avatar detail is", avatarDetail);

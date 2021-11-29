@@ -64,8 +64,7 @@ export const ScopeService = {
         })
         dispatch(ScopeAction.addAdminScope(newItem))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -85,8 +84,7 @@ export const ScopeService = {
         })
         dispatch(ScopeAction.setAdminScope(list))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -99,8 +97,7 @@ export const ScopeService = {
         })
         dispatch(ScopeAction.updateAdminScope(updatedScope))
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -111,8 +108,7 @@ export const ScopeService = {
         await client.service('scope').remove(scopeId)
         dispatch(ScopeAction.removeScopeItem(scopeId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

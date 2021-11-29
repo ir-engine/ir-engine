@@ -26,46 +26,41 @@ import { Entity } from '../../ecs/classes/Entity'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { DissolveEffect } from '../DissolveEffect'
-import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { bonesData2 } from '../DefaultSkeletonBones'
 import { IKObj } from '../../ikrig/components/IKObj'
 import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
 import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { ArmatureType } from '../../ikrig/enums/ArmatureType'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
-export const setAvatar = (entity, avatarId, avatarURL) => {
+export const setAvatar = (entity, avatarURL) => {
   const avatar = getComponent(entity, AvatarComponent)
-  if (avatar) {
-    avatar.avatarId = avatarId
-    avatar.avatarURL = avatarURL
-  }
+  if (!avatar) return
+  avatar.avatarURL = avatarURL
   loadAvatarForEntity(entity)
 }
 
 export const loadAvatarForEntity = (entity: Entity) => {
   if (!isClient) return
   const avatarURL = getComponent(entity, AvatarComponent)?.avatarURL
-  if (avatarURL) {
-    AssetLoader.load(
-      {
-        url: avatarURL,
-        castShadow: true,
-        receiveShadow: true
-      },
-      (gltf: any) => {
-        console.log(gltf.scene)
-        setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarURL)
-      }
-    )
-  } else {
-    setupAvatar(entity, SkeletonUtils.clone(AnimationManager.instance._defaultModel))
-  }
+  if (!avatarURL) return
+  AssetLoader.load(
+    {
+      url: avatarURL,
+      castShadow: true,
+      receiveShadow: true
+    },
+    (gltf: any) => {
+      console.log(gltf.scene)
+      setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarURL)
+    }
+  )
 }
 
 export const setAvatarLayer = (obj: Object3D) => {
-  obj.layers.disable(CameraLayers.Scene)
-  obj.layers.enable(CameraLayers.Avatar)
+  setObjectLayers(obj, ObjectLayers.Render, ObjectLayers.Avatar)
 }
 
 const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
@@ -121,7 +116,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
 
   // animation will be applied to this skeleton instead of avatar
-  const sourceSkeletonRoot = SkeletonUtils.clone(getDefaultSkeleton().parent)
+  const sourceSkeletonRoot: Group = SkeletonUtils.clone(getDefaultSkeleton().parent)
   addRig(entity, sourceSkeletonRoot)
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
 

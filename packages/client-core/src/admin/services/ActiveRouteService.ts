@@ -46,8 +46,7 @@ export const ActiveRouteService = {
         ActiveRouteService.fetchActiveRoutes()
       }
     } catch (err) {
-      console.error(err)
-      AlertService.dispatchAlertError(err.message)
+      AlertService.dispatchAlertError(err)
     }
   },
   fetchActiveRoutes: async (incDec?: 'increment' | 'decrement') => {
@@ -59,8 +58,7 @@ export const ActiveRouteService = {
         dispatch(ActiveRouteActions.activeRoutesRetrievedAction(routes))
       }
     } catch (err) {
-      console.error(err)
-      AlertService.dispatchAlertError(err.message)
+      AlertService.dispatchAlertError(err)
     }
   }
 }

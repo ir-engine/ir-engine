@@ -58,6 +58,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -104,11 +105,35 @@ export class WorldScene {
 
       addComponent(entity, NameComponent, { name: sceneEntity.name })
 
-      sceneEntity.components.forEach((component: SceneDataComponent) => {
-        component.data = component.props
-        component.data.sceneEntityId = key
-        this.loadComponent(entity, component, sceneProperty)
-      })
+      let shouldBeNetworkSpawned = false
+      for (let index = 0; index < sceneEntity.components.length; index++) {
+        const element = sceneEntity.components[index]
+        if (element.name === 'gltf-model' && element.props.isDynamicObject) {
+          shouldBeNetworkSpawned = true
+        }
+      }
+
+      if (shouldBeNetworkSpawned) {
+        if (!isClient) {
+          const world = useWorld()
+          dispatchFrom(world.hostId, () =>
+            NetworkWorldAction.spawnObject({
+              userId: Engine.userId,
+              prefab: '',
+              parameters: {
+                // TODO: Find a better way to pass scene data to network spawned objects?
+                sceneEntity: JSON.parse(JSON.stringify(sceneEntity))
+              }
+            })
+          )
+        }
+      } else {
+        sceneEntity.components.forEach((component: SceneDataComponent) => {
+          component.data = component.props
+          component.data.sceneEntityId = key
+          this.loadComponent(entity, component, sceneProperty)
+        })
+      }
     })
 
     return Promise.all(this.loaders)
@@ -143,7 +168,7 @@ export class WorldScene {
 
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
-    console.log(component)
+    // console.log(component)
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
     const world = useWorld()
     switch (name) {
@@ -468,5 +493,24 @@ export class WorldScene {
   static load = (scene: SceneJson, onProgress?: Function): Promise<void> => {
     const world = new WorldScene(onProgress)
     return world.loadScene(scene)
+  }
+
+  // For loading a single scene entity on receiving network action
+  static loadComponentLate = (entity: Entity, sceneEntity: any): void => {
+    const world = new WorldScene(() => {
+      //Component load progress
+    })
+
+    const sceneProperty: ScenePropertyType = {
+      directionalLights: [],
+      isCSMEnabled: true
+    }
+
+    let id = sceneEntity.sceneEntityId
+    sceneEntity.components.forEach((component) => {
+      component.data = component.props
+      component.data.sceneEntityId = id
+      world.loadComponent(entity, component, sceneProperty)
+    })
   }
 }

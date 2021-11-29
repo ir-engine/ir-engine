@@ -1,4 +1,3 @@
-import url from 'url'
 import { Helmet } from 'react-helmet'
 import React, { useEffect } from 'react'
 import ContactForm from '@xrengine/client-core/src/common/components/ContactForm'
@@ -20,7 +19,7 @@ export const HomePage = (): any => {
   // }, [])
 
   if (ROOT_REDIRECT !== false && ROOT_REDIRECT !== 'false') {
-    const redirectParsed = url.parse(ROOT_REDIRECT)
+    const redirectParsed = new URL(ROOT_REDIRECT)
     if (redirectParsed.protocol == null) return <Redirect to={ROOT_REDIRECT} />
     else window.location.href = ROOT_REDIRECT
   } else
