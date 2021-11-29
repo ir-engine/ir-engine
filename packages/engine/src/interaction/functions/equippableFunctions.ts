@@ -20,10 +20,12 @@ export const equipEntity = (
 }
 
 export const unequipEntity = (equipperEntity: Entity): void => {
-  // const equipperComponent = getComponent(equipperEntity, EquipperComponent);
-  // if(!equipperComponent) return;
+  console.log('unequip')
+  const equipperComponent = getComponent(equipperEntity, EquipperComponent)
+  if (!equipperComponent) return
   // removeComponent(equipperComponent.equippedEntity, EquippedComponent);
-  // removeComponent(equipperEntity, EquipperComponent);
+  console.log(equipperComponent)
+  removeComponent(equipperEntity, EquipperComponent)
 }
 
 export const getAttachmentPoint = (parityValue: ParityValue): EquippableAttachmentPoint => {

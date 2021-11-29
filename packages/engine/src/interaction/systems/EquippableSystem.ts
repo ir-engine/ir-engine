@@ -14,7 +14,7 @@ import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { Engine } from '../../ecs/classes/Engine'
-import { equipEntity, getParity } from '../functions/equippableFunctions'
+import { equipEntity, getParity, unequipEntity } from '../functions/equippableFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { EquippedComponent } from '../components/EquippedComponent'
 
@@ -31,10 +31,9 @@ function equippableActionReceptor(action) {
     }
     if (a.equip) {
       equipEntity(equipper, equipped, attachmentPoint)
+    } else {
+      unequipEntity(equipper)
     }
-    // else {
-    //   unequipEntity(equipper)
-    // }
   })
 }
 
@@ -85,15 +84,16 @@ export default async function EquippableSystem(world: World): Promise<System> {
       const equippedComponent = getComponent(equippedEntity, EquippedComponent)
       const attachmentPoint = equippedComponent.attachmentPoint
 
-      // const equippedTransform = getComponent(equippedEntity, TransformComponent)
-      // const collider = getComponent(equippedEntity, ColliderComponent)
-      // if (collider) {
-      //   // collider.body.type = BodyType.DYNAMIC
-      //   teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
-      // }
+      const equippedTransform = getComponent(equippedEntity, TransformComponent)
+      const collider = getComponent(equippedEntity, ColliderComponent)
+      console.log('collider:', collider)
+      if (collider) {
+        // collider.body.type = BodyType.DYNAMIC
+        teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
+      }
 
       // send unequip to clients
-      dispatchFrom(world.hostId, () =>
+      dispatchFrom(Engine.userId, () =>
         NetworkWorldAction.setEquippedObject({
           userId: Engine.userId,
           networkId: getComponent(equippedEntity, NetworkObjectComponent).networkId,
@@ -101,6 +101,8 @@ export default async function EquippableSystem(world: World): Promise<System> {
           equip: false
         })
       )
+
+      removeComponent(equippedEntity, EquippedComponent)
     }
   }
 }
