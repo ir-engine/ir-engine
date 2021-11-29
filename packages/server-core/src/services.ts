@@ -5,7 +5,7 @@ import MediaServices from './media/services'
 import NetworkingServices from './networking/services'
 // import PaymentServices from './payments/services';
 import SocialServices from './social/services'
-import SocialMediaServices from './socialmedia/services'
+// import SocialMediaServices from './socialmedia/services'
 import UserServices from './user/services'
 import WorldServices from './world/services'
 import BotService from './bot/services'
@@ -49,7 +49,7 @@ export default (app: Application): void => {
     ...NetworkingServices,
     // ...PaymentServices,
     ...SocialServices,
-    ...SocialMediaServices,
+    // ...SocialMediaServices,
     ...BotService,
     ...ScopeService,
     ...SettingService,
