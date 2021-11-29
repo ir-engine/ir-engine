@@ -8,6 +8,10 @@ if (process.env.APP_ENV == 'development') {
 }
 
 export const corsAnywhereUrl = (url) => {
+  url = new URL(url, (window as any).location).href
+  if (url.startsWith(`https://${process.env.VITE_SERVER_HOST}`)) {
+    return url
+  }
   return `${corsAddress}/${url}`
 }
 
