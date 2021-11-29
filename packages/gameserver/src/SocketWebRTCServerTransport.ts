@@ -180,13 +180,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         const avatar = {
           thumbnailURL: '',
-          avatarURL: '',
-          avatarId: ''
+          avatarURL: ''
         } as any
         avatarResources?.data.forEach((a) => {
           if (a.staticResourceType === 'avatar') avatar.avatarURL = a.url
           else avatar.thumbnailURL = a.url
-          avatar.avatarId = a.name
         })
 
         // TODO: Check that they are supposed to be in this instance

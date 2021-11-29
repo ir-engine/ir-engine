@@ -11,6 +11,7 @@ import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-i
 import createResource from '@xrengine/server-core/src/hooks/create-static-resource'
 import { validateGet, checkDefaultResources } from '@xrengine/server-core/src/hooks/validatePresignedRequest'
 import * as commonHooks from 'feathers-hooks-common'
+import restrictUserRole from '../../hooks/restrict-user-role'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -24,7 +25,7 @@ export default {
     create: [disallow()],
     update: [disallow()],
     patch: [disallow()],
-    remove: [authenticate('jwt'), checkDefaultResources]
+    remove: [authenticate('jwt'), restrictUserRole('admin'), checkDefaultResources]
   },
 
   after: {

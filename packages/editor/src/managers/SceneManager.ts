@@ -48,6 +48,7 @@ import { createEditorEntity } from '../functions/createEditorEntity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()
@@ -220,13 +221,13 @@ export class SceneManager {
     const prevAspect = scenePreviewCamera.aspect
     scenePreviewCamera.aspect = width / height
     scenePreviewCamera.updateProjectionMatrix()
-    scenePreviewCamera.layers.disable(1)
+    scenePreviewCamera.layers.disable(ObjectLayers.Scene)
     screenshotRenderer.setSize(width, height, true)
     screenshotRenderer.render(Engine.scene as any, scenePreviewCamera)
     const blob = await getCanvasBlob(screenshotRenderer.domElement)
     scenePreviewCamera.aspect = prevAspect
     scenePreviewCamera.updateProjectionMatrix()
-    scenePreviewCamera.layers.enable(1)
+    scenePreviewCamera.layers.enable(ObjectLayers.Scene)
     this.disableUpdate = false
     Engine.renderer = originalRenderer
     return blob

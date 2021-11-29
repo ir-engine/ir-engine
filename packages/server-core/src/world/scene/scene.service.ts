@@ -23,24 +23,29 @@ declare module '../../../declarations' {
 
 export const getScenesForProject = (app: Application) => {
   return async function ({ projectName, metadataOnly }, params: Params): Promise<{ data: SceneDetailInterface[] }> {
-    const project = await app.service('project').get(projectName, params)
-    if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)
+    try {
+      const project = await app.service('project').get(projectName, params)
+      if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)
 
-    const newSceneJsonPath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}`)
+      const newSceneJsonPath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}`)
 
-    const files = fs
-      .readdirSync(newSceneJsonPath, { withFileTypes: true })
-      .filter((dirent) => !dirent.isDirectory())
-      .map((dirent) => dirent.name)
-      .filter((name) => name.endsWith('.scene.json'))
-      .map((name) => name.slice(0, -'.scene.json'.length))
+      const files = fs
+        .readdirSync(newSceneJsonPath, { withFileTypes: true })
+        .filter((dirent) => !dirent.isDirectory())
+        .map((dirent) => dirent.name)
+        .filter((name) => name.endsWith('.scene.json'))
+        .map((name) => name.slice(0, -'.scene.json'.length))
 
-    const sceneData: SceneDetailInterface[] = files.map((sceneName) =>
-      getSceneData(projectName, sceneName, metadataOnly)
-    )
+      const sceneData: SceneDetailInterface[] = files.map((sceneName) =>
+        getSceneData(projectName, sceneName, metadataOnly)
+      )
 
-    return {
-      data: sceneData
+      return {
+        data: sceneData
+      }
+    } catch (e) {
+      console.log(e)
+      return null!
     }
   }
 }
