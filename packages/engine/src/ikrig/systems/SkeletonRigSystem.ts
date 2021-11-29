@@ -7,6 +7,11 @@ import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
 import { Quaternion, Vector3 } from 'three'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { Network } from '../../networking/classes/Network'
 
 const logCustomTargetRigBones = (targetRig) => {
   if (targetRig.name !== 'custom') {
@@ -30,9 +35,29 @@ const logCustomTargetRigBones = (targetRig) => {
   console.log('---------')
 }
 
+const mockAvatars = () => {
+  for (let i = 0; i < 50; i++) {
+    const avatarDetail = {
+      thumbnailURL: '/static/Allison.png',
+      avatarURL: '/models/avatars/Allison.glb',
+      avatarId: 'Allison'
+    } as any
+    const userId = ('user' + i) as UserId
+    const parameters = {
+      position: new Vector3(0, 0, 0).random().setY(0).multiplyScalar(10),
+      rotation: new Quaternion()
+    }
+
+    const networkId = (1000 + i) as NetworkId
+
+    dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }) as any)
+    dispatchLocal({ ...NetworkWorldAction.spawnAvatar({ userId, parameters }), networkId } as any)
+  }
+}
+
 export default async function SkeletonRigSystem(world: World): Promise<System> {
   const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
-
+  // mockAvatars()
   return () => {
     for (const entity of ikposeQuery()) {
       const ikPose = getComponent(entity, IKPoseComponent)
