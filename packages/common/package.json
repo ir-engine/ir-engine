@@ -21,7 +21,6 @@
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.0.6",
     "@rollup/plugin-replace": "3.0.0",
-    "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
     "lodash.camelcase": "4.3.0",
     "rimraf": "3.0.2",
@@ -32,8 +31,5 @@
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.31.1"
   },
-  "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851",
-  "dependencies": {
-    "react-lottie": "^1.2.3"
-  }
+  "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }
