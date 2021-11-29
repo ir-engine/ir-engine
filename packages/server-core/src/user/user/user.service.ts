@@ -60,11 +60,10 @@ export default (app: Application): void => {
       })
 
       let targetIds = [data.id]
-      const updatePromises = []
+      const updatePromises: any[] = []
 
-      let layerUsers = []
       if (data.instanceId != null || params.params?.instanceId != null) {
-        layerUsers = await app.service('user').Model.findAll({
+        const layerUsers = await app.service('user').Model.findAll({
           where: {
             instanceId: data.instanceId || params.params?.instanceId
           }

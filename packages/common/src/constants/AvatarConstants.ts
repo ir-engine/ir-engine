@@ -1,5 +1,3 @@
-export const DEFAULT_AVATARS = ['Allison']
-export const DEFAULT_AVATAR_ID = 'Razer1'
 export const AVATAR_FILE_ALLOWED_EXTENSIONS = '.glb,.gltf,.vrm,.fbx'
 export const MIN_AVATAR_FILE_SIZE = 0
 export const MAX_AVATAR_FILE_SIZE = 15728640 // 15 MB

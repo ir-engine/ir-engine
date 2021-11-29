@@ -16,7 +16,7 @@ export class Seat extends Service {
     this.app = app
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params: Params): Promise<any> {
     const userId = (params as any).userId || (params as any).connection['identity-provider'].userId
     if (userId == null) {
       throw new Error('Invalid user')
@@ -80,11 +80,14 @@ export class Seat extends Service {
         throw new BadRequest('User already has a seat')
       }
 
-      const link = await this.app.service('magic-link').create({
-        type: 'email',
-        email: data.email,
-        subscriptionId: data.subscriptionId
-      })
+      const link = await this.app.service('magic-link').create(
+        {
+          type: 'email',
+          email: data.email,
+          subscriptionId: data.subscriptionId
+        },
+        null!
+      )
       const newIdentityProvider = await this.app.service('identity-provider').find({
         query: {
           type: (link as any).type,
@@ -108,7 +111,7 @@ export class Seat extends Service {
     }
   }
 
-  async patch(id: string, data: any, params?: Params): Promise<any> {
+  async patch(id: string, data: any, params: Params): Promise<any> {
     const subscriptionId = data.subscriptionId as string
     const subscription = await this.app.service('subscription').get(subscriptionId)
     if (subscription == null) {

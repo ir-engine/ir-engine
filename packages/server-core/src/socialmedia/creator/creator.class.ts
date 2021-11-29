@@ -88,7 +88,7 @@ export class Creator extends Service {
    * @returns {@Object} contains specific feed
    * @author Vykliuk Tetiana
    */
-  async get(id: Id, params?: Params): Promise<any> {
+  async get(id: Id, params: Params): Promise<any> {
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')
@@ -116,7 +116,7 @@ export class Creator extends Service {
     return { ...creator, followed: creator.followed ? true : false, verified: !!+creator.verified }
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const creatorQuery = `SELECT creator.*, sr.url as avatar 
            FROM \`creator\` as creator
@@ -145,8 +145,8 @@ export class Creator extends Service {
    * @returns updated feed
    * @author Vykliuk Tetiana
    */
-  async patch(id: string, data?: any, params?: Params): Promise<any> {
+  async patch(id: string, data: any, params: Params): Promise<any> {
     await super.patch(id, data)
-    return await this.get(id)
+    return await this.get(id, params)
   }
 }

@@ -102,8 +102,7 @@ export const UserService = {
           dispatch(UserAction.loadedUsers(users))
         }
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -157,8 +156,7 @@ export const UserService = {
         })
         dispatch(UserAction.searchedUser(result))
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },

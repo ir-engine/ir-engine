@@ -1,5 +1,4 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { DEFAULT_AVATARS } from '@xrengine/common/src/constants/AvatarConstants'
 import { Application } from '../../../declarations'
 import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
@@ -140,6 +139,7 @@ export class IdentityProvider extends Service {
         userRole: 'admin'
       }
     })
+    const avatars = await this.app.service('avatar').find({ isInternal: true })
     const result = await super.create(
       {
         ...data,
@@ -148,7 +148,7 @@ export class IdentityProvider extends Service {
           id: userId,
           userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
           inviteCode: type === 'guest' ? null : code,
-          avatarId: DEFAULT_AVATARS[random(DEFAULT_AVATARS.length - 1)]
+          avatarId: avatars[random(avatars.length - 1)].avatarId
         }
       },
       params
@@ -184,7 +184,7 @@ export class IdentityProvider extends Service {
   }
 
   async find(params: Params): Promise<Data[] | Paginated<Data>> {
-    if (params.provider) params.query.userId = params['identity-provider'].userId
+    if (params.provider) params.query!.userId = params['identity-provider'].userId
     return super.find(params)
   }
 }

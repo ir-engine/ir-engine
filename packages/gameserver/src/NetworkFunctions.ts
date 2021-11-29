@@ -16,6 +16,7 @@ import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { XRHandsInputComponent } from '@xrengine/engine/src/xr/components/XRHandsInputComponent'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -199,12 +200,7 @@ export async function validateNetworkObjects(): Promise<void> {
 }
 
 export async function handleConnectToWorld(socket, data, callback, userId: UserId, user, avatarDetail): Promise<any> {
-  const transport = Network.instance.transport as any
-  if (!Engine.sceneLoaded && transport.app.isChannelInstance !== true) {
-    await new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
-    })
-  }
+  const transport = Network.instance.transport as SocketWebRTCServerTransport
 
   console.log('Connect to world from ' + userId)
   // console.log("Avatar detail is", avatarDetail);
@@ -338,8 +334,8 @@ export async function handleHeartbeat(socket): Promise<any> {
 export async function handleDisconnect(socket): Promise<any> {
   const world = Engine.defaultWorld
   const userId = getUserIdFromSocketId(socket.id) as UserId
-  const disconnectedClient = world.clients.get(userId)
-  if (disconnectedClient === undefined)
+  const disconnectedClient = world?.clients.get(userId)
+  if (!disconnectedClient)
     return console.warn(
       'Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake'
     )
@@ -365,7 +361,7 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
-  if (Engine.defaultWorld.clients.has(userId)) Engine.defaultWorld.clients.delete(userId)
+  if (Engine.defaultWorld?.clients.has(userId)) Engine.defaultWorld.clients.delete(userId)
   logger.info('Removing ' + userId + ' from client list')
   if (callback !== undefined) callback({})
 }

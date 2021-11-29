@@ -33,6 +33,7 @@ export default {
         } catch (error) {
           logger.error('BOT AFTER CREATE ERROR')
           logger.error(error)
+          return null!
         }
       }
     ],

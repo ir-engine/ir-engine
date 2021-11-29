@@ -152,7 +152,7 @@ export default class Video extends AudioSource {
   async load() {
     if (!this._src) return this
     await this.loadVideo()
-    if (Engine.useAudioSystem && !this.audioSource) {
+    if (!this.audioSource) {
       this.audioSource = this.audioListener.context.createMediaElementSource(this.el)
       this.audio.setNodeSource(this.audioSource)
     }
