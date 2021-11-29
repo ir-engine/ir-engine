@@ -65,7 +65,7 @@
     "@xrengine/engine": "^0.4.13",
     "@xrengine/projects": "^0.4.13",
     "@xrengine/server-core": "^0.4.13",
-    "aws-sdk": "2.1037.0",
+    "aws-sdk": "2.1038.0",
     "bent": "7.3.12",
     "chargebee": "2.7.0",
     "compression": "1.7.4",
