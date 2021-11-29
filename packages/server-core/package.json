@@ -69,6 +69,7 @@
     "@xrengine/matchmaking": "^0.4.13",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
+    "canvas": "2.8.0",
     "chargebee": "^2.5.7",
     "cross-env": "^7.0.3",
     "dauria": "^2.0.0",

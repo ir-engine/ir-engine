@@ -35,10 +35,9 @@ import { ArmatureType } from '../../ikrig/enums/ArmatureType'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
-export const setAvatar = (entity, avatarId, avatarURL) => {
+export const setAvatar = (entity, avatarURL) => {
   const avatar = getComponent(entity, AvatarComponent)
   if (avatar) {
-    avatar.avatarId = avatarId
     avatar.avatarURL = avatarURL
   }
   loadAvatarForEntity(entity)

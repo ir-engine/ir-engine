@@ -1,4 +1,3 @@
-import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -86,9 +85,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   tiltContainer.add(modelContainer)
 
   addComponent(entity, AvatarComponent, {
-    ...(world.clients.get(userId)?.avatarDetail || {
-      avatarId: DEFAULT_AVATAR_ID
-    }),
+    ...world.clients.get(userId)?.avatarDetail,
     avatarHalfHeight,
     avatarHeight,
     modelContainer,

@@ -1,8 +1,8 @@
 import { Config } from '@xrengine/common/src/config'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import i18n from 'i18next'
-import { fetchContentType } from './fetchContentType'
-import { guessContentType } from './guessContentType'
+import { fetchContentType } from '@xrengine/common/src/utils/fetchContentType'
+import { guessContentType } from '@xrengine/common/src/utils/guessContentType'
 
 const serverURL = Config.publicRuntimeConfig.apiServer
 export const resolveMediaCache = new Map()

@@ -449,68 +449,6 @@
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 6
-    },
-    "78007030-F875-4F6A-8EA2-4F7472CAD25A": {
-      "name": "Model",
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {
-            "visible": true
-          }
-        },
-        {
-          "name": "gltf-model",
-          "props": {
-            "src": "__$project$__/default-project/assets/collisioncube.glb",
-            "textureOverride": "",
-            "matrixAutoUpdate": false
-          }
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": false,
-            "receive": false
-          }
-        },
-        {
-          "name": "interact",
-          "props": {
-            "payloadModelUrl": "__$project$__/default-project/assets/collisioncube.glb"
-          }
-        },
-        {
-          "name": "collidable",
-          "props": {}
-        },
-        {
-          "name": "walkable",
-          "props": {}
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 7
     }
   }
 }
