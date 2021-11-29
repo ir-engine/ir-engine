@@ -22,7 +22,6 @@ export const initialize = (): Promise<void> => {
         gameserverHost: `${process.env.VITE_GAMESERVER_HOST}`,
         gameserverPort: `${process.env.VITE_GAMESERVER_PORT}`,
         apiServer: `https://${process.env.VITE_SERVER_HOST}:${process.env.VITE_SERVER_PORT}`,
-        corsServer: `https://${process.env.VITE_SERVER_HOST}:${process.env.VITE_CORS_SERVER_PORT}`,
         gameserver: `https://${process.env.VITE_GAMESERVER_HOST}:${process.env.VITE_GAMESERVER_PORT}`,
         mediatorServer: `${process.env.VITE_MEDIATOR_SERVER}`
       })

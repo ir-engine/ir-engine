@@ -14,6 +14,7 @@ import { ControlManager } from '../managers/ControlManager'
 import { LoadInstancedGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from './SceneNode'
+import { corsAnywhereUrl } from '@xrengine/client-core/src/util/cors'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -164,7 +165,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       if (this.model) {
         // SceneManager.instance.renderer.removeBatchedObject(this.model)
       }
-      await super.load(url)
+      await super.load(corsAnywhereUrl(url))
 
       if (this.initialScale === 'fit') {
         this.scale.set(1, 1, 1)
