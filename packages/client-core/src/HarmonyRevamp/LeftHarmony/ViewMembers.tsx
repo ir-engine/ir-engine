@@ -26,13 +26,6 @@ const ViewMembers = ({ selectedGroup, selfUser, openDrawer, setOpenDrawer, handl
   const groupState = useGroupState()
   const groupSubState = groupState.groups
 
-  React.useEffect(() => {
-    console.log('mkhfjghsfdfjgfdsfj')
-    if (groupState.updateNeeded.value === true && groupState.getGroupsInProgress.value !== true) {
-      GroupService.getGroups(0)
-    }
-  }, [groupState.updateNeeded.value, groupState.getGroupsInProgress.value])
-
   const removeUser = (id) => {
     setGroupUserId(id)
     setShowWarning(true)

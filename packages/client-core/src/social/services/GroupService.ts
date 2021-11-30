@@ -164,7 +164,9 @@ store.receptors.push((action: GroupActionType): any => {
             })
           }
         }
-        return self === true ? s.merge({ closeDetails: groupUser.groupId, updateNeeded: true }) : s
+        return self === true
+          ? s.merge({ closeDetails: groupUser.groupId, updateNeeded: true })
+          : s.merge({ updateNeeded: true })
 
       case 'REMOVE_CLOSE_GROUP_DETAIL':
         return s.closeDetails.set('')
