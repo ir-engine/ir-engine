@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
 import { AssetPanelContentContainer } from './AssetsPanel'
@@ -13,7 +13,7 @@ import { getScenes } from '../../functions/sceneFunctions'
 
 const contextMenuId = 'scenes-menu'
 
-export default function ScenesPanel({ projectName, loadScene, newScene }) {
+export default function ScenesPanel({ projectName, loadScene, newScene, toggleRefetchScenes }) {
   const { t } = useTranslation()
   const panelRef = useRef(null)
   const [loading, setLoading] = useState(true)
@@ -35,7 +35,7 @@ export default function ScenesPanel({ projectName, loadScene, newScene }) {
 
   useEffect(() => {
     fetchItems()
-  }, [])
+  }, [toggleRefetchScenes])
 
   const onClickExisting = (scene) => {
     if (currentSceneName !== scene.name) {

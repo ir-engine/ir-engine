@@ -18,7 +18,6 @@ import { NameComponent } from '../components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from './setObjectLayers'
-import { corsAnywhereUrl } from '@xrengine/client-core/src/util/cors'
 
 export const parseObjectComponents = (entity: Entity, res: Mesh | Scene, loadComponent) => {
   const meshesToProcess: Mesh[] = []
@@ -199,7 +198,7 @@ export const loadGLTFModel = (
     new Promise<void>((resolve, reject) => {
       AssetLoader.load(
         {
-          url: corsAnywhereUrl(component.data.src),
+          url: component.data.src,
           entity
         },
         (res) => {
