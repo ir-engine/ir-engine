@@ -1,3 +1,4 @@
+import { ParityValue } from '../../common/enums/ParityValue'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -12,12 +13,8 @@ export const equipEntity = (
   equippedEntity: Entity,
   attachmentPoint: EquippableAttachmentPoint = EquippableAttachmentPoint.RIGHT_HAND
 ): void => {
-  if (
-    !hasComponent(equipperEntity, EquipperComponent) &&
-    hasComponent(equippedEntity, NetworkObjectComponent) &&
-    !hasComponent(equippedEntity, EquippedComponent)
-  ) {
-    addComponent(equipperEntity, EquipperComponent, { equippedEntity, data: {} })
+  if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
+    addComponent(equipperEntity, EquipperComponent, { equippedEntity, data: {} as any })
     addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint })
   }
 }
@@ -27,4 +24,18 @@ export const unequipEntity = (equipperEntity: Entity): void => {
   // if(!equipperComponent) return;
   // removeComponent(equipperComponent.equippedEntity, EquippedComponent);
   // removeComponent(equipperEntity, EquipperComponent);
+}
+
+export const getAttachmentPoint = (parityValue: ParityValue): EquippableAttachmentPoint => {
+  let attachmentPoint = EquippableAttachmentPoint.RIGHT_HAND
+  if (parityValue === ParityValue.LEFT) attachmentPoint = EquippableAttachmentPoint.LEFT_HAND
+
+  return attachmentPoint
+}
+
+export const getParity = (attachmentPoint: EquippableAttachmentPoint): ParityValue => {
+  let parityValue = ParityValue.RIGHT
+  if (attachmentPoint === EquippableAttachmentPoint.LEFT_HAND) parityValue = ParityValue.LEFT
+
+  return parityValue
 }
