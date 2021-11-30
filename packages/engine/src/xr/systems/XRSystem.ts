@@ -24,8 +24,6 @@ import { updateXRControllerAnimations } from '../functions/controllerAnimation'
  */
 
 export default async function XRSystem(world: World): Promise<System> {
-  const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
-
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
@@ -42,13 +40,13 @@ export default async function XRSystem(world: World): Promise<System> {
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
     Engine.renderer.outputEncoding = sRGBEncoding
-    const sessionInit = { optionalFeatures: [referenceSpaceType, 'hand-tracking'] }
+    const sessionInit = { optionalFeatures: ['local-floor', 'hand-tracking', 'layers'] }
     try {
       const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
 
       Engine.xrSession = session
-      Engine.xrManager.setReferenceSpaceType(referenceSpaceType)
       Engine.xrManager.setSession(session)
+      Engine.xrManager.setFoveation(1)
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_SESSION })
 
       Engine.xrManager.getCamera().layers.enableAll()

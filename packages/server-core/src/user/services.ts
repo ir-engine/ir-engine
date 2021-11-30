@@ -1,5 +1,6 @@
 import AcceptInvite from '../user/accept-invite/accept-invite.service'
 import Auth from './auth-management/auth-management.service'
+import Avatar from './avatar/avatar.service'
 import Email from './email/email.service'
 import IdentityProvider from './identity-provider/identity-provider.service'
 import Login from './login/login.service'
@@ -21,6 +22,7 @@ export default [
   UserRelationship,
   AcceptInvite,
   Auth,
+  Avatar,
   Login,
   LoginToken,
   MagicLink,

@@ -50,6 +50,7 @@ const settings = ({
           </ListItemAvatar>
           <ListItemText primary="Analytics" />
         </ListItem>
+        <Divider variant="inset" component="li" />
         <ListItem
           button
           onClick={handleServer}

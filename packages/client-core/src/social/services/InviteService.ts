@@ -101,20 +101,20 @@ export const InviteService = {
     {
       if (data.identityProviderType === 'email') {
         if (emailRegex.test(data.token) !== true) {
-          AlertService.dispatchAlertError('Invalid email address')
+          AlertService.dispatchAlertError(new Error('Invalid email address'))
           return
         }
       }
       if (data.identityProviderType === 'sms') {
         if (phoneRegex.test(data.token) !== true) {
-          AlertService.dispatchAlertError('Invalid 10-digit US phone number')
+          AlertService.dispatchAlertError(new Error('Invalid 10-digit US phone number'))
           return
         }
       }
 
       if (data.inviteCode != null) {
         if (inviteCodeRegex.test(data.inviteCode) !== true) {
-          AlertService.dispatchAlertError('Invalid Invite Code')
+          AlertService.dispatchAlertError(new Error('Invalid Invite Code'))
           return
         } else {
           const userResult = await client.service('user').find({
@@ -129,7 +129,7 @@ export const InviteService = {
           }
 
           if (userResult.total === 0) {
-            AlertService.dispatchAlertError('No user has that invite code')
+            AlertService.dispatchAlertError(new Error('No user has that invite code'))
             return
           } else {
             data.invitee = userResult.data[0].id
@@ -139,13 +139,13 @@ export const InviteService = {
 
       if (data.invitee != null) {
         if (userIdRegex.test(data.invitee) !== true) {
-          AlertService.dispatchAlertError('Invalid user ID')
+          AlertService.dispatchAlertError(new Error('Invalid user ID'))
           return
         }
       }
 
       if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
-        AlertService.dispatchAlertError(`Not a valid recipient`)
+        AlertService.dispatchAlertError(new Error(`Not a valid recipient`))
         return
       }
 
@@ -168,8 +168,7 @@ export const InviteService = {
         AlertService.dispatchAlertSuccess('Invite Sent')
         dispatch(InviteAction.sentInvite(inviteResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -191,8 +190,7 @@ export const InviteService = {
         })
         dispatch(InviteAction.retrievedReceivedInvites(inviteResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -214,7 +212,7 @@ export const InviteService = {
         })
         dispatch(InviteAction.retrievedSentInvites(inviteResult))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -225,8 +223,7 @@ export const InviteService = {
         await client.service('invite').remove(invite.id)
         dispatch(InviteAction.removedSentInvite())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -241,8 +238,7 @@ export const InviteService = {
         })
         dispatch(InviteAction.acceptedInvite())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -253,7 +249,7 @@ export const InviteService = {
         await client.service('invite').remove(invite.id)
         dispatch(InviteAction.declinedInvite())
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },

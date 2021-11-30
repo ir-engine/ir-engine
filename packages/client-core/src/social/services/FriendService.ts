@@ -123,8 +123,7 @@ export const FriendService = {
         })
         dispatch(FriendAction.loadedFriends(friendResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
         dispatch(FriendAction.loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }))
       }
     }
@@ -152,8 +151,7 @@ export const FriendService = {
       try {
         await client.service('user-relationship').remove(relatedUserId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },

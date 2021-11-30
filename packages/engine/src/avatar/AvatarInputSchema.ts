@@ -23,8 +23,10 @@ import { InputType } from '../input/enums/InputType'
 import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
 import { InputValue } from '../input/interfaces/InputValue'
 import { InputAlias } from '../input/types/InputAlias'
+import { InteractableComponent } from '../interaction/components/InteractableComponent'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
+import { equipEntity, getAttachmentPoint } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -79,7 +81,14 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
   const interactor = getComponent(entity, InteractorComponent)
   if (!interactor?.focusedInteractive) return
 
-  addComponent(interactor.focusedInteractive, InteractedComponent, { interactor: entity, parity: parityValue })
+  const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent)
+  // TODO: Define interaction types in some enum?
+  if (interactiveComponent.data.interactionType === 'equippable') {
+    const attachmentPoint = getAttachmentPoint(parityValue)
+    equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
+  } else {
+    addComponent(interactor.focusedInteractive, InteractedComponent, { interactor: entity, parity: parityValue })
+  }
 }
 
 /**

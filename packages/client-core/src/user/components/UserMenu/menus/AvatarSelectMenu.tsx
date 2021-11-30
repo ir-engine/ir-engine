@@ -18,6 +18,7 @@ import {
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { TextField } from '@mui/material'
+import { AuthService } from '../../../services/AuthService'
 
 interface Props {
   changeActiveMenu: Function
@@ -52,7 +53,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const container = document.getElementById('stage')
+    const container = document.getElementById('stage')!
     const bounds = container.getBoundingClientRect()
 
     this.camera = new THREE.PerspectiveCamera(45, bounds.width / bounds.height, 0.25, 20)
@@ -94,16 +95,16 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
     window.removeEventListener('resize', this.onWindowResize)
   }
 
-  camera = null
-  scene = null
-  renderer = null
+  camera: THREE.PerspectiveCamera
+  scene: THREE.Scene
+  renderer: THREE.WebGLRenderer
   fileSelected = false
   thumbnailSelected = false
   maxBB = new THREE.Vector3(2, 2, 2)
 
   t: any
   onWindowResize = () => {
-    const container = document.getElementById('stage')
+    const container = document.getElementById('stage')!
     const bounds = container.getBoundingClientRect()
     this.camera.aspect = bounds.width / bounds.height
     this.camera.updateProjectionMatrix()
@@ -118,11 +119,11 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
   }
 
   handleBrowse = () => {
-    document.getElementById('avatarSelect').click()
+    document.getElementById('avatarSelect')!.click()
   }
 
   handleThumbnail = () => {
-    document.getElementById('thumbnailSelect').click()
+    document.getElementById('thumbnailSelect')!.click()
   }
 
   handleAvatarChange = (e) => {
@@ -143,7 +144,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
       try {
         if (/\.(?:gltf|glb|vrm)/.test(file.name)) {
           const loader = getLoader()
-          loader.parse(fileData.target.result, '', (gltf) => {
+          loader.parse(fileData.target!.result, '', (gltf) => {
             gltf.scene.name = 'avatar'
             loadExtentions(gltf)
             this.scene.add(gltf.scene)
@@ -153,7 +154,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
           })
         } else {
           const loader = new FBXLoader()
-          const scene = loader.parse(fileData.target.result, file.name)
+          const scene = loader.parse(fileData.target!.result, file.name)
           scene.name = 'avatar'
           this.scene.add(scene)
           this.renderScene()
@@ -234,6 +235,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
       this.setState({ error })
       return
     }
+    console.log('upload', this.state, error)
 
     const canvas = document.createElement('canvas')
     ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
@@ -242,16 +244,16 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 
     if (this.state.selectedThumbnail == null)
       canvas.toBlob(async (blob) => {
-        await this.props.uploadAvatarModel(
+        await AuthService.uploadAvatarModel(
           this.state.selectedFile,
-          blob,
+          blob!,
           this.state.avatarName,
           this.props.isPublicAvatar
         )
         this.props.changeActiveMenu(Views.Profile)
       })
     else {
-      this.props.uploadAvatarModel(
+      AuthService.uploadAvatarModel(
         this.state.selectedFile,
         this.state.selectedThumbnail,
         this.state.avatarName,

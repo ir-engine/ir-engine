@@ -26,7 +26,7 @@ export default (): Hook => {
       throw new Error(`Location for match type '${gameMode}'(${locationName}) is not found.`)
     }
 
-    const freeInstance = await getFreeGameserver(app as Application, false)
+    const freeInstance = await getFreeGameserver(app as Application, 0, location.data[0].id, null!)
     try {
       const existingInstance = await app.service('instance').find({
         query: {
@@ -41,7 +41,9 @@ export default (): Hook => {
         const newInstance = {
           ipAddress: `${freeInstance.ipAddress}:${freeInstance.port}`,
           currentUsers: 0,
-          locationId: location.data[0].id
+          locationId: location.data[0].id,
+          assigned: true,
+          assignedAt: new Date()
         }
         const newInstanceResult = await app.service('instance').create(newInstance)
         instanceId = newInstanceResult.id

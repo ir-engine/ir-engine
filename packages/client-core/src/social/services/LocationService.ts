@@ -106,8 +106,7 @@ export const LocationService = {
         })
         dispatch(LocationAction.socialLocationsRetrieved(locationResults))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -119,8 +118,7 @@ export const LocationService = {
         const location = await client.service('location').get(locationId)
         dispatch(LocationAction.socialLocationRetrieved(location))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -172,8 +170,7 @@ export const LocationService = {
         })
         dispatch(LocationAction.socialLocationBanCreated())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }
