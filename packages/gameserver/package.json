@@ -33,8 +33,8 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "start": "cross-env APP_ENV=production ts-node --transpile-only src/index.ts",
-    "dev": "ts-node-dev --inspect --respawn --transpile-only src/index.ts",
-    "dev-channel": "cross-env GAMESERVER_PORT=3032 ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev --inspect=2995 --respawn --transpile-only src/index.ts",
+    "dev-channel": "cross-env GAMESERVER_PORT=3032 ts-node-dev --inspect=2996 --respawn --transpile-only src/index.ts",
     "dev-nossl": "cross-env NOSSL=true ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "exit 0",
     "validate": "npm run build && npm run test"
