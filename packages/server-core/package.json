@@ -55,6 +55,7 @@
     "aws-sdk": "2.1036.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
+    "cors-anywhere": "^0.4.4",
     "dauria": "^2.0.0",
     "dotenv-flow": "^3.2.0",
     "faker": "^5.5.3",
