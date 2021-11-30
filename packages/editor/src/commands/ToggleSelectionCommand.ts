@@ -3,6 +3,8 @@ import { serializeObject3DArray } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EditorActions } from '../functions/EditorActions'
 
 export default class ToggleSelectionCommand extends Command {
   constructor(objects?: any | any[], params?: CommandParams) {
@@ -53,10 +55,10 @@ export default class ToggleSelectionCommand extends Command {
   }
 
   emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+    if (this.shouldEmitEvent) dispatchLocal(EditorActions.selectionChanged.action({}) as any)
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent) CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent) dispatchLocal(EditorActions.beforeSelectionChanged.action({}) as any)
   }
 }

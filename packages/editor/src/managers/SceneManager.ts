@@ -49,6 +49,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { EditorActions } from '../functions/EditorActions'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()
@@ -189,7 +190,7 @@ export class SceneManager {
       })
 
       configureEffectComposer(this.postProcessingNode?.postProcessingOptions)
-      CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
+      EditorActions.selectionChanged.callbackFunctions.add(this.updateOutlinePassSelection)
       window.addEventListener('resize', this.onResize)
 
       CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
@@ -531,7 +532,7 @@ export class SceneManager {
     Engine.renderer?.dispose()
     this.screenshotRenderer?.dispose()
     Engine.effectComposer?.dispose()
-    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
+    EditorActions.selectionChanged.callbackFunctions.delete(this.updateOutlinePassSelection)
   }
 }
 

@@ -5,6 +5,8 @@ import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EditorActions } from '../functions/EditorActions'
 
 export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   static legacyComponentName = 'volumetric'
@@ -119,7 +121,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
       this.issues.push({ severity: 'error', message: 'Error loading volumetric.' })
     }
     CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
-    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+    dispatchLocal(EditorActions.selectionChanged.action({}) as any)
 
     // this.hideLoadingCube();
     return this

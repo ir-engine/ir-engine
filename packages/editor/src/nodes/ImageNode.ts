@@ -6,6 +6,8 @@ import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { CacheManager } from '../managers/CacheManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EditorActions } from '../functions/EditorActions'
 
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = 'image'
@@ -65,7 +67,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
       this.issues.push({ severity: 'error', message: 'Error loading image.' })
     }
     CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
-    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+    dispatchLocal(EditorActions.selectionChanged.action({}) as any)
 
     // this.hideLoadingCube();
     return this

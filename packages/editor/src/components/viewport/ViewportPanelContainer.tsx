@@ -12,6 +12,7 @@ import { SceneManager } from '../../managers/SceneManager'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
+import { EditorActions } from '../../functions/EditorActions'
 
 /**
  * ViewportPanelContainer used to render viewport.
@@ -41,7 +42,7 @@ export function ViewportPanelContainer() {
   }, [])
 
   const onEditorInitialized = useCallback(() => {
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
+    EditorActions.selectionChanged.callbackFunctions.add(onSelectionChanged)
     CommandManager.instance.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
     CommandManager.instance.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
     CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
@@ -54,8 +55,8 @@ export function ViewportPanelContainer() {
     CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
 
     return () => {
+      EditorActions.selectionChanged.callbackFunctions.delete(onSelectionChanged)
       CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
-      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
       CommandManager.instance.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
       CommandManager.instance.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
 

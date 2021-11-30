@@ -2,6 +2,7 @@ import { defineActionCreator } from '@xrengine/engine/src/networking/interfaces/
 import { match } from 'assert'
 import matches from 'ts-matches'
 //dispatchLocal(EditorActions.settingsChanged.action({}) as any)
+//dispatchLocal(EditorActions.selectionChanged.action({}) as any)
 
 export class EditorActions {
   static beforeSelectionChanged = {

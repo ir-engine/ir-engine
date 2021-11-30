@@ -12,6 +12,7 @@ import { CommandManager } from './CommandManager'
 import { SceneManager } from './SceneManager'
 import { setTransformMode } from '../systems/EditorControlSystem'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { EditorActions } from '../functions/EditorActions'
 
 export class ControlManager {
   static instance: ControlManager = new ControlManager()
@@ -58,8 +59,8 @@ export class ControlManager {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     editorControlComponent.enable = true
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
-    CommandManager.instance.addListener(EditorEvents.BEFORE_SELECTION_CHANGED.toString(), this.onBeforeSelectionChanged)
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
+    EditorActions.selectionChanged.callbackFunctions.add(this.onSelectionChanged)
+    EditorActions.beforeSelectionChanged.callbackFunctions.add(this.onSelectionChanged)
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
@@ -100,11 +101,8 @@ export class ControlManager {
     this.inputManager?.dispose()
     this.playModeControls?.dispose()
 
-    CommandManager.instance.removeListener(
-      EditorEvents.BEFORE_SELECTION_CHANGED.toString(),
-      this.onBeforeSelectionChanged
-    )
-    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
+    EditorActions.beforeSelectionChanged.callbackFunctions.delete(this.onSelectionChanged)
+    EditorActions.selectionChanged.callbackFunctions.delete(this.onSelectionChanged)
     CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 }

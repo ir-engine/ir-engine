@@ -7,6 +7,8 @@ import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
+import { EditorActions } from '../functions/EditorActions'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 let audioHelperTexture = null
 
@@ -85,8 +87,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
       console.log(`Error loading audio ${this._canonicalUrl}`)
     }
     CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
-    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
-
+    dispatchLocal(EditorActions.selectionChanged.action({}) as any)
     // this.hideLoadingCube();
     return this
   }

@@ -10,6 +10,7 @@ import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { NodeManager } from '../../managers/NodeManager'
 import NodeEditor from './NodeEditor'
+import { EditorActions } from '../../functions/EditorActions'
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.
@@ -141,11 +142,11 @@ export const PropertiesPanelContainer = () => {
   }
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
+    EditorActions.selectionChanged.callbackFunctions.add(onSelectionChanged)
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectsChanged)
 
     return () => {
-      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
+      EditorActions.selectionChanged.callbackFunctions.delete(onSelectionChanged)
       CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectsChanged)
     }
   }, [])

@@ -25,6 +25,7 @@ import Hotkeys from 'react-hot-keys'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { SceneManager } from '../../managers/SceneManager'
+import { EditorActions } from '../../functions/EditorActions'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -910,12 +911,12 @@ export default function HierarchyPanel() {
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateNodeHierarchy)
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), updateNodeHierarchy)
+    EditorActions.selectionChanged.callbackFunctions.add(updateNodeHierarchy)
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
 
     return () => {
+      EditorActions.selectionChanged.callbackFunctions.delete(updateNodeHierarchy)
       CommandManager.instance.removeListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateNodeHierarchy)
-      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), updateNodeHierarchy)
       CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
     }
   }, [updateNodeHierarchy, onObjectChanged])

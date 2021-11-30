@@ -8,6 +8,8 @@ import ModelNode from './ModelNode'
 import VideoNode from './VideoNode'
 import ImageNode from './ImageNode'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EditorActions } from '../functions/EditorActions'
 
 export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   static nodeName = 'Shopify'
@@ -433,7 +435,7 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
         }
         console.log(this.shopifyProducts)
         CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
-        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+        dispatchLocal(EditorActions.selectionChanged.action({}) as any)
       }
     } catch (error) {
       this.shopifyProducts = []

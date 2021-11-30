@@ -14,6 +14,8 @@ import { ControlManager } from '../managers/ControlManager'
 import { LoadInstancedGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from './SceneNode'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EditorActions } from '../functions/EditorActions'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -213,7 +215,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       //this._canonicalUrl = "";
     }
     CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
-    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+    dispatchLocal(EditorActions.selectionChanged.action({}) as any)
+
     // this.hideLoadingCube();
     return this
   }

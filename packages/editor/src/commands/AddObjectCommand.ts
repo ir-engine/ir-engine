@@ -8,6 +8,8 @@ import EditorEvents from '../constants/EditorEvents'
 import getDetachedObjectsRoots from '../functions/getDetachedObjectsRoots'
 import makeUniqueName from '../functions/makeUniqueName'
 import { NodeManager } from '../managers/NodeManager'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EditorActions } from '../functions/EditorActions'
 
 export interface AddObjectCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -64,14 +66,13 @@ export default class AddObjectCommand extends Command {
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected)
-      CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent && this.isSelected) dispatchLocal(EditorActions.beforeSelectionChanged.action({}) as any)
   }
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       if (this.isSelected) {
-        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+        dispatchLocal(EditorActions.selectionChanged.action({}) as any)
       }
 
       CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
