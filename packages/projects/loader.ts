@@ -71,4 +71,5 @@ export const importSystem = async (project: string, data: SystemProps): Promise<
   } catch (e) {
     console.log('[ProjectLoader]: Failed to load project entry point:', filePath, e)
   }
+  return null!
 }

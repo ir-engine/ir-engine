@@ -7,7 +7,6 @@ export async function handleNetworkStateUpdate(socket, data, isServer?: boolean)
       if (Engine.defaultWorld.clients.has(data.userId)) {
         Engine.defaultWorld.clients.get(data.userId)!.avatarDetail = {
           avatarURL: data.avatarURL,
-          avatarId: data.avatarId,
           thumbnailURL: data.thumbnailURL
         }
       }

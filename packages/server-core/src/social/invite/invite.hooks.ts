@@ -59,6 +59,7 @@ export default {
         } catch (err) {
           logger.error('INVITE AFTER HOOK ERROR')
           logger.error(err)
+          return null!
         }
       }
     ],

@@ -11,7 +11,7 @@ export default () => {
       const { id, data, method, params, app, path } = context
       const loggedInUser = extractLoggedInUserFromParams(params)
       if (path === 'party-user' && method === 'remove') {
-        const partyUser = await app.service('party-user').get(id)
+        const partyUser = await app.service('party-user').get(id!)
         fetchedPartyId = partyUser.partyId
       }
       const partyId =
@@ -73,6 +73,7 @@ export default () => {
       return context
     } catch (err) {
       console.log('party-permission-authenticate error', err)
+      return null!
     }
   }
 }

@@ -8,10 +8,10 @@ export default () => {
   return async (context: HookContext): Promise<any> => {
     const { params, app } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const groupId = params.query.groupId
-    const userId = params.query.userId || loggedInUser.userId
+    const groupId = params.query!.groupId
+    const userId = params.query!.userId || loggedInUser.userId
     const paramsClone = _.cloneDeep(context.params)
-    paramsClone.provider = null
+    paramsClone.provider = null!
     if (params.groupUsersRemoved !== true) {
       const groupUserResult = await app.service('group-user').find(
         {

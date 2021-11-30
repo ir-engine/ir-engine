@@ -24,11 +24,12 @@ const Redis = (props: Props) => {
   })
   const authState = useAuthState()
   const user = authState.user
+
   useEffect(() => {
     if (user?.id?.value != null && redisSettingState?.updateNeeded?.value) {
       AdminRedisSettingService.fetchRedisSetting()
     }
-  }, [authState])
+  }, [authState?.user?.id?.value, redisSettingState?.updateNeeded?.value])
 
   const handleEnable = (event) => {
     setEnabled({ ...enabled, [event.target.name]: event.target.checked })

@@ -139,7 +139,7 @@ export function defineActionCreator<
   actionCreator.actionShape = actionShape as Shape
   actionCreator.resolvedActionShape = resolvedActionShape
   actionCreator.type = actionShape.type
-  actionCreator.matches = matches.every(matchesShape, matchesActionFromHost)
+  actionCreator.matches = matches.every(matchesShape, matchesActionFromTrusted)
   actionCreator.matchesFromAny = matchesShape
   actionCreator.matchesFromUser = (userId: UserId) => matches.every(matchesShape, matchesActionFromUser(userId))
   const matchExtensions = options?.extensions?.(matchesShape)
@@ -183,10 +183,10 @@ export const matchesActionFromUser = (userId: UserId) => {
   return matches.shape({ $from: matches.literal(userId) })
 }
 
-export const matchesActionFromHost = matches.guard((v): v is { $from: UserId } => {
+export const matchesActionFromTrusted = matches.guard((v): v is { $from: UserId } => {
   if (typeof v !== 'object') return false
   if (v && '$from' in v) {
-    return v['$from'] === useWorld().hostId
+    return v['$from'] === useWorld().hostId || v['$to'] === 'local'
   }
   return false
 })

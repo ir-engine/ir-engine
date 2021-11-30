@@ -16,6 +16,15 @@ A summary of changes being made in this PR
 
 References to pertaining issue(s)
 
+## QA Steps
+
+1. `git checkout pr_branch_name`
+2. `npm install`
+3. `npm run dev-reinit`
+4. `npm run dev`
+
+List any additional steps required to QA the changes of this PR, as well as any supplemental images or videos.
+
 ## Reviewers
 
 @HexaField @speigg @NateTheGreatt

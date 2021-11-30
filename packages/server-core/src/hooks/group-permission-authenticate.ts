@@ -9,13 +9,13 @@ export default () => {
     const { id, method, params, app, path } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
     if (path === 'group-user' && method === 'remove') {
-      const groupUser = await app.service('group-user').get(id)
+      const groupUser = await app.service('group-user').get(id!, null!)
       fetchedGroupId = groupUser.groupId
     }
     const groupId =
-      path === 'group-user' && method === 'find' ? params.query.groupId : fetchedGroupId != null ? fetchedGroupId : id
-    params.query.groupId = groupId
-    const userId = path === 'group' ? loggedInUser.userId : params.query.userId || loggedInUser.userId
+      path === 'group-user' && method === 'find' ? params.query!.groupId : fetchedGroupId != null ? fetchedGroupId : id
+    params.query!.groupId = groupId
+    const userId = path === 'group' ? loggedInUser.userId : params.query!.userId || loggedInUser.userId
     const groupUserCountResult = await app.service('group-user').find({
       query: {
         groupId: groupId,
@@ -44,7 +44,7 @@ export default () => {
     }
 
     if (path === 'group') {
-      delete params.query.groupId
+      delete params.query!.groupId
     }
     return context
   }

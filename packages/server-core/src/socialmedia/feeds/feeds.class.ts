@@ -78,7 +78,7 @@ export class TheFeeds extends Service {
     // }
     const loggedInUser = extractLoggedInUserFromParams(params)
     const creatorId = params.query?.creatorId
-      ? params.query.creatorId
+      ? params.query!.creatorId
       : await getCreatorByUserId(loggedInUser?.userId, this.app.get('sequelizeClient'))
   }
 
@@ -90,9 +90,9 @@ export class TheFeeds extends Service {
    * @returns {@Object} contains specific thefeeds
    * @author Gleb Ordinsky
    */
-  // async get (id: Id, params?: Params): Promise<any> {
-  async get(id: Id, params?: Params): Promise<any> {
-    // async get (params?: Params): Promise<any> {
+  // async get (id: Id, params: Params): Promise<any> {
+  async get(id: Id, params: Params): Promise<any> {
+    // async get (params: Params): Promise<any> {
     //   let select = `SELECT thefeeds.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, sr3.url as avatar,
     //   sr1.url as videoId `;
     let select = `SELECT thefeeds.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
@@ -143,7 +143,7 @@ export class TheFeeds extends Service {
     return newTheFeeds
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params: Params): Promise<any> {
     console.log('Backend create')
     const { thefeeds: thefeedsModel } = this.app.get('sequelizeClient').models
     // data.creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
@@ -180,11 +180,11 @@ export class TheFeeds extends Service {
    * @returns updated thefeeds
    * @author
    */
-  async patch(id: string, data?: any, params?: Params): Promise<any> {
+  async patch(id: string, data: any, params: Params): Promise<any> {
     console.log('server', id)
     console.log('server', data)
     const { thefeeds: thefeedsModel } = this.app.get('sequelizeClient').models
-    let result = null
+    let result = null as any
     if (data.viewsCount) {
       const thefeedsItem = await thefeedsModel.findOne({ where: { id: id } })
       if (!thefeedsItem) {

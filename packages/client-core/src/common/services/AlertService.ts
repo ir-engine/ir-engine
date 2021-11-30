@@ -70,10 +70,11 @@ export const AlertService = {
     AlertService.restartTimer()
     return dispatch(AlertAction.showAlert('warning', message))
   },
-  dispatchAlertError: (message: string) => {
+  dispatchAlertError: (err: Error) => {
     const dispatch = useDispatch()
     AlertService.restartTimer()
-    return dispatch(AlertAction.showAlert('error', message))
+    console.error(err)
+    return dispatch(AlertAction.showAlert('error', err.message))
   },
   dispatchAlertCancel: () => {
     const dispatch = useDispatch()

@@ -115,8 +115,7 @@ export const CreatorService = {
         const creatorResponse = await client.service('creator').create(creatorInfo)
         dispatch(CreatorAction.creatorLoggedRetrieved(creatorResponse))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -128,8 +127,7 @@ export const CreatorService = {
         const creator = await client.service('creator').find({ query: { action: 'current' } })
         dispatch(CreatorAction.creatorLoggedRetrieved(creator))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -141,8 +139,7 @@ export const CreatorService = {
         const results = await client.service('creator').find({ query: {} })
         dispatch(CreatorAction.creatorsRetrieved(results))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -154,8 +151,7 @@ export const CreatorService = {
         const creator = await client.service('creator').get(creatorId)
         dispatch(CreatorAction.creatorRetrieved(creator))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -178,8 +174,7 @@ export const CreatorService = {
           }
         }
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
         if (callBack) {
           callBack(err.message)
         }
@@ -195,8 +190,7 @@ export const CreatorService = {
         const notificationList = await client.service('notifications').find({ query: { action: 'byCurrentCreator' } })
         dispatch(CreatorAction.creatorNotificationList(notificationList))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -207,8 +201,7 @@ export const CreatorService = {
         const follow = await client.service('follow-creator').create({ creatorId })
         follow && dispatch(CreatorAction.updateCreatorAsFollowed())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -219,8 +212,7 @@ export const CreatorService = {
         const follow = await client.service('follow-creator').remove(creatorId)
         follow && dispatch(CreatorAction.updateCreatorNotFollowed())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -231,8 +223,7 @@ export const CreatorService = {
         const follow = await client.service('block-creator').create({ creatorId })
         follow && dispatch(CreatorAction.updateCreatorAsBlocked(creatorId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -246,8 +237,7 @@ export const CreatorService = {
           CreatorService.getCreators()
         }
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -258,8 +248,7 @@ export const CreatorService = {
         const list = await client.service('block-creator').find({ query: { action: 'blocked', creatorId } })
         dispatch(CreatorAction.creatorBlockedUsers(list.data))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -270,8 +259,7 @@ export const CreatorService = {
         const list = await client.service('follow-creator').find({ query: { action: 'followers', creatorId } })
         dispatch(CreatorAction.creatorFollowers(list.data))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -282,8 +270,7 @@ export const CreatorService = {
         const list = await client.service('follow-creator').find({ query: { action: 'following', creatorId } })
         dispatch(CreatorAction.creatorFollowing(list.data))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

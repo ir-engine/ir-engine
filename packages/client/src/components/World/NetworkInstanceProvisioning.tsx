@@ -10,7 +10,6 @@ import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import querystring from 'querystring'
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import url from 'url'
 import { retriveLocationByName } from './LocationLoadHelper'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
@@ -65,9 +64,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
         let instanceId
 
         if (search != null) {
-          const parsed = url.parse(window.location.href)
-          const query = querystring.parse(parsed.query!)
-          instanceId = query.instanceId
+          const parsed = new URL(window.location.href).searchParams.get('instanceId')
+          instanceId = parsed
         }
 
         InstanceConnectionService.provisionInstanceServer(
