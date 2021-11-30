@@ -4,6 +4,7 @@ import { useGroupState } from '@xrengine/client-core/src/social/services/GroupSe
 import ModeContext from '../context/modeContext'
 import { useHarmonyStyles } from '../style'
 import { FormControl, MenuItem, Select } from '@mui/material'
+import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
 
 interface Props {
   handleCloseModal: any
@@ -14,12 +15,9 @@ const Group = (props: Props) => {
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const [type, setType] = React.useState('email')
-
-  const [tabIndex, setTabIndex] = useState(0)
-  const [userToken, setUserToken] = useState('')
-  const [group, setGroup] = useState('1')
-  const [inviteTypeIndex, setInviteTypeIndex] = useState(0)
   const inviteState = useInviteState()
+  const [userToken, setUserToken] = useState('1')
+  const [group, setGroup] = useState(inviteState.targetObjectId.value || '1')
   const groupState = useGroupState()
   const invitableGroupState = groupState.invitableGroups
   const invitableGroups = invitableGroupState.groups
@@ -28,27 +26,18 @@ const Group = (props: Props) => {
   identityProviderTabMap.set(0, 'email')
   identityProviderTabMap.set(1, 'sms')
 
+  //friend state
+  const friendState = useFriendState()
+  const friendSubState = friendState.friends
+  const friends = friendSubState.friends.value
+
   const handleUserTokenChange = (event: any): void => {
     setUserToken(event.target.value)
-  }
-
-  const handleChange = (event: any, newValue: number): void => {
-    event.preventDefault()
-    setTabIndex(newValue)
-    setUserToken('')
   }
 
   const handleInviteGroupChange = (event: React.ChangeEvent<{ value: string }>): void => {
     setGroup(event.target.value)
     InviteService.updateInviteTarget('group', event.target.value)
-  }
-
-  const handleInviteTypeChange = (e: any, newValue: number): void => {
-    e.preventDefault()
-    setInviteTypeIndex(newValue)
-    if (newValue === 0 && tabIndex === 3) {
-      setTabIndex(0)
-    }
   }
 
   const packageInvite = async (event: any): Promise<void> => {
@@ -61,9 +50,8 @@ const Group = (props: Props) => {
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
       identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
       targetObjectId: inviteState.targetObjectId.value,
-      invitee: mappedIDProvider !== 'code' ? userToken : null
+      invitee: mappedIDProvider === 'friends' ? userToken : null
     }
-
     InviteService.sendInvite(sendData)
     handleCloseModal()
     setUserToken('')
@@ -179,11 +167,30 @@ const Group = (props: Props) => {
               <label htmlFor="" className={classes.mx2}>
                 <p>Friends:</p>
               </label>
-              <select className={darkMode ? classes.formControls : classes.formControlsLight}>
-                <option value="1">Test Friend 1</option>
-                <option value="2">Test Friend 2</option>
-                <option value="3">Test Friend 3</option>
-              </select>
+              <FormControl fullWidth>
+                <Select
+                  labelId="invite-group-select-friend-label"
+                  id="invite-group-friend-select"
+                  className={!darkMode ? classes.selectLigth : classes.select}
+                  value={userToken}
+                  onChange={(e) => handleUserTokenChange(e)}
+                  MenuProps={{ classes: { paper: darkMode ? classes.selectPaper : classes.selectPaperLight } }}
+                >
+                  <MenuItem value="1" disabled>
+                    <em>Select friend</em>
+                  </MenuItem>
+                  {friends &&
+                    [...friends]
+                      .sort((a, b) => a.name - b.name)
+                      .map((friend, index) => {
+                        return (
+                          <MenuItem key={friend.id} value={friend.id}>
+                            {friend.name}
+                          </MenuItem>
+                        )
+                      })}
+                </Select>
+              </FormControl>{' '}
             </div>
           )}
           <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>

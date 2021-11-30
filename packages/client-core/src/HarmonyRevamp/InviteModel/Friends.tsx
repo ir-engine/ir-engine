@@ -37,8 +37,6 @@ const Friends = (props: Props) => {
     handleCloseModal()
   }
 
-  console.log(inviteState.targetObjectType.value)
-
   return (
     <React.Fragment>
       <div className={`${classes.dFlex} ${classes.flexWrap} ${classes.alignCenter} ${classes.mx2}`}>

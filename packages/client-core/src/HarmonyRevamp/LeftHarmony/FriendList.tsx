@@ -1,8 +1,7 @@
 import React, { useContext } from 'react'
 import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
 import { useHarmonyStyles } from '../style'
-import { Delete, Forum, GroupAdd, MoreHoriz } from '@material-ui/icons'
-import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
+import { Delete, Forum, MoreHoriz } from '@material-ui/icons'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import {
   MenuList,
@@ -29,8 +28,6 @@ const FriendList = (props: Props) => {
   const { darkMode } = useContext(ModeContext)
 
   const [anchorEl, setAnchorEl] = React.useState(null)
-  const [invite, setInvite] = React.useState('')
-  const [create, setCreate] = React.useState(false)
   const history = useHistory()
   const persed = queryString.parse(location.search)
 
@@ -48,20 +45,12 @@ const FriendList = (props: Props) => {
     ChatService.updateChatTarget(channelType, target)
   }
 
-  const openInvite = (targetObjectType?: string, targetObjectId?: string): void => {
-    InviteService.updateInviteTarget(targetObjectType, targetObjectId)
-  }
-
   const handleClose = () => {
     setAnchorEl(null)
   }
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
-  }
-
-  const handleCreate = () => {
-    setCreate(true)
   }
 
   const open = Boolean(anchorEl)
@@ -92,7 +81,9 @@ const FriendList = (props: Props) => {
                       }}
                       className={`${classes.mx2} ${classes.flexGrow2}`}
                     >
-                      <h4 className={classes.fontBig}>{friend.name}</h4>
+                      <h4 className={`${classes.fontBig} ${darkMode ? classes.white : classes.textBlack}`}>
+                        {friend.name}
+                      </h4>
                       <small className={classes.textMuted}>Hello Buddy</small>
                     </div>
                     <div>

@@ -260,7 +260,7 @@ export const ChatService = {
         await waitForClientAuthenticated()
         const chatState = accessChatState().value
         const data = {
-          targetObjectId: chatState.targetObject.id || values.targetObjectId || 'd5206d80-4499-11ec-bf97-7105055dd807',
+          targetObjectId: chatState.targetObject.id || values.targetObjectId || '',
           targetObjectType: chatState.targetObjectType || values.targetObjectType || 'party',
           text: values.text
         }

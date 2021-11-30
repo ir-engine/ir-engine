@@ -2,6 +2,9 @@ import React, { useState, useContext } from 'react'
 import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import ModeContext from '../context/modeContext'
 import { useHarmonyStyles } from '../style'
+import { FormControl, MenuItem, Select } from '@mui/material'
+import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
+
 interface Props {
   handleCloseModal: any
 }
@@ -11,8 +14,13 @@ const Party = (props: Props) => {
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const inviteState = useInviteState()
-  const [userToken, setUserToken] = useState('')
+  const [userToken, setUserToken] = useState('1')
   const [type, setType] = React.useState('email')
+
+  //friend state
+  const friendState = useFriendState()
+  const friendSubState = friendState.friends
+  const friends = friendSubState.friends.value
 
   const handleUserTokenChange = (event: any): void => {
     setUserToken(event.target.value)
@@ -118,11 +126,30 @@ const Party = (props: Props) => {
               <label htmlFor="" className={classes.mx2}>
                 <p>Friends:</p>
               </label>
-              <select className={darkMode ? classes.formControls : classes.formControlsLight}>
-                <option value="1">Test Friend 1</option>
-                <option value="2">Test Friend 2</option>
-                <option value="3">Test Friend 3</option>
-              </select>
+              <FormControl fullWidth>
+                <Select
+                  labelId="invite-group-select-friend-label"
+                  id="invite-group-friend-select"
+                  className={!darkMode ? classes.selectLigth : classes.select}
+                  value={userToken}
+                  onChange={(e) => handleUserTokenChange(e)}
+                  MenuProps={{ classes: { paper: darkMode ? classes.selectPaper : classes.selectPaperLight } }}
+                >
+                  <MenuItem value="1" disabled>
+                    <em>Select friend</em>
+                  </MenuItem>
+                  {friends &&
+                    [...friends]
+                      .sort((a, b) => a.name - b.name)
+                      .map((friend, index) => {
+                        return (
+                          <MenuItem key={friend.id} value={friend.id}>
+                            {friend.name}
+                          </MenuItem>
+                        )
+                      })}
+                </Select>
+              </FormControl>{' '}
             </div>
           )}
           <div className={`${classes.dFlex} ${classes.my2}`} style={{ width: '100%' }}>
