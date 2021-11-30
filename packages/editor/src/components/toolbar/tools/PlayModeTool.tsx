@@ -10,24 +10,13 @@ import * as styles from '../styles.module.scss'
 const PlayModeTool = () => {
   const [isInPlayMode, setInPlayMode] = useState(false)
 
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.PLAY_MODE_CHANGED.toString(), updatePlayModeSetting)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.PLAY_MODE_CHANGED.toString(), updatePlayModeSetting)
-    }
-  }, [])
-
-  const updatePlayModeSetting = () => {
-    setInPlayMode(ControlManager.instance.isInPlayMode)
-  }
-
   const onTogglePlayMode = () => {
     if (isInPlayMode) {
       ControlManager.instance.leavePlayMode()
     } else {
       ControlManager.instance.enterPlayMode()
     }
+    setInPlayMode(ControlManager.instance.isInPlayMode)
   }
 
   return (

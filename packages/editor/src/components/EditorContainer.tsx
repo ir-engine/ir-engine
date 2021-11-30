@@ -442,6 +442,7 @@ const EditorContainer = (props) => {
   }
 
   const onSaveScene = async () => {
+    console.log('Saving The Scene Here')
     if (!sceneName) {
       if (modified) {
         onSaveAs()
@@ -495,13 +496,11 @@ const EditorContainer = (props) => {
       CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
       CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
-      CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
     })
   }, [])
 
   useEffect(() => {
     return () => {
-      CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
       CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
       CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       ProjectManager.instance.dispose()

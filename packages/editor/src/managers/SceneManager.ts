@@ -274,8 +274,6 @@ export class SceneManager {
         renderPass.overrideMaterial = new MeshNormalMaterial()
         break
     }
-
-    CommandManager.instance.emitEvent(EditorEvents.RENDER_MODE_CHANGED)
   }
 
   /**

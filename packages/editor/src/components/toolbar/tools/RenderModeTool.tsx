@@ -20,16 +20,10 @@ const RenderModeTool = () => {
     })
   }
 
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.RENDER_MODE_CHANGED.toString(), changeRenderMode)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.RENDER_MODE_CHANGED.toString(), changeRenderMode)
-    }
+  const onChangeRenderMode = useCallback((mode) => {
+    SceneManager.instance.changeRenderMode(mode)
+    setRenderMode(SceneManager.instance.renderMode)
   }, [])
-
-  const onChangeRenderMode = useCallback((mode) => SceneManager.instance.changeRenderMode(mode), [])
-  const changeRenderMode = useCallback(() => setRenderMode(SceneManager.instance.renderMode), [])
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">

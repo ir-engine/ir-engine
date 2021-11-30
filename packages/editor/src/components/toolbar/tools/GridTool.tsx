@@ -3,38 +3,20 @@ import { Grid } from '@styled-icons/boxicons-regular/Grid'
 import * as styles from '../styles.module.scss'
 import { InfoTooltip } from '../../layout/Tooltip'
 import NumericStepperInput from '../../inputs/NumericStepperInput'
-import EditorEvents from '../../../constants/EditorEvents'
 import { SceneManager } from '../../../managers/SceneManager'
-import { CommandManager } from '../../../managers/CommandManager'
 
 const GridTool = () => {
   const [isGridVisible, setGridVisible] = useState(true)
   const [gridHeight, setGridHeight] = useState(0)
 
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.GRID_HEIGHT_CHANGED.toString(), updateGridHeight)
-    CommandManager.instance.addListener(EditorEvents.GRID_VISIBILITY_CHANGED.toString(), updateGridVisibility)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.GRID_HEIGHT_CHANGED.toString(), updateGridHeight)
-      CommandManager.instance.removeListener(EditorEvents.GRID_VISIBILITY_CHANGED.toString(), updateGridVisibility)
-    }
-  }, [])
-
-  const updateGridVisibility = () => {
-    setGridVisible(SceneManager.instance.grid.visible)
-  }
-
-  const updateGridHeight = () => {
-    setGridHeight(SceneManager.instance.grid.position.y)
-  }
-
   const onToggleGridVisible = () => {
     SceneManager.instance.grid.toggleGridVisible()
+    setGridVisible(SceneManager.instance.grid.visible)
   }
 
   const onChangeGridHeight = (value) => {
     SceneManager.instance.grid.setGridHeight(value)
+    setGridHeight(SceneManager.instance.grid.position.y)
   }
 
   return (

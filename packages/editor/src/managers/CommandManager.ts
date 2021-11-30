@@ -115,6 +115,7 @@ export class CommandManager extends EventEmitter {
   }
 
   emitEvent = (event: EditorEvents, ...args: any[]): void => {
+    ///////////////
     this.emit(event.toString(), ...args)
   }
 
@@ -295,7 +296,6 @@ export class CommandManager extends EventEmitter {
     SceneManager.instance.getSpawnPosition(node.position)
     this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, { parents: parent, befores: before })
 
-    CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)
     return node
   }
 }

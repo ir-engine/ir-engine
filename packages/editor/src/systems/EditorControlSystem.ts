@@ -471,7 +471,6 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
       } else if (getInput(EditorActionSet.saveProject)) {
         // TODO: Move save to Project class
-        CommandManager.instance.emitEvent(EditorEvents.SAVE_PROJECT)
       }
 
       if (flyControlComponent.enable) return
@@ -592,21 +591,6 @@ export const setTransformSpace = (
 
   editorControlComponent.transformSpace = transformSpace
   editorControlComponent.transformSpaceChanged = true
-  CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_SPACE_CHANGED)
-}
-
-export const toggleTransformSpace = (editorControlComponent?: EditorControlComponentType) => {
-  if (!editorControlComponent) {
-    editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
-    if (!editorControlComponent.enable) return
-  }
-
-  setTransformSpace(
-    editorControlComponent.transformSpace === TransformSpace.World
-      ? TransformSpace.LocalSelection
-      : TransformSpace.World,
-    editorControlComponent
-  )
 }
 
 const cancel = (editorControlComponent?: EditorControlComponentType) => {

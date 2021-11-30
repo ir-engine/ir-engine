@@ -43,7 +43,6 @@ export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId:
   action.$to = action.$to ?? 'all'
   action.$tick = action.$tick ?? world.fixedTick + 2
   world.outgoingActions.add(action)
-
   return options
 }
 

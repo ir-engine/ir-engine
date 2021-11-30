@@ -1,7 +1,5 @@
 import { Mesh, Color, PlaneBufferGeometry, ShaderMaterial, DoubleSide, Plane, Vector3 } from 'three'
 import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
 /**
  * Original Author: Fyrestar
  * https://discourse.threejs.org/t/three-infinitegridhelper-anti-aliased/8377
@@ -129,11 +127,9 @@ export default class EditorInfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
-    CommandManager.instance.emitEvent(EditorEvents.GRID_HEIGHT_CHANGED, value)
   }
 
   toggleGridVisible() {
     this.visible = !this.visible
-    CommandManager.instance.emitEvent(EditorEvents.GRID_VISIBILITY_CHANGED, this.visible)
   }
 }
