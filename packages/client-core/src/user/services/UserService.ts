@@ -14,7 +14,8 @@ const state = createState({
   layerUsersUpdateNeeded: true,
   channelLayerUsers: [] as Array<User>,
   channelLayerUsersUpdateNeeded: true,
-  toastMessages: [] as Array<{ user: User; userAdded?: boolean; userRemoved?: boolean }>
+  toastMessages: [] as Array<{ user: User; userAdded?: boolean; userRemoved?: boolean }>,
+  selectedLayerUser: ''
 })
 
 store.receptors.push((action: UserActionType): void => {

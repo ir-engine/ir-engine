@@ -5,12 +5,14 @@ import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarCo
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
+import { createAvatarContextMenuView } from './ui/PersonMenu'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Quaternion, Vector3 } from 'three'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
+export const AvatarContextMenuUI = new Map<Entity, ReturnType<typeof createAvatarContextMenuView>>()
 
 export default async function AvatarUISystem(world: World): Promise<System> {
   const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent])
@@ -26,6 +28,15 @@ export default async function AvatarUISystem(world: World): Promise<System> {
         rotation: new Quaternion(),
         scale: new Vector3(1, 1, 1)
       })
+
+      //Avatar Context Menu
+      const contextMenuUI = createAvatarContextMenuView(userId)
+      AvatarContextMenuUI.set(userEntity, contextMenuUI)
+      addComponent(contextMenuUI.entity, TransformComponent, {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3(1, 1, 1)
+      })
     }
 
     for (const userEntity of userQuery()) {
@@ -37,7 +48,14 @@ export default async function AvatarUISystem(world: World): Promise<System> {
       transform.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
       transform.position.copy(userTransform.position)
       transform.position.y += avatarHeight + 0.3
-      transform.rotation.setFromRotationMatrix(Engine.camera.matrix)
+      //transform.rotation.setFromRotationMatrix(Engine.camera.matrix)
+
+      //Avatar Context Menu
+      const contextMenuUI = AvatarContextMenuUI.get(userEntity)!
+      const contextMenuTransform = getComponent(contextMenuUI.entity, TransformComponent)
+      contextMenuTransform.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
+      contextMenuTransform.position.copy(userTransform.position)
+      contextMenuTransform.position.y += avatarHeight / 2
     }
 
     for (const userEntity of userQuery.exit()) {
@@ -45,6 +63,10 @@ export default async function AvatarUISystem(world: World): Promise<System> {
       const entity = AvatarUI.get(userEntity)?.entity
       if (typeof entity !== 'undefined') removeEntity(entity)
       AvatarUI.delete(userEntity)
+
+      const contextMenuEntity = AvatarContextMenuUI.get(userEntity)?.entity
+      if (typeof contextMenuEntity !== 'undefined') removeEntity(contextMenuEntity)
+      AvatarContextMenuUI.delete(userEntity)
     }
 
     return world
