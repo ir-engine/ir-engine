@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "axios": "^0.23.0",
+    "node-fetch": "^2.6.1",
     "vite": "2.6.3"
   },
   "devDependencies": {
