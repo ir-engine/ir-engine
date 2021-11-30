@@ -1,10 +1,13 @@
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 
 export const sceneRelativePathIdentifier = '__$project$__'
-export const corsPath = `https://${config.server.hostname}:${config.server.corsServerPort}`
+export const corsPath = isDev
+  ? `https://${config.server.hostname}:${config.server.corsServerPort}`
+  : `​https://${config.server.hostname}/cors-proxy`
 
 export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string) => {
   for (const [key, val] of Object.entries(sceneData)) {
