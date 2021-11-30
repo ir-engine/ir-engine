@@ -58,7 +58,7 @@
     "react": "17.0.2",
     "simplex-noise": "^3.0.0",
     "socket.io": "4.4.0",
-    "three": "0.135.0",
+    "three": "git://github.com/mrdoob/three.js.git#38eb8439c6f58188480c08d24f0e56321ff3f758",
     "three-mesh-bvh": "^0.5.0",
     "troika-three-text": "^0.44.0",
     "ts-matches": "^5.1.0-1",
