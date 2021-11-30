@@ -3,7 +3,7 @@ import { useHistory, withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -139,35 +139,14 @@ const EditorContainer = (props) => {
   const [DialogComponent, setDialogComponent] = useState(null)
   const [modified, setModified] = useState(false)
   const [sceneLoaded, setSceneLoaded] = useState(false)
+  const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
   const dispatch = useDispatch()
   const history = useHistory()
+  const dockPanelRef = useRef()
 
   const initializeEditor = async () => {
     await Promise.all([ProjectManager.instance.init()])
   }
-
-  useEffect(() => {
-    CacheManager.init()
-
-    registerPredefinedNodes()
-
-    initializeEditor().then(() => {
-      setEditorReady(true)
-      CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
-      CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
-      CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
-      CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
-    })
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
-      CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
-      CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
-      ProjectManager.instance.dispose()
-    }
-  }, [])
 
   const importScene = async (projectFile) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
@@ -249,7 +228,7 @@ const EditorContainer = (props) => {
     setSceneLoaded(false)
     try {
       // TODO: replace with better template functionality
-      const project = await getScene('default-project', 'default', false)
+      const project = await getScene('default-project', 'empty', false)
       await ProjectManager.instance.loadProject(project.scene)
       setDialogComponent(null)
     } catch (error) {
@@ -278,40 +257,6 @@ const EditorContainer = (props) => {
     } else if (then) {
       then()
     }
-  }
-
-  const generateToolbarMenu = () => {
-    return [
-      {
-        name: t('editor:menubar.newProject'),
-        action: newScene
-      },
-      {
-        name: t('editor:menubar.saveProject'),
-        hotkey: `${cmdOrCtrlString} + S`,
-        action: onSaveScene
-      },
-      {
-        name: t('editor:menubar.saveAs'),
-        action: onSaveAs
-      },
-      // {
-      //   name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
-      //   action: onExportProject
-      // },
-      {
-        name: t('editor:menubar.importProject'),
-        action: onImportScene
-      },
-      {
-        name: t('editor:menubar.exportProject'),
-        action: onExportScene
-      },
-      {
-        name: t('editor:menubar.quit'),
-        action: onCloseProject
-      }
-    ]
   }
 
   const setDebuginfo = () => {
@@ -395,6 +340,7 @@ const EditorContainer = (props) => {
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
       )
     }
+    setToggleRefetchScenes(!toggleRefetchScenes)
   }
 
   const onExportProject = async () => {
@@ -540,12 +486,92 @@ const EditorContainer = (props) => {
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
       )
     }
+    setToggleRefetchScenes(!toggleRefetchScenes)
+  }
+
+  useEffect(() => {
+    console.log('toggleRefetchScenes')
+    dockPanelRef.current &&
+      dockPanelRef.current.updateTab('scenePanel', {
+        id: 'scenePanel',
+        title: (
+          <PanelDragContainer>
+            <PanelIcon as={Archive} size={12} />
+            <PanelTitle>Scenes</PanelTitle>
+          </PanelDragContainer>
+        ),
+        content: (
+          <ScenesPanel
+            newScene={newScene}
+            toggleRefetchScenes={toggleRefetchScenes}
+            projectName={projectName}
+            loadScene={reRouteToLoadScene}
+          />
+        )
+      })
+  }, [toggleRefetchScenes])
+
+  useEffect(() => {
+    CacheManager.init()
+
+    registerPredefinedNodes()
+
+    initializeEditor().then(() => {
+      setEditorReady(true)
+      CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
+      CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
+      CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
+      CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
+    })
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
+      CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
+      CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
+      ProjectManager.instance.dispose()
+    }
+  }, [])
+
+  const generateToolbarMenu = () => {
+    return [
+      {
+        name: t('editor:menubar.newProject'),
+        action: newScene
+      },
+      {
+        name: t('editor:menubar.saveProject'),
+        hotkey: `${cmdOrCtrlString}+s`,
+        action: onSaveScene
+      },
+      {
+        name: t('editor:menubar.saveAs'),
+        action: onSaveAs
+      },
+      // {
+      //   name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
+      //   action: onExportProject
+      // },
+      {
+        name: t('editor:menubar.importProject'),
+        action: onImportScene
+      },
+      {
+        name: t('editor:menubar.exportProject'),
+        action: onExportScene
+      },
+      {
+        name: t('editor:menubar.quit'),
+        action: onCloseProject
+      }
+    ]
   }
 
   const toolbarMenu = generateToolbarMenu()
   if (!editorReady) return <></>
 
-  let defaultLayout: LayoutData = {
+  const defaultLayout: LayoutData = {
     dockbox: {
       mode: 'horizontal' as DockMode,
       children: [
@@ -563,7 +589,14 @@ const EditorContainer = (props) => {
                       <PanelTitle>Scenes</PanelTitle>
                     </PanelDragContainer>
                   ),
-                  content: <ScenesPanel newScene={newScene} loadScene={reRouteToLoadScene} projectName={projectName} />
+                  content: (
+                    <ScenesPanel
+                      newScene={newScene}
+                      projectName={projectName}
+                      toggleRefetchScenes={toggleRefetchScenes}
+                      loadScene={reRouteToLoadScene}
+                    />
+                  )
                 },
                 {
                   id: 'filesPanel',
@@ -646,6 +679,7 @@ const EditorContainer = (props) => {
             <ViewportPanelContainer />
             <DockContainer>
               <DockLayout
+                ref={dockPanelRef}
                 defaultLayout={defaultLayout}
                 style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
               />

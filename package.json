@@ -67,13 +67,13 @@
     "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "validate": "npm run lint && lerna run validate",
-    "build-publish": "lerna run --ignore @xrengine/bot build-publish --parallel",
+    "build-publish": "lerna run build-publish --parallel",
     "build-client": "cd packages/client && npm run build",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
     "precommit": "no-master-commits -b master",
-    "make-user-admin": "ts-eager scripts/make-user-admin.js",
-    "install-projects": "ts-eager scripts/install-projects.js",
+    "make-user-admin": "ts-node scripts/make-user-admin.js",
+    "install-projects": "ts-node scripts/install-projects.js",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "depcheck": "lerna exec --no-bail --stream -- depcheck"
   },
@@ -92,44 +92,12 @@
       "git add"
     ]
   },
-  "resolutions": {
-    "socket.io": "4.4.0",
-    "terser": "^5.6.1",
-    "@typescript-eslint/eslint-plugin": "^4.6.0 || ^5.0.0",
-    "@typescript-eslint/parser": "5.4.0"
-  },
-  "peerDependencies": {
-    "@feathersjs/authentication": "^5.0.0-pre.9",
-    "@feathersjs/authentication-local": "^5.0.0-pre.9",
-    "@feathersjs/authentication-oauth": "^5.0.0-pre.9",
-    "@feathersjs/cli": "^4.5.0",
-    "@feathersjs/commons": "5.0.0-pre.9",
-    "@feathersjs/configuration": "^5.0.0-pre.9",
-    "@feathersjs/errors": "5.0.0-pre.9",
-    "@feathersjs/express": "^5.0.0-pre.9",
-    "@feathersjs/feathers": "5.0.0-pre.9",
-    "@feathersjs/hooks": "0.7.2",
-    "@feathersjs/rest-client": "5.0.0-pre.9",
-    "@feathersjs/socketio": "5.0.0-pre.9",
-    "@feathersjs/socketio-client": "^5.0.0-pre.9",
-    "@feathersjs/transport-commons": "^5.0.0-pre.9",
-    "@typescript-eslint/eslint-plugin": "^4.6.0 || ^5.0.0",
-    "@typescript-eslint/parser": "^4.16.1 || ^5.0.0",
-    "chokidar": "^3.4.2",
-    "socket.io": "4.4.0",
-    "terser": "^5.6.1"
-  },
   "devDependencies": {
-    "@babel/plugin-transform-runtime": "7.16.4",
-    "@babel/preset-env": "7.16.4",
-    "@hookstate/core": "3.0.13",
     "@types/mocha": "9.0.0",
-    "@typescript-eslint/parser": "5.4.0",
     "cli": "1.0.1",
+    "c8": "^7.10.0",
     "concurrently": "6.4.0",
-    "cpy-cli": "3.1.1",
-    "esbuild": "0.13.15",
-    "esbuild-plugin-sass": "0.6.0",
+    "depcheck": "1.4.2",
     "kill-port": "1.6.1",
     "lerna": "4.0.0",
     "lint-staged": "12.1.2",
@@ -138,18 +106,7 @@
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",
     "prettier": "2.4.1",
-    "puppeteer": "11.0.0",
-    "react-router-dom": "5.3.0",
-    "react-dnd": "14.0.4",
-    "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
-    "ts-eager": "2.0.2",
-    "yuka": "0.7.6"
-  },
-  "dependencies": {
-    "@iconify/react": "3.1.0",
-    "@mui/styles": "5.2.0",
-    "depcheck": "1.4.2",
-    "react-dnd": "14.0.4"
+    "ts-node": "10.4.0"
   }
 }
