@@ -115,11 +115,9 @@ export default async function XRSystem(world: World): Promise<System> {
       const transform = getComponent(entity, TransformComponent)
 
       xrInputSourceComponent.container.updateWorldMatrix(true, true)
-      xrInputSourceComponent.container.updateMatrixWorld(true)
 
       quat.copy(transform.rotation).invert()
-      quat2.copy(Engine.camera.quaternion).premultiply(quat)
-      xrInputSourceComponent.head.quaternion.copy(quat2)
+      xrInputSourceComponent.head.quaternion.copy(Engine.camera.quaternion).premultiply(quat)
 
       vector3.subVectors(Engine.camera.position, transform.position)
       vector3.applyQuaternion(quat)
