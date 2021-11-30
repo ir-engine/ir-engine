@@ -21,6 +21,10 @@ export default async function EditorActionSystem(world: World): Promise<System> 
         EditorActions.beforeSelectionChanged.action.matchesFromAny,
         executeCallbackFunctions(EditorActions.beforeSelectionChanged.callbackFunctions)
       )
+      .when(
+        EditorActions.sceneGraphChanged.action.matchesFromAny,
+        executeCallbackFunctions(EditorActions.sceneGraphChanged.callbackFunctions)
+      )
   })
 
   return () => {

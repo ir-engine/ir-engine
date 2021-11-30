@@ -910,13 +910,13 @@ export default function HierarchyPanel() {
   )
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateNodeHierarchy)
+    EditorActions.sceneGraphChanged.callbackFunctions.add(updateNodeHierarchy)
     EditorActions.selectionChanged.callbackFunctions.add(updateNodeHierarchy)
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
 
     return () => {
       EditorActions.selectionChanged.callbackFunctions.delete(updateNodeHierarchy)
-      CommandManager.instance.removeListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateNodeHierarchy)
+      EditorActions.sceneGraphChanged.callbackFunctions.delete(updateNodeHierarchy)
       CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
     }
   }, [updateNodeHierarchy, onObjectChanged])

@@ -6,6 +6,8 @@ import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { NodeManager } from '../managers/NodeManager'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EditorActions } from '../functions/EditorActions'
 
 export interface RemoveObjectCommandParams extends CommandParams {
   /** Whether to deselect object or not */
@@ -104,7 +106,7 @@ export default class RemoveObjectsCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      dispatchLocal(EditorActions.sceneGraphChanged.action({}) as any)
     }
   }
 }

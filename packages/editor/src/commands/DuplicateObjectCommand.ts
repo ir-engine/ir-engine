@@ -4,6 +4,8 @@ import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import getDetachedObjectsRoots from '../functions/getDetachedObjectsRoots'
 import EditorEvents from '../constants/EditorEvents'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EditorActions } from '../functions/EditorActions'
 
 export interface DuplicateObjectCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -95,7 +97,7 @@ export default class DuplicateObjectCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      dispatchLocal(EditorActions.sceneGraphChanged.action({}) as any)
     }
   }
 }

@@ -1,7 +1,4 @@
 enum EditorEvents {
-  BEFORE_SELECTION_CHANGED,
-
-  SCENE_GRAPH_CHANGED,
   OBJECTS_CHANGED,
 
   PROJECT_LOADED,
@@ -16,3 +13,5 @@ enum EditorEvents {
 }
 
 export default EditorEvents
+//dispatchLocal(EditorActions.sceneGraphChanged.action({}) as any)
+//EditorActions.selectionChanged.callbackFunctions.add(this.onSelectionChanged)

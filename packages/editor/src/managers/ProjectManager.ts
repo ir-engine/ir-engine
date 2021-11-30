@@ -11,6 +11,8 @@ import { SceneManager } from './SceneManager'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { ControlManager } from './ControlManager'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EditorActions } from '../functions/EditorActions'
 
 export class ProjectManager {
   static instance: ProjectManager = new ProjectManager()
@@ -72,17 +74,13 @@ export class ProjectManager {
     CommandManager.instance.history.clear()
 
     CommandManager.instance.emitEvent(EditorEvents.PROJECT_LOADED)
-    CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+    dispatchLocal(EditorActions.sceneGraphChanged.action({}) as any)
 
     CommandManager.instance.addListener(
       EditorEvents.OBJECTS_CHANGED.toString(),
       SceneManager.instance.onEmitSceneModified
     )
-    CommandManager.instance.addListener(
-      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-
+    EditorActions.sceneGraphChanged.callbackFunctions.add(SceneManager.instance.onEmitSceneModified)
     if (errors && errors.length > 0) {
       const error = new MultiError('Errors loading project', errors)
       CommandManager.instance.emitEvent(EditorEvents.ERROR, error)
@@ -95,10 +93,7 @@ export class ProjectManager {
       EditorEvents.OBJECTS_CHANGED.toString(),
       SceneManager.instance.onEmitSceneModified
     )
-    CommandManager.instance.removeListener(
-      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
+    EditorActions.sceneGraphChanged.callbackFunctions.delete(SceneManager.instance.onEmitSceneModified)
 
     CacheManager.clearCaches()
     SceneManager.instance.dispose()

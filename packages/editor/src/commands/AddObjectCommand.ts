@@ -74,8 +74,7 @@ export default class AddObjectCommand extends Command {
       if (this.isSelected) {
         dispatchLocal(EditorActions.selectionChanged.action({}) as any)
       }
-
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      dispatchLocal(EditorActions.sceneGraphChanged.action({}) as any)
     }
   }
 
