@@ -11,13 +11,15 @@ export const createEntity = (world = useWorld()): Entity => {
 }
 
 export const removeEntity = (entity: Entity, world = useWorld()) => {
+  const idx = world.entities.indexOf(entity)
+  if (idx === -1) return
   if (hasComponent(entity, NameComponent)) {
     const { name } = getComponent(entity, NameComponent)
     if (entity === world.namedEntities.get(name)) {
       world.namedEntities.delete(name)
     }
   }
-  removeAllComponents(entity, world)
-  world.entities.splice(world.entities.indexOf(entity), 1)
+  // removeAllComponents(entity, world)
+  world.entities.splice(idx, 1)
   bitECS.removeEntity(world, entity)
 }
