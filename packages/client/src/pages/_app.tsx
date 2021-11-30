@@ -13,7 +13,6 @@ import './styles.scss'
 import { StoredLocalAction } from '@xrengine/client-core/src/util/StoredLocalState'
 import { ClientSettingService } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
-// import {  } from 'styled-components'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
