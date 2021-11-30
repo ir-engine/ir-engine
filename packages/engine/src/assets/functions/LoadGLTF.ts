@@ -2,7 +2,6 @@ import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Gr
 import { Engine } from '../../ecs/classes/Engine'
 import { createGLTFLoader } from './createGLTFLoader'
 import { instanceGLTF } from './transformGLTF'
-import { corsAnywhereUrl } from '@xrengine/client-core/src/util/cors'
 
 /**
  * Interface for result of the GLTF Asset load.
@@ -31,7 +30,7 @@ export function disposeDracoLoaderWorkers(): void {
 export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
   return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
     getLoader().load(
-      corsAnywhereUrl(url),
+      url,
       (gltf) => {
         // TODO: Remove me when we add retargeting
         gltf.scene.traverse((o) => {
