@@ -345,7 +345,7 @@ export const WooCommerceNodeEditor = (props: WooCommerceNodeEditorProps) => {
         </InputGroup>
       )}
 
-      {node.wooCommerceProductItemId && node.wooCommerceProductItemId != '' && (
+      {node.wooCommerceProductItems && node.wooCommerceProductItems.length > 0 && (
         <InputGroup name="WooCommerce Product Items" label={t('editor:properties.woocommerce.lbl-productItems')}>
           <SelectInput
             options={node.wooCommerceProductItems}
