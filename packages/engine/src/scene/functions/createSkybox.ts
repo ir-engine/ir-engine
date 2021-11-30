@@ -1,6 +1,6 @@
 import { Color, CubeTextureLoader, PMREMGenerator, sRGBEncoding, TextureLoader } from 'three'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { SceneBackgroundProps, SkyTypeEnum } from '../../scene/constants/SkyBoxShaderProps'
 import { Sky } from '../classes/Sky'
@@ -9,7 +9,7 @@ import { setSkyDirection } from '../functions/setSkyDirection'
 
 export const createSkybox = (entity, args: SceneBackgroundProps) => {
   if (isClient) {
-    const pmremGenerator = new PMREMGenerator(Engine.renderer)
+    const pmremGenerator = new PMREMGenerator(useEngine().renderer)
     switch (args.backgroundType) {
       case SkyTypeEnum.skybox:
         const option = args.skyboxProps
@@ -26,7 +26,7 @@ export const createSkybox = (entity, args: SceneBackgroundProps) => {
         uniforms.turbidity.value = option.turbidity
         uniforms.luminance.value = option.luminance
         setSkyDirection(uniforms.sunPosition.value)
-        Engine.scene.background = sky.generateSkybox(Engine.renderer)
+        useEngine().scene.background = sky.generateSkybox(useEngine().renderer)
         break
 
       case SkyTypeEnum.cubemap:
@@ -41,7 +41,7 @@ export const createSkybox = (entity, args: SceneBackgroundProps) => {
           [posx, negx, posy, negy, posz, negz],
           (texture) => {
             texture.encoding = sRGBEncoding
-            Engine.scene.background = texture
+            useEngine().scene.background = texture
           },
           (res) => {
             console.log(res)
@@ -55,12 +55,12 @@ export const createSkybox = (entity, args: SceneBackgroundProps) => {
       case SkyTypeEnum.equirectangular:
         new TextureLoader().load(args.equirectangularPath, (texture) => {
           texture.encoding = sRGBEncoding
-          Engine.scene.background = pmremGenerator.fromEquirectangular(texture).texture
+          useEngine().scene.background = pmremGenerator.fromEquirectangular(texture).texture
         })
         break
 
       case SkyTypeEnum.color:
-        Engine.scene.background = new Color(args.backgroundColor)
+        useEngine().scene.background = new Color(args.backgroundColor)
         break
     }
   }

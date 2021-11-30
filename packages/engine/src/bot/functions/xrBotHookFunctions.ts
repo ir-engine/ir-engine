@@ -2,7 +2,7 @@
 
 import { Quaternion, Vector3 } from 'three'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
@@ -59,12 +59,12 @@ export async function overrideXR() {
 
 export async function xrSupported() {
   const supported = await (navigator as any).xr.isSessionSupported('immersive-vr')
-  Engine.xrSupported = supported
+  useEngine().xrSupported = supported
   return supported
 }
 
 export function xrInitialized() {
-  return Boolean(Engine.xrSession)
+  return Boolean(useEngine().xrSession)
 }
 
 export function startXR() {
@@ -247,9 +247,9 @@ export function updateController(args: { objectName: string; position: number[];
 }
 
 export async function simulateXR() {
-  // await loadScript(Engine.publicPath + '/scripts/webxr-polyfill.js')
+  // await loadScript(useEngine().publicPath + '/scripts/webxr-polyfill.js')
   await overrideXR()
   await xrSupported()
-  Engine.isBot = true
+  useEngine().isBot = true
   await startXR()
 }

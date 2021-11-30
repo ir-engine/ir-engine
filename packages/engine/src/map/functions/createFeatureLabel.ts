@@ -2,7 +2,7 @@ import { MapFeatureLabel, Text3D } from '../types'
 import { Text } from 'troika-three-text'
 import { Feature, LineString, MultiLineString, Position } from 'geojson'
 import * as turf from '@turf/turf'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { Vector3 } from 'three'
 import { LongLat, toMetersFromCenter } from '../functions/UnitConversionFunctions'
 import { multiplyArray } from '../util'
@@ -38,7 +38,7 @@ function createText(textString: string): Text3D {
 const $cameraDirection = new Vector3()
 function createUpdateClosure(mesh: Text3D, middleSlice: Position[]) {
   return function updateFeatureLabel() {
-    const camera = Engine.camera
+    const camera = useEngine().camera
     const [[x1, y1]] = middleSlice
     const [x2, y2] = middleSlice[middleSlice.length - 1]
 
@@ -54,7 +54,7 @@ function createUpdateClosure(mesh: Text3D, middleSlice: Position[]) {
     )
     mesh.rotateX(-Math.PI / 2)
 
-    mesh.fontSize = Math.min(Math.max(Engine.camera.position.y / 4, MINIMUM_FONT_SIZE), MAXIMUM_FONT_SIZE)
+    mesh.fontSize = Math.min(Math.max(useEngine().camera.position.y / 4, MINIMUM_FONT_SIZE), MAXIMUM_FONT_SIZE)
 
     mesh.sync()
   }

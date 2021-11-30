@@ -1,6 +1,6 @@
 import { Object3D } from 'three'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 
 export function setObjectLayers(object: Object3D, ...layers: number[]) {
   object.traverse((obj: Object3D) => {
@@ -14,8 +14,8 @@ export function setObjectLayers(object: Object3D, ...layers: number[]) {
     const layer = ObjectLayers[layerKey]
     // @ts-ignore
     const hasLayer = object.layers.isEnabled(layer)
-    Engine.objectLayerList[layer] = Engine.objectLayerList[layer] || new Set()
-    if (hasLayer) Engine.objectLayerList[layer].add(object)
-    else Engine.objectLayerList[layer].delete(object)
+    useEngine().objectLayerList[layer] = useEngine().objectLayerList[layer] || new Set()
+    if (hasLayer) useEngine().objectLayerList[layer].add(object)
+    else useEngine().objectLayerList[layer].delete(object)
   }
 }

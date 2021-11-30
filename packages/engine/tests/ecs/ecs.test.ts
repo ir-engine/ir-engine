@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Engine } from '../../src/ecs/classes/Engine'
+import { useEngine } from '../../src/ecs/classes/Engine'
 import { System } from '../../src/ecs/classes/System'
 import { createWorld, World } from '../../src/ecs/classes/World'
 import { addComponent, createMappedComponent, defineQuery, getComponent, removeComponent } from '../../src/ecs/functions/ComponentFunctions'
@@ -56,11 +56,11 @@ let newMockValue
 describe.skip('ECS', () => {
 
 	it('should create ECS world', () => {
-    Engine.currentWorld = createWorld()
+    useEngine().currentWorld = createWorld()
     const world = useWorld()
-		assert.strictEqual(Engine.worlds.length, 1)
+		assert.strictEqual(useEngine().worlds.length, 1)
 		assert.strictEqual(world.entities.length, 1)
-		assert.strictEqual(world.entities[0], Engine.currentWorld.worldEntity)
+		assert.strictEqual(world.entities[0], useEngine().currentWorld.worldEntity)
 	})
 
   it('should add systems', async () => {
@@ -109,9 +109,9 @@ describe.skip('ECS', () => {
     const world = useWorld()
     const entity = world.entities[1]
     newMockValue = Math.random()
-    console.log(bitecs.hasComponent(Engine.currentWorld!, MockComponent, entity))
+    console.log(bitecs.hasComponent(useEngine().currentWorld!, MockComponent, entity))
     addComponent(entity, MockComponent, { mockValue: newMockValue })
-    console.log(bitecs.hasComponent(Engine.currentWorld!, MockComponent, entity))
+    console.log(bitecs.hasComponent(useEngine().currentWorld!, MockComponent, entity))
     world.execute(mockDelta, mockElapsedTime += mockDelta)
     const component = getComponent(entity, MockComponent)
     world.execute(mockDelta, mockElapsedTime += mockDelta)

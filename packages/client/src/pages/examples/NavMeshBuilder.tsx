@@ -1,5 +1,5 @@
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import {
   addComponent,
@@ -54,7 +54,7 @@ const NavigationComponent = createMappedComponent<NavigationComponentType>('Navi
 
 const RenderSystem = async (world: World): Promise<System> => {
   return () => {
-    Engine.renderer.render(Engine.scene, Engine.camera)
+    useEngine().renderer.render(useEngine().scene, useEngine().camera)
     return world
   }
 }
@@ -118,7 +118,7 @@ const loadNavMesh = async (navigationMesh, navigationComponent) => {
 
   navigationComponent.regionHelper = createConvexRegionHelper(navigationMesh)
   navigationComponent.regionHelper.visible = true
-  Engine.scene.add(navigationComponent.regionHelper)
+  useEngine().scene.add(navigationComponent.regionHelper)
 
   navigationComponent.pathPlanner = new PathPlanner(navigationMesh)
 
@@ -127,7 +127,7 @@ const loadNavMesh = async (navigationMesh, navigationComponent) => {
   navigationComponent.navigationMesh = navigationMesh
 
   navigationComponent.spatialIndexHelper = createCellSpaceHelper(navigationMesh.spatialIndex)
-  Engine.scene.add(navigationComponent.spatialIndexHelper)
+  useEngine().scene.add(navigationComponent.spatialIndexHelper)
   navigationComponent.spatialIndexHelper.visible = false
 }
 
@@ -136,14 +136,14 @@ async function startDemo(entity) {
   await loadNavMeshFromMapBox(navigationComponent)
 
   vehicleMesh.frustumCulled = false
-  Engine.scene.add(vehicleMesh)
+  useEngine().scene.add(vehicleMesh)
 
   for (let i = 0; i < vehicleCount; i++) {
     // path helper
 
     const pathHelper = new Line(new BufferGeometry(), pathMaterial)
     pathHelper.visible = false
-    Engine.scene.add(pathHelper)
+    useEngine().scene.add(pathHelper)
     navigationComponent.pathHelpers.push(pathHelper)
 
     // vehicle
@@ -247,7 +247,7 @@ const Page = () => {
       // Register our systems to do stuff
       registerSystem(SystemUpdateType.FIXED, Promise.resolve({ default: NavigationSystem }))
       registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: RenderSystem }))
-      await Engine.defaultWorld.initSystems()
+      await useEngine().defaultWorld.initSystems()
 
       // Set up rendering and basic scene for demo
       const canvas = document.createElement('canvas')
@@ -257,33 +257,33 @@ const Page = () => {
         h = window.innerHeight
 
       let ctx = canvas.getContext('webgl2') as WebGLRenderingContext //, { alpha: false }
-      Engine.renderer = new WebGLRenderer({ canvas: canvas, context: ctx, antialias: true })
+      useEngine().renderer = new WebGLRenderer({ canvas: canvas, context: ctx, antialias: true })
 
-      Engine.renderer.setClearColor(0x3a3a3a, 1)
-      Engine.renderer.setSize(w, h)
+      useEngine().renderer.setClearColor(0x3a3a3a, 1)
+      useEngine().renderer.setSize(w, h)
 
-      Engine.scene = new Scene()
-      Engine.scene.add(new GridHelper(20, 20, 0x0c610c, 0x444444))
+      useEngine().scene = new Scene()
+      useEngine().scene.add(new GridHelper(20, 20, 0x0c610c, 0x444444))
 
-      Engine.camera = new PerspectiveCamera(45, w / h, 0.01, 1000)
-      Engine.camera.position.set(2, 1, 5)
-      Engine.camera.rotation.set(0, 0.3, 0)
+      useEngine().camera = new PerspectiveCamera(45, w / h, 0.01, 1000)
+      useEngine().camera.position.set(2, 1, 5)
+      useEngine().camera.rotation.set(0, 0.3, 0)
 
-      const controls = new OrbitControls(Engine.camera, canvas)
+      const controls = new OrbitControls(useEngine().camera, canvas)
       controls.minDistance = 0.1
       controls.maxDistance = 10
       controls.target.set(0, 1.25, 0)
       controls.update()
 
-      Engine.scene.add(Engine.camera)
+      useEngine().scene.add(useEngine().camera)
 
       let light = new DirectionalLight(0xffffff, 1.0)
       light.position.set(4, 10, 1)
-      Engine.scene.add(light)
+      useEngine().scene.add(light)
 
-      Engine.scene.add(new AmbientLight(0x404040))
+      useEngine().scene.add(new AmbientLight(0x404040))
 
-      Engine.engineTimer.start()
+      useEngine().engineTimer.start()
     })()
   }, [])
   // Some JSX to keep the compiler from complaining

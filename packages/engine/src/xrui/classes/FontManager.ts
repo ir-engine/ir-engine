@@ -1,6 +1,6 @@
 import { ExtrudeGeometry, Vector3 } from 'three'
 import { Font, FontLoader } from '../../assets/font/FontLoader'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 
 export class FontManager {
   static instance: FontManager = new FontManager()
@@ -23,7 +23,7 @@ export class FontManager {
       if (this._defaultFont) {
         resolve(this._defaultFont)
       }
-      this._loader.load(Engine.publicPath + '/fonts/IBMPlexSans-Regular.json', (font) => {
+      this._loader.load(useEngine().publicPath + '/fonts/IBMPlexSans-Regular.json', (font) => {
         this._defaultFont = font
         resolve(this._defaultFont)
       })

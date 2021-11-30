@@ -1,5 +1,5 @@
 import { Fog, FogExp2 } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { FogComponent } from '../components/FogComponent'
 import { FogType } from '../constants/FogType'
@@ -27,5 +27,5 @@ export const setFog = (
     far: options.far
   })
 
-  Engine.scene.fog = fog
+  useEngine().scene.fog = fog
 }

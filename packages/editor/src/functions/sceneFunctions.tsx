@@ -1,7 +1,7 @@
 import i18n from 'i18next'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { client } from '@xrengine/client-core/src/feathers'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from '../nodes/SceneNode'
 
 /**
@@ -76,7 +76,7 @@ export const saveScene = async (projectName: string, sceneName: string, thumbnai
     throw new Error(i18n.t('editor:errors.saveProjectAborted'))
   }
 
-  const sceneNode = Engine.scene as any as SceneNode
+  const sceneNode = useEngine().scene as any as SceneNode
   const sceneData = await sceneNode.serialize(projectName)
 
   try {

@@ -8,7 +8,7 @@ import { InteractableComponent } from '../components/InteractableComponent'
 import { RenderedComponent } from '../../scene/components/RenderedComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 
 import { hideInteractText, showInteractText, createInteractText } from './interactText'
@@ -154,10 +154,13 @@ export const updateInteractUI = (xrEntity: Entity) => {
   if (modelElement && modelElement.contentMesh && modelElement.contentMesh.children[0]) {
     modelElement.contentMesh.children[0].rotateY(0.01)
   }
-  if (Engine.activeCameraFollowTarget && hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)) {
+  if (
+    useEngine().activeCameraFollowTarget &&
+    hasComponent(useEngine().activeCameraFollowTarget, FollowCameraComponent)
+  ) {
     interactUIObject.children[0].setRotationFromAxisAngle(
       upVec,
-      MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
+      MathUtils.degToRad(getComponent(useEngine().activeCameraFollowTarget, FollowCameraComponent).theta)
     )
   } else {
     const world = useWorld()

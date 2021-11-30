@@ -8,7 +8,7 @@ import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { WorldScene } from '../../scene/functions/SceneLoading'
-import { Engine } from '../classes/Engine'
+import { useEngine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
 import { hasComponent, removeAllComponents } from './ComponentFunctions'
@@ -19,14 +19,14 @@ import { configureEffectComposer } from '../../renderer/functions/configureEffec
 export async function reset(): Promise<void> {
   console.log('RESETTING ENGINE')
   // Stop all running workers
-  Engine.workers.forEach((w) => w.terminate())
-  Engine.workers.length = 0
+  useEngine().workers.forEach((w) => w.terminate())
+  useEngine().workers.length = 0
 
   disposeDracoLoaderWorkers()
 
   // clear all entities components
   // await new Promise<void>((resolve) => {
-  //   Engine.defaultWorld.entities.forEach((entity) => {
+  //   useEngine().defaultWorld.entities.forEach((entity) => {
   //     removeAllComponents(entity)
   //   })
   //   setTimeout(() => {
@@ -44,41 +44,41 @@ export async function reset(): Promise<void> {
   //   }, 500)
   // })
 
-  // if (Engine.defaultWorld.entities.length) {
-  //   console.log('Engine.defaultWorld.entities.length', Engine.defaultWorld.entities.length)
-  //   throw new Error('Engine.defaultWorld.entities cleanup not complete')
+  // if (useEngine().defaultWorld.entities.length) {
+  //   console.log('useEngine().defaultWorld.entities.length', useEngine().defaultWorld.entities.length)
+  //   throw new Error('useEngine().defaultWorld.entities cleanup not complete')
   // }
 
-  Engine.defaultWorld.entities.length = 0
+  useEngine().defaultWorld.entities.length = 0
 
   // delete all what is left on scene
-  if (Engine.scene) {
-    disposeScene(Engine.scene)
-    Engine.scene = null!
+  if (useEngine().scene) {
+    disposeScene(useEngine().scene)
+    useEngine().scene = null!
   }
-  Engine.sceneLoaded = false
+  useEngine().sceneLoaded = false
   WorldScene.isLoading = false
 
-  Engine.camera = null!
+  useEngine().camera = null!
 
-  if (Engine.renderer) {
-    Engine.renderer.clear(true, true, true)
-    Engine.renderer.dispose()
-    Engine.renderer = null!
+  if (useEngine().renderer) {
+    useEngine().renderer.clear(true, true, true)
+    useEngine().renderer.dispose()
+    useEngine().renderer = null!
   }
 
   Network.instance.dispose()
 
   AssetLoader.Cache.clear()
 
-  Engine.isInitialized = false
-  Engine.inputState.clear()
-  Engine.prevInputState.clear()
+  useEngine().isInitialized = false
+  useEngine().inputState.clear()
+  useEngine().prevInputState.clear()
 }
 
 export const unloadScene = async (): Promise<void> => {
-  Engine.engineTimer.stop()
-  Engine.sceneLoaded = false
+  useEngine().engineTimer.stop()
+  useEngine().sceneLoaded = false
   WorldScene.isLoading = false
   const world = useWorld()
   const entitiesToRemove = [] as Entity[]
@@ -93,21 +93,21 @@ export const unloadScene = async (): Promise<void> => {
     }
   })
 
-  const { delta } = Engine.defaultWorld
+  const { delta } = useEngine().defaultWorld
 
-  Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
+  useEngine().defaultWorld.execute(delta, useEngine().defaultWorld.elapsedTime + delta)
 
-  Engine.scene.background = new Color('black')
-  Engine.scene.environment = null
+  useEngine().scene.background = new Color('black')
+  useEngine().scene.environment = null
 
-  Engine.scene.traverse((o: any) => {
+  useEngine().scene.traverse((o: any) => {
     if (!o.entity) return
     if (!removedEntities.includes(o.entity)) return
 
     sceneObjectsToRemove.push(o)
   })
 
-  sceneObjectsToRemove.forEach((o) => Engine.scene.remove(o))
+  sceneObjectsToRemove.forEach((o) => useEngine().scene.remove(o))
 
   entitiesToRemove.forEach((entity) => {
     removeEntity(entity)
@@ -115,9 +115,9 @@ export const unloadScene = async (): Promise<void> => {
 
   isClient && configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
 
-  Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
+  useEngine().defaultWorld.execute(delta, useEngine().defaultWorld.elapsedTime + delta)
 
-  Engine.engineTimer.start()
+  useEngine().engineTimer.start()
 
   // world.physics.clear() // TODO:
 }

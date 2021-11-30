@@ -126,7 +126,7 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
       //   // debugMesh.quaternion.copy(rot)
       //   // debugMesh.scale.copy(scale)
       //   // console.log(debugMesh)
-      //   // Engine.scene.add(debugMesh)
+      //   // useEngine().scene.add(debugMesh)
       // }
       // yes, don't break here - use convex for cylinder
       return undefined!

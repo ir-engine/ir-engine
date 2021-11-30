@@ -47,7 +47,7 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Application } from '@xrengine/server-core/declarations'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
@@ -127,7 +127,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     this.socketIO.of('/').on('connect', async (socket: Socket) => {
       let listenersSetUp = false
 
-      if (!Engine.sceneLoaded && this.app.isChannelInstance !== true) {
+      if (!useEngine().sceneLoaded && this.app.isChannelInstance !== true) {
         await new Promise<void>((resolve) => {
           EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
         })

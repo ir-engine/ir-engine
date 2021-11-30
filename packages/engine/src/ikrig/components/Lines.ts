@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, LineSegments, RawShaderMaterial } from 'three'
 // import { Component } from '../../ecs/classes/Component'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 // import IKObj from './IKObj'
 
@@ -34,7 +34,7 @@ class Lines extends Component<Lines> {
 
     const obj = getComponent(this.entity, IKObj)
     obj.setReference(this.mesh)
-    Engine.scene.add(obj.ref)
+    useEngine().scene.add(obj.ref)
     return this
   }
 

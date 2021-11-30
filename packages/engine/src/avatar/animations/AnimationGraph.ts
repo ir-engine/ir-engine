@@ -1,5 +1,5 @@
 import { Vector2 } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
@@ -200,7 +200,7 @@ export class AnimationGraph {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     // Send change animation commnad over network for the local client entity
     if (isEntityLocalClient(entity) && avatarAnimationComponent.currentState.type === AnimationType.STATIC) {
-      dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarAnimation({ newStateName, params }))
+      dispatchFrom(useEngine().userId, () => NetworkWorldAction.avatarAnimation({ newStateName, params }))
     }
   }
 

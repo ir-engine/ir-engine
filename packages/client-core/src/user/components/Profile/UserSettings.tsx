@@ -5,7 +5,7 @@ import RadioGroup from '@mui/material/RadioGroup'
 import Slider from '@mui/material/Slider'
 import Typography from '@mui/material/Typography'
 import { Image, Mic, SurroundSound, VolumeUp } from '@mui/icons-material'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 // import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
 import React, { ChangeEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -54,7 +54,7 @@ const UserSettings = (props: Props): JSX.Element => {
         spatialAudioEnabled: newValue
       })
     )
-    // if (Engine.spatialAudio) {
+    // if (useEngine().spatialAudio) {
     // TODO
     // if (newValue === true) PositionalAudioSystem.instance.resume()
     // else if (newValue === false) PositionalAudioSystem.instance.suspend()

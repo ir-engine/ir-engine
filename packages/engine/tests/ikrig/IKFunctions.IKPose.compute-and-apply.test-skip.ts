@@ -44,11 +44,11 @@
 // import { PoseBoneLocalState } from '../../src/ikrig/classes/Pose'
 // // import '../custom-matchers'
 // import { createWorld } from '../../src/ecs/functions/EngineFunctions'
-// import { Engine } from '../../src/ecs/classes/Engine'
+// import { useEngine } from '../../src/ecs/classes/Engine'
 
 // let sourceEntity: Entity, expectedIKPose
 // before(() => {
-//   Engine.currentWorld = createWorld()
+//   useEngine().currentWorld = createWorld()
 // })
 
 // describe('check Compute', () => {

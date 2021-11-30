@@ -1,13 +1,13 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import PhysicalHemisphereLight from '@xrengine/engine/src/scene/classes/PhysicalHemisphereLight'
 import SceneNode from './SceneNode'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 export default class HemisphereLightNode extends EditorNodeMixin(PhysicalHemisphereLight) {
   static legacyComponentName = 'hemisphere-light'
   static disableTransform = true
   static nodeName = 'Hemisphere Light'
   static canAddNode() {
-    return (Engine.scene as any as SceneNode).findNodeByType(HemisphereLightNode) === null
+    return (useEngine().scene as any as SceneNode).findNodeByType(HemisphereLightNode) === null
   }
   static async deserialize(json) {
     const node = await super.deserialize(json)

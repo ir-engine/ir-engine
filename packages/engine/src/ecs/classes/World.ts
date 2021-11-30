@@ -5,7 +5,7 @@ import { createEntity } from '../functions/EntityFunctions'
 import { SystemFactoryType, SystemModuleType } from '../functions/SystemFunctions'
 import { Entity } from './Entity'
 import { System } from './System'
-import { Engine } from './Engine'
+import { useEngine } from './Engine'
 import * as bitecs from 'bitecs'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -27,10 +27,10 @@ export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
     bitecs.createWorld(this)
-    Engine.worlds.push(this)
+    useEngine().worlds.push(this)
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
-    if (!Engine.defaultWorld) Engine.defaultWorld = this
+    if (!useEngine().defaultWorld) useEngine().defaultWorld = this
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
   }
 
@@ -71,7 +71,7 @@ export class World {
    * Check if this user is hosting the world.
    */
   get isHosting() {
-    return Engine.userId === this.hostId
+    return useEngine().userId === this.hostId
   }
 
   /**

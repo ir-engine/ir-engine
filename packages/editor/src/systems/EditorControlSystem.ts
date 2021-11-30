@@ -1,4 +1,4 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -96,11 +96,11 @@ export default async function EditorControlSystem(_: World): Promise<System> {
   }
 
   const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount: number = 0): void => {
-    raycaster.setFromCamera(coords, Engine.camera)
+    raycaster.setFromCamera(coords, useEngine().camera)
     raycasterResults.length = 0
     raycastIgnoreLayers.set(1)
 
-    findIntersectObjects(Engine.scene, CommandManager.instance.selectedTransformRoots, raycastIgnoreLayers)
+    findIntersectObjects(useEngine().scene, CommandManager.instance.selectedTransformRoots, raycastIgnoreLayers)
     findIntersectObjects(SceneManager.instance.grid)
 
     raycasterResults.sort((a, b) => a.distance - b.distance)
@@ -182,7 +182,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         editorControlComponent.selectStartPosition.copy(getInput(EditorActionSet.selectStartPosition))
 
         if (gizmoObj.activeControls) {
-          raycaster.setFromCamera(editorControlComponent.selectStartPosition, Engine.camera)
+          raycaster.setFromCamera(editorControlComponent.selectStartPosition, useEngine().camera)
           gizmoObj.selectAxisWithRaycaster(raycaster)
 
           if (gizmoObj.selectedAxis) {
@@ -194,7 +194,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
           }
         }
       } else if (gizmoObj.activeControls && !editorControlComponent.dragging) {
-        raycaster.setFromCamera(cursorPosition, Engine.camera)
+        raycaster.setFromCamera(cursorPosition, useEngine().camera)
         gizmoObj.highlightHoveredAxis(raycaster)
       }
 
@@ -212,8 +212,8 @@ export default async function EditorControlSystem(_: World): Promise<System> {
           )
           constraint = TransformAxisConstraints.XYZ
         } else {
-          ray.origin.setFromMatrixPosition(Engine.camera.matrixWorld)
-          ray.direction.set(cursorPosition.x, cursorPosition.y, 0).unproject(Engine.camera).sub(ray.origin)
+          ray.origin.setFromMatrixPosition(useEngine().camera.matrixWorld)
+          ray.direction.set(cursorPosition.x, cursorPosition.y, 0).unproject(useEngine().camera).sub(ray.origin)
           ray.intersectPlane(transformPlane, planeIntersection)
           constraint = TransformAxisConstraints[gizmoObj.selectedAxis]
         }
@@ -305,7 +305,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
               selectedAxisInfo.startMarkerLocal.position.copy(gizmoObj.position)
               selectedAxisInfo.startMarkerLocal.quaternion.copy(gizmoObj.quaternion)
               selectedAxisInfo.startMarkerLocal.scale.copy(gizmoObj.scale)
-              Engine.scene.add(selectedAxisInfo.startMarkerLocal)
+              useEngine().scene.add(selectedAxisInfo.startMarkerLocal)
             }
           }
 
@@ -328,7 +328,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
             selectedAxisInfo.rotationTarget.rotation.set(0, 0, 0)
             if (editorControlComponent.transformSpace !== TransformSpace.World) {
               const startMarkerLocal = selectedAxisInfo.startMarkerLocal
-              Engine.scene.remove(startMarkerLocal)
+              useEngine().scene.remove(startMarkerLocal)
             }
           }
         } else if (editorControlComponent.transformMode === TransformMode.Scale) {
@@ -344,7 +344,10 @@ export default async function EditorControlSystem(_: World): Promise<System> {
           let scaleFactor =
             gizmoObj.selectedAxis === TransformAxis.XYZ
               ? 1 +
-                Engine.camera.getWorldDirection(viewDirection).applyQuaternion(gizmoObj.quaternion).dot(deltaDragVector)
+                useEngine()
+                  .camera.getWorldDirection(viewDirection)
+                  .applyQuaternion(gizmoObj.quaternion)
+                  .dot(deltaDragVector)
               : 1 + constraint.dot(deltaDragVector)
 
           curScale.set(

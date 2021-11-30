@@ -16,7 +16,7 @@ import matches from 'ts-matches'
 import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
 import { TestNetworkTransport } from '../TestNetworkTransport'
 import { TestNetwork } from '../TestNetwork'
-import { Engine } from '../../../src/ecs/classes/Engine'
+import { useEngine } from '../../../src/ecs/classes/Engine'
 
 describe('IncomingNetworkSystem Unit Tests', async () => {
 
@@ -143,14 +143,14 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
     /* hoist */
 		Network.instance = new TestNetwork()
 		world = createWorld()
-		Engine.currentWorld = world
+		useEngine().currentWorld = world
 	})
 
 	it('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
 		/* mock */
 
 		// make this engine user the host (world.isHosting === true)
-    Engine.userId = world.hostId
+    useEngine().userId = world.hostId
 		
 		// mock entity to apply incoming unreliable updates to
 		const entity = createEntity()
@@ -194,7 +194,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		// todo: Network.instance should ideally be passed into the system as a parameter dependency,
 		// instead of an import dependency , but this works for now
 		Network.instance.incomingMessageQueueUnreliable.add(buffer)
-		Network.instance.incomingMessageQueueUnreliableIDs.add(Engine.userId)
+		Network.instance.incomingMessageQueueUnreliableIDs.add(useEngine().userId)
 		
 		/* run */
 		const incomingNetworkSystem = await IncomingNetworkSystem(world)

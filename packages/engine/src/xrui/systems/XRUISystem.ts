@@ -1,6 +1,6 @@
 import { Color, Mesh, Raycaster, Vector3 } from 'three'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -16,7 +16,7 @@ export default async function XRUISystem(world: World): Promise<System> {
   const xruiQuery = defineQuery([XRUIComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent])
   const controllerLastHitTarget: string[] = []
-  const hoverSfxPath = Engine.publicPath + '/default_assets/audio/ui-hover.mp3'
+  const hoverSfxPath = useEngine().publicPath + '/default_assets/audio/ui-hover.mp3'
   const hoverAudio = new Audio()
   hoverAudio.src = hoverSfxPath
   let idCounter = 0
@@ -94,7 +94,7 @@ export default async function XRUISystem(world: World): Promise<System> {
 
   return () => {
     if (!addedEventListeners) {
-      const canvas = Engine.renderer.getContext().canvas
+      const canvas = useEngine().renderer.getContext().canvas
       canvas.addEventListener('click', redirectDOMEvent)
       canvas.addEventListener('dblclick', redirectDOMEvent)
       addedEventListeners = true
@@ -103,7 +103,7 @@ export default async function XRUISystem(world: World): Promise<System> {
     const input = getComponent(world.localClientEntity, InputComponent)
     const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value
     if (screenXY) {
-      screenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, Engine.camera)
+      screenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, useEngine().camera)
     } else {
       screenRaycaster.ray.origin.set(Infinity, Infinity, Infinity)
       screenRaycaster.ray.direction.set(0, -1, 0)
@@ -133,8 +133,8 @@ export default async function XRUISystem(world: World): Promise<System> {
       if (!xrui.layoutSystem.nodeAdapters.has(layer)) layer.update()
     }
 
-    xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)
-    Engine.renderer.getSize(xrui.layoutSystem.viewResolution)
+    xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(useEngine().camera.projectionMatrix)
+    useEngine().renderer.getSize(xrui.layoutSystem.viewResolution)
     xrui.layoutSystem.update(world.delta, world.elapsedTime)
   }
 }

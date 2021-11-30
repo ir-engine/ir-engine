@@ -3,7 +3,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
@@ -39,19 +39,19 @@ export default async function XRSystem(world: World): Promise<System> {
   await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right_controller.glb' })
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
-    Engine.renderer.outputEncoding = sRGBEncoding
+    useEngine().renderer.outputEncoding = sRGBEncoding
     const sessionInit = { optionalFeatures: ['local-floor', 'hand-tracking', 'layers'] }
     try {
       const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
 
-      Engine.xrSession = session
-      Engine.xrManager.setSession(session)
-      Engine.xrManager.setFoveation(1)
+      useEngine().xrSession = session
+      useEngine().xrManager.setSession(session)
+      useEngine().xrManager.setFoveation(1)
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_SESSION })
 
-      Engine.xrManager.getCamera().layers.enableAll()
+      useEngine().xrManager.getCamera().layers.enableAll()
 
-      Engine.xrManager.addEventListener('sessionend', async () => {
+      useEngine().xrManager.addEventListener('sessionend', async () => {
         endXR()
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_END })
       })
@@ -63,17 +63,17 @@ export default async function XRSystem(world: World): Promise<System> {
   })
 
   return () => {
-    if (Engine.xrManager?.isPresenting) {
-      const session = Engine.xrFrame.session
+    if (useEngine().xrManager?.isPresenting) {
+      const session = useEngine().xrFrame.session
       for (const source of session.inputSources) {
         if (source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness]
           source.gamepad?.buttons.forEach((button, index) => {
             // TODO : support button.touched and button.value
-            const prev = Engine.prevInputState.get(mapping.buttons[index])
+            const prev = useEngine().prevInputState.get(mapping.buttons[index])
             if (!prev && button.pressed == false) return
             const continued = prev?.value && button.pressed
-            Engine.inputState.set(mapping.buttons[index], {
+            useEngine().inputState.set(mapping.buttons[index], {
               type: InputType.BUTTON,
               value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
               lifecycleState: button.pressed
@@ -84,13 +84,13 @@ export default async function XRSystem(world: World): Promise<System> {
             })
           })
           if (source.gamepad?.axes.length > 2) {
-            Engine.inputState.set(mapping.axes, {
+            useEngine().inputState.set(mapping.axes, {
               type: InputType.TWODIM,
               value: [source.gamepad.axes[2], source.gamepad.axes[3]],
               lifecycleState: LifecycleValue.Started
             })
           } else {
-            Engine.inputState.set(mapping.axes, {
+            useEngine().inputState.set(mapping.axes, {
               type: InputType.TWODIM,
               value: [source.gamepad.axes[0], source.gamepad.axes[1]],
               lifecycleState: LifecycleValue.Started
@@ -118,10 +118,10 @@ export default async function XRSystem(world: World): Promise<System> {
       xrInputSourceComponent.container.updateMatrixWorld(true)
 
       quat.copy(transform.rotation).invert()
-      quat2.copy(Engine.camera.quaternion).premultiply(quat)
+      quat2.copy(useEngine().camera.quaternion).premultiply(quat)
       xrInputSourceComponent.head.quaternion.copy(quat2)
 
-      vector3.subVectors(Engine.camera.position, transform.position)
+      vector3.subVectors(useEngine().camera.position, transform.position)
       vector3.applyQuaternion(quat)
       xrInputSourceComponent.head.position.copy(vector3)
     }

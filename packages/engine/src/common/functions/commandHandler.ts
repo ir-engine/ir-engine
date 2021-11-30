@@ -19,7 +19,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { isNumber } from '@xrengine/common/src/utils/miscUtils'
 import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 import { isBot } from './isBot'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 // import { accessChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { Entity } from '../../ecs/classes/Entity'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -92,7 +92,7 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
     }
     case 'metadata': {
       //This command is handled only in the client and only if the caller is a bot
-      if (!Engine.isBot && !isBot(window)) return true
+      if (!useEngine().isBot && !isBot(window)) return true
 
       //The params must either be 1 or 2, if it is scene, then 1 other wise 2 - world, max distance
       if (params.length > 0) {
@@ -107,7 +107,7 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
       return true
     }
     case 'goTo': {
-      if (!Engine.isBot && !isBot(window)) return true
+      if (!useEngine().isBot && !isBot(window)) return true
 
       if (params.length != 1) {
         console.log('invalid params, it should be /goTo landmark')
@@ -252,15 +252,15 @@ function handleMoveCommand(x: number, y: number, z: number, entity: any) {
 
 function handleMetadataCommand(params: any, entity: any) {
   if (params[0] === 'scene') {
-    console.log('scene_metadata|' + Engine.defaultWorld.sceneMetadata)
+    console.log('scene_metadata|' + useEngine().defaultWorld.sceneMetadata)
   } else {
     const position = getComponent(entity, TransformComponent).position
     const maxDistance: number = parseFloat(params[1])
     let vector: Vector3
     let distance: number = 0
 
-    for (let i in Engine.defaultWorld.worldMetadata) {
-      vector = getMetadataPosition(Engine.defaultWorld.worldMetadata[i])
+    for (let i in useEngine().defaultWorld.worldMetadata) {
+      vector = getMetadataPosition(useEngine().defaultWorld.worldMetadata[i])
 
       distance = position.distanceTo(vector)
       if (distance > maxDistance) continue
@@ -276,9 +276,9 @@ function handleGoToCommand(landmark: string, entity: any) {
   let cDistance: number = 0
   let vector: Vector3
 
-  for (let i in Engine.defaultWorld.worldMetadata) {
+  for (let i in useEngine().defaultWorld.worldMetadata) {
     if (i === landmark) {
-      vector = getMetadataPosition(Engine.defaultWorld.worldMetadata[i])
+      vector = getMetadataPosition(useEngine().defaultWorld.worldMetadata[i])
       cDistance = position.distanceTo(vector)
 
       if (cDistance < distance) {
@@ -454,7 +454,7 @@ function handleListAllUsersCommand(userId) {
   const players = getRemoteUsers(userId, true)
   if (players === undefined) return
 
-  const playerNames = players.map((userId) => Engine.defaultWorld.clients.get(userId)?.name)
+  const playerNames = players.map((userId) => useEngine().defaultWorld.clients.get(userId)?.name)
   console.log('players|' + playerNames)
 }
 function handleGetLocalUserIdCommand(userId) {

@@ -1,5 +1,5 @@
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
@@ -78,7 +78,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             node.parent = parent
           } else if (entityId === root) {
             scene = node
-            Engine.scene = scene
+            useEngine().scene = scene
           } else {
             throw new Error(`Node "${entity.name}" with uuid "${entity.uuid}" does not specify a parent.`)
           }
@@ -244,7 +244,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   async setUpEnvironmentMapTexture() {
-    const pmremGenerator = new PMREMGenerator(Engine.renderer)
+    const pmremGenerator = new PMREMGenerator(useEngine().renderer)
     switch (this.envMapTextureType) {
       case EnvMapTextureType.Equirectangular:
         try {
@@ -337,7 +337,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       data[i + 1] = Math.floor(col.g * 255)
       data[i + 2] = Math.floor(col.b * 255)
     }
-    const pmren = new PMREMGenerator(Engine.renderer)
+    const pmren = new PMREMGenerator(useEngine().renderer)
     const texture = new DataTexture(data, resolution, resolution, RGBFormat)
     texture.encoding = sRGBEncoding
     this.environment = pmren.fromEquirectangular(texture).texture

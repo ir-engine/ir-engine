@@ -14,7 +14,7 @@ import {
 import { MathUtils, PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRenderTarget } from 'three'
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
-import { Engine } from '../ecs/classes/Engine'
+import { useEngine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { System } from '../ecs/classes/System'
 import WebGL from './THREE.WebGL'
@@ -148,8 +148,8 @@ export class EngineRenderer {
       powerPreference: 'high-performance',
       canvas,
       context,
-      antialias: !Engine.isHMD,
-      preserveDrawingBuffer: !Engine.isHMD
+      antialias: !useEngine().isHMD,
+      preserveDrawingBuffer: !useEngine().isHMD
     }
 
     this.canvas = canvas
@@ -160,23 +160,23 @@ export class EngineRenderer {
     }
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options)
-    Engine.renderer = renderer
-    Engine.renderer.physicallyCorrectLights = true
-    Engine.renderer.outputEncoding = sRGBEncoding
+    useEngine().renderer = renderer
+    useEngine().renderer.physicallyCorrectLights = true
+    useEngine().renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    Engine.renderer.debug.checkShaderErrors = false
+    useEngine().renderer.debug.checkShaderErrors = false
 
-    Engine.xrManager = renderer.xr
+    useEngine().xrManager = renderer.xr
     //@ts-ignore
     renderer.xr.cameraAutoUpdate = false
-    Engine.xrManager.enabled = true
+    useEngine().xrManager.enabled = true
 
     window.addEventListener('resize', this.onResize, false)
     this.onResize()
 
     this.needsResize = true
-    Engine.renderer.autoClear = true
+    useEngine().renderer.autoClear = true
 
     configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
 
@@ -205,47 +205,47 @@ export class EngineRenderer {
   }
 
   /**
-   * Executes the system. Called each frame by default from the Engine.
+   * Executes the system. Called each frame by default from the useEngine().
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if (Engine.xrManager.isPresenting) {
-      Engine.csm?.update()
-      Engine.renderer.render(Engine.scene, Engine.camera)
+    if (useEngine().xrManager.isPresenting) {
+      useEngine().csm?.update()
+      useEngine().renderer.render(useEngine().scene, useEngine().camera)
     } else {
       this.changeQualityLevel()
 
       if (this.rendereringEnabled) {
         if (this.needsResize) {
-          const curPixelRatio = Engine.renderer.getPixelRatio()
+          const curPixelRatio = useEngine().renderer.getPixelRatio()
           const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
 
-          if (curPixelRatio !== scaledPixelRatio) Engine.renderer.setPixelRatio(scaledPixelRatio)
+          if (curPixelRatio !== scaledPixelRatio) useEngine().renderer.setPixelRatio(scaledPixelRatio)
 
           const width = window.innerWidth
           const height = window.innerHeight
 
-          if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
-            const cam = Engine.camera as PerspectiveCamera
+          if ((useEngine().camera as PerspectiveCamera).isPerspectiveCamera) {
+            const cam = useEngine().camera as PerspectiveCamera
             cam.aspect = width / height
             cam.updateProjectionMatrix()
           }
 
-          this.qualityLevel > 0 && Engine.csm?.updateFrustums()
-          Engine.renderer.setSize(width, height, false)
-          Engine.effectComposer.setSize(width, height, false)
+          this.qualityLevel > 0 && useEngine().csm?.updateFrustums()
+          useEngine().renderer.setSize(width, height, false)
+          useEngine().effectComposer.setSize(width, height, false)
           this.needsResize = false
         }
 
-        this.qualityLevel > 0 && Engine.csm?.update()
-        if (this.usePostProcessing && Engine.effectComposer) {
-          Engine.effectComposer.render(delta)
+        this.qualityLevel > 0 && useEngine().csm?.update()
+        if (this.usePostProcessing && useEngine().effectComposer) {
+          useEngine().effectComposer.render(delta)
         } else {
-          Engine.renderer.autoClear = true
-          Engine.renderer.render(Engine.scene, Engine.camera)
+          useEngine().renderer.autoClear = true
+          useEngine().renderer.render(useEngine().scene, useEngine().camera)
         }
         // if on oculus, render one frame and freeze, just to create a preview of the scene
-        if (Engine.isHMD) {
+        if (useEngine().isHMD) {
           this.rendereringEnabled = false
         }
       }
@@ -320,7 +320,7 @@ export class EngineRenderer {
 
   setResolution(resolution) {
     this.scaleFactor = resolution
-    Engine.renderer.setPixelRatio(window.devicePixelRatio * this.scaleFactor)
+    useEngine().renderer.setPixelRatio(window.devicePixelRatio * this.scaleFactor)
     this.needsResize = true
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR, this.scaleFactor)
   }
@@ -329,7 +329,7 @@ export class EngineRenderer {
     if (this.useShadows === useShadows) return
 
     this.useShadows = useShadows
-    Engine.renderer.shadowMap.enabled = useShadows
+    useEngine().renderer.shadowMap.enabled = useShadows
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.useShadows)
   }
 

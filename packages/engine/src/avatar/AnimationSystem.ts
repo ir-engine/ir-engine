@@ -10,7 +10,7 @@ import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AnimationGraph } from './animations/AnimationGraph'
 import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
-import { Engine } from '../ecs/classes/Engine'
+import { useEngine } from '../ecs/classes/Engine'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import matches from 'ts-matches'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
@@ -23,7 +23,7 @@ export default async function AnimationSystem(world: World): Promise<System> {
 
   function animationActionReceptor(action) {
     matches(action).when(NetworkWorldAction.avatarAnimation.matchesFromAny, ({ $from }) => {
-      if ($from === Engine.userId) {
+      if ($from === useEngine().userId) {
         return
       }
 

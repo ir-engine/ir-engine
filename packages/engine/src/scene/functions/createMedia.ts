@@ -1,7 +1,7 @@
 import { Object3D, PositionalAudio } from 'three'
 
 import { addObject3DComponent } from './addObject3DComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { VolumetricComponent } from '../components/VolumetricComponent'
 import { RenderedComponent } from '../components/RenderedComponent'
@@ -57,17 +57,17 @@ export function createMediaServer(entity, props: { interactable: boolean }): voi
 }
 
 export function createAudio(entity, props: AudioProps): void {
-  const audio = new AudioSource(Engine.audioListener)
+  const audio = new AudioSource(useEngine().audioListener)
   addObject3DComponent(entity, audio, props)
   audio.load()
-  const posAudio = new PositionalAudio(Engine.audioListener)
+  const posAudio = new PositionalAudio(useEngine().audioListener)
   posAudio.matrixAutoUpdate = false
   addComponent(entity, PositionalAudioComponent, { value: posAudio })
   if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
 }
 
 export function createVideo(entity, props: VideoProps): void {
-  const video = new Video(Engine.audioListener, props.elementId!)
+  const video = new Video(useEngine().audioListener, props.elementId!)
   if (props.synchronize) {
     video.startTime = props.synchronize
     video.isSynced = props.synchronize > 0
@@ -94,7 +94,7 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
   let preProgress = 0
   DracosisSequence = new DracosisPlayer({
     scene: container,
-    renderer: Engine.renderer,
+    renderer: useEngine().renderer,
     worker: worker,
     manifestFilePath: resourceUrl.replace('.drcs', '.manifest'),
     meshFilePath: resourceUrl,

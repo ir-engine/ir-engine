@@ -9,7 +9,7 @@ import {
   Vector3
 } from 'three'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { convertEquiToCubemap } from '../classes/ImageUtils'
 import { CubemapBakeTypes } from '../../scene/types/CubemapBakeTypes'
@@ -21,7 +21,7 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
     return
   }
 
-  const pmremGenerator = new PMREMGenerator(Engine.renderer)
+  const pmremGenerator = new PMREMGenerator(useEngine().renderer)
 
   switch (args.type) {
     case EnvMapSourceType.Color:
@@ -36,7 +36,7 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
       }
       const texture = new DataTexture(data, resolution, resolution, RGBFormat)
       texture.encoding = sRGBEncoding
-      Engine.scene.environment = pmremGenerator.fromEquirectangular(texture).texture
+      useEngine().scene.environment = pmremGenerator.fromEquirectangular(texture).texture
       break
 
     case EnvMapSourceType.Texture:
@@ -54,7 +54,7 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
             (texture) => {
               const EnvMap = pmremGenerator.fromCubemap(texture).texture
               EnvMap.encoding = sRGBEncoding
-              Engine.scene.environment = EnvMap
+              useEngine().scene.environment = EnvMap
               texture.dispose()
             },
             (res) => {
@@ -70,7 +70,7 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
           new TextureLoader().load(args.envMapSourceURL!, (texture) => {
             const EnvMap = pmremGenerator.fromEquirectangular(texture).texture
             EnvMap.encoding = sRGBEncoding
-            Engine.scene.environment = EnvMap
+            useEngine().scene.environment = EnvMap
             texture.dispose()
           })
           break
@@ -91,15 +91,19 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
         switch (options.bakeType) {
           case CubemapBakeTypes.Baked:
             new TextureLoader().load(options.envMapOrigin, (texture) => {
-              Engine.scene.environment = convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture
+              useEngine().scene.environment = convertEquiToCubemap(
+                useEngine().renderer,
+                texture,
+                options.resolution
+              ).texture
               texture.dispose()
             })
 
             break
           case CubemapBakeTypes.Realtime:
-            // const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution)
+            // const map = new CubemapCapturer(useEngine().renderer, useEngine().scene, options.resolution)
             // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
-            // Engine.scene.environment = EnvMap
+            // useEngine().scene.environment = EnvMap
             break
         }
       })

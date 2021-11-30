@@ -8,21 +8,21 @@ import {
   DepthDownsamplingPass
 } from 'postprocessing'
 import { NearestFilter, RGBFormat, WebGLRenderTarget } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { EffectMap, Effects } from '../../scene/classes/PostProcessing'
 import { EngineRenderer } from '../WebGLRendererSystem'
 
 export const configureEffectComposer = (postprocessingComponent: any, remove?: boolean): void => {
   if (remove) {
-    Engine.effectComposer = null!
+    useEngine().effectComposer = null!
     return
   }
 
-  if (!Engine.effectComposer) Engine.effectComposer = new EffectComposer(Engine.renderer)
-  else Engine.effectComposer.removeAllPasses()
+  if (!useEngine().effectComposer) useEngine().effectComposer = new EffectComposer(useEngine().renderer)
+  else useEngine().effectComposer.removeAllPasses()
 
-  const renderPass = new RenderPass(Engine.scene, Engine.camera)
-  Engine.effectComposer.addPass(renderPass)
+  const renderPass = new RenderPass(useEngine().scene, useEngine().camera)
+  useEngine().effectComposer.addPass(renderPass)
 
   if (!postprocessingComponent) return
   EngineRenderer.instance.postProcessingConfig = postprocessingComponent
@@ -30,7 +30,7 @@ export const configureEffectComposer = (postprocessingComponent: any, remove?: b
   const effects: any[] = []
   const effectKeys = EffectMap.keys()
 
-  const normalPass = new NormalPass(Engine.scene, Engine.camera, {
+  const normalPass = new NormalPass(useEngine().scene, useEngine().camera, {
     renderTarget: new WebGLRenderTarget(1, 1, {
       minFilter: NearestFilter,
       magFilter: NearestFilter,
@@ -53,24 +53,24 @@ export const configureEffectComposer = (postprocessingComponent: any, remove?: b
     if (!effectClass) return
 
     if (key === Effects.SSAOEffect) {
-      const eff = new effectClass(Engine.camera, normalPass.texture, {
+      const eff = new effectClass(useEngine().camera, normalPass.texture, {
         ...effect,
         normalDepthBuffer: depthDownsamplingPass.texture
       })
-      Engine.effectComposer[key] = eff
+      useEngine().effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {
-      const eff = new effectClass(Engine.camera, effect)
-      Engine.effectComposer[key] = eff
+      const eff = new effectClass(useEngine().camera, effect)
+      useEngine().effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.OutlineEffect) {
-      const eff = new effectClass(Engine.scene, Engine.camera, effect)
-      Engine.effectComposer[key] = eff
+      const eff = new effectClass(useEngine().scene, useEngine().camera, effect)
+      useEngine().effectComposer[key] = eff
       effects.push(eff)
     } else {
       if (effectClass) {
         const eff = new effectClass(effect)
-        Engine.effectComposer[key] = eff
+        useEngine().effectComposer[key] = eff
         effects.push(eff)
       }
     }
@@ -82,7 +82,7 @@ export const configureEffectComposer = (postprocessingComponent: any, remove?: b
       texture: depthDownsamplingPass.texture
     })
 
-    Engine.effectComposer.addPass(depthDownsamplingPass)
-    Engine.effectComposer.addPass(new EffectPass(Engine.camera, ...effects, textureEffect))
+    useEngine().effectComposer.addPass(depthDownsamplingPass)
+    useEngine().effectComposer.addPass(new EffectPass(useEngine().camera, ...effects, textureEffect))
   }
 }

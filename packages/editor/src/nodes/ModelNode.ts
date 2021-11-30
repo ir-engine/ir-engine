@@ -12,7 +12,7 @@ import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from '../managers/CacheManager'
 import { ControlManager } from '../managers/ControlManager'
 import { LoadInstancedGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from './SceneNode'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
@@ -42,7 +42,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           // Using this to pass texture override uuid to event callback instead of creating a new variable
           node.textureOverride = textureOverride
           CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), () => {
-            Engine.scene.traverse((obj) => {
+            useEngine().scene.traverse((obj) => {
               if (obj.uuid === node.textureOverride) {
                 node.textureOverride = obj.uuid
               }
@@ -194,7 +194,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       if (this.model) {
         this.model.traverse((object: any) => {
           if (object.material && object.material.isMeshStandardMaterial) {
-            object.material.envMap = (Engine.scene as any as SceneNode)?.environmentMap
+            object.material.envMap = (useEngine().scene as any as SceneNode)?.environmentMap
             object.material.needsUpdate = true
           }
         })

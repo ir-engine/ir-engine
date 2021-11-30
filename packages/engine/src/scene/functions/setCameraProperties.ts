@@ -1,7 +1,7 @@
 import { OrthographicCamera, PerspectiveCamera } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { ProjectionType } from '../../camera/types/ProjectionType'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { CameraMode } from '../../camera/types/CameraMode'
@@ -30,7 +30,7 @@ export const setCameraProperties = (entity: Entity, data: Props): void => {
 
   console.log(data)
   if (data.projectionType === ProjectionType.Orthographic) {
-    Engine.camera = new OrthographicCamera(
+    useEngine().camera = new OrthographicCamera(
       data.fov / -2,
       data.fov / 2,
       data.fov / 2,
@@ -38,12 +38,12 @@ export const setCameraProperties = (entity: Entity, data: Props): void => {
       data.cameraNearClip,
       data.cameraFarClip
     )
-  } else if ((Engine.camera as PerspectiveCamera).fov) {
-    ;(Engine.camera as PerspectiveCamera).fov = data.fov ?? 50
+  } else if ((useEngine().camera as PerspectiveCamera).fov) {
+    ;(useEngine().camera as PerspectiveCamera).fov = data.fov ?? 50
   }
 
-  Engine.camera.near = data.cameraNearClip
-  Engine.camera.far = data.cameraFarClip
+  useEngine().camera.near = data.cameraNearClip
+  useEngine().camera.far = data.cameraFarClip
   cameraFollow.distance = data.startCameraDistance
   cameraFollow.minDistance = data.minCameraDistance
   cameraFollow.maxDistance = data.maxCameraDistance
@@ -51,6 +51,6 @@ export const setCameraProperties = (entity: Entity, data: Props): void => {
   cameraFollow.minPhi = data.minPhi
   cameraFollow.maxPhi = data.maxPhi
   cameraFollow.locked = !data.startInFreeLook
-  Engine.camera.updateProjectionMatrix()
+  useEngine().camera.updateProjectionMatrix()
   switchCameraMode(useWorld().localClientEntity, data, true)
 }

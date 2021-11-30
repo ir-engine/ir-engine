@@ -1,5 +1,5 @@
 import '@feathersjs/transport-commons'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import config from '@xrengine/server-core/src/appconfig'
 import { Application } from '@xrengine/server-core/declarations'
@@ -22,7 +22,7 @@ const loadScene = async (app: Application, scene: string) => {
   const sceneData = sceneResult.data.scene as any // SceneData
   const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
-  if (!Engine.isInitialized) await initializeServerEngine(systems, app.isChannelInstance)
+  if (!useEngine().isInitialized) await initializeServerEngine(systems, app.isChannelInstance)
   console.log('Initialized new gameserver instance')
 
   let entitiesLeft = -1
@@ -238,7 +238,7 @@ export default (app: Application): void => {
                 await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId, agonesSDK)
               }
 
-              if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
+              if (sceneId != null && !useEngine().sceneLoaded && !WorldScene.isLoading) {
                 await loadScene(app, sceneId)
               }
             } else {
@@ -413,7 +413,7 @@ export default (app: Application): void => {
             console.log('user instanceId: ' + user.instanceId)
 
             if (instanceId != null && instance != null) {
-              const activeUsers = Engine.defaultWorld.clients
+              const activeUsers = useEngine().defaultWorld.clients
               const activeUsersCount = activeUsers.size
               try {
                 await app.service('instance').patch(instanceId, {
@@ -426,7 +426,7 @@ export default (app: Application): void => {
               const user = await app.service('user').get(userId)
               const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
               if (
-                (Engine.defaultWorld.clients.has(userId) && config.kubernetes.enabled) ||
+                (useEngine().defaultWorld.clients.has(userId) && config.kubernetes.enabled) ||
                 process.env.APP_ENV === 'development'
               )
                 await app

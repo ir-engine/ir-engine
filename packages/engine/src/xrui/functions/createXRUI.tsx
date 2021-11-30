@@ -6,7 +6,7 @@ import { XRUIComponent } from '../components/XRUIComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { XRUIStateContext } from '../XRUIStateContext'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -45,7 +45,7 @@ export function createXRUI<S extends State<any>>(
     // Make sure entity still exists, since we are adding these components asynchronously,
     // and bad things might happen if we add these components after entity has been removed
     // TODO: revise this pattern after refactor
-    if (Engine.defaultWorld.entities.indexOf(entity) === -1) return
+    if (useEngine().defaultWorld.entities.indexOf(entity) === -1) return
     addComponent(entity, Object3DComponent, { value: uiRoot })
     setObjectLayers(uiRoot, ObjectLayers.Render, ObjectLayers.UI)
     addComponent(entity, XRUIComponent, { layer: uiRoot })

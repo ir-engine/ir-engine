@@ -1,6 +1,6 @@
 import { PositionalAudio, Audio as AudioObject } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -109,14 +109,16 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
       }
       if (positionalAudioSettings?.usePositionalAudio) {
         const positionalAudio = addComponent(entity, PositionalAudioComponent, {
-          value: new PositionalAudio(Engine.audioListener)
+          value: new PositionalAudio(useEngine().audioListener)
         })
         positionalAudio.value.matrixAutoUpdate = false
         applyMediaAudioSettings(positionalAudio.value)
-        if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
+        if (positionalAudio != null) useEngine().scene.add(positionalAudio.value)
       } else {
-        const audio = addComponent(entity, AudioComponent, { value: new AudioObject<GainNode>(Engine.audioListener) })
-        if (audio != null) Engine.scene.add(audio.value)
+        const audio = addComponent(entity, AudioComponent, {
+          value: new AudioObject<GainNode>(useEngine().audioListener)
+        })
+        if (audio != null) useEngine().scene.add(audio.value)
         audio.value.matrixAutoUpdate = false
       }
     }

@@ -5,7 +5,7 @@ import { engineTestSetup } from '../util/setupEngine'
 import sceneJson from '@xrengine/projects/default-project/empty.scene.json'
 import { WorldScene } from '../../src/scene/functions/SceneLoading'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
-import { Engine } from '../../src/ecs/classes/Engine'
+import { useEngine } from '../../src/ecs/classes/Engine'
 import { EngineEvents } from '../../src/ecs/classes/EngineEvents'
 import { parseSceneDataCacheURLs } from '@xrengine/server-core/src/world/scene/scene-parser'
 

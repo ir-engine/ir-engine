@@ -25,6 +25,7 @@ import { register } from 'trace-unhandled'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { isDev } from '@xrengine/common/src/utils/isDev'
+import { createEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 register()
 
 export const createApp = (): Application => {
@@ -185,6 +186,8 @@ export const createApp = (): Application => {
       console.log('Server init failure')
       console.log(err)
     }
+
+    createEngine()
   }
 
   app.use(errorHandler({ logger } as any))

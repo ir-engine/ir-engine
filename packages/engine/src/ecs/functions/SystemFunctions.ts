@@ -1,7 +1,7 @@
 /** Functions to provide system level functionalities. */
 
 import { SystemUpdateType } from '../functions/SystemUpdateType'
-import { Engine } from '../classes/Engine'
+import { useEngine } from '../classes/Engine'
 import { System } from '../classes/System'
 import { World } from '../classes/World'
 
@@ -22,7 +22,7 @@ export type SystemFactoryType<A> = {
 }
 
 export const registerSystem = (type: SystemUpdateType, systemModulePromise: SystemModulePromise<any>) => {
-  Engine.defaultWorld._pipeline.push({ type, systemModulePromise, args: undefined }) // yes undefined, V8...
+  useEngine().defaultWorld._pipeline.push({ type, systemModulePromise, args: undefined }) // yes undefined, V8...
 }
 
 export const registerSystemWithArgs = <A>(
@@ -30,9 +30,9 @@ export const registerSystemWithArgs = <A>(
   systemModulePromise: SystemModulePromise<A>,
   args: A
 ) => {
-  Engine.defaultWorld._pipeline.push({ type, systemModulePromise, args })
+  useEngine().defaultWorld._pipeline.push({ type, systemModulePromise, args })
 }
 
 export const registerInjectedSystems = <A>(type: SystemUpdateType, systems: SystemModuleType<A>[]) => {
-  Engine.defaultWorld._pipeline.push(...systems.filter((system) => system.type === type))
+  useEngine().defaultWorld._pipeline.push(...systems.filter((system) => system.type === type))
 }

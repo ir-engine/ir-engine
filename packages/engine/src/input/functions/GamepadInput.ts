@@ -5,7 +5,7 @@ import { GamepadButtons, GamepadAxis, XRAxes } from '../enums/InputEnums'
 import { InputAlias } from '../types/InputAlias'
 import { BaseInput } from '../enums/BaseInput'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 
 /**
  * @property {Boolean} gamepadConnected Connection a new gamepad
@@ -79,7 +79,7 @@ export const handleGamepads = () => {
 const handleGamepadButton = (gamepad: Gamepad, index: number) => {
   if (gamepad.buttons[index].touched === (gamepadButtons[index] === BinaryValue.ON)) return
   // Set input data
-  Engine.inputState.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
+  useEngine().inputState.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
     type: InputType.BUTTON,
     value: [gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF],
     lifecycleState: gamepad.buttons[index].touched ? LifecycleValue.Started : LifecycleValue.Ended
@@ -111,7 +111,7 @@ export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedIn
 
   // Axis has changed, so get mutable reference to Input and set data
   if (x !== prevLeftX || y !== prevLeftY) {
-    Engine.inputState.set(mappedInputValue, {
+    useEngine().inputState.set(mappedInputValue, {
       type: InputType.TWODIM,
       value: [x, y],
       lifecycleState: LifecycleValue.Changed
@@ -159,7 +159,7 @@ export const handleGamepadDisconnected = (event: any): void => {
 
   for (let index = 0; index < gamepadButtons.length; index++) {
     if (gamepadButtons[index] === BinaryValue.ON) {
-      Engine.inputState.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
+      useEngine().inputState.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
         value: [BinaryValue.OFF],
         lifecycleState: LifecycleValue.Changed

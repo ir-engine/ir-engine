@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
-import { Engine } from '../ecs/classes/Engine'
+import { useEngine } from '../ecs/classes/Engine'
 import { System } from '../ecs/classes/System'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
@@ -63,7 +63,7 @@ export default async function AvatarControllerSystem(world: World): Promise<Syst
       // todo: replace this with trigger detection
       detectUserInCollisions(entity)
 
-      moveAvatar(world, entity, Engine.camera)
+      moveAvatar(world, entity, useEngine().camera)
 
       const controller = getComponent(entity, AvatarControllerComponent)
       const collider = getComponent(entity, ColliderComponent)

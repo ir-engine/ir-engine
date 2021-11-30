@@ -20,7 +20,7 @@ import { hasComponent, addComponent, getComponent } from '@xrengine/engine/src/e
 import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { ProximityComponent } from '../../proximity/components/ProximityComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -842,7 +842,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       networkUser.avatarDetail = { avatarURL, thumbnailURL }
 
       //Find entityId from network objects of updated user and dispatch avatar load event.
-      const world = Engine.defaultWorld
+      const world = useEngine().defaultWorld
       const userEntity = world.getUserAvatarEntity(user.id)
       setAvatar(userEntity, avatarURL)
     } else {
@@ -856,7 +856,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
   if (!user || !user.id) Promise.resolve(true)
 
   return new Promise(async (resolve) => {
-    const networkUser = Engine.defaultWorld.clients.get(user.id)
+    const networkUser = useEngine().defaultWorld.clients.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -873,7 +873,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     networkUser.avatarDetail = { avatarURL, thumbnailURL }
 
     //Find entityId from network objects of updated user and dispatch avatar load event.
-    const world = Engine.defaultWorld
+    const world = useEngine().defaultWorld
     const userEntity = world.getUserAvatarEntity(user.id)
     setAvatar(userEntity, avatarURL)
     resolve(true)
@@ -917,7 +917,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
           window.history.replaceState({}, '', parsed.toString())
         }
       }
-      const world = Engine.defaultWorld
+      const world = useEngine().defaultWorld
       if (typeof world.localClientEntity !== 'undefined') {
         if (!hasComponent(world.localClientEntity, ProximityComponent, world) && isBot(window)) {
           addComponent(

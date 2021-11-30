@@ -5,7 +5,7 @@ import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from './NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import matches from 'ts-matches'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchFrom } from './dispatchFrom'
 import { getEntityComponents } from 'bitecs'
@@ -34,7 +34,7 @@ export function incomingNetworkReceptor(action) {
         const { networkId } = getComponent(eid, NetworkObjectComponent)
         dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
       }
-      if (!isClient || userId === Engine.userId) return
+      if (!isClient || userId === useEngine().userId) return
       world.clients.delete(userId)
     })
 
@@ -46,13 +46,13 @@ export function incomingNetworkReceptor(action) {
        */
       if (
         isSpawningAvatar &&
-        Engine.userId === a.userId &&
+        useEngine().userId === a.userId &&
         hasComponent(world.localClientEntity, NetworkObjectComponent)
       ) {
         getComponent(world.localClientEntity, NetworkObjectComponent).networkId = a.networkId
         return
       }
-      const isOwnedByMe = a.userId === Engine.userId
+      const isOwnedByMe = a.userId === useEngine().userId
       let entity
       if (isSpawningAvatar && isOwnedByMe) {
         entity = world.localClientEntity

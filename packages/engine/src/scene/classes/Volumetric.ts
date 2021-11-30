@@ -57,7 +57,7 @@ export default class Volumetric extends AudioSource {
       }
       const onLoadedMetadata = () => {
         // if (this.el.autoplay) {
-        // if(Engine.hasUserEngaged) {
+        // if(useEngine().hasUserEngaged) {
         // this.el.play();
         // } else {
         //   EngineEvents.instance.once(EngineEvents.EVENTS.USER_ENGAGE, () => this.el.play());

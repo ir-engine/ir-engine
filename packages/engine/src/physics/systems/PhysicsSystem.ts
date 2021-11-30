@@ -4,7 +4,7 @@ import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/Com
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyTagComponent } from '../components/RigidBodyTagComponent'
@@ -102,7 +102,7 @@ export default async function PhysicsSystem(
       const transform = getComponent(entity, TransformComponent)
       const network = getComponent(entity, NetworkObjectComponent)
 
-      if ((!isClient && network.userId !== Engine.userId) || hasComponent(entity, AvatarComponent)) continue
+      if ((!isClient && network.userId !== useEngine().userId) || hasComponent(entity, AvatarComponent)) continue
 
       if (isStaticBody(collider.body)) {
         const body = collider.body as PhysX.PxRigidDynamic

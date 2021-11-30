@@ -3,7 +3,7 @@ import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctio
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isClient } from '../../common/functions/isClient'
 import { ParticleEmitterMesh } from './ParticleEmitterMesh'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 
 export const DEG2RAD = 0.0174533
 
@@ -47,7 +47,7 @@ export const createParticleEmitterObject = (entity, configs): void => {
   if (!isClient) return
   ParticleEmitterMesh.fromArgs(configs).then((mesh) => {
     addComponent(entity, ParticleEmitterComponent, { particleEmitterMesh: mesh })
-    Engine.scene.add(mesh)
+    useEngine().scene.add(mesh)
   })
 }
 

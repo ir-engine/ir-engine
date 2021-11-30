@@ -13,7 +13,7 @@ import { NetworkWorldAction } from '../../networking/functions/NetworkWorldActio
 import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { equipEntity, getParity } from '../functions/equippableFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -22,7 +22,7 @@ function equippableActionReceptor(action) {
   const world = useWorld()
 
   matches(action).when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
-    if (a.userId === Engine.userId) return
+    if (a.userId === useEngine().userId) return
     const equipper = world.getUserAvatarEntity(a.userId)
     const equipped = world.getNetworkObject(a.networkId)
     const attachmentPoint = a.attachmentPoint
@@ -57,9 +57,9 @@ export default async function EquippableSystem(world: World): Promise<System> {
         const equippedComponent = getComponent(equippedEntity, EquippedComponent)
         const attachmentPoint = equippedComponent.attachmentPoint
         const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
-        dispatchFrom(Engine.userId, () =>
+        dispatchFrom(useEngine().userId, () =>
           NetworkWorldAction.setEquippedObject({
-            userId: Engine.userId,
+            userId: useEngine().userId,
             networkId: networkComponet.networkId,
             attachmentPoint: attachmentPoint,
             equip: true
@@ -95,7 +95,7 @@ export default async function EquippableSystem(world: World): Promise<System> {
       // send unequip to clients
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.setEquippedObject({
-          userId: Engine.userId,
+          userId: useEngine().userId,
           networkId: getComponent(equippedEntity, NetworkObjectComponent).networkId,
           attachmentPoint: attachmentPoint,
           equip: false

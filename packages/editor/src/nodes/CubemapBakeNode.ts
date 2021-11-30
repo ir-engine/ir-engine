@@ -24,7 +24,7 @@ import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classe
 import SkyboxNode from './SkyboxNode'
 import { uploadProjectAsset } from '../functions/assetFunctions'
 import { accessEditorState } from '../services/EditorServices'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from './SceneNode'
 
 const assetIdentitifer = 'cubemapbake'
@@ -58,22 +58,22 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       metalness: 1
     })
     this.add(this.gizmo)
-    ;(Engine.scene as any as SceneNode).registerEnvironmentMapNode(this)
+    ;(useEngine().scene as any as SceneNode).registerEnvironmentMapNode(this)
   }
 
   static canAddNode() {
-    return (Engine.scene as any as SceneNode).findNodeByType(CubemapBakeNode) === null
+    return (useEngine().scene as any as SceneNode).findNodeByType(CubemapBakeNode) === null
   }
 
   async captureCubeMap(): Promise<WebGLCubeRenderTarget> {
-    const sceneToBake = this.getSceneForBaking(Engine.scene as any as SceneNode as any)
-    const cubemapCapturer = new CubemapCapturer(Engine.renderer, sceneToBake, this.cubemapBakeSettings.resolution)
+    const sceneToBake = this.getSceneForBaking(useEngine().scene as any as SceneNode as any)
+    const cubemapCapturer = new CubemapCapturer(useEngine().renderer, sceneToBake, this.cubemapBakeSettings.resolution)
     const result = cubemapCapturer.update(this.position)
-    const imageData = (await convertCubemapToEquiImageData(Engine.renderer, result, 512, 512, false)).imageData
+    const imageData = (await convertCubemapToEquiImageData(useEngine().renderer, result, 512, 512, false)).imageData
     // downloadImage(imageData, 'Hello', 512, 512)
     this.currentEnvMap = result
     this.injectShader()
-    ;(Engine.scene as any as SceneNode).setUpEnvironmentMap()
+    ;(useEngine().scene as any as SceneNode).setUpEnvironmentMap()
     return result
   }
 
@@ -89,11 +89,11 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
       new Quaternion(0),
       this.cubemapBakeSettings.bakeScale
     )
-    //(Engine.scene as any as SceneNode).environment=this.visible?this.currentEnvMap?.texture:null;
+    //(useEngine().scene as any as SceneNode).environment=this.visible?this.currentEnvMap?.texture:null;
   }
 
   injectShader() {
-    ;(Engine.scene as any as SceneNode).traverse((child) => {
+    ;(useEngine().scene as any as SceneNode).traverse((child) => {
       if (child.material) {
         child.material.onBeforeCompile = (shader) => {
           shader.uniforms.cubeMapSize = { value: this.cubemapBakeSettings.bakeScale }
@@ -154,7 +154,8 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
           //disable specular highlights
           ;(child as any).material && ((child as any).material.roughness = 1)
           if ((child as any).isNode) {
-            if (child.constructor === SkyboxNode) sceneToBake.background = (Engine.scene as any as SceneNode).background
+            if (child.constructor === SkyboxNode)
+              sceneToBake.background = (useEngine().scene as any as SceneNode).background
           }
         })
         sceneToBake.add(o)
@@ -165,13 +166,13 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
 
   onRemove() {
     this.currentEnvMap?.dispose()
-    ;(Engine.scene as any as SceneNode).unregisterEnvironmentMapNode(this)
+    ;(useEngine().scene as any as SceneNode).unregisterEnvironmentMapNode(this)
     // todo - remove generated asset
   }
 
   async uploadBakeToServer(projectID: any, renderTarget: WebGLCubeRenderTarget) {
     const { blob } = await convertCubemapToEquiImageData(
-      Engine.renderer,
+      useEngine().renderer,
       renderTarget,
       this.cubemapBakeSettings.resolution,
       this.cubemapBakeSettings.resolution,
@@ -187,6 +188,6 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
   }
 
   setEnvMap() {
-    ;(Engine.scene as any as SceneNode).environment = this.currentEnvMap.texture
+    ;(useEngine().scene as any as SceneNode).environment = this.currentEnvMap.texture
   }
 }

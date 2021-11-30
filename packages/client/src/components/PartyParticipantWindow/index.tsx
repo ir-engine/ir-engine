@@ -168,7 +168,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     else if (
       harmony === true
       // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
-      // Engine.spatialAudio
+      // useEngine().spatialAudio
     )
       audioRef.current.volume = volume / 100
   }, [selfUser])
@@ -214,7 +214,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       if (
         harmony === true
         // selfUser?.user_setting?.spatialAudioEnabled === false ||
-        // (selfUser?.user_setting?.spatialAudioEnabled === 0 && Engine.spatialAudio)
+        // (selfUser?.user_setting?.spatialAudioEnabled === 0 && useEngine().spatialAudio)
       ) {
         audioRef.current.volume = volume / 100
         // PositionalAudioSystem.instance?.suspend()

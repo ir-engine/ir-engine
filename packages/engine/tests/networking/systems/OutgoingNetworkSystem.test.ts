@@ -1,5 +1,5 @@
 import { initializeEngine, shutdownEngine } from '../../../src/initializeEngine'
-import { Engine } from '../../../src/ecs/classes/Engine'
+import { useEngine } from '../../../src/ecs/classes/Engine'
 import { engineTestSetup } from '../../util/setupEngine'
 import assert, { strictEqual } from 'assert'
 import { Network } from '../../../src/networking/classes/Network'
@@ -31,7 +31,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       // make this engine user the host
       // world.isHosting === true
-      Engine.userId = world.hostId
+      useEngine().userId = world.hostId
 
       const action = NetworkWorldAction.spawnObject({
         userId: '0' as UserId,
@@ -62,7 +62,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       // make this engine user the host
       // world.isHosting === true
-      Engine.userId = world.hostId
+      useEngine().userId = world.hostId
 
       const action = NetworkWorldAction.spawnObject({
         userId: '2' as UserId,
@@ -92,7 +92,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       // this engine user is not the host
       // world.isHosting === false
-      Engine.userId = '0' as UserId
+      useEngine().userId = '0' as UserId
 
       const tick = 0
 
@@ -135,7 +135,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         parameters: {},
         $tick: 0,
         // make action come from this host
-        $from: Engine.userId,
+        $from: useEngine().userId,
         // being sent to self
         $to: 'local' as ActionRecipients,
       })
@@ -160,7 +160,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       // make this engine user the host
       // world.isHosting === true
-      Engine.userId = world.hostId
+      useEngine().userId = world.hostId
 
       const action = NetworkWorldAction.spawnObject({
         userId: '0' as UserId,
@@ -168,7 +168,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         parameters: {},
         $tick: 0,
         // make action come from this host
-        $from: Engine.userId,
+        $from: useEngine().userId,
         // being sent to other
         $to: '1' as ActionRecipients,
       })
@@ -193,7 +193,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       
       /* mock */
       const world = createWorld()
-      Engine.currentWorld = world
+      useEngine().currentWorld = world
 
       world.outgoingNetworkState = {
         tick: 0,
@@ -204,7 +204,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       }
 
       // make this engine user the host (world.isHosting === true)
-      Engine.userId = world.hostId
+      useEngine().userId = world.hostId
 
       for (let i = 0; i < 2; i++) {
         const entity = createEntity()
@@ -237,7 +237,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       
       /* mock */
       const world = createWorld()
-      Engine.currentWorld = world
+      useEngine().currentWorld = world
 
       world.outgoingNetworkState = {
         tick: 0,
@@ -290,7 +290,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       
       /* mock */
       const world = createWorld()
-      Engine.currentWorld = world
+      useEngine().currentWorld = world
 
       world.outgoingNetworkState = {
         tick: 0,
@@ -328,7 +328,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       
       /* mock */
       const world = createWorld()
-      Engine.currentWorld = world
+      useEngine().currentWorld = world
 
       world.outgoingNetworkState = {
         tick: 0,
@@ -366,13 +366,13 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
     /* hoist */
 		Network.instance = new TestNetwork()
 		world = createWorld()
-		Engine.currentWorld = world
+		useEngine().currentWorld = world
 	})
 
   it('should serialize and send poses', async () => {
     /* mock */
     // make this engine user the host (world.isHosting === true)
-    Engine.userId = world.hostId
+    useEngine().userId = world.hostId
 
 		const entity = createEntity()
 		const transform = addComponent(entity, TransformComponent, {
@@ -382,7 +382,7 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
 		})
 		const networkObject = addComponent(entity, NetworkObjectComponent, {
       // the host is the owner
-			userId: Engine.userId as UserId,
+			userId: useEngine().userId as UserId,
 			networkId: 0 as NetworkId,
 			prefab: '',
 			parameters: {},

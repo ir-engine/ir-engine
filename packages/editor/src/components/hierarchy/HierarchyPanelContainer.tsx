@@ -20,7 +20,7 @@ import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { NodeManager } from '../../managers/NodeManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Hotkeys from 'react-hot-keys'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
@@ -735,11 +735,11 @@ const MemoTreeNode = memo(TreeNode, areEqual)
 function* treeWalker(collapsedNodes) {
   const stack = []
 
-  if (!Engine.scene) return
+  if (!useEngine().scene) return
 
   stack.push({
     depth: 0,
-    object: Engine.scene,
+    object: useEngine().scene,
     childIndex: 0,
     lastChild: true
   })
@@ -885,7 +885,7 @@ export default function HierarchyPanel() {
    */
   const onCollapseAllNodes = useCallback(() => {
     const newCollapsedNodes = {}
-    Engine.scene.traverse((child: any) => {
+    useEngine().scene.traverse((child: any) => {
       if (child.isNode) {
         newCollapsedNodes[child.id] = true
       }
@@ -1164,7 +1164,9 @@ export default function HierarchyPanel() {
         return
       }
 
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: Engine.scene })
+      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
+        parents: useEngine().scene
+      })
     },
     canDrop(item, monitor) {
       if (!monitor.isOver({ shallow: true })) {
@@ -1177,8 +1179,8 @@ export default function HierarchyPanel() {
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
         return !(item.multiple
-          ? item.value.some((otherObject) => isAncestor(otherObject, Engine.scene))
-          : isAncestor(item.value, Engine.scene))
+          ? item.value.some((otherObject) => isAncestor(otherObject, useEngine().scene))
+          : isAncestor(item.value, useEngine().scene))
       }
 
       return true
@@ -1193,7 +1195,7 @@ export default function HierarchyPanel() {
   return (
     <Fragment>
       <PanelContainer>
-        {Engine.scene && (
+        {useEngine().scene && (
           <AutoSizer>
             {({ height, width }) => (
               <FixedSizeList

@@ -5,7 +5,7 @@ import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/Warn
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 type GameServerWarningsProps = {
@@ -91,7 +91,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         break
 
       case WarningModalTypes.INSTANCE_DISCONNECTED:
-        if (!Engine.userId) return
+        if (!useEngine().userId) return
         if ((Network.instance.transport as SocketWebRTCClientTransport).left || props.isTeleporting) return
 
         setModalValues({

@@ -1,5 +1,5 @@
 import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { Action, ActionRecipients } from '../interfaces/Action'
 
 type AllowedUser<A> = A extends { __ALLOW_DISPATCH_FROM_ANY: true } ? UserId : HostUserId
@@ -14,7 +14,7 @@ type AllowedUser<A> = A extends { __ALLOW_DISPATCH_FROM_ANY: true } ? UserId : H
  */
 export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId: U, actionCb: () => A) => {
   let action!: A
-  const world = Engine.defaultWorld
+  const world = useEngine().defaultWorld
 
   const options = {
     /**
@@ -37,7 +37,7 @@ export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId:
     }
   }
 
-  if (Engine.userId !== userId) return options
+  if (useEngine().userId !== userId) return options
 
   action = actionCb()
   action.$to = action.$to ?? 'all'
@@ -48,6 +48,6 @@ export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId:
 }
 
 export const dispatchLocal = (action: Action & { __ALLOW_DISPATCH_FROM_ANY: true }) => {
-  const options = dispatchFrom(Engine.userId, () => action).to('local')
+  const options = dispatchFrom(useEngine().userId, () => action).to('local')
   return options as Omit<typeof options, 'to'>
 }

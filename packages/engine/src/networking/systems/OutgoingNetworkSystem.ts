@@ -7,7 +7,7 @@ import { XRInputSourceComponent } from '../../xr/components/XRInputSourceCompone
 import { WorldStateModel } from '../schema/networkSchema'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
@@ -89,7 +89,7 @@ export const forwardIncomingActionsFromOthersIfHost = (world: World) => {
   if (world.isHosting) {
     for (const incoming of incomingActions) {
       // if incoming action is not from this client
-      if (incoming.$from !== Engine.userId) {
+      if (incoming.$from !== useEngine().userId) {
         // forward it out
         outgoingActions.add(incoming)
       }
@@ -107,16 +107,16 @@ export const rerouteOutgoingActionsBoundForSelf = (world: World) => {
   for (const out of outgoingActions) {
     // if it's a forwarded action, use existing $from id
     // if not, use this client's userId
-    out.$from = out.$from ?? Engine.userId
+    out.$from = out.$from ?? useEngine().userId
     // if action is from this client and going to this client
-    if (out.$from === Engine.userId && out.$to === 'local') {
+    if (out.$from === useEngine().userId && out.$to === 'local') {
       // add action to incoming action and remove from outgoing actions
       // this prevents the action from leaving this client and applying itself to other connected clients' state
       incomingActions.add(out as Required<Action>)
       outgoingActions.delete(out)
     }
     // if client is hosting and action is from this client
-    if (world.isHosting && out.$from === Engine.userId) {
+    if (world.isHosting && out.$from === useEngine().userId) {
       // add outgoing action to incoming action, but do not remove from outgoing actions
       // this applies the action to both this host and other connected clients' state
       incomingActions.add(out as Required<Action>)

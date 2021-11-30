@@ -15,7 +15,7 @@ import {
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
@@ -48,7 +48,7 @@ const setupController = (inputSource, controller) => {
 export const initializeXRInputs = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
-  const session = Engine.xrManager.getSession()
+  const session = useEngine().xrManager.getSession()
   const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
   const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
 

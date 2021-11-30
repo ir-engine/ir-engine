@@ -1,5 +1,5 @@
 import { MathUtils, Quaternion, Vector3 } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -36,13 +36,13 @@ export const BotHookFunctions = {
 }
 
 export function initializeBot() {
-  Engine.isBot = true
+  useEngine().isBot = true
 }
 
 // === ENGINE === //
 
 export function locationLoaded() {
-  return Engine.hasJoinedWorld
+  return useEngine().hasJoinedWorld
 }
 
 export function getPlayerPosition() {

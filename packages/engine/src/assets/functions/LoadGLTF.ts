@@ -1,5 +1,5 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { createGLTFLoader } from './createGLTFLoader'
 import { instanceGLTF } from './transformGLTF'
 
@@ -151,7 +151,7 @@ const _shadow = (light, lightData) => {
 }
 
 const _directional = (obj) => {
-  if (!Engine.csm) return // currently this breaks CSM
+  if (!useEngine().csm) return // currently this breaks CSM
   const lightData = obj.userData.gltfExtensions.MOZ_hubs_components['directional-light']
   const light = new DirectionalLight(lightData.color, lightData.intensity)
   _shadow(light, lightData)

@@ -9,7 +9,7 @@ import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/Lo
 //import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'
 import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 const EmoteMenu = (props: any): any => {
   const MAX_EMOTE_PER_PAGE = 6
@@ -120,7 +120,7 @@ const EmoteMenu = (props: any): any => {
   }
 
   const runAnimation = (animationName: string, params: WeightsParameterType) => {
-    const entity = Engine.defaultWorld.entities.find((e) => hasComponent(e, LocalInputTagComponent))
+    const entity = useEngine().defaultWorld.entities.find((e) => hasComponent(e, LocalInputTagComponent))
 
     AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
 

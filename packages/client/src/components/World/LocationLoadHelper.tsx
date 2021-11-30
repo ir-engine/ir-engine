@@ -5,7 +5,7 @@ import { LocationService } from '@xrengine/client-core/src/social/services/Locat
 import { store, useDispatch } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
@@ -87,7 +87,7 @@ const createOfflineUser = (sceneData: SceneJson) => {
   world.hostId = userId as any
 
   // it is needed by AvatarSpawnSystem
-  Engine.userId = userId
+  useEngine().userId = userId
   // Replicate the server behavior
   dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }) as any)
   dispatchLocal(NetworkWorldAction.spawnAvatar({ userId, parameters }) as any)
@@ -113,7 +113,7 @@ export const loadLocation = async (sceneName: string, initOptions: InitializeOpt
   }
 
   // 2. Initialize Engine if not initialized
-  if (!Engine.isInitialized) {
+  if (!useEngine().isInitialized) {
     await initEngine(initOptions)
   }
 

@@ -18,7 +18,7 @@ import {
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MediaStreamService } from '../media/services/MediaStreamService'
 import { EngineAction } from '../world/services/EngineService'
 import { useDispatch } from '../store'
@@ -182,7 +182,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         return
       }
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest
-      const payload = { userId: Engine.userId, accessToken: Network.instance.accessToken }
+      const payload = { userId: useEngine().userId, accessToken: Network.instance.accessToken }
 
       const { success } = await new Promise<any>((resolve) => {
         const interval = setInterval(async () => {
@@ -238,7 +238,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         const actions = message as any as Required<Action>[]
         // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
         for (const a of actions) {
-          Engine.defaultWorld!.incomingActions.add(a)
+          useEngine().defaultWorld!.incomingActions.add(a)
         }
       })
 

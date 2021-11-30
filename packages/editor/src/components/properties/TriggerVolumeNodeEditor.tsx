@@ -8,7 +8,7 @@ import { Running } from '@styled-icons/fa-solid/Running'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 //Declaring TriggerVolumeNodeEditor properties
 type TriggerVolumeNodeEditorProps = {
@@ -34,7 +34,7 @@ export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => 
 
   useEffect(() => {
     const options = []
-    const sceneNode = Engine.scene
+    const sceneNode = useEngine().scene
     sceneNode.traverse((o: any) => {
       if (o.isNode && o !== sceneNode) {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })

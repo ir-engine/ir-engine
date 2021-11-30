@@ -21,7 +21,7 @@ import {
 } from '@xrengine/engine/src/input/functions/WebcamInput'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
@@ -73,7 +73,7 @@ const MediaIconsBox = (props) => {
   }, [])
 
   useEffect(() => {
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => setXRSupported(Engine.xrSupported))
+    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => setXRSupported(useEngine().xrSupported))
   }, [engineState.isInitialised.value])
 
   const handleFaceClick = async () => {
@@ -134,7 +134,7 @@ const MediaIconsBox = (props) => {
 
   const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_START })
 
-  const xrEnabled = Engine.xrSupported === true
+  const xrEnabled = useEngine()?.xrSupported === true
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
 

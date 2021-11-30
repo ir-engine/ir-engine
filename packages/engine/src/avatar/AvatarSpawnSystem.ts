@@ -9,7 +9,7 @@ import { World } from '../ecs/classes/World'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import matches from 'ts-matches'
 import { isClient } from '../common/functions/isClient'
-import { Engine } from '../ecs/classes/Engine'
+import { useEngine } from '../ecs/classes/Engine'
 import { AudioTagComponent } from '../audio/components/AudioTagComponent'
 import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
@@ -60,7 +60,7 @@ export default async function AvatarSpawnSystem(world: World): Promise<System> {
          * When changing location via a portal, the local client entity will be
          * defined when the new world dispatches this action, so ignore it
          */
-        if (Engine.userId === spawnAction.userId && hasComponent(world.localClientEntity, AvatarComponent)) {
+        if (useEngine().userId === spawnAction.userId && hasComponent(world.localClientEntity, AvatarComponent)) {
           return
         }
       }
@@ -69,7 +69,7 @@ export default async function AvatarSpawnSystem(world: World): Promise<System> {
         addComponent(entity, AudioTagComponent, {})
         addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
-        if (spawnAction.userId === Engine.userId) {
+        if (spawnAction.userId === useEngine().userId) {
           addComponent(entity, LocalInputTagComponent, {})
           addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
           addComponent(entity, PersistTagComponent, {})

@@ -8,7 +8,7 @@ import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { SpawnPoints } from './avatar/AvatarSpawnSystem'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
-import { Engine } from './ecs/classes/Engine'
+import { Engine, useEngine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
 import { reset } from './ecs/functions/EngineFunctions'
 import { registerInjectedSystems, registerSystem, registerSystemWithArgs } from './ecs/functions/SystemFunctions'
@@ -37,9 +37,9 @@ BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
 const configureClient = async (options: Required<InitializeOptions>) => {
   // https://bugs.chromium.org/p/chromium/issues/detail?id=1106389
-  Engine.audioListener = new AudioListener()
+  useEngine().audioListener = new AudioListener()
 
-  Engine.scene = new Scene()
+  useEngine().scene = new Scene()
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl')!
@@ -52,16 +52,16 @@ const configureClient = async (options: Required<InitializeOptions>) => {
       renderer: enableRenderer,
       physics: true
     })
-    Engine.hasJoinedWorld = true
+    useEngine().hasJoinedWorld = true
   })
 
   const canvas = document.querySelector('canvas')!
 
   if (options.scene.disabled !== true) {
-    Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-    Engine.camera.layers.set(ObjectLayers.Render)
-    Engine.scene.add(Engine.camera)
-    Engine.camera.add(Engine.audioListener)
+    useEngine().camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
+    useEngine().camera.layers.set(ObjectLayers.Render)
+    useEngine().scene.add(useEngine().camera)
+    useEngine().camera.add(useEngine().audioListener)
     addClientInputListeners(canvas)
   }
 
@@ -76,15 +76,15 @@ const configureClient = async (options: Required<InitializeOptions>) => {
 }
 
 const configureEditor = async (options: Required<InitializeOptions>) => {
-  Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-  Engine.camera.layers.enable(ObjectLayers.Scene)
-  Engine.camera.name = 'Camera'
+  useEngine().camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
+  useEngine().camera.layers.enable(ObjectLayers.Scene)
+  useEngine().camera.name = 'Camera'
 
   await registerEditorSystems(options)
 }
 
 const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
-  Engine.scene = new Scene()
+  useEngine().scene = new Scene()
 
   // Had to add this to make mocha tests pass
   Network.instance ||= new Network()
@@ -93,7 +93,7 @@ const configureServer = async (options: Required<InitializeOptions>, isMediaServ
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     console.log('joined world')
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true })
-    Engine.hasJoinedWorld = true
+    useEngine().hasJoinedWorld = true
   })
 
   if (!isMediaServer) {
@@ -266,9 +266,9 @@ const registerMediaServerSystems = async (options: Required<InitializeOptions>) 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
-  Engine.currentWorld = sceneWorld
+  useEngine().currentWorld = sceneWorld
 
-  Engine.publicPath = options.publicPath
+  useEngine().publicPath = options.publicPath
 
   // Browser state set
   if (options.type !== EngineSystemPresets.SERVER && globalThis.navigator && globalThis.window) {
@@ -282,8 +282,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
     ;(window as any).safariWebBrowser = browser?.name === 'safari'
 
-    Engine.isHMD = /Oculus/i.test(navigator.userAgent) // TODO: more HMDs;
-    Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
+    useEngine().isHMD = /Oculus/i.test(navigator.userAgent) // TODO: more HMDs;
+    useEngine().xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
   }
 
   // Config Engine based on passed type
@@ -302,22 +302,22 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   await sceneWorld.initSystems()
 
   const executeWorlds = (delta, elapsedTime) => {
-    for (const world of Engine.worlds) {
-      Engine.currentWorld = world
+    for (const world of useEngine().worlds) {
+      useEngine().currentWorld = world
       world.execute(delta, elapsedTime)
     }
-    Engine.currentWorld = null
+    useEngine().currentWorld = null
   }
 
-  Engine.engineTimer = Timer(executeWorlds)
+  useEngine().engineTimer = Timer(executeWorlds)
 
   // Engine type specific post configuration work
   if (options.type === EngineSystemPresets.CLIENT) {
     EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
-      Engine.engineTimer.start()
+      useEngine().engineTimer.start()
     })
     const onUserEngage = () => {
-      Engine.hasEngaged = true
+      useEngine().hasEngaged = true
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE })
       ;['click', 'touchstart', 'touchend', 'pointerdown'].forEach((type) => {
         window.addEventListener(type, onUserEngage)
@@ -329,28 +329,28 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
       Network.instance.isInitialized = true
-      Engine.userId = id
+      useEngine().userId = id
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
-    Engine.userId = 'server' as UserId
-    Engine.engineTimer.start()
+    useEngine().userId = 'server' as UserId
+    useEngine().engineTimer.start()
   } else if (options.type === EngineSystemPresets.MEDIA) {
-    Engine.userId = 'mediaserver' as UserId
-    Engine.engineTimer.start()
+    useEngine().userId = 'mediaserver' as UserId
+    useEngine().engineTimer.start()
   } else if (options.type === EngineSystemPresets.EDITOR) {
-    Engine.userId = 'editor' as UserId
+    useEngine().userId = 'editor' as UserId
   }
 
   // Mark engine initialized
-  Engine.isInitialized = true
+  useEngine().isInitialized = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
 }
 
 export const shutdownEngine = async () => {
   removeClientInputListeners()
 
-  Engine.engineTimer?.clear()
-  Engine.engineTimer = null!
+  useEngine().engineTimer?.clear()
+  useEngine().engineTimer = null!
 
   await reset()
 }

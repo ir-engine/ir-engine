@@ -1,5 +1,5 @@
 import i18n from 'i18next'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Command, { CommandParams } from './Command'
 import { serializeObject3D } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
@@ -101,14 +101,14 @@ export default class AddObjectCommand extends Command {
         } else {
           parent.add(object)
         }
-      } else if (object !== Engine.scene) {
-        Engine.scene.add(object)
+      } else if (object !== useEngine().scene) {
+        useEngine().scene.add(object)
       }
 
       object.traverse((child) => {
         if (child.isNode) {
           if (this.useUniqueName) {
-            makeUniqueName(Engine.scene, child)
+            makeUniqueName(useEngine().scene, child)
           }
 
           child.onAdd()

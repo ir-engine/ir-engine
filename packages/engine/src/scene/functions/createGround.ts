@@ -4,7 +4,7 @@ import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctio
 import { createCollider } from '../../physics/functions/createCollider'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { MapAction, mapReducer } from '../../map/MapReceptor'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { getPhases, startPhases } from '../../map/functions/PhaseFunctions'
@@ -42,7 +42,7 @@ export const createGround = async function (entity: Entity, args: GroundProps, i
   if (isClient && args.generateNavmesh === true) {
     const navigationRaycastTarget = new Group()
     navigationRaycastTarget.scale.setScalar(getComponent(entity, TransformComponent).scale.x)
-    Engine.scene.add(navigationRaycastTarget)
+    useEngine().scene.add(navigationRaycastTarget)
     addComponent(entity, NavMeshComponent, {
       navTarget: navigationRaycastTarget
     })

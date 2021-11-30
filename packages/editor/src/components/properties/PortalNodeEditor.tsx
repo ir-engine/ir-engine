@@ -13,7 +13,7 @@ import NodeEditor from './NodeEditor'
 import { CommandManager } from '../../managers/CommandManager'
 import { client } from '@xrengine/client-core/src/feathers'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 type PortalNodeEditorProps = {
   node?: PortalNode
@@ -142,8 +142,8 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
       </InputGroup>
       <InputGroup name="Cubemap Bake" label={t('editor:properties.portal.lbl-cubemapBake')}>
         <SelectInput
-          options={Engine.scene.children
-            .filter((obj: Object3D) => {
+          options={useEngine()
+            .scene.children.filter((obj: Object3D) => {
               return (obj as any).nodeName === CubemapBakeNode.nodeName
             })
             .map((obj: Object3D) => {

@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from 'three'
 // import { Component } from '../../ecs/classes/Component'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 // import IKObj from './IKObj'
 /*
@@ -44,7 +44,7 @@ class PointsComponent extends Component<PointsComponent> {
       obj = getComponent(this.entity, IKObj)
     }
     obj.setReference(this.mesh)
-    Engine.scene.add(obj.ref)
+    useEngine().scene.add(obj.ref)
     return this
   }
 

@@ -10,7 +10,7 @@ import {
   Vector3
 } from 'three'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -118,7 +118,7 @@ export class WorldScene {
           const world = useWorld()
           dispatchFrom(world.hostId, () =>
             NetworkWorldAction.spawnObject({
-              userId: Engine.userId,
+              userId: useEngine().userId,
               prefab: '',
               parameters: {
                 // TODO: Find a better way to pass scene data to network spawned objects?
@@ -139,7 +139,7 @@ export class WorldScene {
     return Promise.all(this.loaders)
       .then(() => {
         WorldScene.isLoading = false
-        Engine.sceneLoaded = true
+        useEngine().sceneLoaded = true
 
         configureCSM(sceneProperty.directionalLights, !sceneProperty.isCSMEnabled)
 
@@ -173,7 +173,7 @@ export class WorldScene {
     const world = useWorld()
     switch (name) {
       case 'mtdata':
-        //if (isClient && Engine.isBot) {
+        //if (isClient && useEngine().isBot) {
         const { meta_data } = component.data
 
         world.sceneMetadata = meta_data
@@ -187,7 +187,7 @@ export class WorldScene {
           addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
           const transform = getComponent(entity, TransformComponent)
 
-          // if (isClient && Engine.isBot) {
+          // if (isClient && useEngine().isBot) {
           const { _data } = component.data
           const { x, y, z } = transform.position
           world.worldMetadata[_data] = x + ',' + y + ',' + z
@@ -224,7 +224,7 @@ export class WorldScene {
         break
 
       case 'simple-materials':
-        Engine.simpleMaterials = component.data.simpleMaterials
+        useEngine().simpleMaterials = component.data.simpleMaterials
         break
 
       case 'gltf-model':
@@ -336,8 +336,8 @@ export class WorldScene {
 
       case 'scene-preview-camera':
         addComponent(entity, ScenePreviewCameraTagComponent, {})
-        if (isClient && Engine.activeCameraEntity) {
-          addComponent(Engine.activeCameraEntity, CopyTransformComponent, { input: entity })
+        if (isClient && useEngine().activeCameraEntity) {
+          addComponent(useEngine().activeCameraEntity, CopyTransformComponent, { input: entity })
         }
         break
 
@@ -425,8 +425,8 @@ export class WorldScene {
       case 'cameraproperties':
         if (isClient) {
           matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
-            if (spawnAction.userId === Engine.userId) {
-              setCameraProperties(Engine.defaultWorld.localClientEntity, component.data)
+            if (spawnAction.userId === useEngine().userId) {
+              setCameraProperties(useEngine().defaultWorld.localClientEntity, component.data)
               return true
             }
             return false

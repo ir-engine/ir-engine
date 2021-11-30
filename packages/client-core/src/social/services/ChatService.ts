@@ -13,7 +13,7 @@ import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
 import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
 import {
@@ -385,21 +385,26 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const { message } = params
     if (message != undefined && message.text != undefined) {
       if (isPlayerLocal(message.senderId)) {
-        if (handleCommand(message.text, Engine.defaultWorld.localClientEntity, message.senderId)) return
+        if (handleCommand(message.text, useEngine().defaultWorld.localClientEntity, message.senderId)) return
         else {
           const system = getChatMessageSystem(message.text)
           if (system !== 'none') {
             message.text = removeMessageSystem(message.text)
-            if (!isBot(window) && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
+            if (!isBot(window) && !useEngine().isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
           }
         }
       } else {
         const system = getChatMessageSystem(message.text)
         if (system !== 'none') {
           message.text = removeMessageSystem(message.text)
-          if (!isBot(window) && !Engine.isBot && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system))
+          if (
+            !isBot(window) &&
+            !useEngine().isBot &&
+            !useEngine().isBot &&
+            !hasSubscribedToChatSystem(selfUser.id, system)
+          )
             return
-        } else if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
+        } else if (isCommand(message.text) && !useEngine().isBot && !isBot(window)) return
       }
     }
 

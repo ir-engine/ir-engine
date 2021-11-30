@@ -1,5 +1,5 @@
 import { World } from '../../ecs/classes/World'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
@@ -22,7 +22,7 @@ export default async function TriggerSystem(world: World): Promise<System> {
 
       if (getComponent(triggerEntity, PortalComponent)) {
         const portalComponent = getComponent(triggerEntity, PortalComponent)
-        if (Engine.defaultWorld.isInPortal) continue
+        if (useEngine().defaultWorld.isInPortal) continue
         EngineEvents.instance.dispatchEvent({
           type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
           portalComponent
@@ -42,7 +42,7 @@ export default async function TriggerSystem(world: World): Promise<System> {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object
       } else {
-        targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
+        targetObj = useEngine().scene.getObjectByProperty('sceneEntityId', args.target) as any
         if (targetObj) {
           sceneEntityCaches.push({
             target: args.target,
@@ -74,7 +74,7 @@ export default async function TriggerSystem(world: World): Promise<System> {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object
       } else {
-        targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
+        targetObj = useEngine().scene.getObjectByProperty('sceneEntityId', args.target) as any
         if (targetObj) {
           sceneEntityCaches.push({
             target: args.target,

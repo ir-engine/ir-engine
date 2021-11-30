@@ -1,5 +1,5 @@
 import i18n from 'i18next'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Command, { CommandParams } from './Command'
 import { serializeObject3DArray } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
@@ -36,7 +36,7 @@ export default class RemoveObjectsCommand extends Command {
     }
 
     // Sort objects, parents, and befores with a depth first search so that undo adds nodes in the correct order
-    Engine.scene.traverse((object) => {
+    useEngine().scene.traverse((object) => {
       if (objects.indexOf(object) !== -1) {
         this.affectedObjects.push(object)
         this.oldParents.push(object.parent)

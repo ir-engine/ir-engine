@@ -25,7 +25,7 @@ import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import isEmptyObject from '../functions/isEmptyObject'
 import { ControlManager } from './ControlManager'
 import resizeShadowCameraFrustum from '../functions/resizeShadowCameraFrustum'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -81,14 +81,14 @@ export class SceneManager {
     this.raycaster = new Raycaster()
 
     this.audioListener = new AudioListener()
-    Engine.camera.add(this.audioListener)
+    useEngine().camera.add(this.audioListener)
 
     this.centerScreenSpace = new Vector2()
     this.disableUpdate = true
 
     // Empty existing scene
-    if (Engine.scene) {
-      Engine.scene.traverse((child: any) => {
+    if (useEngine().scene) {
+      useEngine().scene.traverse((child: any) => {
         if (child.isNode) {
           child.onRemove()
           if (!NodeManager.instance.remove(child)) {
@@ -111,17 +111,17 @@ export class SceneManager {
         }
       })
 
-      Engine.scene = null
+      useEngine().scene = null
     }
 
-    NodeManager.instance.nodes = [Engine.scene]
+    NodeManager.instance.nodes = [useEngine().scene]
 
     // getting scene data
     const [scene, error] = await SceneNode.loadProject(projectFile)
     if (scene === null) throw new Error('Scene data is null, please create a new scene.')
 
-    Engine.camera.position.set(0, 5, 10)
-    Engine.camera.lookAt(new Vector3())
+    useEngine().camera.position.set(0, 5, 10)
+    useEngine().camera.lookAt(new Vector3())
 
     this.grid = new EditorInfiniteGridHelper()
     this.transformGizmo = new TransformGizmo()
@@ -130,9 +130,9 @@ export class SceneManager {
     this.cameraEntity = createCameraEntity()
     this.editorEntity = createEditorEntity()
 
-    Engine.scene.add(Engine.camera)
-    Engine.scene.add(this.grid)
-    Engine.scene.add(this.transformGizmo)
+    useEngine().scene.add(useEngine().camera)
+    useEngine().scene.add(this.grid)
+    useEngine().scene.add(this.transformGizmo)
 
     this.sceneModified = false
 
@@ -158,10 +158,10 @@ export class SceneManager {
     try {
       this.disableUpdate = false
 
-      if (!Engine.renderer) {
+      if (!useEngine().renderer) {
         new EngineRenderer({ canvas, enabled: true })
         EngineRenderer.instance.automatic = false
-        Engine.engineTimer.start()
+        useEngine().engineTimer.start()
       }
 
       ControlManager.instance.initControls()
@@ -176,12 +176,12 @@ export class SceneManager {
       //   shadowMapSize: 2048,
       //   maxFar: 100,
       //   camera: camera,
-      //   parent: Engine.scene
+      //   parent: useEngine().scene
       // });
       // csm.fade = true;
-      // Engine.csm = csm;
+      // useEngine().csm = csm;
 
-      Engine.scene.traverse((node: any) => {
+      useEngine().scene.traverse((node: any) => {
         if (!node.isNode) return
 
         if (node.name === 'post processing') this.postProcessingNode = node
@@ -208,14 +208,18 @@ export class SceneManager {
    */
   async takeScreenshot(width?: number, height?: number) {
     const { screenshotRenderer } = this
-    const sceneNode = Engine.scene as any as SceneNode
-    const originalRenderer = Engine.renderer
-    Engine.renderer = screenshotRenderer
+    const sceneNode = useEngine().scene as any as SceneNode
+    const originalRenderer = useEngine().renderer
+    useEngine().renderer = screenshotRenderer
     this.disableUpdate = true
     let scenePreviewCamera = sceneNode.findNodeByType(ScenePreviewCameraNode)
     if (!scenePreviewCamera) {
       scenePreviewCamera = new ScenePreviewCameraNode()
-      Engine.camera.matrix.decompose(scenePreviewCamera.position, scenePreviewCamera.rotation, scenePreviewCamera.scale)
+      useEngine().camera.matrix.decompose(
+        scenePreviewCamera.position,
+        scenePreviewCamera.rotation,
+        scenePreviewCamera.scale
+      )
       CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, [scenePreviewCamera])
     }
     const prevAspect = scenePreviewCamera.aspect
@@ -223,19 +227,19 @@ export class SceneManager {
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.disable(ObjectLayers.Scene)
     screenshotRenderer.setSize(width, height, true)
-    screenshotRenderer.render(Engine.scene as any, scenePreviewCamera)
+    screenshotRenderer.render(useEngine().scene as any, scenePreviewCamera)
     const blob = await getCanvasBlob(screenshotRenderer.domElement)
     scenePreviewCamera.aspect = prevAspect
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.enable(ObjectLayers.Scene)
     this.disableUpdate = false
-    Engine.renderer = originalRenderer
+    useEngine().renderer = originalRenderer
     return blob
   }
 
   enableShadows(status: boolean): void {
-    Engine.renderer.shadowMap.enabled = status
-    Engine.scene.traverse((object: any) => {
+    useEngine().renderer.shadowMap.enabled = status
+    useEngine().scene.traverse((object: any) => {
       if (object.setShadowsEnabled) {
         object.setShadowsEnabled(this.enableShadows)
       }
@@ -245,7 +249,7 @@ export class SceneManager {
   changeRenderMode(mode: RenderModesType) {
     this.renderMode = mode
 
-    const passes = Engine.effectComposer?.passes.filter((p) => p.name === 'RenderPass')
+    const passes = useEngine().effectComposer?.passes.filter((p) => p.name === 'RenderPass')
     const renderPass = passes ? passes[0] : undefined
 
     if (!renderPass) return
@@ -343,7 +347,7 @@ export class SceneManager {
     const newPosition = new Vector3()
     this.getCursorSpawnPosition(mousePos, newPosition)
     CommandManager.instance.executeCommand(EditorCommands.REPARENT, objects, {
-      parents: Engine.scene,
+      parents: useEngine().scene,
       positions: newPosition
     })
   }
@@ -357,7 +361,7 @@ export class SceneManager {
    * @returns
    */
   getCursorSpawnPosition(mousePos, target) {
-    const rect = Engine.renderer.domElement.getBoundingClientRect()
+    const rect = useEngine().renderer.domElement.getBoundingClientRect()
     const position = new Vector2()
     position.x = ((mousePos.x - rect.left) / rect.width) * 2 - 1
     position.y = ((mousePos.y - rect.top) / rect.height) * -2 + 1
@@ -406,7 +410,7 @@ export class SceneManager {
 
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
 
-    const scene = Engine.scene
+    const scene = useEngine().scene
 
     const clonedScene = cloneObject3D(scene, true)
     const animations = clonedScene.getAnimationClips()
@@ -493,9 +497,9 @@ export class SceneManager {
   update = (delta: number, time: number) => {
     if (this.disableUpdate) return
 
-    Engine.scene.traverse((node: any) => {
-      if (Engine.renderer.shadowMap.enabled && node.isDirectionalLight) {
-        resizeShadowCameraFrustum(node, Engine.scene)
+    useEngine().scene.traverse((node: any) => {
+      if (useEngine().renderer.shadowMap.enabled && node.isDirectionalLight) {
+        resizeShadowCameraFrustum(node, useEngine().scene)
       }
 
       if (node.isNode) {
@@ -507,7 +511,7 @@ export class SceneManager {
   }
 
   updateOutlinePassSelection(): any[] {
-    if (!Engine.effectComposer || !Engine.effectComposer[Effects.OutlineEffect]) return
+    if (!useEngine().effectComposer || !useEngine().effectComposer[Effects.OutlineEffect]) return
 
     const meshes = []
     for (let i = 0; i < CommandManager.instance.selectedTransformRoots.length; i++) {
@@ -522,7 +526,7 @@ export class SceneManager {
       })
     }
 
-    Engine.effectComposer[Effects.OutlineEffect].selection.set(meshes)
+    useEngine().effectComposer[Effects.OutlineEffect].selection.set(meshes)
     return meshes
   }
 
@@ -530,9 +534,9 @@ export class SceneManager {
     if (this.cameraEntity) removeEntity(this.cameraEntity)
     if (this.gizmoEntity) removeEntity(this.gizmoEntity)
     if (this.editorEntity) removeEntity(this.editorEntity)
-    Engine.renderer?.dispose()
+    useEngine().renderer?.dispose()
     this.screenshotRenderer?.dispose()
-    Engine.effectComposer?.dispose()
+    useEngine().effectComposer?.dispose()
     CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
   }
 }

@@ -2,7 +2,7 @@ import { AmbientLight, PerspectiveCamera } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -23,9 +23,9 @@ export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
   handleNewScene: () => void
 ) => {
-  Engine.defaultWorld!.isInPortal = true
+  useEngine().defaultWorld!.isInPortal = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
-  Engine.hasJoinedWorld = false
+  useEngine().hasJoinedWorld = false
 
   const world = useWorld()
 
@@ -48,13 +48,13 @@ export const teleportToScene = async (
 
   const light = new AmbientLight('#aaa')
   light.layers.enable(ObjectLayers.Portal)
-  Engine.scene.add(light)
+  useEngine().scene.add(light)
 
-  Engine.scene.add(hyperspaceEffect)
+  useEngine().scene.add(hyperspaceEffect)
 
   // TODO add an ECS thing somewhere to update this properly
   const { delta } = world
-  const camera = Engine.scene.getObjectByProperty('isPerspectiveCamera', true as any) as PerspectiveCamera
+  const camera = useEngine().scene.getObjectByProperty('isPerspectiveCamera', true as any) as PerspectiveCamera
   camera.zoom = 1.5
   const hyperSpaceUpdateInterval = setInterval(() => {
     hyperspaceEffect.update(delta)
@@ -68,10 +68,10 @@ export const teleportToScene = async (
     }
   }, delta * 1000)
 
-  Engine.scene.background = null
-  Engine.camera.layers.enable(ObjectLayers.Portal)
-  Engine.camera.layers.enable(ObjectLayers.Avatar)
-  Engine.camera.layers.disable(ObjectLayers.Scene)
+  useEngine().scene.background = null
+  useEngine().camera.layers.enable(ObjectLayers.Portal)
+  useEngine().camera.layers.enable(ObjectLayers.Avatar)
+  useEngine().camera.layers.disable(ObjectLayers.Scene)
 
   setObjectLayers(playerObj.value, ObjectLayers.Render, ObjectLayers.Avatar)
 
@@ -82,7 +82,7 @@ export const teleportToScene = async (
   await handleNewScene()
 
   await new Promise<void>((resolve) => {
-    Engine.hasJoinedWorld = true
+    useEngine().hasJoinedWorld = true
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, resolve)
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
   })
@@ -105,7 +105,7 @@ export const teleportToScene = async (
 
   await delay(250)
 
-  Engine.camera.layers.enable(ObjectLayers.Scene)
+  useEngine().camera.layers.enable(ObjectLayers.Scene)
   light.removeFromParent()
   light.dispose()
 
@@ -113,12 +113,12 @@ export const teleportToScene = async (
 
   setObjectLayers(playerObj.value, ObjectLayers.Render, ObjectLayers.Scene)
 
-  Engine.camera.layers.disable(ObjectLayers.Portal)
-  Engine.camera.layers.disable(ObjectLayers.Avatar)
+  useEngine().camera.layers.disable(ObjectLayers.Portal)
+  useEngine().camera.layers.disable(ObjectLayers.Avatar)
 
   hyperspaceEffect.removeFromParent()
 
   clearInterval(hyperSpaceUpdateInterval)
 
-  Engine.defaultWorld!.isInPortal = false
+  useEngine().defaultWorld!.isInPortal = false
 }

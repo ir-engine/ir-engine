@@ -1,4 +1,4 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -19,7 +19,7 @@ export default async function GizmoSystem(_: World): Promise<System> {
       const gizmoObj = getComponent(entity, Object3DComponent)?.value as TransformGizmo
       if (!gizmoObj || !gizmoObj.visible) return
 
-      const eyeDistance = gizmoObj.position.distanceTo(Engine.camera.position) / GIZMO_SIZE
+      const eyeDistance = gizmoObj.position.distanceTo(useEngine().camera.position) / GIZMO_SIZE
       gizmoObj.scale.set(eyeDistance, eyeDistance, eyeDistance)
     }
   }

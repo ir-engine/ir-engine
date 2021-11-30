@@ -11,7 +11,7 @@ import InteractableGroup from '../inputs/InteractableGroup'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import SceneNode from '../../nodes/SceneNode'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import ModelInput from '../inputs/ModelInput'
 
 /**
@@ -37,7 +37,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
 
   useEffect(() => {
     const options = []
-    const sceneNode = Engine.scene as any as SceneNode
+    const sceneNode = useEngine().scene as any as SceneNode
     sceneNode.traverse((o) => {
       if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
@@ -158,7 +158,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
         </InputGroup> */}
       <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
         <SelectInput
-          options={Engine.scene.children.map((obj: Object3D) => {
+          options={useEngine().scene.children.map((obj: Object3D) => {
             return {
               label: obj.name,
               value: obj.uuid

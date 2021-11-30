@@ -1,4 +1,4 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
@@ -35,6 +35,7 @@ export const NetworkDebug = ({ reinit }) => {
   // Add event listeners
   useEffect(() => {
     setupListener()
+    console.log('network debug')
     const interval = setInterval(() => {
       setRemountCount(Math.random())
     }, 1000)
@@ -71,7 +72,7 @@ export const NetworkDebug = ({ reinit }) => {
   }
 
   const renderComps = () => {
-    const entity = Engine.defaultWorld.entities
+    const entity = useEngine().defaultWorld.entities
     const comps = {}
     entity.forEach((e) => {
       // getAllC e.componentTypes.forEach((ct) => {
@@ -90,7 +91,7 @@ export const NetworkDebug = ({ reinit }) => {
 
   const renderEntities = () => {
     const map = {}
-    Engine.defaultWorld.entities.forEach((e) => {
+    useEngine().defaultWorld.entities.forEach((e) => {
       map[e] = e
     })
     return map
@@ -133,7 +134,7 @@ export const NetworkDebug = ({ reinit }) => {
             </div>
             <div>
               <h1>Network Clients</h1>
-              <JSONTree data={{ ...Engine.defaultWorld.clients }} />
+              <JSONTree data={{ ...useEngine().defaultWorld.clients }} />
             </div>
             <div>
               <h1>Engine Entities</h1>

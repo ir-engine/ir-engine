@@ -5,7 +5,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import { HandPaper } from '@styled-icons/fa-solid/HandPaper'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from '../../nodes/SceneNode'
 
 type BoxColliderNodeEditorProps = {
@@ -25,7 +25,7 @@ export const BoxColliderNodeEditor = (props: BoxColliderNodeEditorProps) => {
 
   useEffect(() => {
     const options = []
-    const sceneNode = Engine.scene as any as SceneNode
+    const sceneNode = useEngine().scene as any as SceneNode
     sceneNode.traverse((o) => {
       if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
         options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })

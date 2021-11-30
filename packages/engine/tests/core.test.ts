@@ -2,7 +2,7 @@
  * tests
  */
 import { initializeEngine, shutdownEngine } from '../src/initializeEngine'
-import { Engine } from '../src/ecs/classes/Engine'
+import { useEngine } from '../src/ecs/classes/Engine'
 import { engineTestSetup } from './util/setupEngine'
 import assert from 'assert'
 
@@ -17,12 +17,12 @@ describe('Core', () => {
   describe('Initialise Engine', () => {
     it('Can initialise engine', async () => {
       await initializeEngine(engineTestSetup)
-      assert.equal(Engine.isInitialized, true)
+      assert.equal(useEngine().isInitialized, true)
     })
 
     it('Can shutdown engine', async () => {
       await shutdownEngine()
-      assert.equal(Engine.isInitialized, false)
+      assert.equal(useEngine().isInitialized, false)
     })
   })
 

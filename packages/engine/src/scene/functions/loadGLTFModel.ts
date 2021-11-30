@@ -1,7 +1,7 @@
 import { AnimationMixer, BufferGeometry, MathUtils, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -126,7 +126,7 @@ export const parseGLTFModel = (
       const navMesh = new YUKA.NavMesh()
       navMesh.fromPolygons(polygons)
       // const helper = createConvexRegionHelper(navMesh)
-      // Engine.scene.add(helper)
+      // useEngine().scene.add(helper)
 
       console.log('navMesh', navMesh)
       addComponent(entity, NavMeshComponent, {
@@ -157,7 +157,7 @@ export const parseGLTFModel = (
     // the scene load event + delay 1 second delay works for now.
     EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
       await delay(1000)
-      const objToCopy = Engine.scene.children.find((obj: any) => {
+      const objToCopy = useEngine().scene.children.find((obj: any) => {
         return obj.sceneEntityId === component.data.textureOverride
       })
       if (objToCopy)

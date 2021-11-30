@@ -5,7 +5,7 @@ import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarCo
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -30,10 +30,10 @@ export default async function AvatarUISystem(world: World): Promise<System> {
       const userTransform = getComponent(userEntity, TransformComponent)
       const xrui = getComponent(ui.entity, XRUIComponent)
       if (!xrui) return
-      xrui.layer.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
+      xrui.layer.scale.setScalar(Math.max(1, useEngine().camera.position.distanceTo(userTransform.position) / 3))
       xrui.layer.position.copy(userTransform.position)
       xrui.layer.position.y += avatarHeight + 0.3
-      xrui.layer.rotation.setFromRotationMatrix(Engine.camera.matrix)
+      xrui.layer.rotation.setFromRotationMatrix(useEngine().camera.matrix)
     }
 
     for (const userEntity of userQuery.exit()) {

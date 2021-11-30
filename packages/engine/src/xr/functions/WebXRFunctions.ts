@@ -1,4 +1,4 @@
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -28,7 +28,7 @@ const assignControllerAndGrip = (xrManager, controller, grip, i): void => {
  */
 
 export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
-  const xrm = Engine.xrManager
+  const xrm = useEngine().xrManager
   const session = xrm.getSession()
 
   for (let i = 0; i < 2; i++) {
@@ -58,8 +58,8 @@ export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
 export const startWebXR = (): void => {
   const container = new Group()
 
-  Engine.scene.remove(Engine.camera)
-  container.add(Engine.camera)
+  useEngine().scene.remove(useEngine().camera)
+  container.add(useEngine().camera)
   const head = new Group()
 
   const world = useWorld()
@@ -76,8 +76,8 @@ export const startWebXR = (): void => {
   }
 
   // Default mapping
-  assignControllerAndGrip(Engine.xrManager, inputData.controllerLeft, inputData.controllerGripLeft, 0)
-  assignControllerAndGrip(Engine.xrManager, inputData.controllerRight, inputData.controllerGripRight, 1)
+  assignControllerAndGrip(useEngine().xrManager, inputData.controllerLeft, inputData.controllerGripLeft, 0)
+  assignControllerAndGrip(useEngine().xrManager, inputData.controllerRight, inputData.controllerGripRight, 1)
 
   // Map input sources
   // Sometimes the input sources are not available immidiately
@@ -88,7 +88,7 @@ export const startWebXR = (): void => {
   addComponent(world.localClientEntity, XRInputSourceComponent, inputData)
 
   bindXRHandEvents()
-  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ userId: Engine.userId, enabled: true }))
+  dispatchFrom(useEngine().userId, () => NetworkWorldAction.setXRMode({ userId: useEngine().userId, enabled: true }))
 }
 
 /**
@@ -97,15 +97,15 @@ export const startWebXR = (): void => {
  */
 
 export const endXR = (): void => {
-  Engine.xrSession.end()
-  Engine.xrSession = null!
-  Engine.xrManager.setSession(null)
-  Engine.scene.add(Engine.camera)
+  useEngine().xrSession.end()
+  useEngine().xrSession = null!
+  useEngine().xrManager.setSession(null)
+  useEngine().scene.add(useEngine().camera)
 
   addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
   removeComponent(useWorld().localClientEntity, XRInputSourceComponent)
 
-  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ userId: Engine.userId, enabled: false }))
+  dispatchFrom(useEngine().userId, () => NetworkWorldAction.setXRMode({ userId: useEngine().userId, enabled: false }))
 }
 
 /**
@@ -116,7 +116,7 @@ export const endXR = (): void => {
 
 export const bindXRHandEvents = () => {
   const world = useWorld()
-  const hands = [Engine.xrManager.getHand(0), Engine.xrManager.getHand(1)]
+  const hands = [useEngine().xrManager.getHand(0), useEngine().xrManager.getHand(1)]
   let eventSent = false
 
   hands.forEach((controller: any) => {
@@ -136,7 +136,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchFrom(Engine.userId, () => NetworkWorldAction.xrHandsConnected({ userId: Engine.userId }))
+        dispatchFrom(useEngine().userId, () => NetworkWorldAction.xrHandsConnected({ userId: useEngine().userId }))
         eventSent = true
       }
     })
@@ -246,14 +246,14 @@ export const getHandTransform = (
 export const getHeadTransform = (entity: Entity): { position: Vector3; rotation: Quaternion; scale: Vector3 } => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
-    Engine.camera.matrix.decompose(vec3, quat, v3)
+    useEngine().camera.matrix.decompose(vec3, quat, v3)
     return {
       position: vec3,
       rotation: quat,
       scale: uniformScale
     }
   }
-  const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(useEngine().activeCameraEntity, TransformComponent)
   return {
     position: cameraTransform.position,
     rotation: cameraTransform.rotation,

@@ -1,6 +1,6 @@
 
  import { initializeEngine, shutdownEngine } from '../../src/initializeEngine'
- import { Engine } from '../../src/ecs/classes/Engine'
+ import { useEngine } from '../../src/ecs/classes/Engine'
  import assert from 'assert'
 
 import { Network } from '../../src/networking/classes/Network'

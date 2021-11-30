@@ -24,96 +24,106 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
  * @author Shaw, Josh, Vyacheslav, Gheric and the XREngine Team
  */
 export class Engine {
+  static instance: Engine = null!
   /** The uuid of the logged-in user */
-  public static userId: UserId
+  userId: UserId
 
-  public static engineTimer: { start: Function; stop: Function; clear: Function } = null!
+  engineTimer: { start: Function; stop: Function; clear: Function } = null!
 
-  public static xrSupported = false
-  public static isBot = false
+  xrSupported = false
+  isBot = false
 
-  public static isHMD = false
+  isHMD = false
 
   /**
    * The default world
    */
-  public static defaultWorld: World = null!
+  defaultWorld: World = null!
 
   /**
    * The currently executing world
    */
-  public static currentWorld: World | null = null
+  currentWorld: World | null = null
 
   /**
    * All worlds that are currently instantiated
    */
-  public static worlds: World[] = []
+  worlds: World[] = []
 
   /**
    * Reference to the three.js renderer object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static renderer: WebGLRenderer = null!
-  static effectComposer: EffectComposerWithSchema = null!
-  static xrManager = null! as any
-  static xrSession: XRSession = null!
-  static csm: CSM = null!
+  renderer: WebGLRenderer = null!
+  effectComposer: EffectComposerWithSchema = null!
+  xrManager = null! as any
+  xrSession: XRSession = null!
+  csm: CSM = null!
   /**
    * Reference to the three.js scene object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static scene: Scene = null!
-  static sceneLoaded = false
+  scene: Scene = null!
+  sceneLoaded = false
 
   /**
    * Map of object lists by layer
    * (automatically updated by the SceneObjectSystem)
    */
-  static objectLayerList = {} as { [layer: number]: Set<Object3D> }
+  objectLayerList = {} as { [layer: number]: Set<Object3D> }
 
   /**
    * Reference to the three.js perspective camera object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static camera: PerspectiveCamera | OrthographicCamera = null!
-  static activeCameraEntity: Entity
-  static activeCameraFollowTarget: Entity | null
+  camera: PerspectiveCamera | OrthographicCamera = null!
+  activeCameraEntity: Entity
+  activeCameraFollowTarget: Entity | null
 
   /**
    * Reference to the audioListener.
    * This is a virtual listner for all positional and non-positional audio.
    */
-  static audioListener: any = null
+  audioListener: any = null
 
-  static inputState = new Map<any, InputValue>()
-  static prevInputState = new Map<any, InputValue>()
+  inputState = new Map<any, InputValue>()
+  prevInputState = new Map<any, InputValue>()
 
-  static isInitialized = false
+  isInitialized = false
 
-  static hasJoinedWorld = false
+  hasJoinedWorld = false
 
-  static publicPath: string
+  publicPath: string
 
-  static workers = [] as any[]
-  static simpleMaterials = false
+  workers = [] as any[]
+  simpleMaterials = false
 
-  static hasEngaged = false
-  static mouseInputEnabled = true
-  static keyboardInputEnabled = true
+  hasEngaged = false
+  mouseInputEnabled = true
+  keyboardInputEnabled = true
 
-  static xrFrame: XRFrame
+  xrFrame: XRFrame
+}
+
+export const createEngine = () => {
+  console.log('createEngine')
+  if (!Engine.instance) Engine.instance = new Engine()
+}
+
+export const useEngine = () => {
+  return Engine.instance
 }
 
 export const awaitEngineLoaded = (): Promise<void> => {
   return new Promise<void>((resolve) => {
-    if (Engine.isInitialized) resolve()
+    if (useEngine().isInitialized) resolve()
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
   })
 }
 
 export const awaitEngaged = (): Promise<void> => {
   return new Promise<void>((resolve) => {
-    if (Engine.hasEngaged) resolve()
+    if (useEngine().hasEngaged) resolve()
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, resolve)
   })
 }

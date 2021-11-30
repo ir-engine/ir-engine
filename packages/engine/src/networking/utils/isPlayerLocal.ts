@@ -1,5 +1,5 @@
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 
 export function isPlayerLocal(userId): boolean {
-  return Engine.userId === userId
+  return useEngine().userId === userId
 }

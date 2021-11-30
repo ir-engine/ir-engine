@@ -16,7 +16,7 @@ export const VideoProjection = {
   Flat: 'flat',
   Equirectangular360: '360-equirectangular'
 }
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import isDash from '../functions/isDash'
 
 export default class Video extends AudioSource {

@@ -7,7 +7,7 @@ import { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 import ModelNode from './ModelNode'
 import VideoNode from './VideoNode'
 import ImageNode from './ImageNode'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   static nodeName = 'Shopify'
@@ -59,7 +59,7 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
             // Using this to pass texture override uuid to event callback instead of creating a new variable
             node.extendNode.textureOverride = extend.textureOverride
             CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), () => {
-              Engine.scene.traverse((obj) => {
+              useEngine().scene.traverse((obj) => {
                 if (obj.uuid === node.extendNode.textureOverride) {
                   node.extendNode.textureOverride = obj.uuid
                 }

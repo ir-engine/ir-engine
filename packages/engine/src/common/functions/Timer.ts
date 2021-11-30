@@ -1,7 +1,7 @@
 import { isClient } from './isClient'
 import { nowMilliseconds } from './nowMilliseconds'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 
 type TimerUpdateCallback = (delta: number, elapsedTime: number) => any
 
@@ -37,7 +37,7 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
   let serverLoop
 
   function xrAnimationLoop(time, xrFrame) {
-    Engine.xrFrame = xrFrame
+    useEngine().xrFrame = xrFrame
     if (lastTime !== null) {
       delta = (time - lastTime) / 1000
       elapsedTime += delta
@@ -50,7 +50,7 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
     stop()
   })
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_SESSION, async (ev: any) => {
-    Engine.xrManager.setAnimationLoop(xrAnimationLoop)
+    useEngine().xrManager.setAnimationLoop(xrAnimationLoop)
   })
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async (ev: any) => {
     start()

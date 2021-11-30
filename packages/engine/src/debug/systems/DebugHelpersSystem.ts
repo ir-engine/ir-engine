@@ -14,7 +14,7 @@ import {
 } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
@@ -106,26 +106,26 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
       }
       // const arrowHelper = new ArrowHelper(avatar.viewVector.clone().normalize(), origin, length, hex)
       // arrowHelper.visible = avatarDebugEnabled
-      // Engine.scene.add(arrowHelper)
+      // useEngine().scene.add(arrowHelper)
       // helpersByEntity.viewVector.set(entity, arrowHelper)
 
       // velocity
       const velocityColor = 0x0000ff
       const velocityArrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, velocityColor)
       velocityArrowHelper.visible = avatarDebugEnabled
-      Engine.scene.add(velocityArrowHelper)
+      useEngine().scene.add(velocityArrowHelper)
       helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
     }
 
     for (const entity of avatarDebugQuery.exit()) {
       // view vector
       // const arrowHelper = helpersByEntity.viewVector.get(entity) as Object3D
-      // Engine.scene.remove(arrowHelper)
+      // useEngine().scene.remove(arrowHelper)
       // helpersByEntity.viewVector.delete(entity)
 
       // velocity
       const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as Object3D
-      Engine.scene.remove(velocityArrowHelper)
+      useEngine().scene.remove(velocityArrowHelper)
       helpersByEntity.velocityArrow.delete(entity)
     }
 
@@ -157,9 +157,9 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
       debugHead.visible = avatarDebugEnabled
       debugLeft.visible = avatarDebugEnabled
       debugRight.visible = avatarDebugEnabled
-      Engine.scene.add(debugHead)
-      Engine.scene.add(debugLeft)
-      Engine.scene.add(debugRight)
+      useEngine().scene.add(debugHead)
+      useEngine().scene.add(debugLeft)
+      useEngine().scene.add(debugRight)
       helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight])
     }
 
@@ -186,12 +186,12 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
     for (const entity of colliderQuery.exit()) {
       // view vector
       const arrowHelper = helpersByEntity.viewVector.get(entity) as Object3D
-      Engine.scene.remove(arrowHelper)
+      useEngine().scene.remove(arrowHelper)
       helpersByEntity.viewVector.delete(entity)
 
       // velocity
       const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as Object3D
-      Engine.scene.remove(velocityArrowHelper)
+      useEngine().scene.remove(velocityArrowHelper)
       helpersByEntity.velocityArrow.delete(entity)
     }
 
@@ -211,14 +211,14 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
         hex
       )
       arrowHelper.visible = avatarDebugEnabled
-      Engine.scene.add(arrowHelper)
+      useEngine().scene.add(arrowHelper)
       helpersByEntity.viewVector.set(entity, arrowHelper)
 
       // velocity
       const velocityColor = 0x0000ff
       const velocityArrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, velocityColor)
       velocityArrowHelper.visible = avatarDebugEnabled
-      Engine.scene.add(velocityArrowHelper)
+      useEngine().scene.add(velocityArrowHelper)
       helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
     }
 
@@ -262,14 +262,14 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
       }
       const helper = new Box3Helper(box3)
       helper.visible = physicsDebugEnabled
-      Engine.scene.add(helper)
+      useEngine().scene.add(helper)
       ;(helpersByEntity.box.get(entity) as Object3D[]).push(helper)
     }
 
     for (const entity of boundingBoxQuery.exit()) {
       const boxes = helpersByEntity.box.get(entity) as Object3D[]
       boxes.forEach((box) => {
-        Engine.scene.remove(box)
+        useEngine().scene.remove(box)
       })
       helpersByEntity.box.delete(entity)
     }
@@ -280,13 +280,13 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
       const arrow = getComponent(entity, DebugArrowComponent)
       const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, arrow.color)
       arrowHelper.visible = physicsDebugEnabled
-      Engine.scene.add(arrowHelper)
+      useEngine().scene.add(arrowHelper)
       helpersByEntity.helperArrow.set(entity, arrowHelper)
     }
 
     for (const entity of arrowHelperQuery.exit()) {
       const arrowHelper = helpersByEntity.helperArrow.get(entity) as Object3D
-      Engine.scene.remove(arrowHelper)
+      useEngine().scene.remove(arrowHelper)
       helpersByEntity.helperArrow.delete(entity)
     }
 
@@ -310,7 +310,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
       helper.add(convexHelper)
       helper.add(graphHelper)
       console.log('navhelper', helper)
-      Engine.scene.add(helper)
+      useEngine().scene.add(helper)
       helpersByEntity.navmesh.set(entity, helper)
     }
     for (const entity of navmeshQuery()) {
@@ -322,7 +322,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
     }
     for (const entity of navmeshQuery.exit()) {
       const helper = helpersByEntity.navmesh.get(entity) as Object3D
-      Engine.scene.remove(helper)
+      useEngine().scene.remove(helper)
       helpersByEntity.navmesh.delete(entity)
     }
     // ===== Autopilot Helper ===== //

@@ -10,7 +10,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { pipe } from 'bitecs'

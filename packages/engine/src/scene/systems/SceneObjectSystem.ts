@@ -1,6 +1,6 @@
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { beforeMaterialCompile } from '../../scene/classes/BPCEMShader'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -51,8 +51,8 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       ;(object3DComponent.value as any).entity = entity
 
       // Add to scene
-      if (!Engine.scene.children.includes(object3DComponent.value)) {
-        Engine.scene.add(object3DComponent.value)
+      if (!useEngine().scene.children.includes(object3DComponent.value)) {
+        useEngine().scene.add(object3DComponent.value)
       } else {
         console.warn('[Object3DComponent]: Scene object has been added manually.', object3DComponent.value)
       }
@@ -67,8 +67,8 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
           obj.castShadow = shadowComponent.castShadow
         }
 
-        if (Engine.simpleMaterials) {
-          // || Engine.isHMD) {
+        if (useEngine().simpleMaterials) {
+          // || useEngine().isHMD) {
           if (obj.material instanceof MeshStandardMaterial) {
             const prevMaterial = obj.material
             obj.material = new MeshPhongMaterial()
@@ -85,7 +85,7 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
               )
             ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
             if (obj.receiveShadow) {
-              Engine.csm?.setupMaterial(obj)
+              useEngine().csm?.setupMaterial(obj)
             }
           }
         }
@@ -99,8 +99,8 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       const object3DComponent = getComponent(entity, Object3DComponent, true)
 
       // Remove from scene
-      if (Engine.scene.children.includes(object3DComponent.value)) {
-        Engine.scene.remove(object3DComponent.value)
+      if (useEngine().scene.children.includes(object3DComponent.value)) {
+        useEngine().scene.remove(object3DComponent.value)
       } else {
         console.warn('[Object3DComponent]: Scene object has been removed manually.')
       }

@@ -5,7 +5,7 @@ import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { Group, Mesh, Vector3 } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { MapAction, mapReducer } from '../../map/MapReceptor'
 import { MapComponent } from '../../map/MapComponent'
@@ -37,7 +37,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   const state = mapReducer(null, MapAction.initialize(center, args.scale?.x))
 
   // TODO fix hardcoded URL
-  const spinnerGLTF = await LoadGLTF(Engine.publicPath + '/projects/default-project/EarthLowPoly.glb')
+  const spinnerGLTF = await LoadGLTF(useEngine().publicPath + '/projects/default-project/EarthLowPoly.glb')
   const spinner = spinnerGLTF.scene as Mesh
   spinner.position.y = avatarHalfHeight * 2
   spinner.position.z = -150
@@ -63,7 +63,7 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   await startPhases(state, await getPhases({ exclude: ['navigation'] }))
 
   navigationRaycastTarget.scale.setScalar(state.scale)
-  Engine.scene.add(navigationRaycastTarget)
+  useEngine().scene.add(navigationRaycastTarget)
 
   addComponent(entity, NavMeshComponent, {
     /*

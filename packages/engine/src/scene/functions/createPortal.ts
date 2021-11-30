@@ -14,7 +14,7 @@ import {
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -157,7 +157,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     active: true
   })
 
-  Engine.defaultWorld.portalEntities.push(entity)
+  useEngine().defaultWorld.portalEntities.push(entity)
 }
 
 export const setRemoteLocationDetail = (

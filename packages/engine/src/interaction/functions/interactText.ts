@@ -17,7 +17,7 @@ import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { FontManager } from '../../xrui/classes/FontManager'
 import { Group, MathUtils, Mesh, MeshPhongMaterial, Quaternion, Vector3 } from 'three'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { RenderedComponent } from '../../scene/components/RenderedComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
@@ -36,7 +36,7 @@ export const createInteractText = (displayText: string | undefined) => {
   const interactTextEntity = createEntity()
   const textGroup = new Group().add(text)
   addComponent(interactTextEntity, Object3DComponent, { value: textGroup })
-  Engine.scene.add(textGroup)
+  useEngine().scene.add(textGroup)
 
   addComponent(interactTextEntity, PersistTagComponent, {})
   const transformComponent = addComponent(interactTextEntity, TransformComponent, {
@@ -53,10 +53,13 @@ export const createInteractText = (displayText: string | undefined) => {
       const interactTextObject = getComponent(interactTextEntity, Object3DComponent).value
       if (!interactTextObject.visible) return
       interactTextObject.children[0].position.y = Math.sin(elapsedTime * 1.8) * 0.05
-      if (Engine.activeCameraFollowTarget && hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)) {
+      if (
+        useEngine().activeCameraFollowTarget &&
+        hasComponent(useEngine().activeCameraFollowTarget, FollowCameraComponent)
+      ) {
         interactTextObject.children[0].setRotationFromAxisAngle(
           upVec,
-          MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
+          MathUtils.degToRad(getComponent(useEngine().activeCameraFollowTarget, FollowCameraComponent).theta)
         )
       } else {
         const { x, z } = getComponent(entity, TransformComponent).position

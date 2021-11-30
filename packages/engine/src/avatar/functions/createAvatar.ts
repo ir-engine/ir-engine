@@ -22,7 +22,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { isClient } from '../../common/functions/isClient'
 import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
@@ -134,7 +134,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   addComponent(entity, CollisionComponent, { collisions: [] })
 
   // If local player's avatar
-  if (userId === Engine.userId) {
+  if (userId === useEngine().userId) {
     addComponent(entity, SpawnPoseComponent, {
       position: new Vector3().copy(spawnAction.parameters.position),
       rotation: new Quaternion().copy(spawnAction.parameters.rotation)

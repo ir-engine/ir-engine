@@ -1,4 +1,4 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
 
 type RaycastIntersectionNode = Intersection<Object3D> & {
@@ -28,8 +28,8 @@ export const getIntersectingNodeOnScreen = (
   raycaster: Raycaster,
   coord: Vector2,
   target: Intersection<Object3D>[] = [],
-  camera: Camera = Engine.camera,
-  object: Object3D = Engine.scene,
+  camera: Camera = useEngine().camera,
+  object: Object3D = useEngine().scene,
   recursive: boolean = true
 ): RaycastIntersectionNode => {
   raycaster.setFromCamera(coord, camera)

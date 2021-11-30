@@ -1,10 +1,15 @@
 import { Config } from '@xrengine/common/src/config'
-import React from 'react'
+import { createEngine } from '@xrengine/engine/src/ecs/classes/Engine'
+import React, { useEffect } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 
 const locationPage = React.lazy(() => import('./[locationName]'))
 
 const LocationRoutes = (props) => {
+  useEffect(() => {
+    createEngine()
+  }, [])
+
   return (
     <Switch>
       <Route path="/location/:locationName" component={locationPage} />

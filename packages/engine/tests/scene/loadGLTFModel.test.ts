@@ -12,7 +12,7 @@ import assert from 'assert'
 import { createWorld } from "../../src/ecs/classes/World"
 import { ObjectLayers } from '../../src/scene/constants/ObjectLayers'
 import { SpawnPointComponent } from '../../src/scene/components/SpawnPointComponent'
-import { Engine } from '../../src/ecs/classes/Engine'
+import { useEngine } from '../../src/ecs/classes/Engine'
 
 describe('loadGLTFModel', () => {
 
@@ -25,7 +25,7 @@ describe('loadGLTFModel', () => {
   it('loadGLTFModel', async () => {
 
     const world = createWorld()
-    Engine.currentWorld = world
+    useEngine().currentWorld = world
 	
     const mockComponentData = { data: { src: '' } } as any
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')

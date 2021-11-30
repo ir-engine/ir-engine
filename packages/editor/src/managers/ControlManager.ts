@@ -1,4 +1,4 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
@@ -51,7 +51,7 @@ export class ControlManager {
   }
 
   initControls() {
-    this.inputManager = new InputManager(Engine.renderer.domElement)
+    this.inputManager = new InputManager(useEngine().renderer.domElement)
     this.playModeControls = new PlayModeControls(this.inputManager)
 
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
@@ -71,9 +71,9 @@ export class ControlManager {
   enterPlayMode() {
     this.isInPlayMode = true
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
-    Engine.camera.layers.disable(1)
+    useEngine().camera.layers.disable(1)
     this.playModeControls.enable()
-    Engine.scene.traverse((node: any) => {
+    useEngine().scene.traverse((node: any) => {
       if (node.isNode) {
         node.onPlay()
       }
@@ -88,9 +88,9 @@ export class ControlManager {
    */
   leavePlayMode() {
     this.isInPlayMode = false
-    Engine.camera.layers.enable(ObjectLayers.Scene)
+    useEngine().camera.layers.enable(ObjectLayers.Scene)
     this.playModeControls.disable()
-    Engine.scene.traverse((node: any) => {
+    useEngine().scene.traverse((node: any) => {
       if (node.isNode) {
         node.onPause()
       }

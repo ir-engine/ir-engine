@@ -17,7 +17,7 @@ import {
   Float32BufferAttribute
 } from 'three'
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { getGeometryType, isControllerBody, isTriggerShape } from '../../physics/classes/Physics'
@@ -56,13 +56,13 @@ export const DebugRenderer = () => {
     enabled = _enabled
     if (!_enabled) {
       _meshes.forEach((mesh) => {
-        Engine.scene.remove(mesh)
+        useEngine().scene.remove(mesh)
       })
       _raycasts.forEach((mesh) => {
-        Engine.scene.remove(mesh)
+        useEngine().scene.remove(mesh)
       })
       _obstacles.forEach((mesh) => {
-        Engine.scene.remove(mesh)
+        useEngine().scene.remove(mesh)
       })
       _meshes.clear()
       _raycasts.clear()
@@ -84,7 +84,7 @@ export const DebugRenderer = () => {
       const mesh = new Mesh(geom, _materials[5])
       mesh.position.copy(obstacle.getPosition() as Vector3)
       mesh.quaternion.copy(obstacle.getRotation() as Quaternion)
-      Engine.scene.add(mesh)
+      useEngine().scene.add(mesh)
       _obstacles.set(id, mesh)
     }
   }
@@ -96,7 +96,7 @@ export const DebugRenderer = () => {
     let needsUpdate = false
     if (body._debugNeedsUpdate) {
       if (mesh) {
-        Engine.scene.remove(mesh)
+        useEngine().scene.remove(mesh)
         needsUpdate = true
       }
       body._debugNeedsUpdate = false
@@ -125,7 +125,7 @@ export const DebugRenderer = () => {
         )
       }
       _meshes.set(id, mesh)
-      Engine.scene.add(mesh)
+      useEngine().scene.add(mesh)
     }
   }
 
@@ -134,7 +134,7 @@ export const DebugRenderer = () => {
     let needsUpdate = false
     if (shape._debugNeedsUpdate) {
       if (mesh) {
-        Engine.scene.remove(mesh)
+        useEngine().scene.remove(mesh)
         needsUpdate = true
       }
       delete shape._debugNeedsUpdate
@@ -222,7 +222,7 @@ export const DebugRenderer = () => {
     }
 
     if (mesh && mesh.geometry) {
-      Engine.scene.add(mesh)
+      useEngine().scene.add(mesh)
     }
 
     return mesh
@@ -268,13 +268,13 @@ export const DebugRenderer = () => {
     })
     _obstacles.forEach((mesh, id) => {
       if (!world.physics.obstacles.has(id)) {
-        Engine.scene.remove(mesh)
+        useEngine().scene.remove(mesh)
         _meshes.delete(id)
       }
     })
     _meshes.forEach((mesh, id) => {
       if (!world.physics.shapes.has(id)) {
-        Engine.scene.remove(mesh)
+        useEngine().scene.remove(mesh)
         _meshes.delete(id)
       }
     })

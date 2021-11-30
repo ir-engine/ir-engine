@@ -5,7 +5,7 @@ import { isClient } from '../../common/functions/isClient'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 
 /** System class for media streaming. */
 export class MediaStreams {
@@ -329,7 +329,7 @@ export default async function MediaStreamSystem(world: World): Promise<System> {
     if (nearbyAvatarTick > 500) {
       nearbyAvatarTick = 0
       if (isClient && MediaStreams.instance.channelType === 'instance') {
-        MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.userId)
+        MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(useEngine().userId)
         const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
         EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS })
         MediaStreams.instance.consumers.forEach((consumer) => {

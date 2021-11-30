@@ -21,7 +21,7 @@ import { useWorld } from '../ecs/functions/SystemHooks'
 import { teleportRigidbody } from '../physics/functions/teleportRigidbody'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
-import { Engine } from '../ecs/classes/Engine'
+import { useEngine } from '../ecs/classes/Engine'
 import { initializeHandModel } from '../xr/functions/addControllerModels'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
@@ -54,7 +54,7 @@ function avatarActionReceptor(action) {
     })
 
     .when(NetworkWorldAction.xrHandsConnected.matchesFromAny, (a) => {
-      if (a.userId === Engine.userId) return
+      if (a.userId === useEngine().userId) return
       const entity = world.getUserAvatarEntity(a.userId)
       if (!entity) return
 

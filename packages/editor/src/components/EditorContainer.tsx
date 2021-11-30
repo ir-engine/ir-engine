@@ -36,7 +36,7 @@ import { saveProject } from '../functions/projectFunctions'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -260,7 +260,7 @@ const EditorContainer = (props) => {
   }
 
   const setDebuginfo = () => {
-    const gl = Engine.renderer.getContext()
+    const gl = useEngine().renderer.getContext()
 
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
 
@@ -316,7 +316,7 @@ const EditorContainer = (props) => {
           setDialogComponent(
             <SaveNewProjectDialog
               thumbnailUrl={URL.createObjectURL(blob)}
-              initialName={Engine.scene.name}
+              initialName={useEngine().scene.name}
               onConfirm={resolve}
               onCancel={resolve}
             />
@@ -377,7 +377,7 @@ const EditorContainer = (props) => {
       setDialogComponent(null)
 
       const el = document.createElement('a')
-      el.download = Engine.scene.name + '.glb'
+      el.download = useEngine().scene.name + '.glb'
       el.href = URL.createObjectURL(glbBlob)
       document.body.appendChild(el)
       el.click()
@@ -432,11 +432,11 @@ const EditorContainer = (props) => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await (Engine.scene as any).serialize(sceneName)
+    const projectFile = await (useEngine().scene as any).serialize(sceneName)
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
-    const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
+    const fileName = useEngine().scene.name.toLowerCase().replace(/\s+/g, '-')
     el.download = fileName + '.world'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)

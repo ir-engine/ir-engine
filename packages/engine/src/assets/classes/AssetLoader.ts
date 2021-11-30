@@ -5,7 +5,7 @@ import { AssetType } from '../enum/AssetType'
 import { AssetClass } from '../enum/AssetClass'
 import { Entity } from '../../ecs/classes/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
-import { Engine } from '../../ecs/classes/Engine'
+import { useEngine } from '../../ecs/classes/Engine'
 import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
 import { instanceGLTF } from '../functions/transformGLTF'
 
@@ -150,7 +150,7 @@ const load = async (
     onError(new Error('URL is empty'))
     return
   }
-  const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
+  const url = isAbsolutePath(params.url) ? params.url : useEngine().publicPath + params.url
 
   if (AssetLoader.Cache.has(url)) {
     onLoad(AssetLoader.Cache.get(url))
@@ -233,6 +233,6 @@ export class AssetLoader {
 
   // TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
   static getFromCache(url: string) {
-    return AssetLoader.Cache.get(isAbsolutePath(url) ? url : Engine.publicPath + url)
+    return AssetLoader.Cache.get(isAbsolutePath(url) ? url : useEngine().publicPath + url)
   }
 }

@@ -170,5 +170,5 @@ export function getRigTransform(entity: Entity) {
 
 export function setReference(entity: Entity, o: SkinnedMesh) {
   getComponent(entity, IKObj).ref = o
-  // Engine.scene.add( o );
+  // useEngine().scene.add( o );
 }

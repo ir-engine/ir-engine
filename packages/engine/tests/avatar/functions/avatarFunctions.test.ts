@@ -1,4 +1,4 @@
-import { Engine } from "../../../src/ecs/classes/Engine"
+import { useEngine } from "../../../src/ecs/classes/Engine"
 import { createWorld } from "../../../src/ecs/classes/World"
 
 // TODO
