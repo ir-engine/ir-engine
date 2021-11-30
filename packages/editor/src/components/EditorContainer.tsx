@@ -340,6 +340,7 @@ const EditorContainer = (props) => {
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
       )
     }
+    setToggleRefetchScenes(!toggleRefetchScenes)
   }
 
   const onExportProject = async () => {
@@ -484,12 +485,12 @@ const EditorContainer = (props) => {
       setDialogComponent(
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
       )
-    } finally {
-      setToggleRefetchScenes(!toggleRefetchScenes)
     }
+    setToggleRefetchScenes(!toggleRefetchScenes)
   }
 
   useEffect(() => {
+    console.log('toggleRefetchScenes')
     dockPanelRef.current &&
       dockPanelRef.current.updateTab('scenePanel', {
         id: 'scenePanel',
