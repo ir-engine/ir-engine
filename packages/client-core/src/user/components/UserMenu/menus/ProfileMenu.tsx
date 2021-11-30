@@ -44,9 +44,9 @@ const initialState = {
   emailMagicLink: false
 }
 
-const history = useHistory()
-const selfUser = useAuthState().user
 const ProfileMenu = (props: Props): any => {
+  const history = useHistory()
+
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
 
@@ -307,11 +307,11 @@ const ProfileMenu = (props: Props): any => {
               </h2>
             )}
             <button onClick={() => history.push(`/inventory/${selfUser.id.value}`)} className={styles.walletBtn}>
-                My Inventory
-              </button>
-              <button onClick={() => history.push(`/trading/${selfUser.id.value}`)} className={styles.walletBtn}>
-                My Trading
-              </button>
+              My Inventory
+            </button>
+            <button onClick={() => history.push(`/trading/${selfUser.id.value}`)} className={styles.walletBtn}>
+              My Trading
+            </button>
           </div>
         </section>
 

@@ -29,7 +29,7 @@ export default (app: Application): void => {
     ...ScopeService,
     ...SettingService,
     ...RouteService,
-    ...installedProjects,
+    //...installedProjects,
     ...MatchMakingServices
   ].forEach((service) => {
     app.configure(service)
