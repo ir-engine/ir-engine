@@ -23,6 +23,7 @@ import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { World } from '../ecs/classes/World'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { configureEffectComposer } from './functions/configureEffectComposer'
+import { ExponentialMovingAverage } from '../common/classes/ExponentialMovingAverage'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -97,8 +98,6 @@ export class EngineRenderer {
   qualityLevel: number = this.maxQualityLevel
   /** Previous Quality leve. */
   prevQualityLevel: number = this.qualityLevel
-  /** Sensitive Quality leve. */
-  qualityLevelSensitivity = 0.1
   /** point at which we downgrade quality level (large delta) */
   maxRenderDelta = 1000 / 40 // 40 fps = 25 ms
   /** point at which we upgrade quality level (small delta) */
@@ -120,13 +119,8 @@ export class EngineRenderer {
   rendereringEnabled = true
   canvas: HTMLCanvasElement
 
-  averageFrameTime = 1000 / 60
-  timeSamples = new Array(60 * 1).fill(1000 / 60) // 3 seconds @ 60fps
-  index = 0
-
-  averageMean: number = 0
-  averageMultiplier: number = 0
-  averageTimePeriods: number = 60
+  averageTimePeriods = 3 * 60 // 3 seconds @ 60fps
+  movingAverage: any
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: EngineRendererProps) {
@@ -203,10 +197,8 @@ export class EngineRenderer {
         this.rendereringEnabled = ev.renderer
       }
     })
-
-    /** Init Exponential Moving Average  */
-    this.averageMean = 0
-    this.averageMultiplier = 2 / (this.averageTimePeriods + 1)
+    /** init ExponentialMovingAverage */
+    this.movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
   }
 
   /** Called on resize, sets resize flag. */
@@ -262,21 +254,6 @@ export class EngineRenderer {
     }
   }
 
-  calculateMovingAverage = (delta: number): number => {
-    this.averageFrameTime =
-      (this.averageFrameTime * this.timeSamples.length + delta - this.timeSamples[this.index]) / this.timeSamples.length
-    this.timeSamples[this.index] = delta
-    this.index = (this.index + 1) % this.timeSamples.length
-    return this.averageFrameTime
-  }
-
-  onUpdateMovingAverage(newValue: number): number {
-    const meanIncrement = this.averageMultiplier * (newValue - this.averageMean)
-    const newMean = this.averageMean + meanIncrement
-    this.averageMean = newMean
-    return this.averageMean
-  }
-
   /**
    * Change the quality of the renderer.
    */
@@ -287,16 +264,16 @@ export class EngineRenderer {
 
     if (!this.automatic) return
 
-    // const averageDelta = this.calculateMovingAverage(delta)
-    const averageDelta = this.onUpdateMovingAverage(delta)
+    this.movingAverage.update(delta)
+    const averageDelta = this.movingAverage.mean
 
     // dont downgrade when scene is still loading in
     if (Engine.sceneLoaded) {
       if (averageDelta > this.minRenderDelta) {
-        this.qualityLevel -= this.qualityLevelSensitivity
+        this.qualityLevel--
       }
       if (averageDelta < this.maxRenderDelta) {
-        this.qualityLevel += this.qualityLevelSensitivity
+        this.qualityLevel++
       }
     }
     this.qualityLevel = MathUtils.clamp(this.qualityLevel, 1, this.maxQualityLevel)
