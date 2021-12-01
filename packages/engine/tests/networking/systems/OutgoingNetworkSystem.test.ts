@@ -1,5 +1,5 @@
 import { initializeEngine, shutdownEngine } from '../../../src/initializeEngine'
-import { useEngine } from '../../../src/ecs/classes/Engine'
+import { createEngine, Engine, useEngine } from '../../../src/ecs/classes/Engine'
 import { engineTestSetup } from '../../util/setupEngine'
 import assert, { strictEqual } from 'assert'
 import { Network } from '../../../src/networking/classes/Network'
@@ -23,11 +23,20 @@ import { NetworkObjectOwnedTag } from '../../../src/networking/components/Networ
 
 describe('OutgoingNetworkSystem Unit Tests', () => {
 
+  const teardown = () => {
+    Engine.instance = null!
+  }
+
+  const setup = () => {
+    createEngine()
+    return createWorld()
+  }
+
   describe('forwardIncomingActionsFromOthersIfHost', () => {
   
     it('should forward incoming actions if the action is from a remote userId', () => {
       /* mock */
-      const world = createWorld()
+      const world = setup()
 
       // make this engine user the host
       // world.isHosting === true
@@ -54,11 +63,13 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       strictEqual(world.incomingActions.has(action), false)
       // and added to outgoingActions
       strictEqual(world.outgoingActions.has(action), true)
+
+      teardown()
     })
 
     it('should clear incomingActions if hosting', () => {
       /* mock */
-      const world = createWorld()
+      const world = setup()
 
       // make this engine user the host
       // world.isHosting === true
@@ -84,11 +95,13 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       // verify incomingActions are cleared if we ARE a host
       strictEqual(world.incomingActions.size, 0)
+
+      teardown()
     })
 
     it('should clear incomingActions if not hosting', () => {
       /* mock */
-      const world = createWorld()
+      const world = setup()
 
       // this engine user is not the host
       // world.isHosting === false
@@ -118,6 +131,8 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       // verify incomingActions are cleared if we are NOT a host
       strictEqual(world.incomingActions.size, 0)
+
+      teardown()
     })
 
   })
@@ -127,7 +142,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
     it('should reroute outgoing actions from this host back to itself (loopback)', () => {
 
       /* mock */
-      const world = createWorld()
+      const world = setup()
 
       const action = NetworkWorldAction.spawnObject({
         userId: '0' as UserId,
@@ -151,12 +166,14 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       // and added to incomingActions
       strictEqual(world.incomingActions.has(action), true)
 
+      teardown()
+
     })
 
     it('should apply outgoing actions to self and others if hosting and action is from this host', () => {
 
       /* mock */
-      const world = createWorld()
+      const world = setup()
 
       // make this engine user the host
       // world.isHosting === true
@@ -184,6 +201,8 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       // and added to incomingActions (applies action to self)
       strictEqual(world.incomingActions.has(action), true)
 
+      teardown()
+
     })
 
   })
@@ -192,7 +211,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
     it('should queue all state changes on server', () => {
       
       /* mock */
-      const world = createWorld()
+      const world = setup()
       useEngine().currentWorld = world
 
       world.outgoingNetworkState = {
@@ -229,6 +248,8 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       // verify all poses were queued
       const { outgoingNetworkState } = world
       strictEqual(outgoingNetworkState.pose.length, 2)
+
+      teardown()
     })
   })
 
@@ -236,7 +257,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
     it('should queue only client avatar state changes on client', () => {
       
       /* mock */
-      const world = createWorld()
+      const world = setup()
       useEngine().currentWorld = world
 
       world.outgoingNetworkState = {
@@ -281,6 +302,8 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       strictEqual(outgoingNetworkState.pose[1].networkId, 3)
       strictEqual(outgoingNetworkState.pose[2].networkId, 5)
       strictEqual(outgoingNetworkState.pose[3].networkId, 7)
+
+      teardown()
     })
   })
 
@@ -289,7 +312,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
     it('should queue entities with network & transform components', () => {
       
       /* mock */
-      const world = createWorld()
+      const world = setup()
       useEngine().currentWorld = world
 
       world.outgoingNetworkState = {
@@ -322,12 +345,14 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       const { outgoingNetworkState } = world
       strictEqual(outgoingNetworkState.pose.length, 1)
 
+      teardown()
+
     })
 
     it('should NOT queue entities without network & transform components', () => {
       
       /* mock */
-      const world = createWorld()
+      const world = setup()
       useEngine().currentWorld = world
 
       world.outgoingNetworkState = {
@@ -354,6 +379,8 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       const { outgoingNetworkState } = world
       strictEqual(outgoingNetworkState.pose.length, 0)
 
+      teardown()
+
     })
   })
 })
@@ -362,7 +389,12 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
 	
   let world
 
+  afterEach(() => {
+    Engine.instance = null!
+  })
+
 	beforeEach(() => {
+    createEngine()
     /* hoist */
 		Network.instance = new TestNetwork()
 		world = createWorld()

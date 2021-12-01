@@ -1,16 +1,6 @@
-/**
- * This file constains declaration of Engine Class.
- *
- * @author Fernando Serrano, Robert Long
- * @packageDocumentation
- */
-
 import { Object3D, PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Entity } from './Entity'
 import { InputValue } from '../../input/interfaces/InputValue'
-import { EngineEvents } from './EngineEvents'
-import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
@@ -105,25 +95,12 @@ export class Engine {
   xrFrame: XRFrame
 }
 
-export const createEngine = () => {
-  console.log('createEngine')
+export function createEngine() {
+  console.log('Creating engine')
   if (!Engine.instance) Engine.instance = new Engine()
-}
-
-export const useEngine = () => {
   return Engine.instance
 }
 
-export const awaitEngineLoaded = (): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    if (useEngine().isInitialized) resolve()
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
-  })
-}
-
-export const awaitEngaged = (): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    if (useEngine().hasEngaged) resolve()
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, resolve)
-  })
+export function useEngine() {
+  return Engine.instance!
 }

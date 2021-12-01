@@ -2,20 +2,25 @@
  * tests
  */
 import { initializeEngine, shutdownEngine } from '../src/initializeEngine'
-import { useEngine } from '../src/ecs/classes/Engine'
+import { createEngine, Engine, useEngine } from '../src/ecs/classes/Engine'
 import { engineTestSetup } from './util/setupEngine'
 import assert from 'assert'
 
 /**
  * tests
  */
-describe('Core', () => {
+describe.skip('Core', () => {
 
-  // force close until we can reset the engine properly
-  after(() => setTimeout(() => process.exit(0), 1000))
+  after(() => {
+    useEngine().currentWorld = null!
+    useEngine().defaultWorld = null!
+    Engine.instance = null!
+    delete (globalThis as any).PhysX
+  })
 
   describe('Initialise Engine', () => {
     it('Can initialise engine', async () => {
+      createEngine()
       await initializeEngine(engineTestSetup)
       assert.equal(useEngine().isInitialized, true)
     })

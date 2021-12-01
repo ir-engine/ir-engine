@@ -16,16 +16,25 @@ import matches from 'ts-matches'
 import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
 import { TestNetworkTransport } from '../TestNetworkTransport'
 import { TestNetwork } from '../TestNetwork'
-import { useEngine } from '../../../src/ecs/classes/Engine'
+import { createEngine, Engine, useEngine } from '../../../src/ecs/classes/Engine'
 
 describe('IncomingNetworkSystem Unit Tests', async () => {
+
+  const teardown = () => {
+    Engine.instance = null!
+  }
+
+  const setup = () => {
+    createEngine()
+    return createWorld()
+  }
 
 	describe('applyDelayedActions', () => {
 		
 		it('should drain world.delayedActions into all receptors', () => {
 
 			/* mock */
-			const world = createWorld()
+			const world = setup()
 	
 			const tick = 0
 	
@@ -57,6 +66,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			const receptedAction = recepted[0]
 			strictEqual(receptedAction.userId, "0")
 
+      teardown()
 		})
 	
 	})
@@ -66,7 +76,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 		it('should delay incoming action from the future', () => {
 
 			/* mock */
-			const world = createWorld()
+			const world = setup()
 
 			// fixed tick in past
 			world.fixedTick = 0
@@ -95,12 +105,14 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			strictEqual(world.delayedActions.size, 1)
 			strictEqual(recepted.length, 0)
 
+      teardown()
+
 		})
 
 		it('should immediately apply incoming action from the past or present', () => {
 	
 			/* mock */
-			const world = createWorld()
+			const world = setup()
 	
 			// fixed tick in future
 			world.fixedTick = 1
@@ -129,6 +141,8 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			strictEqual(world.delayedActions.size, 0)
 			strictEqual(recepted.length, 1)
 	
+      teardown()
+
 		})
 
 	})
@@ -140,11 +154,15 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 	let world
 
 	beforeEach(() => {
+    createEngine()
     /* hoist */
 		Network.instance = new TestNetwork()
 		world = createWorld()
 		useEngine().currentWorld = world
 	})
+  afterEach(() => {
+    Engine.instance = null!
+  })
 
 	it('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
 		/* mock */

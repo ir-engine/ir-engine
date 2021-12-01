@@ -10,7 +10,7 @@ import { AvatarControllerComponent } from '../../../src/avatar/components/Avatar
 import { Group, PerspectiveCamera, Vector3 } from 'three'
 import { VectorSpringSimulator } from '../../../src/physics/classes/springs/VectorSpringSimulator'
 import { CollisionGroups } from '../../../src/physics/enums/CollisionGroups'
-import { useEngine } from '../../../src/ecs/classes/Engine'
+import { createEngine, Engine, useEngine } from '../../../src/ecs/classes/Engine'
 
 
 // all components depended on by the moveAvatar function
@@ -73,9 +73,17 @@ const createMovingAvatar = (world) => {
 
 describe('moveAvatar function tests', () => {
   
+  afterEach(() => {
+    useEngine().currentWorld = null!
+    useEngine().defaultWorld = null!
+    Engine.instance = null!
+    delete (globalThis as any).PhysX
+  })
+
 	let world
 
 	beforeEach(async () => {
+    createEngine()
     /* hoist */
 		world = createWorld()
 		useEngine().currentWorld = world

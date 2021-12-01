@@ -11,7 +11,7 @@ import { Quaternion, Vector3 } from 'three'
 import { delay } from '../src/common/functions/delay'
 import { CollisionComponent } from '../src/physics/components/CollisionComponent'
 import { addComponent } from '../src/ecs/functions/ComponentFunctions'
-import { useEngine } from '../src/ecs/classes/Engine'
+import { createEngine, Engine, useEngine } from '../src/ecs/classes/Engine'
 import { createWorld } from '../src/ecs/classes/World'
 import { loadPhysX } from '../src/physics/physx/loadPhysX'
 import PhysicsSystem from '../src/physics/systems/PhysicsSystem'
@@ -28,16 +28,18 @@ let mockElapsedTime = 0
 describe('Physics', () => {
 
   beforeEach(async () => {
+    createEngine()
     useEngine().currentWorld = createWorld()
-    useEngine().defaultWorld = useEngine().currentWorld
+    useEngine().defaultWorld = useEngine().currentWorld!
     await loadPhysX()
-    await useEngine().currentWorld.physics.createScene({ verbose: true })
+    await useEngine().currentWorld!.physics.createScene({ verbose: true })
   })
 
   afterEach(() => {
     useEngine().currentWorld = null!
     useEngine().defaultWorld = null!
     delete (globalThis as any).PhysX
+    Engine.instance = null!
   })
 
   // face indexed cube data

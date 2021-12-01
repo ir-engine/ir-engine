@@ -26,6 +26,7 @@ type RemoveIndex<T> = {
 export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
+    if (!useEngine()) throw new Error('[World]: Engine instance is null')
     bitecs.createWorld(this)
     useEngine().worlds.push(this)
     this.worldEntity = createEntity(this)

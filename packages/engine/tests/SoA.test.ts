@@ -2,7 +2,7 @@ import assert, { strictEqual } from 'assert'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Vector3, Quaternion } from 'three'
-import { useEngine } from '../src/ecs/classes/Engine'
+import { createEngine, useEngine } from '../src/ecs/classes/Engine'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { Network } from '../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../src/networking/components/NetworkObjectComponent'
@@ -18,6 +18,7 @@ import { createQuaternionProxy, createVector3Proxy } from '../src/common/proxies
 describe('Structure of Array Synchronization', () => {
 	it('should synchronize values between transform objects and SoA data', () => {
 		/* mock */
+    createEngine()
     useEngine().currentWorld = createWorld()
 
 		const entity = createEntity()

@@ -1,4 +1,4 @@
-import { useEngine } from "../../src/ecs/classes/Engine"
+import { createEngine, Engine, useEngine } from "../../src/ecs/classes/Engine"
 import { createWorld } from "../../src/ecs/classes/World"
 import { dispatchFrom } from "../../src/networking/functions/dispatchFrom"
 import assert from 'assert'
@@ -7,22 +7,23 @@ import { Network } from "../../src/networking/classes/Network"
 import { mockProgressWorldForNetworkActions } from "./NetworkTestHelpers"
 
 describe('NetworkTestHelpers', () => {
-  it('mockProgressWorldForNetworkActions', () => {
+  describe('mockProgressWorldForNetworkActions', () => {
 
-    afterEach(() => {
-      useEngine().defaultWorld = null!
+    after(() => {
       useEngine().currentWorld = null!
+      useEngine().defaultWorld = null!
+      Engine.instance = null!
     })
-    
-    beforeEach(() => {
+  
+    before(() => {
+      createEngine()
       Network.instance = new TestNetwork()
       const world = createWorld()
       useEngine().currentWorld = world
-      useEngine().currentWorld.fixedTick = 0
+      useEngine().currentWorld!.fixedTick = 0
     })
 
     it('should take 2 ticks to dispatch', () => {
-      // @ts-ignore
       useEngine().userId = 'server' as any
       const mockAction = () => { 
         return {

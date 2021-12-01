@@ -9,6 +9,7 @@ import { EditorAction, useEditorState } from '../services/EditorServices'
 import { Route, Switch } from 'react-router-dom'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { createEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 const EditorProtectedRoutes = () => {
   const [engineIsInitialized, setEngineInitialized] = useState(false)
@@ -62,6 +63,7 @@ const EditorProtectedRoutes = () => {
   }
 
   useEffect(() => {
+    createEngine()
     AuthService.doLoginAuto(false)
     initializeEngine(initializationOptions).then(() => {
       console.log('Setting engine inited')

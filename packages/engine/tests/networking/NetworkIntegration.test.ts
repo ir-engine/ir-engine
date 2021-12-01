@@ -8,7 +8,7 @@ import { TestNetwork } from './TestNetwork'
 import { EngineSystemPresets, InitializeOptions } from '../../src/initializationOptions'
 import { DefaultNetworkSchema } from '../../src/networking/templates/DefaultNetworkSchema'
 
-describe('Network Integration Tests', async () => {
+describe.skip('Network Integration Tests', async () => {
   
   before(async () => {
     /* hoist */
