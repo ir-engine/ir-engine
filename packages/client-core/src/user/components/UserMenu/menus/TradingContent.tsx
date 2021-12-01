@@ -1,6 +1,6 @@
-import Button from '@mui/material/Button'	
-import Typography from '@mui/material/Typography'	
-import makeStyles from '@mui/styles/makeStyles'	
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import makeStyles from '@mui/styles/makeStyles'
 import { ArrowBackIos, FilterList } from '@mui/icons-material'
 import React, { useEffect, useState } from 'react'
 import {
@@ -68,33 +68,52 @@ const useStyles = makeStyles({
 })
 
 type itemtype = {
-  addedOn: null;
-  fromUserId: string;
-  fromUserInventoryIds: any[];
-  fromUserStatus: string;
-  toUserId: string;
-  toUserInventoryIds: any[];
-  toUserStatus: string;
-  userTradeId: string;
+  addedOn: null
+  fromUserId: string
+  fromUserInventoryIds: any[]
+  fromUserStatus: string
+  toUserId: string
+  toUserInventoryIds: any[]
+  toUserStatus: string
+  userTradeId: string
 }
 
 type StateType = {
-  url: string;
-  metadata: string;
-  selectedid: string;
-  userid: string;
-  anchorEl: any;
-  selectedtype: string;
-  fortrading: itemtype[],
-  offeredTrading: itemtype[],
-  receivedTrading: itemtype[],
+  url: string
+  metadata: string
+  selectedid: string
+  userid: string
+  anchorEl: any
+  selectedtype: string
+  fortrading: itemtype[]
+  offeredTrading: itemtype[]
+  receivedTrading: itemtype[]
   inventoryList: any[]
-  userTradeId: string;
+  userTradeId: string
 }
 
 const ITEM_HEIGHT = 48
 
-const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, handleTransfer, acceptOfferSent, acceptOfferReceived, isLoadingtransfer, type, inventory, removeiteminventory, additeminventory, addofferiteminventory, addreceiveiteminventory, data1, data0, removeofferinventory, removereceiveinventory }: any) => {
+const TradingContent = ({
+  data,
+  user,
+  rejectOfferSent,
+  rejectOfferReceived,
+  handleTransfer,
+  acceptOfferSent,
+  acceptOfferReceived,
+  isLoadingtransfer,
+  type,
+  inventory,
+  removeiteminventory,
+  additeminventory,
+  addofferiteminventory,
+  addreceiveiteminventory,
+  data1,
+  data0,
+  removeofferinventory,
+  removereceiveinventory
+}: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState<StateType>({
@@ -107,10 +126,22 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
     fortrading: [],
     offeredTrading: [],
     receivedTrading: [],
-    userTradeId: "",
+    userTradeId: '',
     inventoryList: []
   })
-  const { url, metadata, inventoryList, userid, selectedid, anchorEl, selectedtype, fortrading, receivedTrading, offeredTrading, userTradeId } = state
+  const {
+    url,
+    metadata,
+    inventoryList,
+    userid,
+    selectedid,
+    anchorEl,
+    selectedtype,
+    fortrading,
+    receivedTrading,
+    offeredTrading,
+    userTradeId
+  } = state
   const prevState = usePrevious({ selectedtype })
   // const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl)
@@ -136,15 +167,14 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
   }
 
   useEffect(() => {
-
     if (data.length !== 0) {
-      console.log("DAATA ", data);
+      console.log('DAATA ', data)
 
       setState((prevState: any) => ({
         ...prevState,
         url: data[0].url,
         metadata: data[0].metadata,
-        selectedid: data[0].inventoryItemTypeId,
+        selectedid: data[0].inventoryItemTypeId
       }))
     }
   }, [])
@@ -185,19 +215,17 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
     }
   }, [selectedtype])
 
-
-
   const onDragStart = (ev, id) => {
-    console.log('dragstart:', id);
-    ev.dataTransfer.setData("id", id);
+    console.log('dragstart:', id)
+    ev.dataTransfer.setData('id', id)
   }
 
   const onDragOver = (ev) => {
-    ev.preventDefault();
+    ev.preventDefault()
   }
 
   const onDrop = (ev, cat) => {
-    let id = ev.dataTransfer.getData("id");
+    let id = ev.dataTransfer.getData('id')
 
     // let tasks = inventory.filter((task) => {
     //   if (task.name == id) {
@@ -226,20 +254,20 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
       offeredTrading,
       userTradeId: data0[0].userTradeId
     }))
-    localStorage.setItem("tradeId", data0[0].userTradeId)
+    localStorage.setItem('tradeId', data0[0].userTradeId)
 
     removeofferinventory(index)
   }
   const receivefortrade = (value: any, index) => {
     const receivedTrading = [...state.receivedTrading, { ...value }]
-    console.log("receivedTrading ", receivedTrading);
+    console.log('receivedTrading ', receivedTrading)
 
     setState((prevState: any) => ({
       ...prevState,
       receivedTrading,
       userTradeId: data1[0].userTradeId
     }))
-    localStorage.setItem("tradeId", data1[0].userTradeId)
+    localStorage.setItem('tradeId', data1[0].userTradeId)
 
     removereceiveinventory(index)
   }
@@ -273,41 +301,41 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
   }
 
   const acceptOfferSentId = (id, items) => {
-    console.log("OfferSent ", localStorage.getItem("tradeId"));
+    console.log('OfferSent ', localStorage.getItem('tradeId'))
     //acceptOfferSent(localStorage.getItem("tradeId"), offeredTrading)
-    console.log("id", id)
-    console.log("items", items)
+    console.log('id', id)
+    console.log('items', items)
     acceptOfferSent(id, items)
   }
 
   const acceptOfferReceivedId = (id, items) => {
-    console.log("OfferReceived ", localStorage.getItem("tradeId"));
+    console.log('OfferReceived ', localStorage.getItem('tradeId'))
     //acceptOfferReceived(localStorage.getItem("tradeId"), receivedTrading)
-    console.log("id", id)
-    console.log("items", items)
+    console.log('id', id)
+    console.log('items', items)
     acceptOfferReceived(id, items)
   }
 
   const rejectOfferSentId = (id, items) => {
-    console.log("OfferSent ", localStorage.getItem("tradeId"));
+    console.log('OfferSent ', localStorage.getItem('tradeId'))
     //acceptOfferSent(localStorage.getItem("tradeId"), offeredTrading)
-    console.log("id", id)
-    console.log("items", items)
+    console.log('id', id)
+    console.log('items', items)
     rejectOfferSent(id, items)
   }
 
   const rejectOfferReceivedId = (id, items) => {
-    console.log("OfferReceived ", localStorage.getItem("tradeId"));
+    console.log('OfferReceived ', localStorage.getItem('tradeId'))
     //acceptOfferReceived(localStorage.getItem("tradeId"), receivedTrading)
-    console.log("id", id)
-    console.log("items", items)
+    console.log('id', id)
+    console.log('items', items)
     rejectOfferReceived(id, items)
   }
 
-  console.log(data, "data")
-  console.log(data0, "data0")
-  console.log(data1, "data1")
-  console.log(fortrading, "fortrading")
+  console.log(data, 'data')
+  console.log(data0, 'data0')
+  console.log(data1, 'data1')
+  console.log(fortrading, 'fortrading')
   return (
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
@@ -321,8 +349,13 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
 
       <Grid container spacing={2} className={`${classes.p10} ${classes.contents}`}>
         <Grid item md={2}>
-          <Stack className={classes.card} onDragOver={(e) => onDragOver(e)}
-            onDrop={(e) => { onDrop(e, "wip") }}>
+          <Stack
+            className={classes.card}
+            onDragOver={(e) => onDragOver(e)}
+            onDrop={(e) => {
+              onDrop(e, 'wip')
+            }}
+          >
             <IconButton
               aria-label="more"
               id="long-button"
@@ -361,13 +394,13 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                 </MenuItem>
               ))}
             </Menu>
-            {(selectedtype===""?inventory:inventoryList).length !== 0 ? (
+            {(selectedtype === '' ? inventory : inventoryList).length !== 0 ? (
               <Stack>
-                {(selectedtype===""?inventory:inventoryList).map((value: any, index: number) => (
+                {(selectedtype === '' ? inventory : inventoryList).map((value: any, index: number) => (
                   <Card
                     key={index}
                     onClick={() => {
-                      addfortrade(value, index);
+                      addfortrade(value, index)
                       setState((prevState) => ({
                         ...prevState,
                         url: value.url,
@@ -398,7 +431,7 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
         <Grid item md={6}>
           <Card>
             <Stack justifyContent="center" alignItems="center">
-              {fortrading.length > 0 ? <Typography className={classes.title}>Selected Items For Trade</Typography> : ""}
+              {fortrading.length > 0 ? <Typography className={classes.title}>Selected Items For Trade</Typography> : ''}
               {fortrading.length !== 0 ? (
                 <Stack direction="row" spacing={1}>
                   {fortrading.map((value: any, index: number) => (
@@ -411,7 +444,7 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                       <Stack
                         justifyContent="center"
                         alignItems="center"
-                      // className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                        // className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
                       >
                         <img src={value.url} height="100" width="100" alt="" />
                         <Typography>{`Name: ${value.name}`}</Typography>
@@ -424,10 +457,10 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                 // <Stack sx={{ color: 'black' }}>
                 //   <Typography>No Data Found</Typography>
                 // </Stack>
-                ""
+                ''
               )}
-              {
-                fortrading.length !== 0 && data0.length === 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
+              {fortrading.length !== 0 && data0.length === 0 && (
+                <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
                   <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">User</InputLabel>
                     <Select
@@ -443,7 +476,7 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                       }}
                     >
                       {user.map((datas, index) => (
-                        <MenuItem style={{ display: "block", marginRight: "18px" }} key={index} value={datas.id}>
+                        <MenuItem style={{ display: 'block', marginRight: '18px' }} key={index} value={datas.id}>
                           {datas.name}
                         </MenuItem>
                       ))}
@@ -454,16 +487,14 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     disabled={isLoadingtransfer}
                     onClick={() => handleTransfer(userid, fortrading)}
                   >
-
                     {isLoadingtransfer ? <CircularProgress size={30} /> : 'Initiate Trade'}
                   </Button>
                 </Stack>
-              }
-
+              )}
             </Stack>
 
-            <Stack justifyContent="center" alignItems="center" marginTop="5px" >
-              {offeredTrading.length ? <Typography className={classes.title}>Trade Offer sent</Typography> : ""}
+            <Stack justifyContent="center" alignItems="center" marginTop="5px">
+              {offeredTrading.length ? <Typography className={classes.title}>Trade Offer sent</Typography> : ''}
               {offeredTrading.length !== 0 ? (
                 <Stack direction="row" spacing={1}>
                   {offeredTrading.map((value: any, index: number) => (
@@ -476,7 +507,7 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                       <Stack
                         justifyContent="center"
                         alignItems="center"
-                      // className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                        // className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
                       >
                         <img src={value.url} height="100" width="100" alt="" />
                         <Typography>{`Name: ${value.name}`}</Typography>
@@ -489,10 +520,10 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                 // <Stack sx={{ color: 'black' }}>
                 //   <Typography>No Data Found</Typography>
                 // </Stack>
-                ""
+                ''
               )}
-              {
-                fortrading.length !== 0 && data0.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
+              {fortrading.length !== 0 && data0.length !== 0 && (
+                <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
                   {/* <FormControl fullWidth>
                       <InputLabel id="demo-simple-select-label">User</InputLabel>
                       <Select
@@ -534,12 +565,11 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     {isLoadingtransfer ? <CircularProgress size={30} /> : 'Reject Offer Sent'}
                   </Button>
                 </Stack>
-              }
-
+              )}
             </Stack>
 
-            <Stack justifyContent="center" alignItems="center" marginTop="5px" >
-              {receivedTrading.length ? <Typography className={classes.title}>Trade Offer received</Typography> : ""}
+            <Stack justifyContent="center" alignItems="center" marginTop="5px">
+              {receivedTrading.length ? <Typography className={classes.title}>Trade Offer received</Typography> : ''}
               {receivedTrading.length !== 0 ? (
                 <Stack direction="row" spacing={1}>
                   {receivedTrading.map((value: any, index: number) => (
@@ -552,7 +582,7 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                       <Stack
                         justifyContent="center"
                         alignItems="center"
-                      // className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
+                        // className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
                       >
                         <img src={value.url} height="100" width="100" alt="" />
                         <Typography>{`Name: ${value.name}`}</Typography>
@@ -565,10 +595,10 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                 // <Stack sx={{ color: 'black' }}>
                 //   <Typography>No Data Found</Typography>
                 // </Stack>
-                ""
+                ''
               )}
-              {
-                fortrading.length !== 0 && data1.length !== 0 && <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
+              {fortrading.length !== 0 && data1.length !== 0 && (
+                <Stack justifyContent="center" alignItems="center" spacing={1} direction="row" className={classes.p10}>
                   {/* <FormControl fullWidth>
                       <InputLabel id="demo-simple-select-label">User</InputLabel>
                       <Select
@@ -610,8 +640,7 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     {isLoadingtransfer ? <CircularProgress size={30} /> : 'Reject Offer Received'}
                   </Button>
                 </Stack>
-              }
-
+              )}
             </Stack>
           </Card>
         </Grid>
@@ -625,16 +654,16 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     {data0[0].fromUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                      // onClick={() => {
-                      //   offerfortrade(value, index);
-                      //   setState((prevState) => ({
-                      //     ...prevState,
-                      //     url: value.url,
-                      //     metadata: value.metadata,
-                      //     selectedid: value.inventoryItemTypeId,
-                      //     userTradeId: value.userTradeId
-                      //   }))
-                      // }}
+                        // onClick={() => {
+                        //   offerfortrade(value, index);
+                        //   setState((prevState) => ({
+                        //     ...prevState,
+                        //     url: value.url,
+                        //     metadata: value.metadata,
+                        //     selectedid: value.inventoryItemTypeId,
+                        //     userTradeId: value.userTradeId
+                        //   }))
+                        // }}
                       >
                         <Stack
                           justifyContent="center"
@@ -642,7 +671,7 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                           className={`${selectedid === value.inventoryItemTypeId ? classes.selecteditem : ''}`}
                         >
                           <img src={value.url} height="100" width="100" alt="" />
-                          <Typography>{`Name: ${value.name} --->`}  </Typography>
+                          <Typography>{`Name: ${value.name} --->`} </Typography>
                           <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
                           <Typography>{`Status: ${data0[0].fromUserStatus}`}</Typography>
                         </Stack>
@@ -660,16 +689,16 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     {data0[0].toUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                      // onClick={() => {
-                      //   setState((prevState) => ({
-                      //     ...prevState,
-                      //     url: value.url,
-                      //     metadata: value.metadata,
-                      //     selectedid: value.inventoryItemTypeId,
-                      //     userTradeId: value.userTradeId
+                        // onClick={() => {
+                        //   setState((prevState) => ({
+                        //     ...prevState,
+                        //     url: value.url,
+                        //     metadata: value.metadata,
+                        //     selectedid: value.inventoryItemTypeId,
+                        //     userTradeId: value.userTradeId
 
-                      //   }))
-                      // }}
+                        //   }))
+                        // }}
                       >
                         <Stack
                           justifyContent="center"
@@ -689,8 +718,6 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     <Typography>No Data Found</Typography>
                   </Stack>
                 )}
-
-
               </Stack>
             </Card>
             <Card>
@@ -701,15 +728,15 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     {data1[0].toUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                      // onClick={() => {
-                      //   receivefortrade(value, index)
-                      //   setState((prevState) => ({
-                      //     ...prevState,
-                      //     url: value.url,
-                      //     metadata: value.metadata,
-                      //     selectedid: value.inventoryItemTypeId
-                      //   }))
-                      // }}
+                        // onClick={() => {
+                        //   receivefortrade(value, index)
+                        //   setState((prevState) => ({
+                        //     ...prevState,
+                        //     url: value.url,
+                        //     metadata: value.metadata,
+                        //     selectedid: value.inventoryItemTypeId
+                        //   }))
+                        // }}
                       >
                         <Stack
                           justifyContent="center"
@@ -735,15 +762,15 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     {data1[0].fromUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                      // onClick={() => {
+                        // onClick={() => {
 
-                      //   setState((prevState) => ({
-                      //     ...prevState,
-                      //     url: value.url,
-                      //     metadata: value.metadata,
-                      //     selectedid: value.inventoryItemTypeId
-                      //   }))
-                      // }}
+                        //   setState((prevState) => ({
+                        //     ...prevState,
+                        //     url: value.url,
+                        //     metadata: value.metadata,
+                        //     selectedid: value.inventoryItemTypeId
+                        //   }))
+                        // }}
                       >
                         <Stack
                           justifyContent="center"
@@ -766,7 +793,6 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
               </Stack>
             </Card>
           </Stack>
-
         </Grid>
       </Grid>
 

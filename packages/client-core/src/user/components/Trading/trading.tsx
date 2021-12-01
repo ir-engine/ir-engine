@@ -11,8 +11,17 @@ import TradingContent from '../UserMenu/menus/TradingContent'
 export const TradingPage = (): any => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const [state, setState] = useState<any>({ data: [],data1: [],data0: [], inventory: [], user: [], type: [], isLoading: true, isLoadingtransfer: false })
-  const { data, user, type, isLoading, isLoadingtransfer, inventory,data1,data0 } = state
+  const [state, setState] = useState<any>({
+    data: [],
+    data1: [],
+    data0: [],
+    inventory: [],
+    user: [],
+    type: [],
+    isLoading: true,
+    isLoadingtransfer: false
+  })
+  const { data, user, type, isLoading, isLoadingtransfer, inventory, data1, data0 } = state
 
   const authState = useAuthState()
 
@@ -24,8 +33,7 @@ export const TradingPage = (): any => {
     if (authState.isLoggedIn.value) {
       fetchInventoryList()
       fetchfromTradingList()
-      fetchtoTradingList(),
-      fetchUserList()
+      fetchtoTradingList(), fetchUserList()
     }
   }, [authState.isLoggedIn.value])
 
@@ -34,22 +42,22 @@ export const TradingPage = (): any => {
       ...prevState,
       isLoadingtransfer: true
     }))
-    const data={
+    const data = {
       fromUserId: id,
       toUserId: ids,
       fromUserInventoryIds: [...items],
-      fromUserStatus: "REQUEST",
-      toUserStatus: "REQUEST"
-  }
-  console.log("TRANSFER ", data);
-  
+      fromUserStatus: 'REQUEST',
+      toUserStatus: 'REQUEST'
+    }
+    console.log('TRANSFER ', data)
+
     try {
       const response = await client.service('user-trade').create(data)
-      console.log(response,"trade")
-      if(response){
+      console.log(response, 'trade')
+      if (response) {
         fetchInventoryList()
-      fetchfromTradingList()
-      fetchtoTradingList()
+        fetchfromTradingList()
+        fetchtoTradingList()
       }
       console.log('success')
     } catch (err) {
@@ -67,20 +75,20 @@ export const TradingPage = (): any => {
       ...prevState,
       isLoadingtransfer: true
     }))
-    const data={
+    const data = {
       fromUserInventoryIds: items,
-      fromUserStatus: "ACCEPT",
-  }
-  console.log("acceptOfferSent ", data);
-  console.log("tradeId ", tradeId);
+      fromUserStatus: 'ACCEPT'
+    }
+    console.log('acceptOfferSent ', data)
+    console.log('tradeId ', tradeId)
 
     try {
-      const response = await client.service('user-trade').patch(tradeId,data)
-      console.log(response,"trade")
-      if(response){
+      const response = await client.service('user-trade').patch(tradeId, data)
+      console.log(response, 'trade')
+      if (response) {
         fetchInventoryList()
-      fetchfromTradingList()
-      fetchtoTradingList()
+        fetchfromTradingList()
+        fetchtoTradingList()
       }
       console.log('success')
     } catch (err) {
@@ -90,8 +98,7 @@ export const TradingPage = (): any => {
         ...prevState,
         isLoadingtransfer: false
       }))
-      localStorage.removeItem('tradeId');
-
+      localStorage.removeItem('tradeId')
     }
   }
 
@@ -100,21 +107,20 @@ export const TradingPage = (): any => {
       ...prevState,
       isLoadingtransfer: true
     }))
-    const data={
+    const data = {
       toUserInventoryIds: items,
-      toUserStatus: "ACCEPT"
-
-  }
-  console.log("acceptOfferReceived ", data);
-  console.log("tradeId ", tradeId);
+      toUserStatus: 'ACCEPT'
+    }
+    console.log('acceptOfferReceived ', data)
+    console.log('tradeId ', tradeId)
 
     try {
-      const response = await client.service('user-trade').patch(tradeId,data)
-      console.log(response,"trade")
-      if(response){
+      const response = await client.service('user-trade').patch(tradeId, data)
+      console.log(response, 'trade')
+      if (response) {
         fetchInventoryList()
-      fetchfromTradingList()
-      fetchtoTradingList()
+        fetchfromTradingList()
+        fetchtoTradingList()
       }
       console.log('success')
     } catch (err) {
@@ -124,8 +130,7 @@ export const TradingPage = (): any => {
         ...prevState,
         isLoadingtransfer: false
       }))
-      localStorage.removeItem('tradeId');
-
+      localStorage.removeItem('tradeId')
     }
   }
 
@@ -134,19 +139,19 @@ export const TradingPage = (): any => {
       ...prevState,
       isLoadingtransfer: true
     }))
-    const data={
-      fromUserStatus: "REJECT",
-  }
-  console.log("acceptOfferSent ", data);
-  console.log("tradeId ", tradeId);
+    const data = {
+      fromUserStatus: 'REJECT'
+    }
+    console.log('acceptOfferSent ', data)
+    console.log('tradeId ', tradeId)
 
     try {
-      const response = await client.service('user-trade').patch(tradeId,data)
-      console.log(response,"trade")
-      if(response){
+      const response = await client.service('user-trade').patch(tradeId, data)
+      console.log(response, 'trade')
+      if (response) {
         fetchInventoryList()
-      fetchfromTradingList()
-      fetchtoTradingList()
+        fetchfromTradingList()
+        fetchtoTradingList()
       }
       console.log('success')
     } catch (err) {
@@ -156,30 +161,28 @@ export const TradingPage = (): any => {
         ...prevState,
         isLoadingtransfer: false
       }))
-      localStorage.removeItem('tradeId');
-
+      localStorage.removeItem('tradeId')
     }
   }
-  
+
   const rejectOfferReceived = async (tradeId, items) => {
     setState((prevState) => ({
       ...prevState,
       isLoadingtransfer: true
     }))
-    const data={
-      toUserStatus: "REJECT"
-
-  }
-  console.log("acceptOfferReceived ", data);
-  console.log("tradeId ", tradeId);
+    const data = {
+      toUserStatus: 'REJECT'
+    }
+    console.log('acceptOfferReceived ', data)
+    console.log('tradeId ', tradeId)
 
     try {
-      const response = await client.service('user-trade').patch(tradeId,data)
-      console.log(response,"trade")
-      if(response){
+      const response = await client.service('user-trade').patch(tradeId, data)
+      console.log(response, 'trade')
+      if (response) {
         fetchInventoryList()
-      fetchfromTradingList()
-      fetchtoTradingList()
+        fetchfromTradingList()
+        fetchtoTradingList()
       }
       console.log('success')
     } catch (err) {
@@ -189,8 +192,7 @@ export const TradingPage = (): any => {
         ...prevState,
         isLoadingtransfer: false
       }))
-      localStorage.removeItem('tradeId');
-
+      localStorage.removeItem('tradeId')
     }
   }
 
@@ -240,7 +242,7 @@ export const TradingPage = (): any => {
       console.log(response, 'inventorylist')
       setState((prevState) => ({
         ...prevState,
-        inventory: [...response.data[0].inventory_items.filter((val)=>(val.isCoin===false))],
+        inventory: [...response.data[0].inventory_items.filter((val) => val.isCoin === false)],
         isLoading: false
       }))
     } catch (err) {
@@ -254,7 +256,6 @@ export const TradingPage = (): any => {
     setState((prevState) => ({
       ...prevState,
       inventory: [...inventorytemp]
-
     }))
   }
 
@@ -264,17 +265,15 @@ export const TradingPage = (): any => {
     setState((prevState) => ({
       ...prevState,
       data0: [...datatemp]
-
     }))
   }
   const removereceiveinventory = (index) => {
     const datatemp = [...data1]
-    datatemp.splice(index, 1);
-    
+    datatemp.splice(index, 1)
+
     setState((prevState) => ({
       ...prevState,
       data1: [...datatemp]
-
     }))
   }
 
@@ -284,7 +283,6 @@ export const TradingPage = (): any => {
     setState((prevState) => ({
       ...prevState,
       inventory: [...inventorytemp]
-
     }))
   }
 
@@ -294,7 +292,6 @@ export const TradingPage = (): any => {
     setState((prevState) => ({
       ...prevState,
       data0: [...datatemp]
-
     }))
   }
 
@@ -304,7 +301,6 @@ export const TradingPage = (): any => {
     setState((prevState) => ({
       ...prevState,
       data1: [...datatemp]
-
     }))
   }
 
@@ -315,7 +311,7 @@ export const TradingPage = (): any => {
           action: 'inventory'
         }
       })
-      console.log(response,"userlist")
+      console.log(response, 'userlist')
       if (response.data && response.data.length !== 0) {
         const activeUser = response.data.filter((val: any) => val.inviteCode !== null)
         setState((prevState: any) => ({
@@ -328,7 +324,7 @@ export const TradingPage = (): any => {
       console.error(err, 'error')
     }
   }
-  console.log(inventory, "parent")
+  console.log(inventory, 'parent')
   return (
     <EmptyLayout pageTitle={t('Inventory.pageTitle')}>
       <style>
@@ -360,7 +356,7 @@ export const TradingPage = (): any => {
           acceptOfferSent={acceptOfferSent}
           acceptOfferReceived={acceptOfferReceived}
           isLoadingtransfer={isLoadingtransfer}
-          rejectOfferSent={rejectOfferSent} 
+          rejectOfferSent={rejectOfferSent}
           rejectOfferReceived={rejectOfferReceived}
         />
       )}

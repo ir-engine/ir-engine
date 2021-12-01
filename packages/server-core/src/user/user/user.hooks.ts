@@ -39,7 +39,7 @@ export default {
           {
             model: 'scope'
           },
-          { 
+          {
             model: 'user-wallet'
           },
           {
@@ -74,7 +74,7 @@ export default {
           {
             model: 'scope'
           },
-          { 
+          {
             model: 'user-wallet'
           },
           {
@@ -111,7 +111,7 @@ export default {
           {
             model: 'scope'
           },
-          { 
+          {
             model: 'user-wallet'
           },
           {
@@ -144,7 +144,7 @@ export default {
               }
             }
           } else {
-            context.result.data= []
+            context.result.data = []
           }
         } catch {
           context.result.data = []
@@ -197,7 +197,7 @@ export default {
               }
             }
           } else {
-            context.result.data= []
+            context.result.data = []
           }
         } catch {
           context.result.data = []
@@ -237,7 +237,6 @@ export default {
     ],
     create: [
       async (context: HookContext): Promise<HookContext> => {
-        
         try {
           await context.app.service('user-settings').create({
             userId: context.result.id
@@ -255,7 +254,7 @@ export default {
           if (Array.isArray(result)) result = result[0]
           if (result?.userRole !== 'guest' && result?.inviteCode == null) {
             const code = await getFreeInviteCode(app)
-            console.log("I am in create user with non guest")
+            console.log('I am in create user with non guest')
             await app.service('user').patch(result.id, {
               inviteCode: code
             })
@@ -277,7 +276,7 @@ export default {
           if (Array.isArray(result)) result = result[0]
           if (result && result.userRole !== 'guest' && result.inviteCode == null) {
             const code = await getFreeInviteCode(app)
-            console.log("I am in patch user with non guest")
+            console.log('I am in patch user with non guest')
             await app.service('user').patch(result.id, {
               inviteCode: code
             })

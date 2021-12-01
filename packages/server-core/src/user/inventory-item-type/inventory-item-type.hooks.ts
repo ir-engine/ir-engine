@@ -44,7 +44,7 @@ export default {
               }
             }
           } else {
-            context.result.data= []
+            context.result.data = []
           }
         } catch {
           context.result.data = []
@@ -65,7 +65,7 @@ export default {
               }
             }
           } else {
-            context.result.data= []
+            context.result.data = []
           }
         } catch {
           context.result.data = []

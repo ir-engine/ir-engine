@@ -11,8 +11,15 @@ import axios from 'axios'
 export const InventoryPage = (): any => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const [state, setState] = useState<any>({coinData:[], data: [], user: [], type: [], isLoading: true, isLoadingtransfer: false })
-  const { data, user, type, isLoading, isLoadingtransfer,coinData } = state
+  const [state, setState] = useState<any>({
+    coinData: [],
+    data: [],
+    user: [],
+    type: [],
+    isLoading: true,
+    isLoadingtransfer: false
+  })
+  const { data, user, type, isLoading, isLoadingtransfer, coinData } = state
 
   const authState = useAuthState()
 
@@ -59,12 +66,11 @@ export const InventoryPage = (): any => {
       const response = await client.service('user').get(id)
       setState((prevState) => ({
         ...prevState,
-        data: [...response.inventory_items.filter((val)=>(val.isCoin===false))],
-        coinData: [...response.inventory_items.filter((val)=>(val.isCoin===true))],
+        data: [...response.inventory_items.filter((val) => val.isCoin === false)],
+        coinData: [...response.inventory_items.filter((val) => val.isCoin === true)],
         isLoading: false
       }))
       console.log(state, 'inventorylist')
-
     } catch (err) {
       console.error(err, 'error')
     }
@@ -124,7 +130,7 @@ export const InventoryPage = (): any => {
       ) : (
         <InventoryContent
           data={data}
-          coinData = {coinData}
+          coinData={coinData}
           user={user}
           type={type}
           handleTransfer={handleTransfer}

@@ -5,7 +5,7 @@ export const inventoryItemSeed = {
     {
       sid: 'j9o2NLiD',
       name: 'Game Coin',
-      description: 'In Game Currency' ,
+      description: 'In Game Currency',
       version: 4,
       metadata: { name: 'In Game Currency' },
       isPublic: 1,

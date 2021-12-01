@@ -1,6 +1,6 @@
-import Button from '@mui/material/Button'	
-import Typography from '@mui/material/Typography'	
-import makeStyles from '@mui/styles/makeStyles'	
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import makeStyles from '@mui/styles/makeStyles'
 import { ArrowBackIos, FilterList } from '@mui/icons-material'
 import React, { useEffect, useState } from 'react'
 import {
@@ -65,7 +65,7 @@ const useStyles = makeStyles({
   contents: {
     justifyContent: 'center'
   },
-  titlesize:{
+  titlesize: {
     fontSize: '30px'
   }
 })
@@ -109,7 +109,7 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
   }
 
   useEffect(() => {
-    console.log("data ", coinData)
+    console.log('data ', coinData)
     if (data.length !== 0) {
       setState((prevState: any) => ({
         ...prevState,
@@ -129,8 +129,8 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
         anchorEl: null,
         selectedtype: '',
         inventory: []
-      }); // This worked for me
-    };
+      }) // This worked for me
+    }
   }, [])
 
   useEffect(() => {
@@ -178,21 +178,15 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
         </IconButton>
         <Typography className={`${classes.title} ${classes.titlesize}`}>Inventory</Typography>
         <Stack direction="row" justifyContent="center">
-
-          <Stack sx={{ marginTop: "15px" }}>
-
+          <Stack sx={{ marginTop: '15px' }}>
             {coinData.length !== 0 ? (
-              <Stack >
+              <Stack>
                 {coinData.map((value: any, index: number) => (
                   // <Card
                   //   key={index}
                   //   style={{marginBottom:"8px",padding:"2px"}}
                   // >
-                  <Stack
-                    key={index}
-                    justifyContent="center"
-                    alignItems="center"
-                  >
+                  <Stack key={index} justifyContent="center" alignItems="center">
                     <img src={value.url} height="50" width="50" alt="" />
                     <Typography>{`${value.name}`}</Typography>
                     <Typography>{`Quantity: ${value.user_inventory.quantity}`}</Typography>
@@ -238,12 +232,16 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
                   }
                 }}
               >
-                <MenuItem style={{ display: "block" }} selected={selectedtype === ''} onClick={(e) => handletypeselect('')}>
+                <MenuItem
+                  style={{ display: 'block' }}
+                  selected={selectedtype === ''}
+                  onClick={(e) => handletypeselect('')}
+                >
                   All
                 </MenuItem>
                 {type.map((option) => (
                   <MenuItem
-                    style={{ display: "block" }}
+                    style={{ display: 'block' }}
                     key={option.inventoryItemTypeId}
                     selected={option.inventoryItemTypeId === selectedtype}
                     onClick={(e) => handletypeselect(option.inventoryItemTypeId)}
@@ -252,12 +250,12 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
                   </MenuItem>
                 ))}
               </Menu>
-              {(selectedtype===""?data:inventory).length !== 0 ? (
+              {(selectedtype === '' ? data : inventory).length !== 0 ? (
                 <Stack>
-                  {(selectedtype===""?data:inventory).map((value: any, index: number) => (
+                  {(selectedtype === '' ? data : inventory).map((value: any, index: number) => (
                     <Card
                       key={index}
-                      style={{ marginBottom: "8px", padding: "2px" }}
+                      style={{ marginBottom: '8px', padding: '2px' }}
                       onClick={() => {
                         setState((prevState) => ({
                           ...prevState,
@@ -291,8 +289,6 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
                  <div>{value.name}</div>
               )
             } */}
-
-
           </Grid>
           <Grid item md={6}>
             {url !== '' && metadata.length !== 0 && (
@@ -336,16 +332,13 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
                       }}
                     >
                       {user.map((datas, index) => (
-                        <MenuItem style={{ display: "block", marginRight: "18px" }} key={index} value={datas.id}>
+                        <MenuItem style={{ display: 'block', marginRight: '18px' }} key={index} value={datas.id}>
                           {datas.name}
                         </MenuItem>
                       ))}
-
                     </Select>
-
                   </FormControl>
                   <Button
-
                     variant="outlined"
                     disabled={isLoadingtransfer}
                     onClick={() => handleTransfer(userid, selectedid)}
@@ -369,7 +362,6 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
       )}
       {/* </Stack> */}
     </Box>
-
   )
 }
 

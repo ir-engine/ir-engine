@@ -102,8 +102,6 @@ export class IdentityProvider extends Service {
       userId = uuidv1()
     }
 
-    
-
     const sequelizeClient: Sequelize = this.app.get('sequelizeClient')
     const userService = this.app.service('user')
     const User = sequelizeClient.model('user')
@@ -152,27 +150,28 @@ export class IdentityProvider extends Service {
       params
     )
     // DRC
-    try{
-      if(result.user.userRole === "user"){
-        let invenData :any = await this.app.service("inventory-item").find({ query: { isCoin: true } })
+    try {
+      if (result.user.userRole === 'user') {
+        let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
         let invenDataId = invenData.data[0].dataValues.inventoryItemId
-        console.log(invenData);
-        console.log(invenData.data[0].dataValues);
-        let resp = await this.app.service("user-inventory").create({   
-            "userId": result.user.id,
-            "inventoryItemId": invenDataId,
-            "quantity": 0
+        console.log(invenData)
+        console.log(invenData.data[0].dataValues)
+        let resp = await this.app.service('user-inventory').create({
+          userId: result.user.id,
+          inventoryItemId: invenDataId,
+          quantity: 0
         })
-  
-        let newData = await this.app.service("user-wallet").create({"userId": result.user.id})
+
+        let newData = await this.app.service('user-wallet').create({ userId: result.user.id })
       }
+    } catch (err) {
+      console.log('ERROR', err)
     }
-    catch(err){ console.log("ERROR", err)}
     // DRC
     // await this.app.service('user-settings').create({
     //   userId: result.userId
     // });
-    console.log("userId",userId)
+    console.log('userId', userId)
     if (config.scopes.guest.length) {
       config.scopes.guest.forEach(async (el) => {
         await this.app.service('scope').create({
