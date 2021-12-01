@@ -339,7 +339,7 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
       return (
         <div key={key}>
           <Checkbox onChange={(e) => onChangeCheckBox(e, key)} checked={node.postProcessingOptions[key].isActive} />
-          {key}
+          <span style={{ color: '#9FA4B5' }}>{key}</span>
           {node.postProcessingOptions[key].isActive && <div>{renderEffectsTypes(key)}</div>}
         </div>
       )
