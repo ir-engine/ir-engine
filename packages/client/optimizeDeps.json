@@ -10,6 +10,7 @@
     "react-ga4",
     "semantic-ui-react",
     "styled-components",
-    "uuid"
+    "uuid",
+    "volumetric/web/decoder/Player"
   ]
 }
