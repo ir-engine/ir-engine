@@ -13,6 +13,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { getTransform } from './parseModelColliders'
 import { getGeometryType } from '../classes/Physics'
 import { vectorToArray } from './physxHelpers'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { Engine } from '../../ecs/classes/Engine'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -74,7 +76,15 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   // type is required
   if (!shapeOptions.type) return undefined!
 
-  const scale = mesh.scale ?? new Vector3(1, 1, 1)
+  // Get accurate scale relative to all parents
+  let scale = mesh.scale ?? new Vector3(1, 1, 1)
+  let currentChild = mesh as any
+  while (currentChild && currentChild.uuid !== Engine.scene.uuid) {
+    let parentScale = currentChild.parent?.scale ?? new Vector3(1, 1, 1)
+    scale.multiply(parentScale)
+    console.log(currentChild, scale)
+    currentChild = currentChild.parent
+  }
 
   const world = useWorld()
 
