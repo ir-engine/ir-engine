@@ -43,38 +43,34 @@ Please make sure you've followed everything in these instructions:
 https://mediasoup.org/documentation/v3/mediasoup/installation/
 
 ### Installing on Native Windows
-1. Add Env Variable
-```
-PUPPETEER_SKIP_DOWNLOAD='true'
-```
-2. install python 2 and add python installation directory path to 'path' env variable.
+1. install python 2 and add python installation directory path to 'path' env variable.
 
-3. Install node js
+2. Install node js
 
-4. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
+3. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
 
-5. add environmental variable
+4. add environmental variable
 ```
 GYP_MSVS_VERSION=<vs-year>
 for example, GYP_MSVS_VERSION=2019
 ```
 
-6. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
+5. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
 for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin```
 
-7. remove mediasoup and mediasoup-client from every package.json. This will enable us to add all the dependencies except mediasoup, this way we can save time while dealing with mediasoup.
+6. remove mediasoup and mediasoup-client from every package.json. This will enable us to add all the dependencies except mediasoup, this way we can save time while dealing with mediasoup.
 
-8. rename 'postinstall' to 'postinstall-1' so that it will not run after installing dependencies.
+7. rename 'postinstall' to 'postinstall-1' so that it will not run after installing dependencies.
 
-9. install all dependences using npm.
+8. install all dependences using npm.
 
-10. add back all removed mediasoup and mediasoup-client dependencies.
+9. add back all removed mediasoup and mediasoup-client dependencies.
 
-11. Rerun npm command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
+10. Rerun npm command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
 
-12. If error persists then check for typos in environment variables.
+11. If error persists then check for typos in environment variables.
 
-13. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
+12. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
 
 ./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
 

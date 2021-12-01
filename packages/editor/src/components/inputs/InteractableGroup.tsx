@@ -63,6 +63,9 @@ type InteractableGroupState = {
 // function to handle changes in interactionType property
 const onChangeInteractionType = (interactionType) => {
   CommandManager.instance.setPropertyOnSelection('interactionType', interactionType)
+  if (interactionType === 'equippable') {
+    CommandManager.instance.setPropertyOnSelection('isDynamicObject', true)
+  }
 }
 
 // function to handle changes in interactionText property
