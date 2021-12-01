@@ -124,6 +124,10 @@ export class EngineRenderer {
   timeSamples = new Array(60 * 1).fill(1000 / 60) // 3 seconds @ 60fps
   index = 0
 
+  averageMean: number = 0
+  averageMultiplier: number = 0
+  averageTimePeriods: number = 60
+
   /** Constructs WebGL Renderer System. */
   constructor(attributes: EngineRendererProps) {
     EngineRenderer.instance = this
@@ -199,6 +203,10 @@ export class EngineRenderer {
         this.rendereringEnabled = ev.renderer
       }
     })
+
+    /** Init Exponential Moving Average  */
+    this.averageMean = 0
+    this.averageMultiplier = 2 / (this.averageTimePeriods + 1)
   }
 
   /** Called on resize, sets resize flag. */
@@ -257,11 +265,16 @@ export class EngineRenderer {
   calculateMovingAverage = (delta: number): number => {
     this.averageFrameTime =
       (this.averageFrameTime * this.timeSamples.length + delta - this.timeSamples[this.index]) / this.timeSamples.length
-
     this.timeSamples[this.index] = delta
     this.index = (this.index + 1) % this.timeSamples.length
-
     return this.averageFrameTime
+  }
+
+  onUpdateMovingAverage(newValue: number): number {
+    const meanIncrement = this.averageMultiplier * (newValue - this.averageMean)
+    const newMean = this.averageMean + meanIncrement
+    this.averageMean = newMean
+    return this.averageMean
   }
 
   /**
@@ -274,7 +287,8 @@ export class EngineRenderer {
 
     if (!this.automatic) return
 
-    const averageDelta = this.calculateMovingAverage(delta)
+    // const averageDelta = this.calculateMovingAverage(delta)
+    const averageDelta = this.onUpdateMovingAverage(delta)
 
     // dont downgrade when scene is still loading in
     if (Engine.sceneLoaded) {
