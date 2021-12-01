@@ -55,11 +55,11 @@ export const createInteractText = (displayText: string | undefined) => {
       interactTextObject.children[0].position.y = Math.sin(elapsedTime * 1.8) * 0.05
       if (
         useEngine().activeCameraFollowTarget &&
-        hasComponent(useEngine().activeCameraFollowTarget, FollowCameraComponent)
+        hasComponent(useEngine().activeCameraFollowTarget!, FollowCameraComponent)
       ) {
         interactTextObject.children[0].setRotationFromAxisAngle(
           upVec,
-          MathUtils.degToRad(getComponent(useEngine().activeCameraFollowTarget, FollowCameraComponent).theta)
+          MathUtils.degToRad(getComponent(useEngine().activeCameraFollowTarget!, FollowCameraComponent).theta)
         )
       } else {
         const { x, z } = getComponent(entity, TransformComponent).position

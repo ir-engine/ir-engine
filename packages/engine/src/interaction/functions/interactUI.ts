@@ -156,11 +156,11 @@ export const updateInteractUI = (xrEntity: Entity) => {
   }
   if (
     useEngine().activeCameraFollowTarget &&
-    hasComponent(useEngine().activeCameraFollowTarget, FollowCameraComponent)
+    hasComponent(useEngine().activeCameraFollowTarget!, FollowCameraComponent)
   ) {
     interactUIObject.children[0].setRotationFromAxisAngle(
       upVec,
-      MathUtils.degToRad(getComponent(useEngine().activeCameraFollowTarget, FollowCameraComponent).theta)
+      MathUtils.degToRad(getComponent(useEngine().activeCameraFollowTarget!, FollowCameraComponent).theta)
     )
   } else {
     const world = useWorld()
