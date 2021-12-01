@@ -21,14 +21,12 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "socket.io": "4.4.0",
     "@types/react": "17.0.36",
     "react": "17.0.2"
   },
   "peerDependencies": {
     "@types/react": "17.0.36",
-    "react": "17.0.2",
-    "socket.io": "4.4.0"
+    "react": "17.0.2"
   },
   "dependencies": {
     "@capacitor-community/http": "1.4.1",
@@ -38,6 +36,7 @@
     "@capacitor/filesystem": "1.0.6",
     "@capacitor/ios": "3.3.2",
     "@capacitor/share": "1.0.7",
+    "@hookstate/core": "3.0.13",
     "@material-ui/core": "4.12.3",
     "@mui/icons-material": "5.2.0",
     "@mui/material": "5.2.0",
@@ -48,12 +47,11 @@
     "@xrengine/editor": "^0.4.13",
     "@xrengine/engine": "^0.4.13",
     "app-root-path": "3.0.0",
-    "cross-env": "7.0.3",
-    "formik": "2.2.9",
     "notistack": "2.0.3",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-redux": "7.2.6",
+    "react-router-dom": "5.3.0",
     "react-step-wizard": "5.3.9",
     "react-video-recorder": "3.19.1",
     "redux": "4.1.2",
@@ -65,9 +63,9 @@
   "devDependencies": {
     "@types/node": "16.11.10",
     "@types/react": "17.0.36",
+    "@types/react-router-dom": "5.3.2",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "8.3.0",
     "typescript": "4.5.2",
     "vite": "2.6.14"
   },

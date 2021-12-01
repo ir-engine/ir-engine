@@ -3,7 +3,7 @@ import { useHistory, withRouter } from 'react-router-dom'
 import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -139,8 +139,10 @@ const EditorContainer = (props) => {
   const [DialogComponent, setDialogComponent] = useState(null)
   const [modified, setModified] = useState(false)
   const [sceneLoaded, setSceneLoaded] = useState(false)
+  const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
   const dispatch = useDispatch()
   const history = useHistory()
+  const dockPanelRef = useRef()
 
   const initializeEditor = async () => {
     await Promise.all([ProjectManager.instance.init()])
@@ -338,6 +340,7 @@ const EditorContainer = (props) => {
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
       )
     }
+    setToggleRefetchScenes(!toggleRefetchScenes)
   }
 
   const onExportProject = async () => {
@@ -483,7 +486,30 @@ const EditorContainer = (props) => {
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
       )
     }
+    setToggleRefetchScenes(!toggleRefetchScenes)
   }
+
+  useEffect(() => {
+    console.log('toggleRefetchScenes')
+    dockPanelRef.current &&
+      dockPanelRef.current.updateTab('scenePanel', {
+        id: 'scenePanel',
+        title: (
+          <PanelDragContainer>
+            <PanelIcon as={Archive} size={12} />
+            <PanelTitle>Scenes</PanelTitle>
+          </PanelDragContainer>
+        ),
+        content: (
+          <ScenesPanel
+            newScene={newScene}
+            toggleRefetchScenes={toggleRefetchScenes}
+            projectName={projectName}
+            loadScene={reRouteToLoadScene}
+          />
+        )
+      })
+  }, [toggleRefetchScenes])
 
   useEffect(() => {
     CacheManager.init()
@@ -545,7 +571,7 @@ const EditorContainer = (props) => {
   const toolbarMenu = generateToolbarMenu()
   if (!editorReady) return <></>
 
-  let defaultLayout: LayoutData = {
+  const defaultLayout: LayoutData = {
     dockbox: {
       mode: 'horizontal' as DockMode,
       children: [
@@ -563,7 +589,14 @@ const EditorContainer = (props) => {
                       <PanelTitle>Scenes</PanelTitle>
                     </PanelDragContainer>
                   ),
-                  content: <ScenesPanel newScene={newScene} loadScene={reRouteToLoadScene} projectName={projectName} />
+                  content: (
+                    <ScenesPanel
+                      newScene={newScene}
+                      projectName={projectName}
+                      toggleRefetchScenes={toggleRefetchScenes}
+                      loadScene={reRouteToLoadScene}
+                    />
+                  )
                 },
                 {
                   id: 'filesPanel',
@@ -646,6 +679,7 @@ const EditorContainer = (props) => {
             <ViewportPanelContainer />
             <DockContainer>
               <DockLayout
+                ref={dockPanelRef}
                 defaultLayout={defaultLayout}
                 style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
               />
