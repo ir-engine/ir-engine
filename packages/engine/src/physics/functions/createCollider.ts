@@ -232,6 +232,18 @@ export const createCollider = (entity: Entity, mesh: Mesh) => {
   addComponent(entity, CollisionComponent, { collisions: [] })
 }
 
+export const createColliderForObject3D = (entity: Entity, data) => {
+  const object3d = getComponent(entity, Object3DComponent)
+  console.log('creating collider:', object3d)
+  if (object3d) {
+    console.log('creating collider')
+    const shapes = getAllShapesFromObject3D(entity, object3d.value as any, data)
+    const body = createBody(entity, data, shapes)
+    addComponent(entity, ColliderComponent, { body })
+    addComponent(entity, CollisionComponent, { collisions: [] })
+  }
+}
+
 export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
   const transform = getComponent(entity, TransformComponent)
   const [position, quaternion, scale] = getTransform(

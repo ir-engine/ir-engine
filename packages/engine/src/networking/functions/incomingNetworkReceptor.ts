@@ -94,7 +94,7 @@ export function incomingNetworkReceptor(action) {
           removeComponent(entity, NetworkObjectOwnedTag)
         }
 
-        // Give ownership back to server, is this required?
+        // Give ownership back to server, so that item shows up where it was last dropped
         if (Engine.userId === world.hostId && !a.equip) {
           addComponent(entity, NetworkObjectOwnedTag, {})
         }

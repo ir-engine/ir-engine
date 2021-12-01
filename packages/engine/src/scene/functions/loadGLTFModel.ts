@@ -17,6 +17,9 @@ import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { NameComponent } from '../components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { createColliderForObject3D } from '../../physics/functions/createCollider'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { BodyType } from '../../physics/types/PhysicsTypes'
 
 export const parseObjectComponents = (entity: Entity, res: Mesh | Scene, loadComponent) => {
   const meshesToProcess: Mesh[] = []
@@ -186,6 +189,17 @@ export const parseGLTFModel = (
       child.matrixAutoUpdate = false
     })
   }
+
+  if (component.data.isDynamicObject) {
+    const physicsShapeOptions = {
+      isTrigger: false,
+      bodyType: BodyType.KINEMATIC, //Make static initially since owned by server and should not be affected by other forces
+      collisionLayer: CollisionGroups.Default,
+      collisionMask: CollisionGroups.Default // Do not make it Default, so that not collidable with avatar?
+    }
+    createColliderForObject3D(entity, physicsShapeOptions)
+  }
+
   parseObjectComponents(entity, scene, (newEntity: Entity, newComponent: SceneDataComponent) => {
     sceneLoader.loadComponent(newEntity, newComponent, sceneProperty)
   })
