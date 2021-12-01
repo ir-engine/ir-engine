@@ -18,6 +18,10 @@ export default async function AvatarUISystem(world: World): Promise<System> {
   return () => {
     for (const userEntity of userQuery.enter()) {
       if (userEntity === world.localClientEntity) continue
+      if (AvatarUI.has(userEntity)) {
+        console.log('entity already exists: ' + userEntity)
+        continue
+      }
       const userId = getComponent(userEntity, NetworkObjectComponent).userId
       const ui = createAvatarDetailView(userId)
       AvatarUI.set(userEntity, ui)
