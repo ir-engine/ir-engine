@@ -36,6 +36,9 @@ const config: ProjectConfigInterface = {
     },
     '/trading': {
       component: () => import('@xrengine/client/src/pages/trading')
+    },
+    '/wallet': {
+      component: () => import('@xrengine/client/src/pages/wallet')
     }
   },
   services: undefined,

@@ -1,6 +1,6 @@
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import makeStyles from '@mui/styles/makeStyles'
+import Button from '@mui/material/Button'	
+import Typography from '@mui/material/Typography'	
+import makeStyles from '@mui/styles/makeStyles'	
 import { ArrowBackIos, FilterList } from '@mui/icons-material'
 import React, { useEffect, useState } from 'react'
 import {
@@ -252,9 +252,9 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
                   </MenuItem>
                 ))}
               </Menu>
-              {inventory.length !== 0 ? (
+              {(selectedtype===""?data:inventory).length !== 0 ? (
                 <Stack>
-                  {inventory.map((value: any, index: number) => (
+                  {(selectedtype===""?data:inventory).map((value: any, index: number) => (
                     <Card
                       key={index}
                       style={{ marginBottom: "8px", padding: "2px" }}

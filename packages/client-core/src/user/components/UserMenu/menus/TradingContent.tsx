@@ -1,6 +1,6 @@
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import makeStyles from '@mui/styles/makeStyles'
+import Button from '@mui/material/Button'	
+import Typography from '@mui/material/Typography'	
+import makeStyles from '@mui/styles/makeStyles'	
 import { ArrowBackIos, FilterList } from '@mui/icons-material'
 import React, { useEffect, useState } from 'react'
 import {
@@ -88,6 +88,7 @@ type StateType = {
   fortrading: itemtype[],
   offeredTrading: itemtype[],
   receivedTrading: itemtype[],
+  inventoryList: any[]
   userTradeId: string;
 }
 
@@ -106,9 +107,10 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
     fortrading: [],
     offeredTrading: [],
     receivedTrading: [],
-    userTradeId: ""
+    userTradeId: "",
+    inventoryList: []
   })
-  const { url, metadata, userid, selectedid, anchorEl, selectedtype, fortrading, receivedTrading, offeredTrading, userTradeId } = state
+  const { url, metadata, inventoryList, userid, selectedid, anchorEl, selectedtype, fortrading, receivedTrading, offeredTrading, userTradeId } = state
   const prevState = usePrevious({ selectedtype })
   // const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl)
@@ -118,6 +120,7 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
       anchorEl: event.currentTarget
     }))
   }
+
   const handleClose = () => {
     setState((prevState) => ({
       ...prevState,
@@ -145,6 +148,42 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
       }))
     }
   }, [])
+
+  useEffect(() => {
+    if (prevState) {
+      if (prevState.selectedtype !== selectedtype) {
+        if (selectedtype === '') {
+          setState((prevState: any) => ({
+            ...prevState,
+            // url: data[0].url,
+            // metadata: data[0].metadata,
+            selectedid: inventory[0].user_inventory.userInventoryId,
+            inventoryList: [...inventory]
+          }))
+        } else {
+          let filtereddata = inventory.filter((val) => val.inventoryItemTypeId === selectedtype)
+          console.log(filtereddata, selectedtype)
+          if (filtereddata.length !== 0) {
+            setState((prevState: any) => ({
+              ...prevState,
+              // url: filtereddata[0].url,
+              // metadata: filtereddata[0].metadata,
+              selectedid: filtereddata[0].user_inventory.userInventoryId,
+              inventoryList: [...filtereddata]
+            }))
+          } else {
+            setState((prevState: any) => ({
+              ...prevState,
+              // url: '',
+              // metadata: '',
+              selectedid: '',
+              inventoryList: []
+            }))
+          }
+        }
+      }
+    }
+  }, [selectedtype])
 
 
 
@@ -322,9 +361,9 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                 </MenuItem>
               ))}
             </Menu>
-            {inventory.length !== 0 ? (
+            {(selectedtype===""?inventory:inventoryList).length !== 0 ? (
               <Stack>
-                {inventory.map((value: any, index: number) => (
+                {(selectedtype===""?inventory:inventoryList).map((value: any, index: number) => (
                   <Card
                     key={index}
                     onClick={() => {
@@ -586,16 +625,16 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     {data0[0].fromUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                        // onClick={() => {
-                        //   offerfortrade(value, index);
-                        //   setState((prevState) => ({
-                        //     ...prevState,
-                        //     url: value.url,
-                        //     metadata: value.metadata,
-                        //     selectedid: value.inventoryItemTypeId,
-                        //     userTradeId: value.userTradeId
-                        //   }))
-                        // }}
+                      // onClick={() => {
+                      //   offerfortrade(value, index);
+                      //   setState((prevState) => ({
+                      //     ...prevState,
+                      //     url: value.url,
+                      //     metadata: value.metadata,
+                      //     selectedid: value.inventoryItemTypeId,
+                      //     userTradeId: value.userTradeId
+                      //   }))
+                      // }}
                       >
                         <Stack
                           justifyContent="center"
@@ -621,16 +660,16 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     {data0[0].toUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                        // onClick={() => {
-                        //   setState((prevState) => ({
-                        //     ...prevState,
-                        //     url: value.url,
-                        //     metadata: value.metadata,
-                        //     selectedid: value.inventoryItemTypeId,
-                        //     userTradeId: value.userTradeId
+                      // onClick={() => {
+                      //   setState((prevState) => ({
+                      //     ...prevState,
+                      //     url: value.url,
+                      //     metadata: value.metadata,
+                      //     selectedid: value.inventoryItemTypeId,
+                      //     userTradeId: value.userTradeId
 
-                        //   }))
-                        // }}
+                      //   }))
+                      // }}
                       >
                         <Stack
                           justifyContent="center"
@@ -662,15 +701,15 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     {data1[0].toUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                        // onClick={() => {
-                        //   receivefortrade(value, index)
-                        //   setState((prevState) => ({
-                        //     ...prevState,
-                        //     url: value.url,
-                        //     metadata: value.metadata,
-                        //     selectedid: value.inventoryItemTypeId
-                        //   }))
-                        // }}
+                      // onClick={() => {
+                      //   receivefortrade(value, index)
+                      //   setState((prevState) => ({
+                      //     ...prevState,
+                      //     url: value.url,
+                      //     metadata: value.metadata,
+                      //     selectedid: value.inventoryItemTypeId
+                      //   }))
+                      // }}
                       >
                         <Stack
                           justifyContent="center"
@@ -696,15 +735,15 @@ const TradingContent = ({ data, user, rejectOfferSent, rejectOfferReceived, hand
                     {data1[0].fromUserInventoryIds.map((value: any, index: number) => (
                       <Card
                         key={index}
-                        // onClick={() => {
+                      // onClick={() => {
 
-                        //   setState((prevState) => ({
-                        //     ...prevState,
-                        //     url: value.url,
-                        //     metadata: value.metadata,
-                        //     selectedid: value.inventoryItemTypeId
-                        //   }))
-                        // }}
+                      //   setState((prevState) => ({
+                      //     ...prevState,
+                      //     url: value.url,
+                      //     metadata: value.metadata,
+                      //     selectedid: value.inventoryItemTypeId
+                      //   }))
+                      // }}
                       >
                         <Stack
                           justifyContent="center"
