@@ -1,4 +1,4 @@
-import { Close } from '@material-ui/icons'
+import { Close } from '@mui/icons-material'
 import { Check } from '@mui/icons-material'
 import { Dialog, Avatar } from '@mui/material'
 import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'

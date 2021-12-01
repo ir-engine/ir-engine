@@ -32,11 +32,13 @@ const Party = (props: Props) => {
     event.preventDefault()
     const sendData = {
       type: 'party',
-      token: mappedIDProvider !== 'code' ? userToken : null,
+      // token: mappedIDProvider !== 'code' ? userToken : null,
+      token: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? userToken : null,
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
-      identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
+      // identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
+      identityProviderType: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? mappedIDProvider : null,
       targetObjectId: inviteState.targetObjectId.value,
-      invitee: mappedIDProvider !== 'code' ? userToken : null
+      invitee: mappedIDProvider === 'friends' ? userToken : null
     }
 
     InviteService.sendInvite(sendData)

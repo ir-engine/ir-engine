@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import { useHarmonyStyles } from '../style'
-import { Delete, Edit, Forum, GroupAdd, MoreHoriz } from '@material-ui/icons'
+import { Delete, Edit, Forum, GroupAdd, MoreHoriz } from '@mui/icons-material'
 import {
   MenuList,
   MenuItem,

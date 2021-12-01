@@ -3,7 +3,7 @@ import { Container, Avatar, Drawer, Dialog, DialogActions, DialogTitle, Button }
 import { useHarmonyStyles } from '../style'
 import ModeContext from '../context/modeContext'
 import { AddCircleOutline } from '@mui/icons-material'
-import { Delete } from '@material-ui/icons'
+import { Delete } from '@mui/icons-material'
 import IconButton from '@mui/material/IconButton'
 import { PartyService } from '@xrengine/client-core/src/social/services/PartyService'
 

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
 import { useHarmonyStyles } from '../style'
-import { Delete, Forum, MoreHoriz } from '@material-ui/icons'
+import { Delete, Forum, MoreHoriz } from '@mui/icons-material'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import {
   MenuList,
@@ -20,6 +20,8 @@ import queryString from 'querystring'
 
 interface Props {
   setShowChat: any
+  setFriendDeletePending: any
+  showUnfriendConfirm: any
 }
 
 const FriendList = (props: Props) => {

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { MoreHoriz, Forum, GroupAdd, Delete } from '@material-ui/icons'
+import { MoreHoriz, Forum, GroupAdd, Delete } from '@mui/icons-material'
 import {
   MenuList,
   MenuItem,

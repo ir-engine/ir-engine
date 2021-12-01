@@ -1,4 +1,4 @@
-import { Add, Notifications, Search } from '@material-ui/icons'
+import { Add, Notifications, Search } from '@mui/icons-material'
 import { Settings } from '@mui/icons-material'
 import { Badge, IconButton, List, Dialog, Avatar, Switch, DialogActions, Button, Tooltip } from '@mui/material'
 import queryString from 'querystring'

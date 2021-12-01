@@ -46,9 +46,10 @@ const Group = (props: Props) => {
     event.preventDefault()
     const sendData = {
       type: 'group',
-      token: mappedIDProvider !== 'code' ? userToken : null,
+      // type: inviteState.targetObjectType.value === 'user' ? 'friend' : inviteState.targetObjectType.value,
+      token: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? userToken : null,
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
-      identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
+      identityProviderType: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? mappedIDProvider : null,
       targetObjectId: inviteState.targetObjectId.value,
       invitee: mappedIDProvider === 'friends' ? userToken : null
     }
