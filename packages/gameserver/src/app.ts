@@ -38,7 +38,35 @@ export const createApp = (): Application => {
 
   app.set('nextReadyEmitter', emitter)
 
-  if (config.gameserver.enabled) {
+  console.log('---------------HERE-----------------')
+  app.configure(services)
+
+  console.log('---------------HERE1-----------------')
+
+  const [dbRedisSetting] = app.service('redis-setting').find()
+  const [dbServerSetting] = app.service('server-setting').find()
+  const [dbGameServerSetting] = app.service('game-server-setting').find()
+  const [dbAuthenticationSetting] = app.service('authentication-setting').find()
+
+  console.log('---------------config-----------------', dbRedisSetting)
+  console.log('---------------config-----------------', dbServerSetting)
+  console.log('---------------config-----------------', dbGameServerSetting)
+  console.log('---------------config-----------------', dbAuthenticationSetting)
+
+  // convert array of objects to array of string
+  if (dbAuthenticationSetting) {
+    let authObj = dbAuthenticationSetting.authStrategies.reduce((obj, item) => Object.assign(obj, { ...item }), {})
+    dbAuthenticationSetting.authStrategies = Object.keys(authObj)
+      .map((key) => (authObj[key] && key !== 'emailMagicLink' && key !== 'smsMagicLink' ? key : null))
+      .filter(Boolean)
+  }
+
+  const redisConfig = dbRedisSetting || config.redis
+  const serverConfig = dbServerSetting || config.server
+  const gameServerConfig = dbGameServerSetting || config.gameserver
+  const authenticationConfig = dbAuthenticationSetting || config.authentication
+
+  if (gameServerConfig.enabled) {
     try {
       app.configure(
         swagger({
@@ -65,8 +93,8 @@ export const createApp = (): Application => {
         })
       )
 
-      app.set('paginate', config.server.paginate)
-      app.set('authentication', config.authentication)
+      app.set('paginate', serverConfig.paginate)
+      app.set('authentication', authenticationConfig)
 
       app.configure(sequelize)
 
@@ -81,7 +109,7 @@ export const createApp = (): Application => {
       app.use(compress())
       app.use(json())
       app.use(urlencoded({ extended: true }))
-      app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
+      app.use(favicon(path.join(serverConfig.publicDir, 'favicon.ico')))
 
       // Set up Plugins and providers
       app.configure(rest())
@@ -92,9 +120,9 @@ export const createApp = (): Application => {
             pingTimeout: process.env.APP_ENV === 'development' ? 1200000 : 20000,
             cors: {
               origin: [
-                'https://' + config.gameserver.clientHost,
-                'capacitor://' + config.gameserver.clientHost,
-                'ionic://' + config.gameserver.clientHost
+                'https://' + gameServerConfig.clientHost,
+                'capacitor://' + gameServerConfig.clientHost,
+                'ionic://' + gameServerConfig.clientHost
               ],
               methods: ['OPTIONS', 'GET', 'POST'],
               allowedHeaders: '*',
@@ -115,13 +143,13 @@ export const createApp = (): Application => {
         )
       )
 
-      if (config.redis.enabled) {
+      if (redisConfig.enabled) {
         app.configure(
           sync({
             uri:
-              config.redis.password != null && config.redis.password !== ''
-                ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}`
-                : `redis://${config.redis.address}:${config.redis.port}`
+              redisConfig.password != null && redisConfig.password !== ''
+                ? `redis://${redisConfig.address}:${redisConfig.port}?password=${redisConfig.password}`
+                : `redis://${redisConfig.address}:${redisConfig.port}`
           })
         )
         app.sync.ready.then(() => {
@@ -131,12 +159,11 @@ export const createApp = (): Application => {
 
       // Configure other middleware (see `middleware/index.js`)
       app.configure(authentication)
+
       // Set up our services (see `services/index.js`)
-
       app.configure(feathersLogger(winston))
-      app.configure(services)
 
-      if (config.gameserver.mode === 'realtime') {
+      if (gameServerConfig.mode === 'realtime') {
         app.k8AgonesClient = api({
           endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
           version: '/apis/agones.dev/v1',
@@ -163,7 +190,7 @@ export const createApp = (): Application => {
         })
       }
 
-      if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {
+      if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || gameServerConfig.mode === 'local') {
         agonesSDK.connect()
         agonesSDK.ready().catch((err) => {
           throw new Error(
