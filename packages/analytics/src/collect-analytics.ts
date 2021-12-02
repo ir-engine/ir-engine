@@ -1,8 +1,7 @@
 import app from './app'
 import config from '@xrengine/server-core/src/appconfig'
-import { useSettingAnalyticsState } from '@xrengine/client-core/src/admin/services/Setting/SettingAnalyticsService'
 
-const [dbAnalyticsConfig] = useSettingAnalyticsState().analytics.value
+const [dbAnalyticsConfig] = app.service('analytics-setting').find()
 const analyticsConfig = dbAnalyticsConfig || config.analytics
 
 const DEFAULT_INTERVAL_SECONDS = 1800

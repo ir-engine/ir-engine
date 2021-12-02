@@ -1,9 +1,8 @@
 import config from '@xrengine/server-core/src/appconfig'
 import app from './app'
 import logger from '@xrengine/server-core/src/logger'
-import { useSettingAnalyticsState } from '@xrengine/client-core/src/admin/services/Setting/SettingAnalyticsService'
 
-const [dbAnalyticsConfig] = useSettingAnalyticsState().analytics.value
+const [dbAnalyticsConfig] = app.service('analytics-setting').find()
 const analyticsConfig = dbAnalyticsConfig || config.analytics
 
 process.on('unhandledRejection', (error, promise) => {
