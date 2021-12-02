@@ -238,11 +238,10 @@ export const TradingPage = (): any => {
       isLoading: true
     }))
     try {
-      const response = await client.service('user').find({ query: { id: id } }) //get(id)
-      console.log(response, 'inventorylist')
+      const response = await client.service('user').get(id)
       setState((prevState) => ({
         ...prevState,
-        inventory: [...response.data[0].inventory_items.filter((val) => val.isCoin === false)],
+        inventory: [...response.inventory_items.filter((val) => val.isCoin === false)],
         isLoading: false
       }))
     } catch (err) {
