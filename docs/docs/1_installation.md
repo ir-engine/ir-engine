@@ -22,9 +22,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 	```
 	sudo apt-get update
 	sudo apt-get install build-essential
-	npm install -g node-gypPYTHON=python3 npm install
-	npm config set python /usr/bin/python
-	PYTHON=python3 npm install
+	npm install
 	```
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
     ```
@@ -85,34 +83,20 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 
    ### Native Windows Preinstall
 
-   1. install python 2 and add python installation directory path to 'path' env variable.
+   1. install python 3 and add python installation directory path to 'path' env variable.
 
    2. Install node js
 
    3. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
 
-   4. add environmental variable
-   ```
-   GYP_MSVS_VERSION=<vs-year>
-   for example, GYP_MSVS_VERSION=2019
-   ```
-
-   5. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
+   4. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
    for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin```
 
-   6. remove mediasoup and mediasoup-client from every package.json. This will enable us to add all the dependencies except mediasoup, this way we can save time while dealing with mediasoup.
+   5. install all dependences using npm.
 
-   7. rename 'postinstall' to 'postinstall-1' so that it will not run after installing dependencies.
+   6. If error persists then check for typos in evironment variables.
 
-   8. install all dependences using npm.
-
-   9. add back all removed mediasoup and mediasoup-client dependencies.
-
-   10. Rerun npm command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
-
-   11. If error persists then check for typos in evironment variables.
-
-   12. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
+   7. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
 
    ./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
 
