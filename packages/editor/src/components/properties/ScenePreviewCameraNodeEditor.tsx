@@ -3,6 +3,9 @@ import NodeEditor from './NodeEditor'
 import { Camera } from '@styled-icons/fa-solid/Camera'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { useTranslation } from 'react-i18next'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 /**
  * ScenePreviewCameraNodeEditorProps declaring props for ScenePreviewCameraNodeEditor.
@@ -11,7 +14,7 @@ import { useTranslation } from 'react-i18next'
  * @type {Object}
  */
 type ScenePreviewCameraNodeEditorProps = {
-  node?: object
+  node: EntityTreeNode
 }
 
 /**
@@ -24,7 +27,8 @@ export const ScenePreviewCameraNodeEditor = (props: ScenePreviewCameraNodeEditor
   const { t } = useTranslation()
 
   const onSetFromViewport = () => {
-    props.node.setFromViewport()
+    const component = getComponent(props.node.entity, ScenePreviewCameraTagComponent)
+    component.update = true
   }
 
   return (

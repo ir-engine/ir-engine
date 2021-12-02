@@ -3,6 +3,8 @@ import { serializeObject3DArray } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
+import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 
 export default class RemoveFromSelectionCommand extends Command {
   constructor(objects?: any | any[], params?: CommandParams) {
@@ -55,6 +57,8 @@ export default class RemoveFromSelectionCommand extends Command {
 
       if (object.isNode) {
         object.onDeselect()
+      } else if (object.entity) {
+        removeComponent(object.entity, SelectTagComponent)
       }
     }
   }

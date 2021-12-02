@@ -12,6 +12,7 @@ import { SceneManager } from '../../managers/SceneManager'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 
 /**
  * ViewportPanelContainer used to render viewport.
@@ -20,11 +21,10 @@ import { FlyControlComponent } from '../../classes/FlyControlComponent'
  * @constructor
  */
 export function ViewportPanelContainer() {
-  const canvasRef = useRef<HTMLCanvasElement>()
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
-  // const [showStats, setShowStats] = useState(false);
   const { t } = useTranslation()
 
   const onSelectionChanged = useCallback(() => {
@@ -48,7 +48,10 @@ export function ViewportPanelContainer() {
   }, [])
 
   useEffect(() => {
-    const initRenderer = () => SceneManager.instance.initializeRenderer(canvasRef.current)
+    new EngineRenderer({ canvas: canvasRef.current as HTMLCanvasElement, enabled: true })
+    EngineRenderer.instance.automatic = false
+
+    const initRenderer = () => SceneManager.instance.initializeRenderer()
 
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
     CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)

@@ -214,8 +214,13 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
 
   registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/RenderSettingSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/SkySystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/EnvmapSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/FogSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/LightSystem'))
-
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/GroundPlanSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/ShadowSystem'))
 
   // Scene Systems
   // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
@@ -341,6 +346,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     Engine.engineTimer.start()
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
+    Engine.isEditor = true
   }
 
   // Mark engine initialized

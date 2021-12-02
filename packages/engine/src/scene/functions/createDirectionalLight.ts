@@ -1,33 +1,40 @@
-import { DirectionalLight, Vector2 } from 'three'
+import { CameraHelper, DirectionalLight, Vector2, Color } from 'three'
 import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
+import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, SceneDataComponent } from '../functions/SceneLoading'
-import { addObject3DComponent } from './addObject3DComponent'
-import { applyArgsToObject3d } from './applyArgsToObject3d'
 
-export const createDirectionalLight = (
-  entity: Entity,
-  component: SceneDataComponent,
-  sceneProperty: ScenePropertyType
-) => {
-  if (!isClient) return
+export const createDirectionalLight = (entity: Entity, component: SceneDataComponent, _: ScenePropertyType) => {
+  if (!isClient || !component) return
 
-  const mapSize = new Vector2().fromArray(component.data.shadowMapResolution)
+  const light = new DirectionalLight()
 
-  const args = {
-    'shadow.mapSize': mapSize,
-    'shadow.bias': component.data.shadowBias,
-    'shadow.radius': component.data.shadowRadius,
-    intensity: component.data.intensity,
-    color: component.data.color,
-    castShadow: component.data.castShadow,
-    'shadow.camera.far': component.data.cameraFar
+  light.target.position.set(0, 0, 1)
+  light.target.name = 'light-target'
+  light.add(light.target)
+
+  if (Engine.isEditor) {
+    const helper = new EditorDirectionalLightHelper()
+    helper.visible = true
+    light.add(helper)
+    ;(light as any).helper = helper
+
+    const cameraHelper = new CameraHelper(light.shadow.camera)
+    cameraHelper.visible = false
+    light.add(cameraHelper)
+    ;(light as any).cameraHelper = cameraHelper
   }
 
-  if (sceneProperty.isCSMEnabled) {
-    const object3d = applyArgsToObject3d(entity, new DirectionalLight(), args)
-    sceneProperty.directionalLights.push(object3d)
-  } else {
-    addObject3DComponent(entity, new DirectionalLight(), args)
-  }
+  addComponent(entity, DirectionalLightComponent, {
+    ...component.props,
+    color: new Color(component.props.color),
+    shadowMapResolution: new Vector2().fromArray(component.props.shadowMapResolution),
+    dirty: true
+  })
+
+  addComponent(entity, Object3DComponent, { value: light })
 }

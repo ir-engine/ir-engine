@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, memo, Fragment } from 'react'
 import styled from 'styled-components'
-import DefaultNodeEditor from '../properties/DefaultNodeEditor'
 import { ContextMenu, MenuItem, ContextMenuTrigger } from '../layout/ContextMenu'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -18,13 +17,16 @@ import traverseEarlyOut from '../../functions/traverseEarlyOut'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
-import { NodeManager } from '../../managers/NodeManager'
+import { EntityNodeEditor } from '../../managers/NodeManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Hotkeys from 'react-hot-keys'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { SceneManager } from '../../managers/SceneManager'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -109,7 +111,7 @@ function treeNodeBackgroundColor({ root, selected, active, theme }) {
  * @return {string}
  */
 function getNodeKey(index, data) {
-  return data.nodes[index].object.id
+  return data.nodes[index].object.entity
 }
 
 /**
@@ -334,7 +336,7 @@ function TreeNode({
   const node = nodes[index]
 
   //initializing variables using node.
-  const { isLeaf, object, depth, selected, active, iconComponent, isCollapsed, childIndex, lastChild } = node
+  const { isLeaf, object, depth, selected, active, isCollapsed, childIndex, lastChild } = node
 
   //callback function to handle click on node of hierarchy panel
   const onClickToggle = useCallback(
@@ -651,6 +653,14 @@ function TreeNode({
     })
   })
 
+  const nameComponent = getComponent(object.entity, NameComponent)
+  const entityNodeComponent = getComponent(object.entity, EntityNodeComponent)
+
+  const iconComponent =
+    entityNodeComponent && EntityNodeEditor[entityNodeComponent.type]
+      ? EntityNodeEditor[entityNodeComponent.type].iconComponent
+      : null
+
   //returning tree view for hierarchy panel
   return (
     <TreeDepthContainer style={style}>
@@ -698,7 +708,7 @@ function TreeNode({
                   </TreeNodeRenameInputContainer>
                 ) : (
                   <TreeNodeLabel canDrop={canDropOn} isOver={isOverOn}>
-                    {object.name}
+                    {nameComponent.name}
                   </TreeNodeLabel>
                 )}
               </TreeNodeLabelContainer>
@@ -726,41 +736,40 @@ function TreeNode({
  */
 const MemoTreeNode = memo(TreeNode, areEqual)
 
+type TreeNodeType = {
+  depth: number
+  object: any
+  childIndex: number
+  lastChild: boolean
+}
+
 /**
  * treeWalker function used to handle tree.
  *
  * @author Robert Long
  * @param  {object}    collapsedNodes
  */
-function* treeWalker(collapsedNodes) {
-  const stack = []
+function* treeWalker(collapsedNodes, treeObject) {
+  const stack = [] as TreeNodeType[]
 
-  if (!Engine.scene) return
+  if (!treeObject) return
 
   stack.push({
     depth: 0,
-    object: Engine.scene,
+    object: treeObject,
     childIndex: 0,
     lastChild: true
   })
 
   while (stack.length !== 0) {
-    const { depth, object, childIndex, lastChild } = stack.pop()
-
-    const NodeEditor = NodeManager.instance.getEditorFromNode(object) || DefaultNodeEditor
-    const iconComponent = NodeEditor.WrappedComponent
-      ? NodeEditor.WrappedComponent.iconComponent
-      : NodeEditor.iconComponent
-
+    const { depth, object, childIndex, lastChild } = stack.pop() as TreeNodeType
     const isCollapsed = collapsedNodes[object.id]
 
     yield {
-      id: object.id,
-      isLeaf: object.children.filter((c) => c.isNode).length === 0,
+      isLeaf: !object.children || object.children.length === 0,
       isCollapsed,
       depth,
       object,
-      iconComponent,
       selected: CommandManager.instance.selected.indexOf(object) !== -1,
       active:
         CommandManager.instance.selected.length > 0 &&
@@ -769,18 +778,16 @@ function* treeWalker(collapsedNodes) {
       lastChild
     }
 
-    if (object.children.length !== 0 && !isCollapsed) {
+    if (object.children && object.children.length !== 0 && !isCollapsed) {
       for (let i = object.children.length - 1; i >= 0; i--) {
         const child = object.children[i]
 
-        if (child.isNode) {
-          stack.push({
-            depth: depth + 1,
-            object: child,
-            childIndex: i,
-            lastChild: i === 0
-          })
-        }
+        stack.push({
+          depth: depth + 1,
+          object: child,
+          childIndex: i,
+          lastChild: i === 0
+        })
       }
     }
   }
@@ -796,10 +803,14 @@ export default function HierarchyPanel() {
   const onUpload = useUpload(uploadOptions)
   const [renamingNode, setRenamingNode] = useState(null)
   const [collapsedNodes, setCollapsedNodes] = useState({})
-  const [nodes, setNodes] = useState([])
+  const [nodes, setNodes] = useState<any[]>([])
   const [selectedNode, setSelectedNode] = useState(null)
   const updateNodeHierarchy = useCallback(() => {
-    const nodes = Array.from(treeWalker(collapsedNodes))
+    const world = useWorld()
+
+    if (!world.entityTree) return
+
+    const nodes = Array.from(treeWalker(collapsedNodes, world.entityTree.rootNode))
     setNodes(nodes)
   }, [collapsedNodes])
   const { t } = useTranslation()

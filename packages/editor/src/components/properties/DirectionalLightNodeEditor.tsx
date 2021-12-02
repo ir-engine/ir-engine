@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
@@ -10,6 +10,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import { CommandManager } from '../../managers/CommandManager'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 /**
  * Defining properties for DirectionalLightNodeEditor.
@@ -18,7 +19,7 @@ import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components
  * @type {Object}
  */
 type DirectionalLightNodeEditorProps = {
-  node?: any
+  node: EntityTreeNode
 }
 
 /**
@@ -32,21 +33,25 @@ export const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProp
 
   //function to handle changes in color property
   const onChangeColor = (color) => {
-    CommandManager.instance.setPropertyOnEntity(props.node.entity, DirectionalLightComponent, 'color', color)
+    CommandManager.instance.setPropertyOnSelectionEntities(DirectionalLightComponent, 'color', color)
   }
   //function to handle the changes in intensity property of DirectionalLight
   const onChangeIntensity = (intensity) => {
-    CommandManager.instance.setPropertyOnEntity(props.node.entity, DirectionalLightComponent, 'intensity', intensity)
+    CommandManager.instance.setPropertyOnSelectionEntities(DirectionalLightComponent, 'intensity', intensity)
   }
 
   //function to handle the changes in camera far property of DirectionalLight
   const onChangeCameraFar = (cameraFar) => {
-    CommandManager.instance.setPropertyOnEntity(props.node.entity, DirectionalLightComponent, 'cameraFar', cameraFar)
+    CommandManager.instance.setPropertyOnSelectionEntities(DirectionalLightComponent, 'cameraFar', cameraFar)
   }
 
   // function to handle changes in showCameraHelper propery
   const onChangeshowCameraHelper = (showCameraHelper) => {
-    CommandManager.instance.setPropertyOnEntity(props.node.entity, DirectionalLightComponent, 'showCameraHelper', showCameraHelper)
+    CommandManager.instance.setPropertyOnSelectionEntities(
+      DirectionalLightComponent,
+      'showCameraHelper',
+      showCameraHelper
+    )
   }
 
   // renders editor view, provides inputs to customize properties of DirectionalLight element.

@@ -24,7 +24,6 @@ import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import isEmptyObject from '../functions/isEmptyObject'
 import { ControlManager } from './ControlManager'
-import resizeShadowCameraFrustum from '../functions/resizeShadowCameraFrustum'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
@@ -48,6 +47,8 @@ import { createEditorEntity } from '../functions/createEditorEntity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()
@@ -110,14 +111,16 @@ export class SceneManager {
         }
       })
 
-      Engine.scene = null
+      Engine.scene = null!
     }
+
+    // TODO: nayan - initialize as new Scene()
+    Engine.scene = new SceneNode() as any
 
     NodeManager.instance.nodes = [Engine.scene]
 
     // getting scene data
-    const [scene, error] = await SceneNode.loadProject(projectFile)
-    if (scene === null) throw new Error('Scene data is null, please create a new scene.')
+    WorldScene.load(projectFile)
 
     Engine.camera.position.set(0, 5, 10)
     Engine.camera.lookAt(new Vector3())
@@ -135,7 +138,7 @@ export class SceneManager {
 
     this.sceneModified = false
 
-    return error
+    return []
   }
 
   /**
@@ -153,39 +156,15 @@ export class SceneManager {
    * @author Robert Long
    * @param  {any} canvas [ contains canvas data ]
    */
-  initializeRenderer(canvas: HTMLCanvasElement): void {
+  initializeRenderer(): void {
     try {
       this.disableUpdate = false
 
-      if (!Engine.renderer) {
-        new EngineRenderer({ canvas, enabled: true })
-        EngineRenderer.instance.automatic = false
-        Engine.engineTimer.start()
-      }
-
+      Engine.engineTimer.start()
       ControlManager.instance.initControls()
 
       const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
       this.grid.setSize(editorControlComponent.translationSnap)
-      /** @todo */
-      // Cascaded shadow maps
-      // const csm = new CSM({
-      //   cascades: 4,
-      //   lightIntensity: 1,
-      //   shadowMapSize: 2048,
-      //   maxFar: 100,
-      //   camera: camera,
-      //   parent: Engine.scene
-      // });
-      // csm.fade = true;
-      // Engine.csm = csm;
-
-      Engine.scene.traverse((node: any) => {
-        if (!node.isNode) return
-
-        if (node.name === 'post processing') this.postProcessingNode = node
-        if (node.onChange) node.onChange()
-      })
 
       configureEffectComposer(this.postProcessingNode?.postProcessingOptions)
       CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
@@ -205,7 +184,7 @@ export class SceneManager {
    * @param  {any}  height
    * @return {Promise}        [generated screenshot according to height and width]
    */
-  async takeScreenshot(width?: number, height?: number) {
+  async takeScreenshot(width: number, height: number) {
     const { screenshotRenderer } = this
     const sceneNode = Engine.scene as any as SceneNode
     const originalRenderer = Engine.renderer
@@ -492,10 +471,11 @@ export class SceneManager {
   update = (delta: number, time: number) => {
     if (this.disableUpdate) return
 
+    // TODO: Nayan - remove below if not require
     Engine.scene.traverse((node: any) => {
-      if (Engine.renderer.shadowMap.enabled && node.isDirectionalLight) {
-        resizeShadowCameraFrustum(node, Engine.scene)
-      }
+      // if (Engine.renderer.shadowMap.enabled && node.isDirectionalLight) {
+      //   resizeShadowCameraFrustum(node, Engine.scene)
+      // }
 
       if (node.isNode && node.onUpdate) {
         node.onUpdate(delta, time)
@@ -505,12 +485,14 @@ export class SceneManager {
     EngineRenderer.instance.execute(delta)
   }
 
-  updateOutlinePassSelection(): any[] {
+  updateOutlinePassSelection(): void {
     if (!Engine.effectComposer || !Engine.effectComposer[Effects.OutlineEffect]) return
 
-    const meshes = []
+    const meshes = [] as any[]
     for (let i = 0; i < CommandManager.instance.selectedTransformRoots.length; i++) {
-      CommandManager.instance.selectedTransformRoots[i].traverse((child) => {
+      const obj3d = getComponent(CommandManager.instance.selectedTransformRoots[i].entity, Object3DComponent).value
+      obj3d.traverse((child: any) => {
+        // TODO: Nayan - update below flags
         if (
           !child.disableOutline &&
           !child.isHelper &&
@@ -522,7 +504,6 @@ export class SceneManager {
     }
 
     Engine.effectComposer[Effects.OutlineEffect].selection.set(meshes)
-    return meshes
   }
 
   dispose() {

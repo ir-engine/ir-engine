@@ -1,8 +1,7 @@
-import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
+import { Material, Mesh, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { beforeMaterialCompile } from '../../scene/classes/BPCEMShader'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -12,6 +11,8 @@ import { Updatable } from '../interfaces/Updatable'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
+import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
+import { useSimpleMaterial, useStandardMaterial } from '../functions/simpleMaterialConverter'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -36,6 +37,7 @@ export class SceneOptions {
 }
 
 const sceneObjectQuery = defineQuery([Object3DComponent])
+const simpleMaterialsQuery = defineQuery([SimpleMaterialTagComponent])
 const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
 const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
 const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
@@ -69,25 +71,9 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
 
         if (Engine.simpleMaterials) {
           // || Engine.isHMD) {
-          if (obj.material instanceof MeshStandardMaterial) {
-            const prevMaterial = obj.material
-            obj.material = new MeshPhongMaterial()
-            MeshBasicMaterial.prototype.copy.call(obj.material, prevMaterial)
-          }
+          useSimpleMaterial(obj)
         } else {
-          const material = obj.material as Material
-          if (typeof material !== 'undefined') {
-            // BPCEM
-            if (SceneOptions.instance.boxProjection)
-              material.onBeforeCompile = beforeMaterialCompile(
-                SceneOptions.instance.bpcemOptions.bakeScale,
-                SceneOptions.instance.bpcemOptions.bakePositionOffset
-              )
-            ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
-            if (obj.receiveShadow) {
-              Engine.csm?.setupMaterial(obj)
-            }
-          }
+          useStandardMaterial(obj)
         }
       })
 
@@ -114,15 +100,38 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       })
     }
 
+    for (const entity of persistQuery.exit()) {
+      const object3DComponent = getComponent(entity, Object3DComponent)
+      object3DComponent?.value?.traverse((obj) => {
+        obj.layers.disable(CameraLayers.Portal)
+      })
+    }
+
     for (const entity of visibleQuery.enter()) {
-      const obj = getComponent(entity, Object3DComponent)
-      const visibleComponent = getComponent(entity, VisibleComponent)
-      obj.value.visible = visibleComponent.value
+      getComponent(entity, Object3DComponent).value.visible = true
+    }
+
+    for (const entity of visibleQuery.exit()) {
+      getComponent(entity, Object3DComponent).value.visible = false
     }
 
     for (const entity of updatableQuery()) {
       const obj = getComponent(entity, Object3DComponent)
       ;(obj.value as unknown as Updatable).update(world.fixedDelta)
+    }
+
+    for (const _ of simpleMaterialsQuery.enter()) {
+      Engine.simpleMaterials = true
+      Engine.scene.traverse((obj) => {
+        useSimpleMaterial(obj as Mesh)
+      })
+    }
+
+    for (const _ of simpleMaterialsQuery.exit()) {
+      Engine.simpleMaterials = false
+      Engine.scene.traverse((obj) => {
+        useStandardMaterial(obj as Mesh)
+      })
     }
   }
 }

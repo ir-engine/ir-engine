@@ -16,6 +16,7 @@ import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { WorldStateInterface } from '../../networking/schema/networkSchema'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import EntityTree from './EntityTree'
 
 type SystemInstanceType = { name: string; type: SystemUpdateType; execute: System }
 
@@ -36,7 +37,6 @@ export class World {
 
   static [CreateWorld] = () => new World()
 
-  sceneMetadata = undefined as string | undefined
   worldMetadata = {} as { [key: string]: string }
 
   delta = NaN
@@ -122,6 +122,9 @@ export class World {
    * Network object query
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
+
+  /** Tree of entity holding parent child relation between entities. */
+  entityTree: EntityTree
 
   /**
    * Get the network objects owned by a given user

@@ -5,6 +5,10 @@ import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { Matrix4, Vector3 } from 'three'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 export interface ScaleCommandParams extends CommandParams {
   scales?: Vector3 | Vector3[]
@@ -24,26 +28,19 @@ export default class ScaleCommand extends Command {
   overrideScale: boolean
 
   constructor(objects?: any | any[], params?: ScaleCommandParams) {
+    if (!params) return
+
     super(objects, params)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
+    if (!Array.isArray(objects)) objects = [objects]
+    if (!params.scales) params.scales = [new Vector3(1, 1, 1)]
+    if (!Array.isArray(params.scales)) params.scales = [params.scales]
 
     this.affectedObjects = objects.slice(0)
     this.space = params.space ?? TransformSpace.Local
     this.overrideScale = params.overrideScale
-
-    if (!params.scales) {
-      params.scales = [new Vector3(1, 1, 1)]
-    }
-
-    if (!Array.isArray(params.scales)) {
-      params.scales = [params.scales]
-    }
-
     this.scales = params.scales.map((s) => s.clone())
-    this.oldScales = objects.map((o) => o.scale.clone())
+    this.oldScales = objects.map((o) => getComponent(o.entity, Object3DComponent).value.scale.clone())
   }
 
   execute() {
@@ -83,7 +80,7 @@ export default class ScaleCommand extends Command {
     }
   }
 
-  updateScale(objects: any[], scales: Vector3[], space: any, overrideScale?: boolean): void {
+  updateScale(objects: EntityTreeNode[], scales: Vector3[], space: any, overrideScale?: boolean): void {
     if (!overrideScale) {
       for (let i = 0; i < objects.length; i++) {
         const object = objects[i]
@@ -93,11 +90,11 @@ export default class ScaleCommand extends Command {
           console.warn('Scaling an object in world space with a non-uniform scale is not supported')
         }
 
-        object.scale.multiply(scale)
+        let transformComponent = getComponent(object.entity, TransformComponent)
 
-        object.updateMatrixWorld(true)
+        transformComponent.scale.multiply(scale)
 
-        object.onChange('scale')
+        if ((object as any).onChange) (object as any).onChange('scale')
       }
 
       return
@@ -122,6 +119,8 @@ export default class ScaleCommand extends Command {
       const object = objects[i]
 
       const scale = scales[i] ?? scales[0]
+      let obj3d = getComponent(object.entity, Object3DComponent).value
+      let transformComponent = getComponent(object.entity, TransformComponent)
 
       if (space === TransformSpace.Local) {
         tempVector.set(
@@ -130,13 +129,13 @@ export default class ScaleCommand extends Command {
           scale.z === 0 ? Number.EPSILON : scale.z
         )
 
-        object.scale.copy(tempVector)
+        transformComponent.scale.copy(tempVector)
       } else {
-        object.updateMatrixWorld() // Update parent world matrices
+        obj3d.updateMatrixWorld() // Update parent world matrices
 
         tempVector.copy(scale)
 
-        let _spaceMatrix = space === TransformSpace.World ? object.parent.matrixWorld : spaceMatrix
+        let _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : spaceMatrix
 
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
@@ -147,12 +146,10 @@ export default class ScaleCommand extends Command {
           tempVector.z === 0 ? Number.EPSILON : tempVector.z
         )
 
-        object.scale.copy(tempVector)
+        transformComponent.scale.copy(tempVector)
       }
 
-      object.updateMatrixWorld(true)
-
-      object.onChange('scale')
+      if ((object as any).onChange) (object as any).onChange('scale')
     }
   }
 }

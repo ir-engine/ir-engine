@@ -32,7 +32,12 @@ import { SceneManager } from './SceneManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from '../nodes/SceneNode'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ComponentConstructor, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Object3D } from 'three'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagComponentCommand'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -47,6 +52,7 @@ export type CommandParamsType =
   | RotateOnAxisCommandParams
   | RotateAroundCommandParams
   | LoadMaterialSlotCommandParams
+  | TagComponentCommandParams
 
 export class CommandManager extends EventEmitter {
   static instance: CommandManager = new CommandManager()
@@ -56,7 +62,7 @@ export class CommandManager extends EventEmitter {
   }
 
   selected: any[] = []
-  selectedTransformRoots: any[] = []
+  selectedTransformRoots: EntityTreeNode[] = []
   history: History
 
   constructor() {
@@ -80,6 +86,7 @@ export class CommandManager extends EventEmitter {
       [EditorCommands.ROTATE_AROUND]: RotateAroundCommand,
       [EditorCommands.SCALE]: ScaleCommand,
       [EditorCommands.MODIFY_PROPERTY]: ModifyPropertyCommand,
+      [EditorCommands.TAG_COMPONENT]: TagComponentCommand,
       [EditorCommands.LOAD_MATERIAL_SLOT]: LoadMaterialSlotCommand
     }
 
@@ -107,26 +114,56 @@ export class CommandManager extends EventEmitter {
     this.history.execute(new this.commands[command](this.selected, params))
   }
 
-  setPropertyOnSelection(name: string, value: any, withHistory = true) {
+  setProperty(affectedObjects: any, name: string, value: any, withHistory = true) {
     const properties = { [name]: value }
+
     if (withHistory) {
-      this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, this.selected, { properties })
+      this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, affectedObjects, { properties })
     } else {
-      this.executeCommand(EditorCommands.MODIFY_PROPERTY, this.selected, { properties })
+      this.executeCommand(EditorCommands.MODIFY_PROPERTY, affectedObjects, { properties })
     }
   }
 
-  setPropertyOnEntity(entity: Entity, component: ComponentConstructor<any, any>, name: string, value: any, withHistory = true) {
-    const comp = getComponent(entity, component)
+  setPropertyOnSelection(name: string, value: any, withHistory = true) {
+    this.setProperty(this.selected, name, value, withHistory)
+  }
 
-    const properties = { [name]: value }
-    if (withHistory) {
-      this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, comp, { properties })
-    } else {
-      this.executeCommand(EditorCommands.MODIFY_PROPERTY, comp, { properties })
+  setPropertyOnSelectionEntities(
+    component: ComponentConstructor<any, any>,
+    name: string,
+    value: any,
+    withHistory = true
+  ) {
+    const comps = [] as ComponentConstructor<any, any>[]
+    this.selected.forEach((node: EntityTreeNode) => {
+      const comp = this.getComponentFromEntity(node.entity, component)
+      if (comp) comps.push(comp)
+    })
+
+    this.setProperty(comps, name, value, withHistory)
+  }
+
+  setPropertyOnEntity(
+    entity: Entity,
+    component: ComponentConstructor<any, any>,
+    name: string,
+    value: any,
+    withHistory = true
+  ) {
+    const comp = this.getComponentFromEntity(entity, component)
+    if (comp) this.setProperty(comp, name, value, withHistory)
+  }
+
+  getComponentFromEntity(entity: Entity, component: ComponentConstructor<any, any>) {
+    let comp = getComponent(entity, component)
+
+    if (!comp) {
+      console.warn('Component is not defined on entity ' + entity)
+      return
     }
 
     comp.dirty = true
+    return comp
   }
 
   emitEvent = (event: EditorEvents, ...args: any[]): void => {
@@ -143,30 +180,29 @@ export class CommandManager extends EventEmitter {
    * @param  {Boolean} [filterUntransformable=false]
    * @return {any}
    */
-  getRootObjects(objects, target = [], filterUnremovable = true, filterUntransformable = false) {
+  getRootObjects(objects, target: EntityTreeNode[] = [], filterUnremovable = true, filterUntransformable = false) {
     target.length = 0
 
     // Recursively find the nodes in the tree with the lowest depth
-    const traverse = (curObject) => {
+    const traverse = (curObject: EntityTreeNode) => {
       if (
         objects.indexOf(curObject) !== -1 &&
-        !(filterUnremovable && !curObject.parent) &&
-        !(filterUntransformable && curObject.disableTransform)
+        !(filterUnremovable && !curObject.parentNode) &&
+        !(filterUntransformable && hasComponent(curObject.entity, DisableTransformTagComponent))
       ) {
         target.push(curObject)
         return
       }
 
-      const children = curObject.children
-
-      for (let i = 0; i < children.length; i++) {
-        if (children[i].isNode) {
-          traverse(children[i])
+      if (curObject.children) {
+        for (let i = 0; i < curObject.children.length; i++) {
+          traverse(curObject.children[i])
         }
       }
     }
 
-    traverse(Engine.scene)
+    const world = useWorld()
+    traverse(world.entityTree.rootNode)
 
     return target
   }
@@ -179,7 +215,7 @@ export class CommandManager extends EventEmitter {
    * @param target
    * @returns
    */
-  getTransformRoots(objects, target = []) {
+  getTransformRoots(objects, target: EntityTreeNode[] = []) {
     return this.getRootObjects(objects, target, true, true)
   }
 

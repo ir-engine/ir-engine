@@ -7,6 +7,7 @@ import { Vector2 } from 'three'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 /**
  *  Array containing options for shadow resolution
@@ -38,8 +39,8 @@ const ShadowMapResolutionOptions = [
 
 //creating properties for LightShadowProperties component
 type LightShadowPropertiesProps = {
-  node?: any
-  comp?: ComponentConstructor<any, any>
+  node: EntityTreeNode
+  comp: ComponentConstructor<any, any>
 }
 
 /**
@@ -54,25 +55,22 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
 
   // function to handle the change in shadowMapResolution propery
   const onChangeShadowMapResolution = (shadowMapResolution) => {
-    CommandManager.instance.setPropertyOnEntity(props.node.entity, props.comp, 'shadowMapResolution', shadowMapResolution)
+    CommandManager.instance.setPropertyOnSelectionEntities(props.comp, 'shadowMapResolution', shadowMapResolution)
   }
 
   // function to handle changes in castShadow propery
   const onChangeCastShadow = (castShadow) => {
-    CommandManager.instance.setPropertyOnSelection('castShadow', castShadow)
-    CommandManager.instance.setPropertyOnEntity(props.node.entity, props.comp, 'castShadow', castShadow)
+    CommandManager.instance.setPropertyOnSelectionEntities(props.comp, 'castShadow', castShadow)
   }
 
   // fucntion to handle changes in shadowBias property
   const onChangeShadowBias = (shadowBias) => {
-    CommandManager.instance.setPropertyOnSelection('shadowBias', shadowBias)
-    CommandManager.instance.setPropertyOnEntity(props.node.entity, props.comp, 'shadowBias', shadowBias)
+    CommandManager.instance.setPropertyOnSelectionEntities(props.comp, 'shadowBias', shadowBias)
   }
 
   // function to handle changes shadowRadius property
   const onChangeShadowRadius = (shadowRadius) => {
-    CommandManager.instance.setPropertyOnSelection('shadowRadius', shadowRadius)
-    CommandManager.instance.setPropertyOnEntity(props.node.entity, props.comp, 'shadowRadius', shadowRadius)
+    CommandManager.instance.setPropertyOnSelectionEntities(props.comp, 'shadowRadius', shadowRadius)
   }
 
   const lightComponent = getComponent(props.node.entity, props.comp)

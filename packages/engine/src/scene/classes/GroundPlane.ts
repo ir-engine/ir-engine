@@ -1,34 +1,51 @@
 import { Object3D, CircleBufferGeometry, MeshStandardMaterial, Mesh, Color } from 'three'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+
 export default class GroundPlane extends Object3D {
-  static _geometry = new CircleBufferGeometry(4000, 32)
   _receiveShadow: boolean
   mesh: Mesh
   generateNavmesh: boolean
+
   constructor() {
     super()
     this._receiveShadow = true
-    const material = new MeshStandardMaterial({
-      roughness: 1,
-      metalness: 0
-    })
-    const mesh = new Mesh(GroundPlane._geometry, material)
+    const mesh = new Mesh(
+      new CircleBufferGeometry(1000, 32),
+      new MeshStandardMaterial({
+        roughness: 1,
+        metalness: 0
+      })
+    )
+
     mesh.name = 'GroundPlaneMesh'
     mesh.position.y = -0.05
     mesh.rotation.x = -Math.PI / 2
+
     this.mesh = mesh
     this.mesh.receiveShadow = this.receiveShadow
+
+    mesh.userData = {
+      type: 'ground',
+      collisionLayer: CollisionGroups.Ground,
+      collisionMask: CollisionGroups.Default
+    }
+
     this.add(this.mesh)
   }
+
   get color() {
     return (this.mesh.material as MeshStandardMaterial).color
   }
+
   set color(color: Color) {
     ;(this.mesh.material as MeshStandardMaterial).color = color
   }
+
   // @ts-ignore
   get receiveShadow() {
     return this._receiveShadow
   }
+
   set receiveShadow(value) {
     this._receiveShadow = value
     if (this.mesh) {
@@ -43,6 +60,7 @@ export default class GroundPlane extends Object3D {
       }
     }
   }
+
   copy(source, recursive = true) {
     if (recursive) {
       this.remove(this.mesh)

@@ -3,6 +3,8 @@ import { serializeObject3DArray } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
+import { addComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 
 export default class ToggleSelectionCommand extends Command {
   constructor(objects?: any | any[], params?: CommandParams) {
@@ -27,10 +29,14 @@ export default class ToggleSelectionCommand extends Command {
 
         if (object.isNode) {
           object.onDeselect()
+        } else if (object.entity) {
+          removeComponent(object.entity, SelectTagComponent)
         }
       } else {
         if (object.isNode) {
           object.onSelect()
+        } else if (object.entity) {
+          addComponent(object.entity, SelectTagComponent, {})
         }
 
         CommandManager.instance.selected.push(object)

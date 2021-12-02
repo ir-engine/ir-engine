@@ -44,7 +44,7 @@ export class ProjectManager {
     const tasks = [loadEnvironmentMap(), ErrorIcon.load(), TransformGizmo.load()]
 
     for (const NodeConstructor of NodeManager.instance.nodeTypes) {
-      tasks.push(NodeConstructor.load())
+      if (NodeConstructor.load) tasks.push(NodeConstructor.load())
     }
 
     await Promise.all(tasks)
@@ -67,7 +67,7 @@ export class ProjectManager {
     ControlManager.instance.dispose()
     const errors = await SceneManager.instance.initializeScene(projectFile)
 
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, Engine.scene)
+    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, Engine.scene, { isObjectSelected: false })
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
     CommandManager.instance.history.clear()
 

@@ -1,14 +1,4 @@
-import {
-  AmbientLight,
-  DirectionalLight,
-  Euler,
-  HemisphereLight,
-  Object3D,
-  PointLight,
-  Quaternion,
-  SpotLight,
-  Vector3
-} from 'three'
+import { AmbientLight, Euler, Object3D, PointLight, Quaternion, SpotLight, Vector3 } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -20,7 +10,6 @@ import { createParticleEmitterObject } from '../../particles/functions/particleH
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { createBody, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
-import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Clouds } from '../classes/Clouds'
 import Image from '../classes/Image'
@@ -29,11 +18,10 @@ import { Ocean } from '../classes/Ocean'
 import { Water } from '../classes/Water'
 import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
 import { NameComponent } from '../components/NameComponent'
+import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
-import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
@@ -45,7 +33,6 @@ import { createAudio, createMediaServer, createVideo, createVolumetric } from '.
 import { createPortal } from '../functions/createPortal'
 import { createSkybox } from '../functions/createSkybox'
 import { createTriggerVolume } from '../functions/createTriggerVolume'
-import { configureCSM, handleRendererSettings } from '../functions/handleRendererSettings'
 import { loadGLTFModel } from '../functions/loadGLTFModel'
 import { loadModelAnimation } from '../functions/loadModelAnimation'
 import { setCameraProperties } from '../functions/setCameraProperties'
@@ -55,9 +42,19 @@ import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneJson, ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import EntityTree from '../../ecs/classes/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { createScenePreviewCamera } from './createScenePreviewCamera'
+import { createSpawnPoint } from './createSpawnPoint'
+import { createPostprocessing } from './createPostprocessing'
+import { createHemisphereLight } from './createHemisphereLight'
+import { IncludeInCubemapBakeComponent } from '../components/IncludeInCubemapBakeComponent'
+import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
+import { MetaDataComponent } from '../components/MetaDataComponent'
+import { resetEngineRenderer } from '../systems/RenderSettingSystem'
+import { RenderSettingComponent } from '../components/RenderSettingComponent'
+import { EntityNodeType } from '../constants/EntityNodeType'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -72,8 +69,7 @@ export enum SCENE_ASSET_TYPES {
 }
 
 export type ScenePropertyType = {
-  directionalLights: DirectionalLight[]
-  isCSMEnabled: boolean
+  entityType?: EntityNodeType
 }
 
 export class WorldScene {
@@ -89,18 +85,20 @@ export class WorldScene {
     WorldScene.isLoading = true
 
     // reset renderer settings for if we are teleporting and the new scene does not have an override
-    configureCSM(null!, true)
-    handleRendererSettings(null!, true)
-    if (isClient) EngineRenderer.instance.postProcessingConfig = null
-
-    const sceneProperty: ScenePropertyType = {
-      directionalLights: [],
-      isCSMEnabled: true
+    if (!Engine.isEditor) {
+      resetEngineRenderer(true)
+      if (isClient) EngineRenderer.instance.postProcessingConfig = null
     }
+
+    const sceneProperty: ScenePropertyType = {}
+
+    const entityMap = {}
 
     Object.keys(scene.entities).forEach((key) => {
       const sceneEntity = scene.entities[key]
       const entity = createEntity()
+
+      entityMap[key] = entity
 
       addComponent(entity, NameComponent, { name: sceneEntity.name })
 
@@ -109,14 +107,33 @@ export class WorldScene {
         component.data.sceneEntityId = key
         this.loadComponent(entity, component, sceneProperty)
       })
+
+      addComponent(entity, EntityNodeComponent, { type: sceneProperty.entityType })
+      sceneProperty.entityType = EntityNodeType.DEFAULT
     })
+
+    // if (true) {
+    const world = useWorld()
+
+    if (!world.entityTree) world.entityTree = new EntityTree()
+
+    const tree = world.entityTree
+    Object.keys(scene.entities).forEach((key) => {
+      const sceneEntity = scene.entities[key]
+      tree.addEntity(entityMap[key], sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
+    })
+    // }
 
     return Promise.all(this.loaders)
       .then(() => {
         WorldScene.isLoading = false
         Engine.sceneLoaded = true
 
-        configureCSM(sceneProperty.directionalLights, !sceneProperty.isCSMEnabled)
+        if (!Engine.isEditor) {
+          // Configure CSM
+          const renderSetting = getComponent(world.entityTree.rootNode.entity, RenderSettingComponent)
+          renderSetting.dirty = true
+        }
 
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
       })
@@ -149,10 +166,9 @@ export class WorldScene {
     switch (name) {
       case 'mtdata':
         //if (isClient && Engine.isBot) {
-        const { meta_data } = component.data
-
-        world.sceneMetadata = meta_data
-        console.log('scene_metadata|' + meta_data)
+        addComponent(entity, MetaDataComponent, { ...component.data, dirty: true })
+        console.log('scene_metadata|' + component.data.meta_data)
+        sceneProperty.entityType = EntityNodeType.SCENE
         //}
         break
 
@@ -181,10 +197,12 @@ export class WorldScene {
 
       case 'directional-light':
         createDirectionalLight(entity, component, sceneProperty)
+        sceneProperty.entityType = EntityNodeType.DIRECTIONAL_LIGHT
         break
 
       case 'hemisphere-light':
-        addObject3DComponent(entity, new HemisphereLight(), component.data)
+        createHemisphereLight(entity, component)
+        sceneProperty.entityType = EntityNodeType.HEMISPHERE_LIGHT
         break
 
       case 'point-light':
@@ -199,11 +217,13 @@ export class WorldScene {
         break
 
       case 'simple-materials':
-        Engine.simpleMaterials = component.data.simpleMaterials
+        if (component.data.simpleMaterials) addComponent(entity, SimpleMaterialTagComponent, {})
+        sceneProperty.entityType = EntityNodeType.SCENE
         break
 
       case 'gltf-model':
         loadGLTFModel(this, entity, component, sceneProperty)
+        sceneProperty.entityType = EntityNodeType.MODEL
         break
 
       case 'shopify':
@@ -237,7 +257,8 @@ export class WorldScene {
         break
 
       case 'ground-plane':
-        createGround(entity, component.data, isClient)
+        createGround(entity, component.data)
+        sceneProperty.entityType = EntityNodeType.GROUND_PLANE
         break
 
       case 'image':
@@ -290,30 +311,37 @@ export class WorldScene {
 
       case 'fog':
         setFog(entity, component.data)
+        sceneProperty.entityType = EntityNodeType.SCENE
         break
 
       case 'skybox':
         createSkybox(entity, component.data as any)
+        sceneProperty.entityType = EntityNodeType.SKYBOX
         break
 
       case 'audio-settings':
         addComponent(entity, PositionalAudioSettingsComponent, component.data)
+        sceneProperty.entityType = EntityNodeType.SCENE
         break
 
       case 'renderer-settings':
-        handleRendererSettings(component.data)
-        sceneProperty.isCSMEnabled = component.data.csm
+        addComponent(entity, RenderSettingComponent, {
+          ...component.data,
+          LODs: new Vector3(component.data.LODs.x, component.data.LODs.y, component.data.LODs.z),
+          dirty: true,
+          csm: component.data.csm
+        })
+        sceneProperty.entityType = EntityNodeType.SCENE
         break
 
       case 'spawn-point':
-        addComponent(entity, SpawnPointComponent, {})
+        createSpawnPoint(entity)
+        sceneProperty.entityType = EntityNodeType.SPAWN_POINT
         break
 
       case 'scene-preview-camera':
-        addComponent(entity, ScenePreviewCameraTagComponent, {})
-        if (isClient && Engine.activeCameraEntity) {
-          addComponent(Engine.activeCameraEntity, CopyTransformComponent, { input: entity })
-        }
+        createScenePreviewCamera(entity, component, sceneProperty)
+        sceneProperty.entityType = EntityNodeType.SCENE_PREVIEW_CAMERA
         break
 
       case 'shadow':
@@ -394,7 +422,8 @@ export class WorldScene {
         break
 
       case 'postprocessing':
-        isClient && configureEffectComposer(component.data.options)
+        createPostprocessing(entity, component.data)
+        sceneProperty.entityType = EntityNodeType.POSTPROCESSING
         break
 
       case 'cameraproperties':
@@ -411,6 +440,7 @@ export class WorldScene {
 
       case 'envmap':
         setEnvMap(entity, component.data)
+        sceneProperty.entityType = EntityNodeType.SCENE
         break
 
       case 'persist':
@@ -423,15 +453,15 @@ export class WorldScene {
 
       /* intentionally empty - these are only for the editor */
       case 'includeInCubemapBake':
+        if (Engine.isEditor) addComponent(entity, IncludeInCubemapBakeComponent, {})
+
       case 'cubemapbake':
       case 'group':
       case 'project': // loaded prior to engine init
         break
 
       case 'visible':
-        if (isClient) {
-          addComponent(entity, VisibleComponent, { value: component.data.visible })
-        }
+        if (isClient) addComponent(entity, VisibleComponent, {})
         break
 
       /* deprecated */

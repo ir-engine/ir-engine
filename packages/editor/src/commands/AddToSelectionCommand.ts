@@ -3,6 +3,8 @@ import { serializeObject3DArray } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 
 export default class AddToSelectionCommand extends Command {
   constructor(objects?: any | any[], params?: CommandParams) {
@@ -22,8 +24,12 @@ export default class AddToSelectionCommand extends Command {
     for (let i = 0; i < this.affectedObjects.length; i++) {
       const object = this.affectedObjects[i]
 
-      if (object.isNode && CommandManager.instance.selected.indexOf(object) > -1) {
+      if (CommandManager.instance.selected.includes(object)) continue
+
+      if (object.isNode) {
         object.onSelect()
+      } else if (object.entity) {
+        addComponent(object.entity, SelectTagComponent, {})
       }
 
       CommandManager.instance.selected.push(object)

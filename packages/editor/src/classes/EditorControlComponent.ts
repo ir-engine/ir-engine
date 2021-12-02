@@ -28,7 +28,7 @@ export type EditorControlComponentType = {
 
   snapMode: SnapModeType
 
-  transformModeOnCancel?: TransformModeType
+  transformModeOnCancel: TransformModeType
   multiplePlacement?: boolean
   grabHistoryCheckpoint?: string
 }

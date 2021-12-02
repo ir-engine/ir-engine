@@ -2,6 +2,7 @@ import Command, { CommandParams } from './Command'
 import { serializeProperties, serializeObject3DArray } from '../functions/debug'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
+import arrayShallowEqual from '../functions/arrayShallowEqual'
 
 type PropertyType = {
   [key: string]: any
@@ -17,6 +18,8 @@ export default class ModifyPropertyCommand extends Command {
   oldProperties: PropertyType[]
 
   constructor(objects?: any | any[], params?: ModifyPropertyCommandParams) {
+    if (!params) return
+
     super(objects, params)
 
     if (!Array.isArray(objects)) {
@@ -41,8 +44,9 @@ export default class ModifyPropertyCommand extends Command {
       for (const propertyName in params.properties) {
         if (!Object.prototype.hasOwnProperty.call(params.properties, propertyName)) continue
 
-        const res = this.getNestedObject(object, propertyName)
-        const oldValue = res[propertyName]
+        const { result, finalProp } = this.getNestedObject(object, propertyName)
+
+        const oldValue = result[finalProp]
 
         objectOldProperties[propertyName] = oldValue && oldValue.clone ? oldValue.clone() : oldValue
       }
@@ -53,6 +57,18 @@ export default class ModifyPropertyCommand extends Command {
 
   execute() {
     this.updateProperties(this.affectedObjects, this.newProperties)
+  }
+
+  shouldUpdate(newCommand: ModifyPropertyCommand): boolean {
+    return (
+      arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects) &&
+      arrayShallowEqual(Object.keys(this.newProperties), Object.keys(newCommand.newProperties))
+    )
+  }
+
+  update(command: ModifyPropertyCommand) {
+    this.newProperties = command.newProperties
+    this.updateProperties(this.affectedObjects, command.newProperties)
   }
 
   undo() {
@@ -73,23 +89,25 @@ export default class ModifyPropertyCommand extends Command {
     }
   }
 
-  updateProperties(objects?: any[], properties?: PropertyType): void {
+  updateProperties(objects: any[], properties?: PropertyType): void {
     for (const propertyName in properties) {
       if (!Object.prototype.hasOwnProperty.call(properties, propertyName)) continue
-
-      const finalProp = propertyName.split('.').pop()
 
       for (let i = 0; i < objects.length; i++) {
         const object = objects[i]
 
         const value = properties[propertyName]
 
-        const res = this.getNestedObject(object, propertyName)
+        const { result, finalProp } = this.getNestedObject(object, propertyName)
 
         if (value && value.copy) {
-          res[finalProp].copy(value)
+          if (!result[finalProp]) {
+            result[finalProp] = new value.constructor()
+          }
+
+          result[finalProp].copy(value)
         } else {
-          res[finalProp] = value
+          result[finalProp] = value
         }
 
         if (object.onChange) {
@@ -103,7 +121,7 @@ export default class ModifyPropertyCommand extends Command {
     }
   }
 
-  getNestedObject(object: any, propertyName?: string): any {
+  getNestedObject(object: any, propertyName: string): { result: any; finalProp: string } {
     const props = propertyName.split('.')
     let result = object
 
@@ -111,6 +129,6 @@ export default class ModifyPropertyCommand extends Command {
       result = result[props[i]]
     }
 
-    return result
+    return { result, finalProp: props[props.length - 1] }
   }
 }

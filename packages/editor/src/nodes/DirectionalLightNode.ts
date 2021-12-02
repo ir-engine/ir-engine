@@ -1,6 +1,6 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import PhysicalDirectionalLight from '@xrengine/engine/src/scene/classes/PhysicalDirectionalLight'
-import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
+import EditorDirectionalLightHelper from '@xrengine/engine/src/scene/classes/EditorDirectionalLightHelper'
 import { CameraHelper, DirectionalLight, Color, Vector2, Vector3, Quaternion, Euler } from 'three'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -33,14 +33,14 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
     obj3d.name = json.name
 
     // TODO: Nayan - Find way to handle this events
-    obj3d.onSelect = function() {
+    obj3d.onSelect = function () {
       this.helper.visible = true
 
       const component = getComponent(entity, DirectionalLightComponent)
 
       this.cameraHelper.visible = component.showCameraHelper
     }
-    obj3d.onDeselect = function() {
+    obj3d.onDeselect = function () {
       this.helper.visible = false
       this.cameraHelper.visible = false
     }
@@ -90,7 +90,6 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
   }
 }
 
-
 // TODO: Nayan - For serialization and deserialization we need some kind of schema or this functions will be added back to the node
 // and node will extend Object3d class from three js library directly without EditorMixin
 export const serializeDirectionalLight = (entity: Entity) => {
@@ -119,7 +118,6 @@ export const deserializeDirectionalLight = (entity: Entity, components: any[]) =
   ;(light as any).helper = new EditorDirectionalLightHelper(light)
   ;(light as any).helper.visible = false
   light.add((light as any).helper)
-
   ;(light as any).cameraHelper = new CameraHelper(light.shadow.camera)
   ;(light as any).cameraHelper.visible = false
   light.add((light as any).cameraHelper)
@@ -143,19 +141,13 @@ export const deserializeDirectionalLight = (entity: Entity, components: any[]) =
       addComponent(entity, PersistTagComponent, { value: component.props.visible })
     } else if (component.name === 'includeInCubemapBake') {
       // addComponent(entity, includeInCubemapBakeComponent, { value: component.props.visible })
-
     } else if (component.name === 'directional-light') {
-      const lightComponent = addComponent(
-        entity,
-        DirectionalLightComponent,
-        {
-          ...component.props,
-          color: new Color(component.props.color),
-          shadowMapResolution: new Vector2().fromArray(component.props.shadowMapResolution)
-        }
-      )
+      const lightComponent = addComponent(entity, DirectionalLightComponent, {
+        ...component.props,
+        color: new Color(component.props.color),
+        shadowMapResolution: new Vector2().fromArray(component.props.shadowMapResolution)
+      })
       lightComponent.dirty = true
     }
   }
-
 }

@@ -1,8 +1,10 @@
-import { Euler, Quaternion } from 'three'
+import { Euler } from 'three'
+import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import { CopyTransformComponent } from '../components/CopyTransformComponent'
 import { DesiredTransformComponent } from '../components/DesiredTransformComponent'
 import { TransformChildComponent } from '../components/TransformChildComponent'
@@ -22,6 +24,7 @@ export default async function TransformSystem(world: World): Promise<System> {
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
   const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
+  const spawnPointQuery = defineQuery([SpawnPointComponent])
 
   return () => {
     const { fixedDelta } = world
@@ -123,6 +126,16 @@ export default async function TransformSystem(world: World): Promise<System> {
       object3DComponent.value.quaternion.copy(transform.rotation)
       object3DComponent.value.scale.copy(transform.scale)
       object3DComponent.value.updateMatrixWorld()
+    }
+
+    if (Engine.isEditor) {
+      for (let entity of spawnPointQuery()) {
+        const obj3d = getComponent(entity, Object3DComponent)?.value
+
+        if (obj3d) {
+          ;(obj3d as any).helperModel.scale.set(1 / obj3d.scale.x, 1 / obj3d.scale.y, 1 / obj3d.scale.z)
+        }
+      }
     }
   }
 }

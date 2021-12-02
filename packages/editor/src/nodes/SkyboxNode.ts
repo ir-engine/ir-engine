@@ -1,6 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Sky } from '@xrengine/engine/src/scene/classes/Sky'
-import { SceneBackgroundProps, SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
+import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
+import { SkyboxComponentType } from '@xrengine/engine/src/scene/components/SkyboxComponent'
 import { Color, CubeTextureLoader, Mesh, PMREMGenerator, sRGBEncoding, TextureLoader } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import SceneNode from './SceneNode'
@@ -25,7 +26,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   }
 
   async serialize(projectID) {
-    const skybox: SceneBackgroundProps = {
+    const skybox: SkyboxComponentType = {
       backgroundColor: this.backgroundColor,
       equirectangularPath: this.equirectangularPath,
       cubemapPath: this.cubemapPath,
@@ -47,7 +48,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static async deserialize(json) {
     const node = (await super.deserialize(json)) as SkyboxNode
     const skybox = json.components.find((c) => c.name === 'skybox')
-    const prop = skybox.props as SceneBackgroundProps
+    const prop = skybox.props as SkyboxComponentType
     if (prop.skyboxProps) {
       node.backgroundColor = prop.backgroundColor
       node.equirectangularPath = prop.equirectangularPath
@@ -76,7 +77,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
   prepareForExport() {
     super.prepareForExport()
-    const skybox: SceneBackgroundProps = {
+    const skybox: SkyboxComponentType = {
       backgroundColor: this.backgroundColor,
       equirectangularPath: this.equirectangularPath,
       cubemapPath: this.cubemapPath,

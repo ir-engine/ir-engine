@@ -2,6 +2,9 @@ import Command, { CommandParams } from './Command'
 import { serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
+import { addComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 export default class ReplaceSelectionCommand extends Command {
   constructor(objects?: any | any[], params?: CommandParams) {
@@ -39,7 +42,7 @@ export default class ReplaceSelectionCommand extends Command {
     if (this.shouldEmitEvent) CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
   }
 
-  replaceSelection(objects?: any[]): void {
+  replaceSelection(objects: EntityTreeNode[]): void {
     // Check whether selection is changed or not
     if (objects.length === CommandManager.instance.selected.length) {
       let isSame = true
@@ -62,6 +65,8 @@ export default class ReplaceSelectionCommand extends Command {
 
       if (object.isNode && !objects.includes(object)) {
         if (object.onDeselect) object.onDeselect()
+      } else if (object.entity) {
+        removeComponent(object.entity, SelectTagComponent)
       }
     }
 
@@ -73,8 +78,12 @@ export default class ReplaceSelectionCommand extends Command {
 
       CommandManager.instance.selected.push(object)
 
-      if (object.isNode && !prevSelected.includes(object)) {
-        if (object.onSelect) object.onSelect()
+      if (!prevSelected.includes(object)) {
+        if (object.isNode) {
+          if (object.onSelect) object.onSelect()
+        } else if (object.entity) {
+          addComponent(object.entity, SelectTagComponent, {})
+        }
       }
     }
 

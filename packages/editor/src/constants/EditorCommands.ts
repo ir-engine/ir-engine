@@ -26,7 +26,8 @@ export enum TransformCommands {
 }
 
 export enum MiscCommands {
-  LOAD_MATERIAL_SLOT = 17
+  LOAD_MATERIAL_SLOT = 17,
+  TAG_COMPONENT = 18
 }
 
 export const EditorCommands = {

@@ -8,8 +8,17 @@ import BooleanInput from '../inputs/BooleanInput'
 import { useTranslation } from 'react-i18next'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
-import { NodeManager } from '../../managers/NodeManager'
-import NodeEditor from './NodeEditor'
+import { EntityNodeEditor, NodeManager } from '../../managers/NodeManager'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
+import { IncludeInCubemapBakeComponent } from '@xrengine/engine/src/scene/components/IncludeInCubemapBakeComponent'
+import EditorCommands from '../../constants/EditorCommands'
+import { TagComponentOperation } from '../../commands/TagComponentCommand'
+import { EntityNodeType } from '@xrengine/engine/src/scene/constants/EntityNodeType'
+import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.
@@ -112,7 +121,7 @@ const NoNodeSelectedMessage = (styled as any).div`
 export const PropertiesPanelContainer = () => {
   //setting the props and state
   const [selected, setSelected] = useState(CommandManager.instance.selected)
-  const [{ node }, setActiveNode] = useState({ node: null })
+  const [{ node }, setActiveNode] = useState<{ node: EntityTreeNode }>({ node: null! })
   const { t } = useTranslation()
 
   const onSelectionChanged = () => {
@@ -151,26 +160,44 @@ export const PropertiesPanelContainer = () => {
   }, [])
 
   const onChangeVisible = (value) => {
-    CommandManager.instance.setPropertyOnSelection('visible', value)
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+      operation: {
+        component: VisibleComponent,
+        type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+      }
+    })
   }
 
   const onChangeBakeStatic = (value) => {
-    CommandManager.instance.setPropertyOnSelection('includeInCubemapBake', value)
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+      operation: {
+        component: IncludeInCubemapBakeComponent,
+        type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+      }
+    })
   }
 
   const onChangePersist = (value) => {
-    CommandManager.instance.setPropertyOnSelection('persist', value)
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+      operation: {
+        component: PersistTagComponent,
+        type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+      }
+    })
   }
 
   //rendering editor views for customization of element properties
   let content
   let showNodeEditor = true
+  let isScene = false
   const multiEdit = selected.length > 1
 
   if (!node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
   } else {
-    const NodeEditor = NodeManager.instance.getEditorFromNode(node) || DefaultNodeEditor
+    const entityNodeComponent = getComponent(node.entity, EntityNodeComponent)
+    isScene = entityNodeComponent.type === EntityNodeType.SCENE
+    const NodeEditor = EntityNodeEditor[entityNodeComponent.type] || DefaultNodeEditor
 
     for (let i = 0; i < selected.length - 1; i++) {
       if (NodeManager.instance.getEditorFromNode(selected[i]) !== NodeEditor) {
@@ -187,31 +214,35 @@ export const PropertiesPanelContainer = () => {
       nodeEditor = <NoNodeSelectedMessage>{t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
     }
 
-    const disableTransform = selected.some((node) => node.disableTransform)
+    const disableTransform = selected.some((node) => hasComponent(node.entity, DisableTransformTagComponent))
     const haveStaticTags = selected.some((node) => node.haveStaticTags)
+
+    const visibleComponent = getComponent(node.entity, VisibleComponent)
+    const persistComponent = getComponent(node.entity, PersistTagComponent)
+    const includeInCubemapBakeComponent = getComponent(node.entity, IncludeInCubemapBakeComponent)
 
     content = (
       <StyledNodeEditor>
         <PropertiesHeader>
           <NameInputGroupContainer>
-            <NameInputGroup node={node} />
-            {node.nodeName !== 'Scene' && (
+            <NameInputGroup node={node} key={node.entity} />
+            {!isScene && (
               <>
                 <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
-                  <BooleanInput value={node.visible} onChange={onChangeVisible} />
+                  <BooleanInput value={!!visibleComponent} onChange={onChangeVisible} />
                 </VisibleInputGroup>
                 {haveStaticTags && (
                   <VisibleInputGroup name="Bake Static" label="Bake Static">
-                    <BooleanInput value={node.includeInCubemapBake} onChange={onChangeBakeStatic} />
+                    <BooleanInput value={!!includeInCubemapBakeComponent} onChange={onChangeBakeStatic} />
                   </VisibleInputGroup>
                 )}
               </>
             )}
           </NameInputGroupContainer>
           <PersistInputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
-            <BooleanInput value={node.persist} onChange={onChangePersist} />
+            <BooleanInput value={!!persistComponent} onChange={onChangePersist} />
           </PersistInputGroup>
-          {!disableTransform && <TransformPropertyGroup node={node} />}
+          {!isScene && !disableTransform && <TransformPropertyGroup node={node} />}
         </PropertiesHeader>
         {nodeEditor}
       </StyledNodeEditor>

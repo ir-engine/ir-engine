@@ -64,7 +64,8 @@ import TriggerVolumeNode from '../nodes/TriggerVolumeNode'
 import VideoNode from '../nodes/VideoNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
-import { DirectionalLight } from 'three'
+import { EntityNodeType } from '@xrengine/engine/src/scene/constants/EntityNodeType'
+import DefaultNodeEditor from '../components/properties/DefaultNodeEditor'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -94,8 +95,6 @@ export class NodeManager {
   registerNode(nodeConstructor, nodeEditor, entityConstructor?) {
     this.nodeTypes.add(nodeConstructor)
     this.nodeEditors.set(nodeConstructor, nodeEditor)
-
-    if (entityConstructor) this.entityEditors.set(entityConstructor, nodeEditor)
   }
 
   /**
@@ -158,7 +157,7 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
   NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
   NodeManager.instance.registerNode(AmbientLightNode, AmbientLightNodeEditor)
-  NodeManager.instance.registerNode(DirectionalLightNode, DirectionalLightNodeEditor, DirectionalLight)
+  NodeManager.instance.registerNode(DirectionalLightNode, DirectionalLightNodeEditor)
   NodeManager.instance.registerNode(HemisphereLightNode, HemisphereLightNodeEditor)
   NodeManager.instance.registerNode(SpotLightNode, SpotLightNodeEditor)
   NodeManager.instance.registerNode(PointLightNode, PointLightNodeEditor)
@@ -183,4 +182,19 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(OceanNode, OceanNodeEditor)
   NodeManager.instance.registerNode(WaterNode, WaterNodeEditor)
   NodeManager.instance.registerNode(InteriorNode, InteriorNodeEditor)
+}
+
+export const EntityNodeEditor: {
+  [key in EntityNodeType]?: any
+} = {
+  [EntityNodeType.DEFAULT]: DefaultNodeEditor,
+  [EntityNodeType.SKYBOX]: SkyboxNodeEditor,
+  [EntityNodeType.GROUND_PLANE]: GroundPlaneNodeEditor,
+  [EntityNodeType.DIRECTIONAL_LIGHT]: DirectionalLightNodeEditor,
+  [EntityNodeType.SCENE_PREVIEW_CAMERA]: ScenePreviewCameraNodeEditor,
+  [EntityNodeType.SPAWN_POINT]: SpawnPointNodeEditor,
+  [EntityNodeType.HEMISPHERE_LIGHT]: HemisphereLightNodeEditor,
+  [EntityNodeType.MODEL]: ModelNodeEditor,
+  [EntityNodeType.POSTPROCESSING]: PostProcessingNodeEditor,
+  [EntityNodeType.SCENE]: SceneNodeEditor
 }

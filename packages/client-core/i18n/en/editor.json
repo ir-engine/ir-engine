@@ -403,6 +403,7 @@
         "skybox": {
             "description": "",
             "lbl-timeOfDay": "Time of Day",
+            "lbl-color": "Color",
             "lbl-latitude": "Latitude",
             "lbl-luminance": "Luminance",
             "lbl-scattering": "Scattering Amount",

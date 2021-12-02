@@ -1,9 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import styled from 'styled-components'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import EditorEvents from '../../constants/EditorEvents'
 
 /**
  * Creating styled component using InputGroup component.
@@ -19,7 +23,7 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
 `
 
 type Types = {
-  node: any
+  node: EntityTreeNode
 }
 
 /**
@@ -29,46 +33,49 @@ type Types = {
  * @type {class component}
  */
 export const NameInputGroup = (props: Types) => {
-  let [name, setName] = useState(props.node.name)
-  let [focusedNode, setFocusedNode] = useState(null)
+  const nodeName = getComponent(props.node.entity, NameComponent).name
+
+  let [name, setName] = useState(nodeName)
+  let [focusedNode, setFocusedNode] = useState<EntityTreeNode>()
   const { t } = useTranslation()
 
-  //function to handle change in name property
-  const onUpdateName = (name) => {
-    setName(name)
-    setFocusedNode(null)
+  useEffect(() => {
+    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChange)
+    return () => {
+      CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChange)
+    }
+  }, [])
+
+  const onObjectChange = (data: any, propertyName: string) => {
+    if (propertyName === 'name') setName(data[0].name)
   }
 
+  //function to handle change in name property
+  const onUpdateName = (name) => setName(name)
+
   //function called when element get focused
-  //Updating state of component
   const onFocus = () => {
     setFocusedNode(props.node)
-    setName(props.node.name)
+    setName(nodeName)
   }
 
   // function to handle onBlur event on name property
   const onBlurName = () => {
     // Check that the focused node is current node before setting the property.
     // This can happen when clicking on another node in the HierarchyPanel
-    if (props?.node?.name !== name && props?.node === focusedNode) {
-      CommandManager.instance.setPropertyOnSelection('name', name)
+    if (nodeName !== name && props?.node === focusedNode) {
+      CommandManager.instance.setPropertyOnSelectionEntities(NameComponent, 'name', name)
     }
 
-    setFocusedNode(null)
+    setFocusedNode(undefined)
   }
 
   //function to handle keyUp event on name property
   const onKeyUpName = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      CommandManager.instance.setPropertyOnSelection('name', name)
+      CommandManager.instance.setPropertyOnSelectionEntities(NameComponent, 'name', name)
     }
-  }
-  //rendering view NameInputGroup component
-  let n = name
-
-  if (!focusedNode) {
-    n = props.node.name
   }
 
   return (

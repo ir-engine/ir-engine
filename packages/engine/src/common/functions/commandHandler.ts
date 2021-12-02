@@ -23,6 +23,7 @@ import { Engine } from '../../ecs/classes/Engine'
 // import { accessChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { Entity } from '../../ecs/classes/Entity'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { MetaDataComponent } from '../../scene/components/MetaDataComponent'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
@@ -252,7 +253,8 @@ function handleMoveCommand(x: number, y: number, z: number, entity: any) {
 
 function handleMetadataCommand(params: any, entity: any) {
   if (params[0] === 'scene') {
-    console.log('scene_metadata|' + Engine.defaultWorld.sceneMetadata)
+    const metadata = getComponent(Engine.defaultWorld.entityTree.rootNode.entity, MetaDataComponent)
+    console.log('scene_metadata|' + metadata.meta_data)
   } else {
     const position = getComponent(entity, TransformComponent).position
     const maxDistance: number = parseFloat(params[1])

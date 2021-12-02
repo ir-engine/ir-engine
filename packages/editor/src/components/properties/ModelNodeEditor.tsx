@@ -13,6 +13,9 @@ import EditorCommands from '../../constants/EditorCommands'
 import SceneNode from '../../nodes/SceneNode'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import ModelInput from '../inputs/ModelInput'
+import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 /**
  * Declaring properties for ModalNodeEditor component.
@@ -21,7 +24,7 @@ import ModelInput from '../inputs/ModelInput'
  * @type {Object}
  */
 type ModelNodeEditorProps = {
-  node?: any
+  node: EntityTreeNode
   multiEdit?: boolean
 }
 
@@ -91,12 +94,12 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
 
   // function to handle changes in castShadow property
   const onChangeCastShadow = (castShadow) => {
-    CommandManager.instance.setPropertyOnSelection('castShadow', castShadow)
+    CommandManager.instance.setPropertyOnSelectionEntities(ShadowComponent, 'castShadow', castShadow)
   }
 
   // function to handle changes in Receive shadow property
   const onChangeReceiveShadow = (receiveShadow) => {
-    CommandManager.instance.setPropertyOnSelection('receiveShadow', receiveShadow)
+    CommandManager.instance.setPropertyOnSelectionEntities(ShadowComponent, 'receiveShadow', receiveShadow)
   }
 
   // function to handle changes in interactable property
@@ -126,6 +129,9 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
   // rendering view of ModelNodeEditor
 
   const node = props.node
+
+  const shadowComponent = getComponent(props.node.entity, ShadowComponent)
+
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
@@ -141,7 +147,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
           disabled={isAnimationPropertyDisabled()}
-          options={node.getClipOptions()}
+          options={[{ label: 'None', value: -1 }]}
           value={node.activeClipIndex}
           onChange={onChangeAnimation}
         />
@@ -176,16 +182,16 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
           />
         </InputGroup> */}
       <InputGroup name="Cast Shadow" label={t('editor:properties.model.lbl-castShadow')}>
-        <BooleanInput value={node.castShadow} onChange={onChangeCastShadow} />
+        <BooleanInput value={shadowComponent.castShadow} onChange={onChangeCastShadow} />
       </InputGroup>
       <InputGroup name="Receive Shadow" label={t('editor:properties.model.lbl-receiveShadow')}>
-        <BooleanInput value={node.receiveShadow} onChange={onChangeReceiveShadow} />
-      </InputGroup>
-      <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
-        <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
+        <BooleanInput value={shadowComponent.receiveShadow} onChange={onChangeReceiveShadow} />
       </InputGroup>
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput value={node._matrixAutoUpdate} onChange={onChangeUpdateDataMatrix} />
+      </InputGroup>
+      <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
+        <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
       </InputGroup>
       {node.interactable && <InteractableGroup node={node} t={t}></InteractableGroup>}
     </NodeEditor>
