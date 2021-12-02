@@ -56,6 +56,7 @@ export default async function AvatarUISystem(world: World): Promise<System> {
       contextMenuTransform.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
       contextMenuTransform.position.copy(userTransform.position)
       contextMenuTransform.position.y = avatarHeight * 0.8
+      contextMenuTransform.position.z += contextMenuTransform.position.z > Engine.camera.position.z ? -0.4 : 0.4
     }
 
     for (const userEntity of userQuery.exit()) {

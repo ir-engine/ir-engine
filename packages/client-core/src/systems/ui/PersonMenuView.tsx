@@ -42,14 +42,14 @@ const AvatarContextMenu = () => {
           margin: 'auto',
           borderRadius: '75px',
           filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25))',
-          background: 'linear-gradient(180deg, rgba(137, 137, 242, 0.8) 0%, rgba(92, 92, 92, 0.8) 100%)',
+          background: 'linear-gradient(180deg, rgba(137, 137, 242, 0.9) 0%, rgba(92, 92, 92, 0.9) 100%)',
           zIndex: '1000'
         }}
         src={getAvatarURLForUser(user?.id?.value)}
       />
       <div
         style={{
-          background: 'linear-gradient(180deg, rgba(137, 137, 242, 0.8) 0%, rgba(92, 92, 92, 0.8) 100%)',
+          background: 'linear-gradient(180deg, rgba(137, 137, 242, 0.9) 0%, rgba(92, 92, 92, 0.9) 100%)',
           backdropFilter: 'blur(80.8478px)',
           borderRadius: '8.36957px',
           boxShadow: '16px 16px 32px 0px #11111159',
