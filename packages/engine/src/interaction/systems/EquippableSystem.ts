@@ -73,6 +73,12 @@ export default async function EquippableSystem(world: World): Promise<System> {
           const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
           const handTransform = getHandTransform(entity, getParity(attachmentPoint))
           const { position, rotation } = handTransform
+
+          const collider = getComponent(equippedEntity, ColliderComponent)
+          if (collider) {
+            teleportRigidbody(collider.body, position, rotation)
+          }
+
           equippableTransform.position.copy(position)
           equippableTransform.rotation.copy(rotation)
         }
@@ -82,12 +88,9 @@ export default async function EquippableSystem(world: World): Promise<System> {
     for (const entity of equippableQuery.exit()) {
       const equipperComponent = getComponent(entity, EquipperComponent, true)
       const equippedEntity = equipperComponent.equippedEntity
-      const equippedComponent = getComponent(equippedEntity, EquippedComponent)
-      const attachmentPoint = equippedComponent.attachmentPoint
 
       const equippedTransform = getComponent(equippedEntity, TransformComponent)
       const collider = getComponent(equippedEntity, ColliderComponent)
-      console.log('collider:', collider)
       if (collider) {
         // collider.body.type = BodyType.DYNAMIC
         teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
