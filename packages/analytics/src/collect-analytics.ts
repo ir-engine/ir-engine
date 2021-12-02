@@ -1,8 +1,12 @@
 import app from './app'
 import config from '@xrengine/server-core/src/appconfig'
+import { useSettingAnalyticsState } from '@xrengine/client-core/src/admin/services/Setting/SettingAnalyticsService'
+
+const [dbAnalyticsConfig] = useSettingAnalyticsState().analytics.value
+const analyticsConfig = dbAnalyticsConfig || config.analytics
 
 const DEFAULT_INTERVAL_SECONDS = 1800
-const configInterval = parseInt(config.analytics.processInterval)
+const configInterval = parseInt(analyticsConfig.processInterval)
 const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 
 export default (): void => {
