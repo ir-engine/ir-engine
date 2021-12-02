@@ -2,6 +2,7 @@
 import { Video } from '@styled-icons/fa-solid/Video'
 import React from 'react'
 import InputGroup from '../inputs/InputGroup'
+import { Button } from '../inputs/Button'
 import AudioSourceProperties from './AudioSourceProperties'
 import NodeEditor from './NodeEditor'
 import i18n from 'i18next'
@@ -45,6 +46,15 @@ export function VolumetricNodeEditor(props) {
       ></ArrayInputGroup>
       <InputGroup name="Play Mode" label={t('editor:properties.volumetric.playmode')}>
         <SelectInput options={node.playModeItems} value={node.playMode} onChange={onChangePlayMode} />
+        <Button
+          style={{ marginLeft: '5px', width: '60px' }}
+          type="submit"
+          onClick={() => {
+            node.onPlay()
+          }}
+        >
+          {t('editor:properties.volumetric.playbutton')}
+        </Button>
       </InputGroup>
       <AudioSourceProperties {...props} />
     </NodeEditor>

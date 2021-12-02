@@ -1,13 +1,11 @@
 import { Object3D } from 'three'
 
 export default class Volumetric extends Object3D {
-  paths: any
   playMode: number
   playModeItems: any
   constructor() {
     super()
     ;(this as any).type = 'volumetric'
-    this.paths = []
     this.playMode = 3
 
     this.playModeItems = [

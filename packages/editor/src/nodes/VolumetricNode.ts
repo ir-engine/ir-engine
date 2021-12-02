@@ -5,13 +5,17 @@ import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
+import DracosisPlayer from 'volumetric/web/decoder/Player'
+//@ts-ignore
+import DracosisPlayerWorker from 'volumetric/web/decoder/workerFunction.js?worker'
 
 export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   static legacyComponentName = 'volumetric'
   static nodeName = 'Volumetric'
   static initialElementProps = {
-    playMode: 3,
-    paths: []
+    playMode: 3
   }
   // static initialElementProps = {
   //   src: new URL(editorLandingVolumetric, location as any).href
@@ -76,13 +80,17 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   coneOuterGain: any
   projection: any
 
+  UVOLPlayer: any
+  UVOLWorker: any
+
   constructor() {
     super(SceneManager.instance.audioListener)
     this._autoPlay = true
     this.volume = 0.5
     this.controls = true
     this.playMode = 3
-    this.paths = []
+    this._paths = []
+    this.UVOLWorker = new DracosisPlayerWorker()
   }
 
   get autoPlay(): any {
@@ -91,8 +99,47 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   set autoPlay(value) {
     this._autoPlay = value
   }
-  async load(src, onError?) {
-    return this
+  get paths(): any {
+    return this._paths
+  }
+  set paths(value) {
+    this._paths = [...value]
+    if (value && value.length > 0 && value[0] != '') {
+      this.load(value)
+    }
+  }
+  async load(paths) {
+    console.log(this.UVOLPlayer)
+    if (this.UVOLPlayer) {
+      this.remove(this.UVOLPlayer.mesh)
+      this.UVOLPlayer.dispose()
+      this.UVOLWorker = new DracosisPlayerWorker()
+    }
+    this.UVOLPlayer = new DracosisPlayer({
+      scene: this as any,
+      renderer: Engine.renderer,
+      worker: this.UVOLWorker,
+      paths: paths,
+      playMode: this.playMode,
+      loop: this.loop,
+      autoplay: this.autoPlay,
+      scale: 1,
+      frameRate: 25,
+      onMeshBuffering: (progress) => {},
+      onFrameShow: () => {}
+    })
+  }
+
+  onUpdate(delta: number, time: number): void {
+    if (this.UVOLPlayer && this.UVOLPlayer.hasPlayed) {
+      this.UVOLPlayer?.handleRender(() => {})
+    }
+  }
+
+  onPlay() {
+    if (this.UVOLPlayer) {
+      this.UVOLPlayer.play()
+    }
   }
 
   clone(recursive): VolumetricNode {
