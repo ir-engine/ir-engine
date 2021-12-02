@@ -1,3 +1,4 @@
+import { Id } from '@feathersjs/feathers'
 import { Color, Mesh, Raycaster, Vector3 } from 'three'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -9,10 +10,14 @@ import { BaseInput } from '../../input/enums/BaseInput'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
 
 export default async function XRUISystem(world: World): Promise<System> {
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
+  const avatar = defineQuery([AvatarComponent, NetworkObjectComponent])
   const xruiQuery = defineQuery([XRUIComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent])
   const controllerLastHitTarget: string[] = []
@@ -37,6 +42,24 @@ export default async function XRUISystem(world: World): Promise<System> {
         hit.target.focus()
       }
     }
+
+    for (const entity of avatar(world)) {
+      const modelContainer = getComponent(entity, AvatarComponent).modelContainer
+      const intersectObjects = screenRaycaster.intersectObjects([modelContainer])
+      if (intersectObjects.length > 0) {
+        const userId = getComponent(entity, NetworkObjectComponent).userId
+        EngineEvents.instance.dispatchEvent({
+          type: EngineEvents.EVENTS.USER_AVATAR_TAPPED,
+          userId
+        })
+        return
+      }
+    }
+
+    EngineEvents.instance.dispatchEvent({
+      type: EngineEvents.EVENTS.USER_AVATAR_TAPPED,
+      userId: ''
+    })
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {

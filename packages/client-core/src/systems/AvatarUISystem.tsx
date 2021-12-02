@@ -5,7 +5,7 @@ import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarCo
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
-import { createAvatarContextMenuView } from './ui/PersonMenu'
+import { createAvatarContextMenuView } from './ui/PersonMenuView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Quaternion, Vector3 } from 'three'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
@@ -55,7 +55,7 @@ export default async function AvatarUISystem(world: World): Promise<System> {
       const contextMenuTransform = getComponent(contextMenuUI.entity, TransformComponent)
       contextMenuTransform.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
       contextMenuTransform.position.copy(userTransform.position)
-      contextMenuTransform.position.y += avatarHeight / 2
+      contextMenuTransform.position.y = avatarHeight * 0.8
     }
 
     for (const userEntity of userQuery.exit()) {

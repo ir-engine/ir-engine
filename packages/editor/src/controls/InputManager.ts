@@ -474,6 +474,7 @@ export default class InputManager {
     return false
   }
   onClick = (event) => {
+    console.log('======')
     const mouseMapping = this.mapping.mouse
     if (!mouseMapping) return
     const clickMapping = mouseMapping.click
