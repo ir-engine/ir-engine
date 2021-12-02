@@ -12,7 +12,7 @@ export default (app: Application) => {
         allowNull: false,
         primaryKey: true
       },
-      hostName: {
+      hostname: {
         type: DataTypes.STRING,
         allowNull: true
       },

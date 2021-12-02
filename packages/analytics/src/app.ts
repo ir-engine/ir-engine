@@ -14,6 +14,8 @@ import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import collectAnalytics from './collect-analytics'
 import { Application } from '@xrengine/server-core/declarations'
+import { useServerSettingState } from '@xrengine/client-core/src/admin/services/Setting/ServerSettingService'
+import { useSettingAnalyticsState } from '@xrengine/client-core/src/admin/services/Setting/SettingAnalyticsService'
 
 const emitter = new EventEmitter()
 
@@ -22,16 +24,21 @@ const app = express(feathers()) as Application
 
 app.set('nextReadyEmitter', emitter)
 
-if (config.analytics.enabled) {
+const [dbServerConfig] = useServerSettingState().server.value
+const [dbAnalyticsConfig] = useSettingAnalyticsState().analytics.value
+const serveConfig = dbServerConfig || config.server
+const analyticsConfig = dbAnalyticsConfig || config.analytics
+
+if (analyticsConfig.enabled) {
   try {
     //Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
     //Doesn't appear anything else uses it.
     app.set('env', 'production')
     //Feathers authentication-oauth will only append the port in production, but then it will also
     //hard-code http as the protocol, so manually mashing host + port together if in local.
-    app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
-    app.set('port', config.server.port)
-    app.set('paginate', config.server.paginate)
+    app.set('host', serveConfig.local ? serveConfig.hostname + ':' + serveConfig.port : serveConfig.hostname)
+    app.set('port', serveConfig.port)
+    app.set('paginate', serveConfig.paginate)
     app.set('authentication', config.authentication)
 
     app.configure(sequelize)
@@ -55,9 +62,9 @@ if (config.analytics.enabled) {
           serveClient: false,
           cors: {
             origin: [
-              'https://' + config.server.clientHost,
-              'capacitor://' + config.server.clientHost,
-              'ionic://' + config.server.clientHost,
+              'https://' + serveConfig.clientHost,
+              'capacitor://' + serveConfig.clientHost,
+              'ionic://' + serveConfig.clientHost,
               'https://localhost:3001'
             ],
             methods: ['OPTIONS', 'GET', 'POST'],
