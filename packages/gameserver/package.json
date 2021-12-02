@@ -57,7 +57,7 @@
     "feathers-sync": "2.4.0",
     "helmet": "4.6.0",
     "mediasoup": "3.9.2",
-    "msgpackr": "^1.4.0",
+    "msgpackr": "1.5.1",
     "ps-list": "7.2.0",
     "serve-favicon": "2.5.0",
     "socket.io": "4.4.0",
