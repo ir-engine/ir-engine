@@ -5,9 +5,13 @@ import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunct
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export const initializeServerEngine = async (systems: SystemModuleType<any>[], isMediaChannelInstance = false) => {
+  const dbClientConfig = await app.service('client-setting').find()
+  const [dbClientConfigData] = dbClientConfig.data
+  const clientConfig = dbClientConfigData || config.client
+
   const options: InitializeOptions = {
     type: isMediaChannelInstance ? EngineSystemPresets.MEDIA : EngineSystemPresets.SERVER,
-    publicPath: config.client.url,
+    publicPath: clientConfig.url,
     systems
   }
   await initializeEngine(options)

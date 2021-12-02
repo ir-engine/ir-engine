@@ -14,8 +14,6 @@ import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import collectAnalytics from './collect-analytics'
 import { Application } from '@xrengine/server-core/declarations'
-import { useServerSettingState } from '@xrengine/client-core/src/admin/services/Setting/ServerSettingService'
-import { useSettingAnalyticsState } from '@xrengine/client-core/src/admin/services/Setting/SettingAnalyticsService'
 
 const emitter = new EventEmitter()
 
@@ -24,8 +22,8 @@ const app = express(feathers()) as Application
 
 app.set('nextReadyEmitter', emitter)
 
-const [dbServerConfig] = useServerSettingState().server.value
-const [dbAnalyticsConfig] = useSettingAnalyticsState().analytics.value
+const [dbServerConfig] = app.service('server-setting').find()
+const [dbAnalyticsConfig] = app.service('analytics-setting').find()
 const serveConfig = dbServerConfig || config.server
 const analyticsConfig = dbAnalyticsConfig || config.analytics
 
