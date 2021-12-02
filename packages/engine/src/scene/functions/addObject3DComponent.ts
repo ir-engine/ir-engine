@@ -11,6 +11,7 @@ import { applyArgsToObject3d } from './applyArgsToObject3d'
 
 /**
  * Add Object3D Component with args into Entity from the Behavior.
+ * @deprecated
  */
 
 export const addObject3DComponent = <T extends Object3D>(entity: Entity, object3d: T, objArgs?: any) => {

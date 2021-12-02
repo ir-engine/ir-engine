@@ -16,7 +16,6 @@ import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import styles from './Avatars.module.scss'
 import { useAvatarState } from '../../services/AvatarService'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
-import { AuthService } from '../../../user/services/AuthService'
 import { AvatarService } from '../../services/AvatarService'
 
 if (!global.setImmediate) {
@@ -179,10 +178,6 @@ const Avatars = (props: Props) => {
     })
   }
 
-  const uploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
-    AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar)
-  }
-
   return (
     <div>
       <Paper className={styles.adminRoot}>
@@ -257,11 +252,7 @@ const Avatars = (props: Props) => {
           />
         </div>
         {avatarSelectMenuOpen && (
-          <AvatarSelectMenu
-            changeActiveMenu={() => setAvatarSelectMenuOpen(false)}
-            uploadAvatarModel={uploadAvatarModel}
-            isPublicAvatar={true}
-          />
+          <AvatarSelectMenu changeActiveMenu={() => setAvatarSelectMenuOpen(false)} isPublicAvatar={true} />
         )}
       </Paper>
     </div>

@@ -1,5 +1,5 @@
 import { Material, Mesh, Vector3 } from 'three'
-import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -96,14 +96,14 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
     for (const entity of persistQuery.enter()) {
       const object3DComponent = getComponent(entity, Object3DComponent)
       object3DComponent?.value?.traverse((obj) => {
-        obj.layers.enable(CameraLayers.Portal)
+        obj.layers.enable(ObjectLayers.Portal)
       })
     }
 
     for (const entity of persistQuery.exit()) {
       const object3DComponent = getComponent(entity, Object3DComponent)
       object3DComponent?.value?.traverse((obj) => {
-        obj.layers.disable(CameraLayers.Portal)
+        obj.layers.disable(ObjectLayers.Portal)
       })
     }
 

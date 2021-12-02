@@ -10,6 +10,7 @@ export const applyArgsToObject3d = <T extends Object3D>(entity: Entity, object3d
    * @param value
    */
   const applyDeepValue = (subj: object, path: string, value: unknown): void => {
+    console.log(path, value)
     if (!subj) {
       console.warn('subj is not an object', subj)
       return
@@ -30,7 +31,7 @@ export const applyArgsToObject3d = <T extends Object3D>(entity: Entity, object3d
 
     if (subj[property] instanceof Color && (typeof value === 'number' || typeof value === 'string')) {
       subj[property] = new Color(value)
-    } else {
+    } else if (value || (!value && !subj[property])) {
       subj[property] = value
     }
   }
