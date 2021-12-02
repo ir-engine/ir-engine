@@ -119,7 +119,7 @@ const Server = (props: serverProps) => {
               className={classes.input}
               disabled
               style={{ color: '#fff' }}
-              value={serverSetting?.hostName || 'test'}
+              value={serverSetting?.hostname || 'test'}
             />
           </Paper>
           <label>Port</label>

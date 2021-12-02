@@ -1,6 +1,6 @@
 export interface ServerSetting {
   id: string
-  hostName?: string
+  hostname?: string
   serverEnabled: boolean
   serverMode?: string
   port?: string
