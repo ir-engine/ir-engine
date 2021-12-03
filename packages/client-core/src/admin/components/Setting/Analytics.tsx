@@ -27,10 +27,10 @@ const Analytics = (props: AnalyticsProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && settingAnalyticsState.updateNeeded.value === true) {
+    if (user?.id?.value != null && settingAnalyticsState?.updateNeeded?.value === true) {
       SettingAnalyticsService.fetchSettingsAnalytics()
     }
-  }, [authState])
+  }, [authState?.user?.id?.value, settingAnalyticsState?.updateNeeded?.value])
 
   const Data = {
     id: settingAnalytics.value.map((el) => el.id),

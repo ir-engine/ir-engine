@@ -17,6 +17,7 @@ import { getContentType } from '../../util/fileUtils'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { getProjectConfig, onProjectEvent } from './project-helper'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
@@ -91,9 +92,6 @@ export class Project extends Service {
     super(options)
     this.app = app
 
-    // copy default project if it doesn't exist
-    if (!fs.existsSync(path.resolve(projectsRootFolder, 'default-project'))) copyDefaultProject()
-
     if (isDev && !config.db.forceRefresh) {
       this._fetchDevLocalProjects()
     }
@@ -115,21 +113,23 @@ export class Project extends Service {
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
 
-    const promises = []
+    const promises: Promise<any>[] = []
 
     for (const projectName of locallyInstalledProjects) {
       if (!data.find((e) => e.name === projectName)) {
         try {
           console.warn('[Projects]: Found new locally installed project', projectName)
-          const projectConfig: ProjectConfigInterface = (
-            await import(`@xrengine/projects/projects/${projectName}/xrengine.config.ts`)
-          ).default
+          const projectConfig = (await getProjectConfig(projectName)) ?? {}
           await super.create({
             thumbnail: projectConfig.thumbnail,
             name: projectName,
             storageProviderPath: getStorageProviderPath(projectName),
             repositoryPath: getRemoteURLFromGitData(projectName)
           })
+          // run project install script
+          if (projectConfig.onEvent) {
+            promises.push(onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall'))
+          }
         } catch (e) {
           console.log(e)
         }
@@ -137,6 +137,8 @@ export class Project extends Service {
 
       promises.push(uploadLocalProjectToProvider(projectName))
     }
+
+    await Promise.all(promises)
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
@@ -146,7 +148,7 @@ export class Project extends Service {
     }
   }
 
-  async create(data: { name: string }, params?: Params) {
+  async create(data: { name: string }, params: Params) {
     const projectName = cleanString(data.name)
 
     if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
@@ -220,14 +222,7 @@ export class Project extends Service {
 
     await uploadLocalProjectToProvider(projectName)
 
-    let projectConfig: ProjectConfigInterface = {}
-    try {
-      projectConfig = (await import(`../../../../projects/projects/${projectName}/xrengine.config.ts`)).default
-    } catch (e) {
-      console.log(
-        `[Projects]: WARNING project with name ${projectName} has no xrengine.config.ts file - this is not recommended`
-      )
-    }
+    const projectConfig = (await getProjectConfig(projectName)) ?? {}
 
     // Add to DB
     await super.create(
@@ -239,6 +234,11 @@ export class Project extends Service {
       },
       params || {}
     )
+
+    // run project install script
+    if (projectConfig.onEvent) {
+      await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
+    }
   }
 
   /**
@@ -248,9 +248,17 @@ export class Project extends Service {
    * @param app
    * @returns
    */
-  async patch(projectName: string, data?: { files: string[] }, params?: Params) {
+  async patch(projectName: string, data: { files: string[] }, params: Params) {
+    const projectConfig = await getProjectConfig(projectName)
+    if (!projectConfig) return
+
+    // run project uninstall script
+    if (projectConfig.onEvent) {
+      await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onUpdate')
+    }
+
     if (data?.files?.length) {
-      const promises = []
+      const promises: Promise<any>[] = []
       for (const filePath of data.files) {
         promises.push(
           new Promise<string>(async (resolve) => {
@@ -269,9 +277,17 @@ export class Project extends Service {
     }
   }
 
-  async remove(id: Id, params?: Params) {
+  async remove(id: Id, params: Params) {
     try {
       const { name } = await super.get(id, params)
+
+      const projectConfig = await getProjectConfig(name)
+
+      // run project uninstall script
+      if (projectConfig.onEvent) {
+        await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
+      }
+
       console.log('[Projects]: removing project', id, name)
       await deleteProjectFilesInStorageProvider(name)
       await super.remove(id, params)
@@ -281,17 +297,17 @@ export class Project extends Service {
     }
   }
 
-  async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
+  async get(name: string, params: Params): Promise<{ data: ProjectInterface }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     const project = data.find((e) => e.name === name)
-    if (!project) return
+    if (!project) return null!
     return {
       data: project
     }
   }
 
   //@ts-ignore
-  async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
+  async find(params: Params): Promise<{ data: ProjectInterface[] }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     return {
       data

@@ -96,33 +96,38 @@ class Pose {
     }
 
     const rootBone = this.skeleton.bones.find((b) => !(b.parent instanceof Bone))
+    this.skeleton.rootBone = rootBone
+    rootBone.updateWorldMatrix(true, true)
+
     if (rootBone.parent) {
-      rootBone.parent.getWorldPosition(skeletonTransform.position)
-      rootBone.parent.getWorldQuaternion(skeletonTransform.quaternion)
-      rootBone.parent.getWorldScale(skeletonTransform.scale)
+      rootBone.parent.matrixWorld.decompose(
+        skeletonTransform.position,
+        skeletonTransform.quaternion,
+        skeletonTransform.scale
+      )
       skeletonTransform.invQuaternion.copy(skeletonTransform.quaternion).invert()
     }
 
     for (let i = 0; i < this.skeleton.bones.length; i++) {
-      const b = this.skeleton.bones[i]
+      const bone = this.skeleton.bones[i]
       let p_idx, boneParent
-      if (b.parent && b.parent instanceof Bone) {
-        p_idx = this.skeleton.bones.indexOf(b.parent)
-        boneParent = b.parent
+      if (bone.parent && bone.parent instanceof Bone) {
+        p_idx = this.skeleton.bones.indexOf(bone.parent)
+        boneParent = bone.parent
       }
 
       const boneData = {
-        bone: b,
+        bone,
         parent: boneParent,
         chg_state: 0, // If Local Has Been Updated
         idx: i, // Bone Index in Armature
         p_idx: p_idx, // Parent Bone Index in Armature
         length: 0.1, // Length of Bone
-        name: b.name,
+        name: bone.name,
         local: {
-          position: b.position.clone(),
-          quaternion: b.quaternion.clone(),
-          scale: b.scale.clone()
+          position: bone.position.clone(),
+          quaternion: bone.quaternion.clone(),
+          scale: bone.scale.clone()
         }, // Local Transform, use Bind pose as default
         world: {
           position: new Vector3(),
@@ -132,9 +137,7 @@ class Pose {
         } // Model Space Transform
       }
 
-      b.getWorldPosition(boneData.world.position)
-      b.getWorldQuaternion(boneData.world.quaternion)
-      b.getWorldScale(boneData.world.scale)
+      bone.matrixWorld.decompose(boneData.world.position, boneData.world.quaternion, boneData.world.scale)
 
       // convert to model space
       worldToModel(boneData.world.position, boneData.world.quaternion, boneData.world.scale, skeletonTransform)
@@ -142,13 +145,13 @@ class Pose {
       boneData.world.invQuaternion.copy(boneData.world.quaternion).invert()
 
       //b['index'] = i
-      if (b.children.length > 0) {
+      if (bone.children.length > 0) {
         // b.getWorldPosition(bWorldPosition)
         // b.children[0].getWorldPosition(bChildWorldPosition)
         // bWorldPosition.divide(skeletonTransform.scale)
         // bChildWorldPosition.divide(skeletonTransform.scale)
 
-        boneData.length = b.children[0].position.length()
+        boneData.length = bone.children[0].position.length()
       }
 
       this.bones[i] = boneData

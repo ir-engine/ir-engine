@@ -63,8 +63,7 @@ export const PopupsStateService = {
       try {
         dispatch(PopupsStateAction.changeCreatorPage(state, id))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -74,8 +73,7 @@ export const PopupsStateService = {
       try {
         dispatch(PopupsStateAction.changeCreatorForm(state))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -85,8 +83,7 @@ export const PopupsStateService = {
       try {
         dispatch(PopupsStateAction.changeFeedPage(state, id))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -96,8 +93,7 @@ export const PopupsStateService = {
       try {
         dispatch(PopupsStateAction.changeNewFeedPage(state, id, fPath, nameId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -107,8 +103,7 @@ export const PopupsStateService = {
       try {
         dispatch(PopupsStateAction.changeShareForm(state, id, imgSrc))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -118,8 +113,7 @@ export const PopupsStateService = {
       try {
         dispatch(PopupsStateAction.changeArMedia(state))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -129,8 +123,7 @@ export const PopupsStateService = {
       try {
         dispatch(PopupsStateAction.changeWebXR(state, itemId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

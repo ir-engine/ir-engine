@@ -27,21 +27,21 @@ export class MatchTicketAssignment implements ServiceMethods<Data> {
 
   async setup() {}
 
-  async find(params?: Params): Promise<Data[]> {
+  async find(params: Params): Promise<Data[]> {
     return []
   }
 
-  async get(ticketId: unknown, params?: Params): Promise<OpenMatchTicketAssignment> {
+  async get(ticketId: unknown, params: Params): Promise<OpenMatchTicketAssignment> {
     if (typeof ticketId !== 'string' || ticketId.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
 
-    let assignment
+    let assignment: OpenMatchTicketAssignment
     try {
       if (config.server.matchmakerEmulationMode) {
         assignment = await emulate_getTicketsAssignment(this.app, ticketId, params['identity-provider'].userId)
       } else {
-        assignment = getTicketsAssignment(ticketId)
+        assignment = await getTicketsAssignment(ticketId)
       }
     } catch (e) {
       // todo: handle other errors. like no connection, etc....
@@ -51,21 +51,21 @@ export class MatchTicketAssignment implements ServiceMethods<Data> {
     return assignment
   }
 
-  async create(data: unknown, params?: Params): Promise<Data> {
+  async create(data: any, params: Params): Promise<Data> {
     return data
   }
 
-  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
     // not implemented for tickets
     return data
   }
 
-  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
     // not implemented for tickets
     return data
   }
 
-  async remove(id: Id, params?: Params): Promise<Data> {
+  async remove(id: Id, params: Params): Promise<Data> {
     return { id }
   }
 }

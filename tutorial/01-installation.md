@@ -20,19 +20,6 @@ You don't need to use Docker, but it will make your life much easier.
 You can get it [here](https://docs.docker.com/).
 If you don't wish to use Docker, you will need to setup mariadb and redis on your machine. You can find credentials in `xrengine/scripts/docker-compose.yml`
 
-You can quickstart locally using docker, if you don't have node installed or just want to test the latest.
-
-``` bash
-## Build the image
-docker build --tag xrengine .
-
-## Run the image (deletes itself when you close it)
-docker run -d --rm --name server -e "MYSQL_URL=mysql://server:password@db:3306/xrengine" -p "3030:3030"  xrengine
-
-## Stop the server
-docker stop server
-```
-
 ### Mediasoup is a powerful beast you must tame
 The vast majority of people get stuck on the mediasoup installation because it requires C++ source code to be compiled on your machine, which requires node-gyp and python and other dependencies.
 
@@ -47,47 +34,27 @@ First, open a wsl prompt. Then type these commands:
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install build-essential
-npm install -g node-gyp
-npm config set python /usr/bin/python
-PYTHON=python3 npm install
+npm install
 ```
 
 Please make sure you've followed everything in these instructions:
 https://mediasoup.org/documentation/v3/mediasoup/installation/
 
 ### Installing on Native Windows
-1. Add Env Variable
-```
-PUPPETEER_SKIP_DOWNLOAD='true'
-```
-2. install python 2 and add python installation directory path to 'path' env variable.
+1. install python 3 and add python installation directory path to 'path' env variable.
 
-3. Install node js
+2. Install node js
 
-4. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
+3. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
 
-5. add environmental variable
-```
-GYP_MSVS_VERSION=<vs-year>
-for example, GYP_MSVS_VERSION=2019
-```
-
-6. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
+4. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
 for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin```
 
-7. remove mediasoup and mediasoup-client from every package.json. This will enable us to add all the dependencies except mediasoup, this way we can save time while dealing with mediasoup.
+5. install all dependences using npm.
 
-8. rename 'postinstall' to 'postinstall-1' so that it will not run after installing dependencies.
+6. If error persists then check for typos in environment variables.
 
-9. install all dependences using npm.
-
-10. add back all removed mediasoup and mediasoup-client dependencies.
-
-11. Rerun npm command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
-
-12. If error persists then check for typos in environment variables.
-
-13. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
+7. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
 
 ./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
 
@@ -95,7 +62,7 @@ for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MS
     docker container start xrengine_db
 ```
 
-15. Check your WSL Config for any incorrect networking settings. 
+8. Check your WSL Config for any incorrect networking settings. 
 https://docs.microsoft.com/en-us/windows/wsl/wsl-config#network
 
 ### Installing on a Mac 
@@ -220,7 +187,7 @@ The default username is 'server', the default password is 'password', the defaul
 ### 4. Start the server in database seed mode
 
    Several tables in the database need to be seeded with default values.
-   Run ```cd packages/server```, then run ```npm run dev-reinit-db```.
+   Run ```npm run dev-reinit``` or if on windows ```npm run dev-reinit-windows```
    After several seconds, there should be no more logging.
    Some of the final lines should read like this:
    ```Executing (default): SELECT 'id', 'name', 'sceneId', 'locationSettingsId', 'slugifiedName', 'maxUsersPerInstance', 'createdAt', 'updatedAt' FROM 'location' AS 'location' WHERE ('location'.'id' = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61') AND 'location'.'id' IN ('98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'); Seeded```

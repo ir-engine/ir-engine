@@ -64,7 +64,7 @@ export class CommentsFire extends Service {
     }
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params: Params): Promise<any> {
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')
@@ -75,7 +75,7 @@ export class CommentsFire extends Service {
     return newFire
   }
 
-  async remove(commentId: string, params?: Params): Promise<any> {
+  async remove(commentId: string, params: Params): Promise<any> {
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')

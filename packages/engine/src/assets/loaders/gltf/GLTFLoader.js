@@ -386,6 +386,18 @@ class GLTFLoader extends Loader {
 
 	}
 
+	parseAsync( data, path ) {
+
+		const scope = this;
+
+		return new Promise( function ( resolve, reject ) {
+
+			scope.parse( data, path, resolve, reject );
+
+		} );
+
+	}
+
 }
 
 /* GLTFREGISTRY */

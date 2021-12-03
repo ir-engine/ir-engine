@@ -19,7 +19,7 @@ export default class Seeder {
     console.log('Seeding app...')
 
     return new Promise((resolve, reject) => {
-      const promises = []
+      const promises: any[] = []
 
       for (const cfg of this.opts.services) {
         promises.push(this.seed(cfg))
@@ -33,7 +33,7 @@ export default class Seeder {
     })
   }
 
-  seed(cfg) {
+  seed(cfg): Promise<any> {
     return new Promise((resolve, reject) => {
       // if (!cfg.path) {
       //   throw new Error('You must include the path of every service you want to seed.')
@@ -84,7 +84,7 @@ export default class Seeder {
           }
 
           // Now, let's seed the app.
-          const promises = []
+          const promises: any[] = []
 
           if (cfg.template && cfg.disabled !== true) {
             // Single template

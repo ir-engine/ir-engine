@@ -2165,7 +2165,7 @@ class AnimationParser {
       postRotation.push(eulerOrder)
 
       postRotation = new Euler().fromArray(postRotation)
-      postRotation = new Quaternion().setFromEuler(postRotation).inverse()
+      postRotation = new Quaternion().setFromEuler(postRotation).invert()
     }
 
     const quaternion = new Quaternion()

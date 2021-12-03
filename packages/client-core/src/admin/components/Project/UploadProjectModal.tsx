@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import styles from './Projects.module.scss'
 import { ProjectService } from '../../services/ProjectService'
 import { useDispatch } from '../../../store'
-import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
@@ -63,10 +62,6 @@ const UploadProjectModal = (props: Props): any => {
         open={open}
         onClose={closeModal}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={props.open}>
           <div

@@ -21,7 +21,7 @@ export class FeedBookmark extends Service {
     this.app = app
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params: Params): Promise<any> {
     const { feed_bookmark: feedBookmarkModel } = this.app.get('sequelizeClient').models
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
@@ -31,7 +31,7 @@ export class FeedBookmark extends Service {
     return newBookmark
   }
 
-  async remove(feedId: string, params?: Params): Promise<any> {
+  async remove(feedId: string, params: Params): Promise<any> {
     const creatorId = await getCreatorByUserId(
       extractLoggedInUserFromParams(params)?.userId,
       this.app.get('sequelizeClient')

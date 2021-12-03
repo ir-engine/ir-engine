@@ -10,6 +10,8 @@ export const authenticationSeed = {
       secret: 'test',
       authStrategies: JSON.stringify([
         { jwt: true },
+        { smsMagicLink: true },
+        { emailMagicLink: true },
         { local: true },
         { facebook: true },
         { github: true },

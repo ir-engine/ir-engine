@@ -18,6 +18,13 @@ const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 export class LocalStorage implements StorageProviderInterface {
   path = './upload'
   cacheDomain = config.server.localStorageProvider
+
+  constructor() {
+    // make upload folder if it doesnt already exist
+    if (!fs.existsSync(path.join(appRootPath.path, 'packages/server/upload')))
+      fs.mkdirSync(path.join(appRootPath.path, 'packages/server/upload'))
+  }
+
   getObject = async (key: string): Promise<StorageObjectInterface> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, key)
     const result = await fs.promises.readFile(filePath)
@@ -39,7 +46,7 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   putObject = async (params: StorageObjectInterface): Promise<any> => {
-    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, params.Key)
+    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, params.Key!)
     const pathWithoutFileExec = keyPathRegex.exec(filePath)
     if (filePath.substr(-1) === '/') {
       if (!fs.existsSync(filePath)) {
@@ -124,8 +131,8 @@ export class LocalStorage implements StorageProviderInterface {
       const url = signedUrl.url + signedUrl.fields.Key
       const res: FileContentType = {
         key,
-        name: query.groups.name,
-        type: query.groups.extension,
+        name: query!.groups!.name,
+        type: query!.groups!.extension,
         url
       }
       return res
@@ -158,7 +165,7 @@ export class LocalStorage implements StorageProviderInterface {
     current: string,
     destination: string,
     isCopy = false,
-    renameTo: string = null
+    renameTo: string = null!
   ): Promise<boolean> => {
     const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
     let fileName = renameTo != null ? renameTo : path.basename(current)

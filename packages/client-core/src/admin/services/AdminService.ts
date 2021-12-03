@@ -49,7 +49,7 @@ export const AdminService = {
       AlertService.dispatchAlertSuccess('Video uploaded')
       dispatch(AdminAction.videoCreated(result))
     } catch (err) {
-      AlertService.dispatchAlertError('Video upload error: ' + err.response.data.message)
+      AlertService.dispatchAlertError(new Error('Video upload error: ' + err.response.data.message))
     }
   },
   updateVideo: async (data: VideoUpdateForm) => {
