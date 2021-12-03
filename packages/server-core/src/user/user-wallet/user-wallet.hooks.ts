@@ -14,7 +14,7 @@ export default {
       async (context: HookContext): Promise<HookContext> => {
         let userId = context.data.userId
         // GET RESPONSE FOR TOKEN
-        var response = await axios.post(
+        let response = await axios.post(
           'http://af2fc18b539ee488984fa4e58de37686-1454411376.us-west-1.elb.amazonaws.com/api/v1/authorizeServer',
           {
             authSecretKey: 'secret'
@@ -22,10 +22,10 @@ export default {
         )
 
         // KEEP TOKEN
-        var accessToken = response.data.accessToken
+        let accessToken = response.data.accessToken
 
         // CALL WALLET API WITH HEADER SETUP
-        var walletData = await axios.post(
+        let walletData = await axios.post(
           'http://af2fc18b539ee488984fa4e58de37686-1454411376.us-west-1.elb.amazonaws.com/api/v1/wallet',
           {},
           {

@@ -48,16 +48,12 @@ function RouterComp(props) {
           }
         >
           <Switch>
-            {customRoutes?.length &&
-              customRoutes.map((route, i) => (
-                <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
-              ))}
+            {customRoutes.map((route, i) => (
+              <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
+            ))}
             {/* default to allowing admin access regardless */}
             <Route key={'default-admin'} path={'/admin'} component={$admin} />
             <Route key={'default-login'} path={'/login'} component={$login} />
-            <Route key={'default-inventory'} path={'/inventory'} component={$inventory} />
-            <Route key={'default-trading'} path={'/trading'} component={$trading} />
-            <Route key={'default-wallet'} path={'/wallet'} component={$wallet} />
             <Route key={'default-auth'} path={'/auth'} component={$auth} />
             {/* if no index page has been provided, indicate this as obviously as possible */}
             <Route key={'/503'} path={'/'} component={$503} exact />

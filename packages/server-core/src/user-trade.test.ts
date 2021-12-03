@@ -1,12 +1,12 @@
 import assert from 'assert'
 import app from "../../server/src/app"
-import  data  from "./inventory_item.test"
+import  data  from "./inventory-item.test"
 
-var tradedata = data.trading_data
-var inventoryItemTypeId = null
-var tobeTrade = null
-var tobeRemoved = null
-var datax = null
+let tradedata = data.trading_data
+let inventoryItemTypeId = null
+let tobeTrade = null
+let tobeRemoved = null
+let datax = null
 
 
 describe('Check User Trade', () => {

@@ -1,10 +1,10 @@
 import assert from 'assert'
 import app from "../../server/src/app"
 
-var dataToBeSent = {
+let dataToBeSent = {
   "inventoryItemTypeId" : null
 }
-var toBeDeleted = null
+let toBeDeleted = null
 
 describe('Check Inventory Item Type', () => {
 

@@ -1,11 +1,11 @@
 import assert from 'assert'
 import app from "../../server/src/app"
-import  dataToBeSent from "./inventory_item_type.test"
-var dataToBeSent2 = {
+import  dataToBeSent from "./inventory-item-type.test"
+let dataToBeSent2 = {
   "inventoryItemId" : null
 }
 let tobeRemoved = null
-var trading_data = {
+let trading_data = {
   "inventoryItemId" : null
 }
 
