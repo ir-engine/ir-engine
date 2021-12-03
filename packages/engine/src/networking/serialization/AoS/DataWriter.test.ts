@@ -1,13 +1,13 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import assert, { strictEqual } from 'assert'
+import { strictEqual } from 'assert'
 import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
 import { createDataWriter, writeEntities, writeEntity, writePosition, writeRotation, writeTransform, writeVector3 } from "./DataWriter"
-import { createViewCursor, readFloat32, readUint32, readUint8, sliceViewCursor } from '../ViewCursor'
+import { createViewCursor, readFloat32, readUint32, readUint8 } from '../ViewCursor'
 import { Vector3SoA } from '../Utils'
 
-describe('AoS serialization', () => {
+describe('AoS DataWriter', () => {
 
   it('should writeVector3', () => {
     const view = createViewCursor()

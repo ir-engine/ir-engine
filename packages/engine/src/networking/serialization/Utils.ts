@@ -1,8 +1,3 @@
-import { TypedArray } from 'bitecs'
-import { Entity } from '../../ecs/classes/Entity'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { ViewCursor } from './ViewCursor'
-
 export type Vector3SoA = {
   x: Float32Array
   y: Float32Array

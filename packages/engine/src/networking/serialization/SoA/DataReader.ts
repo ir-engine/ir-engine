@@ -18,7 +18,6 @@ export const readProps = (v: ViewCursor, props: TypedArray[], idMap: Map<number,
 export const createDataReader = (props: TypedArray[]) => {
   return (packet: ArrayBuffer, idMap: Map<number, number>) => {
     const view = createViewCursor(packet)
-    view.cursor = 0
     return readProps(view, props, idMap, packet)
   }
 }

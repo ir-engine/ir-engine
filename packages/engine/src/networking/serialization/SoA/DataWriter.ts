@@ -10,15 +10,15 @@ import {
   sliceViewCursor
 } from './../ViewCursor'
 
-const shadows = {}
 export const writeProps = (v: ViewCursor, props: TypedArray[] | Function, entities: Entity[]) => {
+  const { shadowMap } = v
   for (let pid = 0; pid < props.length; pid++) {
     const diff = typeof props[pid] === 'function'
 
     let prop, shadow
     if (diff) {
       prop = props[pid]()
-      shadow = shadows[pid] || (shadows[pid] = prop.slice().fill(0))
+      shadow = shadowMap.get(prop) || shadowMap.set(prop, prop.slice().fill(0))
     } else {
       prop = props[pid]
     }

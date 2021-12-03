@@ -45,7 +45,7 @@ export const writeComponent = (component: any) => {
   }
 }
 
-export const writeComponentProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
+export const writePropChanged = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
   const { shadowMap } = v
   const shadow = shadowMap.get(prop) || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
 
@@ -66,9 +66,9 @@ export const writeVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Ent
   const writeChangeMask = spaceUint8(v)
   let changeMask = 0
 
-  changeMask |= writeComponentProp(v, vector3.x, entity) ? 0b001 : 0b0
-  changeMask |= writeComponentProp(v, vector3.y, entity) ? 0b010 : 0b0
-  changeMask |= writeComponentProp(v, vector3.z, entity) ? 0b100 : 0b0
+  changeMask |= writePropChanged(v, vector3.x, entity) ? 0b001 : 0b0
+  changeMask |= writePropChanged(v, vector3.y, entity) ? 0b010 : 0b0
+  changeMask |= writePropChanged(v, vector3.z, entity) ? 0b100 : 0b0
 
   return changeMask > 0 && writeChangeMask(changeMask)
 }
