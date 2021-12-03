@@ -1,10 +1,10 @@
 // References:
-// https://youtu.be/OMmXo3Jejxk
+// https://www.youtube.com/watch?v=OMmXo3Jejxk&list=PLMinhigDWz6emRKVkVIEAaePW7vtIkaIF&index=135
 // https://github.com/sketchpunk/FunWithWebGL2/tree/master/lesson_137_ik_rigs
 
 // @ts-nocheck
 import { IKRigComponentType, PointData } from '../components/IKRigComponent'
-import { Bone, Object3D, Quaternion, Vector3, Matrix4 } from 'three'
+import { Object3D, Quaternion, Vector3, Matrix4 } from 'three'
 import {
   IKPoseComponent,
   IKPoseComponentType,
@@ -17,7 +17,6 @@ import { addChain, addPoint } from './RigFunctions'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import { Chain } from '../classes/Chain'
 import { solveThreeBone } from './IKSolvers'
-import { glMatrix, mat4 } from 'gl-matrix'
 
 const tempMat = new Matrix4()
 const tempQuat1 = new Quaternion()
@@ -512,35 +511,35 @@ export function applyLookTwist(
   lookDirection: Vector3,
   twistDirection: Vector3
 ) {
-  // First we need to get the WS Rotation of the parent to the Foot
-  // Then Add the Foot's LS Bind rotation. The idea is to see where
+  // First we need to get the World Rotation of the parent to the Foot
+  // Then Add the Foot's Local Bind rotation. The idea is to see where
   // the foot will currently be if it has yet to have any rotation
   // applied to it.
   const boneInfo = rig.points[boneName],
     ik: IKPoseLookTwist = ikPose[boneName]
 
-  const bind = rig.tpose.bones[boneInfo.index]
+  const bindBone = rig.tpose.bones[boneInfo.index]
 
-  const rootQuaternion = rig.pose.getParentRotation(boneInfo.index)
-  const childRotation = tempQuat1.copy(rootQuaternion).multiply(bind.local.quaternion)
+  const parentWorldRot = rig.pose.getParentRotation(boneInfo.index)
+  const boneWorldRot = tempQuat1.copy(parentWorldRot).multiply(bindBone.local.quaternion)
 
   // Next we need to get the Foot's Quaternion Inverse Direction
   // Which matches up with the same Directions used to calculate the IK
   // information.
-  const quatInverse = bind.world.invQuaternion
+  const bindInverseRot = bindBone.world.invQuaternion
 
-  const altLookDirection = tempVec1.copy(lookDirection).applyQuaternion(quatInverse),
-    altTwistDirection = tempVec2.copy(twistDirection).applyQuaternion(quatInverse)
+  const altLookDirection = tempVec1.copy(lookDirection).applyQuaternion(bindInverseRot),
+    altTwistDirection = tempVec2.copy(twistDirection).applyQuaternion(bindInverseRot)
 
   // After the HIP was moved and The Limb IK is complete, This is where
   // the ALT Look Direction currently points to.
-  const currentLookDirection = tempVec3.copy(altLookDirection).applyQuaternion(childRotation)
+  const currentLookDirection = tempVec3.copy(altLookDirection).applyQuaternion(boneWorldRot)
 
   // Now we start building out final rotation that we
   // want to apply to the bone to get it pointing at the
   // right direction and twisted to match the original animation.
   const rotation = tempQuat2.setFromUnitVectors(currentLookDirection, ik.lookDirection) // Create our Swing Rotation
-  rotation.multiply(childRotation) // Then Apply to our foot
+  rotation.multiply(boneWorldRot) // Then Apply to our foot
 
   // Now we need to know where the Twist Direction points to after
   // swing rotation has been applied. Then use it to compute our twist rotation.
@@ -548,7 +547,7 @@ export function applyLookTwist(
   const twist = tempQuat1.setFromUnitVectors(currentTwistDirection, ik.twistDirection)
   rotation.premultiply(twist) // Apply Twist
 
-  rotation.premultiply(tempQuat1.copy(rootQuaternion).invert()) // To Local Space
+  rotation.premultiply(tempQuat1.copy(parentWorldRot).invert()) // To Local Space
 
   rig.pose.setBone(boneInfo.index, rotation) // Save to pose.
 }
