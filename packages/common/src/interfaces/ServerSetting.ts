@@ -5,9 +5,9 @@ export interface ServerSetting {
   serverMode?: string
   port?: string
   clientHost?: string
-  rootDirectory?: string
-  publicDirectory?: string
-  nodeModulesDirectory?: string
+  rootDir?: string
+  publicDir?: string
+  nodeModulesDir?: string
   localStorageProvider?: string
   performDryRun?: boolean
   storageProvider?: string

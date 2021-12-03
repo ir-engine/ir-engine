@@ -149,7 +149,7 @@ const Server = (props: serverProps) => {
               className={classes.input}
               disabled
               style={{ color: '#fff' }}
-              value={serverSetting?.rootDirectory || ''}
+              value={serverSetting?.rootDir || ''}
             />
           </Paper>
           <label>Public Directory</label>
@@ -159,7 +159,7 @@ const Server = (props: serverProps) => {
               className={classes.input}
               disabled
               style={{ color: '#fff' }}
-              value={serverSetting?.publicDirectory || ''}
+              value={serverSetting?.publicDir || ''}
             />
           </Paper>
           <label>Node Modules Directory</label>
@@ -169,7 +169,7 @@ const Server = (props: serverProps) => {
               className={classes.input}
               disabled
               style={{ color: '#fff' }}
-              value={serverSetting?.nodeModulesDirectory || ''}
+              value={serverSetting?.nodeModulesDir || ''}
             />
           </Paper>{' '}
           <label>Local StorageProvider </label>

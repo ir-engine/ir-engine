@@ -10,13 +10,13 @@ const server = {
   hostname: process.env.SERVER_HOST!,
   port: process.env.SERVER_PORT!,
   clientHost: process.env.APP_HOST!,
-  rootDirectory: path.resolve(appRootPath.path, 'packages', 'server'),
-  publicDirectory:
+  rootDir: path.resolve(appRootPath.path, 'packages', 'server'),
+  publicDir:
     process.env.SERVER_PUBLIC_DIR ||
     (process.env.BUILD_MODE === 'individual'
       ? path.resolve(appRootPath.path, 'public')
       : path.resolve(appRootPath.path, 'packages', 'server', 'public')),
-  nodeModulesDirectory: path.resolve(__dirname, '../..', 'node_modules'),
+  nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER!,
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER!,
