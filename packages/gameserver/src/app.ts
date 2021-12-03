@@ -168,7 +168,7 @@ export const createApp = async (): Promise<Application> => {
   }
 
   const dbServer = {
-    paginate: dbServerSetting.paginate,
+    paginate: { default: 10, max: dbServerSetting.paginate },
     publicDir: dbServerSetting.publicDir
   }
 
