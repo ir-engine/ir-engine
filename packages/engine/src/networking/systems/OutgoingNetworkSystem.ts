@@ -24,10 +24,10 @@ import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
  * QUERIES *
  **********/
 
-const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
+export const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
 const ownedNetworkTransformsQuery = defineQuery([NetworkObjectOwnedTag, NetworkObjectComponent, TransformComponent])
 
-const serialize = defineSerializer([NetworkObjectComponent, Changed(TransformComponent)])
+export const serialize = defineSerializer([NetworkObjectComponent, Changed(TransformComponent)])
 
 const ikTransformsQuery = isClient
   ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
@@ -392,8 +392,6 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     } catch (e) {
       console.error(e)
     }
-
-    if (Engine.offlineMode) return
 
     serializeAndSendNetworkTransforms(world)
 

@@ -1,24 +1,5 @@
 import { TypedArray } from 'bitecs'
-import { Entity } from '../../ecs/classes/Entity'
-import { createViewCursor, ViewCursor } from './ViewCursor'
-
-export const readUint32 = (v: ViewCursor) => {
-  const val = v.getUint32(v.cursor)
-  v.cursor += Uint32Array.BYTES_PER_ELEMENT
-  return val
-}
-
-export const readUint8 = (v: ViewCursor) => {
-  const val = v.getUint8(v.cursor)
-  v.cursor += Uint8Array.BYTES_PER_ELEMENT
-  return val
-}
-
-export const readProp = (v: ViewCursor, prop: TypedArray) => {
-  const val = v[`get${prop.constructor.name.replace('Array', '')}`](v.cursor)
-  v.cursor += prop.BYTES_PER_ELEMENT
-  return val
-}
+import { createViewCursor, readProp, readUint32, readUint8, ViewCursor } from '../ViewCursor'
 
 export const readProps = (v: ViewCursor, props: TypedArray[], idMap: Map<number, number>, packet: ArrayBuffer) => {
   while (v.cursor < packet.byteLength) {
