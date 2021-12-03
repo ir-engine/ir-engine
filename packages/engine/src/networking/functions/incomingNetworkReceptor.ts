@@ -8,6 +8,8 @@ import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchFrom } from './dispatchFrom'
+import { getEntityComponents } from 'bitecs'
+import { WorldScene } from '../../scene/functions/SceneLoading'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -51,10 +53,22 @@ export function incomingNetworkReceptor(action) {
         return
       }
       const isOwnedByMe = a.userId === Engine.userId
-      const entity =
-        isSpawningAvatar && isOwnedByMe
-          ? world.localClientEntity
-          : world.getNetworkObject(a.networkId) ?? createEntity()
+      let entity
+      if (isSpawningAvatar && isOwnedByMe) {
+        entity = world.localClientEntity
+      } else {
+        let networkObject = world.getNetworkObject(a.networkId)
+        if (networkObject) {
+          entity = networkObject
+        } else {
+          entity = createEntity()
+          let params = a.parameters
+          if (params.sceneEntity) {
+            let sceneEntity = params.sceneEntity
+            WorldScene.loadComponentLate(entity, sceneEntity)
+          }
+        }
+      }
       if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
       addComponent(entity, NetworkObjectComponent, a)
     })
@@ -64,4 +78,8 @@ export function incomingNetworkReceptor(action) {
       if (entity === world.localClientEntity) return
       if (entity) removeEntity(entity)
     })
+
+  // .when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
+  //   console.log('netowrk action received in equip receptor', a)
+  // })
 }
