@@ -1,4 +1,4 @@
-import { defineSerializer, TypedArray } from 'bitecs'
+import { TypedArray } from 'bitecs'
 import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
@@ -10,7 +10,8 @@ import {
   spaceUint32,
   spaceUint8,
   writeProp,
-  sliceViewCursor
+  sliceViewCursor,
+  writePropIfChanged
 } from './../ViewCursor'
 
 /**
@@ -20,7 +21,7 @@ import {
  * @param  {any} component
  */
 export const writeComponent = (component: any) => {
-  // todo: test performance of using flatten in the inner scope vs outer scope
+  // todo: test performance of using flatten in the return scope vs this scope
   const props = flatten(component)
 
   return (v: ViewCursor, entity: Entity) => {
@@ -34,9 +35,7 @@ export const writeComponent = (component: any) => {
     let changeMask = 0
 
     for (let i = 0; i < props.length; i++) {
-      const prop = props[i]
-      writeProp(v, prop, entity)
-      changeMask |= i
+      changeMask |= writePropIfChanged(v, props[i], entity) ? 2 ** i : 0b0
     }
 
     writeChangeMask(changeMask)
@@ -45,30 +44,13 @@ export const writeComponent = (component: any) => {
   }
 }
 
-export const writePropChanged = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
-  const { shadowMap } = v
-  const shadow = shadowMap.get(prop) || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
-
-  const changed = shadow[entity] !== prop[entity]
-
-  shadow[entity] = prop[entity]
-
-  if (!changed) {
-    return false
-  }
-
-  writeProp(v, prop, entity)
-
-  return true
-}
-
 export const writeVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
   const writeChangeMask = spaceUint8(v)
   let changeMask = 0
 
-  changeMask |= writePropChanged(v, vector3.x, entity) ? 0b001 : 0b0
-  changeMask |= writePropChanged(v, vector3.y, entity) ? 0b010 : 0b0
-  changeMask |= writePropChanged(v, vector3.z, entity) ? 0b100 : 0b0
+  changeMask |= writePropIfChanged(v, vector3.x, entity) ? 0b001 : 0b0
+  changeMask |= writePropIfChanged(v, vector3.y, entity) ? 0b010 : 0b0
+  changeMask |= writePropIfChanged(v, vector3.z, entity) ? 0b100 : 0b0
 
   return changeMask > 0 && writeChangeMask(changeMask)
 }

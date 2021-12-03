@@ -25,6 +25,26 @@ export const writeProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
   return v
 }
 
+export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
+  const { shadowMap } = v
+
+  const shadowInit = !shadowMap.has(prop)
+
+  const shadow = shadowMap.get(prop)! || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
+
+  const changed = shadowInit || shadow[entity] !== prop[entity]
+
+  shadow[entity] = prop[entity]
+
+  if (!changed) {
+    return false
+  }
+
+  writeProp(v, prop, entity)
+
+  return true
+}
+
 export const writeFloat32 = (v: ViewCursor, value: number) => {
   v.setFloat32(v.cursor, value)
   v.cursor += Float32Array.BYTES_PER_ELEMENT

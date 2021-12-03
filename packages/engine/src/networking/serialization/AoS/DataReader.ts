@@ -25,7 +25,7 @@ export const readComponent = (component: any) => {
 
     for (let i = 0; i < props.length; i++) {
       // skip reading property if not in the change mask
-      if ((changeMask & i) === changeMask) {
+      if ((changeMask & i) === i) {
         continue
       }
       const prop = props[i]
@@ -39,7 +39,7 @@ export const readComponentProp = (v: ViewCursor, prop: TypedArray, entity: Entit
   prop[entity] = readProp(v, prop)
 }
 
-const checkBitflag = (changeMask: number, flag: number) => (changeMask & flag) === changeMask
+const checkBitflag = (changeMask: number, flag: number) => (changeMask & flag) === flag
 
 export const readVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)

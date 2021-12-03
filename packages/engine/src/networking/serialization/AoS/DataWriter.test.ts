@@ -3,17 +3,59 @@ import { strictEqual } from 'assert'
 import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
-import { createDataWriter, writeEntities, writeEntity, writePosition, writeRotation, writeTransform, writeVector3 } from "./DataWriter"
-import { createViewCursor, readFloat32, readUint32, readUint8 } from '../ViewCursor'
+import { createDataWriter, writeComponent, writeEntities, writeEntity, writePosition, writeRotation, writeTransform, writeVector3 } from "./DataWriter"
+import { createViewCursor, readFloat32, readUint32, readUint8, sliceViewCursor } from '../ViewCursor'
 import { Vector3SoA } from '../Utils'
 
 describe('AoS DataWriter', () => {
+
+  it('should writeComponent', () => {
+    const view = createViewCursor()
+    const entity = 1234 as Entity
+
+    const [x, y, z] = [1.5, 2.5, 3.5]
+    TransformComponent.position.x[entity] = x
+    TransformComponent.position.y[entity] = y
+    TransformComponent.position.z[entity] = z
+
+    const writePosition = writeComponent(TransformComponent.position)
+    
+    writePosition(view, entity)
+
+    const testView = createViewCursor(view.buffer)
+
+    strictEqual(view.cursor, 
+      (1 * Uint8Array.BYTES_PER_ELEMENT) + 
+      (3 * Float32Array.BYTES_PER_ELEMENT))
+
+    strictEqual(readUint8(testView), 0b111)
+    strictEqual(readFloat32(testView), x)
+    strictEqual(readFloat32(testView), y)
+    strictEqual(readFloat32(testView), z)
+    
+    sliceViewCursor(view)
+
+    TransformComponent.position.x[entity]++
+    TransformComponent.position.z[entity]++
+
+    writePosition(view, entity)
+
+    const testView2 = createViewCursor(view.buffer)
+
+    strictEqual(view.cursor, 
+      (1 * Uint8Array.BYTES_PER_ELEMENT) + 
+      (2 * Float32Array.BYTES_PER_ELEMENT))
+
+    strictEqual(readUint8(testView2), 0b101)
+    strictEqual(readFloat32(testView2), x+1)
+    strictEqual(readFloat32(testView2), z+1)
+  })
 
   it('should writeVector3', () => {
     const view = createViewCursor()
     const entity = 1234 as Entity
     
-    const [x, y, z] = [1.5, 2.5, 3.5]
+    const [x, y, z] = [1.5, 0, 3.5]
     TransformComponent.position.x[entity] = x
     TransformComponent.position.y[entity] = y
     TransformComponent.position.z[entity] = z
@@ -23,12 +65,30 @@ describe('AoS DataWriter', () => {
     const testView = createViewCursor(view.buffer)
 
     strictEqual(view.cursor, 
-      (1 * Uint8Array.BYTES_PER_ELEMENT) + (3 * Float32Array.BYTES_PER_ELEMENT))
+      (1 * Uint8Array.BYTES_PER_ELEMENT) + 
+      (3 * Float32Array.BYTES_PER_ELEMENT))
 
     strictEqual(readUint8(testView), 0b111)
     strictEqual(readFloat32(testView), x)
     strictEqual(readFloat32(testView), y)
     strictEqual(readFloat32(testView), z)
+    
+    sliceViewCursor(view)
+
+    TransformComponent.position.x[entity]++
+    TransformComponent.position.z[entity]++
+
+    writeVector3(TransformComponent.position as unknown as Vector3SoA)(view, entity)
+
+    const testView2 = createViewCursor(view.buffer)
+
+    strictEqual(view.cursor, 
+      (1 * Uint8Array.BYTES_PER_ELEMENT) + 
+      (2 * Float32Array.BYTES_PER_ELEMENT))
+
+    strictEqual(readUint8(testView2), 0b101)
+    strictEqual(readFloat32(testView2), x+1)
+    strictEqual(readFloat32(testView2), z+1)
   })
   
   it('should writePosition', () => {
@@ -45,7 +105,8 @@ describe('AoS DataWriter', () => {
     const testView = createViewCursor(view.buffer)
 
     strictEqual(view.cursor, 
-      (1 * Uint8Array.BYTES_PER_ELEMENT) + (3 * Float32Array.BYTES_PER_ELEMENT))
+      (1 * Uint8Array.BYTES_PER_ELEMENT) + 
+      (3 * Float32Array.BYTES_PER_ELEMENT))
 
     strictEqual(readUint8(testView), 0b111)
     strictEqual(readFloat32(testView), x)
