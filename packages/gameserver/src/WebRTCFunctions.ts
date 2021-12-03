@@ -73,7 +73,7 @@ export const sendNewProducer =
     const world = Engine.defaultWorld
     const selfClient = world.clients.get(userId)!
     if (selfClient?.socketId != null) {
-      for (const [userId, client] of world.clients) {
+      for (const [, client] of world.clients) {
         logger.info(`Sending media for ${userId}`)
         Object.entries(client.media!).map(([subName, subValue]) => {
           if (
@@ -526,8 +526,8 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
       }
     }
 
-    for (const [userId, client] of world.clients) {
-      if (client.userId !== userId)
+    for (const [clientUserId, client] of world.clients) {
+      if (clientUserId !== userId)
         client.socket!.emit(
           MessageTypes.WebRTCCreateProducer.toString(),
           userId,
