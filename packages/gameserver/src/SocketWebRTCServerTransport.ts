@@ -51,7 +51,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
-const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
 
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
   return typeof obj === 'undefined' || obj === null
@@ -288,6 +287,18 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       })
     })
 
+    const gameServerSetting = await this.app.service('game-server-setting').find()
+    const [dbGameServerConfigData] = gameServerSetting.data
+
+    const gameServerConfig = dbGameServerConfigData || config.gameserver
+
+    const awsSetting = await this.app.service('aws-setting').find()
+    const [dbAwsConfigData] = awsSetting.data
+
+    const awsConfig = dbAwsConfigData || config.aws
+
+    const Route53 = new AWS.Route53({ ...awsConfig.route53.keys })
+
     // Set up our gameserver according to our current environment
     const localIp = await getLocalServerIp()
     let stringSubdomainNumber, gsResult
@@ -307,7 +318,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       this.app.gsName = name
 
       const gsIdentifier = gsNameRegex.exec(name)!
-      stringSubdomainNumber = await getFreeSubdomain(gsIdentifier[1], 0)
+      stringSubdomainNumber = await getFreeSubdomain(this.app, gsIdentifier[1], 0)
       this.app.gsSubdomainNumber = stringSubdomainNumber
 
       gsResult = await this.app.agonesSDK.getGameServer()
@@ -317,7 +328,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             {
               Action: 'UPSERT',
               ResourceRecordSet: {
-                Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
+                Name: `${stringSubdomainNumber}.${gameServerConfig.domain}`,
                 ResourceRecords: [{ Value: gsResult.status.address }],
                 TTL: 0,
                 Type: 'A'
@@ -325,18 +336,18 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             }
           ]
         },
-        HostedZoneId: config.aws.route53.hostedZoneId
+        HostedZoneId: awsConfig.route53.hostedZoneId
       }
-      if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params as any).promise()
+      if (gameServerConfig.local !== true) await Route53.changeResourceRecordSets(params as any).promise()
     }
 
     localConfig.mediasoup.webRtcTransport.listenIps = [
       {
         ip: '0.0.0.0',
         announcedIp: config.kubernetes.enabled
-          ? config.gameserver.local === true
+          ? gameServerConfig.local === true
             ? gsResult.status.address
-            : `${stringSubdomainNumber}.${config.gameserver.domain}`
+            : `${stringSubdomainNumber}.${gameServerConfig.domain}`
           : localIp.ipAddress
       }
     ]

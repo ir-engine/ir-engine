@@ -123,7 +123,7 @@ const assignExistingInstance = async (
   }
 }
 
-export default (app: Application): void => {
+export default async (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
     return
@@ -131,11 +131,16 @@ export default (app: Application): void => {
 
   let shutdownTimeout
 
+  const gameServerSetting = await app.service('game-server-setting').find()
+  const [dbGameServerConfigData] = gameServerSetting.data
+
+  const gameServerConfig = dbGameServerConfigData || config.gameserver
+
   app.on('connection', async (connection) => {
     if (
-      (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
+      (config.kubernetes.enabled && gameServerConfig.mode === 'realtime') ||
       process.env.APP_ENV === 'development' ||
-      config.gameserver.mode === 'local'
+      gameServerConfig.mode === 'local'
     ) {
       try {
         clearTimeout(shutdownTimeout)
@@ -197,7 +202,7 @@ export default (app: Application): void => {
               const localIp = await getLocalServerIp(app.isChannelInstance)
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
               const ipAddress =
-                config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
+                gameServerConfig.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
               const existingInstanceQuery = {
                 ipAddress: ipAddress,
                 ended: false
@@ -362,9 +367,9 @@ export default (app: Application): void => {
 
   app.on('disconnect', async (connection) => {
     if (
-      (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
+      (config.kubernetes.enabled && gameServerConfig.mode === 'realtime') ||
       process.env.APP_ENV === 'development' ||
-      config.gameserver.mode === 'local'
+      gameServerConfig.mode === 'local'
     ) {
       try {
         const token = (connection as any).socketQuery?.token
@@ -493,7 +498,7 @@ export default (app: Application): void => {
                     logger.info(gsName)
                   }
                   await app.agonesSDK.shutdown()
-                }, config.gameserver.shutdownDelayMs)
+                }, gameServerConfig.shutdownDelayMs)
               }
             }
           }
