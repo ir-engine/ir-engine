@@ -25,9 +25,24 @@ import { register } from 'trace-unhandled'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { isDev } from '@xrengine/common/src/utils/isDev'
+import dotenv from 'dotenv'
+import { DataTypes, Sequelize } from 'sequelize'
 register()
 
-export const createApp = (): Application => {
+dotenv.config()
+const db = {
+  username: process.env.MYSQL_USER ?? 'server',
+  password: process.env.MYSQL_PASSWORD ?? 'password',
+  database: process.env.MYSQL_DATABASE ?? 'xrengine',
+  host: process.env.MYSQL_HOST ?? '127.0.0.1',
+  port: process.env.MYSQL_PORT ?? 3306,
+  dialect: 'mysql',
+  url: ''
+}
+
+db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
+
+export const createApp = async (): Promise<Application> => {
   const emitter = new EventEmitter()
 
   // Don't remove this comment. It's needed to format import lines nicely.
@@ -38,25 +53,259 @@ export const createApp = (): Application => {
 
   app.set('nextReadyEmitter', emitter)
 
-  console.log('---------------HERE-----------------')
-  app.configure(services)
+  const sequelizeClient = new Sequelize({
+    ...db,
+    define: {
+      freezeTableName: true
+    }
+  })
+  await sequelizeClient.sync()
 
-  console.log('---------------HERE1-----------------')
+  const gameServerSetting = sequelizeClient.define('gameServerSetting', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
+    clientHost: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
+    },
+    rtc_start_port: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    rtc_end_port: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    rtc_port_block_size: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    identifierDigits: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    local: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
+    },
+    domain: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    releaseName: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    port: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    mode: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    locationName: {
+      type: DataTypes.STRING
+    }
+  })
 
-  const [dbRedisSetting] = app.service('redis-setting').find()
-  const [dbServerSetting] = app.service('server-setting').find()
-  const [dbGameServerSetting] = app.service('game-server-setting').find()
-  const [dbAuthenticationSetting] = app.service('authentication-setting').find()
+  const redisSetting = sequelizeClient.define('redisSetting', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    port: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
+  })
 
-  console.log('---------------config-----------------', dbRedisSetting)
-  console.log('---------------config-----------------', dbServerSetting)
-  console.log('---------------config-----------------', dbGameServerSetting)
-  console.log('---------------config-----------------', dbAuthenticationSetting)
+  const serverSetting = sequelizeClient.define('serverSetting', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
+    hostname: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    serverEnabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
+    },
+    serverMode: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    port: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    clientHost: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    rootDir: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    publicDir: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    nodeModulesDir: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    localStorageProvider: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    performDryRun: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
+    },
+    storageProvider: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    gaTrackingId: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    hub: {
+      type: DataTypes.JSON,
+      allowNull: true
+    },
+    paginate: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 10,
+      validate: {
+        max: 100
+      }
+    },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    certPath: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    keyPath: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    local: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
+    },
+    releaseName: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
+  })
+
+  const authenticationSetting = sequelizeClient.define('authentication', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
+    service: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    entity: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    secret: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    authStrategies: {
+      type: DataTypes.JSON,
+      allowNull: true
+    },
+    local: {
+      type: DataTypes.JSON,
+      allowNull: true
+    },
+    jwtOptions: {
+      type: DataTypes.JSON,
+      allowNull: true
+    },
+    bearerToken: {
+      type: DataTypes.JSON,
+      allowNull: true
+    },
+    callback: {
+      type: DataTypes.JSON,
+      allowNull: true
+    },
+    oauth: {
+      type: DataTypes.JSON,
+      allowNull: true
+    }
+  })
+
+  const [dbRedisSetting] = await redisSetting.findAll()
+  const [dbServerSetting] = await serverSetting.findAll()
+  const [dbGameServerSetting] = await gameServerSetting.findAll()
+  let [dbAuthenticationSetting] = await authenticationSetting.findAll()
+
+  const dbAuthSetting = {
+    id: dbAuthenticationSetting.id,
+    service: dbAuthenticationSetting.service,
+    entity: dbAuthenticationSetting.entity,
+    secret: dbAuthenticationSetting.secret,
+    authStrategies: JSON.parse(JSON.parse(dbAuthenticationSetting.authStrategies)),
+    local: JSON.parse(JSON.parse(dbAuthenticationSetting.local)),
+    jwtOptions: JSON.parse(JSON.parse(dbAuthenticationSetting.jwtOptions)),
+    bearerToken: JSON.parse(JSON.parse(dbAuthenticationSetting.bearerToken)),
+    callback: JSON.parse(JSON.parse(dbAuthenticationSetting.callback)),
+    oauth: {
+      ...JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)),
+      defaults: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).defaults),
+      facebook: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).facebook),
+      github: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).github),
+      google: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).google),
+      linkedin: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).linkedin),
+      twitter: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).twitter)
+    }
+  }
 
   // convert array of objects to array of string
-  if (dbAuthenticationSetting) {
-    let authObj = dbAuthenticationSetting.authStrategies.reduce((obj, item) => Object.assign(obj, { ...item }), {})
-    dbAuthenticationSetting.authStrategies = Object.keys(authObj)
+  if (dbAuthSetting) {
+    let authObj = dbAuthSetting.authStrategies.reduce((obj, item) => Object.assign(obj, { ...item }), {})
+    dbAuthSetting.authStrategies = Object.keys(authObj)
       .map((key) => (authObj[key] && key !== 'emailMagicLink' && key !== 'smsMagicLink' ? key : null))
       .filter(Boolean)
   }
@@ -64,7 +313,7 @@ export const createApp = (): Application => {
   const redisConfig = dbRedisSetting || config.redis
   const serverConfig = dbServerSetting || config.server
   const gameServerConfig = dbGameServerSetting || config.gameserver
-  const authenticationConfig = dbAuthenticationSetting || config.authentication
+  const authenticationConfig = dbAuthSetting || config.authentication
 
   if (gameServerConfig.enabled) {
     try {
@@ -162,6 +411,7 @@ export const createApp = (): Application => {
 
       // Set up our services (see `services/index.js`)
       app.configure(feathersLogger(winston))
+      app.configure(services)
 
       if (gameServerConfig.mode === 'realtime') {
         app.k8AgonesClient = api({

@@ -32,15 +32,15 @@ export default (app: Application) => {
         type: DataTypes.STRING,
         allowNull: true
       },
-      rootDirectory: {
+      rootDir: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      publicDirectory: {
+      publicDir: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      nodeModulesDirectory: {
+      nodeModulesDir: {
         type: DataTypes.STRING,
         allowNull: true
       },
