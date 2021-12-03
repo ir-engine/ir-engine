@@ -18,6 +18,16 @@ process.on('unhandledRejection', (error, promise) => {
 export const start = async (): Promise<Application> => {
   const app = await createApp()
 
+  const gameServerSetting = await app.service('game-server-setting').find()
+  const [dbGameServerConfigData] = gameServerSetting.data
+
+  const gameServerConfig = dbGameServerConfigData || config.gameserver
+
+  const serverSetting = await app.service('server-setting').find()
+  const [dbServerConfigData] = serverSetting.data
+
+  const serverConfig = dbServerConfigData || config.server
+
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
     const processList = await (
@@ -44,15 +54,15 @@ export const start = async (): Promise<Application> => {
   }
 
   // SSL setup
-  const certPath = config.server.certPath
-  const certKeyPath = config.server.keyPath
+  const certPath = serverConfig.certPath
+  const certKeyPath = serverConfig.keyPath
   const useSSL = !config.noSSL && (config.localBuild || !config.kubernetes.enabled) && fs.existsSync(certKeyPath)
 
   const certOptions = {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
   } as any
-  const port = config.gameserver.port
+  const port = gameServerConfig.port
   if (useSSL) console.log('Starting gameserver with HTTPS on', port)
   else
     console.log(
@@ -80,9 +90,9 @@ export const start = async (): Promise<Application> => {
 
   if (useSSL === true) app.setup(server)
 
-  // if (config.gameserver.locationName != null) {
-  //   console.log('PRELOADING WORLD WITH LOCATION NAME', config.gameserver.locationName)
-  //   preloadLocation(config.gameserver.locationName, app)
+  // if (gameServerConfig.locationName != null) {
+  //   console.log('PRELOADING WORLD WITH LOCATION NAME', gameServerConfig.locationName)
+  //   preloadLocation(gameServerConfig.locationName, app)
   // }
 
   process.on('unhandledRejection', (reason, p) => logger.error('Unhandled Rejection at: Promise ', p, reason))
@@ -100,7 +110,7 @@ export const start = async (): Promise<Application> => {
   //   console.warn("Directory /var/log not found, not writing access log");
   // }
   server.on('listening', () =>
-    logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
+    logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', serverConfig.hostname, port)
   )
 
   return app
