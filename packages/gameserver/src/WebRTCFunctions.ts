@@ -15,7 +15,7 @@ import {
   RtpCodecCapability,
   Transport,
   WebRtcTransport
-} from 'mediasoup/lib/types'
+} from 'mediasoup/node/lib/types'
 import SocketIO from 'socket.io'
 import logger from '@xrengine/server-core/src/logger'
 import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
@@ -214,7 +214,7 @@ export async function closeProducerAndAllPipeProducers(producer): Promise<void> 
       MediaStreams.instance.producers = MediaStreams.instance?.producers.filter((p) => p.id !== producer.id)
     if (MediaStreams.instance)
       MediaStreams.instance.consumers = MediaStreams.instance?.consumers.filter(
-        (c) => !(c.appData.mediaTag === producer.appData.mediaTag && c._internal.producerId === producer.id)
+        (c) => !(c.appData.mediaTag === producer.appData.mediaTag && c.producerId === producer.id)
       )
 
     // remove this track's info from our roomState...mediaTag bookkeeping
@@ -264,8 +264,12 @@ export async function createWebRtcTransport({
     channelType === 'instance' && channelId == null
       ? networkTransport.routers.instance
       : networkTransport.routers[`${channelType}:${channelId}`]
-  const sortedRouterList = routerList.sort((a, b) => a._transports.size - b._transports.size)
-  const newTransport = await sortedRouterList[0].createWebRtcTransport({
+
+  const dumps: any = await Promise.all(routerList.map(async (item) => await item.dump()))
+  const sortedDumps = dumps.sort((a, b) => a.transportIds.length - b.transportIds.length)
+  const selectedrouter = routerList.find((item) => item.id === sortedDumps[0].id)
+
+  const newTransport = await selectedrouter.createWebRtcTransport({
     listenIps: listenIps,
     enableUdp: true,
     enableTcp: false,
@@ -411,12 +415,12 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
       world.clients.get(userId)!.dataProducers!.set(label, dataProducer)
 
       const currentRouter = networkTransport.routers.instance.find(
-        (router) => router._internal.routerId === (transport as any)._internal.routerId
+        (router) => router.id === (transport as any).internal.routerId
       )
 
       await Promise.all(
         networkTransport.routers.instance.map(async (router) => {
-          if (router._internal.routerId !== (transport as any)._internal.routerId)
+          if (router.id !== (transport as any).internal.routerId)
             return currentRouter.pipeToRouter({
               dataProducerId: dataProducer.id,
               router: router
@@ -492,11 +496,11 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
     })
 
     const routers = networkTransport.routers[`${appData.channelType}:${appData.channelId}`]
-    const currentRouter = routers.find((router) => router._internal.routerId === (transport as any)._internal.routerId)
+    const currentRouter = routers.find((router) => router.id === (transport as any).internal.routerId)
 
     await Promise.all(
       routers.map(async (router: Router) => {
-        if ((router as any)._internal.routerId !== (transport as any)._internal.routerId)
+        if ((router as any).id !== (transport as any).internal.routerId)
           return currentRouter.pipeToRouter({
             producerId: producer.id,
             router: router
@@ -548,11 +552,11 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
   const { mediaPeerId, mediaTag, rtpCapabilities, channelType, channelId } = data
   const producer = MediaStreams.instance.producers.find(
     (p) =>
-      p._appData.mediaTag === mediaTag &&
-      p._appData.peerId === mediaPeerId &&
+      p.appData.mediaTag === mediaTag &&
+      p.appData.peerId === mediaPeerId &&
       (channelType === 'instance'
-        ? p._appData.channelType === channelType
-        : p._appData.channelType === channelType && p._appData.channelId === channelId)
+        ? p.appData.channelType === channelType
+        : p.appData.channelType === channelType && p.appData.channelId === channelId)
   )
   const router = networkTransport.routers[`${channelType}:${channelId}`][0]
   if (producer == null || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
@@ -563,11 +567,11 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
 
   const transport = Object.values(Network.instance.transports).find(
     (t) =>
-      (t as any)._appData.peerId === userId &&
-      (t as any)._appData.clientDirection === 'recv' &&
+      (t as any).appData.peerId === userId &&
+      (t as any).appData.clientDirection === 'recv' &&
       (channelType === 'instance'
-        ? (t as any)._appData.channelType === channelType
-        : (t as any)._appData.channelType === channelType && (t as any)._appData.channelId === channelId) &&
+        ? (t as any).appData.channelType === channelType
+        : (t as any).appData.channelType === channelType && (t as any).appData.channelId === channelId) &&
       (t as any).closed === false
   )
 
