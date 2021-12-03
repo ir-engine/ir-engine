@@ -20,7 +20,7 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"lagunalabs/matchmaking/common"
 	"log"
-	"math/rand"
+	//"math/rand"
 	"time"
 
 	"open-match.dev/open-match/pkg/matchfunction"
@@ -41,9 +41,11 @@ func (s *MatchFunctionService) Run(req *pb.RunRequest, stream pb.MatchFunction_R
 	if len(poolTickets) == 0 {
 	    return nil
 	}
+	log.Printf("RUN ------------------------------------ ")
 	log.Printf("Processing %v tickets for function %v", len(poolTickets), req.GetProfile().GetName())
 
 	// Generate proposals.
+	log.Printf("makeMatches!")
 	proposals, err := makeMatches(req.GetProfile(), poolTickets)
 	if err != nil {
 		log.Printf("Failed to generate matches, got %s", err.Error())
@@ -63,6 +65,7 @@ func (s *MatchFunctionService) Run(req *pb.RunRequest, stream pb.MatchFunction_R
 }
 
 func makeMatches(p *pb.MatchProfile, poolTickets map[string][]*pb.Ticket) ([]*pb.Match, error) {
+	log.Printf("makeMatches for profile %s", p.GetName())
 	var ticketsPerPoolPerMatch = 16
 	if p.Extensions != nil {
 		if message, ok := p.Extensions["profileData"]; ok {
@@ -76,6 +79,7 @@ func makeMatches(p *pb.MatchProfile, poolTickets map[string][]*pb.Ticket) ([]*pb
 			}
 		}
 	}
+	log.Printf("TeamSize %v", ticketsPerPoolPerMatch)
 
 	var matches []*pb.Match
 	count := 0
@@ -83,6 +87,7 @@ func makeMatches(p *pb.MatchProfile, poolTickets map[string][]*pb.Ticket) ([]*pb
 		insufficientTickets := false
 		matchTickets := []*pb.Ticket{}
 		for pool, tickets := range poolTickets {
+			log.Printf("Checking: pool %s have %v tickets of %v needed", pool, len(tickets), ticketsPerPoolPerMatch)
 			if len(tickets) < ticketsPerPoolPerMatch {
 				// This pool is completely drained out. Stop creating matches.
 				insufficientTickets = true
@@ -126,7 +131,7 @@ func makeMatches(p *pb.MatchProfile, poolTickets map[string][]*pb.Ticket) ([]*pb
 }
 
 func scoreCalculator(tickets []*pb.Ticket) float64 {
-	matchScore := rand.Float64()
+	matchScore := .0
 	// TODO: Add your logic to compute the score for this Match here
 
 
@@ -135,11 +140,11 @@ func scoreCalculator(tickets []*pb.Ticket) float64 {
 	// evaluator will pick the match with the higher the score, thus picking the one
 	// with longer aggregate player wait times.
 
-	//now := float64(time.Now().UnixNano())
-	//for _, ticket := range tickets {
-	//	waitTime := now - ticket.GetSearchFields().GetDoubleArgs()["time.enterqueue"]
-	//	matchScore += waitTime
-	//}
+	now := float64(time.Now().UnixNano())
+	for _, ticket := range tickets {
+		waitTime := now - ticket.GetSearchFields().GetDoubleArgs()["time.enterqueue"]
+		matchScore += waitTime
+	}
 
 	return matchScore
 }

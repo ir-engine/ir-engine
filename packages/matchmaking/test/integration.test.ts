@@ -6,7 +6,7 @@ import { OpenMatchTicket } from '../src/interfaces'
 const testGameMode = 'tournament'
 
 // this tests use real open match services
-describe.skip('open-match frontend service', () => {
+describe('open-match frontend service', () => {
   it('creates ticket', async () => {
     const ticket = await createTicket(testGameMode)
     assert(ticket.id)
