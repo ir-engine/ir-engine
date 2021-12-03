@@ -16,7 +16,7 @@ const Group = (props: Props) => {
   const classes = useHarmonyStyles()
   const [type, setType] = React.useState('email')
   const inviteState = useInviteState()
-  const [userToken, setUserToken] = useState('1')
+  const [userToken, setUserToken] = useState('')
   const [group, setGroup] = useState(inviteState.targetObjectId.value || '1')
   const groupState = useGroupState()
   const invitableGroupState = groupState.invitableGroups
@@ -41,18 +41,17 @@ const Group = (props: Props) => {
   }
 
   const packageInvite = async (event: any): Promise<void> => {
-    //const mappedIDProvider = identityProviderTabMap.get(tabIndex)
     const mappedIDProvider = type
     event.preventDefault()
     const sendData = {
       type: 'group',
-      // type: inviteState.targetObjectType.value === 'user' ? 'friend' : inviteState.targetObjectType.value,
       token: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? userToken : null,
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
       identityProviderType: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? mappedIDProvider : null,
       targetObjectId: inviteState.targetObjectId.value,
       invitee: mappedIDProvider === 'friends' ? userToken : null
     }
+    console.log(sendData, 'KKKKKKKKKKKKKKKKK')
     InviteService.sendInvite(sendData)
     handleCloseModal()
     setUserToken('')
@@ -136,6 +135,8 @@ const Group = (props: Props) => {
               </label>
               <input
                 type="text"
+                onChange={handleUserTokenChange}
+                value={userToken}
                 className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="Your@domain.com"
               />
@@ -147,6 +148,8 @@ const Group = (props: Props) => {
               </label>
               <input
                 type="text"
+                onChange={handleUserTokenChange}
+                value={userToken}
                 className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="078XXXXXXX"
               />
@@ -157,7 +160,8 @@ const Group = (props: Props) => {
                 <p>Code:</p>
               </label>
               <input
-                onChange={(e) => handleUserTokenChange(e)}
+                onChange={handleUserTokenChange}
+                value={userToken}
                 type="text"
                 className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="XXXXXX"

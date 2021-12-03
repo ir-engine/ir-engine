@@ -5,7 +5,6 @@ import queryString from 'querystring'
 import { useHistory } from 'react-router-dom'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import { useFriendState } from '@xrengine/client-core/src/social/services/FriendService'
-import { useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
 import { useGroupState } from '@xrengine/client-core/src/social/services/GroupService'
 import { GroupService } from '@xrengine/client-core/src/social/services/GroupService'
 import { FriendService } from '@xrengine/client-core/src/social/services/FriendService'
@@ -16,6 +15,7 @@ import InviteHarmony from '../InviteHarmony'
 import { useHarmonyStyles } from '../style'
 import InviteModel from '../InviteModel'
 // import GroupMembers from '../Group/GroupMember'
+import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
 import CreateGroup from './CreateGroup'
 import { PartyService } from '@xrengine/client-core/src/social/services/PartyService'
 import ModeContext from '../context/modeContext'
@@ -80,18 +80,21 @@ const LeftHarmony = (props: Props) => {
   React.useEffect(() => {
     if (groupState.updateNeeded.value === true && groupState.getGroupsInProgress.value !== true) {
       GroupService.getGroups(0)
+      setShowChat(false)
     }
   }, [groupState.updateNeeded.value, groupState.getGroupsInProgress.value])
 
   React.useEffect(() => {
     if (friendState.updateNeeded.value === true && friendState.getFriendsInProgress.value !== true) {
       FriendService.getFriends('', 0)
+      setShowChat(false)
     }
   }, [friendState.updateNeeded.value, friendState.getFriendsInProgress.value])
 
   React.useEffect(() => {
     if (partyState.updateNeeded.value === true) {
       PartyService.getParty()
+      setShowChat(false)
     }
   }, [partyState.updateNeeded.value])
 
@@ -107,6 +110,7 @@ const LeftHarmony = (props: Props) => {
   }
 
   const handleCreate = () => {
+    InviteService.updateInviteTarget('user')
     setCreate(true)
   }
 
@@ -141,8 +145,6 @@ const LeftHarmony = (props: Props) => {
   const showUnfriendConfirm = () => {
     setAnchorEl(null)
     setShowWarning(true)
-    //setMessageUpdatePending('')
-    //setEditingMessage('')
   }
 
   const cancelFriendDelete = (e) => {
@@ -249,19 +251,6 @@ const LeftHarmony = (props: Props) => {
             >
               <span>Group</span>
             </a>
-            {/* <a
-              href="#"
-              onClick={() => {
-                channelTypeChangeHandler('layer')
-                setShowChat(false)
-                setActiveChat('layer', null)
-              }}
-              className={`${chat === 'layer' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
-                classes.roundedCircle
-              } ${classes.mx2}`}
-            >
-              <span>Layer</span>
-            </a> */}
             <a
               href="#"
               onClick={() => {
@@ -319,7 +308,7 @@ const LeftHarmony = (props: Props) => {
                   setActiveChat={setActiveChat}
                   setShowChat={setShowChat}
                   setInvite={setInvite}
-                  handleCreate={handleCreate}
+                  setCreate={setCreate}
                   selfUser={selfUser}
                 />
               )}

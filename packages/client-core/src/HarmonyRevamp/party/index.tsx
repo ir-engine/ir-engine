@@ -25,7 +25,7 @@ interface Props {
   setActiveChat: any
   setShowChat: any
   setInvite: any
-  handleCreate: any
+  setCreate: any
   selfUser: any
 }
 
@@ -33,7 +33,7 @@ const Party = (props: Props) => {
   const classes = useHarmonyStyles()
   const { darkMode } = useContext(ModeContext)
   const [openDrawer, setOpenDrawer] = React.useState(false)
-  const { setActiveChat, setShowChat, setInvite, handleCreate, selfUser } = props
+  const { setActiveChat, setShowChat, setInvite, setCreate, selfUser } = props
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [showWarning, setShowWarning] = React.useState(false)
   const user = useAuthState().user.value
@@ -141,7 +141,7 @@ const Party = (props: Props) => {
                     <MenuItem
                       className={classes.my2}
                       onClick={() => {
-                        openInvite('party', party.id), handleClose(), setInvite('Party'), handleCreate()
+                        openInvite('party', party.id), handleClose(), setInvite('Party'), setCreate(true)
                       }}
                     >
                       <ListItemIcon>

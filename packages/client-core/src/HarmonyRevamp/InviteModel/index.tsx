@@ -8,6 +8,7 @@ import Group from './Group'
 import Party from './Party'
 import { useHarmonyStyles } from '../style'
 import ModeContext from '../context/modeContext'
+import { InviteService } from '@xrengine/client-core/src/social/services/InviteService'
 import { User as UserType } from '@xrengine/common/src/interfaces/User'
 import { Party as PartyType } from '@xrengine/common/src/interfaces/Party'
 
@@ -69,6 +70,10 @@ const Index = (props: Props) => {
     setValue(newValue)
   }
 
+  const updateInviteTargetType = (targetObjectType?: string, targetObjectId?: string) => {
+    InviteService.updateInviteTarget(targetObjectType, targetObjectId)
+  }
+
   return (
     <div>
       <div className={darkMode ? classes.bgModal : classes.bgModalLight} style={{ height: '60vh' }}>
@@ -86,9 +91,19 @@ const Index = (props: Props) => {
             aria-label="Vertical tabs example"
             sx={{ borderRight: 1, borderColor: 'divider' }}
           >
-            <Tab label="FRIENDS" {...a11yProps(0)} />
-            <Tab label="GROUP" {...a11yProps(1)} />
-            {selfPartyUser && selfPartyUser.isOwner && <Tab label="PARTY" {...a11yProps(2)} />}
+            <Tab label="FRIENDS" {...a11yProps(0)} onClick={() => updateInviteTargetType('user')} />
+            <Tab label="GROUP" {...a11yProps(1)} onClick={() => updateInviteTargetType('group')} />
+            {selfPartyUser && selfPartyUser.isOwner && (
+              <Tab
+                label="PARTY"
+                {...a11yProps(2)}
+                onClick={() => {
+                  if (party?.id) {
+                    updateInviteTargetType('party', party.id)
+                  }
+                }}
+              />
+            )}
           </Tabs>
           <TabPanel value={value} index={0}>
             <Friends handleCloseModal={handleCloseModal} />

@@ -4,7 +4,6 @@
     "@material-ui/core",
     "@material-ui/core/styles",
     "@mui/icons-material/ContentCopy",
-    "@mui/styles",
     "axios",
     "react-copy-to-clipboard",
     "react-ga4",

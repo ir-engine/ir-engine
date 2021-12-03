@@ -20,20 +20,16 @@ const Friends = (props: Props) => {
   }
 
   const packageInvite = async (event: any): Promise<void> => {
-    //const mappedIDProvider = identityProviderTabMap.get(tabIndex)
     const mappedIDProvider = type
     event.preventDefault()
     const sendData = {
       type: 'friend',
-      // token: mappedIDProvider !== 'code' ? userToken : null,
       token: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? userToken : null,
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
-      // identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
       identityProviderType: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? mappedIDProvider : null,
       targetObjectId: inviteState.targetObjectId.value,
       invitee: mappedIDProvider === 'friends' ? userToken : null
     }
-
     InviteService.sendInvite(sendData)
     setUserToken('')
     handleCloseModal()
@@ -80,6 +76,8 @@ const Friends = (props: Props) => {
               <input
                 type="text"
                 className={darkMode ? classes.formControls : classes.formControlsLight}
+                onChange={handleUserTokenChange}
+                value={userToken}
                 placeholder="Your@domain.com"
               />
             </div>
@@ -90,6 +88,8 @@ const Friends = (props: Props) => {
               </label>
               <input
                 type="text"
+                onChange={handleUserTokenChange}
+                value={userToken}
                 className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="078XXXXXXX"
               />

@@ -14,7 +14,7 @@ const Party = (props: Props) => {
   const { darkMode } = useContext(ModeContext)
   const classes = useHarmonyStyles()
   const inviteState = useInviteState()
-  const [userToken, setUserToken] = useState('1')
+  const [userToken, setUserToken] = useState('')
   const [type, setType] = React.useState('email')
 
   //friend state
@@ -27,15 +27,12 @@ const Party = (props: Props) => {
   }
 
   const packageInvite = async (event: any): Promise<void> => {
-    //const mappedIDProvider = identityProviderTabMap.get(tabIndex)
     const mappedIDProvider = type
     event.preventDefault()
     const sendData = {
       type: 'party',
-      // token: mappedIDProvider !== 'code' ? userToken : null,
       token: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? userToken : null,
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
-      // identityProviderType: mappedIDProvider !== 'code' ? mappedIDProvider : null,
       identityProviderType: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? mappedIDProvider : null,
       targetObjectId: inviteState.targetObjectId.value,
       invitee: mappedIDProvider === 'friends' ? userToken : null
@@ -96,6 +93,8 @@ const Party = (props: Props) => {
               </label>
               <input
                 type="text"
+                onChange={handleUserTokenChange}
+                value={userToken}
                 className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="Your@domain.com"
               />
@@ -107,6 +106,8 @@ const Party = (props: Props) => {
               </label>
               <input
                 type="text"
+                onChange={handleUserTokenChange}
+                value={userToken}
                 className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="078XXXXXXX"
               />
@@ -117,7 +118,8 @@ const Party = (props: Props) => {
                 <p>Code:</p>
               </label>
               <input
-                onChange={(e) => handleUserTokenChange(e)}
+                onChange={handleUserTokenChange}
+                value={userToken}
                 type="text"
                 className={darkMode ? classes.formControls : classes.formControlsLight}
                 placeholder="XXXXXX"
