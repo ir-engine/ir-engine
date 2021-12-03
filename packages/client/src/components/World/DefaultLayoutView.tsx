@@ -1,9 +1,7 @@
-import Button from '@mui/material/Button'
-import Snackbar from '@mui/material/Snackbar'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import React, { Suspense, useEffect, useState } from 'react'
-import NetworkDebug from '../NetworkDebug'
+import React, { Suspense } from 'react'
+import Debug from '../Debug'
 import GameServerWarnings from './GameServerWarnings'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
@@ -32,7 +30,7 @@ const DefaultLayoutView = (props: Props) => {
   return (
     <>
       <LoadingScreen />
-      {props.allowDebug && <NetworkDebug reinit={props.reinit} />}
+      {props.allowDebug && <Debug reinit={props.reinit} />}
       {isTouchAvailable ? (
         <Suspense fallback={<></>}>
           <TouchGamepad layout="default" />
