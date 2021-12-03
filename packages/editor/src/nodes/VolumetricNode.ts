@@ -82,6 +82,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
 
   UVOLPlayer: any
   UVOLWorker: any
+  isUVOLPlay: boolean
 
   constructor() {
     super(SceneManager.instance.audioListener)
@@ -91,6 +92,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     this.playMode = 3
     this._paths = []
     this.UVOLWorker = new DracosisPlayerWorker()
+    this.isUVOLPlay = false
   }
 
   get autoPlay(): any {
@@ -108,8 +110,8 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
       this.load(value)
     }
   }
-  async load(paths) {
-    console.log(this.UVOLPlayer)
+  load(paths) {
+    this.isUVOLPlay = false
     if (this.UVOLPlayer) {
       this.remove(this.UVOLPlayer.mesh)
       this.UVOLPlayer.dispose()
@@ -130,15 +132,16 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     })
   }
 
-  onUpdate(delta: number, time: number): void {
-    if (this.UVOLPlayer && this.UVOLPlayer.hasPlayed) {
-      this.UVOLPlayer?.handleRender(() => {})
-    }
-  }
-
   onPlay() {
     if (this.UVOLPlayer) {
-      this.UVOLPlayer.play()
+      if (this.isUVOLPlay) {
+        this.UVOLPlayer.stopOnNextFrame = true
+      } else {
+        this.UVOLPlayer.stopOnNextFrame = false
+        this.UVOLPlayer.play()
+      }
+      this.isUVOLPlay = !this.isUVOLPlay
+      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
     }
   }
 
@@ -149,6 +152,20 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     super.copy(source, recursive)
     this.controls = source.controls
     return this
+  }
+
+  onUpdate(delta: number, time: number): void {
+    if (this.UVOLPlayer && this.UVOLPlayer.hasPlayed) {
+      this.UVOLPlayer?.handleRender(() => {})
+    }
+  }
+
+  onRemove() {
+    if (this.UVOLPlayer) {
+      this.remove(this.UVOLPlayer.mesh)
+      this.UVOLPlayer.dispose()
+      this.UVOLWorker = new DracosisPlayerWorker()
+    }
   }
 
   async serialize(projectID) {

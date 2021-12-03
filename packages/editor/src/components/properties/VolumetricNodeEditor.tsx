@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Video } from '@styled-icons/fa-solid/Video'
+import { Child } from '@styled-icons/fa-solid/Child'
 import React from 'react'
 import InputGroup from '../inputs/InputGroup'
 import { Button } from '../inputs/Button'
@@ -46,15 +46,19 @@ export function VolumetricNodeEditor(props) {
       ></ArrayInputGroup>
       <InputGroup name="Play Mode" label={t('editor:properties.volumetric.playmode')}>
         <SelectInput options={node.playModeItems} value={node.playMode} onChange={onChangePlayMode} />
-        <Button
-          style={{ marginLeft: '5px', width: '60px' }}
-          type="submit"
-          onClick={() => {
-            node.onPlay()
-          }}
-        >
-          {t('editor:properties.volumetric.playbutton')}
-        </Button>
+        {node.paths && node.paths.length > 0 && node.paths[0] && (
+          <Button
+            style={{ marginLeft: '5px', width: '60px' }}
+            type="submit"
+            onClick={() => {
+              node.onPlay()
+            }}
+          >
+            {node.isUVOLPlay
+              ? t('editor:properties.volumetric.pausetitle')
+              : t('editor:properties.volumetric.playtitle')}
+          </Button>
+        )}
       </InputGroup>
       <AudioSourceProperties {...props} />
     </NodeEditor>
@@ -62,7 +66,7 @@ export function VolumetricNodeEditor(props) {
 }
 
 //setting iconComponent with icon name
-VolumetricNodeEditor.iconComponent = Video
+VolumetricNodeEditor.iconComponent = Child
 
 //setting description and will appear on editor view
 VolumetricNodeEditor.description = i18n.t('editor:properties.volumetric.description')
