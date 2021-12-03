@@ -62,12 +62,6 @@ export const createApp = async (): Promise<Application> => {
   await sequelizeClient.sync()
 
   const gameServerSetting = sequelizeClient.define('gameServerSetting', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
-      primaryKey: true
-    },
     clientHost: {
       type: DataTypes.STRING,
       allowNull: true
@@ -76,54 +70,13 @@ export const createApp = async (): Promise<Application> => {
       type: DataTypes.BOOLEAN,
       allowNull: true
     },
-    rtc_start_port: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rtc_end_port: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rtc_port_block_size: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    identifierDigits: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    local: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    domain: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    releaseName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
     mode: {
       type: DataTypes.STRING,
       allowNull: true
-    },
-    locationName: {
-      type: DataTypes.STRING
     }
   })
 
   const redisSetting = sequelizeClient.define('redisSetting', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
-      primaryKey: true
-    },
     enabled: {
       type: DataTypes.BOOLEAN,
       allowNull: true
@@ -143,62 +96,8 @@ export const createApp = async (): Promise<Application> => {
   })
 
   const serverSetting = sequelizeClient.define('serverSetting', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
-      primaryKey: true
-    },
-    hostname: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    serverEnabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    serverMode: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    clientHost: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    rootDir: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
     publicDir: {
       type: DataTypes.STRING,
-      allowNull: true
-    },
-    nodeModulesDir: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    localStorageProvider: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    performDryRun: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    storageProvider: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    gaTrackingId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    hub: {
-      type: DataTypes.JSON,
       allowNull: true
     },
     paginate: {
@@ -208,26 +107,6 @@ export const createApp = async (): Promise<Application> => {
       validate: {
         max: 100
       }
-    },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    certPath: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    keyPath: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    local: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    releaseName: {
-      type: DataTypes.STRING,
-      allowNull: true
     }
   })
 
@@ -281,7 +160,25 @@ export const createApp = async (): Promise<Application> => {
   const [dbGameServerSetting] = await gameServerSetting.findAll()
   let [dbAuthenticationSetting] = await authenticationSetting.findAll()
 
-  const dbAuthSetting = {
+  const dbRedis = {
+    port: dbRedisSetting.port,
+    address: dbRedisSetting.address,
+    enabled: dbRedisSetting.enabled,
+    password: dbRedisSetting.password
+  }
+
+  const dbServer = {
+    paginate: dbServerSetting.paginate,
+    publicDir: dbServerSetting.publicDir
+  }
+
+  const dbGameServer = {
+    mode: dbGameServerSetting.mode,
+    enabled: dbGameServerSetting.enabled,
+    clientHost: dbGameServerSetting.clientHost
+  }
+
+  const dbAuthentication = {
     id: dbAuthenticationSetting.id,
     service: dbAuthenticationSetting.service,
     entity: dbAuthenticationSetting.entity,
@@ -303,17 +200,17 @@ export const createApp = async (): Promise<Application> => {
   }
 
   // convert array of objects to array of string
-  if (dbAuthSetting) {
-    let authObj = dbAuthSetting.authStrategies.reduce((obj, item) => Object.assign(obj, { ...item }), {})
-    dbAuthSetting.authStrategies = Object.keys(authObj)
+  if (dbAuthentication) {
+    let authObj = dbAuthentication.authStrategies.reduce((obj, item) => Object.assign(obj, { ...item }), {})
+    dbAuthentication.authStrategies = Object.keys(authObj)
       .map((key) => (authObj[key] && key !== 'emailMagicLink' && key !== 'smsMagicLink' ? key : null))
       .filter(Boolean)
   }
 
-  const redisConfig = dbRedisSetting || config.redis
-  const serverConfig = dbServerSetting || config.server
-  const gameServerConfig = dbGameServerSetting || config.gameserver
-  const authenticationConfig = dbAuthSetting || config.authentication
+  const redisConfig = dbRedis || config.redis
+  const serverConfig = dbServer || config.server
+  const gameServerConfig = dbGameServer || config.gameserver
+  const authenticationConfig = dbAuthentication || config.authentication
 
   if (gameServerConfig.enabled) {
     try {
