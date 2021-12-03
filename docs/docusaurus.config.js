@@ -73,7 +73,6 @@ module.exports = {
           '../packages/server/public/**',
           '../packages/server/scripts/**',
           '../packages/server/tests old/**',
-          '../packages/server/.eslintrc.js',
         ],
         out: 'generated/server',
         readme: 'none',
@@ -89,7 +88,6 @@ module.exports = {
         exclude: [ 
           ...commonExludePaths,
           '../packages/server-core/scripts/**',
-          '../packages/server-core/.eslintrc.js',
           '../packages/server-core/.mocharc.js',
           '../packages/server-core/rollup.config.js',
           '../packages/server-core/vite.build.js'
@@ -108,7 +106,6 @@ module.exports = {
         exclude: [
           ...commonExludePaths,
           '../packages/common/scripts/**',
-          '../packages/common/.eslintrc.cjs',
           '../packages/common/rollup.config.js',
           '../packages/common/vite.build.js'
         ],
@@ -145,7 +142,6 @@ module.exports = {
         tsconfig: '../packages/gameserver/tsconfig.json',
         exclude: [
           ...commonExludePaths,
-          '../packages/gameserver/.eslintrc.cjs',
           '../packages/gameserver/.mocharc.js',
           '../packages/gameserver/vite.build.js'
         ],

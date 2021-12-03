@@ -18,7 +18,6 @@ export const VideoProjection = {
 }
 import { Engine } from '../../ecs/classes/Engine'
 import isDash from '../functions/isDash'
-import { corsAnywhereUrl } from '@xrengine/client-core/src/util/cors'
 
 export default class Video extends AudioSource {
   _texture: any
@@ -92,7 +91,7 @@ export default class Video extends AudioSource {
         // })
         // resolve()
       } else {
-        this.el.src = corsAnywhereUrl(this._src)
+        this.el.src = this._src
         const onLoadedMetadata = () => {
           console.log('on load metadata')
           cleanup()

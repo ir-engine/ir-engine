@@ -1,4 +1,4 @@
-import { Group, Quaternion, Vector3 } from 'three'
+import { Camera, Group, Quaternion, Vector3 } from 'three'
 import {
   addComponent,
   defineQuery,
@@ -25,6 +25,8 @@ import { Engine } from '../ecs/classes/Engine'
 import { initializeHandModel } from '../xr/functions/addControllerModels'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
+import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
+import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -117,12 +119,22 @@ export default async function AvatarSystem(world: World): Promise<System> {
 
       xrInputSourceComponent.container.applyQuaternion(rotate180onY)
       object3DComponent.value.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
+
+      // Add head IK Solver
+      if (!isEntityLocalClient(entity)) {
+        addComponent(entity, CameraIKComponent, {
+          boneIndex: 5, // Head bone
+          camera: xrInputSourceComponent.head,
+          rotationClamp: 0.785398
+        })
+      }
     }
 
     for (const entity of xrInputQuery.exit(world)) {
       const xrInputComponent = getComponent(entity, XRInputSourceComponent, true)
       xrInputComponent.container.removeFromParent()
       xrInputComponent.head.removeFromParent()
+      removeComponent(entity, CameraIKComponent)
     }
 
     for (const entity of xrHandsInputQuery.enter(world)) {

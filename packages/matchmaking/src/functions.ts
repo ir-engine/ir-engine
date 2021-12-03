@@ -5,13 +5,17 @@ import {
   OpenMatchTicketAssignmentResponse
 } from './interfaces'
 import axios from 'axios'
-import { IncomingMessage } from 'http'
+import nodeFetch from 'node-fetch'
 
 export const FRONTEND_SERVICE_URL = 'http://localhost:51504/v1/frontendservice'
 const axiosInstance = axios.create({
   baseURL: FRONTEND_SERVICE_URL
 })
 
+/**
+ * @throws OpenAPIErrorResponse
+ * @param response
+ */
 function checkForApiErrorResponse(response: unknown): unknown {
   if (isOpenAPIError(response)) {
     throw response
@@ -36,36 +40,24 @@ function createTicket(gameMode: string): Promise<OpenMatchTicket> {
     .then((response) => response as OpenMatchTicket)
 }
 
+function readStreamFirstData(stream: NodeJS.ReadableStream) {
+  return new Promise((resolve, reject) => {
+    stream.once('readable', () => {
+      const chunk = stream.read()
+      resolve(JSON.parse(chunk.toString()))
+    })
+    stream.once('error', reject)
+  })
+}
+
 // TicketAssignmentsResponse
-function getTicketsAssignment(ticketId: string): Promise<OpenMatchTicketAssignment> {
-  return axiosInstance
-    .get(`/tickets/${ticketId}/assignments`, { responseType: 'stream' })
-    .then((response) => {
-      if (!(response.data instanceof IncomingMessage)) {
-        throw new Error('Unexpected data:' + String(response.data))
-      }
-      const incoming = response.data as IncomingMessage
-      return new Promise((resolve, reject) => {
-        incoming.on('data', (chunk) => {
-          // i don't know why but this stream never ends, so i resolve and destroy on first data received
-          resolve(JSON.parse(chunk.toString()))
-          incoming.destroy()
-        })
-        incoming.on('error', (e) => {
-          reject(e)
-        })
-        // i don't know why but this stream never ends
-        // incoming.on('end', () => {
-        //   resolve(body)
-        // });
-      })
-    })
-    .then(checkForApiErrorResponse)
-    .then((response) => (response as OpenMatchTicketAssignmentResponse).result.assignment)
-    .catch((e) => {
-      // console.log('ticket assignment fetch error', e)
-      return Promise.reject(e)
-    })
+async function getTicketsAssignment(ticketId: string): Promise<OpenMatchTicketAssignment> {
+  const response = await nodeFetch(`${FRONTEND_SERVICE_URL}/tickets/${ticketId}/assignments`)
+
+  const data = await readStreamFirstData(response.body)
+  checkForApiErrorResponse(data)
+
+  return (data as OpenMatchTicketAssignmentResponse).result.assignment
 }
 
 function getTicket(ticketId: string): Promise<OpenMatchTicket | void> {

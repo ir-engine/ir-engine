@@ -5,11 +5,5 @@
   "description": "Dev Ops tooling for XREngine",
   "repository": "http://github.com/XRFoundation/XREngine",
   "author": "XREngine",
-  "license": "MIT",
-  "devDependencies": {
-    "cross-env": "7.0.3"
-  },
-  "dependencies": {
-    "cross-env": "7.0.3"
-  }
+  "license": "MIT"
 }
