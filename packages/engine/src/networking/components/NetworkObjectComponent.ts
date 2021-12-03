@@ -1,5 +1,6 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Types } from 'bitecs'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type NetworkObjectComponentType = {
@@ -13,4 +14,6 @@ export type NetworkObjectComponentType = {
   parameters: any
 }
 
-export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType>('NetworkObjectComponent')
+export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType>('NetworkObjectComponent', {
+  networkId: Types.ui32
+})
