@@ -299,7 +299,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 
   await sceneWorld.physics.createScene()
 
-  await sceneWorld.initSystems()
+  await sceneWorld.initSystems(sceneWorld._pipeline)
 
   const executeWorlds = (delta, elapsedTime) => {
     for (const world of Engine.worlds) {

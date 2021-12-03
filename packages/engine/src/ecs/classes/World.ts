@@ -169,7 +169,7 @@ export class World {
     for (const system of this.freeSystems) system.execute()
   }
 
-  async initSystems() {
+  async initSystems(systemModulesToLoad: SystemModuleType<any>[]) {
     const loadSystem = async (s: SystemFactoryType<any>) => {
       const system = await s.systemModule.default(this, s.args)
       return {
@@ -185,7 +185,7 @@ export class World {
       } as SystemInstanceType
     }
     const systemModule = await Promise.all(
-      this._pipeline.map(async (s) => {
+      systemModulesToLoad.map(async (s) => {
         return {
           args: s.args,
           type: s.type,
@@ -195,12 +195,16 @@ export class World {
     )
     const systems = await Promise.all(systemModule.map(loadSystem))
     systems.forEach((s) => console.log(`${s.type} ${s.name}`))
-    this.freeSystems = systems.filter((s) => {
-      return !s.type.includes('FIXED')
-    })
-    this.fixedSystems = systems.filter((s) => {
-      return s.type.includes('FIXED')
-    })
+    this.freeSystems.push(
+      ...systems.filter((s) => {
+        return !s.type.includes('FIXED')
+      })
+    )
+    this.fixedSystems.push(
+      ...systems.filter((s) => {
+        return s.type.includes('FIXED')
+      })
+    )
     console.log('[World]: All systems initialized!')
   }
 }
