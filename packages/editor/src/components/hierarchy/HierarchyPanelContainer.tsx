@@ -1051,6 +1051,8 @@ export default function HierarchyPanel() {
           CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, node.object)
           setSelectedNode(node)
         }
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        selectedNode && onDeleteNode(e, selectedNode)
       }
     },
     [nodes, expandNode, collapseNode, expandChildren, collapseChildren]
