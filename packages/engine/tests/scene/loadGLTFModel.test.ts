@@ -31,7 +31,6 @@ describe('loadGLTFModel', () => {
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
 
     // await initializeEngine(engineTestSetup)
-    const sceneLoader = new WorldScene()
 
     const entity = createEntity()
     addComponent(entity, TransformComponent, { position: new Vector3(), rotation: new Quaternion(), scale: new Vector3(1, 1, 1), })
@@ -48,7 +47,7 @@ describe('loadGLTFModel', () => {
     const modelQuery = defineQuery([TransformComponent, Object3DComponent])
     const childQuery = defineQuery([NameComponent, TransformComponent, Object3DComponent, CustomComponent, SpawnPointComponent])
 
-    parseGLTFModel(sceneLoader, entity, mockComponentData, undefined!, scene)
+    parseGLTFModel(entity, mockComponentData, undefined!, scene)
     
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)
