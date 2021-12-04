@@ -6,7 +6,6 @@ import { NameComponent } from '../../src/scene/components/NameComponent'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
 import { parseGLTFModel } from '../../src/scene/functions/loadGLTFModel'
 import { TransformComponent } from '../../src/transform/components/TransformComponent'
-import { WorldScene } from "../../src/scene/functions/SceneLoading"
 import { isTriggerShape } from "../../src/physics/classes/Physics"
 import assert from 'assert'
 import { createWorld } from "../../src/ecs/classes/World"
@@ -47,7 +46,7 @@ describe('loadGLTFModel', () => {
     const modelQuery = defineQuery([TransformComponent, Object3DComponent])
     const childQuery = defineQuery([NameComponent, TransformComponent, Object3DComponent, CustomComponent, SpawnPointComponent])
 
-    parseGLTFModel(entity, mockComponentData, undefined!, scene)
+    parseGLTFModel(entity, mockComponentData, scene)
     
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)
