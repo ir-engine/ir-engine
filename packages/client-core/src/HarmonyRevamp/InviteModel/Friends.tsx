@@ -24,9 +24,9 @@ const Friends = (props: Props) => {
     event.preventDefault()
     const sendData = {
       type: 'friend',
-      token: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? userToken : null,
+      token: mappedIDProvider == 'email' || mappedIDProvider == 'sms' ? userToken : null,
       inviteCode: mappedIDProvider === 'code' ? userToken : null,
-      identityProviderType: mappedIDProvider == 'email' || mappedIDProvider == 'phone' ? mappedIDProvider : null,
+      identityProviderType: mappedIDProvider == 'email' || mappedIDProvider == 'sms' ? mappedIDProvider : null,
       targetObjectId: inviteState.targetObjectId.value,
       invitee: mappedIDProvider === 'friends' ? userToken : null
     }
@@ -49,8 +49,8 @@ const Friends = (props: Props) => {
         </a>
         <a
           href="#"
-          onClick={() => setType('phone')}
-          className={`${type === 'phone' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
+          onClick={() => setType('sms')}
+          className={`${type === 'sms' ? classes.bgPrimary : darkMode ? classes.border : classes.borderLight} ${
             classes.roundedCircle
           } ${classes.mx2}`}
         >
@@ -81,7 +81,7 @@ const Friends = (props: Props) => {
                 placeholder="Your@domain.com"
               />
             </div>
-          ) : type === 'phone' ? (
+          ) : type === 'sms' ? (
             <div className="form-group">
               <label htmlFor="">
                 <p>Phone:</p>
