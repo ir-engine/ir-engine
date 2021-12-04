@@ -97,6 +97,19 @@ export const unloadScene = async (): Promise<void> => {
 
   Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
 
+  Object.entries(world.pipelines).forEach(([type, pipeline]) => {
+    const systemsToRemove: any[] = []
+    pipeline.forEach((s) => {
+      if (s.sceneSystem) {
+        systemsToRemove.push(s)
+      }
+    })
+    systemsToRemove.forEach((s) => {
+      const i = pipeline.findIndex(s)
+      pipeline.splice(i, 1)
+    })
+  })
+
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
 
