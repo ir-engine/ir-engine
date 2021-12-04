@@ -100,7 +100,7 @@ export const initEngine = async (initOptions: InitializeOptions) => {
   dispatch(EngineAction.setInitialised(true))
 }
 
-export const loadLocation = async (sceneName: string, initOptions: InitializeOptions): Promise<any> => {
+export const loadLocation = async (sceneName: string): Promise<any> => {
   const [project, scene] = sceneName.split('/')
 
   // 1. Get scene data
@@ -108,14 +108,7 @@ export const loadLocation = async (sceneName: string, initOptions: InitializeOpt
 
   const packs = await getSystemsFromSceneData(project, sceneData, true)
 
-  for (const system of packs) {
-    initOptions.systems?.push(system)
-  }
-
-  // 2. Initialize Engine if not initialized
-  if (!useEngine().isInitialized) {
-    await initEngine(initOptions)
-  }
+  await useEngine().defaultWorld.initSystems(packs)
 
   const dispatch = useDispatch()
 

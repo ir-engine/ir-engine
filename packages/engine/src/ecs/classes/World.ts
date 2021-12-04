@@ -17,7 +17,12 @@ import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { WorldStateInterface } from '../../networking/schema/networkSchema'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 
-type SystemInstanceType = { name: string; type: SystemUpdateType; execute: System }
+type SystemInstanceType = {
+  name: string
+  type: SystemUpdateType
+  sceneSystem: boolean
+  execute: System
+}
 
 type RemoveIndex<T> = {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
@@ -91,21 +96,9 @@ export class World {
   localClientEntity: Entity
 
   /**
-   * Systems that run only once every frame.
-   * Ideal for cosmetic updates (e.g., particles), animation, rendering, etc.
-   */
-  freeSystems = [] as SystemInstanceType[]
-
-  /**
-   * Systems that run once for every fixed time interval (in simulation time).
-   * Ideal for game logic, ai logic, simulation logic, etc.
-   */
-  fixedSystems = [] as SystemInstanceType[]
-
-  /**
    * Custom systems injected into this world
    */
-  injectedSystems = {
+  pipelines = {
     [SystemUpdateType.UPDATE]: [],
     [SystemUpdateType.FIXED_EARLY]: [],
     [SystemUpdateType.FIXED]: [],
@@ -167,15 +160,18 @@ export class World {
   execute(delta: number, elapsedTime: number) {
     this.delta = delta
     this.elapsedTime = elapsedTime
-    for (const system of this.freeSystems) system.execute()
+    for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
+    for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()
+    for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.execute()
   }
 
-  async initSystems() {
+  async initSystems(systemModulesToLoad: SystemModuleType<any>[]) {
     const loadSystem = async (s: SystemFactoryType<any>) => {
       const system = await s.systemModule.default(this, s.args)
       return {
         name: s.systemModule.default.name,
         type: s.type,
+        sceneSystem: s.sceneSystem,
         execute: () => {
           try {
             system()
@@ -186,21 +182,19 @@ export class World {
       } as SystemInstanceType
     }
     const systemModule = await Promise.all(
-      this._pipeline.map(async (s) => {
+      systemModulesToLoad.map(async (s) => {
         return {
           args: s.args,
           type: s.type,
+          sceneSystem: s.sceneSystem,
           systemModule: await s.systemModulePromise
         }
       })
     )
     const systems = await Promise.all(systemModule.map(loadSystem))
-    systems.forEach((s) => console.log(`${s.type} ${s.name}`))
-    this.freeSystems = systems.filter((s) => {
-      return !s.type.includes('FIXED')
-    })
-    this.fixedSystems = systems.filter((s) => {
-      return s.type.includes('FIXED')
+    systems.forEach((s) => {
+      this.pipelines[s.type].push(s)
+      console.log(`${s.type} ${s.name}`)
     })
     console.log('[World]: All systems initialized!')
   }

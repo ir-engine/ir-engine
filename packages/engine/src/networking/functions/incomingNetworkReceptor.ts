@@ -63,7 +63,7 @@ export function incomingNetworkReceptor(action) {
         } else {
           entity = createEntity()
           let params = a.parameters
-          if (params.sceneEntity) {
+          if (params && params.sceneEntity) {
             let sceneEntity = params.sceneEntity
             WorldScene.loadComponentLate(entity, sceneEntity)
           }

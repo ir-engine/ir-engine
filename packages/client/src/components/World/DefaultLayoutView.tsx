@@ -15,7 +15,6 @@ const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/c
 
 interface Props {
   allowDebug
-  reinit
   locationName
   hideVideo?: boolean
   hideFullscreen?: boolean
@@ -30,7 +29,7 @@ const DefaultLayoutView = (props: Props) => {
   return (
     <>
       <LoadingScreen />
-      {props.allowDebug && <Debug reinit={props.reinit} />}
+      {props.allowDebug && <Debug />}
       {isTouchAvailable ? (
         <Suspense fallback={<></>}>
           <TouchGamepad layout="default" />
@@ -38,7 +37,7 @@ const DefaultLayoutView = (props: Props) => {
       ) : null}
 
       <GameServerWarnings
-        isTeleporting={engineState.isTeleporting.value}
+        isTeleporting={!!engineState.isTeleporting.value}
         locationName={props.locationName}
         instanceId={selfUser?.instanceId.value ?? party?.instanceId}
       />

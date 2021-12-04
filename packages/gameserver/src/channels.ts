@@ -174,7 +174,7 @@ export default (app: Application): void => {
 
             const isReady = status.state === 'Ready'
             const isNeedingNewServer =
-              config.kubernetes.enabled === false &&
+              !config.kubernetes.enabled &&
               (status.state === 'Shutdown' ||
                 app.instance == null ||
                 app.instance.locationId !== locationId ||
@@ -185,7 +185,7 @@ export default (app: Application): void => {
              * need to programatically shut down and restart the gameserver process.
              */
             console.log(app.instance?.locationId, locationId)
-            if (config.kubernetes.enabled === false && app.instance && app.instance.locationId !== locationId) {
+            if (!config.kubernetes.enabled && app.instance && app.instance.locationId != locationId) {
               app.restart()
               return
             }
@@ -273,7 +273,7 @@ export default (app: Application): void => {
               }
             }
             // console.log(`Patching user ${user.id} instanceId to ${app.instance.id}`);
-            const instanceIdKey = app.isChannelInstance === true ? 'channelInstanceId' : 'instanceId'
+            const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
             await app.service('user').patch(userId, {
               [instanceIdKey]: app.instance.id
             })
@@ -302,7 +302,7 @@ export default (app: Application): void => {
             await app.service('instance-attendance').create(newInstanceAttendance)
             ;(connection as any).instanceId = app.instance.id
             app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
-            if (app.isChannelInstance !== true)
+            if (!app.isChannelInstance) {
               await app.service('message').create(
                 {
                   targetObjectId: app.instance.id,
@@ -316,40 +316,41 @@ export default (app: Application): void => {
                   }
                 }
               )
-            if (user.partyId != null) {
-              const partyUserResult = await app.service('party-user').find({
-                query: {
-                  partyId: user.partyId
-                }
-              })
-              const party = await app.service('party').get(user.partyId, null!)
-              const partyUsers = (partyUserResult as any).data
-              const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1)
-              if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
-                await app.service('party').patch(user.partyId, {
-                  instanceId: app.instance.id
+              if (user.partyId != null) {
+                const partyUserResult = await app.service('party-user').find({
+                  query: {
+                    partyId: user.partyId
+                  }
                 })
-                const nonOwners = partyUsers.filter(
-                  (partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true
-                )
-                const emittedIp = !config.kubernetes.enabled
-                  ? await getLocalServerIp(app.isChannelInstance)
-                  : {
-                      ipAddress: status.address,
-                      port: status.portsList[0].port
-                    }
-                await Promise.all(
-                  nonOwners.map(async (partyUser) => {
-                    await app.service('instance-provision').emit('created', {
-                      userId: partyUser.userId,
-                      ipAddress: emittedIp.ipAddress,
-                      port: emittedIp.port,
-                      locationId: locationId,
-                      channelId: channelId,
-                      sceneId: sceneId
-                    })
+                const party = await app.service('party').get(user.partyId, null!)
+                const partyUsers = (partyUserResult as any).data
+                const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1)
+                if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
+                  await app.service('party').patch(user.partyId, {
+                    instanceId: app.instance.id
                   })
-                )
+                  const nonOwners = partyUsers.filter(
+                    (partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true
+                  )
+                  const emittedIp = !config.kubernetes.enabled
+                    ? await getLocalServerIp(app.isChannelInstance)
+                    : {
+                        ipAddress: status.address,
+                        port: status.portsList[0].port
+                      }
+                  await Promise.all(
+                    nonOwners.map(async (partyUser) => {
+                      await app.service('instance-provision').emit('created', {
+                        userId: partyUser.userId,
+                        ipAddress: emittedIp.ipAddress,
+                        port: emittedIp.port,
+                        locationId: locationId,
+                        channelId: channelId,
+                        sceneId: sceneId
+                      })
+                    })
+                  )
+                }
               }
             }
           }

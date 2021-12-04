@@ -9,7 +9,7 @@ import { getEntityComponents } from 'bitecs'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
-export const Debug = ({ reinit }) => {
+export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
   const [physicsDebug, setPhysicsDebug] = useState(false)
   const [avatarDebug, setAvatarDebug] = useState(false)
@@ -134,9 +134,6 @@ export const Debug = ({ reinit }) => {
         </button>
         <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>
           Avatar Debug
-        </button>
-        <button type="button" onClick={reinit}>
-          Reinit
         </button>
         <button type="button" onClick={reset}>
           Reset
