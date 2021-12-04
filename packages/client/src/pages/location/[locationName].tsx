@@ -13,12 +13,8 @@ interface Props {
 const LocationPage = (props: Props) => {
   const { t } = useTranslation()
   const [harmonyOpen, setHarmonyOpen] = useState(false)
-  const [reinit, reinitEngine] = useState(false)
-  const locationName = props?.match?.params?.locationName
-
-  const engineInit = () => {
-    reinitEngine(!reinit)
-  }
+  const params = props?.match?.params!
+  const locationName = params.locationName ?? `${params.projectName}/${params.sceneName}`
 
   return (
     <>
@@ -30,7 +26,7 @@ const LocationPage = (props: Props) => {
         harmonyOpen={harmonyOpen}
         setHarmonyOpen={setHarmonyOpen}
       >
-        <DefaultLayoutView allowDebug={true} reinit={engineInit} locationName={locationName} />
+        <DefaultLayoutView allowDebug={true} locationName={locationName} />
       </Layout>
     </>
   )
