@@ -2,7 +2,7 @@ import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import config from '@xrengine/server-core/src/appconfig'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine, useEngine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export const initializeServerEngine = async (systems: SystemModuleType<any>[], isMediaChannelInstance = false) => {
   const options: InitializeOptions = {
@@ -14,5 +14,5 @@ export const initializeServerEngine = async (systems: SystemModuleType<any>[], i
   systems.forEach((s) => {
     s.sceneSystem = true
   })
-  await Engine.defaultWorld.initSystems(systems)
+  await useEngine().defaultWorld.initSystems(systems)
 }
