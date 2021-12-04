@@ -90,10 +90,15 @@ describe('ECS', () => {
   describe('should progress through all ecs states', () => {
     it('should add systems', async () => {
       createNewEngineAndWorld()
-      registerSystem(SystemUpdateType.UPDATE, MockSystemModulePromise())
       const world = useWorld()
-      await world.initSystems()
-      assert.strictEqual(world.freeSystems.length, 1)
+      await world.initSystems([
+        {
+          sceneSystem: true,
+          systemModulePromise: MockSystemModulePromise(),
+          type: SystemUpdateType.UPDATE,
+        }
+      ])
+      assert.strictEqual(world.pipelines[SystemUpdateType.UPDATE].length, 1)
     })
 
     it('should add component', async () => {
