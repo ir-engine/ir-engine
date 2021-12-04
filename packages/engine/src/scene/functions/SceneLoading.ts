@@ -83,36 +83,9 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
   Object.keys(sceneData.entities).forEach((key) => {
     const sceneEntity = sceneData.entities[key]
     const entity = createEntity()
-
     addComponent(entity, NameComponent, { name: sceneEntity.name })
-
-    // let shouldBeNetworkSpawned = false
-    // for (let index = 0; index < sceneEntity.components.length; index++) {
-    //   const element = sceneEntity.components[index]
-    //   if (element.name === 'gltf-model' && element.props.isDynamicObject) {
-    //     shouldBeNetworkSpawned = true
-    //   }
-    // }
-
-    // if (shouldBeNetworkSpawned) {
-    //   if (!isClient) {
-    //     const world = useWorld()
-    //     dispatchFrom(world.hostId, () =>
-    //       NetworkWorldAction.spawnObject({
-    //         userId: Engine.userId,
-    //         prefab: '',
-    //         parameters: {
-    //           // TODO: Find a better way to pass scene data to network spawned objects?
-    //           sceneEntity: JSON.parse(JSON.stringify(sceneEntity))
-    //         }
-    //       })
-    //     )
-    //   }
-    // } else {
     loadComponents(entity, key, sceneEntity)
-    // }
   })
-  console.log(Engine.sceneLoadPromises)
   await Promise.all(Engine.sceneLoadPromises)
 
   Engine.sceneLoaded = true
@@ -440,7 +413,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
 export const registerSceneLoadPromise = (promise: Promise<any>) => {
   Engine.sceneLoadPromises.push(promise)
   promise.then(() => {
-    console.log('engine scene load promise after')
     Engine.sceneLoadPromises.splice(Engine.sceneLoadPromises.indexOf(promise), 1)
     EngineEvents.instance.dispatchEvent({
       type: EngineEvents.EVENTS.SCENE_ENTITY_LOADED,
