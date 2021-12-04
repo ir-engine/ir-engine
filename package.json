@@ -105,7 +105,7 @@
     "no-master-commits": "1.1.1",
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",
-    "prettier": "2.4.1",
+    "prettier": "2.5.1",
     "trace-unhandled": "2.0.1",
     "ts-node": "10.4.0"
   }
