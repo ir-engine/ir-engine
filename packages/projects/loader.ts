@@ -44,24 +44,28 @@ export const importSystem = async (project: string, data: SystemProps): Promise<
         return {
           systemModulePromise: import(`./projects/${project}/${entryPointSplit}.js`),
           type: systemUpdateType,
+          sceneSystem: true,
           args
         }
       case 'jsx':
         return {
           systemModulePromise: import(`./projects/${project}/${entryPointSplit}.jsx`),
           type: systemUpdateType,
+          sceneSystem: true,
           args
         }
       case 'ts':
         return {
           systemModulePromise: import(`./projects/${project}/${entryPointSplit}.ts`),
           type: systemUpdateType,
+          sceneSystem: true,
           args
         }
       case 'tsx':
         return {
           systemModulePromise: import(`./projects/${project}/${entryPointSplit}.tsx`),
           type: systemUpdateType,
+          sceneSystem: true,
           args
         }
       default:
