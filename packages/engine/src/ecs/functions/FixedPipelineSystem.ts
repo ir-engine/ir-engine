@@ -1,6 +1,7 @@
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
 import { System } from '../classes/System'
+import { SystemUpdateType } from './SystemUpdateType'
 
 /**
  * System for running simulation logic with fixed time intervals
@@ -31,7 +32,9 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
       world.fixedElapsedTime += world.fixedDelta
       world.fixedTick += 1
 
-      for (const s of world.fixedSystems) s.execute()
+      for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.execute()
+      for (const s of world.pipelines[SystemUpdateType.FIXED]) s.execute()
+      for (const s of world.pipelines[SystemUpdateType.FIXED_LATE]) s.execute()
 
       accumulator -= timestep
       ++updatesCount
