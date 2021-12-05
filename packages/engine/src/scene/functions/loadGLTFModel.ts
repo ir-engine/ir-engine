@@ -190,11 +190,11 @@ export const parseGLTFModel = (
   if (component.data.isDynamicObject) {
     const physicsShapeOptions = {
       isTrigger: false,
-      bodyType: BodyType.KINEMATIC, //Make static initially since owned by server and should not be affected by other forces
+      bodyType: BodyType.KINEMATIC,
       collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.Default // Do not make it Default, so that not collidable with avatar?
+      collisionMask: CollisionGroups.Default // Make separate layer? so that not collidable with avatar?
     }
-    createColliderForObject3D(entity, physicsShapeOptions)
+    createColliderForObject3D(entity, physicsShapeOptions, true)
   }
 
   parseObjectComponents(entity, scene, (newEntity: Entity, newComponent: SceneDataComponent) => {

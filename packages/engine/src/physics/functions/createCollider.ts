@@ -82,10 +82,10 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   while (currentChild && currentChild.uuid !== Engine.scene.uuid) {
     let parentScale = currentChild.parent?.scale ?? new Vector3(1, 1, 1)
     scale.multiply(parentScale)
-    console.log(currentChild, scale)
     currentChild = currentChild.parent
   }
 
+  console.log('shape scale: ', scale)
   const world = useWorld()
 
   if (shapeOptions.type === 'trimesh' || shapeOptions.type === 'convex') {
@@ -232,13 +232,13 @@ export const createCollider = (entity: Entity, mesh: Mesh) => {
   addComponent(entity, CollisionComponent, { collisions: [] })
 }
 
-export const createColliderForObject3D = (entity: Entity, data) => {
+export const createColliderForObject3D = (entity: Entity, data, disableGravity: boolean) => {
   const object3d = getComponent(entity, Object3DComponent)
-  console.log('creating collider:', object3d)
+  console.log('creating collider for object 3d: ', object3d)
   if (object3d) {
-    console.log('creating collider')
     const shapes = getAllShapesFromObject3D(entity, object3d.value as any, data)
     const body = createBody(entity, data, shapes)
+    body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
     addComponent(entity, ColliderComponent, { body })
     addComponent(entity, CollisionComponent, { collisions: [] })
   }
