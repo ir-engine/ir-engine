@@ -190,7 +190,7 @@ export const parseGLTFModel = (
   if (component.data.isDynamicObject) {
     const physicsShapeOptions = {
       isTrigger: false,
-      bodyType: BodyType.KINEMATIC,
+      bodyType: BodyType.DYNAMIC,
       collisionLayer: CollisionGroups.Default,
       collisionMask: CollisionGroups.Default // Make separate layer? so that not collidable with avatar?
     }

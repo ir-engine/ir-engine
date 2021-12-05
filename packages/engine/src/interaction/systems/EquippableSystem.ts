@@ -19,6 +19,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { getParity } from '../functions/equippableFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
+import { BodyType } from '../../physics/types/PhysicsTypes'
 
 function equippableActionReceptor(action) {
   const world = useWorld()
@@ -57,9 +58,14 @@ export default async function EquippableSystem(world: World): Promise<System> {
 
   return () => {
     for (const entity of equippableQuery.enter()) {
-      // const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
-      // const collider = getComponent(equippedEntity, ColliderComponent)
-      // if (collider) collider.body.type = BodyType.KINEMATIC
+      const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
+      const collider = getComponent(equippedEntity, ColliderComponent)
+      if (collider) {
+        console.log('Change type to kinematic')
+        let phsyxRigidbody = collider.body as PhysX.PxRigidBody
+        ;(phsyxRigidbody as any)._type = BodyType.KINEMATIC
+        phsyxRigidbody.setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, true)
+      }
     }
 
     for (const entity of equippableQuery()) {
@@ -92,7 +98,10 @@ export default async function EquippableSystem(world: World): Promise<System> {
       const equippedTransform = getComponent(equippedEntity, TransformComponent)
       const collider = getComponent(equippedEntity, ColliderComponent)
       if (collider) {
-        // collider.body.type = BodyType.DYNAMIC
+        let phsyxRigidbody = collider.body as PhysX.PxRigidBody
+        ;(phsyxRigidbody as any)._type = BodyType.KINEMATIC
+        phsyxRigidbody.setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, false)
+        console.log('Change type to dynamic')
         teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
       }
 
