@@ -97,7 +97,6 @@ export default async function EquippableSystem(world: World): Promise<System> {
       }
 
       removeComponent(equippedEntity, EquippedComponent)
-      // Code for re-enabling interaction
     }
   }
 }

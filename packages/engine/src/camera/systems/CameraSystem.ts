@@ -24,8 +24,9 @@ import { System } from '../../ecs/classes/System'
 import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { CameraLayers } from '../constants/CameraLayers'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -114,6 +115,8 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
+  const sceneObjects = Array.from(Engine.objectLayerList[ObjectLayers.Scene] || [])
+
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   // Raycast to keep the line of sight with avatar
@@ -126,7 +129,7 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 
   // Check hit with mid ray
   followCamera.raycaster.set(target, targetToCamVec.normalize())
-  const hits = followCamera.raycaster.intersectObject(Engine.scene, true)
+  const hits = followCamera.raycaster.intersectObjects(sceneObjects, true)
 
   if (hits[0] && hits[0].distance < maxDistance) {
     maxDistance = hits[0].distance
@@ -135,7 +138,7 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   //Check the cone for minimum distance
   cameraRays.forEach((rayDir, i) => {
     followCamera.raycaster.set(target, rayDir)
-    const hits = followCamera.raycaster.intersectObject(Engine.scene, true)
+    const hits = followCamera.raycaster.intersectObjects(sceneObjects, true)
 
     if (hits[0] && hits[0].distance < maxDistance) {
       maxDistance = hits[0].distance
@@ -262,7 +265,7 @@ export default async function CameraSystem(world: World): Promise<System> {
 
     for (const entity of followCameraQuery.enter()) {
       const cameraFollow = getComponent(entity, FollowCameraComponent)
-      cameraFollow.raycaster.layers.set(CameraLayers.Scene) // Ignore avatars
+      cameraFollow.raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
       ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
       cameraFollow.raycaster.far = cameraFollow.maxDistance
       Engine.activeCameraFollowTarget = entity
@@ -273,9 +276,7 @@ export default async function CameraSystem(world: World): Promise<System> {
         if (debugRays) {
           const arrow = new ArrowHelper()
           coneDebugHelpers.push(arrow)
-          arrow.traverse((obj: Object3D) => {
-            obj.layers.set(CameraLayers.Gizmos)
-          })
+          setObjectLayers(arrow, ObjectLayers.Render, ObjectLayers.Gizmos)
           Engine.scene.add(arrow)
         }
       }

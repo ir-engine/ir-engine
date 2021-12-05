@@ -16,6 +16,8 @@ store.receptors.push((action: ServerSettingActionType): any => {
     switch (action.type) {
       case 'SETTING_SERVER_DISPLAY':
         return s.merge({ server: action.serverSettingResult.data, updateNeeded: false })
+      case 'SERVER_SETTING_PATCHED':
+        return s.updateNeeded.set(true)
     }
   }, action.type)
 })
@@ -35,6 +37,18 @@ export const ServerSettingService = {
       console.error(error)
       AlertService.dispatchAlertError(error.message)
     }
+  },
+  patchServerSetting: async (data: any, id: string) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        await client.service('server-setting').patch(id, data)
+        dispatch(ServerSettingAction.serverSettingPatched())
+      } catch (err) {
+        console.log(err)
+        AlertService.dispatchAlertError(err.message)
+      }
+    }
   }
 }
 
@@ -44,6 +58,11 @@ export const ServerSettingAction = {
     return {
       type: 'SETTING_SERVER_DISPLAY' as const,
       serverSettingResult: serverSettingResult
+    }
+  },
+  serverSettingPatched: () => {
+    return {
+      type: 'SERVER_SETTING_PATCHED' as const
     }
   }
 }

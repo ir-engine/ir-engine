@@ -3,7 +3,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { DataConsumer, DataProducer } from 'mediasoup/lib/types'
+import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import logger from '@xrengine/server-core/src/logger'
 import config from '@xrengine/server-core/src/appconfig'
 import { closeTransport } from './WebRTCFunctions'
@@ -16,6 +16,7 @@ import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { XRHandsInputComponent } from '@xrengine/engine/src/xr/components/XRHandsInputComponent'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -199,12 +200,7 @@ export async function validateNetworkObjects(): Promise<void> {
 }
 
 export async function handleConnectToWorld(socket, data, callback, userId: UserId, user, avatarDetail): Promise<any> {
-  const transport = Network.instance.transport as any
-  if (!Engine.sceneLoaded && transport.app.isChannelInstance !== true) {
-    await new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
-    })
-  }
+  const transport = Network.instance.transport as SocketWebRTCServerTransport
 
   console.log('Connect to world from ' + userId)
   // console.log("Avatar detail is", avatarDetail);

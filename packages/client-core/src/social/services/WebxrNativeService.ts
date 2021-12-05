@@ -34,8 +34,7 @@ export const WebxrNativeService = {
       try {
         dispatch(WebxrNativeAction.setWebXrNative())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -46,8 +45,7 @@ export const WebxrNativeService = {
       try {
         dispatch(WebxrNativeAction.tougleWebXrNative())
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

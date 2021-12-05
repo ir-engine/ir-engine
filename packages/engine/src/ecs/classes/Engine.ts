@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
+import { Object3D, PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Entity } from './Entity'
 import { InputValue } from '../../input/interfaces/InputValue'
@@ -64,6 +64,12 @@ export class Engine {
    */
   static scene: Scene = null!
   static sceneLoaded = false
+
+  /**
+   * Map of object lists by layer
+   * (automatically updated by the SceneObjectSystem)
+   */
+  static objectLayerList = {} as { [layer: number]: Set<Object3D> }
 
   /**
    * Reference to the three.js perspective camera object.

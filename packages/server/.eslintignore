@@ -1,6 +1,0 @@
-node_modules
-dist
-lib
-.env
-public
-scripts/*.js

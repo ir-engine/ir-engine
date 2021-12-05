@@ -3,6 +3,7 @@ import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
 import path from 'path'
 import url from 'url'
+import '@xrengine/engine/src/patchEngineNode'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 
@@ -64,6 +65,7 @@ const server = {
   nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER!,
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
+  corsServerPort: process.env.CORS_SERVER_PORT!,
   // Used for CI/tests to force Sequelize init an empty database
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER!,

@@ -14,16 +14,31 @@ While you can follow the demo instructions there about starting minikube, deploy
 some demo deployments, etc. to get a feel for it, before deploying XREngine you should delete
 your minikube cluster, since we have some specific starting requirements.
 
+## Clone this repo to your local machine
+To build the XREngine Docker image locally, and to have a pre-tested way to run various local
+services, you'll need to get the XREngine repo on your machine. This is most easily
+done by running `git clone https://github.com:XRFoundation/XREngine.git`
+
 ## Start MariaDB server locally via Docker
 For simplicity, we recommend running a MariaDB server on your local machine outside of minikube.
 Later instructions will set up minikube so that it can access this server
 
-If you run `docker-compose up` from the top-level `/scripts` directory in XREngine, it will
+If you run `docker-compose up` from the top-level `/scripts` directory in the XREngine repo, it will
 start up a MariaDB docker image (as well as a redis server, which is not needed). Once the
 MariaDB Docker image is stopped, you can start it again by running `docker start xrengine_db`. 
 
 Alternatively, if you want to just run MariaDB on its own without Docker, that's fine too.
 You'll just have to configure the Helm config file to have the appropriate SQL server configuration.
+
+## Start local file server
+If you're going to have the minikube deployment use a local storage provider, rather than a cloud
+storage provider like AWS S3, you'll need to have the local file server running on your machine
+outside of minikube.
+
+Tun `npm install` (or `yarn install` if `npm install` isn't working right;
+you'd need to install yarn in that case) from the root of the XREngine repo. When that's finished,
+go to packages/server and run `npm run serve-local-files`. This will start a local file server
+on port 8642, and will create and serve those files from packages/server/upload.
 
 ## Create minikube cluster
 Run the following command:
@@ -107,7 +122,9 @@ though later builds should take less time as things are cached.
 
 ## Deploy XREngine Helm chart
 Run the following command: `helm install -f </path/to/local.values.yaml> local xrengine/xrengine`.
-This will use a Helm config file titled 'local.values.yaml' to configure the deployment.
+This will use a Helm config file titled 'local.values.yaml' to configure the deployment. There is
+a [template](../packages/ops/configs/local.template.values.yaml) for this file in packages/ops/configs
+
 After a minute or so, running `kubectl get pods` should show one or more gameservers, one or more api
 servers, and one client server in the Running state.
 

@@ -6,11 +6,11 @@ client:
       gameserver: https://gameserver-dev.<domain>
       gameserverDomain: gameserver-dev.<domain>
       dev: true
+      gaMeasurementId: '<GOOGLE_ANALYTICS_MEASUREMENT_ID>'
       feathersStoreKey: TheOverlay-Auth-Store
       localStorageKey: theoverlay-client-store-key-v1
       loginDisabled: true
       logo: "./logo.svg"
-      gaMeasurementId: '<GOOGLE_ANALYTICS_MEASUREMENT_ID>'
       rootRedirect: false
       siteDescription: Connected Worlds for Everyone
       siteTitle: XREngine
@@ -42,6 +42,7 @@ client:
     API_SERVER_ADDRESS: api-dev.<domain>
     API_SOCKET_ENDPOINT: /socket
     API_SERVER: https://api-dev.<domain>
+    APP_ENV: production
     CLIENT_ADDRESS: https://dev.<domain>
     CLIENT_ENABLED: "true"
     CLIENT_SCENE_ROUTE: /scenes/
@@ -83,6 +84,7 @@ client:
       - host: dev.<domain>
         paths:
           - /
+  replicaCount: 1
   service:
     type: NodePort
 domain: <domain>
@@ -115,7 +117,8 @@ api:
         sender_id: <AWS_SNS_SENDER_ID>
     host: https://dev.<domain>/
   extraEnv:
-    APP_HOST: https://dev.<domain>
+    APP_ENV: production
+    APP_HOST: dev.<domain>
     APP_URL: https://dev.<domain>
     AUTH_SECRET: <INSERT_A_UUID_OR_SOMETHING_SIMILAR>
     AWS_SMS_ACCESS_KEY_ID: <SNS_USER_ACCESS_KEY>
@@ -136,6 +139,9 @@ api:
     GOOGLE_CALLBACK_URL: https://dev.<domain>/auth/oauth/google
     GOOGLE_CLIENT_ID: "<GOOGLE_OAUTH_CLIENT_ID>"
     GOOGLE_CLIENT_SECRET: "<GOOGLE_OAUTH_SECRET>"
+    LINKEDIN_CALLBACK_URL: https://dev.theoverlay.io/auth/oauth/linkedin
+    LINKEDIN_CLIENT_ID: "<LINKEDIN_OAUTH_CLIENT_ID"
+    LINKEDIN_CIENT_SECRET: "<LINKEDIN_OAUTH_CLIENT_SECRET>"
     MAGICLINK_EMAIL_SUBJECT: Login to TheOverlay
     MAIL_FROM: info@login.<domain>
     SERVER_ENABLED: "true"
@@ -156,6 +162,9 @@ api:
     STORAGE_S3_REGION: us-east-1
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
     STORAGE_S3_AVATAR_DIRECTORY: avatars
+    TWITTER_CALLBACK_URL: https://dev.theoverlay.io/auth/oauth/linkedin
+    TWITTER_CLIENT_ID: "<TWITTER_OAUTH_CLIENT_ID>"
+    TWITTER_CIENT_SECRET: "<TWITTER_OAUTH_CLIENT_ID>"
     DEFAULT_AVATAR_ID: Allison
     AVATAR_FILE_ALLOWED_EXTENSIONS: ".glb,.gltf,.vrm,.fbx"
     MIN_AVATAR_FILE_SIZE: "0"
@@ -181,15 +190,33 @@ api:
     annotations:
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/enable-cors: "true"
-      nginx.ingress.kubernetes.io/cors-allow-origin: https://dev.<domain>
+      nginx.ingress.kubernetes.io/enable-cors: "false"
       nginx.ingress.kubernetes.io/proxy-body-size: 256m
       nginx.ingress.kubernetes.io/affinity: cookie
       nginx.ingress.kubernetes.io/affinity-mode: persistent
+      nginx.ingress.kubernetes.io/server-snippet: |
+        location ~* /cors-proxy/(.*) {
+          proxy_http_version 1.1;
+          proxy_pass_request_headers on;
+          proxy_hide_header Access-Control-Allow-Origin;
+          add_header Access-Control-Allow-Origin $http_origin;
+          proxy_intercept_errors on;
+          error_page 301 302 307 = @handle_redirects;
+          proxy_pass https://$1?$args;
+        }
+
+        location @handle_redirects {
+          set $saved_redirect_location '$upstream_http_location';
+          proxy_pass_request_headers on;
+          proxy_hide_header Access-Control-Allow-Origin;
+          add_header Access-Control-Allow-Origin "$http_origin";
+          proxy_pass $saved_redirect_location;
+        }
     hosts:
       - host: api-dev.<domain>
         paths:
           - /
+  replicaCount: 2
 
 release:
   name: dev
@@ -203,7 +230,7 @@ media:
         secret_access_key: <IAM_USER_SECRET_KEY>
       s3:
         region: us-east-1
-        static_resource_bucket: theoverlay-static-resources
+        static_resource_bucket: <static-resources-bucket-name>
       cloudfront:
         domain: resources.<domain>
       sns:
@@ -214,6 +241,7 @@ media:
         sender_id: <AWS_SNS_SENDER_ID>
     host: https://dev.<domain>/
   extraEnv:
+    APP_ENV: production
     APP_HOST: dev.<domain>
     APP_URL: https://dev.<domain>
     AUTH_SECRET: <INSERT_A_UUID_OR_SOMETHING_SIMILAR>
@@ -279,6 +307,7 @@ gameserver:
     repository: lagunalabs/xrengine
     pullPolicy: IfNotPresent
   extraEnv:
+    APP_ENV: production
     APP_HOST: dev.<domain>
     AUTH_SECRET: <SAME_AUTH_SECRET_AS_IN_API>
     APP_URL: https://dev.<domain>
@@ -291,9 +320,13 @@ gameserver:
     RTC_PORT_BLOCK_SIZE: "100"
     GAMESERVER_DOMAIN: gameserver-dev.<domain>
     GAMESERVER_PORT: "3031"
-    STORAGE_S3_STATIC_RESOURCE_BUCKET: <STATIC_RESOURCE_BUCKET_NAME>
-    STORAGE_S3_REGION: us-east-1
+    STORAGE_PROVIDER: aws
+    STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
+    STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET>
+    STORAGE_CLOUDFRONT_DOMAIN: resources.<domain>
     STORAGE_CLOUDFRONT_DISTRIBUTION_ID: <cloudfront_distribution_id>
+    STORAGE_S3_REGION: us-east-1
+    STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
     CERT: certs/cert.pem
     KEY: certs/key.pem
   ingress:
@@ -320,6 +353,10 @@ gameserver:
       cpu: "2"
     requests:
       cpu: "1.5"
+  buffer:
+    bufferSize: 2
+    minReplicas: 4
+    maxReplicas: 24
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -363,6 +400,9 @@ analytics:
   enabled: false
   name: xrengine-analytics
   replicaCount: 1
+  image:
+    repository: lagunalabs/xrengine
+    pullPolicy: IfNotPresent
   extraEnv:
     ANALYTICS_ENABLED: "true"
     ANALYTICS_PORT: "3030"
@@ -381,3 +421,13 @@ analytics:
     create: true
     annotations: {}
     name:
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                  - ng-1

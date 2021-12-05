@@ -18,6 +18,13 @@ const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 export class LocalStorage implements StorageProviderInterface {
   path = './upload'
   cacheDomain = config.server.localStorageProvider
+
+  constructor() {
+    // make upload folder if it doesnt already exist
+    if (!fs.existsSync(path.join(appRootPath.path, 'packages/server/upload')))
+      fs.mkdirSync(path.join(appRootPath.path, 'packages/server/upload'))
+  }
+
   getObject = async (key: string): Promise<StorageObjectInterface> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, key)
     const result = await fs.promises.readFile(filePath)
