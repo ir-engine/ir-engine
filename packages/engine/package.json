@@ -32,7 +32,7 @@
   },
   "version": "0.4.13",
   "dependencies": {
-    "@gltf-transform/core": "1.2.2",
+    "@gltf-transform/core": "1.2.3",
     "@gltf-transform/functions": "1.2.2",
     "@gltf-transform/extensions": "1.2.2",
     "@hookstate/core": "3.0.13",
