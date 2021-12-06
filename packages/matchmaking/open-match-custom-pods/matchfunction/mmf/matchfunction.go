@@ -41,11 +41,9 @@ func (s *MatchFunctionService) Run(req *pb.RunRequest, stream pb.MatchFunction_R
 	if len(poolTickets) == 0 {
 	    return nil
 	}
-	log.Printf("RUN ------------------------------------ ")
-	log.Printf("Processing %v tickets for function %v", len(poolTickets), req.GetProfile().GetName())
+	log.Printf("Processing %v tickets for profile %v", len(poolTickets), req.GetProfile().GetName())
 
 	// Generate proposals.
-	log.Printf("makeMatches!")
 	proposals, err := makeMatches(req.GetProfile(), poolTickets)
 	if err != nil {
 		log.Printf("Failed to generate matches, got %s", err.Error())
@@ -65,7 +63,6 @@ func (s *MatchFunctionService) Run(req *pb.RunRequest, stream pb.MatchFunction_R
 }
 
 func makeMatches(p *pb.MatchProfile, poolTickets map[string][]*pb.Ticket) ([]*pb.Match, error) {
-	log.Printf("makeMatches for profile %s", p.GetName())
 	var ticketsPerPoolPerMatch = 16
 	if p.Extensions != nil {
 		if message, ok := p.Extensions["profileData"]; ok {
