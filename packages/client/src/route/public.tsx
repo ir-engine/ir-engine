@@ -27,6 +27,8 @@ function RouterComp(props) {
     return <div>Loading...</div>
   }
 
+  console.log('customRoutes', customRoutes)
+
   return (
     <ErrorBoundary>
       <React.Fragment>

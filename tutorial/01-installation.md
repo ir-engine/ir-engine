@@ -9,7 +9,9 @@ Getting up and running requires just a few steps, but this can be tricky, depend
 
 You **must** have Node 16 or above installed.
 
-NVM can be a useful tool for this https://github.com/nvm-sh/nvm
+A version manager can be helpful for this:
+ - NodeJS only: [https://github.com/nvm-sh/nvm](NVM)
+ - Polyglot: [https://github.com/asdf-vm/asdf](ASDF)
 
 Before running the engine, please check `node --version`
 If you are using a node version below 16, please update or nothing will work. You will know you are having issues if you try to install at root and are getting dependency errors.
