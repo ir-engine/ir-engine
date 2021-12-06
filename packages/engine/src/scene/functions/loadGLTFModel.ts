@@ -213,7 +213,7 @@ export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => 
         console.log('[SCENE-LOADING]:', err)
         reject(err)
       },
-      component.props.isUsingGPUInstancing
+      component.data.isUsingGPUInstancing
     )
   })
 }
