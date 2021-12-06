@@ -1,6 +1,13 @@
 import { isClient } from '../../common/functions/isClient'
 import { Action } from '../../networking/interfaces/Action'
-import { addComponent, defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  EntityRemovedComponent,
+  getComponent,
+  hasComponent,
+  MappedComponent
+} from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { SystemFactoryType, SystemModuleType } from '../functions/SystemFunctions'
 import { Entity } from './Entity'
@@ -16,6 +23,7 @@ import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { WorldStateInterface } from '../../networking/schema/networkSchema'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { PortalComponent } from '../../scene/components/PortalComponent'
 
 type SystemInstanceType = { name: string; type: SystemUpdateType; execute: System }
 
@@ -48,8 +56,15 @@ export class World {
   _pipeline = [] as SystemModuleType<any>[]
 
   physics = new Physics()
-  entities = [] as Entity[]
-  portalEntities = [] as Entity[]
+
+  #entityQuery = bitecs.defineQuery([])
+  entityQuery = () => this.#entityQuery(this) as Entity[]
+
+  #entityRemovedQuery = bitecs.defineQuery([EntityRemovedComponent])
+
+  #portalQuery = bitecs.defineQuery([PortalComponent])
+  portalQuery = () => this.#portalQuery(this) as Entity[]
+
   isInPortal = false
 
   /** Connected clients */
@@ -80,7 +95,7 @@ export class World {
   hostId = 'server' as HostUserId
 
   /**
-   * The world entity (always exists, and always has eid 0)
+   * The world entity
    */
   worldEntity: Entity
 
@@ -100,18 +115,6 @@ export class World {
    * Ideal for game logic, ai logic, simulation logic, etc.
    */
   fixedSystems = [] as SystemInstanceType[]
-
-  /**
-   * Custom systems injected into this world
-   */
-  injectedSystems = {
-    [SystemUpdateType.UPDATE]: [],
-    [SystemUpdateType.FIXED_EARLY]: [],
-    [SystemUpdateType.FIXED]: [],
-    [SystemUpdateType.FIXED_LATE]: [],
-    [SystemUpdateType.PRE_RENDER]: [],
-    [SystemUpdateType.POST_RENDER]: []
-  } as { [pipeline: string]: SystemInstanceType[] }
 
   /**
    * Entities mapped by name
@@ -167,6 +170,7 @@ export class World {
     this.delta = delta
     this.elapsedTime = elapsedTime
     for (const system of this.freeSystems) system.execute()
+    for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
   }
 
   async initSystems() {

@@ -49,8 +49,6 @@ export async function reset(): Promise<void> {
   //   throw new Error('Engine.defaultWorld.entities cleanup not complete')
   // }
 
-  Engine.defaultWorld.entities.length = 0
-
   // delete all what is left on scene
   if (Engine.scene) {
     disposeScene(Engine.scene)
@@ -85,7 +83,7 @@ export const unloadScene = async (): Promise<void> => {
   const removedEntities = [] as Entity[]
   const sceneObjectsToRemove = [] as Object3D[]
 
-  world.entities.forEach((entity) => {
+  world.entityQuery().forEach((entity) => {
     if (!hasComponent(entity, PersistTagComponent)) {
       removeAllComponents(entity)
       entitiesToRemove.push(entity)

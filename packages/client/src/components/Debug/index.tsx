@@ -73,24 +73,6 @@ export const Debug = ({ reinit }) => {
     shutdownEngine()
   }
 
-  const renderComps = () => {
-    const entity = Engine.defaultWorld.entities
-    const comps = {}
-    entity.forEach((e) => {
-      // getAllC e.componentTypes.forEach((ct) => {
-      //   const name = ct.prototype.constructor.name
-      //   if (!comps[name]) comps[name] = {}
-      //   if (e.name) {
-      //     comps[name][e.name + '-' + e.id] = e
-      //   } else {
-      //     comps[name][e.id] = e
-      //   }
-      // })
-    })
-
-    return comps
-  }
-
   const renderNamedEntities = () => {
     return {
       ...Object.fromEntries(
@@ -152,10 +134,6 @@ export const Debug = ({ reinit }) => {
               <h1>Network Clients</h1>
               <JSONTree data={Object.fromEntries(Engine.defaultWorld.clients.entries())} />
             </div>
-            {/* <div>
-              <h1>Engine Components</h1>
-              <JSONTree data={renderComps()} />
-            </div> */}
           </div>
         )}
       </div>

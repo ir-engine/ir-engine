@@ -13,8 +13,6 @@ import * as bitecs from 'bitecs'
 const mockDelta = 1/60
 let mockElapsedTime = 0
 
-const externalState: number[] = []
-
 type MockComponentData = {
   mockValue: number
 }
@@ -27,107 +25,196 @@ const MockSystemModulePromise = async () => {
   }
 }
 
+const MockSystemState = new Map<World, Array<number>>()
+
 async function MockSystemInitialiser(world: World, args: {}): Promise<System> {
   const mockQuery = defineQuery([MockComponent])
+  MockSystemState.set(world, [])
+
   return () => {
-    console.log('run')
+    const mockState = MockSystemState.get(world)!
+
+    // console.log('run MockSystem')
     for(const entity of mockQuery.enter()) {
       const component = getComponent(entity, MockComponent)
       console.log('Mock query enter', entity, component)
-      externalState.push(component.mockValue)
-      console.log('externalState', externalState)
+      mockState.push(component.mockValue)
+      console.log('externalState', mockState)
     }
 
     for(const entity of mockQuery.exit()) {
       const component = getComponent(entity, MockComponent, true)
       console.log('Mock query exit', entity, component)
-      externalState.splice(externalState.indexOf(component.mockValue))
-      console.log('externalState', externalState)
+      mockState.splice(mockState.indexOf(component.mockValue))
+      console.log('externalState', mockState)
     }
   }
 }
 
-let mockValue
-let newMockValue
+describe('ECS', () => {
 
-/**
- * This is designed as an integration test, not a unit test.
- */
-describe.skip('ECS', () => {
+  beforeEach(async () => {
+    const world = Engine.currentWorld = createWorld()
+    registerSystem(SystemUpdateType.UPDATE, MockSystemModulePromise())
+    await world.initSystems()
+    console.log('Free Systems: ', world?.freeSystems)
+  })
+
+  afterEach(() => {
+    Engine.currentWorld = null
+  })
 
 	it('should create ECS world', () => {
-    Engine.currentWorld = createWorld()
-    const world = useWorld()
+    const world = Engine.currentWorld
+    assert(world)
 		assert.strictEqual(Engine.worlds.length, 1)
-		assert.strictEqual(world.entities.length, 1)
-		assert.strictEqual(world.entities[0], Engine.currentWorld.worldEntity)
+    const entities = world.entityQuery()
+		assert.strictEqual(entities.length, 1)
+		assert.strictEqual(entities[0], world.worldEntity)
 	})
 
   it('should add systems', async () => {
-    registerSystem(SystemUpdateType.UPDATE, MockSystemModulePromise())
-    const world = useWorld()
-    await world.initSystems()
-		assert.strictEqual(world.freeSystems.length, 1)
+    const world = Engine.currentWorld
+    console.log(world?.freeSystems)
+    assert.strictEqual(world?.freeSystems[0].name, MockSystemInitialiser.name)
+    const module = await world?._pipeline[0].systemModulePromise
+		assert.strictEqual(module?.default, MockSystemInitialiser)
   })
 
   it('should add entity', async () => {
     const entity = createEntity()
     const world = useWorld()
+    const entities = world.entityQuery()
+		assert.strictEqual(entities.length, 2)
+		assert.strictEqual(entities[0], world.worldEntity)
+		assert.strictEqual(entities[1], entity)
+  })
+
+  it('should support enter and exit queries', () => {
+    const entity = createEntity()
+    const query = defineQuery([MockComponent])
     
-		assert.strictEqual(world.entities.length, 2)
-		assert.strictEqual(world.entities[0], world.worldEntity)
-		assert.strictEqual(world.entities[1], entity)
+    assert.equal(query().length, 0)
+    assert.equal(query.enter().length, 0)
+    assert.equal(query.exit().length, 0)
+
+    addComponent(entity, MockComponent, {mockValue:42})
+    assert.ok(query().includes(entity))
+    assert.equal(query.enter()[0], entity)
+    assert.equal(query.exit().length, 0)
+
+    removeComponent(entity, MockComponent)
+    assert.ok(!query().includes(entity))
+    assert.equal(query.enter().length, 0)
+    assert.equal(query.exit()[0], entity)
+
+    addComponent(entity, MockComponent, {mockValue:42})
+    assert.ok(query().includes(entity))
+    assert.equal(query.enter()[0], entity)
+    assert.equal(query.exit().length, 0)
   })
 
   it('should add component', async () => {
-    const world = useWorld()
-    const entity = world.entities[1]
-    mockValue = Math.random()
+    const entity = createEntity()
+    const mockValue = Math.random()
     addComponent(entity, MockComponent, { mockValue })
-    world.execute(mockDelta, mockElapsedTime += mockDelta)
     const component = getComponent(entity, MockComponent)
 		assert(component)
 		assert.strictEqual(component.mockValue, mockValue)
   })
 
-  it('should query component', async () => {
+  it('should query component in systems', async () => {
     const world = useWorld()
-    const entity = world.entities[1]
+    
+    const entity = createEntity()
+    const mockValue = Math.random()
+    addComponent(entity, MockComponent, { mockValue })
     const component = getComponent(entity, MockComponent)
-		assert.strictEqual(component.mockValue, externalState[0])
+    world.execute(mockDelta, mockElapsedTime += mockDelta)
+		assert.strictEqual(component.mockValue, MockSystemState.get(world)![0])
+
+    const entity2 = createEntity()
+    const mockValue2 = Math.random()
+    addComponent(entity2, MockComponent, { mockValue: mockValue2 })
+    const component2 = getComponent(entity2, MockComponent)
+    world.execute(mockDelta, mockElapsedTime += mockDelta)
+		assert.strictEqual(component2.mockValue, MockSystemState.get(world)![1])
   })
 
   it('should remove and clean up component', async () => {
     const world = useWorld()
-    const entity = world.entities[1]
+
+    const entity = createEntity()
+    const mockValue = Math.random()
+
+    addComponent(entity, MockComponent, { mockValue })
     removeComponent(entity, MockComponent)
+
+    const query = defineQuery([MockComponent])
+    assert.deepStrictEqual([...query()], [])
+    assert.deepStrictEqual(query.enter(), [])
+    assert.deepStrictEqual(query.exit(), [])
+
     world.execute(mockDelta, mockElapsedTime += mockDelta)
-		assert.deepStrictEqual(externalState, [])
+		assert.deepStrictEqual(MockSystemState.get(world)!, [])
   })
 
   it('should re-add component', async () => {
     const world = useWorld()
-    const entity = world.entities[1]
-    newMockValue = Math.random()
-    console.log(bitecs.hasComponent(Engine.currentWorld!, MockComponent, entity))
+    const entity = createEntity()
+    const state = MockSystemState.get(world)!
+
+    const mockValue = Math.random()
+    addComponent(entity, MockComponent, { mockValue })
+
+    removeComponent(entity, MockComponent)
+    world.execute(mockDelta, mockElapsedTime += mockDelta)
+		assert.deepStrictEqual(state, [])
+
+    const newMockValue = 1 + Math.random()
+    assert.equal(bitecs.hasComponent(Engine.currentWorld!, MockComponent, entity), false)
     addComponent(entity, MockComponent, { mockValue: newMockValue })
-    console.log(bitecs.hasComponent(Engine.currentWorld!, MockComponent, entity))
-    world.execute(mockDelta, mockElapsedTime += mockDelta)
+    assert.equal(bitecs.hasComponent(Engine.currentWorld!, MockComponent, entity), true)
     const component = getComponent(entity, MockComponent)
-    world.execute(mockDelta, mockElapsedTime += mockDelta)
+    console.log(component)
 		assert(component)
 		assert.strictEqual(component.mockValue, newMockValue)
-		assert.strictEqual(newMockValue, externalState[0])
+    world.execute(mockDelta, mockElapsedTime += mockDelta)
+    world.execute(mockDelta, mockElapsedTime += mockDelta)
+		assert.strictEqual(newMockValue, state[0])
   })
 
   it('should remove and clean up entity', async () => {
     const world = useWorld()
-    const entity = world.entities[1]
-		// assert.deepStrictEqual(externalState, [newMockValue])
+
+    const entity = createEntity()
+    const mockValue = Math.random()
+    addComponent(entity, MockComponent, { mockValue })
+    const entities = world.entityQuery()
+		assert.deepStrictEqual(entity, entities[1])
     removeEntity(entity)
 		assert.ok(!getComponent(entity, MockComponent))
 		assert.ok(getComponent(entity, MockComponent, true))
     world.execute(mockDelta, mockElapsedTime += mockDelta)
-		assert.deepStrictEqual(externalState, [])
+		assert.deepStrictEqual(MockSystemState.get(world)!, [])
+		assert.ok(!world.entityQuery().includes(entity))
+  })
+
+  it('should tolerate removal of same entity multiple times', async () => {
+    const world = useWorld()
+    createEntity()
+    createEntity()
+    createEntity()
+    const entity = createEntity()
+
+    const lengthBefore = world.entityQuery().length
+    removeEntity(entity)
+    removeEntity(entity)
+    removeEntity(entity)
+    world.execute(mockDelta, mockElapsedTime += mockDelta)
+
+    const entities = world.entityQuery()
+    assert.equal(entities.length, lengthBefore-1)
+    assert.ok(!entities.includes(entity))
   })
 })

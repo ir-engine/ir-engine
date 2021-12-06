@@ -22,7 +22,7 @@ export type SystemFactoryType<A> = {
 }
 
 export const registerSystem = (type: SystemUpdateType, systemModulePromise: SystemModulePromise<any>) => {
-  Engine.defaultWorld._pipeline.push({ type, systemModulePromise, args: undefined }) // yes undefined, V8...
+  Engine.currentWorld!._pipeline.push({ type, systemModulePromise, args: undefined }) // yes undefined, V8...
 }
 
 export const registerSystemWithArgs = <A>(
@@ -30,9 +30,9 @@ export const registerSystemWithArgs = <A>(
   systemModulePromise: SystemModulePromise<A>,
   args: A
 ) => {
-  Engine.defaultWorld._pipeline.push({ type, systemModulePromise, args })
+  Engine.currentWorld!._pipeline.push({ type, systemModulePromise, args })
 }
 
 export const registerInjectedSystems = <A>(type: SystemUpdateType, systems: SystemModuleType<A>[]) => {
-  Engine.defaultWorld._pipeline.push(...systems.filter((system) => system.type === type))
+  Engine.currentWorld!._pipeline.push(...systems.filter((system) => system.type === type))
 }
