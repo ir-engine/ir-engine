@@ -1,5 +1,4 @@
 import { DirectionalLight, Vector2 } from 'three'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneDataComponent } from '../functions/SceneLoading'
@@ -7,8 +6,6 @@ import { addObject3DComponent } from './addObject3DComponent'
 import { applyArgsToObject3d } from './applyArgsToObject3d'
 
 export const createDirectionalLight = (entity: Entity, component: SceneDataComponent) => {
-  if (!isClient) return
-
   const mapSize = new Vector2().fromArray(component.data.shadowMapResolution)
 
   const args = {

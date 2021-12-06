@@ -69,14 +69,12 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     addClientInputListeners(canvas)
   }
 
-  await FontManager.instance.getDefaultFont()
-
   globalThis.botHooks = BotHookFunctions
   globalThis.Engine = Engine
   globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
 
-  await registerClientSystems(options, canvas)
+  await Promise.all([FontManager.instance.getDefaultFont(), registerClientSystems(options, canvas)])
 }
 
 const configureEditor = async (options: Required<InitializeOptions>) => {
