@@ -6,9 +6,8 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { applyTransformToMesh, applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { ScenePropertyType, WorldScene, SceneDataComponent } from '../functions/SceneLoading'
+import { SceneDataComponent, loadComponent } from '../functions/SceneLoading'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import * as YUKA from 'yuka'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
@@ -21,8 +20,11 @@ import { setObjectLayers } from './setObjectLayers'
 import { createColliderForObject3D } from '../../physics/functions/createCollider'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { BodyType } from '../../physics/types/PhysicsTypes'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 
-export const parseObjectComponents = (entity: Entity, res: Mesh | Scene, loadComponent) => {
+export const parseObjectComponents = (entity: Entity, res: Mesh | Scene) => {
   const meshesToProcess: Mesh[] = []
 
   res.traverse((mesh: Mesh) => {
@@ -89,15 +91,10 @@ export const parseObjectComponents = (entity: Entity, res: Mesh | Scene, loadCom
   }
 }
 
-export const parseGLTFModel = (
-  sceneLoader: WorldScene,
-  entity: Entity,
-  component: SceneDataComponent,
-  sceneProperty: ScenePropertyType,
-  scene: Mesh | Scene
-) => {
+export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, scene: Mesh | Scene) => {
   // console.log(sceneLoader, entity, component, sceneProperty, scene)
 
+  const world = useWorld()
   setObjectLayers(scene, ObjectLayers.Render, ObjectLayers.Scene)
   addComponent(entity, Object3DComponent, { value: scene })
 
@@ -197,37 +194,39 @@ export const parseGLTFModel = (
     createColliderForObject3D(entity, physicsShapeOptions, true)
   }
 
-  parseObjectComponents(entity, scene, (newEntity: Entity, newComponent: SceneDataComponent) => {
-    sceneLoader.loadComponent(newEntity, newComponent, sceneProperty)
-  })
+  if (component.data.isDynamicObject) {
+    ;(scene as any).sceneEntityId = component.data.sceneEntityId
+    dispatchFrom(world.hostId, () =>
+      NetworkWorldAction.spawnObject({
+        userId: world.hostId,
+        prefab: '',
+        parameters: {
+          sceneEntityId: component.data.sceneEntityId
+        }
+      })
+    )
+  }
+
+  parseObjectComponents(entity, scene)
 }
 
-export const loadGLTFModel = (
-  sceneLoader: WorldScene,
-  entity: Entity,
-  component: SceneDataComponent,
-  sceneProperty: ScenePropertyType
-) => {
-  sceneLoader.loaders.push(
-    new Promise<void>((resolve, reject) => {
-      AssetLoader.load(
-        {
-          url: component.data.src,
-          entity
-        },
-        (res) => {
-          parseGLTFModel(sceneLoader, entity, component, sceneProperty, res.scene)
-          sceneLoader._onModelLoaded()
-          resolve()
-        },
-        null!,
-        (err) => {
-          console.log('[SCENE-LOADING]:', err)
-          sceneLoader._onModelLoaded()
-          reject(err)
-        },
-        component.props.isUsingGPUInstancing
-      )
-    })
-  )
+export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => {
+  return new Promise<void>((resolve, reject) => {
+    AssetLoader.load(
+      {
+        url: component.data.src,
+        entity
+      },
+      (res) => {
+        parseGLTFModel(entity, component, res.scene)
+        resolve()
+      },
+      null!,
+      (err) => {
+        console.log('[SCENE-LOADING]:', err)
+        reject(err)
+      },
+      component.data.isUsingGPUInstancing
+    )
+  })
 }

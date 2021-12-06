@@ -22,29 +22,27 @@ export type RenderSettingsProps = {
   shadowMapType: ShadowMapType
 }
 
-export const configureCSM = (directionalLights: DirectionalLight[], remove?: boolean): void => {
+export const createCSM = (): void => {
   if (!isClient || !Engine.renderer.shadowMap.enabled) return
-
-  if (remove || !directionalLights.length) {
-    if (!Engine.csm) return
-
-    Engine.csm.remove()
-    Engine.csm.dispose()
-    Engine.csm = undefined!
-
-    return
-  }
 
   if (Engine.isHMD || Engine.csm) return
 
   const csm = new CSM({
     camera: Engine.camera as PerspectiveCamera,
     parent: Engine.scene,
-    lights: directionalLights
+    lights: Engine.directionalLights
   })
 
   csm.fade = true
   Engine.csm = csm
+}
+
+export const destroyCSM = () => {
+  if (!Engine.csm) return
+
+  Engine.csm.remove()
+  Engine.csm.dispose()
+  Engine.csm = undefined!
 }
 
 export const handleRendererSettings = (args: RenderSettingsProps, reset?: boolean): void => {

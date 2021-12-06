@@ -1,6 +1,6 @@
 import '@feathersjs/transport-commons'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import config from '@xrengine/server-core/src/appconfig'
 import { Application } from '@xrengine/server-core/declarations'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
@@ -34,11 +34,13 @@ const loadScene = async (app: Application, scene: string) => {
     }
   }, 1000)
 
-  console.log('Loading scene...')
+  const onEntityLoaded = (left) => {
+    entitiesLeft = left.entitiesLeft
+  }
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
 
-  await WorldScene.load(sceneData, (left) => {
-    entitiesLeft = left
-  })
+  await loadSceneFromJSON(sceneData)
+  EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
 
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
@@ -238,7 +240,7 @@ export default (app: Application): void => {
                 await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId, agonesSDK)
               }
 
-              if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
+              if (sceneId != null && !Engine.sceneLoaded && !Engine.isLoading) {
                 await loadScene(app, sceneId)
               }
             } else {

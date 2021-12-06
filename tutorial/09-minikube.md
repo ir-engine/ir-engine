@@ -82,9 +82,9 @@ to edit it.
 
 ## Add Helm repos
 You'll need to add a few Helm repos. Run the following:
-`helm repo add https://agones.dev/chart/stable agones`
-`helm repo add https://charts.bitnami.com/bitnami redis`
-`helm repo add https://helm.xrengine.io xrengine`
+`helm repo add agones https://agones.dev/chart/stable`
+`helm repo add redis https://charts.bitnami.com/bitnami`
+`helm repo add xrengine https://helm.xrengine.io`
 
 This will add the Helm charts for Agones, redis, and XREngine, respectively.
 

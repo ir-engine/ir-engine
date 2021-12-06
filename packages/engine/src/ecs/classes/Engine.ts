@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { Object3D, PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
+import { DirectionalLight, Object3D, PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Entity } from './Entity'
 import { InputValue } from '../../input/interfaces/InputValue'
@@ -58,12 +58,16 @@ export class Engine {
   static xrManager = null! as any
   static xrSession: XRSession = null!
   static csm: CSM = null!
+  static isCSMEnabled = false
+  static directionalLights: DirectionalLight[] = []
   /**
    * Reference to the three.js scene object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static scene: Scene = null!
   static sceneLoaded = false
+  static isLoading = false
+  static sceneLoadPromises: Promise<void>[] = []
 
   /**
    * Map of object lists by layer

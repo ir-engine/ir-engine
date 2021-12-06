@@ -46,6 +46,11 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
     const enableRenderer = !/SwiftShader/.test(renderer)
     canvas.remove()
+    if (!enableRenderer)
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
+        message: 'Your brower does not support webgl,or it disable webgl,Please enable webgl'
+      })
     EngineEvents.instance.dispatchEvent({
       type: EngineEvents.EVENTS.ENABLE_SCENE,
       renderer: enableRenderer,
@@ -64,14 +69,12 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     addClientInputListeners(canvas)
   }
 
-  await FontManager.instance.getDefaultFont()
-
   globalThis.botHooks = BotHookFunctions
   globalThis.Engine = Engine
   globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
 
-  await registerClientSystems(options, canvas)
+  await Promise.all([FontManager.instance.getDefaultFont(), registerClientSystems(options, canvas)])
 }
 
 const configureEditor = async (options: Required<InitializeOptions>) => {
