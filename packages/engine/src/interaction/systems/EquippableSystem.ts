@@ -41,7 +41,6 @@ function equippableActionReceptor(action) {
       const equipperComponent = getComponent(equipper, EquipperComponent)
       if (!equipperComponent) return
 
-      console.log(equipperComponent)
       removeComponent(equipper, EquipperComponent)
     }
   })
@@ -61,10 +60,8 @@ export default async function EquippableSystem(world: World): Promise<System> {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
       const collider = getComponent(equippedEntity, ColliderComponent)
       if (collider) {
-        console.log('Change type to kinematic')
         let phsyxRigidbody = collider.body as PhysX.PxRigidBody
-        ;(phsyxRigidbody as any)._type = BodyType.KINEMATIC
-        phsyxRigidbody.setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, true)
+        useWorld().physics.changeRigidbodyType(phsyxRigidbody, BodyType.KINEMATIC)
       }
     }
 
@@ -99,9 +96,7 @@ export default async function EquippableSystem(world: World): Promise<System> {
       const collider = getComponent(equippedEntity, ColliderComponent)
       if (collider) {
         let phsyxRigidbody = collider.body as PhysX.PxRigidBody
-        ;(phsyxRigidbody as any)._type = BodyType.KINEMATIC
-        phsyxRigidbody.setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, false)
-        console.log('Change type to dynamic')
+        useWorld().physics.changeRigidbodyType(phsyxRigidbody, BodyType.DYNAMIC)
         teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
       }
 

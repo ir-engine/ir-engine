@@ -76,16 +76,9 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   // type is required
   if (!shapeOptions.type) return undefined!
 
-  // Get accurate scale relative to all parents
   let scale = mesh.scale ?? new Vector3(1, 1, 1)
-  let currentChild = mesh as any
-  while (currentChild && currentChild.uuid !== Engine.scene.uuid) {
-    let parentScale = currentChild.parent?.scale ?? new Vector3(1, 1, 1)
-    scale.multiply(parentScale)
-    currentChild = currentChild.parent
-  }
+  mesh.getWorldScale(scale)
 
-  console.log('shape scale: ', scale)
   const world = useWorld()
 
   if (shapeOptions.type === 'trimesh' || shapeOptions.type === 'convex') {
@@ -234,7 +227,6 @@ export const createCollider = (entity: Entity, mesh: Mesh) => {
 
 export const createColliderForObject3D = (entity: Entity, data, disableGravity: boolean) => {
   const object3d = getComponent(entity, Object3DComponent)
-  console.log('creating collider for object 3d: ', object3d)
   if (object3d) {
     const shapes = getAllShapesFromObject3D(entity, object3d.value as any, data)
     const body = createBody(entity, data, shapes)

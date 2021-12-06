@@ -78,7 +78,6 @@ export function incomingNetworkReceptor(action) {
     })
 
     .when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
-      console.log('netowrk action received in equip receptor', a)
       let entity = world.getNetworkObject(a.networkId)
       if (entity) {
         if (a.userId === Engine.userId) {
