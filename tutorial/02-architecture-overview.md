@@ -37,9 +37,9 @@ The XREditor sits on top of the engine, as a heavily modified version of [Mozill
 ## ops
 ## projects
 ## server
-  Communication
-  Social Multiplayer
-  Administration
+ - Communication
+ - Social Multiplayer
+ - Administration
 ## server-core
 ## social
 
