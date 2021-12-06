@@ -2,42 +2,11 @@ import assert from 'assert'
 import { createTicket, deleteTicket, getTicket, getTicketsAssignment } from '../src/functions'
 import { OpenMatchTicket } from '../src/interfaces'
 
-// const testGameMode = 'mode.battleroyale'
 const testGameMode = 'tournament'
 
 // this tests use real open match services
-describe('open-match + MSA frontend service', () => {
-  it('creates ticket', async () => {
-    const ticket = await createTicket(testGameMode)
-    assert(ticket.id)
-  })
-
-  it('gets ticket info after creation', async () => {
-    const result = await createTicket(testGameMode, { tier: 'bronze' })
-    assert(result.id)
-
-    const ticket = await getTicket(result.id)
-    console.log('ticket', ticket)
-    assert(ticket?.search_fields)
-    assert(ticket.search_fields.string_args)
-    assert(ticket.search_fields.string_args['attributes.tier'] === 'bronze')
-  })
-
-  it('creates ticket with attributes', async () => {
-    const ticket = await createTicket(testGameMode, { tier: 'bronze' })
-    assert(ticket.id)
-  })
-
-
-  // it('deletes ticket', async () => {
-  //   const result = await createTicket(testGameMode)
-  //   assert(result.id, 'Ticket creation is failed')
-  //   await deleteTicket(result.id)
-  //
-  //   const ticket = await getTicket(result.id)
-  //   assert(!ticket?.id)
-  // })
-  //
+describe.skip('open-match + MSA frontend service', () => {
+  // TODO: unfinished
   it('sets assignment', async function () {
     // @ts-ignore
     this.timeout(6000)
