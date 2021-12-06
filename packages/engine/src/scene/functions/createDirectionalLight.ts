@@ -6,9 +6,9 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { ScenePropertyType, SceneDataComponent } from '../functions/SceneLoading'
+import { SceneDataComponent } from '../functions/SceneLoading'
 
-export const createDirectionalLight = (entity: Entity, component: SceneDataComponent, _: ScenePropertyType) => {
+export const createDirectionalLight = (entity: Entity, component: SceneDataComponent) => {
   if (!isClient || !component) return
 
   const light = new DirectionalLight()

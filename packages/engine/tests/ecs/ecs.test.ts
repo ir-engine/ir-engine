@@ -66,8 +66,8 @@ describe.skip('ECS', () => {
   it('should add systems', async () => {
     registerSystem(SystemUpdateType.UPDATE, MockSystemModulePromise())
     const world = useWorld()
-    await world.initSystems()
-		assert.strictEqual(world.freeSystems.length, 1)
+    await world.initSystems(world._pipeline)
+		assert.strictEqual(world.pipelines[SystemUpdateType.UPDATE].length, 1)
   })
 
   it('should add entity', async () => {

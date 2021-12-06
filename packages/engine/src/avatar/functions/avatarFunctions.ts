@@ -117,13 +117,13 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
 
   // animation will be applied to this skeleton instead of avatar
   const sourceSkeletonRoot: Group = SkeletonUtils.clone(getDefaultSkeleton().parent)
+  rootBone?.parent!.add(sourceSkeletonRoot)
   addRig(entity, sourceSkeletonRoot)
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
-
   const retargetedBones: string[] = []
 
   sourceSkeletonRoot.traverse((child) => {
-    if (child.name && child.name.length) retargetedBones.push(child.name)
+    if (child.name) retargetedBones.push(child.name)
   })
 
   retargetedBones.forEach((r) => {

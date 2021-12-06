@@ -6,9 +6,9 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
-import { ScenePropertyType, SceneDataComponent } from '../functions/SceneLoading'
+import { SceneDataComponent } from '../functions/SceneLoading'
 
-export const createScenePreviewCamera = (entity: Entity, component: SceneDataComponent, _: ScenePropertyType) => {
+export const createScenePreviewCamera = (entity: Entity, component: SceneDataComponent) => {
   if (!isClient || !component) return
 
   addComponent(entity, ScenePreviewCameraTagComponent, {})

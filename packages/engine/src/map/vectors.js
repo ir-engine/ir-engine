@@ -3,6 +3,8 @@ import Protobuf from 'pbf'
 import buffer from 'buffer'
 import { buffer as tb } from '@turf/turf'
 
+// TODO reorganize
+
 function turf_buffer(geojson, radius, opts) {
   return tb(geojson, radius, opts)
 }
