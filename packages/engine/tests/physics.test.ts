@@ -30,7 +30,6 @@ describe('Physics', () => {
   beforeEach(async () => {
     Engine.currentWorld = createWorld()
     Engine.defaultWorld = Engine.currentWorld
-    await loadPhysX()
     await Engine.currentWorld.physics.createScene({ verbose: true })
   })
 

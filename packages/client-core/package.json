@@ -53,7 +53,7 @@
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
     "material-ui-confirm": "3.0.2",
-    "mediasoup-client": "3.6.46",
+    "mediasoup-client": "3.6.47",
     "moment": "2.29.1",
     "nipplejs": "0.9.0",
     "react": "17.0.2",

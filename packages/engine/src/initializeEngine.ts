@@ -5,13 +5,12 @@ import { AudioListener } from './audio/StereoAudioListener'
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
-import { SpawnPoints } from './avatar/AvatarSpawnSystem'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
 import { reset } from './ecs/functions/EngineFunctions'
-import { registerInjectedSystems, registerSystem, registerSystemWithArgs } from './ecs/functions/SystemFunctions'
+import { registerSystem, registerSystemWithArgs } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
@@ -47,6 +46,11 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
     const enableRenderer = !/SwiftShader/.test(renderer)
     canvas.remove()
+    if (!enableRenderer)
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
+        message: 'Your brower does not support webgl,or it disable webgl,Please enable webgl'
+      })
     EngineEvents.instance.dispatchEvent({
       type: EngineEvents.EVENTS.ENABLE_SCENE,
       renderer: enableRenderer,
@@ -65,14 +69,12 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     addClientInputListeners(canvas)
   }
 
-  await FontManager.instance.getDefaultFont()
-
   globalThis.botHooks = BotHookFunctions
   globalThis.Engine = Engine
   globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
 
-  await registerClientSystems(options, canvas)
+  await Promise.all([FontManager.instance.getDefaultFont(), registerClientSystems(options, canvas)])
 }
 
 const configureEditor = async (options: Required<InitializeOptions>) => {
@@ -121,11 +123,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   // Avatar IKRig
   registerSystem(SystemUpdateType.UPDATE, import('./ikrig/systems/SkeletonRigSystem'))
 
-  registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
-
-  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
-    tickRate: 60
-  })
+  // UPDATE injection point
 
   /**
    *
@@ -136,7 +134,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   // Network (Incoming)
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/IncomingNetworkSystem'))
 
-  registerInjectedSystems(SystemUpdateType.FIXED_EARLY, options.systems)
+  // FIXED_EARLY injection point
 
   // Bot
   registerSystem(SystemUpdateType.FIXED, import('./bot/systems/BotHookSystem'))
@@ -153,7 +151,7 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarControllerSystem'))
 
-  registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
+  // FIXED injection point
 
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED_LATE, import('./interaction/systems/EquippableSystem'))
@@ -165,16 +163,20 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
     simulationEnabled: options.physics.simulationEnabled
   })
 
-  registerInjectedSystems(SystemUpdateType.FIXED_LATE, options.systems)
-
   // Network (Outgoing)
   registerSystem(SystemUpdateType.FIXED_LATE, import('./networking/systems/OutgoingNetworkSystem'))
+
+  // FIXED_LATE injection point
 
   /**
    *
    *  End FIXED Systems
    *
    */
+
+  registerSystemWithArgs(SystemUpdateType.PRE_RENDER, import('./ecs/functions/FixedPipelineSystem'), {
+    tickRate: 60
+  })
 
   // Camera & UI systems
   registerSystem(SystemUpdateType.PRE_RENDER, import('./networking/systems/MediaStreamSystem'))
@@ -198,20 +200,18 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   registerSystem(SystemUpdateType.PRE_RENDER, import('./debug/systems/DebugHelpersSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./renderer/HighlightSystem'))
 
-  registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
+  // PRE_RENDER injection point
 
-  registerSystemWithArgs(SystemUpdateType.PRE_RENDER, import('./renderer/WebGLRendererSystem'), {
+  registerSystemWithArgs(SystemUpdateType.POST_RENDER, import('./renderer/WebGLRendererSystem'), {
     canvas,
     enabled: !options.renderer.disabled
   })
 
-  registerInjectedSystems(SystemUpdateType.POST_RENDER, options.systems)
+  // POST_RENDER injection point
 }
 
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), { tickRate: 60 })
-
-  registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
 
   // Scene Systems
   // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
@@ -225,22 +225,16 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
 }
 
 const registerServerSystems = async (options: Required<InitializeOptions>) => {
-  registerInjectedSystems(SystemUpdateType.UPDATE, options.systems)
-
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
     tickRate: 60
   })
   // Network Incoming Systems
   registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/IncomingNetworkSystem'))
 
-  registerInjectedSystems(SystemUpdateType.FIXED_EARLY, options.systems)
-
   // Input Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./interaction/systems/EquippableSystem'))
-
-  registerInjectedSystems(SystemUpdateType.FIXED, options.systems)
 
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
@@ -250,13 +244,8 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
     simulationEnabled: options.physics.simulationEnabled
   })
 
-  registerInjectedSystems(SystemUpdateType.FIXED_LATE, options.systems)
-
   // Network Outgoing Systems
   registerSystem(SystemUpdateType.FIXED_LATE, import('./networking/systems/OutgoingNetworkSystem'))
-
-  registerInjectedSystems(SystemUpdateType.PRE_RENDER, options.systems)
-  registerInjectedSystems(SystemUpdateType.POST_RENDER, options.systems)
 }
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
@@ -266,7 +255,6 @@ const registerMediaServerSystems = async (options: Required<InitializeOptions>) 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
-  Engine.currentWorld = sceneWorld
 
   Engine.publicPath = options.publicPath
 
@@ -299,7 +287,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 
   await sceneWorld.physics.createScene()
 
-  await sceneWorld.initSystems()
+  await sceneWorld.initSystems(sceneWorld._pipeline)
 
   const executeWorlds = (delta, elapsedTime) => {
     for (const world of Engine.worlds) {
