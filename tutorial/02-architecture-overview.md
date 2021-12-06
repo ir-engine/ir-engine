@@ -11,22 +11,36 @@ The XREditor sits on top of the engine, as a heavily modified version of [Mozill
 ## Docker/Kubernetes Instance Scaling
 -
 
-## Client
-- 
-
 
 # Packages
 ## analytics
 ## client
 ## client-core
+ - Core 2D and 3D UX tools
+ - Input UX
 ## common
 ## editor
+ - Projects UI
+ - Scene Editor
 ## engine
+ - Render / Post Processing
+ - Physics
+ - Spatial Audio
+ - Asset System
+ - Behavior Systems
+ - Avatars
+ - Computer Vision (CV)
+ - Immersive XR (AR/VR)
+ - XR3 Capture
 ## gameserver
 ## matchmaking
 ## ops
 ## projects
 ## server
+  Communication
+  Social Multiplayer
+  Administration
 ## server-core
+## social
 
 ![](./images/02-repo-hierarchy.png)
