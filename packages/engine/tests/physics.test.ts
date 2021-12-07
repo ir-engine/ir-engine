@@ -29,13 +29,13 @@ describe('Physics', () => {
 
   beforeEach(async () => {
     Engine.currentWorld = createWorld()
-    Engine.defaultWorld = Engine.currentWorld
+    Engine.currentWorld = Engine.currentWorld
     await Engine.currentWorld.physics.createScene({ verbose: true })
   })
 
   afterEach(() => {
     Engine.currentWorld = null!
-    Engine.defaultWorld = null!
+    Engine.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 

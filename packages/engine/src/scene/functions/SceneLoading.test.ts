@@ -34,7 +34,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
       const testData = MathUtils.generateUUID()
@@ -58,7 +58,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
       const randomVector3 = new Vector3().random()
@@ -92,7 +92,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -117,7 +117,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -152,7 +152,7 @@ describe('SceneLoading.test', () => {
       it('with CSM', () => {
         const world = createWorld()
         Engine.currentWorld = world
-        Engine.defaultWorld = world
+        Engine.currentWorld = world
         Engine.isCSMEnabled = true
         Engine.directionalLights = []
 
@@ -195,7 +195,7 @@ describe('SceneLoading.test', () => {
       it('without CSM', () => {
         const world = createWorld()
         Engine.currentWorld = world
-        Engine.defaultWorld = world
+        Engine.currentWorld = world
         Engine.isCSMEnabled = false
 
         const entity = createEntity()
@@ -237,7 +237,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -266,7 +266,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -295,7 +295,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -324,7 +324,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -365,7 +365,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -415,7 +415,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -456,7 +456,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
       Engine.scene = new Scene()
 
       const entity = createEntity()
@@ -498,7 +498,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -547,7 +547,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
       Engine.isCSMEnabled = false
 
       const entity = createEntity()
@@ -574,7 +574,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -597,7 +597,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -628,7 +628,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
       await Engine.currentWorld.physics.createScene({ verbose: true })
 
       const entity = createEntity()
@@ -670,7 +670,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
 
       const entity = createEntity()
 
@@ -711,7 +711,7 @@ describe('SceneLoading.test', () => {
 
       const world = createWorld()
       Engine.currentWorld = world
-      Engine.defaultWorld = world
+      Engine.currentWorld = world
       await Engine.currentWorld.physics.createScene({ verbose: true })
 
       const entity = createEntity()
@@ -755,7 +755,7 @@ describe('SceneLoading.test', () => {
       assert.equal(portalComponent.location, 'test')
       assert.equal(portalComponent.linkedPortalId, linkedPortalId)
       assert.equal(portalComponent.displayText, 'Test')
-      assert(Engine.defaultWorld.portalEntities.includes(entity))
+      assert(Engine.currentWorld.portalQuery().includes(entity))
 
       // clean up physx
       delete (globalThis as any).PhysX
