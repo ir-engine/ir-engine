@@ -1,10 +1,5 @@
 import { Engine } from '../classes/Engine'
 
 export function useWorld() {
-  let currentWorld = Engine.currentWorld
-  if (!currentWorld) {
-    // console.trace('Warning: Assuming default world. (It is advisable to only call ECS functions inside a system)')
-    currentWorld = Engine.currentWorld
-  }
-  return currentWorld!
+  return Engine.currentWorld!
 }
