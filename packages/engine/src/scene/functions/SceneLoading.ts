@@ -361,7 +361,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
       if (isClient) {
         matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
           if (spawnAction.userId === Engine.userId) {
-            setCameraProperties(Engine.defaultWorld.localClientEntity, component.data)
+            setCameraProperties(useWorld().localClientEntity, component.data)
             return true
           }
           return false

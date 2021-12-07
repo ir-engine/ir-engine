@@ -256,6 +256,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
 
+  Engine.currentWorld = sceneWorld
   Engine.publicPath = options.publicPath
 
   // Browser state set
@@ -287,14 +288,12 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 
   await sceneWorld.physics.createScene()
 
-  await sceneWorld.initSystems(sceneWorld._pipeline)
+  await sceneWorld.initSystems()
 
   const executeWorlds = (delta, elapsedTime) => {
     for (const world of Engine.worlds) {
-      Engine.currentWorld = world
       world.execute(delta, elapsedTime)
     }
-    Engine.currentWorld = null
   }
 
   Engine.engineTimer = Timer(executeWorlds)

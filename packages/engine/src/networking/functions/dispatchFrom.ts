@@ -14,7 +14,7 @@ type AllowedUser<A> = A extends { __ALLOW_DISPATCH_FROM_ANY: true } ? UserId : H
  */
 export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId: U, actionCb: () => A) => {
   let action!: A
-  const world = Engine.defaultWorld
+  const world = Engine.currentWorld
 
   const options = {
     /**

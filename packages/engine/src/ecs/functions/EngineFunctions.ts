@@ -26,7 +26,7 @@ export async function reset(): Promise<void> {
 
   // clear all entities components
   // await new Promise<void>((resolve) => {
-  //   Engine.defaultWorld.entities.forEach((entity) => {
+  //   Engine.currentWorld.entities.forEach((entity) => {
   //     removeAllComponents(entity)
   //   })
   //   setTimeout(() => {
@@ -44,12 +44,10 @@ export async function reset(): Promise<void> {
   //   }, 500)
   // })
 
-  // if (Engine.defaultWorld.entities.length) {
-  //   console.log('Engine.defaultWorld.entities.length', Engine.defaultWorld.entities.length)
-  //   throw new Error('Engine.defaultWorld.entities cleanup not complete')
+  // if (Engine.currentWorld.entities.length) {
+  //   console.log('Engine.currentWorld.entities.length', Engine.currentWorld.entities.length)
+  //   throw new Error('Engine.currentWorld.entities cleanup not complete')
   // }
-
-  Engine.defaultWorld.entities.length = 0
 
   // delete all what is left on scene
   if (Engine.scene) {
@@ -85,7 +83,7 @@ export const unloadScene = async (): Promise<void> => {
   const removedEntities = [] as Entity[]
   const sceneObjectsToRemove = [] as Object3D[]
 
-  world.entities.forEach((entity) => {
+  world.entityQuery().forEach((entity) => {
     if (!hasComponent(entity, PersistTagComponent)) {
       removeAllComponents(entity)
       entitiesToRemove.push(entity)
@@ -93,9 +91,9 @@ export const unloadScene = async (): Promise<void> => {
     }
   })
 
-  const { delta } = Engine.defaultWorld
+  const { delta } = Engine.currentWorld
 
-  Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
+  Engine.currentWorld.execute(delta, Engine.currentWorld.elapsedTime + delta)
 
   Object.entries(world.pipelines).forEach(([type, pipeline]) => {
     const systemsToRemove: any[] = []
@@ -128,7 +126,7 @@ export const unloadScene = async (): Promise<void> => {
 
   isClient && configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
 
-  Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
+  Engine.currentWorld.execute(delta, Engine.currentWorld.elapsedTime + delta)
 
   Engine.engineTimer.start()
 

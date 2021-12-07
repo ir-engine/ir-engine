@@ -35,14 +35,9 @@ export class Engine {
   public static isHMD = false
 
   /**
-   * The default world
+   * The current world
    */
-  public static defaultWorld: World = null!
-
-  /**
-   * The currently executing world
-   */
-  public static currentWorld: World | null = null
+  public static currentWorld: World = null!
 
   /**
    * All worlds that are currently instantiated
