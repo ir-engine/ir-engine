@@ -47,7 +47,7 @@
     "@xrengine/engine": "^0.4.13",
     "axios": "0.24.0",
     "classnames": "2.3.1",
-    "dompurify": "2.3.3",
+    "dompurify": "2.3.4",
     "element-resize-event": "^3.0.6",
     "esbuild-plugin-sass": "0.6.0",
     "i18next": "21.5.5",
