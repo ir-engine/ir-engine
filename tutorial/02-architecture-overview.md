@@ -16,8 +16,10 @@ The XREditor sits on top of the engine, as a heavily modified version of [Mozill
 ## analytics
 ## client
 ## client-core
- - Core 2D and 3D UX tools
- - Input UX
+ - User Profile Dialogs
+ - Client Settings Drawer
+ - Social Chat Drawers
+ - Interaction Modals
 ## common
 ## editor
  - Projects UI
