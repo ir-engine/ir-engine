@@ -46,7 +46,6 @@ const CreateGroup = (props: Props) => {
   const handleClose = () => {
     setGroupForm(initialGroupForm)
     setGroupFormMode('create')
-    // setSelectedGroup(initialGroupForm)
     setDetailsType('')
     setAnchorEl(null)
   }

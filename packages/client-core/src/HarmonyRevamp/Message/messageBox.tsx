@@ -1,11 +1,9 @@
 import React, { useState, useContext } from 'react'
-import { Delete, Edit, Forum, GroupAdd } from '@mui/icons-material'
+import { Delete, Edit } from '@mui/icons-material'
 import {
   IconButton,
   MenuList,
   MenuItem,
-  List,
-  ListItemAvatar,
   ListItemIcon,
   ListItemText,
   Popover,
@@ -14,12 +12,10 @@ import {
   Dialog,
   DialogActions,
   DialogTitle,
-  Button,
-  listItemClasses,
-  listItemIconClasses
+  Button
 } from '@mui/material'
 
-import { AttachFile, LocalPhone, PhotoCamera, Send } from '@mui/icons-material'
+import { AttachFile, LocalPhone, Send } from '@mui/icons-material'
 import { useHarmonyStyles } from '../style'
 import { styled } from '@mui/material/styles'
 import { store } from '@xrengine/client-core/src/store'

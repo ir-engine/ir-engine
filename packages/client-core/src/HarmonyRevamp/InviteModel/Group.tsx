@@ -51,7 +51,6 @@ const Group = (props: Props) => {
       targetObjectId: inviteState.targetObjectId.value,
       invitee: mappedIDProvider === 'friends' ? userToken : null
     }
-    console.log(sendData, 'KKKKKKKKKKKKKKKKK')
     InviteService.sendInvite(sendData)
     handleCloseModal()
     setUserToken('')
