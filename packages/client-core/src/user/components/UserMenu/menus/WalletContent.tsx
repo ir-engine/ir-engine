@@ -16,7 +16,8 @@ import {
   Menu,
   MenuItem,
   Select,
-  Stack
+  Stack,
+  TextField
 } from '@mui/material'
 import { useHistory } from 'react-router-dom'
 import { usePrevious } from '../../../../hooks/usePrevious'
@@ -74,23 +75,51 @@ const useStyles = makeStyles({
 })
 
 const ITEM_HEIGHT = 48
-
-const WalletContent = ({ data }: any) => {
+const amountValidation = /^\d*\.?(\d{1,2})?$/
+const WalletContent = ({
+  data,
+  user,
+  getreceiverid,
+  coinlimit,
+  sendamtsender,
+  sendamtreceiver,
+  sendamtwallet
+}: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
     url: '',
     metadata: '',
     selectedid: '',
-    userid: '',
     anchorEl: null,
     selectedtype: '',
-    inventory: []
+    inventory: [],
+    sendData: {
+      userid: '',
+      amount: '0'
+    }
   })
-  const { url, metadata, userid, selectedid, anchorEl, selectedtype, inventory } = state
+  const { url, metadata, sendData, selectedid, anchorEl, selectedtype, inventory } = state
   const prevState = usePrevious({ selectedtype })
   // const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl)
+  const handleUser = (e) => {
+    setState((prevState) => ({
+      ...prevState,
+      sendData: {
+        ...sendData,
+        userid: e.target.value
+      }
+    }))
+    getreceiverid(e.target.value)
+  }
+
+  const handleSubmit = (e) => {
+    sendamtsender(sendData.amount)
+    sendamtreceiver(sendData.userid, sendData.amount)
+    // sendamtwallet(sendData.amount)
+    console.log('sendData.amount', sendData.amount)
+  }
 
   return (
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
@@ -103,20 +132,57 @@ const WalletContent = ({ data }: any) => {
       </Stack>
       <Divider />
       {data.length !== 0 ? (
-        // <Grid container spacing={2} className={`${classes.p10} ${classes.contents}`}>
-        //     <Grid item md={4} mx={2}>
         <Stack>
           {data.map((val, index) => (
             <Stack key={index} className={classes.title}>
-              <Typography className={classes.wordsize}>User Address:{val.userAddress}</Typography>
-              <Typography className={classes.wordsize}>User Id:{val.userId}</Typography>
-              <Typography className={classes.wordsize}>User Mnemonic:{val.userMnemonic}</Typography>
+              <Typography className={classes.wordsize}>Address:{val.userAddress}</Typography>
+              <Typography className={classes.wordsize}>Id:{val.userId}</Typography>
+              <Typography className={classes.wordsize}>Private Key:{val.privateKey}</Typography>
+              <Typography className={classes.wordsize}>Mnemonic:{val.userMnemonic}</Typography>
             </Stack>
           ))}
+          <Stack direction="row" spacing={2}>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">User</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={sendData.userid}
+                label="user"
+                onChange={(e: any) => {
+                  handleUser(e)
+                }}
+              >
+                {user.map((datas, index) => (
+                  <MenuItem style={{ display: 'block', marginRight: '18px' }} key={index} value={datas.id}>
+                    {datas.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              label="Amount"
+              variant="outlined"
+              value={sendData.amount}
+              onChange={(e: any) => {
+                if (amountValidation.test(e.target.value) && parseInt(e.target.value) <= coinlimit) {
+                  setState((prevState) => ({
+                    ...prevState,
+                    sendData: {
+                      ...sendData,
+                      amount: e.target.value
+                    }
+                  }))
+                }
+              }}
+            />
+            <Button variant="outlined" onClick={handleSubmit}>
+              Send
+            </Button>
+          </Stack>
         </Stack>
       ) : (
-        //     </Grid>
-        // </Grid>
         'No Data Found'
       )}
     </Box>

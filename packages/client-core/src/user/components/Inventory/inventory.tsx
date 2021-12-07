@@ -85,7 +85,7 @@ export const InventoryPage = (): any => {
       })
       console.log(response, 'userlist')
       if (response.data && response.data.length !== 0) {
-        const activeUser = response.data.filter((val: any) => val.inviteCode !== null)
+        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== id)
         setState((prevState: any) => ({
           ...prevState,
           user: [...activeUser],

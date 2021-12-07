@@ -34,11 +34,26 @@ export default {
             }
           }
         )
-
+        /*
+        // CALL WALLET API WITH HEADER SETUP
+        var walletSendData = await axios.post(
+          'http://af2fc18b539ee488984fa4e58de37686-1454411376.us-west-1.elb.amazonaws.com/api/v1/wallet/send',
+          {
+            fromUserAddress: '0xCaef76D9683b0D5B0F89871AFd8a74D41b4363D1',
+            privateKey: '0x60ca9e30da5b0b98e20ca5eb5be904c3c16f1b5f39cc66a4d66b4db539b8bb5d',
+            toUserAddress: walletData.data.userAddress,
+            amount: 10
+          },
+          {
+            headers: {
+              Authorization: 'Bearer ' + accessToken
+            }
+          }
+        )
+        */
         // PUSH WALLET API DATA TO MODEL
         context.data = walletData.data
         context.data.userId = userId
-        console.log(12345, context.data)
         return context
       }
     ],

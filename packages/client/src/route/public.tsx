@@ -55,6 +55,9 @@ function RouterComp(props) {
             <Route key={'default-admin'} path={'/admin'} component={$admin} />
             <Route key={'default-login'} path={'/login'} component={$login} />
             <Route key={'default-auth'} path={'/auth'} component={$auth} />
+            <Route key={'default-inventory'} path={'/inventory'} component={$inventory} />
+            <Route key={'default-trading'} path={'/trading'} component={$trading} />
+            <Route key={'default-wallet'} path={'/wallet'} component={$trading} />
             {/* if no index page has been provided, indicate this as obviously as possible */}
             <Route key={'/503'} path={'/'} component={$503} exact />
             <Route key={'404'} path="*" component={$404} />
