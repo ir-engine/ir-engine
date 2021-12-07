@@ -12,12 +12,6 @@ spec:
       targetPort: {{ .Values.api.service.port }}
       protocol: TCP
       name: http
-    {{ if .Values.api.service.corsServerPort }}
-    - port: {{  .Values.api.service.corsServerPort }}
-      targetPort: {{ .Values.api.service.corsServerPort }}
-      protocol: TCP
-      name: cors-proxy
-    {{ end }}
   selector:
     {{- include "xrengine.api.selectorLabels" . | nindent 4 }}
 {{- end -}}

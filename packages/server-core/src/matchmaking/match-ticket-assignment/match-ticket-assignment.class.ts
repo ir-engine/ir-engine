@@ -36,12 +36,12 @@ export class MatchTicketAssignment implements ServiceMethods<Data> {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
 
-    let assignment
+    let assignment: OpenMatchTicketAssignment
     try {
       if (config.server.matchmakerEmulationMode) {
         assignment = await emulate_getTicketsAssignment(this.app, ticketId, params['identity-provider'].userId)
       } else {
-        assignment = getTicketsAssignment(ticketId)
+        assignment = await getTicketsAssignment(ticketId)
       }
     } catch (e) {
       // todo: handle other errors. like no connection, etc....

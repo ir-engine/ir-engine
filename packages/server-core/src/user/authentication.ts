@@ -27,5 +27,6 @@ export default (app: Application): void => {
 
   app.use('authentication', authentication)
 
+  // @ts-ignore
   app.configure(expressOauth())
 }
