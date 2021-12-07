@@ -17,6 +17,16 @@ export const sliceViewCursor = (v: ViewCursor) => {
   return packet
 }
 
+export const scrollViewCursor = (v: ViewCursor, amount: number) => {
+  v.cursor += amount
+  return v
+}
+
+export const moveViewCursor = (v: ViewCursor, where: number) => {
+  v.cursor = where
+  return v
+}
+
 /* Writers */
 
 export const writeProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {

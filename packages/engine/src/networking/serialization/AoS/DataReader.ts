@@ -5,6 +5,8 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { flatten, Vector3SoA } from '../Utils'
 import { createViewCursor, ViewCursor, readProp, readUint16, readUint32, readUint8 } from '../ViewCursor'
 
+export const checkBitflag = (changeMask: number, flag: number) => (changeMask & flag) === flag
+
 /**
  * Reads a component dynamically
  * (less efficient than statically due to inner loop)
@@ -25,7 +27,7 @@ export const readComponent = (component: any) => {
 
     for (let i = 0; i < props.length; i++) {
       // skip reading property if not in the change mask
-      if ((changeMask & i) === i) {
+      if (!checkBitflag(changeMask, 2 ** i)) {
         continue
       }
       const prop = props[i]
@@ -38,8 +40,6 @@ export const readComponent = (component: any) => {
 export const readComponentProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
   prop[entity] = readProp(v, prop)
 }
-
-const checkBitflag = (changeMask: number, flag: number) => (changeMask & flag) === flag
 
 export const readVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
