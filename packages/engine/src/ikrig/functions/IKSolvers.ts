@@ -3,6 +3,8 @@ import Pose, { PoseBoneTransform } from '../classes/Pose'
 import { Quaternion, Vector3, Matrix4 } from 'three'
 import { Axis } from '../classes/Axis'
 import { cosSSS } from './IKFunctions'
+import { IKRigComponentType } from '../components/IKRigComponent'
+import { CameraIKComponentType } from '../components/CameraIKComponent'
 
 ///////////////////////////////////////////////////////////////////
 // Multi Bone Solvers
@@ -22,6 +24,9 @@ const quat = new Quaternion()
 const tempQuat1 = new Quaternion()
 const tempQuat2 = new Quaternion()
 const tempQuat3 = new Quaternion()
+const tempVec1 = new Vector3()
+const tempVec2 = new Vector3()
+const tempVec3 = new Vector3()
 
 /**
  *
@@ -255,4 +260,41 @@ function _aim_bone2(chain: Chain, tpose: Pose, axis: Axis, p_wt: PoseBoneTransfo
   }
 
   out.premultiply(rot.setFromAxisAngle(axis.z, twist)) // Apply Twist
+}
+
+function getFwdVector(matrix: Matrix4, outVec: Vector3) {
+  const e = matrix.elements
+  outVec.set(e[8], e[9], e[10]).normalize()
+}
+
+export function applyCameraLook(rig: IKRigComponentType, solver: CameraIKComponentType) {
+  const bone = rig.pose!.skeleton.bones[solver.boneIndex]
+
+  if (!bone) {
+    return
+  }
+
+  bone.matrixWorld.decompose(tempVec1, tempQuat1, tempVec2)
+  const toLocal = tempQuat1.invert()
+
+  const boneFwd = tempVec1
+  const targetDir = tempVec2
+
+  getFwdVector(bone.matrix, boneFwd)
+
+  getFwdVector(solver.camera.matrixWorld, targetDir)
+  targetDir.multiplyScalar(-1).applyQuaternion(toLocal).normalize()
+
+  const angle = Math.acos(boneFwd.dot(targetDir))
+
+  if (solver.rotationClamp > 0 && angle > solver.rotationClamp) {
+    const deltaTarget = tempVec3.copy(targetDir).sub(boneFwd)
+    // clamp delta target to within the ratio
+    deltaTarget.multiplyScalar(solver.rotationClamp / angle)
+    // set new target
+    targetDir.copy(boneFwd).add(deltaTarget).normalize()
+  }
+
+  tempQuat1.setFromUnitVectors(boneFwd, targetDir)
+  bone.quaternion.premultiply(tempQuat1)
 }

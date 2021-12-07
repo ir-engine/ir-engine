@@ -22,7 +22,7 @@ export default async function TriggerSystem(world: World): Promise<System> {
 
       if (getComponent(triggerEntity, PortalComponent)) {
         const portalComponent = getComponent(triggerEntity, PortalComponent)
-        if (Engine.defaultWorld.isInPortal) continue
+        if (Engine.currentWorld.isInPortal) continue
         EngineEvents.instance.dispatchEvent({
           type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
           portalComponent

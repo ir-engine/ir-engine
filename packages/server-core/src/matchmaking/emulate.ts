@@ -45,11 +45,7 @@ export async function emulate_getTicket(app, ticketId, userId): Promise<OpenMatc
   }
 }
 
-export async function emulate_getTicketsAssignment(
-  app,
-  ticketId,
-  userId
-): Promise<OpenMatchTicketAssignment | OpenAPIErrorResponse> {
+export async function emulate_getTicketsAssignment(app, ticketId, userId): Promise<OpenMatchTicketAssignment> {
   // emulate response from open-match-api
   const matchUser = await waitAndGetMatchUser(app, ticketId, userId, 50)
 
@@ -63,7 +59,7 @@ export async function emulate_getTicketsAssignment(
     connection
   })
 
-  return new Promise<OpenMatchTicketAssignment | OpenAPIErrorResponse>((resolve, reject) => {
+  return new Promise<OpenMatchTicketAssignment>((resolve, reject) => {
     setTimeout(async () => {
       try {
         await app.service('match-user').get(matchUser.id)

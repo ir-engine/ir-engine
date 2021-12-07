@@ -6,6 +6,8 @@ RUN apt update
 # Create app directory
 WORKDIR /app
 
+RUN apt-get -y install python3-pip
+
 COPY package.json .
 COPY packages/analytics/package.json ./packages/analytics/
 COPY packages/client/package.json ./packages/client/

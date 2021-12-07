@@ -123,5 +123,5 @@ process.on('unhandledRejection', (error, promise) => {
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', serverConfig.hostname, port)
   )
 
-  StartCorsServer(useSSL, certOptions)
+  if (process.env.APP_ENV === 'development') StartCorsServer(useSSL, certOptions)
 })()

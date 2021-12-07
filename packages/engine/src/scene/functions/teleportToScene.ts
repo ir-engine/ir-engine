@@ -23,7 +23,7 @@ export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
   handleNewScene: () => void
 ) => {
-  Engine.defaultWorld!.isInPortal = true
+  Engine.currentWorld!.isInPortal = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
@@ -120,5 +120,5 @@ export const teleportToScene = async (
 
   clearInterval(hyperSpaceUpdateInterval)
 
-  Engine.defaultWorld!.isInPortal = false
+  Engine.currentWorld!.isInPortal = false
 }

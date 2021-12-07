@@ -20,7 +20,7 @@ import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTra
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 import AWS from 'aws-sdk'
 import * as https from 'https'
-import { DataProducer, Router, Transport, Worker } from 'mediasoup/lib/types'
+import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/types'
 import SocketIO, { Socket } from 'socket.io'
 import {
   handleWebRtcCloseConsumer,
@@ -367,7 +367,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     await Promise.all(
       (this.routers.instance as any).map(async (router) => {
-        if (router._internal.routerId !== currentRouter._internal.routerId)
+        if (router.id !== currentRouter.id)
           return currentRouter.pipeToRouter({ dataProducerId: this.outgoingDataProducer.id, router: router })
         else return Promise.resolve()
       })
