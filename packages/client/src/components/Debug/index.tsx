@@ -76,11 +76,11 @@ export const Debug = () => {
   const renderNamedEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.defaultWorld.namedEntities.entries()].map(([key, value]) => {
+        [...Engine.currentWorld.namedEntities.entries()].map(([key, value]) => {
           return [
             key,
             Object.fromEntries(
-              getEntityComponents(Engine.defaultWorld, value).reduce((components, C: MappedComponent<any, any>) => {
+              getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
                 if (C !== NameComponent) components.push([C._name, getComponent(value, C as any)])
                 return components
               }, [] as [string, any][])
@@ -129,7 +129,7 @@ export const Debug = () => {
             </div>
             <div>
               <h1>Network Clients</h1>
-              <JSONTree data={Object.fromEntries(Engine.defaultWorld.clients.entries())} />
+              <JSONTree data={Object.fromEntries(Engine.currentWorld.clients.entries())} />
             </div>
           </div>
         )}

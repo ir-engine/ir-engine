@@ -57,26 +57,23 @@ describe('ECS', () => {
     const world = Engine.currentWorld = createWorld()
     registerSystem(SystemUpdateType.UPDATE, MockSystemModulePromise())
     await world.initSystems()
-    console.log('Free Systems: ', world?.freeSystems)
   })
 
-  afterEach(() => {
-    Engine.currentWorld = null
-  })
+  // afterEach(() => {
+  //   // deletEngine.currentWorld
+  // })
 
 	it('should create ECS world', () => {
     const world = Engine.currentWorld
     assert(world)
-		assert.strictEqual(Engine.worlds.length, 1)
     const entities = world.entityQuery()
+    console.log(entities)
 		assert.strictEqual(entities.length, 1)
 		assert.strictEqual(entities[0], world.worldEntity)
 	})
 
   it('should add systems', async () => {
-    registerSystem(SystemUpdateType.UPDATE, MockSystemModulePromise())
     const world = useWorld()
-    await world.initSystems(world._pipeline)
 		assert.strictEqual(world.pipelines[SystemUpdateType.UPDATE].length, 1)
   })
 

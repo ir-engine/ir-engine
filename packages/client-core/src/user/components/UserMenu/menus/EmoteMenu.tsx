@@ -120,7 +120,7 @@ const EmoteMenu = (props: any): any => {
   }
 
   const runAnimation = (animationName: string, params: WeightsParameterType) => {
-    const entity = Engine.defaultWorld.localClientEntity
+    const entity = Engine.currentWorld.localClientEntity
 
     AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
 

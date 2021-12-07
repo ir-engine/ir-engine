@@ -43,7 +43,7 @@ export class World {
     Engine.worlds.push(this)
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
-    if (!Engine.defaultWorld) Engine.defaultWorld = this
+    if (!Engine.currentWorld) Engine.currentWorld = this
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
   }
 
@@ -180,7 +180,7 @@ export class World {
     for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
   }
 
-  async initSystems() {
+  async initSystems(systemModulesToLoad: SystemModuleType<any>[] = this._pipeline) {
     const loadSystem = async (s: SystemFactoryType<any>) => {
       const system = await s.systemModule.default(this, s.args)
       return {
@@ -197,7 +197,7 @@ export class World {
       } as SystemInstanceType
     }
     const systemModule = await Promise.all(
-      this._pipeline.map(async (s) => {
+      systemModulesToLoad.map(async (s) => {
         return {
           args: s.args,
           type: s.type,

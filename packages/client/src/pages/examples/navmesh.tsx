@@ -211,7 +211,7 @@ const Page = () => {
       await initializeEngine()
       registerSystem(SystemUpdateType.FIXED, Promise.resolve({ default: NavigationSystem }))
       registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: RenderSystem }))
-      await Engine.defaultWorld.initSystems()
+      await Engine.currentWorld.initSystems()
 
       // Set up rendering and basic scene for demo
       const canvas = document.createElement('canvas')
