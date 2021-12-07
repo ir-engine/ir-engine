@@ -34,27 +34,18 @@ import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/compo
 import { ArmatureType } from '../../ikrig/enums/ArmatureType'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { AvatarProps } from '../../networking/interfaces/WorldState'
 
-export const setAvatar = (entity, avatarURL) => {
-  const avatar = getComponent(entity, AvatarComponent)
-  if (!avatar) return
-  avatar.avatarURL = avatarURL
-  loadAvatarForEntity(entity)
-}
-
-export const loadAvatarForEntity = (entity: Entity) => {
-  if (!isClient) return
-  const avatarURL = getComponent(entity, AvatarComponent)?.avatarURL
-  if (!avatarURL) return
+export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
   AssetLoader.load(
     {
-      url: avatarURL,
+      url: avatarDetail.avatarURL,
       castShadow: true,
       receiveShadow: true
     },
     (gltf: any) => {
       console.log(gltf.scene)
-      setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarURL)
+      setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarDetail.avatarURL)
     }
   )
 }

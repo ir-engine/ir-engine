@@ -13,7 +13,6 @@ import { store, useDispatch } from '../../store'
 import { v1 } from 'uuid'
 import { client } from '../../feathers'
 import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src/config'
-import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -34,6 +33,8 @@ import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from
 import { AssetUploadArguments } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { userPatched } from '../functions/userPatched'
 import { loadXRAvatarForUpdatedUser } from '../functions/userAvatarFunctions'
+import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 
 type AuthStrategies = {
   jwt: Boolean
@@ -690,6 +691,13 @@ export const AuthService = {
         .patch(selfUser.id.value, { avatarId: avatarName })
         .then((_) => {
           AlertService.dispatchAlertSuccess('Avatar Uploaded Successfully.')
+          dispatchFrom(
+            Engine.userId,
+            NetworkWorldAction.avatarDetails({
+              userId: Engine.userId,
+              avatarDetail: response
+            })
+          )
           if (Network?.instance?.transport)
             (Network.instance.transport as any).sendNetworkStatUpdateMessage({
               type: MessageTypes.AvatarUpdated,
@@ -757,6 +765,17 @@ export const AuthService = {
         .then((res: any) => {
           // dispatchAlertSuccess(dispatch, 'User Avatar updated');
           dispatch(AuthAction.userAvatarIdUpdated(res))
+          const world = useWorld()
+          dispatchFrom(
+            Engine.userId,
+            NetworkWorldAction.avatarDetails({
+              userId: Engine.userId,
+              avatarDetail: {
+                avatarURL,
+                thumbnailURL
+              }
+            })
+          )
           if (Network?.instance?.transport)
             (Network.instance.transport as any).sendNetworkStatUpdateMessage({
               type: MessageTypes.AvatarUpdated,

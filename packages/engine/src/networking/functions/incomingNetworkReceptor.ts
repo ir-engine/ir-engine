@@ -8,7 +8,7 @@ import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchFrom } from './dispatchFrom'
-import { loadComponents } from '../../scene/functions/SceneLoading'
+import { loadAvatarForEntity } from '../../avatar/functions/avatarFunctions'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -18,14 +18,24 @@ export function incomingNetworkReceptor(action) {
   const world = useWorld()
 
   matches(action)
-    .when(NetworkWorldAction.createClient.matches, ({ userId, name, avatarDetail }) => {
+    .when(NetworkWorldAction.createClient.matches, ({ userId, name }) => {
       if (!isClient) return
       world.clients.set(userId, {
         userId,
         name,
-        avatarDetail,
         subscribedChatUpdates: []
       })
+    })
+
+    .when(NetworkWorldAction.avatarDetails.matchesFromAny, ({ userId, avatarDetail }) => {
+      world.clients.get(userId)!.avatarDetail = avatarDetail
+      if (isClient) {
+        const entity = world.getUserAvatarEntity(userId)
+        // if(entity)
+        loadAvatarForEntity(entity, avatarDetail)
+        // else
+        //   console.warn('avatarDetails receptor tried to set the avatar of a user that does not exist' + userId)
+      }
     })
 
     .when(NetworkWorldAction.destroyClient.matches, ({ userId }) => {

@@ -264,8 +264,7 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
     dispatchFrom(world.hostId, () =>
       NetworkWorldAction.createClient({
         userId,
-        name: client.name,
-        avatarDetail: client.avatarDetail!
+        name: client.name
       })
     ).to(userId === joinedUserId ? 'all' : joinedUserId)
   }
@@ -276,6 +275,15 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
       parameters: { ...spawnPos }
     })
   )
+
+  for (const [userId, client] of world.clients) {
+    dispatchFrom(world.hostId, () =>
+      NetworkWorldAction.avatarDetails({
+        userId,
+        avatarDetail: client.avatarDetail!
+      })
+    ).to(userId === joinedUserId ? 'all' : joinedUserId)
+  }
 
   for (const eid of world.networkObjectQuery(world)) {
     const networkObject = getComponent(eid, NetworkObjectComponent)

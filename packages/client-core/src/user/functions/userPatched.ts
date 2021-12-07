@@ -10,7 +10,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 import { accessAuthState, AuthAction } from '../services/AuthService'
-import { loadAvatarForUpdatedUser } from './userAvatarFunctions'
+// import { loadAvatarForUpdatedUser } from './userAvatarFunctions'
 
 export const userPatched = (params) => {
   const dispatch = useDispatch()
@@ -19,7 +19,7 @@ export const userPatched = (params) => {
   const user = resolveUser(params.userRelationship)
 
   console.log('User patched', user)
-  loadAvatarForUpdatedUser(user)
+  // loadAvatarForUpdatedUser(user)
   _updateUsername(user.id, user.name)
 
   const eid = getEid(user.id)

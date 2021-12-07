@@ -55,8 +55,9 @@ const mockAvatars = () => {
 
     const networkId = (1000 + i) as NetworkId
 
-    dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }) as any)
+    dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user' }) as any)
     dispatchLocal({ ...NetworkWorldAction.spawnAvatar({ userId, parameters }), networkId } as any)
+    dispatchLocal(NetworkWorldAction.avatarDetails({ userId, avatarDetail }) as any)
   }
 }
 

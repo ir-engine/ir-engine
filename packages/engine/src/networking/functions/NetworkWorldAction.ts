@@ -16,8 +16,7 @@ export class NetworkWorldAction {
   static createClient = defineActionCreator({
     type: 'network.CREATE_CLIENT',
     userId: matchesUserId,
-    name: matches.string,
-    avatarDetail: matchesAvatarProps
+    name: matches.string
   })
 
   static destroyClient = defineActionCreator({
@@ -80,6 +79,15 @@ export class NetworkWorldAction {
       type: 'network.AVATAR_ANIMATION',
       newStateName: matches.string,
       params: matchesWeightsParameters
+    },
+    { allowDispatchFromAny: true }
+  )
+
+  static avatarDetails = defineActionCreator(
+    {
+      type: 'network.AVATAR_DETAILS',
+      userId: matchesUserId,
+      avatarDetail: matchesAvatarProps
     },
     { allowDispatchFromAny: true }
   )
