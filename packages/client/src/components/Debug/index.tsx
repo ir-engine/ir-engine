@@ -11,8 +11,6 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
-  const [physicsDebug, setPhysicsDebug] = useState(false)
-  const [avatarDebug, setAvatarDebug] = useState(false)
 
   const showingStateRef = useRef(isShowing)
 
@@ -22,6 +20,7 @@ export const Debug = () => {
     window.addEventListener('keypress', (ev) => {
       if (ev.key === 'p') {
         togglePhysicsDebug()
+        toggleAvatarDebug()
       }
     })
   }
@@ -49,13 +48,11 @@ export const Debug = () => {
   const [remountCount, setRemountCount] = useState(0)
   const refresh = () => setRemountCount(remountCount + 1)
   const togglePhysicsDebug = () => {
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.PHYSICS_DEBUG, enabled: !physicsDebug })
-    setPhysicsDebug(!physicsDebug)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.PHYSICS_DEBUG })
   }
 
   const toggleAvatarDebug = () => {
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.AVATAR_DEBUG, enabled: !avatarDebug })
-    setAvatarDebug(!avatarDebug)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.AVATAR_DEBUG })
   }
 
   const reset = async () => {
@@ -67,8 +64,6 @@ export const Debug = () => {
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.AVATAR_DEBUG, enabled: false })
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.PHYSICS_DEBUG, enabled: false })
-    setAvatarDebug(false)
-    setPhysicsDebug(false)
 
     shutdownEngine()
   }

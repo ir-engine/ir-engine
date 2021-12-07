@@ -15,7 +15,7 @@ import {
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -109,10 +109,12 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   // TODO: find skinned mesh in avatar.modelContainer
   const avatarSkinnedMesh = avatar.modelContainer.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
   const rootBone = avatarSkinnedMesh.skeleton.bones.find((b) => b.parent!.type !== 'Bone')
-  addComponent(entity, IKObj, { ref: avatarSkinnedMesh })
+
   // TODO: add way to handle armature type
   const armatureType = avatarURL?.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
   addTargetRig(entity, rootBone?.parent!, null, false, armatureType)
+
+  if (hasComponent(entity, IKPoseComponent)) removeComponent(entity, IKPoseComponent)
   addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
 
   // animation will be applied to this skeleton instead of avatar
