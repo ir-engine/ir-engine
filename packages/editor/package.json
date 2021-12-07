@@ -31,9 +31,9 @@
   },
   "dependencies": {
     "@hookstate/core": "3.0.13",
-    "@mui/icons-material": "5.2.0",
-    "@mui/material": "5.2.0",
-    "@mui/styles": "5.2.0",
+    "@mui/icons-material": "5.2.1",
+    "@mui/material": "5.2.3",
+    "@mui/styles": "5.2.3",
     "@styled-icons/boxicons-regular": "10.38.0",
     "@styled-icons/boxicons-solid": "^10.38.0",
     "@styled-icons/fa-regular": "10.34.0",
