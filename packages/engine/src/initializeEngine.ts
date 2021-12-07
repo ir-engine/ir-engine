@@ -286,6 +286,10 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     await configureServer(options, true)
   }
 
+  for (const system of initOptions.systems || []) {
+    registerSystemWithArgs(system.type, system.systemModulePromise, system.args, system.sceneSystem)
+  }
+
   await sceneWorld.physics.createScene()
 
   await sceneWorld.initSystems()
@@ -326,6 +330,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     Engine.engineTimer.start()
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
+    Engine.engineTimer.start()
   }
 
   // Mark engine initialized
