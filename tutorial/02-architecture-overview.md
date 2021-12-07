@@ -15,6 +15,7 @@ The XREditor sits on top of the engine, as a heavily modified version of [Mozill
 # Packages
 ## analytics
 ## client
+ - default spatial social web UX
 ## client-core
  - User Profile Dialogs
  - Client Settings Drawer
