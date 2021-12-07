@@ -12,7 +12,7 @@ import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Vector3, Quaternion } from 'three'
@@ -100,7 +100,7 @@ export const initEngine = async (initOptions: InitializeOptions) => {
   dispatch(EngineAction.setInitialised(true))
 }
 
-export const loadLocation = async (sceneName: string, initOptions: InitializeOptions): Promise<any> => {
+export const loadLocation = async (sceneName: string): Promise<any> => {
   const [project, scene] = sceneName.split('/')
 
   // 1. Get scene data
@@ -108,22 +108,20 @@ export const loadLocation = async (sceneName: string, initOptions: InitializeOpt
 
   const packs = await getSystemsFromSceneData(project, sceneData, true)
 
-  for (const system of packs) {
-    initOptions.systems?.push(system)
-  }
-
-  // 2. Initialize Engine if not initialized
-  if (!Engine.isInitialized) {
-    await initEngine(initOptions)
-  }
+  await Engine.defaultWorld.initSystems(packs)
 
   const dispatch = useDispatch()
 
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
-  await WorldScene.load(sceneData, (count: number) => {
-    dispatch(EngineAction.loadingProgress(count))
-  })
+
+  const onEntityLoaded = ({ entitiesLeft }) => {
+    dispatch(EngineAction.loadingProgress(entitiesLeft))
+  }
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
+  await loadSceneFromJSON(sceneData)
+  EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
+
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   dispatch(EngineAction.setSceneLoaded(true))

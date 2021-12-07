@@ -74,11 +74,10 @@ describe('ECS', () => {
 	})
 
   it('should add systems', async () => {
-    const world = Engine.currentWorld
-    console.log(world?.freeSystems)
-    assert.strictEqual(world?.freeSystems[0].name, MockSystemInitialiser.name)
-    const module = await world?._pipeline[0].systemModulePromise
-		assert.strictEqual(module?.default, MockSystemInitialiser)
+    registerSystem(SystemUpdateType.UPDATE, MockSystemModulePromise())
+    const world = useWorld()
+    await world.initSystems(world._pipeline)
+		assert.strictEqual(world.pipelines[SystemUpdateType.UPDATE].length, 1)
   })
 
   it('should add entity', async () => {

@@ -7,7 +7,7 @@ import { Network } from '../../networking/classes/Network'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { WorldScene } from '../../scene/functions/SceneLoading'
+import { loadSceneFromJSON } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
@@ -55,7 +55,7 @@ export async function reset(): Promise<void> {
     Engine.scene = null!
   }
   Engine.sceneLoaded = false
-  WorldScene.isLoading = false
+  Engine.isLoading = false
 
   Engine.camera = null!
 
@@ -77,7 +77,7 @@ export async function reset(): Promise<void> {
 export const unloadScene = async (): Promise<void> => {
   Engine.engineTimer.stop()
   Engine.sceneLoaded = false
-  WorldScene.isLoading = false
+  Engine.isLoading = false
   const world = useWorld()
   const entitiesToRemove = [] as Entity[]
   const removedEntities = [] as Entity[]
@@ -94,6 +94,19 @@ export const unloadScene = async (): Promise<void> => {
   const { delta } = Engine.defaultWorld
 
   Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
+
+  Object.entries(world.pipelines).forEach(([type, pipeline]) => {
+    const systemsToRemove: any[] = []
+    pipeline.forEach((s) => {
+      if (s.sceneSystem) {
+        systemsToRemove.push(s)
+      }
+    })
+    systemsToRemove.forEach((s) => {
+      const i = pipeline.findIndex(s)
+      pipeline.splice(i, 1)
+    })
+  })
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
