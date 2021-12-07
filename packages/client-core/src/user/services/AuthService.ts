@@ -32,7 +32,6 @@ import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
 import { AssetUploadArguments } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { userPatched } from '../functions/userPatched'
-import { loadXRAvatarForUpdatedUser } from '../functions/userAvatarFunctions'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 
@@ -313,7 +312,7 @@ export const AuthService = {
         const oldId = accessAuthState().user.id.value
         walletUser.id = oldId
 
-        loadXRAvatarForUpdatedUser(walletUser)
+        // loadXRAvatarForUpdatedUser(walletUser) // TODO
         dispatch(AuthAction.loadedUserData(walletUser))
       } catch (err) {
         dispatch(AuthAction.loginUserError('Failed to login'))
