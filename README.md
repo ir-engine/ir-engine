@@ -44,5 +44,3 @@ We are always hiring talented people who want to be leaders in what is to come. 
 ### [Join our Discord](https://discord.gg/Tb4MT4TTjH)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/Tb4MT4TTjH)
 
 ### [Sponsorship](https://opencollective.com/xrfoundation) [![Open Collective](https://opencollective.com/xrfoundation/tiers/badge.svg)](https://opencollective.com/xrfoundation)
-
-https://user-images.githubusercontent.com/507127/142819121-c0c29dd3-0003-4e36-b6fb-93c5bf55c339.mp4
