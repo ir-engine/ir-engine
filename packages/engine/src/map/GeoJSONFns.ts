@@ -1,5 +1,7 @@
 import { Polygon, MultiPolygon, Position, Feature } from 'geojson'
 // stringified worker code relies on "turf" module being globally available
+//
+// TODO delete unused functions, reorganize in to files in functions/
 import * as turf from '@turf/turf'
 
 export function scalePolygon(coords: Position[], xFactor: number, zFactor: number): Position[] {

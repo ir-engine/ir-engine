@@ -9,7 +9,7 @@ import { getEntityComponents } from 'bitecs'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
-export const Debug = ({ reinit }) => {
+export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
   const [physicsDebug, setPhysicsDebug] = useState(false)
   const [avatarDebug, setAvatarDebug] = useState(false)
@@ -73,32 +73,14 @@ export const Debug = ({ reinit }) => {
     shutdownEngine()
   }
 
-  const renderComps = () => {
-    const entity = Engine.defaultWorld.entities
-    const comps = {}
-    entity.forEach((e) => {
-      // getAllC e.componentTypes.forEach((ct) => {
-      //   const name = ct.prototype.constructor.name
-      //   if (!comps[name]) comps[name] = {}
-      //   if (e.name) {
-      //     comps[name][e.name + '-' + e.id] = e
-      //   } else {
-      //     comps[name][e.id] = e
-      //   }
-      // })
-    })
-
-    return comps
-  }
-
   const renderNamedEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.defaultWorld.namedEntities.entries()].map(([key, value]) => {
+        [...Engine.currentWorld.namedEntities.entries()].map(([key, value]) => {
           return [
             key,
             Object.fromEntries(
-              getEntityComponents(Engine.defaultWorld, value).reduce((components, C: MappedComponent<any, any>) => {
+              getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
                 if (C !== NameComponent) components.push([C._name, getComponent(value, C as any)])
                 return components
               }, [] as [string, any][])
@@ -132,9 +114,6 @@ export const Debug = ({ reinit }) => {
         <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>
           Avatar Debug
         </button>
-        <button type="button" onClick={reinit}>
-          Reinit
-        </button>
         <button type="button" onClick={reset}>
           Reset
         </button>
@@ -150,12 +129,8 @@ export const Debug = ({ reinit }) => {
             </div>
             <div>
               <h1>Network Clients</h1>
-              <JSONTree data={Object.fromEntries(Engine.defaultWorld.clients.entries())} />
+              <JSONTree data={Object.fromEntries(Engine.currentWorld.clients.entries())} />
             </div>
-            {/* <div>
-              <h1>Engine Components</h1>
-              <JSONTree data={renderComps()} />
-            </div> */}
           </div>
         )}
       </div>

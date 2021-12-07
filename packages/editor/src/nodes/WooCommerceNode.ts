@@ -8,8 +8,6 @@ import OAuth from 'oauth-1.0a'
 import CryptoJS from 'crypto-js'
 import { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 
-import { corsAnywhereUrl } from '@xrengine/client-core/src/util/cors'
-
 import ModelNode from './ModelNode'
 import VideoNode from './VideoNode'
 import ImageNode from './ImageNode'
@@ -309,12 +307,12 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
       this.extendNode.initialScale = 'fit'
     } else if (media.extendType == 'video') {
       this.extendNode = new VideoNode()
-      this.extendNode.src = corsAnywhereUrl(media.url)
+      this.extendNode.src = media.url
     } else if (media.extendType == 'image') {
       this.extendNode = new ImageNode()
     }
 
-    await this.extendNode.load(corsAnywhereUrl(media.url))
+    await this.extendNode.load(media.url)
     this.add(this.extendNode.children[0].clone())
   }
 
