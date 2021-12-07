@@ -65,7 +65,7 @@
     "ts-matches": "^5.1.0-1",
     "twitch-m3u8": "^1.1.4",
     "vite": "2.6.14",
-    "volumetric": "0.2.31",
+    "volumetric": "0.3.4",
     "web-worker": "1.2.0",
     "yuka": "0.7.6"
   },
