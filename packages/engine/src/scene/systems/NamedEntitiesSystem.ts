@@ -17,7 +17,7 @@ export default async function NamedEntitiesSystem(world: World): Promise<System>
       // console.log(`Added named entity '${name}'`)
     }
     for (const entity of nameQuery.exit()) {
-      const { name } = getComponent(entity, NameComponent)
+      const { name } = getComponent(entity, NameComponent, true)
       world.namedEntities.delete(name)
     }
   }
