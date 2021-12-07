@@ -8,8 +8,7 @@ import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchFrom } from './dispatchFrom'
-import { getEntityComponents } from 'bitecs'
-import { WorldScene } from '../../scene/functions/SceneLoading'
+import { loadComponents } from '../../scene/functions/SceneLoading'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -52,6 +51,7 @@ export function incomingNetworkReceptor(action) {
         getComponent(world.localClientEntity, NetworkObjectComponent).networkId = a.networkId
         return
       }
+      const params = a.parameters
       const isOwnedByMe = a.userId === Engine.userId
       let entity
       if (isSpawningAvatar && isOwnedByMe) {
@@ -60,13 +60,11 @@ export function incomingNetworkReceptor(action) {
         let networkObject = world.getNetworkObject(a.networkId)
         if (networkObject) {
           entity = networkObject
+        } else if (params?.sceneEntityId) {
+          entity = (Engine.scene.children.find((child) => (child as any).sceneEntityId === params.sceneEntityId) as any)
+            .entity
         } else {
           entity = createEntity()
-          let params = a.parameters
-          if (params.sceneEntity) {
-            let sceneEntity = params.sceneEntity
-            WorldScene.loadComponentLate(entity, sceneEntity)
-          }
         }
       }
       if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})

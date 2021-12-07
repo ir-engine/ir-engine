@@ -92,9 +92,6 @@ export class Project extends Service {
     super(options)
     this.app = app
 
-    // copy default project if it doesn't exist
-    if (!fs.existsSync(path.resolve(projectsRootFolder, 'default-project'))) copyDefaultProject()
-
     if (isDev && !config.db.forceRefresh) {
       this._fetchDevLocalProjects()
     }
