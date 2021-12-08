@@ -1,6 +1,13 @@
 import { isClient } from '../../common/functions/isClient'
 import { Action } from '../../networking/interfaces/Action'
-import { addComponent, defineQuery, getComponent, hasComponent, MappedComponent } from '../functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  EntityRemovedComponent,
+  getComponent,
+  hasComponent,
+  MappedComponent
+} from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { SystemFactoryType, SystemModuleType } from '../functions/SystemFunctions'
 import { Entity } from './Entity'
@@ -17,6 +24,7 @@ import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { WorldStateInterface } from '../../networking/schema/networkSchema'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import EntityTree from './EntityTree'
+import { PortalComponent } from '../../scene/components/PortalComponent'
 
 type SystemInstanceType = {
   name: string
@@ -36,7 +44,7 @@ export class World {
     Engine.worlds.push(this)
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
-    if (!Engine.defaultWorld) Engine.defaultWorld = this
+    if (!Engine.currentWorld) Engine.currentWorld = this
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
   }
 
@@ -53,8 +61,15 @@ export class World {
   _pipeline = [] as SystemModuleType<any>[]
 
   physics = new Physics()
-  entities = [] as Entity[]
-  portalEntities = [] as Entity[]
+
+  #entityQuery = bitecs.defineQuery([])
+  entityQuery = () => this.#entityQuery(this) as Entity[]
+
+  #entityRemovedQuery = bitecs.defineQuery([EntityRemovedComponent])
+
+  #portalQuery = bitecs.defineQuery([PortalComponent])
+  portalQuery = () => this.#portalQuery(this) as Entity[]
+
   isInPortal = false
 
   /** Connected clients */
@@ -85,7 +100,7 @@ export class World {
   hostId = 'server' as HostUserId
 
   /**
-   * The world entity (always exists, and always has eid 0)
+   * The world entity
    */
   worldEntity: Entity
 
@@ -165,9 +180,10 @@ export class World {
     for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.execute()
+    for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
   }
 
-  async initSystems(systemModulesToLoad: SystemModuleType<any>[]) {
+  async initSystems(systemModulesToLoad: SystemModuleType<any>[] = this._pipeline) {
     const loadSystem = async (s: SystemFactoryType<any>) => {
       const system = await s.systemModule.default(this, s.args)
       return {

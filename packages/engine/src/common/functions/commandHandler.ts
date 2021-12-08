@@ -253,7 +253,7 @@ function handleMoveCommand(x: number, y: number, z: number, entity: any) {
 
 function handleMetadataCommand(params: any, entity: any) {
   if (params[0] === 'scene') {
-    const metadata = getComponent(Engine.defaultWorld.entityTree.rootNode.entity, MetaDataComponent)
+    const metadata = getComponent(Engine.currentWorld.entityTree.rootNode.entity, MetaDataComponent)
     console.log('scene_metadata|' + metadata.meta_data)
   } else {
     const position = getComponent(entity, TransformComponent).position
@@ -261,8 +261,8 @@ function handleMetadataCommand(params: any, entity: any) {
     let vector: Vector3
     let distance: number = 0
 
-    for (let i in Engine.defaultWorld.worldMetadata) {
-      vector = getMetadataPosition(Engine.defaultWorld.worldMetadata[i])
+    for (let i in Engine.currentWorld.worldMetadata) {
+      vector = getMetadataPosition(Engine.currentWorld.worldMetadata[i])
 
       distance = position.distanceTo(vector)
       if (distance > maxDistance) continue
@@ -278,9 +278,9 @@ function handleGoToCommand(landmark: string, entity: any) {
   let cDistance: number = 0
   let vector: Vector3
 
-  for (let i in Engine.defaultWorld.worldMetadata) {
+  for (let i in Engine.currentWorld.worldMetadata) {
     if (i === landmark) {
-      vector = getMetadataPosition(Engine.defaultWorld.worldMetadata[i])
+      vector = getMetadataPosition(Engine.currentWorld.worldMetadata[i])
       cDistance = position.distanceTo(vector)
 
       if (cDistance < distance) {
@@ -456,7 +456,7 @@ function handleListAllUsersCommand(userId) {
   const players = getRemoteUsers(userId, true)
   if (players === undefined) return
 
-  const playerNames = players.map((userId) => Engine.defaultWorld.clients.get(userId)?.name)
+  const playerNames = players.map((userId) => Engine.currentWorld.clients.get(userId)?.name)
   console.log('players|' + playerNames)
 }
 function handleGetLocalUserIdCommand(userId) {

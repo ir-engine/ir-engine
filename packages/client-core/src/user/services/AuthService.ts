@@ -842,7 +842,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       networkUser.avatarDetail = { avatarURL, thumbnailURL }
 
       //Find entityId from network objects of updated user and dispatch avatar load event.
-      const world = Engine.defaultWorld
+      const world = Engine.currentWorld
       const userEntity = world.getUserAvatarEntity(user.id)
       setAvatar(userEntity, avatarURL)
     } else {
@@ -856,7 +856,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
   if (!user || !user.id) Promise.resolve(true)
 
   return new Promise(async (resolve) => {
-    const networkUser = Engine.defaultWorld.clients.get(user.id)
+    const networkUser = Engine.currentWorld.clients.get(user.id)
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -873,7 +873,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     networkUser.avatarDetail = { avatarURL, thumbnailURL }
 
     //Find entityId from network objects of updated user and dispatch avatar load event.
-    const world = Engine.defaultWorld
+    const world = Engine.currentWorld
     const userEntity = world.getUserAvatarEntity(user.id)
     setAvatar(userEntity, avatarURL)
     resolve(true)
@@ -917,7 +917,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
           window.history.replaceState({}, '', parsed.toString())
         }
       }
-      const world = Engine.defaultWorld
+      const world = Engine.currentWorld
       if (typeof world.localClientEntity !== 'undefined') {
         if (!hasComponent(world.localClientEntity, ProximityComponent, world) && isBot(window)) {
           addComponent(

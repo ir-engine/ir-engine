@@ -1,17 +1,17 @@
 import { Group, Layers, Mesh, Quaternion, Scene, Vector3 } from 'three'
-import { addComponent, createMappedComponent, defineQuery, getComponent, hasComponent } from '../../src/ecs/functions/ComponentFunctions'
-import { createEntity } from '../../src/ecs/functions/EntityFunctions'
-import { ColliderComponent } from '../../src/physics/components/ColliderComponent'
-import { NameComponent } from '../../src/scene/components/NameComponent'
-import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
-import { parseGLTFModel } from '../../src/scene/functions/loadGLTFModel'
-import { TransformComponent } from '../../src/transform/components/TransformComponent'
-import { isTriggerShape } from "../../src/physics/classes/Physics"
+import { addComponent, createMappedComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { NameComponent } from '../components/NameComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { parseGLTFModel } from './loadGLTFModel'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { isTriggerShape } from "../../physics/classes/Physics"
 import assert from 'assert'
-import { createWorld } from "../../src/ecs/classes/World"
-import { ObjectLayers } from '../../src/scene/constants/ObjectLayers'
-import { SpawnPointComponent } from '../../src/scene/components/SpawnPointComponent'
-import { Engine } from '../../src/ecs/classes/Engine'
+import { createWorld } from "../../ecs/classes/World"
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { SpawnPointComponent } from '../components/SpawnPointComponent'
+import { Engine } from '../../ecs/classes/Engine'
 
 describe('loadGLTFModel', () => {
 

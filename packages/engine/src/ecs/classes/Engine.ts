@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { Object3D, PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
+import { DirectionalLight, Object3D, PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Entity } from './Entity'
 import { InputValue } from '../../input/interfaces/InputValue'
@@ -35,14 +35,9 @@ export class Engine {
   public static isHMD = false
 
   /**
-   * The default world
+   * The current world
    */
-  public static defaultWorld: World = null!
-
-  /**
-   * The currently executing world
-   */
-  public static currentWorld: World | null = null
+  public static currentWorld: World = null!
 
   /**
    * All worlds that are currently instantiated
@@ -59,7 +54,7 @@ export class Engine {
   static xrSession: XRSession = null!
   static csm: CSM = null!
   static isCSMEnabled = false
-  static directionalLights: any[] = []
+  static directionalLights: DirectionalLight[] = []
   /**
    * Reference to the three.js scene object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.

@@ -183,11 +183,8 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       addObject3DComponent(entity, new PointLight(), component.data)
       break
 
-    case 'collidable':
-      // console.warn("'Collidable' is not implemented");
-      break
-
-    case 'floor-plan':
+    case 'spot-light':
+      addObject3DComponent(entity, new SpotLight(), component.data)
       break
 
     case 'simple-materials':
@@ -267,10 +264,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
     case 'volumetric':
       if (isClient) createVolumetric(entity, component.data)
       else createMediaServer(entity, component.data)
-      break
-
-    case 'spot-light':
-      addObject3DComponent(entity, new SpotLight(), component.data)
       break
 
     case 'transform':
@@ -405,7 +398,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       if (isClient) {
         matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
           if (spawnAction.userId === Engine.userId) {
-            setCameraProperties(Engine.defaultWorld.localClientEntity, component.data)
+            setCameraProperties(useWorld().localClientEntity, component.data)
             return true
           }
           return false
@@ -442,10 +435,13 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
 
     /* deprecated */
     case 'mesh-collider':
+    case 'collidable':
+    case 'floor-plan':
+      console.log("[Scene Loader] WARNING: '", name, ' is deprecated')
       break
 
     default:
-      return console.warn("Couldn't load Component", name)
+      console.log("[Scene Loader] WARNING: Couldn't load component'", name, "'")
   }
 }
 

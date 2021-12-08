@@ -1,5 +1,4 @@
 import { CameraHelper, DirectionalLight, Vector2, Color } from 'three'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
@@ -9,8 +8,6 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneDataComponent } from '../functions/SceneLoading'
 
 export const createDirectionalLight = (entity: Entity, component: SceneDataComponent) => {
-  if (!isClient || !component) return
-
   const light = new DirectionalLight()
 
   light.target.position.set(0, 0, 1)

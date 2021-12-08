@@ -47,7 +47,7 @@ import { createEditorEntity } from '../functions/createEditorEntity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
@@ -121,7 +121,7 @@ export class SceneManager {
     NodeManager.instance.nodes = [Engine.scene]
 
     // getting scene data
-    WorldScene.load(projectFile)
+    loadSceneFromJSON(projectFile)
 
     Engine.camera.position.set(0, 5, 10)
     Engine.camera.lookAt(new Vector3())

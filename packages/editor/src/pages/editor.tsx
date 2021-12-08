@@ -22,28 +22,57 @@ const EditorProtectedRoutes = () => {
 
   const initializationOptions: InitializeOptions = {
     type: EngineSystemPresets.EDITOR,
-    publicPath: location.origin
+    publicPath: location.origin,
+    systems: [
+      {
+        systemModulePromise: import('../managers/SceneManager'),
+        type: SystemUpdateType.PRE_RENDER,
+        sceneSystem: true,
+        args: { enabled: true }
+      },
+      {
+        systemModulePromise: import('../systems/InputSystem'),
+        type: SystemUpdateType.PRE_RENDER,
+        sceneSystem: true,
+        args: { enabled: true }
+      },
+      {
+        systemModulePromise: import('../systems/FlyControlSystem'),
+        type: SystemUpdateType.PRE_RENDER,
+        sceneSystem: true,
+        args: { enabled: true }
+      },
+      {
+        systemModulePromise: import('../systems/EditorControlSystem'),
+        type: SystemUpdateType.PRE_RENDER,
+        sceneSystem: true,
+        args: { enabled: true }
+      },
+      {
+        systemModulePromise: import('../systems/EditorCameraSystem'),
+        type: SystemUpdateType.PRE_RENDER,
+        sceneSystem: true,
+        args: { enabled: true }
+      },
+      {
+        systemModulePromise: import('../systems/ResetInputSystem'),
+        type: SystemUpdateType.PRE_RENDER,
+        sceneSystem: true,
+        args: { enabled: true }
+      },
+      {
+        systemModulePromise: import('../systems/GizmoSystem'),
+        type: SystemUpdateType.PRE_RENDER,
+        sceneSystem: true,
+        args: { enabled: true }
+      }
+    ]
   }
 
   useEffect(() => {
     AuthService.doLoginAuto(false)
     initializeEngine(initializationOptions).then(() => {
       console.log('Setting engine inited')
-      registerSystem(SystemUpdateType.PRE_RENDER, import('../managers/SceneManager'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('../systems/InputSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('../systems/FlyControlSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('../systems/EditorControlSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('../systems/EditorCameraSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('../systems/ResetInputSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('../systems/GizmoSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('@xrengine/engine/src/scene/systems/RenderSettingSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('@xrengine/engine/src/scene/systems/SkySystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('@xrengine/engine/src/scene/systems/EnvmapSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('@xrengine/engine/src/scene/systems/FogSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('@xrengine/engine/src/scene/systems/LightSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('@xrengine/engine/src/scene/systems/GroundPlanSystem'))
-      registerSystem(SystemUpdateType.PRE_RENDER, import('@xrengine/engine/src/scene/systems/ShadowSystem'))
-
       setEngineInitialized(true)
     })
   }, [])

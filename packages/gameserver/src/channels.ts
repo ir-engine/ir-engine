@@ -416,7 +416,7 @@ export default (app: Application): void => {
             console.log('user instanceId: ' + user.instanceId)
 
             if (instanceId != null && instance != null) {
-              const activeUsers = Engine.defaultWorld.clients
+              const activeUsers = Engine.currentWorld.clients
               const activeUsersCount = activeUsers.size
               try {
                 await app.service('instance').patch(instanceId, {
@@ -429,7 +429,7 @@ export default (app: Application): void => {
               const user = await app.service('user').get(userId)
               const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
               if (
-                (Engine.defaultWorld.clients.has(userId) && config.kubernetes.enabled) ||
+                (Engine.currentWorld.clients.has(userId) && config.kubernetes.enabled) ||
                 process.env.APP_ENV === 'development'
               )
                 await app

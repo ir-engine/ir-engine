@@ -69,14 +69,12 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     addClientInputListeners(canvas)
   }
 
-  await FontManager.instance.getDefaultFont()
-
   globalThis.botHooks = BotHookFunctions
   globalThis.Engine = Engine
   globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
 
-  await registerClientSystems(options, canvas)
+  await Promise.all([FontManager.instance.getDefaultFont(), registerClientSystems(options, canvas)])
 }
 
 const configureEditor = async (options: Required<InitializeOptions>) => {
@@ -218,6 +216,24 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
 
+  if (options.systems) {
+    options.systems.forEach((system) => {
+      if (system.args) {
+        registerSystemWithArgs(system.type, system.systemModulePromise, system.args, system.sceneSystem)
+      } else {
+        registerSystem(system.type, system.systemModulePromise, system.sceneSystem)
+      }
+    })
+  }
+
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/RenderSettingSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/SkySystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/EnvmapSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/FogSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/LightSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/GroundPlanSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/ShadowSystem'))
+
   // Scene Systems
   // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
   // registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
@@ -260,6 +276,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
 
+  Engine.currentWorld = sceneWorld
   Engine.publicPath = options.publicPath
 
   // Browser state set
@@ -289,16 +306,18 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     await configureServer(options, true)
   }
 
+  for (const system of initOptions.systems || []) {
+    registerSystemWithArgs(system.type, system.systemModulePromise, system.args, system.sceneSystem)
+  }
+
   await sceneWorld.physics.createScene()
 
-  await sceneWorld.initSystems(sceneWorld._pipeline)
+  await sceneWorld.initSystems()
 
   const executeWorlds = (delta, elapsedTime) => {
     for (const world of Engine.worlds) {
-      Engine.currentWorld = world
       world.execute(delta, elapsedTime)
     }
-    Engine.currentWorld = null
   }
 
   Engine.engineTimer = Timer(executeWorlds)
@@ -332,6 +351,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
     Engine.isEditor = true
+    // Engine timer should not start here for eidtor since we load scene after selecting.
   }
 
   // Mark engine initialized
