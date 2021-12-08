@@ -1,7 +1,12 @@
 # not slim because we need github depedencies
 FROM node:16-buster
 
-RUN apt update
+RUN apt-get update
+RUN apt-get install build-essential -y
+RUN apt install -y meson
+RUN apt install -y python3-testresources
+RUN apt-get install -y python3-venv
+RUN apt-get install python3-pip -y
 # Create app directory
 WORKDIR /app
 
