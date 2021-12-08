@@ -238,7 +238,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         const actions = message as any as Required<Action>[]
         // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
         for (const a of actions) {
-          Engine.defaultWorld!.incomingActions.add(a)
+          Engine.currentWorld!.incomingActions.add(a)
         }
       })
 

@@ -2,7 +2,7 @@ import { Engine } from '../../ecs/classes/Engine'
 
 //updates the client list with the right username for the user
 export async function _updateUsername(userId, username) {
-  for (let [_, client] of Engine.defaultWorld?.clients) {
+  for (let [_, client] of Engine.currentWorld.clients) {
     if (client.userId === userId) {
       client.name = username
       return
@@ -14,7 +14,7 @@ export async function _updateUsername(userId, username) {
 export function hasSubscribedToChatSystem(userId, system: string): boolean {
   if (system === undefined || system === '' || userId === undefined) return false
 
-  for (let [_, client] of Engine.defaultWorld.clients) {
+  for (let [_, client] of Engine.currentWorld.clients) {
     if (client.userId === userId) {
       return client.subscribedChatUpdates.includes(system)
     }
@@ -26,7 +26,7 @@ export function hasSubscribedToChatSystem(userId, system: string): boolean {
 export function subscribeToChatSystem(userId, system: string) {
   if (system === undefined || system === '' || userId === undefined) return
 
-  for (let [_, client] of Engine.defaultWorld.clients) {
+  for (let [_, client] of Engine.currentWorld.clients) {
     if (client.userId === userId) {
       if (system !== 'all' && !client.subscribedChatUpdates.includes(system)) {
         client.subscribedChatUpdates.push(system)
@@ -45,7 +45,7 @@ export function subscribeToChatSystem(userId, system: string) {
 export function unsubscribeFromChatSystem(userId, system: string) {
   if (system === undefined || system === '' || userId === undefined) return
 
-  for (let [_, client] of Engine.defaultWorld.clients) {
+  for (let [_, client] of Engine.currentWorld.clients) {
     if (client.userId === userId) {
       if (system !== 'all' && client.subscribedChatUpdates.includes(system)) {
         client.subscribedChatUpdates.splice(client.subscribedChatUpdates.indexOf(system), 1)
@@ -61,7 +61,7 @@ export function unsubscribeFromChatSystem(userId, system: string) {
 export function getSubscribedChatSystems(userId): string[] {
   if (userId === undefined) return []
 
-  for (let [_, client] of Engine.defaultWorld.clients) {
+  for (let [_, client] of Engine.currentWorld.clients) {
     if (client.userId === userId) {
       return client.subscribedChatUpdates
     }

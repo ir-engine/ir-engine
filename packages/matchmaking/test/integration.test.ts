@@ -3,7 +3,7 @@ import { createTicket, deleteTicket, getTicket, getTicketsAssignment } from '../
 import { OpenMatchTicket } from '../src/interfaces'
 
 // const testGameMode = 'mode.battleroyale'
-const testGameMode = 'staked'
+const testGameMode = 'tournament'
 
 // this tests use real open match services
 describe.skip('open-match frontend service', () => {

@@ -389,7 +389,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const { message } = params
     if (message != undefined && message.text != undefined) {
       if (isPlayerLocal(message.senderId)) {
-        if (handleCommand(message.text, Engine.defaultWorld.localClientEntity, message.senderId)) return
+        if (handleCommand(message.text, Engine.currentWorld.localClientEntity, message.senderId)) return
         else {
           const system = getChatMessageSystem(message.text)
           if (system !== 'none') {

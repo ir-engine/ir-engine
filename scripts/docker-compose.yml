@@ -11,6 +11,16 @@ services:
       MYSQL_PASSWORD: password
     ports:
       - '3306:3306'
+  testdb:
+    image: mariadb:10.7
+    container_name: xrengine_test_db
+    environment:
+      MYSQL_ROOT_PASSWORD: xrengine-root-pa$$w0rd
+      MYSQL_DATABASE: xrengine
+      MYSQL_USER: server
+      MYSQL_PASSWORD: password
+    ports:
+      - '3305:3306'
   redis:
     image: redis
     container_name: xrengine_redis

@@ -10,7 +10,7 @@ describe('NetworkTestHelpers', () => {
   it('mockProgressWorldForNetworkActions', () => {
 
     afterEach(() => {
-      Engine.defaultWorld = null!
+      Engine.currentWorld = null!
       Engine.currentWorld = null!
     })
     
