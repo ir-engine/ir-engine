@@ -12,7 +12,7 @@ describe('SoA DataWriter', () => {
   it('should writeProps', () => {
     const writeView = createViewCursor()
 
-    const entities = Array(100).fill(0).map((_,i) => i as Entity)
+    const entities = Array(10).fill(0).map((_,i) => i as Entity)
 
     const propValues = [1.5, 2.5, 3.5]
 
@@ -24,9 +24,6 @@ describe('SoA DataWriter', () => {
       TransformComponent.position.x[entity] = x
       TransformComponent.position.y[entity] = y
       TransformComponent.position.z[entity] = z
-      TransformComponent.rotation.x[entity] = x
-      TransformComponent.rotation.y[entity] = y
-      TransformComponent.rotation.z[entity] = z
     })
 
     const props = [
@@ -37,9 +34,9 @@ describe('SoA DataWriter', () => {
 
     const packet = writeProps(writeView, props, entities)
 
-    const readView = createViewCursor(writeView.buffer)
+    const readView = createViewCursor(packet)
 
-    while (readView.cursor <= packet.byteLength) {
+    while (readView.cursor < packet.byteLength) {
       const pid = readUint8(readView)
       const value = propValues[pid]
       const count = readUint32(readView)
@@ -59,7 +56,7 @@ describe('SoA DataWriter', () => {
 
     const write = createDataWriter(props)
 
-    const entities = Array(100).fill(0).map((_,i) => i as Entity)
+    const entities = Array(10).fill(0).map((_,i) => i as Entity)
 
     const propValues = [1.5, 2.5, 3.5]
 
@@ -71,17 +68,13 @@ describe('SoA DataWriter', () => {
       TransformComponent.position.x[entity] = x
       TransformComponent.position.y[entity] = y
       TransformComponent.position.z[entity] = z
-      TransformComponent.rotation.x[entity] = x
-      TransformComponent.rotation.y[entity] = y
-      TransformComponent.rotation.z[entity] = z
     })
-
 
     const packet = write(entities)
 
-    const readView = createViewCursor()
+    const readView = createViewCursor(packet)
 
-    while (readView.cursor <= packet.byteLength) {
+    while (readView.cursor < readView.buffer.byteLength) {
       const pid = readUint8(readView)
       const value = propValues[pid]
       const count = readUint32(readView)

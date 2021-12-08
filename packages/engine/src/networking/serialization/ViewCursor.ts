@@ -141,3 +141,6 @@ export const readUint8 = (v: ViewCursor) => {
   v.cursor += Uint8Array.BYTES_PER_ELEMENT
   return val
 }
+
+export const readEntityId = readUint32
+export const readNetworkId = readUint32
