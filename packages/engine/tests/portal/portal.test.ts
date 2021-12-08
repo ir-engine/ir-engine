@@ -29,7 +29,7 @@ describe.skip('Portal', () => {
     const world = useWorld()
     await loadSceneFromJSON(sceneData)
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
-    assert.equal(world.entities.length, 10)
+    assert.equal(world.entityQuery().length, 10)
     // TODO: test scene actor removal directly
     assert.equal(world.physics.bodies.size, 1)
   })
@@ -40,7 +40,7 @@ describe.skip('Portal', () => {
 
     // test
     const world = useWorld()
-    assert.equal(world.entities.length, 1) // world entity
+    assert.equal(world.entityQuery().length, 1) // world entity
     assert.equal(world.physics.bodies.size, 0)
   })
 
@@ -48,7 +48,7 @@ describe.skip('Portal', () => {
     await loadSceneFromJSON(sceneData)
     const world = useWorld()
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
-    assert.equal(world.entities.length, 10)
+    assert.equal(world.entityQuery().length, 10)
     assert.equal(world.physics.bodies.size, 1)
   })
 

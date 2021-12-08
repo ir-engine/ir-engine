@@ -108,7 +108,7 @@ export const loadLocation = async (sceneName: string): Promise<any> => {
 
   const packs = await getSystemsFromSceneData(project, sceneData, true)
 
-  await Engine.defaultWorld.initSystems(packs)
+  await Engine.currentWorld.initSystems(packs)
 
   const dispatch = useDispatch()
 

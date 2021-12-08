@@ -14,5 +14,5 @@ export const initializeServerEngine = async (systems: SystemModuleType<any>[], i
   systems.forEach((s) => {
     s.sceneSystem = true
   })
-  await Engine.defaultWorld.initSystems(systems)
+  await Engine.currentWorld.initSystems(systems)
 }

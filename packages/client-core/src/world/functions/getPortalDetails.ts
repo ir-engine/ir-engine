@@ -7,7 +7,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { client } from '../../feathers'
 
 export const getPortalDetails = () => {
-  Engine.defaultWorld.portalEntities.map(async (entity: Entity): Promise<void> => {
+  Engine.currentWorld.portalQuery().map(async (entity: Entity): Promise<void> => {
     const portalComponent = getComponent(entity, PortalComponent)
     try {
       const portalDetails = await client.service('portal').get(portalComponent.linkedPortalId)
