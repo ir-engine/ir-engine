@@ -1,6 +1,6 @@
 # XREngine Avatar and Scene Asset Pipeline
 
-[image]
+![image](https://user-images.githubusercontent.com/578371/145126692-02e51aa0-45ce-4f1b-83ad-ef8360bb43c0.png)
 
 ## Our pipeline process:
  - Create scene in Blender/Unity/Maya/Houdini with Colliders
@@ -46,14 +46,16 @@ We use the same [blender exporter](//github.com/MozillaReality/hubs-blender-expo
 Use Texture Map / Atlas  as much as you can.
 Use maps at 2048^2 we allow for 1-4 2k maps for the scene - 4096^2 is usually too much for the render.
 Blender Draco compression Supported for poly/vert.
-LOD Level of Detail system.
+
+## LOD Level of Detail system
+
 LOD is handled by engine/camera system - defined Groups
 
 ### Examples
-1. https://www.dropbox.com/s/zijpipsat1azaug/TestMesh_LODGroup.blend?dl=0
-   [image]
-1. https://www.dropbox.com/s/4puro5zbqnbwvjk/TestMeshWithLODGroup.glb?dl=0
-1. Setup an empty group that is associated with the different LODs
+ - https://www.dropbox.com/s/zijpipsat1azaug/TestMesh_LODGroup.blend?dl=0
+ - ![image](https://user-images.githubusercontent.com/578371/145126904-28c67da8-e0ed-40ba-8815-df34e49f6428.png)
+ - https://www.dropbox.com/s/4puro5zbqnbwvjk/TestMeshWithLODGroup.glb?dl=0
+ - Setup an empty group that is associated with the different LODs
 
 Target sizes:
  - Ultra - 300k
@@ -68,6 +70,8 @@ Video: [how to create XREngine colliders in blender](https://youtu.be/hj8md0hBxa
 Reference the Rooftop / VR Golf
 
 Needs better Script Automation
+![image](https://user-images.githubusercontent.com/578371/145126963-2ba84e8d-dd10-4a55-a3a5-54d39765bb5d.png)
+
 
 ### Box Colliders
 
@@ -149,13 +153,16 @@ We need the code to remove all properties for a selection of objects.
 
 Interactable objects
 
-[image]
+![image](https://user-images.githubusercontent.com/578371/145127100-23b19dea-06ac-42d6-9f9a-d1ff144651c5.png)
+![image](https://user-images.githubusercontent.com/578371/145127112-861bd2ff-ecde-4f0b-bf4e-621b3dc6afbc.png)
+
 
 Tips
  - Box players into playspace with colliders
  - Bloom support - use the standard bsdf node
  - Prefered settings to create lightmaps:
-    [image]
+    ![image](https://user-images.githubusercontent.com/578371/145127137-3e022270-5e73-4d04-a317-df1520c4a90b.png)
+
 
  - Image size: up to 2048.
 
@@ -168,17 +175,19 @@ Tips
  - __Typical set up of materials in blender:__ Principled shader allows use of PBR textures (albedo, metallic, roughness and normal). Is okay to input values as parameters. Avoid using metallic and roughness maps. Keep texture usage at a minimum. Any node between the texture and the input would be ignored by the engine.
 
  - __To maximize performance:__ Bake AO, Metal and Roughness maps into single map on seperate channels where Red channel is AO, Green channel is Roughness, and Blue channel is Metal
-  [image]
+  ![image](https://user-images.githubusercontent.com/578371/145127170-54955b81-3e9a-46e3-af56-e89270468226.png)
+
 
   Quixel mixer usage is advised to achieve this type of result.
 
  - __Baking setup with only 1 UV map:__ Plug directly the image instead of principled shader, but it will be an “unlit” material without the ability to include any other maps than albedo. This is useful to get baked shadows with very low performance impact. Use baking for all materials that are not rough or emissive.
-
+![image](https://user-images.githubusercontent.com/578371/145127185-5bd3d716-9bf8-484d-b172-e6a6f1b3b3cf.png)
 
 
  - __Baking setup with only 2 UV maps (Alternative setting seen in apartment.glb):__
 MOZ_lightmap intensity needs to be set between 1 and 5 in order to achieve good results in natural light environments. We don’t recommend this type of workflow.
-[image]
+
+![image](https://user-images.githubusercontent.com/578371/145127298-3b04ab11-4bd1-4f1d-a580-0c69003a6e13.png)
 
  - combined map. Bake type: combined. Influence: direct, indirect, diffuse and ambient occlusion. Diffuse bake only with direct and indirect can be used but we will lose the ambient occlusion information.
  - Denoise nodes are use to remove artifacts
@@ -187,14 +196,16 @@ MOZ_lightmap intensity needs to be set between 1 and 5 in order to achieve good 
 
 Using the cubemap skybox modifies the influence of lightmaps and its hard to correct. With MOZ_influence = 1:
 
-[image]
+![image](https://user-images.githubusercontent.com/578371/145127326-0d787dbb-f8a4-4710-a0eb-744f1dad0420.png)
+
 NO shadows.
 
 With MOZ_influence = 4
-[image]
+![image](https://user-images.githubusercontent.com/578371/145127344-41a126f0-8091-4735-b739-c434e4701129.png)
 Overblown highlights
 
 Using cubemap bridge seems to be more balanced. Shadows are rendering properly, but the floor Is overexposed MOZ_influence = 4
+![image](https://user-images.githubusercontent.com/578371/145127381-841a7bd3-9373-4036-8ed5-a67c3f1055f8.png)
 
 
 ## Asset workflow using Substance Painter
@@ -213,29 +224,36 @@ Meshes will be created in 2 different meshes complexities. All of them should be
 High poly will be the source mesh. It doesn’t need to be UV unwrapped. It will be splitted into different materials.
 
 Example.
-[image]
-This will be used to bake the ID map in Painter. The mesh needs to be named as: [NAME]_high
+![image](https://user-images.githubusercontent.com/578371/145127394-a1ecda4c-f228-4dde-b643-abcacee26c85.png)
+This will be used to bake the ID map in Painter. The mesh needs to be named as: [NAME]\_high
 
-Low poly. Is an optimized version of the high poly one. This will be the main file that we are going to work on painter and will be finally delivered on the GLB. It needs to be properly UV unwrapped (use UVPackmaster2). Also, all materials should be erased except 1 that should be named as [NAME]. The mesh needs to be named as: [NAME]_low
-[image]
+Low poly. Is an optimized version of the high poly one. This will be the main file that we are going to work on painter and will be finally delivered on the GLB. It needs to be properly UV unwrapped (use UVPackmaster2). Also, all materials should be erased except 1 that should be named as [NAME]. The mesh needs to be named as: [NAME]\_low
+![image](https://user-images.githubusercontent.com/578371/145127432-5ad73f3a-ce35-41b8-8738-b91d94e1c307.png)
+
 Once this is done, both files will be exported as FBX. After that, _low file will be used to create a new project in painter with the following settings:
-[image]
+![image](https://user-images.githubusercontent.com/578371/145127444-4c45eda4-c4a0-40c1-b9fa-c371b178cc52.png)
+
 After this ID baking should be carried on. Load the high poly mesh FBX on the “high definition meshes” and use the following settings to create the ID. Note: is possible that the map is not 100% properly baked and it will need further retouches to iron out little mistakes.
-[image]
-Then World space normal, ambient occlusion, curvature and position can be baked using the same _low mesh as source, unless _high contains details that it is wanted to be used in the project. Use the tool at your discretion. 
+![image](https://user-images.githubusercontent.com/578371/145127503-dbc12e26-c643-42c2-b754-10a677ebbc60.png)
+Then World space normal, ambient occlusion, curvature and position can be baked using the same \_low mesh as source, unless \_high contains details that it is wanted to be used in the project. Use the tool at your discretion. 
 
 The different textures set will be gathered from the different meshes. With the color selection mask it is possible to assign different materials to each of the sets using the ID mask baked.
-[image]
+![image](https://user-images.githubusercontent.com/578371/145127545-de56f084-bdd4-4786-91b7-81d2cce454b1.png)
+
 When exporting the maps for GLTF usage, please generate the maps as following. Export them to the /glbtextures folder.
-[image]
+![image](https://user-images.githubusercontent.com/578371/145127629-6909d4c3-5bfa-468e-a02e-dc4bc2e60c78.png)
+
 Once this is done, put the_low meshes inside a new collection called [NAME]\_GLB. Assign the textures sets to the meshes following this shader configuration. 
-[image]
+![image](https://user-images.githubusercontent.com/578371/145127645-9033540f-518d-4085-a5c0-0b6c086f867d.png)
+
 Export the meshes as a new GLB file (production ready).
 
 ## Preparing assets to use GPU instancing
  - If the asset has different objects, join them all together (preferred) or parent them all to a single empty object.
  - If the asset has different materials, bake all the materials into a single material (preferred) or separate the meshes by material.
  - Use blender instance tool (duplicate using alt+D). Also known as duplicate linked.
+   ![image](https://user-images.githubusercontent.com/578371/145127703-cb7ef7a5-b5e3-475b-a4f4-57fb19c233ee.png)
+
 
 ## Other
 
@@ -269,8 +287,6 @@ TODO: ADD Avatar Pipeline / optmization for Demo
 We use the Miximo (future VRM) standard for Avatars
 
 infosia/avatar-asset-pipeline: Avatar asset pipeline is a tool to create continuous integration build pipelines for 3D avatar assets using set of common transformation logic as a component, such as "A-pose to T-pose". 
-
-
 Rokoko/rokoko-studio-live-blender: Rokoko Studio Live plugin for Blender 
 
 How to make VRM file 
@@ -284,6 +300,7 @@ Converting an avatar to VRM format · GitHub
 In the avatar folder in dropbox we will have 4 subfolders that will contain each of the files for each step.
 
 https://www.dropbox.com/sh/kfzksvu9egfehmf/AADNJkXdpr50nynaekyxKrKxa?dl=0
+![image](https://user-images.githubusercontent.com/578371/145127794-fac8c8c0-02c5-48ae-a5de-b611f9f6b5cf.png)
 
 
 ## Step 1 Prepare Avatar
@@ -292,22 +309,23 @@ In the input will be placed the input obj/fbx/glb file of the avatar with the ma
 All these files should be placed on the input folder.
 
 Name the files as ID + Name
+![image](https://user-images.githubusercontent.com/578371/145127812-6baee641-2158-4641-876a-18f60e28d3c5.png)
 
-[image]
 
 ## Step 2 Rig in Mixamo Autorigger
 
 Import the FBX to mixamo. Use autorigger.
 
-[image]
+![image](https://user-images.githubusercontent.com/578371/145127842-cb4f3ef2-88fe-4509-963c-e8b28c75521f.png)
 
 Download the FBX model as soon the autorigger has finished its work. Save the file on the Mixamo output folder.
+![image](https://user-images.githubusercontent.com/578371/145127890-6ff26522-fd8b-4e3c-9792-47abce85566f.png)
 
 ## Step 3 Save Masters to Storage
 
 Save as copy on the Blender rig optimized folder the blend file. Import the avatar from mixamo and use mixamo plugin to fix the armature. Replace the materials of the newly imported armature w/meshes from the original avatar. Delete the original model. Check functionality of the blendshapes/materials. Purge unused data and save the blend file again.
 
-[image]
+![image](https://user-images.githubusercontent.com/578371/145127943-60bd1eaf-6558-4e36-9361-494fd61b8664.png)
 
 ## Step 4 Test
 
@@ -317,7 +335,7 @@ Test animations via loading in a content pack and trying actions.
 
 Export the avatar to GLB. Save it in the 4. GLB ready for production folder. Use the following settings. Avoid using draco compression. Don’t export animations.
 
-[image]
+![image](https://user-images.githubusercontent.com/578371/145127963-45d30624-9f67-4d8a-8543-747325024ce3.png)
 
 
 
