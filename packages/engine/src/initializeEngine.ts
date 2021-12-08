@@ -256,6 +256,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
 
+  Engine.currentWorld = sceneWorld
   Engine.publicPath = options.publicPath
 
   // Browser state set
@@ -285,16 +286,18 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     await configureServer(options, true)
   }
 
+  for (const system of initOptions.systems || []) {
+    registerSystemWithArgs(system.type, system.systemModulePromise, system.args, system.sceneSystem)
+  }
+
   await sceneWorld.physics.createScene()
 
-  await sceneWorld.initSystems(sceneWorld._pipeline)
+  await sceneWorld.initSystems()
 
   const executeWorlds = (delta, elapsedTime) => {
     for (const world of Engine.worlds) {
-      Engine.currentWorld = world
       world.execute(delta, elapsedTime)
     }
-    Engine.currentWorld = null
   }
 
   Engine.engineTimer = Timer(executeWorlds)
@@ -327,6 +330,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     Engine.engineTimer.start()
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
+    Engine.engineTimer.start()
   }
 
   // Mark engine initialized

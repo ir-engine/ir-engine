@@ -28,7 +28,7 @@ export const registerSystem = (
   systemModulePromise: SystemModulePromise<any>,
   sceneSystem = false
 ) => {
-  Engine.defaultWorld._pipeline.push({ type, systemModulePromise, sceneSystem, args: undefined }) // yes undefined, V8...
+  Engine.currentWorld!._pipeline.push({ type, systemModulePromise, sceneSystem, args: undefined }) // yes undefined, V8...
 }
 
 export const registerSystemWithArgs = <A>(
@@ -37,5 +37,5 @@ export const registerSystemWithArgs = <A>(
   args: A,
   sceneSystem = false
 ) => {
-  Engine.defaultWorld._pipeline.push({ type, systemModulePromise, args, sceneSystem })
+  Engine.currentWorld!._pipeline.push({ type, systemModulePromise, args, sceneSystem })
 }
