@@ -73,7 +73,9 @@ export class Channel extends Service {
             ]
           },
           {
-            model: this.app.service('message').Model
+            model: this.app.service('message').Model,
+            limit: 20,
+            order: [['createdAt', 'DESC']]
           }
         ],
         where: {
@@ -227,9 +229,10 @@ export class Channel extends Service {
           })
         )
 
-        if (query.channelType) {
-          results.rows = results.rows.filter((row) => row.channelType === query.channelType)
-        }
+        if (query.channelType) results.rows = results.rows.filter((row) => row.channelType === query.channelType)
+        if (query.groupId) results.rows = results.rows.filter((row) => row.groupId === query.groupId)
+        if (query.instanceId) results.rows = results.rows.filter((row) => row.instanceId === query.instanceId)
+        if (query.partyId) results.rows = results.rows.filter((row) => row.partyId === query.partyId)
 
         return {
           data: results.rows,

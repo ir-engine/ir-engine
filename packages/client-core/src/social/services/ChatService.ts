@@ -43,6 +43,7 @@ const state = createState({
     fetchingInstanceChannel: false
   },
   targetObjectType: '',
+  targetObjectId: '',
   targetObject: {} as User | Group | Party | Instance,
   targetChannelId: '',
   updateMessageScroll: false,
@@ -106,7 +107,12 @@ store.receptors.push((action: ChatActionType) => {
               : channelType === 'instance'
               ? channel.instance
               : channel.party
-          s.merge({ targetChannelId: channelId, targetObjectType: channelType, targetObject: targetObject.value })
+          s.merge({
+            targetChannelId: channelId,
+            targetObjectType: channelType,
+            targetObject: targetObject.value,
+            targetObjectId: targetObject.id.value
+          })
         }
         return
       }
@@ -190,6 +196,7 @@ store.receptors.push((action: ChatActionType) => {
         const { targetObjectType, targetObject, targetChannelId } = action
         return s.merge({
           targetObjectType: targetObjectType,
+          targetObjectId: targetObject.id,
           targetObject: targetObject,
           targetChannelId: targetChannelId,
           updateMessageScroll: true,
@@ -259,8 +266,8 @@ export const ChatService = {
         await waitForClientAuthenticated()
         const chatState = accessChatState().value
         const data = {
-          targetObjectId: chatState.targetObject.id || values.targetObjectId || null,
-          targetObjectType: chatState.targetObjectType || values.targetObjectType || null,
+          targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
+          targetObjectType: chatState.targetObjectType || values.targetObjectType || 'party',
           text: values.text
         }
         if (data.targetObjectId === null || data.targetObjectType === null) {
@@ -295,7 +302,7 @@ export const ChatService = {
   },
   getChannelMessages: async (channelId: string, skip?: number, limit?: number) => {
     const dispatch = useDispatch()
-    {
+    if (channelId && channelId.length > 0) {
       try {
         const chatState = accessChatState().value
         const messageResult = await client.service('message').find({
@@ -339,20 +346,24 @@ export const ChatService = {
   updateChatTarget: async (targetObjectType: string, targetObject: any) => {
     const dispatch = useDispatch()
     {
-      const targetChannelResult = await client.service('channel').find({
-        query: {
-          findTargetId: true,
-          targetObjectType: targetObjectType,
-          targetObjectId: targetObject.id
-        }
-      })
-      dispatch(
-        ChatAction.setChatTarget(
-          targetObjectType,
-          targetObject,
-          targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
+      if (!targetObject) {
+        dispatch(ChatAction.setChatTarget(targetObjectType, targetObject, ''))
+      } else {
+        const targetChannelResult = await client.service('channel').find({
+          query: {
+            findTargetId: true,
+            targetObjectType: targetObjectType,
+            targetObjectId: targetObject.id
+          }
+        })
+        dispatch(
+          ChatAction.setChatTarget(
+            targetObjectType,
+            targetObject,
+            targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
+          )
         )
-      )
+      }
     }
   },
   clearChatTargetIfCurrent: async (targetObjectType: string, targetObject: any) => {
@@ -360,7 +371,7 @@ export const ChatService = {
     {
       const chatState = accessChatState().value
       const chatStateTargetObjectType = chatState.targetObjectType
-      const chatStateTargetObjectId = chatState.targetObject.id
+      const chatStateTargetObjectId = chatState.targetObjectId
       if (
         targetObjectType === chatStateTargetObjectType &&
         (targetObject.id === chatStateTargetObjectId ||

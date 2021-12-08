@@ -42,7 +42,7 @@ store.receptors.push((action: FriendActionType): any => {
       case 'CREATED_FRIEND':
         newValues = action
         const createdUserRelationship = newValues.userRelationship
-        s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
+        return s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
       case 'PATCHED_FRIEND':
         newValues = action
         const patchedUserRelationship = newValues.userRelationship

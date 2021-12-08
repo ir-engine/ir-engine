@@ -393,6 +393,7 @@ const LeftDrawer = (props: Props): any => {
     }
 
     return (
+      // start of the party functionality
       <div>
         <SwipeableDrawer
           className={classNames({
@@ -699,6 +700,8 @@ const LeftDrawer = (props: Props): any => {
             </div>
           )}
 
+          {/* End of the party functionality */}
+
           {groupFormOpen === false && detailsType === 'group' && (
             <div className={styles['details-container']}>
               <div className={styles.header}>
@@ -822,6 +825,7 @@ const LeftDrawer = (props: Props): any => {
                     selectedGroup.groupUsers &&
                     selectedGroup.groupUsers.length > 0 &&
                     selectedGroup.groupUsers
+                      .map((groupUser) => groupUser)
                       .sort((a, b) => a.name - b.name)
                       .map((groupUser) => {
                         return (

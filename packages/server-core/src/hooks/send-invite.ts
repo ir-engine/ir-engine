@@ -60,7 +60,7 @@ async function generateSMS(
   let groupName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   const appPath = path.dirname(requireMainFilename())
-  const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
+  const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'invite')
   if (inviteType === 'group') {
     const group = await app.service('group').get(targetObjectId)
     groupName = group.name
@@ -110,7 +110,14 @@ export default () => {
         if (inviteType === 'friend') {
           const existingRelationshipStatus = await app.service('user-relationship').find({
             query: {
-              userRelationshipType: result.inviteType,
+              $or: [
+                {
+                  userRelationshipType: 'friend'
+                },
+                {
+                  userRelationshipType: 'requested'
+                }
+              ],
               userId: result.userId,
               relatedUserId: result.inviteeId
             }
@@ -118,7 +125,7 @@ export default () => {
           if (existingRelationshipStatus.total === 0) {
             await app.service('user-relationship').create(
               {
-                userRelationshipType: result.inviteType,
+                userRelationshipType: 'requested',
                 userId: result.userId,
                 relatedUserId: result.inviteeId
               },

@@ -1,0 +1,15 @@
+{
+  "dependencies": [
+    "@iconify/react",
+    "@material-ui/core",
+    "@material-ui/core/styles",
+    "@mui/icons-material/ContentCopy",
+    "axios",
+    "react-copy-to-clipboard",
+    "react-ga4",
+    "semantic-ui-react",
+    "styled-components",
+    "uuid",
+    "volumetric/web/decoder/Player"
+  ]
+}

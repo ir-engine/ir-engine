@@ -918,7 +918,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
         }
       }
       const world = Engine.currentWorld
-      if (typeof world.localClientEntity !== 'undefined') {
+      if (typeof world !== 'undefined' && world && typeof world.localClientEntity !== 'undefined') {
         if (!hasComponent(world.localClientEntity, ProximityComponent, world) && isBot(window)) {
           addComponent(
             world.localClientEntity,
