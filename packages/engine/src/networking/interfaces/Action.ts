@@ -2,6 +2,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Vector3, Quaternion } from 'three'
 import matches, { Validator } from 'ts-matches'
+import { Engine } from '../../ecs/classes/Engine'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export type Action = {
@@ -183,10 +184,16 @@ export const matchesActionFromUser = (userId: UserId) => {
   return matches.shape({ $from: matches.literal(userId) })
 }
 
+/**
+ * match when we are the server and we are supposed to receive it, or when it is dispatched locally
+ */
+
 export const matchesActionFromTrusted = matches.guard((v): v is { $from: UserId } => {
   if (typeof v !== 'object') return false
   if (v && '$from' in v) {
-    return v['$from'] === useWorld().hostId || v['$to'] === 'local'
+    return (
+      (v['$from'] === useWorld().hostId && (v['$to'] === 'all' || v['$to'] === Engine.userId)) || v['$to'] === 'local'
+    )
   }
   return false
 })

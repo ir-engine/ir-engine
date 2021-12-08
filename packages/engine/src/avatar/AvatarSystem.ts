@@ -27,11 +27,25 @@ import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components
 import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
 import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
+import { isClient } from '../common/functions/isClient'
+import { loadAvatarForEntity } from './functions/avatarFunctions'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
 
   matches(action)
+    .when(NetworkWorldAction.avatarDetails.matchesFromAny, ({ userId, avatarDetail }) => {
+      const client = world.clients.get(userId)!
+      if (client.avatarDetail?.avatarURL === avatarDetail.avatarURL) return
+      if (isClient) {
+        const entity = world.getUserAvatarEntity(userId)
+        // if(entity)
+        loadAvatarForEntity(entity, avatarDetail)
+        // else
+        //   console.warn('avatarDetails receptor tried to set the avatar of a user that does not exist' + userId)
+      }
+    })
+
     .when(NetworkWorldAction.setXRMode.matchesFromAny, (a) => {
       if (a.$from !== world.hostId && a.$from !== a.userId) return
       const entity = world.getUserAvatarEntity(a.userId)

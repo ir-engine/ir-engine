@@ -14,9 +14,7 @@ import {
   sRGBEncoding
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/isClient'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
@@ -28,7 +26,6 @@ import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectCo
 import { DissolveEffect } from '../DissolveEffect'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { bonesData2 } from '../DefaultSkeletonBones'
-import { IKObj } from '../../ikrig/components/IKObj'
 import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
 import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { ArmatureType } from '../../ikrig/enums/ArmatureType'
@@ -172,10 +169,12 @@ const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<Ma
   texturePlate.encoding = sRGBEncoding
   texturePlate.needsUpdate = true
 
+  if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
   addComponent(entity, AvatarPendingComponent, {
     light: lightMesh,
     plate: plateMesh
   })
+  if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
   addComponent(entity, AvatarEffectComponent, {
     opacityMultiplier: 0,
     originMaterials: originalMatList

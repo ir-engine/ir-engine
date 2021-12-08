@@ -17,6 +17,7 @@ import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatch
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { XRHandsInputComponent } from '@xrengine/engine/src/xr/components/XRHandsInputComponent'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -276,15 +277,6 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
     })
   )
 
-  for (const [userId, client] of world.clients) {
-    dispatchFrom(world.hostId, () =>
-      NetworkWorldAction.avatarDetails({
-        userId,
-        avatarDetail: client.avatarDetail!
-      })
-    ).to(userId === joinedUserId ? 'all' : joinedUserId)
-  }
-
   for (const eid of world.networkObjectQuery(world)) {
     const networkObject = getComponent(eid, NetworkObjectComponent)
     dispatchFrom(world.hostId, () =>
@@ -307,6 +299,15 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
         })
       ).to(joinedUserId)
     }
+  }
+
+  for (const [userId, client] of world.clients) {
+    dispatchFrom(world.hostId, () =>
+      NetworkWorldAction.avatarDetails({
+        userId,
+        avatarDetail: client.avatarDetail!
+      })
+    ).to(userId === joinedUserId ? 'all' : joinedUserId)
   }
 
   callback({

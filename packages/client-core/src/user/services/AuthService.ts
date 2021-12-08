@@ -690,8 +690,7 @@ export const AuthService = {
         .patch(selfUser.id.value, { avatarId: avatarName })
         .then((_) => {
           AlertService.dispatchAlertSuccess('Avatar Uploaded Successfully.')
-          dispatchFrom(
-            Engine.userId,
+          dispatchFrom(Engine.userId, () =>
             NetworkWorldAction.avatarDetails({
               userId: Engine.userId,
               avatarDetail: response
@@ -764,9 +763,7 @@ export const AuthService = {
         .then((res: any) => {
           // dispatchAlertSuccess(dispatch, 'User Avatar updated');
           dispatch(AuthAction.userAvatarIdUpdated(res))
-          const world = useWorld()
-          dispatchFrom(
-            Engine.userId,
+          dispatchFrom(Engine.userId, () =>
             NetworkWorldAction.avatarDetails({
               userId: Engine.userId,
               avatarDetail: {
