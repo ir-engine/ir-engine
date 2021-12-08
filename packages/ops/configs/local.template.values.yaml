@@ -1,0 +1,325 @@
+client:
+  config:
+    publicRuntimeConfig:
+      apiServer: https://api-local.theoverlay.io
+      appServer: https://local.theoverlay.io
+      gameserver: https://gameserver-local.theoverlay.io
+      gameserverDomain: gameserver-local.theoverlay.io
+      dev: true
+      local: true
+      feathersStoreKey: TheOverlay-Auth-Store
+      localStorageKey: theoverlay-client-store-key-v1
+      loginDisabled: true
+      logo: "./logo.svg"
+      siteDescription: Connected Worlds for Everyone
+      siteTitle: XR3ngine
+      title: "The Overlay"
+      auth:
+        enableSmsMagicLink: true
+        enableEmailMagicLink: true
+        enableUserPassword: true
+        enableGithubSocial: true
+        enableFacebookSocial: true
+        enableGoogleSocial: true
+        enableLinkedInSocial: true
+        enableTwitterSocial: true
+      alert:
+        timeout: 10000
+      offlineMode: false
+      staticPages:
+        termsOfService: "/terms-of-service"
+  extraEnv:
+    API_ASSETS_ROUTE: /static-resource
+    API_ASSETS_ACTION: assets
+    API_MEDIA_ROUTE: /media
+    API_MEDIA_SEARCH_ROUTE: "-search"
+    API_META_ROUTE: /meta
+    API_PROJECTS_ROUTE: /project
+    API_RESOLVE_MEDIA_ROUTE: /resolve-media
+    API_PROJECT_PUBLISH_ACTION: /publish-project
+    API_SCENES_ROUTE: /collection
+    API_SERVER_ADDRESS: api-local.theoverlay.io
+    API_SOCKET_ENDPOINT: /socket
+    API_SERVER: https://api-local.theoverlay.io
+    CLIENT_ADDRESS: https://local.theoverlay.io
+    CLIENT_ENABLED: "true"
+    CLIENT_SCENE_ROUTE: /scenes/
+    CLIENT_LOCAL_SCENE_ROUTE: "/scene.html?scene_id="
+    CORS_PROXY_SERVER: https://api-local.theoverlay.io
+    HOST_IP: https://api-local.theoverlay.io
+    HOST_PORT: "3000"
+    GITHUB_ORG: xr3ngine
+    GITHUB_REPO: spoke
+    IS_MOZ: "false"
+    NEXT_PUBLIC_API_SERVER: https://api-local.theoverlay.io
+    NODE_ENV: production
+    NON_CORS_PROXY_DOMAINS: "reticulum.io,theoverlay.io,amazonaws.com"
+    ROUTER_BASE_PATH: /spoke
+    SERVER_ENABLED: "false"
+    SITE_DESC: Connected Worlds for Everyone
+    SITE_TITLE: XR3ngine
+    THUMBNAIL_ROUTE: /thumbnail/
+    THUMBNAIL_SERVER: https://api-local.theoverlay.io
+    USE_DIRECT_UPLOAD_API: "true"
+    USE_HTTPS: "true"
+  image:
+    repository: xrengine
+    pullPolicy: IfNotPresent
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    hosts:
+      - host: local.theoverlay.io
+        paths:
+          - /
+  service:
+    type: NodePort
+domain: theoverlay.io
+mariadb:
+  db:
+    name: xrengine
+    password: password
+    user: server
+  enabled: false
+  externalHost: 10.0.2.2
+rts:
+  extraEnv:
+    NAF_LISTEN_PORT: "8081"
+api:
+  config:
+    aws:
+      keys:
+        access_key_id: <S3_USER_ACCESS_KEY>
+        secret_access_key: <S3_USER_SECRET_KEY>
+      s3:
+        region: us-east-1
+        static_resource_bucket: xr3ngine-static-resources
+      cloudfront:
+        domain: resources.theoverlay.io
+      sns:
+        access_key_id: <SNS_USER_ACCESS_KEY>
+        application_id: <AWS_SMS_APPLICATION_ID>
+        region: <SNS_REGION>
+        secret_access_key: <SNS_USER_SECRET_KEY
+        sender_id: <AWS_SMS_SENDER_ID>
+    host: https://local.theoverlay.io/
+  extraEnv:
+    APP_HOST: local.theoverlay.io
+    APP_URL: https://local.theoverlay.io
+    AUTH_SECRET: <ENTER_A_UUID_OR_SIMILAR>
+    AWS_SMS_ACCESS_KEY_ID: <SMS_USER_ACCESS_KEY>
+    AWS_SMS_REGION: <SMS_REGION>
+    AWS_SMS_SECRET_ACCESS_KEY: <SMS_USER_SECRET_KEY>
+    AWS_SMS_TOPIC_ARN: arn:aws:sns:<SMS_REGION>:<AWS_ACCOUNT_ID>:<SMS_TOPIC_NAME>
+    CLIENT_ENABLED: "false"
+    CERT: certs/cert.pem
+    KEY: certs/key.pem
+    CORS_SERVER_PORT: "3036"
+    FACEBOOK_CALLBACK_URL: https://local.theoverlay.io/auth/oauth/facebook
+    FACEBOOK_CLIENT_ID: "<FACEBOOK_CLIENT_ID>"
+    FACEBOOK_CLIENT_SECRET: "<FACEBOOK_CLIENT_SECRET>"
+    FORCE_DB_REFRESH: "false"
+    GAMESERVER_DOMAIN: gameserver-local.theoverlay.io
+    GITHUB_CALLBACK_URL: https://local.theoverlay.io/auth/oauth/github
+    GITHUB_CLIENT_ID: "<GITHUB_CLIENT_ID>"
+    GITHUB_CLIENT_SECRET: "<GITHUB_CLIENT_SECRET>"
+    GOOGLE_CALLBACK_URL: https://local.theoverlay.io/auth/oauth/google
+    GOOGLE_CLIENT_ID: "<GOOGLE_CLIENT_ID>"
+    GOOGLE_CLIENT_SECRET: "<GOOGLE_CLIENT_SECRET"
+    LOCAL: "false"
+    MAGICLINK_EMAIL_SUBJECT: Login to XR3ngine
+    MAIL_FROM: info@login.theoverlay.io
+    SEVER_ENABLED: "true"
+    SERVER_HOST: "api-local.theoverlay.io"
+    SERVER_PORT: "3030"
+    SMTP_FROM_EMAIL: info@login.theoverlay.io
+    SMTP_FROM_NAME: noreply
+    SMTP_HOST: email-smtp.<AWS_REGION>.amazonaws.com
+    SMTP_PASS: <SMTP_PASSWORD>
+    SMTP_PORT: "465"
+    SMTP_SECURE: "true"
+    SMTP_USER: <SMTP_USER_ID>
+    STORAGE_PROVIDER: local
+    LOCAL_STORAGE_PROVIDER="localhost:8642"
+    STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
+    STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET_KEY>
+    STORAGE_CLOUDFRONT_DOMAIN: resources.theoverlay.io
+    STORAGE_S3_REGION: <S3_REGION>
+    STORAGE_S3_STATIC_RESOURCE_BUCKET: xrengine-static-resources
+  image:
+    repository: xrengine
+    pullPolicy: IfNotPresent
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/enable-cors: "false"
+#      nginx.ingress.kubernetes.io/cors-allow-origin: https://local.theoverlay.io
+      nginx.ingress.kubernetes.io/proxy-body-size: 256m
+      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.ingress.kubernetes.io/affinity-mode: persistent
+      nginx.ingress.kubernetes.io/server-snippet: |
+        location ~* /cors-proxy/(.*) {
+          proxy_http_version 1.1;
+          proxy_pass_request_headers on;
+          proxy_hide_header Access-Control-Allow-Origin;
+          add_header Access-Control-Allow-Origin $http_origin;
+          proxy_intercept_errors on;
+          error_page 301 302 307 = @handle_redirects;
+          proxy_pass https://$1?$args;
+        }
+
+        location @handle_redirects {
+          set $saved_redirect_location '$upstream_http_location';
+          proxy_pass_request_headers on;
+          proxy_hide_header Access-Control-Allow-Origin;
+          add_header Access-Control-Allow-Origin "$http_origin";
+          proxy_pass $saved_redirect_location;
+        }
+    hosts:
+      - host: api-local.theoverlay.io
+        paths:
+          - /
+
+  service:
+    type: NodePort
+  replicaCount: 2
+
+media:
+  enabled: false
+  config:
+    aws:
+      keys:
+        access_key_id: <S3_USER_ACCESS_KEY>
+        secret_access_key: <S3_USER_SECRET_KEY>
+      s3:
+        region: us-east-1
+        static_resource_bucket: xr3ngine-static-resources
+      cloudfront:
+        domain: resources.theoverlay.io
+      sns:
+        access_key_id: <SNS_USER_ACCESS_KEY>
+        application_id: <AWS_SMS_APPLICATION_ID>
+        region: <SNS_REGION>
+        secret_access_key: <SNS_USER_SECRET_KEY
+        sender_id: <AWS_SMS_SENDER_ID>
+    host: https://local.theoverlay.io/
+  extraEnv:
+    APP_HOST: local.theoverlay.io
+    APP_URL: https://local.theoverlay.io
+    AUTH_SECRET: <ENTER_A_UUID_OR_SIMILAR>
+    AWS_SMS_ACCESS_KEY_ID: <SMS_USER_ACCESS_KEY>
+    AWS_SMS_REGION: <SMS_REGION>
+    AWS_SMS_SECRET_ACCESS_KEY: <SMS_USER_SECRET_KEY>
+    AWS_SMS_TOPIC_ARN: arn:aws:sns:<SMS_REGION>:<AWS_ACCOUNT_ID>:<SMS_TOPIC_NAME>
+    CLIENT_ENABLED: "false"
+    CERT: certs/cert.pem
+    KEY: certs/key.pem
+    CORS_SERVER_PORT: "3036"
+    FACEBOOK_CALLBACK_URL: https://local.theoverlay.io/auth/oauth/facebook
+    FACEBOOK_CLIENT_ID: "<FACEBOOK_CLIENT_ID>"
+    FACEBOOK_CLIENT_SECRET: "<FACEBOOK_CLIENT_SECRET>"
+    FORCE_DB_REFRESH: "false"
+    GAMESERVER_DOMAIN: gameserver-local.theoverlay.io
+    GITHUB_CALLBACK_URL: https://local.theoverlay.io/auth/oauth/github
+    GITHUB_CLIENT_ID: "<GITHUB_CLIENT_ID>"
+    GITHUB_CLIENT_SECRET: "<GITHUB_CLIENT_SECRET>"
+    GOOGLE_CALLBACK_URL: https://local.theoverlay.io/auth/oauth/google
+    GOOGLE_CLIENT_ID: "<GOOGLE_CLIENT_ID>"
+    GOOGLE_CLIENT_SECRET: "<GOOGLE_CLIENT_SECRET"
+    LOCAL: "false"
+    MAGICLINK_EMAIL_SUBJECT: Login to XR3ngine
+    MAIL_FROM: info@login.theoverlay.io
+    SEVER_ENABLED: "true"
+    SERVER_HOST: "api-local.theoverlay.io"
+    SERVER_PORT: "3030"
+    SMTP_FROM_EMAIL: info@login.theoverlay.io
+    SMTP_FROM_NAME: noreply
+    SMTP_HOST: email-smtp.<AWS_REGION>.amazonaws.com
+    SMTP_PASS: <SMTP_PASSWORD>
+    SMTP_PORT: "465"
+    SMTP_SECURE: "true"
+    SMTP_USER: <SMTP_USER_ID>
+    STORAGE_PROVIDER: local
+    LOCAL_STORAGE_PROVIDER="localhost:8642"
+    STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
+    STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET_KEY>
+    STORAGE_CLOUDFRONT_DOMAIN: resources.theoverlay.io
+    STORAGE_S3_REGION: <S3_REGION>
+    STORAGE_S3_STATIC_RESOURCE_BUCKET: xrengine-static-resources
+  image:
+    repository: xrengine
+    pullPolicy: IfNotPresent
+  ingress:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/enable-cors: "true"
+      nginx.ingress.kubernetes.io/cors-allow-origin: https://local.theoverlay.io
+      nginx.ingress.kubernetes.io/proxy-body-size: 5m
+      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.ingress.kubernetes.io/affinity-mode: persistent
+    hosts:
+      - host: api-local.theoverlay.io
+        paths:
+          - /video
+  service:
+    type: NodePort
+
+release:
+  name: "local"
+
+gameserver:
+  image:
+    repository: xrengine
+    pullPolicy: IfNotPresent
+  extraEnv:
+    APP_HOST: local.theoverlay.io
+    AUTH_SECRET: <SAME_AUTH_SECRET_AS_API>
+    APP_URL: https://local.theoverlay.io
+    CERT: certs/cert.pem
+    KEY: certs/key.pem
+    GAMESERVER_ENABLED: "true"
+    GAMESERVER_PORT: "3031"
+    ROUTE53_ACCESS_KEY_ID: <ROUTE53_USER_ACCESS_KEY>
+    ROUTE53_ACCESS_KEY_SECRET: <ROUTE53_USER_SECRET_KEY>
+    ROUTE53_HOSTED_ZONE_ID: <ROUTE53_HOSTED_ZONE_ID>
+    RTC_START_PORT: "40000"
+    RTC_END_PORT: "40099"
+    RTC_PORT_BLOCK_SIZE: "100"
+    LOCAL: "false"
+    GAMESERVER_DOMAIN: gameserver-local.theoverlay.io
+    STORAGE_PROVIDER: local
+    LOCAL_STORAGE_PROVIDER="localhost:8642"
+    STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
+    STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET_KEY>
+    STORAGE_CLOUDFRONT_DOMAIN: resources.theoverlay.io
+    STORAGE_S3_REGION: <S3_REGION>
+    STORAGE_S3_STATIC_RESOURCE_BUCKET: xrengine-static-resources
+  ingress:
+    host: gameserver-local.theoverlay.io
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/enable-cors: "false"
+      nginx.ingress.kubernetes.io/proxy-body-size: 256m
+      nginx.ingress.kubernetes.io/affinity: cookie
+      nginx.ingress.kubernetes.io/affinity-mode: persistent
+      nginx.ingress.kubernetes.io/server-snippet: |
+        location ~* /socket.io/([a-zA-Z0-9\.]*)/([a-zA-Z0-9\.]*)/?$ {
+          proxy_set_header Host $host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+          proxy_pass http://$1:$2/socket.io/?$args;
+        }
+  buffer:
+    bufferSize: 2
+    minReplicas: 2
+    maxReplicas: 10
+
+redis:
+    enabled: false

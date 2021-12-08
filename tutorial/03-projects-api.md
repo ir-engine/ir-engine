@@ -50,3 +50,52 @@ The update button will re-download the git repository to install the latest vers
 
 The remove button will remove the folder containing that project. WARNING: Any uncommitted & unpushed files will be lost.
 
+## Config
+
+The xrengine config file has the following options:
+```ts
+export interface ProjectConfigInterface {
+  onEvent?: string
+  thumbnail?: string
+  routes?: {
+    [route: string]: {
+      component: () => Promise<{ default: (props: any) => JSX.Element }>
+      props?: {
+        [x: string]: any
+        exact?: boolean
+      }
+    }
+  }
+  services?: string
+  databaseSeed?: string
+}
+```
+
+### Hooks
+The `onEvent` property is a relative path string that points to a file which must expose an object with properties as follows:
+
+```ts
+export interface ProjectEventHooks {
+  onInstall?: (app: Application) => Promise<any>
+  onUpdate?: (app: Application) => Promise<any>
+  onUninstall?: (app: Application) => Promise<any>
+}
+```
+
+These functions are called when the project they belong to are installed, updated (such as scenes saved) or uninstalled respectively. This is used in the default xrengine project to install the default avatars. [See more](../packages/projects/default-project/projectEventHooks.ts).
+
+### Thumbnail
+
+This is a URL to a thumbnail for the project.
+
+### Routes
+
+Routes enable users to customise the various URL paths of their website utilising dynamic loading of modules. The key of each object represents the path (with leading forward slash included) while the value represents a react component object which gets wrapped in `React.lazy()` and a props object which passes options into the react-dom-router Route component corresponding to the route.
+
+### Services
+
+The `services` property is a relative path that points to a file which must return type `((app: Application) => Promise<any>)[]` which is run on all gameservers and api servers at startup. This allows users to expose custom feathers services, or whatever other functionality they made need.
+
+### Database Seeding
+
+The `databaseSeed` property is a relative path that points to a file which must return type [`ServicesSeedConfig`[]](../packages/common/src/interfaces/ServicesSeedConfig.ts) which is run when the database seeder is run. This can be useful for setting custom locations, which can be seen in the [xrengine demo project](https://github.com/XRFoundation/demo-xrengine-project).

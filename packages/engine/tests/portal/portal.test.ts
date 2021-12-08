@@ -3,7 +3,7 @@ import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
 import { initializeEngine } from '../../src/initializeEngine'
 import { engineTestSetup } from '../util/setupEngine'
 import sceneJson from '@xrengine/projects/default-project/empty.scene.json'
-import { WorldScene } from '../../src/scene/functions/SceneLoading'
+import { loadSceneFromJSON } from '../../src/scene/functions/SceneLoading'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
 import { Engine } from '../../src/ecs/classes/Engine'
 import { EngineEvents } from '../../src/ecs/classes/EngineEvents'
@@ -27,9 +27,9 @@ describe.skip('Portal', () => {
 
   it('Can load scene', async () => {
     const world = useWorld()
-    await WorldScene.load(sceneData)
+    await loadSceneFromJSON(sceneData)
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
-    assert.equal(world.entities.length, 10)
+    assert.equal(world.entityQuery().length, 10)
     // TODO: test scene actor removal directly
     assert.equal(world.physics.bodies.size, 1)
   })
@@ -40,15 +40,15 @@ describe.skip('Portal', () => {
 
     // test
     const world = useWorld()
-    assert.equal(world.entities.length, 1) // world entity
+    assert.equal(world.entityQuery().length, 1) // world entity
     assert.equal(world.physics.bodies.size, 0)
   })
 
   it('Can load new scene', async () => {
-    await WorldScene.load(sceneData)
+    await loadSceneFromJSON(sceneData)
     const world = useWorld()
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
-    assert.equal(world.entities.length, 10)
+    assert.equal(world.entityQuery().length, 10)
     assert.equal(world.physics.bodies.size, 1)
   })
 

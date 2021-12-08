@@ -2,6 +2,8 @@
 import { getFeatureStyles, IFeatureStylesByLayerName } from './styles'
 import assert from 'assert'
 
+// TODO move to tests dir
+
 describe("map styles", () => {
   it("getFeatureStyles", () => {
 

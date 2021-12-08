@@ -122,13 +122,13 @@ export async function cleanupOldGameservers(): Promise<void> {
 }
 
 export function getUserIdFromSocketId(socketId) {
-  const client = Array.from(Engine.defaultWorld.clients.values()).find((c) => c.socketId === socketId)
+  const client = Array.from(Engine.currentWorld.clients.values()).find((c) => c.socketId === socketId)
   return client?.userId
 }
 
 export async function validateNetworkObjects(): Promise<void> {
   if (!Engine.isInitialized) return
-  const world = Engine.defaultWorld!
+  const world = Engine.currentWorld!
   for (const [userId, client] of world.clients) {
     // Validate that user has phoned home recently
     if (process.env.APP_ENV !== 'development' && Date.now() - client.lastSeenTs > 30000) {
@@ -208,7 +208,7 @@ export async function handleConnectToWorld(socket, data, callback, userId: UserI
 
   // Create a new client object
   // and add to the dictionary
-  const world = Engine.defaultWorld
+  const world = Engine.currentWorld
   world.clients.set(userId, {
     userId: userId,
     name: user.dataValues.name,
@@ -233,7 +233,7 @@ export async function handleConnectToWorld(socket, data, callback, userId: UserI
 
 function disconnectClientIfConnected(socket, userId: UserId): void {
   // If we are already logged in, kick the other socket
-  const world = Engine.defaultWorld
+  const world = Engine.currentWorld
   if (world.clients.has(userId) && world.clients.get(userId)!.socketId !== socket.id) {
     const client = world.clients.get(userId)!
     console.log('Client already exists, kicking the old client and disconnecting')
@@ -250,7 +250,7 @@ function disconnectClientIfConnected(socket, userId: UserId): void {
 export async function handleJoinWorld(socket, data, callback, joinedUserId: UserId, user): Promise<any> {
   console.info('JoinWorld received', joinedUserId, data)
   const transport = Network.instance.transport as any
-  const world = Engine.defaultWorld
+  const world = Engine.currentWorld
 
   // TEMPORARY data?.spawnTransform  - just so portals work for now - will be removed in favor of gameserver-gameserver communication
   const spawnPos = data?.spawnTransform
@@ -309,7 +309,7 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
 export function handleIncomingActions(socket, message) {
   if (!message) return
 
-  const world = Engine.defaultWorld
+  const world = Engine.currentWorld
   const userIdMap = {} as { [socketId: string]: UserId }
   for (const [id, client] of world.clients) userIdMap[client.socketId!] = id
 
@@ -328,11 +328,11 @@ export async function handleIncomingMessage(socket, message): Promise<any> {
 export async function handleHeartbeat(socket): Promise<any> {
   const userId = getUserIdFromSocketId(socket.id)!
   // console.log('Got heartbeat from user ' + userId + ' at ' + Date.now());
-  if (Engine.defaultWorld.clients.has(userId)) Engine.defaultWorld.clients.get(userId)!.lastSeenTs = Date.now()
+  if (Engine.currentWorld.clients.has(userId)) Engine.currentWorld.clients.get(userId)!.lastSeenTs = Date.now()
 }
 
 export async function handleDisconnect(socket): Promise<any> {
-  const world = Engine.defaultWorld
+  const world = Engine.currentWorld
   const userId = getUserIdFromSocketId(socket.id) as UserId
   const disconnectedClient = world?.clients.get(userId)
   if (!disconnectedClient)
@@ -361,7 +361,7 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
-  if (Engine.defaultWorld?.clients.has(userId)) Engine.defaultWorld.clients.delete(userId)
+  if (Engine.currentWorld?.clients.has(userId)) Engine.currentWorld.clients.delete(userId)
   logger.info('Removing ' + userId + ' from client list')
   if (callback !== undefined) callback({})
 }
