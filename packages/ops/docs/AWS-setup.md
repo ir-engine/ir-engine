@@ -95,7 +95,7 @@ You can leave the subnets on the next page alone and click Next. On the last pag
 
 ## Create ECR repositories for built images.
 The XREngine deployment process will be building multiple Docker images, and those need to be stored somewhere.
-In AWS, that somewhere is [Elastic Container Repository](https://us-west-1.console.aws.amazon.com/ecr/get-started).
+In AWS, that somewhere is [Elastic Container Registry](https://us-west-1.console.aws.amazon.com/ecr/get-started).
 You need to make those repositories in the same AWS region where the EKS cluster is running.
 
 Go to the ECR link above and click Get Started under Create a Repository. If you're very concerned about any of your
