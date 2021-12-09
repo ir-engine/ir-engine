@@ -24,7 +24,7 @@ declare module '../../../declarations' {
  * @author Vyacheslav Solovjov
  */
 
-async function redirect(req, res, next, app): any {
+async function redirect(req, res, next, app): Promise<any> {
   try {
     const [dbClientConfig] = await app.service('client-setting').find()
     const clientConfig = dbClientConfig || config.client
