@@ -109,7 +109,6 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
   }
 
   useEffect(() => {
-    console.log('data ', coinData)
     if (data.length !== 0) {
       setState((prevState: any) => ({
         ...prevState,
@@ -146,7 +145,6 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
           }))
         } else {
           let filtereddata = data.filter((val) => val.inventoryItemTypeId === selectedtype)
-          console.log(filtereddata, selectedtype)
           if (filtereddata.length !== 0) {
             setState((prevState: any) => ({
               ...prevState,

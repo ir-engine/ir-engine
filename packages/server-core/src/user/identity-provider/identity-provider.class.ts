@@ -155,7 +155,7 @@ export class IdentityProvider extends Service {
     )
     // DRC
     try {
-      if (result.user.userRole === 'user') {
+      if (result.user.userRole !== 'guest') {
         let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
         let invenDataId = invenData.data[0].dataValues.inventoryItemId
         let resp = await this.app.service('user-inventory').create({

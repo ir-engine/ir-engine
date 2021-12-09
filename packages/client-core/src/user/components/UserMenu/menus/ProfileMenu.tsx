@@ -306,15 +306,19 @@ const ProfileMenu = (props: Props): any => {
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </h2>
             )}
-            <button onClick={() => history.push(`/inventory/${selfUser.id.value}`)} className={styles.walletBtn}>
-              My Inventory
-            </button>
-            <button onClick={() => history.push(`/trading/${selfUser.id.value}`)} className={styles.walletBtn}>
-              My Trading
-            </button>
-            <button onClick={() => history.push(`/wallet/${selfUser.id.value}`)} className={styles.walletBtn}>
-              My Wallet
-            </button>
+            {selfUser?.userRole.value !== 'guest' && (
+              <>
+                <button onClick={() => history.push(`/inventory/${selfUser.id.value}`)} className={styles.walletBtn}>
+                  My Inventory
+                </button>
+                <button onClick={() => history.push(`/trading/${selfUser.id.value}`)} className={styles.walletBtn}>
+                  My Trading
+                </button>
+                <button onClick={() => history.push(`/wallet/${selfUser.id.value}`)} className={styles.walletBtn}>
+                  My Wallet
+                </button>
+              </>
+            )}
           </div>
         </section>
 

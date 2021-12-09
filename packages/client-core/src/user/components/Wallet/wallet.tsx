@@ -61,7 +61,6 @@ export const WalletPage = (): any => {
     }))
     try {
       const response = await client.service('user').get(id)
-      console.log(response, 'inventory')
       setState((prevState) => ({
         ...prevState,
         data: [...response.inventory_items.filter((val) => val.isCoin === true)],
@@ -70,7 +69,6 @@ export const WalletPage = (): any => {
         walletData: [...response.user_wallets],
         coinlimit: response.inventory_items.filter((val) => val.isCoin === true)[0].user_inventory.quantity
       }))
-      console.log(state, 'inventorylist')
     } catch (err) {
       console.error(err, 'error')
     }
@@ -83,7 +81,6 @@ export const WalletPage = (): any => {
           action: 'inventory'
         }
       })
-      console.log(response, 'userlist')
       if (response.data && response.data.length !== 0) {
         const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== id)
         setState((prevState: any) => ({
@@ -100,7 +97,6 @@ export const WalletPage = (): any => {
   const getreceiverid = async (receiveid) => {
     try {
       const response = await client.service('user').get(receiveid)
-      console.log(response, 'inventoryReceive')
       setState((prevState) => ({
         ...prevState,
         dataReceive: [...response.inventory_items.filter((val) => val.isCoin === true)],
@@ -118,7 +114,6 @@ export const WalletPage = (): any => {
       isSendingLoader: true
     }))
     try {
-      console.log(data, 'snd')
       const response = await client.service('user-inventory').patch(data[0].user_inventory.userInventoryId, {
         privateKey: walletData[0].privateKey,
         fromUserAddress: walletData[0].userAddress,
@@ -127,7 +122,6 @@ export const WalletPage = (): any => {
         walletAmt: Number(amt),
         type: 'Wallet transfer'
       })
-      console.log(response, 'sendamtsender')
     } catch (err) {
       console.error(err, 'error')
     } finally {
@@ -139,12 +133,10 @@ export const WalletPage = (): any => {
   }
 
   const sendamtreceiver = async (receiveid, amt) => {
-    console.log(dataReceive, 'rcv')
     try {
       const response = await client.service('user-inventory').patch(dataReceive[0].user_inventory.userInventoryId, {
         quantity: Number(dataReceive[0].user_inventory.quantity) + Number(amt)
       })
-      console.log(response, 'sendamtreceiver')
     } catch (err) {
       console.error(err, 'error')
     }

@@ -49,17 +49,14 @@ export const TradingPage = (): any => {
       fromUserStatus: 'REQUEST',
       toUserStatus: 'REQUEST'
     }
-    console.log('TRANSFER ', data)
 
     try {
       const response = await client.service('user-trade').create(data)
-      console.log(response, 'trade')
       if (response) {
         fetchInventoryList()
         fetchfromTradingList()
         fetchtoTradingList()
       }
-      console.log('success')
     } catch (err) {
       console.error(err, 'error')
     } finally {
@@ -79,18 +76,14 @@ export const TradingPage = (): any => {
       fromUserInventoryIds: items,
       fromUserStatus: 'ACCEPT'
     }
-    console.log('acceptOfferSent ', data)
-    console.log('tradeId ', tradeId)
 
     try {
       const response = await client.service('user-trade').patch(tradeId, data)
-      console.log(response, 'trade')
       if (response) {
         fetchInventoryList()
         fetchfromTradingList()
         fetchtoTradingList()
       }
-      console.log('success')
     } catch (err) {
       console.error(err, 'error')
     } finally {
@@ -111,18 +104,14 @@ export const TradingPage = (): any => {
       toUserInventoryIds: items,
       toUserStatus: 'ACCEPT'
     }
-    console.log('acceptOfferReceived ', data)
-    console.log('tradeId ', tradeId)
 
     try {
       const response = await client.service('user-trade').patch(tradeId, data)
-      console.log(response, 'trade')
       if (response) {
         fetchInventoryList()
         fetchfromTradingList()
         fetchtoTradingList()
       }
-      console.log('success')
     } catch (err) {
       console.error(err, 'error')
     } finally {
@@ -142,18 +131,14 @@ export const TradingPage = (): any => {
     const data = {
       fromUserStatus: 'REJECT'
     }
-    console.log('acceptOfferSent ', data)
-    console.log('tradeId ', tradeId)
 
     try {
       const response = await client.service('user-trade').patch(tradeId, data)
-      console.log(response, 'trade')
       if (response) {
         fetchInventoryList()
         fetchfromTradingList()
         fetchtoTradingList()
       }
-      console.log('success')
     } catch (err) {
       console.error(err, 'error')
     } finally {
@@ -173,18 +158,14 @@ export const TradingPage = (): any => {
     const data = {
       toUserStatus: 'REJECT'
     }
-    console.log('acceptOfferReceived ', data)
-    console.log('tradeId ', tradeId)
 
     try {
       const response = await client.service('user-trade').patch(tradeId, data)
-      console.log(response, 'trade')
       if (response) {
         fetchInventoryList()
         fetchfromTradingList()
         fetchtoTradingList()
       }
-      console.log('success')
     } catch (err) {
       console.error(err, 'error')
     } finally {
@@ -203,7 +184,6 @@ export const TradingPage = (): any => {
     }))
     try {
       const response = await client.service('user-trade').find({ query: { fromUserId: id } })
-      console.log(response, 'fromtradelist')
       setState((prevState) => ({
         ...prevState,
         data0: [...response.data],
@@ -221,7 +201,6 @@ export const TradingPage = (): any => {
     }))
     try {
       const response = await client.service('user-trade').find({ query: { toUserId: id } })
-      console.log(response, 'totradelist')
       setState((prevState) => ({
         ...prevState,
         data1: [...response.data],
@@ -310,10 +289,8 @@ export const TradingPage = (): any => {
           action: 'inventory'
         }
       })
-      console.log(response, 'userlist')
       if (response.data && response.data.length !== 0) {
         const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== id)
-        console.log(activeUser, 'useract')
         setState((prevState: any) => ({
           ...prevState,
           user: [...activeUser],
@@ -324,7 +301,6 @@ export const TradingPage = (): any => {
       console.error(err, 'error')
     }
   }
-  console.log(inventory, 'parent')
   return (
     <EmptyLayout pageTitle={t('Inventory.pageTitle')}>
       <style>

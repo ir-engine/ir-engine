@@ -46,7 +46,6 @@ export const InventoryPage = (): any => {
         userInventoryId: itemid
       })
       fetchInventoryList()
-      console.log('success')
     } catch (err) {
       console.error(err, 'error')
     } finally {
@@ -70,7 +69,6 @@ export const InventoryPage = (): any => {
         coinData: [...response.inventory_items.filter((val) => val.isCoin === true)],
         isLoading: false
       }))
-      console.log(state, 'inventorylist')
     } catch (err) {
       console.error(err, 'error')
     }
@@ -83,7 +81,6 @@ export const InventoryPage = (): any => {
           action: 'inventory'
         }
       })
-      console.log(response, 'userlist')
       if (response.data && response.data.length !== 0) {
         const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== id)
         setState((prevState: any) => ({
@@ -100,7 +97,6 @@ export const InventoryPage = (): any => {
   const fetchtypeList = async () => {
     try {
       const response = await client.service('inventory-item-type').find()
-      console.log(response.data, 'resptype')
       if (response.data && response.data.length !== 0) {
         setState((prevState: any) => ({
           ...prevState,

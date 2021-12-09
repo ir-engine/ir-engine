@@ -118,7 +118,6 @@ const WalletContent = ({
     sendamtsender(sendData.amount)
     sendamtreceiver(sendData.userid, sendData.amount)
     // sendamtwallet(sendData.amount)
-    console.log('sendData.amount', sendData.amount)
   }
 
   return (
