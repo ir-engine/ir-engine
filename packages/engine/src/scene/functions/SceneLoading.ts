@@ -55,7 +55,7 @@ import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { matchActionOnceSuccessful } from '../../networking/functions/matchActionOnceSuccessful'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
@@ -192,7 +192,13 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
       break
 
     case 'loop-animation':
-      loadModelAnimation(entity, component)
+      if (isClient) {
+        // TODO: make this sceneLoad action once it's implemented #4360
+        matchActionOnceSuccessful(NetworkWorldAction.spawnAvatar.matches, () => {
+          loadModelAnimation(entity, component)
+          return true
+        })
+      }
       break
 
     case 'interact':
@@ -359,7 +365,8 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
 
     case 'cameraproperties':
       if (isClient) {
-        matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
+        // TODO: make this sceneLoad action once it's implemented #4360
+        matchActionOnceSuccessful(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
           if (spawnAction.userId === Engine.userId) {
             setCameraProperties(useWorld().localClientEntity, component.data)
             return true

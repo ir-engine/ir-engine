@@ -7,7 +7,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
  * @param callback the logic to run - returning truthy will cause the receptor to be removed
  */
 
-export const matchActionOnce = <A, B>(match: Validator<A, B>, callback: (match: B) => boolean) => {
+export const matchActionOnceSuccessful = <A, B>(match: Validator<A, B>, callback: (match: B) => boolean) => {
   const world = useWorld()
   function receptor(action) {
     matches(action).when(match, cb)
