@@ -24,12 +24,15 @@ declare module '../../../declarations' {
  * @author Vyacheslav Solovjov
  */
 
-function redirect(req, res, next): any {
+async function redirect(req, res, next, app): any {
   try {
+    const [dbClientConfig] = await app.service('client-setting').find()
+    const clientConfig = dbClientConfig || config.client
+
     if (res.data.error) {
-      return res.redirect(`${config.client.url}/?error=${res.data.error as string}`)
+      return res.redirect(`${clientConfig.url}/?error=${res.data.error as string}`)
     }
-    return res.redirect(`${config.client.url}/auth/magiclink?type=login&token=${res.data.token as string}`)
+    return res.redirect(`${clientConfig.url}/auth/magiclink?type=login&token=${res.data.token as string}`)
   } catch (err) {
     logger.error(err)
     throw err
@@ -46,7 +49,7 @@ export default (app: Application) => {
    * @author  Vyacheslav Solovjov
    */
   const event = new AcceptInvite(options, app)
-  app.use('a-i', event, redirect)
+  app.use('a-i', event, (req, res, next) => redirect(req, res, next, app))
 
   /**
    * Get our initialized service so that we can register hooks

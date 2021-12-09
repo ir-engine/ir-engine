@@ -24,9 +24,12 @@ export class Meta implements ServiceMethods<Data> {
    * @returns {@Object}
    */
   async find(params: Params): Promise<Data> {
+    const [dbServerConfig] = await this.app.service('server-setting').find()
+    const serverConfig = dbServerConfig || config.server
+
     // SPOKE HACK: This method is just returning the collection API endpoint for uploading the file from editor
     return {
-      phx_host: config.server.url // FIXME
+      phx_host: serverConfig.url // FIXME
     }
   }
 

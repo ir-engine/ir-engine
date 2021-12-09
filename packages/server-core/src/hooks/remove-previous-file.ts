@@ -5,6 +5,9 @@ import { useStorageProvider } from '../media/storageprovider/storageprovider'
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.params.previousFileId) {
+      const [dbServerConfig] = await context.app.service('server-setting').find()
+      const serverConfig = dbServerConfig || config.server
+
       // Fetch Key of the thumbnail file and use the key to remove from local-store or AWS S3
       const resource = await (context.app.service('static-resource') as any).Model.findOne({
         where: {
@@ -20,7 +23,7 @@ export default () => {
         },
         (err: Error, result: any) => {
           if (err) {
-            console.log('Storage provider:', config.server.storageProvider)
+            console.log('Storage provider:', serverConfig.storageProvider)
             console.error('Error removing previous static resource before updating', err)
             return err
           }

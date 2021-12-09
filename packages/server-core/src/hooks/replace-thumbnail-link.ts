@@ -29,8 +29,12 @@ export default (): Hook => {
             return app.service('static-resource').remove(item.id)
           })
         )
+
+        const [dbAwsConfig] = await context.app.service('aws-setting').find()
+        const awsConfig = dbAwsConfig || config.aws
+
         params.parentResourceId = data.id
-        const bucketName = config.aws.s3.staticResourceBucket
+        const bucketName = awsConfig.s3.staticResourceBucket
         params.uploadPath = data.url.replace('https://s3.amazonaws.com/' + bucketName + '/', '')
         params.uploadPath = params.uploadPath.replace('/manifest.mpd', '')
         params.storageProvider = useStorageProvider()
@@ -38,7 +42,7 @@ export default (): Hook => {
         const result = await (uploadThumbnailLinkHook() as any)(contextClone)
         data.metadata.thumbnailUrl = (result as any).params.thumbnailUrl.replace(
           's3.amazonaws.com/' + bucketName,
-          config.aws.cloudfront.domain
+          awsConfig.cloudfront.domain
         )
       }
     }

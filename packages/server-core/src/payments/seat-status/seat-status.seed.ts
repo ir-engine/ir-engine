@@ -1,5 +1,3 @@
-import config from '../../appconfig'
-
 export const seed = {
   path: 'seat-status',
   randomize: false,

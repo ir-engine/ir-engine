@@ -26,7 +26,11 @@ export class LoginToken extends Service {
    */
   async create(data: any): Promise<any> {
     const { identityProviderId } = data
-    const token = crypto.randomBytes(config.authentication.bearerToken.numBytes).toString('hex')
+
+    const [dbAuthConfig] = await this.app.service('authentication-setting').find()
+    const authConfig = dbAuthConfig || config.authentication
+
+    const token = crypto.randomBytes(authConfig.bearerToken.numBytes).toString('hex')
 
     return await super.create({
       identityProviderId: identityProviderId,

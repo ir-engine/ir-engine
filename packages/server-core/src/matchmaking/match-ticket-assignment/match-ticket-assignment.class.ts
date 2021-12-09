@@ -38,7 +38,10 @@ export class MatchTicketAssignment implements ServiceMethods<Data> {
 
     let assignment: OpenMatchTicketAssignment
     try {
-      if (config.server.matchmakerEmulationMode) {
+      const [dbServerConfig] = await this.app.service('server-setting').find()
+      const serverConfig = dbServerConfig || config.server
+
+      if (serverConfig.matchmakerEmulationMode) {
         assignment = await emulate_getTicketsAssignment(this.app, ticketId, params['identity-provider'].userId)
       } else {
         assignment = await getTicketsAssignment(ticketId)

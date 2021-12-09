@@ -40,7 +40,7 @@ export class UploadPresigned implements ServiceMethods<Data> {
   }
 
   async get(id: Id, params: Params): Promise<Data> {
-    const key = this.getKeyForFilename(
+    const key = await this.getKeyForFilename(
       params['identity-provider'].userId,
       params.query!.fileName,
       params.query!.isPublicAvatar
@@ -79,11 +79,12 @@ export class UploadPresigned implements ServiceMethods<Data> {
     return { data }
   }
 
-  getKeyForFilename = (userId: string, fileName: string, isPublicAvatar?: boolean): string => {
+  getKeyForFilename = async (userId: string, fileName: string, isPublicAvatar?: boolean): Promise<string> => {
+    const [dbAwsConfig] = await this.app.service('aws-setting').find()
+    const awsConfig = dbAwsConfig || config.aws
+
     return isPublicAvatar === true
-      ? `${config.aws.s3.avatarDir}/${fileName}`
-      : `${config.aws.s3.avatarDir}${
-          config.aws.s3.s3DevMode ? '/' + config.aws.s3.s3DevMode : ''
-        }/${userId}/${fileName}`
+      ? `${awsConfig.s3.avatarDir}/${fileName}`
+      : `${awsConfig.s3.avatarDir}${awsConfig.s3.s3DevMode ? '/' + awsConfig.s3.s3DevMode : ''}/${userId}/${fileName}`
   }
 }

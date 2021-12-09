@@ -31,18 +31,24 @@ async function generateEmail(
     groupName = group.name
   }
 
+  const [dbClientConfig] = await app.service('client-setting').find()
+  const clientConfig = dbClientConfig || config.client
+
+  const [dbEmailConfig] = await app.service('email-setting').find()
+  const emailConfig = dbEmailConfig || config.email
+
   const compiledHTML = pug.compileFile(templatePath)({
-    logo: config.client.logo,
-    title: config.client.title,
+    logo: clientConfig.logo,
+    title: clientConfig.title,
     groupName: groupName,
     inviterUsername: inviterUsername,
     hashLink
   })
-  const mailSender = config.email.from
+  const mailSender = emailConfig.from
   const email = {
     from: mailSender,
     to: toEmail,
-    subject: config.email.subject[inviteType],
+    subject: emailConfig.subject[inviteType],
     html: compiledHTML
   }
 
@@ -65,10 +71,14 @@ async function generateSMS(
     const group = await app.service('group').get(targetObjectId)
     groupName = group.name
   }
+
+  const [dbClientConfig] = await app.service('client-setting').find()
+  const clientConfig = dbClientConfig || config.client
+
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-sms-invite-${inviteType}.pug`)
   const compiledHTML = pug
     .compileFile(templatePath)({
-      title: config.client.title,
+      title: clientConfig.title,
       inviterUsername: inviterUsername,
       groupName: groupName,
       hashLink
