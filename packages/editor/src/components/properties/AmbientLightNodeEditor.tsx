@@ -3,8 +3,8 @@ import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
-import { Sun } from '@styled-icons/fa-solid/Sun'
 import { useTranslation } from 'react-i18next'
+import Brightness7Icon from '@mui/icons-material/Brightness7'
 import { CommandManager } from '../../managers/CommandManager'
 
 type AmbientLightNodeEditorProps = {
@@ -55,6 +55,6 @@ export const AmbientLightNodeEditor = (props: AmbientLightNodeEditorProps) => {
   )
 }
 
-AmbientLightNodeEditor.iconComponent = Sun
+AmbientLightNodeEditor.iconComponent = Brightness7Icon
 
 export default AmbientLightNodeEditor
