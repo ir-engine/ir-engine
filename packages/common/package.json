@@ -25,7 +25,7 @@
     "cross-env": "7.0.3",
     "lodash.camelcase": "4.3.0",
     "rimraf": "3.0.2",
-    "rollup": "2.60.1",
+    "rollup": "2.61.0",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-sass": "1.2.9",
