@@ -26,7 +26,6 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 export const copyDefaultProject = () => {
   deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
   copyFolderRecursiveSync(path.join(appRootPath.path, 'packages/projects/default-project'), projectsRootFolder)
-  return Promise.resolve()
 }
 
 const getRemoteURLFromGitData = (project) => {
