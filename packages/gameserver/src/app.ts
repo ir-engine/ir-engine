@@ -160,25 +160,25 @@ export const createApp = async (): Promise<Application> => {
   const [dbGameServerSetting] = await gameServerSetting.findAll()
   let [dbAuthenticationSetting] = await authenticationSetting.findAll()
 
-  const dbRedis = {
+  const dbRedis = dbRedisSetting && {
     port: dbRedisSetting.port,
     address: dbRedisSetting.address,
     enabled: dbRedisSetting.enabled,
     password: dbRedisSetting.password
   }
 
-  const dbServer = {
+  const dbServer = dbServerSetting && {
     paginate: { default: 10, max: dbServerSetting.paginate },
     publicDir: dbServerSetting.publicDir
   }
 
-  const dbGameServer = {
+  const dbGameServer = dbGameServerSetting && {
     mode: dbGameServerSetting.mode,
     enabled: dbGameServerSetting.enabled,
     clientHost: dbGameServerSetting.clientHost
   }
 
-  const dbAuthentication = {
+  const dbAuthentication = dbAuthenticationSetting && {
     id: dbAuthenticationSetting.id,
     service: dbAuthenticationSetting.service,
     entity: dbAuthenticationSetting.entity,

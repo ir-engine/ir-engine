@@ -5,63 +5,12 @@ import app from './app'
 import logger from '@xrengine/server-core/src/logger'
 import psList from 'ps-list'
 import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
-import dotenv from 'dotenv'
-import { DataTypes, Sequelize } from 'sequelize'
-
-dotenv.config()
-const db = {
-  username: process.env.MYSQL_USER ?? 'server',
-  password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'xrengine',
-  host: process.env.MYSQL_HOST ?? '127.0.0.1',
-  port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql',
-  url: ''
-}
-
-db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
 })
 ;(async (): Promise<void> => {
-  const sequelizeClient = new Sequelize({
-    ...db,
-    define: {
-      freezeTableName: true
-    }
-  })
-  await sequelizeClient.sync()
-
-  const serverSetting = sequelizeClient.define('serverSetting', {
-    hostname: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    certPath: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    keyPath: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-
-  const [dbServerSetting] = await serverSetting.findAll()
-
-  const dbServer = {
-    port: dbServerSetting.port,
-    keyPath: dbServerSetting.keyPath,
-    certPath: dbServerSetting.certPath,
-    hostname: dbServerSetting.hostname
-  }
-
-  const serverConfig = dbServer || config.server
+  const serverConfig = config.server
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
