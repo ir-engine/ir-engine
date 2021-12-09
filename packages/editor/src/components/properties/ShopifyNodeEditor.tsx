@@ -1,4 +1,3 @@
-import { ShoppingCart } from '@styled-icons/fa-solid/ShoppingCart'
 import i18n from 'i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
@@ -13,6 +12,7 @@ import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import React, { Fragment, useEffect, useState } from 'react'
 import { useTranslation, withTranslation } from 'react-i18next'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 
 import AudioSourceProperties from './AudioSourceProperties'
 import { ControlledStringInput } from '../inputs/StringInput'
@@ -298,6 +298,6 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
 }
 
 ShopifyNodeEditor.description = i18n.t('editor:properties.shopify.description')
-ShopifyNodeEditor.iconComponent = ShoppingCart
+ShopifyNodeEditor.iconComponent = ShoppingCartIcon
 
 export default ShopifyNodeEditor

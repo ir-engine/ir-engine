@@ -67,6 +67,7 @@ export async function getFreeGameserver(
   const instanceIpAddress = nonAssignedInstances[Math.floor(Math.random() * nonAssignedInstances.length)]
   if (instanceIpAddress == null) {
     return {
+      id: null,
       ipAddress: null,
       port: null
     }
@@ -120,6 +121,7 @@ export async function checkForDuplicatedAssignments(
       } else {
         console.log('Made 10 attempts to get free gameserver without success, returning null')
         return {
+          id: null,
           ipAddress: null,
           port: null
         }
@@ -129,12 +131,9 @@ export async function checkForDuplicatedAssignments(
 
   const split = ipAddress.split(':')
   return {
+    id: assignResult.id,
     ipAddress: split[0],
     port: split[1]
-  }
-  return {
-    ipAddress: null,
-    port: null
   }
 }
 
@@ -159,7 +158,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @param availableLocationInstances for Gameserver
    * @param locationId
    * @param channelId
-   * @returns ipAddress and port
+   * @returns id, ipAddress and port
    * @author Vyacheslav Solovjov
    */
 
@@ -180,10 +179,14 @@ export class InstanceProvision implements ServiceMethods<Data> {
     const instances = nonPressuredInstances.length > 0 ? nonPressuredInstances : instanceUserSort
     if (!config.kubernetes.enabled) {
       logger.info('Resetting local instance to ' + instances[0].id)
-      return getLocalServerIp()
+      const localIp = await getLocalServerIp(channelId != null)
+      return {
+        id: instances[0].id,
+        ...localIp
+      }
     }
     const gsCleanup = await this.gsCleanup(instances[0])
-    if (gsCleanup === true) {
+    if (gsCleanup) {
       logger.info('GS did not exist and was cleaned up')
       if (availableLocationInstances.length > 1)
         return this.getGSInService(availableLocationInstances.slice(1), locationId, channelId)
@@ -192,6 +195,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
     logger.info('GS existed, using it')
     const ipAddressSplit = instances[0].ipAddress.split(':')
     return {
+      id: instances[0].id,
       ipAddress: ipAddressSplit[0],
       port: ipAddressSplit[1]
     }
@@ -286,6 +290,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         else {
           const ipAddressSplit = channelInstance.ipAddress.split(':')
           return {
+            id: channelInstance.id,
             ipAddress: ipAddressSplit[0],
             port: ipAddressSplit[1]
           }
@@ -306,6 +311,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
           if (instance.currentUsers < location.maxUsersPerInstance) {
             const ipAddressSplit = instance.ipAddress.split(':')
             return {
+              id: instance.id,
               ipAddress: ipAddressSplit[0],
               port: ipAddressSplit[1]
             }
@@ -419,10 +425,15 @@ export class InstanceProvision implements ServiceMethods<Data> {
           const maxInstance = await this.app.service('instance').get(maxInstanceId)
           if (!config.kubernetes.enabled) {
             logger.info('Resetting local instance to ' + maxInstanceId)
-            return getLocalServerIp()
+            const localIp = await getLocalServerIp(false)
+            return {
+              id: maxInstanceId,
+              ...localIp
+            }
           }
           const ipAddressSplit = maxInstance.ipAddress.split(':')
           return {
+            id: maxInstance.id,
             ipAddress: ipAddressSplit[0],
             port: ipAddressSplit[1]
           }

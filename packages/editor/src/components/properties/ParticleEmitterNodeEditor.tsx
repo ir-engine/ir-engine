@@ -8,10 +8,10 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import SelectInput from '../inputs/SelectInput'
 import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
-import { SprayCan } from '@styled-icons/fa-solid/SprayCan'
 import { camelPad } from '../../functions/utils'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
+import GrainIcon from '@mui/icons-material/Grain'
 
 //creating object containing Curve options for SelectInput
 const CurveOptions = Object.keys(EasingFunctions).map((name) => ({
@@ -323,6 +323,6 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
   )
 }
 
-ParticleEmitterNodeEditor.iconComponent = SprayCan
+ParticleEmitterNodeEditor.iconComponent = GrainIcon
 
 export default ParticleEmitterNodeEditor

@@ -73,7 +73,8 @@ export function getSubscribedChatSystems(userId): string[] {
 //gets the chat system from a chat message
 export function getChatMessageSystem(text: string): string {
   if (text.startsWith('[emotions]')) return 'emotions_system'
-  else if (text.startsWith('[jl_system]') || text.includes('joined the layer')) return 'jl_system'
+  else if (text.startsWith('[jl_system]') || text.includes('joined the layer') || text.includes('left the layer'))
+    return 'jl_system'
   else if (text.startsWith('[proximity')) return 'proximity_system'
 
   return 'none'

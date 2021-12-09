@@ -12,10 +12,10 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
-import { Folder } from '@styled-icons/fa-solid/Folder'
 import { FileDataType } from './FileDataType'
 import InfiniteScroll from 'react-infinite-scroller'
 import { CircularProgress } from '@mui/material'
+import FolderIcon from '@mui/icons-material/Folder'
 
 function collectMenuProps({ item }) {
   return { item }
@@ -183,7 +183,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
   if (item.type === 'folder') {
     content = (
       <FileListItem
-        iconComponent={Folder}
+        iconComponent={FolderIcon}
         onDoubleClick={onClickItem}
         onClick={null}
         label={item.label}

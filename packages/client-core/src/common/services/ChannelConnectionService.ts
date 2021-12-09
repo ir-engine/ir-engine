@@ -185,6 +185,7 @@ export const ChannelConnectionAction = {
   channelServerProvisioned: (provisionResult: InstanceServerProvisionResult, channelId?: string | null) => {
     return {
       type: 'CHANNEL_SERVER_PROVISIONED' as const,
+      id: provisionResult.id,
       ipAddress: provisionResult.ipAddress,
       port: provisionResult.port,
       channelId: channelId

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Input from './Input'
 import styled from 'styled-components'
-import { Check } from '@styled-icons/fa-solid'
+import CheckIcon from '@mui/icons-material/Check'
 
 let uniqueId = 0
 
@@ -41,7 +41,7 @@ const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: 'label' }))`
  * @author Robert Long
  * @type {styled component}
  */
-const BooleanCheck = (styled as any)(Check)`
+const BooleanCheck = (styled as any)(CheckIcon)`
   position: absolute;
   top: 3px;
   left: 2px;

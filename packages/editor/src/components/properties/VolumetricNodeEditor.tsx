@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Child } from '@styled-icons/fa-solid/Child'
+import VideocamIcon from '@mui/icons-material/Videocam'
 import React from 'react'
 import InputGroup from '../inputs/InputGroup'
 import { Button } from '../inputs/Button'
@@ -66,7 +66,7 @@ export function VolumetricNodeEditor(props) {
 }
 
 //setting iconComponent with icon name
-VolumetricNodeEditor.iconComponent = Child
+VolumetricNodeEditor.iconComponent = VideocamIcon
 
 //setting description and will appear on editor view
 VolumetricNodeEditor.description = i18n.t('editor:properties.volumetric.description')
