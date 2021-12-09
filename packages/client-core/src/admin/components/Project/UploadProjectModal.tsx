@@ -8,11 +8,17 @@ import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import Modal from '@mui/material/Modal'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
+import GitHubIcon from '@mui/icons-material/GitHub'
+import { useAuthState, AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 
 interface Props {
   open: boolean
+  repos: any
   handleClose: any
   scenes?: any
   avatars?: any
@@ -20,7 +26,10 @@ interface Props {
 }
 
 const UploadProjectModal = (props: Props): any => {
-  const { open, handleClose, scenes } = props
+  const authState = useAuthState()
+  const authType = useAuthState().authUser.identityProvider.type.value
+
+  const { open, handleClose, scenes, repos } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
@@ -73,16 +82,34 @@ const UploadProjectModal = (props: Props): any => {
             {processing === false && createOrPatch === 'patch' && (
               <FormControl>
                 <div className={styles.inputConatiner}>
-                  <TextField
-                    className={styles['pack-select']}
-                    id="urlSelect"
+                  <Select
+                    labelId="demo-controlled-open-select-label"
+                    id="demo-controlled-open-select"
                     value={projectURL}
-                    placeholder={'URL'}
+                    fullWidth
+                    displayEmpty
                     onChange={(e) => setProjectURL(e.target.value)}
-                  />
+                    name="projectURL"
+                  >
+                    <MenuItem value="" disabled>
+                      <em>Select Project</em>
+                    </MenuItem>
+                    {repos.length != 0 &&
+                      repos.map((el: any, i) => (
+                        <MenuItem value={`${el.repositoryPath.value}`} key={i}>
+                          {el.name.value} ({el.user.value})
+                        </MenuItem>
+                      ))}
+                  </Select>
                 </div>
                 <div className={styles.buttonConatiner}>
-                  <Button type="submit" variant="contained" color="primary" onClick={tryUploadProject}>
+                  <Button
+                    type="submit"
+                    startIcon={<GitHubIcon />}
+                    variant="contained"
+                    color="primary"
+                    onClick={tryUploadProject}
+                  >
                     Upload Project
                   </Button>
                 </div>

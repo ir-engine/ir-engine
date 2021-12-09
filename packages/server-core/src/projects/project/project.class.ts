@@ -18,6 +18,7 @@ import { getFileKeysRecursive } from '../../media/storageprovider/storageProvide
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { getProjectConfig, onProjectEvent } from './project-helper'
+import { getAuthenticatedRepo } from '../../githubapp/githubapp/githubapp-helper'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
@@ -217,8 +218,11 @@ export class Project extends Service {
     })
     if (existingProjectResult != null) await super.remove(existingProjectResult.id, params)
 
+    const repoPath = await getAuthenticatedRepo(data.url)
+    if (!repoPath) throw new Error('Cannot upload project - Authentication failed')
+
     const git = useGit()
-    await git.clone(data.url, projectLocalDirectory)
+    await git.clone(repoPath, projectLocalDirectory)
 
     await uploadLocalProjectToProvider(projectName)
 

@@ -16,6 +16,7 @@ import TablePagination from '@mui/material/TablePagination'
 import { useAuthState } from '../../../user/services/AuthService'
 import { PROJECT_PAGE_LIMIT, useProjectState } from '../../services/ProjectService'
 import { ProjectService } from '../../services/ProjectService'
+import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
@@ -30,6 +31,8 @@ const Projects = () => {
   const adminProjectState = useProjectState()
   const adminProjects = adminProjectState.projects
   const adminProjectCount = adminProjects.value.length
+  const githubAppState = useGithubAppState()
+  const githubAppRepos = githubAppState.repos
 
   const headCell = [
     // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
@@ -175,6 +178,12 @@ const Projects = () => {
   }, [adminProjectState.updateNeeded.value])
 
   useEffect(() => {
+    if (githubAppState.updateNeeded.value === true) {
+      GithubAppService.fetchGithubAppRepos()
+    }
+  }, [githubAppState.updateNeeded.value])
+
+  useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
 
     return () => {
@@ -285,7 +294,11 @@ const Projects = () => {
             className={styles.tablePagination}
           />
         </div> */}
-        <UploadProjectModal open={uploadProjectsModalOpen} handleClose={() => setUploadProjectsModalOpen(false)} />
+        <UploadProjectModal
+          repos={githubAppRepos}
+          open={uploadProjectsModalOpen}
+          handleClose={() => setUploadProjectsModalOpen(false)}
+        />
       </Paper>
     </div>
   )

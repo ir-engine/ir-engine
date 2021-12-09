@@ -84,6 +84,7 @@ const server = {
   url: '',
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
+  gitPemPath: appRootPath.path.toString() + '/' + process.env.GITHUB_PEM,
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME!,
   matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true'
@@ -194,6 +195,7 @@ const authentication = {
       secret: process.env.FACEBOOK_CLIENT_SECRET!
     },
     github: {
+      appid: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!
     },

@@ -13,6 +13,7 @@ import ScopeService from './scope/service'
 import SettingService from './setting/service'
 import RouteService from './route/service'
 import MatchMakingServices from './matchmaking/services'
+import GithubAppServices from './githubapp/services'
 
 import fs from 'fs'
 import path from 'path'
@@ -55,7 +56,8 @@ export default (app: Application): void => {
     ...SettingService,
     ...RouteService,
     ...installedProjects,
-    ...MatchMakingServices
+    ...MatchMakingServices,
+    ...GithubAppServices
   ].forEach((service) => {
     app.configure(service)
   })
