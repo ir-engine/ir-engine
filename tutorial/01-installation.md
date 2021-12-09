@@ -228,7 +228,7 @@ How to make a user an admin:
 Create a user at `/login`
 
 To locate your User ID:
-In Chrome Dev Tools, write `userId`. This will copy your User ID (As shown in attached screenshot). Copy this user Id as string run it as following command in shell:
+In Chrome Dev Tools console, write `copy(userId)`. This will copy your User ID (As shown in attached screenshot). Paste it in and run the following command in a 'nix shell (e.g. Bash, ZSH):
 
 `npm run make-user-admin -- --id={COPIED_USER_ID}`
 
