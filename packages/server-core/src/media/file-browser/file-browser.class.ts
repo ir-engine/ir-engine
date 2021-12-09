@@ -86,7 +86,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @returns
    */
   async remove(path: string, params: Params) {
-    const dirs = await this.store.listObjects(path + '/', true)
+    const dirs = await this.store.listObjects(path + '/', [], true, null!)
     return await this.store.deleteResources([path, ...dirs.Contents.map((a) => a.Key)])
   }
 }
