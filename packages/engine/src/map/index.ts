@@ -1,6 +1,8 @@
 import { LongLat } from './functions/UnitConversionFunctions'
 import { MapProps } from './MapProps'
 
+// TODO move to functions/
+
 export function getStartCoords(props: MapProps): Promise<LongLat> {
   if (props.useDeviceGeolocation) {
     return new Promise((resolve, reject) =>

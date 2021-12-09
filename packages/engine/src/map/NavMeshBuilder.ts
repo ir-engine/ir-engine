@@ -1,6 +1,8 @@
 import * as YUKA from 'yuka'
 import { Geometry, Position } from 'geojson'
 
+// TODO move to classes/NavMeshBuilder.ts
+
 export class NavMeshBuilder {
   polygons: YUKA.Polygon[] = []
 

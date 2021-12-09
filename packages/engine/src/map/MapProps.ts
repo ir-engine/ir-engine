@@ -1,5 +1,6 @@
 import { Vector3 } from 'three'
 
+// TODO move to ./types.ts
 export interface MapProps {
   name?: string
   scale?: Vector3

@@ -26,6 +26,7 @@ const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projec
 export const copyDefaultProject = () => {
   deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
   copyFolderRecursiveSync(path.join(appRootPath.path, 'packages/projects/default-project'), projectsRootFolder)
+  return Promise.resolve()
 }
 
 const getRemoteURLFromGitData = (project) => {
@@ -92,9 +93,6 @@ export class Project extends Service {
     super(options)
     this.app = app
 
-    // copy default project if it doesn't exist
-    if (!fs.existsSync(path.resolve(projectsRootFolder, 'default-project'))) copyDefaultProject()
-
     if (isDev && !config.db.forceRefresh) {
       this._fetchDevLocalProjects()
     }
@@ -157,7 +155,7 @@ export class Project extends Service {
     if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
       throw new Error(`[Projects]: Project with name ${projectName} already exists`)
 
-    if (projectName === 'default-project' || projectName === 'template-project')
+    if ((!config.db.forceRefresh && projectName === 'default-project') || projectName === 'template-project')
       throw new Error(`[Projects]: Project name ${projectName} not allowed`)
 
     const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
@@ -178,7 +176,7 @@ export class Project extends Service {
     packageData.name = projectName
     fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
 
-    await super.create(
+    return super.create(
       {
         thumbnail: packageData.thumbnail,
         name: projectName,
@@ -228,7 +226,7 @@ export class Project extends Service {
     const projectConfig = (await getProjectConfig(projectName)) ?? {}
 
     // Add to DB
-    await super.create(
+    const returned = await super.create(
       {
         thumbnail: projectConfig.thumbnail,
         name: projectName,
@@ -242,6 +240,8 @@ export class Project extends Service {
     if (projectConfig.onEvent) {
       await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
+
+    return returned
   }
 
   /**
@@ -281,22 +281,24 @@ export class Project extends Service {
   }
 
   async remove(id: Id, params: Params) {
-    try {
-      const { name } = await super.get(id, params)
+    if (id) {
+      try {
+        const { name } = await super.get(id, params)
 
-      const projectConfig = await getProjectConfig(name)
+        const projectConfig = await getProjectConfig(name)
 
-      // run project uninstall script
-      if (projectConfig.onEvent) {
-        await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
+        // run project uninstall script
+        if (projectConfig.onEvent) {
+          await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
+        }
+
+        console.log('[Projects]: removing project', id, name)
+        await deleteProjectFilesInStorageProvider(name)
+        await super.remove(id, params)
+      } catch (e) {
+        console.log(`[Projects]: failed to remove project ${id}`, e)
+        return e
       }
-
-      console.log('[Projects]: removing project', id, name)
-      await deleteProjectFilesInStorageProvider(name)
-      await super.remove(id, params)
-    } catch (e) {
-      console.log(`[Projects]: failed to remove project ${id}`, e)
-      return e
     }
   }
 

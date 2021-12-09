@@ -1,7 +1,6 @@
 {{- if and .Values.api.enabled (ne (.Values.api.ingress.disabled | default "") "true") -}}
 {{- $fullName := include "xrengine.api.fullname" . -}}
 {{- $svcPort := .Values.api.service.port -}}
-{{- $corsSvcPort := .Values.api.service.corsServerPort -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -35,11 +34,7 @@ spec:
               service:
                 name: {{ $fullName }}
                 port:
-                  {{ if (eq . "/cors-proxy(/|$)(.*)") }}
-                  number: {{ $corsSvcPort }}
-                  {{ else }}
                   number: {{ $svcPort }}
-                  {{ end }}
         {{- end }}
   {{- end }}
 {{- end }}

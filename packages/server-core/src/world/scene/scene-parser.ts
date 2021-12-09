@@ -7,7 +7,7 @@ import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 export const sceneRelativePathIdentifier = '__$project$__'
 export const corsPath = isDev
   ? `https://${config.server.hostname}:${config.server.corsServerPort}`
-  : `​https://${config.server.hostname}/cors-proxy`
+  : `https://${config.server.hostname}/cors-proxy`
 
 export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string) => {
   for (const [key, val] of Object.entries(sceneData)) {
@@ -18,7 +18,7 @@ export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: strin
       if (val.includes(sceneRelativePathIdentifier)) {
         sceneData[key] = getCachedAsset(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain)
       } else if (val.startsWith('https://')) {
-        sceneData[key] = `${corsPath}/${val}`
+        sceneData[key] = isDev ? `${corsPath}/${val}` : `${corsPath}/${val.replace('https://', '')}`
       }
     }
   }
@@ -35,6 +35,7 @@ export const cleanSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: strin
         sceneData[key] = val.replace('https://' + cacheDomain + '/projects', sceneRelativePathIdentifier)
       } else if (val.startsWith(corsPath)) {
         sceneData[key] = (val as string).slice(corsPath?.length + 1)
+        if (!isDev && sceneData[key].search(/https:\/\//) < 0) sceneData[key] = 'https://' + sceneData[key]
       }
     }
   }
