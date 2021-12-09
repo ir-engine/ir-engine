@@ -9,8 +9,14 @@ export default (): Hook => {
 
     delete context.result.uri
 
+    const [dbServerConfig] = await context.app.service('server-setting').find()
+    const serverConfig = dbServerConfig || config.server
+
+    const [dbAwsConfig] = await context.app.service('aws-setting').find()
+    const awsConfig = dbAwsConfig || config.aws
+
     const domain =
-      config.server.storageProvider === 'aws' ? config.aws.cloudfront.domain : config.server.localStorageProvider
+      serverConfig.storageProvider === 'aws' ? awsConfig.cloudfront.domain : serverConfig.localStorageProvider
 
     const url = `https://${domain}/${context.result.id || context.data.id}`
 

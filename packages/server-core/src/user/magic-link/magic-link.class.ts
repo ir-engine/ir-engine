@@ -127,17 +127,23 @@ export class Magiclink implements ServiceMethods<Data> {
         ? path.join(emailAccountTemplatesPath, 'magiclink-email.pug')
         : path.join(emailAccountTemplatesPath, 'magiclink-email-subscription.pug')
 
+    const [dbClientConfig] = await this.app.service('client-setting').find()
+    const clientConfig = dbClientConfig || config.client
+
+    const [dbEmailConfig] = await this.app.service('email-setting').find()
+    const emailConfig = dbEmailConfig || config.email
+
     const compiledHTML = pug.compileFile(templatePath)({
-      logo: config.client.logo,
-      title: config.client.title,
+      logo: clientConfig.logo,
+      title: clientConfig.title,
       hashLink,
       username: username
     })
-    const mailSender = config.email.from
+    const mailSender = emailConfig.from
     const email = {
       from: mailSender,
       to: toEmail,
-      subject: config.email.subject.login,
+      subject: emailConfig.subject.login,
       html: compiledHTML
     }
 
@@ -159,9 +165,13 @@ export class Magiclink implements ServiceMethods<Data> {
     const appPath = path.dirname(requireMainFilename())
     const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-sms.pug')
+
+    const [dbClientConfig] = await this.app.service('client-setting').find()
+    const clientConfig = dbClientConfig || config.client
+
     const compiledHTML = pug
       .compileFile(templatePath)({
-        title: config.client.title,
+        title: clientConfig.title,
         hashLink
       })
       .replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.

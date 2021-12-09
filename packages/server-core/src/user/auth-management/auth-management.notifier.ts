@@ -29,13 +29,16 @@ export default (app: Application) => {
         return
       }
 
+      const [dbEmailConfig] = await app.service('email-setting').find()
+      const emailConfig = dbEmailConfig || config.email
+
       const appPath = path.dirname(requireMainFilename())
       const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
       let hashLink
       let email
       let templatePath
       let compiledHTML
-      const mailSender = config.email.from
+      const mailSender = emailConfig.from
 
       switch (type) {
         case 'resendVerifySignup': // sending the identityProvider the verification email

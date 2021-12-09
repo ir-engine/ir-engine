@@ -11,7 +11,7 @@ declare module '../../../declarations' {
   }
 }
 
-export default (app: Application) => {
+export default async (app: Application) => {
   const options = {
     paginate: app.get('paginate')
   }
@@ -24,8 +24,11 @@ export default (app: Application) => {
   const event = new SubscriptionConfirm(options, app)
   event.docs = subscriptionConfirmDocs
 
+  const [dbClientConfig] = await app.service('client-setting').find()
+  const clientConfig = dbClientConfig || config.client
+
   app.use('subscription-confirm', event, (req, res) => {
-    res.redirect(config.client.url)
+    res.redirect(clientConfig.url)
   })
 
   /**
