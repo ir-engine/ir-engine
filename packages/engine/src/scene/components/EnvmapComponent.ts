@@ -4,7 +4,6 @@ import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { CubemapBakeSettings } from '../types/CubemapBakeSettings'
 
 export type EnvmapComponentType = {
-  dirty: boolean
   type: EnvMapSourceType
   envMapTextureType: EnvMapTextureType
   envMapSourceColor: Color

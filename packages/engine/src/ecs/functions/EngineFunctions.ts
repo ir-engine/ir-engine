@@ -124,7 +124,7 @@ export const unloadScene = async (): Promise<void> => {
     removeEntity(entity)
   })
 
-  isClient && configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
+  isClient && configureEffectComposer()
 
   Engine.currentWorld.execute(delta, Engine.currentWorld.elapsedTime + delta)
 

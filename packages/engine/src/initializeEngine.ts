@@ -226,13 +226,8 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
     })
   }
 
-  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/RenderSettingSystem'))
-  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/SkySystem'))
-  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/EnvmapSystem'))
-  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/FogSystem'))
-  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/LightSystem'))
-  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/GroundPlanSystem'))
-  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/ShadowSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/PositionalAudioSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/EntityNodeEventSystem'))
 
   // Scene Systems
   // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))

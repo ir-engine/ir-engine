@@ -132,10 +132,7 @@ export default async function TransformSystem(world: World): Promise<System> {
     if (Engine.isEditor) {
       for (let entity of spawnPointQuery()) {
         const obj3d = getComponent(entity, Object3DComponent)?.value
-
-        if (obj3d) {
-          ;(obj3d as any).helperModel.scale.set(1 / obj3d.scale.x, 1 / obj3d.scale.y, 1 / obj3d.scale.z)
-        }
+        if (obj3d) obj3d.userData.helperModel.scale.set(1 / obj3d.scale.x, 1 / obj3d.scale.y, 1 / obj3d.scale.z)
       }
     }
   }

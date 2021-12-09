@@ -25,8 +25,7 @@ import {
   Intersection,
   Box3,
   Plane,
-  Ray,
-  Matrix4
+  Ray
 } from 'three'
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent, EditorControlComponentType } from '../classes/EditorControlComponent'
@@ -39,9 +38,6 @@ import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
-import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
-import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
@@ -52,8 +48,6 @@ const SELECT_SENSITIVITY = 0.001
  */
 export default async function EditorControlSystem(_: World): Promise<System> {
   const editorControlQuery = defineQuery([EditorControlComponent])
-  const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraTagComponent])
-  const scenePreviewCameraSelectQuery = defineQuery([ScenePreviewCameraTagComponent, SelectTagComponent])
 
   const raycaster = new Raycaster()
   const raycasterResults: Intersection<Object3D>[] = []
@@ -80,7 +74,6 @@ export default async function EditorControlSystem(_: World): Promise<System> {
   const normalizedCurRotationDrag = new Vector3()
   const curRotationDrag = new Vector3()
   const viewDirection = new Vector3()
-  const tempMatrix = new Matrix4()
   let prevRotationAngle = 0
 
   let editorControlComponent: EditorControlComponentType
@@ -518,32 +511,6 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         cameraComponent.cursorDeltaY = getInput(EditorActionSet.cursorDeltaY)
         cameraComponent.dirty = true
       }
-    }
-
-    for (let entity of scenePreviewCameraQuery()) {
-      const component = getComponent(entity, ScenePreviewCameraTagComponent)
-
-      if (component.update) {
-        const obj3d = getComponent(entity, Object3DComponent).value
-        const transformComponent = getComponent(entity, TransformComponent)
-
-        tempMatrix.copy(obj3d.parent!.matrixWorld).invert().multiply(Engine.camera.matrixWorld)
-        tempMatrix.decompose(transformComponent.position, transformComponent.rotation, transformComponent.scale)
-        CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [])
-        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
-        component.update = false
-      }
-    }
-
-    for (let entity of scenePreviewCameraSelectQuery.enter()) {
-      const obj3d = getComponent(entity, Object3DComponent).value
-      Engine.scene.add(obj3d.userData.helper)
-      obj3d.userData.helper.update()
-    }
-
-    for (let entity of scenePreviewCameraSelectQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent).value
-      Engine.scene.remove(obj3d.userData.helper)
     }
   }
 }

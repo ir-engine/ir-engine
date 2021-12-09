@@ -1,3 +1,4 @@
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import * as bitECS from 'bitecs'
 import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
@@ -179,3 +180,6 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
 export type Query = ReturnType<typeof defineQuery>
 
 export const EntityRemovedComponent = createMappedComponent<{}>('EntityRemovedComponent')
+
+export type ComponentDeserializeFunction = (entity: Entity, componentData: ComponentJson) => void
+export type ComponentUpdateFunction = (entity: Entity) => void

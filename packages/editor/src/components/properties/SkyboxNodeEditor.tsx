@@ -21,6 +21,7 @@ import {
 } from '@xrengine/engine/src/scene/components/SkyboxComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { Color } from 'three'
+import { updateSkybox } from '@xrengine/engine/src/scene/functions/SkyboxFunctions'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24
@@ -71,61 +72,93 @@ export const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
 
   //function to handle changes in turbidity Property
   const onChangeTurbidity = (turbidity) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(SkyboxComponent, 'skyboxProps.turbidity', turbidity)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateSkybox,
+      component: SkyboxComponent,
+      properties: { 'skyboxProps.turbidity': turbidity }
+    })
   }
 
   //function to handle changes in rayleigh property
   const onChangeRayleigh = (rayleigh) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(SkyboxComponent, 'skyboxProps.rayleigh', rayleigh)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateSkybox,
+      component: SkyboxComponent,
+      properties: { 'skyboxProps.rayleigh': rayleigh }
+    })
   }
 
   //function to handle the changes in luminance property
   const onChangeLuminance = (luminance) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(SkyboxComponent, 'skyboxProps.luminance', luminance)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateSkybox,
+      component: SkyboxComponent,
+      properties: { 'skyboxProps.luminance': luminance }
+    })
   }
 
   //function to handle the changes in mieCoefficient property
   const onChangeMieCoefficient = (mieCoefficient) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(
-      SkyboxComponent,
-      'skyboxProps.mieCoefficient',
-      mieCoefficient
-    )
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateSkybox,
+      component: SkyboxComponent,
+      properties: { 'skyboxProps.mieCoefficient': mieCoefficient }
+    })
   }
 
   //function to handle the changes in mieDirectionalG property
   const onChangeMieDirectionalG = (mieDirectionalG) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(
-      SkyboxComponent,
-      'skyboxProps.mieDirectionalG',
-      mieDirectionalG
-    )
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateSkybox,
+      component: SkyboxComponent,
+      properties: { 'skyboxProps.mieDirectionalG': mieDirectionalG }
+    })
   }
 
   //function to handle the changes in inclination
   const onChangeInclination = (inclination) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(SkyboxComponent, 'skyboxProps.inclination', inclination)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateSkybox,
+      component: SkyboxComponent,
+      properties: { 'skyboxProps.inclination': inclination }
+    })
   }
 
   //function to handle changes azimuth
   const onChangeAzimuth = (azimuth) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(SkyboxComponent, 'skyboxProps.azimuth', azimuth)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateSkybox,
+      component: SkyboxComponent,
+      properties: { 'skyboxProps.azimuth': azimuth }
+    })
   }
 
   //function to handle changes in distance property
   // const onChangeDistance = (distance) => {
-  //   CommandManager.instance.setPropertyOnSelectionEntities(SkyboxComponent, 'skyboxProps.distance', distance)
+  //   CommandManager.instance.setPropertyOnSelectionEntities({
+  //     updateFunction: updateSkybox,
+  //     component: SkyboxComponent,
+  //     properties: { 'skyboxProps.distance': distance }
+  //   })
   // }
 
   //function to handle the changes skyType
   const onChangeSkyOption = (backgroundType) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(SkyboxComponent, 'backgroundType', backgroundType)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateSkybox,
+      component: SkyboxComponent,
+      properties: { backgroundType }
+    })
   }
 
   //function to handle the changes backgroundPath
-  const onChangeEquirectangularPathOption = (path) => {
-    if (path !== skyComponent.equirectangularPath) {
-      CommandManager.instance.setPropertyOnSelectionEntities(SkyboxComponent, 'equirectangularPath', path)
+  const onChangeEquirectangularPathOption = (equirectangularPath) => {
+    if (equirectangularPath !== skyComponent.equirectangularPath) {
+      CommandManager.instance.setPropertyOnSelectionEntities({
+        updateFunction: updateSkybox,
+        component: SkyboxComponent,
+        properties: { equirectangularPath }
+      })
     }
   }
 
@@ -133,13 +166,21 @@ export const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
     const directory = getDirectoryFromUrl(path)
 
     if (directory !== skyComponent.cubemapPath) {
-      CommandManager.instance.setPropertyOnSelectionEntities(SkyboxComponent, 'cubemapPath', directory)
+      CommandManager.instance.setPropertyOnSelectionEntities({
+        updateFunction: updateSkybox,
+        component: SkyboxComponent,
+        properties: { cubemapPath: directory }
+      })
     }
   }
 
   //function to handle the changes backgroundPath
   const onChangeColorOption = (backgroundColor) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(SkyboxComponent, 'backgroundColor', backgroundColor)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateSkybox,
+      component: SkyboxComponent,
+      properties: { backgroundColor }
+    })
   }
 
   //creating editor view for skybox setting

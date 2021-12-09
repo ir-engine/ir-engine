@@ -40,6 +40,10 @@ import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent
 import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/scene/components/AudioSettingsComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { updateMetaData } from '@xrengine/engine/src/scene/functions/MetaDataFunctions'
+import { updateFog } from '@xrengine/engine/src/scene/functions/FogFunctions'
+import { updateEnvMap } from '@xrengine/engine/src/scene/functions/EnvMapFunctions'
+import { updateRenderSetting } from '@xrengine/engine/src/scene/functions/RenderSettingsFunction'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -170,72 +174,97 @@ export function SceneNodeEditor(props: SceneNodeEditorProps) {
   SceneNodeEditor.description = t('editor:properties.scene.description')
   //creating functions to handle the changes in property of node
   // const onChangeBackground = useSetPropertySelected("background");
-  const onChangeMetaData = useSetPropertyOnSelectedEntities(MetaDataComponent, 'meta_data')
-  const onChangeFogType = useSetPropertyOnSelectedEntities(FogComponent, 'type')
-  const onChangeFogColor = useSetPropertyOnSelectedEntities(FogComponent, 'color')
-  const onChangeFogNearDistance = useSetPropertyOnSelectedEntities(FogComponent, 'near')
-  const onChangeFogFarDistance = useSetPropertyOnSelectedEntities(FogComponent, 'far')
-  const onChangeFogDensity = useSetPropertyOnSelectedEntities(FogComponent, 'density')
+  const onChangeMetaData = useSetPropertyOnSelectedEntities(MetaDataComponent, updateMetaData, 'meta_data')
 
-  const onChangeEnvmapSourceType = useSetPropertyOnSelectedEntities(EnvmapComponent, 'type')
-  const onChangeEnvmapTextureType = useSetPropertyOnSelectedEntities(EnvmapComponent, 'envMapTextureType')
-  const onChangeEnvmapColorSource = useSetPropertyOnSelectedEntities(EnvmapComponent, 'envMapSourceColor')
-  const envMapIntensityChanged = useSetPropertyOnSelectedEntities(EnvmapComponent, 'envMapIntensity')
-  const onChangeEquirectangularURLSource = useSetPropertyOnSelectedEntities(EnvmapComponent, 'envMapSourceURL')
+  const onChangeFogType = useSetPropertyOnSelectedEntities(FogComponent, updateFog, 'type')
+  const onChangeFogColor = useSetPropertyOnSelectedEntities(FogComponent, updateFog, 'color')
+  const onChangeFogNearDistance = useSetPropertyOnSelectedEntities(FogComponent, updateFog, 'near')
+  const onChangeFogFarDistance = useSetPropertyOnSelectedEntities(FogComponent, updateFog, 'far')
+  const onChangeFogDensity = useSetPropertyOnSelectedEntities(FogComponent, updateFog, 'density')
+
+  const onChangeEnvmapSourceType = useSetPropertyOnSelectedEntities(EnvmapComponent, updateEnvMap, 'type')
+  const onChangeEnvmapTextureType = useSetPropertyOnSelectedEntities(EnvmapComponent, updateEnvMap, 'envMapTextureType')
+  const onChangeEnvmapColorSource = useSetPropertyOnSelectedEntities(EnvmapComponent, updateEnvMap, 'envMapSourceColor')
+  const envMapIntensityChanged = useSetPropertyOnSelectedEntities(EnvmapComponent, updateEnvMap, 'envMapIntensity')
+  const onChangeEquirectangularURLSource = useSetPropertyOnSelectedEntities(
+    EnvmapComponent,
+    updateEnvMap,
+    'envMapSourceURL'
+  )
   const onChangeCubemapURLSource = (value) => {
     const directory = getDirectoryFromUrl(value)
     if (directory !== (node as any).envMapSourceURL) {
-      CommandManager.instance.setPropertyOnSelectionEntities(EnvmapComponent, 'envMapSourceURL', directory)
+      CommandManager.instance.setPropertyOnSelectionEntities({
+        component: EnvmapComponent,
+        updateFunction: updateEnvMap,
+        properties: { envMapSourceURL: directory }
+      })
     }
   }
 
   const onChangeUserPositionalAudio = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'usePositionalAudio'
   )
-  const onChangeMediaVolume = useSetPropertyOnSelectedEntities(PositionalAudioSettingsComponent, 'mediaVolume')
+  const onChangeMediaVolume = useSetPropertyOnSelectedEntities(
+    PositionalAudioSettingsComponent,
+    () => {},
+    'mediaVolume'
+  )
   const onChangeMediaDistanceModel = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'mediaDistanceModel'
   )
   const onChangeMediaRolloffFactor = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'mediaRolloffFactor'
   )
   const onChangeMediaRefDistance = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'mediaRefDistance'
   )
   const onChangeMediaMaxDistance = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'mediaMaxDistance'
   )
   const onChangeMediaConeInnerAngle = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'mediaConeInnerAngle'
   )
   const onChangeMediaConeOuterAngle = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'mediaConeOuterAngle'
   )
   const onChangeMediaConeOuterGain = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'mediaConeOuterGain'
   )
   const onChangeAvatarDistanceModel = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'avatarDistanceModel'
   )
   const onChangeAvatarRolloffFactor = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'avatarRolloffFactor'
   )
   const onChangeAvatarRefDistance = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'avatarRefDistance'
   )
   const onChangeAvatarMaxDistance = useSetPropertyOnSelectedEntities(
     PositionalAudioSettingsComponent,
+    () => {},
     'avatarMaxDistance'
   )
 
@@ -250,13 +279,26 @@ export function SceneNodeEditor(props: SceneNodeEditorProps) {
 
   const onChangeOverrideRendererettings = useSetPropertyOnSelectedEntities(
     RenderSettingComponent,
+    updateRenderSetting,
     'overrideRendererSettings'
   )
-  const onChangeLODs = useSetPropertyOnSelectedEntities(RenderSettingComponent, 'LODs')
-  const onChangeUseCSM = useSetPropertyOnSelectedEntities(RenderSettingComponent, 'csm')
-  const onChangeUseToneMapping = useSetPropertyOnSelectedEntities(RenderSettingComponent, 'toneMapping')
-  const onChangeUseToneMappingExposure = useSetPropertyOnSelectedEntities(RenderSettingComponent, 'toneMappingExposure')
-  const onChangeUseShadowMapType = useSetPropertyOnSelectedEntities(RenderSettingComponent, 'shadowMapType')
+  const onChangeLODs = useSetPropertyOnSelectedEntities(RenderSettingComponent, updateRenderSetting, 'LODs')
+  const onChangeUseCSM = useSetPropertyOnSelectedEntities(RenderSettingComponent, updateRenderSetting, 'csm')
+  const onChangeUseToneMapping = useSetPropertyOnSelectedEntities(
+    RenderSettingComponent,
+    updateRenderSetting,
+    'toneMapping'
+  )
+  const onChangeUseToneMappingExposure = useSetPropertyOnSelectedEntities(
+    RenderSettingComponent,
+    updateRenderSetting,
+    'toneMappingExposure'
+  )
+  const onChangeUseShadowMapType = useSetPropertyOnSelectedEntities(
+    RenderSettingComponent,
+    updateRenderSetting,
+    'shadowMapType'
+  )
 
   const metadata = getComponent(node.entity, MetaDataComponent)
   const envmapComponent = getComponent(node.entity, EnvmapComponent)

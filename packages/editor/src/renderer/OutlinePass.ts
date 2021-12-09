@@ -149,6 +149,8 @@ class OverlayMaterial extends ShaderMaterial {
     })
   }
 }
+
+// TODO: - Nayan - Not in use
 export default class OutlinePass extends Pass {
   renderScene: any
   renderCamera: any
@@ -245,8 +247,8 @@ export default class OutlinePass extends Pass {
           // Don't include helper objects in the outline.
           if (
             (child.isMesh || child.isLine || child.isSprite || child.isPoints) &&
-            !child.isHelper &&
-            !child.disableOutline
+            !child.userData.isHelper &&
+            !child.userData.disableOutline
           ) {
             this.selectedRenderables.push(child)
             // Make selected meshes invisible

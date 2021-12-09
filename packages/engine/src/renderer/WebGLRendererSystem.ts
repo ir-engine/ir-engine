@@ -109,7 +109,6 @@ export class EngineRenderer {
   /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
 
-  postProcessingConfig = null
   renderPass: RenderPass
   normalPass: NormalPass
   renderContext: WebGLRenderingContext | WebGL2RenderingContext
@@ -178,7 +177,7 @@ export class EngineRenderer {
     this.needsResize = true
     Engine.renderer.autoClear = true
 
-    configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
+    configureEffectComposer()
 
     EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.SET_POST_PROCESSING, (ev: any) => {
       this.setUsePostProcessing(this.supportWebGL2 && ev.payload)

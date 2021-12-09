@@ -13,7 +13,6 @@ export type SkyBoxShaderProps = {
 }
 
 export type SkyboxComponentType = {
-  dirty: boolean
   backgroundColor: Color
   equirectangularPath: string
   cubemapPath: string

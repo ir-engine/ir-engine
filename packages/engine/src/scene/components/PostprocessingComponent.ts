@@ -2,7 +2,7 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { EffectPropsSchema } from '../classes/PostProcessing'
 
 export type PostprocessingComponentType = {
-  option: EffectPropsSchema
+  options: EffectPropsSchema
 }
 
-export const PostprocessingComponent = createMappedComponent('PostprocessingComponent')
+export const PostprocessingComponent = createMappedComponent<PostprocessingComponentType>('PostprocessingComponent')

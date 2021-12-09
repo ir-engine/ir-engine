@@ -115,7 +115,7 @@ export class SceneManager {
       Engine.scene = null!
     }
 
-    // TODO: nayan - initialize as new Scene()
+    // TODO: - Nayan - initialize as new Scene()
     Engine.scene = new SceneNode() as any
 
     NodeManager.instance.nodes = [Engine.scene]
@@ -167,7 +167,7 @@ export class SceneManager {
       const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
       this.grid.setSize(editorControlComponent.translationSnap)
 
-      configureEffectComposer(this.postProcessingNode?.postProcessingOptions)
+      configureEffectComposer()
       CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
       window.addEventListener('resize', this.onResize)
 
@@ -464,28 +464,6 @@ export class SceneManager {
     }
   }
 
-  /**
-   * Function update used to update components used in editor.
-   *
-   * @author Robert Long
-   */
-  update = (delta: number, time: number) => {
-    if (this.disableUpdate) return
-
-    // TODO: Nayan - remove below if not require
-    Engine.scene.traverse((node: any) => {
-      // if (Engine.renderer.shadowMap.enabled && node.isDirectionalLight) {
-      //   resizeShadowCameraFrustum(node, Engine.scene)
-      // }
-
-      if (node.isNode && node.onUpdate) {
-        node.onUpdate(delta, time)
-      }
-    })
-
-    EngineRenderer.instance.execute(delta)
-  }
-
   updateOutlinePassSelection(): void {
     if (!Engine.effectComposer || !Engine.effectComposer[Effects.OutlineEffect]) return
 
@@ -493,10 +471,9 @@ export class SceneManager {
     for (let i = 0; i < CommandManager.instance.selectedTransformRoots.length; i++) {
       const obj3d = getComponent(CommandManager.instance.selectedTransformRoots[i].entity, Object3DComponent).value
       obj3d.traverse((child: any) => {
-        // TODO: Nayan - update below flags
         if (
-          !child.disableOutline &&
-          !child.isHelper &&
+          !child.userData.disableOutline &&
+          !child.userData.isHelper &&
           (child.isMesh || child.isLine || child.isSprite || child.isPoints)
         ) {
           meshes.push(child)
@@ -523,12 +500,12 @@ type EngineRendererProps = {
   enabled: boolean
 }
 
-// TODO: Probably moved to engine package or will be replaced by already available WebGLRenderSystem
+// TODO: - Nayan - Probably moved to engine package or will be replaced by already available WebGLRenderSystem
 export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
   // await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   // EngineRenderer.instance.dispatchSettingsChangeEvent()
 
   return () => {
-    SceneManager.instance.update(world.delta, world.elapsedTime)
+    if (!SceneManager.instance.disableUpdate) EngineRenderer.instance.execute(world.delta)
   }
 }

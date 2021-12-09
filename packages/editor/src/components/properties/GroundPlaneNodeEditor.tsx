@@ -10,6 +10,7 @@ import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/Grou
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
+import { updateGroundPlane } from '@xrengine/engine/src/scene/functions/GroundPlaneFunctions'
 
 /**
  * Declaring GroundPlaneNodeEditor properties.
@@ -34,21 +35,37 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
 
   //function handles the changes in color property
   const onChangeColor = (color) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(GroundPlaneComponent, 'color', color)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateGroundPlane,
+      component: GroundPlaneComponent,
+      properties: { color }
+    })
   }
 
   const onChangeGenerateNavmesh = (generateNavmesh) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(GroundPlaneComponent, 'generateNavmesh', generateNavmesh)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateGroundPlane,
+      component: GroundPlaneComponent,
+      properties: { generateNavmesh }
+    })
   }
 
   //function handles the changes for receiveShadow property
   const onChangeReceiveShadow = (receiveShadow) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(ShadowComponent, 'receiveShadow', receiveShadow)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateGroundPlane,
+      component: ShadowComponent,
+      properties: { receiveShadow }
+    })
   }
 
   // function handles the changes in walkable property
   const onChangeWalkable = (walkable) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(GroundPlaneComponent, 'walkable', walkable)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateGroundPlane,
+      component: GroundPlaneComponent,
+      properties: { walkable }
+    })
   }
 
   const groundPlaneComponent = getComponent(props.node.entity, GroundPlaneComponent)

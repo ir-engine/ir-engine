@@ -6,7 +6,11 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import { Vector2 } from 'three'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
-import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  ComponentConstructor,
+  ComponentUpdateFunction,
+  getComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 /**
@@ -41,6 +45,7 @@ const ShadowMapResolutionOptions = [
 type LightShadowPropertiesProps = {
   node: EntityTreeNode
   comp: ComponentConstructor<any, any>
+  updateFunction: ComponentUpdateFunction
 }
 
 /**
@@ -55,22 +60,38 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
 
   // function to handle the change in shadowMapResolution propery
   const onChangeShadowMapResolution = (shadowMapResolution) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(props.comp, 'shadowMapResolution', shadowMapResolution)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: props.updateFunction,
+      component: props.comp,
+      properties: { shadowMapResolution }
+    })
   }
 
   // function to handle changes in castShadow propery
   const onChangeCastShadow = (castShadow) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(props.comp, 'castShadow', castShadow)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: props.updateFunction,
+      component: props.comp,
+      properties: { castShadow }
+    })
   }
 
   // fucntion to handle changes in shadowBias property
   const onChangeShadowBias = (shadowBias) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(props.comp, 'shadowBias', shadowBias)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: props.updateFunction,
+      component: props.comp,
+      properties: { shadowBias }
+    })
   }
 
   // function to handle changes shadowRadius property
   const onChangeShadowRadius = (shadowRadius) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(props.comp, 'shadowRadius', shadowRadius)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: props.updateFunction,
+      component: props.comp,
+      properties: { shadowRadius }
+    })
   }
 
   const lightComponent = getComponent(props.node.entity, props.comp)

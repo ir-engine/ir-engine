@@ -21,41 +21,39 @@ import { NameComponent } from '../components/NameComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
-import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
-import { createDirectionalLight } from '../functions/createDirectionalLight'
-import { createGround } from '../functions/createGround'
+import { createDirectionalLight } from './DirectionalLightFunctions'
+import { createGround } from './GroundPlaneFunctions'
 import { createMap } from '../functions/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../functions/createMedia'
 import { createPortal } from '../functions/createPortal'
-import { createSkybox } from '../functions/createSkybox'
+import { createSkybox } from './SkyboxFunctions'
 import { createTriggerVolume } from '../functions/createTriggerVolume'
 import { loadGLTFModel } from '../functions/loadGLTFModel'
 import { loadModelAnimation } from '../functions/loadModelAnimation'
 import { setCameraProperties } from '../functions/setCameraProperties'
-import { setEnvMap } from '../functions/setEnvMap'
-import { setFog } from '../functions/setFog'
+import { setEnvMap } from './EnvMapFunctions'
+import { setFog } from './FogFunctions'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import EntityTree from '../../ecs/classes/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { createScenePreviewCamera } from './createScenePreviewCamera'
-import { createSpawnPoint } from './createSpawnPoint'
-import { createPostprocessing } from './createPostprocessing'
-import { createHemisphereLight } from './createHemisphereLight'
+import { createScenePreviewCamera } from './ScenePreviewCameraFunctions'
+import { createSpawnPoint } from './SpawnPointFunctions'
+import { createPostprocessing } from './PostprocessingFunctions'
+import { createHemisphereLight } from './HemisphereLightFunctions'
 import { IncludeInCubemapBakeComponent } from '../components/IncludeInCubemapBakeComponent'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
-import { MetaDataComponent } from '../components/MetaDataComponent'
-import { resetEngineRenderer } from '../systems/RenderSettingSystem'
-import { RenderSettingComponent } from '../components/RenderSettingComponent'
 import { EntityNodeType } from '../constants/EntityNodeType'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { createShadow } from './ShadowFunctions'
+import { createMetaData } from './MetaDataFunctions'
+import { createRenderSetting, updateRenderSetting } from './RenderSettingsFunction'
+import { resetEngineRenderer } from './RenderSettingsFunction'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -77,10 +75,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
   Engine.sceneLoadPromises = []
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
-  // destroyCSM()
-  // handleRendererSettings(null!, true)
   resetEngineRenderer(true)
-  if (isClient) EngineRenderer.instance.postProcessingConfig = null
 
   const entityMap = {}
 
@@ -93,9 +88,8 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
     addComponent(entity, EntityNodeComponent, { type: sceneEntity.entityType ?? EntityNodeType.DEFAULT })
   })
 
-  // if (true) {
+  // Create Entity Tree
   const world = useWorld()
-
   if (!world.entityTree) world.entityTree = new EntityTree()
 
   const tree = world.entityTree
@@ -103,17 +97,13 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
     const sceneEntity = sceneData.entities[key]
     tree.addEntity(entityMap[key], sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
   })
-  // }
 
   await Promise.all(Engine.sceneLoadPromises)
 
   Engine.sceneLoaded = true
-  // createCSM()
-  if (!Engine.isEditor) {
-    // Configure CSM
-    const renderSetting = getComponent(world.entityTree.rootNode.entity, RenderSettingComponent)
-    renderSetting.dirty = true
-  }
+
+  // Configure CSM
+  updateRenderSetting(world.entityTree.rootNode.entity)
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
 }
@@ -139,11 +129,8 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
   const world = useWorld()
   switch (name) {
     case 'mtdata':
-      //if (isClient && Engine.isBot) {
-      addComponent(entity, MetaDataComponent, { ...component.data, dirty: true })
-      console.log('scene_metadata|' + component.data.meta_data)
+      createMetaData(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE
-      //}
       break
 
     case '_metadata':
@@ -229,7 +216,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       break
 
     case 'ground-plane':
-      createGround(entity, component.data)
+      createGround(entity, component)
       sceneEntity.entityType = EntityNodeType.GROUND_PLANE
       break
 
@@ -278,12 +265,12 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       break
 
     case 'fog':
-      setFog(entity, component.data)
+      setFog(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE
       break
 
     case 'skybox':
-      createSkybox(entity, component.data as any)
+      createSkybox(entity, component)
       sceneEntity.entityType = EntityNodeType.SKYBOX
       break
 
@@ -293,17 +280,12 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       break
 
     case 'renderer-settings':
-      addComponent(entity, RenderSettingComponent, {
-        ...component.data,
-        LODs: new Vector3(component.data.LODs.x, component.data.LODs.y, component.data.LODs.z),
-        dirty: true,
-        csm: component.data.csm
-      })
+      createRenderSetting(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE
       break
 
     case 'spawn-point':
-      createSpawnPoint(entity)
+      createSpawnPoint(entity, component)
       sceneEntity.entityType = EntityNodeType.SPAWN_POINT
       break
 
@@ -313,10 +295,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       break
 
     case 'shadow':
-      addComponent(entity, ShadowComponent, {
-        castShadow: component.data.cast,
-        receiveShadow: component.data.receive
-      })
+      createShadow(entity, component)
       break
 
     case 'collider': {
@@ -390,7 +369,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       break
 
     case 'postprocessing':
-      createPostprocessing(entity, component.data)
+      createPostprocessing(entity, component)
       sceneEntity.entityType = EntityNodeType.POSTPROCESSING
       break
 
@@ -407,7 +386,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       break
 
     case 'envmap':
-      setEnvMap(entity, component.data)
+      setEnvMap(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE
       break
 

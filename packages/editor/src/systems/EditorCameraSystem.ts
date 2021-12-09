@@ -66,7 +66,7 @@ export default async function GizmoSystem(world: World): Promise<System> {
           .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 4)
         camera.position.copy(cameraComponent.center).add(delta)
 
-        cameraComponent.focusedObjects = null
+        cameraComponent.focusedObjects = null!
       }
 
       if (cameraComponent.isPanning) {

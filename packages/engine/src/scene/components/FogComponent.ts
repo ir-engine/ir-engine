@@ -3,7 +3,6 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { FogType } from '../constants/FogType'
 
 export type FogComponentType = {
-  dirty: boolean
   type: FogType
   color: Color
   density: number

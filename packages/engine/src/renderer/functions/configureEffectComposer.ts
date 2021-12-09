@@ -9,23 +9,26 @@ import {
 } from 'postprocessing'
 import { NearestFilter, RGBFormat, WebGLRenderTarget } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
+import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
 import { EffectMap, Effects } from '../../scene/classes/PostProcessing'
-import { EngineRenderer } from '../WebGLRendererSystem'
+import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
 
-export const configureEffectComposer = (postprocessingComponent: any, remove?: boolean): void => {
+export const configureEffectComposer = (remove?: boolean): void => {
   if (remove) {
     Engine.effectComposer = null!
     return
   }
+
+  const comps = getAllComponentsOfType(PostprocessingComponent)
+
+  if (!comps.length) return
+  const postProcessing = comps[0]
 
   if (!Engine.effectComposer) Engine.effectComposer = new EffectComposer(Engine.renderer)
   else Engine.effectComposer.removeAllPasses()
 
   const renderPass = new RenderPass(Engine.scene, Engine.camera)
   Engine.effectComposer.addPass(renderPass)
-
-  if (!postprocessingComponent) return
-  EngineRenderer.instance.postProcessingConfig = postprocessingComponent
 
   const effects: any[] = []
   const effectKeys = EffectMap.keys()
@@ -45,7 +48,7 @@ export const configureEffectComposer = (postprocessingComponent: any, remove?: b
   })
 
   for (let key of effectKeys) {
-    const effect = postprocessingComponent[key]
+    const effect = postProcessing.options[key]
 
     if (!effect || !effect.isActive) continue
     const effectClass = EffectMap.get(key)?.EffectClass

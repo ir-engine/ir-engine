@@ -9,6 +9,7 @@ import { CommandManager } from '../../managers/CommandManager'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { updateHemisphereLight } from '@xrengine/engine/src/scene/functions/HemisphereLightFunctions'
 
 type HemisphereLightNodeEditorProps = {
   node: EntityTreeNode
@@ -25,17 +26,29 @@ export const HemisphereLightNodeEditor = (props: HemisphereLightNodeEditorProps)
 
   //function handle change in skyColor property
   const onChangeSkyColor = (skyColor) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(HemisphereLightComponent, 'skyColor', skyColor)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateHemisphereLight,
+      component: HemisphereLightComponent,
+      properties: { skyColor }
+    })
   }
 
   //function to handle changes in ground property
   const onChangeGroundColor = (groundColor) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(HemisphereLightComponent, 'groundColor', groundColor)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateHemisphereLight,
+      component: HemisphereLightComponent,
+      properties: { groundColor }
+    })
   }
 
   //function to handle changes in intensity property
   const onChangeIntensity = (intensity) => {
-    CommandManager.instance.setPropertyOnSelectionEntities(HemisphereLightComponent, 'intensity', intensity)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateHemisphereLight,
+      component: HemisphereLightComponent,
+      properties: { intensity }
+    })
   }
 
   //renders view to customize HemisphereLightNode

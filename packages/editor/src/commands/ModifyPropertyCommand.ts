@@ -3,17 +3,29 @@ import { serializeProperties, serializeObject3DArray } from '../functions/debug'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
+import {
+  ComponentConstructor,
+  ComponentUpdateFunction,
+  getComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 
 type PropertyType = {
   [key: string]: any
 }
 
 export interface ModifyPropertyCommandParams extends CommandParams {
-  properties?: PropertyType
+  properties: PropertyType
+  component: ComponentConstructor<any, any>
+  updateFunction: ComponentUpdateFunction
 }
 
 export default class ModifyPropertyCommand extends Command {
   newProperties: PropertyType
+
+  component: ComponentConstructor<any, any>
+
+  updateFunction: ComponentUpdateFunction
 
   oldProperties: PropertyType[]
 
@@ -30,6 +42,9 @@ export default class ModifyPropertyCommand extends Command {
     this.newProperties = {}
     this.oldProperties = []
 
+    this.component = params.component
+    this.updateFunction = params.updateFunction
+
     for (const propertyName in params.properties) {
       if (!Object.prototype.hasOwnProperty.call(params.properties, propertyName)) continue
 
@@ -38,13 +53,13 @@ export default class ModifyPropertyCommand extends Command {
     }
 
     for (let i = 0; i < objects.length; i++) {
-      const object = objects[i]
+      const comp = getComponent(objects[i], this.component)
       const objectOldProperties = {}
 
       for (const propertyName in params.properties) {
         if (!Object.prototype.hasOwnProperty.call(params.properties, propertyName)) continue
 
-        const { result, finalProp } = this.getNestedObject(object, propertyName)
+        const { result, finalProp } = this.getNestedObject(comp, propertyName)
 
         const oldValue = result[finalProp]
 
@@ -56,24 +71,25 @@ export default class ModifyPropertyCommand extends Command {
   }
 
   execute() {
-    this.updateProperties(this.affectedObjects, this.newProperties)
+    this.updateProperties(this.affectedObjects, this.newProperties, this.component)
   }
 
   shouldUpdate(newCommand: ModifyPropertyCommand): boolean {
     return (
       arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects) &&
-      arrayShallowEqual(Object.keys(this.newProperties), Object.keys(newCommand.newProperties))
+      arrayShallowEqual(Object.keys(this.newProperties), Object.keys(newCommand.newProperties)) &&
+      this.component === newCommand.component
     )
   }
 
   update(command: ModifyPropertyCommand) {
     this.newProperties = command.newProperties
-    this.updateProperties(this.affectedObjects, command.newProperties)
+    this.updateProperties(this.affectedObjects, command.newProperties, this.component)
   }
 
   undo() {
     for (let i = 0; i < this.oldProperties.length; i++) {
-      this.updateProperties(this.affectedObjects, this.oldProperties[i])
+      this.updateProperties(this.affectedObjects, this.oldProperties[i], this.component)
     }
   }
 
@@ -83,40 +99,31 @@ export default class ModifyPropertyCommand extends Command {
     )} properties: ${serializeProperties(this.newProperties)}`
   }
 
-  emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects)
-    }
-  }
+  updateProperties(entities: Entity[], properties: PropertyType, component: ComponentConstructor<any, any>): void {
+    for (let i = 0; i < entities.length; i++) {
+      const comp = getComponent(entities[i], component)
 
-  updateProperties(objects: any[], properties?: PropertyType): void {
-    for (const propertyName in properties) {
-      if (!Object.prototype.hasOwnProperty.call(properties, propertyName)) continue
+      if (!comp) continue
 
-      for (let i = 0; i < objects.length; i++) {
-        const object = objects[i]
+      for (const propertyName in properties) {
+        if (!Object.prototype.hasOwnProperty.call(properties, propertyName)) continue
 
         const value = properties[propertyName]
-
-        const { result, finalProp } = this.getNestedObject(object, propertyName)
+        const { result, finalProp } = this.getNestedObject(comp, propertyName)
 
         if (value && value.copy) {
-          if (!result[finalProp]) {
-            result[finalProp] = new value.constructor()
-          }
-
+          if (!result[finalProp]) result[finalProp] = new value.constructor()
           result[finalProp].copy(value)
         } else {
           result[finalProp] = value
         }
-
-        if (object.onChange) {
-          object.onChange(propertyName)
-        }
-
-        object.dirty = true
       }
 
+      this.updateFunction(entities[i])
+    }
+
+    for (const propertyName in properties) {
+      if (!Object.prototype.hasOwnProperty.call(properties, propertyName)) continue
       CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, propertyName)
     }
   }

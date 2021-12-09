@@ -114,13 +114,11 @@ export class CommandManager extends EventEmitter {
     this.history.execute(new this.commands[command](this.selected, params))
   }
 
-  setProperty(affectedObjects: any, name: string, value: any, withHistory = true) {
-    const properties = { [name]: value }
-
+  setProperty(affectedEntities: Entity[], params: ModifyPropertyCommandParams, withHistory = true) {
     if (withHistory) {
-      this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, affectedObjects, { properties })
+      this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, affectedEntities, params)
     } else {
-      this.executeCommand(EditorCommands.MODIFY_PROPERTY, affectedObjects, { properties })
+      this.executeCommand(EditorCommands.MODIFY_PROPERTY, affectedEntities, params)
     }
   }
 
@@ -128,42 +126,13 @@ export class CommandManager extends EventEmitter {
     this.setProperty(this.selected, name, value, withHistory)
   }
 
-  setPropertyOnSelectionEntities(
-    component: ComponentConstructor<any, any>,
-    name: string,
-    value: any,
-    withHistory = true
-  ) {
-    const comps = [] as ComponentConstructor<any, any>[]
-    this.selected.forEach((node: EntityTreeNode) => {
-      const comp = this.getComponentFromEntity(node.entity, component)
-      if (comp) comps.push(comp)
-    })
-
-    this.setProperty(comps, name, value, withHistory)
+  setPropertyOnSelectionEntities(params: ModifyPropertyCommandParams, withHistory = true) {
+    const entities = this.selected.map((n: EntityTreeNode) => n.entity)
+    this.setProperty(entities, params, withHistory)
   }
 
-  setPropertyOnEntity(
-    entity: Entity,
-    component: ComponentConstructor<any, any>,
-    name: string,
-    value: any,
-    withHistory = true
-  ) {
-    const comp = this.getComponentFromEntity(entity, component)
-    if (comp) this.setProperty(comp, name, value, withHistory)
-  }
-
-  getComponentFromEntity(entity: Entity, component: ComponentConstructor<any, any>) {
-    let comp = getComponent(entity, component)
-
-    if (!comp) {
-      console.warn('Component is not defined on entity ' + entity)
-      return
-    }
-
-    comp.dirty = true
-    return comp
+  setPropertyOnEntity(entity: Entity, params: ModifyPropertyCommandParams, withHistory = true) {
+    this.setProperty([entity], params, withHistory)
   }
 
   emitEvent = (event: EditorEvents, ...args: any[]): void => {
