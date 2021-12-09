@@ -9,6 +9,8 @@ import * as authentication from '@feathersjs/authentication'
 import fs from 'fs'
 import path from 'path'
 import appRootPath from 'app-root-path'
+import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
+import config from '../../appconfig'
 
 const { authenticate } = authentication.hooks
 
@@ -29,8 +31,11 @@ export default (app: Application): void => {
   }
 
   // copy default project if it doesn't exist
-  if (!fs.existsSync(path.resolve(path.join(appRootPath.path, 'packages/projects/projects/'), 'default-project')))
-    copyDefaultProject()
+  if (
+    config.db.forceRefresh &&
+    fs.existsSync(path.resolve(path.join(appRootPath.path, 'packages/projects/projects/'), 'default-project'))
+  )
+    deleteFolderRecursive(path.join(appRootPath.path, 'packages/projects/projects/', 'default-project'))
 
   const projectClass = new Project(options, app)
   projectClass.docs = projectDocs
