@@ -1,8 +1,8 @@
 import React from 'react'
-import { Analytics } from '@styled-icons/material/Analytics/Analytics.esm'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
+import AnalyticsIcon from '@mui/icons-material/Analytics'
 import { CommandManager } from '../../managers/CommandManager'
 
 type MetadataNodeEditorProps = {
@@ -27,6 +27,6 @@ export function MetadataNodeEditor(props: MetadataNodeEditorProps) {
   )
 }
 
-MetadataNodeEditor.iconComponent = Analytics
+MetadataNodeEditor.iconComponent = AnalyticsIcon
 
 export default MetadataNodeEditor

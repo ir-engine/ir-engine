@@ -1,4 +1,3 @@
-import { DoorOpen } from '@styled-icons/fa-solid'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
@@ -12,6 +11,7 @@ import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { CommandManager } from '../../managers/CommandManager'
 import { client } from '@xrengine/client-core/src/feathers'
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
@@ -175,6 +175,6 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
   )
 }
 
-PortalNodeEditor.iconComponent = DoorOpen
+PortalNodeEditor.iconComponent = MeetingRoomIcon
 
 export default PortalNodeEditor
