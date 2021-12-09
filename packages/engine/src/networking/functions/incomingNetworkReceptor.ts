@@ -26,6 +26,8 @@ export function incomingNetworkReceptor(action) {
       })
     })
 
+    .when(NetworkWorldAction.joinedWorld.matchesFromAny, ({}) => {})
+
     .when(NetworkWorldAction.destroyClient.matches, ({ userId }) => {
       for (const eid of world.getOwnedNetworkObjects(userId)) {
         const { networkId } = getComponent(eid, NetworkObjectComponent)

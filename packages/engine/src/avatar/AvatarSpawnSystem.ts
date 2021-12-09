@@ -17,6 +17,7 @@ import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/comp
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { AvatarComponent } from './components/AvatarComponent'
+import { dispatchFrom } from '../networking/functions/dispatchFrom'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -73,6 +74,7 @@ export default async function AvatarSpawnSystem(world: World): Promise<System> {
           addComponent(entity, LocalInputTagComponent, {})
           addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
           addComponent(entity, PersistTagComponent, {})
+          dispatchFrom(Engine.userId, () => NetworkWorldAction.joinedWorld({ userId: Engine.userId })).to(world.hostId)
         }
       }
     })
