@@ -80,6 +80,7 @@ export default class Model extends Object3D {
       if (this.animationMixer && clip) {
         this.activeClipAction = this.animationMixer.clipAction(clip)
         this.activeClipAction.play()
+        console.log(this.activeClipAction, this)
       } else {
         this.activeClipAction = null
       }

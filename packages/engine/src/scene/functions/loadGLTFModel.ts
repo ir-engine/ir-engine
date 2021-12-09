@@ -20,8 +20,9 @@ import { setObjectLayers } from './setObjectLayers'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 
-export const parseObjectComponents = (entity: Entity, res: Mesh | Scene) => {
+export const parseObjectComponents = (entity: Entity, res: Scene) => {
   const meshesToProcess: Mesh[] = []
 
   res.traverse((mesh: Mesh) => {
@@ -88,8 +89,10 @@ export const parseObjectComponents = (entity: Entity, res: Mesh | Scene) => {
   }
 }
 
-export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, scene: Mesh | Scene) => {
-  console.log('parseGLTFModel', entity, component, scene)
+export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, gltf: GLTF) => {
+  const { scene, animations } = gltf
+  scene.animations = animations
+  console.log('parseGLTFModel', entity, component, scene, animations)
 
   const world = useWorld()
   setObjectLayers(scene, ObjectLayers.Render, ObjectLayers.Scene)
@@ -135,18 +138,18 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
   }
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
-  if (scene.animations?.length) {
-    console.log('scene.animations', scene.animations)
-    // We only have to update the mixer time for this animations on each frame
-    const object3d = getComponent(entity, Object3DComponent)
-    const mixer = new AnimationMixer(object3d.value)
+  // if (scene.animations?.length) {
+  //   console.log('scene.animations', scene.animations)
+  //   // We only have to update the mixer time for this animations on each frame
+  //   const object3d = getComponent(entity, Object3DComponent)
+  //   const mixer = new AnimationMixer(object3d.value)
 
-    addComponent(entity, AnimationComponent, {
-      mixer,
-      animationSpeed: 1,
-      animations: scene.animations
-    })
-  }
+  //   addComponent(entity, AnimationComponent, {
+  //     mixer,
+  //     animationSpeed: 1,
+  //     animations: scene.animations
+  //   })
+  // }
 
   if (component.data.textureOverride) {
     // we should push this to ECS, something like a SceneObjectLoadComponent,
@@ -205,7 +208,7 @@ export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => 
         entity
       },
       (res) => {
-        parseGLTFModel(entity, component, res.scene)
+        parseGLTFModel(entity, component, res)
         resolve()
       },
       null!,

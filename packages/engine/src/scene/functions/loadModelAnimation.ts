@@ -13,32 +13,32 @@ export const loadModelAnimation = (entity: Entity, component: SceneDataComponent
   if (!object3d) {
     console.warn('Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?')
   }
-  console.log(component, object3d.value)
   const animations = component.data.hasAvatarAnimations
     ? AnimationManager.instance._animations
     : object3d.value.animations
   const mixer = new AnimationMixer(object3d.value)
 
-  const animationComponent = addComponent(entity, AnimationComponent, {
+  addComponent(entity, AnimationComponent, {
     animations,
     mixer,
     animationSpeed: 1
   })
-  const currentState = new AnimationState()
-  if (component.data.activeClipIndex >= 0) {
-    const clip = animationComponent.animations[component.data.activeClipIndex]
-    const action = animationComponent.mixer.clipAction(
-      AnimationClip.findByName(animationComponent.animations, clip.name)
-    )
+
+  // const currentState = new AnimationState()
+  if (typeof component.data.activeClipIndex === 'number') {
+    const clip = animations[component.data.activeClipIndex]
+    const action = mixer.clipAction(AnimationClip.findByName(animations, clip.name))
     action.setEffectiveWeight(1)
-    currentState.animations = [
-      {
-        name: clip.name,
-        weight: 1,
-        loopType: LoopRepeat,
-        action
-      }
-    ] as any
-    currentState.animations[0].action.play()
+    action.play()
+    console.log(clip, action)
+    // currentState.animations = [
+    //   {
+    //     name: clip.name,
+    //     weight: 1,
+    //     loopType: LoopRepeat,
+    //     action
+    //   }
+    // ] as any
+    // currentState.animations[0].action.play()
   }
 }

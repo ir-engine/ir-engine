@@ -1,5 +1,6 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
+import { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { createGLTFLoader } from './createGLTFLoader'
 import { instanceGLTF } from './transformGLTF'
 
@@ -13,7 +14,7 @@ export interface LoadGLTFResultInterface {
   stats: any
 }
 const loader = createGLTFLoader()
-export function getLoader(): any {
+export function getLoader(): GLTFLoader {
   return loader
 }
 
@@ -27,8 +28,8 @@ export function disposeDracoLoaderWorkers(): void {
  * @param url URL of the asset.
  * @returns a promise of {@link LoadGLTFResultInterface}.
  */
-export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
-  return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
+export async function LoadGLTF(url: string): Promise<GLTF> {
+  return await new Promise<GLTF>((resolve, reject) => {
     getLoader().load(
       url,
       (gltf) => {
@@ -38,9 +39,9 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
         })
 
         loadExtentions(gltf)
-        resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} })
+        resolve(gltf)
       },
-      null,
+      null!,
       (e) => {
         console.log(e)
         reject(e)
@@ -55,12 +56,12 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
  * @param url URL of the asset.
  * @returns a promise of {@link LoadGLTFResultInterface}.
  */
-export async function LoadInstancedGLTF(url: string): Promise<LoadGLTFResultInterface> {
+export async function LoadInstancedGLTF(url: string): Promise<GLTF> {
   let buffer = await instanceGLTF(url)
-  return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
+  return await new Promise<GLTF>((resolve, reject) => {
     getLoader().parse(
       buffer,
-      null,
+      null!,
       (gltf) => {
         // TODO: Remove me when we add retargeting
         gltf.scene.traverse((o) => {
@@ -68,7 +69,7 @@ export async function LoadInstancedGLTF(url: string): Promise<LoadGLTFResultInte
         })
 
         loadExtentions(gltf)
-        resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} })
+        resolve(gltf)
       },
       (e) => {
         console.log(e)

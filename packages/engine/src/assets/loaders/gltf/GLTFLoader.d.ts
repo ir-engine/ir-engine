@@ -12,7 +12,8 @@ import {
   Object3D,
   Material,
   SkinnedMesh,
-  Texture
+  Texture,
+  Scene
 } from 'three'
 
 import { DRACOLoader } from './DRACOLoader'
@@ -20,8 +21,8 @@ import { KTX2Loader } from './KTX2Loader'
 
 export interface GLTF {
   animations: AnimationClip[]
-  scene: Group
-  scenes: Group[]
+  scene: Scene
+  scenes: Scene[]
   cameras: Camera[]
   asset: {
     copyright?: string | undefined
