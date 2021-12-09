@@ -35,6 +35,8 @@ sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install build-essential
 npm install
+npm run dev-docker
+npm run dev-reinit
 ```
 
 Please make sure you've followed everything in these instructions:
@@ -71,13 +73,15 @@ https://docs.microsoft.com/en-us/windows/wsl/wsl-config#network
 
 ```
    npm install
+   npm run dev-docker
+   npm run dev-reinit
 ```
 
 Or if you are on a M1 based Mac
 
 (Recommended)
 1) Duplicate the Terminal app, and configure it to run in Rosetta 
-2) Run `npm install` in Rosetta Terminal
+2) Run the above in Rosetta Terminal
 
 (Not recommended) 
 ```
@@ -123,6 +127,8 @@ If you are lucky, this will just work. However, you will may encounter some issu
 ```
 cd path/to/xrengine
 npm install
+npm run dev-docker
+npm run dev-reinit
 npm run dev
 ```
 
@@ -144,6 +150,8 @@ If you want to setup XREngine docker instances, client, server, and/or game-serv
 ```
 cd path/to/xrengine
 npm install
+npm run dev-docker
+npm run dev-reinit
 ```
 
 You should not need to use sudo in any case.
@@ -190,9 +198,13 @@ The default username is 'server', the default password is 'password', the defaul
    Run ```npm run dev-reinit``` or if on windows ```npm run dev-reinit-windows```
    After several seconds, there should be no more logging.
    Some of the final lines should read like this:
-   ```Executing (default): SELECT 'id', 'name', 'sceneId', 'locationSettingsId', 'slugifiedName', 'maxUsersPerInstance', 'createdAt', 'updatedAt' FROM 'location' AS 'location' WHERE ('location'.'id' = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61') AND 'location'.'id' IN ('98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'); Seeded```
+   ```
+   Server Ready
+   Executing (default): SET FOREIGN_KEY_CHECKS = 1
+   Server EXIT
+   ```
    
-    At this point, the database has been seeded. You can shut down the server with CTRL+C.
+   At this point, the database has been seeded.
 
 ### 5. Local file server configuration
    If the .env.local file y ou have has the line 

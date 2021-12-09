@@ -35,9 +35,9 @@ export default class Seeder {
 
   seed(cfg): Promise<any> {
     return new Promise((resolve, reject) => {
-      // if (!cfg.path) {
-      //   throw new Error('You must include the path of every service you want to seed.')
-      // }
+      if (!cfg.path) {
+        throw new Error('You must include the path of every service you want to seed.')
+      }
 
       if (!cfg.template && !cfg.templates) {
         throw new Error('You must specify a template or array of templates for seeded objects.')
