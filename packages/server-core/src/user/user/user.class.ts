@@ -31,11 +31,13 @@ export class User extends Service {
     const skip = params.query?.$skip ? params.query.$skip : 0
     const limit = params.query?.$limit ? params.query.$limit : 10
     const searchUser = params.query?.data
-    if (action === 'inventory') {
-      delete params.query?.action
-      // WARNING: we probably dont want to do this
-      return await super.find(params)
-    } else if (action === 'withRelation') {
+    // this is a privacy & security vulnerability, please rethink the implementation here and on the front end.
+    // if (action === 'inventory') {
+    //   delete params.query?.action
+    //   // WARNING: we probably dont want to do this
+    //   return await super.find(params)
+    // } else
+    if (action === 'withRelation') {
       const userId = params.query?.userId
       const search = params.query?.search as string
 
