@@ -274,8 +274,8 @@ export default (app: Application): void => {
                 console.log('Could not update instance, likely because it is a local one that does not exist')
               }
             }
-            // console.log(`Patching user ${user.id} instanceId to ${app.instance.id}`);
             const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
+            // console.log(`Patching user ${user.id} ${instanceIdKey} to ${app.instance.id}`);
             await app.service('user').patch(userId, {
               [instanceIdKey]: app.instance.id
             })
@@ -309,7 +309,7 @@ export default (app: Application): void => {
                 {
                   targetObjectId: app.instance.id,
                   targetObjectType: 'instance',
-                  text: `[jl_system]${user.name} joined the layer`,
+                  text: `${user.name} joined the layer`,
                   isNotification: true
                 },
                 {
@@ -391,12 +391,12 @@ export default (app: Application): void => {
           if (identityProvider != null && identityProvider.id != null) {
             const userId = identityProvider.userId
             const user = await app.service('user').get(userId)
-            if (app.isChannelInstance !== true)
+            if (!app.isChannelInstance)
               await app.service('message').create(
                 {
                   targetObjectId: app.instance.id,
                   targetObjectType: 'instance',
-                  text: `[jl_system]${user.name} left the layer`,
+                  text: `${user.name} left the layer`,
                   isNotification: true
                 },
                 {
@@ -428,29 +428,26 @@ export default (app: Application): void => {
 
               const user = await app.service('user').get(userId)
               const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
-              if (
-                (Engine.currentWorld.clients.has(userId) && config.kubernetes.enabled) ||
-                process.env.APP_ENV === 'development'
-              )
-                await app
-                  .service('user')
-                  .patch(
-                    null,
-                    {
-                      [instanceIdKey]: null
-                    },
-                    {
-                      query: {
-                        id: user.id,
-                        [instanceIdKey]: instanceId
-                      },
+              // Patch the user's (channel)instanceId to null if they're leaving this instance.
+              // But, don't change their (channel)instanceId if it's already something else.
+              await app
+                .service('user')
+                .patch(
+                  null,
+                  {
+                    [instanceIdKey]: null
+                  },
+                  {
+                    query: {
+                      id: user.id,
                       [instanceIdKey]: instanceId
                     }
-                  )
-                  .catch((err) => {
-                    console.warn("Failed to patch user, probably because they don't have an ID yet")
-                    console.log(err)
-                  })
+                  }
+                )
+                .catch((err) => {
+                  console.warn("Failed to patch user, probably because they don't have an ID yet")
+                  console.log(err)
+                })
               await app.service('instance-attendance').patch(
                 null,
                 {

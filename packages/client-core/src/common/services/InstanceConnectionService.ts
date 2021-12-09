@@ -16,6 +16,7 @@ import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/I
 //State
 const state = createState({
   instance: {
+    id: '',
     ipAddress: '',
     port: ''
   },
@@ -44,7 +45,7 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
         })
       case 'INSTANCE_SERVER_PROVISIONED':
         return s.merge({
-          instance: { ipAddress: action.ipAddress, port: action.port },
+          instance: { id: action.id, ipAddress: action.ipAddress, port: action.port },
           locationId: action.locationId!,
           sceneId: action.sceneId!,
           instanceProvisioning: false,
@@ -197,6 +198,7 @@ export const InstanceConnectionAction = {
   ) => {
     return {
       type: 'INSTANCE_SERVER_PROVISIONED' as const,
+      id: provisionResult.id,
       ipAddress: provisionResult.ipAddress,
       port: provisionResult.port,
       locationId: locationId,

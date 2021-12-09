@@ -5,7 +5,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import SelectInput from '../inputs/SelectInput'
 import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
 import VideoInput from '../inputs/VideoInput'
-import { Video } from '@styled-icons/fa-solid/Video'
+import VideocamIcon from '@mui/icons-material/Videocam'
 import AudioSourceProperties from './AudioSourceProperties'
 import useSetPropertySelected from './useSetPropertySelected'
 import { ControlledStringInput } from '../inputs/StringInput'
@@ -70,7 +70,7 @@ export function VideoNodeEditor(props) {
 }
 
 // setting iconComponent with icon name
-VideoNodeEditor.iconComponent = Video
+VideoNodeEditor.iconComponent = VideocamIcon
 
 // setting description will appears on editor view
 VideoNodeEditor.description = i18n.t('editor:properties.video.description')

@@ -1,6 +1,6 @@
-import { Map } from '@styled-icons/fa-solid/Map'
 import i18n from 'i18next'
 import React from 'react'
+import MapIcon from '@mui/icons-material/Map'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
@@ -78,6 +78,6 @@ export function MapNodeEditor(props: MapNodeEditorProps) {
   )
 }
 
-MapNodeEditor.iconComponent = Map
+MapNodeEditor.iconComponent = MapIcon
 
 export default MapNodeEditor
