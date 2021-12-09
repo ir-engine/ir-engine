@@ -3,8 +3,8 @@ import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
 import { Vector3 } from 'three'
 import styled from 'styled-components'
-import { Link } from '@styled-icons/fa-solid/Link'
-import { Unlink } from '@styled-icons/fa-solid/Unlink'
+import LinkIcon from '@mui/icons-material/Link'
+import LinkOffIcon from '@mui/icons-material/LinkOff'
 import Hidden from '../layout/Hidden'
 
 export const Vector3InputContainer = (styled as any).div`
@@ -108,7 +108,7 @@ export const Vector3Input = (props: Vector3InputProp) => {
         <UniformButtonContainer>
           <Hidden as="input" id={checkboxId} type="checkbox" checked={uniformEnabled} onChange={onToggleUniform} />
           <label title="Uniform Scale" htmlFor={checkboxId}>
-            {uniformEnabled ? <Link /> : <Unlink />}
+            {uniformEnabled ? <LinkIcon /> : <LinkOffIcon />}
           </label>
         </UniformButtonContainer>
       )}

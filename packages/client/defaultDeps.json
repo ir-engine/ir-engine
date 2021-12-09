@@ -141,7 +141,6 @@
     "@mui/material/colors",
     "@mui/styles/createStyles",
     "@mui/styles/makeStyles",
-    "@styled-icons/material/Analytics/Analytics.esm",
     "@turf/turf",
     "@tweenjs/tween.js",
     "bitecs",
