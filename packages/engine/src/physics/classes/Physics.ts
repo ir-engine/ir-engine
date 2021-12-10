@@ -555,6 +555,18 @@ export const getGeometryType = (shape: PhysX.PxShape) => {
   return (shape.getGeometry().getType() as any).value
 }
 
+export const getGeometryScale = (shape: PhysX.PxShape) => {
+  let geometryType = getGeometryType(shape)
+  if (geometryType === PhysX.PxGeometryType.eTRIANGLEMESH.value) {
+    let geometry = new PhysX.PxTriangleMeshGeometry()
+    shape.getTriangleMeshGeometry(geometry as PhysX.PxTriangleMeshGeometry)
+    const meshScale = (geometry as any).getScale() as any
+    return meshScale.getScale()
+  } else if (geometryType === PhysX.PxGeometryType.eCONVEXMESH.value) {
+    return new PhysX.PxMeshScale(0, 0)
+  }
+}
+
 export const isKinematicBody = (body: PhysX.PxRigidActor) => {
   return body._type === BodyType.KINEMATIC
 }
