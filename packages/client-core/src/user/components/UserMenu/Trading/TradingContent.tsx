@@ -12,7 +12,6 @@ import {
   FormControl,
   IconButton,
   InputLabel,
-  LinearProgress,
   Menu,
   MenuItem,
   Select,
@@ -112,7 +111,8 @@ const TradingContent = ({
   data1,
   data0,
   removeofferinventory,
-  removereceiveinventory
+  removereceiveinventory,
+  changeActiveMenu
 }: any) => {
   const history = useHistory()
   const classes = useStyles()
@@ -340,7 +340,7 @@ const TradingContent = ({
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
       <Stack direction="row" justifyContent="space-between" className={classes.title}>
-        <IconButton onClick={() => history.goBack()}>
+        <IconButton onClick={() => changeActiveMenu(null)}>
           <ArrowBackIos /> Back
         </IconButton>
         <Typography className={classes.title}>Trade</Typography>

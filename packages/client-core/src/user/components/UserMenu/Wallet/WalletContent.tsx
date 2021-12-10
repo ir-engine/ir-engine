@@ -1,24 +1,9 @@
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import makeStyles from '@mui/styles/makeStyles'
-import { ArrowBackIos, FilterList } from '@mui/icons-material'
-import React, { useEffect, useState } from 'react'
-import {
-  Grid,
-  Divider,
-  Box,
-  Card,
-  CircularProgress,
-  FormControl,
-  IconButton,
-  InputLabel,
-  LinearProgress,
-  Menu,
-  MenuItem,
-  Select,
-  Stack,
-  TextField
-} from '@mui/material'
+import { ArrowBackIos } from '@mui/icons-material'
+import React, { useState } from 'react'
+import { Divider, Box, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material'
 import { useHistory } from 'react-router-dom'
 import { usePrevious } from '../../../../hooks/usePrevious'
 
@@ -83,7 +68,8 @@ const WalletContent = ({
   coinlimit,
   sendamtsender,
   sendamtreceiver,
-  sendamtwallet
+  sendamtwallet,
+  changeActiveMenu
 }: any) => {
   const history = useHistory()
   const classes = useStyles()
@@ -124,7 +110,7 @@ const WalletContent = ({
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
       <Stack direction="row" justifyContent="space-between" className={classes.title}>
-        <IconButton onClick={() => history.goBack()}>
+        <IconButton onClick={() => changeActiveMenu(null)}>
           <ArrowBackIos /> Back
         </IconButton>
         <Typography className={`${classes.title} ${classes.titlesize}`}>My Wallet</Typography>

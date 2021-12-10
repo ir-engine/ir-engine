@@ -1,18 +1,14 @@
-import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { AuthService, useAuthState } from '../../services/AuthService'
+import { AuthService, useAuthState } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
-import InventoryContent from '../UserMenu/menus/InventoryContent'
-import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
-import { client } from '../../../feathers'
-import { bindActionCreators, Dispatch } from 'redux'
-import axios from 'axios'
-import WalletContent from '../UserMenu/menus/WalletContent'
-import https from 'https'
+import { client } from '../../../../feathers'
+import WalletContent from './WalletContent'
+import styles from '../UserMenu.module.scss'
 
-export const WalletPage = (): any => {
-  const { id } = useParams<{ id: string }>()
-  const { t } = useTranslation()
+interface Props {
+  changeActiveMenu?: any
+  id: String
+}
+export const Wallet = (props: Props): any => {
   const [state, setState] = useState<any>({
     coinData: [],
     walletData: [],
@@ -60,14 +56,14 @@ export const WalletPage = (): any => {
       isLoading: true
     }))
     try {
-      const response = await client.service('user').get(id)
+      const response = await client.service('user').get(props.id)
       setState((prevState) => ({
         ...prevState,
         data: [...response.inventory_items.filter((val) => val.isCoin === true)],
         coinData: [...response.inventory_items.filter((val) => val.isCoin === true)],
         isLoading: false,
         walletData: [...response.user_wallets],
-        coinlimit: response.inventory_items.filter((val) => val.isCoin === true)[0].user_inventory.quantity
+        coinlimit: response.inventory_items.filter((val) => val.isCoin === true)[0]?.user_inventory?.quantity
       }))
     } catch (err) {
       console.error(err, 'error')
@@ -82,7 +78,7 @@ export const WalletPage = (): any => {
         }
       })
       if (response.data && response.data.length !== 0) {
-        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== id)
+        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== props.id)
         setState((prevState: any) => ({
           ...prevState,
           user: [...activeUser],
@@ -191,16 +187,7 @@ export const WalletPage = (): any => {
 */
 
   return (
-    <EmptyLayout pageTitle={t('Wallet.pageTitle')}>
-      <style>
-        {' '}
-        {`
-                [class*=menuPanel] {
-                    top: 75px;
-                    bottom: initial;
-                }
-            `}
-      </style>
+    <div className={styles.menuPanel}>
       {isLoading ? (
         'Loading...'
       ) : (
@@ -211,11 +198,12 @@ export const WalletPage = (): any => {
           getreceiverid={getreceiverid}
           sendamtsender={sendamtsender}
           sendamtreceiver={sendamtreceiver}
+          changeActiveMenu={props.changeActiveMenu}
           //sendamtwallet={sendamtwallet}
         />
       )}
-    </EmptyLayout>
+    </div>
   )
 }
 
-export default WalletPage
+export default Wallet

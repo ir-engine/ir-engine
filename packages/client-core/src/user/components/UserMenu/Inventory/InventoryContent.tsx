@@ -72,7 +72,7 @@ const useStyles = makeStyles({
 
 const ITEM_HEIGHT = 48
 
-const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtransfer, type }: any) => {
+const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtransfer, type, changeActiveMenu }: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
@@ -171,7 +171,7 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
       <Stack direction="row" justifyContent="space-between" className={classes.title}>
-        <IconButton onClick={() => history.goBack()}>
+        <IconButton onClick={() => changeActiveMenu(null)}>
           <ArrowBackIos /> Back
         </IconButton>
         <Typography className={`${classes.title} ${classes.titlesize}`}>Inventory</Typography>
