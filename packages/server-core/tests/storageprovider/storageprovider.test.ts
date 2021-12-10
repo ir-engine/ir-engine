@@ -11,10 +11,10 @@ import approot from 'app-root-path'
 import fs from 'fs-extra'
 import { v4 as uuid } from 'uuid'
 
-describe('Storage Provider test', () => {
+describe('storageprovider', () => {
   const testFileName = 'TestFile.txt'
   const testFolderName = `TestFolder-${uuid()}`
-  const testFileContent = 'This is the Test File'
+  const testFileContent = 'content'
   const folderKeyTemp = path.join(testFolderName, 'temp')
   const folderKeyTemp2 = path.join(testFolderName, 'temp2')
 
@@ -22,7 +22,7 @@ describe('Storage Provider test', () => {
   storageProviders.push(new LocalStorage())
   if(process.env.STORAGE_S3_TEST_RESOURCE_BUCKET && process.env.STORAGE_AWS_ACCESS_KEY_ID && process.env.STORAGE_AWS_ACCESS_KEY_SECRET)
     storageProviders.push(new S3Provider())
-
+  console.log(process.env.STORAGE_S3_TEST_RESOURCE_BUCKET, process.env.STORAGE_AWS_ACCESS_KEY_ID, process.env.STORAGE_AWS_ACCESS_KEY_SECRET)
   storageProviders.forEach((provider) => {
     before(async function () {
       await providerBeforeTest(provider, testFolderName, folderKeyTemp, folderKeyTemp2)
@@ -125,6 +125,26 @@ describe('Storage Provider test', () => {
       const ret = await provider.getObject(key)
       assert.strictEqual(contentType, ret.ContentType)
       assert.deepStrictEqual(fileData, ret.Body)
+    })
+
+    it(`should put over 1000 objects in ${provider.constructor.name}`, async function () {
+      const promises: any[] = []
+      for(let i = 0; i < 1010; i++) {
+        const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
+        const data = Buffer.from([])
+        promises.push(provider.putObject({
+          Body: data,
+          Key: fileKey,
+          ContentType: getContentType(fileKey)
+        }))
+      }
+      await Promise.all(promises)
+    })
+
+    it(`should list over 1000 objects in ${provider.constructor.name}`, async function () {
+      const res = await provider.listFolderContent(testFolderName, true)
+      console.log(res)
+      assert(res.length > 1000)
     })
 
     after(async function () {
