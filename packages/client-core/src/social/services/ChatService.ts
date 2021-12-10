@@ -248,7 +248,7 @@ export const ChatService = {
             instanceId: accessInstanceConnectionState().instance.id.value
           }
         })
-        if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 5000)
+        if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
         dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
       } catch (err) {
         AlertService.dispatchAlertError(err)
