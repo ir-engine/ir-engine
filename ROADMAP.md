@@ -26,12 +26,13 @@
 | Spaceships                                                 |     |
 | Portal guns                                                |     |
 | Portals to other platforms                                 |     |
-| Avatar auto-spritesheet optimization                       |     |
+| [Avatar LOD optimization]                                  |     |
 | Matrix.org                                                 |     |
 | IPFS storage provider                                      |     |
 | IPSME                                                      |     |
 | AWS Marketplace listing                                    |     |
 
+[Avatar LOD optimization]:https://hackmd.io/@XR/avatarlod
 
 ### XREditor
 
