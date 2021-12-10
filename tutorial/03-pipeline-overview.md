@@ -39,7 +39,7 @@ Use Texture Map / Atlas  as much as you can.
 Use maps at 2048^2 we allow for 1-4 2k maps for the scene - 4096^2 is usually too much for the render.
 Blender Draco compression Supported for poly/vert.
 
-## LOD Level of Detail system
+## LOD (Level of Detail) system
 
 LOD is handled by engine/camera system - defined Groups
 
