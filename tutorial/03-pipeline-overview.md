@@ -4,10 +4,7 @@
 
 ## Our pipeline process:
 1. Create scene in Blender, Unity, Maya etc. with Colliders
-2. Export scene as GLB and import into XREditor<br/>
-   Our editor is in final development:<br/>
-   [✅ Production Server - Updated Weekly - in Beta](https://app.theoverlay.io/editor)<br/>
-   [🚧 Developer Server - Updated Daily](https://dev.theoverlay.io/editor) <br/>
+2. Export scene as GLB and import into XREditor (//localhost:3000/editor when serving from your machine)
 3. Publish scene to a location and test using a XREngine Location Link
 
 ## XREditor
