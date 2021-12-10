@@ -4,11 +4,11 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import BooleanInput from '../inputs/BooleanInput'
 import StringInput from '../inputs/StringInput'
-import { Running } from '@styled-icons/fa-solid/Running'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun'
 
 //Declaring TriggerVolumeNodeEditor properties
 type TriggerVolumeNodeEditorProps = {
@@ -105,6 +105,6 @@ export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => 
   )
 }
 
-TriggerVolumeNodeEditor.iconComponent = Running
+TriggerVolumeNodeEditor.iconComponent = DirectionsRunIcon
 
 export default TriggerVolumeNodeEditor

@@ -34,7 +34,12 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
-  listObjects = async (prefix: string, recursive = false): Promise<StorageListObjectInterface> => {
+  listObjects = async (
+    prefix: string,
+    results: any[],
+    recursive = false,
+    continuationToken: string
+  ): Promise<StorageListObjectInterface> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, prefix)
     if (!fs.existsSync(filePath)) return { Contents: [] }
     const globResult = glob.sync(path.join(filePath, '**/*.*'))

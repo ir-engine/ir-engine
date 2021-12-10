@@ -6,9 +6,9 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import { MathUtils as _Math } from 'three'
 import LightShadowProperties from './LightShadowProperties'
-import { Bullseye } from '@styled-icons/fa-solid/Bullseye'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
+import AdjustIcon from '@mui/icons-material/Adjust'
 const radToDeg = _Math.radToDeg
 
 /**
@@ -114,6 +114,6 @@ export const SpotLightNodeEditor = (props: SpotLightNodeEditorProps) => {
   )
 }
 
-SpotLightNodeEditor.iconComponent = Bullseye
+SpotLightNodeEditor.iconComponent = AdjustIcon
 
 export default SpotLightNodeEditor
