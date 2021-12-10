@@ -4,12 +4,12 @@
 
 ### XREngine
 
- - [x] [Pointer-lock mode](https://github.com/XRFoundation/XREngine/issues/3108)
- - [x] [Upload retargeting](https://github.com/XRFoundation/XREngine/issues/3551)
- - [x] [HTTP3](https://github.com/XRFoundation/XREngine/issues/3319)
+ - [x] Pointer-lock mode
+ - [x] Upload retargeting
+ - [x] HTTP3
 
 ### XREditor
- - [x] [Drag and drop assets in to scene](https://github.com/XRFoundation/XREngine/issues/3161)
+ - Drag and drop assets in to scene
 
 ## Where we want to be
 
