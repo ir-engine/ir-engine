@@ -1,5 +1,5 @@
-import { Camera } from '@styled-icons/fa-solid'
 import React, { useState } from 'react'
+import CameraAltIcon from '@mui/icons-material/CameraAlt'
 import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
@@ -245,6 +245,6 @@ export const CameraPropertiesNodeEditor = (props: CameraPropertiesNodeEditorProp
   )
 }
 
-CameraPropertiesNodeEditor.iconComponent = Camera
+CameraPropertiesNodeEditor.iconComponent = CameraAltIcon
 
 export default CameraPropertiesNodeEditor

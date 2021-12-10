@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { showMenu } from '../layout/ContextMenu'
 import { MenuButton } from '../inputs/Button'
 import StylableContextMenuTrigger from './StylableContextMenuTrigger'
-import { EllipsisV } from '@styled-icons/fa-solid/EllipsisV'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 /**
  *
@@ -155,7 +155,7 @@ export const ProjectGridItem = (props: Props) => {
         </Col>
         {contextMenuId && (
           <MenuButton onClick={onShowMenu}>
-            <EllipsisV />
+            <MoreVertIcon />
           </MenuButton>
         )}
       </TitleContainer>
