@@ -54,7 +54,7 @@
 | Onscreen keyboard                                          |     |
 | WebXR DOM Rasterization                                    |     |
 | WebXR Immersive navigation                                 |     |
-| chat immersive UI indicator                                |     |
+| [chat immersive UI indicator]                              |     |
 
 [chat immersive UI indicator]://github.com/XRFoundation/XREngine/issues/3472
 
@@ -63,7 +63,7 @@
 
 | Description                                                | ETA |
 |------------------------------------------------------------|-----|
-| Integrate //docs.snapshot.org/                             |     |
+| Integrate https://docs.snapshot.org/                       |     |
 | Crypto Universal Adapter                                   |     |
 | XRPL                                                       |     |
 | ILP                                                        |     |
