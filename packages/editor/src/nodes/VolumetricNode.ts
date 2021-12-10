@@ -7,9 +7,7 @@ import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-import DracosisPlayer from 'volumetric/web/decoder/Player'
-//@ts-ignore
-import DracosisPlayerWorker from 'volumetric/web/decoder/workerFunction.js?worker'
+import DracosisPlayer from 'volumetric/player'
 
 export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   static legacyComponentName = 'volumetric'
@@ -91,7 +89,6 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     this.controls = true
     this.playMode = 3
     this._paths = []
-    this.UVOLWorker = new DracosisPlayerWorker()
     this.isUVOLPlay = false
   }
 
@@ -115,18 +112,14 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     if (this.UVOLPlayer) {
       this.remove(this.UVOLPlayer.mesh)
       this.UVOLPlayer.dispose()
-      this.UVOLWorker = new DracosisPlayerWorker()
     }
+
     this.UVOLPlayer = new DracosisPlayer({
       scene: this as any,
       renderer: Engine.renderer,
-      worker: this.UVOLWorker,
       paths: paths,
       playMode: this.playMode,
-      loop: this.loop,
       autoplay: this.autoPlay,
-      scale: 1,
-      frameRate: 25,
       onMeshBuffering: (progress) => {},
       onFrameShow: () => {}
     })
@@ -148,6 +141,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   clone(recursive): VolumetricNode {
     return new (this as any).constructor(this.audioListener).copy(this, recursive)
   }
+
   copy(source, recursive = true): any {
     super.copy(source, recursive)
     this.controls = source.controls
@@ -164,7 +158,6 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     if (this.UVOLPlayer) {
       this.remove(this.UVOLPlayer.mesh)
       this.UVOLPlayer.dispose()
-      this.UVOLWorker = new DracosisPlayerWorker()
     }
   }
 

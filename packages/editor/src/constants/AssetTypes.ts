@@ -35,7 +35,7 @@ export const ItemTypes = {
   Images: ['png', 'jpeg', 'jpg', 'gif'],
   Models: ['glb', 'gltf'],
   Scripts: ['tsx', 'ts', 'jsx', 'js'],
-  Videos: ['mp4'],
+  Videos: ['mp4', 'm3u8'],
   //TODO: Need to check if following types are really used or not.
   Node: 'Node',
   Model: 'Model',

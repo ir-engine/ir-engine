@@ -10,6 +10,8 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import SelectInput from '../inputs/SelectInput'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
+import { ItemTypes } from '../../constants/AssetTypes'
+import { VolumetricFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.
@@ -43,6 +45,8 @@ export function VolumetricNodeEditor(props) {
         values={node.paths}
         onChange={onChangePaths}
         label={t('editor:properties.volumetric.uvolPaths')}
+        acceptFileTypes={VolumetricFileTypes}
+        acceptDropItems={ItemTypes.Volumetric}
       ></ArrayInputGroup>
       <InputGroup name="Play Mode" label={t('editor:properties.volumetric.playmode')}>
         <SelectInput options={node.playModeItems} value={node.playMode} onChange={onChangePlayMode} />
