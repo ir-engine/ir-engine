@@ -19,6 +19,10 @@ const defaultEngineInitializeOptions = {
   systems: [
     {
       type: 'FIXED',
+      systemModulePromise: import('@xrengine/client-core/src/systems/XRUILoadingSystem')
+    },
+    {
+      type: 'FIXED',
       systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
     },
     {
