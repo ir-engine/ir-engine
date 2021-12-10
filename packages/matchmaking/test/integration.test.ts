@@ -2,22 +2,33 @@ import assert from 'assert'
 import { createTicket, deleteTicket, getTicket, getTicketsAssignment } from '../src/functions'
 import { OpenMatchTicket } from '../src/interfaces'
 
-// const testGameMode = 'mode.battleroyale'
 const testGameMode = 'tournament'
+
+// TODO: find a way to create empty open match db for this tests
+// TODO: find a way to properly test assignments
 
 // this tests use real open match services
 describe.skip('open-match frontend service', () => {
   it('creates ticket', async () => {
-    const ticket = await createTicket(testGameMode)
+    const ticket = await createTicket(testGameMode, { tier: 'bronze' })
     assert(ticket.id)
+
+    // cleanup
+    await deleteTicket(ticket.id)
   })
 
   it('gets ticket info after creation', async () => {
-    const result = await createTicket(testGameMode)
+    const result = await createTicket(testGameMode, { tier: 'bronze' })
     assert(result.id)
 
     const ticket = await getTicket(result.id)
     console.log('ticket', ticket)
+    assert(ticket?.search_fields)
+    assert(ticket.search_fields.string_args)
+    assert(ticket.search_fields.string_args['attributes.tier'] === 'bronze')
+
+    // cleanup
+    await deleteTicket(result.id)
   })
 
   it('deletes ticket', async () => {
