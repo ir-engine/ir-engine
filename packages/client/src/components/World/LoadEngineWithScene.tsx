@@ -8,6 +8,8 @@ import { useHistory } from 'react-router'
 import { initEngine, loadLocation, teleportToLocation } from './LocationLoadHelper'
 import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import { Downgraded } from '@hookstate/core'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -57,6 +59,7 @@ export const LoadEngineWithScene = (props: Props) => {
   const history = useHistory()
   const dispatch = useDispatch()
   const engineState = useEngineState()
+  const sceneState = useSceneState()
 
   useEffect(() => {
     const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
@@ -65,15 +68,25 @@ export const LoadEngineWithScene = (props: Props) => {
   }, [])
 
   /**
-   * Once we have the scene ID, initialise the engine
+   * Once we have the scene ID, get the scene data
    */
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value && engineState.isInitialised.value) {
-      console.log('init', locationState.currentLocation.location.sceneId.value)
-      dispatch(EngineAction.setTeleporting(null!))
-      loadLocation(locationState.currentLocation.location.sceneId.value)
+      const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
+      SceneService.getSceneData(project, scene)
     }
   }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
+
+  /**
+   * Once we have the scene data, initialise the engine
+   */
+  useEffect(() => {
+    if (locationState.currentLocation.location.sceneId.value && sceneState.currentScene.value) {
+      dispatch(EngineAction.setTeleporting(null!))
+      const [project] = locationState.currentLocation.location.sceneId.value.split('/')
+      loadLocation(project, sceneState.currentScene.scene.attach(Downgraded).value!)
+    }
+  }, [locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.scene?.value])
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     const slugifiedName = locationState.currentLocation.location.slugifiedName.value

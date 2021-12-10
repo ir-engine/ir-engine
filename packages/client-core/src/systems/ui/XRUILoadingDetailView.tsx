@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { createState } from '@hookstate/core'
-import { useUserState } from '../../user/services/UserService'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import ProgressBar from './SimpleProgressBar'
-
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-
-//???
-import { accessEngineState, useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
-import { SceneService, useSceneState } from '@xrengine/client-core/src/admin/services/SceneService'
+import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 import { useLocationState } from '../../social/services/LocationService'
+import { useSceneState } from '../../world/services/SceneService'
 
 export function createLoaderDetailView(id: string) {
   return createXRUI(CharacterDetailView, createLoaderDetailState(id))
@@ -32,42 +26,31 @@ const CharacterDetailView = () => {
   const [width, setWidth] = useState(4096)
   const [height, setHeight] = useState(4096)
   const [bgImageSrc, SetBgImageSrc] = useState('')
-
   const sceneState = useSceneState()
-  const locationState = useLocationState()
-  const objectsToLoad = useEngineState().loadingProgress.value
 
-  const onResize = () => {
-    const width = window.innerWidth
-    const height = window.innerHeight
-    setWidth(width)
-    setHeight(height)
-  }
-  window.addEventListener('resize', onResize, false)
+  const locationState = useLocationState()
+  const objectsToLoad = useEngineState()
 
   useEffect(() => {
-    SceneService.fetchAdminScenes()
+    const onResize = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      setWidth(width)
+      setHeight(height)
+    }
+    window.addEventListener('resize', onResize, false)
   }, [])
 
   useEffect(() => {
-    if (
-      locationState &&
-      locationState.currentLocation &&
-      sceneState &&
-      sceneState.scenes &&
-      sceneState.scenes.length > 0
-    ) {
-      const locationName = locationState.currentLocation.location.sceneId.value
-      const filtered = sceneState.scenes.filter((scene) => `${scene.project.value}/${scene.name.value}` == locationName)
-      if (filtered.length != 0 && filtered[0].thumbnailUrl) {
-        SetBgImageSrc(filtered[0].thumbnailUrl.value)
-      }
+    if (locationState.currentLocation.value && sceneState.currentScene.value) {
+      const thumbnail = sceneState.currentScene.thumbnailUrl.value
+      SetBgImageSrc(thumbnail)
     }
-  }, [sceneState.scenes, locationState.currentLocation])
+  }, [sceneState.currentScene.value, locationState.currentLocation.value])
 
   useEffect(() => {
-    console.log('objectsToLoad: ', objectsToLoad)
-  }, [objectsToLoad])
+    console.log('objectsToLoad: ', objectsToLoad.loadingProgress.value)
+  }, [objectsToLoad.loadingProgress.value])
 
   return (
     <>

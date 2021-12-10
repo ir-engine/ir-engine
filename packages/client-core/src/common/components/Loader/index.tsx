@@ -41,7 +41,6 @@ const LoadingScreen = (props: Props) => {
 
   useEffect(() => {
     if (onBoardingStep.value === GeneralStateList.SCENE_LOADING) {
-      debugger
       setLoadingText(
         t('common:loader.' + (objectsToLoad > 1 ? 'objectRemainingPlural' : 'objectRemaining'), {
           count: objectsToLoad

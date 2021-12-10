@@ -22,8 +22,9 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { EngineAction } from '@xrengine/client-core/src/world/services/EngineService'
+import { SceneService } from '@xrengine/client-core/src/world/services/SceneService'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -41,16 +42,6 @@ export const retriveLocationByName = (authState: any, locationName: string, hist
       LocationService.getLocationByName(locationName)
     }
   }
-}
-
-export const getSceneData = async (projectName: string, sceneName: string, isOffline: boolean) => {
-  if (isOffline) {
-    return testScenes[sceneName] || testScenes.test
-  }
-
-  const sceneResult = await client.service('scene').get({ projectName, sceneName })
-  console.log(sceneResult)
-  return sceneResult.data.scene
 }
 
 const getFirstSpawnPointFromSceneData = (scene: SceneJson) => {
@@ -100,12 +91,7 @@ export const initEngine = async (initOptions: InitializeOptions) => {
   dispatch(EngineAction.setInitialised(true))
 }
 
-export const loadLocation = async (sceneName: string): Promise<any> => {
-  const [project, scene] = sceneName.split('/')
-
-  // 1. Get scene data
-  const sceneData = await getSceneData(project, scene, false)
-
+export const loadLocation = async (project: string, sceneData: SceneJson): Promise<any> => {
   const packs = await getSystemsFromSceneData(project, sceneData, true)
 
   await Engine.currentWorld.initSystems(packs)
