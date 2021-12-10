@@ -3,19 +3,12 @@
 ![image](https://user-images.githubusercontent.com/578371/145126692-02e51aa0-45ce-4f1b-83ad-ef8360bb43c0.png)
 
 ## Our pipeline process:
-1. Create scene in Blender/Unity/Maya/Houdini with Colliders
-2. Export scene as GLB and import into XREditor
+1. Create scene in Blender, Unity, Maya etc. with Colliders
+2. Export scene as GLB and import into XREditor<br/>
+   Our editor is in final development:<br/>
+   [✅ Production Server - Updated Weekly - in Beta](https://app.theoverlay.io/editor)<br/>
+   [🚧 Developer Server - Updated Daily](https://dev.theoverlay.io/editor) <br/>
 3. Publish scene to a location and test using a XREngine Location Link
-4. Leadership adds your scene to a Content Pack
-
-Please report your scene max texture size, GLB size, scaled area size, poly count and drawcalls with your final version.
-We will make a final link on a XREngine server to test the scene.
-
-Our editor is in final development
-
-[USE THIS ONE Production Server - Updated Weekly - Still in Beta](https://app.theoverlay.io/editor)
-
-[Developer Server - Updated Daily](https://dev.theoverlay.io/editor)
 
 ## XREditor
 The XREngine location editor is based on and forward/backward compatible with Spoke (Spoke for Mozilla Hubs).
