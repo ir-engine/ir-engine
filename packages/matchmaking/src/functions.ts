@@ -23,16 +23,27 @@ function checkForApiErrorResponse(response: unknown): unknown {
   return response
 }
 
-function createTicket(gameMode: string): Promise<OpenMatchTicket> {
+function createTicket(gameMode: string, attributes?: Record<string, string>): Promise<OpenMatchTicket> {
+  const searchFields: any = {
+    tags: [gameMode],
+    doubleArgs: {
+      'time.enterqueue': Date.now()
+    }
+  }
+
+  if (attributes) {
+    searchFields.stringArgs = {}
+    for (const attributesKey in attributes) {
+      searchFields.stringArgs['attributes.' + attributesKey] = attributes[attributesKey]
+    }
+  }
+
+  console.log('TICKET.CREATE --------- searchFields', searchFields)
+
   return axiosInstance
     .post(`/tickets`, {
       ticket: {
-        searchFields: {
-          tags: [gameMode],
-          DoubleArgs: {
-            'time.enterqueue': 0
-          }
-        }
+        searchFields
       }
     })
     .then((r) => r.data)
