@@ -48,10 +48,11 @@ export default async function InteractiveSystem(world: World): Promise<System> {
 
   return () => {
     for (const entity of interactiveQuery.enter(world)) {
+      const interactoinData = getComponent(entity, InteractableComponent).data
       if (!hasComponent(entity, BoundingBoxComponent)) {
         createBoxComponent(entity)
       }
-      if (!getInteractUI(entity)) {
+      if (interactoinData.interactionType !== 'equippable' && !getInteractUI(entity)) {
         createInteractUI(entity)
       }
     }
