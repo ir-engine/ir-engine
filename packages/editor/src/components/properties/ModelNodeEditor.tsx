@@ -1,4 +1,3 @@
-import { Cube } from '@styled-icons/fa-solid/Cube'
 import ModelNode from '../../nodes/ModelNode'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -13,6 +12,7 @@ import EditorCommands from '../../constants/EditorCommands'
 import SceneNode from '../../nodes/SceneNode'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import ModelInput from '../inputs/ModelInput'
+import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 /**
  * Declaring properties for ModalNodeEditor component.
@@ -192,6 +192,6 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
   )
 }
 
-ModelNodeEditor.iconComponent = Cube
+ModelNodeEditor.iconComponent = ViewInArIcon
 
 export default ModelNodeEditor

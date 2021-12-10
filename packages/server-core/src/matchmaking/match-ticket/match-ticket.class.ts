@@ -13,6 +13,7 @@ interface ServiceOptions {}
 
 interface TicketParams {
   gamemode: string
+  attributes?: Record<string, string>
 }
 
 function isValidTicketParams(data: unknown): data is TicketParams {
@@ -81,7 +82,7 @@ export class MatchTicket implements ServiceMethods<Data> {
       return emulate_createTicket(data.gamemode)
     }
 
-    return await createTicket(data.gamemode)
+    return await createTicket(data.gamemode, data.attributes)
   }
 
   async update(id: NullableId, data: Data, params: Params): Promise<Data> {

@@ -126,7 +126,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     this.socketIO.of('/').on('connect', async (socket: Socket) => {
       let listenersSetUp = false
 
-      if (!Engine.sceneLoaded && this.app.isChannelInstance !== true) {
+      if (!Engine.sceneLoaded && !this.app.isChannelInstance) {
         await new Promise<void>((resolve) => {
           EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
         })
@@ -300,7 +300,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     const Route53 = new AWS.Route53({ ...awsConfig.route53.keys })
 
     // Set up our gameserver according to our current environment
-    const localIp = await getLocalServerIp()
+    const localIp = await getLocalServerIp(this.app.isChannelInstance)
     let stringSubdomainNumber, gsResult
     if (!config.kubernetes.enabled)
       try {

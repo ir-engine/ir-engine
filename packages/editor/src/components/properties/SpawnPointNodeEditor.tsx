@@ -1,7 +1,7 @@
 import React from 'react'
 import NodeEditor from './NodeEditor'
-import { StreetView } from '@styled-icons/fa-solid/StreetView'
 import { useTranslation } from 'react-i18next'
+import StreetviewIcon from '@mui/icons-material/Streetview'
 
 /**
  * SpawnPointNodeEditorProps declaring properties for SpawnPointNodeEditor.
@@ -26,6 +26,6 @@ export const SpawnPointNodeEditor = (props: SpawnPointNodeEditorProps) => {
   return <NodeEditor description={t('editor:properties.spawnPoint.description')} {...props} />
 }
 
-SpawnPointNodeEditor.iconComponent = StreetView
+SpawnPointNodeEditor.iconComponent = StreetviewIcon
 
 export default SpawnPointNodeEditor
