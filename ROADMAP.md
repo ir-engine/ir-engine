@@ -17,7 +17,6 @@
 | Occlusion Culling                                          |     |
 | P2P Network transport                                      |     |
 | Object persistence                                         |     |
-| glTFs w/ extensions as Editor's native format              |     |
 | Metamask login                                             |     |
 | Instant portals                                            |     |
 | Spline camera                                              |     |
@@ -44,6 +43,7 @@
 | Editor designs                                             |     |
 | [Blender Metaverse toolkit]                                |     |
 | Unity scene, item, avatar authoring and publishing         |     |
+| glTFs w/ extensions as Editor's native format              |     |
 
 [Blender Metaverse toolkit]: //github.com/Menithal/Blender-Metaverse-Addon
 
