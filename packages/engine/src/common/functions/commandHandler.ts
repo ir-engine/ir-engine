@@ -1,5 +1,10 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { Vector2, Vector3 } from 'three'
+import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
+import { AutoPilotClickRequestComponent } from '../../navigation/component/AutoPilotClickRequestComponent'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']
@@ -27,4 +32,14 @@ export function handleCommand(cmd: string, entity: Entity, userId: UserId): bool
   return true
 }
 
-export function goTo(d) {}
+export function goTo(pos: Vector3, entity: Entity) {
+  let linput = getComponent(entity, LocalInputTagComponent)
+  if (linput === undefined) linput = addComponent(entity, LocalInputTagComponent, {})
+  addComponent(entity, AutoPilotOverrideComponent, {
+    overrideCoords: true,
+    overridePosition: pos
+  })
+  addComponent(entity, AutoPilotClickRequestComponent, {
+    coords: new Vector2(0.01, 0.01)
+  })
+}
