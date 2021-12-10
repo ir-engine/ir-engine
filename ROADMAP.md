@@ -12,7 +12,7 @@
 | Adaptive XRUI                                              |     |
 | Retargeting and IK                                         |     |
 | Matchmaking                                                |     |
-| Social features  - Friends indicators  - Privacy, blocking |     |
+| Friends indicators, privacy, blocking                      |     |
 | Vertex animation shaders / matrix palette                  |     |
 | Occlusion Culling                                          |     |
 | P2P Network transport                                      |     |
