@@ -611,6 +611,8 @@ In GitHub, if you go to back to the Actions tab, you should see a `dev-deploy` a
 a page showing its status, which should be all green checkmarks or indicators that things didn't run. In the upper
 right, click `Re-run all jobs`. This will start it again, and now that `DEPLOYMENTS_ENABLED` is set to true, it should
 attempt to build and deploy the builder.
+    
+(If actions were disabled at first, you'll have to merge additional code into the dev branch to get it to start the dev-deploy process)
 
 ### Overview of the build process
 The full build and deployment process works like this:
