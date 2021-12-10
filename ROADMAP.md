@@ -31,7 +31,6 @@
 | IPFS storage provider                                      |     |
 | IPSME                                                      |     |
 | AWS Marketplace listing                                    |     |
-| Crypto Universal Adapter                                   |     |
 
 
 ### XREditor
