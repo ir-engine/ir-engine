@@ -1,4 +1,4 @@
-import { AmbientLight, Euler, Object3D, PointLight, Quaternion, SpotLight, Vector3 } from 'three'
+import { AmbientLight, Object3D, PointLight, SpotLight } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -16,44 +16,47 @@ import Image from '../classes/Image'
 import { Interior } from '../classes/Interior'
 import { Ocean } from '../classes/Ocean'
 import { Water } from '../classes/Water'
-import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
 import { NameComponent } from '../components/NameComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { PersistTagComponent } from '../components/PersistTagComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
-import { createDirectionalLight } from './DirectionalLightFunctions'
-import { createGround } from './GroundPlaneFunctions'
+import { deserializeDirectionalLight } from './DirectionalLightFunctions'
+import { deserializeGround } from './GroundPlaneFunctions'
 import { createMap } from '../functions/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../functions/createMedia'
 import { createPortal } from '../functions/createPortal'
-import { createSkybox } from './SkyboxFunctions'
+import { deserializeSkybox } from './SkyboxFunctions'
 import { createTriggerVolume } from '../functions/createTriggerVolume'
 import { loadGLTFModel } from '../functions/loadGLTFModel'
 import { loadModelAnimation } from '../functions/loadModelAnimation'
 import { setCameraProperties } from '../functions/setCameraProperties'
-import { setEnvMap } from './EnvMapFunctions'
-import { setFog } from './FogFunctions'
+import { deserializeEnvMap } from './EnvMapFunctions'
+import { deserializeFog } from './FogFunctions'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import EntityTree from '../../ecs/classes/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { createScenePreviewCamera } from './ScenePreviewCameraFunctions'
-import { createSpawnPoint } from './SpawnPointFunctions'
-import { createPostprocessing } from './PostprocessingFunctions'
-import { createHemisphereLight } from './HemisphereLightFunctions'
-import { IncludeInCubemapBakeComponent } from '../components/IncludeInCubemapBakeComponent'
-import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
+import { deserializeScenePreviewCamera } from './ScenePreviewCameraFunctions'
+import { deserializeSpawnPoint } from './SpawnPointFunctions'
+import { deserializePostprocessing } from './PostprocessingFunctions'
+import { deserializeHemisphereLight } from './HemisphereLightFunctions'
 import { EntityNodeType } from '../constants/EntityNodeType'
-import { createShadow } from './ShadowFunctions'
-import { createMetaData } from './MetaDataFunctions'
-import { createRenderSetting, updateRenderSetting } from './RenderSettingsFunction'
+import { deserializeShadow } from './ShadowFunctions'
+import { deserializeMetaData } from './MetaDataFunctions'
+import { deserializeRenderSetting, updateRenderSetting } from './RenderSettingsFunction'
 import { resetEngineRenderer } from './RenderSettingsFunction'
+import { ComponentName } from '../../common/constants/ComponentNames'
+import { deserializeAudioSetting } from './AudioSettingFunctions'
+import { deserializeSimpleMaterial } from './SimpleMaterialFunctions'
+import { deserializeTransform } from './TransformFunctions'
+import { deserializeVisible } from './VisibleFunctions'
+import { deserializePersist } from './PersistFunctions'
+import { deserializeIncludeInCubeMapBake } from './IncludeInCubemapBakeFunctions'
+import { deserializeWalkable } from './WalkableFunctions'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -85,7 +88,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
     entityMap[key] = entity
     addComponent(entity, NameComponent, { name: sceneEntity.name })
     loadComponents(entity, key, sceneEntity)
-    addComponent(entity, EntityNodeComponent, { type: sceneEntity.entityType ?? EntityNodeType.DEFAULT })
+    addComponent(entity, EntityNodeComponent, { type: sceneEntity.entityType ?? EntityNodeType.DEFAULT, uuid: key })
   })
 
   // Create Entity Tree
@@ -124,12 +127,12 @@ export const loadComponents = (entity: Entity, sceneEntityId: string, sceneEntit
 
 export const loadComponent = (entity: Entity, component: SceneDataComponent, sceneEntity: EntityData): void => {
   // remove '-1', '-2' etc suffixes
-  // console.log(component)
   const name = component.name.replace(/(-\d+)|(\s)/g, '')
   const world = useWorld()
+
   switch (name) {
-    case 'mtdata':
-      createMetaData(entity, component)
+    case ComponentName.MT_DATA:
+      deserializeMetaData(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE
       break
 
@@ -156,13 +159,13 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       addObject3DComponent(entity, new AmbientLight(), component.data)
       break
 
-    case 'directional-light':
-      createDirectionalLight(entity, component)
+    case ComponentName.DIRECTIONAL_LIGHT:
+      deserializeDirectionalLight(entity, component)
       sceneEntity.entityType = EntityNodeType.DIRECTIONAL_LIGHT
       break
 
-    case 'hemisphere-light':
-      createHemisphereLight(entity, component)
+    case ComponentName.HEMISPHERE_LIGHT:
+      deserializeHemisphereLight(entity, component)
       sceneEntity.entityType = EntityNodeType.HEMISPHERE_LIGHT
       break
 
@@ -174,8 +177,8 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       addObject3DComponent(entity, new SpotLight(), component.data)
       break
 
-    case 'simple-materials':
-      if (component.data.simpleMaterials) addComponent(entity, SimpleMaterialTagComponent, {})
+    case ComponentName.SIMPLE_MATERIALS:
+      deserializeSimpleMaterial(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE
       break
 
@@ -215,8 +218,8 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       if (component.data.interactable) addComponent(entity, InteractableComponent, { data: component.data })
       break
 
-    case 'ground-plane':
-      createGround(entity, component)
+    case ComponentName.GROUND_PLANE:
+      deserializeGround(entity, component)
       sceneEntity.entityType = EntityNodeType.GROUND_PLANE
       break
 
@@ -253,49 +256,42 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       else createMediaServer(entity, component.data)
       break
 
-    case 'transform':
-      const { position, rotation, scale } = component.data
-      addComponent(entity, TransformComponent, {
-        position: new Vector3(position.x, position.y, position.z),
-        rotation: new Quaternion().setFromEuler(
-          new Euler().setFromVector3(new Vector3(rotation.x, rotation.y, rotation.z), 'XYZ')
-        ),
-        scale: new Vector3(scale.x, scale.y, scale.z)
-      })
+    case ComponentName.TRANSFORM:
+      deserializeTransform(entity, component)
       break
 
-    case 'fog':
-      setFog(entity, component)
+    case ComponentName.FOG:
+      deserializeFog(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE
       break
 
-    case 'skybox':
-      createSkybox(entity, component)
+    case ComponentName.SKYBOX:
+      deserializeSkybox(entity, component)
       sceneEntity.entityType = EntityNodeType.SKYBOX
       break
 
-    case 'audio-settings':
-      addComponent(entity, PositionalAudioSettingsComponent, component.data)
+    case ComponentName.AUDIO_SETTINGS:
+      deserializeAudioSetting(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE
       break
 
-    case 'renderer-settings':
-      createRenderSetting(entity, component)
+    case ComponentName.RENDERER_SETTINGS:
+      deserializeRenderSetting(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE
       break
 
-    case 'spawn-point':
-      createSpawnPoint(entity, component)
+    case ComponentName.SPAWN_POINT:
+      deserializeSpawnPoint(entity, component)
       sceneEntity.entityType = EntityNodeType.SPAWN_POINT
       break
 
-    case 'scene-preview-camera':
-      createScenePreviewCamera(entity, component)
+    case ComponentName.SCENE_PREVIEW_CAMERA:
+      deserializeScenePreviewCamera(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE_PREVIEW_CAMERA
       break
 
-    case 'shadow':
-      createShadow(entity, component)
+    case ComponentName.SHADOW:
+      deserializeShadow(entity, component)
       break
 
     case 'collider': {
@@ -368,8 +364,8 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       isClient && addObject3DComponent(entity, new Interior(), component.data)
       break
 
-    case 'postprocessing':
-      createPostprocessing(entity, component)
+    case ComponentName.POSTPROCESSING:
+      deserializePostprocessing(entity, component)
       sceneEntity.entityType = EntityNodeType.POSTPROCESSING
       break
 
@@ -385,13 +381,13 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       }
       break
 
-    case 'envmap':
-      setEnvMap(entity, component)
+    case ComponentName.ENVMAP:
+      deserializeEnvMap(entity, component)
       sceneEntity.entityType = EntityNodeType.SCENE
       break
 
-    case 'persist':
-      if (isClient) addComponent(entity, PersistTagComponent, {})
+    case ComponentName.PERSIST:
+      deserializePersist(entity, component)
       break
 
     case 'portal':
@@ -399,8 +395,8 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       break
 
     /* intentionally empty - these are only for the editor */
-    case 'includeInCubemapBake':
-      if (Engine.isEditor) addComponent(entity, IncludeInCubemapBakeComponent, {})
+    case ComponentName.INCLUDE_IN_CUBEMAP_BAKE:
+      deserializeIncludeInCubeMapBake(entity, component)
       break
 
     case 'cubemapbake':
@@ -408,8 +404,12 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
     case 'project': // loaded prior to engine init
       break
 
-    case 'visible':
-      if (isClient) addComponent(entity, VisibleComponent, {})
+    case ComponentName.VISIBILE:
+      deserializeVisible(entity, component)
+      break
+
+    case ComponentName.WALKABLE:
+      deserializeWalkable(entity, component)
       break
 
     /* deprecated */

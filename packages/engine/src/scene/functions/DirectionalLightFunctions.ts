@@ -1,18 +1,20 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { CameraHelper, DirectionalLight, Vector2, Color } from 'three'
+import { ComponentName } from '../../common/constants/ComponentNames'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   ComponentDeserializeFunction,
+  ComponentSerializeFunction,
   ComponentUpdateFunction,
   getComponent
 } from '../../ecs/functions/ComponentFunctions'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
-import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
+import { DirectionalLightComponent, DirectionalLightComponentType } from '../components/DirectionalLightComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 
-export const createDirectionalLight: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeDirectionalLight: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   const light = new DirectionalLight()
 
   light.target.position.set(0, 0, 1)
@@ -69,5 +71,24 @@ export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) 
     }
 
     light.userData.cameraHelper.update()
+  }
+}
+
+export const serializeDirectionalLight: ComponentSerializeFunction = (entity) => {
+  const component = getComponent(entity, DirectionalLightComponent) as DirectionalLightComponentType
+  if (!component) return
+
+  return {
+    name: ComponentName.DIRECTIONAL_LIGHT,
+    props: {
+      color: component.color?.getHex(),
+      intensity: component.intensity,
+      castShadow: component.castShadow,
+      shadowMapResolution: component.shadowMapResolution?.toArray(),
+      shadowBias: component.shadowBias,
+      shadowRadius: component.shadowRadius,
+      cameraFar: component.cameraFar,
+      showCameraHelper: component.showCameraHelper
+    }
   }
 }

@@ -10,6 +10,7 @@ export type EditorCameraComponentType = {
   cursorDeltaX: number
   cursorDeltaY: number
   isOrbiting: boolean
+  refocus?: boolean
 }
 
 export const EditorCameraComponent = createMappedComponent<EditorCameraComponentType>('TransformGizmo')

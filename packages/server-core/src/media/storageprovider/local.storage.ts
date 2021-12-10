@@ -87,20 +87,20 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
-  deleteResources(keys: string[]): Promise<any> {
+  deleteResources(keys: string[]) {
     //Currently Not able to delete dir
     const blobs = this.getStorage()
 
-    return Promise.all(
+    return Promise.all<boolean>(
       keys.map((key) => {
-        return new Promise((resolve) => {
+        return new Promise<boolean>((resolve) => {
           blobs.exists(key, (err, exists) => {
             if (err) {
               console.error(err)
               resolve(false)
               return
             }
-            if (exists)
+            if (exists) {
               blobs.remove(key, (err) => {
                 if (err) {
                   console.error(err)
@@ -109,6 +109,9 @@ export class LocalStorage implements StorageProviderInterface {
                 }
                 resolve(true)
               })
+            } else {
+              resolve(true)
+            }
           })
         })
       })

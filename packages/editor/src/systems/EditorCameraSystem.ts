@@ -41,7 +41,7 @@ export default async function GizmoSystem(world: World): Promise<System> {
         cameraComponent.zoomDelta = 0
       }
 
-      if (cameraComponent.focusedObjects) {
+      if (cameraComponent.refocus) {
         let distance = 0
         if (cameraComponent.focusedObjects.length === 0) {
           cameraComponent.center.set(0, 0, 0)
@@ -67,6 +67,7 @@ export default async function GizmoSystem(world: World): Promise<System> {
         camera.position.copy(cameraComponent.center).add(delta)
 
         cameraComponent.focusedObjects = null!
+        cameraComponent.refocus = false
       }
 
       if (cameraComponent.isPanning) {

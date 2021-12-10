@@ -3,18 +3,20 @@ import { Vector3, DirectionalLight, PerspectiveCamera, PCFSoftShadowMap, LinearT
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { CSM } from '../../assets/csm/CSM'
+import { ComponentName } from '../../common/constants/ComponentNames'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   ComponentDeserializeFunction,
+  ComponentSerializeFunction,
   ComponentUpdateFunction,
   getComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { RenderSettingComponent } from '../components/RenderSettingComponent'
+import { RenderSettingComponent, RenderSettingComponentType } from '../components/RenderSettingComponent'
 
-export const createRenderSetting: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeRenderSetting: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   addComponent(entity, RenderSettingComponent, {
     ...json.props,
     LODs: new Vector3(json.props.LODs.x, json.props.LODs.y, json.props.LODs.z),
@@ -92,4 +94,21 @@ export const resetEngineRenderer = (resetLODs = false) => {
       delete o.userData.prevVisible
     }
   })
+}
+
+export const serializeRenderSettings: ComponentSerializeFunction = (entity) => {
+  const component = getComponent(entity, RenderSettingComponent) as RenderSettingComponentType
+  if (!component) return
+
+  return {
+    name: ComponentName.RENDERER_SETTINGS,
+    props: {
+      LODs: component.LODs,
+      overrideRendererSettings: component.overrideRendererSettings,
+      csm: component.csm,
+      toneMapping: component.toneMapping,
+      toneMappingExposure: component.toneMappingExposure,
+      shadowMapType: component.shadowMapType
+    }
+  }
 }

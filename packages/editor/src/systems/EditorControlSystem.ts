@@ -478,9 +478,6 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.GROUP)
       } else if (getInput(EditorActionSet.deleteSelected)) {
         CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
-      } else if (getInput(EditorActionSet.saveProject)) {
-        // TODO: Move save to Project class
-        CommandManager.instance.emitEvent(EditorEvents.SAVE_PROJECT)
       }
 
       if (flyControlComponent.enable) return
@@ -499,6 +496,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         if (result) {
           cameraComponent.dirty = true
           cameraComponent.focusedObjects = [result.node]
+          cameraComponent.refocus = true
         }
       } else if (getInput(EditorActionSet.panning)) {
         cameraComponent.isPanning = true

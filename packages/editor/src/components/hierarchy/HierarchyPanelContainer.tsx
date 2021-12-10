@@ -41,17 +41,6 @@ const uploadOptions = {
 }
 
 /**
- * function provides node menu properties.
- *
- * @author Robert Long
- * @param  {object} node
- * @return {object}
- */
-function collectNodeMenuProps({ node }) {
-  return node
-}
-
-/**
  * PanelContainer used as wrapper element for   penal content.
  *
  * @author Robert Long
@@ -653,6 +642,10 @@ function TreeNode({
     })
   })
 
+  const collectNodeMenuProps = useCallback(() => {
+    return node
+  }, [node])
+
   const nameComponent = getComponent(object.entity, NameComponent)
   const entityNodeComponent = getComponent(object.entity, EntityNodeComponent)
 
@@ -664,7 +657,7 @@ function TreeNode({
   //returning tree view for hierarchy panel
   return (
     <TreeDepthContainer style={style}>
-      <ContextMenuTrigger holdToDisplay={-1} id="hierarchy-node-menu" node={node} collect={collectNodeMenuProps}>
+      <ContextMenuTrigger holdToDisplay={-1} id="hierarchy-node-menu" collect={collectNodeMenuProps}>
         <TreeNodeContainer
           ref={drag}
           id={getNodeElId(node)}

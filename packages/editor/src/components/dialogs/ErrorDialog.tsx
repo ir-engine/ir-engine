@@ -40,7 +40,7 @@ const ErrorMessage = (styled as any).code`
  * @type {Object}
  */
 export function ErrorDialog(props) {
-  if (!props) return
+  if (!props) return null
   return (
     <ErrorDialogContainer {...props}>
       <ErrorMessage>{props?.message}</ErrorMessage>

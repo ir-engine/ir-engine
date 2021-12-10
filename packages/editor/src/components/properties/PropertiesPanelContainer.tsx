@@ -217,10 +217,6 @@ export const PropertiesPanelContainer = () => {
     const disableTransform = selected.some((node) => hasComponent(node.entity, DisableTransformTagComponent))
     const haveStaticTags = selected.some((node) => node.haveStaticTags)
 
-    const visibleComponent = getComponent(node.entity, VisibleComponent)
-    const persistComponent = getComponent(node.entity, PersistTagComponent)
-    const includeInCubemapBakeComponent = getComponent(node.entity, IncludeInCubemapBakeComponent)
-
     content = (
       <StyledNodeEditor>
         <PropertiesHeader>
@@ -229,18 +225,21 @@ export const PropertiesPanelContainer = () => {
             {!isScene && (
               <>
                 <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
-                  <BooleanInput value={!!visibleComponent} onChange={onChangeVisible} />
+                  <BooleanInput value={hasComponent(node.entity, VisibleComponent)} onChange={onChangeVisible} />
                 </VisibleInputGroup>
                 {haveStaticTags && (
                   <VisibleInputGroup name="Bake Static" label="Bake Static">
-                    <BooleanInput value={!!includeInCubemapBakeComponent} onChange={onChangeBakeStatic} />
+                    <BooleanInput
+                      value={hasComponent(node.entity, IncludeInCubemapBakeComponent)}
+                      onChange={onChangeBakeStatic}
+                    />
                   </VisibleInputGroup>
                 )}
               </>
             )}
           </NameInputGroupContainer>
           <PersistInputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
-            <BooleanInput value={!!persistComponent} onChange={onChangePersist} />
+            <BooleanInput value={hasComponent(node.entity, PersistTagComponent)} onChange={onChangePersist} />
           </PersistInputGroup>
           {!isScene && !disableTransform && <TransformPropertyGroup node={node} />}
         </PropertiesHeader>

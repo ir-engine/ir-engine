@@ -1,4 +1,5 @@
 import { Color } from 'three'
+import { ComponentName } from '../../common/constants/ComponentNames'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { FogType } from '../constants/FogType'
 
@@ -10,4 +11,4 @@ export type FogComponentType = {
   far: number
 }
 
-export const FogComponent = createMappedComponent<FogComponentType>('FogComponent')
+export const FogComponent = createMappedComponent<FogComponentType>(ComponentName.FOG)

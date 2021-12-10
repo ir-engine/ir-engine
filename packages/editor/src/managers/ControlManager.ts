@@ -21,8 +21,8 @@ export class ControlManager {
   isInPlayMode: boolean
 
   constructor() {
-    this.inputManager = null
-    this.playModeControls = null
+    this.inputManager = null!
+    this.playModeControls = null!
     this.isInPlayMode = false
   }
 
@@ -30,10 +30,10 @@ export class ControlManager {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (editorControlComponent.transformMode === TransformMode.Grab) {
       const checkpoint = editorControlComponent.grabHistoryCheckpoint
-      setTransformMode(editorControlComponent.transformModeOnCancel, null, editorControlComponent)
+      setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
       CommandManager.instance.revert(checkpoint)
     } else if (editorControlComponent.transformMode === TransformMode.Placement) {
-      setTransformMode(editorControlComponent.transformModeOnCancel, null, editorControlComponent)
+      setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
       CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
     }
   }

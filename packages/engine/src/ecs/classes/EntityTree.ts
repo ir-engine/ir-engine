@@ -48,13 +48,13 @@ export default class EntityTree {
     }
   }
 
-  traverse(cb: (node: EntityTreeNode) => void, node: EntityTreeNode = this.rootNode): void {
-    cb(node)
+  traverse(cb: (node: EntityTreeNode, index: number) => void, node: EntityTreeNode = this.rootNode, index = 0): void {
+    cb(node, index)
 
     if (!node.children) return
 
     for (let i = 0; i < node.children.length; i++) {
-      this.traverse(cb, node.children[i])
+      this.traverse(cb, node.children[i], i)
     }
   }
 }

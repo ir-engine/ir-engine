@@ -1,4 +1,5 @@
 import { Color } from 'three'
+import { ComponentName } from '../../common/constants/ComponentNames'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { CubemapBakeSettings } from '../types/CubemapBakeSettings'
@@ -13,4 +14,4 @@ export type EnvmapComponentType = {
   errorWhileLoading?: boolean
 }
 
-export const EnvmapComponent = createMappedComponent<EnvmapComponentType>('EnvmapComponent')
+export const EnvmapComponent = createMappedComponent<EnvmapComponentType>(ComponentName.ENVMAP)

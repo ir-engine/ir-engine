@@ -1,9 +1,12 @@
 import { store } from '@xrengine/client-core/src/store'
 import { createState, useState } from '@hookstate/core'
 
-const state = createState({
-  projectName: null as string,
-  sceneName: null as string
+const state = createState<{
+  projectName: string | null
+  sceneName: string | null
+}>({
+  projectName: null,
+  sceneName: null
 })
 
 store.receptors.push((action: EditorActionType): any => {
@@ -26,13 +29,13 @@ export const EditorService = {}
 
 //Action
 export const EditorAction = {
-  sceneLoaded: (sceneName: string) => {
+  sceneLoaded: (sceneName: string | null) => {
     return {
       type: 'SCENE_LOADED' as const,
       sceneName
     }
   },
-  projectLoaded: (projectName: string) => {
+  projectLoaded: (projectName: string | null) => {
     return {
       type: 'PROJECT_LOADED' as const,
       projectName

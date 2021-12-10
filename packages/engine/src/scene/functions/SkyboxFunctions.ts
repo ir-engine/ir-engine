@@ -1,11 +1,13 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, sRGBEncoding } from 'three'
+import { ComponentName } from '../../common/constants/ComponentNames'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   ComponentDeserializeFunction,
+  ComponentSerializeFunction,
   ComponentUpdateFunction,
   getComponent,
   hasComponent,
@@ -14,7 +16,7 @@ import {
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { Sky } from '../classes/Sky'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { SkyboxComponent } from '../components/SkyboxComponent'
+import { SkyboxComponent, SkyboxComponentType } from '../components/SkyboxComponent'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 import {
   cubeTextureLoader,
@@ -31,7 +33,7 @@ import { setSkyDirection } from './setSkyDirection'
 
 let sky: Sky
 
-export const createSkybox: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   if (isClient) {
     json.props.backgroundColor = new Color(json.props.backgroundColor)
     addComponent(entity, SkyboxComponent, json.props)
@@ -94,5 +96,21 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
 
   if (hasSkyObject && component.backgroundType !== SkyTypeEnum.skybox) {
     removeComponent(entity, Object3DComponent)
+  }
+}
+
+export const serializeSkybox: ComponentSerializeFunction = (entity) => {
+  const component = getComponent(entity, SkyboxComponent) as SkyboxComponentType
+  if (!component) return
+
+  return {
+    name: ComponentName.SKYBOX,
+    props: {
+      backgroundColor: component.backgroundColor?.getHex(),
+      equirectangularPath: component.equirectangularPath,
+      cubemapPath: component.cubemapPath,
+      backgroundType: component.backgroundType,
+      skyboxProps: component.skyboxProps
+    }
   }
 }

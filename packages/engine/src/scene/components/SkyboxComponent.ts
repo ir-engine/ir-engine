@@ -1,4 +1,5 @@
 import { Color } from 'three'
+import { ComponentName } from '../../common/constants/ComponentNames'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 
@@ -20,4 +21,4 @@ export type SkyboxComponentType = {
   skyboxProps: SkyBoxShaderProps
 }
 
-export const SkyboxComponent = createMappedComponent<SkyboxComponentType>('SkyboxComponent')
+export const SkyboxComponent = createMappedComponent<SkyboxComponentType>(ComponentName.SKYBOX)

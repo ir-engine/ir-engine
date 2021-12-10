@@ -1,9 +1,20 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import * as bitECS from 'bitecs'
+import { capitalize } from 'lodash'
 import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
 
 export const ComponentMap = new Map<string, ComponentType<any>>()
+
+const getComponentName = (name: string): string => {
+  const parts = name.split('-')
+
+  for (let i = 0; i < parts.length; i++) {
+    parts[i] = capitalize(parts[i])
+  }
+
+  return parts.join('') + 'Component'
+}
 
 // TODO: benchmark map vs array for componentMap
 export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = bitECS.ISchema>(
@@ -22,8 +33,12 @@ export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = b
   Object.defineProperty(component, '_map', {
     value: componentMap
   })
-  Object.defineProperty(component, '_name', {
+  Object.defineProperty(component, '_type', {
     value: name,
+    enumerable: true
+  })
+  Object.defineProperty(component, '_name', {
+    value: getComponentName(name),
     enumerable: true
   })
   Object.defineProperty(component, 'get', {
@@ -83,6 +98,7 @@ export type MappedComponent<T, S extends bitECS.ISchema> = bitECS.ComponentType<
   set: (entity: number, value: T & SoAProxy<S>) => void
   delete: (entity: number) => void
   readonly _name: string
+  readonly _type: string
 }
 
 export type ComponentConstructor<T, S extends bitECS.ISchema> = MappedComponent<T, S>
@@ -142,6 +158,10 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
   bitECS.removeComponent(world, component, entity)
 }
 
+export const getAllComponents = (entity: Entity, world = useWorld()): ComponentConstructor<any, any>[] => {
+  return bitECS.getEntityComponents(world, entity) as ComponentConstructor<any, any>[]
+}
+
 export const getAllComponentsOfType = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
   world = useWorld()
@@ -182,4 +202,5 @@ export type Query = ReturnType<typeof defineQuery>
 export const EntityRemovedComponent = createMappedComponent<{}>('EntityRemovedComponent')
 
 export type ComponentDeserializeFunction = (entity: Entity, componentData: ComponentJson) => void
+export type ComponentSerializeFunction = (entity: Entity) => ComponentJson | undefined
 export type ComponentUpdateFunction = (entity: Entity) => void

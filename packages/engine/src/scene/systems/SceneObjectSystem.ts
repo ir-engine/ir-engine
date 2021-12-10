@@ -12,7 +12,7 @@ import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
-import { useSimpleMaterial, useStandardMaterial } from '../functions/simpleMaterialConverter'
+import { useSimpleMaterial, useStandardMaterial } from '../functions/SimpleMaterialFunctions'
 
 /**
  * @author Josh Field <github.com/HexaField>

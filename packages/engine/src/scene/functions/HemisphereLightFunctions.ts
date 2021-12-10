@@ -1,18 +1,20 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, HemisphereLight } from 'three'
+import { ComponentName } from '../../common/constants/ComponentNames'
 import { isClient } from '../../common/functions/isClient'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   ComponentDeserializeFunction,
+  ComponentSerializeFunction,
   ComponentUpdateFunction,
   getComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
-import { HemisphereLightComponent } from '../components/HemisphereLightComponent'
+import { HemisphereLightComponent, HemisphereLightComponentType } from '../components/HemisphereLightComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 
-export const createHemisphereLight: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeHemisphereLight: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   if (!isClient || !json) return
 
   const light = new HemisphereLight()
@@ -35,4 +37,18 @@ export const updateHemisphereLight: ComponentUpdateFunction = (entity: Entity) =
   light.groundColor = component.groundColor
   light.color = component.skyColor
   light.intensity = component.intensity
+}
+
+export const serializeHemisphereLight: ComponentSerializeFunction = (entity) => {
+  const component = getComponent(entity, HemisphereLightComponent) as HemisphereLightComponentType
+  if (!component) return
+
+  return {
+    name: ComponentName.HEMISPHERE_LIGHT,
+    props: {
+      skyColor: component.skyColor?.getHex(),
+      groundColor: component.groundColor?.getHex(),
+      intensity: component.intensity
+    }
+  }
 }

@@ -8,9 +8,12 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
 import { updateGroundPlane } from '@xrengine/engine/src/scene/functions/GroundPlaneFunctions'
+import EditorCommands from '../../constants/EditorCommands'
+import { WalkableTagComponent } from '@xrengine/engine/src/scene/components/Walkable'
+import { TagComponentOperation } from '../../commands/TagComponentCommand'
 
 /**
  * Declaring GroundPlaneNodeEditor properties.
@@ -61,10 +64,11 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
 
   // function handles the changes in walkable property
   const onChangeWalkable = (walkable) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateGroundPlane,
-      component: GroundPlaneComponent,
-      properties: { walkable }
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+      operation: {
+        component: WalkableTagComponent,
+        type: walkable ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+      }
     })
   }
 
@@ -83,7 +87,7 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
         <BooleanInput value={groundPlaneComponent.generateNavmesh} onChange={onChangeGenerateNavmesh} />
       </InputGroup>
       <InputGroup name="Walkable" label={t('editor:properties.groundPlane.lbl-walkable')}>
-        <BooleanInput value={groundPlaneComponent.walkable} onChange={onChangeWalkable} />
+        <BooleanInput value={hasComponent(props.node.entity, WalkableTagComponent)} onChange={onChangeWalkable} />
       </InputGroup>
     </NodeEditor>
   )

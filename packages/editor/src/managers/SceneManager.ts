@@ -10,7 +10,8 @@ import {
   MeshBasicMaterial,
   MeshNormalMaterial,
   Intersection,
-  Object3D
+  Object3D,
+  PerspectiveCamera
 } from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import SceneNode from '../nodes/SceneNode'
@@ -33,7 +34,6 @@ import { NodeManager } from './NodeManager'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import makeRenderer from '../renderer/makeRenderer'
-import ScenePreviewCameraNode from '../nodes/ScenePreviewCameraNode'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
@@ -42,19 +42,26 @@ import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createGizmoEntity } from '../functions/createGizmoEntity'
 import { createCameraEntity } from '../functions/createCameraEntity'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { createEditorEntity } from '../functions/createEditorEntity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getAllEntitiesWithComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functions/ScenePreviewCameraFunctions'
+
+export type DefaultExportOptionsType = {
+  combineMeshes: boolean
+  removeUnusedObjects: boolean
+}
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()
 
-  static DefaultExportOptions = {
+  static DefaultExportOptions: DefaultExportOptionsType = {
     combineMeshes: true,
     removeUnusedObjects: true
   }
@@ -186,24 +193,38 @@ export class SceneManager {
    * @return {Promise}        [generated screenshot according to height and width]
    */
   async takeScreenshot(width: number, height: number) {
-    const { screenshotRenderer } = this
-    const sceneNode = Engine.scene as any as SceneNode
     const originalRenderer = Engine.renderer
-    Engine.renderer = screenshotRenderer
+    Engine.renderer = this.screenshotRenderer
     this.disableUpdate = true
-    let scenePreviewCamera = sceneNode.findNodeByType(ScenePreviewCameraNode)
-    if (!scenePreviewCamera) {
-      scenePreviewCamera = new ScenePreviewCameraNode()
-      Engine.camera.matrix.decompose(scenePreviewCamera.position, scenePreviewCamera.rotation, scenePreviewCamera.scale)
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, [scenePreviewCamera])
+
+    const entities = getAllEntitiesWithComponent(ScenePreviewCameraTagComponent)
+    if (!entities.length) return
+
+    let cameraEntity = entities[0]
+    let scenePreviewCamera: PerspectiveCamera
+
+    if (!cameraEntity) {
+      cameraEntity = createEntity()
+      deserializeScenePreviewCamera(cameraEntity, null!)
+
+      scenePreviewCamera = getComponent(cameraEntity, Object3DComponent).value as PerspectiveCamera
+      Engine.camera.matrix.decompose(
+        scenePreviewCamera.position,
+        scenePreviewCamera.quaternion,
+        scenePreviewCamera.scale
+      )
+      // CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, [scenePreviewCamera])
+    } else {
+      scenePreviewCamera = getComponent(cameraEntity, Object3DComponent).value as PerspectiveCamera
     }
+
     const prevAspect = scenePreviewCamera.aspect
     scenePreviewCamera.aspect = width / height
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.disable(ObjectLayers.Scene)
-    screenshotRenderer.setSize(width, height, true)
-    screenshotRenderer.render(Engine.scene as any, scenePreviewCamera)
-    const blob = await getCanvasBlob(screenshotRenderer.domElement)
+    this.screenshotRenderer.setSize(width, height, true)
+    this.screenshotRenderer.render(Engine.scene as any, scenePreviewCamera)
+    const blob = await getCanvasBlob(this.screenshotRenderer.domElement)
     scenePreviewCamera.aspect = prevAspect
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.enable(ObjectLayers.Scene)
@@ -380,7 +401,7 @@ export class SceneManager {
    * @param  {Object}  [options={}]
    * @return {Promise}              [scene data as object]
    */
-  async exportScene(options = {}) {
+  async exportScene(options = {} as DefaultExportOptionsType) {
     const { combineMeshes, removeUnusedObjects } = Object.assign({}, SceneManager.DefaultExportOptions, options)
 
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
@@ -501,7 +522,7 @@ type EngineRendererProps = {
 }
 
 // TODO: - Nayan - Probably moved to engine package or will be replaced by already available WebGLRenderSystem
-export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
+export default async function EditorRendererSystem(world: World, _: EngineRendererProps): Promise<System> {
   // await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   // EngineRenderer.instance.dispatchSettingsChangeEvent()
 

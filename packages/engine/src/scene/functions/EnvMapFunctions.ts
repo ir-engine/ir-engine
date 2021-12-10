@@ -1,10 +1,11 @@
 import { Color, DataTexture, Mesh, MeshStandardMaterial, RGBFormat, sRGBEncoding, Vector3 } from 'three'
 import { isClient } from '../../common/functions/isClient'
-import { EnvmapComponent } from '../components/EnvmapComponent'
+import { EnvmapComponent, EnvmapComponentType } from '../components/EnvmapComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   ComponentDeserializeFunction,
+  ComponentSerializeFunction,
   ComponentUpdateFunction,
   getComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -26,11 +27,12 @@ import {
   textureLoader
 } from '../constants/Util'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentName } from '../../common/constants/ComponentNames'
 
 const tempVector = new Vector3()
 const tempColor = new Color()
 
-export const setEnvMap: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   if (!isClient) return
 
   addComponent(entity, EnvmapComponent, {
@@ -154,5 +156,22 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
         ;(obj.material as MeshStandardMaterial).envMapIntensity = component.envMapIntensity
       }
     })
+  }
+}
+
+export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
+  const component = getComponent(entity, EnvmapComponent) as EnvmapComponentType
+  if (!component) return
+
+  return {
+    name: ComponentName.ENVMAP,
+    props: {
+      type: component.type,
+      envMapTextureType: component.envMapTextureType,
+      envMapSourceColor: component.envMapSourceColor,
+      envMapSourceURL: component.envMapSourceURL,
+      envMapIntensity: component.envMapIntensity,
+      envMapCubemapBake: component.envMapCubemapBake
+    }
   }
 }

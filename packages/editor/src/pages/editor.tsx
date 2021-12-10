@@ -9,7 +9,6 @@ import { useEditorState } from '../services/EditorServices'
 import { Route, Switch } from 'react-router-dom'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 
 const EditorProtectedRoutes = () => {
   const [engineIsInitialized, setEngineInitialized] = useState(false)

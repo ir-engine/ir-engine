@@ -1,21 +1,24 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { CameraHelper, PerspectiveCamera, Matrix4 } from 'three'
+import { ComponentName } from '../../common/constants/ComponentNames'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   ComponentDeserializeFunction,
+  ComponentSerializeFunction,
   ComponentUpdateFunction,
-  getComponent
+  getComponent,
+  hasComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 
-export const createScenePreviewCamera: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
-  if (!isClient || !json) return
+export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson) => {
+  if (!isClient) return
 
   addComponent(entity, ScenePreviewCameraTagComponent, {})
   if (Engine.isEditor) {
@@ -38,4 +41,13 @@ export const updateScenePreviewCamera: ComponentUpdateFunction = (entity: Entity
     .invert()
     .multiply(Engine.camera.matrixWorld)
     .decompose(transformComponent.position, transformComponent.rotation, transformComponent.scale)
+}
+
+export const serializeScenePreviewCamera: ComponentSerializeFunction = (entity) => {
+  if (hasComponent(entity, ScenePreviewCameraTagComponent)) {
+    return {
+      name: ComponentName.SCENE_PREVIEW_CAMERA,
+      props: {}
+    }
+  }
 }

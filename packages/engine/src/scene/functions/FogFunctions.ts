@@ -1,17 +1,19 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, Fog, FogExp2 } from 'three'
+import { ComponentName } from '../../common/constants/ComponentNames'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   ComponentDeserializeFunction,
+  ComponentSerializeFunction,
   ComponentUpdateFunction,
   getComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { FogComponent } from '../components/FogComponent'
+import { FogComponent, FogComponentType } from '../components/FogComponent'
 import { FogType } from '../constants/FogType'
 
-export const setFog: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   addComponent(entity, FogComponent, {
     ...json.props,
     color: new Color(json.props.color)
@@ -46,5 +48,21 @@ export const updateFog: ComponentUpdateFunction = (entity: Entity) => {
     default:
       Engine.scene.fog = null
       break
+  }
+}
+
+export const serializeFog: ComponentSerializeFunction = (entity) => {
+  const component = getComponent(entity, FogComponent) as FogComponentType
+  if (!component) return
+
+  return {
+    name: ComponentName.FOG,
+    props: {
+      type: component.type,
+      color: component.color,
+      near: component.near,
+      far: component.far,
+      density: component.density
+    }
   }
 }

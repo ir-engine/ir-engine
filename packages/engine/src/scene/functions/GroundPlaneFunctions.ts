@@ -3,23 +3,23 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   ComponentDeserializeFunction,
+  ComponentSerializeFunction,
   ComponentUpdateFunction,
   getComponent,
-  hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createCollider } from '../../physics/functions/createCollider'
-import { GroundPlaneComponent } from '../components/GroundPlaneComponent'
+import { GroundPlaneComponent, GroundPlaneComponentType } from '../components/GroundPlaneComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import GroundPlane from '../classes/GroundPlane'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { WalkableTagComponent } from '../components/Walkable'
 import { isClient } from '../../common/functions/isClient'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentName } from '../../common/constants/ComponentNames'
 
-export const createGround: ComponentDeserializeFunction = async function (
+export const deserializeGround: ComponentDeserializeFunction = async function (
   entity: Entity,
   json: ComponentJson
 ): Promise<void> {
@@ -42,13 +42,6 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
 
   groundPlane.color.set(component.color)
 
-  const isWalkable = hasComponent(entity, WalkableTagComponent)
-  if (component.walkable && !isWalkable) {
-    addComponent(entity, WalkableTagComponent, {})
-  } else if (!component.walkable && isWalkable) {
-    removeComponent(entity, WalkableTagComponent)
-  }
-
   groundPlane.generateNavmesh = component.generateNavmesh
   if (isClient && !Engine.isEditor) {
     if (component.generateNavmesh) {
@@ -60,6 +53,19 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
     } else {
       Engine.scene.remove(navigationRaycastTarget)
       removeComponent(entity, NavMeshComponent)
+    }
+  }
+}
+
+export const serializeGroundPlane: ComponentSerializeFunction = (entity) => {
+  const component = getComponent(entity, GroundPlaneComponent) as GroundPlaneComponentType
+  if (!component) return
+
+  return {
+    name: ComponentName.GROUND_PLANE,
+    props: {
+      color: component.color?.getHex(),
+      generateNavmesh: component.generateNavmesh
     }
   }
 }
