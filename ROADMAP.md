@@ -2,6 +2,15 @@
 
 ## Where we are (existing features)
 
+### XREngine
+
+ - [x] [Pointer-lock mode](https://github.com/XRFoundation/XREngine/issues/3108)
+ - [x] [Upload retargeting](https://github.com/XRFoundation/XREngine/issues/3551)
+ - [x] [HTTP3](https://github.com/XRFoundation/XREngine/issues/3319)
+
+### XREditor
+ - [x] [Drag and drop assets in to scene](https://github.com/XRFoundation/XREngine/issues/3161)
+
 ## Where we want to be
 
 ### XREngine
@@ -13,7 +22,9 @@
 | Retargeting and IK                                         |     |
 | Matchmaking                                                |     |
 | Friends indicators, privacy, blocking                      |     |
-| Vertex animation shaders / matrix palette                  |     |
+| Avatar wearables                                           |     |
+| Avatar vertex animation shaders / matrix palette           |     |
+| [Avatar LOD optimization]                                  |     |
 | Occlusion Culling                                          |     |
 | P2P Network transport                                      |     |
 | Object persistence                                         |     |
@@ -26,7 +37,6 @@
 | Spaceships                                                 |     |
 | Portal guns                                                |     |
 | Portals to other platforms                                 |     |
-| [Avatar LOD optimization]                                  |     |
 | Matrix.org                                                 |     |
 | IPFS storage provider                                      |     |
 | IPSME                                                      |     |
