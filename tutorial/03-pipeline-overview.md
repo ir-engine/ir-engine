@@ -3,11 +3,10 @@
 ![image](https://user-images.githubusercontent.com/578371/145126692-02e51aa0-45ce-4f1b-83ad-ef8360bb43c0.png)
 
 ## Our pipeline process:
- - Create scene in Blender/Unity/Maya/Houdini with Colliders
- - Export scene as GLB and import into XREditor
- - Publish scene to a location and test using a XREngine Location Link
- - Add to our [spreadsheet](//docs.google.com/spreadsheets/d/1qPlO-5BPvj_CktauLEAr38ZtIkkJ-uduhUfyDQ1eeIQ/) - Goes into our Content Seeding System
- - Leadership adds your scene to a Content Pack
+1. Create scene in Blender/Unity/Maya/Houdini with Colliders
+2. Export scene as GLB and import into XREditor
+3. Publish scene to a location and test using a XREngine Location Link
+4. Leadership adds your scene to a Content Pack
 
 Please report your scene max texture size, GLB size, scaled area size, poly count and drawcalls with your final version.
 We will make a final link on a XREngine server to test the scene.
