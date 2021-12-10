@@ -3,13 +3,15 @@
 ## Where we are (existing features)
 
 ### XREngine
-
+ - [x] High-performance ECS
+ - [x] Portals
  - [x] Pointer-lock mode
  - [x] Upload retargeting
  - [x] HTTP3
 
 ### XREditor
- - Drag and drop assets in to scene
+ - [x] Arbitrary isomorphic scripting
+ - [x] Drag and drop assets in to scene
 
 ## Where we want to be
 
