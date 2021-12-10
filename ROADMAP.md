@@ -63,7 +63,7 @@
 
 | Description                                                | ETA |
 |------------------------------------------------------------|-----|
-| Integrate https://docs.snapshot.org/                       |     |
+| Integrate snapshot.org                                     |     |
 | Crypto Universal Adapter                                   |     |
 | XRPL                                                       |     |
 | ILP                                                        |     |
