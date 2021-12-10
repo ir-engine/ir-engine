@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChartArea } from '@styled-icons/fa-solid/ChartArea'
 import { SceneManager } from '../../../managers/SceneManager'
 import { InfoTooltip } from '../../layout/Tooltip'
 import styles from '../styles.module.scss'
+import SsidChartIcon from '@mui/icons-material/SsidChart'
 
 /**
  * Stats used to show stats of  memory and  render.
@@ -51,7 +51,7 @@ const StatsTool = () => {
       <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="stats">
         <InfoTooltip info="Toggle Stats">
           <button onClick={toggleStats} className={styles.toolButton + ' ' + (isVisible ? styles.selected : '')}>
-            <ChartArea size={12} />
+            <SsidChartIcon fontSize="small" />
           </button>
         </InfoTooltip>
       </div>

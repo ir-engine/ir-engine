@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Sun } from '@styled-icons/boxicons-regular/Sun'
+import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 import { CommandManager } from '../../../managers/CommandManager'
 import EditorEvents from '../../../constants/EditorEvents'
 import SelectInput from '../../inputs/SelectInput'
@@ -35,7 +35,7 @@ const RenderModeTool = () => {
     <div className={styles.toolbarInputGroup} id="transform-pivot">
       <InfoTooltip info="Render Mode">
         <div className={styles.toolIcon}>
-          <Sun size={16} />
+          <WbSunnyOutlinedIcon fontSize="small" />
         </div>
       </InfoTooltip>
       <SelectInput

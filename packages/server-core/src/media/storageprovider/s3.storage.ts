@@ -100,11 +100,19 @@ export class S3Provider implements StorageProviderInterface {
     })
   }
 
-  listObjects = async (prefix: string, recursive = true): Promise<StorageListObjectInterface> => {
+  listObjects = async (
+    prefix: string,
+    results: any[],
+    recursive = true,
+    continuationToken: string | undefined
+  ): Promise<StorageListObjectInterface> => {
+    const self = this
+
     return new Promise((resolve, reject) =>
       this.provider.listObjectsV2(
         {
           Bucket: this.bucket,
+          ContinuationToken: continuationToken,
           Prefix: prefix,
           Delimiter: recursive ? undefined : '/'
         },
@@ -113,7 +121,10 @@ export class S3Provider implements StorageProviderInterface {
             console.error(err)
             reject(err)
           } else {
-            resolve(data as StorageListObjectInterface)
+            data.Contents = results.concat(data.Contents)
+            if (data.IsTruncated)
+              self.listObjects(prefix, data.Contents, true, data.NextContinuationToken).then((data) => resolve(data))
+            else resolve(data as StorageListObjectInterface)
           }
         }
       )
@@ -214,7 +225,7 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   listFolderContent = async (folderName: string, recursive = false): Promise<FileContentType[]> => {
-    const folderContent = await this.listObjects(folderName, recursive)
+    const folderContent = await this.listObjects(folderName, [], recursive, null!)
     // console.log('folderContent', folderContent)
     const promises: Promise<FileContentType>[] = []
     // Files
@@ -263,7 +274,7 @@ export class S3Provider implements StorageProviderInterface {
 
   private async _moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null!) {
     const promises: any[] = []
-    const listResponse = await this.listObjects(current)
+    const listResponse = await this.listObjects(current, [], true, null!)
 
     promises.push(
       ...listResponse.Contents.map(async (file) => {

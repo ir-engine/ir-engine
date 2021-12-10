@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useMemo } from 'react'
 import styled, { ThemeContext } from 'styled-components'
-import { ExclamationTriangle } from '@styled-icons/fa-solid/ExclamationTriangle'
 import Tooltip from '../layout/Tooltip'
 import { useTranslation } from 'react-i18next'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 
 /**
  * IssuesTooltipContainer used to provide styles and showing issues list.
@@ -43,7 +43,7 @@ const IssuesTooltipContainer = (styled as any).div`
  * @author Robert Long
  * @param {styled component} styled
  */
-const IssueIcon = (styled as any)(ExclamationTriangle)`
+const IssueIcon = (styled as any)(ErrorOutlineIcon)`
   color: ${(props) => props.color};
 `
 

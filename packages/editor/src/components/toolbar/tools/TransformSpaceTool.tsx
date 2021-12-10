@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Globe } from '@styled-icons/fa-solid/Globe'
+import LanguageIcon from '@mui/icons-material/Language'
 import { CommandManager } from '../../../managers/CommandManager'
 import EditorEvents from '../../../constants/EditorEvents'
 import { InfoTooltip } from '../../layout/Tooltip'
@@ -48,7 +48,7 @@ const TransformSpaceTool = () => {
     <div className={styles.toolbarInputGroup} id="transform-space">
       <InfoTooltip info="[Z] Toggle Transform Space">
         <button onClick={onToggleTransformSpace} className={styles.toolButton}>
-          <Globe size={12} />
+          <LanguageIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <SelectInput

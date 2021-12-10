@@ -57,13 +57,18 @@ const InstanceChat = (props: Props): any => {
 
   useEffect(() => {
     if (
-      user?.instanceId?.value != null &&
+      user?.instanceId?.value === instanceConnectionState.instance.id?.value &&
       instanceConnectionState.connected.value === true &&
       channelState.fetchingInstanceChannel.value !== true
     ) {
       ChatService.getInstanceChannel()
     }
-  }, [user?.instanceId?.value, instanceConnectionState.connected?.value, channelState.fetchingInstanceChannel.value])
+  }, [
+    user?.instanceId?.value,
+    instanceConnectionState.instance.id?.value,
+    instanceConnectionState.connected?.value,
+    channelState.fetchingInstanceChannel.value
+  ])
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
