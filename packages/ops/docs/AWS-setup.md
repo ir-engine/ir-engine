@@ -516,10 +516,13 @@ this page to make a new one. You will need to make several Secrets with the foll
 * ECR_URL -> The root ECR_URL for your repos, i.e. everything before the `/xrengine-dev(-builder)`, e.g. `11111111111.dkr.ecr.us-west-1.amazonaws.com` or `public.ecr.aws/a1b2c3d4`
 * PRIVATE_ECR -> Set this to `true` if your ECR repos are private, if they're public you don't need to set this at all
 
-If you go to the Actions Tab, you should see a few workflow runs with green checkmarks. You'll be re-running the
+If you go to the Actions Tab, you might see a few workflow runs with green checkmarks. If so, you'll be re-running the
 `dev-deploy` workflow shortly; its initial run just ran a check to see if it should do a deployment based on 
 `DEPLOYMENTS_ENABLED`, and since that wasn't set to true, it didn't do anything else. Now that that's set to true,
 re-running it will trigger a deployment.
+    
+If you're asked to enable actions when going to the tab, and there are no runs listed after enabling actions, then you'll have to 
+trigger the workflow by pushing new code to the dev branch.
 
 ## Grant Github-Actions-User access to cluster
 By default, only the IAM user who set up an EKS cluster may access it.
