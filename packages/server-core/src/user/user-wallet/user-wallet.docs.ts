@@ -3,7 +3,7 @@
  *
  * @author DRC
  */
- export default {
+export default {
   definitions: {
     'user-wallet': {
       type: 'object',
