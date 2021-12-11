@@ -12,7 +12,6 @@ import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
-import collectAnalytics from './collect-analytics'
 import { Application } from '@xrengine/server-core/declarations'
 
 export const createApp = async (): Promise<Application> => {
