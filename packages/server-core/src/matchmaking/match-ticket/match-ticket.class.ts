@@ -43,15 +43,12 @@ export class MatchTicket implements ServiceMethods<Data> {
   }
 
   async get(id: Id, params: Params): Promise<OpenMatchTicket> {
-    const [dbServerConfig] = await this.app.service('server-setting').find()
-    const serverConfig = dbServerConfig || config.server
-
     if (typeof id !== 'string' || id.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
 
     let ticket
-    if (serverConfig.matchmakerEmulationMode) {
+    if (config.server.matchmakerEmulationMode) {
       // emulate response from open-match-api
       ticket = await emulate_getTicket(this.app, id, params.body.userId)
     } else {
@@ -65,9 +62,6 @@ export class MatchTicket implements ServiceMethods<Data> {
   }
 
   async create(data: unknown, params: Params): Promise<OpenMatchTicket | OpenMatchTicket[]> {
-    const [dbServerConfig] = await this.app.service('server-setting').find()
-    const serverConfig = dbServerConfig || config.server
-
     if (Array.isArray(data)) {
       return await Promise.all(data.map((current) => this.create(current, params) as OpenMatchTicket))
     }
@@ -77,7 +71,7 @@ export class MatchTicket implements ServiceMethods<Data> {
       throw new BadRequest('Invalid ticket params')
     }
 
-    if (serverConfig.matchmakerEmulationMode) {
+    if (config.server.matchmakerEmulationMode) {
       // emulate response from open-match-api
       return emulate_createTicket(data.gamemode)
     }
@@ -97,10 +91,7 @@ export class MatchTicket implements ServiceMethods<Data> {
 
   async remove(id: Id, params: Params): Promise<Data> {
     // skip delete in emulation, user-match will be deleted in hook
-    const [dbServerConfig] = await this.app.service('server-setting').find()
-    const serverConfig = dbServerConfig || config.server
-
-    if (!serverConfig.matchmakerEmulationMode) {
+    if (!config.server.matchmakerEmulationMode) {
       await deleteTicket(String(id))
     }
     return { id }

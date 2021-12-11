@@ -44,10 +44,7 @@ export class TwitterStrategy extends CustomOAuthStrategy {
   }
 
   async getRedirect(data: any, params: Params): Promise<string> {
-    const [dbAuthConfig] = await this.app.service('authentication-setting').find()
-    const authConfig = dbAuthConfig || config.authentication
-
-    const redirectHost = authConfig.authentication.callback.twitter
+    const redirectHost = config.authentication.callback.twitter
     const type = params?.query?.userId ? 'connection' : 'login'
     if (Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string

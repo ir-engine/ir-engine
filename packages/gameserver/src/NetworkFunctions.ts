@@ -26,13 +26,8 @@ export async function getFreeSubdomain(
   gsIdentifier: string,
   subdomainNumber: number
 ): Promise<string> {
-  const gameServerSetting = await app.service('game-server-setting').find()
-  const [dbGameServerConfigData] = gameServerSetting.data
-
-  const gameServerConfig = dbGameServerConfigData || config.gameserver
-
   const transport = Network.instance.transport as any
-  const stringSubdomainNumber = subdomainNumber.toString().padStart(gameServerConfig.identifierDigits, '0')
+  const stringSubdomainNumber = subdomainNumber.toString().padStart(config.gameserver.identifierDigits, '0')
   const subdomainResult = await transport.app.service('gameserver-subdomain-provision').find({
     query: {
       gs_number: stringSubdomainNumber

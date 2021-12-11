@@ -24,11 +24,8 @@ export default async (app: Application) => {
   const event = new SubscriptionConfirm(options, app)
   event.docs = subscriptionConfirmDocs
 
-  const [dbClientConfig] = await app.service('client-setting').find()
-  const clientConfig = dbClientConfig || config.client
-
   app.use('subscription-confirm', event, (req, res) => {
-    res.redirect(clientConfig.url)
+    res.redirect(config.client.url)
   })
 
   /**

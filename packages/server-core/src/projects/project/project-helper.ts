@@ -14,15 +14,12 @@ export const retriggerBuilderService = async (app: Application) => {
     console.log('[Project Rebuild]: Failed to invalidate cache with error', e)
   }
 
-  const [dbServerConfig] = await app.service('server-setting').find()
-  const serverConfig = dbServerConfig || config.server
-
   // trigger k8s to re-run the builder service
   if (app.k8AppsClient) {
     try {
       console.log('Attempting to reload k8s clients!')
       const restartClientsResponse = await app.k8AppsClient.patch(
-        `namespaces/default/deployments/${serverConfig.releaseName}-builder-xrengine-builder`,
+        `namespaces/default/deployments/${config.server.releaseName}-builder-xrengine-builder`,
         {
           spec: {
             template: {

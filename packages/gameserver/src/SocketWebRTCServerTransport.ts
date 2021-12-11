@@ -287,17 +287,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       })
     })
 
-    const gameServerSetting = await this.app.service('game-server-setting').find()
-    const [dbGameServerConfigData] = gameServerSetting.data
-
-    const gameServerConfig = dbGameServerConfigData || config.gameserver
-
-    const awsSetting = await this.app.service('aws-setting').find()
-    const [dbAwsConfigData] = awsSetting.data
-
-    const awsConfig = dbAwsConfigData || config.aws
-
-    const Route53 = new AWS.Route53({ ...awsConfig.route53.keys })
+    const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
 
     // Set up our gameserver according to our current environment
     const localIp = await getLocalServerIp(this.app.isChannelInstance)
@@ -328,7 +318,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             {
               Action: 'UPSERT',
               ResourceRecordSet: {
-                Name: `${stringSubdomainNumber}.${gameServerConfig.domain}`,
+                Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
                 ResourceRecords: [{ Value: gsResult.status.address }],
                 TTL: 0,
                 Type: 'A'
@@ -336,18 +326,18 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
             }
           ]
         },
-        HostedZoneId: awsConfig.route53.hostedZoneId
+        HostedZoneId: config.aws.route53.hostedZoneId
       }
-      if (gameServerConfig.local !== true) await Route53.changeResourceRecordSets(params as any).promise()
+      if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params as any).promise()
     }
 
     localConfig.mediasoup.webRtcTransport.listenIps = [
       {
         ip: '0.0.0.0',
         announcedIp: config.kubernetes.enabled
-          ? gameServerConfig.local === true
+          ? config.gameserver.local === true
             ? gsResult.status.address
-            : `${stringSubdomainNumber}.${gameServerConfig.domain}`
+            : `${stringSubdomainNumber}.${config.gameserver.domain}`
           : localIp.ipAddress
       }
     ]

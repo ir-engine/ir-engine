@@ -8,17 +8,14 @@ export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.method === 'remove') return context
 
-    const [dbServerConfig] = await context.app.service('server-setting').find()
-    const serverConfig = dbServerConfig || config.server
-
     if (!context.params.user) {
       // send a anonymous user's analytics
-      const visitor = ua(serverConfig.gaTrackingId, { https: false })
+      const visitor = ua(config.server.gaTrackingId, { https: false })
       visitor.pageview(context.service).send()
       visitor.event(context.method, 'Requeset').send()
     } else {
       // send the user's analytics
-      const visitor = ua(serverConfig.gaTrackingId, context.params.user._id, { https: false })
+      const visitor = ua(config.server.gaTrackingId, context.params.user._id, { https: false })
       visitor.pageview(context.service).send()
       visitor.event(context.method, 'Request').send()
     }

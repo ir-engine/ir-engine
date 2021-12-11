@@ -49,12 +49,9 @@ export async function getFreeGameserver(
   console.log('Getting free gameserver')
   const serverResult = await (app as any).k8AgonesClient.get('gameservers')
 
-  const [dbServerConfig] = await app.service('server-setting').find()
-  const serverConfig = dbServerConfig || config.server
-
   const readyServers = _.filter(serverResult.items, (server: any) => {
     const releaseMatch = releaseRegex.exec(server.metadata.name)
-    return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === serverConfig.releaseName
+    return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
   })
   const ipAddresses = readyServers.map((server) => `${server.status.address}:${server.status.ports[0].port}`)
   const assignedInstances = await app.service('instance').find({
