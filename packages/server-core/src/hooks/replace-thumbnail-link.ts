@@ -29,7 +29,6 @@ export default (): Hook => {
             return app.service('static-resource').remove(item.id)
           })
         )
-
         params.parentResourceId = data.id
         const bucketName = config.aws.s3.staticResourceBucket
         params.uploadPath = data.url.replace('https://s3.amazonaws.com/' + bucketName + '/', '')

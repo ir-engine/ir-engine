@@ -65,7 +65,6 @@ async function generateSMS(
     const group = await app.service('group').get(targetObjectId)
     groupName = group.name
   }
-
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-sms-invite-${inviteType}.pug`)
   const compiledHTML = pug
     .compileFile(templatePath)({
