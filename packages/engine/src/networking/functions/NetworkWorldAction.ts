@@ -19,6 +19,14 @@ export class NetworkWorldAction {
     name: matches.string
   })
 
+  static joinedWorld = defineActionCreator(
+    {
+      type: 'network.JOINED_WORLD',
+      userId: matchesUserId
+    },
+    { allowDispatchFromAny: true }
+  )
+
   static destroyClient = defineActionCreator({
     type: 'network.DESTROY_CLIENT',
     userId: matchesUserId
