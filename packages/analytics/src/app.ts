@@ -14,7 +14,7 @@ import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import { Application } from '@xrengine/server-core/declarations'
 
-export const createApp = async (): Promise<Application> => {
+export const createApp = (): Application => {
   const emitter = new EventEmitter()
 
   // @ts-ignore

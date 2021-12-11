@@ -19,7 +19,7 @@ process.on('unhandledRejection', (error, promise) => {
 export const start = async (): Promise<Application> => {
   await updateAppConfig()
 
-  const app = await createApp()
+  const app = createApp()
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
