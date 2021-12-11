@@ -3,8 +3,8 @@ import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
 import BooleanInput from '../inputs/BooleanInput'
-import { SquareFull } from '@styled-icons/fa-solid/SquareFull'
 import { useTranslation } from 'react-i18next'
+import SquareIcon from '@mui/icons-material/Square'
 import { CommandManager } from '../../managers/CommandManager'
 import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -93,6 +93,6 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
   )
 }
 
-GroundPlaneNodeEditor.iconComponent = SquareFull
+GroundPlaneNodeEditor.iconComponent = SquareIcon
 
 export default GroundPlaneNodeEditor

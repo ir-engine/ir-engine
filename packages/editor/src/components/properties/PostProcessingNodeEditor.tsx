@@ -1,5 +1,4 @@
 import Checkbox from '@mui/material/Checkbox'
-import { Rainbow } from '@styled-icons/fa-solid/Rainbow'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
@@ -7,6 +6,7 @@ import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/P
 import { updatePostProcessing } from '@xrengine/engine/src/scene/functions/PostprocessingFunctions'
 import { ChangeEvent } from 'hoist-non-react-statics/node_modules/@types/react'
 import React from 'react'
+import LooksIcon from '@mui/icons-material/Looks'
 import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
@@ -278,7 +278,7 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
     </NodeEditor>
   )
 }
-PostProcessingNodeEditor.iconComponent = Rainbow
+PostProcessingNodeEditor.iconComponent = LooksIcon
 PostProcessingNodeEditor.description = 'For applying Post Processing effects to you scene'
 
 export default PostProcessingNodeEditor

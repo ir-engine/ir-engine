@@ -1,5 +1,5 @@
-import { Cloud } from '@styled-icons/fa-solid/Cloud'
 import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
+import CloudIcon from '@mui/icons-material/Cloud'
 import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -295,6 +295,6 @@ export const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
   )
 }
 
-SkyboxNodeEditor.iconComponent = Cloud
+SkyboxNodeEditor.iconComponent = CloudIcon
 
 export default SkyboxNodeEditor

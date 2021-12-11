@@ -18,6 +18,7 @@ const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
 export class LocalStorage implements StorageProviderInterface {
   path = './upload'
   cacheDomain = config.server.localStorageProvider
+  _store = fsStore(path.join(appRootPath.path, 'packages', 'server', this.path))
 
   constructor() {
     // make upload folder if it doesnt already exist
@@ -34,7 +35,12 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
-  listObjects = async (prefix: string, recursive = false): Promise<StorageListObjectInterface> => {
+  listObjects = async (
+    prefix: string,
+    results: any[],
+    recursive = false,
+    continuationToken: string
+  ): Promise<StorageListObjectInterface> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, prefix)
     if (!fs.existsSync(filePath)) return { Contents: [] }
     const globResult = glob.sync(path.join(filePath, '**/*.*'))
@@ -65,7 +71,7 @@ export class LocalStorage implements StorageProviderInterface {
   createInvalidation = async (): Promise<any> => Promise.resolve()
 
   getProvider = (): StorageProviderInterface => this
-  getStorage = (): BlobStore => fsStore(path.join(appRootPath.path, 'packages', 'server', this.path))
+  getStorage = (): BlobStore => this._store
 
   checkObjectExistence = (key: string): Promise<any> => {
     return new Promise((resolve, reject) => {

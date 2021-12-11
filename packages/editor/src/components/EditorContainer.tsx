@@ -1,6 +1,7 @@
-import { Archive, ProjectDiagram } from '@styled-icons/fa-solid'
 import { useHistory, withRouter } from 'react-router-dom'
-import { SlidersH } from '@styled-icons/fa-solid/SlidersH'
+import Inventory2Icon from '@mui/icons-material/Inventory2'
+import AccountTreeIcon from '@mui/icons-material/AccountTree'
+import TuneIcon from '@mui/icons-material/Tune'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef, useState } from 'react'
@@ -506,7 +507,7 @@ const EditorContainer = (props) => {
         id: 'scenePanel',
         title: (
           <PanelDragContainer>
-            <PanelIcon as={Archive} size={12} />
+            <PanelIcon as={Inventory2Icon} size={12} />
             <PanelTitle>Scenes</PanelTitle>
           </PanelDragContainer>
         ),
@@ -593,7 +594,7 @@ const EditorContainer = (props) => {
                   id: 'scenePanel',
                   title: (
                     <PanelDragContainer>
-                      <PanelIcon as={Archive} size={12} />
+                      <PanelIcon as={Inventory2Icon} size={12} />
                       <PanelTitle>Scenes</PanelTitle>
                     </PanelDragContainer>
                   ),
@@ -610,7 +611,7 @@ const EditorContainer = (props) => {
                   id: 'filesPanel',
                   title: (
                     <PanelDragContainer>
-                      <PanelIcon as={Archive} size={12} />
+                      <PanelIcon as={Inventory2Icon} size={12} />
                       <PanelTitle>Files</PanelTitle>
                     </PanelDragContainer>
                   ),
@@ -641,7 +642,7 @@ const EditorContainer = (props) => {
                   id: 'hierarchyPanel',
                   title: (
                     <PanelDragContainer>
-                      <PanelIcon as={ProjectDiagram} size={12} />
+                      <PanelIcon as={AccountTreeIcon} size={12} />
                       <PanelTitle>Hierarchy</PanelTitle>
                     </PanelDragContainer>
                   ),
@@ -655,7 +656,7 @@ const EditorContainer = (props) => {
                   id: 'propertiesPanel',
                   title: (
                     <PanelDragContainer>
-                      <PanelIcon as={SlidersH} size={12} />
+                      <PanelIcon as={TuneIcon} size={12} />
                       <PanelTitle>Properties</PanelTitle>
                     </PanelDragContainer>
                   ),

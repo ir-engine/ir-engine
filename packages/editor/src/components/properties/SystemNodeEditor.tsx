@@ -1,12 +1,12 @@
 import React from 'react'
 import i18n from 'i18next'
 import { useTranslation, withTranslation } from 'react-i18next'
-import { Extension } from '@styled-icons/boxicons-solid/Extension'
 import InputGroup from '../inputs/InputGroup'
 import Systemnode from '../../nodes/SystemNode'
 import { CommandManager } from '../../managers/CommandManager'
 import NodeEditor from './NodeEditor'
 import EditorEvents from '../../constants/EditorEvents'
+import ExtensionIcon from '@mui/icons-material/Extension'
 import { validatePath } from '@xrengine/common/src/utils/validatePath'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { SelectInput } from '../inputs/SelectInput'
@@ -113,7 +113,7 @@ export const SystemnodeEditor = (props: SystemNodeEditorProps) => {
   )
 }
 
-SystemnodeEditor.iconComponent = Extension
+SystemnodeEditor.iconComponent = ExtensionIcon
 SystemnodeEditor.description = i18n.t('editor:properties.systemnode.description')
 
 export default withTranslation()(SystemnodeEditor)

@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { Video } from '@styled-icons/fa-solid/Video'
 import React from 'react'
 import InputGroup from '../inputs/InputGroup'
+import VideocamIcon from '@mui/icons-material/Videocam'
 import AudioSourceProperties from './AudioSourceProperties'
 import NodeEditor from './NodeEditor'
 import useSetPropertySelected from './useSetPropertySelected'
@@ -37,7 +37,7 @@ export function VolumetricNodeEditor(props) {
 }
 
 //setting iconComponent with icon name
-VolumetricNodeEditor.iconComponent = Video
+VolumetricNodeEditor.iconComponent = VideocamIcon
 
 //setting description and will appear on editor view
 VolumetricNodeEditor.description = i18n.t('editor:properties.volumetric.description')
