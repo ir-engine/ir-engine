@@ -2,7 +2,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { dispatchFrom, dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 

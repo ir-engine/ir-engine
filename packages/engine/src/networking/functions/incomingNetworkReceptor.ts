@@ -17,8 +17,9 @@ export function incomingNetworkReceptor(action) {
   const world = useWorld()
 
   matches(action)
-    .when(NetworkWorldAction.createClient.matches, ({ userId, name }) => {
+    .when(NetworkWorldAction.createClient.matches, ({ $from, userId, name }) => {
       if (!isClient) return
+      if ($from !== world.hostId) return
       world.clients.set(userId, {
         userId,
         name,
@@ -26,7 +27,8 @@ export function incomingNetworkReceptor(action) {
       })
     })
 
-    .when(NetworkWorldAction.destroyClient.matches, ({ userId }) => {
+    .when(NetworkWorldAction.destroyClient.matches, ({ $from, userId }) => {
+      if ($from !== world.hostId) return
       for (const eid of world.getOwnedNetworkObjects(userId)) {
         const { networkId } = getComponent(eid, NetworkObjectComponent)
         dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
@@ -43,14 +45,14 @@ export function incomingNetworkReceptor(action) {
        */
       if (
         isSpawningAvatar &&
-        Engine.userId === a.userId &&
+        Engine.userId === a.$from &&
         hasComponent(world.localClientEntity, NetworkObjectComponent)
       ) {
         getComponent(world.localClientEntity, NetworkObjectComponent).networkId = a.networkId
         return
       }
       const params = a.parameters
-      const isOwnedByMe = a.userId === Engine.userId
+      const isOwnedByMe = a.$from === Engine.userId
       let entity
       if (isSpawningAvatar && isOwnedByMe) {
         entity = world.localClientEntity
@@ -67,7 +69,7 @@ export function incomingNetworkReceptor(action) {
       }
       if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
       addComponent(entity, NetworkObjectComponent, {
-        userId: a.userId,
+        userId: a.$from,
         networkId: a.networkId,
         prefab: a.prefab,
         parameters: a.parameters
@@ -80,7 +82,7 @@ export function incomingNetworkReceptor(action) {
       if (entity) removeEntity(entity)
     })
 
-  // .when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
+  // .when(NetworkWorldAction.setEquippedObject.matches, (a) => {
   //   console.log('netowrk action received in equip receptor', a)
   // })
 }

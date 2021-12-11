@@ -11,20 +11,41 @@ export type Action = {
 
 export type ActionRecipients = UserId | UserId[] | 'all' | 'local'
 
+export type ActionCacheOptions =
+  | boolean
+  | {
+      /**
+       * If non-falsy, remove previous actions in the cache that match `$from` and `type` fields,
+       * and any specified fields
+       */
+      removePrevious?: boolean | string[]
+      /**
+       * If true, do not cache this action
+       */
+      disable?: boolean
+    }
+
 export type ActionOptions = {
   /** The user who sent this action */
   $from?: UserId
+
   /**
    * The intended recipients of this action.
    */
   $to?: ActionRecipients
+
   /**
-   * The intended simultion (fixed) tick for this action.
-   * If missing, the next simulation tick is assumed.
-   * If this action is received late (after the desired tick has passed),
+   * The intended simulation (fixed) tick for this action.
+   * - If this option is missing, the next simulation tick is assumed.
+   * - If this action is received late (after the desired tick has passed),
    * it is dispatched on the next tick.
    */
   $tick?: number
+
+  /**
+   * Specifies how this action should be cached for newly joining clients.
+   */
+  $cache?: ActionCacheOptions
 }
 
 type ActionShape<A> = {
@@ -77,23 +98,12 @@ type JustRequired<S extends ActionShape<any>> = Omit<Pick<ActionFromShape<S>, Ju
 
 type PartialAction<S extends ActionShape<any>> = Omit<JustRequired<S> & JustOptionals<S> & Action, 'type'>
 
-type FromAnyUserValidators = 'matchesFromAny' | 'matchesFromUser'
-
-type ActionCreatorOptions<S extends ActionShape<any>, Extensions, AllowDispatchFromAny extends boolean | void> = {
-  allowDispatchFromAny?: AllowDispatchFromAny
+type ActionCreatorOptions<S extends ActionShape<any>, Extensions> = {
   extensions?: (matches: Validator<unknown, unknown>) => Extensions
   initAction?: (action: Required<ActionFromShape<S> & Action>) => void
 }
 
-type ResolvedActionType<S extends ActionShape<any>, AllowDispatchFromAny extends boolean | void> = Required<
-  ActionFromShape<S> & Action
-> &
-  (true extends IsNullable<AllowDispatchFromAny>
-    ? {}
-    : true extends AllowDispatchFromAny
-    ? { __ALLOW_DISPATCH_FROM_ANY: true }
-    : {})
-
+type ResolvedActionType<S extends ActionShape<any>> = Required<ActionFromShape<S> & Action>
 /**
  *
  * @param actionShape
@@ -101,13 +111,11 @@ type ResolvedActionType<S extends ActionShape<any>, AllowDispatchFromAny extends
  *
  * @author Gheric Speiginer <github.com/speigg>
  */
-export function defineActionCreator<
-  A extends Action,
-  Shape extends ActionShape<A>,
-  Extensions,
-  AllowDispatchFromAny extends boolean | void = void
->(actionShape: ActionShape<A>, options?: ActionCreatorOptions<Shape, Extensions, AllowDispatchFromAny>) {
-  type ResolvedAction = ResolvedActionType<ResolvedActionShape<Shape>, AllowDispatchFromAny>
+export function defineActionCreator<A extends Action, Shape extends ActionShape<A>, Extensions>(
+  actionShape: ActionShape<A>,
+  options?: ActionCreatorOptions<Shape, Extensions>
+) {
+  type ResolvedAction = ResolvedActionType<ResolvedActionShape<Shape>>
 
   const shapeEntries = Object.entries(actionShape)
 
@@ -140,19 +148,19 @@ export function defineActionCreator<
   actionCreator.actionShape = actionShape as Shape
   actionCreator.resolvedActionShape = resolvedActionShape
   actionCreator.type = actionShape.type
-  actionCreator.matches = matches.every(matchesShape, matchesActionFromTrusted)
+  actionCreator.matches = matchesShape // matches.every(matchesShape, matchesActionFromTrusted)
+  /**
+   * @deprecated
+   */
   actionCreator.matchesFromAny = matchesShape
   actionCreator.matchesFromUser = (userId: UserId) => matches.every(matchesShape, matchesActionFromUser(userId))
   const matchExtensions = options?.extensions?.(matchesShape)
   Object.assign(actionCreator, matchExtensions)
 
-  type ValidatorKeys = true extends AllowDispatchFromAny ? FromAnyUserValidators : 'matches'
+  type ValidatorKeys = 'matches' | 'matchesFromUser' | 'matchesFromAny'
   type FunctionProps = Pick<typeof actionCreator, 'type' | 'actionShape' | ValidatorKeys> & Extensions
   return actionCreator as unknown as ((partialAction: PartialAction<Shape>) => ResolvedAction) & FunctionProps
 }
-
-// const x = {allowDispatchFromAny: undefined}
-// type ValidatorKeys = true extends AllowDispatchFromAny ? FromAnyUserValidators : never
 
 const matchesVec3Shape = matches.shape({
   x: matches.number,

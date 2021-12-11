@@ -138,7 +138,9 @@ export async function validateNetworkObjects(): Promise<void> {
 
       const disconnectedClient = Object.assign({}, client)
 
-      dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId }))
+      dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId })).cache({
+        removePrevious: ['userId']
+      })
 
       console.log('Disconnected Client:', disconnectedClient.userId)
       if (disconnectedClient?.instanceRecvTransport) {
@@ -167,7 +169,7 @@ export async function validateNetworkObjects(): Promise<void> {
       // Find all network objects that the disconnecting client owns and remove them
       for (const eid of world.getOwnedNetworkObjects(userId)) {
         const { networkId } = getComponent(eid, NetworkObjectComponent)
-        dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
+        dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId })).cache()
       }
       if (world.clients.has(userId)) world.clients.delete(userId)
       console.log('Finished removing inactive client', userId)
@@ -244,7 +246,7 @@ function disconnectClientIfConnected(socket, userId: UserId): void {
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
     const { networkId } = getComponent(eid, NetworkObjectComponent)
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId })).cache()
   }
 }
 
@@ -253,64 +255,21 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
   const transport = Network.instance.transport as any
   const world = Engine.currentWorld
 
-  // TEMPORARY data?.spawnTransform  - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-  const spawnPos = data?.spawnTransform
-    ? {
-        position: new Vector3().copy(data.spawnTransform.position),
-        rotation: new Quaternion().copy(data.spawnTransform.rotation)
-      }
-    : SpawnPoints.instance.getRandomSpawnPoint()
+  console.log(world.clients)
 
-  for (const [userId, client] of world.clients) {
-    dispatchFrom(world.hostId, () =>
-      NetworkWorldAction.createClient({
-        userId,
-        name: client.name
-      })
-    ).to(userId === joinedUserId ? 'all' : joinedUserId)
+  for (const action of world.cachedActions) {
+    if (action.$to === 'all' || action.$to === joinedUserId) world.outgoingActions.add({ ...action, $to: joinedUserId })
   }
 
-  dispatchFrom(world.hostId, () =>
-    NetworkWorldAction.spawnAvatar({
+  dispatchFrom(Engine.userId, () =>
+    NetworkWorldAction.createClient({
       userId: joinedUserId,
-      parameters: { ...spawnPos }
+      name: world.clients.get(joinedUserId)!.name
     })
-  )
-
-  for (const eid of world.networkObjectQuery(world)) {
-    const networkObject = getComponent(eid, NetworkObjectComponent)
-    dispatchFrom(world.hostId, () =>
-      NetworkWorldAction.spawnObject({
-        ...networkObject
-      })
-    ).to(joinedUserId)
-    if (hasComponent(eid, XRInputSourceComponent)) {
-      dispatchFrom(world.hostId, () =>
-        NetworkWorldAction.setXRMode({
-          userId: networkObject.userId,
-          enabled: true
-        })
-      ).to(joinedUserId)
-    }
-    if (hasComponent(eid, XRHandsInputComponent)) {
-      dispatchFrom(world.hostId, () =>
-        NetworkWorldAction.xrHandsConnected({
-          userId: networkObject.userId
-        })
-      ).to(joinedUserId)
-    }
-  }
-
-  for (const [userId, client] of world.clients) {
-    dispatchFrom(world.hostId, () =>
-      NetworkWorldAction.avatarDetails({
-        userId,
-        avatarDetail: client.avatarDetail!
-      })
-    ).to(userId === joinedUserId ? 'all' : joinedUserId)
-  }
+  ).cache({ removePrevious: ['userId'] })
 
   callback({
+    spawnPose: SpawnPoints.instance.getRandomSpawnPoint(),
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })
 }
@@ -352,7 +311,7 @@ export async function handleDisconnect(socket): Promise<any> {
   //The new connection will overwrite the socketID for the user's client.
   //This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId }))
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId })).cache({ removePrevious: ['userId'] })
 
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
@@ -370,7 +329,14 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
-  if (Engine.currentWorld?.clients.has(userId)) Engine.currentWorld.clients.delete(userId)
-  logger.info('Removing ' + userId + ' from client list')
+  if (Engine.currentWorld?.clients.has(userId)) {
+    Engine.currentWorld.clients.delete(userId)
+    logger.info('Removing ' + userId + ' from client list')
+  }
+  for (const action of Engine.currentWorld.cachedActions) {
+    if (!action.$cache && action.$from === userId) {
+      Engine.currentWorld.cachedActions.delete(action)
+    }
+  }
   if (callback !== undefined) callback({})
 }

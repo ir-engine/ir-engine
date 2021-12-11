@@ -34,7 +34,6 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       Engine.userId = world.hostId
 
       const action = NetworkWorldAction.spawnObject({
-        userId: '0' as UserId,
         prefab: '',
         parameters: {},
         $tick: 0,
@@ -65,7 +64,6 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       Engine.userId = world.hostId
 
       const action = NetworkWorldAction.spawnObject({
-        userId: '2' as UserId,
         prefab: '',
         parameters: {},
         $tick: 0,
@@ -99,7 +97,6 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       world.fixedTick = tick
 
       const action = NetworkWorldAction.spawnObject({
-        userId: '2' as UserId,
         prefab: '',
         parameters: {},
         $tick: tick,
@@ -130,7 +127,6 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       const world = createWorld()
 
       const action = NetworkWorldAction.spawnObject({
-        userId: '0' as UserId,
         prefab: '',
         parameters: {},
         $tick: 0,
@@ -163,7 +159,6 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       Engine.userId = world.hostId
 
       const action = NetworkWorldAction.spawnObject({
-        userId: '0' as UserId,
         prefab: '',
         parameters: {},
         $tick: 0,

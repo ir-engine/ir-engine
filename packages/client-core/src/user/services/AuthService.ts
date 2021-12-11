@@ -692,10 +692,9 @@ export const AuthService = {
           AlertService.dispatchAlertSuccess('Avatar Uploaded Successfully.')
           dispatchFrom(Engine.userId, () =>
             NetworkWorldAction.avatarDetails({
-              userId: Engine.userId,
               avatarDetail: response
             })
-          )
+          ).cache({ removePrevious: true })
           if (Network?.instance?.transport)
             (Network.instance.transport as any).sendNetworkStatUpdateMessage({
               type: MessageTypes.AvatarUpdated,
@@ -765,13 +764,12 @@ export const AuthService = {
           dispatch(AuthAction.userAvatarIdUpdated(res))
           dispatchFrom(Engine.userId, () =>
             NetworkWorldAction.avatarDetails({
-              userId: Engine.userId,
               avatarDetail: {
                 avatarURL,
                 thumbnailURL
               }
             })
-          )
+          ).cache({ removePrevious: true })
           if (Network?.instance?.transport)
             (Network.instance.transport as any).sendNetworkStatUpdateMessage({
               type: MessageTypes.AvatarUpdated,

@@ -1,4 +1,3 @@
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../classes/Network'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
@@ -10,7 +9,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
-import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { pipe } from 'bitecs'
@@ -19,6 +17,40 @@ import { Group } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { avatarHalfHeight } from '../../avatar/functions/createAvatar'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import { Action } from '../interfaces/Action'
+import { deepEqual } from '../../common/functions/deepEqual'
+
+export const updateCachedActions = (world: World, action: Required<Action>) => {
+  if (action.$cache) {
+    // see if we must remove any previous actions
+    if (typeof action.$cache === 'boolean') {
+      if (action.$cache) world.cachedActions.add(action)
+    } else {
+      const remove = action.$cache.removePrevious
+
+      if (remove) {
+        for (const a of world.cachedActions) {
+          if (a.$from === action.$from && a.type === action.type) {
+            if (remove === true) {
+              world.cachedActions.delete(a)
+            } else {
+              let matches = true
+              for (const key of remove) {
+                if (!deepEqual(a[key], action[key])) {
+                  matches = false
+                  break
+                }
+              }
+              if (matches) world.cachedActions.delete(a)
+            }
+          }
+        }
+      }
+
+      if (!action.$cache.disable) world.cachedActions.add(action)
+    }
+  }
+}
 
 export const applyDelayedActions = (world: World) => {
   const { delayedActions } = world
@@ -27,9 +59,8 @@ export const applyDelayedActions = (world: World) => {
     if (action.$tick <= world.fixedTick) {
       console.log(`DELAYED ACTION ${action.type}`, action)
       delayedActions.delete(action)
-      for (const receptor of world.receptors) {
-        receptor(action)
-      }
+      for (const receptor of world.receptors) receptor(action)
+      updateCachedActions(world, action)
     }
   }
 
@@ -51,13 +82,14 @@ export const applyIncomingActions = (world: World) => {
     } else {
       console.log(`ACTION ${action.type}`, action)
     }
-    for (const receptor of world.receptors)
-      try {
-        receptor(action)
-      } catch (e) {
-        console.error(e)
-        incomingActions.delete(action)
-      }
+
+    try {
+      for (const receptor of world.receptors) receptor(action)
+      updateCachedActions(world, action)
+    } catch (e) {
+      console.error(e)
+      incomingActions.delete(action)
+    }
   }
 
   return world

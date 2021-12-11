@@ -22,7 +22,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 
 function physicsActionReceptor(action: unknown) {
   const world = useWorld()
-  matches(action).when(NetworkWorldAction.teleportObject.matchesFromAny, (a) => {
+  matches(action).when(NetworkWorldAction.teleportObject.matches, (a) => {
     const [x, y, z, qX, qY, qZ, qW] = a.pose
     const entity = world.getNetworkObject(a.networkId)
 

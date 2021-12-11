@@ -36,7 +36,7 @@ export const avatarHalfHeight = avatarHeight / 2
 
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
   const world = useWorld()
-  const userId = spawnAction.userId
+  const userId = spawnAction.$from
   const entity = world.getNetworkObject(spawnAction.networkId)
 
   if (isClient) {

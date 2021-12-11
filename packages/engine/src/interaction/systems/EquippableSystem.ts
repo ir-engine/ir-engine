@@ -21,9 +21,9 @@ import { EquippedComponent } from '../components/EquippedComponent'
 function equippableActionReceptor(action) {
   const world = useWorld()
 
-  matches(action).when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
-    if (a.userId === Engine.userId) return
-    const equipper = world.getUserAvatarEntity(a.userId)
+  matches(action).when(NetworkWorldAction.setEquippedObject.matches, (a) => {
+    if (a.$from === Engine.userId) return
+    const equipper = world.getUserAvatarEntity(a.$from)
     const equipped = world.getNetworkObject(a.networkId)
     const attachmentPoint = a.attachmentPoint
     if (!equipped) {
@@ -59,12 +59,11 @@ export default async function EquippableSystem(world: World): Promise<System> {
         const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
         dispatchFrom(Engine.userId, () =>
           NetworkWorldAction.setEquippedObject({
-            userId: Engine.userId,
             networkId: networkComponet.networkId,
             attachmentPoint: attachmentPoint,
             equip: true
           })
-        )
+        ).cache({ removePrevious: true })
       }
     }
 
@@ -93,14 +92,14 @@ export default async function EquippableSystem(world: World): Promise<System> {
       // }
 
       // send unequip to clients
+      const networkId = getComponent(equippedEntity, NetworkObjectComponent).networkId
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.setEquippedObject({
-          userId: Engine.userId,
-          networkId: getComponent(equippedEntity, NetworkObjectComponent).networkId,
+          networkId,
           attachmentPoint: attachmentPoint,
           equip: false
         })
-      )
+      ).cache({ removePrevious: true })
     }
   }
 }

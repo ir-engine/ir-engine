@@ -32,11 +32,10 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			world.fixedTick = tick
 	
 			const action = NetworkWorldAction.spawnObject({
-				userId: '0' as UserId,
 				prefab: '',
 				parameters: {},
+				$from: '0' as UserId,
 				$tick: tick,
-				$from: world.hostId,
 				$to: '0' as ActionRecipients,
 			})
 			
@@ -55,7 +54,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			strictEqual(recepted.length, 1)
 	
 			const receptedAction = recepted[0]
-			strictEqual(receptedAction.userId, "0")
+			strictEqual(receptedAction.$from, "0")
 
 		})
 	
@@ -72,12 +71,11 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			world.fixedTick = 0
 
 			const action = NetworkWorldAction.spawnObject({
-				userId: '0' as UserId,
+				$from: '0' as UserId,
 				prefab: '',
 				parameters: {},
 				// incoming action from future
 				$tick: 1,
-				$from: world.hostId,
 				$to: '0' as ActionRecipients,
 			})
 			
@@ -106,12 +104,11 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			world.fixedTick = 1
 	
 			const action = NetworkWorldAction.spawnObject({
-				userId: '0' as UserId,
+				$from: '0' as UserId,
 				prefab: '',
 				parameters: {},
 				// incoming action from past
 				$tick: 0,
-				$from: world.hostId,
 				$to: '0' as ActionRecipients,
 			})
 			

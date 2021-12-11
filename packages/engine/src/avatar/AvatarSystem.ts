@@ -34,21 +34,20 @@ function avatarActionReceptor(action) {
   const world = useWorld()
 
   matches(action)
-    .when(NetworkWorldAction.avatarDetails.matchesFromAny, ({ userId, avatarDetail }) => {
-      const client = world.clients.get(userId)!
+    .when(NetworkWorldAction.avatarDetails.matches, ({ $from, avatarDetail }) => {
+      const client = world.clients.get($from)!
       if (client.avatarDetail?.avatarURL === avatarDetail.avatarURL) return
       if (isClient) {
-        const entity = world.getUserAvatarEntity(userId)
+        const entity = world.getUserAvatarEntity($from)
         // if(entity)
         loadAvatarForEntity(entity, avatarDetail)
         // else
-        //   console.warn('avatarDetails receptor tried to set the avatar of a user that does not exist' + userId)
+        //   console.warn('avatarDetails receptor tried to set the avatar of a user that does not exist' + $from)
       }
     })
 
-    .when(NetworkWorldAction.setXRMode.matchesFromAny, (a) => {
-      if (a.$from !== world.hostId && a.$from !== a.userId) return
-      const entity = world.getUserAvatarEntity(a.userId)
+    .when(NetworkWorldAction.setXRMode.matches, (a) => {
+      const entity = world.getUserAvatarEntity(a.$from)
       if (!entity) return
 
       if (a.enabled) {
@@ -69,9 +68,9 @@ function avatarActionReceptor(action) {
       }
     })
 
-    .when(NetworkWorldAction.xrHandsConnected.matchesFromAny, (a) => {
-      if (a.userId === Engine.userId) return
-      const entity = world.getUserAvatarEntity(a.userId)
+    .when(NetworkWorldAction.xrHandsConnected.matches, (a) => {
+      if (a.$from === Engine.userId) return
+      const entity = world.getUserAvatarEntity(a.$from)
       if (!entity) return
 
       if (!hasComponent(entity, XRHandsInputComponent)) {
@@ -87,7 +86,7 @@ function avatarActionReceptor(action) {
       })
     })
 
-    .when(NetworkWorldAction.teleportObject.matchesFromAny, (a) => {
+    .when(NetworkWorldAction.teleportObject.matches, (a) => {
       const [x, y, z, qX, qY, qZ, qW] = a.pose
 
       const entity = world.getNetworkObject(a.networkId)

@@ -58,7 +58,6 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -360,7 +359,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
     case 'cameraproperties':
       if (isClient) {
         matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
-          if (spawnAction.userId === Engine.userId) {
+          if (spawnAction.$from === Engine.userId) {
             setCameraProperties(useWorld().localClientEntity, component.data)
             return true
           }

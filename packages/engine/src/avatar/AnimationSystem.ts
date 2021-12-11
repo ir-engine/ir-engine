@@ -21,7 +21,7 @@ export default async function AnimationSystem(world: World): Promise<System> {
   world.receptors.push(animationActionReceptor)
 
   function animationActionReceptor(action) {
-    matches(action).when(NetworkWorldAction.avatarAnimation.matchesFromAny, ({ $from }) => {
+    matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
       if ($from === Engine.userId) {
         return
       }

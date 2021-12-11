@@ -326,6 +326,7 @@ export const queueAllOutgoingPoses = pipe(
 const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) => {
   const { outgoingActions } = world
 
+  for (const o of outgoingActions) console.log('OUTGOING', o)
   transport.sendActions(outgoingActions)
 
   outgoingActions.clear()

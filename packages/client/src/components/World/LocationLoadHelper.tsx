@@ -89,8 +89,8 @@ const createOfflineUser = (sceneData: SceneJson) => {
   Engine.userId = userId
   // Replicate the server behavior
   dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user' }) as any)
-  dispatchLocal(NetworkWorldAction.spawnAvatar({ userId, parameters }) as any)
-  dispatchLocal(NetworkWorldAction.avatarDetails({ userId, avatarDetail }) as any)
+  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters }) as any)
+  dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }) as any)
 }
 
 export const initEngine = async (initOptions: InitializeOptions) => {

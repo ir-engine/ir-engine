@@ -185,13 +185,12 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
     ;(scene as any).sceneEntityId = component.data.sceneEntityId
     dispatchFrom(world.hostId, () =>
       NetworkWorldAction.spawnObject({
-        userId: world.hostId,
         prefab: '',
         parameters: {
           sceneEntityId: component.data.sceneEntityId
         }
       })
-    )
+    ).cache()
   }
 
   parseObjectComponents(entity, scene)
