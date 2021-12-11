@@ -17,7 +17,6 @@ import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatch
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { XRHandsInputComponent } from '@xrengine/engine/src/xr/components/XRHandsInputComponent'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
-import { Application } from '@xrengine/server-core/declarations'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 

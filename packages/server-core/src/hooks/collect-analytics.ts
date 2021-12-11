@@ -7,7 +7,6 @@ import config from '../appconfig'
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.method === 'remove') return context
-
     if (!context.params.user) {
       // send a anonymous user's analytics
       const visitor = ua(config.server.gaTrackingId, { https: false })
