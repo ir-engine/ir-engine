@@ -127,7 +127,7 @@ export const loadComponents = (entity: Entity, sceneEntityId: string, sceneEntit
 
 export const loadComponent = (entity: Entity, component: SceneDataComponent, sceneEntity: EntityData): void => {
   // remove '-1', '-2' etc suffixes
-  const name = component.name.replace(/(-\d+)|(\s)/g, '')
+  const name = component.name.replace(/(-\d+)|(\s)/g, '') as typeof ComponentName[keyof typeof ComponentName]
   const world = useWorld()
 
   switch (name) {
@@ -187,27 +187,28 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       sceneEntity.entityType = EntityNodeType.MODEL
       break
 
-    case 'wooCommerce':
-    case 'shopify':
-      if (component.data && component.data.extend) {
-        if (component.data.extendType == 'video') {
-          // if livestream, server will send the video info to the client
-          if (isClient) {
-            createVideo(entity, component.data.extend)
-          } else {
-            createMediaServer(entity, component.data.extend)
-          }
-        } else if (component.data.extendType == 'image') {
-          addObject3DComponent(entity, new Image(), component.data.extend)
-        } else if (component.data.extendType == 'model') {
-          Object.keys(component.data.extend).forEach((key) => {
-            component.data[key] = component.data.extend[key]
-          })
-          console.log(component.data)
-          registerSceneLoadPromise(loadGLTFModel(entity, component))
-        }
-      }
-      break
+    // TODO: we can remove these entirely when we have a more composable solution than the mixin nodes
+    // case 'wooCommerce':
+    // case 'shopify':
+    //   if (component.data && component.data.extend) {
+    //     if (component.data.extendType == 'video') {
+    //       // if livestream, server will send the video info to the client
+    //       if (isClient) {
+    //         createVideo(entity, component.data.extend)
+    //       } else {
+    //         createMediaServer(entity, component.data.extend)
+    //       }
+    //     } else if (component.data.extendType == 'image') {
+    //       addObject3DComponent(entity, new Image(), component.data.extend)
+    //     } else if (component.data.extendType == 'model') {
+    //       Object.keys(component.data.extend).forEach((key) => {
+    //         component.data[key] = component.data.extend[key]
+    //       })
+    //       console.log(component.data)
+    //       registerSceneLoadPromise(loadGLTFModel(entity, component))
+    //     }
+    //   }
+    //   break
 
     case 'loop-animation':
       loadModelAnimation(entity, component)
@@ -399,7 +400,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       deserializeIncludeInCubeMapBake(entity, component)
       break
 
-    case 'cubemapbake':
     case 'group':
     case 'project': // loaded prior to engine init
       break

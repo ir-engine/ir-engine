@@ -1,4 +1,3 @@
-import { ComponentName } from '../../common/constants/ComponentNames'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type ShadowComponentType = {
@@ -6,4 +5,4 @@ export type ShadowComponentType = {
   receiveShadow: boolean
 }
 
-export const ShadowComponent = createMappedComponent<ShadowComponentType>(ComponentName.SHADOW)
+export const ShadowComponent = createMappedComponent<ShadowComponentType>('ShadowComponent')

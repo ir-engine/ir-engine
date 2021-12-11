@@ -1,4 +1,3 @@
-import { ComponentName } from '../../common/constants/ComponentNames'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type PositionalAudioSettingsComponentType = {
@@ -18,5 +17,5 @@ export type PositionalAudioSettingsComponentType = {
 }
 
 export const PositionalAudioSettingsComponent = createMappedComponent<PositionalAudioSettingsComponentType>(
-  ComponentName.AUDIO_SETTINGS
+  'PositionalAudioSettingsComponent'
 )
