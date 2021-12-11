@@ -1,15 +1,14 @@
-import app from './app'
+import { createApp } from './app'
 import config from '@xrengine/server-core/src/appconfig'
 
-const [dbAnalyticsConfig] = app.service('analytics-setting').find()
-const analyticsConfig = dbAnalyticsConfig || config.analytics
-
 const DEFAULT_INTERVAL_SECONDS = 1800
-const configInterval = parseInt(analyticsConfig.processInterval)
+const configInterval = parseInt(config.analytics.processInterval)
 const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 
 export default (): void => {
   setInterval(async () => {
+    const app = await createApp()
+
     console.log('Collecting analytics at ', new Date().toString())
     const activeLocations = []
     const activeScenes = []
