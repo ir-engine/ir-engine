@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Pause } from '@styled-icons/fa-solid/Pause'
-import { Play } from '@styled-icons/fa-solid/Play'
+import PauseIcon from '@mui/icons-material/Pause'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { ControlManager } from '../../../managers/ControlManager'
 import { CommandManager } from '../../../managers/CommandManager'
 import EditorEvents from '../../../constants/EditorEvents'
@@ -34,7 +34,7 @@ const PlayModeTool = () => {
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">
       <InfoTooltip info={isInPlayMode ? 'Stop Previewing Scene' : 'Preview Scene'}>
         <button onClick={onTogglePlayMode} className={styles.toolButton + ' ' + (isInPlayMode ? styles.selected : '')}>
-          {isInPlayMode ? <Pause size={16} /> : <Play size={16} />}
+          {isInPlayMode ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
         </button>
       </InfoTooltip>
     </div>

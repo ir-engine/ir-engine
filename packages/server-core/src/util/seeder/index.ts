@@ -1,4 +1,5 @@
 import { GeneralError } from '@feathersjs/errors'
+import { copyDefaultProject, uploadLocalProjectToProvider } from '../../projects/project/project.class'
 
 import Seeder from './seeder'
 
@@ -20,13 +21,15 @@ export default function seeder(opts = {}) {
   return function () {
     const app = this
     const seeder = new Seeder(app, opts)
-    app.seed = () => {
-      return seeder.seedApp().then()
-      // .catch((err) => {
-      //   console.log(`Seeding error: ${err}`)
-
-      //   throw new GeneralError(new Error(err))
-      // })
+    app.seed = async () => {
+      copyDefaultProject()
+      await uploadLocalProjectToProvider('default-project', app)
+      try {
+        await seeder.seedApp()
+      } catch (err) {
+        console.log(`Seeding error: ${err}`)
+        throw new GeneralError(new Error(err))
+      }
     }
   }
 }

@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from './useUpload'
-import { CloudUploadAlt } from '@styled-icons/fa-solid/CloudUploadAlt'
 import { useTranslation } from 'react-i18next'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 
 /**
  * DropZoneBackground provides styles for the view port area where we drag and drop objects.
@@ -74,7 +74,7 @@ export function AssetDropZone({ afterUpload }: AssetDropZoneProp) {
   //returning dropzone view
   return (
     <DropZoneBackground ref={onDropTarget} isDragging={isDragging} canDrop={canDrop} isOver={isOver}>
-      <CloudUploadAlt size={48} />
+      <CloudUploadIcon fontSize="large" />
       <h3>{t('editor:asset.dropZone.title')}</h3>
     </DropZoneBackground>
   )

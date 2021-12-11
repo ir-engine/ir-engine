@@ -2,7 +2,7 @@ import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import AudioInput from '../inputs/AudioInput'
-import { VolumeUp } from '@styled-icons/fa-solid/VolumeUp'
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import AudioSourceProperties from './AudioSourceProperties'
 import useSetPropertySelected from './useSetPropertySelected'
 import i18n from 'i18next'
@@ -34,7 +34,7 @@ export function AudioNodeEditor(props) {
 }
 
 //setting icon component name
-AudioNodeEditor.iconComponent = VolumeUp
+AudioNodeEditor.iconComponent = VolumeUpIcon
 
 //setting description for the element
 //shows this description in NodeEditor with title of element

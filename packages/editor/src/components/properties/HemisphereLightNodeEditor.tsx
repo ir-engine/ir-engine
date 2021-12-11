@@ -3,9 +3,9 @@ import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
-import { Certificate } from '@styled-icons/fa-solid/Certificate'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 
 type HemisphereLightNodeEditorProps = {
   node?: any
@@ -66,6 +66,6 @@ export const HemisphereLightNodeEditor = (props: HemisphereLightNodeEditorProps)
   )
 }
 
-HemisphereLightNodeEditor.iconComponent = Certificate
+HemisphereLightNodeEditor.iconComponent = VerifiedUserIcon
 
 export default HemisphereLightNodeEditor

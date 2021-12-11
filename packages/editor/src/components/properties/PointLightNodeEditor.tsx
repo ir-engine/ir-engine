@@ -4,9 +4,9 @@ import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
+import LightbulbIcon from '@mui/icons-material/Lightbulb'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
-import { Lightbulb } from '@styled-icons/fa-solid/Lightbulb'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 
@@ -73,6 +73,6 @@ export const PointLightNodeEditor = (props: PointLightNodeEditorProps) => {
   )
 }
 
-PointLightNodeEditor.iconComponent = Lightbulb
+PointLightNodeEditor.iconComponent = LightbulbIcon
 
 export default PointLightNodeEditor
