@@ -10,7 +10,7 @@ import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/Grou
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
-import { updateGroundPlane } from '@xrengine/engine/src/scene/functions/GroundPlaneFunctions'
+import { updateGroundPlane } from '@xrengine/engine/src/scene/functions/loaders/GroundPlaneFunctions'
 import EditorCommands from '../../constants/EditorCommands'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 

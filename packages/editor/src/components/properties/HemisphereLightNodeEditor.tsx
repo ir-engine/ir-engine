@@ -8,7 +8,7 @@ import { CommandManager } from '../../managers/CommandManager'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { updateHemisphereLight } from '@xrengine/engine/src/scene/functions/HemisphereLightFunctions'
+import { updateHemisphereLight } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 
 type HemisphereLightNodeEditorProps = {

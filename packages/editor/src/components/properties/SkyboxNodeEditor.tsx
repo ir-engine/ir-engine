@@ -21,7 +21,7 @@ import {
 } from '@xrengine/engine/src/scene/components/SkyboxComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { Color } from 'three'
-import { updateSkybox } from '@xrengine/engine/src/scene/functions/SkyboxFunctions'
+import { updateSkybox } from '@xrengine/engine/src/scene/functions/loaders/SkyboxFunctions'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24

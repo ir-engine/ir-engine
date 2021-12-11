@@ -40,10 +40,10 @@ import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent
 import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/scene/components/AudioSettingsComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { updateMetaData } from '@xrengine/engine/src/scene/functions/MetaDataFunctions'
-import { updateFog } from '@xrengine/engine/src/scene/functions/FogFunctions'
-import { updateEnvMap } from '@xrengine/engine/src/scene/functions/EnvMapFunctions'
-import { updateRenderSetting } from '@xrengine/engine/src/scene/functions/RenderSettingsFunction'
+import { updateMetaData } from '@xrengine/engine/src/scene/functions/loaders/MetaDataFunctions'
+import { updateFog } from '@xrengine/engine/src/scene/functions/loaders/FogFunctions'
+import { updateEnvMap } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
+import { updateRenderSetting } from '@xrengine/engine/src/scene/functions/loaders/RenderSettingsFunction'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap

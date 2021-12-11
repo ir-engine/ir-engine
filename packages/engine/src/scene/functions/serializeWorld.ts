@@ -60,6 +60,7 @@ export const serializeWorld = (world = useWorld()) => {
     entityUuid[node.entity] = uuid
     entityJson.name = getComponent(node.entity, NameComponent)?.name
 
+    // todo: figure out how to pull this from world.sceneLoadingRegistry
     components.forEach((comp) => {
       let data
       switch (comp) {

@@ -11,7 +11,7 @@ import { CommandManager } from '../../managers/CommandManager'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { updateDirectionalLight } from '@xrengine/engine/src/scene/functions/DirectionalLightFunctions'
+import { updateDirectionalLight } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
 
 /**
  * Defining properties for DirectionalLightNodeEditor.
