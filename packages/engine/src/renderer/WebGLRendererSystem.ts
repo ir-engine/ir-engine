@@ -176,6 +176,7 @@ export class EngineRenderer {
 
     this.needsResize = true
     Engine.renderer.autoClear = true
+    Engine.effectComposer = new EffectComposer(Engine.renderer)
 
     configureEffectComposer()
 
@@ -237,7 +238,7 @@ export class EngineRenderer {
         }
 
         this.qualityLevel > 0 && Engine.csm?.update()
-        if (this.usePostProcessing && Engine.effectComposer) {
+        if (this.usePostProcessing) {
           Engine.effectComposer.render(delta)
         } else {
           Engine.renderer.autoClear = true

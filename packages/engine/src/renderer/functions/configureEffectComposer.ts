@@ -14,8 +14,13 @@ import { EffectMap, Effects } from '../../scene/classes/PostProcessing'
 import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
 
 export const configureEffectComposer = (remove?: boolean): void => {
+  Engine.effectComposer.removeAllPasses()
+
+  // we always want to have at least the render pass enabled
+  const renderPass = new RenderPass(Engine.scene, Engine.camera)
+  Engine.effectComposer.addPass(renderPass)
+
   if (remove) {
-    Engine.effectComposer = null!
     return
   }
 
@@ -23,12 +28,6 @@ export const configureEffectComposer = (remove?: boolean): void => {
 
   if (!comps.length) return
   const postProcessing = comps[0]
-
-  if (!Engine.effectComposer) Engine.effectComposer = new EffectComposer(Engine.renderer)
-  else Engine.effectComposer.removeAllPasses()
-
-  const renderPass = new RenderPass(Engine.scene, Engine.camera)
-  Engine.effectComposer.addPass(renderPass)
 
   const effects: any[] = []
   const effectKeys = EffectMap.keys()

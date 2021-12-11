@@ -25,6 +25,7 @@ export const deserializePostprocessing: ComponentDeserializeFunction = async fun
 }
 
 export const updatePostProcessing: ComponentUpdateFunction = (_: Entity) => {
+  console.log('\n\nupdatePostProcessing\n\n')
   configureEffectComposer()
 }
 
