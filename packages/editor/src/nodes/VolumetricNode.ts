@@ -6,6 +6,8 @@ import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { ItemTypes } from '../constants/AssetTypes'
+import { getFileExtension } from '@xrengine/common/src/utils/getFileExtension'
 
 import DracosisPlayer from 'volumetric/player'
 
@@ -102,8 +104,9 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     return this._paths
   }
   set paths(value) {
+    if (value.filter((url) => url != '' && !ItemTypes.Volumetrics.includes(getFileExtension(url))).length > 0) return
     this._paths = [...value]
-    if (value && value.length > 0 && value[0] != '') {
+    if (value && value.length > 0 && value[0] != '' && ItemTypes.Volumetrics.includes(getFileExtension(value[0]))) {
       this.load(value)
     }
   }
