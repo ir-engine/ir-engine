@@ -12,7 +12,7 @@ process.on('unhandledRejection', (error, promise) => {
 export const start = async (): Promise<Application> => {
   await updateAppConfig()
 
-  const app = await createApp()
+  const app = createApp()
 
   collectAnalytics()
   console.log('Analytics server running')

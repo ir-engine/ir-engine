@@ -27,7 +27,7 @@ import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 register()
 
-export const createApp = async (): Promise<Application> => {
+export const createApp = (): Application => {
   const emitter = new EventEmitter()
 
   // Don't remove this comment. It's needed to format import lines nicely.
