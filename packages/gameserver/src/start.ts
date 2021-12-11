@@ -7,6 +7,7 @@ import { exec } from 'child_process'
 // import preloadLocation from './preload-location'
 import { createApp } from './app'
 import { Application } from '@xrengine/server-core/declarations'
+import { updateAppConfig } from './updateAppConfig'
 
 /**
  * @param status
@@ -16,6 +17,8 @@ process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
 })
 export const start = async (): Promise<Application> => {
+  await updateAppConfig()
+
   const app = await createApp()
 
   const gameServerSetting = await app.service('game-server-setting').find()
