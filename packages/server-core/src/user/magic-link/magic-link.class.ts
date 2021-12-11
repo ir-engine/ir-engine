@@ -159,7 +159,6 @@ export class Magiclink implements ServiceMethods<Data> {
     const appPath = path.dirname(requireMainFilename())
     const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'account')
     const templatePath = path.join(emailAccountTemplatesPath, 'magiclink-sms.pug')
-
     const compiledHTML = pug
       .compileFile(templatePath)({
         title: config.client.title,
