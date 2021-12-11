@@ -169,6 +169,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
       registerSceneLoadPromise(loadGLTFModel(entity, component))
       break
 
+    case 'wooCommerce':
     case 'shopify':
       if (component.data && component.data.extend) {
         if (component.data.extendType == 'video') {
@@ -185,7 +186,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
             component.data[key] = component.data.extend[key]
           })
           console.log(component.data)
-
           registerSceneLoadPromise(loadGLTFModel(entity, component))
         }
       }
