@@ -13,12 +13,13 @@ export const start = async (): Promise<Application> => {
   await updateAppConfig()
 
   const app = await createApp()
-  const port = config.analytics.port || 5050
-
-  await app.listen(port)
 
   collectAnalytics()
   console.log('Analytics server running')
+
+  const port = config.analytics.port || 5050
+
+  await app.listen(port)
 
   console.log('Started listening on', port)
   process.on('unhandledRejection', (reason, p) => logger.error('Unhandled Rejection at: Promise ', p, reason))
