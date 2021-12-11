@@ -84,8 +84,6 @@ export const createApp = async (): Promise<Application> => {
       app.use('/healthcheck', (req, res) => {
         res.sendStatus(200)
       })
-      collectAnalytics()
-      console.log('Analytics server running')
     } catch (err) {
       console.log('Server init failure')
       console.log(err)
