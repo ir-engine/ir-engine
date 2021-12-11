@@ -21,11 +21,7 @@ import { Application } from '@xrengine/server-core/declarations'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
-export async function getFreeSubdomain(
-  app: Application,
-  gsIdentifier: string,
-  subdomainNumber: number
-): Promise<string> {
+export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: number): Promise<string> {
   const transport = Network.instance.transport as any
   const stringSubdomainNumber = subdomainNumber.toString().padStart(config.gameserver.identifierDigits, '0')
   const subdomainResult = await transport.app.service('gameserver-subdomain-provision').find({
@@ -52,11 +48,11 @@ export async function getFreeSubdomain(
       }
     })
     if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === gsIdentifier) return stringSubdomainNumber
-    else return getFreeSubdomain(app, gsIdentifier, subdomainNumber + 1)
+    else return getFreeSubdomain(gsIdentifier, subdomainNumber + 1)
   } else {
     const subdomain = (subdomainResult as any).data[0]
     if (subdomain.allocated === true || subdomain.allocated === 1) {
-      return getFreeSubdomain(app, gsIdentifier, subdomainNumber + 1)
+      return getFreeSubdomain(gsIdentifier, subdomainNumber + 1)
     }
     await transport.app.service('gameserver-subdomain-provision').patch(subdomain.id, {
       allocated: true,
@@ -75,7 +71,7 @@ export async function getFreeSubdomain(
       }
     })
     if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === gsIdentifier) return stringSubdomainNumber
-    else return getFreeSubdomain(app, gsIdentifier, subdomainNumber + 1)
+    else return getFreeSubdomain(gsIdentifier, subdomainNumber + 1)
   }
 }
 

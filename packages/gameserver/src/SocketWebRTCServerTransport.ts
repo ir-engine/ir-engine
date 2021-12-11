@@ -308,7 +308,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       this.app.gsName = name
 
       const gsIdentifier = gsNameRegex.exec(name)!
-      stringSubdomainNumber = await getFreeSubdomain(this.app, gsIdentifier[1], 0)
+      stringSubdomainNumber = await getFreeSubdomain(gsIdentifier[1], 0)
       this.app.gsSubdomainNumber = stringSubdomainNumber
 
       gsResult = await this.app.agonesSDK.getGameServer()
