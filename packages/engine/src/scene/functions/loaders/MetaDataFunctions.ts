@@ -1,12 +1,12 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { MetaDataComponent, MetaDataComponentType } from '../components/MetaDataComponent'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { MetaDataComponent, MetaDataComponentType } from '../../components/MetaDataComponent'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../common/constants/ComponentNames'
+} from '../../../common/constants/ComponentNames'
 
 export const SCENE_COMPONENT_METADATA = 'mtdata'
 

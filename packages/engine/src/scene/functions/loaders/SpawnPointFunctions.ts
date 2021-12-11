@@ -1,11 +1,11 @@
 import { Object3D, BoxHelper, Mesh, BoxBufferGeometry } from 'three'
-import { LoadGLTF } from '../../assets/functions/LoadGLTF'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../common/constants/ComponentNames'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { SpawnPointComponent } from '../components/SpawnPointComponent'
+import { LoadGLTF } from '../../../assets/functions/LoadGLTF'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/ComponentNames'
+import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { SpawnPointComponent } from '../../components/SpawnPointComponent'
 
 export const SCENE_COMPONENT_SPAWN_POINT = 'spawn-point'
 

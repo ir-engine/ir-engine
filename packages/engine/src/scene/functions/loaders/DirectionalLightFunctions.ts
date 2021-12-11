@@ -4,13 +4,13 @@ import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../common/constants/ComponentNames'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
-import { DirectionalLightComponent, DirectionalLightComponentType } from '../components/DirectionalLightComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
+} from '../../../common/constants/ComponentNames'
+import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import EditorDirectionalLightHelper from '../../classes/EditorDirectionalLightHelper'
+import { DirectionalLightComponent, DirectionalLightComponentType } from '../../components/DirectionalLightComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_DIRECTIONAL_LIGHT = 'directional-light'
 

@@ -1,18 +1,18 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Vector3, DirectionalLight, PerspectiveCamera, PCFSoftShadowMap, LinearToneMapping } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
-import { CSM } from '../../assets/csm/CSM'
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { DEFAULT_LOD_DISTANCES } from '../../../assets/constants/LoaderConstants'
+import { CSM } from '../../../assets/csm/CSM'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../common/constants/ComponentNames'
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { RenderSettingComponent, RenderSettingComponentType } from '../components/RenderSettingComponent'
+} from '../../../common/constants/ComponentNames'
+import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { RenderSettingComponent, RenderSettingComponentType } from '../../components/RenderSettingComponent'
 
 export const SCENE_COMPONENT_RENDERER_SETTINGS = 'renderer-settings'
 

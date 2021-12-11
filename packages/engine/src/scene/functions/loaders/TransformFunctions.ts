@@ -1,9 +1,9 @@
 import { Vector3, Quaternion, Euler } from 'three'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../common/constants/ComponentNames'
-import { TransformComponent, TransformComponentType } from '../../transform/components/TransformComponent'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/ComponentNames'
+import { TransformComponent, TransformComponentType } from '../../../transform/components/TransformComponent'
 
 export const SCENE_COMPONENT_TRANSFORM = 'transform'
 

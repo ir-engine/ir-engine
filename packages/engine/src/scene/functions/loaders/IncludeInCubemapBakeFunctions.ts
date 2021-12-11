@@ -1,9 +1,9 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../common/constants/ComponentNames'
-import { Engine } from '../../ecs/classes/Engine'
-import { IncludeInCubemapBakeComponent } from '../components/IncludeInCubemapBakeComponent'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/ComponentNames'
+import { Engine } from '../../../ecs/classes/Engine'
+import { IncludeInCubemapBakeComponent } from '../../components/IncludeInCubemapBakeComponent'
 
 export const SCENE_COMPONENT_CUBEMAP_BAKE = 'includeInCubemapBake'
 

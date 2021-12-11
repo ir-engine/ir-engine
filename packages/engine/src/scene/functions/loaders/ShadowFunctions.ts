@@ -4,11 +4,11 @@ import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../common/constants/ComponentNames'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { ShadowComponent, ShadowComponentType } from '../components/ShadowComponent'
+} from '../../../common/constants/ComponentNames'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { ShadowComponent, ShadowComponentType } from '../../components/ShadowComponent'
 
 export const SCENE_COMPONENT_SHADOW = 'shadow'
 

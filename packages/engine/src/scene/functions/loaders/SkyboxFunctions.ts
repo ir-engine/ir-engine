@@ -4,16 +4,16 @@ import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../common/constants/ComponentNames'
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
-import { Sky } from '../classes/Sky'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { SkyboxComponent, SkyboxComponentType } from '../components/SkyboxComponent'
-import { SkyTypeEnum } from '../constants/SkyTypeEnum'
+} from '../../../common/constants/ComponentNames'
+import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
+import { Sky } from '../../classes/Sky'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { SkyboxComponent, SkyboxComponentType } from '../../components/SkyboxComponent'
+import { SkyTypeEnum } from '../../constants/SkyTypeEnum'
 import {
   cubeTextureLoader,
   posx,
@@ -24,8 +24,8 @@ import {
   negz,
   textureLoader,
   getPmremGenerator
-} from '../constants/Util'
-import { setSkyDirection } from './setSkyDirection'
+} from '../../constants/Util'
+import { Vector3 } from 'three'
 
 export const SCENE_COMPONENT_SKYBOX = 'skybox'
 
@@ -109,4 +109,8 @@ export const serializeSkybox: ComponentSerializeFunction = (entity) => {
       skyboxProps: component.skyboxProps
     }
   }
+}
+
+export const setSkyDirection = (direction: Vector3) => {
+  Engine.csm?.lightDirection.copy(direction).multiplyScalar(-1)
 }

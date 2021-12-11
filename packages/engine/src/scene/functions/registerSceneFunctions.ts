@@ -1,60 +1,69 @@
 import { World } from '../../ecs/classes/World'
-import { deserializeAudioSetting, SCENE_COMPONENT_AUDIO_SETTINGS, serializeAudioSetting } from './AudioSettingFunctions'
+import {
+  deserializeAudioSetting,
+  SCENE_COMPONENT_AUDIO_SETTINGS,
+  serializeAudioSetting
+} from './loaders/AudioSettingFunctions'
 import {
   deserializeDirectionalLight,
   SCENE_COMPONENT_DIRECTIONAL_LIGHT,
   serializeDirectionalLight,
   updateDirectionalLight
-} from './DirectionalLightFunctions'
-import { SCENE_COMPONENT_ENVMAP, deserializeEnvMap, serializeEnvMap, updateEnvMap } from './EnvMapFunctions'
-import { SCENE_COMPONENT_FOG, deserializeFog, serializeFog, updateFog } from './FogFunctions'
+} from './loaders/DirectionalLightFunctions'
+import { SCENE_COMPONENT_ENVMAP, deserializeEnvMap, serializeEnvMap, updateEnvMap } from './loaders/EnvMapFunctions'
+import { SCENE_COMPONENT_FOG, deserializeFog, serializeFog, updateFog } from './loaders/FogFunctions'
 import {
   SCENE_COMPONENT_GROUND_PLANE,
   deserializeGround,
   serializeGroundPlane,
   updateGroundPlane
-} from './GroundPlaneFunctions'
+} from './loaders/GroundPlaneFunctions'
 import {
   SCENE_COMPONENT_HEMISPHERE_LIGHT,
   deserializeHemisphereLight,
   serializeHemisphereLight,
   updateHemisphereLight
-} from './HemisphereLightFunctions'
+} from './loaders/HemisphereLightFunctions'
 import {
   SCENE_COMPONENT_CUBEMAP_BAKE,
   deserializeIncludeInCubeMapBake,
   serializeIncludeInCubeMapBake
-} from './IncludeInCubemapBakeFunctions'
-import { SCENE_COMPONENT_METADATA, deserializeMetaData, serializeMetaData, updateMetaData } from './MetaDataFunctions'
-import { SCENE_COMPONENT_PERSIST, deserializePersist, serializePersist } from './PersistFunctions'
+} from './loaders/IncludeInCubemapBakeFunctions'
+import {
+  SCENE_COMPONENT_METADATA,
+  deserializeMetaData,
+  serializeMetaData,
+  updateMetaData
+} from './loaders/MetaDataFunctions'
+import { SCENE_COMPONENT_PERSIST, deserializePersist, serializePersist } from './loaders/PersistFunctions'
 import {
   SCENE_COMPONENT_POSTPROCESSING,
   deserializePostprocessing,
   serializePostprocessing,
   updatePostProcessing
-} from './PostprocessingFunctions'
+} from './loaders/PostprocessingFunctions'
 import {
   SCENE_COMPONENT_RENDERER_SETTINGS,
   deserializeRenderSetting,
   serializeRenderSettings,
   updateRenderSetting
-} from './RenderSettingsFunction'
+} from './loaders/RenderSettingsFunction'
 import {
   SCENE_COMPONENT_SCENE_PREVIEW_CAMERA,
   deserializeScenePreviewCamera,
   serializeScenePreviewCamera,
   updateScenePreviewCamera
-} from './ScenePreviewCameraFunctions'
-import { SCENE_COMPONENT_SHADOW, deserializeShadow, serializeShadow, updateShadow } from './ShadowFunctions'
+} from './loaders/ScenePreviewCameraFunctions'
+import { SCENE_COMPONENT_SHADOW, deserializeShadow, serializeShadow, updateShadow } from './loaders/ShadowFunctions'
 import {
   SCENE_COMPONENT_SIMPLE_MATERIALS,
   deserializeSimpleMaterial,
   serializeSimpleMaterial
-} from './SimpleMaterialFunctions'
-import { SCENE_COMPONENT_SKYBOX, deserializeSkybox, serializeSkybox, updateSkybox } from './SkyboxFunctions'
-import { SCENE_COMPONENT_SPAWN_POINT, deserializeSpawnPoint, serializeSpawnPoint } from './SpawnPointFunctions'
-import { SCENE_COMPONENT_TRANSFORM, deserializeTransform, serializeTransform } from './TransformFunctions'
-import { SCENE_COMPONENT_VISIBLE, deserializeVisible, serializeVisible } from './VisibleFunctions'
+} from './loaders/SimpleMaterialFunctions'
+import { SCENE_COMPONENT_SKYBOX, deserializeSkybox, serializeSkybox, updateSkybox } from './loaders/SkyboxFunctions'
+import { SCENE_COMPONENT_SPAWN_POINT, deserializeSpawnPoint, serializeSpawnPoint } from './loaders/SpawnPointFunctions'
+import { SCENE_COMPONENT_TRANSFORM, deserializeTransform, serializeTransform } from './loaders/TransformFunctions'
+import { SCENE_COMPONENT_VISIBLE, deserializeVisible, serializeVisible } from './loaders/VisibleFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 

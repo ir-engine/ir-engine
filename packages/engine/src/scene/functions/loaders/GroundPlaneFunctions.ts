@@ -1,20 +1,20 @@
 import { Color, Group } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { createCollider } from '../../physics/functions/createCollider'
-import { GroundPlaneComponent, GroundPlaneComponentType } from '../components/GroundPlaneComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import GroundPlane from '../classes/GroundPlane'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { isClient } from '../../common/functions/isClient'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { createCollider } from '../../../physics/functions/createCollider'
+import { GroundPlaneComponent, GroundPlaneComponentType } from '../../components/GroundPlaneComponent'
+import { Engine } from '../../../ecs/classes/Engine'
+import GroundPlane from '../../classes/GroundPlane'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { isClient } from '../../../common/functions/isClient'
+import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../common/constants/ComponentNames'
+} from '../../../common/constants/ComponentNames'
 
 export const SCENE_COMPONENT_GROUND_PLANE = 'ground-plane'
 

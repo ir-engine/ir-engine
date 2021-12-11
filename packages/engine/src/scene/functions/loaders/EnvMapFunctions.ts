@@ -1,14 +1,14 @@
 import { Color, DataTexture, Mesh, MeshStandardMaterial, RGBFormat, sRGBEncoding, Vector3 } from 'three'
-import { isClient } from '../../common/functions/isClient'
-import { EnvmapComponent, EnvmapComponentType } from '../components/EnvmapComponent'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
-import { convertEquiToCubemap } from '../classes/ImageUtils'
-import { SceneOptions } from '../systems/SceneObjectSystem'
-import { CubemapBakeTypes } from '../types/CubemapBakeTypes'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { isClient } from '../../../common/functions/isClient'
+import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapComponent'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
+import { convertEquiToCubemap } from '../../classes/ImageUtils'
+import { SceneOptions } from '../../systems/SceneObjectSystem'
+import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
+import { Engine } from '../../../ecs/classes/Engine'
+import { EngineEvents } from '../../../ecs/classes/EngineEvents'
 import {
   cubeTextureLoader,
   getPmremGenerator,
@@ -19,13 +19,13 @@ import {
   posy,
   posz,
   textureLoader
-} from '../constants/Util'
+} from '../../constants/Util'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../common/constants/ComponentNames'
+} from '../../../common/constants/ComponentNames'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
 

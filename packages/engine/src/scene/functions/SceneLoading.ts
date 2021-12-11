@@ -35,7 +35,7 @@ import { NetworkWorldAction } from '../../networking/functions/NetworkWorldActio
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import EntityTree from '../../ecs/classes/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { updateRenderSetting, resetEngineRenderer } from './RenderSettingsFunction'
+import { updateRenderSetting, resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { registerDefaultSceneFunctions } from './registerSceneFunctions'
 
 export interface SceneDataComponent extends ComponentJson {
@@ -110,7 +110,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
   const world = useWorld()
 
   const deserializer = world.sceneLoadingRegistry.get(name)?.deserialize
-  console.log(name, deserializer)
+
   if (deserializer) {
     deserializer(entity, component)
     return

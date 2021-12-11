@@ -4,12 +4,12 @@ import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../common/constants/ComponentNames'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { FogComponent, FogComponentType } from '../components/FogComponent'
-import { FogType } from '../constants/FogType'
+} from '../../../common/constants/ComponentNames'
+import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { FogComponent, FogComponentType } from '../../components/FogComponent'
+import { FogType } from '../../constants/FogType'
 
 export const SCENE_COMPONENT_FOG = 'fog'
 

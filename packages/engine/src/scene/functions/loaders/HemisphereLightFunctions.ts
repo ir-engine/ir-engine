@@ -4,13 +4,13 @@ import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../common/constants/ComponentNames'
-import { isClient } from '../../common/functions/isClient'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
-import { HemisphereLightComponent, HemisphereLightComponentType } from '../components/HemisphereLightComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
+} from '../../../common/constants/ComponentNames'
+import { isClient } from '../../../common/functions/isClient'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
+import { HemisphereLightComponent, HemisphereLightComponentType } from '../../components/HemisphereLightComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_HEMISPHERE_LIGHT = 'hemisphere-light'
 

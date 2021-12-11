@@ -51,6 +51,7 @@ export class World {
 
   static [CreateWorld] = () => new World()
 
+  sceneMetadata = undefined as string | undefined
   worldMetadata = {} as { [key: string]: string }
 
   delta = NaN

@@ -4,15 +4,15 @@ import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../common/constants/ComponentNames'
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
+} from '../../../common/constants/ComponentNames'
+import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { CopyTransformComponent } from '../../../transform/components/CopyTransformComponent'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { ScenePreviewCameraTagComponent } from '../../components/ScenePreviewCamera'
 
 export const SCENE_COMPONENT_SCENE_PREVIEW_CAMERA = 'scene-preview-camera'
 

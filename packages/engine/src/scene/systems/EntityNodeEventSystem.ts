@@ -12,7 +12,7 @@ import { RenderSettingComponent } from '../components/RenderSettingComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { SelectTagComponent } from '../components/SelectTagComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
-import { resetEngineRenderer } from '../functions/RenderSettingsFunction'
+import { resetEngineRenderer } from '../functions/loaders/RenderSettingsFunction'
 
 /**
  * @author Nayankumar Patel <github.com/NPatel10>
