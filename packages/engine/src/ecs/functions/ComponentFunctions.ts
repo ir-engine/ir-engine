@@ -21,7 +21,7 @@ export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = b
   Object.defineProperty(component, '_map', {
     value: componentMap
   })
-  Object.defineProperty(component, '_type', {
+  Object.defineProperty(component, '_name', {
     value: name,
     enumerable: true
   })
@@ -81,7 +81,7 @@ export type MappedComponent<T, S extends bitECS.ISchema> = bitECS.ComponentType<
   get: (entity: number) => T & SoAProxy<S>
   set: (entity: number, value: T & SoAProxy<S>) => void
   delete: (entity: number) => void
-  readonly _type: string
+  readonly _name: string
 }
 
 export type ComponentConstructor<T, S extends bitECS.ISchema> = MappedComponent<T, S>

@@ -201,13 +201,13 @@ export const getNodeEditorsForEntity = (entity: Entity) => {
 }
 
 export const EntityNodeEditor = {
-  [DirectionalLightComponent._type]: DirectionalLightNodeEditor,
-  [HemisphereLightComponent._type]: HemisphereLightNodeEditor,
-  [GroundPlaneComponent._type]: GroundPlaneNodeEditor,
+  [DirectionalLightComponent._name]: DirectionalLightNodeEditor,
+  [HemisphereLightComponent._name]: HemisphereLightNodeEditor,
+  [GroundPlaneComponent._name]: GroundPlaneNodeEditor,
   // [ComponentName.GLTF_MODEL]: ModelNodeEditor,
-  [PostprocessingComponent._type]: PostProcessingNodeEditor,
-  [SceneTagComponent._type]: SceneNodeEditor,
-  [ScenePreviewCameraTagComponent._type]: ScenePreviewCameraNodeEditor,
-  [SkyboxComponent._type]: SkyboxNodeEditor,
-  [SpawnPointComponent._type]: SpawnPointNodeEditor
+  [PostprocessingComponent._name]: PostProcessingNodeEditor,
+  [SceneTagComponent._name]: SceneNodeEditor,
+  [ScenePreviewCameraTagComponent._name]: ScenePreviewCameraNodeEditor,
+  [SkyboxComponent._name]: SkyboxNodeEditor,
+  [SpawnPointComponent._name]: SpawnPointNodeEditor
 }
