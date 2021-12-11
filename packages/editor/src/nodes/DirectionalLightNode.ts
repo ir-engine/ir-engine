@@ -19,7 +19,7 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
 
   static async deserialize(json) {
     await super.deserialize(json)
-
+    console.log('DirectionalLightNode', json)
     const entity = createEntity()
     deserializeDirectionalLight(entity, json.components)
 

@@ -1,3 +1,5 @@
+import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
+import { addComponent } from '../functions/ComponentFunctions'
 import { Entity } from './Entity'
 
 // export enum WalkStrategy {
@@ -9,12 +11,13 @@ export default class EntityTree {
   rootNode: EntityTreeNode
 
   constructor() {
-    this.rootNode = new EntityTreeNode(0 as Entity)
+    this.rootNode = new EntityTreeNode(-1 as Entity)
   }
 
   addEntity(entity: Entity, parentEid?: Entity, index?: number) {
     if (parentEid == null) {
       this.rootNode.entity = entity
+      addComponent(entity, SceneTagComponent, {})
       return
     }
 

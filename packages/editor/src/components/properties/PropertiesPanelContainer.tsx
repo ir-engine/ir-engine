@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import DefaultNodeEditor from './DefaultNodeEditor'
 import styled from 'styled-components'
 import TransformPropertyGroup from './TransformPropertyGroup'
 import NameInputGroup from './NameInputGroup'
@@ -8,17 +7,17 @@ import BooleanInput from '../inputs/BooleanInput'
 import { useTranslation } from 'react-i18next'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
-import { EntityNodeEditor, NodeManager } from '../../managers/NodeManager'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { EntityNodeEditor, getNodeEditorsForEntity } from '../../managers/NodeManager'
+import { ComponentMap, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { IncludeInCubemapBakeComponent } from '@xrengine/engine/src/scene/components/IncludeInCubemapBakeComponent'
 import EditorCommands from '../../constants/EditorCommands'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
-import { EntityNodeType } from '@xrengine/engine/src/scene/constants/EntityNodeType'
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.
@@ -188,33 +187,20 @@ export const PropertiesPanelContainer = () => {
 
   //rendering editor views for customization of element properties
   let content
-  let showNodeEditor = true
-  let isScene = false
   const multiEdit = selected.length > 1
 
   if (!node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
   } else {
-    const entityNodeComponent = getComponent(node.entity, EntityNodeComponent)
-    isScene = entityNodeComponent.type === EntityNodeType.SCENE
-    const NodeEditor = EntityNodeEditor[entityNodeComponent.type] || DefaultNodeEditor
+    // get all editors that this entity has a component for
+    const nodeEditors = getNodeEditorsForEntity(node.entity).map((NodeEditor: any, i) => (
+      <NodeEditor key={i} multiEdit={multiEdit} node={node} />
+    ))
 
-    for (let i = 0; i < selected.length - 1; i++) {
-      if (NodeManager.instance.getEditorFromNode(selected[i]) !== NodeEditor) {
-        showNodeEditor = false
-        break
-      }
-    }
+    const transform =
+      hasComponent(node.entity, TransformComponent) &&
+      !selected.some((node) => hasComponent(node.entity, DisableTransformTagComponent))
 
-    let nodeEditor
-
-    if (showNodeEditor) {
-      nodeEditor = <NodeEditor multiEdit={multiEdit} node={node} />
-    } else {
-      nodeEditor = <NoNodeSelectedMessage>{t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
-    }
-
-    const disableTransform = selected.some((node) => hasComponent(node.entity, DisableTransformTagComponent))
     const haveStaticTags = selected.some((node) => node.haveStaticTags)
 
     content = (
@@ -222,7 +208,7 @@ export const PropertiesPanelContainer = () => {
         <PropertiesHeader>
           <NameInputGroupContainer>
             <NameInputGroup node={node} key={node.entity} />
-            {!isScene && (
+            {!hasComponent(node.entity, SceneTagComponent) && (
               <>
                 <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
                   <BooleanInput value={hasComponent(node.entity, VisibleComponent)} onChange={onChangeVisible} />
@@ -241,9 +227,9 @@ export const PropertiesPanelContainer = () => {
           <PersistInputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
             <BooleanInput value={hasComponent(node.entity, PersistTagComponent)} onChange={onChangePersist} />
           </PersistInputGroup>
-          {!isScene && !disableTransform && <TransformPropertyGroup node={node} />}
+          {transform && <TransformPropertyGroup node={node} />}
         </PropertiesHeader>
-        {nodeEditor}
+        {nodeEditors}
       </StyledNodeEditor>
     )
   }

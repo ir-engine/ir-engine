@@ -6,16 +6,6 @@ import { useWorld } from './SystemHooks'
 
 export const ComponentMap = new Map<string, ComponentType<any>>()
 
-const getComponentName = (name: string): string => {
-  const parts = name.split('-')
-
-  for (let i = 0; i < parts.length; i++) {
-    parts[i] = capitalize(parts[i])
-  }
-
-  return parts.join('') + 'Component'
-}
-
 // TODO: benchmark map vs array for componentMap
 export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = bitECS.ISchema>(
   name: string,
@@ -35,10 +25,6 @@ export const createMappedComponent = <T extends {}, S extends bitECS.ISchema = b
   })
   Object.defineProperty(component, '_type', {
     value: name,
-    enumerable: true
-  })
-  Object.defineProperty(component, '_name', {
-    value: getComponentName(name),
     enumerable: true
   })
   Object.defineProperty(component, 'get', {
@@ -97,7 +83,6 @@ export type MappedComponent<T, S extends bitECS.ISchema> = bitECS.ComponentType<
   get: (entity: number) => T & SoAProxy<S>
   set: (entity: number, value: T & SoAProxy<S>) => void
   delete: (entity: number) => void
-  readonly _name: string
   readonly _type: string
 }
 

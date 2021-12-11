@@ -49,7 +49,7 @@ import { deserializeShadow } from './ShadowFunctions'
 import { deserializeMetaData } from './MetaDataFunctions'
 import { deserializeRenderSetting, updateRenderSetting } from './RenderSettingsFunction'
 import { resetEngineRenderer } from './RenderSettingsFunction'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import { ComponentName, ComponentNameType } from '../../common/constants/ComponentNames'
 import { deserializeAudioSetting } from './AudioSettingFunctions'
 import { deserializeSimpleMaterial } from './SimpleMaterialFunctions'
 import { deserializeTransform } from './TransformFunctions'
@@ -63,7 +63,7 @@ export interface SceneDataComponent extends ComponentJson {
 }
 
 export interface EntityData extends EntityJson {
-  entityType: EntityNodeType
+  entityType: ComponentNameType
 }
 
 export interface SceneData extends SceneJson {
@@ -88,7 +88,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
     entityMap[key] = entity
     addComponent(entity, NameComponent, { name: sceneEntity.name })
     loadComponents(entity, key, sceneEntity)
-    addComponent(entity, EntityNodeComponent, { type: sceneEntity.entityType ?? EntityNodeType.DEFAULT, uuid: key })
+    addComponent(entity, EntityNodeComponent, { uuid: key })
   })
 
   // Create Entity Tree
@@ -127,13 +127,12 @@ export const loadComponents = (entity: Entity, sceneEntityId: string, sceneEntit
 
 export const loadComponent = (entity: Entity, component: SceneDataComponent, sceneEntity: EntityData): void => {
   // remove '-1', '-2' etc suffixes
-  const name = component.name.replace(/(-\d+)|(\s)/g, '') as typeof ComponentName[keyof typeof ComponentName]
+  const name = component.name.replace(/(-\d+)|(\s)/g, '') as ComponentNameType
   const world = useWorld()
 
   switch (name) {
     case ComponentName.MT_DATA:
       deserializeMetaData(entity, component)
-      sceneEntity.entityType = EntityNodeType.SCENE
       break
 
     case '_metadata':
@@ -161,12 +160,10 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
 
     case ComponentName.DIRECTIONAL_LIGHT:
       deserializeDirectionalLight(entity, component)
-      sceneEntity.entityType = EntityNodeType.DIRECTIONAL_LIGHT
       break
 
     case ComponentName.HEMISPHERE_LIGHT:
       deserializeHemisphereLight(entity, component)
-      sceneEntity.entityType = EntityNodeType.HEMISPHERE_LIGHT
       break
 
     case 'point-light':
@@ -179,12 +176,10 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
 
     case ComponentName.SIMPLE_MATERIALS:
       deserializeSimpleMaterial(entity, component)
-      sceneEntity.entityType = EntityNodeType.SCENE
       break
 
     case 'gltf-model':
       registerSceneLoadPromise(loadGLTFModel(entity, component))
-      sceneEntity.entityType = EntityNodeType.MODEL
       break
 
     // TODO: we can remove these entirely when we have a more composable solution than the mixin nodes
@@ -221,7 +216,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
 
     case ComponentName.GROUND_PLANE:
       deserializeGround(entity, component)
-      sceneEntity.entityType = EntityNodeType.GROUND_PLANE
       break
 
     case 'image':
@@ -263,32 +257,26 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
 
     case ComponentName.FOG:
       deserializeFog(entity, component)
-      sceneEntity.entityType = EntityNodeType.SCENE
       break
 
     case ComponentName.SKYBOX:
       deserializeSkybox(entity, component)
-      sceneEntity.entityType = EntityNodeType.SKYBOX
       break
 
     case ComponentName.AUDIO_SETTINGS:
       deserializeAudioSetting(entity, component)
-      sceneEntity.entityType = EntityNodeType.SCENE
       break
 
     case ComponentName.RENDERER_SETTINGS:
       deserializeRenderSetting(entity, component)
-      sceneEntity.entityType = EntityNodeType.SCENE
       break
 
     case ComponentName.SPAWN_POINT:
       deserializeSpawnPoint(entity, component)
-      sceneEntity.entityType = EntityNodeType.SPAWN_POINT
       break
 
     case ComponentName.SCENE_PREVIEW_CAMERA:
       deserializeScenePreviewCamera(entity, component)
-      sceneEntity.entityType = EntityNodeType.SCENE_PREVIEW_CAMERA
       break
 
     case ComponentName.SHADOW:
@@ -367,7 +355,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
 
     case ComponentName.POSTPROCESSING:
       deserializePostprocessing(entity, component)
-      sceneEntity.entityType = EntityNodeType.POSTPROCESSING
       break
 
     case 'cameraproperties':
@@ -384,7 +371,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
 
     case ComponentName.ENVMAP:
       deserializeEnvMap(entity, component)
-      sceneEntity.entityType = EntityNodeType.SCENE
       break
 
     case ComponentName.PERSIST:
@@ -404,7 +390,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
     case 'project': // loaded prior to engine init
       break
 
-    case ComponentName.VISIBILE:
+    case ComponentName.VISIBLE:
       deserializeVisible(entity, component)
       break
 

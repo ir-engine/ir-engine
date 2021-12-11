@@ -24,6 +24,7 @@ export const ComponentName = {
   AUDIO_SETTINGS: 'audio-settings' as const,
   RENDERER_SETTINGS: 'renderer-settings' as const,
   SPAWN_POINT: 'spawn-point' as const,
+  SCENE: 'scene' as const,
   SCENE_PREVIEW_CAMERA: 'scene-preview-camera' as const,
   SHADOW: 'shadow' as const,
   COLLIDER: 'collider' as const,
@@ -41,7 +42,7 @@ export const ComponentName = {
   PORTAL: 'portal' as const,
   GROUP: 'group' as const,
   PROJECT: 'project' as const,
-  VISIBILE: 'visible' as const,
+  VISIBLE: 'visible' as const,
   PERSIST: 'persist' as const,
   INCLUDE_IN_CUBEMAP_BAKE: 'includeInCubemapBake' as const,
   MESH_COLLIDER: 'mesh-collider' as const,
@@ -50,3 +51,5 @@ export const ComponentName = {
   SIMPLE_MATERIALS: 'simple-materials' as const,
   WALKABLE: 'walkable' as const
 }
+
+export type ComponentNameType = typeof ComponentName[keyof typeof ComponentName]

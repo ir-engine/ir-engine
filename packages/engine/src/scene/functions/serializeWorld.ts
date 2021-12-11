@@ -2,8 +2,27 @@ import { EntityJson, SceneJson, ComponentJson } from '@xrengine/common/src/inter
 import { ComponentName } from '../../common/constants/ComponentNames'
 import { getAllComponents, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
+import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
+import { EnvmapComponent } from '../components/EnvmapComponent'
+import { FogComponent } from '../components/FogComponent'
+import { GroundPlaneComponent } from '../components/GroundPlaneComponent'
+import { HemisphereLightComponent } from '../components/HemisphereLightComponent'
+import { IncludeInCubemapBakeComponent } from '../components/IncludeInCubemapBakeComponent'
+import { MetaDataComponent } from '../components/MetaDataComponent'
 import { NameComponent } from '../components/NameComponent'
+import { PersistTagComponent } from '../components/PersistTagComponent'
+import { PostprocessingComponent } from '../components/PostprocessingComponent'
+import { RenderSettingComponent } from '../components/RenderSettingComponent'
+import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
+import { ShadowComponent } from '../components/ShadowComponent'
+import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
+import { SkyboxComponent } from '../components/SkyboxComponent'
+import { SpawnPointComponent } from '../components/SpawnPointComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
+import { WalkableTagComponent } from '../components/Walkable'
 import { serializeAudioSetting } from './AudioSettingFunctions'
 import { serializeDirectionalLight } from './DirectionalLightFunctions'
 import { serializeEnvMap } from './EnvMapFunctions'
@@ -46,66 +65,65 @@ export const serializeWorld = (world = useWorld()) => {
 
     components.forEach((comp) => {
       let data
-      switch (comp._type) {
-        case ComponentName.TRANSFORM:
+      switch (comp) {
+        case TransformComponent:
           data = serializeTransform(node.entity)
           break
-        case ComponentName.VISIBILE:
+        case VisibleComponent:
           data = serializeVisible(node.entity)
           break
-        case ComponentName.PERSIST:
+        case PersistTagComponent:
           data = serializePersist(node.entity)
           break
-        case ComponentName.INCLUDE_IN_CUBEMAP_BAKE:
+        case IncludeInCubemapBakeComponent:
           data = serializeIncludeInCubeMapBake(node.entity)
           break
-        case ComponentName.SHADOW:
+        case ShadowComponent:
           data = serializeShadow(node.entity)
           break
-        case ComponentName.MT_DATA:
+        case MetaDataComponent:
           data = serializeMetaData(node.entity)
           break
-        case ComponentName.FOG:
+        case FogComponent:
           data = serializeFog(node.entity)
           break
-        case ComponentName.ENVMAP:
+        case EnvmapComponent:
           data = serializeEnvMap(node.entity)
           break
-        case ComponentName.SIMPLE_MATERIALS:
+        case SimpleMaterialTagComponent:
           data = serializeSimpleMaterial(node.entity)
           break
-        case ComponentName.RENDERER_SETTINGS:
+        case RenderSettingComponent:
           data = serializeRenderSettings(node.entity)
           break
-        case ComponentName.AUDIO_SETTINGS:
+        case PositionalAudioSettingsComponent:
           data = serializeAudioSetting(node.entity)
           break
-        case ComponentName.SCENE_PREVIEW_CAMERA:
+        case ScenePreviewCameraTagComponent:
           data = serializeScenePreviewCamera(node.entity)
           break
-        case ComponentName.SKYBOX:
+        case SkyboxComponent:
           data = serializeSkybox(node.entity)
           break
-        case ComponentName.GROUND_PLANE:
+        case GroundPlaneComponent:
           data = serializeGroundPlane(node.entity)
           break
-        case ComponentName.WALKABLE:
+        case WalkableTagComponent:
           data = serializeWalkable(node.entity)
           break
-        case ComponentName.SPAWN_POINT:
+        case SpawnPointComponent:
           data = serializeSpawnPoint(node.entity)
           break
-        case ComponentName.POSTPROCESSING:
+        case PostprocessingComponent:
           data = serializePostprocessing(node.entity)
           break
-        case ComponentName.HEMISPHERE_LIGHT:
+        case HemisphereLightComponent:
           data = serializeHemisphereLight(node.entity)
           break
-        case ComponentName.DIRECTIONAL_LIGHT:
+        case DirectionalLightComponent:
           data = serializeDirectionalLight(node.entity)
           break
       }
-
       if (data) entityJson.components.push(data)
     })
   })

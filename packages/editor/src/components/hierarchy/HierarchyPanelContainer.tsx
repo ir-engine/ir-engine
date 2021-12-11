@@ -17,7 +17,7 @@ import traverseEarlyOut from '../../functions/traverseEarlyOut'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
-import { EntityNodeEditor } from '../../managers/NodeManager'
+import { EntityNodeEditor, getNodeEditorsForEntity } from '../../managers/NodeManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Hotkeys from 'react-hot-keys'
@@ -647,12 +647,10 @@ function TreeNode({
   }, [node])
 
   const nameComponent = getComponent(object.entity, NameComponent)
-  const entityNodeComponent = getComponent(object.entity, EntityNodeComponent)
 
-  const iconComponent =
-    entityNodeComponent && EntityNodeEditor[entityNodeComponent.type]
-      ? EntityNodeEditor[entityNodeComponent.type].iconComponent
-      : null
+  const EntityNodeComponent = getNodeEditorsForEntity(object.entity)
+
+  const iconComponent = EntityNodeComponent[0].iconComponent
 
   //returning tree view for hierarchy panel
   return (

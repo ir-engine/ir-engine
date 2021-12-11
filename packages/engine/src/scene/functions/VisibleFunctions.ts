@@ -17,7 +17,7 @@ export const deserializeVisible: ComponentDeserializeFunction = (entity: Entity,
 export const serializeVisible: ComponentSerializeFunction = (entity) => {
   if (hasComponent(entity, VisibleComponent)) {
     return {
-      name: ComponentName.VISIBILE,
+      name: ComponentName.VISIBLE,
       props: {}
     }
   }

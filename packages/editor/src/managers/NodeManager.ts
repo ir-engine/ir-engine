@@ -38,7 +38,6 @@ import BoxColliderNode from '../nodes/BoxColliderNode'
 import CameraPropertiesNode from '../nodes/CameraPropertiesNode'
 import CloudsNode from '../nodes/CloudsNode'
 import CubemapBakeNode from '../nodes/CubemapBakeNode'
-import DirectionalLightNode from '../nodes/DirectionalLightNode'
 import GroundPlaneNode from '../nodes/GroundPlaneNode'
 import GroupNode from '../nodes/GroupNode'
 import HemisphereLightNode from '../nodes/HemisphereLightNode'
@@ -50,7 +49,6 @@ import MetadataNode from '../nodes/MetadataNode'
 import ModelNode from '../nodes/ModelNode'
 import WooCommerceNode from '../nodes/WooCommerceNode'
 import ShopifyNode from '../nodes/ShopifyNode'
-import WooCommerceNode from '../nodes/WooCommerceNode'
 import OceanNode from '../nodes/OceanNode'
 import ParticleEmitterNode from '../nodes/ParticleEmitterNode'
 import PointLightNode from '../nodes/PointLightNode'
@@ -69,6 +67,17 @@ import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
 import { EntityNodeType } from '@xrengine/engine/src/scene/constants/EntityNodeType'
 import DefaultNodeEditor from '../components/properties/DefaultNodeEditor'
+import { ComponentName } from '@xrengine/engine/src/common/constants/ComponentNames'
+import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
+import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
+import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
+import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
+import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
+import { SpawnPointComponent } from '@xrengine/engine/src/scene/components/SpawnPointComponent'
+import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
+import { ComponentMap, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -152,53 +161,56 @@ export class NodeManager {
 }
 
 export const registerPredefinedNodes = () => {
-  NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
-  NodeManager.instance.registerNode(GroupNode, GroupNodeEditor)
-  NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
-  NodeManager.instance.registerNode(WooCommerceNode, WooCommerceNodeEditor)
-  NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
-  NodeManager.instance.registerNode(GroundPlaneNode, GroundPlaneNodeEditor)
-  NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
-  NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
   NodeManager.instance.registerNode(AmbientLightNode, AmbientLightNodeEditor)
-  NodeManager.instance.registerNode(DirectionalLightNode, DirectionalLightNodeEditor)
-  NodeManager.instance.registerNode(HemisphereLightNode, HemisphereLightNodeEditor)
-  NodeManager.instance.registerNode(SpotLightNode, SpotLightNodeEditor)
-  NodeManager.instance.registerNode(PointLightNode, PointLightNodeEditor)
-  NodeManager.instance.registerNode(SpawnPointNode, SpawnPointNodeEditor)
-  NodeManager.instance.registerNode(SkyboxNode, SkyboxNodeEditor)
+  NodeManager.instance.registerNode(AudioNode, AudioNodeEditor)
+  NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
+  NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
+  NodeManager.instance.registerNode(CloudsNode, CloudsNodeEditor)
+  NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
+  // NodeManager.instance.registerNode(DirectionalLightNode, DirectionalLightNodeEditor)
+  NodeManager.instance.registerNode(GroundPlaneNode, GroundPlaneNodeEditor)
+  NodeManager.instance.registerNode(GroupNode, GroupNodeEditor)
+  // NodeManager.instance.registerNode(HemisphereLightNode, HemisphereLightNodeEditor)
   NodeManager.instance.registerNode(ImageNode, ImageNodeEditor)
+  NodeManager.instance.registerNode(InteriorNode, InteriorNodeEditor)
+  NodeManager.instance.registerNode(LinkNode, LinkNodeEditor)
+  NodeManager.instance.registerNode(MapNode, MapNodeEditor)
   NodeManager.instance.registerNode(MetadataNode, MetadataNodeEditor)
+  // NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
+  NodeManager.instance.registerNode(OceanNode, OceanNodeEditor)
+  NodeManager.instance.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
+  NodeManager.instance.registerNode(PointLightNode, PointLightNodeEditor)
+  NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
+  // NodeManager.instance.registerNode(PostProcessingNode, PostProcessingNodeEditor)
+  // NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
+  // NodeManager.instance.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor)
+  NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
+  // NodeManager.instance.registerNode(SkyboxNode, SkyboxNodeEditor)
+  // NodeManager.instance.registerNode(SpawnPointNode, SpawnPointNodeEditor)
+  // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
+  NodeManager.instance.registerNode(SpotLightNode, SpotLightNodeEditor)
+  NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
+  NodeManager.instance.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
   NodeManager.instance.registerNode(VideoNode, VideoNodeEditor)
   NodeManager.instance.registerNode(VolumetricNode, VolumetricNodeEditor)
-  NodeManager.instance.registerNode(AudioNode, AudioNodeEditor)
-  NodeManager.instance.registerNode(PostProcessingNode, PostProcessingNodeEditor)
-  NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
-  NodeManager.instance.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
-  NodeManager.instance.registerNode(LinkNode, LinkNodeEditor)
-  NodeManager.instance.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor)
-  NodeManager.instance.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
-  NodeManager.instance.registerNode(SplineNode, SplineNodeEditor)
-  NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
-  NodeManager.instance.registerNode(MapNode, MapNodeEditor)
-  NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
-  NodeManager.instance.registerNode(CloudsNode, CloudsNodeEditor)
-  NodeManager.instance.registerNode(OceanNode, OceanNodeEditor)
   NodeManager.instance.registerNode(WaterNode, WaterNodeEditor)
-  NodeManager.instance.registerNode(InteriorNode, InteriorNodeEditor)
+  NodeManager.instance.registerNode(WooCommerceNode, WooCommerceNodeEditor)
 }
 
-export const EntityNodeEditor: {
-  [key in EntityNodeType]?: any
-} = {
-  [EntityNodeType.DEFAULT]: DefaultNodeEditor,
-  [EntityNodeType.SKYBOX]: SkyboxNodeEditor,
-  [EntityNodeType.GROUND_PLANE]: GroundPlaneNodeEditor,
-  [EntityNodeType.DIRECTIONAL_LIGHT]: DirectionalLightNodeEditor,
-  [EntityNodeType.SCENE_PREVIEW_CAMERA]: ScenePreviewCameraNodeEditor,
-  [EntityNodeType.SPAWN_POINT]: SpawnPointNodeEditor,
-  [EntityNodeType.HEMISPHERE_LIGHT]: HemisphereLightNodeEditor,
-  [EntityNodeType.MODEL]: ModelNodeEditor,
-  [EntityNodeType.POSTPROCESSING]: PostProcessingNodeEditor,
-  [EntityNodeType.SCENE]: SceneNodeEditor
+export const getNodeEditorsForEntity = (entity: Entity) => {
+  return Object.entries(EntityNodeEditor)
+    .map(([type, editor]) => hasComponent(entity, ComponentMap.get(type)) && editor)
+    .filter((editor) => !!editor) as typeof EntityNodeEditor[keyof typeof EntityNodeEditor][]
+}
+
+export const EntityNodeEditor = {
+  [DirectionalLightComponent._type]: DirectionalLightNodeEditor,
+  [HemisphereLightComponent._type]: HemisphereLightNodeEditor,
+  [GroundPlaneComponent._type]: GroundPlaneNodeEditor,
+  // [ComponentName.GLTF_MODEL]: ModelNodeEditor,
+  [PostprocessingComponent._type]: PostProcessingNodeEditor,
+  [SceneTagComponent._type]: SceneNodeEditor,
+  [ScenePreviewCameraTagComponent._type]: ScenePreviewCameraNodeEditor,
+  [SkyboxComponent._type]: SkyboxNodeEditor,
+  [SpawnPointComponent._type]: SpawnPointNodeEditor
 }
