@@ -23,6 +23,8 @@ export const ItemTypes = {
     'tsx',
     'ts',
     'js',
+    'drcs',
+    'uvol',
     NativeTypes.FILE,
     'folder',
     'image/png',
@@ -36,14 +38,15 @@ export const ItemTypes = {
   Models: ['glb', 'gltf'],
   Scripts: ['tsx', 'ts', 'jsx', 'js'],
   Videos: ['mp4', 'm3u8'],
+  Volumetrics: ['drcs', 'uvol'],
   //TODO: Need to check if following types are really used or not.
   Node: 'Node',
   Model: 'Model',
   Shopify: 'Shopify',
   Image: 'Image',
   Video: 'Video',
-  Audio: 'Audio',
   Volumetric: 'Volumetric',
+  Audio: 'Audio',
   Element: 'Element'
 }
 

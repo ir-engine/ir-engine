@@ -11,7 +11,19 @@ import UpdateableObject3D from '../classes/UpdateableObject3D'
 import AudioSource from '../classes/AudioSource'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { isClient } from '../../common/functions/isClient'
-import DracosisPlayer from 'volumetric/player'
+
+let DracosisPlayer = null as any
+
+if (isClient) {
+  Promise.all([
+    //@ts-ignore
+    import('volumetric/player')
+  ]).then(([module1]) => {
+    DracosisPlayer = module1.default
+  })
+}
+
+// import DracosisPlayer from 'volumetric/player'
 
 let playerRef = null as any
 

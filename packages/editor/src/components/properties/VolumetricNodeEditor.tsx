@@ -46,7 +46,7 @@ export function VolumetricNodeEditor(props) {
         onChange={onChangePaths}
         label={t('editor:properties.volumetric.uvolPaths')}
         acceptFileTypes={VolumetricFileTypes}
-        acceptDropItems={ItemTypes.Volumetric}
+        itemType={ItemTypes.Volumetrics}
       ></ArrayInputGroup>
       <InputGroup name="Play Mode" label={t('editor:properties.volumetric.playmode')}>
         <SelectInput options={node.playModeItems} value={node.playMode} onChange={onChangePlayMode} />
