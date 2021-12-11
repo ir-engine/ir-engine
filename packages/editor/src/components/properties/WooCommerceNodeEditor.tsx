@@ -1,20 +1,18 @@
-import { ShoppingBag } from '@styled-icons/fa-solid/ShoppingBag'
 import i18n from 'i18next'
 import React, { Fragment, useEffect, useState } from 'react'
-import { useTranslation, withTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import InteractableGroup from '../inputs/InteractableGroup'
 import NodeEditor from './NodeEditor'
-import dompurify from 'dompurify'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
-import { SceneManager } from '../../managers/SceneManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from '../../nodes/SceneNode'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 
 import AudioSourceProperties from './AudioSourceProperties'
 import { ControlledStringInput } from '../inputs/StringInput'
@@ -34,19 +32,7 @@ type WooCommerceNodeEditorProps = {
 }
 
 export const WooCommerceNodeEditor = (props: WooCommerceNodeEditorProps) => {
-  let [options, setOptions] = useState([])
   const { t } = useTranslation()
-
-  useEffect(() => {
-    const options = []
-    const sceneNode = Engine.scene as any as SceneNode
-    sceneNode.traverse((o) => {
-      if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
-        options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
-      }
-    })
-    setOptions(options)
-  }, [])
 
   const onChangeDomain = (domain) => {
     CommandManager.instance.setPropertyOnSelection('wooCommerceDomain', domain)
@@ -72,77 +58,6 @@ export const WooCommerceNodeEditor = (props: WooCommerceNodeEditorProps) => {
   // function to handle changes in interactable property
   const onChangeInteractable = (interactable) => {
     CommandManager.instance.setPropertyOnSelection('interactable', interactable)
-  }
-
-  // function to handle changes in interactionType property
-  const onChangeInteractionType = (interactionType) => {
-    CommandManager.instance.setPropertyOnSelection('interactionType', interactionType)
-  }
-
-  // function to handle changes in interactionText property
-  const onChangeInteractionText = (interactionText) => {
-    CommandManager.instance.setPropertyOnSelection('interactionText', interactionText)
-  }
-
-  // function to handle changes in interactionText property
-  const onChangeInteractionDistance = (interactionDistance) => {
-    CommandManager.instance.setPropertyOnSelection('interactionDistance', interactionDistance)
-  }
-
-  // function to handle changes in payloadName property
-  const onChangePayloadName = (payloadName) => {
-    CommandManager.instance.setPropertyOnSelection('payloadName', payloadName)
-  }
-
-  // function to handle changes in payloadUrl
-  const onChangePayloadUrl = (payloadUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadUrl', payloadUrl)
-  }
-
-  // function to handle changes in payloadBuyUrl
-  const onChangePayloadBuyUrl = (payloadBuyUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadBuyUrl', payloadBuyUrl)
-  }
-
-  // function to handle changes in payloadLearnMoreUrl
-  const onChangePayloadLearnMoreUrl = (payloadLearnMoreUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadLearnMoreUrl', payloadLearnMoreUrl)
-  }
-
-  // function to handle changes in payloadHtmlContent
-  const onChangePayloadHtmlContent = (payloadHtmlContent) => {
-    const sanitizedHTML = dompurify.sanitize(payloadHtmlContent)
-    if (sanitizedHTML !== payloadHtmlContent)
-      console.warn("Code has been sanitized, don't try anything sneaky please...")
-    CommandManager.instance.setPropertyOnSelection('payloadHtmlContent', sanitizedHTML)
-  }
-
-  // creating view for interactable type
-  const renderInteractableTypeOptions = (node) => {
-    switch (node.interactionType) {
-      case 'infoBox':
-        return (
-          <>
-            <InputGroup name="Name" label={t('editor:properties.woocommerce.lbl-name')}>
-              <StringInput value={node.payloadName} onChange={onChangePayloadName} />
-            </InputGroup>
-            <InputGroup name="Url" label={t('editor:properties.woocommerce.lbl-url')}>
-              <StringInput value={node.payloadUrl} onChange={onChangePayloadUrl} />
-            </InputGroup>
-            <InputGroup name="BuyUrl" label={t('editor:properties.woocommerce.lbl-buy')}>
-              <StringInput value={node.payloadBuyUrl} onChange={onChangePayloadBuyUrl} />
-            </InputGroup>
-            <InputGroup name="LearnMoreUrl" label={t('editor:properties.woocommerce.lbl-learnMore')}>
-              <StringInput value={node.payloadLearnMoreUrl} onChange={onChangePayloadLearnMoreUrl} />
-            </InputGroup>
-            <InputGroup name="HtmlContent" label={t('editor:properties.woocommerce.lbl-htmlContent')}>
-              <StringInput value={node.payloadHtmlContent} onChange={onChangePayloadHtmlContent} />
-            </InputGroup>
-          </>
-        )
-      default:
-        break
-    }
   }
 
   //Model UI Controls
@@ -367,6 +282,6 @@ export const WooCommerceNodeEditor = (props: WooCommerceNodeEditorProps) => {
 }
 
 WooCommerceNodeEditor.description = i18n.t('editor:properties.woocommerce.description')
-WooCommerceNodeEditor.iconComponent = ShoppingBag
+WooCommerceNodeEditor.iconComponent = ShoppingCartIcon
 
 export default WooCommerceNodeEditor

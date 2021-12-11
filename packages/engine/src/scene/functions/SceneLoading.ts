@@ -170,26 +170,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
       break
 
     case 'wooCommerce':
-        if (component.data && component.data.extend) {
-          if (component.data.extendType == 'video') {
-            // if livestream, server will send the video info to the client
-            if (isClient) {
-              createVideo(entity, component.data.extend)
-            } else {
-              createMediaServer(entity, component.data.extend)
-            }
-          } else if (component.data.extendType == 'image') {
-            addObject3DComponent(entity, new Image(), component.data.extend)
-          } else if (component.data.extendType == 'model') {
-            Object.keys(component.data.extend).forEach((key) => {
-              component.data[key] = component.data.extend[key]
-            })
-            console.log(component.data)
-            registerSceneLoadPromise(loadGLTFModel(entity, component))
-          }
-        }
-        break
-
     case 'shopify':
       if (component.data && component.data.extend) {
         if (component.data.extendType == 'video') {
