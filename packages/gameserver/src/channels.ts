@@ -133,16 +133,11 @@ export default async (app: Application): void => {
 
   let shutdownTimeout
 
-  const gameServerSetting = await app.service('game-server-setting').find()
-  const [dbGameServerConfigData] = gameServerSetting.data
-
-  const gameServerConfig = dbGameServerConfigData || config.gameserver
-
   app.on('connection', async (connection) => {
     if (
-      (config.kubernetes.enabled && gameServerConfig.mode === 'realtime') ||
+      (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
       process.env.APP_ENV === 'development' ||
-      gameServerConfig.mode === 'local'
+      config.gameserver.mode === 'local'
     ) {
       try {
         clearTimeout(shutdownTimeout)
@@ -204,7 +199,7 @@ export default async (app: Application): void => {
               const localIp = await getLocalServerIp(app.isChannelInstance)
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
               const ipAddress =
-                gameServerConfig.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
+                config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
               const existingInstanceQuery = {
                 ipAddress: ipAddress,
                 ended: false
@@ -370,9 +365,9 @@ export default async (app: Application): void => {
 
   app.on('disconnect', async (connection) => {
     if (
-      (config.kubernetes.enabled && gameServerConfig.mode === 'realtime') ||
+      (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
       process.env.APP_ENV === 'development' ||
-      gameServerConfig.mode === 'local'
+      config.gameserver.mode === 'local'
     ) {
       try {
         const token = (connection as any).socketQuery?.token
@@ -498,7 +493,7 @@ export default async (app: Application): void => {
                     logger.info(gsName)
                   }
                   await app.agonesSDK.shutdown()
-                }, gameServerConfig.shutdownDelayMs)
+                }, config.gameserver.shutdownDelayMs)
               }
             }
           }

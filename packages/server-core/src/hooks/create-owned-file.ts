@@ -8,18 +8,12 @@ export default () => {
     const { data, params } = context
     const body = params.body || {}
 
-    const [dbServerConfig] = await context.app.service('server-setting').find()
-    const serverConfig = dbServerConfig || config.server
-
-    const [dbAwsConfig] = await context.app.service('aws-setting').find()
-    const awsConfig = dbAwsConfig || config.aws
-
     const domain: string =
-      serverConfig.storageProvider === 'aws' &&
-      awsConfig.cloudfront.domain != '' &&
-      awsConfig.cloudfront.domain != undefined
-        ? awsConfig.cloudfront.domain
-        : serverConfig.localStorageProvider
+      config.server.storageProvider === 'aws' &&
+      config.aws.cloudfront.domain != '' &&
+      config.aws.cloudfront.domain != undefined
+        ? config.aws.cloudfront.domain
+        : config.server.localStorageProvider
 
     let savedFile
     if (body.projectId && context.params.previousFileId) {

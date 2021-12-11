@@ -80,11 +80,10 @@ export class UploadPresigned implements ServiceMethods<Data> {
   }
 
   getKeyForFilename = async (userId: string, fileName: string, isPublicAvatar?: boolean): Promise<string> => {
-    const [dbAwsConfig] = await this.app.service('aws-setting').find()
-    const awsConfig = dbAwsConfig || config.aws
-
     return isPublicAvatar === true
-      ? `${awsConfig.s3.avatarDir}/${fileName}`
-      : `${awsConfig.s3.avatarDir}${awsConfig.s3.s3DevMode ? '/' + awsConfig.s3.s3DevMode : ''}/${userId}/${fileName}`
+      ? `${config.aws.s3.avatarDir}/${fileName}`
+      : `${config.aws.s3.avatarDir}${
+          config.aws.s3.s3DevMode ? '/' + config.aws.s3.s3DevMode : ''
+        }/${userId}/${fileName}`
   }
 }

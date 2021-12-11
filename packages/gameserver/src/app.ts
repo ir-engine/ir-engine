@@ -25,22 +25,7 @@ import { register } from 'trace-unhandled'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import dotenv from 'dotenv'
-import { DataTypes, Sequelize } from 'sequelize'
 register()
-
-dotenv.config()
-const db = {
-  username: process.env.MYSQL_USER ?? 'server',
-  password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'xrengine',
-  host: process.env.MYSQL_HOST ?? '127.0.0.1',
-  port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql',
-  url: ''
-}
-
-db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
 export const createApp = async (): Promise<Application> => {
   const emitter = new EventEmitter()
@@ -53,166 +38,7 @@ export const createApp = async (): Promise<Application> => {
 
   app.set('nextReadyEmitter', emitter)
 
-  const sequelizeClient = new Sequelize({
-    ...db,
-    define: {
-      freezeTableName: true
-    }
-  })
-  await sequelizeClient.sync()
-
-  const gameServerSetting = sequelizeClient.define('gameServerSetting', {
-    clientHost: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    mode: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-
-  const redisSetting = sequelizeClient.define('redisSetting', {
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    address: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-
-  const serverSetting = sequelizeClient.define('serverSetting', {
-    publicDir: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    paginate: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      defaultValue: 10,
-      validate: {
-        max: 100
-      }
-    }
-  })
-
-  const authenticationSetting = sequelizeClient.define('authentication', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
-      primaryKey: true
-    },
-    service: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    entity: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    secret: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    authStrategies: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    local: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    jwtOptions: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    bearerToken: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    callback: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    oauth: {
-      type: DataTypes.JSON,
-      allowNull: true
-    }
-  })
-
-  const [dbRedisSetting] = await redisSetting.findAll()
-  const [dbServerSetting] = await serverSetting.findAll()
-  const [dbGameServerSetting] = await gameServerSetting.findAll()
-  let [dbAuthenticationSetting] = await authenticationSetting.findAll()
-
-  const dbRedis = dbRedisSetting && {
-    port: dbRedisSetting.port,
-    address: dbRedisSetting.address,
-    enabled: dbRedisSetting.enabled,
-    password: dbRedisSetting.password
-  }
-
-  const dbServer = dbServerSetting && {
-    paginate: { default: 10, max: dbServerSetting.paginate },
-    publicDir: dbServerSetting.publicDir
-  }
-
-  const dbGameServer = dbGameServerSetting && {
-    mode: dbGameServerSetting.mode,
-    enabled: dbGameServerSetting.enabled,
-    clientHost: dbGameServerSetting.clientHost
-  }
-
-  const dbAuthentication = dbAuthenticationSetting && {
-    id: dbAuthenticationSetting.id,
-    service: dbAuthenticationSetting.service,
-    entity: dbAuthenticationSetting.entity,
-    secret: dbAuthenticationSetting.secret,
-    authStrategies: JSON.parse(JSON.parse(dbAuthenticationSetting.authStrategies)),
-    local: JSON.parse(JSON.parse(dbAuthenticationSetting.local)),
-    jwtOptions: JSON.parse(JSON.parse(dbAuthenticationSetting.jwtOptions)),
-    bearerToken: JSON.parse(JSON.parse(dbAuthenticationSetting.bearerToken)),
-    callback: JSON.parse(JSON.parse(dbAuthenticationSetting.callback)),
-    oauth: {
-      ...JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)),
-      defaults: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).defaults),
-      facebook: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).facebook),
-      github: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).github),
-      google: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).google),
-      linkedin: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).linkedin),
-      twitter: JSON.parse(JSON.parse(JSON.parse(dbAuthenticationSetting.oauth)).twitter)
-    }
-  }
-
-  // convert array of objects to array of string
-  if (dbAuthentication) {
-    let authObj = dbAuthentication.authStrategies.reduce((obj, item) => Object.assign(obj, { ...item }), {})
-    dbAuthentication.authStrategies = Object.keys(authObj)
-      .map((key) => (authObj[key] && key !== 'emailMagicLink' && key !== 'smsMagicLink' ? key : null))
-      .filter(Boolean)
-  }
-
-  const redisConfig = dbRedis || config.redis
-  const serverConfig = dbServer || config.server
-  const gameServerConfig = dbGameServer || config.gameserver
-  const authenticationConfig = dbAuthentication || config.authentication
-
-  if (gameServerConfig.enabled) {
+  if (config.gameserver.enabled) {
     try {
       app.configure(
         swagger({
@@ -239,8 +65,8 @@ export const createApp = async (): Promise<Application> => {
         })
       )
 
-      app.set('paginate', serverConfig.paginate)
-      app.set('authentication', authenticationConfig)
+      app.set('paginate', config.server.paginate)
+      app.set('authentication', config.authentication)
 
       app.configure(sequelize)
 
@@ -255,7 +81,7 @@ export const createApp = async (): Promise<Application> => {
       app.use(compress())
       app.use(json())
       app.use(urlencoded({ extended: true }))
-      app.use(favicon(path.join(serverConfig.publicDir, 'favicon.ico')))
+      app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
 
       // Set up Plugins and providers
       app.configure(rest())
@@ -266,9 +92,9 @@ export const createApp = async (): Promise<Application> => {
             pingTimeout: process.env.APP_ENV === 'development' ? 1200000 : 20000,
             cors: {
               origin: [
-                'https://' + gameServerConfig.clientHost,
-                'capacitor://' + gameServerConfig.clientHost,
-                'ionic://' + gameServerConfig.clientHost
+                'https://' + config.gameserver.clientHost,
+                'capacitor://' + config.gameserver.clientHost,
+                'ionic://' + config.gameserver.clientHost
               ],
               methods: ['OPTIONS', 'GET', 'POST'],
               allowedHeaders: '*',
@@ -289,13 +115,13 @@ export const createApp = async (): Promise<Application> => {
         )
       )
 
-      if (redisConfig.enabled) {
+      if (config.redis.enabled) {
         app.configure(
           sync({
             uri:
-              redisConfig.password != null && redisConfig.password !== ''
-                ? `redis://${redisConfig.address}:${redisConfig.port}?password=${redisConfig.password}`
-                : `redis://${redisConfig.address}:${redisConfig.port}`
+              config.redis.password != null && config.redis.password !== ''
+                ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}`
+                : `redis://${config.redis.address}:${config.redis.port}`
           })
         )
         app.sync.ready.then(() => {
@@ -310,7 +136,7 @@ export const createApp = async (): Promise<Application> => {
       app.configure(feathersLogger(winston))
       app.configure(services)
 
-      if (gameServerConfig.mode === 'realtime') {
+      if (config.gameserver.mode === 'realtime') {
         app.k8AgonesClient = api({
           endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
           version: '/apis/agones.dev/v1',
@@ -337,7 +163,7 @@ export const createApp = async (): Promise<Application> => {
         })
       }
 
-      if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || gameServerConfig.mode === 'local') {
+      if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {
         agonesSDK.connect()
         agonesSDK.ready().catch((err) => {
           throw new Error(

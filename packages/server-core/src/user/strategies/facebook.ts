@@ -43,10 +43,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
   }
 
   async getRedirect(data: any, params: Params): Promise<string> {
-    const [dbAuthConfig] = await this.app.service('authentication-setting').find()
-    const authConfig = dbAuthConfig || config.authentication
-
-    const redirectHost = authConfig.callback.facebook
+    const redirectHost = config.authentication.callback.facebook
 
     const type = params?.query?.userId ? 'connection' : 'login'
     if (Object.getPrototypeOf(data) === Error.prototype) {

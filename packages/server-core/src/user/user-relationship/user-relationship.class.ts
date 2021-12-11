@@ -67,10 +67,7 @@ export class UserRelationship extends Service {
   }
 
   async create(data: any, params: Params): Promise<any> {
-    const [dbAuthConfig] = await this.app.service('authentication-setting').find()
-    const authConfig = dbAuthConfig || config.authentication
-
-    const loggedInUserEntity: string = authConfig.entity
+    const loggedInUserEntity: string = config.authentication.entity
 
     const userId = data.userId || params[loggedInUserEntity].userId
     const { relatedUserId, userRelationshipType } = data
@@ -127,10 +124,7 @@ export class UserRelationship extends Service {
   }
 
   async remove(id: NullableId, params: Params): Promise<any> {
-    const [dbAuthConfig] = await this.app.service('authentication-setting').find()
-    const authConfig = dbAuthConfig || config.authentication
-
-    const loggedInUserEntity: string = authConfig.entity
+    const loggedInUserEntity: string = config.authentication.entity
 
     const authUser = params[loggedInUserEntity]
     const userId = authUser.userId

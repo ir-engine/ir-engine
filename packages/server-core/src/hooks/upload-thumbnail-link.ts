@@ -23,9 +23,6 @@ export default (): Hook => {
         size: fileBuffer.byteLength
       }
 
-      const [dbAwsConfig] = await context.app.service('aws-setting').find()
-      const awsConfig = dbAwsConfig || config.aws
-
       params.mimeType = params.file.mimetype = 'image/' + extension
       context.data.name = params.file.originalname
       context.data.metadata = context.data.metadata ? context.data.metadata : {}
@@ -35,8 +32,8 @@ export default (): Hook => {
       const parent = await app.services['static-resource'].get(id)
       const parsedMetadata = JSON.parse(parent.metadata)
       parsedMetadata.thumbnailUrl = uploadResult.url.replace(
-        's3.amazonaws.com/' + awsConfig.s3.staticResourceBucket,
-        awsConfig.cloudfront.domain
+        's3.amazonaws.com/' + config.aws.s3.staticResourceBucket,
+        config.aws.cloudfront.domain
       )
       await app.services['static-resource'].patch(id, {
         metadata: parsedMetadata
