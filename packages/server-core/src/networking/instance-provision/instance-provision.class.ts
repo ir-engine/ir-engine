@@ -48,7 +48,6 @@ export async function getFreeGameserver(
   }
   console.log('Getting free gameserver')
   const serverResult = await (app as any).k8AgonesClient.get('gameservers')
-
   const readyServers = _.filter(serverResult.items, (server: any) => {
     const releaseMatch = releaseRegex.exec(server.metadata.name)
     return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
