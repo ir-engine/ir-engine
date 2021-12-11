@@ -22,7 +22,7 @@ describe('storageprovider', () => {
   storageProviders.push(new LocalStorage())
   if(process.env.STORAGE_S3_TEST_RESOURCE_BUCKET && process.env.STORAGE_AWS_ACCESS_KEY_ID && process.env.STORAGE_AWS_ACCESS_KEY_SECRET)
     storageProviders.push(new S3Provider())
-  console.log(process.env.STORAGE_S3_TEST_RESOURCE_BUCKET, process.env.STORAGE_AWS_ACCESS_KEY_ID, process.env.STORAGE_AWS_ACCESS_KEY_SECRET)
+
   storageProviders.forEach((provider) => {
     before(async function () {
       await providerBeforeTest(provider, testFolderName, folderKeyTemp, folderKeyTemp2)
