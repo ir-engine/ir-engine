@@ -87,7 +87,7 @@ export const TheFeedsFiresAction = {
       thefeedsFire
     }
   },
-  removeThefeedsFires: (thefeedsFireId: String) => {
+  removeThefeedsFires: (thefeedsFireId: string) => {
     return {
       type: 'REMOVE_THEFEEDS_FIRES' as const,
       thefeedsFireId
