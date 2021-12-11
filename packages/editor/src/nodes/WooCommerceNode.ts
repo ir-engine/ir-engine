@@ -73,9 +73,6 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
             })
           }
 
-          node.extendNode.collidable = extend.collidable
-          node.extendNode.walkable = extend.walkable
-
           //Todo need to check again with animated model
           const loopAnimationComponent = extend['loop-animation']
           if (loopAnimationComponent && loopAnimationComponent.props) {
@@ -435,14 +432,6 @@ export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
           activeClipIndex: this.extendNode.activeClipIndex,
           hasAvatarAnimations: this.extendNode.hasAvatarAnimations
         }
-      }
-
-      if (this.collidable) {
-        extend['collidable'] = {}
-      }
-
-      if (this.walkable) {
-        extend['walkable'] = {}
       }
     } else if (this.extendType == 'video') {
       extend = {

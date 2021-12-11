@@ -25,6 +25,7 @@ import { WorldStateInterface } from '../../networking/schema/networkSchema'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import EntityTree from './EntityTree'
 import { PortalComponent } from '../../scene/components/PortalComponent'
+import { SceneLoaderType } from '../../common/constants/ComponentNames'
 
 type SystemInstanceType = {
   name: string
@@ -133,6 +134,9 @@ export class World {
 
   /** Tree of entity holding parent child relation between entities. */
   entityTree: EntityTree
+
+  /** Registry map of scene loader components  */
+  sceneLoadingRegistry = new Map<string, SceneLoaderType>()
 
   /**
    * Get the network objects owned by a given user

@@ -1,5 +1,4 @@
 import { EntityJson, SceneJson, ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { ComponentName } from '../../common/constants/ComponentNames'
 import { getAllComponents, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -22,7 +21,6 @@ import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagCompo
 import { SkyboxComponent } from '../components/SkyboxComponent'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { WalkableTagComponent } from '../components/Walkable'
 import { serializeAudioSetting } from './AudioSettingFunctions'
 import { serializeDirectionalLight } from './DirectionalLightFunctions'
 import { serializeEnvMap } from './EnvMapFunctions'
@@ -41,7 +39,6 @@ import { serializeSkybox } from './SkyboxFunctions'
 import { serializeSpawnPoint } from './SpawnPointFunctions'
 import { serializeTransform } from './TransformFunctions'
 import { serializeVisible } from './VisibleFunctions'
-import { serializeWalkable } from './WalkableFunctions'
 
 export const serializeWorld = (world = useWorld()) => {
   const entityUuid = {}
@@ -107,9 +104,6 @@ export const serializeWorld = (world = useWorld()) => {
           break
         case GroundPlaneComponent:
           data = serializeGroundPlane(node.entity)
-          break
-        case WalkableTagComponent:
-          data = serializeWalkable(node.entity)
           break
         case SpawnPointComponent:
           data = serializeSpawnPoint(node.entity)

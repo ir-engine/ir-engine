@@ -1,13 +1,6 @@
 import { Color, Group } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction,
-  getComponent,
-  removeComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createCollider } from '../../physics/functions/createCollider'
 import { GroundPlaneComponent, GroundPlaneComponentType } from '../components/GroundPlaneComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -17,7 +10,13 @@ import { isClient } from '../../common/functions/isClient'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import {
+  ComponentDeserializeFunction,
+  ComponentSerializeFunction,
+  ComponentUpdateFunction
+} from '../../common/constants/ComponentNames'
+
+export const SCENE_COMPONENT_GROUND_PLANE = 'ground-plane'
 
 export const deserializeGround: ComponentDeserializeFunction = async function (
   entity: Entity,
@@ -62,7 +61,7 @@ export const serializeGroundPlane: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: ComponentName.GROUND_PLANE,
+    name: SCENE_COMPONENT_GROUND_PLANE,
     props: {
       color: component.color?.getHex(),
       generateNavmesh: component.generateNavmesh

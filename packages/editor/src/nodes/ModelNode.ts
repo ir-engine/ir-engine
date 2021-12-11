@@ -50,8 +50,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           })
         }
 
-        node.collidable = !!json.components.find((c) => c.name === 'collidable')
-        node.walkable = !!json.components.find((c) => c.name === 'walkable')
         const loopAnimationComponent = json.components.find((c) => c.name === 'loop-animation')
         if (loopAnimationComponent && loopAnimationComponent.props) {
           const { clip, activeClipIndex, hasAvatarAnimations } = loopAnimationComponent.props
@@ -98,8 +96,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   _canonicalUrl = ''
   envMapOverride = ''
   textureOverride = ''
-  collidable = true
-  walkable = true
   initialScale: string | number = 1
   boundingBox = new Box3()
   boundingSphere = new Sphere()
@@ -299,12 +295,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         hasAvatarAnimations: this.hasAvatarAnimations
       }
     }
-    if (this.collidable) {
-      components['collidable'] = {}
-    }
-    if (this.walkable) {
-      components['walkable'] = {}
-    }
     return await super.serialize(projectID, components)
   }
   copy(source, recursive = true) {
@@ -318,9 +308,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this._canonicalUrl = source._canonicalUrl
       this.envMapOverride = source.envMapOverride
     }
-    this.collidable = source.collidable
     this.textureOverride = source.textureOverride
-    this.walkable = source.walkable
     return this
   }
 

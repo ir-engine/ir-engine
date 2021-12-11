@@ -3,20 +3,21 @@ import { Vector3, DirectionalLight, PerspectiveCamera, PCFSoftShadowMap, LinearT
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { CSM } from '../../assets/csm/CSM'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import {
+  ComponentDeserializeFunction,
+  ComponentSerializeFunction,
+  ComponentUpdateFunction
+} from '../../common/constants/ComponentNames'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction,
-  getComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { RenderSettingComponent, RenderSettingComponentType } from '../components/RenderSettingComponent'
 
+export const SCENE_COMPONENT_RENDERER_SETTINGS = 'renderer-settings'
+
 export const deserializeRenderSetting: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+  if (!isClient) return
   addComponent(entity, RenderSettingComponent, {
     ...json.props,
     LODs: new Vector3(json.props.LODs.x, json.props.LODs.y, json.props.LODs.z),
@@ -27,6 +28,7 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (entity: E
 }
 
 export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => {
+  if (!isClient) return
   const component = getComponent(entity, RenderSettingComponent)
 
   if (component.LODs)
@@ -101,7 +103,7 @@ export const serializeRenderSettings: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: ComponentName.RENDERER_SETTINGS,
+    name: SCENE_COMPONENT_RENDERER_SETTINGS,
     props: {
       LODs: component.LODs,
       overrideRendererSettings: component.overrideRendererSettings,

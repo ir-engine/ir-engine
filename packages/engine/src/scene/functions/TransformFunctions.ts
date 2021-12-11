@@ -1,14 +1,11 @@
 import { Vector3, Quaternion, Euler } from 'three'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  getComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../common/constants/ComponentNames'
 import { TransformComponent, TransformComponentType } from '../../transform/components/TransformComponent'
+
+export const SCENE_COMPONENT_TRANSFORM = 'transform'
 
 let euler = new Euler()
 let v3 = new Vector3()
@@ -27,7 +24,7 @@ export const serializeTransform: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: ComponentName.TRANSFORM,
+    name: SCENE_COMPONENT_TRANSFORM,
     props: {
       position: component.position,
       rotation: euler.setFromQuaternion(component.rotation).toVector3(),

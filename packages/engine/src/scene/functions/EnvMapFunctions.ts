@@ -2,13 +2,7 @@ import { Color, DataTexture, Mesh, MeshStandardMaterial, RGBFormat, sRGBEncoding
 import { isClient } from '../../common/functions/isClient'
 import { EnvmapComponent, EnvmapComponentType } from '../components/EnvmapComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction,
-  getComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { convertEquiToCubemap } from '../classes/ImageUtils'
 import { SceneOptions } from '../systems/SceneObjectSystem'
@@ -27,7 +21,13 @@ import {
   textureLoader
 } from '../constants/Util'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import {
+  ComponentDeserializeFunction,
+  ComponentSerializeFunction,
+  ComponentUpdateFunction
+} from '../../common/constants/ComponentNames'
+
+export const SCENE_COMPONENT_ENVMAP = 'envmap'
 
 const tempVector = new Vector3()
 const tempColor = new Color()
@@ -164,7 +164,7 @@ export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: ComponentName.ENVMAP,
+    name: SCENE_COMPONENT_ENVMAP,
     props: {
       type: component.type,
       envMapTextureType: component.envMapTextureType,

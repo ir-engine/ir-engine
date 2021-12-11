@@ -1,14 +1,14 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Entity } from '../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { MetaDataComponent, MetaDataComponentType } from '../components/MetaDataComponent'
 import {
-  addComponent,
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
-  ComponentUpdateFunction,
-  getComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { MetaDataComponent, MetaDataComponentType } from '../components/MetaDataComponent'
-import { ComponentName } from '../../common/constants/ComponentNames'
+  ComponentUpdateFunction
+} from '../../common/constants/ComponentNames'
+
+export const SCENE_COMPONENT_METADATA = 'mtdata'
 
 export const deserializeMetaData: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   //if (isClient && Engine.isBot) {
@@ -26,7 +26,7 @@ export const serializeMetaData: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: ComponentName.MT_DATA,
+    name: SCENE_COMPONENT_METADATA,
     props: {
       meta_data: component.meta_data
     }

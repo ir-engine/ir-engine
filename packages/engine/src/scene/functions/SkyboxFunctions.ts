@@ -1,18 +1,14 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, sRGBEncoding } from 'three'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import {
+  ComponentDeserializeFunction,
+  ComponentSerializeFunction,
+  ComponentUpdateFunction
+} from '../../common/constants/ComponentNames'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { Sky } from '../classes/Sky'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -31,7 +27,7 @@ import {
 } from '../constants/Util'
 import { setSkyDirection } from './setSkyDirection'
 
-let sky: Sky
+export const SCENE_COMPONENT_SKYBOX = 'skybox'
 
 export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   if (isClient) {
@@ -73,7 +69,7 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
       break
 
     case SkyTypeEnum.skybox:
-      sky = hasSkyObject
+      const sky = hasSkyObject
         ? (getComponent(entity, Object3DComponent).value as Sky)
         : (addComponent(entity, Object3DComponent, { value: new Sky() }).value as Sky)
 
@@ -104,7 +100,7 @@ export const serializeSkybox: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: ComponentName.SKYBOX,
+    name: SCENE_COMPONENT_SKYBOX,
     props: {
       backgroundColor: component.backgroundColor?.getHex(),
       equirectangularPath: component.equirectangularPath,

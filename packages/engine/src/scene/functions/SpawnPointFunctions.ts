@@ -1,16 +1,13 @@
 import { Object3D, BoxHelper, Mesh, BoxBufferGeometry } from 'three'
 import { LoadGLTF } from '../../assets/functions/LoadGLTF'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../common/constants/ComponentNames'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  hasComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
+
+export const SCENE_COMPONENT_SPAWN_POINT = 'spawn-point'
 
 // TODO: add circle option
 let spawnPointHelperModel: Object3D = null!
@@ -39,7 +36,7 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
 export const serializeSpawnPoint: ComponentSerializeFunction = (entity) => {
   if (hasComponent(entity, SpawnPointComponent)) {
     return {
-      name: ComponentName.SPAWN_POINT,
+      name: SCENE_COMPONENT_SPAWN_POINT,
       props: {}
     }
   }

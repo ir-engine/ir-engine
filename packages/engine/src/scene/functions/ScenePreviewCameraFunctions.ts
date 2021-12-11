@@ -1,21 +1,20 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { CameraHelper, PerspectiveCamera, Matrix4 } from 'three'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import {
+  ComponentDeserializeFunction,
+  ComponentSerializeFunction,
+  ComponentUpdateFunction
+} from '../../common/constants/ComponentNames'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction,
-  getComponent,
-  hasComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
+
+export const SCENE_COMPONENT_SCENE_PREVIEW_CAMERA = 'scene-preview-camera'
 
 export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson) => {
   if (!isClient) return
@@ -46,7 +45,7 @@ export const updateScenePreviewCamera: ComponentUpdateFunction = (entity: Entity
 export const serializeScenePreviewCamera: ComponentSerializeFunction = (entity) => {
   if (hasComponent(entity, ScenePreviewCameraTagComponent)) {
     return {
-      name: ComponentName.SCENE_PREVIEW_CAMERA,
+      name: SCENE_COMPONENT_SCENE_PREVIEW_CAMERA,
       props: {}
     }
   }

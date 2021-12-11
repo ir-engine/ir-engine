@@ -1,16 +1,13 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../common/constants/ComponentNames'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  getComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import {
   PositionalAudioSettingsComponent,
   PositionalAudioSettingsComponentType
 } from '../components/AudioSettingsComponent'
+
+export const SCENE_COMPONENT_AUDIO_SETTINGS = 'audio-settings'
 
 export const deserializeAudioSetting: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   addComponent(entity, PositionalAudioSettingsComponent, json.props)
@@ -21,7 +18,7 @@ export const serializeAudioSetting: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: ComponentName.AUDIO_SETTINGS,
+    name: SCENE_COMPONENT_AUDIO_SETTINGS,
     props: {
       usePositionalAudio: component.usePositionalAudio,
       avatarDistanceModel: component.avatarDistanceModel,

@@ -157,7 +157,6 @@
         },
         "boxCollider": {
             "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
-            "lbl-walkable": "Walkable",
             "lbl-isTrigger": "Trigger"
         },
         "directionalLight": {
@@ -180,8 +179,7 @@
             "description": "A flat ground plane that extends into the distance.",
             "lbl-color": "Color",
             "lbl-receiveShadow": "Receive Shadow",
-            "lbl-generateNavmesh": "Generate Navmesh",
-            "lbl-walkable": "Walkable"
+            "lbl-generateNavmesh": "Generate Navmesh"
         },
         "link": {
             "description": "Link to a room or a website.",
@@ -198,8 +196,6 @@
             "error-url": "Error Loading From URL",
             "lbl-loopAnimation": "Loop Animation",
             "lbl-isAvatar": "Is Avatar",
-            "lbl-collidable": "Collidable",
-            "lbl-walkable": "Walkable",
             "lbl-castShadow": "Cast Shadow",
             "lbl-receiveShadow": "Receive Shadow",
             "lbl-interactable": "Interactable",
@@ -234,8 +230,6 @@
             "error-url": "Error Loading From URL",
             "lbl-loopAnimation": "Loop Animation",
             "lbl-isAvatar": "Is Avatar",
-            "lbl-collidable": "Collidable",
-            "lbl-walkable": "Walkable",
             "lbl-castShadow": "Cast Shadow",
             "lbl-receiveShadow": "Receive Shadow",
             "lbl-interactable": "Interactable",
@@ -259,8 +253,6 @@
             "error-url": "Error Loading From URL",
             "lbl-loopAnimation": "Loop Animation",
             "lbl-isAvatar": "Is Avatar",
-            "lbl-collidable": "Collidable",
-            "lbl-walkable": "Walkable",
             "lbl-castShadow": "Cast Shadow",
             "lbl-receiveShadow": "Receive Shadow",
             "lbl-interactable": "Interactable",

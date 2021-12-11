@@ -67,9 +67,6 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
             })
           }
 
-          node.extendNode.collidable = extend.collidable
-          node.extendNode.walkable = extend.walkable
-
           //Todo need to check again with animated model
           const loopAnimationComponent = extend['loop-animation']
           if (loopAnimationComponent && loopAnimationComponent.props) {
@@ -457,20 +454,11 @@ export default class ShopifyNode extends EditorNodeMixin(Shopify) {
         castShadow: this.extendNode.castShadow,
         receiveShadow: this.extendNode.receiveShadow
       }
-
       if (this.activeClipIndex !== -1) {
         extend['loop-animation'] = {
           activeClipIndex: this.extendNode.activeClipIndex,
           hasAvatarAnimations: this.extendNode.hasAvatarAnimations
         }
-      }
-
-      if (this.collidable) {
-        extend['collidable'] = {}
-      }
-
-      if (this.walkable) {
-        extend['walkable'] = {}
       }
     } else if (this.extendType == 'video') {
       extend = {

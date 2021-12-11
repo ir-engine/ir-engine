@@ -12,7 +12,6 @@ import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/C
 import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
 import { updateGroundPlane } from '@xrengine/engine/src/scene/functions/GroundPlaneFunctions'
 import EditorCommands from '../../constants/EditorCommands'
-import { WalkableTagComponent } from '@xrengine/engine/src/scene/components/Walkable'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 
 /**
@@ -62,16 +61,6 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
     })
   }
 
-  // function handles the changes in walkable property
-  const onChangeWalkable = (walkable) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
-      operation: {
-        component: WalkableTagComponent,
-        type: walkable ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-      }
-    })
-  }
-
   const groundPlaneComponent = getComponent(props.node.entity, GroundPlaneComponent)
   const shadowComponent = getComponent(props.node.entity, ShadowComponent)
 
@@ -85,9 +74,6 @@ export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
       </InputGroup>
       <InputGroup name="Generate Navmesh" label={t('editor:properties.groundPlane.lbl-generateNavmesh')}>
         <BooleanInput value={groundPlaneComponent.generateNavmesh} onChange={onChangeGenerateNavmesh} />
-      </InputGroup>
-      <InputGroup name="Walkable" label={t('editor:properties.groundPlane.lbl-walkable')}>
-        <BooleanInput value={hasComponent(props.node.entity, WalkableTagComponent)} onChange={onChangeWalkable} />
       </InputGroup>
     </NodeEditor>
   )

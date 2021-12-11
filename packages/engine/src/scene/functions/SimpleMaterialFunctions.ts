@@ -1,17 +1,14 @@
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial } from 'three'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  hasComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../common/constants/ComponentNames'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { beforeMaterialCompile } from '../classes/BPCEMShader'
 import { SceneOptions } from '../systems/SceneObjectSystem'
+
+export const SCENE_COMPONENT_SIMPLE_MATERIALS = 'simple-materials'
 
 export const deserializeSimpleMaterial: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   if (json.props.simpleMaterials) addComponent(entity, SimpleMaterialTagComponent, {})
@@ -20,7 +17,7 @@ export const deserializeSimpleMaterial: ComponentDeserializeFunction = (entity: 
 export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {
   if (hasComponent(entity, SimpleMaterialTagComponent)) {
     return {
-      name: ComponentName.SIMPLE_MATERIALS,
+      name: SCENE_COMPONENT_SIMPLE_MATERIALS,
       props: {
         simpleMaterials: {}
       }

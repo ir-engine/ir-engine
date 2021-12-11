@@ -1,18 +1,18 @@
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction,
-  getComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { PostprocessingComponent, PostprocessingComponentType } from '../components/PostprocessingComponent'
 import { Object3D } from 'three'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { ComponentName } from '../../common/constants/ComponentNames'
+import {
+  ComponentDeserializeFunction,
+  ComponentSerializeFunction,
+  ComponentUpdateFunction
+} from '../../common/constants/ComponentNames'
+
+export const SCENE_COMPONENT_POSTPROCESSING = 'postprocessing'
 
 export const deserializePostprocessing: ComponentDeserializeFunction = async function (
   entity: Entity,
@@ -34,7 +34,7 @@ export const serializePostprocessing: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: ComponentName.POSTPROCESSING,
+    name: SCENE_COMPONENT_POSTPROCESSING,
     props: {
       options: component.options
     }

@@ -1,16 +1,16 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Mesh } from 'three'
-import { ComponentName } from '../../common/constants/ComponentNames'
-import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
-  ComponentUpdateFunction,
-  getComponent
-} from '../../ecs/functions/ComponentFunctions'
+  ComponentUpdateFunction
+} from '../../common/constants/ComponentNames'
+import { Entity } from '../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ShadowComponent, ShadowComponentType } from '../components/ShadowComponent'
+
+export const SCENE_COMPONENT_SHADOW = 'shadow'
 
 export const deserializeShadow: ComponentDeserializeFunction = (entity: Entity, component: ComponentJson) => {
   addComponent(entity, ShadowComponent, {
@@ -24,6 +24,7 @@ export const deserializeShadow: ComponentDeserializeFunction = (entity: Entity, 
 export const updateShadow: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, ShadowComponent)
   const obj3d = getComponent(entity, Object3DComponent)?.value
+  if (!obj3d) return
 
   obj3d.traverse((mesh: Mesh) => {
     mesh.castShadow = component.castShadow
@@ -44,7 +45,7 @@ export const serializeShadow: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: ComponentName.SHADOW,
+    name: SCENE_COMPONENT_SHADOW,
     props: {
       cast: component.castShadow,
       receive: component.receiveShadow

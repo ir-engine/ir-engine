@@ -22,48 +22,24 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
-import { deserializeDirectionalLight } from './DirectionalLightFunctions'
-import { deserializeGround } from './GroundPlaneFunctions'
 import { createMap } from '../functions/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../functions/createMedia'
 import { createPortal } from '../functions/createPortal'
-import { deserializeSkybox } from './SkyboxFunctions'
 import { createTriggerVolume } from '../functions/createTriggerVolume'
 import { loadGLTFModel } from '../functions/loadGLTFModel'
 import { loadModelAnimation } from '../functions/loadModelAnimation'
 import { setCameraProperties } from '../functions/setCameraProperties'
-import { deserializeEnvMap } from './EnvMapFunctions'
-import { deserializeFog } from './FogFunctions'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import EntityTree from '../../ecs/classes/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { deserializeScenePreviewCamera } from './ScenePreviewCameraFunctions'
-import { deserializeSpawnPoint } from './SpawnPointFunctions'
-import { deserializePostprocessing } from './PostprocessingFunctions'
-import { deserializeHemisphereLight } from './HemisphereLightFunctions'
-import { EntityNodeType } from '../constants/EntityNodeType'
-import { deserializeShadow } from './ShadowFunctions'
-import { deserializeMetaData } from './MetaDataFunctions'
-import { deserializeRenderSetting, updateRenderSetting } from './RenderSettingsFunction'
-import { resetEngineRenderer } from './RenderSettingsFunction'
-import { ComponentName, ComponentNameType } from '../../common/constants/ComponentNames'
-import { deserializeAudioSetting } from './AudioSettingFunctions'
-import { deserializeSimpleMaterial } from './SimpleMaterialFunctions'
-import { deserializeTransform } from './TransformFunctions'
-import { deserializeVisible } from './VisibleFunctions'
-import { deserializePersist } from './PersistFunctions'
-import { deserializeIncludeInCubeMapBake } from './IncludeInCubemapBakeFunctions'
-import { deserializeWalkable } from './WalkableFunctions'
+import { updateRenderSetting, resetEngineRenderer } from './RenderSettingsFunction'
+import { registerDefaultSceneFunctions } from './registerSceneFunctions'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
-}
-
-export interface EntityData extends EntityJson {
-  entityType: ComponentNameType
 }
 
 export interface SceneData extends SceneJson {
@@ -80,19 +56,22 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
 
+  const world = useWorld()
+  world.sceneLoadingRegistry.clear()
+  registerDefaultSceneFunctions(world)
+
   const entityMap = {}
 
   Object.keys(sceneData.entities).forEach((key) => {
-    const sceneEntity = sceneData.entities[key] as EntityData
+    const sceneEntity = sceneData.entities[key] as EntityJson
     const entity = createEntity()
     entityMap[key] = entity
     addComponent(entity, NameComponent, { name: sceneEntity.name })
     loadComponents(entity, key, sceneEntity)
-    addComponent(entity, EntityNodeComponent, { uuid: key })
+    if (Engine.isEditor) addComponent(entity, EntityNodeComponent, { uuid: key })
   })
 
   // Create Entity Tree
-  const world = useWorld()
   if (!world.entityTree) world.entityTree = new EntityTree()
 
   const tree = world.entityTree
@@ -106,7 +85,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
   Engine.sceneLoaded = true
 
   // Configure CSM
-  updateRenderSetting(world.entityTree.rootNode.entity)
+  isClient && updateRenderSetting(world.entityTree.rootNode.entity)
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
 }
@@ -117,24 +96,27 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
  * @param {string} sceneEntityId
  * @param {EntityJson} sceneEntity
  */
-export const loadComponents = (entity: Entity, sceneEntityId: string, sceneEntity: EntityData): void => {
+export const loadComponents = (entity: Entity, sceneEntityId: string, sceneEntity: EntityJson): void => {
   sceneEntity.components.forEach((component: any) => {
     component.data = component.props
     component.data.sceneEntityId = sceneEntityId
-    loadComponent(entity, component, sceneEntity)
+    loadComponent(entity, component)
   })
 }
 
-export const loadComponent = (entity: Entity, component: SceneDataComponent, sceneEntity: EntityData): void => {
+export const loadComponent = (entity: Entity, component: SceneDataComponent): void => {
   // remove '-1', '-2' etc suffixes
-  const name = component.name.replace(/(-\d+)|(\s)/g, '') as ComponentNameType
+  const name = component.name.replace(/(-\d+)|(\s)/g, '')
   const world = useWorld()
 
-  switch (name) {
-    case ComponentName.MT_DATA:
-      deserializeMetaData(entity, component)
-      break
+  const deserializer = world.sceneLoadingRegistry.get(name)?.deserialize
+  console.log(name, deserializer)
+  if (deserializer) {
+    deserializer(entity, component)
+    return
+  }
 
+  switch (name) {
     case '_metadata':
       {
         addObject3DComponent(entity, new Object3D(), component.data)
@@ -158,24 +140,12 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       addObject3DComponent(entity, new AmbientLight(), component.data)
       break
 
-    case ComponentName.DIRECTIONAL_LIGHT:
-      deserializeDirectionalLight(entity, component)
-      break
-
-    case ComponentName.HEMISPHERE_LIGHT:
-      deserializeHemisphereLight(entity, component)
-      break
-
     case 'point-light':
       addObject3DComponent(entity, new PointLight(), component.data)
       break
 
     case 'spot-light':
       addObject3DComponent(entity, new SpotLight(), component.data)
-      break
-
-    case ComponentName.SIMPLE_MATERIALS:
-      deserializeSimpleMaterial(entity, component)
       break
 
     case 'gltf-model':
@@ -214,10 +184,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       if (component.data.interactable) addComponent(entity, InteractableComponent, { data: component.data })
       break
 
-    case ComponentName.GROUND_PLANE:
-      deserializeGround(entity, component)
-      break
-
     case 'image':
       addObject3DComponent(entity, new Image(), component.data)
       break
@@ -249,38 +215,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
     case 'volumetric':
       if (isClient) createVolumetric(entity, component.data)
       else createMediaServer(entity, component.data)
-      break
-
-    case ComponentName.TRANSFORM:
-      deserializeTransform(entity, component)
-      break
-
-    case ComponentName.FOG:
-      deserializeFog(entity, component)
-      break
-
-    case ComponentName.SKYBOX:
-      deserializeSkybox(entity, component)
-      break
-
-    case ComponentName.AUDIO_SETTINGS:
-      deserializeAudioSetting(entity, component)
-      break
-
-    case ComponentName.RENDERER_SETTINGS:
-      deserializeRenderSetting(entity, component)
-      break
-
-    case ComponentName.SPAWN_POINT:
-      deserializeSpawnPoint(entity, component)
-      break
-
-    case ComponentName.SCENE_PREVIEW_CAMERA:
-      deserializeScenePreviewCamera(entity, component)
-      break
-
-    case ComponentName.SHADOW:
-      deserializeShadow(entity, component)
       break
 
     case 'collider': {
@@ -353,10 +287,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       isClient && addObject3DComponent(entity, new Interior(), component.data)
       break
 
-    case ComponentName.POSTPROCESSING:
-      deserializePostprocessing(entity, component)
-      break
-
     case 'cameraproperties':
       if (isClient) {
         matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
@@ -369,44 +299,12 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent, sce
       }
       break
 
-    case ComponentName.ENVMAP:
-      deserializeEnvMap(entity, component)
-      break
-
-    case ComponentName.PERSIST:
-      deserializePersist(entity, component)
-      break
-
     case 'portal':
       createPortal(entity, component.data)
       break
 
-    /* intentionally empty - these are only for the editor */
-    case ComponentName.INCLUDE_IN_CUBEMAP_BAKE:
-      deserializeIncludeInCubeMapBake(entity, component)
-      break
-
-    case 'group':
-    case 'project': // loaded prior to engine init
-      break
-
-    case ComponentName.VISIBLE:
-      deserializeVisible(entity, component)
-      break
-
-    case ComponentName.WALKABLE:
-      deserializeWalkable(entity, component)
-      break
-
-    /* deprecated */
-    case 'mesh-collider':
-    case 'collidable':
-    case 'floor-plan':
-      console.log("[Scene Loader] WARNING: '", name, ' is deprecated')
-      break
-
     default:
-      console.log("[Scene Loader] WARNING: Couldn't load component'", name, "'")
+      console.log(`[Scene Loader] WARNING: Couldn't load component ${name}`)
   }
 }
 
