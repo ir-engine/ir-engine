@@ -65,7 +65,9 @@
     "react-virtualized-auto-sizer": "1.0.6",
     "react-window": "1.8.6",
     "styled-components": "5.3.3",
-    "use-http": "1.0.26"
+    "use-http": "1.0.26",
+    "oauth-1.0a": "^2.2.6",
+    "crypto-js": "^4.1.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "21.0.1",
