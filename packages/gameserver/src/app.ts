@@ -131,8 +131,8 @@ export const createApp = (): Application => {
 
       // Configure other middleware (see `middleware/index.js`)
       app.configure(authentication)
-
       // Set up our services (see `services/index.js`)
+
       app.configure(feathersLogger(winston))
       app.configure(services)
 
