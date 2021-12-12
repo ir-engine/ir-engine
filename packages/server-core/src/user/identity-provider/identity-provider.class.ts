@@ -8,6 +8,9 @@ import { AuthenticationService } from '@feathersjs/authentication'
 import config from '../../appconfig'
 import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
+import axios from 'axios'
+const BLOCKCHAIN_URL = process.env.BLOCKCHAIN_URL
+const BLOCKCHAIN_URL_SECRET = process.env.BLOCKCHAIN_URL_SECRET
 
 interface Data {}
 
@@ -155,7 +158,23 @@ export class IdentityProvider extends Service {
     )
     // DRC
     try {
-      if (result.user.userRole !== 'guest') {
+      if (result.user.userRole === 'user' || result.user.userRole === 'admin') {
+        var response = await axios.post(`${BLOCKCHAIN_URL}/authorizeServer`, {
+          authSecretKey: BLOCKCHAIN_URL_SECRET
+        })
+        var accessToken = response.data.accessToken
+        var walletData = await axios.post(
+          `${BLOCKCHAIN_URL}/user-wallet-data`,
+          {
+            userId: result.id
+          },
+          {
+            headers: {
+              Authorization: 'Bearer ' + accessToken
+            }
+          }
+        )
+
         let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
         let invenDataId = invenData.data[0].dataValues.inventoryItemId
         let resp = await this.app.service('user-inventory').create({
@@ -163,8 +182,6 @@ export class IdentityProvider extends Service {
           inventoryItemId: invenDataId,
           quantity: 10
         })
-
-        let newData = await this.app.service('user-wallet').create({ userId: result.user.id })
       }
     } catch (err) {
       console.log('ERROR', err)

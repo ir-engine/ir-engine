@@ -40,9 +40,6 @@ export default {
             model: 'scope'
           },
           {
-            model: 'user-wallet'
-          },
-          {
             model: 'inventory-item',
             include: [
               {
@@ -73,9 +70,6 @@ export default {
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'user-wallet'
           },
           {
             model: 'inventory-item',
@@ -110,9 +104,6 @@ export default {
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'user-wallet'
           },
           {
             model: 'inventory-item',
