@@ -143,7 +143,6 @@ describe('storageprovider', () => {
 
     it(`should list over 1000 objects in ${provider.constructor.name}`, async function () {
       const res = await provider.listFolderContent(testFolderName, true)
-      console.log(res)
       assert(res.length > 1000)
     })
 
