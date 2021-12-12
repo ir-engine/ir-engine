@@ -1,9 +1,17 @@
-import dotenv from 'dotenv'
+import dotenv from 'dotenv-flow'
 import cli from 'cli'
 import { Sequelize } from 'sequelize'
 import { spawn } from 'child_process'
+import appRootPath from 'app-root-path'
 
-dotenv.config()
+const kubernetesEnabled = process.env.KUBERNETES === 'true'
+if (!kubernetesEnabled) {
+  dotenv.config({
+    path: appRootPath.path,
+    silent: true
+  })
+}
+
 const db = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
