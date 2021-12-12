@@ -476,6 +476,7 @@ const EditorContainer = (props) => {
       await saveProject(projectName)
       SceneManager.instance.sceneModified = false
       updateModifiedState()
+      setDialogComponent(null)
     } catch (error) {
       console.error(error)
 
