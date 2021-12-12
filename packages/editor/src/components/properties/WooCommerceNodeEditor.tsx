@@ -1,4 +1,6 @@
 import i18n from 'i18next'
+import React, { Fragment, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -8,58 +10,48 @@ import NodeEditor from './NodeEditor'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
-import React, { Fragment, useEffect, useState } from 'react'
-import { useTranslation, withTranslation } from 'react-i18next'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import SceneNode from '../../nodes/SceneNode'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 
 import AudioSourceProperties from './AudioSourceProperties'
 import { ControlledStringInput } from '../inputs/StringInput'
 import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
 import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import SceneNode from '../../nodes/SceneNode'
 
 /**
  * Declaring properties for ModalNodeEditor component.
  *
- * @author Robert Long
+ * @author Ron Oyama
  * @type {Object}
  */
-type ShopifyNodeEditorProps = {
+type WooCommerceNodeEditorProps = {
   node?: object
   multiEdit?: boolean
+  t: Function
 }
 
-//Declaring TriggerVolumeNodeEditor state
-type ShopifyNodeEditorState = {
-  options: any[]
-}
-
-/**
- * ShopifyNodeEditor used to create editor view for the properties of ShopifyNode.
- *
- * @author Robert Long
- * @type {class component}
- */
-
-export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
+export const WooCommerceNodeEditor = (props: WooCommerceNodeEditorProps) => {
   const { t } = useTranslation()
 
-  //Shopify UI Controls
-  const onChangeShopifyDomain = (domain) => {
-    CommandManager.instance.setPropertyOnSelection('shopifyDomain', domain)
+  const onChangeDomain = (domain) => {
+    CommandManager.instance.setPropertyOnSelection('wooCommerceDomain', domain)
   }
 
-  const onChangeShopifyToken = (token) => {
-    CommandManager.instance.setPropertyOnSelection('shopifyToken', token)
+  const onChangeConsumerKey = (token) => {
+    CommandManager.instance.setPropertyOnSelection('wooCommerceConsumerKey', token)
+  }
+
+  const onChangeConsumerSecret = (token) => {
+    CommandManager.instance.setPropertyOnSelection('wooCommerceConsumerSecret', token)
   }
 
   const onChangeProducts = (id) => {
-    CommandManager.instance.setPropertyOnSelection('shopifyProductId', id)
+    CommandManager.instance.setPropertyOnSelection('wooCommerceProductId', id)
   }
 
   const onChangeProductItems = (id) => {
-    CommandManager.instance.setPropertyOnSelection('shopifyProductItemId', id)
+    CommandManager.instance.setPropertyOnSelection('wooCommerceProductItemId', id)
   }
 
   //Interactive UI Controls
@@ -85,6 +77,7 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
     CommandManager.instance.setPropertyOnSelection('hasAvatarAnimations', hasAvatarAnimations)
     ;(props.node as any).reload()
   }
+
   const onChangeTextureOverride = (textureOverride) => {
     CommandManager.instance.setPropertyOnSelection('textureOverride', textureOverride)
   }
@@ -244,36 +237,41 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
     }
   }
 
-  // rendering view of ShopifyNodeEditor
-
   const node = props.node as any
   return (
-    <NodeEditor description={ShopifyNodeEditor.description} {...props}>
-      <InputGroup name="Shopify Domain" label={t('editor:properties.shopify.lbl-shopifyDomain')}>
-        <StringInput value={node.shopifyDomain} onChange={onChangeShopifyDomain} />
+    <NodeEditor description={WooCommerceNodeEditor.description} {...props}>
+      <InputGroup name="WooCommerce Domain" label={t('editor:properties.woocommerce.lbl-domain')}>
+        <StringInput value={node.wooCommerceDomain} onChange={onChangeDomain} />
       </InputGroup>
-      <InputGroup name="Shopify Acess Token" label={t('editor:properties.shopify.lbl-shopifyAccessToken')}>
-        <StringInput value={node.shopifyToken} onChange={onChangeShopifyToken} />
+      <InputGroup name="WooCommerce Consumer Key" label={t('editor:properties.woocommerce.lbl-consumerKey')}>
+        <StringInput value={node.wooCommerceConsumerKey} onChange={onChangeConsumerKey} />
+      </InputGroup>
+      <InputGroup name="WooCommerce Consumer Secret" label={t('editor:properties.woocommerce.lbl-consumerSecret')}>
+        <StringInput value={node.wooCommerceConsumerSecret} onChange={onChangeConsumerSecret} />
       </InputGroup>
 
-      {node.shopifyProducts && node.shopifyProducts.length > 0 && (
-        <InputGroup name="Shopify Products" label={t('editor:properties.shopify.lbl-shopifyProducts')}>
-          <SelectInput options={node.shopifyProducts} value={node.shopifyProductId} onChange={onChangeProducts} />
+      {node.wooCommerceProducts && node.wooCommerceProducts.length > 0 && (
+        <InputGroup name="WooCommerce Products" label={t('editor:properties.woocommerce.lbl-products')}>
+          <SelectInput
+            options={node.wooCommerceProducts}
+            value={node.wooCommerceProductId}
+            onChange={onChangeProducts}
+          />
         </InputGroup>
       )}
 
-      {node.shopifyProductItems && node.shopifyProductItems.length > 0 && (
-        <InputGroup name="Shopify Media" label={t('editor:properties.shopify.lbl-shopifyProductItems')}>
+      {node.wooCommerceProductItems && node.wooCommerceProductItems.length > 0 && (
+        <InputGroup name="WooCommerce Product Items" label={t('editor:properties.woocommerce.lbl-productItems')}>
           <SelectInput
-            options={node.shopifyProductItems}
-            value={node.shopifyProductItemId}
+            options={node.wooCommerceProductItems}
+            value={node.wooCommerceProductItemId}
             onChange={onChangeProductItems}
           />
         </InputGroup>
       )}
 
       {renderPropertiesFields(node)}
-      {node.shopifyProductItemId != '' && (
+      {node.wooCommerceProductItemId != '' && (
         <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
           <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
         </InputGroup>
@@ -283,7 +281,7 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
   )
 }
 
-ShopifyNodeEditor.description = i18n.t('editor:properties.shopify.description')
-ShopifyNodeEditor.iconComponent = ShoppingCartIcon
+WooCommerceNodeEditor.description = i18n.t('editor:properties.woocommerce.description')
+WooCommerceNodeEditor.iconComponent = ShoppingCartIcon
 
-export default ShopifyNodeEditor
+export default WooCommerceNodeEditor

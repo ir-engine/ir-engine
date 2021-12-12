@@ -125,6 +125,7 @@ export default defineConfig((command) => {
         warnOnError: true,
       },
       rollupOptions: {
+        external: ['dotenv-flow'],
         output: {
           dir: 'dist',
           format: 'es',
