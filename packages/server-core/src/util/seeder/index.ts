@@ -1,31 +1,16 @@
 import { GeneralError } from '@feathersjs/errors'
+import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
 import { copyDefaultProject, uploadLocalProjectToProvider } from '../../projects/project/project.class'
+import { seedApp } from './seeder'
 
-import Seeder from './seeder'
-
-export default function seeder(opts = {}) {
-  if (opts === false || (opts as any).disabled === true) {
-    return function () {
-      this.seed = () => {
-        console.log('Seeder is disabled, not modifying database.')
-
-        return Promise.resolve([])
-      }
-    }
-  }
-
-  if (!((opts as any).services instanceof Array)) {
-    throw new Error('You must include an array of services to be seeded.')
-  }
-
+export default function seeder(services: Array<ServicesSeedConfig>) {
   return function () {
     const app = this
-    const seeder = new Seeder(app, opts)
     app.seed = async () => {
       copyDefaultProject()
       await uploadLocalProjectToProvider('default-project', app)
       try {
-        await seeder.seedApp()
+        await seedApp(app, services)
       } catch (err) {
         console.log(`Seeding error: ${err}`)
         throw new GeneralError(new Error(err))
