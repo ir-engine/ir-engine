@@ -123,7 +123,7 @@ const LeftDrawer = (props: Props): any => {
 
     useEffect(() => {
       if (friendState.updateNeeded.value === true && friendState.getFriendsInProgress.value !== true) {
-        FriendService.getFriends('', 0)
+        FriendService.getFriends(0)
       }
       /* if (selectedUser.id?.length > 0 && friendState.get('closeDetails') === selectedUser.id) {
         closeDetails()
@@ -167,7 +167,7 @@ const LeftDrawer = (props: Props): any => {
 
     const nextFriendsPage = (): void => {
       if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
-        FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value)
+        FriendService.getFriends(friendSubState.skip.value + friendSubState.limit.value)
       }
     }
 
