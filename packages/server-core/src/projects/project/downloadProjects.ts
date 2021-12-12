@@ -12,7 +12,6 @@ export const download = async (projectName) => {
   try {
     // default project is presumed read only
     if (projectName === 'default-project') {
-      await uploadLocalProjectToProvider('default-project')
       return true
     }
 

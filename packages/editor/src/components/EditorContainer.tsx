@@ -472,14 +472,10 @@ const EditorContainer = (props) => {
     const blob = await SceneManager.instance.takeScreenshot(512, 320)
 
     try {
-      if (isDev && projectName === 'default-project')
-        setDialogComponent(<ErrorDialog title={t('editor:warnDefault')} message={t('editor:warnDefaultMsg')} />)
       await saveScene(projectName, sceneName, blob, abortController.signal)
       await saveProject(projectName)
       SceneManager.instance.sceneModified = false
       updateModifiedState()
-
-      if (!(isDev && projectName === 'default-project')) setDialogComponent(null)
     } catch (error) {
       console.error(error)
 

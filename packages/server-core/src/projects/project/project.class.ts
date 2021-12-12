@@ -134,7 +134,7 @@ export class Project extends Service {
     for (const projectName of locallyInstalledProjects) {
       if (!data.find((e) => e.name === projectName)) {
         try {
-          promises.push(await this._seedProject(projectName))
+          promises.push(this._seedProject(projectName))
         } catch (e) {
           console.log(e)
         }

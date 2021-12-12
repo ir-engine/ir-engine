@@ -1,5 +1,4 @@
 import { download } from "@xrengine/server-core/src/projects/project/downloadProjects";
-import { copyDefaultProject } from '@xrengine/server-core/src/projects/project/project.class';
 import dotenv from 'dotenv';
 import Sequelize from 'sequelize';
 
@@ -46,8 +45,6 @@ async function installAllProjects() {
     const projects = await Projects.findAll()
     console.log('found projects', projects)
     
-    copyDefaultProject()
-
     for(const project of projects) {
       await download(project.name)
     }
