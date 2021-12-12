@@ -97,6 +97,22 @@ export class Project extends Service {
     }
   }
 
+  async _seedProject(projectName: string): Promise<any> {
+    console.warn('[Projects]: Found new locally installed project', projectName)
+    const projectConfig = (await getProjectConfig(projectName)) ?? {}
+    await super.create({
+      thumbnail: projectConfig.thumbnail,
+      name: projectName,
+      storageProviderPath: getStorageProviderPath(projectName),
+      repositoryPath: getRemoteURLFromGitData(projectName)
+    })
+    // run project install script
+    if (projectConfig.onEvent) {
+      return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
+    }
+    return Promise.resolve()
+  }
+
   /**
    * On dev, sync the db with any projects installed locally
    */
@@ -118,18 +134,7 @@ export class Project extends Service {
     for (const projectName of locallyInstalledProjects) {
       if (!data.find((e) => e.name === projectName)) {
         try {
-          console.warn('[Projects]: Found new locally installed project', projectName)
-          const projectConfig = (await getProjectConfig(projectName)) ?? {}
-          await super.create({
-            thumbnail: projectConfig.thumbnail,
-            name: projectName,
-            storageProviderPath: getStorageProviderPath(projectName),
-            repositoryPath: getRemoteURLFromGitData(projectName)
-          })
-          // run project install script
-          if (projectConfig.onEvent) {
-            promises.push(onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall'))
-          }
+          promises.push(await this._seedProject(projectName))
         } catch (e) {
           console.log(e)
         }
