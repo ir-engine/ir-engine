@@ -3,9 +3,9 @@ import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ImageInput from '../inputs/ImageInput'
 import Vector2Input from '../inputs/Vector2Input'
-import { Water } from '@styled-icons/fa-solid/Water'
 import { useTranslation } from 'react-i18next'
 import ColorInput from '../inputs/ColorInput'
+import WaterIcon from '@mui/icons-material/Water'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
 
@@ -163,6 +163,6 @@ export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
   )
 }
 
-OceanNodeEditor.iconComponent = Water
+OceanNodeEditor.iconComponent = WaterIcon
 
 export default OceanNodeEditor

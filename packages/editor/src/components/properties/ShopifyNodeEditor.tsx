@@ -1,4 +1,3 @@
-import { ShoppingCart } from '@styled-icons/fa-solid/ShoppingCart'
 import i18n from 'i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
@@ -6,13 +5,12 @@ import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import InteractableGroup from '../inputs/InteractableGroup'
 import NodeEditor from './NodeEditor'
-import dompurify from 'dompurify'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
-import { SceneManager } from '../../managers/SceneManager'
 import React, { Fragment, useEffect, useState } from 'react'
 import { useTranslation, withTranslation } from 'react-i18next'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 
 import AudioSourceProperties from './AudioSourceProperties'
 import { ControlledStringInput } from '../inputs/StringInput'
@@ -45,19 +43,7 @@ type ShopifyNodeEditorState = {
  */
 
 export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
-  let [options, setOptions] = useState([])
   const { t } = useTranslation()
-
-  useEffect(() => {
-    const options = []
-    const sceneNode = Engine.scene as any as SceneNode
-    sceneNode.traverse((o) => {
-      if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
-        options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
-      }
-    })
-    setOptions(options)
-  }, [])
 
   //Shopify UI Controls
   const onChangeShopifyDomain = (domain) => {
@@ -298,6 +284,6 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
 }
 
 ShopifyNodeEditor.description = i18n.t('editor:properties.shopify.description')
-ShopifyNodeEditor.iconComponent = ShoppingCart
+ShopifyNodeEditor.iconComponent = ShoppingCartIcon
 
 export default ShopifyNodeEditor

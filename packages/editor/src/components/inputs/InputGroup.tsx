@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
-import { QuestionCircle } from '@styled-icons/fa-regular/QuestionCircle'
 import { InfoTooltip } from '../layout/Tooltip'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+
 /**
  * Used to provide styles for InputGroupContainer div.
  *
@@ -86,7 +87,7 @@ export const InputGroupVerticalContent = (styled as any).div`
  *  @author Robert Long
  *  @type {styled component}
  */
-export const InputGroupInfoIcon = (styled as any)(QuestionCircle)`
+export const InputGroupInfoIcon = (styled as any)(HelpOutlineIcon)`
   width: 20px;
   display: flex;
   padding-left: 8px;

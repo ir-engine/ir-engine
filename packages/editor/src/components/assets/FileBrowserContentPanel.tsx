@@ -8,12 +8,12 @@ import ModelNode from '../../nodes/ModelNode'
 import VideoNode from '../../nodes/VideoNode'
 import { NodeManager } from '../../managers/NodeManager'
 import FileBrowserGrid from './FileBrowserGrid'
-import { File } from '@styled-icons/fa-solid/File'
 import { useTranslation } from 'react-i18next'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
-import { ArrowBack } from '@styled-icons/boxicons-regular/ArrowBack'
-import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import AutorenewIcon from '@mui/icons-material/Autorenew'
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import useElementResize from 'element-resize-event'
 import { Downgraded } from '@hookstate/core'
@@ -82,7 +82,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       ? nodeEditor.WrappedComponent
         ? nodeEditor.WrappedComponent.iconComponent
         : nodeEditor.iconComponent
-      : File
+      : InsertDriveFileIcon
     const url = file.url
     return {
       description: url,
@@ -158,8 +158,14 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   return (
     <>
       <div style={headGrid}>
-        <ToolButton icon={ArrowBack} onClick={onBackDirectory} id="backDir" iconHeight="100%" iconWidth="100%" />
-        <ToolButton icon={Refresh} onClick={onRefreshDirectory} id="refreshDir" iconHeight="100%" iconWidth="100%" />
+        <ToolButton icon={ArrowBackIcon} onClick={onBackDirectory} id="backDir" iconHeight="100%" iconWidth="100%" />
+        <ToolButton
+          icon={AutorenewIcon}
+          onClick={onRefreshDirectory}
+          id="refreshDir"
+          iconHeight="100%"
+          iconWidth="100%"
+        />
       </div>
 
       <ContextMenuTrigger id={'uniqueId_current'} holdToDisplay={-1}>

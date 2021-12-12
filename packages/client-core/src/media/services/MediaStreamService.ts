@@ -9,9 +9,7 @@ const state = createState({
   isCamAudioEnabled: false,
   isFaceTrackingEnabled: false,
   nearbyLayerUsers: [] as NearbyUser[],
-  consumers: {
-    consumers: []
-  }
+  consumers: []
 })
 
 store.receptors.push((action: MediaStreamActionType): any => {
@@ -24,7 +22,7 @@ store.receptors.push((action: MediaStreamActionType): any => {
       case 'FACE_TRACKING_CHANGED':
         return s.isFaceTrackingEnabled.set(action.isEnable)
       case 'CONSUMERS_CHANGED':
-        return s.consumers.consumers.set(action.consumers)
+        return s.consumers.set(action.consumers)
       case 'NEARBY_LAYER_USERS_CHANGED':
         return s.nearbyLayerUsers.set(action.users)
     }

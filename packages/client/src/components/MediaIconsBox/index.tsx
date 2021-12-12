@@ -25,6 +25,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import {
   ChannelConnectionService,
   useChannelConnectionState
@@ -40,10 +41,11 @@ const MediaIconsBox = (props) => {
 
   const user = useAuthState().user
   const chatState = useChatState()
+  const instanceId = useInstanceConnectionState().instance.id.value
   const channelState = chatState.channels
   const channels = channelState.channels.value
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-  const instanceChannel = channelEntries.find((entry) => entry.instanceId != null)
+  const instanceChannel = channelEntries.find((entry) => entry.instanceId === instanceId)
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useChannelConnectionState()
   const mediastream = useMediaStreamState()
