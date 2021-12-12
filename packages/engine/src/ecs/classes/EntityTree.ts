@@ -37,6 +37,8 @@ export default class EntityTree {
 
     parent.addChild(node)
     node.parentNode = parent
+
+    return node
   }
 
   findNodeFromEid(entity: Entity, node: EntityTreeNode = this.rootNode): EntityTreeNode | undefined {

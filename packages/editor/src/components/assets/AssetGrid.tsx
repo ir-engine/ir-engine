@@ -13,26 +13,40 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
-import { NodeManager } from '../../managers/NodeManager'
+import { EntityNodeEditor, NodeManager } from '../../managers/NodeManager'
 import { ItemTypes } from '../../constants/AssetTypes'
+import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
-const getNodes = (params?) => {
-  return Array.from<any>(NodeManager.instance.nodeTypes).reduce((acc: any, nodeType: any) => {
-    if (nodeType.hideInElementsPanel) {
-      return acc
-    }
+const getPrefabs = () => {
+  const arr = Array.from(NodeManager.instance.nodeTypes).reduce((acc, nodeType) => {
     const nodeEditor = NodeManager.instance.getEditorFromClass(nodeType)
     acc.push({
       id: nodeType.nodeName,
-      iconComponent: nodeEditor.WrappedComponent ? nodeEditor.WrappedComponent.iconComponent : nodeEditor.iconComponent,
+      iconComponent: nodeEditor.iconComponent,
       label: nodeType.nodeName,
-      description: nodeEditor.WrappedComponent ? nodeEditor.WrappedComponent.description : nodeEditor.description,
+      description: nodeEditor.description,
       type: ItemTypes.Element,
       nodeClass: nodeType,
       initialProps: nodeType.initialElementProps
     })
     return acc
-  }, [])
+  }, [] as any[])
+
+  useWorld().scenePrefabRegistry.forEach((components, prefabType) => {
+    console.log(prefabType)
+    arr.push({
+      id: prefabType,
+      iconComponent: null,
+      label: prefabType, // todo
+      description: '', // todo
+      type: ItemTypes.Element,
+      nodeClass: prefabType,
+      initialProps: null
+    })
+  })
+
+  return arr
 }
 
 /**
@@ -182,8 +196,8 @@ export function AssetGrid({ onSelect, tooltip }) {
   const uniqueId = useRef(`AssetGrid${lastId}`)
   const { t } = useTranslation()
 
-  const items = getNodes()
-  console.log(items)
+  const items = getPrefabs()
+  console.log('getNodes', items)
 
   // incrementig lastId
   useEffect(() => {
@@ -193,8 +207,14 @@ export function AssetGrid({ onSelect, tooltip }) {
   // creating callback function used if object get placed on viewport
   const placeObject = useCallback((_, trigger) => {
     const item = trigger.item
+    let node
 
-    const node = new item.nodeClass()
+    // if ECS
+    if (typeof item.nodeClass === 'string') {
+      node = createNewEditorNode(item.nodeClass)
+    } else {
+      node = new item.nodeClass()
+    }
 
     if (item.initialProps) {
       Object.assign(node, item.initialProps)
@@ -209,7 +229,14 @@ export function AssetGrid({ onSelect, tooltip }) {
   const placeObjectAtOrigin = useCallback((_, trigger) => {
     const item = trigger.item
 
-    const node = new item.nodeClass()
+    let node
+
+    // if ECS
+    if (typeof item.nodeClass === 'string') {
+      node = createNewEditorNode(item.nodeClass)
+    } else {
+      node = new item.nodeClass()
+    }
 
     if (item.initialProps) {
       Object.assign(node, item.initialProps)
@@ -223,7 +250,7 @@ export function AssetGrid({ onSelect, tooltip }) {
     <>
       <VerticalScrollContainer flex>
         <MediaGrid>
-          {unique(items, 'id').map((item) => (
+          {unique(items, 'id').map((item: any) => (
             <MemoAssetGridItem
               key={item.id}
               tooltipComponent={tooltip}

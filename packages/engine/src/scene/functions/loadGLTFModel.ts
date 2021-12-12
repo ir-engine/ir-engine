@@ -20,6 +20,7 @@ import { setObjectLayers } from './setObjectLayers'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 export const parseObjectComponents = (entity: Entity, res: Mesh | Scene) => {
   const meshesToProcess: Mesh[] = []
@@ -88,7 +89,7 @@ export const parseObjectComponents = (entity: Entity, res: Mesh | Scene) => {
   }
 }
 
-export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, scene: Mesh | Scene) => {
+export const parseGLTFModel = (entity: Entity, component: ComponentJson, scene: Mesh | Scene) => {
   // console.log(sceneLoader, entity, component, sceneProperty, scene)
 
   const world = useWorld()
@@ -104,7 +105,7 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
   }
 
   // DIRTY HACK TO LOAD NAVMESH
-  if (component.data.src.match(/navmesh/)) {
+  if (component.props.src.match(/navmesh/)) {
     console.log('generate navmesh')
     let polygons: any[] = []
     scene.traverse((child: Mesh) => {
@@ -148,14 +149,14 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
     })
   }
 
-  if (component.data.textureOverride) {
+  if (component.props.textureOverride) {
     // we should push this to ECS, something like a SceneObjectLoadComponent,
     // or add engine events for specific objects being added to the scene,
     // the scene load event + delay 1 second delay works for now.
     EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
       await delay(1000)
       const objToCopy = Engine.scene.children.find((obj: any) => {
-        return obj.sceneEntityId === component.data.textureOverride
+        return obj.sceneEntityId === component.props.textureOverride
       })
       if (objToCopy)
         objToCopy.traverse((videoMesh: any) => {
@@ -171,9 +172,9 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
   }
 
   if (
-    component.data.isDynamicObject === false &&
-    typeof component.data.matrixAutoUpdate !== 'undefined' &&
-    component.data.matrixAutoUpdate === false
+    component.props.isDynamicObject === false &&
+    typeof component.props.matrixAutoUpdate !== 'undefined' &&
+    component.props.matrixAutoUpdate === false
   ) {
     scene.traverse((child) => {
       child.updateMatrixWorld(true)
@@ -181,14 +182,14 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
     })
   }
 
-  if (component.data.isDynamicObject) {
-    ;(scene as any).sceneEntityId = component.data.sceneEntityId
+  if (component.props.isDynamicObject) {
+    ;(scene as any).sceneEntityId = component.props.sceneEntityId
     dispatchFrom(world.hostId, () =>
       NetworkWorldAction.spawnObject({
         userId: world.hostId,
         prefab: '',
         parameters: {
-          sceneEntityId: component.data.sceneEntityId
+          sceneEntityId: component.props.sceneEntityId
         }
       })
     )
@@ -197,11 +198,11 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
   parseObjectComponents(entity, scene)
 }
 
-export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => {
+export const loadGLTFModel = (entity: Entity, component: ComponentJson) => {
   return new Promise<void>((resolve, reject) => {
     AssetLoader.load(
       {
-        url: component.data.src,
+        url: component.props.src,
         entity
       },
       (res) => {
@@ -213,7 +214,7 @@ export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => 
         console.log('[SCENE-LOADING]:', err)
         reject(err)
       },
-      component.data.isUsingGPUInstancing
+      component.props.isUsingGPUInstancing
     )
   })
 }

@@ -7,6 +7,12 @@ import { isClient } from '../../../common/functions/isClient'
 
 export const SCENE_COMPONENT_VISIBLE = 'visible'
 
+export const SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES = {
+  [SCENE_COMPONENT_VISIBLE]: {
+    visible: true
+  }
+}
+
 export const deserializeVisible: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   if (isClient) addComponent(entity, VisibleComponent, {})
 }

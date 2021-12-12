@@ -43,6 +43,7 @@ export default class ReplaceSelectionCommand extends Command {
   }
 
   replaceSelection(objects: EntityTreeNode[]): void {
+    console.log(objects, CommandManager.instance.selected)
     // Check whether selection is changed or not
     if (objects.length === CommandManager.instance.selected.length) {
       let isSame = true
@@ -90,5 +91,7 @@ export default class ReplaceSelectionCommand extends Command {
     if (this.shouldGizmoUpdate) {
       CommandManager.instance.updateTransformRoots()
     }
+
+    console.log(CommandManager.instance.selected)
   }
 }

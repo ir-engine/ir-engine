@@ -11,6 +11,7 @@ import { GroundPlaneComponent } from '../components/GroundPlaneComponent'
 import { HemisphereLightComponent } from '../components/HemisphereLightComponent'
 import { IncludeInCubemapBakeComponent } from '../components/IncludeInCubemapBakeComponent'
 import { MetaDataComponent } from '../components/MetaDataComponent'
+import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { PostprocessingComponent } from '../components/PostprocessingComponent'
@@ -29,6 +30,7 @@ import { serializeGroundPlane } from './loaders/GroundPlaneFunctions'
 import { serializeHemisphereLight } from './loaders/HemisphereLightFunctions'
 import { serializeIncludeInCubeMapBake } from './loaders/IncludeInCubemapBakeFunctions'
 import { serializeMetaData } from './loaders/MetaDataFunctions'
+import { serializeModel } from './loaders/ModelFunctions'
 import { serializePersist } from './loaders/PersistFunctions'
 import { serializePostprocessing } from './loaders/PostprocessingFunctions'
 import { serializeRenderSettings } from './loaders/RenderSettingsFunction'
@@ -64,6 +66,7 @@ export const serializeWorld = (world = useWorld()) => {
     components.forEach((comp) => {
       let data
       switch (comp) {
+        /** BASE NODE INTERNALS */
         case TransformComponent:
           data = serializeTransform(node.entity)
           break
@@ -73,29 +76,43 @@ export const serializeWorld = (world = useWorld()) => {
         case PersistTagComponent:
           data = serializePersist(node.entity)
           break
-        case IncludeInCubemapBakeComponent:
-          data = serializeIncludeInCubeMapBake(node.entity)
-          break
         case ShadowComponent:
           data = serializeShadow(node.entity)
           break
-        case MetaDataComponent:
-          data = serializeMetaData(node.entity)
+        case IncludeInCubemapBakeComponent:
+          data = serializeIncludeInCubeMapBake(node.entity)
           break
-        case FogComponent:
-          data = serializeFog(node.entity)
-          break
-        case EnvmapComponent:
-          data = serializeEnvMap(node.entity)
+        /** SCENE NODE INTERNALS */
+        case PositionalAudioSettingsComponent:
+          data = serializeAudioSetting(node.entity)
           break
         case SimpleMaterialTagComponent:
           data = serializeSimpleMaterial(node.entity)
           break
+        case EnvmapComponent:
+          data = serializeEnvMap(node.entity)
+          break
+        case FogComponent:
+          data = serializeFog(node.entity)
+          break
         case RenderSettingComponent:
           data = serializeRenderSettings(node.entity)
           break
-        case PositionalAudioSettingsComponent:
-          data = serializeAudioSetting(node.entity)
+        /** NODES */
+        case DirectionalLightComponent:
+          data = serializeDirectionalLight(node.entity)
+          break
+        case GroundPlaneComponent:
+          data = serializeGroundPlane(node.entity)
+          break
+        case HemisphereLightComponent:
+          data = serializeHemisphereLight(node.entity)
+          break
+        case MetaDataComponent:
+          data = serializeMetaData(node.entity)
+          break
+        case PostprocessingComponent:
+          data = serializePostprocessing(node.entity)
           break
         case ScenePreviewCameraTagComponent:
           data = serializeScenePreviewCamera(node.entity)
@@ -103,20 +120,11 @@ export const serializeWorld = (world = useWorld()) => {
         case SkyboxComponent:
           data = serializeSkybox(node.entity)
           break
-        case GroundPlaneComponent:
-          data = serializeGroundPlane(node.entity)
-          break
         case SpawnPointComponent:
           data = serializeSpawnPoint(node.entity)
           break
-        case PostprocessingComponent:
-          data = serializePostprocessing(node.entity)
-          break
-        case HemisphereLightComponent:
-          data = serializeHemisphereLight(node.entity)
-          break
-        case DirectionalLightComponent:
-          data = serializeDirectionalLight(node.entity)
+        case ModelComponent:
+          data = serializeModel(node.entity)
           break
       }
       if (data) entityJson.components.push(data)

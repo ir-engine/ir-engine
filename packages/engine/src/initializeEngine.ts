@@ -19,6 +19,7 @@ import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
+import { registerPrefabs } from './scene/functions/registerPrefabs'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -270,6 +271,7 @@ const registerMediaServerSystems = async (options: Required<InitializeOptions>) 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
+  registerPrefabs(sceneWorld)
 
   Engine.currentWorld = sceneWorld
   Engine.publicPath = options.publicPath

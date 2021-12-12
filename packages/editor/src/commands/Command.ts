@@ -3,6 +3,8 @@
  * Developed as part of a project at University of Applied Sciences and Arts Northwestern Switzerland (www.fhnw.ch)
  */
 
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+
 export interface CommandParams {
   shouldEmitEvent?: boolean
   shouldGizmoUpdate?: boolean
@@ -14,7 +16,7 @@ export default class Command {
   id: number = -1
 
   /** An Object which is affected by this command */
-  affectedObjects: any[]
+  affectedObjects: EntityTreeNode[]
 
   /** Name to be print on debug string */
   displayName?: string
@@ -34,7 +36,7 @@ export default class Command {
   /** Old selected objects prior to this command execution */
   oldSelection: any
 
-  constructor(objects?: any, params: CommandParams = {}) {
+  constructor(objects: EntityTreeNode | EntityTreeNode[], params: CommandParams = {}) {
     this.shouldEmitEvent = params.shouldEmitEvent ?? true
     this.shouldGizmoUpdate = params.shouldGizmoUpdate ?? true
     this.isSelected = params.isObjectSelected ?? true

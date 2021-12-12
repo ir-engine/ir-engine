@@ -78,11 +78,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const files = fileState.files.value.map((file): FileDataType => {
     const nodeClass = UploadFileType[file.type]
     const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
-    const iconComponent = nodeEditor
-      ? nodeEditor.WrappedComponent
-        ? nodeEditor.WrappedComponent.iconComponent
-        : nodeEditor.iconComponent
-      : InsertDriveFileIcon
+    const iconComponent = nodeEditor.iconComponent
     const url = file.url
     return {
       description: url,

@@ -26,6 +26,7 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import EntityTree from './EntityTree'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { SceneLoaderType } from '../../common/constants/ComponentNames'
+import { ScenePrefabTypes } from '../../scene/functions/registerPrefabs'
 
 type SystemInstanceType = {
   name: string
@@ -138,6 +139,9 @@ export class World {
 
   /** Registry map of scene loader components  */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
+
+  /** Registry map of prefabs  */
+  scenePrefabRegistry = new Map<string, any[]>()
 
   /**
    * Get the network objects owned by a given user

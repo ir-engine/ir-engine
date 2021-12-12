@@ -1,9 +1,9 @@
-import { AmbientLight, Object3D, PointLight, SpotLight } from 'three'
+import { AmbientLight, MathUtils, Object3D, PointLight, SpotLight } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
@@ -37,6 +37,8 @@ import EntityTree from '../../ecs/classes/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { updateRenderSetting, resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { registerDefaultSceneFunctions } from './registerSceneFunctions'
+import { ScenePrefabTypes } from './registerPrefabs'
+import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -44,6 +46,30 @@ export interface SceneDataComponent extends ComponentJson {
 
 export interface SceneData extends SceneJson {
   data: any
+}
+
+export const createNewEditorNode = (prefabType: ScenePrefabTypes) => {
+  const world = useWorld()
+  const entity = createEntity()
+  const key = MathUtils.generateUUID()
+
+  // todo: append a number to the name indicating the amount of prefabs that exist in the scene already
+  addComponent(entity, NameComponent, { name: prefabType })
+
+  const components = world.scenePrefabRegistry.get(prefabType)
+  if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
+  for (const component of components) {
+    const [type, defaultValues] = Object.entries(component)[0]
+    const deserializer = useWorld().sceneLoadingRegistry.get(type)?.deserialize
+    if (!deserializer) return console.warn(`[createNewEditorNode]: deserializer for ${type} does not exist`)
+    console.log(deserializer, type, defaultValues)
+    deserializer(entity, { name: type, props: defaultValues })
+  }
+
+  addComponent(entity, EntityNodeComponent, { uuid: key })
+  if (!hasComponent(entity, TransformComponent)) addComponent(entity, DisableTransformTagComponent, {})
+
+  return world.entityTree.addEntity(entity, world.entityTree.rootNode.entity)
 }
 
 /**
@@ -146,10 +172,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
 
     case 'spot-light':
       addObject3DComponent(entity, new SpotLight(), component.data)
-      break
-
-    case 'gltf-model':
-      registerSceneLoadPromise(loadGLTFModel(entity, component))
       break
 
     // TODO: we can remove these entirely when we have a more composable solution than the mixin nodes

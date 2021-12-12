@@ -3,7 +3,7 @@ import NodeEditor from './NodeEditor'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { useTranslation } from 'react-i18next'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { updateScenePreviewCamera } from '@xrengine/engine/src/scene/functions/ScenePreviewCameraFunctions'
+import { updateScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
 /**

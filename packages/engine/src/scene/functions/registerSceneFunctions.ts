@@ -35,6 +35,7 @@ import {
   serializeMetaData,
   updateMetaData
 } from './loaders/MetaDataFunctions'
+import { deserializeModel, SCENE_COMPONENT_MODEL, serializeModel, updateModel } from './loaders/ModelFunctions'
 import { SCENE_COMPONENT_PERSIST, deserializePersist, serializePersist } from './loaders/PersistFunctions'
 import {
   SCENE_COMPONENT_POSTPROCESSING,
@@ -70,6 +71,16 @@ import { SCENE_COMPONENT_VISIBLE, deserializeVisible, serializeVisible } from '.
 export const registerDefaultSceneFunctions = (world: World) => {
   /** BASE NODE INTERNALS */
 
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
+    deserialize: deserializeTransform,
+    serialize: serializeTransform
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_VISIBLE, {
+    deserialize: deserializeVisible,
+    serialize: serializeVisible
+  })
+
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PERSIST, {
     deserialize: deserializePersist,
     serialize: serializePersist
@@ -81,22 +92,12 @@ export const registerDefaultSceneFunctions = (world: World) => {
     update: updateShadow
   })
 
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
-    deserialize: deserializeTransform,
-    serialize: serializeTransform
-  })
-
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CUBEMAP_BAKE, {
     deserialize: deserializeIncludeInCubeMapBake,
     serialize: serializeIncludeInCubeMapBake
   })
 
   /** SCENE NODE INTERNALS */
-
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_VISIBLE, {
-    deserialize: deserializeVisible,
-    serialize: serializeVisible
-  })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO_SETTINGS, {
     deserialize: deserializeAudioSetting,
@@ -173,5 +174,11 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {
     deserialize: deserializeSpawnPoint,
     serialize: serializeSpawnPoint
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
+    deserialize: deserializeModel,
+    serialize: serializeModel,
+    update: updateModel
   })
 }

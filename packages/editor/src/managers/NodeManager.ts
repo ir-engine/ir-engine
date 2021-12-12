@@ -75,13 +75,14 @@ import { SpawnPointComponent } from '@xrengine/engine/src/scene/components/Spawn
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { ComponentMap, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import EditorNodeMixin from '../nodes/EditorNodeMixin'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
 
   nodes: any[]
 
-  nodeTypes: Set<any>
+  nodeTypes: Set<ReturnType<typeof EditorNodeMixin>>
 
   nodeEditors: Map<any, any>
   entityEditors: Map<any, any>
@@ -101,7 +102,7 @@ export class NodeManager {
    * @param  {any} nodeConstructor contains constructor properties
    * @param  {any} nodeEditor      contains editor properties
    */
-  registerNode(nodeConstructor, nodeEditor, entityConstructor?) {
+  registerNode(nodeConstructor: ReturnType<typeof EditorNodeMixin>, nodeEditor, entityConstructor?) {
     this.nodeTypes.add(nodeConstructor)
     this.nodeEditors.set(nodeConstructor, nodeEditor)
   }

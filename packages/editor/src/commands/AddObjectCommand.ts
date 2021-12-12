@@ -8,6 +8,7 @@ import EditorEvents from '../constants/EditorEvents'
 import getDetachedObjectsRoots from '../functions/getDetachedObjectsRoots'
 import makeUniqueName from '../functions/makeUniqueName'
 import { NodeManager } from '../managers/NodeManager'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 export interface AddObjectCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -21,23 +22,14 @@ export interface AddObjectCommandParams extends CommandParams {
 }
 
 export default class AddObjectCommand extends Command {
-  /** Parent object which will hold objects being added by this command */
-  parents: any
-
-  /** Child object before which all objects will be added */
-  befores: any
-
   /** Whether to use unique name or not */
   useUniqueName?: boolean
 
   duplicateObjects?: any[]
 
-  constructor(objects?: any | any[], params?: AddObjectCommandParams) {
+  constructor(objects: EntityTreeNode | EntityTreeNode[], params?: AddObjectCommandParams) {
     super(objects, params)
-
     this.affectedObjects = Array.isArray(objects) ? objects : [objects]
-    this.parents = Array.isArray(params.parents) ? params.parents : [params.parents]
-    this.befores = Array.isArray(params.befores) ? params.befores : [params.befores]
     this.useUniqueName = params.useUniqueName ?? true
     this.oldSelection = CommandManager.instance.selected.slice(0)
   }
@@ -45,7 +37,7 @@ export default class AddObjectCommand extends Command {
   execute(): void {
     this.emitBeforeExecuteEvent()
 
-    this.addObject(this.affectedObjects, this.parents, this.befores)
+    this.addObject()
 
     this.emitAfterExecuteEvent()
   }
@@ -78,47 +70,7 @@ export default class AddObjectCommand extends Command {
     }
   }
 
-  addObject(objects: any[], parents: any[], befores: any[]): void {
-    const rootObjects = getDetachedObjectsRoots(objects)
-
-    for (let i = 0; i < rootObjects.length; i++) {
-      const object = rootObjects[i]
-      object.saveParent = true
-
-      const parent = parents ? parents[i] ?? parents[0] : undefined
-      const before = befores ? befores[i] ?? befores[0] : undefined
-
-      if (parent) {
-        if (before) {
-          const index = parent.children.indexOf(before)
-
-          if (index === -1) {
-            throw new Error(i18n.t('editor:errors.addObject'))
-          }
-
-          parent.children.splice(index, 0, object)
-          object.parent = parent
-        } else {
-          parent.add(object)
-        }
-      } else if (object !== Engine.scene) {
-        Engine.scene.add(object)
-      }
-
-      object.traverse((child) => {
-        if (child.isNode) {
-          if (this.useUniqueName) {
-            makeUniqueName(Engine.scene, child)
-          }
-
-          if (child.onAdd) child.onAdd()
-          NodeManager.instance.add(child)
-        }
-      })
-
-      object.updateMatrixWorld(true)
-    }
-
+  addObject(): void {
     if (this.isSelected) {
       CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects, {
         shouldEmitEvent: false

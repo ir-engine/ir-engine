@@ -51,7 +51,7 @@ import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoa
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
-import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functions/ScenePreviewCameraFunctions'
+import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
 
 export type DefaultExportOptionsType = {
   combineMeshes: boolean
@@ -328,7 +328,7 @@ export class SceneManager {
    * @param target
    * @return {any}        [Spwan position]
    */
-  getSpawnPosition(target) {
+  getSpawnPosition(target: Vector3) {
     return this.getScreenSpaceSpawnPosition(this.centerScreenSpace, target)
   }
 
@@ -371,7 +371,7 @@ export class SceneManager {
    * @param screenSpacePosition
    * @param target
    */
-  getScreenSpaceSpawnPosition(screenSpacePosition, target) {
+  getScreenSpaceSpawnPosition(screenSpacePosition: Vector2, target: Vector3) {
     this.raycastTargets.length = 0
     const closestTarget = getIntersectingNodeOnScreen(this.raycaster, screenSpacePosition, this.raycastTargets)
 

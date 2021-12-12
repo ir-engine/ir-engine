@@ -11,6 +11,10 @@ import { Object3DComponent } from '../../components/Object3DComponent'
 import { ShadowComponent, ShadowComponentType } from '../../components/ShadowComponent'
 
 export const SCENE_COMPONENT_SHADOW = 'shadow'
+export const SCENE_COMPONENT_SHADOW_DEFAULT_VALUES = {
+  cast: true,
+  receive: true
+}
 
 export const deserializeShadow: ComponentDeserializeFunction = (entity: Entity, component: ComponentJson) => {
   addComponent(entity, ShadowComponent, {

@@ -13,6 +13,16 @@ import { DirectionalLightComponent, DirectionalLightComponentType } from '../../
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_DIRECTIONAL_LIGHT = 'directional-light'
+export const SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES = {
+  color: '#ffffff',
+  intensity: 1,
+  castShadow: true,
+  shadowMapResolution: [256, 256],
+  shadowBias: 0.5,
+  shadowRadius: 1,
+  cameraFar: 100,
+  showCameraHelper: false
+}
 
 export const deserializeDirectionalLight: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   const light = new DirectionalLight()
