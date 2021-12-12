@@ -32,7 +32,7 @@ export default (app: Application): void => {
       try {
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
         const [results] = await sequelize.query("SHOW TABLES LIKE 'user';")
-        if (results.length === 0) {
+        if (!forceRefresh && results.length === 0) {
           throw new Error('\n\nUser table does not exist - make sure you have initialised the database\n\n')
         }
         // Sync to the database
