@@ -78,7 +78,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
           return geometry
         }
 
-        let geometry: BufferGeometry = createText('EXIT', 2.5)
+        let geometry: BufferGeometry = createText('EXIT', 2)
 
         if (args.displayText && args.displayText !== '') {
           const displayTextGeom = createText(args.displayText, 1)
@@ -86,7 +86,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
           geometry = mergeBufferGeometries([geometry, displayTextGeom]) as BufferGeometry
         }
 
-        const textSize = 0.15
+        const textSize = 0.25
         const text = new Mesh(geometry, new MeshBasicMaterial({ color: 0x000000 }))
         text.scale.setScalar(textSize)
 
