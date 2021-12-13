@@ -46,11 +46,11 @@ You should see one managed nodegroup already there; clicking on its name will op
 and editing, though you can't change the instance type after it's been made.
 
 Back at the Compute tab, click on Add Node Group. Pick a name (something like ng-gameservers-1 is recommended),
-select the IAM role that was created with the cluster (it should be something like ```eksctl-<cluster_name>-node-NodeInstanceRole-<jumble_of_characters>``),
+select the IAM role that was created with the cluster (it should be something like ```eksctl-<cluster_name>-node-NodeInstanceRole-<jumble_of_characters>```),
 toggle the Use Launch Template toggle and select the launch template you made in the previous step,
 then click Next. On the second page, Choose the instance type(s) you'd like for the group,
 set the minimum/maximum/desired scaling sizes, and hit Next (t3(a).smalls are recommended). 
-There may be connection issues with gameserver instances in private subnets, so remove all of the public
+There may be connection issues with gameserver instances in private subnets, so remove all of the private
 subnets from the list of subnets to use, and make sure that public subnets are being used (sometimes
 the workflow only selects private subnets by default). Hit Next, review everything, and click Create.
 
@@ -62,11 +62,62 @@ going down due to the redis servers getting interrupted.
 
 Back at the Compute tab, click on Add Node Group. Pick a name (the default config in packages/ops/config assumes
 a name of 'ng-redis-1'), select the IAM role that was created with the cluster 
-(it should be something like ```eksctl-<cluster_name>-node-NodeInstanceRole-<jumble_of_characters>``),
+(it should be something like ```eksctl-<cluster_name>-node-NodeInstanceRole-<jumble_of_characters>```),
 toggle the Use Launch Template toggle and select the launch template used to make the initial nodegroup,
 then click Next. On the second page, Choose the instance type(s) you'd like for the group,
 set the minimum/maximum/desired scaling sizes, and hit Next (You can probably get away with a single t3(a).small). 
 The default subnets should be fine, so hit Next, review everything, and click Create.
+
+### Create nodegroup for builder
+
+The full XREngine stack needs a builder server within the cluster in order to bundle and build
+XREngine projects into the codebase that will be deployed. This should run on its own nodegroup
+that has a single node - only one copy of the builder should ever be running at a time, and
+due to the high memory needs of building the client service, a box with >8 GB of RAM is needed.
+
+Back at the Compute tab, click on Add Node Group. Pick a name (something like `ng-dev-builder-1` is recommended) and
+select the IAM role that was created with the cluster (it should be something like 
+```eksctl-<cluster_name>-node-NodeInstanceRole-<jumble_of_characters>```). You don't need to use any Launch Template
+for this nodegroup. Click Next.
+
+On the second page, you can change the Capacity Type to `Spot` if you want to in order to save money; the builder
+service will likely not be running very often or for too long, so the odds of it getting interrupted by Spot instance
+outages are low, and it can always re-build if that does happen. Set the Disk Size to 50 GB; it takes a good deal of
+disk space to install and build the XREngine codebase, and the default 20 GB will almost certainly not be enough.
+
+For Instance Types, you need to only select types that have more than 8 GB; t3a.xlarge are the cheapest that fit
+this criteria. If you were to pick something with 8GB, it's highly likely that most builds would crash the node,
+as Kubernetes tends to restart nodes if they get anywhere near memory capacity.
+Under Node Group Scaling Configuration, set all three `nodes` values to 1. We only want a single copy of the builder
+at any given time, and running multiple powerful boxes can get pricey. Click Next.
+
+You can leave the subnets on the next page alone and click Next. On the last page, click Create.
+
+## Create ECR repositories for built images.
+The XREngine deployment process will be building multiple Docker images, and those need to be stored somewhere.
+In AWS, that somewhere is [Elastic Container Registry](https://us-west-1.console.aws.amazon.com/ecr/get-started).
+You need to make those repositories in the same AWS region where the EKS cluster is running.
+
+Go to the ECR link above and click Get Started under Create a Repository. If you're very concerned about any of your
+XREngine project codebase(s) getting out, you can choose Private for Visibility Settings, but normally Public is fine.
+You'll be needing to create multiple repositories for each deployment, e.g. a couple of repos for a `dev` deployment,
+a couple more for a `prod` deployment, etc.
+
+Assuming you're first doing a `dev` deployment, name the first repo `xrengine-dev` under Repository Name. You shouldn't
+need to change any other settings, though if you're using a Private repo and want to turn on Tag Immutability, that's
+fine. The image tags that are generated should never collide, but it will prevent any manual overwriting of a tag.
+Click Create Repository.
+
+You'll need to make a second repo called `<name>-<deployment_name>-builder`, e.g. `xrengine-dev-builder` as well. 
+Everything else can be left alone for that one, too.
+
+On the [repositories page](https://us-west-1.console.aws.amazon.com/ecr/repositories), you should see both of 
+the repositories you made. If you don't see any, you may be on the wrong tab up top - click Private or Public to switch
+between them. Also check that you're in the right AWS region. You'll see a column 'URI'. If you made public repos,
+the URIs should be in the form `public.ecr.aws/<identifier>/xrengine-<deployment_name>(-builder)`; if you made private 
+repos, the URIs should be in the form `<AWS_account_id>.dkr.ecr.<AWS_region>.amazonaws.com/xrengine-<deployment>(-builder)`. 
+Take note of everything before the `/xrengine-<deployment_name>` - you'll need to add that as a variable in later steps.
+It will be called `ECR_URL` there.
 
 ## Create IAM Roles for S3/SES/SNS/Route53 (or a single admin role)
 
@@ -91,8 +142,12 @@ Here are the services you want to create IAM admin users for, and the associated
 grant them:
 
 * Route53: `AmazonRoute53FullAccess` 
-* S3: `AmazonS3FullAccess`
+* S3: `AmazonS3FullAccess, CloudFrontFullAccess`
 * SNS: `AmazonSNSFullAccess`
+
+You'll also need to create an IAM user that GitHub Actions can use to access the cluster and push/pull
+Docker images from ECR. By convention, we call this user 'Github-Actions-User', and it needs these
+permissions: `AmazonEKSClusterPolicy, AmazonEKSWorkerNodePolicy, AmazonEKSServicePolicy, AmazonElasticContainerRegistryPublicAccess, AmazonEC2ContainerRegistryFullAccess`
 
 ### Creating new credentials for an IAM user
 If you ever lose the secret to a user, or want to make new credentials for whatever reason, go to
@@ -356,7 +411,9 @@ Various static files are stored in S3 behind a Cloudfront distribution.
 ### Create S3 bucket
 In the AWS web client, go to S3 -> Buckets and click Create Bucket.
 Name the bucket <name>-static-resources, e.g. ```xrengine-static-resources```, and have it be in Region us-east-1.
-Uncheck the checkbox Block *all* Public Access; you need the bucket to be publicly accessible.
+Under Object Ownership, select 'ACLs enabled', and under that select 'Object Writer'.
+Under Block Public Access Settings For The Bucket, uncheck the checkbox Block *all* Public Access; 
+you need the bucket to be publicly accessible.
 Check the box that pops up confirming that you know the contents are public.
 All other settings can be left to their default values; click Create Bucket.
 
@@ -412,7 +469,9 @@ Under Routing Policy, leave it on Simple Routing and click Next. Then click Defi
 The first record should be for the top-level domain, e.g. ```xrengine.io```, so leave the Record Name
 text field blank. Under Value/Route Traffic To, click on the dropdown and select
 Alias to Application and Classic Load Balancer. Select the region that your cluster is in.
-Where it says Choose Load Balancer, click the dropdown, and select the Application loadbalancer.
+Where it says Choose Load Balancer, click the dropdown, and select the Application loadbalancer - make
+sure you're selecting the Application LB and not the Classic LB, which are easy to get mixed up since everything
+before the '-' in the name is the same.
 Leave the Record Type as 'A - Route traffic to an IPv4 address and some AWS resources', then click
 Define Simple Record.
 
@@ -432,35 +491,143 @@ You should make the following 'A' records to the loadbalancer, substituting your
 
 You also need to make an 'A' record pointing 'resources.xrengine.io' to the CloudFront distribution you made earlier.
 
+## Create GitHub fork of XREngine repository.
+The XREngine codebase is most easily deployed by forking it and configuring some Secrets so that the included GitHub
+Actions can run the deployment for you. You can run all of the commands that the <dev/prod>-deploy action runs manually
+if you so choose, and in that case, you don't need to fork the GH repo.
+
+Go to https://github.com/XRFoundation/XREngine. In the upper right-hand corner, there's a button 'Fork'. Click that,
+then click the account/organization you wish to fork it to. You should be taken to your fork in a short time.
+
+You'll need to set several Secrets (runtime variables) for GitHub Actions. By default GitHub Actions should be fully
+enabled, but you can double-check by going to Settings->Actions. Allow All Actions should be selected under Actions
+Permissions.
+
+Next click on Secrets under Settings. There should be none by default. Click on New Repository Secret near the top of
+this page to make a new one. You will need to make several Secrets with the following Names and Values:
+
+* AWS_ACCESS_KEY -> The public Key of the Github-Actions-User IAM user
+* AWS_REGION -> The region of your ECR repos and EKS cluster
+* AWS_SECRET -> The secret key of the Github-Actions-User IAM user
+* CLUSTER_NAME -> The name of the EKS cluster
+* DEPLOYMENTS_ENABLED -> Set to `true`
+* DEV_REPO_NAME -> The name of the base dev ECR repository, e.g. `xrengine-dev` (any references to the builder repo will append `-builder` to this value)
+* DOCKER_LABEL -> This can be almost anything, but you can use `lagunalabs/xrengine`
+* ECR_URL -> The root ECR_URL for your repos, i.e. everything before the `/xrengine-dev(-builder)`, e.g. `11111111111.dkr.ecr.us-west-1.amazonaws.com` or `public.ecr.aws/a1b2c3d4`
+* PRIVATE_ECR -> Set this to `true` if your ECR repos are private, if they're public you don't need to set this at all
+
+If you go to the Actions Tab, you might see a few workflow runs with green checkmarks. If so, you'll be re-running the
+`dev-deploy` workflow shortly; its initial run just ran a check to see if it should do a deployment based on 
+`DEPLOYMENTS_ENABLED`, and since that wasn't set to true, it didn't do anything else. Now that that's set to true,
+re-running it will trigger a deployment.
+    
+If you're asked to enable actions when going to the tab, and there are no runs listed after enabling actions, then you'll have to 
+trigger the workflow by pushing new code to the dev branch.
+
+## Grant Github-Actions-User access to cluster
+By default, only the IAM user who set up an EKS cluster may access it.
+In order to let other users access the cluster, you must apply an aws-auth configmap to the cluster
+granting access to specific IAM users. A template for this file can be found in packages/ops/config/aws-auth-template.yml.
+
+You'll need to provide a few values for this file. To find `<rolearn>`, in AWS go to EKS->Clusters->
+<your cluster>->Compute->Select a nodegroup.  In the details should be 'Node IAM Role ARN'; copy this
+and replace `<rolearn>` in the aws-auth file. <account_id> is the ID of your AWS account; in the upper
+right corner of the AWS client should be <your_username>@<abcd-1234-efgh>. The 12-character string
+after the @ is the account ID. Make sure to remove the `-`'s from the account ID when pasting it in.
+<IAM_username> is the username of the IAM user you want to give access, e.g. `Github-Actions-User`.
+
+You can add multiple users by copying the `- groups:` section under `mapUsers`, e.g.
+
+```
+  mapUsers: |
+    - groups:
+      - system:masters
+      userarn: arn:aws:iam::abcd1234efgh:user/Github-Actions-User
+      username: Github-Actions-User
+    - groups:
+      - system:masters
+      userarn: arn:aws:iam::acbd1234efgh:user/FSmith
+      username: FSmith
+```
+
+When the aws-auth config file is filled in, just run `kubectl apply -f path/to/aws-auth.yml`.
+
 ## Deploy to EKS using Helm
 
 With all of the networking set up, you can finally deploy the codebase to EKS.
-You should have a .yaml file with various configuration variables specified for your deployment.
-The Helm chart will pull a Docker image from the lagunalabs/xrengine Docker Hub account.
-There's a CI/CD pipeline attached to the XREngine GitHub account that builds every
-time the dev and master branches are updated, and tags each build with the GitHub SHA
-of the latest commit. You'll have to provide this SHA as part of the configuration, most
-easily as one-off settings as demonstrated below.
+There's a couple of steps to this, which will involve deploying things with most but not all of the needed
+configuration values, and then letting the deployment process fill in the rest.
 
 ### Fill in Helm config file with variables
 Template Helm config files for dev and prod deployments can be found at packages/ops/configs/<dev/prod>.template.values.yaml.
 Before filling them in, make a copy elsewhere, call that '<dev/prod>.values.yaml', and edit that copy.
+There's also a <dev/prod>.builder.template.values.yaml template, which should also be filled in.
 
 There are many fields to fill in, most marked with <>. Not all are necessary for all situations - if you're not
-using social login, for instance, you don't need credentials for Github/Google/Facebook/etc. `
+using social login, for instance, you don't need credentials for Github/Google/Facebook/etc.
+
+### Configuration variables of note
+Here are some configuration variables that you'll probably need to change based on your specific setup
+#### <api/client/analytics>.affinity.nodeAffinity
+Within the sections of the config for the api, client, gameserver, etc., is a section that looks 
+something like this:
+```
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                  - ng-1
+```
+
+The value, `ng-1` in this example, must be changed to match whatever the name of the nodegroup that 
+that service will be running on, e.g. if you create a nodegroup for the gameservers called
+`abcd-gameservers-5`, then you'd use that value under `values:`
+
+If your EKS setup created a nodegroup for you, and you want to use that for the api, client, and
+analytics servers, make sure to change the affinity value for them to whatever EKS named the
+initial nodegroup.
+
+#### builder.extraEnv.PRIVATE_ECR
+If you're using a private ECR repo, set this to "true" in the builder config file.
+
+#### (everything).image.repository
+You'll need to replace every <repository_name> with the ECR_URL of your non-builder repo, e.g. `abcd1234efgh.dkr.ecr.us-west-1.amazonaws.com/xrengine-dev`
 
 ### Run Helm install
-Run ```helm install -f </path/to/*.values.yaml> --set api.image.tag=<latest_github_commit_SHA>,client.image.tag=<latest_github_commit_SHA>,gameserver.image.tag=<latest_github_commit_SHA> --set-string api.extraEnv.FORCE_DB_REFRESH=true <stage_name> xrengine/xrengine```
+Run ```helm install -f </path/to/*.builder.values.yaml> <stage_name>-builder xrengine/xrengine-builder```
+and the run ```helm install -f </path/to/*.values.yaml> <stage_name> xrengine/xrengine```
 
-After a minute or so, all of the pods should be up and running, and you should be able to
-go to the root domain you have this deployment running on and see something.
+This will spin up the main and builder deployments using their respective Helm config files, <dev/prod>.builder.values.yaml and
+<dev/prod>.values.yaml. Neither will fully work yet, since there's no valid image in the repos yet. The GitHub
+Actions and builder processes will make those images and update the deployments with the tags of the images they've built
+so that they can pull down and use those images.
 
-#### Unset FORCE_DB_REFRESH
-Setting the environment variable api.extraEnv.FORCE_DB_REFRESH to 'true' tells the API servers to wipe
-and (re-)seed the database. This is required during initial setup, but you don't want every new api server
-pod that's spun up to re-run this. A few minutes after running the `helm install` command, you should
-run ```helm upgrade --reuse-values --set-string api.extraEnv.FORCE_DB_REFRESH=false <stage_name> xrengine/xrengine```.
-This will set the ENV_VAR to 'false', and the API servers will not attempt to seed anything.
+## Kick off GitHub Actions
+In GitHub, if you go to back to the Actions tab, you should see a `dev-deploy` action. Click on it, and you should see
+a page showing its status, which should be all green checkmarks or indicators that things didn't run. In the upper
+right, click `Re-run all jobs`. This will start it again, and now that `DEPLOYMENTS_ENABLED` is set to true, it should
+attempt to build and deploy the builder.
+    
+(If actions were disabled at first, you'll have to merge additional code into the dev branch to get it to start the dev-deploy process)
+
+### Overview of the build process
+The full build and deployment process works like this:
+1. GitHub Actions builds just enough of the XREngine monorepo to fetch any installed XREngine projects.
+2. GitHub Actions pushes this builder Docker image to the repo `xrengine-<release>-builder` in ECR
+3. GitHub Actions updates the builder deployment to point to the builder image it just created.
+4. The builder deployment spins up the builder Docker image on its single node
+5. The builder connects to the deployment's database and checks if there is a table `user`. This is a proxy
+    for the database being seeded; if it does not exist, it seeds the database with the basic XREngine schema,
+    seeds the default project into the database and storage provider, and seeds various types.
+6. The builder downloads any XREngine projects that the deployment has added.
+7. The builder builds the client files using these projects, as well as copying them so that the api and gameservers have access to them.
+8. The builder pushes this final Docker image to the repo `xrengine-<release>` in ECR
+9. The builder updates the main deployment to point to the final image it just created.
+10. The main deployment spins up the final Docker image for the api, analytics, client, and gameserver services.
 
 ### Upgrading an existing Helm deployment
 One of the features of Helm is being able to easily upgrade deployments with new values. The command to
@@ -468,8 +635,9 @@ do this is very similar to the install command:
 
 ```helm upgrade --reuse-values -f </path/to/*.values.yaml> --set api.image.tag=<latest_github_commit_SHA>,client.image.tag=<latest_github_commit_SHA>,gameserver.image.tag=<latest_github_commit_SHA> <stage_name> xrengine/xrengine```
 
-```--reuse-values``` says to carry over all configuration values from the previous deployment.
+```--reuse-values``` says to carry over all configuration values from the previous deployment. This is most important
+for tags, since they're usually set inline with the `helm install/upgrade` command, not a Helm config.
 Using ```-f <config_file>``` and ```--set <variables>``` after it will apply any changes on top of the
 carryover values.
 
-If you're not deploying a new version of the codebase, you can skip the entirety of the ```--set *.image.tag=<SHA>```.
+If you're not deploying a new build of the codebase, you can skip the entirety of the ```--set *.image.tag=<SHA>```.

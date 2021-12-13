@@ -1,15 +1,16 @@
-import { ShoppingCart } from '@styled-icons/fa-solid/ShoppingCart'
-import React, { Fragment, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import i18n from 'i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
+import InteractableGroup from '../inputs/InteractableGroup'
 import NodeEditor from './NodeEditor'
-import dompurify from 'dompurify'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
+import React, { Fragment, useEffect, useState } from 'react'
+import { useTranslation, withTranslation } from 'react-i18next'
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 
 import AudioSourceProperties from './AudioSourceProperties'
 import { ControlledStringInput } from '../inputs/StringInput'
@@ -17,27 +18,6 @@ import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
 import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from '../../nodes/SceneNode'
-
-/**
- * Array containing options for InteractableOption.
- *
- * @author Robert Long
- * @type {Array}
- */
-const InteractableOption = [
-  {
-    label: 'InfoBox',
-    value: 'infoBox'
-  },
-  {
-    label: 'Open link',
-    value: 'link'
-  },
-  {
-    label: 'Equippable',
-    value: 'equippable'
-  }
-]
 
 /**
  * Declaring properties for ModalNodeEditor component.
@@ -61,20 +41,9 @@ type ShopifyNodeEditorState = {
  * @author Robert Long
  * @type {class component}
  */
-export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
-  const [options, setOptions] = useState([])
-  const { t } = useTranslation()
 
-  useEffect(() => {
-    const options = []
-    const sceneNode = Engine.scene as any as SceneNode
-    sceneNode.traverse((o) => {
-      if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
-        options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
-      }
-    })
-    setOptions(options)
-  }, [])
+export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
+  const { t } = useTranslation()
 
   //Shopify UI Controls
   const onChangeShopifyDomain = (domain) => {
@@ -97,111 +66,6 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
   // function to handle changes in interactable property
   const onChangeInteractable = (interactable) => {
     CommandManager.instance.setPropertyOnSelection('interactable', interactable)
-  }
-
-  // function to handle changes in interactionType property
-  const onChangeInteractionType = (interactionType) => {
-    CommandManager.instance.setPropertyOnSelection('interactionType', interactionType)
-  }
-
-  // function to handle changes in interactionText property
-  const onChangeInteractionText = (interactionText) => {
-    CommandManager.instance.setPropertyOnSelection('interactionText', interactionText)
-  }
-
-  // function to handle changes in interactionText property
-  const onChangeInteractionDistance = (interactionDistance) => {
-    CommandManager.instance.setPropertyOnSelection('interactionDistance', interactionDistance)
-  }
-
-  // function to handle changes in payloadName property
-  const onChangePayloadName = (payloadName) => {
-    CommandManager.instance.setPropertyOnSelection('payloadName', payloadName)
-  }
-
-  // function to handle changes in payloadUrl
-  const onChangePayloadUrl = (payloadUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadUrl', payloadUrl)
-  }
-
-  // function to handle changes in payloadBuyUrl
-  const onChangePayloadBuyUrl = (payloadBuyUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadBuyUrl', payloadBuyUrl)
-  }
-
-  // function to handle changes in payloadLearnMoreUrl
-  const onChangePayloadLearnMoreUrl = (payloadLearnMoreUrl) => {
-    CommandManager.instance.setPropertyOnSelection('payloadLearnMoreUrl', payloadLearnMoreUrl)
-  }
-
-  // function to handle changes in payloadHtmlContent
-  const onChangePayloadHtmlContent = (payloadHtmlContent) => {
-    const sanitizedHTML = dompurify.sanitize(payloadHtmlContent)
-    if (sanitizedHTML !== payloadHtmlContent)
-      console.warn("Code has been sanitized, don't try anything sneaky please...")
-    CommandManager.instance.setPropertyOnSelection('payloadHtmlContent', sanitizedHTML)
-  }
-
-  // creating view for interactable type
-  const renderInteractableTypeOptions = (node) => {
-    switch (node.interactionType) {
-      case 'infoBox':
-        return (
-          <>
-            <InputGroup name="Name" label={t('editor:properties.shopify.lbl-name')}>
-              <StringInput value={node.payloadName} onChange={onChangePayloadName} />
-            </InputGroup>
-            <InputGroup name="Url" label={t('editor:properties.shopify.lbl-url')}>
-              <StringInput value={node.payloadUrl} onChange={onChangePayloadUrl} />
-            </InputGroup>
-            <InputGroup name="BuyUrl" label={t('editor:properties.shopify.lbl-buy')}>
-              <StringInput value={node.payloadBuyUrl} onChange={onChangePayloadBuyUrl} />
-            </InputGroup>
-            <InputGroup name="LearnMoreUrl" label={t('editor:properties.shopify.lbl-learnMore')}>
-              <StringInput value={node.payloadLearnMoreUrl} onChange={onChangePayloadLearnMoreUrl} />
-            </InputGroup>
-            <InputGroup name="HtmlContent" label={t('editor:properties.shopify.lbl-htmlContent')}>
-              <StringInput value={node.payloadHtmlContent} onChange={onChangePayloadHtmlContent} />
-            </InputGroup>
-          </>
-        )
-      default:
-        break
-    }
-  }
-
-  // creating view for dependent fields
-  const renderInteractableDependantFields = (node) => {
-    switch (node.interactable) {
-      case true:
-        return (
-          <Fragment>
-            <InputGroup name="Interaction Text" label={t('editor:properties.shopify.lbl-interactionText')}>
-              <StringInput value={node.interactionText} onChange={onChangeInteractionText} />
-            </InputGroup>
-            <InputGroup name="Interaction Type" label={t('editor:properties.shopify.lbl-interactionType')}>
-              <SelectInput
-                options={InteractableOption}
-                value={node.interactionType}
-                onChange={onChangeInteractionType}
-              />
-            </InputGroup>
-            <NumericInputGroup
-              name="Interaction Distance"
-              label={t('editor:properties.shopify.lbl-interactionDistance')}
-              onChange={onChangeInteractionDistance}
-              min={0}
-              smallStep={0.001}
-              mediumStep={0.01}
-              largeStep={0.1}
-              value={(node as any).intensity}
-            />
-            {renderInteractableTypeOptions(node)}
-          </Fragment>
-        )
-      default:
-        break
-    }
   }
 
   //Model UI Controls
@@ -381,9 +245,10 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
   }
 
   // rendering view of ShopifyNodeEditor
+
   const node = props.node as any
   return (
-    <NodeEditor description={t('editor:properties.shopify.description')} {...props}>
+    <NodeEditor description={ShopifyNodeEditor.description} {...props}>
       <InputGroup name="Shopify Domain" label={t('editor:properties.shopify.lbl-shopifyDomain')}>
         <StringInput value={node.shopifyDomain} onChange={onChangeShopifyDomain} />
       </InputGroup>
@@ -391,26 +256,34 @@ export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
         <StringInput value={node.shopifyToken} onChange={onChangeShopifyToken} />
       </InputGroup>
 
-      <InputGroup name="Shopify Products" label={t('editor:properties.shopify.lbl-shopifyProducts')}>
-        <SelectInput options={node.shopifyProducts} value={node.shopifyProductId} onChange={onChangeProducts} />
-      </InputGroup>
+      {node.shopifyProducts && node.shopifyProducts.length > 0 && (
+        <InputGroup name="Shopify Products" label={t('editor:properties.shopify.lbl-shopifyProducts')}>
+          <SelectInput options={node.shopifyProducts} value={node.shopifyProductId} onChange={onChangeProducts} />
+        </InputGroup>
+      )}
 
-      <InputGroup name="Shopify Products" label={t('editor:properties.shopify.lbl-shopifyProductItems')}>
-        <SelectInput
-          options={node.shopifyProductItems}
-          value={node.shopifyProductItemId}
-          onChange={onChangeProductItems}
-        />
-      </InputGroup>
+      {node.shopifyProductItems && node.shopifyProductItems.length > 0 && (
+        <InputGroup name="Shopify Media" label={t('editor:properties.shopify.lbl-shopifyProductItems')}>
+          <SelectInput
+            options={node.shopifyProductItems}
+            value={node.shopifyProductItemId}
+            onChange={onChangeProductItems}
+          />
+        </InputGroup>
+      )}
+
       {renderPropertiesFields(node)}
-      <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
-        <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
-      </InputGroup>
-      {renderInteractableDependantFields(node)}
+      {node.shopifyProductItemId != '' && (
+        <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
+          <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
+        </InputGroup>
+      )}
+      {node.interactable && <InteractableGroup node={node} t={t}></InteractableGroup>}
     </NodeEditor>
   )
 }
 
-ShopifyNodeEditor.iconComponent = ShoppingCart
+ShopifyNodeEditor.description = i18n.t('editor:properties.shopify.description')
+ShopifyNodeEditor.iconComponent = ShoppingCartIcon
 
 export default ShopifyNodeEditor

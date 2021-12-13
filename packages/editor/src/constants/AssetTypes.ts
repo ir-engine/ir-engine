@@ -9,12 +9,20 @@ import { NativeTypes } from 'react-dnd-html5-backend'
  */
 export const ItemTypes = {
   File: NativeTypes.FILE,
+  Folder: 'folder',
   FileBrowserContent: [
     'png',
     'jpeg',
+    'jpg',
+    'gif',
     'gltf',
+    'glb',
     'mp4',
+    'mp3',
     'mpeg',
+    'tsx',
+    'ts',
+    'js',
     NativeTypes.FILE,
     'folder',
     'image/png',
@@ -23,6 +31,12 @@ export const ItemTypes = {
     'audio/mpeg',
     'model/gltf'
   ],
+  Audios: ['mp3', 'mpeg'],
+  Images: ['png', 'jpeg', 'jpg', 'gif'],
+  Models: ['glb', 'gltf'],
+  Scripts: ['tsx', 'ts', 'jsx', 'js'],
+  Videos: ['mp4'],
+  //TODO: Need to check if following types are really used or not.
   Node: 'Node',
   Model: 'Model',
   Shopify: 'Shopify',

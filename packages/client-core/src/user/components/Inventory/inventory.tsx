@@ -5,12 +5,21 @@ import InventoryContent from '../UserMenu/menus/InventoryContent'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { client } from '../../../feathers'
+import { bindActionCreators, Dispatch } from 'redux'
+import axios from 'axios'
 
 export const InventoryPage = (): any => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const [state, setState] = useState<any>({ data: [], user: [], isLoading: true, isLoadingtransfer: false })
-  const { data, user, isLoading, isLoadingtransfer } = state
+  const [state, setState] = useState<any>({
+    coinData: [],
+    data: [],
+    user: [],
+    type: [],
+    isLoading: true,
+    isLoadingtransfer: false
+  })
+  const { data, user, type, isLoading, isLoadingtransfer, coinData } = state
 
   const authState = useAuthState()
 
@@ -22,6 +31,7 @@ export const InventoryPage = (): any => {
     if (authState.isLoggedIn.value) {
       fetchInventoryList()
       fetchUserList()
+      fetchtypeList()
     }
   }, [authState.isLoggedIn.value])
 
@@ -36,7 +46,6 @@ export const InventoryPage = (): any => {
         userInventoryId: itemid
       })
       fetchInventoryList()
-      console.log('success')
     } catch (err) {
       console.error(err, 'error')
     } finally {
@@ -54,10 +63,10 @@ export const InventoryPage = (): any => {
     }))
     try {
       const response = await client.service('user').get(id)
-      console.log(response)
       setState((prevState) => ({
         ...prevState,
-        data: [...response.inventory_items],
+        data: [...response.inventory_items.filter((val) => val.isCoin === false)],
+        coinData: [...response.inventory_items.filter((val) => val.isCoin === true)],
         isLoading: false
       }))
     } catch (err) {
@@ -72,13 +81,26 @@ export const InventoryPage = (): any => {
           action: 'inventory'
         }
       })
-      console.log(response)
       if (response.data && response.data.length !== 0) {
-        const activeUser = response.data.filter((val: any) => val.inviteCode !== null)
+        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== id)
         setState((prevState: any) => ({
           ...prevState,
           user: [...activeUser],
           isLoading: false
+        }))
+      }
+    } catch (err) {
+      console.error(err, 'error')
+    }
+  }
+
+  const fetchtypeList = async () => {
+    try {
+      const response = await client.service('inventory-item-type').find()
+      if (response.data && response.data.length !== 0) {
+        setState((prevState: any) => ({
+          ...prevState,
+          type: [...response.data]
         }))
       }
     } catch (err) {
@@ -104,7 +126,9 @@ export const InventoryPage = (): any => {
       ) : (
         <InventoryContent
           data={data}
+          coinData={coinData}
           user={user}
+          type={type}
           handleTransfer={handleTransfer}
           isLoadingtransfer={isLoadingtransfer}
         />

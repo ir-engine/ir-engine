@@ -417,15 +417,27 @@
                     color: white;
                     margin: 5px 0 !important;
                     span { text-transform: capitalize; font-weight: 700; }
+
+                    &.showUserId {
+                        &:hover {
+                            color: black;
+                            cursor: pointer;
+                        }
+                    }
                 }
                 h4 {
                     margin-top: 4px;
                     text-align: left;
                     color: white;
 
-                    &:hover {
-                        opacity: 0.8;
-                        cursor: pointer;
+                    .logout {
+                        max-width: 50px;
+
+                        &:hover {
+                            opacity: 0.8;
+                            cursor: pointer;
+                            color: black;
+                        }
                     }
                 }
             }

@@ -1,7 +1,10 @@
 import assert from 'assert'
 import app from "../../server/src/app"
-import dataToBeSent from "./inventory_item_type.test"
-import dataToBeSent2 from "./inventory_item.test"
+import dataToBeSent from "./inventory-item-type.test"
+import  data  from "./inventory-item.test"
+
+
+let dataToBeSent2 = data.dataToBeSent2
 
 describe('Clean up database', () => {
 

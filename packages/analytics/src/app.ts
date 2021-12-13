@@ -17,6 +17,7 @@ import { Application } from '@xrengine/server-core/declarations'
 
 const emitter = new EventEmitter()
 
+// @ts-ignore
 const app = express(feathers()) as Application
 
 app.set('nextReadyEmitter', emitter)

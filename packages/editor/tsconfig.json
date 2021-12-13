@@ -9,16 +9,17 @@
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": false,
-    "module": "esnext",
+    "noEmit": true,
+    "module": "CommonJS",
     "strict": false,
+    "strictNullChecks": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "isolatedModules": true,
+    "isolatedModules": false,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
@@ -26,15 +27,13 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "**/node_modules/**",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.test.js",
-    "tests/**",
-    "./src/**/*.d.ts"
+    "../projects/projects/**",
+    "**/node_modules/**"
   ],
   "include": [
     "./**/*.ts",
-    "./**/*.tsx"
+    "./**/*.tsx",
+    "../../PhysX.d.ts",
+    "../../PhysXDebug.d.ts"
   ]
 }

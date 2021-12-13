@@ -1,9 +1,7 @@
-import Button from '@mui/material/Button'
-import Snackbar from '@mui/material/Snackbar'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import React, { Suspense, useEffect, useState } from 'react'
-import NetworkDebug from '../NetworkDebug'
+import React, { Suspense } from 'react'
+import Debug from '../Debug'
 import GameServerWarnings from './GameServerWarnings'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
@@ -17,7 +15,6 @@ const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/c
 
 interface Props {
   allowDebug
-  reinit
   locationName
   hideVideo?: boolean
   hideFullscreen?: boolean
@@ -32,7 +29,7 @@ const DefaultLayoutView = (props: Props) => {
   return (
     <>
       <LoadingScreen />
-      {props.allowDebug && <NetworkDebug reinit={props.reinit} />}
+      {props.allowDebug && <Debug />}
       {isTouchAvailable ? (
         <Suspense fallback={<></>}>
           <TouchGamepad layout="default" />
@@ -40,7 +37,7 @@ const DefaultLayoutView = (props: Props) => {
       ) : null}
 
       <GameServerWarnings
-        isTeleporting={engineState.isTeleporting.value}
+        isTeleporting={!!engineState.isTeleporting.value}
         locationName={props.locationName}
         instanceId={selfUser?.instanceId.value ?? party?.instanceId}
       />

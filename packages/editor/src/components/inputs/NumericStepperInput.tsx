@@ -1,8 +1,8 @@
-import React, { useRef, useCallback } from 'react'
+import React from 'react'
 import NumericInput from './NumericInput'
 import styled from 'styled-components'
-import { CaretLeft } from '@styled-icons/boxicons-regular/CaretLeft'
-import { CaretRight } from '@styled-icons/boxicons-regular/CaretRight'
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import { InfoTooltip } from '../layout/Tooltip'
 
 /**
@@ -63,28 +63,30 @@ const StepperButton = (styled as any).button`
  * @param {any} rest
  * @returns
  */
-export function NumericStepperInput({ style, className, decrementTooltip, incrementTooltip, ...rest }: any) {
-  const inputRef = useRef() as any
-
-  const onDecrement = useCallback(() => {
-    inputRef.current.decrement()
-  }, [inputRef])
-
-  const onIncrement = useCallback(() => {
-    inputRef.current.increment()
-  }, [inputRef])
+export function NumericStepperInput({
+  style,
+  className,
+  decrementTooltip,
+  incrementTooltip,
+  onChange,
+  value,
+  mediumStep,
+  ...rest
+}: any) {
+  const onIncrement = () => onChange(value + mediumStep)
+  const onDecrement = () => onChange(value - mediumStep)
 
   return (
     <StepperInputContainer style={style} className={className}>
       <InfoTooltip info={decrementTooltip} position="bottom">
         <StepperButton left onClick={onDecrement}>
-          <CaretLeft size={16} />
+          <ArrowLeftIcon fontSize="small" />
         </StepperButton>
       </InfoTooltip>
-      <NumericInput innerRef={inputRef} {...rest} />
+      <NumericInput {...rest} onChange={onChange} value={value} mediumStep={mediumStep} />
       <InfoTooltip info={incrementTooltip} position="bottom">
         <StepperButton right onClick={onIncrement}>
-          <CaretRight size={16} />
+          <ArrowRightIcon fontSize="small" />
         </StepperButton>
       </InfoTooltip>
     </StepperInputContainer>

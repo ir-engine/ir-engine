@@ -2,7 +2,6 @@ import config from '../../appconfig'
 
 export const authenticationSeed = {
   path: 'authentication-setting',
-  randomize: false,
   templates: [
     {
       service: 'identity-provider',
@@ -10,6 +9,8 @@ export const authenticationSeed = {
       secret: 'test',
       authStrategies: JSON.stringify([
         { jwt: true },
+        { smsMagicLink: true },
+        { emailMagicLink: true },
         { local: true },
         { facebook: true },
         { github: true },

@@ -5,7 +5,7 @@ import { Mesh, MeshLambertMaterial, PlaneBufferGeometry } from 'three'
 import computeTileBoundingBox from '../functions/computeTileBoundingBox'
 import FeatureKey from '../classes/FeatureKey'
 
-export const name = 'create fallback landuse mesh'
+export const name = 'CreateFallbackLanduseMesh'
 export const isAsyncPhase = false
 export const isCachingPhase = false
 

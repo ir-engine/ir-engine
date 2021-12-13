@@ -1,5 +1,4 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { DEFAULT_AVATARS } from '@xrengine/common/src/constants/AvatarConstants'
 import { Application } from '../../../declarations'
 import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
@@ -7,6 +6,10 @@ import { random } from 'lodash'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { AuthenticationService } from '@feathersjs/authentication'
 import config from '../../appconfig'
+import { Params } from '@feathersjs/feathers'
+import Paginated from '../../types/PageObject'
+
+interface Data {}
 
 /**
  * A class for identity-provider service
@@ -30,11 +33,10 @@ export class IdentityProvider extends Service {
    * @param params
    * @returns accessToken
    */
-  async create(data: any, params: any): Promise<any> {
-    const { token, type, password } = data
+  async create(data: any, params: Params): Promise<any> {
+    let { token, type, password } = data
 
-    // if userId is in data, the we add this identity provider to the user with userId
-    // if not, we create a new user
+    if (params.provider && type !== 'password' && type !== 'email' && type !== 'sms') type = 'guest' //Non-password/magiclink create requests must always be for guests
     let userId = data.userId
     let identityProvider: any
 
@@ -137,6 +139,7 @@ export class IdentityProvider extends Service {
         userRole: 'admin'
       }
     })
+    const avatars = await this.app.service('avatar').find({ isInternal: true })
     const result = await super.create(
       {
         ...data,
@@ -145,12 +148,28 @@ export class IdentityProvider extends Service {
           id: userId,
           userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
           inviteCode: type === 'guest' ? null : code,
-          avatarId: DEFAULT_AVATARS[random(DEFAULT_AVATARS.length - 1)]
+          avatarId: avatars[random(avatars.length - 1)].avatarId
         }
       },
       params
     )
+    // DRC
+    try {
+      if (result.user.userRole !== 'guest') {
+        let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
+        let invenDataId = invenData.data[0].dataValues.inventoryItemId
+        let resp = await this.app.service('user-inventory').create({
+          userId: result.user.id,
+          inventoryItemId: invenDataId,
+          quantity: 10
+        })
 
+        let newData = await this.app.service('user-wallet').create({ userId: result.user.id })
+      }
+    } catch (err) {
+      console.log('ERROR', err)
+    }
+    // DRC
     // await this.app.service('user-settings').create({
     //   userId: result.userId
     // });
@@ -178,5 +197,10 @@ export class IdentityProvider extends Service {
       result.accessToken = await authService.createAccessToken({}, { subject: result.id.toString() })
     }
     return result
+  }
+
+  async find(params: Params): Promise<Data[] | Paginated<Data>> {
+    if (params.provider) params.query!.userId = params['identity-provider'].userId
+    return super.find(params)
   }
 }

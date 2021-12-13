@@ -24,7 +24,7 @@ export class Invite extends Service {
    * @author Vyacheslav Solovjov
    */
   async find(params: Params): Promise<any> {
-    const query = params.query
+    const query = params.query!
     if (query.type === 'received') {
       const identityProviders = await this.app.service('identity-provider').find({
         query: {

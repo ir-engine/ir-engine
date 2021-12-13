@@ -73,7 +73,7 @@ export class S3Provider implements StorageProviderInterface {
           } else {
             resolve({
               Body: data.Body as Buffer,
-              ContentType: data.ContentType
+              ContentType: data.ContentType!
             })
           }
         }
@@ -100,11 +100,19 @@ export class S3Provider implements StorageProviderInterface {
     })
   }
 
-  listObjects = async (prefix: string, recursive = true): Promise<StorageListObjectInterface> => {
+  listObjects = async (
+    prefix: string,
+    results: any[],
+    recursive = true,
+    continuationToken: string | undefined
+  ): Promise<StorageListObjectInterface> => {
+    const self = this
+
     return new Promise((resolve, reject) =>
       this.provider.listObjectsV2(
         {
           Bucket: this.bucket,
+          ContinuationToken: continuationToken,
           Prefix: prefix,
           Delimiter: recursive ? undefined : '/'
         },
@@ -113,7 +121,10 @@ export class S3Provider implements StorageProviderInterface {
             console.error(err)
             reject(err)
           } else {
-            resolve(data as StorageListObjectInterface)
+            data.Contents = results.concat(data.Contents)
+            if (data.IsTruncated)
+              self.listObjects(prefix, data.Contents, true, data.NextContinuationToken).then((data) => resolve(data))
+            else resolve(data as StorageListObjectInterface)
           }
         }
       )
@@ -128,7 +139,7 @@ export class S3Provider implements StorageProviderInterface {
           Body: params.Body,
           Bucket: this.bucket,
           ContentType: params.ContentType,
-          Key: params.Key
+          Key: params.Key!
         },
         (err, data) => {
           if (err) {
@@ -214,10 +225,9 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   listFolderContent = async (folderName: string, recursive = false): Promise<FileContentType[]> => {
-    const folderContent = await this.listObjects(folderName, recursive)
+    const folderContent = await this.listObjects(folderName, [], recursive, null!)
     // console.log('folderContent', folderContent)
-    const np = new RegExp(`${folderName}${'(?<filename>.*)'}`)
-    const promises = []
+    const promises: Promise<FileContentType>[] = []
     // Files
     for (let i = 0; i < folderContent.Contents.length; i++) {
       promises.push(
@@ -229,23 +239,23 @@ export class S3Provider implements StorageProviderInterface {
           const cont: FileContentType = {
             key,
             url,
-            name: query.groups.name,
-            type: query.groups.extension
+            name: query!.groups!.name,
+            type: query!.groups!.extension
           }
           resolve(cont)
         })
       )
     }
     // Folders
-    for (let i = 0; i < folderContent.CommonPrefixes.length; i++) {
+    for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
       promises.push(
         new Promise(async (resolve) => {
-          const key = folderContent.CommonPrefixes[i].Prefix.slice(0, -1)
+          const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
           const url = `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
           const cont: FileContentType = {
             key,
             url,
-            name: key.split('/').pop(),
+            name: key.split('/').pop()!,
             type: 'folder'
           }
           resolve(cont)
@@ -255,20 +265,20 @@ export class S3Provider implements StorageProviderInterface {
     return await Promise.all(promises)
   }
 
-  async moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null) {
-    const promises = []
+  async moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null!) {
+    const promises: any[] = []
     promises.push(...(await this._moveObject(current, destination, isCopy, renameTo)))
     await Promise.all(promises)
     return
   }
 
-  private async _moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null) {
-    const promises = []
-    const listResponse = await this.listObjects(current)
+  private async _moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null!) {
+    const promises: any[] = []
+    const listResponse = await this.listObjects(current, [], true, null!)
 
     promises.push(
       ...listResponse.Contents.map(async (file) => {
-        const dest = `${destination}${file.Key.replace(listResponse.Prefix, '')}`
+        const dest = `${destination}${file.Key.replace(listResponse.Prefix!, '')}`
         let fileName = renameTo != null ? renameTo : path.basename(current)
         let isDestAvailable = false
         const f = fileName.split('.')
@@ -300,12 +310,12 @@ export class S3Provider implements StorageProviderInterface {
 
     // recursive copy sub-folders
     promises.push(
-      ...listResponse.CommonPrefixes.map(async (folder) =>
+      ...listResponse.CommonPrefixes!.map(async (folder) =>
         this._moveObject(
           `${folder.Prefix}`,
-          `${destination}${folder.Prefix.replace(listResponse.Prefix, '')}`,
+          `${destination}${folder.Prefix.replace(listResponse.Prefix!, '')}`,
           isCopy,
-          null
+          null!
         )
       )
     )

@@ -1,6 +1,6 @@
 import { AmbientLight, PerspectiveCamera } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -17,12 +17,13 @@ import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { setObjectLayers } from './setObjectLayers'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
   handleNewScene: () => void
 ) => {
-  Engine.defaultWorld!.isInPortal = true
+  Engine.currentWorld!.isInPortal = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
@@ -41,15 +42,12 @@ export const teleportToScene = async (
 
   const hyperspaceEffect = new PortalEffect(texture)
   hyperspaceEffect.scale.set(10, 10, 10)
-  hyperspaceEffect.traverse((obj) => {
-    obj.layers.enable(CameraLayers.Portal)
-    obj.layers.disable(CameraLayers.Scene)
-  })
   hyperspaceEffect.position.copy(playerObj.value.position)
   hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
+  setObjectLayers(hyperspaceEffect, ObjectLayers.Render, ObjectLayers.Portal)
 
   const light = new AmbientLight('#aaa')
-  light.layers.enable(CameraLayers.Portal)
+  light.layers.enable(ObjectLayers.Portal)
   Engine.scene.add(light)
 
   Engine.scene.add(hyperspaceEffect)
@@ -71,14 +69,11 @@ export const teleportToScene = async (
   }, delta * 1000)
 
   Engine.scene.background = null
-  Engine.camera.layers.enable(CameraLayers.Portal)
-  Engine.camera.layers.enable(CameraLayers.Avatar)
-  Engine.camera.layers.disable(CameraLayers.Scene)
+  Engine.camera.layers.enable(ObjectLayers.Portal)
+  Engine.camera.layers.enable(ObjectLayers.Avatar)
+  Engine.camera.layers.disable(ObjectLayers.Scene)
 
-  playerObj.value.traverse((obj) => {
-    obj.layers.enable(CameraLayers.Avatar)
-    obj.layers.disable(CameraLayers.Scene)
-  })
+  setObjectLayers(playerObj.value, ObjectLayers.Render, ObjectLayers.Avatar)
 
   // TODO: add BPCEM of old and new scenes and fade them in and out too
   await hyperspaceEffect.fadeIn(delta)
@@ -110,23 +105,20 @@ export const teleportToScene = async (
 
   await delay(250)
 
-  Engine.camera.layers.enable(CameraLayers.Scene)
+  Engine.camera.layers.enable(ObjectLayers.Scene)
   light.removeFromParent()
   light.dispose()
 
   await hyperspaceEffect.fadeOut(delta)
 
-  playerObj.value.traverse((obj) => {
-    obj.layers.enable(CameraLayers.Scene)
-    obj.layers.disable(CameraLayers.Avatar)
-  })
+  setObjectLayers(playerObj.value, ObjectLayers.Render, ObjectLayers.Scene)
 
-  Engine.camera.layers.disable(CameraLayers.Portal)
-  Engine.camera.layers.disable(CameraLayers.Avatar)
+  Engine.camera.layers.disable(ObjectLayers.Portal)
+  Engine.camera.layers.disable(ObjectLayers.Avatar)
 
   hyperspaceEffect.removeFromParent()
 
   clearInterval(hyperSpaceUpdateInterval)
 
-  Engine.defaultWorld!.isInPortal = false
+  Engine.currentWorld!.isInPortal = false
 }

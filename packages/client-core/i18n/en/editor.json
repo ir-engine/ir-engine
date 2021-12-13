@@ -18,8 +18,6 @@
     "exportingMsg": "Exporting project...",
     "exportingError": "Error Exporting Project",
     "exportingErrorMsg": "There was an error when exporting the project.",
-    "warnDefault": "Warning!",
-    "warnDefaultMsg": "The default project is only an example and will be overwritten in a production environment. Please make a new project if you wish to keep your changes.",
     "importLegacy": "Import Legacy World",
     "importLegacyMsg": "Warning! This will overwrite your existing scene! Are you sure you wish to continue?",
     "publishingError": "Error Publishing Project",
@@ -248,6 +246,30 @@
             "lbl-interactionText": "Interaction Text",
             "lbl-interactionType": "Interaction Type"
         },
+
+        "woocommerce" : {
+            "description": "A Media object of a scene loaded from Wordpress Woocommerce",
+            "lbl-domain": "Site Domain",
+            "lbl-consumerKey": "Consumer Key",
+            "lbl-consumerSecret": "Consumer Secret",
+            "lbl-products": "Products",
+            "lbl-productItems": "Media",
+            "error-url": "Error Loading From URL",
+            "lbl-loopAnimation": "Loop Animation",
+            "lbl-isAvatar": "Is Avatar",
+            "lbl-collidable": "Collidable",
+            "lbl-walkable": "Walkable",
+            "lbl-castShadow": "Cast Shadow",
+            "lbl-receiveShadow": "Receive Shadow",
+            "lbl-interactable": "Interactable",
+            "lbl-name": "Name",
+            "lbl-url": "Model Url",
+            "lbl-buy": "Buy Url",
+            "lbl-learnMore": "Learn More Url",
+            "lbl-htmlContent": "Html Content",
+            "lbl-interactionText": "Interaction Text",
+            "lbl-interactionType": "Interaction Type"
+        },
         "group": {
             "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
         },
@@ -454,9 +476,14 @@
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
         },
-        "projectnode": {
-            "description": "Attach Project.",
-            "lbl-scripturl": "Project"
+        "systemnode": {
+            "description": "Attach script.",
+            "lbl-filePath": "Url",
+            "lbl-systemUpdateType": "Injection Point",
+            "lbl-enableClient": "Client",
+            "lbl-enableServer": "Server",
+            "lbl-args": "Args",
+            "error-url": "Error Loading Script From URL"
         },
         "portal": {
             "lbl-portal": "Linked Portal",

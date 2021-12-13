@@ -50,7 +50,7 @@ export default class Video extends AudioSource {
   /// https://resources.theoverlay.io/basscoast-final/manifest.mpd
   async loadVideo() {
     await new Promise<void>(async (resolve, reject) => {
-      if (isHLS(this.src)) {
+      if (isHLS(this._src)) {
         if (!this.hls) {
           this.hls = new Hls()
         }
@@ -79,10 +79,10 @@ export default class Video extends AudioSource {
         })
         this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
           this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {})
-          this.hls.loadSource(this.src)
+          this.hls.loadSource(this._src)
         })
         this.hls.attachMedia(this.el)
-      } else if (isDash(this.src)) {
+      } else if (isDash(this._src)) {
         // const { MediaPlayer } = await import('dashjs')
         // this.dash = MediaPlayer().create();
         // this.dash.initialize(this.el, src, this.autoPlay)
@@ -91,7 +91,7 @@ export default class Video extends AudioSource {
         // })
         // resolve()
       } else {
-        this.el.src = this.src
+        this.el.src = this._src
         const onLoadedMetadata = () => {
           console.log('on load metadata')
           cleanup()
@@ -111,6 +111,13 @@ export default class Video extends AudioSource {
       }
       if (this.autoPlay) this.play()
     })
+  }
+  get src() {
+    return this._src
+  }
+  set src(value) {
+    this._src = value
+    this.load().catch(console.error)
   }
   get projection() {
     return this._projection
@@ -143,9 +150,9 @@ export default class Video extends AudioSource {
     this._mesh = nextMesh
   }
   async load() {
-    if (!this.src) return this
+    if (!this._src) return this
     await this.loadVideo()
-    if (Engine.useAudioSystem) {
+    if (!this.audioSource) {
       this.audioSource = this.audioListener.context.createMediaElementSource(this.el)
       this.audio.setNodeSource(this.audioSource)
     }

@@ -107,7 +107,7 @@ const UserMenu = (props: UserMenuProps): any => {
   }
 
   const handleUploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
-    return AuthService.uploadAvatarModel(model, thumbnail, avatarName, isPublicAvatar)
+    return AuthService.uploadAvatarModel(model, thumbnail, avatarName!, isPublicAvatar)
   }
 
   const handleRemoveAvatar = (keys: [string]): any => {

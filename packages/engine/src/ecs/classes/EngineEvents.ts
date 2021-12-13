@@ -14,12 +14,12 @@ const EVENTS = {
   JOINED_WORLD: 'CORE_JOINED_WORLD', // { }
   LEAVE_WORLD: 'CORE_LEAVE_WORLD', // { }
   SCENE_LOADED: 'CORE_SCENE_LOADED', // { }
+  SCENE_ENTITY_LOADED: 'CORE_SCENE_ENTITY_LOADED', // { }
 
   // Start or stop client side physics & rendering
   ENABLE_SCENE: 'CORE_ENABLE_SCENE', // { renderer: boolean, physics: boolean }
 
   // MISC
-  USER_ENGAGE: 'CORE_USER_ENGAGE', // { }
   WINDOW_FOCUS: 'CORE_WINDOW_FOCUS', //  { focused: boolean }
   ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA', // TODO: to pipe offscreen entity data to UI
   USER_AVATAR_TAPPED: 'USER_AVATAR_TAPPED', // { userId: string }

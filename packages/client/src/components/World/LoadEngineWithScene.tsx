@@ -5,8 +5,9 @@ import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
-import { loadLocation, teleportToLocation } from './LocationLoadHelper'
-import { EngineAction } from '@xrengine/client-core/src/world/services/EngineService'
+import { initEngine, loadLocation, teleportToLocation } from './LocationLoadHelper'
+import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -19,14 +20,6 @@ const defaultEngineInitializeOptions = {
     {
       type: 'FIXED',
       systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
-    },
-    {
-      type: 'FIXED',
-      systemModulePromise: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
-    },
-    {
-      type: 'FIXED',
-      systemModulePromise: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
     }
   ]
 }
@@ -44,18 +37,18 @@ const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 interface Props {
   engineInitializeOptions?: InitializeOptions
-  connectToInstanceServer?: boolean
   setLoadingItemCount?: any
 }
 
 export const LoadEngineWithScene = (props: Props) => {
-  const [newSpawnPos, setNewSpawnPos] = useState<ReturnType<typeof PortalComponent.get>>(null!)
   const locationState = useLocationState()
-  const connectToInstanceServer = props.connectToInstanceServer !== undefined ? props.connectToInstanceServer : true
   const history = useHistory()
   const dispatch = useDispatch()
+  const engineState = useEngineState()
 
   useEffect(() => {
+    const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
+    if (!Engine.isInitialized) initEngine(engineInitializeOptions)
     addUIEvents()
   }, [])
 
@@ -63,28 +56,21 @@ export const LoadEngineWithScene = (props: Props) => {
    * Once we have the scene ID, initialise the engine
    */
   useEffect(() => {
-    if (locationState.currentLocation.location.sceneId.value) {
+    if (locationState.currentLocation.location.sceneId.value && engineState.isInitialised.value) {
       console.log('init', locationState.currentLocation.location.sceneId.value)
-      dispatch(EngineAction.setTeleporting(false))
-      const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-      loadLocation(
-        locationState.currentLocation.location.sceneId.value,
-        engineInitializeOptions,
-        newSpawnPos,
-        connectToInstanceServer
-      )
+      dispatch(EngineAction.setTeleporting(null!))
+      loadLocation(locationState.currentLocation.location.sceneId.value)
     }
-  }, [locationState.currentLocation.location.sceneId.value])
+  }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     const slugifiedName = locationState.currentLocation.location.slugifiedName.value
 
     teleportToLocation(portalComponent, slugifiedName, () => {
-      dispatch(EngineAction.setTeleporting(true))
+      dispatch(EngineAction.setTeleporting(portalComponent))
 
       // change our browser URL
       history.push('/location/' + portalComponent.location)
-      setNewSpawnPos(portalComponent)
     })
   }
 

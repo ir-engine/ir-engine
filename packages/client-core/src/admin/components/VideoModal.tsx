@@ -1,4 +1,3 @@
-import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -109,10 +108,6 @@ const VideoModal = (props: Props): any => {
         open={props.open}
         onClose={props.handleClose}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <div className={styles['paper-modal']}>
           <Button className={styles.close} onClick={props.handleClose}>

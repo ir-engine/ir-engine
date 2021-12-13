@@ -107,7 +107,7 @@ export const FriendService = {
   //   }
   // }
 
-  getFriends: async (search: string, skip?: number, limit?: number) => {
+  getFriends: async (skip?: number, limit?: number) => {
     const dispatch = useDispatch()
     {
       dispatch(FriendAction.fetchingFriends())
@@ -117,14 +117,12 @@ export const FriendService = {
           query: {
             action: 'friends',
             $limit: limit != null ? limit : friendState.friends.limit.value,
-            $skip: skip != null ? skip : friendState.friends.skip.value,
-            search
+            $skip: skip != null ? skip : friendState.friends.skip.value
           }
         })
         dispatch(FriendAction.loadedFriends(friendResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
         dispatch(FriendAction.loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }))
       }
     }
@@ -152,8 +150,7 @@ export const FriendService = {
       try {
         await client.service('user-relationship').remove(relatedUserId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },

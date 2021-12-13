@@ -16,9 +16,14 @@ import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import Tooltip from '@mui/material/Tooltip'
+import Grid from '@mui/material/Grid'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar'
+import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
+import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { useHistory } from 'react-router-dom'
-import { IconButton, Stack } from '@mui/material'
-import { DialogTitle, Dialog, DialogContent } from '@material-ui/core'
 
 interface Props {
   changeActiveMenu?: any
@@ -27,7 +32,21 @@ interface Props {
   hideLogin?: any
 }
 
+const initialState = {
+  jwt: true,
+  local: false,
+  facebook: false,
+  github: false,
+  google: false,
+  linkedin: false,
+  twitter: false,
+  smsMagicLink: false,
+  emailMagicLink: false
+}
+
 const ProfileMenu = (props: Props): any => {
+  const history = useHistory()
+
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
 
@@ -38,9 +57,27 @@ const ProfileMenu = (props: Props): any => {
   const [emailPhone, setEmailPhone] = useState('')
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
-  const [modal, setModal] = useState(false)
+  const [showUserId, setShowUserId] = useState(false)
+  const [userIdState, setUserIdState] = useState({ value: '', copied: false, open: false })
+  const authSettingState = useAdminAuthSettingState()
+  const [authSetting] = authSettingState?.authSettings?.value || []
+  const [authState, setAuthState] = useState(initialState)
 
-  const userId = selfUser.id.value!
+  useEffect(() => {
+    !authSetting && AuthSettingService.fetchAuthSetting()
+  }, [])
+
+  useEffect(() => {
+    if (authSetting) {
+      let temp = { ...initialState }
+      authSetting?.authStrategies?.forEach((el) => {
+        Object.entries(el).forEach(([strategyName, strategy]) => {
+          temp[strategyName] = strategy
+        })
+      })
+      setAuthState(temp)
+    }
+  }, [authSettingState?.updateNeeded?.value])
 
   let type = ''
 
@@ -86,8 +123,8 @@ const ProfileMenu = (props: Props): any => {
 
   const validate = () => {
     if (emailPhone === '') return false
-    if (validateEmail(emailPhone.trim())) type = 'email'
-    else if (validatePhoneNumber(emailPhone.trim())) type = 'sms'
+    if (validateEmail(emailPhone.trim()) && authState?.emailMagicLink) type = 'email'
+    else if (validatePhoneNumber(emailPhone.trim()) && authState.smsMagicLink) type = 'sms'
     else {
       setError(true)
       return false
@@ -100,8 +137,8 @@ const ProfileMenu = (props: Props): any => {
   const handleSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, userId)
-    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, userId)
+    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value!)
+    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value!)
     return
   }
 
@@ -143,22 +180,125 @@ const ProfileMenu = (props: Props): any => {
     AuthService.loginUserByXRWallet(result)
   }
 
+  const handleShowId = () => {
+    setShowUserId(!showUserId)
+    setUserIdState({ ...userIdState, value: selfUser.id.value })
+  }
+
+  const handleClose = () => {
+    setUserIdState({ ...userIdState, open: false })
+  }
+
+  const getConnectText = () => {
+    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.connectPhoneEmail')
+    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+      return t('user:usermenu.profile.connectEmail')
+    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.connectPhone')
+    } else {
+      return ''
+    }
+  }
+
+  const getErrorText = () => {
+    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.phoneEmailError')
+    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+      return t('user:usermenu.profile.emailError')
+    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.phoneError')
+    } else {
+      return ''
+    }
+  }
+
+  const getConnectPlaceholder = () => {
+    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.ph-phoneEmail')
+    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+      return t('user:usermenu.profile.ph-email')
+    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+      return t('user:usermenu.profile.ph-phone')
+    } else {
+      return ''
+    }
+  }
+
+  const enableSocial =
+    authState?.facebook || authState?.github || authState?.google || authState?.linkedin || authState?.twitter
+
+  const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
+
   return (
-    <>
-      <div className={styles.menuPanel}>
-        <section className={styles.profilePanel}>
-          <section className={styles.profileBlock}>
-            <div className={styles.avatarBlock}>
-              <img src={getAvatarURLForUser(selfUser?.id?.value)} />
-              {changeActiveMenu != null && (
-                <Button
-                  className={styles.avatarBtn}
-                  id="select-avatar"
-                  onClick={() => changeActiveMenu(Views.Avatar)}
-                  disableRipple
-                >
-                  <Create />
-                </Button>
+    <div className={styles.menuPanel}>
+      <section className={styles.profilePanel}>
+        <section className={styles.profileBlock}>
+          <div className={styles.avatarBlock}>
+            <img src={getAvatarURLForUser(selfUser?.id?.value)} />
+            {changeActiveMenu != null && (
+              <Button
+                className={styles.avatarBtn}
+                id="select-avatar"
+                onClick={() => changeActiveMenu(Views.Avatar)}
+                disableRipple
+              >
+                <Create />
+              </Button>
+            )}
+          </div>
+          <div className={styles.headerBlock}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              {t('user:usermenu.profile.lbl-username')}
+            </Typography>
+            <span className={styles.inputBlock}>
+              <TextField
+                margin="none"
+                size="small"
+                name="username"
+                variant="outlined"
+                value={username || ''}
+                onChange={handleUsernameChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') updateUserName(e)
+                }}
+                className={styles.usernameInput}
+                error={errorUsername}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
+                        <Check className={styles.primaryForeground} />
+                      </a>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </span>
+
+            <Grid container justifyContent="right">
+              <Grid item xs={6}>
+                <h2>
+                  {selfUser?.userRole?.value === 'admin'
+                    ? t('user:usermenu.profile.youAreAn')
+                    : t('user:usermenu.profile.youAreA')}{' '}
+                  <span>{selfUser?.userRole?.value}</span>.
+                </h2>
+              </Grid>
+              <Grid item container xs={6} alignItems="flex-start" direction="column">
+                <Tooltip title="Show User ID" placement="right">
+                  <h2 size="small" className={styles.showUserId} onClick={handleShowId}>
+                    {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
+                  </h2>
+                </Tooltip>
+              </Grid>
+            </Grid>
+
+            <h4>
+              {(selfUser.userRole.value === 'user' || selfUser.userRole.value === 'admin') && (
+                <div className={styles.logout} onClick={handleLogout}>
+                  {t('user:usermenu.profile.logout')}
+                </div>
               )}
             </div>
             <div className={styles.headerBlock}>
@@ -195,58 +335,95 @@ const ProfileMenu = (props: Props): any => {
                   : t('user:usermenu.profile.youAreA')}{' '}
                 <span>{selfUser?.userRole?.value}</span>.
               </h2>
-              <h4>
-                {(selfUser.userRole.value === 'user' || selfUser.userRole.value === 'admin') && (
-                  <div onClick={handleLogout}>{t('user:usermenu.profile.logout')}</div>
-                )}
-              </h4>
-              {selfUser?.inviteCode.value != null && (
-                <h2>
-                  {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
-                </h2>
-              )}
-              <button onClick={() => history.push(`/inventory/${selfUser.id.value}`)} className={styles.walletBtn}>
-                My Inventory
-              </button>
-            </div>
-          </section>
-          {!hideLogin && (
-            <>
-              {selfUser?.userRole.value === 'guest' && (
-                <section className={styles.emailPhoneSection}>
-                  <Typography variant="h1" className={styles.panelHeader}>
-                    {t('user:usermenu.profile.connectPhone')}
-                  </Typography>
+            )}
+            {selfUser?.userRole.value !== 'guest' && (
+              <>
+                <button onClick={() => history.push(`/inventory/${selfUser.id.value}`)} className={styles.walletBtn}>
+                  My Inventory
+                </button>
+                <button onClick={() => history.push(`/trading/${selfUser.id.value}`)} className={styles.walletBtn}>
+                  My Trading
+                </button>
+                <button onClick={() => history.push(`/wallet/${selfUser.id.value}`)} className={styles.walletBtn}>
+                  My Wallet
+                </button>
+              </>
+            )}
+          </div>
+        </section>
 
-                  <form onSubmit={handleSubmit}>
-                    <TextField
-                      className={styles.emailField}
-                      size="small"
-                      placeholder={t('user:usermenu.profile.ph-phoneEmail')}
-                      variant="outlined"
-                      onChange={handleInputChange}
-                      onBlur={validate}
-                      error={error}
-                      helperText={error ? t('user:usermenu.profile.phoneEmailError') : null}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end" onClick={handleSubmit}>
-                            <a href="#" className={styles.materialIconBlock}>
-                              <Send className={styles.primaryForeground} />
-                            </a>
-                          </InputAdornment>
-                        )
-                      }}
-                    />
-                  </form>
-                </section>
-              )}
-              {selfUser?.userRole.value === 'guest' && changeActiveMenu != null && (
-                <section className={styles.walletSection}>
-                  <Typography variant="h3" className={styles.textBlock}>
-                    {t('user:usermenu.profile.or')}
-                  </Typography>
-                  {/*<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
+        {showUserId && (
+          <section className={styles.emailPhoneSection}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              User id
+            </Typography>
+
+            <form>
+              <TextField
+                className={styles.emailField}
+                size="small"
+                placeholder={'user id'}
+                variant="outlined"
+                value={selfUser?.id.value}
+                onChange={({ target: { value } }) => setUserIdState({ ...userIdState, value, copied: false })}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <CopyToClipboard
+                        text={userIdState.value}
+                        onCopy={() => {
+                          setUserIdState({ ...userIdState, copied: true, open: true })
+                        }}
+                      >
+                        <a href="#" className={styles.materialIconBlock}>
+                          <ContentCopyIcon className={styles.primaryForeground} />
+                        </a>
+                      </CopyToClipboard>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </form>
+          </section>
+        )}
+
+        {!hideLogin && (
+          <>
+            {selfUser?.userRole.value === 'guest' && enableConnect && (
+              <section className={styles.emailPhoneSection}>
+                <Typography variant="h1" className={styles.panelHeader}>
+                  {getConnectText()}
+                </Typography>
+
+                <form onSubmit={handleSubmit}>
+                  <TextField
+                    className={styles.emailField}
+                    size="small"
+                    placeholder={getConnectPlaceholder()}
+                    variant="outlined"
+                    onChange={handleInputChange}
+                    onBlur={validate}
+                    error={error}
+                    helperText={error ? getErrorText() : null}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end" onClick={handleSubmit}>
+                          <a href="#" className={styles.materialIconBlock}>
+                            <Send className={styles.primaryForeground} />
+                          </a>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </form>
+              </section>
+            )}
+            {selfUser?.userRole.value === 'guest' && changeActiveMenu != null && (
+              <section className={styles.walletSection}>
+                <Typography variant="h3" className={styles.textBlock}>
+                  {t('user:usermenu.profile.or')}
+                </Typography>
+                {/*<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
                   {t('user:usermenu.profile.lbl-wallet')}
                 </Button>
                 <br/>*/}
@@ -256,79 +433,61 @@ const ProfileMenu = (props: Props): any => {
                 </section>
               )}
 
-              {selfUser?.userRole.value === 'guest' && (
-                <section className={styles.socialBlock}>
-                  <Typography variant="h3" className={styles.textBlock}>
-                    {t('user:usermenu.profile.connectSocial')}
-                  </Typography>
-                  <div className={styles.socialContainer}>
+            {selfUser?.userRole.value === 'guest' && enableSocial && (
+              <section className={styles.socialBlock}>
+                <Typography variant="h3" className={styles.textBlock}>
+                  {t('user:usermenu.profile.connectSocial')}
+                </Typography>
+                <div className={styles.socialContainer}>
+                  {authState?.google && (
                     <a href="#" id="google" onClick={handleOAuthServiceClick}>
                       <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
+                  )}
+                  {authState?.facebook && (
                     <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
                       <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
+                  )}
+                  {authState?.linkedin && (
                     <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
                       <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
+                  )}
+                  {authState?.twitter && (
                     <a href="#" id="twitter" onClick={handleOAuthServiceClick}>
                       <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
+                  )}
+                  {authState?.github && (
                     <a href="#" id="github" onClick={handleOAuthServiceClick}>
                       <GitHub />
                     </a>
-                  </div>
-                  <Typography variant="h4" className={styles.smallTextBlock}>
-                    {t('user:usermenu.profile.createOne')}
-                  </Typography>
-                </section>
-              )}
-              {setProfileMenuOpen != null && (
-                <div className={styles.closeButton} onClick={() => setProfileMenuOpen(false)}>
-                  <Close />
+                  )}
                 </div>
-              )}
-            </>
-          )}
-        </section>
-      </div>
-      <Dialog
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        open={modal}
-        maxWidth="sm"
-        fullWidth
-      >
-        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2} sx={{ pr: 2 }}>
-          <DialogTitle>Inventory</DialogTitle>
-          <IconButton onClick={() => setModal(false)}>
-            <Cancel />
-          </IconButton>
-        </Stack>
-        <DialogContent>
-          <Stack>
-            <Stack direction="row" spacing={2} justifyContent="flex-end">
-              {/* <LoadingButton
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => handleCancelpaylink(row.id, index)}
-                        loading={iscancelloading}
-                      >
-                        Yes
-                      </LoadingButton>
-                      <LoadingButton
-                        variant="outlined"
-                        color="error"
-                        onClick={() => setCancelmodal(false)}
-                        loading={iscancelloading}
-                      >
-                        No
-                      </LoadingButton> */}
-            </Stack>
-          </Stack>
-        </DialogContent>
-      </Dialog>
-    </>
+                <Typography variant="h4" className={styles.smallTextBlock}>
+                  {t('user:usermenu.profile.createOne')}
+                </Typography>
+              </section>
+            )}
+            {setProfileMenuOpen != null && (
+              <div className={styles.closeButton} onClick={() => setProfileMenuOpen(false)}>
+                <Close />
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={userIdState.open}
+        onClose={handleClose}
+        message="User ID copied"
+        key={'top' + 'center'}
+        autoHideDuration={2000}
+      />
+    </div>
   )
 }
 

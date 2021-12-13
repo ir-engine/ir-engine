@@ -1,6 +1,5 @@
 export const redisSeed = {
   path: 'redis-setting',
-  randomize: false,
   templates: [
     {
       enabled: process.env.REDIS_ENABLED === 'true',

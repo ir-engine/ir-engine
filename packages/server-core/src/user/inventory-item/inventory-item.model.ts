@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { Application } from '../../../declarations'
 import generateShortId from '../../util/generate-short-id'
-import config from '../../appconfig'
+//import config from '../../appconfig'
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -44,6 +44,11 @@ export default (app: Application): any => {
       isPublic: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
+        allowNull: false
+      },
+      isCoin: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
         allowNull: false
       },
       url: {

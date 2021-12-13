@@ -1,7 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
-import { ProjectInterface, ProjectPackageInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import fs from 'fs'
 import path from 'path'
 import { isDev } from '@xrengine/common/src/utils/isDev'
@@ -10,17 +10,21 @@ import { getGitData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
-import templateProjectJson from './template-project.json'
+import templateProjectJson from '@xrengine/projects/template-project/package.json'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { getProjectConfig, onProjectEvent } from './project-helper'
+
+const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
+
+const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 
 export const copyDefaultProject = () => {
-  const seedPath = path.resolve(appRootPath.path, `packages/projects/projects`)
-  deleteFolderRecursive(path.resolve(seedPath, `default-project`))
-  copyFolderRecursiveSync(path.resolve(appRootPath.path, `packages/projects/default-project`), seedPath)
+  deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
+  copyFolderRecursiveSync(path.join(appRootPath.path, 'packages/projects/default-project'), projectsRootFolder)
 }
 
 const getRemoteURLFromGitData = (project) => {
@@ -33,44 +37,50 @@ const storageProvider = useStorageProvider()
 export const getStorageProviderPath = (projectName: string) =>
   `https://${storageProvider.cacheDomain}/projects/${projectName}/`
 
+export const deleteProjectFilesInStorageProvider = async (projectName: string) => {
+  try {
+    const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+    if (existingFiles.length) {
+      await Promise.all([
+        storageProvider.deleteResources(existingFiles),
+        storageProvider.createInvalidation([`projects/${projectName}*`])
+      ])
+    }
+  } catch (e) {}
+}
+
 /**
  * Updates the local storage provider with the project's current files
  * @param projectName
  */
-export const uploadLocalProjectToProvider = async (projectName, remove = true, exclusionList: RegExp[] = []) => {
+export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
   // remove exiting storage provider files
   if (remove) {
-    try {
-      const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
-      if (existingFiles.length) {
-        await Promise.all([
-          storageProvider.deleteResources(existingFiles.filter((file) => exclusionList.find((exc) => exc.test(file)))),
-          storageProvider.createInvalidation([`projects/${projectName}*`])
-        ])
-      }
-    } catch (e) {}
+    await deleteProjectFilesInStorageProvider(projectName)
   }
   // upload new files to storage provider
-  const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
+  const projectPath = path.resolve(projectsRootFolder, projectName)
   const files = getFilesRecursive(projectPath)
   const results = await Promise.all(
-    files.map((file: string) => {
-      if (exclusionList.find((exc) => exc.test(file))) return Promise.resolve()
-      return new Promise(async (resolve) => {
-        try {
-          const fileResult = fs.readFileSync(file)
-          const filePathRelative = file.slice(projectPath.length)
-          await storageProvider.putObject({
-            Body: fileResult,
-            ContentType: getContentType(file),
-            Key: `projects/${projectName}${filePathRelative}`
-          })
-          resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain))
-        } catch (e) {
-          resolve(null)
-        }
+    files
+      .filter((file) => !file.includes(`projects/${projectName}/.git/`))
+      .map((file: string) => {
+        return new Promise(async (resolve) => {
+          try {
+            const fileResult = fs.readFileSync(file)
+            const filePathRelative = file.slice(projectPath.length)
+            await storageProvider.putObject({
+              Body: fileResult,
+              ContentType: getContentType(file),
+              Key: `projects/${projectName}${filePathRelative}`
+            })
+            resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain))
+          } catch (e) {
+            console.log(e)
+            resolve(null)
+          }
+        })
       })
-    })
   )
   // console.log('uploadLocalProjectToProvider', results)
   return results.filter((success) => !!success) as string[]
@@ -83,25 +93,30 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+  }
 
-    // copy default project if it doesn't exist
-    if (!fs.existsSync(path.resolve(appRootPath.path, `packages/projects/projects/default-project`)))
-      copyDefaultProject()
-
-    if (isDev && !config.db.forceRefresh) {
-      this._fetchDevLocalProjects()
+  async _seedProject(projectName: string): Promise<any> {
+    console.warn('[Projects]: Found new locally installed project', projectName)
+    const projectConfig = (await getProjectConfig(projectName)) ?? {}
+    await super.create({
+      thumbnail: projectConfig.thumbnail,
+      name: projectName,
+      storageProviderPath: getStorageProviderPath(projectName),
+      repositoryPath: getRemoteURLFromGitData(projectName)
+    })
+    // run project install script
+    if (projectConfig.onEvent) {
+      return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
+    return Promise.resolve()
   }
 
   /**
    * On dev, sync the db with any projects installed locally
    */
-  private async _fetchDevLocalProjects() {
+  async _fetchDevLocalProjects() {
     const dbEntries = (await super.find()) as any
     const data: ProjectInterface[] = dbEntries.data
-    console.log(dbEntries)
-
-    const projectsRootFolder = path.resolve(appRootPath.path, 'packages/projects/projects/')
 
     if (!fs.existsSync(projectsRootFolder)) {
       fs.mkdirSync(projectsRootFolder, { recursive: true })
@@ -112,29 +127,12 @@ export class Project extends Service {
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name)
 
-    const promises = []
+    const promises: Promise<any>[] = []
 
     for (const projectName of locallyInstalledProjects) {
-      const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/', projectName)
       if (!data.find((e) => e.name === projectName)) {
         try {
-          const packageData = JSON.parse(fs.readFileSync(path.resolve(projectPath, 'package.json'), 'utf8'))
-            .xrengine as ProjectPackageInterface
-
-          if (!packageData) {
-            console.warn(`[Projects]: No 'xrengine' data found in package.json for project ${projectName}, aborting.`)
-            continue
-          }
-
-          const dbEntryData: ProjectInterface = {
-            ...packageData,
-            name: projectName,
-            storageProviderPath: getStorageProviderPath(projectName),
-            repositoryPath: getRemoteURLFromGitData(projectName)
-          }
-
-          console.warn('[Projects]: Found new locally installed project', projectName)
-          await super.create(dbEntryData)
+          promises.push(this._seedProject(projectName))
         } catch (e) {
           console.log(e)
         }
@@ -142,6 +140,8 @@ export class Project extends Service {
 
       promises.push(uploadLocalProjectToProvider(projectName))
     }
+
+    await Promise.all(promises)
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
@@ -151,14 +151,21 @@ export class Project extends Service {
     }
   }
 
-  async create(data: { name: string }, params?: Params) {
-    // make alphanumeric period, underscore, dash
+  async create(data: { name: string }, params: Params) {
     const projectName = cleanString(data.name)
 
-    const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+    if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
+      throw new Error(`[Projects]: Project with name ${projectName} already exists`)
+
+    if ((!config.db.forceRefresh && projectName === 'default-project') || projectName === 'template-project')
+      throw new Error(`[Projects]: Project name ${projectName} not allowed`)
+
+    const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
+
+    copyFolderRecursiveSync(templateFolderDirectory, projectsRootFolder)
+    fs.renameSync(path.resolve(projectsRootFolder, 'template-project'), path.resolve(projectsRootFolder, projectName))
 
     fs.mkdirSync(path.resolve(projectLocalDirectory, '.git'), { recursive: true })
-    console.log(path.resolve(projectLocalDirectory, '.git'))
 
     const git = useGit(path.resolve(projectLocalDirectory, '.git'))
     try {
@@ -171,12 +178,15 @@ export class Project extends Service {
     packageData.name = projectName
     fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
 
-    const dbEntryData: ProjectInterface = {
-      ...packageData,
-      repositoryPath: null
-    }
-
-    await super.create(dbEntryData)
+    return super.create(
+      {
+        thumbnail: packageData.thumbnail,
+        name: projectName,
+        storageProviderPath: getStorageProviderPath(projectName),
+        repositoryPath: null
+      },
+      params
+    )
   }
 
   /**
@@ -203,32 +213,37 @@ export class Project extends Service {
       deleteFolderRecursive(projectLocalDirectory)
     }
 
-    const existingPackResult = await this.Model.findOne({
+    const existingProjectResult = await this.Model.findOne({
       where: {
         name: projectName
       }
     })
-    if (existingPackResult != null) await super.remove(existingPackResult.id, params)
+    if (existingProjectResult != null) await super.remove(existingProjectResult.id, params)
 
     const git = useGit()
     await git.clone(data.url, projectLocalDirectory)
 
     await uploadLocalProjectToProvider(projectName)
 
-    // TODO: populate avatars & scenes
-
-    const packageData = JSON.parse(fs.readFileSync(path.resolve(projectLocalDirectory, 'package.json'), 'utf8'))
-      .xrengine as ProjectPackageInterface
+    const projectConfig = (await getProjectConfig(projectName)) ?? {}
 
     // Add to DB
-    const dbEntryData: ProjectInterface = {
-      ...packageData,
-      name: projectName,
-      storageProviderPath: getStorageProviderPath(projectName),
-      repositoryPath: data.url
+    const returned = await super.create(
+      {
+        thumbnail: projectConfig.thumbnail,
+        name: projectName,
+        storageProviderPath: getStorageProviderPath(projectName),
+        repositoryPath: data.url
+      },
+      params || {}
+    )
+
+    // run project install script
+    if (projectConfig.onEvent) {
+      await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
 
-    await super.create(dbEntryData, params || {})
+    return returned
   }
 
   /**
@@ -238,9 +253,17 @@ export class Project extends Service {
    * @param app
    * @returns
    */
-  async patch(projectName: string, data?: { files: string[] }, params?: Params) {
+  async patch(projectName: string, data: { files: string[] }, params: Params) {
+    const projectConfig = await getProjectConfig(projectName)
+    if (!projectConfig) return
+
+    // run project uninstall script
+    if (projectConfig.onEvent) {
+      await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onUpdate')
+    }
+
     if (data?.files?.length) {
-      const promises = []
+      const promises: Promise<any>[] = []
       for (const filePath of data.files) {
         promises.push(
           new Promise<string>(async (resolve) => {
@@ -259,77 +282,42 @@ export class Project extends Service {
     }
   }
 
-  async remove(id: Id, params?: Params) {
-    console.log('remove', id)
-    try {
-      await super.remove(id, params)
-    } catch (e) {
-      console.log(`[Projects]: failed to remove project ${id}`, e)
-      return e
-    }
-  }
-
-  /**
-   * Gets the metadata from the local fs
-   *
-   * @param id
-   * @param params
-   * @returns
-   */
-  // TODO: remove this entire function when nodes reference file browser
-  async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
-    const data: ProjectInterface[] = ((await super.find(params)) as any).data
-    const entry = data.find((e) => e.name === name)
-    if (!entry) return
-
-    const metadataPath = path.resolve(appRootPath.path, `packages/projects/projects/${name}/package.json`)
-    if (fs.existsSync(metadataPath)) {
+  async remove(id: Id, params: Params) {
+    if (id) {
       try {
-        const json: ProjectPackageInterface = JSON.parse(fs.readFileSync(metadataPath, 'utf8')).xrengine
-        return {
-          data: {
-            ...json,
-            ...entry
-          }
+        const { name } = await super.get(id, params)
+
+        const projectConfig = await getProjectConfig(name)
+
+        // run project uninstall script
+        if (projectConfig.onEvent) {
+          await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
         }
+
+        console.log('[Projects]: removing project', id, name)
+        await deleteProjectFilesInStorageProvider(name)
+        await super.remove(id, params)
       } catch (e) {
-        console.warn('[getProjects]: Failed to read package.json for project', name, 'with error', e)
+        console.log(`[Projects]: failed to remove project ${id}`, e)
+        return e
       }
     }
+  }
+
+  async get(name: string, params: Params): Promise<{ data: ProjectInterface }> {
+    const data: ProjectInterface[] = ((await super.find(params)) as any).data
+    const project = data.find((e) => e.name === name)
+    if (!project) return null!
     return {
-      data: entry
+      data: project
     }
   }
 
-  /**
-   * Gets the metadata from the local fs
-   *
-   * @param params
-   * @returns
-   */
-  // TODO: remove this entire function when nodes reference file browser
   //@ts-ignore
   async find(params: Params): Promise<{ data: ProjectInterface[] }> {
-    const entries = (await super.find(params)) as any
-    entries.data = entries.data
-      .map((entry) => {
-        try {
-          const json: ProjectPackageInterface = JSON.parse(
-            fs.readFileSync(
-              path.resolve(appRootPath.path, `packages/projects/projects/${entry.name}/package.json`),
-              'utf8'
-            )
-          ).xrengine
-          return {
-            ...json,
-            ...entry
-          }
-        } catch (e) {
-          console.warn('[getProjects]: Failed to read package.json for project', entry.name, 'with error', e)
-          return entry
-        }
-      })
-      .filter((entry) => !!entry)
-    return entries
+    const data: ProjectInterface[] = ((await super.find(params)) as any).data
+    return {
+      data
+    }
   }
 }

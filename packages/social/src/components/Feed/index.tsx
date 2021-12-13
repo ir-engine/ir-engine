@@ -5,36 +5,34 @@ import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Typography } from '@mui/material'
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
+import { Button, Typography } from '@material-ui/core'
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 
 import { useFeedState } from '@xrengine/client-core/src/social/services/FeedService'
 import { FeedService } from '@xrengine/client-core/src/social/services/FeedService'
-import { usePopupsStateState } from '@xrengine/client-core/src/social/services/PopupsStateService'
-import { PopupsStateService } from '@xrengine/client-core/src/social/services/PopupsStateService'
 
 import FeedCard from '../FeedCard'
 import Featured from '../Featured'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
-import Popover from '@mui/material/Popover'
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
+import Popover from '@material-ui/core/Popover'
+import { useParams, useHistory } from 'react-router-dom'
 
 import styles from './Feed.module.scss'
+import './styles.module.scss'
 
-interface Props {
-  feedId?: string
-}
-const Feed = (props: Props) => {
+const Feed = () => {
   let feed = null as any
   const { t } = useTranslation()
   const dispatch = useDispatch()
-  const popupsState = usePopupsStateState()
   const feedsState = useFeedState()
+  const history = useHistory()
 
-  const creator = feedsState.feeds.feed.creator.value
+  const creator = feedsState?.feeds?.feed?.creator.value
 
+  const { feedId } = useParams()
   useEffect(() => {
-    FeedService.getFeed(popupsState.popups.feedId?.value)
-  }, [popupsState.popups.feedId?.value])
+    FeedService.getFeed(feedId)
+  }, [feedId])
   feed = feedsState.feeds.fetching.value === false && feedsState.feeds.feed
 
   useEffect(() => {
@@ -54,20 +52,15 @@ const Feed = (props: Props) => {
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
 
-  const deleteAction = (feedId, previewUrl, videoUrl) => {
-    FeedService.removeFeed(feedId, previewUrl, videoUrl)
-    PopupsStateService.updateFeedPageState(false)
+  const deleteAction = (feedId, previewId, videoId) => {
+    FeedService.removeFeed(feedId, previewId, videoId)
+    history.push('/')
   }
+
   return (
     <section className={styles.feedContainer}>
       <section className={styles.controls}>
-        <Button
-          variant="text"
-          className={styles.backButton}
-          onClick={() => {
-            PopupsStateService.updateFeedPageState(false)
-          }}
-        >
+        <Button variant="text" className={styles.backButton} onClick={() => history.push('/')}>
           <ArrowBackIosIcon />
           {t('social:feed.back')}
         </Button>
@@ -90,17 +83,22 @@ const Feed = (props: Props) => {
               horizontal: 'center'
             }}
           >
-            <Button variant="outlined" onClick={() => deleteAction(feed.id, feed.previewUrl, feed.videoUrl)}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                deleteAction(feed.id.value, feed.previewId.value, feed.videoId.value)
+              }}
+            >
               Delete
             </Button>
           </Popover>
         </div>
       </section>
-      {feed.id.value && <FeedCard feed={feed.value} />}
-      {feed.id.value && (
+      {feed?.id?.value && <FeedCard feed={feed.value} />}
+      {feed?.id?.value && (
         <>
           <Typography variant="h5">{t('social:feed.related')}</Typography>
-          <Featured thisData={feedsState.feeds.feedsCreator.value} />
+          <Featured thisData={feedsState.feeds.feedsCreator.value} targetBody />
         </>
       )}
       {/*hided for now*/}

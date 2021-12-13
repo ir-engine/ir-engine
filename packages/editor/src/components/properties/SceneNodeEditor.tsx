@@ -1,4 +1,4 @@
-import { Globe } from '@styled-icons/fa-solid/Globe'
+import LanguageIcon from '@mui/icons-material/Language'
 import { DistanceModelOptions, DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
@@ -27,10 +27,12 @@ import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import useSetPropertySelected from './useSetPropertySelected'
 import ImageInput from '../inputs/ImageInput'
+import FolderInput from '../inputs/FolderInput'
 import serializeColor from '../../functions/serializeColor'
 import SceneNode from '../../nodes/SceneNode'
 import Vector3Input from '../inputs/Vector3Input'
 import { CommandManager } from '../../managers/CommandManager'
+import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -170,7 +172,13 @@ export function SceneNodeEditor(props) {
     const colorString = serializeColor(value)
     CommandManager.instance.setPropertyOnSelection('envMapSourceColor', colorString)
   }
-  const onChangeEnvmapURLSource = useSetPropertySelected('envMapSourceURL')
+  const onChangeEquirectangularURLSource = useSetPropertySelected('envMapSourceURL')
+  const onChangeCubemapURLSource = (value) => {
+    const directory = getDirectoryFromUrl(value)
+    if (directory !== (node as any).envMapSourceURL) {
+      CommandManager.instance.setPropertyOnSelection('envMapSourceURL', directory)
+    }
+  }
 
   const onChangeUserPositionalAudio = useSetPropertySelected('usePositionalAudio')
   const onChangeMediaVolume = useSetPropertySelected('mediaVolume')
@@ -226,7 +234,12 @@ export function SceneNodeEditor(props) {
             />
           </InputGroup>
           <InputGroup name="Texture URL" label="Texture URL">
-            <ImageInput value={node.envMapSourceURL} onChange={onChangeEnvmapURLSource} />
+            {node.envMapTextureType === EnvMapTextureType.Cubemap && (
+              <FolderInput value={node.envMapSourceURL} onChange={onChangeCubemapURLSource} />
+            )}
+            {node.envMapTextureType === EnvMapTextureType.Equirectangular && (
+              <ImageInput value={node.envMapSourceURL} onChange={onChangeEquirectangularURLSource} />
+            )}
             {(props.node as SceneNode).errorInEnvmapURL && <div>Error Loading From URL </div>}
           </InputGroup>
         </div>
@@ -526,7 +539,7 @@ export function SceneNodeEditor(props) {
 }
 
 // setting icon component with icon name
-SceneNodeEditor.iconComponent = Globe
+SceneNodeEditor.iconComponent = LanguageIcon
 
 // setting description and will appear on editor view
 SceneNodeEditor.description = i18n.t('editor:properties.scene.description')

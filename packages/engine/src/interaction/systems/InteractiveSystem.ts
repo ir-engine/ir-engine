@@ -30,27 +30,38 @@ import {
   hideInteractUI,
   getInteractUI,
   updateInteractUI,
-  setUserDataInteractUI
+  setUserDataInteractUI,
+  InteractiveUI
 } from '../functions/interactUI'
+import { EquippedComponent } from '../components/EquippedComponent'
+import { Not } from 'bitecs'
 
 export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])
-  const interactiveQuery = defineQuery([InteractableComponent])
+  // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
+  const interactiveQuery = defineQuery([InteractableComponent, Object3DComponent, Not(EquippedComponent)])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const focusQuery = defineQuery([InteractableComponent, InteractiveFocusedComponent])
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
   const interactedQuery = defineQuery([InteractedComponent])
   const xrComponentQuery = defineQuery([XRUIComponent, Object3DComponent])
-  const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
 
   return () => {
     for (const entity of interactiveQuery.enter(world)) {
-      if (!hasComponent(entity, BoundingBoxComponent) && hasComponent(entity, Object3DComponent)) {
+      const interactionData = getComponent(entity, InteractableComponent).data
+      if (!hasComponent(entity, BoundingBoxComponent)) {
         createBoxComponent(entity)
       }
-      if (!getInteractUI(entity)) {
+      if (interactionData.interactionType !== 'equippable' && !getInteractUI(entity)) {
         createInteractUI(entity)
       }
+    }
+
+    for (const entity of interactiveQuery.exit(world)) {
+      // TODO: Does the Box3 object need to be destroyed before this?
+      removeComponent(entity, BoundingBoxComponent)
+      removeComponent(entity, InteractiveFocusedComponent)
+      removeComponent(entity, SubFocusedComponent)
     }
 
     const interactives = interactiveQuery(world)
@@ -98,13 +109,11 @@ export default async function InteractiveSystem(world: World): Promise<System> {
     }
 
     for (const entity of xrComponentQuery.enter()) {
-      setUserDataInteractUI(entity)
+      if (InteractiveUI.has(entity)) setUserDataInteractUI(entity)
     }
 
-    for (const xrEntity of xrComponentQuery()) {
-      for (const entity of localUserQuery()) {
-        updateInteractUI(entity, xrEntity)
-      }
+    for (const xrEntity of InteractiveUI.keys()) {
+      updateInteractUI(xrEntity)
     }
 
     for (const entity of interactedQuery.enter()) {

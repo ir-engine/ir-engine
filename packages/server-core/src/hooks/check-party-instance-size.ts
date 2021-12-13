@@ -44,7 +44,7 @@ export default () => {
             logger.info('Spinning up new instance server')
             let selfIpAddress, status
             const emittedIp = !config.kubernetes.enabled
-              ? await getLocalServerIp()
+              ? await getLocalServerIp(false)
               : { ipAddress: status.address, port: status.portsList[0].port }
             if (config.kubernetes.enabled) {
               const serverResult = await (context.app as Application).k8AgonesClient.get('gameservers')
@@ -88,7 +88,7 @@ export default () => {
             logger.info('Putting party users on instance ' + selectedInstance.id)
             const addressSplit = selectedInstance.ipAddress.split(':')
             const emittedIp = !config.kubernetes.enabled
-              ? await getLocalServerIp()
+              ? await getLocalServerIp(false)
               : { ipAddress: addressSplit[0], port: addressSplit[1] }
             await context.app.service('instance-provision').emit('created', {
               userId: partyOwner.userId,
@@ -105,6 +105,7 @@ export default () => {
     } catch (err) {
       logger.error('check-party-instance error')
       logger.error(err)
+      return null!
     }
   }
 }

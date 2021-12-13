@@ -24,8 +24,6 @@ import { updateXRControllerAnimations } from '../functions/controllerAnimation'
  */
 
 export default async function XRSystem(world: World): Promise<System> {
-  const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
-
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
@@ -42,13 +40,13 @@ export default async function XRSystem(world: World): Promise<System> {
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
     Engine.renderer.outputEncoding = sRGBEncoding
-    const sessionInit = { optionalFeatures: [referenceSpaceType, 'hand-tracking'] }
+    const sessionInit = { optionalFeatures: ['local-floor', 'hand-tracking', 'layers'] }
     try {
       const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
 
       Engine.xrSession = session
-      Engine.xrManager.setReferenceSpaceType(referenceSpaceType)
       Engine.xrManager.setSession(session)
+      Engine.xrManager.setFoveation(1)
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_SESSION })
 
       Engine.xrManager.getCamera().layers.enableAll()
@@ -102,10 +100,8 @@ export default async function XRSystem(world: World): Promise<System> {
       }
     }
 
-    if (Engine.xrControllerModel) {
-      for (const entity of localXRControllerQuery.enter()) {
-        initializeXRInputs(entity)
-      }
+    for (const entity of localXRControllerQuery.enter()) {
+      initializeXRInputs(entity)
     }
 
     //XR Controller mesh animation update
@@ -119,11 +115,9 @@ export default async function XRSystem(world: World): Promise<System> {
       const transform = getComponent(entity, TransformComponent)
 
       xrInputSourceComponent.container.updateWorldMatrix(true, true)
-      xrInputSourceComponent.container.updateMatrixWorld(true)
 
       quat.copy(transform.rotation).invert()
-      quat2.copy(Engine.camera.quaternion).premultiply(quat)
-      xrInputSourceComponent.head.quaternion.copy(quat2)
+      xrInputSourceComponent.head.quaternion.copy(Engine.camera.quaternion).premultiply(quat)
 
       vector3.subVectors(Engine.camera.position, transform.position)
       vector3.applyQuaternion(quat)

@@ -3,7 +3,6 @@ import { client } from '../../feathers'
 import { useDispatch } from '../../store'
 import { TheFeedsAction } from './TheFeedsService'
 import { CreatorShort } from '@xrengine/common/src/interfaces/Creator'
-import { TheFeedsFires } from '@xrengine/server-core/src/socialmedia/feeds-fires/feeds-fires.class'
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { store } from '../../store'
 
@@ -48,8 +47,7 @@ export const TheFeedsFiresService = {
         //       dispatch(thefeedsFiresRetrieved(thefeedsResults.data, thefeedsId));
         setThefeedsFires(thefeedsResults)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -64,8 +62,7 @@ export const TheFeedsFiresService = {
         //@ts-ignore
         dispatch(addTheFeedsFire(feedsFireStore))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -76,8 +73,7 @@ export const TheFeedsFiresService = {
         await client.service('thefeeds-fires').remove(thefeedsId)
         dispatch(TheFeedsAction.removeTheFeedsFire(thefeedsId))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   }

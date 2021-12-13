@@ -20,7 +20,7 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt')] /* authenticate('jwt') */,
+    all: [],
     find: [
       addAssociations({
         models: [
@@ -55,8 +55,37 @@ export default {
     all: [],
     find: [
       // processInventoryEntities()
+      (context: HookContext): HookContext => {
+        try {
+          if (context.result?.data[0]?.metadata) {
+            for (let x = 0; x < context.result.data.length; x++) {
+              context.result.data[x].metadata = JSON.parse(context.result.data[x].metadata)
+            }
+          } else {
+            context.result.data[0].metadata = []
+          }
+        } catch {
+          context.result.data = []
+        }
+        return context
+      }
     ],
-    get: [],
+    get: [
+      (context: HookContext): HookContext => {
+        try {
+          if (context.result?.data[0]?.metadata) {
+            for (let x = 0; x < context.result.data.length; x++) {
+              context.result.data[x].metadata = JSON.parse(context.result.data[x].metadata)
+            }
+          } else {
+            context.result.data[0].metadata = []
+          }
+        } catch {
+          context.result.data = []
+        }
+        return context
+      }
+    ],
     create: [],
     update: [],
     patch: [],

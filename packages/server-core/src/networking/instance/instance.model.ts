@@ -26,6 +26,13 @@ export default (app: Application) => {
       ended: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+      },
+      assigned: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      assignedAt: {
+        type: DataTypes.DATE
       }
     },
     {
@@ -42,6 +49,8 @@ export default (app: Application) => {
     ;(instance as any).hasMany(models.user, { foreignKey: { allowNull: true } })
     ;(instance as any).hasOne(models.gameserver_subdomain_provision, { foreignKey: { allowNull: true } })
     ;(instance as any).hasMany(models.bot, { foreignKey: { allowNull: true } })
+    ;(instance as any).belongsToMany(models.user, { as: 'instanceAuthorizedUser', through: 'instance_authorized_user' })
+    ;(instance as any).hasMany(models.instance_authorized_user, { foreignKey: { allowNull: false } })
   }
   return instance
 }

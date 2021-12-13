@@ -1,6 +1,6 @@
 import '@feathersjs/transport-commons'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import config from '@xrengine/server-core/src/appconfig'
 import { Application } from '@xrengine/server-core/declarations'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
@@ -12,17 +12,17 @@ import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 // import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { getPacksFromSceneData } from '@xrengine/projects/loader'
+import { getSystemsFromSceneData } from '@xrengine/projects/loader'
 import { initializeServerEngine } from './initializeServerEngine'
 
 const loadScene = async (app: Application, scene: string) => {
   const [projectName, sceneName] = scene.split('/')
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
-  const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false })
+  const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
   const sceneData = sceneResult.data.scene as any // SceneData
-  const packs = await getPacksFromSceneData(sceneData, false)
+  const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
-  if (!Engine.isInitialized) await initializeServerEngine(packs.systems, app.isChannelInstance)
+  if (!Engine.isInitialized) await initializeServerEngine(systems, app.isChannelInstance)
   console.log('Initialized new gameserver instance')
 
   let entitiesLeft = -1
@@ -34,11 +34,13 @@ const loadScene = async (app: Application, scene: string) => {
     }
   }, 1000)
 
-  console.log('Loading scene...')
+  const onEntityLoaded = (left) => {
+    entitiesLeft = left.entitiesLeft
+  }
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
 
-  await WorldScene.load(sceneData, (left) => {
-    entitiesLeft = left
-  })
+  await loadSceneFromJSON(sceneData)
+  EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
 
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
@@ -74,11 +76,11 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
   app.instance = instanceResult
 
   if (app.gsSubdomainNumber != null) {
-    const gsSubProvision = await app.service('gameserver-subdomain-provision').find({
+    const gsSubProvision = (await app.service('gameserver-subdomain-provision').find({
       query: {
         gs_number: app.gsSubdomainNumber
       }
-    })
+    })) as any
 
     if (gsSubProvision.total > 0) {
       const provision = gsSubProvision.data[0]
@@ -89,11 +91,48 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
   }
 }
 
+const assignExistingInstance = async (
+  app: Application,
+  existingInstance,
+  channelId: string,
+  locationId: string,
+  agonesSDK
+) => {
+  await agonesSDK.allocate()
+  app.instance = existingInstance
+
+  await app.service('instance').patch(existingInstance.id, {
+    currentUsers: existingInstance.currentUsers + 1,
+    channelId: channelId,
+    locationId: locationId,
+    assigned: false,
+    assignedAt: null
+  })
+
+  if (app.gsSubdomainNumber != null) {
+    const gsSubProvision = (await app.service('gameserver-subdomain-provision').find({
+      query: {
+        gs_number: app.gsSubdomainNumber
+      }
+    })) as any
+
+    if (gsSubProvision.total > 0) {
+      const provision = gsSubProvision.data[0]
+      await app.service('gameserver-subdomain-provision').patch(provision.id, {
+        instanceId: existingInstance.id
+      })
+    }
+  }
+}
+
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
     // If no real-time functionality has been configured just return
     return
   }
+
+  let shutdownTimeout
+
   app.on('connection', async (connection) => {
     if (
       (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
@@ -101,6 +140,7 @@ export default (app: Application): void => {
       config.gameserver.mode === 'local'
     ) {
       try {
+        clearTimeout(shutdownTimeout)
         const token = (connection as any).socketQuery?.token
         if (token != null) {
           const authResult = await (app.service('authentication') as any).strategies.jwt.authenticate(
@@ -136,7 +176,7 @@ export default (app: Application): void => {
 
             const isReady = status.state === 'Ready'
             const isNeedingNewServer =
-              config.kubernetes.enabled === false &&
+              !config.kubernetes.enabled &&
               (status.state === 'Shutdown' ||
                 app.instance == null ||
                 app.instance.locationId !== locationId ||
@@ -147,7 +187,7 @@ export default (app: Application): void => {
              * need to programatically shut down and restart the gameserver process.
              */
             console.log(app.instance?.locationId, locationId)
-            if (config.kubernetes.enabled === false && app.instance && app.instance.locationId !== locationId) {
+            if (!config.kubernetes.enabled && app.instance && app.instance.locationId != locationId) {
               app.restart()
               return
             }
@@ -158,28 +198,84 @@ export default (app: Application): void => {
 
               const localIp = await getLocalServerIp(app.isChannelInstance)
               const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
-              const newInstance = {
-                currentUsers: 1,
-                sceneId: sceneId,
-                ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
+              const ipAddress =
+                config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
+              const existingInstanceQuery = {
+                ipAddress: ipAddress,
+                ended: false
               } as any
-              await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
-              if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
+              if (locationId) existingInstanceQuery.locationId = locationId
+              else if (channelId) existingInstanceQuery.channelId = channelId
+              const existingInstanceResult = await app.service('instance').find({
+                query: existingInstanceQuery
+              })
+              if (existingInstanceResult.total === 0) {
+                const newInstance = {
+                  currentUsers: 1,
+                  locationId: locationId,
+                  channelId: channelId,
+                  ipAddress: ipAddress
+                } as any
+                await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
+              } else {
+                const instance = existingInstanceResult.data[0]
+                const authorizedUsers = (await app.service('instance-authorized-user').find({
+                  query: {
+                    instanceId: instance.id,
+                    $limit: 0
+                  }
+                })) as any
+                if (authorizedUsers.total > 0) {
+                  const thisUserAuthorized = (await app.service('instance-authorized-user').find({
+                    query: {
+                      instanceId: instance.id,
+                      userId: identityProvider.userId,
+                      $limit: 0
+                    }
+                  })) as any
+                  if (thisUserAuthorized.total === 0) {
+                    return console.log('User', identityProvider.userId, 'not authorized to be on this server')
+                  }
+                }
+                await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId, agonesSDK)
+              }
+
+              if (sceneId != null && !Engine.sceneLoaded && !Engine.isLoading) {
                 await loadScene(app, sceneId)
               }
             } else {
               try {
                 const instance = await app.service('instance').get(app.instance.id)
+                const authorizedUsers = (await app.service('instance-authorized-user').find({
+                  query: {
+                    instanceId: instance.id,
+                    $limit: 0
+                  }
+                })) as any
+                if (authorizedUsers.total > 0) {
+                  const thisUserAuthorized = (await app.service('instance-authorized-user').find({
+                    query: {
+                      instanceId: instance.id,
+                      userId: identityProvider.userId,
+                      $limit: 0
+                    }
+                  })) as any
+                  if (thisUserAuthorized.total === 0) {
+                    return console.log('User', identityProvider.userId, 'not authorized to be on this server')
+                  }
+                }
                 await agonesSDK.allocate()
                 await app.service('instance').patch(app.instance.id, {
-                  currentUsers: (instance.currentUsers as number) + 1
+                  currentUsers: (instance.currentUsers as number) + 1,
+                  assigned: false,
+                  assignedAt: null
                 })
               } catch (err) {
                 console.log('Could not update instance, likely because it is a local one that does not exist')
               }
             }
-            // console.log(`Patching user ${user.id} instanceId to ${app.instance.id}`);
-            const instanceIdKey = app.isChannelInstance === true ? 'channelInstanceId' : 'instanceId'
+            const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
+            // console.log(`Patching user ${user.id} ${instanceIdKey} to ${app.instance.id}`);
             await app.service('user').patch(userId, {
               [instanceIdKey]: app.instance.id
             })
@@ -208,12 +304,12 @@ export default (app: Application): void => {
             await app.service('instance-attendance').create(newInstanceAttendance)
             ;(connection as any).instanceId = app.instance.id
             app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
-            if (app.isChannelInstance !== true)
+            if (!app.isChannelInstance) {
               await app.service('message').create(
                 {
                   targetObjectId: app.instance.id,
                   targetObjectType: 'instance',
-                  text: `[jl_system]${user.name} joined the layer`,
+                  text: `${user.name} joined the layer`,
                   isNotification: true
                 },
                 {
@@ -222,40 +318,41 @@ export default (app: Application): void => {
                   }
                 }
               )
-            if (user.partyId != null) {
-              const partyUserResult = await app.service('party-user').find({
-                query: {
-                  partyId: user.partyId
-                }
-              })
-              const party = await app.service('party').get(user.partyId)
-              const partyUsers = (partyUserResult as any).data
-              const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1)
-              if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
-                await app.service('party').patch(user.partyId, {
-                  instanceId: app.instance.id
+              if (user.partyId != null) {
+                const partyUserResult = await app.service('party-user').find({
+                  query: {
+                    partyId: user.partyId
+                  }
                 })
-                const nonOwners = partyUsers.filter(
-                  (partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true
-                )
-                const emittedIp = !config.kubernetes.enabled
-                  ? await getLocalServerIp(app.isChannelInstance)
-                  : {
-                      ipAddress: status.address,
-                      port: status.portsList[0].port
-                    }
-                await Promise.all(
-                  nonOwners.map(async (partyUser) => {
-                    await app.service('instance-provision').emit('created', {
-                      userId: partyUser.userId,
-                      ipAddress: emittedIp.ipAddress,
-                      port: emittedIp.port,
-                      locationId: locationId,
-                      channelId: channelId,
-                      sceneId: sceneId
-                    })
+                const party = await app.service('party').get(user.partyId, null!)
+                const partyUsers = (partyUserResult as any).data
+                const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1)
+                if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
+                  await app.service('party').patch(user.partyId, {
+                    instanceId: app.instance.id
                   })
-                )
+                  const nonOwners = partyUsers.filter(
+                    (partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true
+                  )
+                  const emittedIp = !config.kubernetes.enabled
+                    ? await getLocalServerIp(app.isChannelInstance)
+                    : {
+                        ipAddress: status.address,
+                        port: status.portsList[0].port
+                      }
+                  await Promise.all(
+                    nonOwners.map(async (partyUser) => {
+                      await app.service('instance-provision').emit('created', {
+                        userId: partyUser.userId,
+                        ipAddress: emittedIp.ipAddress,
+                        port: emittedIp.port,
+                        locationId: locationId,
+                        channelId: channelId,
+                        sceneId: sceneId
+                      })
+                    })
+                  )
+                }
               }
             }
           }
@@ -294,12 +391,12 @@ export default (app: Application): void => {
           if (identityProvider != null && identityProvider.id != null) {
             const userId = identityProvider.userId
             const user = await app.service('user').get(userId)
-            if (app.isChannelInstance !== true)
+            if (!app.isChannelInstance)
               await app.service('message').create(
                 {
                   targetObjectId: app.instance.id,
                   targetObjectType: 'instance',
-                  text: `[jl_system]${user.name} left the layer`,
+                  text: `${user.name} left the layer`,
                   isNotification: true
                 },
                 {
@@ -319,7 +416,7 @@ export default (app: Application): void => {
             console.log('user instanceId: ' + user.instanceId)
 
             if (instanceId != null && instance != null) {
-              const activeUsers = Engine.defaultWorld.clients
+              const activeUsers = Engine.currentWorld.clients
               const activeUsersCount = activeUsers.size
               try {
                 await app.service('instance').patch(instanceId, {
@@ -331,29 +428,26 @@ export default (app: Application): void => {
 
               const user = await app.service('user').get(userId)
               const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
-              if (
-                (Engine.defaultWorld.clients.has(userId) && config.kubernetes.enabled) ||
-                process.env.APP_ENV === 'development'
-              )
-                await app
-                  .service('user')
-                  .patch(
-                    null,
-                    {
-                      [instanceIdKey]: null
-                    },
-                    {
-                      query: {
-                        id: user.id,
-                        [instanceIdKey]: instanceId
-                      },
+              // Patch the user's (channel)instanceId to null if they're leaving this instance.
+              // But, don't change their (channel)instanceId if it's already something else.
+              await app
+                .service('user')
+                .patch(
+                  null,
+                  {
+                    [instanceIdKey]: null
+                  },
+                  {
+                    query: {
+                      id: user.id,
                       [instanceIdKey]: instanceId
                     }
-                  )
-                  .catch((err) => {
-                    console.warn("Failed to patch user, probably because they don't have an ID yet")
-                    console.log(err)
-                  })
+                  }
+                )
+                .catch((err) => {
+                  console.warn("Failed to patch user, probably because they don't have an ID yet")
+                  console.log(err)
+                })
               await app.service('instance-attendance').patch(
                 null,
                 {
@@ -371,33 +465,35 @@ export default (app: Application): void => {
               app.channel(`instanceIds/${instanceId as string}`).leave(connection)
 
               if (activeUsersCount < 1) {
-                console.log('Deleting instance ' + instanceId)
-                try {
-                  await app.service('instance').patch(instanceId, {
-                    ended: true
-                  })
-                } catch (err) {
-                  console.log(err)
-                }
-                if (app.gsSubdomainNumber != null) {
-                  const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
-                    query: {
-                      gs_number: app.gsSubdomainNumber
-                    }
-                  })
-                  await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
-                    allocated: false
-                  })
-                }
-                if (config.kubernetes.enabled) {
-                  delete app.instance
-                }
-                const gsName = app.gsName
-                if (gsName !== undefined) {
-                  logger.info("App's gameserver name:")
-                  logger.info(gsName)
-                }
-                await app.agonesSDK.shutdown()
+                shutdownTimeout = setTimeout(async () => {
+                  console.log('Deleting instance ' + instanceId)
+                  try {
+                    await app.service('instance').patch(instanceId, {
+                      ended: true
+                    })
+                  } catch (err) {
+                    console.log(err)
+                  }
+                  if (app.gsSubdomainNumber != null) {
+                    const gsSubdomainProvision = (await app.service('gameserver-subdomain-provision').find({
+                      query: {
+                        gs_number: app.gsSubdomainNumber
+                      }
+                    })) as any
+                    await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
+                      allocated: false
+                    })
+                  }
+                  if (config.kubernetes.enabled) {
+                    delete app.instance
+                  }
+                  const gsName = app.gsName
+                  if (gsName !== undefined) {
+                    logger.info("App's gameserver name:")
+                    logger.info(gsName)
+                  }
+                  await app.agonesSDK.shutdown()
+                }, config.gameserver.shutdownDelayMs)
               }
             }
           }

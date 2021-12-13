@@ -20,7 +20,7 @@ import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTra
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 import AWS from 'aws-sdk'
 import * as https from 'https'
-import { DataProducer, Router, Transport, Worker } from 'mediasoup/lib/types'
+import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/types'
 import SocketIO, { Socket } from 'socket.io'
 import {
   handleWebRtcCloseConsumer,
@@ -46,6 +46,9 @@ import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Application } from '@xrengine/server-core/declarations'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
@@ -121,8 +124,15 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     // Set up realtime channel on socket.io
     this.socketIO = this.app.io
 
-    this.socketIO.of('/').on('connect', (socket: Socket) => {
+    this.socketIO.of('/').on('connect', async (socket: Socket) => {
       let listenersSetUp = false
+
+      if (!Engine.sceneLoaded && !this.app.isChannelInstance) {
+        await new Promise<void>((resolve) => {
+          EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
+        })
+      }
+
       // Authorize user and make sure everything is valid before allowing them to join the world
       socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
         console.log('AUTHORIZATION CALL HANDLER', data.userId)
@@ -170,13 +180,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         const avatar = {
           thumbnailURL: '',
-          avatarURL: '',
-          avatarId: ''
+          avatarURL: ''
         } as any
         avatarResources?.data.forEach((a) => {
           if (a.staticResourceType === 'avatar') avatar.avatarURL = a.url
           else avatar.thumbnailURL = a.url
-          avatar.avatarId = a.name
         })
 
         // TODO: Check that they are supposed to be in this instance
@@ -281,11 +289,14 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     })
 
     // Set up our gameserver according to our current environment
-    const localIp = await getLocalServerIp()
+    const localIp = await getLocalServerIp(this.app.isChannelInstance)
     let stringSubdomainNumber, gsResult
     if (!config.kubernetes.enabled)
       try {
-        await (this.app.service('instance') as any).Model.patch(null, { ended: true }, { where: {} })
+        await (this.app.service('instance') as any).Model.update(
+          { ended: true, assigned: false, assignedAt: null },
+          { where: {} }
+        )
       } catch (error) {
         logger.warn(error)
       }
@@ -345,7 +356,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     await Promise.all(
       (this.routers.instance as any).map(async (router) => {
-        if (router._internal.routerId !== currentRouter._internal.routerId)
+        if (router.id !== currentRouter.id)
           return currentRouter.pipeToRouter({ dataProducerId: this.outgoingDataProducer.id, router: router })
         else return Promise.resolve()
       })

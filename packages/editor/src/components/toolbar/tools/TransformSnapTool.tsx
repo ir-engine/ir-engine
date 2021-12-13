@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { Magnet } from '@styled-icons/fa-solid/Magnet'
-import { ControlManager } from '../../../managers/ControlManager'
+import AttractionsIcon from '@mui/icons-material/Attractions'
 import { CommandManager } from '../../../managers/CommandManager'
 import EditorEvents from '../../../constants/EditorEvents'
 import { InfoTooltip } from '../../layout/Tooltip'
 import SelectInput from '../../inputs/SelectInput'
 import * as styles from '../styles.module.scss'
-import { SnapMode } from '../../../controls/EditorControls'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SceneManager } from '../../../managers/SceneManager'
+import { EditorControlComponent } from '../../../classes/EditorControlComponent'
+import { setSnapMode, toggleSnapMode } from '../../../systems/EditorControlSystem'
+import { SnapMode, SnapModeType } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 /**
  *
@@ -37,15 +40,13 @@ const rotationSnapOptions = [
 ]
 
 const defaultSnapSetting = {
-  mode: SnapMode.Grid,
+  mode: SnapMode.Grid as SnapModeType,
   translationSnap: 0.5,
   rotationSnap: 10
 }
 
 const TransformSnapTool = () => {
   const [snapSetting, setSnapSetting] = useState(defaultSnapSetting)
-  const editorControls = ControlManager.instance.editorControls
-
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.SNAP_SETTINGS_CHANGED.toString(), updateSnapSettings)
 
@@ -55,30 +56,39 @@ const TransformSnapTool = () => {
   }, [])
 
   const updateSnapSettings = () => {
+    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
+
     setSnapSetting({
-      mode: editorControls.snapMode,
-      translationSnap: editorControls.translationSnap,
-      rotationSnap: editorControls.rotationSnap
+      mode: editorControlComponent.snapMode,
+      translationSnap: editorControlComponent.translationSnap,
+      rotationSnap: editorControlComponent.rotationSnap
     })
   }
 
   const onChangeTranslationSnap = (snapValue: number) => {
-    editorControls.setTranslationSnap(snapValue)
-    editorControls.setSnapMode(SnapMode.Grid)
+    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
+    editorControlComponent.translationSnap = snapValue
+    SceneManager.instance.grid.setSize(snapValue)
+    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
+    setSnapMode(SnapMode.Grid, editorControlComponent)
   }
 
   const onChangeRotationSnap = (snapValue: number) => {
-    editorControls.setRotationSnap(snapValue)
-    editorControls.setSnapMode(SnapMode.Grid)
+    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
+    editorControlComponent.rotationSnap = snapValue
+    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
+    setSnapMode(SnapMode.Grid, editorControlComponent)
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
-  //   editorControls.setScaleSnap(snapValue)
-  //   editorControls.setSnapMode(SnapMode.Grid)
+  //   const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
+  //   editorControlComponent.scaleSnap = snapValue
+  //   CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
+  //   setSnapMode(SnapMode.Grid)
   // }
 
   const onToggleSnap = () => {
-    editorControls.toggleSnapMode()
+    toggleSnapMode()
   }
 
   return (
@@ -88,7 +98,7 @@ const TransformSnapTool = () => {
           onClick={onToggleSnap}
           className={styles.toolButton + ' ' + (snapSetting.mode === SnapMode.Grid ? styles.selected : '')}
         >
-          <Magnet size={12} />
+          <AttractionsIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <SelectInput

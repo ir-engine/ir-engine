@@ -1,8 +1,8 @@
 import { download } from "@xrengine/server-core/src/projects/project/downloadProjects";
 import dotenv from 'dotenv';
 import Sequelize from 'sequelize';
-import fs from 'fs'
-import path from 'path'
+import path from "path";
+import fs from "fs";
 import appRootPath from 'app-root-path'
 
 dotenv.config();
@@ -22,6 +22,8 @@ db.url = process.env.MYSQL_URL ??
 async function installAllProjects() {
   
   try {
+    const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects')
+    if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
     console.log('running installAllProjects')
     const sequelizeClient = new Sequelize({
       ...db,
@@ -47,9 +49,6 @@ async function installAllProjects() {
     
     const projects = await Projects.findAll()
     console.log('found projects', projects)
-    
-    const projectsFolder = path.resolve(appRootPath.path, 'packages/projects/projects')
-    if(!fs.existsSync(projectsFolder)) fs.mkdirSync(projectsFolder, { recursive: true })
     
     for(const project of projects) {
       await download(project.name)

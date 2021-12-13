@@ -24,13 +24,15 @@ import styles from './Layout.module.scss'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { ClientSettingService } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
 }
 
-const siteTitle: string = Config.publicRuntimeConfig.siteTitle
+const title: string = Config.publicRuntimeConfig.title
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -67,6 +69,8 @@ const Layout = (props: Props): any => {
   const { pageTitle, children, login } = props
   const userHasInteracted = useAppState().userHasInteracted
   const authUser = useAuthState().authUser
+  const clientSettingState = useClientSettingState()
+  const [clientSetting] = clientSettingState?.client?.value || []
   const [leftDrawerOpen, setLeftDrawerOpen] = useState(false)
   const [rightDrawerOpen, setRightDrawerOpen] = useState(false)
   const [topDrawerOpen, setTopDrawerOpen] = useState(false)
@@ -80,6 +84,10 @@ const Layout = (props: Props): any => {
   const [selectedGroup, setSelectedGroup] = useState(initialGroupForm)
   const user = useAuthState().user
   const handle = useFullScreenHandle()
+  const [ctitle, setTitle] = useState(clientSetting?.title)
+  const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
+  const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
+  const [description, setDescription] = useState(clientSetting?.siteDescription)
 
   const dispatch = useDispatch()
 
@@ -94,7 +102,17 @@ const Layout = (props: Props): any => {
       window.addEventListener('click', initialClickListener)
       window.addEventListener('touchend', initialClickListener)
     }
+    !clientSetting && ClientSettingService.fetchedClientSettings()
   }, [])
+
+  useEffect(() => {
+    if (clientSetting) {
+      setTitle(clientSetting?.title)
+      setFavicon16(clientSetting?.favicon16px)
+      setFavicon32(clientSetting?.favicon32px)
+      setDescription(clientSetting?.siteDescription)
+    }
+  }, [clientSettingState?.updateNeeded?.value])
 
   const openInvite = (): void => {
     setLeftDrawerOpen(false)
@@ -139,8 +157,11 @@ const Layout = (props: Props): any => {
             <section>
               <Helmet>
                 <title>
-                  {siteTitle} | {pageTitle}
+                  {ctitle || title} | {pageTitle}
                 </title>
+                {description && <meta name="description" content={description}></meta>}
+                {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
+                {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
               </Helmet>
               <header>
                 {path === '/login' && <NavMenu login={login} />}

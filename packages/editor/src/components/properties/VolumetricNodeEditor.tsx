@@ -1,13 +1,13 @@
 // @ts-nocheck
-import { Video } from '@styled-icons/fa-solid/Video'
 import React from 'react'
 import InputGroup from '../inputs/InputGroup'
-import VolumetricInput from '../inputs/VolumetricInput'
+import VideocamIcon from '@mui/icons-material/Videocam'
 import AudioSourceProperties from './AudioSourceProperties'
 import NodeEditor from './NodeEditor'
 import useSetPropertySelected from './useSetPropertySelected'
 import i18n from 'i18next'
 import { useTranslation } from 'react-i18next'
+import FolderInput from '../inputs/FolderInput'
 
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.
@@ -29,7 +29,7 @@ export function VolumetricNodeEditor(props) {
   return (
     <NodeEditor description={VolumetricNodeEditor.description} {...props}>
       <InputGroup name="Volumetric" label={t('editor:properties.volumetric.lbl-volumetric')}>
-        <VolumetricInput value={node.srcUrl} onChange={onChangeSrc} />
+        <FolderInput value={node.srcUrl} onChange={onChangeSrc} />
       </InputGroup>
       <AudioSourceProperties {...props} />
     </NodeEditor>
@@ -37,7 +37,7 @@ export function VolumetricNodeEditor(props) {
 }
 
 //setting iconComponent with icon name
-VolumetricNodeEditor.iconComponent = Video
+VolumetricNodeEditor.iconComponent = VideocamIcon
 
 //setting description and will appear on editor view
 VolumetricNodeEditor.description = i18n.t('editor:properties.volumetric.description')

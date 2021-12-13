@@ -1,5 +1,5 @@
 import { createGlobalStyle } from 'styled-components'
-import { EditorTheme } from '/theme'
+import { EditorTheme } from './theme'
 
 /**
  * GlobalStyle component used to provide common styles all over application.

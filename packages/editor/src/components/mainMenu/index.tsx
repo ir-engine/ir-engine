@@ -1,6 +1,6 @@
 import React from 'react'
-import { Bars } from '@styled-icons/fa-solid/Bars'
 import ToolButton from '../toolbar/ToolButton'
+import MenuIcon from '@mui/icons-material/Menu'
 import { ContextMenu, MenuItem, SubMenu, showMenu } from '../layout/ContextMenu'
 import { useState } from 'react'
 import Hotkeys from 'react-hot-keys'
@@ -49,7 +49,7 @@ const MainMenu = (props: MainMenuProp) => {
 
       if (command.hotkey) {
         return (
-          <Hotkeys keyName={command.hotkey} onKeyUp={command.action}>
+          <Hotkeys key={command.name} keyName={command.hotkey} onKeyUp={command.action}>
             {menuItem}
           </Hotkeys>
         )
@@ -68,7 +68,7 @@ const MainMenu = (props: MainMenuProp) => {
 
   return (
     <>
-      <ToolButton icon={Bars} onClick={toggleMenu} isSelected={isMenuOpen} id="menu" />
+      <ToolButton icon={MenuIcon} onClick={toggleMenu} isSelected={isMenuOpen} id="menu" />
       <ContextMenu id="menu" onHide={hideMenu}>
         {props.commands.map((command: Command) => renderMenu(command))}
       </ContextMenu>

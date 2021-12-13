@@ -25,7 +25,7 @@ export class FileBrowserService implements ServiceMethods<any> {
     this.store = useStorageProvider()
   }
 
-  async find(params?: Params) {}
+  async find(params: Params) {}
 
   /**
    * Return the metadata for each file in a directory
@@ -33,7 +33,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async get(directory: string, params?: Params): Promise<FileContentType[]> {
+  async get(directory: string, params: Params): Promise<FileContentType[]> {
     if (directory.substr(0, 1) === '/') directory = directory.slice(1) // remove leading slash
     const result = await this.store.listFolderContent(directory)
     return result
@@ -45,7 +45,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async create(directory, params?: Params) {
+  async create(directory, params: Params) {
     if (directory.substr(0, 1) === '/') directory = directory.slice(1) // remove leading slash
     return this.store.putObject({ Key: directory + '/', Body: Buffer.alloc(0), ContentType: 'application/x-empty' })
   }
@@ -57,7 +57,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async update(from: string, { destination, isCopy, renameTo }, params?: Params) {
+  async update(from: string, { destination, isCopy, renameTo }, params: Params) {
     // TODO
     throw new Error('[File Browser]: Temporarily disabled for instability. - TODO')
     return this.store.moveObject(from, destination, isCopy, renameTo)
@@ -69,7 +69,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param data
    * @param params
    */
-  async patch(path: string, data: PatchParams, params?: Params) {
+  async patch(path: string, data: PatchParams, params: Params) {
     console.log(path, data)
     await this.store.putObject({
       Key: path,
@@ -85,8 +85,8 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async remove(path: string, params?: Params) {
-    const dirs = await this.store.listObjects(path + '/', true)
+  async remove(path: string, params: Params) {
+    const dirs = await this.store.listObjects(path + '/', [], true, null!)
     return await this.store.deleteResources([path, ...dirs.Contents.map((a) => a.Key)])
   }
 }

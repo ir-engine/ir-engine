@@ -1,4 +1,3 @@
-import Backdrop from '@mui/material/Backdrop'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
@@ -133,10 +132,6 @@ const LocationModal = (props: Props): any => {
         open={open}
         onClose={handleClose}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
       >
         <Fade in={props.open}>
           <div

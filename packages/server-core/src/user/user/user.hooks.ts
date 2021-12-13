@@ -40,6 +40,9 @@ export default {
             model: 'scope'
           },
           {
+            model: 'user-wallet'
+          },
+          {
             model: 'inventory-item',
             include: [
               {
@@ -70,6 +73,9 @@ export default {
           },
           {
             model: 'scope'
+          },
+          {
+            model: 'user-wallet'
           },
           {
             model: 'inventory-item',
@@ -106,6 +112,9 @@ export default {
             model: 'scope'
           },
           {
+            model: 'user-wallet'
+          },
+          {
             model: 'inventory-item',
             include: [
               {
@@ -123,6 +132,23 @@ export default {
   after: {
     all: [],
     find: [
+      (context: HookContext): HookContext => {
+        try {
+          if (context.result?.data) {
+            for (let x = 0; x < context.result.data.length; x++) {
+              //context.result.data[x].inventory_items.metadata = JSON.parse(context.result.data[x].inventory_items.metadata)
+              for (let i = 0; i < context.result.data[x].inventory_items?.length; i++) {
+                context.result.data[x].inventory_items[i].metadata = JSON.parse(
+                  context.result.data[x].inventory_items[i].metadata
+                )
+              }
+            }
+          }
+        } catch (err) {
+          console.log('inventory item parsing error on user.FIND', err)
+        }
+        return context
+      }
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     const { app, result } = context
@@ -157,6 +183,19 @@ export default {
       // }
     ],
     get: [
+      (context: HookContext): HookContext => {
+        try {
+          if (context.result) {
+            //context.result.data[x].inventory_items.metadata = JSON.parse(context.result.data[x].inventory_items.metadata)
+            for (let i = 0; i < context.result.inventory_items?.length; i++) {
+              context.result.inventory_items[i].metadata = JSON.parse(context.result.inventory_items[i].metadata)
+            }
+          }
+        } catch (err) {
+          console.log('inventory item parsing error on user.GET', err)
+        }
+        return context
+      }
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     if (context.result.subscriptions && context.result.subscriptions.length > 0) {
@@ -207,7 +246,6 @@ export default {
           if (Array.isArray(result)) result = result[0]
           if (result?.userRole !== 'guest' && result?.inviteCode == null) {
             const code = await getFreeInviteCode(app)
-
             await app.service('user').patch(result.id, {
               inviteCode: code
             })
@@ -217,6 +255,7 @@ export default {
           logger.error('USER AFTER CREATE ERROR')
           logger.error(err)
         }
+        return null!
       }
     ],
     update: [],

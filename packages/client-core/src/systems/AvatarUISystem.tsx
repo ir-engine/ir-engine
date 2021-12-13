@@ -7,9 +7,9 @@ import { NetworkObjectComponent } from '@xrengine/engine/src/networking/componen
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/PersonMenuView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Quaternion, Vector3 } from 'three'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 export const AvatarContextMenuUI = new Map<Entity, ReturnType<typeof createAvatarContextMenuView>>()
@@ -20,23 +20,13 @@ export default async function AvatarUISystem(world: World): Promise<System> {
   return () => {
     for (const userEntity of userQuery.enter()) {
       if (userEntity === world.localClientEntity) continue
+      if (AvatarUI.has(userEntity)) {
+        console.log('entity already exists: ' + userEntity)
+        continue
+      }
       const userId = getComponent(userEntity, NetworkObjectComponent).userId
       const ui = createAvatarDetailView(userId)
       AvatarUI.set(userEntity, ui)
-      addComponent(ui.entity, TransformComponent, {
-        position: new Vector3(),
-        rotation: new Quaternion(),
-        scale: new Vector3(1, 1, 1)
-      })
-
-      //Avatar Context Menu
-      const contextMenuUI = createAvatarContextMenuView(userId)
-      AvatarContextMenuUI.set(userEntity, contextMenuUI)
-      addComponent(contextMenuUI.entity, TransformComponent, {
-        position: new Vector3(),
-        rotation: new Quaternion(),
-        scale: new Vector3(1, 1, 1)
-      })
     }
 
     for (const userEntity of userQuery()) {
@@ -44,19 +34,12 @@ export default async function AvatarUISystem(world: World): Promise<System> {
       const ui = AvatarUI.get(userEntity)!
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
       const userTransform = getComponent(userEntity, TransformComponent)
-      const transform = getComponent(ui.entity, TransformComponent)
-      transform.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
-      transform.position.copy(userTransform.position)
-      transform.position.y += avatarHeight + 0.3
-      //transform.rotation.setFromRotationMatrix(Engine.camera.matrix)
-
-      //Avatar Context Menu
-      const contextMenuUI = AvatarContextMenuUI.get(userEntity)!
-      const contextMenuTransform = getComponent(contextMenuUI.entity, TransformComponent)
-      contextMenuTransform.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
-      contextMenuTransform.position.copy(userTransform.position)
-      contextMenuTransform.position.y = avatarHeight * 0.8
-      contextMenuTransform.position.z += contextMenuTransform.position.z > Engine.camera.position.z ? -0.4 : 0.4
+      const xrui = getComponent(ui.entity, XRUIComponent)
+      if (!xrui) return
+      xrui.layer.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
+      xrui.layer.position.copy(userTransform.position)
+      xrui.layer.position.y += avatarHeight + 0.3
+      xrui.layer.rotation.setFromRotationMatrix(Engine.camera.matrix)
     }
 
     for (const userEntity of userQuery.exit()) {

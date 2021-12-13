@@ -7,7 +7,7 @@ import { Network } from '../../networking/classes/Network'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { WorldScene } from '../../scene/functions/SceneLoading'
+import { loadSceneFromJSON } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
@@ -26,7 +26,7 @@ export async function reset(): Promise<void> {
 
   // clear all entities components
   // await new Promise<void>((resolve) => {
-  //   Engine.defaultWorld.entities.forEach((entity) => {
+  //   Engine.currentWorld.entities.forEach((entity) => {
   //     removeAllComponents(entity)
   //   })
   //   setTimeout(() => {
@@ -44,14 +44,10 @@ export async function reset(): Promise<void> {
   //   }, 500)
   // })
 
-  // if (Engine.defaultWorld.entities.length) {
-  //   console.log('Engine.defaultWorld.entities.length', Engine.defaultWorld.entities.length)
-  //   throw new Error('Engine.defaultWorld.entities cleanup not complete')
+  // if (Engine.currentWorld.entities.length) {
+  //   console.log('Engine.currentWorld.entities.length', Engine.currentWorld.entities.length)
+  //   throw new Error('Engine.currentWorld.entities cleanup not complete')
   // }
-
-  Engine.tick = 0
-
-  Engine.defaultWorld.entities.length = 0
 
   // delete all what is left on scene
   if (Engine.scene) {
@@ -59,7 +55,7 @@ export async function reset(): Promise<void> {
     Engine.scene = null!
   }
   Engine.sceneLoaded = false
-  WorldScene.isLoading = false
+  Engine.isLoading = false
 
   Engine.camera = null!
 
@@ -81,13 +77,13 @@ export async function reset(): Promise<void> {
 export const unloadScene = async (): Promise<void> => {
   Engine.engineTimer.stop()
   Engine.sceneLoaded = false
-  WorldScene.isLoading = false
+  Engine.isLoading = false
   const world = useWorld()
   const entitiesToRemove = [] as Entity[]
   const removedEntities = [] as Entity[]
   const sceneObjectsToRemove = [] as Object3D[]
 
-  world.entities.forEach((entity) => {
+  world.entityQuery().forEach((entity) => {
     if (!hasComponent(entity, PersistTagComponent)) {
       removeAllComponents(entity)
       entitiesToRemove.push(entity)
@@ -95,9 +91,22 @@ export const unloadScene = async (): Promise<void> => {
     }
   })
 
-  const { delta } = Engine.defaultWorld
+  const { delta } = Engine.currentWorld
 
-  Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
+  Engine.currentWorld.execute(delta, Engine.currentWorld.elapsedTime + delta)
+
+  Object.entries(world.pipelines).forEach(([type, pipeline]) => {
+    const systemsToRemove: any[] = []
+    pipeline.forEach((s) => {
+      if (s.sceneSystem) {
+        systemsToRemove.push(s)
+      }
+    })
+    systemsToRemove.forEach((s) => {
+      const i = pipeline.findIndex(s)
+      pipeline.splice(i, 1)
+    })
+  })
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
@@ -117,7 +126,7 @@ export const unloadScene = async (): Promise<void> => {
 
   isClient && configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
 
-  Engine.defaultWorld.execute(delta, Engine.defaultWorld.elapsedTime + delta)
+  Engine.currentWorld.execute(delta, Engine.currentWorld.elapsedTime + delta)
 
   Engine.engineTimer.start()
 

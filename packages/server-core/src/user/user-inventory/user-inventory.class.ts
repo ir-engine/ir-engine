@@ -1,7 +1,5 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
-import { QueryTypes } from 'sequelize'
 
 /**
  * A class for Collection type service
@@ -10,7 +8,7 @@ import { QueryTypes } from 'sequelize'
  */
 export class UserInventory extends Service {
   public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>) {
+  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
   }
 }

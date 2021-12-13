@@ -6,11 +6,11 @@ client:
       gameserver: https://gameserver.<domain>
       gameserverDomain: gameserver.<domain>
       dev: true
+      gaMeasurementId: '<GOOGLE_ANALYTICS_MEASUREMENT_ID>'
       feathersStoreKey: TheOverlay-Auth-Store
       localStorageKey: theoverlay-client-store-key-v1
       loginDisabled: true
       logo: "./logo.svg"
-      gaMeasurementId: '<GOOGLE_ANALYTICS_MEASUREMENT_ID>'
       rootRedirect: false
       siteDescription: Connected Worlds for Everyone
       siteTitle: XREngine
@@ -29,73 +29,6 @@ client:
       offlineMode: false
       staticPages:
         termsOfService: "/terms-of-service"
-      xr:
-        enterVRbutton:
-          src: https://xr3ngine-static.s3-us-east-1.amazonaws.com/icons/cardboard-icon.png
-        environment:
-          scene-gltf:
-            name: Launchpad
-            src: https://xr3ngine-scenes.s3-us-east-1.amazonaws.com/Launchpad/Launchpad.gltf
-          skybox:
-            height: 2048
-            radius: 5000
-            rotation:
-              y: 0
-              x: 90
-              z: 90
-            src: /textures/nightsky.jpg
-            thetaLength: 180
-            width: 2048
-        grid:
-          placeholderImageSrc: https://xr3ngine-static.s3-us-east-1.amazonaws.com/logo.png
-          skybox:
-            height: 2048
-            width: 2048
-            radius: 5000
-            rotation:
-              x: 90
-              y: 0
-              z: 90
-            src: /textures/nightsky.jpg
-            thetaLength: 180
-        spoke:
-          link: "https://hub.xrengine.io/spoke"
-          comingSoon:
-            enabled: "false"
-            src: ""
-          src: ""
-        store:
-          link: ""
-          src: ""
-        videoGrid:
-          link: /theater
-          name: theater
-          src: ""
-          scene-gltf:
-            src: "https://xr3ngine-static.s3.amazonaws.com/assets/models/DolbyTheater/DolbyTheater.glb"
-            name: dolby
-          scale:
-            x: 1.5
-            y: 1.5
-            z: 1
-          offset:
-            y: 3
-            z: -5
-          focusedOffset:
-            x: 0
-            y: -0.75
-            z: 3
-          contentWidth: 1.6
-          contentHeight: 0.9
-          borderSize: 0.1
-        vrRoomGrid:
-          name: vrRoom
-          comingSoon:
-            enabled: "false"
-            src: ""
-          link: /vrRoom
-          src: ""
-          scenes:
   extraEnv:
     API_ASSETS_ROUTE: /static-resource
     API_ASSETS_ACTION: assets
@@ -109,6 +42,7 @@ client:
     API_SERVER_ADDRESS: api.<domain>
     API_SOCKET_ENDPOINT: /socket
     API_SERVER: https://api.<domain>
+    APP_ENV: production
     CLIENT_ADDRESS: https://<domain>
     CLIENT_ENABLED: "true"
     CLIENT_SCENE_ROUTE: /scenes/
@@ -131,7 +65,7 @@ client:
     USE_DIRECT_UPLOAD_API: "true"
     USE_HTTPS: "true"
   image:
-    repository: lagunalabs/xrengine
+    repository: <repository_name>
     pullPolicy: IfNotPresent
   affinity:
     nodeAffinity:
@@ -150,6 +84,7 @@ client:
       - host: <domain>
         paths:
           - /
+  replicaCount: 1
   service:
     type: NodePort
 domain: <domain>
@@ -182,6 +117,7 @@ api:
         sender_id: <AWS_SNS_SENDER_ID>
     host: https://<domain>/
   extraEnv:
+    APP_ENV: production
     APP_HOST: https://<domain>
     APP_URL: https://<domain>
     AUTH_SECRET: <INSERT_A_UUID_OR_SOMETHING_SIMILAR>
@@ -203,6 +139,9 @@ api:
     GOOGLE_CALLBACK_URL: https://<domain>/auth/oauth/google
     GOOGLE_CLIENT_ID: "<GOOGLE_OAUTH_CLIENT_ID>"
     GOOGLE_CLIENT_SECRET: "<GOOGLE_OAUTH_SECRET>"
+    LINKEDIN_CALLBACK_URL: https://<domain>/auth/oauth/linkedin
+    LINKEDIN_CLIENT_ID: "<LINKEDIN_OAUTH_CLIENT_ID"
+    LINKEDIN_CIENT_SECRET: "<LINKEDIN_OAUTH_CLIENT_SECRET>"
     MAGICLINK_EMAIL_SUBJECT: Login to TheOverlay
     MAIL_FROM: info@login.<domain>
     SERVER_ENABLED: "true"
@@ -210,7 +149,7 @@ api:
     SERVER_PORT: "3030"
     SMTP_FROM_EMAIL: info@login.<domain>
     SMTP_FROM_NAME: noreply
-    SMTP_HOST: email-smtp.us-east-1.amazonaws.com
+    SMTP_HOST: email-smtp.<SES_REGION>.amazonaws.com
     SMTP_PASS: <AWS_SMTP_PASSWORD>
     SMTP_PORT: "465"
     SMTP_SECURE: "true"
@@ -223,6 +162,9 @@ api:
     STORAGE_S3_REGION: us-east-1
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
     STORAGE_S3_AVATAR_DIRECTORY: avatars
+    TWITTER_CALLBACK_URL: https://<domain>/auth/oauth/linkedin
+    TWITTER_CLIENT_ID: "<TWITTER_OAUTH_CLIENT_ID>"
+    TWITTER_CIENT_SECRET: "<TWITTER_OAUTH_CLIENT_ID>"
     DEFAULT_AVATAR_ID: Allison
     AVATAR_FILE_ALLOWED_EXTENSIONS: ".glb,.gltf,.vrm,.fbx"
     MIN_AVATAR_FILE_SIZE: "0"
@@ -232,7 +174,7 @@ api:
     STORAGE_S3_DEV_MODE: dev
     PRESIGNED_URL_EXPIRATION_DURATION: "3600"
   image:
-    repository: lagunalabs/xrengine
+    repository: <repository_name>
   service:
     type: NodePort
   affinity:
@@ -248,15 +190,33 @@ api:
     annotations:
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/enable-cors: "true"
-      nginx.ingress.kubernetes.io/cors-allow-origin: https://<domain>
+      nginx.ingress.kubernetes.io/enable-cors: "false"
       nginx.ingress.kubernetes.io/proxy-body-size: 256m
       nginx.ingress.kubernetes.io/affinity: cookie
       nginx.ingress.kubernetes.io/affinity-mode: persistent
+      nginx.ingress.kubernetes.io/server-snippet: |
+        location ~* /cors-proxy/(.*) {
+          proxy_http_version 1.1;
+          proxy_pass_request_headers on;
+          proxy_hide_header Access-Control-Allow-Origin;
+          add_header Access-Control-Allow-Origin $http_origin;
+          proxy_intercept_errors on;
+          error_page 301 302 307 = @handle_redirects;
+          proxy_pass https://$1?$args;
+        }
+
+        location @handle_redirects {
+          set $saved_redirect_location '$upstream_http_location';
+          proxy_pass_request_headers on;
+          proxy_hide_header Access-Control-Allow-Origin;
+          add_header Access-Control-Allow-Origin "$http_origin";
+          proxy_pass $saved_redirect_location;
+        }
     hosts:
       - host: api.<domain>
         paths:
           - /
+  replicaCount: 2
 
 release:
   name: prod
@@ -270,7 +230,7 @@ media:
         secret_access_key: <IAM_USER_SECRET_KEY>
       s3:
         region: us-east-1
-        static_resource_bucket: theoverlay-static-resources
+        static_resource_bucket: <static-resources-bucket-name>
       cloudfront:
         domain: resources.<domain>
       sns:
@@ -281,6 +241,7 @@ media:
         sender_id: <AWS_SNS_SENDER_ID>
     host: https://<domain>/
   extraEnv:
+    APP_ENV: production
     APP_HOST: <domain>
     APP_URL: https://<domain>
     AUTH_SECRET: <INSERT_A_UUID_OR_SOMETHING_SIMILAR>
@@ -317,7 +278,7 @@ media:
     STORAGE_S3_REGION: us-east-1
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
   image:
-    repository: lagunalabs/xrengine
+    repository: <repository_name>
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -343,9 +304,10 @@ media:
 
 gameserver:
   image:
-    repository: lagunalabs/xrengine
+    repository: <repository_name>
     pullPolicy: IfNotPresent
   extraEnv:
+    APP_ENV: production
     APP_HOST: <domain>
     AUTH_SECRET: <SAME_AUTH_SECRET_AS_IN_API>
     APP_URL: https://<domain>
@@ -358,9 +320,13 @@ gameserver:
     RTC_PORT_BLOCK_SIZE: "100"
     GAMESERVER_DOMAIN: gameserver.<domain>
     GAMESERVER_PORT: "3031"
-    STORAGE_S3_STATIC_RESOURCE_BUCKET: <STATIC_RESOURCE_BUCKET_NAME>
-    STORAGE_S3_REGION: us-east-1
+    STORAGE_PROVIDER: aws
+    STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
+    STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET>
+    STORAGE_CLOUDFRONT_DOMAIN: resources.<domain>
     STORAGE_CLOUDFRONT_DISTRIBUTION_ID: <cloudfront_distribution_id>
+    STORAGE_S3_REGION: us-east-1
+    STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
     CERT: certs/cert.pem
     KEY: certs/key.pem
   ingress:
@@ -387,6 +353,10 @@ gameserver:
       cpu: "2"
     requests:
       cpu: "1.5"
+  buffer:
+    bufferSize: 4
+    minReplicas: 4
+    maxReplicas: 24
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -430,6 +400,9 @@ analytics:
   enabled: false
   name: xrengine-analytics
   replicaCount: 1
+  image:
+    repository: <repository_name>
+    pullPolicy: IfNotPresent
   extraEnv:
     ANALYTICS_ENABLED: "true"
     ANALYTICS_PORT: "3030"
@@ -448,3 +421,13 @@ analytics:
     create: true
     annotations: {}
     name:
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                  - ng-1

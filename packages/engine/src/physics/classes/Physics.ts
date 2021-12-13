@@ -338,6 +338,15 @@ export class Physics {
     }
   }
 
+  changeRigidbodyType(body: PhysX.PxRigidBody, type: BodyType) {
+    ;(body as any)._type = type
+    if (type === BodyType.KINEMATIC) {
+      body.setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, true)
+    } else if (type === BodyType.DYNAMIC) {
+      body.setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, false)
+    }
+  }
+
   createController(config: CapsuleControllerConfig | BoxControllerConfig) {
     const id = this._getNextAvailableBodyID()
     const controllerDesc = config.isCapsule ? new PhysX.PxCapsuleControllerDesc() : new PhysX.PxBoxControllerDesc()
