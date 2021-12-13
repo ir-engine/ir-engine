@@ -49,66 +49,15 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
 
   let previewMesh: Mesh
 
-  const hasModelUrl = Boolean(args.modelUrl && args.modelUrl !== '')
+  previewMesh = new Mesh(new BoxBufferGeometry(), new MeshPhongMaterial({ color: new Color('white') }))
+  previewMesh.geometry.scale(triggerScale.x, triggerScale.y, triggerScale.z)
+  previewMesh.geometry.applyQuaternion(
+    new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z))
+  )
+  previewMesh.geometry.translate(triggerPosition.x, triggerPosition.y, triggerPosition.z)
 
-  if (hasModelUrl) {
-    // this is also not a great idea, we should load this either as a static asset or from the portal node arguments
-    const gltf = await AssetLoader.loadAsync({ url: args.modelUrl })
-
-    const model = gltf.scene.clone()
-    previewMesh = model.children[2] as Mesh
-    const labelMesh = model.children[1] as Mesh
-
-    model.position.copy(transform.position)
-    model.quaternion.copy(transform.rotation)
-    model.scale.copy(transform.scale)
-
-    if (isClient) {
-      FontManager.instance.getDefaultFont().then((font) => {
-        const fontResolution = 120
-
-        const createText = (text, scale) => {
-          const exitTextShapes = font.generateShapes(text, fontResolution)
-          const geometry = new ExtrudeGeometry(exitTextShapes, { bevelEnabled: false })
-          const invResolution = scale / fontResolution
-          geometry.scale(invResolution, invResolution * 0.8, 1 / fontResolution)
-          geometry.computeBoundingBox()
-          const xMid = -0.5 * (geometry.boundingBox?.max.x! - geometry.boundingBox?.min.x!)
-          geometry.translate(xMid, 0, 1)
-          return geometry
-        }
-
-        let geometry: BufferGeometry = createText('EXIT', 2)
-
-        if (args.displayText && args.displayText !== '') {
-          const displayTextGeom = createText(args.displayText, 1)
-          displayTextGeom.translate(0, -1.6, 0)
-          geometry = mergeBufferGeometries([geometry, displayTextGeom]) as BufferGeometry
-        }
-
-        const textSize = 0.25
-        const text = new Mesh(geometry, new MeshBasicMaterial({ color: 0x000000 }))
-        text.scale.setScalar(textSize)
-
-        const textOtherSide = text.clone(true).rotateY(Math.PI)
-
-        labelMesh.add(text)
-        labelMesh.add(textOtherSide)
-      })
-    }
-
-    addComponent(entity, Object3DComponent, { value: model })
-  } else {
-    previewMesh = new Mesh(new BoxBufferGeometry(), new MeshPhongMaterial({ color: new Color('white') }))
-    previewMesh.geometry.scale(triggerScale.x, triggerScale.y, triggerScale.z)
-    previewMesh.geometry.applyQuaternion(
-      new Quaternion().setFromEuler(new Euler(triggerRotation.x, triggerRotation.y, triggerRotation.z))
-    )
-    previewMesh.geometry.translate(triggerPosition.x, triggerPosition.y, triggerPosition.z)
-
-    // TODO: add bpcem stencil. until now, keep preview mesh hidden
-    // addComponent(entity, Object3DComponent, { value: previewMesh })
-  }
+  // TODO: add bpcem stencil. until now, keep preview mesh hidden
+  // addComponent(entity, Object3DComponent, { value: previewMesh })
 
   const world = useWorld()
 
