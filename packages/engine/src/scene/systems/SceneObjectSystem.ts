@@ -12,6 +12,7 @@ import { Updatable } from '../interfaces/Updatable'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
+import { isClient } from '../../common/functions/isClient'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -58,41 +59,43 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       }
 
       // Apply material stuff
-      object3DComponent.value.traverse((obj: Mesh) => {
-        const material = obj.material as Material
-        if (typeof material !== 'undefined') material.dithering = true
-
-        if (shadowComponent) {
-          obj.receiveShadow = shadowComponent.receiveShadow
-          obj.castShadow = shadowComponent.castShadow
-        }
-
-        if (Engine.simpleMaterials) {
-          // || Engine.isHMD) {
-          if (obj.material instanceof MeshStandardMaterial) {
-            const prevMaterial = obj.material
-            obj.material = new MeshPhongMaterial()
-            MeshBasicMaterial.prototype.copy.call(obj.material, prevMaterial)
-          }
-        } else {
+      if (isClient) {
+        object3DComponent.value.traverse((obj: Mesh) => {
           const material = obj.material as Material
-          if (typeof material !== 'undefined') {
-            // BPCEM
-            if (SceneOptions.instance.boxProjection)
-              material.onBeforeCompile = beforeMaterialCompile(
-                SceneOptions.instance.bpcemOptions.bakeScale,
-                SceneOptions.instance.bpcemOptions.bakePositionOffset
-              )
-            ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
-            if (obj.receiveShadow) {
-              Engine.csm?.setupMaterial(obj)
+          if (typeof material !== 'undefined') material.dithering = true
+
+          if (shadowComponent) {
+            obj.receiveShadow = shadowComponent.receiveShadow
+            obj.castShadow = shadowComponent.castShadow
+          }
+
+          if (Engine.simpleMaterials) {
+            // || Engine.isHMD) {
+            if (obj.material instanceof MeshStandardMaterial) {
+              const prevMaterial = obj.material
+              obj.material = new MeshPhongMaterial()
+              MeshBasicMaterial.prototype.copy.call(obj.material, prevMaterial)
+            }
+          } else {
+            const material = obj.material as Material
+            if (typeof material !== 'undefined') {
+              // BPCEM
+              if (SceneOptions.instance.boxProjection)
+                material.onBeforeCompile = beforeMaterialCompile(
+                  SceneOptions.instance.bpcemOptions.bakeScale,
+                  SceneOptions.instance.bpcemOptions.bakePositionOffset
+                )
+              ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
+              if (obj.receiveShadow) {
+                Engine.csm?.setupMaterial(obj)
+              }
             }
           }
-        }
-      })
+        })
 
-      // Generate BVH
-      object3DComponent.value.traverse(generateMeshBVH)
+        // Generate BVH
+        object3DComponent.value.traverse(generateMeshBVH)
+      }
     }
 
     for (const entity of sceneObjectQuery.exit()) {

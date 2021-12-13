@@ -4,18 +4,11 @@ import fs from 'fs'
 import path from 'path'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import appRootPath from 'app-root-path'
-import { uploadLocalProjectToProvider } from './project.class'
 
 const storageProvider = useStorageProvider()
 
 export const download = async (projectName) => {
   try {
-    // default project is presumed read only
-    if (projectName === 'default-project') {
-      await uploadLocalProjectToProvider('default-project')
-      return true
-    }
-
     console.log('[ProjectLoader]: Installing project', projectName, '...')
     const files = await getFileKeysRecursive(`projects/${projectName}`)
     console.log('[ProjectLoader]: Found files', files)

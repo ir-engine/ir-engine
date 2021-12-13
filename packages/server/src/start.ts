@@ -5,12 +5,14 @@ import app from './app'
 import logger from '@xrengine/server-core/src/logger'
 import psList from 'ps-list'
 import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
+import { updateAppConfig } from '@xrengine/server-core/src/updateAppConfig'
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
 })
 
 export const start = async (): Promise<void> => {
+  await updateAppConfig()
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
     const processList = await (
