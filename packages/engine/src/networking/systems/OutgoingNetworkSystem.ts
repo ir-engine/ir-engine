@@ -13,7 +13,7 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
 import { Action } from '../interfaces/Action'
-import { Changed, defineSerializer, pipe } from 'bitecs'
+import { pipe } from 'bitecs'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { Mesh } from 'three'
@@ -26,8 +26,6 @@ import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 
 export const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
 const ownedNetworkTransformsQuery = defineQuery([NetworkObjectOwnedTag, NetworkObjectComponent, TransformComponent])
-
-export const serialize = defineSerializer([NetworkObjectComponent, Changed(TransformComponent)])
 
 const ikTransformsQuery = isClient
   ? defineQuery([AvatarControllerComponent, XRInputSourceComponent])
@@ -341,16 +339,6 @@ export const queueAllOutgoingPoses = pipe(
   isClient ? queueUnchangedPosesClient : queueUnchangedPosesServer,
   queueXRHandPoses,
   queueUnchangedControllerPoses
-)
-
-// prettier-ignore
-export const queueAllOutgoingPosesSoA = pipe(
-  /**
-   * For the client, we only want to send out objects we have authority over,
-   *   which are the local avatar and any owned objects
-   * For the server, we want to send all objects
-   */
-  isClient ? queueUnchangedPosesClient : queueUnchangedPosesServer,
 )
 
 /****************

@@ -32,7 +32,7 @@ const Timer = () => {
   return time
 }
 
-describe('OutgoingNetworkSystem Performance Tests', async () => {
+describe.skip('OutgoingNetworkSystem Performance Tests', async () => {
 	
   let world
 

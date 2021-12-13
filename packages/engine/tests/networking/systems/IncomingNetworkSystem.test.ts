@@ -7,14 +7,12 @@ import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { Network } from '../../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
 import IncomingNetworkSystem from '../../../src/networking/systems/IncomingNetworkSystem'
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../../src/transform/components/TransformComponent'
 import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
 import { TestNetwork } from '../TestNetwork'
 import { Engine } from '../../../src/ecs/classes/Engine'
-import { createQuaternionProxy, createVector3Proxy } from '../../../src/common/proxies/three'
-import { networkTransformsQuery, serialize } from '../../../src/networking/systems/OutgoingNetworkSystem'
-import { pipe } from 'bitecs'
+import { WorldStateInterface, WorldStateModel } from '../../../src/networking/schema/networkSchema'
 
 describe('IncomingNetworkSystem Integration Tests', async () => {
 	
@@ -36,13 +34,10 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		// mock entity to apply incoming unreliable updates to
 		const entity = createEntity()
 		const transform = addComponent(entity, TransformComponent, {
-			position: createVector3Proxy(TransformComponent.position, entity),
-			rotation: createQuaternionProxy(TransformComponent.rotation, entity),
+			position: new Vector3(),
+			rotation: new Quaternion(),
 			scale: new Vector3(),
 		})
-		
-		transform.position.set(1,2,3)
-
 		const velocity = addComponent(entity, VelocityComponent, {
 			velocity: new Vector3()
 		})
@@ -54,39 +49,31 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		})
 
 		// mock incoming server data
-		// const newPosition = new Vector3(1,2,3)
-		// const newRotation = new Quaternion(1,2,3,4)
+		const newPosition = new Vector3(1,2,3)
+		const newRotation = new Quaternion(1,2,3,4)
 		
-		// const newWorldState: WorldStateInterface = {
-		// 	tick: 0,
-		// 	time: Date.now(),
-		// 	pose: [
-		// 		{
-		// 			networkId: 0 as NetworkId,
-		// 			position: newPosition.toArray(),
-		// 			rotation: newRotation.toArray(),
-		// 			linearVelocity: [],
-		// 			angularVelocity: [],
-		// 		}
-		// 	],
-		// 	controllerPose: [],
-    //   handsPose: []
-		// }
+		const newWorldState: WorldStateInterface = {
+			tick: 0,
+			time: Date.now(),
+			pose: [
+				{
+					networkId: 0 as NetworkId,
+					position: newPosition.toArray(),
+					rotation: newRotation.toArray(),
+					linearVelocity: [],
+					angularVelocity: [],
+				}
+			],
+			controllerPose: [],
+      handsPose: []
+		}
 
-		console.log(networkTransformsQuery(world))
-		console.log(serialize(networkTransformsQuery(world)))
-
-		console.log(networkTransformsQuery(world))
-		console.log(serialize(networkTransformsQuery(world)))
-
-		const buffer = pipe(networkTransformsQuery, serialize)(world)
+		const buffer = WorldStateModel.toBuffer(newWorldState)
 		
 		// todo: Network.instance should ideally be passed into the system as a parameter dependency,
 		// instead of an import dependency , but this works for now
 		Network.instance.incomingMessageQueueUnreliable.add(buffer)
 		Network.instance.incomingMessageQueueUnreliableIDs.add(Engine.userId)
-
-		transform.position.set(0,0,0)
 		
 		/* run */
 		const incomingNetworkSystem = await IncomingNetworkSystem(world)
@@ -94,9 +81,6 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		incomingNetworkSystem()
 		
 		/* assert */
-		strictEqual(transform.position.x, 1)
-		strictEqual(transform.position.y, 2)
-		strictEqual(transform.position.z, 3)
-		// assert(transform.position.equals(newPosition))
+		assert(transform.position.equals(newPosition))
 	})
 })
