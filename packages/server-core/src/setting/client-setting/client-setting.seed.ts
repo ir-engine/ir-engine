@@ -1,6 +1,5 @@
 export const clientSeed = {
   path: 'client-setting',
-  randomize: false,
   templates: [
     {
       logo: process.env.APP_LOGO,
