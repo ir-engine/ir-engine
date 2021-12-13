@@ -16,12 +16,6 @@ const db = {
 
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
-interface AnalyticsSetting extends Model {
-  enabled: boolean
-  port: string
-  processInterval: string
-}
-
 export const updateAppConfig = async (): Promise<void> => {
   const sequelizeClient = new Sequelize({
     ...(db as any),
@@ -31,7 +25,7 @@ export const updateAppConfig = async (): Promise<void> => {
   }) as any
   await sequelizeClient.sync()
 
-  const analyticsSetting = sequelizeClient.define<AnalyticsSetting>('analyticsSetting', {
+  const analyticsSetting = sequelizeClient.define('analyticsSetting', {
     enabled: {
       type: DataTypes.BOOLEAN,
       allowNull: true
