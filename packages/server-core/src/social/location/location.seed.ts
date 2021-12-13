@@ -2,7 +2,6 @@ import { locationSettingsSeed } from '../location-settings/location-settings.see
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
 export const locationSeed = {
-  randomize: false,
   path: 'location',
   templates: [
     {
