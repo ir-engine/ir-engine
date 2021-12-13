@@ -32,13 +32,13 @@ const config: ProjectConfigInterface = {
       component: () => import('@xrengine/client/src/pages/examples/index')
     },
     '/inventory': {
-      component: () => import('@xrengine/client/src/pages/inventory')
+      component: () => import('@xrengine/client-core/src/user/UserMenu/Inventory')
     },
     '/trading': {
-      component: () => import('@xrengine/client/src/pages/trading')
+      component: () => import('@xrengine/client-core/src/user/UserMenu/Trading')
     },
     '/wallet': {
-      component: () => import('@xrengine/client/src/pages/wallet')
+      component: () => import('@xrengine/client-core/src/user/UserMenu/Wallet')
     }
   },
   services: undefined,
