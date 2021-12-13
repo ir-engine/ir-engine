@@ -36,7 +36,7 @@
   },
   "npmClient": "npm",
   "scripts": {
-    "check": "npm run lint && npm run check-errors && npm run test:packages && npm run build-client",
+    "check": "npm run lint && npm run check-errors && npm run test && npm run build-client",
     "check-errors": "lerna run check-errors --parallel",
     "start": "npm run dev",
     "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently npm:dev-agones \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
@@ -84,7 +84,7 @@
   "pre-push": [
     "check-errors",
     "pretest",
-    "test:packages",
+    "test",
     "build-client"
   ],
   "lint-staged": {
