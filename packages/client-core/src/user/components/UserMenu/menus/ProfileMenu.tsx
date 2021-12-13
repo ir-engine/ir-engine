@@ -2,7 +2,7 @@ import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { Check, Close, Create, GitHub, Send, Cancel } from '@mui/icons-material'
+import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
 import { useAuthState } from '../../../services/AuthService'
 import { AuthService } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
@@ -50,7 +50,7 @@ const ProfileMenu = (props: Props): any => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
 
-  const history = useHistory()
+  const dispatch = useDispatch()
   const selfUser = useAuthState().user
 
   const [username, setUsername] = useState(selfUser?.name.value)
@@ -116,7 +116,7 @@ const ProfileMenu = (props: Props): any => {
     const name = username.trim()
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
-      AuthService.updateUsername(userId, name)
+      AuthService.updateUsername(selfUser.id.value, name)
     }
   }
   const handleInputChange = (e) => setEmailPhone(e.target.value)
@@ -300,40 +300,10 @@ const ProfileMenu = (props: Props): any => {
                   {t('user:usermenu.profile.logout')}
                 </div>
               )}
-            </div>
-            <div className={styles.headerBlock}>
-              <Typography variant="h1" className={styles.panelHeader}>
-                {t('user:usermenu.profile.lbl-username')}
-              </Typography>
-              <span className={styles.inputBlock}>
-                <TextField
-                  margin="none"
-                  size="small"
-                  name="username"
-                  variant="outlined"
-                  value={username || ''}
-                  onChange={handleUsernameChange}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') updateUserName(e)
-                  }}
-                  className={styles.usernameInput}
-                  error={errorUsername}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
-                          <Check className={styles.primaryForeground} />
-                        </a>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              </span>
+            </h4>
+            {selfUser?.inviteCode.value != null && (
               <h2>
-                {selfUser?.userRole?.value === 'admin'
-                  ? t('user:usermenu.profile.youAreAn')
-                  : t('user:usermenu.profile.youAreA')}{' '}
-                <span>{selfUser?.userRole?.value}</span>.
+                {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </h2>
             )}
             {selfUser?.userRole.value !== 'guest' && (
@@ -427,11 +397,11 @@ const ProfileMenu = (props: Props): any => {
                   {t('user:usermenu.profile.lbl-wallet')}
                 </Button>
                 <br/>*/}
-                  <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
-                    {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-                  </Button>
-                </section>
-              )}
+                <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
+                  {t('user:usermenu.profile.loginWithReadyPlayerMe')}
+                </Button>
+              </section>
+            )}
 
             {selfUser?.userRole.value === 'guest' && enableSocial && (
               <section className={styles.socialBlock}>
