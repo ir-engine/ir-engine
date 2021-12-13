@@ -1,6 +1,5 @@
 export const emailSeed = {
   path: 'email-setting',
-  randomize: false,
   templates: [
     {
       smtp: JSON.stringify({
