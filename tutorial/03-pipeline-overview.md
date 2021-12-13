@@ -41,10 +41,7 @@ Blender Draco compression Supported for poly/vert.
 LOD is handled by engine/camera system - defined Groups
 
 ### Examples
- - https://www.dropbox.com/s/zijpipsat1azaug/TestMesh_LODGroup.blend?dl=0
- - ![image](https://user-images.githubusercontent.com/578371/145126904-28c67da8-e0ed-40ba-8815-df34e49f6428.png)
- - https://www.dropbox.com/s/4puro5zbqnbwvjk/TestMeshWithLODGroup.glb?dl=0
- - Setup an empty group that is associated with the different LODs
+ - ![image](https://user-images.githubusercontent.com/578371/145126904-28c67da8-e0ed-40ba-8815-df34e49f6428.png) Setup empty groups associated with the different LODs
 
 Target sizes:
  - Ultra - 300k
@@ -285,11 +282,6 @@ Blender - Import VRM file tutorial
 VRM Project コンソーシアム
 VRM Vroid Studio to Unreal Engine 4 - Full Lifehack Tutorial 
 Converting an avatar to VRM format · GitHub 
-
-In the avatar folder in dropbox we will have 4 subfolders that will contain each of the files for each step.
-
-https://www.dropbox.com/sh/kfzksvu9egfehmf/AADNJkXdpr50nynaekyxKrKxa?dl=0
-![image](https://user-images.githubusercontent.com/578371/145127794-fac8c8c0-02c5-48ae-a5de-b611f9f6b5cf.png)
 
 
 ## Step 1 Prepare Avatar
