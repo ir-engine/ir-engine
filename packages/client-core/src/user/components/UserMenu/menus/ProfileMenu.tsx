@@ -23,6 +23,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar'
 import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import { useHistory } from 'react-router-dom'
 
 interface Props {
   changeActiveMenu?: any
@@ -44,6 +45,8 @@ const initialState = {
 }
 
 const ProfileMenu = (props: Props): any => {
+  const history = useHistory()
+
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
 
@@ -302,6 +305,19 @@ const ProfileMenu = (props: Props): any => {
               <h2>
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </h2>
+            )}
+            {selfUser?.userRole.value !== 'guest' && (
+              <>
+                <button onClick={() => history.push(`/inventory/${selfUser.id.value}`)} className={styles.walletBtn}>
+                  My Inventory
+                </button>
+                <button onClick={() => history.push(`/trading/${selfUser.id.value}`)} className={styles.walletBtn}>
+                  My Trading
+                </button>
+                <button onClick={() => history.push(`/wallet/${selfUser.id.value}`)} className={styles.walletBtn}>
+                  My Wallet
+                </button>
+              </>
             )}
           </div>
         </section>

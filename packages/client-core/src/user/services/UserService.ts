@@ -107,40 +107,17 @@ export const UserService = {
     }
   },
 
-  getUsers: async (userId: string, search: string) => {
-    const dispatch = useDispatch()
-    {
-      client
-        .service('user')
-        .find({
-          query: {
-            userId,
-            action: 'withRelation',
-            search
-          }
-        })
-        .then((res: any) => {
-          dispatch(UserAction.loadedUsers(res.data as User[]))
-        })
-        .catch((err: any) => {
-          console.log(err)
-        })
-    }
-  },
-
   getLayerUsers: async (instance = true) => {
     const dispatch = useDispatch()
     {
       const layerUsers = await client.service('user').find({
         query: {
           $limit: 1000,
-          action: instance === true ? 'layer-users' : 'channel-users'
+          action: instance ? 'layer-users' : 'channel-users'
         }
       })
       dispatch(
-        instance === true
-          ? UserAction.loadedLayerUsers(layerUsers.data)
-          : UserAction.loadedChannelLayerUsers(layerUsers.data)
+        instance ? UserAction.loadedLayerUsers(layerUsers.data) : UserAction.loadedChannelLayerUsers(layerUsers.data)
       )
     }
   },

@@ -17,9 +17,6 @@ import { UserAction } from './UserService'
 import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { hasComponent, addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
-import { ProximityComponent } from '../../proximity/components/ProximityComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
@@ -32,7 +29,7 @@ import { AuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { User, UserSetting } from '@xrengine/common/src/interfaces/User'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState, Downgraded } from '@hookstate/core'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
@@ -918,31 +915,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
         }
       }
       const world = Engine.currentWorld
-      if (typeof world !== 'undefined' && world && typeof world.localClientEntity !== 'undefined') {
-        if (!hasComponent(world.localClientEntity, ProximityComponent, world) && isBot(window)) {
-          addComponent(
-            world.localClientEntity,
-            ProximityComponent,
-            {
-              usersInRange: [],
-              usersInIntimateRange: [],
-              usersInHarassmentRange: [],
-              usersLookingTowards: []
-            },
-            world
-          )
-        }
-        if (!hasComponent(world.localClientEntity, WebCamInputComponent, world)) {
-          addComponent(
-            world.localClientEntity,
-            WebCamInputComponent,
-            {
-              emotions: []
-            },
-            world
-          )
-        }
-        console.log('added web cam input component to local client')
+      if (typeof world.localClientEntity !== 'undefined') {
       }
     } else {
       if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId.value)
