@@ -79,7 +79,7 @@
     "supertest": "6.1.6",
     "ts-node": "10.4.0",
     "ts-node-dev": "1.1.8",
-    "typescript": "4.5.3"
+    "typescript": "4.5.4"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }
