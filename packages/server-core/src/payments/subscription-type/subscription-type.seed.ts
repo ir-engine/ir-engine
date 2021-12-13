@@ -107,6 +107,5 @@ const templateMap = config.deployStage ? templatesMap[config.deployStage] : temp
 
 export const subscriptionTypeSeed = {
   path: 'subscription-type',
-  randomize: false,
   templates: templateMap
 }
