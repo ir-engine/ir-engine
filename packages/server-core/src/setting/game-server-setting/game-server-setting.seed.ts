@@ -1,6 +1,5 @@
 export const gameServerSeed = {
   path: 'game-server-setting',
-  randomize: false,
   templates: [
     {
       clientHost: process.env.APP_HOST,
