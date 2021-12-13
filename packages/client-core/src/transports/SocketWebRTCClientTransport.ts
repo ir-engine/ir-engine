@@ -210,10 +210,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         })
         return
       }
-      const { connectedClients, routerRtpCapabilities } = ConnectToWorldResponse as any
+      const { routerRtpCapabilities } = ConnectToWorldResponse as any
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        connectedClients,
         instance: instance === true
       })
       if ((socket as any).instance) {

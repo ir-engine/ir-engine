@@ -38,7 +38,7 @@ export function getRemoteUsers(localUserId, notAfk: boolean): UserId[] {
 }
 
 export function getPlayerName(eid): string {
-  const uid = getComponent(eid, NetworkObjectComponent)?.userId
+  const uid = getComponent(eid, NetworkObjectComponent)?.ownerId
   if (uid === undefined || uid === '') return ''
 
   for (let [_, client] of Engine.currentWorld.clients) {

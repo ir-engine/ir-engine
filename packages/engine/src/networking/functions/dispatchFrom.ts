@@ -10,7 +10,7 @@ import { Action, ActionCacheOptions, ActionRecipients } from '../interfaces/Acti
  * on the next simulation tick. These defaults can be overriden
  * using the `to()` and `delay()` modifiers.
  */
-export const dispatchFrom = (userId: UserId, actionCb: () => Action) => {
+export const dispatchFrom = <A extends Action>(userId: UserId, actionCb: () => A) => {
   let action!: Action
   if (Engine.userId === userId) {
     action = actionCb()
@@ -18,7 +18,9 @@ export const dispatchFrom = (userId: UserId, actionCb: () => Action) => {
     action.$to = action.$to ?? 'all'
     action.$tick = action.$tick ?? Engine.currentWorld.fixedTick + 2
     Engine.currentWorld.outgoingActions.add(action)
+    action.$stack = new Error().stack
   }
+
   return _createModifier(action)
 }
 
@@ -54,7 +56,7 @@ function _createModifier(action: Action) {
   return modifier
 }
 
-const dispatch = (action: Action) => {
+const dispatch = <A extends Action>(action: A) => {
   const world = Engine.currentWorld
   action.$from = action.$from ?? Engine.userId
   action.$to = action.$to ?? 'all'
@@ -63,6 +65,6 @@ const dispatch = (action: Action) => {
   return _createModifier(action)
 }
 
-export const dispatchLocal = (action: Action) => {
+export const dispatchLocal = <A extends Action>(action: A) => {
   return dispatch(action).to('local')
 }

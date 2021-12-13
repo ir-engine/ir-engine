@@ -74,7 +74,6 @@ export default async function AvatarSpawnSystem(world: World): Promise<System> {
           addComponent(entity, LocalInputTagComponent, {})
           addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
           addComponent(entity, PersistTagComponent, {})
-          dispatchFrom(Engine.userId, () => NetworkWorldAction.joinedWorld({ userId: Engine.userId })).to(world.hostId)
         }
       }
     })

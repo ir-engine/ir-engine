@@ -138,9 +138,7 @@ export async function validateNetworkObjects(): Promise<void> {
 
       const disconnectedClient = Object.assign({}, client)
 
-      dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId })).cache({
-        removePrevious: ['userId']
-      })
+      dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId }))
 
       console.log('Disconnected Client:', disconnectedClient.userId)
       if (disconnectedClient?.instanceRecvTransport) {
@@ -169,7 +167,7 @@ export async function validateNetworkObjects(): Promise<void> {
       // Find all network objects that the disconnecting client owns and remove them
       for (const eid of world.getOwnedNetworkObjects(userId)) {
         const { networkId } = getComponent(eid, NetworkObjectComponent)
-        dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId })).cache()
+        dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
       }
       if (world.clients.has(userId)) world.clients.delete(userId)
       console.log('Finished removing inactive client', userId)
@@ -246,7 +244,7 @@ function disconnectClientIfConnected(socket, userId: UserId): void {
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
     const { networkId } = getComponent(eid, NetworkObjectComponent)
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId })).cache()
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
   }
 }
 
@@ -254,21 +252,30 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
   console.info('JoinWorld received', joinedUserId, data)
   const transport = Network.instance.transport as any
   const world = Engine.currentWorld
+  const client = world.clients.get(joinedUserId)!
 
-  console.log(world.clients)
+  clearCachedActionsForDisconnectedUsers()
+  clearCachedActionsForUser(joinedUserId)
 
-  for (const action of world.cachedActions) {
-    if (action.$to === 'all' || action.$to === joinedUserId) world.outgoingActions.add({ ...action, $to: joinedUserId })
+  // dispatch all client info
+  for (const [userId, client] of world.clients) {
+    dispatchFrom(world.hostId, () =>
+      NetworkWorldAction.createClient({
+        userId,
+        name: client.name
+      })
+    ).to(userId === joinedUserId ? 'all' : joinedUserId)
   }
 
-  dispatchFrom(Engine.userId, () =>
-    NetworkWorldAction.createClient({
-      userId: joinedUserId,
-      name: world.clients.get(joinedUserId)!.name
-    })
-  ).cache({ removePrevious: ['userId'] })
+  // dispatch all cached actions to joining user
+  const cachedActions = [] as Action[]
+  for (const action of world.cachedActions) {
+    if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
+  }
 
   callback({
+    cachedActions,
+    avatarDetail: client.avatarDetail!,
     spawnPose: SpawnPoints.instance.getRandomSpawnPoint(),
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })
@@ -311,7 +318,7 @@ export async function handleDisconnect(socket): Promise<any> {
   //The new connection will overwrite the socketID for the user's client.
   //This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId })).cache({ removePrevious: ['userId'] })
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId: userId }))
 
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
@@ -333,10 +340,21 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
     Engine.currentWorld.clients.delete(userId)
     logger.info('Removing ' + userId + ' from client list')
   }
+  if (callback !== undefined) callback({})
+}
+
+export function clearCachedActionsForDisconnectedUsers() {
   for (const action of Engine.currentWorld.cachedActions) {
-    if (!action.$cache && action.$from === userId) {
+    if (Engine.currentWorld.clients.has(action.$from) === false) {
       Engine.currentWorld.cachedActions.delete(action)
     }
   }
-  if (callback !== undefined) callback({})
+}
+
+export function clearCachedActionsForUser(user: UserId) {
+  for (const action of Engine.currentWorld.cachedActions) {
+    if (Engine.currentWorld.clients.has(user) === false) {
+      Engine.currentWorld.cachedActions.delete(action)
+    }
+  }
 }

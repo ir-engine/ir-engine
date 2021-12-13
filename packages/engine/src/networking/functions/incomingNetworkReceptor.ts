@@ -7,7 +7,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
-import { dispatchFrom } from './dispatchFrom'
+import { dispatchFrom, dispatchLocal } from './dispatchFrom'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -28,10 +28,11 @@ export function incomingNetworkReceptor(action) {
     })
 
     .when(NetworkWorldAction.destroyClient.matches, ({ $from, userId }) => {
+      if (!isClient) return
       if ($from !== world.hostId) return
       for (const eid of world.getOwnedNetworkObjects(userId)) {
         const { networkId } = getComponent(eid, NetworkObjectComponent)
-        dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
+        dispatchLocal(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
       }
       if (!isClient || userId === Engine.userId) return
       world.clients.delete(userId)
@@ -57,7 +58,7 @@ export function incomingNetworkReceptor(action) {
       if (isSpawningAvatar && isOwnedByMe) {
         entity = world.localClientEntity
       } else {
-        let networkObject = world.getNetworkObject(a.networkId)
+        let networkObject = world.getNetworkObject(a.$from, a.networkId)
         if (networkObject) {
           entity = networkObject
         } else if (params?.sceneEntityId) {
@@ -68,8 +69,9 @@ export function incomingNetworkReceptor(action) {
         }
       }
       if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
+
       addComponent(entity, NetworkObjectComponent, {
-        userId: a.$from,
+        ownerId: a.$from,
         networkId: a.networkId,
         prefab: a.prefab,
         parameters: a.parameters
@@ -77,7 +79,7 @@ export function incomingNetworkReceptor(action) {
     })
 
     .when(NetworkWorldAction.destroyObject.matches, (a) => {
-      const entity = world.getNetworkObject(a.networkId)
+      const entity = world.getNetworkObject(a.$from, a.networkId)
       if (entity === world.localClientEntity) return
       if (entity) removeEntity(entity)
     })

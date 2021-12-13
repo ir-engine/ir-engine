@@ -30,7 +30,7 @@ export default async function ProximitySystem(world: World): Promise<System> {
         const _usersInIntimateRange: any = []
         const _usersInHarassmentRange: any = []
         const _usersLookingTowards: any[] = []
-        const userId = getComponent(eid, NetworkObjectComponent).userId
+        const userId = getComponent(eid, NetworkObjectComponent).ownerId
         const transform = getComponent(eid, TransformComponent)
         let remoteTransform
         let distance: number = -1

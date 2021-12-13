@@ -89,7 +89,7 @@ function avatarActionReceptor(action) {
     .when(NetworkWorldAction.teleportObject.matches, (a) => {
       const [x, y, z, qX, qY, qZ, qW] = a.pose
 
-      const entity = world.getNetworkObject(a.networkId)
+      const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
 
       const colliderComponent = getComponent(entity, ColliderComponent)
       if (colliderComponent) {

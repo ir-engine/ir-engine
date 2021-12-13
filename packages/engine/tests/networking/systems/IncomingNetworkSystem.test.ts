@@ -160,7 +160,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 			velocity: new Vector3()
 		})
 		const networkObject = addComponent(entity, NetworkObjectComponent, {
-			userId: '0' as UserId,
+			ownerId: '0' as UserId,
 			networkId: 0 as NetworkId,
 			prefab: '',
 			parameters: {},
@@ -175,6 +175,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 			time: Date.now(),
 			pose: [
 				{
+					ownerId: '0' as UserId,
 					networkId: 0 as NetworkId,
 					position: newPosition.toArray(),
 					rotation: newRotation.toArray(),
@@ -183,7 +184,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 				}
 			],
 			controllerPose: [],
-      handsPose: []
+      		handsPose: []
 		}
 
 		const buffer = WorldStateModel.toBuffer(newWorldState)

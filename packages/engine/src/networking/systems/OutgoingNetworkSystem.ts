@@ -39,19 +39,19 @@ const xrHandsQuery = isClient
  * UTILITIES *
  ************/
 
-function velocityIsTheSame(previousNetworkState, netId, vel): boolean {
+function velocityIsTheSame(previousNetworkState, ownerId, netId, vel): boolean {
   for (let i = 0; i < previousNetworkState.pose.length; i++) {
-    if (previousNetworkState.pose[i].networkId === netId) {
+    if (previousNetworkState.pose[i].networkId === netId && previousNetworkState.pose[i].ownerId === ownerId) {
       return arraysAreEqual(previousNetworkState.pose[i].angularVelocity, vel)
     }
   }
 
   return false
 }
-function transformIsTheSame(previousNetworkState, netId, pos, rot, vel): boolean {
+function transformIsTheSame(previousNetworkState, ownerId, netId, pos, rot, vel): boolean {
   if (vel === undefined) vel = [0]
   for (let i = 0; i < previousNetworkState.pose.length; i++) {
-    if (previousNetworkState.pose[i].networkId === netId) {
+    if (previousNetworkState.pose[i].networkId === netId && previousNetworkState.pose[i].ownerId === ownerId) {
       return (
         arraysAreEqual(previousNetworkState.pose[i].position, pos) &&
         arraysAreEqual(previousNetworkState.pose[i].rotation, rot) &&
@@ -62,9 +62,12 @@ function transformIsTheSame(previousNetworkState, netId, pos, rot, vel): boolean
 
   return false
 }
-function isControllerPoseTheSame(previousNetworkState, netId, hp, hr, lp, lr, rp, rr): boolean {
+function isControllerPoseTheSame(previousNetworkState, ownerId, netId, hp, hr, lp, lr, rp, rr): boolean {
   for (let i = 0; i < previousNetworkState.controllerPose.length; i++) {
-    if (previousNetworkState.controllerPose[i].networkId === netId) {
+    if (
+      previousNetworkState.controllerPose[i].networkId === netId &&
+      previousNetworkState.pose[i].ownerId === ownerId
+    ) {
       return (
         arraysAreEqual(previousNetworkState.controllerPose[i].headPosePosition, hp) &&
         arraysAreEqual(previousNetworkState.controllerPose[i].headPoseRotation, hr) &&
@@ -148,7 +151,10 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
   let angVel = undefined
   if (hasComponent(entity, VelocityComponent)) {
     const velC = getComponent(entity, VelocityComponent)
-    if (isZero(velC.velocity) || velocityIsTheSame(previousNetworkState, networkObject.networkId, velC.velocity))
+    if (
+      isZero(velC.velocity) ||
+      velocityIsTheSame(previousNetworkState, networkObject.ownerId, networkObject.networkId, velC.velocity)
+    )
       vel = [0]
     else vel = velC.velocity.toArray()
   }
@@ -159,6 +165,7 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
     // or if the transform is not the same as last frame
     !transformIsTheSame(
       previousNetworkState,
+      networkObject.ownerId,
       networkObject.networkId,
       transformComponent.position.toArray(),
       transformComponent.rotation.toArray(),
@@ -166,6 +173,7 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
     )
   ) {
     outgoingNetworkState.pose.push({
+      ownerId: networkObject.ownerId,
       networkId: networkObject.networkId,
       position: transformComponent.position.toArray(),
       rotation: transformComponent.rotation.toArray(),
@@ -198,7 +206,7 @@ export const queueUnchangedControllerPoses = (world: World) => {
   const { outgoingNetworkState, previousNetworkState } = world
 
   for (const entity of ikTransformsQuery(world)) {
-    const { networkId } = getComponent(entity, NetworkObjectComponent)
+    const { ownerId, networkId } = getComponent(entity, NetworkObjectComponent)
 
     const xrInputs = getComponent(entity, XRInputSourceComponent)
 
@@ -225,6 +233,7 @@ export const queueUnchangedControllerPoses = (world: World) => {
       // or if the transform is not the same as last frame
       !isControllerPoseTheSame(
         previousNetworkState,
+        ownerId,
         networkId,
         headPosePosition,
         headPoseRotation,
@@ -235,6 +244,7 @@ export const queueUnchangedControllerPoses = (world: World) => {
       )
     ) {
       outgoingNetworkState.controllerPose.push({
+        ownerId,
         networkId,
         headPosePosition,
         headPoseRotation,
@@ -256,7 +266,7 @@ export const queueXRHandPoses = (world: World) => {
   const { outgoingNetworkState } = world
 
   for (const entity of xrHandsQuery(world)) {
-    const { networkId } = getComponent(entity, NetworkObjectComponent)
+    const { ownerId, networkId } = getComponent(entity, NetworkObjectComponent)
     const xrHands = getComponent(entity, XRHandsInputComponent)
     const hands: any = [
       {
@@ -286,6 +296,7 @@ export const queueXRHandPoses = (world: World) => {
     }
 
     outgoingNetworkState.handsPose.push({
+      ownerId,
       networkId,
       hands
     })
@@ -343,6 +354,8 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
   const sendData = sendDataOnTransport(Network.instance.transport)
 
   return () => {
+    if (!Engine.hasJoinedWorld) return
+
     rerouteActions(world)
 
     // side effect - network IO

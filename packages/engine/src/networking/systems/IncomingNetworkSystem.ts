@@ -19,6 +19,7 @@ import { avatarHalfHeight } from '../../avatar/functions/createAvatar'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { Action } from '../interfaces/Action'
 import { deepEqual } from '../../common/functions/deepEqual'
+import { Engine } from '../../ecs/classes/Engine'
 
 export const updateCachedActions = (world: World, action: Required<Action>) => {
   if (action.$cache) {
@@ -59,8 +60,15 @@ export const applyDelayedActions = (world: World) => {
     if (action.$tick <= world.fixedTick) {
       console.log(`DELAYED ACTION ${action.type}`, action)
       delayedActions.delete(action)
-      for (const receptor of world.receptors) receptor(action)
-      updateCachedActions(world, action)
+
+      try {
+        for (const receptor of world.receptors) receptor(action)
+        updateCachedActions(world, action)
+        world.actionHistory.add(action)
+      } catch (e) {
+        world.actionHistory.add({ ...action, ERROR: e } as any)
+        console.error(e)
+      }
     }
   }
 
@@ -86,7 +94,9 @@ export const applyIncomingActions = (world: World) => {
     try {
       for (const receptor of world.receptors) receptor(action)
       updateCachedActions(world, action)
+      world.actionHistory.add(action)
     } catch (e) {
+      world.actionHistory.add({ ...action, ERROR: e } as any)
       console.error(e)
       incomingActions.delete(action)
     }
@@ -140,9 +150,9 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
       for (let i = 0; i < newWorldState.pose.length; i++) {
         const pose = newWorldState.pose[i]
 
-        const networkObjectEntity = world.getNetworkObject(pose.networkId)
+        const networkObjectEntity = world.getNetworkObject(pose.ownerId, pose.networkId)
         if (!networkObjectEntity) {
-          console.warn(`Rejecting update for non-existing network object: ${pose.networkId}`)
+          console.warn(`Rejecting update for non-existing network object: ${pose.ownerId} ${pose.networkId}`)
           continue
         }
 
@@ -191,7 +201,7 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
       for (let i = 0; i < newWorldState.controllerPose.length; i++) {
         const ikPose = newWorldState.controllerPose[i]
 
-        const entity = world.getNetworkObject(ikPose.networkId)
+        const entity = world.getNetworkObject(ikPose.ownerId, ikPose.networkId)
 
         if (isEntityLocalClient(entity) || !hasComponent(entity, XRInputSourceComponent)) continue
 
@@ -221,7 +231,7 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
       }
 
       for (const netHands of newWorldState.handsPose) {
-        const entity = world.getNetworkObject(netHands.networkId)
+        const entity = world.getNetworkObject(netHands.ownerId, netHands.networkId)
         if (isEntityLocalClient(entity) || !hasComponent(entity, XRHandsInputComponent)) continue
 
         const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
@@ -263,5 +273,8 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
 
   world.receptors.push(incomingNetworkReceptor)
 
-  return () => applyIncomingNetworkState(world)
+  return () => {
+    if (!Engine.hasJoinedWorld) return
+    applyIncomingNetworkState(world)
+  }
 }

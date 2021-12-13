@@ -24,7 +24,7 @@ function equippableActionReceptor(action) {
   matches(action).when(NetworkWorldAction.setEquippedObject.matches, (a) => {
     if (a.$from === Engine.userId) return
     const equipper = world.getUserAvatarEntity(a.$from)
-    const equipped = world.getNetworkObject(a.networkId)
+    const equipped = world.getNetworkObject(a.object.ownerId, a.object.networkId)
     const attachmentPoint = a.attachmentPoint
     if (!equipped) {
       return console.warn(`Equipped entity with id ${equipped} does not exist! You should probably reconnect...`)
@@ -56,10 +56,10 @@ export default async function EquippableSystem(world: World): Promise<System> {
       if (isClient) {
         const equippedComponent = getComponent(equippedEntity, EquippedComponent)
         const attachmentPoint = equippedComponent.attachmentPoint
-        const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
+        const { ownerId, networkId } = getComponent(equippedEntity, NetworkObjectComponent)
         dispatchFrom(Engine.userId, () =>
           NetworkWorldAction.setEquippedObject({
-            networkId: networkComponet.networkId,
+            object: { ownerId, networkId },
             attachmentPoint: attachmentPoint,
             equip: true
           })
@@ -92,10 +92,13 @@ export default async function EquippableSystem(world: World): Promise<System> {
       // }
 
       // send unequip to clients
-      const networkId = getComponent(equippedEntity, NetworkObjectComponent).networkId
+      const { ownerId, networkId } = getComponent(equippedEntity, NetworkObjectComponent)
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.setEquippedObject({
-          networkId,
+          object: {
+            ownerId,
+            networkId
+          },
           attachmentPoint: attachmentPoint,
           equip: false
         })

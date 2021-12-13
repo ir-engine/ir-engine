@@ -24,7 +24,7 @@ function physicsActionReceptor(action: unknown) {
   const world = useWorld()
   matches(action).when(NetworkWorldAction.teleportObject.matches, (a) => {
     const [x, y, z, qX, qY, qZ, qW] = a.pose
-    const entity = world.getNetworkObject(a.networkId)
+    const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
 
     const colliderComponent = getComponent(entity, ColliderComponent)
     if (colliderComponent) {
@@ -102,7 +102,7 @@ export default async function PhysicsSystem(
       const transform = getComponent(entity, TransformComponent)
       const network = getComponent(entity, NetworkObjectComponent)
 
-      if ((!isClient && network.userId !== Engine.userId) || hasComponent(entity, AvatarComponent)) continue
+      if ((!isClient && network.ownerId !== Engine.userId) || hasComponent(entity, AvatarComponent)) continue
 
       if (isStaticBody(collider.body)) {
         const body = collider.body as PhysX.PxRigidDynamic

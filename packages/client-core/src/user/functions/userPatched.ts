@@ -13,6 +13,7 @@ import { accessAuthState, AuthAction } from '../services/AuthService'
 // import { loadAvatarForUpdatedUser } from './userAvatarFunctions'
 
 export const userPatched = (params) => {
+  console.log('USER PATCHED', params)
   const dispatch = useDispatch()
 
   const selfUser = accessAuthState().user

@@ -210,7 +210,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         })
         const networkObject = addComponent(entity, NetworkObjectComponent, {
           // remote owner
-          userId: '1' as UserId,
+          ownerId: '1' as UserId,
           networkId: 0 as NetworkId,
           prefab: '',
           parameters: {},
@@ -257,7 +257,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         })
         const networkObject = addComponent(entity, NetworkObjectComponent, {
           // remote owner
-          userId: i as unknown as UserId,
+          ownerId: i as unknown as UserId,
           networkId: i as NetworkId,
           prefab: '',
           parameters: {},
@@ -303,7 +303,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         scale: new Vector3(),
       })
       const networkObject = addComponent(entity, NetworkObjectComponent, {
-        userId: '0' as UserId,
+        ownerId: '0' as UserId,
         networkId: 0 as NetworkId,
         prefab: '',
         parameters: {},
@@ -377,7 +377,7 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
 		})
 		const networkObject = addComponent(entity, NetworkObjectComponent, {
       // the host is the owner
-			userId: Engine.userId as UserId,
+			ownerId: Engine.userId as UserId,
 			networkId: 0 as NetworkId,
 			prefab: '',
 			parameters: {},

@@ -7,10 +7,10 @@ import {
   matchesVector3,
   matchesWithInitializer
 } from '../interfaces/Action'
-import { Network } from '../classes/Network'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 import { matchesWeightsParameters } from '../../avatar/animations/Util'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export class NetworkWorldAction {
   static createClient = defineActionCreator({
@@ -18,14 +18,6 @@ export class NetworkWorldAction {
     userId: matchesUserId,
     name: matches.string
   })
-
-  static joinedWorld = defineActionCreator(
-    {
-      type: 'network.JOINED_WORLD',
-      userId: matchesUserId
-    },
-    { allowDispatchFromAny: true }
-  )
 
   static destroyClient = defineActionCreator({
     type: 'network.DESTROY_CLIENT',
@@ -44,7 +36,7 @@ export class NetworkWorldAction {
   static spawnObject = defineActionCreator({
     type: 'network.SPAWN_OBJECT',
     prefab: matches.string,
-    networkId: matchesWithInitializer(matchesNetworkId, () => Network.getNetworkId()),
+    networkId: matchesWithInitializer(matchesNetworkId, () => useWorld().createNetworkId()),
     parameters: matches.any.optional()
   })
 
@@ -64,7 +56,10 @@ export class NetworkWorldAction {
 
   static setEquippedObject = defineActionCreator({
     type: 'network.SET_EQUIPPED_OBJECT',
-    networkId: matchesNetworkId,
+    object: matches.shape({
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
+    }),
     equip: matches.boolean,
     attachmentPoint: matches.number
   })
@@ -82,7 +77,10 @@ export class NetworkWorldAction {
 
   static teleportObject = defineActionCreator({
     type: 'network.TELEPORT_OBJECT',
-    networkId: matchesNetworkId,
+    object: matches.shape({
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
+    }),
     pose: matchPose
   })
 }

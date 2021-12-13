@@ -102,8 +102,12 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
       ;(Network.instance.transport as SocketWebRTCClientTransport)
         .instanceRequest(MessageTypes.JoinWorld.toString())
-        .then(({ spawnPose }) => {
+        .then(({ cachedActions, spawnPose, avatarDetail }) => {
+          console.log('RECEIVED JOIN WORLD RESPONSE', avatarDetail)
+
           dispatch(EngineAction.setJoinedWorld(true))
+
+          for (const a of cachedActions) Engine.currentWorld.incomingActions.add(a)
 
           if (engineState.isTeleporting.value) {
             spawnPose = {
@@ -117,6 +121,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
               parameters: { ...spawnPose }
             })
           ).cache()
+
+          dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarDetails({ avatarDetail })).cache()
         })
     }
   }, [engineState.connectedWorld.value, engineState.sceneLoaded.value])
