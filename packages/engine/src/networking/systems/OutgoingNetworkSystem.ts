@@ -347,8 +347,11 @@ export const queueAllOutgoingPoses = pipe(
 
 const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) => {
   const { outgoingActions } = world
-
-  transport.sendActions(outgoingActions)
+  try {
+    transport.sendActions(outgoingActions)
+  } catch (e) {
+    console.error(e)
+  }
 
   outgoingActions.clear()
 
@@ -373,20 +376,12 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     rerouteActions(world)
 
     // side effect - network IO
-    try {
-      sendActions(world)
-    } catch (e) {
-      console.error(e)
-    }
+    sendActions(world)
 
     queueAllOutgoingPoses(world)
 
     // side effect - network IO
-    try {
-      const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
-      sendData(data)
-    } catch (e) {
-      console.error(e)
-    }
+    const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
+    sendData(data)
   }
 }
