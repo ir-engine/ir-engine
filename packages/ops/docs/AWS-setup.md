@@ -594,15 +594,15 @@ initial nodegroup.
 #### builder.extraEnv.PRIVATE_ECR
 If you're using a private ECR repo, set this to "true" in the builder config file.
 
-#### <everything>.image.repository
+#### (everything).image.repository
 You'll need to replace every <repository_name> with the ECR_URL of your non-builder repo, e.g. `abcd1234efgh.dkr.ecr.us-west-1.amazonaws.com/xrengine-dev`
 
 ### Run Helm install
 Run ```helm install -f </path/to/*.builder.values.yaml> <stage_name>-builder xrengine/xrengine-builder```
-and the run ```helm install -f </path/to/*.values.yaml> --set-string api.extraEnv.FORCE_DB_REFRESH=true <stage_name> xrengine/xrengine```
+and the run ```helm install -f </path/to/*.values.yaml> <stage_name> xrengine/xrengine```
 
-This will spin up the main and builder deployments using their respective Helm config files, <dev/prod>.values.yaml and
-<dev/prod>.builder.values.yaml. Neither will fully work yet, since there's no valid image in the repos yet. The GitHub
+This will spin up the main and builder deployments using their respective Helm config files, <dev/prod>.builder.values.yaml and
+<dev/prod>.values.yaml. Neither will fully work yet, since there's no valid image in the repos yet. The GitHub
 Actions and builder processes will make those images and update the deployments with the tags of the images they've built
 so that they can pull down and use those images.
 
@@ -620,21 +620,14 @@ The full build and deployment process works like this:
 2. GitHub Actions pushes this builder Docker image to the repo `xrengine-<release>-builder` in ECR
 3. GitHub Actions updates the builder deployment to point to the builder image it just created.
 4. The builder deployment spins up the builder Docker image on its single node
-5. The builder downloads any XREngine projects that the deployment has added, as well as a default project.
-6. The builder builds the client files using these projects, as well as copying them so that the api and gameservers have access to them.
-7. The builder pushes this final Docker image to the repo `xrengine-<release>` in ECR
-8. The builder updates the main deployment to point to the final image it just created.
-9. The main deployment spins up the final Docker image for the api, analytics, client, and gameserver services.
-
-## Unset FORCE_DB_REFRESH
-Setting the environment variable api.extraEnv.FORCE_DB_REFRESH to 'true' when configuring the api service tells the 
-API servers to wipe and (re-)seed the database. This is required during initial setup, but you don't want every new 
-api server pod that's spun up to re-run this.
-
-The full initial deployment process should take ~30 minutes (later builds can go faster due to caching).
-A few minutes after the api servers have successfully run, you should run 
-```helm upgrade --reuse-values --set-string api.extraEnv.FORCE_DB_REFRESH=false <stage_name> xrengine/xrengine```.
-This will set the ENV_VAR to 'false', and the API servers will not attempt to seed anything.
+5. The builder connects to the deployment's database and checks if there is a table `user`. This is a proxy
+    for the database being seeded; if it does not exist, it seeds the database with the basic XREngine schema,
+    seeds the default project into the database and storage provider, and seeds various types.
+6. The builder downloads any XREngine projects that the deployment has added.
+7. The builder builds the client files using these projects, as well as copying them so that the api and gameservers have access to them.
+8. The builder pushes this final Docker image to the repo `xrengine-<release>` in ECR
+9. The builder updates the main deployment to point to the final image it just created.
+10. The main deployment spins up the final Docker image for the api, analytics, client, and gameserver services.
 
 ### Upgrading an existing Helm deployment
 One of the features of Helm is being able to easily upgrade deployments with new values. The command to
@@ -642,8 +635,9 @@ do this is very similar to the install command:
 
 ```helm upgrade --reuse-values -f </path/to/*.values.yaml> --set api.image.tag=<latest_github_commit_SHA>,client.image.tag=<latest_github_commit_SHA>,gameserver.image.tag=<latest_github_commit_SHA> <stage_name> xrengine/xrengine```
 
-```--reuse-values``` says to carry over all configuration values from the previous deployment.
+```--reuse-values``` says to carry over all configuration values from the previous deployment. This is most important
+for tags, since they're usually set inline with the `helm install/upgrade` command, not a Helm config.
 Using ```-f <config_file>``` and ```--set <variables>``` after it will apply any changes on top of the
 carryover values.
 
-If you're not deploying a new version of the codebase, you can skip the entirety of the ```--set *.image.tag=<SHA>```.
+If you're not deploying a new build of the codebase, you can skip the entirety of the ```--set *.image.tag=<SHA>```.

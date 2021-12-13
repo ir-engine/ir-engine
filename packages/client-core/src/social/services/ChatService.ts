@@ -40,8 +40,7 @@ const state = createState({
     limit: 5,
     skip: 0,
     total: 0,
-    updateNeeded: true,
-    fetchingInstanceChannel: false
+    updateNeeded: true
   },
   targetObjectType: '',
   targetObject: {} as User | Group | Party | Instance,
@@ -67,12 +66,14 @@ store.receptors.push((action: ChatActionType) => {
         let findIndex
         if (typeof action.channel.id === 'string')
           findIndex = s.channels.channels.findIndex((c) => c.id.value === action.channel.id)
-        let idx = findIndex && findIndex > -1 ? findIndex : s.channels.channels.length
+        let idx = findIndex > -1 ? findIndex : s.channels.channels.length
         s.channels.channels[idx].set(action.channel)
 
         if (action.channelType === 'instance') {
-          // TODO: WHYYY ARE WE DOING ALL THIS??
-          s.channels.fetchingInstanceChannel.set(false)
+          const endedInstanceChannelIndex = s.channels.channels.findIndex(
+            (channel) => channel.channelType.value === 'instance' && channel.id.value !== action.channel.id
+          )
+          if (endedInstanceChannelIndex > -1) s.channels.channels[endedInstanceChannelIndex].set(none)
           s.merge({
             instanceChannelFetched: true,
             instanceChannelFetching: false
@@ -202,7 +203,7 @@ store.receptors.push((action: ChatActionType) => {
         return s.merge({ messageScrollInit: value })
 
       case 'FETCHING_INSTANCE_CHANNEL':
-        return s.channels.merge({ fetchingInstanceChannel: true })
+        return s.merge({ instanceChannelFetching: true })
 
       case 'SET_UPDATE_MESSAGE_SCROLL': {
         return s.merge({ updateMessageScroll: action.value })
