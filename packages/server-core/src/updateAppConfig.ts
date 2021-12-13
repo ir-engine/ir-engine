@@ -1,6 +1,8 @@
 import dotenv from 'dotenv'
 import { DataTypes, Sequelize } from 'sequelize'
 
+import appConfig from './appconfig'
+
 dotenv.config()
 const db = {
   username: process.env.MYSQL_USER ?? 'server',
@@ -449,67 +451,65 @@ export const updateAppConfig = async (): Promise<void> => {
     hub: JSON.parse(JSON.parse(dbServer.hub))
   }
 
-  const appConfig = await import('@xrengine/server-core/src/appconfig')
-
   if (dbAnalyticsConfig) {
-    appConfig.default.analytics = {
-      ...appConfig.default.analytics,
+    appConfig.analytics = {
+      ...appConfig.analytics,
       ...dbAnalyticsConfig
     }
   }
 
   if (dbAuthenticationConfig) {
-    appConfig.default.authentication = {
-      ...appConfig.default.authentication,
+    appConfig.authentication = {
+      ...appConfig.authentication,
       ...dbAuthenticationConfig
     }
   }
 
   if (dbAwsConfig) {
-    appConfig.default.aws = {
-      ...appConfig.default.aws,
+    appConfig.aws = {
+      ...appConfig.aws,
       ...dbAwsConfig
     }
   }
 
   if (dbChargebeeConfig) {
-    appConfig.default.chargebee = {
-      ...appConfig.default.chargebee,
+    appConfig.chargebee = {
+      ...appConfig.chargebee,
       ...dbChargebeeConfig
     }
   }
 
   if (dbClientConfig) {
-    appConfig.default.client = {
-      ...appConfig.default.client,
+    appConfig.client = {
+      ...appConfig.client,
       ...dbClientConfig
     }
   }
 
   if (dbEmailConfig) {
-    appConfig.default.email = {
-      ...appConfig.default.email,
+    appConfig.email = {
+      ...appConfig.email,
       ...dbEmailConfig
     }
   }
 
   if (dbGameServerConfig) {
-    appConfig.default.gameserver = {
-      ...appConfig.default.gameserver,
+    appConfig.gameserver = {
+      ...appConfig.gameserver,
       ...dbGameServerConfig
     }
   }
 
   if (dbRedisConfig) {
-    appConfig.default.redis = {
-      ...appConfig.default.redis,
+    appConfig.redis = {
+      ...appConfig.redis,
       ...dbRedisConfig
     }
   }
 
   if (dbServerConfig) {
-    appConfig.default.server = {
-      ...appConfig.default.server,
+    appConfig.server = {
+      ...appConfig.server,
       ...dbServerConfig
     }
   }

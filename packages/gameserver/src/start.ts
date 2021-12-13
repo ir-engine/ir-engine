@@ -7,7 +7,7 @@ import { exec } from 'child_process'
 // import preloadLocation from './preload-location'
 import { createApp } from './app'
 import { Application } from '@xrengine/server-core/declarations'
-import { updateAppConfig } from './updateAppConfig'
+import { updateAppConfig } from '@xrengine/server-core/src/updateAppConfig'
 
 /**
  * @param status
