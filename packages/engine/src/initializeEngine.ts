@@ -235,6 +235,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./interaction/systems/EquippableSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
 
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))

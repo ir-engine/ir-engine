@@ -26,7 +26,8 @@ import { InputAlias } from '../input/types/InputAlias'
 import { InteractableComponent } from '../interaction/components/InteractableComponent'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
-import { equipEntity, getAttachmentPoint } from '../interaction/functions/equippableFunctions'
+import { equipEntity, getAttachmentPoint, unequipEntity } from '../interaction/functions/equippableFunctions'
+import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -89,6 +90,21 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
   } else {
     addComponent(interactor.focusedInteractive, InteractedComponent, { interactor: entity, parity: parityValue })
   }
+}
+
+/**
+ *
+ * @param entity the that holds the equipped object
+ * @param args
+ * @param delta
+ */
+
+const drop = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number): void => {
+  console.log('dropping')
+  const equipper = getComponent(entity, EquipperComponent)
+  if (!equipper?.equippedEntity) return
+
+  unequipEntity(entity)
 }
 
 /**
@@ -507,6 +523,7 @@ export const createAvatarInput = () => {
   map.set('ArrowDown', BaseInput.BACKWARD)
   map.set('KeyD', BaseInput.RIGHT)
   map.set('KeyE', BaseInput.INTERACT)
+  map.set('KeyU', BaseInput.DROP_OBJECT)
   map.set('Space', BaseInput.JUMP)
   map.set('ShiftLeft', BaseInput.WALK)
   map.set('KeyP', BaseInput.POINTER_LOCK)
@@ -534,6 +551,7 @@ export const createBehaviorMap = () => {
   const map = new Map<InputAlias, InputBehaviorType>()
 
   map.set(BaseInput.INTERACT, interact)
+  map.set(BaseInput.DROP_OBJECT, drop)
   map.set(BaseInput.GRAB_LEFT, interact)
   map.set(BaseInput.GRAB_RIGHT, interact)
 
