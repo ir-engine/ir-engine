@@ -269,7 +269,7 @@ Adding a folder Creator Scenes\998_tools_addons with the tools. I can put all th
 
 
 # Avatar Workflow 
-TODO: ADD Avatar Pipeline / optmization for Demo 
+
 We use the Miximo (future VRM) standard for Avatars
 
 infosia/avatar-asset-pipeline: Avatar asset pipeline is a tool to create continuous integration build pipelines for 3D avatar assets using set of common transformation logic as a component, such as "A-pose to T-pose". 
