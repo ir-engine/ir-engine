@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Magnet } from '@styled-icons/fa-solid/Magnet'
+import AttractionsIcon from '@mui/icons-material/Attractions'
 import { CommandManager } from '../../../managers/CommandManager'
 import EditorEvents from '../../../constants/EditorEvents'
 import { InfoTooltip } from '../../layout/Tooltip'
@@ -98,7 +98,7 @@ const TransformSnapTool = () => {
           onClick={onToggleSnap}
           className={styles.toolButton + ' ' + (snapSetting.mode === SnapMode.Grid ? styles.selected : '')}
         >
-          <Magnet size={12} />
+          <AttractionsIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <SelectInput

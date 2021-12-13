@@ -6,8 +6,8 @@ import BooleanInput from '../inputs/BooleanInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 import ImageInput from '../inputs/ImageInput'
-import { Image } from '@styled-icons/fa-solid/Image'
 import useSetPropertySelected from './useSetPropertySelected'
+import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 import i18n from 'i18next'
 import { useTranslation } from 'react-i18next'
 //
@@ -82,7 +82,7 @@ export function ImageNodeEditor(props) {
   )
 }
 //intailising iconComponent with icon name
-ImageNodeEditor.iconComponent = Image
+ImageNodeEditor.iconComponent = PhotoSizeSelectActualIcon
 
 //intailising description and will appears on ImageNodeEditor view.
 ImageNodeEditor.description = i18n.t('editor:properties.image.description')

@@ -20,7 +20,6 @@ const EVENTS = {
   ENABLE_SCENE: 'CORE_ENABLE_SCENE', // { renderer: boolean, physics: boolean }
 
   // MISC
-  USER_ENGAGE: 'CORE_USER_ENGAGE', // { }
   WINDOW_FOCUS: 'CORE_WINDOW_FOCUS', //  { focused: boolean }
   ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA', // TODO: to pipe offscreen entity data to UI
 

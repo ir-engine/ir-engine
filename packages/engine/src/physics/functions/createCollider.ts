@@ -13,6 +13,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { getTransform } from './parseModelColliders'
 import { getGeometryType } from '../classes/Physics'
 import { vectorToArray } from './physxHelpers'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { Engine } from '../../ecs/classes/Engine'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -74,7 +76,8 @@ export const createShape = (entity: Entity, mesh: Mesh, shapeOptions: ShapeOptio
   // type is required
   if (!shapeOptions.type) return undefined!
 
-  const scale = mesh.scale ?? new Vector3(1, 1, 1)
+  let scale = mesh.scale ?? new Vector3(1, 1, 1)
+  mesh.getWorldScale(scale)
 
   const world = useWorld()
 
@@ -220,6 +223,17 @@ export const createCollider = (entity: Entity, mesh: Mesh) => {
 
   addComponent(entity, ColliderComponent, { body })
   addComponent(entity, CollisionComponent, { collisions: [] })
+}
+
+export const createColliderForObject3D = (entity: Entity, data, disableGravity: boolean) => {
+  const object3d = getComponent(entity, Object3DComponent)
+  if (object3d) {
+    const shapes = getAllShapesFromObject3D(entity, object3d.value as any, data)
+    const body = createBody(entity, data, shapes)
+    body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
+    addComponent(entity, ColliderComponent, { body })
+    addComponent(entity, CollisionComponent, { collisions: [] })
+  }
 }
 
 export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {

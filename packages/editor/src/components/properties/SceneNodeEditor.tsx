@@ -1,4 +1,4 @@
-import { Globe } from '@styled-icons/fa-solid/Globe'
+import LanguageIcon from '@mui/icons-material/Language'
 import { DistanceModelOptions, DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
@@ -539,7 +539,7 @@ export function SceneNodeEditor(props) {
 }
 
 // setting icon component with icon name
-SceneNodeEditor.iconComponent = Globe
+SceneNodeEditor.iconComponent = LanguageIcon
 
 // setting description and will appear on editor view
 SceneNodeEditor.description = i18n.t('editor:properties.scene.description')
