@@ -60,6 +60,8 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ECR_URL: ${{ secrets.ECR_URL }}
           PRIVATE_ECR: ${{ secrets.PRIVATE_ECR }}
+      - name: delete package.json
+        run: rm package.json
       - name: npm-install 'cli' and 'aws-sdk'
         run: npm install cli aws-sdk
       - name: Publish to Elastic Container Registry

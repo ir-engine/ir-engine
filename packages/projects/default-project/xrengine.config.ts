@@ -30,6 +30,15 @@ const config: ProjectConfigInterface = {
     },
     '/examples': {
       component: () => import('@xrengine/client/src/pages/examples/index')
+    },
+    '/inventory': {
+      component: () => import('@xrengine/client/src/pages/inventory')
+    },
+    '/trading': {
+      component: () => import('@xrengine/client/src/pages/trading')
+    },
+    '/wallet': {
+      component: () => import('@xrengine/client/src/pages/wallet')
     }
   },
   services: undefined,

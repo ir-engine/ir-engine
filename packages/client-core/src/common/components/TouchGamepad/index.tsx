@@ -1,4 +1,4 @@
-import { TouchApp } from '@styled-icons/material/TouchApp'
+import TouchAppIcon from '@mui/icons-material/TouchApp'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { addClientInputListeners } from '@xrengine/engine/src/input/functions/clientInputListeners'
 import { handleTouch, handleTouchMove } from '@xrengine/engine/src/input/schema/ClientInputSchema'
@@ -36,7 +36,7 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
         onPointerDown={(): void => triggerButton(value.button, true)}
         onPointerUp={(): void => triggerButton(value.button, false)}
       >
-        <TouchApp />
+        <TouchAppIcon />
       </div>
     )
   })

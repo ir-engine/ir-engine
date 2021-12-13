@@ -87,10 +87,20 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
   // 3. once engine is initialised and the server is provisioned, connect the the instance server
   useEffect(() => {
-    if (engineState.isInitialised.value && instanceConnectionState.instanceProvisioned.value)
+    if (
+      engineState.isInitialised.value &&
+      !instanceConnectionState.connected.value &&
+      instanceConnectionState.instanceProvisioned.value &&
+      !instanceConnectionState.instanceServerConnecting.value
+    )
       InstanceConnectionService.connectToInstanceServer('instance')
     console.log('connect to instance server')
-  }, [engineState.isInitialised.value, instanceConnectionState.instanceProvisioned.value])
+  }, [
+    engineState.isInitialised.value,
+    instanceConnectionState.connected.value,
+    instanceConnectionState.instanceServerConnecting.value,
+    instanceConnectionState.instanceProvisioned.value
+  ])
 
   useEffect(() => {
     console.log(
@@ -139,7 +149,9 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   useEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
-      const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
+      const instanceChannel = Object.values(channels).find(
+        (channel) => channel.instanceId === instanceConnectionState.instance.id.value
+      )
       ChannelConnectionService.provisionChannelServer(instanceChannel?.id)
     }
   }, [chatState.instanceChannelFetched.value])

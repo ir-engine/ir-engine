@@ -1,8 +1,8 @@
 import React from 'react'
 import NodeEditor from './NodeEditor'
-import { Camera } from '@styled-icons/fa-solid/Camera'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { useTranslation } from 'react-i18next'
+import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
 /**
  * ScenePreviewCameraNodeEditorProps declaring props for ScenePreviewCameraNodeEditor.
@@ -36,6 +36,6 @@ export const ScenePreviewCameraNodeEditor = (props: ScenePreviewCameraNodeEditor
   )
 }
 
-ScenePreviewCameraNodeEditor.iconComponent = Camera
+ScenePreviewCameraNodeEditor.iconComponent = CameraAltIcon
 
 export default ScenePreviewCameraNodeEditor
