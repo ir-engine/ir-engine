@@ -272,16 +272,16 @@ Adding a folder Creator Scenes\998_tools_addons with the tools. I can put all th
 
 We use the Miximo (future VRM) standard for Avatars
 
-infosia/avatar-asset-pipeline: Avatar asset pipeline is a tool to create continuous integration build pipelines for 3D avatar assets using set of common transformation logic as a component, such as "A-pose to T-pose". 
-Rokoko/rokoko-studio-live-blender: Rokoko Studio Live plugin for Blender 
+[infosia/avatar-asset-pipeline](https://github.com/infosia/avatar-asset-pipeline): Avatar asset pipeline is a tool to create continuous integration build pipelines for 3D avatar assets using set of common transformation logic as a component, such as "A-pose to T-pose". 
+[Rokoko/rokoko-studio-live-blender](https://github.com/Rokoko/rokoko-studio-live-blender): Rokoko Studio Live plugin for Blender 
 
-How to make VRM file 
-VRM applications 
-VRM importer, exporter and utilities for Blender
-Blender - Import VRM file tutorial
-VRM Project コンソーシアム
-VRM Vroid Studio to Unreal Engine 4 - Full Lifehack Tutorial 
-Converting an avatar to VRM format · GitHub 
+[How to make VRM file](https://vrm.dev/en/how_to_make_vrm/)
+[VRM applications](https://vrm.dev/en/vrm_applications/#plug-in)
+[VRM importer, exporter and utilities for Blender](https://github.com/saturday06/VRM_Addon_for_Blender)
+[Blender - Import VRM file tutorial](https://styly.cc/tips/blender-modeling-vrm/)
+[VRM Project コンソーシアム](https://vrm-consortium.org/)
+VRM [ Vroid Studio to Unreal Engine 4 - Full Lifehack Tutorial ](https://www.youtube.com/watch?v=lp35XeDqXP4)
+[Converting an avatar to VRM format · GitHub](https://gist.github.com/emilianavt/51d8399987d67544fdebfe2ebd9a5149)
 
 
 ## Step 1 Prepare Avatar
