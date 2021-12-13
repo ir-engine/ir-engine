@@ -629,7 +629,11 @@ describe('SceneLoading.test', () => {
       const type = 'trimesh'
       let geom = new SphereBufferGeometry()
 
+      const scale = new Vector3(2, 2, 2)
       const mesh = new Mesh(geom, new MeshNormalMaterial())
+      mesh.scale.x = scale.x
+      mesh.scale.y = scale.y
+      mesh.scale.z = scale.z
       const bodyOptions = {
         type,
         bodyType: BodyType.DYNAMIC
@@ -640,11 +644,10 @@ describe('SceneLoading.test', () => {
         value: mesh
       })
 
-      const scale = new Vector3(0.5, 0.5, 0.5)
       addComponent(entity, TransformComponent, {
         position: new Vector3(0,2,0),
         rotation: new Quaternion(),
-        scale: scale
+        scale: new Vector3(1,1,1)
       })
 
       const sceneComponentData = bodyOptions
@@ -662,7 +665,6 @@ describe('SceneLoading.test', () => {
       const shapes = Engine.currentWorld.physics.getRigidbodyShapes(body)
       for (let shape of shapes) {
         const shapeScale = getGeometryScale(shape)
-        console.log(shapeScale)
         assert.equal(shapeScale.x, scale.x)
         assert.equal(shapeScale.y, scale.y)
         assert.equal(shapeScale.z, scale.z)
@@ -674,14 +676,16 @@ describe('SceneLoading.test', () => {
     })
 
     // TODO: kinda complex, and covered by physics tests
-    it.skip('box-collider', async () => { 
+    it('box-collider', async () => { 
       const world = createWorld()
       Engine.currentWorld = world
       await Engine.currentWorld.physics.createScene({ verbose: true })
       
       const entity = createEntity(world)
       const type = 'box'
-      let geom = new BoxBufferGeometry(2, 2, 2)
+
+      const scale = new Vector3(2, 2, 2)
+      let geom = new BoxBufferGeometry(scale.x, scale.y, scale.z)
 
       const mesh = new Mesh(geom, new MeshNormalMaterial())
       const bodyOptions = {
@@ -694,7 +698,6 @@ describe('SceneLoading.test', () => {
         value: mesh
       })
 
-      const scale = new Vector3(0.5, 0.5, 0.5)
       addComponent(entity, TransformComponent, {
         position: new Vector3(0,2,0),
         rotation: new Quaternion(),
@@ -713,6 +716,13 @@ describe('SceneLoading.test', () => {
       assert(hasComponent(entity, ColliderComponent))
       const body = getComponent(entity, ColliderComponent).body
       assert.deepEqual(body._type, bodyOptions.bodyType)
+      const shapes = Engine.currentWorld.physics.getRigidbodyShapes(body)
+      for (let shape of shapes) {
+        const shapeScale = getGeometryScale(shape)
+        assert.equal(shapeScale.x, scale.x)
+        assert.equal(shapeScale.y, scale.y)
+        assert.equal(shapeScale.z, scale.z)
+      }
       assert(hasComponent(entity, CollisionComponent))
 
       // clean up physx
