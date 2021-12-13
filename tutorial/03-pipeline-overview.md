@@ -205,7 +205,7 @@ File structure:
 
 PBR Roughness - Metallic workflow will be used.
 Texture sets will be used at discretion. We need to keep texture sets at a minimum to create performant assets. For cryptosabers 3 texture sets will be used. Each texture set will be represented as a different mesh in blender.
-Meshes will be created in 2 different meshes complexities. All of them should be inside a blender collection called [NAME]_source.
+Meshes will be created in 2 different meshes complexities. All of them should be inside a blender collection called [NAME]\_source.
 
 High poly will be the source mesh. It doesn’t need to be UV unwrapped. It will be splitted into different materials.
 
@@ -216,7 +216,7 @@ This will be used to bake the ID map in Painter. The mesh needs to be named as: 
 Low poly. Is an optimized version of the high poly one. This will be the main file that we are going to work on painter and will be finally delivered on the GLB. It needs to be properly UV unwrapped (use UVPackmaster2). Also, all materials should be erased except 1 that should be named as [NAME]. The mesh needs to be named as: [NAME]\_low
 ![image](https://user-images.githubusercontent.com/578371/145127432-5ad73f3a-ce35-41b8-8738-b91d94e1c307.png)
 
-Once this is done, both files will be exported as FBX. After that, _low file will be used to create a new project in painter with the following settings:
+Once this is done, both files will be exported as FBX. After that, the \_low file will be used to create a new project in painter with the following settings:
 ![image](https://user-images.githubusercontent.com/578371/145127444-4c45eda4-c4a0-40c1-b9fa-c371b178cc52.png)
 
 After this ID baking should be carried on. Load the high poly mesh FBX on the “high definition meshes” and use the following settings to create the ID. Note: is possible that the map is not 100% properly baked and it will need further retouches to iron out little mistakes.
