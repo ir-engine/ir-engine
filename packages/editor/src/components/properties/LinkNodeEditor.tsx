@@ -1,5 +1,5 @@
-import { Link } from '@styled-icons/fa-solid/Link'
 import React from 'react'
+import LinkIcon from '@mui/icons-material/Link'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
@@ -36,6 +36,6 @@ export const LinkNodeEditor = (props: LinkNodeEditorProps) => {
   )
 }
 
-LinkNodeEditor.iconComponent = Link
+LinkNodeEditor.iconComponent = LinkIcon
 
 export default LinkNodeEditor

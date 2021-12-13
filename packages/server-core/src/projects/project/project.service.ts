@@ -6,6 +6,7 @@ import projectDocs from './project.docs'
 import { retriggerBuilderService } from './project-helper'
 import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
 import * as authentication from '@feathersjs/authentication'
+
 const { authenticate } = authentication.hooks
 
 declare module '../../../declarations' {

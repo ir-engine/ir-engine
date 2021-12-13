@@ -1,16 +1,15 @@
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { store } from '../../store'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
+import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 
 //State
 const state = createState({
   isCamVideoEnabled: false,
   isCamAudioEnabled: false,
   isFaceTrackingEnabled: false,
-  nearbyLayerUsers: [],
-  consumers: {
-    consumers: []
-  }
+  nearbyLayerUsers: [] as NearbyUser[],
+  consumers: []
 })
 
 store.receptors.push((action: MediaStreamActionType): any => {
@@ -23,9 +22,9 @@ store.receptors.push((action: MediaStreamActionType): any => {
       case 'FACE_TRACKING_CHANGED':
         return s.isFaceTrackingEnabled.set(action.isEnable)
       case 'CONSUMERS_CHANGED':
-        return s.consumers.consumers.set(action.consumers)
+        return s.consumers.set(action.consumers)
       case 'NEARBY_LAYER_USERS_CHANGED':
-        return s.nearbyLayerUsers.set(action.users.map((user) => user.id))
+        return s.nearbyLayerUsers.set(action.users)
     }
   }, action.type)
 })
@@ -72,7 +71,7 @@ export const MediaStreamAction = {
   setConsumers: (consumers: any[]): any => {
     return { type: 'CONSUMERS_CHANGED' as const, consumers }
   },
-  setNearbyLayerUsers: (users: any[]): any => {
+  setNearbyLayerUsers: (users: NearbyUser[]): any => {
     return { type: 'NEARBY_LAYER_USERS_CHANGED' as const, users }
   }
 }

@@ -2,7 +2,6 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 import fs from 'fs'
 import path from 'path'
 import { isDev } from '@xrengine/common/src/utils/isDev'
@@ -17,6 +16,7 @@ import { getContentType } from '../../util/fileUtils'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { getProjectConfig, onProjectEvent } from './project-helper'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
@@ -62,22 +62,25 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true) =
   const projectPath = path.resolve(projectsRootFolder, projectName)
   const files = getFilesRecursive(projectPath)
   const results = await Promise.all(
-    files.map((file: string) => {
-      return new Promise(async (resolve) => {
-        try {
-          const fileResult = fs.readFileSync(file)
-          const filePathRelative = file.slice(projectPath.length)
-          await storageProvider.putObject({
-            Body: fileResult,
-            ContentType: getContentType(file),
-            Key: `projects/${projectName}${filePathRelative}`
-          })
-          resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain))
-        } catch (e) {
-          resolve(null)
-        }
+    files
+      .filter((file) => !file.includes(`projects/${projectName}/.git/`))
+      .map((file: string) => {
+        return new Promise(async (resolve) => {
+          try {
+            const fileResult = fs.readFileSync(file)
+            const filePathRelative = file.slice(projectPath.length)
+            await storageProvider.putObject({
+              Body: fileResult,
+              ContentType: getContentType(file),
+              Key: `projects/${projectName}${filePathRelative}`
+            })
+            resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain))
+          } catch (e) {
+            console.log(e)
+            resolve(null)
+          }
+        })
       })
-    })
   )
   // console.log('uploadLocalProjectToProvider', results)
   return results.filter((success) => !!success) as string[]
@@ -90,19 +93,28 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+  }
 
-    // copy default project if it doesn't exist
-    if (!fs.existsSync(path.resolve(projectsRootFolder, 'default-project'))) copyDefaultProject()
-
-    if (isDev && !config.db.forceRefresh) {
-      this._fetchDevLocalProjects()
+  async _seedProject(projectName: string): Promise<any> {
+    console.warn('[Projects]: Found new locally installed project', projectName)
+    const projectConfig = (await getProjectConfig(projectName)) ?? {}
+    await super.create({
+      thumbnail: projectConfig.thumbnail,
+      name: projectName,
+      storageProviderPath: getStorageProviderPath(projectName),
+      repositoryPath: getRemoteURLFromGitData(projectName)
+    })
+    // run project install script
+    if (projectConfig.onEvent) {
+      return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
+    return Promise.resolve()
   }
 
   /**
    * On dev, sync the db with any projects installed locally
    */
-  private async _fetchDevLocalProjects() {
+  async _fetchDevLocalProjects() {
     const dbEntries = (await super.find()) as any
     const data: ProjectInterface[] = dbEntries.data
 
@@ -120,16 +132,7 @@ export class Project extends Service {
     for (const projectName of locallyInstalledProjects) {
       if (!data.find((e) => e.name === projectName)) {
         try {
-          console.warn('[Projects]: Found new locally installed project', projectName)
-          const projectConfig: ProjectConfigInterface = (
-            await import(`@xrengine/projects/projects/${projectName}/xrengine.config.ts`)
-          ).default
-          await super.create({
-            thumbnail: projectConfig.thumbnail,
-            name: projectName,
-            storageProviderPath: getStorageProviderPath(projectName),
-            repositoryPath: getRemoteURLFromGitData(projectName)
-          })
+          promises.push(this._seedProject(projectName))
         } catch (e) {
           console.log(e)
         }
@@ -154,7 +157,7 @@ export class Project extends Service {
     if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
       throw new Error(`[Projects]: Project with name ${projectName} already exists`)
 
-    if (projectName === 'default-project' || projectName === 'template-project')
+    if ((!config.db.forceRefresh && projectName === 'default-project') || projectName === 'template-project')
       throw new Error(`[Projects]: Project name ${projectName} not allowed`)
 
     const projectLocalDirectory = path.resolve(projectsRootFolder, projectName)
@@ -175,7 +178,7 @@ export class Project extends Service {
     packageData.name = projectName
     fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
 
-    await super.create(
+    return super.create(
       {
         thumbnail: packageData.thumbnail,
         name: projectName,
@@ -222,17 +225,10 @@ export class Project extends Service {
 
     await uploadLocalProjectToProvider(projectName)
 
-    let projectConfig: ProjectConfigInterface = {}
-    try {
-      projectConfig = (await import(`../../../../projects/projects/${projectName}/xrengine.config.ts`)).default
-    } catch (e) {
-      console.log(
-        `[Projects]: WARNING project with name ${projectName} has no xrengine.config.ts file - this is not recommended`
-      )
-    }
+    const projectConfig = (await getProjectConfig(projectName)) ?? {}
 
     // Add to DB
-    await super.create(
+    const returned = await super.create(
       {
         thumbnail: projectConfig.thumbnail,
         name: projectName,
@@ -241,6 +237,13 @@ export class Project extends Service {
       },
       params || {}
     )
+
+    // run project install script
+    if (projectConfig.onEvent) {
+      await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
+    }
+
+    return returned
   }
 
   /**
@@ -251,6 +254,14 @@ export class Project extends Service {
    * @returns
    */
   async patch(projectName: string, data: { files: string[] }, params: Params) {
+    const projectConfig = await getProjectConfig(projectName)
+    if (!projectConfig) return
+
+    // run project uninstall script
+    if (projectConfig.onEvent) {
+      await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onUpdate')
+    }
+
     if (data?.files?.length) {
       const promises: Promise<any>[] = []
       for (const filePath of data.files) {
@@ -272,14 +283,24 @@ export class Project extends Service {
   }
 
   async remove(id: Id, params: Params) {
-    try {
-      const { name } = await super.get(id, params)
-      console.log('[Projects]: removing project', id, name)
-      await deleteProjectFilesInStorageProvider(name)
-      await super.remove(id, params)
-    } catch (e) {
-      console.log(`[Projects]: failed to remove project ${id}`, e)
-      return e
+    if (id) {
+      try {
+        const { name } = await super.get(id, params)
+
+        const projectConfig = await getProjectConfig(name)
+
+        // run project uninstall script
+        if (projectConfig.onEvent) {
+          await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
+        }
+
+        console.log('[Projects]: removing project', id, name)
+        await deleteProjectFilesInStorageProvider(name)
+        await super.remove(id, params)
+      } catch (e) {
+        console.log(`[Projects]: failed to remove project ${id}`, e)
+        return e
+      }
     }
   }
 

@@ -7,6 +7,7 @@ import { AlertService } from '../../common/services/AlertService'
 import { Config } from '@xrengine/common/src/config'
 
 import { accessAuthState } from '../../user/services/AuthService'
+import { accessInstanceConnectionState } from '../../common/services/InstanceConnectionService'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -63,10 +64,10 @@ store.receptors.push((action: ChatActionType) => {
           channels: action.channels
         })
       case 'LOADED_CHANNEL': {
-        const idx =
-          (typeof action.channel.id === 'string' &&
-            s.channels.channels.findIndex((c) => c.id.value === action.channel.id)) ||
-          s.channels.channels.length
+        let findIndex
+        if (typeof action.channel.id === 'string')
+          findIndex = s.channels.channels.findIndex((c) => c.id.value === action.channel.id)
+        let idx = findIndex && findIndex > -1 ? findIndex : s.channels.channels.length
         s.channels.channels[idx].set(action.channel)
 
         if (action.channelType === 'instance') {
@@ -233,8 +234,7 @@ export const ChatService = {
         })
         dispatch(ChatAction.loadedChannels(channelResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -244,12 +244,14 @@ export const ChatService = {
       try {
         const channelResult = await client.service('channel').find({
           query: {
-            channelType: 'instance'
+            channelType: 'instance',
+            instanceId: accessInstanceConnectionState().instance.id.value
           }
         })
+        if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
         dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
       } catch (err) {
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -271,8 +273,7 @@ export const ChatService = {
         }
         await client.service('message').create(data)
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -312,8 +313,7 @@ export const ChatService = {
         })
         dispatch(ChatAction.loadedMessages(channelId, messageResult))
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -323,8 +323,7 @@ export const ChatService = {
       try {
         await client.service('message').remove(messageId)
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -336,8 +335,7 @@ export const ChatService = {
           text: text
         })
       } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },
@@ -390,7 +388,7 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     const { message } = params
     if (message != undefined && message.text != undefined) {
       if (isPlayerLocal(message.senderId)) {
-        if (handleCommand(message.text, Engine.defaultWorld.localClientEntity, message.senderId)) return
+        if (handleCommand(message.text, Engine.currentWorld.localClientEntity, message.senderId)) return
         else {
           const system = getChatMessageSystem(message.text)
           if (system !== 'none') {

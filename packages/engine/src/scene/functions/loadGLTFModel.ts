@@ -6,9 +6,8 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { applyTransformToMesh, applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { ScenePropertyType, WorldScene, SceneDataComponent } from '../functions/SceneLoading'
+import { SceneDataComponent, loadComponent } from '../functions/SceneLoading'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import * as YUKA from 'yuka'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
@@ -16,9 +15,53 @@ import { delay } from '../../common/functions/delay'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { NameComponent } from '../components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from './setObjectLayers'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 
-export const parseObjectComponents = (entity: Entity, res: Mesh | Scene, loadComponent) => {
+export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
+  const components: { [key: string]: any } = {}
+  const prefabs: { [key: string]: any } = {}
+  const data = Object.entries(mesh.userData)
+
+  for (const [key, value] of data) {
+    const parts = key.split('.')
+    if (parts.length > 1) {
+      // TODO: deprecate xrengine
+      if (parts[0] === 'realitypack' || parts[0] === 'xrengine') {
+        const componentExists = ComponentMap.has(parts[1])
+        const _toLoad = componentExists ? components : prefabs
+        if (typeof _toLoad[parts[1]] === 'undefined') {
+          _toLoad[parts[1]] = {}
+        }
+        if (parts.length > 2) {
+          _toLoad[parts[1]][parts[2]] = value
+        }
+        delete mesh.userData[key]
+      }
+    }
+  }
+  for (const [key, value] of Object.entries(components)) {
+    const component = ComponentMap.get(key)
+    if (typeof component === 'undefined') {
+      console.warn(`Could not load component '${key}'`)
+    } else {
+      addComponent(e, component, value)
+    }
+  }
+  for (const [key, value] of Object.entries(prefabs)) {
+    const prefab = {
+      name: key,
+      data: value,
+      sceneEntityId: mesh.uuid
+    } as any as SceneDataComponent
+    loadComponent(e, prefab)
+  }
+}
+
+export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene) => {
   const meshesToProcess: Mesh[] = []
 
   res.traverse((mesh: Mesh) => {
@@ -27,78 +70,42 @@ export const parseObjectComponents = (entity: Entity, res: Mesh | Scene, loadCom
     }
   })
 
-  for (const mesh of meshesToProcess) {
-    const sceneEntityId = MathUtils.generateUUID()
-    const e = createEntity()
-    addComponent(e, NameComponent, { name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] })
-    delete mesh.userData['xrengine.entity']
-    delete mesh.userData['realitypack.entity']
-    delete mesh.userData.name
-
-    // apply root mesh's world transform to this mesh locally
-    // applyTransformToMeshWorld(entity, mesh)
-    addComponent(e, TransformComponent, {
-      position: mesh.getWorldPosition(new Vector3()),
-      rotation: mesh.getWorldQuaternion(new Quaternion()),
-      scale: mesh.getWorldScale(new Vector3())
-    })
-    mesh.removeFromParent()
-    addComponent(e, Object3DComponent, { value: mesh })
-
-    const components: { [key: string]: any } = {}
-    const prefabs: { [key: string]: any } = {}
-    const data = Object.entries(mesh.userData)
-
-    for (const [key, value] of data) {
-      const parts = key.split('.')
-      if (parts.length > 1) {
-        // TODO: deprecate xrengine
-        if (parts[0] === 'realitypack' || parts[0] === 'xrengine') {
-          const componentExists = ComponentMap.has(parts[1])
-          const _toLoad = componentExists ? components : prefabs
-          if (typeof _toLoad[parts[1]] === 'undefined') {
-            _toLoad[parts[1]] = {}
-          }
-          if (parts.length > 2) {
-            _toLoad[parts[1]][parts[2]] = value
-          }
-          delete mesh.userData[key]
-        }
-      }
-    }
-    for (const [key, value] of Object.entries(components)) {
-      const component = ComponentMap.get(key)
-      if (typeof component === 'undefined') {
-        console.warn(`Could not load component '${key}'`)
+  if (meshesToProcess.length === 0) {
+    createObjectEntityFromGLTF(entity, res as Mesh)
+  } else {
+    for (const mesh of meshesToProcess) {
+      if (mesh === res) {
+        createObjectEntityFromGLTF(entity, mesh)
       } else {
-        addComponent(e, component, value)
+        const e = createEntity()
+        addComponent(e, NameComponent, {
+          name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] ?? mesh.uuid
+        })
+        delete mesh.userData['xrengine.entity']
+        delete mesh.userData['realitypack.entity']
+        delete mesh.userData.name
+
+        // apply root mesh's world transform to this mesh locally
+        // applyTransformToMeshWorld(entity, mesh)
+        addComponent(e, TransformComponent, {
+          position: mesh.getWorldPosition(new Vector3()),
+          rotation: mesh.getWorldQuaternion(new Quaternion()),
+          scale: mesh.getWorldScale(new Vector3())
+        })
+        mesh.removeFromParent()
+        addComponent(e, Object3DComponent, { value: mesh })
+
+        createObjectEntityFromGLTF(e, mesh)
       }
-    }
-    for (const [key, value] of Object.entries(prefabs)) {
-      const prefab = {
-        name: key,
-        data: value,
-        sceneEntityId
-      } as any as SceneDataComponent
-      loadComponent(e, prefab)
     }
   }
 }
 
-export const parseGLTFModel = (
-  sceneLoader: WorldScene,
-  entity: Entity,
-  component: SceneDataComponent,
-  sceneProperty: ScenePropertyType,
-  scene: Mesh | Scene
-) => {
-  // console.log(sceneLoader, entity, component, sceneProperty, scene)
+export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, scene: Mesh | Scene) => {
+  console.log('parseGLTFModel', entity, component, scene)
 
-  // Enable scene layer
-  scene.traverse((obj: Object3D) => {
-    obj.layers.enable(CameraLayers.Scene)
-  })
-
+  const world = useWorld()
+  setObjectLayers(scene, ObjectLayers.Render, ObjectLayers.Scene)
   addComponent(entity, Object3DComponent, { value: scene })
 
   const transform = getComponent(entity, TransformComponent)
@@ -176,43 +183,50 @@ export const parseGLTFModel = (
     })
   }
 
-  if (typeof component.data.matrixAutoUpdate !== 'undefined' && component.data.matrixAutoUpdate === false) {
+  if (
+    component.data.isDynamicObject === false &&
+    typeof component.data.matrixAutoUpdate !== 'undefined' &&
+    component.data.matrixAutoUpdate === false
+  ) {
     scene.traverse((child) => {
       child.updateMatrixWorld(true)
       child.matrixAutoUpdate = false
     })
   }
-  parseObjectComponents(entity, scene, (newEntity: Entity, newComponent: SceneDataComponent) => {
-    sceneLoader.loadComponent(newEntity, newComponent, sceneProperty)
-  })
+
+  if (component.data.isDynamicObject) {
+    ;(scene as any).sceneEntityId = component.data.sceneEntityId
+    dispatchFrom(world.hostId, () =>
+      NetworkWorldAction.spawnObject({
+        userId: world.hostId,
+        prefab: '',
+        parameters: {
+          sceneEntityId: component.data.sceneEntityId
+        }
+      })
+    )
+  }
+
+  parseObjectComponentsFromGLTF(entity, scene)
 }
 
-export const loadGLTFModel = (
-  sceneLoader: WorldScene,
-  entity: Entity,
-  component: SceneDataComponent,
-  sceneProperty: ScenePropertyType
-) => {
-  sceneLoader.loaders.push(
-    new Promise<void>((resolve, reject) => {
-      AssetLoader.load(
-        {
-          url: component.data.src,
-          entity
-        },
-        (res) => {
-          parseGLTFModel(sceneLoader, entity, component, sceneProperty, res.scene)
-          sceneLoader._onModelLoaded()
-          resolve()
-        },
-        null!,
-        (err) => {
-          console.log('[SCENE-LOADING]:', err)
-          sceneLoader._onModelLoaded()
-          reject(err)
-        },
-        component.props.isUsingGPUInstancing
-      )
-    })
-  )
+export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => {
+  return new Promise<void>((resolve, reject) => {
+    AssetLoader.load(
+      {
+        url: component.data.src,
+        entity
+      },
+      (res) => {
+        parseGLTFModel(entity, component, res.scene)
+        resolve()
+      },
+      null!,
+      (err) => {
+        console.log('[SCENE-LOADING]:', err)
+        reject(err)
+      },
+      component.data.isUsingGPUInstancing
+    )
+  })
 }

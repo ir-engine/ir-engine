@@ -30,7 +30,7 @@ export class Channel extends Service {
     const userId = loggedInUser.userId
     const Model = (this.app.service('channel') as any).Model
     try {
-      const results = await Model.findAndCountAll({
+      const params = {
         subQuery: false,
         offset: skip,
         limit: limit,
@@ -99,7 +99,10 @@ export class Channel extends Service {
             }
           ]
         }
-      })
+      }
+      if (query.targetObjectType) (params.where as any).channelType = query.targetObjectType
+      if (query.channelType) (params.where as any).channelType = query.channelType
+      const results = await Model.findAndCountAll(params)
 
       if (query.findTargetId === true) {
         const match = _.find(results.rows, (result: any) =>
@@ -226,10 +229,6 @@ export class Channel extends Service {
             })
           })
         )
-
-        if (query.channelType) {
-          results.rows = results.rows.filter((row) => row.channelType === query.channelType)
-        }
 
         return {
           data: results.rows,

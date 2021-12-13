@@ -6,12 +6,15 @@ export const uploadProjectAsset = async (
   files: File[],
   onProgress?
 ): Promise<{ url: string }[]> => {
-  const promises = []
+  const promises: Promise<{ url: string }>[] = []
   for (const file of files) {
     const pathName = `projects/${projectName}/assets`
     promises.push(
       new Promise(async (resolve) => {
-        await upload(file, onProgress, null, pathName, file.name)
+        await upload(file, onProgress, null, {
+          uploadPath: pathName,
+          fileId: file.name
+        })
         const response = await client.service('project').patch(projectName, {
           files: [`${pathName}/${file.name}`]
         })
@@ -53,8 +56,10 @@ const processEntry = async (item, projectName: string, directory: string, promis
       new Promise(async (resolve) => {
         const file = await getFile(item)
         const pathName = `projects/${projectName}/assets${directory}`
-
-        await upload(file, onProgress, null, pathName, file.name)
+        await upload(file, onProgress, null, {
+          uploadPath: pathName,
+          fileId: file.name
+        })
         const response = await client.service('project').patch(projectName, {
           files: [`${pathName}/${file.name}`]
         })
@@ -75,6 +80,7 @@ const getFile = async (fileEntry: FileSystemFileEntry): Promise<File> => {
     return await new Promise((resolve, reject) => fileEntry.file(resolve, reject))
   } catch (err) {
     console.log(err)
+    return null!
   }
 }
 
@@ -83,5 +89,6 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
     return await new Promise((resolve, reject) => directoryReader.readEntries(resolve, reject))
   } catch (err) {
     console.log(err)
+    return null!
   }
 }

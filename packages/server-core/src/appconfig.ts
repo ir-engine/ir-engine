@@ -3,8 +3,10 @@ import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
 import path from 'path'
 import url from 'url'
+import '@xrengine/engine/src/patchEngineNode'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
+const testEnabled = process.env.TEST === 'true'
 
 if (globalThis.process?.env.APP_ENV === 'development') {
   var fs = require('fs')
@@ -26,11 +28,11 @@ if (!kubernetesEnabled) {
  * Database
  */
 export const db = {
-  username: process.env.MYSQL_USER!,
-  password: process.env.MYSQL_PASSWORD!,
-  database: process.env.MYSQL_DATABASE!,
-  host: process.env.MYSQL_HOST!,
-  port: process.env.MYSQL_PORT!,
+  username: testEnabled ? process.env.MYSQL_TEST_USER! : process.env.MYSQL_USER!,
+  password: testEnabled ? process.env.MYSQL_TEST_PASSWORD! : process.env.MYSQL_PASSWORD!,
+  database: testEnabled ? process.env.MYSQL_TEST_DATABASE! : process.env.MYSQL_DATABASE!,
+  host: testEnabled ? process.env.MYSQL_TEST_HOST! : process.env.MYSQL_HOST!,
+  port: testEnabled ? process.env.MYSQL_TEST_PORT! : process.env.MYSQL_PORT!,
   dialect: 'mysql',
   forceRefresh: process.env.FORCE_DB_REFRESH === 'true',
   url: '',
@@ -40,7 +42,10 @@ export const db = {
     max: parseInt(process.env.SEQUELIZE_POOL_MAX || '5')
   }
 }
-db.url = process.env.MYSQL_URL || `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
+
+db.url =
+  (testEnabled ? process.env.MYSQL_TEST_URL : process.env.MYSQL_URL) ||
+  `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
 /**
  * Server / backend
@@ -64,8 +69,7 @@ const server = {
   nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER!,
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
-  // Used for CI/tests to force Sequelize init an empty database
-  performDryRun: process.env.PERFORM_DRY_RUN === 'true',
+  corsServerPort: process.env.CORS_SERVER_PORT!,
   storageProvider: process.env.STORAGE_PROVIDER!,
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
   hub: {

@@ -1,17 +1,11 @@
 import { DirectionalLight, Vector2 } from 'three'
-import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { ScenePropertyType, SceneDataComponent } from '../functions/SceneLoading'
+import { SceneDataComponent } from '../functions/SceneLoading'
 import { addObject3DComponent } from './addObject3DComponent'
 import { applyArgsToObject3d } from './applyArgsToObject3d'
 
-export const createDirectionalLight = (
-  entity: Entity,
-  component: SceneDataComponent,
-  sceneProperty: ScenePropertyType
-) => {
-  if (!isClient) return
-
+export const createDirectionalLight = (entity: Entity, component: SceneDataComponent) => {
   const mapSize = new Vector2().fromArray(component.data.shadowMapResolution)
 
   const args = {
@@ -24,9 +18,9 @@ export const createDirectionalLight = (
     'shadow.camera.far': component.data.cameraFar
   }
 
-  if (sceneProperty.isCSMEnabled) {
+  if (Engine.isCSMEnabled) {
     const object3d = applyArgsToObject3d(entity, new DirectionalLight(), args)
-    sceneProperty.directionalLights.push(object3d)
+    Engine.directionalLights.push(object3d)
   } else {
     addObject3DComponent(entity, new DirectionalLight(), args)
   }

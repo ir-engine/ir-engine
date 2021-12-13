@@ -19,6 +19,8 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   k8AppsClient: Request
   agonesSDK: any
   sync: any
+  io: any
+  seed: () => Application // function
 
   // Gameserver
   instance: any

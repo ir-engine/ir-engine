@@ -156,8 +156,6 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     target: null,
     active: true
   })
-
-  Engine.defaultWorld.portalEntities.push(entity)
 }
 
 export const setRemoteLocationDetail = (

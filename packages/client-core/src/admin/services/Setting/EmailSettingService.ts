@@ -16,6 +16,8 @@ store.receptors.push((action: EmailSettingActionType): any => {
     switch (action.type) {
       case 'EMAIL_SETTING_DISPLAY':
         return s.merge({ email: action.emailSettingResult.data, updateNeeded: false })
+      case 'EMAIL_SETTING_PATCHED':
+        return s.updateNeeded.set(true)
     }
   }, action.type)
 })
@@ -35,6 +37,18 @@ export const EmailSettingService = {
       console.log(error.message)
       AlertService.dispatchAlertError(error.message)
     }
+  },
+  patchEmailSetting: async (data: any, id: string) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        await client.service('email-setting').patch(id, data)
+        dispatch(EmailSettingAction.emailSettingPatched())
+      } catch (err) {
+        console.log(err)
+        AlertService.dispatchAlertError(err.message)
+      }
+    }
   }
 }
 
@@ -44,6 +58,11 @@ export const EmailSettingAction = {
     return {
       type: 'EMAIL_SETTING_DISPLAY' as const,
       emailSettingResult: emailSettingResult
+    }
+  },
+  emailSettingPatched: () => {
+    return {
+      type: 'EMAIL_SETTING_PATCHED' as const
     }
   }
 }

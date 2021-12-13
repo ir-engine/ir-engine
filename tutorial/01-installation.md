@@ -34,47 +34,29 @@ First, open a wsl prompt. Then type these commands:
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install build-essential
-npm install -g node-gyp
-npm config set python /usr/bin/python
-PYTHON=python3 npm install
+npm install
+npm run dev-docker
+npm run dev-reinit
 ```
 
 Please make sure you've followed everything in these instructions:
 https://mediasoup.org/documentation/v3/mediasoup/installation/
 
 ### Installing on Native Windows
-1. Add Env Variable
-```
-PUPPETEER_SKIP_DOWNLOAD='true'
-```
-2. install python 2 and add python installation directory path to 'path' env variable.
+1. install python 3 and add python installation directory path to 'path' env variable.
 
-3. Install node js
+2. Install node js
 
-4. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
+3. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
 
-5. add environmental variable
-```
-GYP_MSVS_VERSION=<vs-year>
-for example, GYP_MSVS_VERSION=2019
-```
-
-6. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
+4. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
 for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin```
 
-7. remove mediasoup and mediasoup-client from every package.json. This will enable us to add all the dependencies except mediasoup, this way we can save time while dealing with mediasoup.
+5. install all dependences using npm.
 
-8. rename 'postinstall' to 'postinstall-1' so that it will not run after installing dependencies.
+6. If error persists then check for typos in environment variables.
 
-9. install all dependences using npm.
-
-10. add back all removed mediasoup and mediasoup-client dependencies.
-
-11. Rerun npm command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
-
-12. If error persists then check for typos in environment variables.
-
-13. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
+7. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
 
 ./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
 
@@ -82,7 +64,7 @@ for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MS
     docker container start xrengine_db
 ```
 
-15. Check your WSL Config for any incorrect networking settings. 
+8. Check your WSL Config for any incorrect networking settings. 
 https://docs.microsoft.com/en-us/windows/wsl/wsl-config#network
 
 ### Installing on a Mac 
@@ -91,13 +73,15 @@ https://docs.microsoft.com/en-us/windows/wsl/wsl-config#network
 
 ```
    npm install
+   npm run dev-docker
+   npm run dev-reinit
 ```
 
 Or if you are on a M1 based Mac
 
 (Recommended)
 1) Duplicate the Terminal app, and configure it to run in Rosetta 
-2) Run `npm install` in Rosetta Terminal
+2) Run the above in Rosetta Terminal
 
 (Not recommended) 
 ```
@@ -143,6 +127,8 @@ If you are lucky, this will just work. However, you will may encounter some issu
 ```
 cd path/to/xrengine
 npm install
+npm run dev-docker
+npm run dev-reinit
 npm run dev
 ```
 
@@ -164,6 +150,8 @@ If you want to setup XREngine docker instances, client, server, and/or game-serv
 ```
 cd path/to/xrengine
 npm install
+npm run dev-docker
+npm run dev-reinit
 ```
 
 You should not need to use sudo in any case.
@@ -210,9 +198,13 @@ The default username is 'server', the default password is 'password', the defaul
    Run ```npm run dev-reinit``` or if on windows ```npm run dev-reinit-windows```
    After several seconds, there should be no more logging.
    Some of the final lines should read like this:
-   ```Executing (default): SELECT 'id', 'name', 'sceneId', 'locationSettingsId', 'slugifiedName', 'maxUsersPerInstance', 'createdAt', 'updatedAt' FROM 'location' AS 'location' WHERE ('location'.'id' = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61') AND 'location'.'id' IN ('98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'); Seeded```
+   ```
+   Server Ready
+   Executing (default): SET FOREIGN_KEY_CHECKS = 1
+   Server EXIT
+   ```
    
-    At this point, the database has been seeded. You can shut down the server with CTRL+C.
+   At this point, the database has been seeded.
 
 ### 5. Local file server configuration
    If the .env.local file y ou have has the line 

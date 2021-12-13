@@ -74,8 +74,7 @@ export const InstanceService = {
           dispatch(InstanceAction.instancesRetrievedAction(instances))
         }
       } catch (err) {
-        console.error(err)
-        AlertService.dispatchAlertError(err.message)
+        AlertService.dispatchAlertError(err)
       }
     }
   },

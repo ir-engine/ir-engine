@@ -4,7 +4,8 @@ module.exports = {
   spec: ['**/*.test.ts'],
   require: [
     'tests/mocha.env', // init env here
-    'ts-node/register'
+    'ts-node/register',
+    'mocha-suppress-logs'
   ],
   extension: [
     'ts'

@@ -1,6 +1,6 @@
 import Checkbox from '@mui/material/Checkbox'
-import { Rainbow } from '@styled-icons/fa-solid/Rainbow'
 import React from 'react'
+import LooksIcon from '@mui/icons-material/Looks'
 import { CommandManager } from '../../managers/CommandManager'
 import NodeEditor from './NodeEditor'
 import { PostProcessingProperties } from './PostProcessingProperties'
@@ -339,7 +339,7 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
       return (
         <div key={key}>
           <Checkbox onChange={(e) => onChangeCheckBox(e, key)} checked={node.postProcessingOptions[key].isActive} />
-          {key}
+          <span style={{ color: '#9FA4B5' }}>{key}</span>
           {node.postProcessingOptions[key].isActive && <div>{renderEffectsTypes(key)}</div>}
         </div>
       )
@@ -354,7 +354,7 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
     </NodeEditor>
   )
 }
-PostProcessingNodeEditor.iconComponent = Rainbow
+PostProcessingNodeEditor.iconComponent = LooksIcon
 PostProcessingNodeEditor.description = 'For applying Post Processing effects to you scene'
 
 export default PostProcessingNodeEditor

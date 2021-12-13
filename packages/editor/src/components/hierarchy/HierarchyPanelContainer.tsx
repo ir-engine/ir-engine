@@ -7,9 +7,9 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { FixedSizeList, areEqual } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { addAssetOnDrop } from '../dnd'
-import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
-import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
 import useUpload from '../assets/useUpload'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import { useTranslation } from 'react-i18next'
@@ -678,7 +678,7 @@ function TreeNode({
               <TreeNodeLeafSpacer />
             ) : (
               <TreeNodeToggle collapsed={isCollapsed} onClick={onClickToggle}>
-                {isCollapsed ? <CaretRight size={12} /> : <CaretDown size={12} />}
+                {isCollapsed ? <ArrowRightIcon fontSize="small" /> : <ArrowDropDownIcon fontSize="small" />}
               </TreeNodeToggle>
             )}
 
@@ -1051,6 +1051,8 @@ export default function HierarchyPanel() {
           CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, node.object)
           setSelectedNode(node)
         }
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        selectedNode && onDeleteNode(e, selectedNode)
       }
     },
     [nodes, expandNode, collapseNode, expandChildren, collapseChildren]

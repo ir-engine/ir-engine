@@ -1,8 +1,10 @@
 import { Chain } from '../classes/Chain'
 import Pose, { PoseBoneTransform } from '../classes/Pose'
-import { Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3, Matrix4 } from 'three'
 import { Axis } from '../classes/Axis'
 import { cosSSS } from './IKFunctions'
+import { IKRigComponentType } from '../components/IKRigComponent'
+import { CameraIKComponentType } from '../components/CameraIKComponent'
 
 ///////////////////////////////////////////////////////////////////
 // Multi Bone Solvers
@@ -17,9 +19,14 @@ export type IKSolverFunction = (
   p_wt: PoseBoneTransform
 ) => void
 
+const vec3 = new Vector3()
+const quat = new Quaternion()
 const tempQuat1 = new Quaternion()
 const tempQuat2 = new Quaternion()
 const tempQuat3 = new Quaternion()
+const tempVec1 = new Vector3()
+const tempVec2 = new Vector3()
+const tempVec3 = new Vector3()
 
 /**
  *
@@ -152,8 +159,8 @@ export function solveThreeBone(
 
   rad = cosSSS(a_len, ta_len, bh_len) // Get the Angle between First Bone and Target.
   rot
-    .premultiply(new Quaternion().setFromAxisAngle(axis.x, -rad)) // Rotate the the aimed bone by the angle from SSS
-    .premultiply(p_wt.quaternion.clone().invert()) // Convert to Bone's Local Space by mul invert of parent bone rotation
+    .premultiply(quat.setFromAxisAngle(axis.x, -rad)) // Rotate the the aimed bone by the angle from SSS
+    .premultiply(quat.copy(p_wt.quaternion).invert()) // Convert to Bone's Local Space by mul invert of parent bone rotation
 
   pose.setBone(bind_a.idx, rot)
 
@@ -170,8 +177,8 @@ export function solveThreeBone(
   rot
     .copy(pose_a.world.quaternion)
     .multiply(bind_b.local.quaternion) // Add Bone Local to get its WS rot
-    .premultiply(new Quaternion().setFromAxisAngle(axis.x, rad)) // Rotate it by the target's x-axis .pmul( tmp.from_axis_angle( this.axis.x, rad ) )
-    .premultiply(pose_a.world.quaternion.clone().invert()) // Convert to Local Space in temp to save WS rot for next bone.
+    .premultiply(quat.setFromAxisAngle(axis.x, rad)) // Rotate it by the target's x-axis .pmul( tmp.from_axis_angle( this.axis.x, rad ) )
+    .premultiply(quat.copy(pose_a.world.quaternion).invert()) // Convert to Local Space in temp to save WS rot for next bone.
 
   pose.setBone(bind_b.idx, rot)
 
@@ -187,8 +194,8 @@ export function solveThreeBone(
   rot
     .copy(pose_b.world.quaternion)
     .multiply(bind_c.local.quaternion) // Still contains WS from previous bone, Add next bone's local
-    .premultiply(new Quaternion().setFromAxisAngle(axis.x, -rad)) // Rotate it by the target's x-axis
-    .premultiply(pose_b.world.quaternion.invert()) // Convert to Bone's Local Space
+    .premultiply(quat.setFromAxisAngle(axis.x, -rad)) // Rotate it by the target's x-axis
+    .premultiply(quat.copy(pose_b.world.quaternion).invert()) // Convert to Bone's Local Space
 
   pose.setBone(bind_c.idx, rot)
 
@@ -209,7 +216,7 @@ export function transformAdd(target: PoseBoneTransform, source: PoseBoneTransfor
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
   // pos.add( Vec3.mul( this.scl, cp ).transform_quat( this.rot ) );
-  target.position.add(source.position.clone().multiply(target.scale).applyQuaternion(target.quaternion))
+  target.position.add(vec3.copy(source.position).multiply(target.scale).applyQuaternion(target.quaternion))
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // SCALE - parent.scale * child.scale
@@ -222,14 +229,18 @@ export function transformAdd(target: PoseBoneTransform, source: PoseBoneTransfor
 
 //// helpers
 
+const rot = new Quaternion()
+const rot2 = new Quaternion()
+const rotationMatrix = new Matrix4()
 function _aim_bone2(chain: Chain, tpose: Pose, axis: Axis, p_wt: PoseBoneTransform, out: Quaternion) {
-  const rot = new Quaternion()
-  tpose.bones[chain.first()].bone.getWorldQuaternion(rot) // Get World Space Rotation for Bone
-  const dir = chain.altForward.clone().applyQuaternion(rot) // Get Bone's WS Forward Dir
+  const bone = tpose.bones[chain.first()].bone
+  rotationMatrix.extractRotation(bone.matrixWorld)
+
+  const dir = vec3.copy(chain.altForward).applyQuaternion(rot.setFromRotationMatrix(rotationMatrix)) // Get Bone's WS Forward Dir
 
   //Swing
-  let q = new Quaternion().setFromUnitVectors(dir, axis.z)
-  out.copy(q).multiply(rot)
+  rot2.setFromUnitVectors(dir, axis.z)
+  out.copy(rot2).multiply(rot)
 
   // Twist
   // let u_dir = chain.altUp.clone().applyQuaternion(out)
@@ -248,5 +259,42 @@ function _aim_bone2(chain: Chain, tpose: Pose, axis: Axis, p_wt: PoseBoneTransfo
     if (dir.dot(axis.y) >= 0) twist = -twist
   }
 
-  out.premultiply(new Quaternion().setFromAxisAngle(axis.z, twist)) // Apply Twist
+  out.premultiply(rot.setFromAxisAngle(axis.z, twist)) // Apply Twist
+}
+
+function getFwdVector(matrix: Matrix4, outVec: Vector3) {
+  const e = matrix.elements
+  outVec.set(e[8], e[9], e[10]).normalize()
+}
+
+export function applyCameraLook(rig: IKRigComponentType, solver: CameraIKComponentType) {
+  const bone = rig.pose!.skeleton.bones[solver.boneIndex]
+
+  if (!bone) {
+    return
+  }
+
+  bone.matrixWorld.decompose(tempVec1, tempQuat1, tempVec2)
+  const toLocal = tempQuat1.invert()
+
+  const boneFwd = tempVec1
+  const targetDir = tempVec2
+
+  getFwdVector(bone.matrix, boneFwd)
+
+  getFwdVector(solver.camera.matrixWorld, targetDir)
+  targetDir.multiplyScalar(-1).applyQuaternion(toLocal).normalize()
+
+  const angle = Math.acos(boneFwd.dot(targetDir))
+
+  if (solver.rotationClamp > 0 && angle > solver.rotationClamp) {
+    const deltaTarget = tempVec3.copy(targetDir).sub(boneFwd)
+    // clamp delta target to within the ratio
+    deltaTarget.multiplyScalar(solver.rotationClamp / angle)
+    // set new target
+    targetDir.copy(boneFwd).add(deltaTarget).normalize()
+  }
+
+  tempQuat1.setFromUnitVectors(boneFwd, targetDir)
+  bone.quaternion.premultiply(tempQuat1)
 }

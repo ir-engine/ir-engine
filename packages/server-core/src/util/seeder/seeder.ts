@@ -1,121 +1,50 @@
+import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
+import { Application } from '../../../declarations'
 import Compiler from './compiler'
+const compiler = new Compiler()
 
-export default class Seeder {
-  app: any
-  opts: any
-  compiler: Compiler
-  constructor(app, opts) {
-    this.app = app
-    this.opts = opts
+const compileTemplate = (template) => {
+  return compiler.compile(template)
+}
 
-    this.compiler = new Compiler()
+export const seedApp = async (app: Application, services: Array<ServicesSeedConfig>) => {
+  console.log('Seeding app...')
+
+  const promises: any[] = []
+
+  for (const cfg of services) {
+    promises.push(seed(app, cfg))
   }
 
-  compileTemplate(template) {
-    return this.compiler.compile(template)
+  return await Promise.all(promises)
+}
+
+const seed = async (app: Application, cfg: ServicesSeedConfig) => {
+  if (!cfg.path) {
+    throw new Error('You must include the path of every service you want to seed.')
+  }
+  if (!cfg.templates) {
+    throw new Error('You must specify an array of templates for seeded objects.')
   }
 
-  seedApp() {
-    console.log('Seeding app...')
+  const service = app.service(cfg.path)
+  await service.remove(null, null)
 
-    return new Promise((resolve, reject) => {
-      const promises: any[] = []
-
-      for (const cfg of this.opts.services) {
-        promises.push(this.seed(cfg))
-      }
-
-      return Promise.all(promises)
-        .then((seeded) => {
-          return resolve(seeded)
-        })
-        .catch(reject)
-    })
+  const pushPromise = async (template) => {
+    const compiled = compileTemplate(template)
+    if (!cfg.path) return []
+    const created = await service.create(compiled, null)
+    if (typeof cfg.callback === 'function') {
+      await cfg.callback(created, (...args) => seed(app, ...args))
+    }
+    return created
   }
 
-  seed(cfg): Promise<any> {
-    return new Promise((resolve, reject) => {
-      // if (!cfg.path) {
-      //   throw new Error('You must include the path of every service you want to seed.')
-      // }
-
-      if (!cfg.template && !cfg.templates) {
-        throw new Error('You must specify a template or array of templates for seeded objects.')
-      }
-
-      if (cfg.count && cfg.randomize === false) {
-        throw new Error('You may not specify both randomize = false with count')
-      }
-
-      const service = cfg.path && this.app.service(cfg.path)
-      const params = Object.assign({}, this.opts.params, cfg.params)
-      const count = Number(cfg.count) || 1
-      const randomize = typeof cfg.randomize === 'undefined' ? true : cfg.randomize
-
-      // Delete from service, if necessary
-      const shouldDelete = this.opts.delete !== false && cfg.delete !== false
-
-      const deletePromise = shouldDelete && cfg.path ? service.remove(null, params) : Promise.resolve([])
-
-      return deletePromise
-        .then((deleted) => {
-          const pushPromise = (template) => {
-            return new Promise((resolve, reject) => {
-              const compiled = this.compileTemplate(template)
-
-              if (!cfg.path) resolve([])
-
-              return service
-                .create(compiled, params)
-                .then((created) => {
-                  if (typeof cfg.callback !== 'function') {
-                    return resolve(created)
-                  } else {
-                    return cfg
-                      .callback(created, this.seed.bind(this))
-                      .then((result) => {
-                        return resolve(created)
-                      })
-                      .catch(reject)
-                  }
-                })
-                .catch(reject)
-            })
-          }
-
-          // Now, let's seed the app.
-          const promises: any[] = []
-
-          if (cfg.template && cfg.disabled !== true) {
-            // Single template
-            for (let i = 0; i < count; i++) {
-              promises.push(pushPromise(cfg.template))
-            }
-          } else if (cfg.templates && cfg.disabled !== true) {
-            // Multiple random templates
-            if (randomize) {
-              for (let i = 0; i < count; i++) {
-                const index = Math.floor(Math.random() * cfg.templates.length)
-                const template = cfg.templates[index]
-                promises.push(pushPromise(template))
-              }
-            }
-            // All templates
-            else {
-              for (let i = 0; i < cfg.templates.length; i++) {
-                const template = cfg.templates[i]
-                promises.push(pushPromise(template))
-              }
-            }
-          }
-
-          if (!promises.length) {
-            return resolve([])
-          } else {
-            return Promise.all(promises).then(resolve).catch(reject)
-          }
-        })
-        .catch(reject)
-    })
+  const promises: any[] = []
+  for (let i = 0; i < cfg.templates.length; i++) {
+    const template = cfg.templates[i]
+    promises.push(pushPromise(template))
   }
+
+  return await Promise.all(promises)
 }

@@ -1,5 +1,4 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { DEFAULT_AVATARS } from '@xrengine/common/src/constants/AvatarConstants'
 import { Application } from '../../../declarations'
 import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
@@ -37,7 +36,7 @@ export class IdentityProvider extends Service {
   async create(data: any, params: Params): Promise<any> {
     let { token, type, password } = data
 
-    if (params.provider && type !== 'password') type = 'guest' //Non-password create requests must always be for guests
+    if (params.provider && type !== 'password' && type !== 'email' && type !== 'sms') type = 'guest' //Non-password/magiclink create requests must always be for guests
     let userId = data.userId
     let identityProvider: any
 
@@ -140,6 +139,7 @@ export class IdentityProvider extends Service {
         userRole: 'admin'
       }
     })
+    const avatars = await this.app.service('avatar').find({ isInternal: true })
     const result = await super.create(
       {
         ...data,
@@ -148,12 +148,28 @@ export class IdentityProvider extends Service {
           id: userId,
           userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
           inviteCode: type === 'guest' ? null : code,
-          avatarId: DEFAULT_AVATARS[random(DEFAULT_AVATARS.length - 1)]
+          avatarId: avatars[random(avatars.length - 1)].avatarId
         }
       },
       params
     )
+    // DRC
+    try {
+      if (result.user.userRole !== 'guest') {
+        let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
+        let invenDataId = invenData.data[0].dataValues.inventoryItemId
+        let resp = await this.app.service('user-inventory').create({
+          userId: result.user.id,
+          inventoryItemId: invenDataId,
+          quantity: 10
+        })
 
+        let newData = await this.app.service('user-wallet').create({ userId: result.user.id })
+      }
+    } catch (err) {
+      console.log('ERROR', err)
+    }
+    // DRC
     // await this.app.service('user-settings').create({
     //   userId: result.userId
     // });

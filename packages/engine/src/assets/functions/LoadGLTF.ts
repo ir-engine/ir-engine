@@ -1,11 +1,6 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { GLTFRemoveMaterialsExtension } from '../classes/GLTFRemoveMaterialsExtension'
-import { GLTFInstancingExtension } from '../classes/GLTFInstancingExtension'
-import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
-import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
-import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { createGLTFLoader } from './createGLTFLoader'
 import { instanceGLTF } from './transformGLTF'
 
 /**
@@ -17,25 +12,7 @@ export interface LoadGLTFResultInterface {
   json: any
   stats: any
 }
-
-const loader = new GLTFLoader()
-
-if (!isClient) {
-  loader.register((parser) => new GLTFRemoveMaterialsExtension(parser))
-}
-
-loader.register((parser) => new GLTFInstancingExtension(parser))
-
-const dracoLoader: any = isClient ? new DRACOLoader() : new NodeDRACOLoader()
-// const dracoLoader = new DRACOLoader()
-if (isClient) {
-  dracoLoader.setDecoderPath('/loader_decoders/')
-} else {
-  ;(dracoLoader as any).getDecoderModule = () => {}
-  ;(dracoLoader as any).preload = () => {}
-}
-;(loader as any).setDRACOLoader(dracoLoader)
-
+const loader = createGLTFLoader()
 export function getLoader(): any {
   return loader
 }
