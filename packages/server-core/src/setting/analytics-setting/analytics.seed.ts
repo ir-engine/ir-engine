@@ -1,6 +1,5 @@
 export const analyticsSeed = {
   path: 'analytics-setting',
-  randomize: false,
   templates: [
     {
       enabled: true,

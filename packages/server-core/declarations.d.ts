@@ -20,6 +20,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   agonesSDK: any
   sync: any
   io: any
+  seed: () => Application // function
 
   // Gameserver
   instance: any
