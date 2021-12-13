@@ -152,9 +152,9 @@ export class World {
   /**
    * Get the user avatar entity (the network object w/ an Avatar component)
    * @param userId
-   * @returns
+   * @returns Entity | undefined
    */
-  getUserAvatarEntity(userId: UserId) {
+  getUserAvatarEntity(userId: UserId): Entity | undefined {
     return this.getOwnedNetworkObjects(userId).find((eid) => {
       return hasComponent(eid, AvatarComponent, this)
     })!

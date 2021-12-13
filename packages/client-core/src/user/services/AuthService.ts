@@ -844,7 +844,9 @@ const loadAvatarForUpdatedUser = async (user) => {
       //Find entityId from network objects of updated user and dispatch avatar load event.
       const world = Engine.currentWorld
       const userEntity = world.getUserAvatarEntity(user.id)
-      setAvatar(userEntity, avatarURL)
+      if (userEntity) {
+        setAvatar(userEntity, avatarURL)
+      }
     } else {
       await loadAvatarForUpdatedUser(user)
     }
