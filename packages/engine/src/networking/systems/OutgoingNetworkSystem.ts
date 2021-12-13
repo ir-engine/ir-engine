@@ -379,8 +379,6 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
   const sendActions = sendActionsOnTransport(Network.instance.transport)
   const sendData = sendDataOnTransport(Network.instance.transport)
 
-  const serializeAndSendNetworkTransforms = pipe(networkTransformsQuery, serialize, sendData)
-
   initNetworkStates(world)
 
   return () => {
@@ -393,16 +391,14 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
       console.error(e)
     }
 
-    serializeAndSendNetworkTransforms(world)
-
-    // queueAllOutgoingPoses(world)
+    queueAllOutgoingPoses(world)
 
     // side effect - network IO
-    // try {
-    // const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
-    // sendData(data)
-    // } catch (e) {
-    //   console.error(e)
-    // }
+    try {
+      const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
+      sendData(data)
+    } catch (e) {
+      console.error(e)
+    }
   }
 }
