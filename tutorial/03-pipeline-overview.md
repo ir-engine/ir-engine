@@ -299,7 +299,7 @@ Import the FBX to mixamo. Use autorigger.
 
 ![image](https://user-images.githubusercontent.com/578371/145127842-cb4f3ef2-88fe-4509-963c-e8b28c75521f.png)
 
-Download the FBX model as soon the autorigger has finished its work. Save the file on the Mixamo output folder.
+Download the FBX model as soon as the autorigger has finished its work. Save the file on the Mixamo output folder.
 ![image](https://user-images.githubusercontent.com/578371/145127890-6ff26522-fd8b-4e3c-9792-47abce85566f.png)
 
 ## Step 3 Save Masters to Storage
