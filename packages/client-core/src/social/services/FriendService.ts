@@ -107,7 +107,7 @@ export const FriendService = {
   //   }
   // }
 
-  getFriends: async (search: string, skip?: number, limit?: number) => {
+  getFriends: async (skip?: number, limit?: number) => {
     const dispatch = useDispatch()
     {
       dispatch(FriendAction.fetchingFriends())
@@ -117,8 +117,7 @@ export const FriendService = {
           query: {
             action: 'friends',
             $limit: limit != null ? limit : friendState.friends.limit.value,
-            $skip: skip != null ? skip : friendState.friends.skip.value,
-            search
+            $skip: skip != null ? skip : friendState.friends.skip.value
           }
         })
         dispatch(FriendAction.loadedFriends(friendResult))
