@@ -96,7 +96,6 @@ export class Engine {
   static workers = [] as any[]
   static simpleMaterials = false
 
-  static hasEngaged = false
   static mouseInputEnabled = true
   static keyboardInputEnabled = true
 
@@ -109,12 +108,5 @@ export const awaitEngineLoaded = (): Promise<void> => {
   return new Promise<void>((resolve) => {
     if (Engine.isInitialized) resolve()
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
-  })
-}
-
-export const awaitEngaged = (): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    if (Engine.hasEngaged) resolve()
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, resolve)
   })
 }
