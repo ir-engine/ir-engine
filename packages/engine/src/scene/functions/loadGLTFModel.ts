@@ -70,27 +70,33 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene)
     }
   })
 
-  for (const mesh of meshesToProcess) {
-    if (mesh === res) {
-      createObjectEntityFromGLTF(entity, mesh)
-    } else {
-      const e = createEntity()
-      addComponent(e, NameComponent, { name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] })
-      delete mesh.userData['xrengine.entity']
-      delete mesh.userData['realitypack.entity']
-      delete mesh.userData.name
+  if (meshesToProcess.length === 0) {
+    createObjectEntityFromGLTF(entity, res as Mesh)
+  } else {
+    for (const mesh of meshesToProcess) {
+      if (mesh === res) {
+        createObjectEntityFromGLTF(entity, mesh)
+      } else {
+        const e = createEntity()
+        addComponent(e, NameComponent, {
+          name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] ?? mesh.uuid
+        })
+        delete mesh.userData['xrengine.entity']
+        delete mesh.userData['realitypack.entity']
+        delete mesh.userData.name
 
-      // apply root mesh's world transform to this mesh locally
-      // applyTransformToMeshWorld(entity, mesh)
-      addComponent(e, TransformComponent, {
-        position: mesh.getWorldPosition(new Vector3()),
-        rotation: mesh.getWorldQuaternion(new Quaternion()),
-        scale: mesh.getWorldScale(new Vector3())
-      })
-      mesh.removeFromParent()
-      addComponent(e, Object3DComponent, { value: mesh })
+        // apply root mesh's world transform to this mesh locally
+        // applyTransformToMeshWorld(entity, mesh)
+        addComponent(e, TransformComponent, {
+          position: mesh.getWorldPosition(new Vector3()),
+          rotation: mesh.getWorldQuaternion(new Quaternion()),
+          scale: mesh.getWorldScale(new Vector3())
+        })
+        mesh.removeFromParent()
+        addComponent(e, Object3DComponent, { value: mesh })
 
-      createObjectEntityFromGLTF(e, mesh)
+        createObjectEntityFromGLTF(e, mesh)
+      }
     }
   }
 }
