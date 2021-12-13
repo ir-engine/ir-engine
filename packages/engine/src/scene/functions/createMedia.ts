@@ -128,7 +128,7 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
       container.visible = true
       playerRef.play()
       isPlayed = true
-    } else if (key == 'paused') {
+    } else if (key == 'pause') {
       playerRef.paused = true
     }
   }
