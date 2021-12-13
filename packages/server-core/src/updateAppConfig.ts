@@ -18,11 +18,11 @@ db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.ho
 
 export const updateAppConfig = async (): Promise<void> => {
   const sequelizeClient = new Sequelize({
-    ...db,
+    ...db as any,
     define: {
       freezeTableName: true
     }
-  })
+  }) as any
   await sequelizeClient.sync()
 
   const analyticsSetting = sequelizeClient.define('analyticsSetting', {
