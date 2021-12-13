@@ -1,4 +1,6 @@
 import { createState, useState } from '@hookstate/core'
+import { InteractionData } from '../../interaction/types/InteractionTypes'
+import { PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
 
 const state = createState({
@@ -9,7 +11,7 @@ const state = createState({
 export const receptors = (): [] => {
   const ret: any = []
   ret.push(stateReceptor)
-  ret.push(callbackReceptor2)
+  ret.push(callbackReceptor)
   return ret
 }
 function stateReceptor(action: EngineActionType) {
@@ -27,7 +29,7 @@ function stateReceptor(action: EngineActionType) {
   }, action.type)
 }
 
-function callbackReceptor2(action: EngineActionType) {
+function callbackReceptor(action: EngineActionType) {
   switch (action.type) {
     case EngineEvents.EVENTS.RESET_ENGINE:
       EngineEvents.instance.dispatchEvent({
@@ -75,6 +77,84 @@ function callbackReceptor2(action: EngineActionType) {
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.SCENE_ENTITY_LOADED,
         entitiesLeft: action.entitiesLeft
+      })
+      break
+    case EngineEvents.EVENTS.ENABLE_SCENE:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.ENABLE_SCENE,
+        renderer: action.env.renderer,
+        physics: action.env.physics
+      })
+      break
+    case EngineEvents.EVENTS.WINDOW_FOCUS:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.WINDOW_FOCUS,
+        focused: document.visibilityState === 'visible'
+      })
+      break
+    case EngineEvents.EVENTS.ENTITY_DEBUG_DATA:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA
+      })
+      break
+    case EngineEvents.EVENTS.OBJECT_HOVER:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.OBJECT_HOVER,
+        ...action.props
+      })
+      break
+    case EngineEvents.EVENTS.OBJECT_ACTIVATION:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
+        interaction: action.interactionData
+      })
+      break
+    case EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
+        portalComponent: action.portalComponent
+      })
+      break
+    case EngineEvents.EVENTS.XR_START:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.XR_START
+      })
+      break
+    case EngineEvents.EVENTS.XR_SESSION:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.XR_SESSION
+      })
+      break
+    case EngineEvents.EVENTS.XR_END:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.XR_END
+      })
+      break
+    case EngineEvents.EVENTS.CONNECT:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.CONNECT,
+        id: action.id
+      })
+      break
+    case EngineEvents.EVENTS.CONNECTION_LOST:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.CONNECTION_LOST
+      })
+      break
+    case EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS
+      })
+      break
+    case EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO
+      })
+      break
+    case EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
+        msg: action.msg
       })
       break
     case EngineEvents.EVENTS.PHYSICS_DEBUG:
@@ -133,6 +213,86 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.SCENE_ENTITY_LOADED,
       entitiesLeft
+    }
+  },
+  ////////////////
+  enableScene: (env: any) => {
+    return {
+      type: EngineEvents.EVENTS.ENABLE_SCENE,
+      env
+    }
+  },
+
+  /////////////
+  windowFocus: () => {
+    return {
+      type: EngineEvents.EVENTS.WINDOW_FOCUS
+    }
+  },
+  entityDebugData: () => {
+    return {
+      type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA
+    }
+  },
+  objectHover: (props: {}) => {
+    return {
+      type: EngineEvents.EVENTS.OBJECT_HOVER,
+      props
+    }
+  },
+  objectActivation: (interactionData: InteractionData) => {
+    return {
+      type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
+      interactionData
+    }
+  },
+  portalRedirectEvent: (portalComponent: PortalComponentType) => {
+    return {
+      type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
+      portalComponent
+    }
+  },
+
+  xrStart: () => {
+    return {
+      type: EngineEvents.EVENTS.XR_START
+    }
+  },
+  xrSession: () => {
+    return {
+      type: EngineEvents.EVENTS.XR_SESSION
+    }
+  },
+  xrEnd: () => {
+    return {
+      type: EngineEvents.EVENTS.XR_END
+    }
+  },
+  connect: (id: any) => {
+    return {
+      type: EngineEvents.EVENTS.CONNECT,
+      id
+    }
+  },
+  connectionLost: () => {
+    return {
+      type: EngineEvents.EVENTS.CONNECTION_LOST
+    }
+  },
+  startSuspendedContexts: () => {
+    return {
+      type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS
+    }
+  },
+  suspendPositionalAudio: () => {
+    return {
+      type: EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO
+    }
+  },
+  browserNotSupported: (msg: string) => {
+    return {
+      type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
+      msg
     }
   },
 

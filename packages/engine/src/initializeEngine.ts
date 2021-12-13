@@ -19,7 +19,8 @@ import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { receptors } from './ecs/classes/EngineService'
+import { EngineActions, receptors } from './ecs/classes/EngineService'
+import { dispatchLocal } from './networking/functions/dispatchFrom'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -48,15 +49,12 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     const enableRenderer = !/SwiftShader/.test(renderer)
     canvas.remove()
     if (!enableRenderer)
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
-        message: 'Your brower does not support webgl,or it disable webgl,Please enable webgl'
-      })
-    EngineEvents.instance.dispatchEvent({
-      type: EngineEvents.EVENTS.ENABLE_SCENE,
-      renderer: enableRenderer,
-      physics: true
-    })
+      dispatchLocal(
+        EngineActions.browserNotSupported(
+          'Your brower does not support webgl,or it disable webgl,Please enable webgl'
+        ) as any
+      )
+    dispatchLocal(EngineActions.enableScene({ renderer: enableRenderer, physics: true }) as any)
     Engine.hasJoinedWorld = true
   })
 
@@ -95,7 +93,7 @@ const configureServer = async (options: Required<InitializeOptions>, isMediaServ
 
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     console.log('joined world')
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true })
+    dispatchLocal(EngineActions.enableScene({ renderer: true, physics: true }) as any)
     Engine.hasJoinedWorld = true
   })
 
@@ -164,8 +162,9 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
     simulationEnabled: options.physics.simulationEnabled
   })
 
+  console.log('ININININININININININININININ')
   // Network (Outgoing)
-  registerSystem(SystemUpdateType.FIXED_LATE, import('./networking/systems/OutgoingNetworkSystem'))
+  registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/OutgoingNetworkSystem'))
 
   // FIXED_LATE injection point
 
@@ -306,6 +305,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 
   // Engine type specific post configuration work
   if (options.type === EngineSystemPresets.CLIENT) {
+    console.log('TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT')
     EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
       Engine.engineTimer.start()
     })
@@ -327,7 +327,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 
   // Mark engine initialized
   Engine.isInitialized = true
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
+  dispatchLocal(EngineActions.initializeEngine() as any)
 }
 
 export const shutdownEngine = async () => {

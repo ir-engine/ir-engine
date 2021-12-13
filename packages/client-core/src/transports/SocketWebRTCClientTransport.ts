@@ -22,6 +22,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MediaStreamService } from '../media/services/MediaStreamService'
 import { EngineAction } from '../world/services/EngineService'
 import { useDispatch } from '../store'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 // import { encode, decode } from 'msgpackr'
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
@@ -136,7 +138,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
     console.log('******* GAMESERVER PORT IS', port)
     Network.instance.accessToken = query.token = token
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT, id: user.id })
+    dispatchLocal(EngineActions.connect(user.id) as any)
 
     this.mediasoupDevice = new mediasoupClient.Device()
     if (socket && socket.close) socket.close()
@@ -204,18 +206,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         ])
       } catch (err) {
         console.log(err)
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT,
-          instance: instance === true
-        })
+        dispatchLocal(EngineActions.connectToWorldTimeout(instance) as any)
         return
       }
       const { connectedClients, routerRtpCapabilities } = ConnectToWorldResponse as any
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        connectedClients,
-        instance: instance === true
-      })
+      dispatchLocal(EngineActions.connectToWorld(connectedClients, instance) as any)
       if ((socket as any).instance) {
         const dispatch = useDispatch()
         dispatch(EngineAction.setConnectedWorld(true))
@@ -370,10 +365,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
         this.reconnecting = true
         console.log('reconnect')
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.RESET_ENGINE,
-          instance: (socket as any).instance
-        })
+        dispatchLocal(EngineActions.resetEngine((socket as any).instance) as any)
       })
 
       if (instance === true) {

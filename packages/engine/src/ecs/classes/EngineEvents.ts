@@ -5,6 +5,7 @@
 
 const EVENTS = {
   // TODO: add doc formatting to these
+  SCENE_LOADED: 'CORE_SCENE_LOADED' as const, // { }
 
   // INITALIZATION
   RESET_ENGINE: 'CORE_RESET_ENGINE' as const,
@@ -13,7 +14,6 @@ const EVENTS = {
   CONNECT_TO_WORLD_TIMEOUT: 'CORE_CONNECT_TO_WORLD_TIMEOUT' as const, // { }
   JOINED_WORLD: 'CORE_JOINED_WORLD' as const, // { }
   LEAVE_WORLD: 'CORE_LEAVE_WORLD' as const, // { }
-  SCENE_LOADED: 'CORE_SCENE_LOADED' as const, // { }
   SCENE_ENTITY_LOADED: 'CORE_SCENE_ENTITY_LOADED' as const, // { }
 
   // Start or stop client side physics & rendering

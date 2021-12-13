@@ -33,6 +33,8 @@ import {
 import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const MediaIconsBox = (props) => {
   const [xrSupported, setXRSupported] = useState(false)
@@ -134,7 +136,7 @@ const MediaIconsBox = (props) => {
     }
   }
 
-  const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_START })
+  const handleVRClick = () => dispatchLocal(EngineActions.xrStart() as any)
 
   const xrEnabled = Engine.xrSupported === true
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff

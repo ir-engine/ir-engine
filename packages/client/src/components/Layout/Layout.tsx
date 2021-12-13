@@ -26,6 +26,8 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ClientSettingService } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -132,7 +134,7 @@ const Layout = (props: Props): any => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement
     if (canvas?.style != null) canvas.style.width = '0px'
     props.setHarmonyOpen(true)
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO })
+    dispatchLocal(EngineActions.suspendPositionalAudio() as any)
   }
 
   const iOS = (): boolean => {

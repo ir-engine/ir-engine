@@ -58,7 +58,8 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { dispatchFrom, dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -410,9 +411,6 @@ export const registerSceneLoadPromise = (promise: Promise<any>) => {
   Engine.sceneLoadPromises.push(promise)
   promise.then(() => {
     Engine.sceneLoadPromises.splice(Engine.sceneLoadPromises.indexOf(promise), 1)
-    EngineEvents.instance.dispatchEvent({
-      type: EngineEvents.EVENTS.SCENE_ENTITY_LOADED,
-      entitiesLeft: Engine.sceneLoadPromises.length
-    })
+    dispatchLocal(EngineActions.sceneEntityLoaded(Engine.sceneLoadPromises.length) as any)
   })
 }

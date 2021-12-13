@@ -17,6 +17,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { initializeXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
 /**
  * System for XR session and input handling
@@ -47,13 +49,13 @@ export default async function XRSystem(world: World): Promise<System> {
       Engine.xrSession = session
       Engine.xrManager.setSession(session)
       Engine.xrManager.setFoveation(1)
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_SESSION })
+      dispatchLocal(EngineActions.xrSession(null) as any)
 
       Engine.xrManager.getCamera().layers.enableAll()
 
       Engine.xrManager.addEventListener('sessionend', async () => {
         endXR()
-        EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_END })
+        dispatchLocal(EngineActions.xrEnd(null) as any)
       })
 
       startWebXR()

@@ -19,6 +19,8 @@ import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/se
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 interface Props {
   locationName: string
@@ -123,7 +125,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
   useEffect(() => {
     if (engineState.joinedWorld.value) {
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
+      dispatchLocal(EngineActions.joinedWorld() as any)
       dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
       dispatch(AppAction.setAppLoaded(true))
     }

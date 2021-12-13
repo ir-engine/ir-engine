@@ -14,6 +14,8 @@ import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/Compo
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { getSystemsFromSceneData } from '@xrengine/projects/loader'
 import { initializeServerEngine } from './initializeServerEngine'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const loadScene = async (app: Application, scene: string) => {
   const [projectName, sceneName] = scene.split('/')
@@ -44,8 +46,7 @@ const loadScene = async (app: Application, scene: string) => {
 
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
-
+  dispatchLocal(EngineActions.joinedWorld() as any)
   const portals = getAllComponentsOfType(PortalComponent)
   // await Promise.all(
   //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
@@ -64,7 +65,7 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
     newInstance.channelId = channelId
     //While there's no scene, this will still signal that the engine is ready
     //to handle events, particularly for NetworkFunctions:handleConnectToWorld
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
+    dispatchLocal(EngineActions.sceneLoaded() as any)
   } else {
     console.log('locationId: ' + locationId)
     newInstance.locationId = locationId
