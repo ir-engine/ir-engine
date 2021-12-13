@@ -22,21 +22,6 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 
 export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
-  addComponent(e, NameComponent, { name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] })
-  delete mesh.userData['xrengine.entity']
-  delete mesh.userData['realitypack.entity']
-  delete mesh.userData.name
-
-  // apply root mesh's world transform to this mesh locally
-  // applyTransformToMeshWorld(entity, mesh)
-  addComponent(e, TransformComponent, {
-    position: mesh.getWorldPosition(new Vector3()),
-    rotation: mesh.getWorldQuaternion(new Quaternion()),
-    scale: mesh.getWorldScale(new Vector3())
-  })
-  mesh.removeFromParent()
-  addComponent(e, Object3DComponent, { value: mesh })
-
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
   const data = Object.entries(mesh.userData)
@@ -86,9 +71,27 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene)
   })
 
   for (const mesh of meshesToProcess) {
-    // if for the root object
-    const e = mesh === res ? entity : createEntity()
-    createObjectEntityFromGLTF(e, mesh)
+    if (mesh === res) {
+      createObjectEntityFromGLTF(entity, mesh)
+    } else {
+      const e = createEntity()
+      addComponent(e, NameComponent, { name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] })
+      delete mesh.userData['xrengine.entity']
+      delete mesh.userData['realitypack.entity']
+      delete mesh.userData.name
+
+      // apply root mesh's world transform to this mesh locally
+      // applyTransformToMeshWorld(entity, mesh)
+      addComponent(e, TransformComponent, {
+        position: mesh.getWorldPosition(new Vector3()),
+        rotation: mesh.getWorldQuaternion(new Quaternion()),
+        scale: mesh.getWorldScale(new Vector3())
+      })
+      mesh.removeFromParent()
+      addComponent(e, Object3DComponent, { value: mesh })
+
+      createObjectEntityFromGLTF(e, mesh)
+    }
   }
 }
 
