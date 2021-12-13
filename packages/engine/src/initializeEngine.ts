@@ -307,16 +307,6 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
       Engine.engineTimer.start()
     })
-    const onUserEngage = () => {
-      Engine.hasEngaged = true
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE })
-      ;['click', 'touchstart', 'touchend', 'pointerdown'].forEach((type) => {
-        window.addEventListener(type, onUserEngage)
-      })
-    }
-    ;['click', 'touchstart', 'touchend', 'pointerdown'].forEach((type) => {
-      window.addEventListener(type, onUserEngage)
-    })
 
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
       Network.instance.isInitialized = true
