@@ -74,6 +74,8 @@ export class Channel extends Service {
           },
           {
             model: this.app.service('message').Model,
+            limit: 20,
+            order: [['createdAt', 'DESC']],
             include: [
               {
                 model: (this.app.service('user') as any).Model,
