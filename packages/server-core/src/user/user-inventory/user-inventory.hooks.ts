@@ -3,9 +3,7 @@ import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
 import * as authentication from '@feathersjs/authentication'
 import axios from 'axios'
-
-const BLOCKCHAIN_URL = process.env.BLOCKCHAIN_URL
-const BLOCKCHAIN_URL_SECRET = process.env.BLOCKCHAIN_URL_SECRET
+import config from '../../appconfig'
 
 export default {
   before: {
@@ -16,17 +14,17 @@ export default {
     update: [disallow()],
     patch: [
       async (context: HookContext): Promise<HookContext> => {
-        if (context.data.type === 'Wallet transfer') {
+        if (context.data.type === 'transfer') {
           let { privateKey, fromUserAddress, toUserAddress, quantity, walletAmt } = context.data
-          var response = await axios.post(`${BLOCKCHAIN_URL}/authorizeServer`, {
-            authSecretKey: BLOCKCHAIN_URL_SECRET
+          var response = await axios.post(`${config.blockchain.blockchainUrl}/authorizeServer`, {
+            authSecretKey: config.blockchain.blockchainUrlSecret
           })
           // KEEP TOKEN
           var accessToken = response.data.accessToken
 
           // CALL WALLET API WITH HEADER SETUP
           var walletData = await axios.post(
-            `${BLOCKCHAIN_URL}/wallet/send`,
+            `${config.blockchain.blockchainUrl}/wallet/send`,
             {
               privateKey: privateKey,
               fromUserAddress: fromUserAddress,

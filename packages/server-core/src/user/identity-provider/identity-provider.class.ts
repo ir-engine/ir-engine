@@ -9,8 +9,6 @@ import config from '../../appconfig'
 import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import axios from 'axios'
-const BLOCKCHAIN_URL = process.env.BLOCKCHAIN_URL
-const BLOCKCHAIN_URL_SECRET = process.env.BLOCKCHAIN_URL_SECRET
 
 interface Data {}
 
@@ -158,13 +156,13 @@ export class IdentityProvider extends Service {
     )
     // DRC
     try {
-      if (result.user.userRole === 'user' || result.user.userRole === 'admin') {
-        var response = await axios.post(`${BLOCKCHAIN_URL}/authorizeServer`, {
-          authSecretKey: BLOCKCHAIN_URL_SECRET
+      if (result.user.userRole !== 'guest') {
+        var response = await axios.post(`${config.blockchain.blockchainUrl}/authorizeServer`, {
+          authSecretKey: config.blockchain.blockchainUrlSecret
         })
         var accessToken = response.data.accessToken
         var walletData = await axios.post(
-          `${BLOCKCHAIN_URL}/user-wallet-data`,
+          `${config.blockchain.blockchainUrl}/user-wallet-data`,
           {
             userId: result.id
           },
@@ -187,9 +185,7 @@ export class IdentityProvider extends Service {
       console.log('ERROR', err)
     }
     // DRC
-    // await this.app.service('user-settings').create({
-    //   userId: result.userId
-    // });
+
     if (config.scopes.guest.length) {
       config.scopes.guest.forEach(async (el) => {
         await this.app.service('scope').create({

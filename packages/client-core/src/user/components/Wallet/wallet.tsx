@@ -27,19 +27,7 @@ export const WalletPage = (): any => {
     isLoadingtransfer: false,
     isSendingLoader: false
   })
-  const {
-    data,
-    user,
-    type,
-    coinlimit,
-    isLoading,
-    //walletDataReceive,
-    //walletData,
-    dataReceive,
-    isLoadingtransfer,
-    coinData,
-    coinDataReceive
-  } = state
+  const { data, user, type, coinlimit, isLoading, dataReceive, isLoadingtransfer, coinData, coinDataReceive } = state
 
   const authState = useAuthState()
 
@@ -66,7 +54,6 @@ export const WalletPage = (): any => {
         data: [...response.inventory_items.filter((val) => val.isCoin === true)],
         coinData: [...response.inventory_items.filter((val) => val.isCoin === true)],
         isLoading: false,
-        //walletData: [...response.user_wallets],
         coinlimit: response.inventory_items.filter((val) => val.isCoin === true)[0].user_inventory.quantity
       }))
     } catch (err) {
@@ -101,7 +88,6 @@ export const WalletPage = (): any => {
         ...prevState,
         dataReceive: [...response.inventory_items.filter((val) => val.isCoin === true)],
         coinDataReceive: [...response.inventory_items.filter((val) => val.isCoin === true)]
-        //walletDataReceive: [...response.user_wallets]
       }))
     } catch (err) {
       console.error(err, 'error')
@@ -115,12 +101,9 @@ export const WalletPage = (): any => {
     }))
     try {
       const response = await client.service('user-inventory').patch(data[0].user_inventory.userInventoryId, {
-        //privateKey: walletData[0].privateKey,
-        //fromUserAddress: walletData[0].userAddress,
-        //toUserAddress: walletDataReceive[0].userAddress,
         quantity: Number(data[0].user_inventory.quantity) - Number(amt),
         walletAmt: Number(amt),
-        type: 'Wallet transfer'
+        type: 'transfer'
       })
     } catch (err) {
       console.error(err, 'error')
@@ -157,13 +140,11 @@ export const WalletPage = (): any => {
         'Loading...'
       ) : (
         <WalletContent
-          //data={walletData}
           user={user}
           coinlimit={coinlimit}
           getreceiverid={getreceiverid}
           sendamtsender={sendamtsender}
           sendamtreceiver={sendamtreceiver}
-          //sendamtwallet={sendamtwallet}
         />
       )}
     </EmptyLayout>
