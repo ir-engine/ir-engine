@@ -12,6 +12,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
+import GroupIcon from '@mui/icons-material/Group'
 import GitHubIcon from '@mui/icons-material/GitHub'
 import { useAuthState, AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
@@ -35,12 +36,17 @@ const UploadProjectModal = (props: Props): any => {
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [projectURL, setProjectURL] = useState('')
+  const [isPublicUrl, setIsPublicUrl] = useState(false)
   const dispatch = useDispatch()
   const showError = (err: string) => {
     setError(err)
     setTimeout(() => {
       setError('')
     }, 3000)
+  }
+
+  const trySelectPublicUrl = () => {
+    setIsPublicUrl(!isPublicUrl)
   }
 
   const tryUploadProject = async () => {
@@ -82,7 +88,7 @@ const UploadProjectModal = (props: Props): any => {
             {processing === false && createOrPatch === 'patch' && (
               <FormControl>
                 <div className={styles.inputConatiner}>
-                  {repos.length != 0 ? (
+                  {!isPublicUrl && repos.length != 0 ? (
                     <Select
                       labelId="demo-controlled-open-select-label"
                       id="demo-controlled-open-select"
@@ -124,6 +130,19 @@ const UploadProjectModal = (props: Props): any => {
                   >
                     Upload Project
                   </Button>
+                  {repos.length != 0 ? (
+                    <Button
+                      type="submit"
+                      startIcon={<GroupIcon />}
+                      variant="contained"
+                      color="primary"
+                      onClick={trySelectPublicUrl}
+                    >
+                      {!isPublicUrl ? 'Custom Public Url' : 'Select From List'}
+                    </Button>
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </FormControl>
             )}
