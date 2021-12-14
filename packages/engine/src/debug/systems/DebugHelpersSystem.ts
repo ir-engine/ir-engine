@@ -10,6 +10,7 @@ import {
   MeshBasicMaterial,
   Object3D,
   Quaternion,
+  SkeletonHelper,
   Vector3
 } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -32,6 +33,7 @@ import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { isStaticBody } from '../../physics/classes/Physics'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { IKObj } from '../../ikrig/components/IKObj'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh' | 'navpath'
 
@@ -58,7 +60,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
   let avatarDebugEnabled = false
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.AVATAR_DEBUG, ({ enabled }) => {
-    avatarDebugEnabled = enabled
+    avatarDebugEnabled = typeof enabled === 'undefined' ? !avatarDebugEnabled : enabled
     helpersByEntity.viewVector.forEach((obj: Object3D) => {
       obj.visible = enabled
     })
@@ -71,7 +73,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
   })
 
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PHYSICS_DEBUG, ({ enabled }) => {
-    physicsDebugEnabled = enabled
+    physicsDebugEnabled = typeof enabled === 'undefined' ? !physicsDebugEnabled : enabled
     helpersByEntity.helperArrow.forEach((obj: Object3D) => {
       obj.visible = enabled
     })
@@ -81,6 +83,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
   })
 
   const avatarDebugQuery = defineQuery([AvatarComponent])
+  const ikDebugQuery = defineQuery([IKObj])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const colliderQuery = defineQuery([ColliderComponent])
   const arrowHelperQuery = defineQuery([DebugArrowComponent])
@@ -93,6 +96,18 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
   return () => {
     // ===== AVATAR ===== //
 
+    for (const entity of ikDebugQuery.enter()) {
+      const ikobj = getComponent(entity, IKObj)
+      const helper = new SkeletonHelper(ikobj.ref)
+      ;(ikobj.ref as any).helper = helper
+      ikobj.ref.add(helper)
+      console.log(helper)
+    }
+    for (const entity of ikDebugQuery.exit()) {
+      const ikobj = getComponent(entity, IKObj)
+      const helper = (ikobj.ref as any).helper
+      ikobj.ref.remove(helper)
+    }
     for (const entity of avatarDebugQuery.enter()) {
       const avatar = getComponent(entity, AvatarComponent)
 
