@@ -28,7 +28,6 @@ store.receptors.push((action: PartyActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'LOADED_PARTY':
-        console.log('party loaded', action.party)
         return s.merge({ party: action.party, updateNeeded: false })
       case 'CREATED_PARTY':
         return s.updateNeeded.set(true)
@@ -40,7 +39,6 @@ store.receptors.push((action: PartyActionType): any => {
       case 'CREATED_PARTY_USER':
         newValues = action
         partyUser = newValues.partyUser
-        console.log('created party user', partyUser)
         updateMap = _.cloneDeep(s.party.value)
         if (updateMap != null) {
           updateMapPartyUsers = updateMap.partyUsers
@@ -55,7 +53,7 @@ store.receptors.push((action: PartyActionType): any => {
             : [partyUser]
           updateMap.partyUsers = updateMapPartyUsers
         }
-        return s.party.set(updateMap)
+        return s.merge({ party: updateMap, updateNeeded: true })
 
       case 'PATCHED_PARTY_USER':
         newValues = action
@@ -104,7 +102,7 @@ export const PartyService = {
     {
       try {
         // console.log('CALLING GETPARTY()');
-        const partyResult = await client.service('party').get(null)
+        const partyResult = await client.service('party').get()
         dispatch(PartyAction.loadedParty(partyResult))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -168,17 +166,18 @@ export const PartyService = {
   removeParty: async (partyId: string) => {
     const dispatch = useDispatch()
     {
-      console.log('CALLING FEATHERS REMOVE PARTY')
       try {
         const channelResult = await client.service('channel').find({
           query: {
+            channelType: 'party',
             partyId: partyId
           }
         })
         if (channelResult.total > 0) {
           await client.service('channel').remove(channelResult.data[0].id)
         }
-        await client.service('party').remove(partyId)
+        const party = await client.service('party').remove(partyId)
+        dispatch(PartyAction.removedParty(party))
       } catch (err) {
         AlertService.dispatchAlertError(err)
       }

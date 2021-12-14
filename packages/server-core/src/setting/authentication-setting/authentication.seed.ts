@@ -2,7 +2,6 @@ import config from '../../appconfig'
 
 export const authenticationSeed = {
   path: 'authentication-setting',
-  randomize: false,
   templates: [
     {
       service: 'identity-provider',

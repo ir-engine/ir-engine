@@ -1,12 +1,14 @@
 import { ParityValue } from '../../common/enums/ParityValue'
+import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from '../enums/EquippedEnums'
-
-// TODO: refactor equippables
 
 export const equipEntity = (
   equipperEntity: Entity,
@@ -16,14 +18,37 @@ export const equipEntity = (
   if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
     addComponent(equipperEntity, EquipperComponent, { equippedEntity, data: {} as any })
     addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint })
+
+    dispatchEquipEntity(equippedEntity, true)
   }
 }
 
 export const unequipEntity = (equipperEntity: Entity): void => {
-  // const equipperComponent = getComponent(equipperEntity, EquipperComponent);
-  // if(!equipperComponent) return;
-  // removeComponent(equipperComponent.equippedEntity, EquippedComponent);
-  // removeComponent(equipperEntity, EquipperComponent);
+  console.log('unequip')
+  const equipperComponent = getComponent(equipperEntity, EquipperComponent)
+  if (!equipperComponent) return
+
+  console.log(equipperComponent)
+  removeComponent(equipperEntity, EquipperComponent)
+  dispatchEquipEntity(equipperComponent.equippedEntity, false)
+}
+
+const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
+  if (!isClient) return
+
+  const equippedComponent = getComponent(equippedEntity, EquippedComponent)
+  const attachmentPoint = equippedComponent.attachmentPoint
+  const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
+  dispatchFrom(Engine.userId, () =>
+    NetworkWorldAction.setEquippedObject({
+      object: {
+        ownerId: networkComponet.ownerId,
+        networkId: networkComponet.networkId
+      },
+      attachmentPoint: attachmentPoint,
+      equip: equip
+    })
+  ).cache({ removePrevious: true })
 }
 
 export const getAttachmentPoint = (parityValue: ParityValue): EquippableAttachmentPoint => {

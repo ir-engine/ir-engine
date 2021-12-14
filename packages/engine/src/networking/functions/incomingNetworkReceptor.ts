@@ -1,5 +1,5 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from './NetworkWorldAction'
@@ -84,7 +84,25 @@ export function incomingNetworkReceptor(action) {
       if (entity) removeEntity(entity)
     })
 
-  // .when(NetworkWorldAction.setEquippedObject.matches, (a) => {
-  //   console.log('netowrk action received in equip receptor', a)
-  // })
+    .when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
+      let entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
+      if (entity) {
+        if (a.$from === Engine.userId) {
+          if (a.equip) {
+            if (!hasComponent(entity, NetworkObjectOwnedTag)) {
+              addComponent(entity, NetworkObjectOwnedTag, {})
+            }
+          } else {
+            removeComponent(entity, NetworkObjectOwnedTag)
+          }
+        } else {
+          removeComponent(entity, NetworkObjectOwnedTag)
+        }
+
+        // Give ownership back to server, so that item shows up where it was last dropped
+        if (Engine.userId === world.hostId && !a.equip) {
+          addComponent(entity, NetworkObjectOwnedTag, {})
+        }
+      }
+    })
 }

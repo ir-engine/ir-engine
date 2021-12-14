@@ -18,7 +18,6 @@ import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { isClient } from '../../common/functions/isClient'
-import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { Engine } from '../../ecs/classes/Engine'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -38,17 +37,6 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   const world = useWorld()
   const userId = spawnAction.$from
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)
-
-  if (isClient) {
-    if (!hasComponent(entity, AfkCheckComponent))
-      addComponent(entity, AfkCheckComponent, {
-        isAfk: false,
-        prevPosition: new Vector3(0, 0, 0),
-        cStep: 0,
-        cStep2: 0,
-        timer: 0
-      })
-  }
 
   const position = createVector3Proxy(TransformComponent.position, entity)
 

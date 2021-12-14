@@ -1,6 +1,5 @@
 export const analyticsSeedData = {
   path: 'analytics',
-  randomize: false,
   templates: [
     {
       count: 200,
