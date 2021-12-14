@@ -25,6 +25,8 @@ export const updateAppConfig = async (): Promise<void> => {
   }) as any
   await sequelizeClient.sync()
 
+  const promises: any[] = []
+
   const analyticsSetting = sequelizeClient.define('analyticsSetting', {
     enabled: {
       type: DataTypes.BOOLEAN,
@@ -39,6 +41,26 @@ export const updateAppConfig = async (): Promise<void> => {
       allowNull: true
     }
   })
+  const analyticsSettingPromise = analyticsSetting
+    .findAll()
+    .then(([dbAnalytics]) => {
+      const dbAnalyticsConfig = dbAnalytics && {
+        port: dbAnalytics.port,
+        enabled: dbAnalytics.enabled,
+        processInterval: dbAnalytics.processInterval
+      }
+      if (dbAnalyticsConfig) {
+        appConfig.analytics = {
+          ...appConfig.analytics,
+          ...dbAnalyticsConfig
+        }
+      }
+    })
+    .catch((e) => {
+      console.warn('[updateAppConfig]: Failed to read analyticsSetting')
+      console.warn(e)
+    })
+  promises.push(analyticsSettingPromise)
 
   const authenticationSetting = sequelizeClient.define('authentication', {
     service: {
@@ -78,6 +100,40 @@ export const updateAppConfig = async (): Promise<void> => {
       allowNull: true
     }
   })
+  const authenticationSettingPromise = authenticationSetting
+    .findAll()
+    .then(([dbAuthentication]) => {
+      const dbAuthenticationConfig = dbAuthentication && {
+        service: dbAuthentication.service,
+        entity: dbAuthentication.entity,
+        secret: dbAuthentication.secret,
+        authStrategies: JSON.parse(JSON.parse(dbAuthentication.authStrategies)),
+        local: JSON.parse(JSON.parse(dbAuthentication.local)),
+        jwtOptions: JSON.parse(JSON.parse(dbAuthentication.jwtOptions)),
+        bearerToken: JSON.parse(JSON.parse(dbAuthentication.bearerToken)),
+        callback: JSON.parse(JSON.parse(dbAuthentication.callback)),
+        oauth: {
+          ...JSON.parse(JSON.parse(dbAuthentication.oauth)),
+          defaults: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).defaults),
+          facebook: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).facebook),
+          github: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).github),
+          google: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).google),
+          linkedin: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).linkedin),
+          twitter: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).twitter)
+        }
+      }
+      if (dbAuthenticationConfig) {
+        appConfig.authentication = {
+          ...appConfig.authentication,
+          ...dbAuthenticationConfig
+        }
+      }
+    })
+    .catch((e) => {
+      console.warn('[updateAppConfig]: Failed to read authenticationSetting')
+      console.warn(e)
+    })
+  promises.push(authenticationSettingPromise)
 
   const awsSetting = sequelizeClient.define('Aws', {
     keys: {
@@ -101,6 +157,31 @@ export const updateAppConfig = async (): Promise<void> => {
       allowNull: true
     }
   })
+  const promisePromise = awsSetting
+    .findAll()
+    .then(([dbAws]) => {
+      const dbAwsConfig = dbAws && {
+        keys: JSON.parse(JSON.parse(dbAws.keys)),
+        route53: {
+          ...JSON.parse(JSON.parse(dbAws.route53)),
+          keys: JSON.parse(JSON.parse(JSON.parse(dbAws.route53)).keys)
+        },
+        s3: JSON.parse(JSON.parse(dbAws.s3)),
+        cloudfront: JSON.parse(JSON.parse(dbAws.cloudfront)),
+        sms: JSON.parse(JSON.parse(dbAws.sms))
+      }
+      if (dbAwsConfig) {
+        appConfig.aws = {
+          ...appConfig.aws,
+          ...dbAwsConfig
+        }
+      }
+    })
+    .catch((e) => {
+      console.warn('[updateAppConfig]: Failed to read awsSetting')
+      console.warn(e)
+    })
+  promises.push(promisePromise)
 
   const chargebeeSetting = sequelizeClient.define('chargebeeSetting', {
     url: {
@@ -112,6 +193,25 @@ export const updateAppConfig = async (): Promise<void> => {
       allowNull: true
     }
   })
+  const chargebeeSettingPromise = chargebeeSetting
+    .findAll()
+    .then(([dbChargebee]) => {
+      const dbChargebeeConfig = dbChargebee && {
+        url: dbChargebee.url,
+        apiKey: dbChargebee.apiKey
+      }
+      if (dbChargebeeConfig) {
+        appConfig.chargebee = {
+          ...appConfig.chargebee,
+          ...dbChargebeeConfig
+        }
+      }
+    })
+    .catch((e) => {
+      console.warn('[updateAppConfig]: Failed to read chargebeeSetting')
+      console.warn(e)
+    })
+  promises.push(chargebeeSettingPromise)
 
   const clientSetting = sequelizeClient.define('clientSetting', {
     enabled: {
@@ -155,6 +255,33 @@ export const updateAppConfig = async (): Promise<void> => {
       allowNull: true
     }
   })
+  const clientSettingPromise = clientSetting
+    .findAll()
+    .then(([dbClient]) => {
+      const dbClientConfig = dbClient && {
+        enabled: dbClient.enabled,
+        logo: dbClient.logo,
+        title: dbClient.title,
+        url: dbClient.url,
+        releaseName: dbClient.releaseName,
+        siteDescription: dbClient.siteDescription,
+        favicon32px: dbClient.favicon32px,
+        favicon16px: dbClient.favicon16px,
+        icon192px: dbClient.icon192px,
+        icon512px: dbClient.icon512px
+      }
+      if (dbClientConfig) {
+        appConfig.client = {
+          ...appConfig.client,
+          ...dbClientConfig
+        }
+      }
+    })
+    .catch((e) => {
+      console.warn('[updateAppConfig]: Failed to read clientSetting')
+      console.warn(e)
+    })
+  promises.push(clientSettingPromise)
 
   const emailSetting = sequelizeClient.define('emailSetting', {
     smtp: {
@@ -173,6 +300,30 @@ export const updateAppConfig = async (): Promise<void> => {
       type: DataTypes.INTEGER
     }
   })
+  const emailSettingPromise = emailSetting
+    .findAll()
+    .then(([dbEmail]) => {
+      const dbEmailConfig = dbEmail && {
+        from: dbEmail.from,
+        smsNameCharacterLimit: dbEmail.smsNameCharacterLimit,
+        smtp: {
+          ...JSON.parse(JSON.parse(dbEmail.smtp)),
+          auth: JSON.parse(JSON.parse(JSON.parse(dbEmail.smtp)).auth)
+        },
+        subject: JSON.parse(JSON.parse(dbEmail.subject))
+      }
+      if (dbEmailConfig) {
+        appConfig.email = {
+          ...appConfig.email,
+          ...dbEmailConfig
+        }
+      }
+    })
+    .catch((e) => {
+      console.warn('[updateAppConfig]: Failed to read emailSetting')
+      console.warn(e)
+    })
+  promises.push(emailSettingPromise)
 
   const gameServerSetting = sequelizeClient.define('gameServerSetting', {
     clientHost: {
@@ -223,6 +374,35 @@ export const updateAppConfig = async (): Promise<void> => {
       type: DataTypes.STRING
     }
   })
+  const gameServerSettingPromise = gameServerSetting
+    .findAll()
+    .then(([dbGameServer]) => {
+      const dbGameServerConfig = dbGameServer && {
+        clientHost: dbGameServer.clientHost,
+        enabled: dbGameServer.enabled,
+        rtc_start_port: dbGameServer.rtc_start_port,
+        rtc_end_port: dbGameServer.rtc_end_port,
+        rtc_port_block_size: dbGameServer.rtc_port_block_size,
+        identifierDigits: dbGameServer.identifierDigits,
+        local: dbGameServer.local,
+        domain: dbGameServer.domain,
+        releaseName: dbGameServer.releaseName,
+        port: dbGameServer.port,
+        mode: dbGameServer.mode,
+        locationName: dbGameServer.locationName
+      }
+      if (dbGameServerConfig) {
+        appConfig.gameserver = {
+          ...appConfig.gameserver,
+          ...dbGameServerConfig
+        }
+      }
+    })
+    .catch((e) => {
+      console.warn('[updateAppConfig]: Failed to read gameServerSetting')
+      console.warn(e)
+    })
+  promises.push(gameServerSettingPromise)
 
   const redisSetting = sequelizeClient.define('redisSetting', {
     enabled: {
@@ -242,6 +422,27 @@ export const updateAppConfig = async (): Promise<void> => {
       allowNull: true
     }
   })
+  const redisSettingPromise = redisSetting
+    .findAll()
+    .then(([dbRedis]) => {
+      const dbRedisConfig = dbRedis && {
+        enabled: dbRedis.enabled,
+        address: dbRedis.address,
+        port: dbRedis.port,
+        password: dbRedis.password
+      }
+      if (dbRedisConfig) {
+        appConfig.redis = {
+          ...appConfig.redis,
+          ...dbRedisConfig
+        }
+      }
+    })
+    .catch((e) => {
+      console.warn('[updateAppConfig]: Failed to read redisSetting')
+      console.warn(e)
+    })
+  promises.push(redisSettingPromise)
 
   const serverSetting = sequelizeClient.define('serverSetting', {
     hostname: {
@@ -325,186 +526,41 @@ export const updateAppConfig = async (): Promise<void> => {
       allowNull: true
     }
   })
-
-  const [dbAnalytics] = await analyticsSetting.findAll()
-  const [dbAuthentication] = await authenticationSetting.findAll()
-  const [dbAws] = await awsSetting.findAll()
-  const [dbChargebee] = await chargebeeSetting.findAll()
-  const [dbClient] = await clientSetting.findAll()
-  const [dbEmail] = await emailSetting.findAll()
-  const [dbGameServer] = await gameServerSetting.findAll()
-  const [dbRedis] = await redisSetting.findAll()
-  const [dbServer] = await serverSetting.findAll()
-
-  const dbAnalyticsConfig = dbAnalytics && {
-    port: dbAnalytics.port,
-    enabled: dbAnalytics.enabled,
-    processInterval: dbAnalytics.processInterval
-  }
-
-  const dbAuthenticationConfig = dbAuthentication && {
-    service: dbAuthentication.service,
-    entity: dbAuthentication.entity,
-    secret: dbAuthentication.secret,
-    authStrategies: JSON.parse(JSON.parse(dbAuthentication.authStrategies)),
-    local: JSON.parse(JSON.parse(dbAuthentication.local)),
-    jwtOptions: JSON.parse(JSON.parse(dbAuthentication.jwtOptions)),
-    bearerToken: JSON.parse(JSON.parse(dbAuthentication.bearerToken)),
-    callback: JSON.parse(JSON.parse(dbAuthentication.callback)),
-    oauth: {
-      ...JSON.parse(JSON.parse(dbAuthentication.oauth)),
-      defaults: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).defaults),
-      facebook: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).facebook),
-      github: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).github),
-      google: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).google),
-      linkedin: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).linkedin),
-      twitter: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).twitter)
-    }
-  }
-
-  const dbAwsConfig = dbAws && {
-    keys: JSON.parse(JSON.parse(dbAws.keys)),
-    route53: {
-      ...JSON.parse(JSON.parse(dbAws.route53)),
-      keys: JSON.parse(JSON.parse(JSON.parse(dbAws.route53)).keys)
-    },
-    s3: JSON.parse(JSON.parse(dbAws.s3)),
-    cloudfront: JSON.parse(JSON.parse(dbAws.cloudfront)),
-    sms: JSON.parse(JSON.parse(dbAws.sms))
-  }
-
-  const dbChargebeeConfig = dbChargebee && {
-    url: dbChargebee.url,
-    apiKey: dbChargebee.apiKey
-  }
-
-  const dbClientConfig = dbClient && {
-    enabled: dbClient.enabled,
-    logo: dbClient.logo,
-    title: dbClient.title,
-    url: dbClient.url,
-    releaseName: dbClient.releaseName,
-    siteDescription: dbClient.siteDescription,
-    favicon32px: dbClient.favicon32px,
-    favicon16px: dbClient.favicon16px,
-    icon192px: dbClient.icon192px,
-    icon512px: dbClient.icon512px
-  }
-
-  const dbEmailConfig = dbEmail && {
-    from: dbEmail.from,
-    smsNameCharacterLimit: dbEmail.smsNameCharacterLimit,
-    smtp: {
-      ...JSON.parse(JSON.parse(dbEmail.smtp)),
-      auth: JSON.parse(JSON.parse(JSON.parse(dbEmail.smtp)).auth)
-    },
-    subject: JSON.parse(JSON.parse(dbEmail.subject))
-  }
-
-  const dbGameServerConfig = dbGameServer && {
-    clientHost: dbGameServer.clientHost,
-    enabled: dbGameServer.enabled,
-    rtc_start_port: dbGameServer.rtc_start_port,
-    rtc_end_port: dbGameServer.rtc_end_port,
-    rtc_port_block_size: dbGameServer.rtc_port_block_size,
-    identifierDigits: dbGameServer.identifierDigits,
-    local: dbGameServer.local,
-    domain: dbGameServer.domain,
-    releaseName: dbGameServer.releaseName,
-    port: dbGameServer.port,
-    mode: dbGameServer.mode,
-    locationName: dbGameServer.locationName
-  }
-
-  const dbRedisConfig = dbRedis && {
-    enabled: dbRedis.enabled,
-    address: dbRedis.address,
-    port: dbRedis.port,
-    password: dbRedis.password
-  }
-
-  const dbServerConfig = dbServer && {
-    hostname: dbServer.hostname,
-    serverEnabled: dbServer.serverEnabled,
-    serverMode: dbServer.serverMode,
-    port: dbServer.port,
-    clientHost: dbServer.clientHost,
-    rootDir: dbServer.rootDir,
-    publicDir: dbServer.publicDir,
-    nodeModulesDir: dbServer.nodeModulesDir,
-    localStorageProvider: dbServer.localStorageProvider,
-    performDryRun: dbServer.performDryRun,
-    storageProvider: dbServer.storageProvider,
-    gaTrackingId: dbServer.gaTrackingId,
-    paginate: dbServer.paginate,
-    url: dbServer.url,
-    certPath: dbServer.certPath,
-    keyPath: dbServer.keyPath,
-    local: dbServer.local,
-    releaseName: dbServer.releaseName,
-    hub: JSON.parse(JSON.parse(dbServer.hub))
-  }
-
-  if (dbAnalyticsConfig) {
-    appConfig.analytics = {
-      ...appConfig.analytics,
-      ...dbAnalyticsConfig
-    }
-  }
-
-  if (dbAuthenticationConfig) {
-    appConfig.authentication = {
-      ...appConfig.authentication,
-      ...dbAuthenticationConfig
-    }
-  }
-
-  if (dbAwsConfig) {
-    appConfig.aws = {
-      ...appConfig.aws,
-      ...dbAwsConfig
-    }
-  }
-
-  if (dbChargebeeConfig) {
-    appConfig.chargebee = {
-      ...appConfig.chargebee,
-      ...dbChargebeeConfig
-    }
-  }
-
-  if (dbClientConfig) {
-    appConfig.client = {
-      ...appConfig.client,
-      ...dbClientConfig
-    }
-  }
-
-  if (dbEmailConfig) {
-    appConfig.email = {
-      ...appConfig.email,
-      ...dbEmailConfig
-    }
-  }
-
-  if (dbGameServerConfig) {
-    appConfig.gameserver = {
-      ...appConfig.gameserver,
-      ...dbGameServerConfig
-    }
-  }
-
-  if (dbRedisConfig) {
-    appConfig.redis = {
-      ...appConfig.redis,
-      ...dbRedisConfig
-    }
-  }
-
-  if (dbServerConfig) {
-    appConfig.server = {
-      ...appConfig.server,
-      ...dbServerConfig
-    }
-  }
+  const serverSettingPromise = serverSetting
+    .findAll()
+    .then(([dbServer]) => {
+      const dbServerConfig = dbServer && {
+        hostname: dbServer.hostname,
+        serverEnabled: dbServer.serverEnabled,
+        serverMode: dbServer.serverMode,
+        port: dbServer.port,
+        clientHost: dbServer.clientHost,
+        rootDir: dbServer.rootDir,
+        publicDir: dbServer.publicDir,
+        nodeModulesDir: dbServer.nodeModulesDir,
+        localStorageProvider: dbServer.localStorageProvider,
+        performDryRun: dbServer.performDryRun,
+        storageProvider: dbServer.storageProvider,
+        gaTrackingId: dbServer.gaTrackingId,
+        paginate: dbServer.paginate,
+        url: dbServer.url,
+        certPath: dbServer.certPath,
+        keyPath: dbServer.keyPath,
+        local: dbServer.local,
+        releaseName: dbServer.releaseName,
+        hub: JSON.parse(JSON.parse(dbServer.hub))
+      }
+      if (dbServerConfig) {
+        appConfig.server = {
+          ...appConfig.server,
+          ...dbServerConfig
+        }
+      }
+    })
+    .catch((e) => {
+      console.warn('[updateAppConfig]: Failed to read serverSetting')
+      console.warn(e)
+    })
+  promises.push(serverSettingPromise)
+  await Promise.all(promises)
 }
