@@ -5,8 +5,6 @@ import { resolveModelData } from '../../util/model-resolver'
 import { Transaction, Sequelize } from 'sequelize'
 import config from '../../appconfig'
 
-const loggedInUserEntity: string = config.authentication.entity
-
 /**
  * A class for User Relationship service
  *
@@ -69,6 +67,8 @@ export class UserRelationship extends Service {
   }
 
   async create(data: any, params: Params): Promise<any> {
+    const loggedInUserEntity: string = config.authentication.entity
+
     const userId = data.userId || params[loggedInUserEntity].userId
     const { relatedUserId, userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
@@ -124,6 +124,8 @@ export class UserRelationship extends Service {
   }
 
   async remove(id: NullableId, params: Params): Promise<any> {
+    const loggedInUserEntity: string = config.authentication.entity
+
     const authUser = params[loggedInUserEntity]
     const userId = authUser.userId
     const UserRelationshipModel = this.getModel(params)

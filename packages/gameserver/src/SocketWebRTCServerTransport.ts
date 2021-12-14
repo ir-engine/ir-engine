@@ -51,7 +51,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
-const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
 
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
   return typeof obj === 'undefined' || obj === null
@@ -287,6 +286,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         }
       })
     })
+
+    const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
 
     // Set up our gameserver according to our current environment
     const localIp = await getLocalServerIp(this.app.isChannelInstance)

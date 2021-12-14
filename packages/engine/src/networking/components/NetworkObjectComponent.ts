@@ -5,8 +5,8 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type NetworkObjectComponentType = {
   /** The user who owns this object. */
-  userId: UserId
-  /** The network id for this object */
+  ownerId: UserId
+  /** The network id for this object (this id is only unique per owner) */
   networkId: NetworkId
   /** All network objects need to be a registered prefab. */
   prefab: string

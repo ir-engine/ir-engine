@@ -20,7 +20,6 @@ const CharacterDetailView = () => {
   const detailState = useXRUIState() as CharacterDetailState
   const userState = useUserState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-  if (!user) return
   return user ? (
     <div
       style={{
