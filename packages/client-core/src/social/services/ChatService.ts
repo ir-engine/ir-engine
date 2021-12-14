@@ -7,6 +7,7 @@ import { AlertService } from '../../common/services/AlertService'
 import { Config } from '@xrengine/common/src/config'
 
 import { accessAuthState } from '../../user/services/AuthService'
+import { accessInstanceConnectionState } from '../../common/services/InstanceConnectionService'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -39,10 +40,10 @@ const state = createState({
     limit: 5,
     skip: 0,
     total: 0,
-    updateNeeded: true,
-    fetchingInstanceChannel: false
+    updateNeeded: true
   },
   targetObjectType: '',
+  targetObjectId: '',
   targetObject: {} as User | Group | Party | Instance,
   targetChannelId: '',
   updateMessageScroll: false,
@@ -63,15 +64,17 @@ store.receptors.push((action: ChatActionType) => {
           channels: action.channels
         })
       case 'LOADED_CHANNEL': {
-        const idx =
-          (typeof action.channel.id === 'string' &&
-            s.channels.channels.findIndex((c) => c.id.value === action.channel.id)) ||
-          s.channels.channels.length
+        let findIndex
+        if (typeof action.channel.id === 'string')
+          findIndex = s.channels.channels.findIndex((c) => c.id.value === action.channel.id)
+        let idx = findIndex > -1 ? findIndex : s.channels.channels.length
         s.channels.channels[idx].set(action.channel)
 
         if (action.channelType === 'instance') {
-          // TODO: WHYYY ARE WE DOING ALL THIS??
-          s.channels.fetchingInstanceChannel.set(false)
+          const endedInstanceChannelIndex = s.channels.channels.findIndex(
+            (channel) => channel.channelType.value === 'instance' && channel.id.value !== action.channel.id
+          )
+          if (endedInstanceChannelIndex > -1) s.channels.channels[endedInstanceChannelIndex].set(none)
           s.merge({
             instanceChannelFetched: true,
             instanceChannelFetching: false
@@ -106,7 +109,12 @@ store.receptors.push((action: ChatActionType) => {
               : channelType === 'instance'
               ? channel.instance
               : channel.party
-          s.merge({ targetChannelId: channelId, targetObjectType: channelType, targetObject: targetObject.value })
+          s.merge({
+            targetChannelId: channelId,
+            targetObjectType: channelType,
+            targetObject: targetObject.value,
+            targetObjectId: targetObject.id.value
+          })
         }
         return
       }
@@ -190,6 +198,7 @@ store.receptors.push((action: ChatActionType) => {
         const { targetObjectType, targetObject, targetChannelId } = action
         return s.merge({
           targetObjectType: targetObjectType,
+          targetObjectId: targetObject.id,
           targetObject: targetObject,
           targetChannelId: targetChannelId,
           updateMessageScroll: true,
@@ -201,7 +210,7 @@ store.receptors.push((action: ChatActionType) => {
         return s.merge({ messageScrollInit: value })
 
       case 'FETCHING_INSTANCE_CHANNEL':
-        return s.channels.merge({ fetchingInstanceChannel: true })
+        return s.merge({ instanceChannelFetching: true })
 
       case 'SET_UPDATE_MESSAGE_SCROLL': {
         return s.merge({ updateMessageScroll: action.value })
@@ -243,9 +252,11 @@ export const ChatService = {
       try {
         const channelResult = await client.service('channel').find({
           query: {
-            channelType: 'instance'
+            channelType: 'instance',
+            instanceId: accessInstanceConnectionState().instance.id.value
           }
         })
+        if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
         dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -259,8 +270,8 @@ export const ChatService = {
         await waitForClientAuthenticated()
         const chatState = accessChatState().value
         const data = {
-          targetObjectId: chatState.targetObject.id || values.targetObjectId || null,
-          targetObjectType: chatState.targetObjectType || values.targetObjectType || null,
+          targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
+          targetObjectType: chatState.targetObjectType || values.targetObjectType || 'party',
           text: values.text
         }
         if (data.targetObjectId === null || data.targetObjectType === null) {
@@ -295,7 +306,7 @@ export const ChatService = {
   },
   getChannelMessages: async (channelId: string, skip?: number, limit?: number) => {
     const dispatch = useDispatch()
-    {
+    if (channelId && channelId.length > 0) {
       try {
         const chatState = accessChatState().value
         const messageResult = await client.service('message').find({
@@ -339,20 +350,24 @@ export const ChatService = {
   updateChatTarget: async (targetObjectType: string, targetObject: any) => {
     const dispatch = useDispatch()
     {
-      const targetChannelResult = await client.service('channel').find({
-        query: {
-          findTargetId: true,
-          targetObjectType: targetObjectType,
-          targetObjectId: targetObject.id
-        }
-      })
-      dispatch(
-        ChatAction.setChatTarget(
-          targetObjectType,
-          targetObject,
-          targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
+      if (!targetObject) {
+        dispatch(ChatAction.setChatTarget(targetObjectType, targetObject, ''))
+      } else {
+        const targetChannelResult = await client.service('channel').find({
+          query: {
+            findTargetId: true,
+            targetObjectType: targetObjectType,
+            targetObjectId: targetObject.id
+          }
+        })
+        dispatch(
+          ChatAction.setChatTarget(
+            targetObjectType,
+            targetObject,
+            targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
+          )
         )
-      )
+      }
     }
   },
   clearChatTargetIfCurrent: async (targetObjectType: string, targetObject: any) => {
@@ -360,7 +375,7 @@ export const ChatService = {
     {
       const chatState = accessChatState().value
       const chatStateTargetObjectType = chatState.targetObjectType
-      const chatStateTargetObjectId = chatState.targetObject.id
+      const chatStateTargetObjectId = chatState.targetObjectId
       if (
         targetObjectType === chatStateTargetObjectType &&
         (targetObject.id === chatStateTargetObjectId ||

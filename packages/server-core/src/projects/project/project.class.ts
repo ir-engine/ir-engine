@@ -2,7 +2,6 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 import fs from 'fs'
 import path from 'path'
 import { isDev } from '@xrengine/common/src/utils/isDev'
@@ -64,22 +63,25 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true) =
   const projectPath = path.resolve(projectsRootFolder, projectName)
   const files = getFilesRecursive(projectPath)
   const results = await Promise.all(
-    files.map((file: string) => {
-      return new Promise(async (resolve) => {
-        try {
-          const fileResult = fs.readFileSync(file)
-          const filePathRelative = file.slice(projectPath.length)
-          await storageProvider.putObject({
-            Body: fileResult,
-            ContentType: getContentType(file),
-            Key: `projects/${projectName}${filePathRelative}`
-          })
-          resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain))
-        } catch (e) {
-          resolve(null)
-        }
+    files
+      .filter((file) => !file.includes(`projects/${projectName}/.git/`))
+      .map((file: string) => {
+        return new Promise(async (resolve) => {
+          try {
+            const fileResult = fs.readFileSync(file)
+            const filePathRelative = file.slice(projectPath.length)
+            await storageProvider.putObject({
+              Body: fileResult,
+              ContentType: getContentType(file),
+              Key: `projects/${projectName}${filePathRelative}`
+            })
+            resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain))
+          } catch (e) {
+            console.log(e)
+            resolve(null)
+          }
+        })
       })
-    })
   )
   // console.log('uploadLocalProjectToProvider', results)
   return results.filter((success) => !!success) as string[]
@@ -92,16 +94,28 @@ export class Project extends Service {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+  }
 
-    if (isDev && !config.db.forceRefresh) {
-      this._fetchDevLocalProjects()
+  async _seedProject(projectName: string): Promise<any> {
+    console.warn('[Projects]: Found new locally installed project', projectName)
+    const projectConfig = (await getProjectConfig(projectName)) ?? {}
+    await super.create({
+      thumbnail: projectConfig.thumbnail,
+      name: projectName,
+      storageProviderPath: getStorageProviderPath(projectName),
+      repositoryPath: getRemoteURLFromGitData(projectName)
+    })
+    // run project install script
+    if (projectConfig.onEvent) {
+      return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
+    return Promise.resolve()
   }
 
   /**
    * On dev, sync the db with any projects installed locally
    */
-  private async _fetchDevLocalProjects() {
+  async _fetchDevLocalProjects() {
     const dbEntries = (await super.find()) as any
     const data: ProjectInterface[] = dbEntries.data
 
@@ -119,18 +133,7 @@ export class Project extends Service {
     for (const projectName of locallyInstalledProjects) {
       if (!data.find((e) => e.name === projectName)) {
         try {
-          console.warn('[Projects]: Found new locally installed project', projectName)
-          const projectConfig = (await getProjectConfig(projectName)) ?? {}
-          await super.create({
-            thumbnail: projectConfig.thumbnail,
-            name: projectName,
-            storageProviderPath: getStorageProviderPath(projectName),
-            repositoryPath: getRemoteURLFromGitData(projectName)
-          })
-          // run project install script
-          if (projectConfig.onEvent) {
-            promises.push(onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall'))
-          }
+          promises.push(this._seedProject(projectName))
         } catch (e) {
           console.log(e)
         }

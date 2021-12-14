@@ -166,5 +166,4 @@ certs/
 
 /packages/client/public/projects/*
 /packages/projects/projects/*
-/packages/client/optimizeDeps.json
 

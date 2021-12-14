@@ -1,13 +1,17 @@
 import React, { Component } from 'react'
 import { InputGroupVerticalContainer, InputGroupVerticalContent, InputGroupContent, InputGroupInfo } from './InputGroup'
 import StringInput from './StringInput'
+import FileBrowserInput from './FileBrowserInput'
 
 export interface ArrayInputGroupProp {
   name?: string
   prefix?: string
+  isStringInput?: boolean
   label?: any
   values?: any
   onChange?: Function
+  acceptFileTypes?: any
+  itemType?: any
 }
 
 export interface ArrayInputGroupState {
@@ -45,7 +49,15 @@ const onChangeText = (text, index, values, onChange) => {
   onChange(values)
 }
 
-export function ArrayInputGroup({ prefix, label, values, onChange }: ArrayInputGroupProp) {
+export function ArrayInputGroup({
+  isStringInput,
+  prefix,
+  label,
+  values,
+  onChange,
+  acceptFileTypes,
+  itemType
+}: ArrayInputGroupProp) {
   let count = 0
   if (values && values.length) count = values.length.toString()
   return (
@@ -68,12 +80,23 @@ export function ArrayInputGroup({ prefix, label, values, onChange }: ArrayInputG
                 <label style={{ width: '30%' }}>
                   {prefix} {index}:
                 </label>
-                <StringInput
-                  value={value}
-                  onChange={(text) => {
-                    onChangeText(text, index, values, onChange)
-                  }}
-                />
+                {isStringInput ? (
+                  <StringInput
+                    value={value}
+                    onChange={(text) => {
+                      onChangeText(text, index, values, onChange)
+                    }}
+                  />
+                ) : (
+                  <FileBrowserInput
+                    value={value}
+                    acceptFileTypes={acceptFileTypes}
+                    acceptDropItems={itemType}
+                    onChange={(text) => {
+                      onChangeText(text, index, values, onChange)
+                    }}
+                  />
+                )}
               </InputGroupContent>
             )
           })}

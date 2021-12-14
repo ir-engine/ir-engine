@@ -1,6 +1,5 @@
 export const userRelationshipTypeSeed = {
   path: 'user-relationship-type',
-  randomize: false,
   templates: [
     { type: 'requested' }, // Default state of relatedUser
     { type: 'friend' },

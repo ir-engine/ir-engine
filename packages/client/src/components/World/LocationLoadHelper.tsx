@@ -71,8 +71,7 @@ const getFirstSpawnPointFromSceneData = (scene: SceneJson) => {
 const createOfflineUser = (sceneData: SceneJson) => {
   const avatarDetail = {
     thumbnailURL: '',
-    avatarURL: '',
-    avatarId: ''
+    avatarURL: ''
   } as any
 
   const spawnPos = getFirstSpawnPointFromSceneData(sceneData)
@@ -89,8 +88,9 @@ const createOfflineUser = (sceneData: SceneJson) => {
   // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
-  dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }) as any)
-  dispatchLocal(NetworkWorldAction.spawnAvatar({ userId, parameters }) as any)
+  dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user' }) as any)
+  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters }) as any)
+  dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }) as any)
 }
 
 export const initEngine = async (initOptions: InitializeOptions) => {

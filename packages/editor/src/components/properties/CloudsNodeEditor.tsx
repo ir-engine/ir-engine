@@ -4,9 +4,9 @@ import InputGroup from '../inputs/InputGroup'
 import ImageInput from '../inputs/ImageInput'
 import Vector3Input from '../inputs/Vector3Input'
 import Vector2Input from '../inputs/Vector2Input'
-import { Cloud } from '@styled-icons/fa-solid/Cloud'
 import { useTranslation } from 'react-i18next'
 import ColorInput from '../inputs/ColorInput'
+import CloudIcon from '@mui/icons-material/Cloud'
 import { CommandManager } from '../../managers/CommandManager'
 
 //declaring properties for CloudsNodeEditor
@@ -90,6 +90,6 @@ export const CloudsNodeEditor = (props: CloudsNodeEditorProps) => {
   )
 }
 
-CloudsNodeEditor.iconComponent = Cloud
+CloudsNodeEditor.iconComponent = CloudIcon
 
 export default CloudsNodeEditor

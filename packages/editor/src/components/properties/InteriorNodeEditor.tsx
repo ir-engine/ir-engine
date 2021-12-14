@@ -3,10 +3,10 @@ import NodeEditor from '../properties/NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ImageInput from '../inputs/ImageInput'
 import Vector2Input from '../inputs/Vector2Input'
-import { City } from '@styled-icons/fa-solid/City'
 import { useTranslation } from 'react-i18next'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
+import LocationCityIcon from '@mui/icons-material/LocationCity'
 
 //declaring properties for InteriorNodeEditor
 type InteriorNodeEditorProps = {
@@ -50,6 +50,6 @@ export const InteriorNodeEditor = (props: InteriorNodeEditorProps) => {
   )
 }
 
-InteriorNodeEditor.iconComponent = City
+InteriorNodeEditor.iconComponent = LocationCityIcon
 
 export default InteriorNodeEditor

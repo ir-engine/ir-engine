@@ -13,6 +13,7 @@ import { MediaStreamService } from '../../media/services/MediaStreamService'
 
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+import { accessInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 //State
 const state = createState({
@@ -32,6 +33,7 @@ const state = createState({
 })
 
 let connectionSocket = null
+const instanceConnectionState = accessInstanceConnectionState()
 
 store.receptors.push((action: ChannelConnectionActionType): any => {
   state.batch((s) => {
@@ -104,7 +106,9 @@ export const ChannelConnectionService = {
       const channelState = chatState.channels
       const channels = channelState.channels.value
       const channelEntries = Object.entries(channels)
-      const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
+      const instanceChannel = channelEntries.find(
+        (entry) => entry[1].instanceId === instanceConnectionState.instance.id.value
+      )
       const channelConnectionState = accessChannelConnectionState().value
       const instance = channelConnectionState.instance
       const locationId = channelConnectionState.locationId
@@ -185,6 +189,7 @@ export const ChannelConnectionAction = {
   channelServerProvisioned: (provisionResult: InstanceServerProvisionResult, channelId?: string | null) => {
     return {
       type: 'CHANNEL_SERVER_PROVISIONED' as const,
+      id: provisionResult.id,
       ipAddress: provisionResult.ipAddress,
       port: provisionResult.port,
       channelId: channelId

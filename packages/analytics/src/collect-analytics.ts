@@ -1,11 +1,11 @@
-import app from './app'
+import { createApp } from './app'
 import config from '@xrengine/server-core/src/appconfig'
 
 const DEFAULT_INTERVAL_SECONDS = 1800
 const configInterval = parseInt(config.analytics.processInterval)
 const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 
-export default (): void => {
+export default (app): void => {
   setInterval(async () => {
     console.log('Collecting analytics at ', new Date().toString())
     const activeLocations = []

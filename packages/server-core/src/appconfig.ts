@@ -70,8 +70,6 @@ const server = {
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER!,
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
   corsServerPort: process.env.CORS_SERVER_PORT!,
-  // Used for CI/tests to force Sequelize init an empty database
-  performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER!,
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
   hub: {
