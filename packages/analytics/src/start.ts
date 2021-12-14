@@ -1,7 +1,6 @@
 import config from '@xrengine/server-core/src/appconfig'
 import { createApp } from './app'
 import logger from '@xrengine/server-core/src/logger'
-import { updateAppConfig } from '@xrengine/server-core/src/updateAppConfig'
 import { Application } from '@xrengine/server-core/declarations'
 import collectAnalytics from './collect-analytics'
 
@@ -10,8 +9,6 @@ process.on('unhandledRejection', (error, promise) => {
 })
 
 export const start = async (): Promise<Application> => {
-  await updateAppConfig()
-
   const app = createApp()
 
   collectAnalytics()

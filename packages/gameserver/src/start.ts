@@ -7,7 +7,6 @@ import { exec } from 'child_process'
 // import preloadLocation from './preload-location'
 import { createApp } from './app'
 import { Application } from '@xrengine/server-core/declarations'
-import { updateAppConfig } from '@xrengine/server-core/src/updateAppConfig'
 
 /**
  * @param status
@@ -17,8 +16,6 @@ process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
 })
 export const start = async (): Promise<Application> => {
-  await updateAppConfig()
-
   const app = createApp()
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'

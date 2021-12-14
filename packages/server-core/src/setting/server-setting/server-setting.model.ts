@@ -64,14 +64,6 @@ export default (app: Application) => {
         type: DataTypes.JSON,
         allowNull: true
       },
-      paginate: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        defaultValue: 10,
-        validate: {
-          max: 100
-        }
-      },
       url: {
         type: DataTypes.STRING,
         allowNull: true

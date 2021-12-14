@@ -24,7 +24,6 @@ const server = {
   hub: JSON.stringify({
     endpoint: process.env.HUB_ENDPOINT
   }),
-  paginate: 100,
   url: '' || (null! as string),
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,

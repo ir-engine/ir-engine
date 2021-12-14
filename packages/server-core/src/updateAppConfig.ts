@@ -21,7 +21,8 @@ export const updateAppConfig = async (): Promise<void> => {
     ...(db as any),
     define: {
       freezeTableName: true
-    }
+    },
+    logging: false
   }) as any
   await sequelizeClient.sync()
 
@@ -497,14 +498,6 @@ export const updateAppConfig = async (): Promise<void> => {
       type: DataTypes.JSON,
       allowNull: true
     },
-    paginate: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      defaultValue: 10,
-      validate: {
-        max: 100
-      }
-    },
     url: {
       type: DataTypes.STRING,
       allowNull: true
@@ -542,7 +535,6 @@ export const updateAppConfig = async (): Promise<void> => {
         performDryRun: dbServer.performDryRun,
         storageProvider: dbServer.storageProvider,
         gaTrackingId: dbServer.gaTrackingId,
-        paginate: dbServer.paginate,
         url: dbServer.url,
         certPath: dbServer.certPath,
         keyPath: dbServer.keyPath,
@@ -550,11 +542,9 @@ export const updateAppConfig = async (): Promise<void> => {
         releaseName: dbServer.releaseName,
         hub: JSON.parse(JSON.parse(dbServer.hub))
       }
-      if (dbServerConfig) {
-        appConfig.server = {
-          ...appConfig.server,
-          ...dbServerConfig
-        }
+      appConfig.server = {
+        ...appConfig.server,
+        ...dbServerConfig
       }
     })
     .catch((e) => {
