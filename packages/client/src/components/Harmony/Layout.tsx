@@ -13,8 +13,8 @@ import { Helmet } from 'react-helmet'
 import React, { Fragment, useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 // import Harmony from '.'
-import LeftDrawer from '../Drawer/Left'
-import RightDrawer from '../Drawer/Right'
+// import LeftDrawer from '../Drawer/Left'
+// import RightDrawer from '../Drawer/Right'
 import Harmony from './Harmony'
 
 declare module '@mui/styles/defaultTheme' {
@@ -118,7 +118,10 @@ const Layout = (props: Props): any => {
             {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
             {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
           </Helmet>
-          <Harmony />
+          {authUser?.accessToken?.value != null &&
+            authUser.accessToken.value.length > 0 &&
+            user?.id?.value != null &&
+            user.id.value.length > 0 && <Harmony />}
           {/* <Harmony
             isHarmonyPage={true}
             setHarmonyOpen={setHarmonyOpen}
@@ -142,7 +145,7 @@ const Layout = (props: Props): any => {
             user?.id?.value != null &&
             user.id.value.length > 0 && (
               <Fragment>
-                <LeftDrawer
+                {/* <LeftDrawer
                   harmony={true}
                   detailsType={detailsType}
                   setDetailsType={setDetailsType}
@@ -161,13 +164,13 @@ const Layout = (props: Props): any => {
                   setLeftDrawerOpen={setLeftDrawerOpen}
                   setRightDrawerOpen={setRightDrawerOpen}
                   setBottomDrawerOpen={setBottomDrawerOpen}
-                />
+                /> */}
               </Fragment>
             )}
           {/* {authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null && ( */}
           <Fragment>
             {/* <InviteHarmony /> */}
-            <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
+            {/* <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} /> */}
           </Fragment>
           {/* )} */}
         </section>
