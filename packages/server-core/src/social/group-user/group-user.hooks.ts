@@ -79,6 +79,33 @@ export default {
           if (groupUserCount.total < 1) {
             await app.service('group').remove(params.query!.groupId, params)
           }
+          if (groupUserCount.total >= 1 && result.groupUserRank === 'owner') {
+            const groupAdminResult = await app.service('group-user').find({
+              query: {
+                groupId: params.query!.groupId,
+                groupUserRank: 'admin'
+              }
+            })
+            if (groupAdminResult.total > 0) {
+              const groupAdmins = groupAdminResult.data
+              const newOwner = groupAdmins[Math.floor(Math.random() * groupAdmins.length)]
+              await app.service('group-user').patch(newOwner.id, {
+                groupUserRank: 'owner'
+              })
+            } else {
+              const groupUserResult = await app.service('group-user').find({
+                query: {
+                  groupId: params.query!.groupId,
+                  groupUserRank: 'user'
+                }
+              })
+              const groupUsers = groupUserResult.data
+              const newOwner = groupUsers[Math.floor(Math.random() * groupUsers.length)]
+              await app.service('group-user').patch(newOwner.id, {
+                groupUserRank: 'owner'
+              })
+            }
+          }
         }
         return context
       }

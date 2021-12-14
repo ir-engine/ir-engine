@@ -373,9 +373,9 @@
             "modelUrl": "__$project$__/default-project/assets/portal_frame.glb",
             "displayText": "Apartment",
             "spawnPosition": {
-              "x": 49.45498515651019,
+              "x": 49.45498515651018,
               "y": 1.979821728775554,
-              "z": -0.008053372554778386
+              "z": -0.008053372554778395
             },
             "spawnRotation": {
               "x": 3.141592653589793,
@@ -1042,6 +1042,71 @@
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 13
+    },
+    "8E515C31-872E-4017-AD92-B03078F3729B": {
+      "name": "Equippable",
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 38.9,
+              "y": 3.1,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 0.10000000000000009,
+              "y": 0.10000000000000009,
+              "z": 0.10000000000000009
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {
+            "visible": true
+          }
+        },
+        {
+          "name": "gltf-model",
+          "props": {
+            "src": "__$project$__/default-project/assets/collisioncube.glb",
+            "textureOverride": "",
+            "matrixAutoUpdate": false,
+            "isUsingGPUInstancing": false,
+            "isDynamicObject": true
+          }
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": false,
+            "receive": false
+          }
+        },
+        {
+          "name": "interact",
+          "props": {
+            "interactable": true,
+            "interactionType": "equippable"
+          }
+        },
+        {
+          "name": "collidable",
+          "props": {}
+        },
+        {
+          "name": "walkable",
+          "props": {}
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 14
     }
   }
 }

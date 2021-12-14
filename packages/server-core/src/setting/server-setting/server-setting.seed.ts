@@ -38,6 +38,5 @@ server.url =
 
 export const serverSeed = {
   path: 'server-setting',
-  randomize: false,
   templates: [server]
 }

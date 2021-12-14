@@ -13,6 +13,7 @@ import { System } from '../../ecs/classes/System'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
+import { isClient } from '../../common/functions/isClient'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -60,25 +61,27 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       }
 
       // Apply material stuff
-      object3DComponent.value.traverse((obj: Mesh) => {
-        const material = obj.material as Material
-        if (typeof material !== 'undefined') material.dithering = true
+      if (isClient) {
+        object3DComponent.value.traverse((obj: Mesh) => {
+          const material = obj.material as Material
+          if (typeof material !== 'undefined') material.dithering = true
 
-        if (shadowComponent) {
-          obj.receiveShadow = shadowComponent.receiveShadow
-          obj.castShadow = shadowComponent.castShadow
-        }
+          if (shadowComponent) {
+            obj.receiveShadow = shadowComponent.receiveShadow
+            obj.castShadow = shadowComponent.castShadow
+          }
 
-        if (Engine.simpleMaterials) {
-          // || Engine.isHMD) {
-          useSimpleMaterial(obj)
-        } else {
-          useStandardMaterial(obj)
-        }
-      })
+          if (Engine.simpleMaterials) {
+            // || Engine.isHMD) {
+            useSimpleMaterial(obj)
+          } else {
+            useStandardMaterial(obj)
+          }
+        })
 
-      // Generate BVH
-      object3DComponent.value.traverse(generateMeshBVH)
+        // Generate BVH
+        object3DComponent.value.traverse(generateMeshBVH)
+      }
     }
 
     for (const entity of sceneObjectQuery.exit()) {

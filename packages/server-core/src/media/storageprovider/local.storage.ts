@@ -13,8 +13,6 @@ import {
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 import { getContentType } from '../../util/fileUtils'
 
-const keyPathRegex = /([a-zA-Z0-9/_-]+)\/[a-zA-Z0-9]+.[a-zA-Z0-9]+/
-
 export class LocalStorage implements StorageProviderInterface {
   path = './upload'
   cacheDomain = config.server.localStorageProvider
@@ -53,7 +51,7 @@ export class LocalStorage implements StorageProviderInterface {
 
   putObject = async (params: StorageObjectInterface): Promise<any> => {
     const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, params.Key!)
-    const pathWithoutFileExec = keyPathRegex.exec(filePath)
+    const pathWithoutFile = path.dirname(filePath)
     if (filePath.substr(-1) === '/') {
       if (!fs.existsSync(filePath)) {
         await fs.promises.mkdir(filePath, { recursive: true })
@@ -61,8 +59,7 @@ export class LocalStorage implements StorageProviderInterface {
       }
       return false
     }
-    if (pathWithoutFileExec == null) throw new Error('Invalid file path in local putObject')
-    const pathWithoutFile = pathWithoutFileExec[1]
+    if (pathWithoutFile == null) throw new Error('Invalid file path in local putObject')
     const pathWithoutFileExists = fs.existsSync(pathWithoutFile)
     if (!pathWithoutFileExists) await fs.promises.mkdir(pathWithoutFile, { recursive: true })
     return fs.promises.writeFile(filePath, params.Body)

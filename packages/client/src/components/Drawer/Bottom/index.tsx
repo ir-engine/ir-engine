@@ -35,6 +35,7 @@ const BottomDrawer = (props: Props): any => {
   const channelState = chatState.channels
   const channels = channelState.channels
   const targetObject = chatState.targetObject
+  const targetObjectId = chatState.targetObjectId
   const targetObjectType = chatState.targetObjectType
   const targetChannelId = chatState.targetChannelId.value
   const messageScrollInit = chatState.messageScrollInit
@@ -107,7 +108,7 @@ const BottomDrawer = (props: Props): any => {
   const packageMessage = (event: any): void => {
     if (composingMessage.length > 0) {
       ChatService.createMessage({
-        targetObjectId: targetObject.id.value,
+        targetObjectId: targetObjectId.value,
         targetObjectType: targetObjectType.value,
         text: composingMessage
       })
@@ -395,7 +396,7 @@ const BottomDrawer = (props: Props): any => {
                       </ListItem>
                     )
                   })}
-              {targetChannelId.length === 0 && targetObject.value.id != null && (
+              {targetChannelId.length === 0 && targetObjectId.value != null && (
                 <div className={styles['first-message-placeholder']}>
                   <div>{targetChannelId}</div>
                   Start a chat with{' '}
@@ -407,7 +408,7 @@ const BottomDrawer = (props: Props): any => {
                 </div>
               )}
             </List>
-            {targetObject != null && targetObject.value.id != null && (
+            {targetObjectId != null && (
               <div className={styles['flex-center']}>
                 <div className={styles['chat-box']}>
                   <TextField
