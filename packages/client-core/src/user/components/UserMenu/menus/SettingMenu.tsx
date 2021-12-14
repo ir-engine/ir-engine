@@ -81,7 +81,7 @@ const SettingMenu = (props: any): JSX.Element => {
               step={0.125}
             />
           </div>
-          <div className={`${styles.row} ${styles.flexWrap}`}>
+          <div className={`${styles.row} ${styles.FlexWrap}`}>
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={props.graphics.postProcessing} size="small" />}
