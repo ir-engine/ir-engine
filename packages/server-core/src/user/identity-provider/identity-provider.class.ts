@@ -157,11 +157,11 @@ export class IdentityProvider extends Service {
     // DRC
     try {
       if (result.user.userRole !== 'guest') {
-        var response = await axios.post(`${config.blockchain.blockchainUrl}/authorizeServer`, {
+        const response = await axios.post(`${config.blockchain.blockchainUrl}/authorizeServer`, {
           authSecretKey: config.blockchain.blockchainUrlSecret
         })
-        var accessToken = response.data.accessToken
-        var walletData = await axios.post(
+        const accessToken = response.data.accessToken
+        const walletData = await axios.post(
           `${config.blockchain.blockchainUrl}/user-wallet-data`,
           {
             userId: result.id

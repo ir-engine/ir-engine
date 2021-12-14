@@ -16,14 +16,14 @@ export default {
       async (context: HookContext): Promise<HookContext> => {
         if (context.data.type === 'transfer') {
           let { privateKey, fromUserAddress, toUserAddress, quantity, walletAmt } = context.data
-          var response = await axios.post(`${config.blockchain.blockchainUrl}/authorizeServer`, {
+          const response = await axios.post(`${config.blockchain.blockchainUrl}/authorizeServer`, {
             authSecretKey: config.blockchain.blockchainUrlSecret
           })
           // KEEP TOKEN
-          var accessToken = response.data.accessToken
+          const accessToken = response.data.accessToken
 
           // CALL WALLET API WITH HEADER SETUP
-          var walletData = await axios.post(
+          const walletData = await axios.post(
             `${config.blockchain.blockchainUrl}/wallet/send`,
             {
               privateKey: privateKey,
@@ -38,7 +38,6 @@ export default {
             }
           )
           // PUSH WALLET API DATA TO MODEL
-          //context.data = walletData.data
         }
         return context
       }
