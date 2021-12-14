@@ -15,12 +15,11 @@ import { useChatState } from '@xrengine/client-core/src/social/services/ChatServ
 import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { ChannelConnectionService } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
-import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 interface Props {
   locationName: string
@@ -118,14 +117,13 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       ;(Network.instance.transport as SocketWebRTCClientTransport)
         .instanceRequest(MessageTypes.JoinWorld.toString(), { spawnTransform })
         .then(() => {
-          dispatch(EngineAction.setJoinedWorld(true))
+          dispatchLocal(EngineActions.joinedWorld(true) as any)
         })
     }
   }, [engineState.connectedWorld.value, engineState.sceneLoaded.value])
 
   useEffect(() => {
     if (engineState.joinedWorld.value) {
-      dispatchLocal(EngineActions.joinedWorld() as any)
       dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
       dispatch(AppAction.setAppLoaded(true))
     }

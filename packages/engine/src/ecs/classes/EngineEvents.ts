@@ -6,7 +6,8 @@
 const EVENTS = {
   // TODO: add doc formatting to these
   SCENE_LOADED: 'CORE_SCENE_LOADED' as const, // { }
-
+  LOADING_PROGRESS: 'ENGINE_LOADING_PROGRESS' as const,
+  SET_TELEPORTING: 'ENGINE_SET_TELEPORTING' as const,
   // INITALIZATION
   RESET_ENGINE: 'CORE_RESET_ENGINE' as const,
   INITIALIZED_ENGINE: 'CORE_INITIALIZED_ENGINE' as const, // { }

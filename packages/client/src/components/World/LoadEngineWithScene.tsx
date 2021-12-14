@@ -6,8 +6,9 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 import { initEngine, loadLocation, teleportToLocation } from './LocationLoadHelper'
-import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -66,7 +67,7 @@ export const LoadEngineWithScene = (props: Props) => {
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value && engineState.isInitialised.value) {
       console.log('init', locationState.currentLocation.location.sceneId.value)
-      dispatch(EngineAction.setTeleporting(null!))
+      dispatchLocal(EngineActions.setTeleporting(null!) as any)
       loadLocation(locationState.currentLocation.location.sceneId.value)
     }
   }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
@@ -75,8 +76,7 @@ export const LoadEngineWithScene = (props: Props) => {
     const slugifiedName = locationState.currentLocation.location.slugifiedName.value
 
     teleportToLocation(portalComponent, slugifiedName, () => {
-      dispatch(EngineAction.setTeleporting(portalComponent))
-
+      dispatchLocal(EngineActions.setTeleporting(portalComponent) as any)
       // change our browser URL
       history.push('/location/' + portalComponent.location)
     })

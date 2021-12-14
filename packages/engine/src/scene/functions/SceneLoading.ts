@@ -91,7 +91,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
 
   Engine.sceneLoaded = true
   createCSM()
-  dispatchLocal(EngineActions.sceneLoaded() as any)
+  dispatchLocal(EngineActions.sceneLoaded(true) as any)
 }
 
 /**

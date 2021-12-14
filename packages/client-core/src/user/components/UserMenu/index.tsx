@@ -22,7 +22,7 @@ import CreateLocationMenu from './menus/CreateLocationMenu'
 import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
 import EmoteMenu from './menus//EmoteMenu'
-import { useEngineState } from '../../../world/services/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 type StateType = {
   currentActiveMenu: any

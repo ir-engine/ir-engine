@@ -32,9 +32,8 @@ import {
 } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const MediaIconsBox = (props) => {
   const [xrSupported, setXRSupported] = useState(false)

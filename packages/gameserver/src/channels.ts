@@ -65,7 +65,7 @@ const createNewInstance = async (app: Application, newInstance, locationId, chan
     newInstance.channelId = channelId
     //While there's no scene, this will still signal that the engine is ready
     //to handle events, particularly for NetworkFunctions:handleConnectToWorld
-    dispatchLocal(EngineActions.sceneLoaded() as any)
+    dispatchLocal(EngineActions.sceneLoaded(true) as any)
   } else {
     console.log('locationId: ' + locationId)
     newInstance.locationId = locationId

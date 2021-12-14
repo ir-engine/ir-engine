@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { OpenLink } from '../OpenLink'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { useEngineState } from '../../services/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const ModelView = React.lazy(() => import('./modelView'))
 

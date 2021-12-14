@@ -20,8 +20,6 @@ import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MediaStreamService } from '../media/services/MediaStreamService'
-import { EngineAction } from '../world/services/EngineService'
-import { useDispatch } from '../store'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 // import { encode, decode } from 'msgpackr'
@@ -210,11 +208,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         return
       }
       const { connectedClients, routerRtpCapabilities } = ConnectToWorldResponse as any
-      dispatchLocal(EngineActions.connectToWorld(connectedClients, instance) as any)
-      if ((socket as any).instance) {
-        const dispatch = useDispatch()
-        dispatch(EngineAction.setConnectedWorld(true))
-      }
+      dispatchLocal(EngineActions.connectToWorld(connectedClients, instance, (socket as any).instance) as any)
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {

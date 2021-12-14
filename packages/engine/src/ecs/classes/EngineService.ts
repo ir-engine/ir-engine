@@ -1,9 +1,16 @@
 import { createState, useState } from '@hookstate/core'
 import { InteractionData } from '../../interaction/types/InteractionTypes'
-import { PortalComponentType } from '../../scene/components/PortalComponent'
+import { PortalComponent, PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
 
 const state = createState({
+  isInitialised: false,
+  sceneLoaded: false,
+  joinedWorld: false,
+  loadingProgress: -1,
+  connectedWorld: false,
+  isTeleporting: null! as ReturnType<typeof PortalComponent.get>,
+
   isPhysicsDebug: false,
   isAvatarDebug: false
 })
@@ -24,6 +31,28 @@ function stateReceptor(action: EngineActionType) {
       case EngineEvents.EVENTS.AVATAR_DEBUG:
         return s.merge({
           isAvatarDebug: action.isAvatarDebug
+        })
+
+      case EngineEvents.EVENTS.INITIALIZED_ENGINE:
+        return s.merge({ isInitialised: action.initialised })
+      case EngineEvents.EVENTS.SCENE_LOADED:
+        return s.merge({ sceneLoaded: action.sceneLoaded })
+      case EngineEvents.EVENTS.JOINED_WORLD:
+        return s.merge({ joinedWorld: action.joinedWorld })
+      case EngineEvents.EVENTS.LOADING_PROGRESS:
+        return s.merge({ loadingProgress: action.count })
+      case EngineEvents.EVENTS.CONNECT_TO_WORLD:
+        return s.merge({ connectedWorld: action.connectedWorld })
+      case EngineEvents.EVENTS.SET_TELEPORTING:
+        if (action.portalComponent) {
+          s.merge({
+            connectedWorld: false,
+            sceneLoaded: false,
+            joinedWorld: false
+          })
+        }
+        return s.merge({
+          isTeleporting: action.portalComponent
         })
     }
   }, action.type)
@@ -170,22 +199,37 @@ function callbackReceptor(action: EngineActionType) {
 export const useEngineState = () => useState(state) as any as typeof state
 
 export const EngineActions = {
+  loadingProgress: (count: number) => {
+    return {
+      type: EngineEvents.EVENTS.LOADING_PROGRESS,
+      count
+    }
+  },
+
+  setTeleporting: (portalComponent: ReturnType<typeof PortalComponent.get>) => {
+    return {
+      type: EngineEvents.EVENTS.SET_TELEPORTING,
+      portalComponent
+    }
+  },
   resetEngine: (instance: any) => {
     return {
       type: EngineEvents.EVENTS.RESET_ENGINE,
       instance
     }
   },
-  initializeEngine: () => {
+  initializeEngine: (initialised: boolean) => {
     return {
-      type: EngineEvents.EVENTS.INITIALIZED_ENGINE
+      type: EngineEvents.EVENTS.INITIALIZED_ENGINE,
+      initialised
     }
   },
-  connectToWorld: (connectedClients: any, instance: boolean) => {
+  connectToWorld: (connectedClients: any, instance: boolean, connectedWorld: boolean) => {
     return {
       type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
       connectedClients,
-      instance
+      instance,
+      connectedWorld
     }
   },
   connectToWorldTimeout: (instance: boolean) => {
@@ -194,9 +238,10 @@ export const EngineActions = {
       instance
     }
   },
-  joinedWorld: () => {
+  joinedWorld: (joinedWorld: boolean) => {
     return {
-      type: EngineEvents.EVENTS.JOINED_WORLD
+      type: EngineEvents.EVENTS.JOINED_WORLD,
+      joinedWorld
     }
   },
   leaveWorld: () => {
@@ -204,9 +249,10 @@ export const EngineActions = {
       type: EngineEvents.EVENTS.LEAVE_WORLD
     }
   },
-  sceneLoaded: () => {
+  sceneLoaded: (sceneLoaded: boolean) => {
     return {
-      type: EngineEvents.EVENTS.SCENE_LOADED
+      type: EngineEvents.EVENTS.SCENE_LOADED,
+      sceneLoaded
     }
   },
   sceneEntityLoaded: (entitiesLeft: number) => {
