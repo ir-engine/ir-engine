@@ -13,13 +13,8 @@ import { store, useDispatch } from '../../store'
 import { v1 } from 'uuid'
 import { client } from '../../feathers'
 import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src/config'
-import { UserAction } from './UserService'
-import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
-import { hasComponent, addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
-import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
@@ -36,6 +31,9 @@ import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
 import { AssetUploadArguments } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+import { userPatched } from '../functions/userPatched'
+import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 
 type AuthStrategies = {
   jwt: Boolean
@@ -122,6 +120,9 @@ store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
       }
       case 'USER_UPDATED': {
         return s.merge({ user: action.user })
+      }
+      case 'USER_PATCHED': {
+        return userPatched(action.params)
       }
       case 'UPDATE_USER_SETTINGS': {
         return s.user.merge({ user_setting: action.data })
@@ -311,7 +312,7 @@ export const AuthService = {
         const oldId = accessAuthState().user.id.value
         walletUser.id = oldId
 
-        loadXRAvatarForUpdatedUser(walletUser)
+        // loadXRAvatarForUpdatedUser(walletUser) // TODO
         dispatch(AuthAction.loadedUserData(walletUser))
       } catch (err) {
         dispatch(AuthAction.loginUserError('Failed to login'))
@@ -689,6 +690,11 @@ export const AuthService = {
         .patch(selfUser.id.value, { avatarId: avatarName })
         .then((_) => {
           AlertService.dispatchAlertSuccess('Avatar Uploaded Successfully.')
+          dispatchFrom(Engine.userId, () =>
+            NetworkWorldAction.avatarDetails({
+              avatarDetail: response
+            })
+          ).cache({ removePrevious: true })
           if (Network?.instance?.transport)
             (Network.instance.transport as any).sendNetworkStatUpdateMessage({
               type: MessageTypes.AvatarUpdated,
@@ -756,6 +762,14 @@ export const AuthService = {
         .then((res: any) => {
           // dispatchAlertSuccess(dispatch, 'User Avatar updated');
           dispatch(AuthAction.userAvatarIdUpdated(res))
+          dispatchFrom(Engine.userId, () =>
+            NetworkWorldAction.avatarDetails({
+              avatarDetail: {
+                avatarURL,
+                thumbnailURL
+              }
+            })
+          ).cache({ removePrevious: true })
           if (Network?.instance?.transport)
             (Network.instance.transport as any).sendNetworkStatUpdateMessage({
               type: MessageTypes.AvatarUpdated,
@@ -792,146 +806,8 @@ const parseUserWalletCredentials = (wallet) => {
   }
 }
 
-const getAvatarResources = (user) => {
-  return client.service('static-resource').find({
-    query: {
-      name: user.avatarId,
-      staticResourceType: { $in: ['user-thumbnail', 'avatar'] },
-      $or: [{ userId: null }, { userId: user.id }],
-      $sort: {
-        userId: -1
-      },
-      $limit: 2
-    }
-  })
-}
-
-const loadAvatarForUpdatedUser = async (user) => {
-  if (user.instanceId == null && user.channelInstanceId == null) return Promise.resolve(true)
-
-  const world = useWorld()
-
-  return new Promise(async (resolve) => {
-    const networkUser = world?.clients?.get(user.id)
-
-    // If network is not initialized then wait to be initialized.
-    if (!networkUser) {
-      setTimeout(async () => {
-        await loadAvatarForUpdatedUser(user)
-        resolve(true)
-      }, 200)
-      return
-    }
-
-    if (networkUser?.avatarDetail?.avatarURL === user.avatarURL) {
-      resolve(true)
-      return
-    }
-
-    // Fetch Avatar Resources for updated user.
-    const avatars = await getAvatarResources(user)
-
-    if (avatars?.data && avatars.data.length === 2) {
-      const avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url
-      const thumbnailURL =
-        avatars?.data[0].staticResourceType === 'user-thumbnail' ? avatars?.data[0].url : avatars?.data[1].url
-
-      networkUser.avatarDetail = { avatarURL, thumbnailURL }
-
-      //Find entityId from network objects of updated user and dispatch avatar load event.
-      const world = Engine.currentWorld
-      const userEntity = world.getUserAvatarEntity(user.id)
-      setAvatar(userEntity, avatarURL)
-    } else {
-      await loadAvatarForUpdatedUser(user)
-    }
-    resolve(true)
-  })
-}
-
-const loadXRAvatarForUpdatedUser = async (user) => {
-  if (!user || !user.id) Promise.resolve(true)
-
-  return new Promise(async (resolve) => {
-    const networkUser = Engine.currentWorld.clients.get(user.id)
-
-    // If network is not initialized then wait to be initialized.
-    if (!networkUser) {
-      setTimeout(async () => {
-        await loadAvatarForUpdatedUser(user)
-        resolve(true)
-      }, 200)
-      return
-    }
-
-    const avatarURL = user.avatarUrl
-    const thumbnailURL = user.avatarUrl
-
-    networkUser.avatarDetail = { avatarURL, thumbnailURL }
-
-    //Find entityId from network objects of updated user and dispatch avatar load event.
-    const world = Engine.currentWorld
-    const userEntity = world.getUserAvatarEntity(user.id)
-    setAvatar(userEntity, avatarURL)
-    resolve(true)
-  })
-}
-
 if (!Config.publicRuntimeConfig.offlineMode) {
-  client.service('user').on('patched', async (params) => {
-    const selfUser = accessAuthState().user
-    const user = resolveUser(params.userRelationship)
-
-    console.log('User patched', user)
-    await loadAvatarForUpdatedUser(user)
-    _updateUsername(user.id, user.name)
-
-    const eid = getEid(user.id)
-    console.log('adding username component to user: ' + user.name + ' eid: ' + eid)
-    if (eid !== undefined) {
-      if (!hasComponent(eid, UserNameComponent)) {
-        addComponent(eid, UserNameComponent, { username: user.name })
-      } else {
-        getComponent(eid, UserNameComponent).username = user.name
-      }
-    }
-
-    if (selfUser.id.value === user.id) {
-      if (selfUser.instanceId.value !== user.instanceId) store.dispatch(UserAction.clearLayerUsers())
-      if (selfUser.channelInstanceId.value !== user.channelInstanceId)
-        store.dispatch(UserAction.clearChannelLayerUsers())
-      store.dispatch(AuthAction.userUpdated(user))
-      if (user.partyId) {
-        // setRelationship('party', user.partyId);
-      }
-      if (user.instanceId !== selfUser.instanceId.value) {
-        const parsed = new URL(window.location.href)
-        let query = parsed.searchParams
-        query.set('instanceId', user?.instanceId || '')
-        parsed.search = query.toString()
-
-        if (typeof history.pushState !== 'undefined') {
-          window.history.replaceState({}, '', parsed.toString())
-        }
-      }
-      const world = Engine.currentWorld
-      if (typeof world.localClientEntity !== 'undefined') {
-      }
-    } else {
-      if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId.value)
-        store.dispatch(UserAction.addedChannelLayerUser(user))
-      if (user.instanceId != null && user.instanceId === selfUser.instanceId.value) {
-        store.dispatch(UserAction.addedLayerUser(user))
-        store.dispatch(UserAction.displayUserToast(user, { userAdded: true }))
-      }
-      if (user.instanceId !== selfUser.instanceId.value) {
-        store.dispatch(UserAction.removedLayerUser(user))
-        store.dispatch(UserAction.displayUserToast(user, { userRemoved: true }))
-      }
-      if (user.channelInstanceId !== selfUser.channelInstanceId.value)
-        store.dispatch(UserAction.removedChannelLayerUser(user))
-    }
-  })
+  client.service('user').on('patched', (params) => useDispatch()(AuthAction.userPatched(params)))
   client.service('location-ban').on('created', async (params) => {
     const selfUser = accessAuthState().user
     const party = accessPartyState().party.value
@@ -1096,6 +972,12 @@ export const AuthAction = {
     return {
       type: 'USERAVATARID_UPDATED' as const,
       avatarId
+    }
+  },
+  userPatched: (params: any) => {
+    return {
+      type: 'USER_PATCHED' as const,
+      params
     }
   },
   userUpdated: (user: User) => {

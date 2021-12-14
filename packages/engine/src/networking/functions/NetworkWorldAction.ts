@@ -7,17 +7,16 @@ import {
   matchesVector3,
   matchesWithInitializer
 } from '../interfaces/Action'
-import { Network } from '../classes/Network'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 import { matchesWeightsParameters } from '../../avatar/animations/Util'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export class NetworkWorldAction {
   static createClient = defineActionCreator({
     type: 'network.CREATE_CLIENT',
     userId: matchesUserId,
-    name: matches.string,
-    avatarDetail: matchesAvatarProps
+    name: matches.string
   })
 
   static destroyClient = defineActionCreator({
@@ -25,28 +24,19 @@ export class NetworkWorldAction {
     userId: matchesUserId
   })
 
-  static setXRMode = defineActionCreator(
-    {
-      type: 'network.SET_XR_MODE',
-      userId: matchesUserId,
-      enabled: matches.boolean
-    },
-    { allowDispatchFromAny: true }
-  )
+  static setXRMode = defineActionCreator({
+    type: 'network.SET_XR_MODE',
+    enabled: matches.boolean
+  })
 
-  static xrHandsConnected = defineActionCreator(
-    {
-      type: 'network.XR_HANDS_CONNECTED',
-      userId: matchesUserId
-    },
-    { allowDispatchFromAny: true }
-  )
+  static xrHandsConnected = defineActionCreator({
+    type: 'network.XR_HANDS_CONNECTED'
+  })
 
   static spawnObject = defineActionCreator({
     type: 'network.SPAWN_OBJECT',
-    userId: matchesUserId,
     prefab: matches.string,
-    networkId: matchesWithInitializer(matchesNetworkId, () => Network.getNetworkId()),
+    networkId: matchesWithInitializer(matchesNetworkId, () => useWorld().createNetworkId()),
     parameters: matches.any.optional()
   })
 
@@ -64,32 +54,33 @@ export class NetworkWorldAction {
     networkId: matchesNetworkId
   })
 
-  static setEquippedObject = defineActionCreator(
-    {
-      type: 'network.SET_EQUIPPED_OBJECT',
-      userId: matchesUserId,
-      networkId: matchesNetworkId,
-      equip: matches.boolean,
-      attachmentPoint: matches.number
-    },
-    { allowDispatchFromAny: true }
-  )
+  static setEquippedObject = defineActionCreator({
+    type: 'network.SET_EQUIPPED_OBJECT',
+    object: matches.shape({
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
+    }),
+    equip: matches.boolean,
+    attachmentPoint: matches.number
+  })
 
-  static avatarAnimation = defineActionCreator(
-    {
-      type: 'network.AVATAR_ANIMATION',
-      newStateName: matches.string,
-      params: matchesWeightsParameters
-    },
-    { allowDispatchFromAny: true }
-  )
+  static avatarAnimation = defineActionCreator({
+    type: 'network.AVATAR_ANIMATION',
+    newStateName: matches.string,
+    params: matchesWeightsParameters
+  })
 
-  static teleportObject = defineActionCreator(
-    {
-      type: 'network.TELEPORT_OBJECT',
-      networkId: matchesNetworkId,
-      pose: matchPose
-    },
-    { allowDispatchFromAny: true }
-  )
+  static avatarDetails = defineActionCreator({
+    type: 'network.AVATAR_DETAILS',
+    avatarDetail: matchesAvatarProps
+  })
+
+  static teleportObject = defineActionCreator({
+    type: 'network.TELEPORT_OBJECT',
+    object: matches.shape({
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
+    }),
+    pose: matchPose
+  })
 }
