@@ -1,7 +1,6 @@
 import config from '../../appconfig'
 
 export const locationSettingsSeed = {
-  randomize: false,
   path: 'location-settings',
   templates: [
     {

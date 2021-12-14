@@ -224,10 +224,9 @@ export const EngineActions = {
       initialised
     }
   },
-  connectToWorld: (connectedClients: any, instance: boolean, connectedWorld: boolean) => {
+  connectToWorld: (instance: boolean, connectedWorld: boolean) => {
     return {
       type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-      connectedClients,
       instance,
       connectedWorld
     }

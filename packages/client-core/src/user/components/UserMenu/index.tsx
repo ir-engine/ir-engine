@@ -23,6 +23,9 @@ import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
 import EmoteMenu from './menus//EmoteMenu'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 
 type StateType = {
   currentActiveMenu: any
@@ -88,6 +91,7 @@ const UserMenu = (props: UserMenuProps): any => {
   }, [engineState.isInitialised.value])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
+    if (hasComponent(useWorld().localClientEntity, AvatarEffectComponent)) return
     if (selfUser?.value) {
       AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL)
     }

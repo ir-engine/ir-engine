@@ -21,6 +21,7 @@ export const Debug = () => {
     window.addEventListener('keypress', (ev) => {
       if (ev.key === 'p') {
         togglePhysicsDebug()
+        toggleAvatarDebug()
       }
     })
   }
@@ -61,7 +62,6 @@ export const Debug = () => {
       await transport.instanceSocket.disconnect()
     if (transport.channelSocket && typeof transport.channelSocket.disconnect === 'function')
       await transport.channelSocket.disconnect()
-
     dispatchLocal(EngineActions.setAvatarDebug(false) as any)
     dispatchLocal(EngineActions.setPhysicsDebug(false) as any)
     shutdownEngine()

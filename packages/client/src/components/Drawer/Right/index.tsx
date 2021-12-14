@@ -222,7 +222,7 @@ const Invites = (props: Props): any => {
 
   const nextFriendsPage = (): void => {
     if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
-      FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value)
+      FriendService.getFriends(friendSubState.skip.value + friendSubState.limit.value)
     }
   }
 

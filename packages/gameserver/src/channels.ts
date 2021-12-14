@@ -13,9 +13,10 @@ import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { getSystemsFromSceneData } from '@xrengine/projects/loader'
-import { initializeServerEngine } from './initializeServerEngine'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 
 const loadScene = async (app: Application, scene: string) => {
   const [projectName, sceneName] = scene.split('/')
@@ -24,7 +25,14 @@ const loadScene = async (app: Application, scene: string) => {
   const sceneData = sceneResult.data.scene as any // SceneData
   const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
-  if (!Engine.isInitialized) await initializeServerEngine(systems, app.isChannelInstance)
+  if (!Engine.isInitialized) {
+    const options: InitializeOptions = {
+      type: app.isChannelInstance ? EngineSystemPresets.MEDIA : EngineSystemPresets.SERVER,
+      publicPath: config.client.url,
+      systems
+    }
+    await initializeEngine(options)
+  }
   console.log('Initialized new gameserver instance')
 
   let entitiesLeft = -1
@@ -46,7 +54,7 @@ const loadScene = async (app: Application, scene: string) => {
 
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
-  dispatchLocal(EngineActions.joinedWorld() as any)
+  dispatchLocal(EngineActions.joinedWorld(true) as any)
   const portals = getAllComponentsOfType(PortalComponent)
   // await Promise.all(
   //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {

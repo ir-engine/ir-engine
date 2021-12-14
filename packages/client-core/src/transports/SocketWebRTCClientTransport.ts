@@ -207,8 +207,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         dispatchLocal(EngineActions.connectToWorldTimeout(instance) as any)
         return
       }
-      const { connectedClients, routerRtpCapabilities } = ConnectToWorldResponse as any
-      dispatchLocal(EngineActions.connectToWorld(connectedClients, instance, (socket as any).instance) as any)
+      const { routerRtpCapabilities } = ConnectToWorldResponse as any
+      dispatchLocal(EngineActions.connectToWorld(instance, (socket as any).instance) as any)
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {

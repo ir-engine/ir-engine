@@ -213,53 +213,53 @@ const Layout = (props: Props): any => {
                 <Alerts />
                 {children}
               </Fragment>
-              {authUser?.accessToken?.value != null &&
-                authUser.accessToken.value.length > 0 &&
-                user?.id?.value != null &&
-                user.id.value.length > 0 && (
-                  <Fragment>
-                    <LeftDrawer
-                      harmony={true}
-                      detailsType={detailsType}
-                      setDetailsType={setDetailsType}
-                      groupFormOpen={groupFormOpen}
-                      setGroupFormOpen={setGroupFormOpen}
-                      groupFormMode={groupFormMode}
-                      setGroupFormMode={setGroupFormMode}
-                      groupForm={groupForm}
-                      setGroupForm={setGroupForm}
-                      selectedUser={selectedUser}
-                      setSelectedUser={setSelectedUser}
-                      selectedGroup={selectedGroup}
-                      setSelectedGroup={setSelectedGroup}
-                      openBottomDrawer={bottomDrawerOpen}
-                      leftDrawerOpen={leftDrawerOpen}
-                      setLeftDrawerOpen={setLeftDrawerOpen}
-                      setRightDrawerOpen={setRightDrawerOpen}
-                      setBottomDrawerOpen={setBottomDrawerOpen}
-                    />
-                  </Fragment>
-                )}
-              {authUser?.accessToken?.value != null &&
-                authUser.accessToken.value.length > 0 &&
-                user?.id?.value != null &&
-                user.id.value.length > 0 && (
-                  <Fragment>
-                    <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
-                  </Fragment>
-                )}
+              {/*{authUser?.accessToken?.value != null &&*/}
+              {/*  authUser.accessToken.value.length > 0 &&*/}
+              {/*  user?.id?.value != null &&*/}
+              {/*  user.id.value.length > 0 && (*/}
+              {/*    <Fragment>*/}
+              {/*      <LeftDrawer*/}
+              {/*        harmony={true}*/}
+              {/*        detailsType={detailsType}*/}
+              {/*        setDetailsType={setDetailsType}*/}
+              {/*        groupFormOpen={groupFormOpen}*/}
+              {/*        setGroupFormOpen={setGroupFormOpen}*/}
+              {/*        groupFormMode={groupFormMode}*/}
+              {/*        setGroupFormMode={setGroupFormMode}*/}
+              {/*        groupForm={groupForm}*/}
+              {/*        setGroupForm={setGroupForm}*/}
+              {/*        selectedUser={selectedUser}*/}
+              {/*        setSelectedUser={setSelectedUser}*/}
+              {/*        selectedGroup={selectedGroup}*/}
+              {/*        setSelectedGroup={setSelectedGroup}*/}
+              {/*        openBottomDrawer={bottomDrawerOpen}*/}
+              {/*        leftDrawerOpen={leftDrawerOpen}*/}
+              {/*        setLeftDrawerOpen={setLeftDrawerOpen}*/}
+              {/*        setRightDrawerOpen={setRightDrawerOpen}*/}
+              {/*        setBottomDrawerOpen={setBottomDrawerOpen}*/}
+              {/*      />*/}
+              {/*    </Fragment>*/}
+              {/*  )}*/}
+              {/*{authUser?.accessToken?.value != null &&*/}
+              {/*  authUser.accessToken.value.length > 0 &&*/}
+              {/*  user?.id?.value != null &&*/}
+              {/*  user.id.value.length > 0 && (*/}
+              {/*    <Fragment>*/}
+              {/*      <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />*/}
+              {/*    </Fragment>*/}
+              {/*  )}*/}
               {/*{authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&*/}
               {/*  <Fragment>*/}
               {/*    <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} />*/}
               {/*  </Fragment>*/}
               {/*}*/}
-              <footer>
-                {user?.userRole.value !== 'guest' && props.harmonyOpen === false && (
-                  <div className={styles['harmony-toggle']} onClick={() => openHarmony()}>
-                    <Forum />
-                  </div>
-                )}
-              </footer>
+              {/*<footer>*/}
+              {/*  {user?.userRole.value !== 'guest' && props.harmonyOpen === false && (*/}
+              {/*    <div className={styles['harmony-toggle']} onClick={() => openHarmony()}>*/}
+              {/*      <Forum />*/}
+              {/*    </div>*/}
+              {/*  )}*/}
+              {/*</footer>*/}
             </section>
           </ThemeProvider>
         </StyledEngineProvider>

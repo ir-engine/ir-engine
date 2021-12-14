@@ -280,6 +280,7 @@ declare namespace PhysX {
     constructor()
   }
   class PxTriangleMeshGeometry extends PxGeometry {
+    constructor()
     constructor(mesh: PxTriangleMesh, meshScale: PxMeshScale, flags: PxMeshGeometryFlags)
     getTriangleMesh(): PxTriangleMesh
     setScale(scale: PxMeshScale): void
