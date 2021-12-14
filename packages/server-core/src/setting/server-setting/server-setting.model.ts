@@ -77,7 +77,7 @@ export default (app: Application) => {
         allowNull: true
       },
       gitPem: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(2048),
         allowNull: true
       },
       local: {

@@ -82,25 +82,37 @@ const UploadProjectModal = (props: Props): any => {
             {processing === false && createOrPatch === 'patch' && (
               <FormControl>
                 <div className={styles.inputConatiner}>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={projectURL}
-                    fullWidth
-                    displayEmpty
-                    onChange={(e) => setProjectURL(e.target.value)}
-                    name="projectURL"
-                  >
-                    <MenuItem value="" disabled>
-                      <em>Select Project</em>
-                    </MenuItem>
-                    {repos.length != 0 &&
-                      repos.map((el: any, i) => (
+                  {repos.length != 0 ? (
+                    <Select
+                      labelId="demo-controlled-open-select-label"
+                      id="demo-controlled-open-select"
+                      value={projectURL}
+                      fullWidth
+                      displayEmpty
+                      onChange={(e) => setProjectURL(e.target.value)}
+                      name="projectURL"
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Select Project</em>
+                      </MenuItem>
+                      {repos.map((el: any, i) => (
                         <MenuItem value={`${el.repositoryPath.value}`} key={i}>
                           {el.name.value} ({el.user.value})
                         </MenuItem>
                       ))}
-                  </Select>
+                    </Select>
+                  ) : (
+                    <div>
+                      <label>Please insert github public url</label>
+                      <TextField
+                        className={styles['pack-select']}
+                        id="urlSelect"
+                        value={projectURL}
+                        placeholder={'URL'}
+                        onChange={(e) => setProjectURL(e.target.value)}
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className={styles.buttonConatiner}>
                   <Button
