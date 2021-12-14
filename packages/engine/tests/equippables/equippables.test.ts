@@ -82,14 +82,15 @@ describe('Equippables', () => {
     
     equipEntity(equipperEntity, equippableEntity)
     
+    const incomingNetworkSystem = await IncomingNetworkSystem(world)
+    const equippabbleSystem = await EquippabbleSystem(world)
+
     // simulate client behavior now
     world.fixedTick = 1
     for (let action of world.outgoingActions) {
         action.$from = Engine.userId
         world.incomingActions.add(action as Required<Action>)
     }
-    const incomingNetworkSystem = await IncomingNetworkSystem(world)
-    const equippabbleSystem = await EquippabbleSystem(world)
     incomingNetworkSystem()
     equippabbleSystem()
     
@@ -99,9 +100,27 @@ describe('Equippables', () => {
     assert.equal(equippableEntity, equipperComponent.equippedEntity)
     assert(hasComponent(equippableEntity, NetworkObjectOwnedTag))
     assert(hasComponent(equippableEntity, EquippedComponent))
-    const collider = getComponent(equippableEntity, ColliderComponent).body
+    let collider = getComponent(equippableEntity, ColliderComponent).body
     assert.deepEqual(collider._type, BodyType.KINEMATIC)
-    
+
+    // unequip stuff
+    unequipEntity(equipperEntity)
+
+    // simulate client behavior for next valid tick
+    world.fixedTick = 4
+    for (let action of world.outgoingActions) {
+        action.$from = Engine.userId
+        world.incomingActions.add(action as Required<Action>)
+    }
+    incomingNetworkSystem()
+    equippabbleSystem()
+
+    // validations for unequip
+    assert(!hasComponent(equipperEntity, EquipperComponent))
+    assert(!hasComponent(equippableEntity, NetworkObjectOwnedTag))
+    assert(!hasComponent(equippableEntity, EquippedComponent))
+    collider = getComponent(equippableEntity, ColliderComponent).body
+    assert.deepEqual(collider._type, BodyType.DYNAMIC)
   })
 
 })
