@@ -1,6 +1,6 @@
 import assert, { strictEqual } from 'assert'
 import { Engine } from '../../../src/ecs/classes/Engine'
-import { forwardIncomingActionsFromOthersIfHost, queueAllOutgoingPoses, queueEntityTransform, queueUnchangedPosesClient, queueUnchangedPosesServer, rerouteActions, rerouteOutgoingActionsBoundForSelf } from '../../../src/networking/systems/OutgoingNetworkSystem'
+import { queueAllOutgoingPoses, queueEntityTransform, queueUnchangedPosesClient, queueUnchangedPosesServer } from '../../../src/networking/systems/OutgoingNetworkSystem'
 import { createWorld } from '../../../src/ecs/classes/World'
 import { ActionRecipients } from '../../../src/networking/interfaces/Action'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -14,172 +14,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { NetworkObjectOwnedTag } from '../../../src/networking/components/NetworkObjectOwnedTag'
 
 describe('OutgoingNetworkSystem Unit Tests', () => {
-
-  describe('forwardIncomingActionsFromOthersIfHost', () => {
   
-    it('should forward incoming actions if the action is from a remote userId', () => {
-      /* mock */
-      const world = createWorld()
-
-      // make this engine user the host
-      // world.isHosting === true
-      Engine.userId = world.hostId
-
-      const action = NetworkWorldAction.spawnObject({
-        userId: '0' as UserId,
-        prefab: '',
-        parameters: {},
-        $tick: 0,
-        // make action come from another user
-        $from: '2' as UserId,
-        // being sent to this server
-        $to: 'server' as ActionRecipients,
-      })
-      
-      world.incomingActions.add(action)
-
-      /* run */
-      forwardIncomingActionsFromOthersIfHost(world)
-
-      /* assert */
-      // verify incoming action was removed from incomingActions
-      strictEqual(world.incomingActions.has(action), false)
-      // and added to outgoingActions
-      strictEqual(world.outgoingActions.has(action), true)
-    })
-
-    it('should clear incomingActions if hosting', () => {
-      /* mock */
-      const world = createWorld()
-
-      // make this engine user the host
-      // world.isHosting === true
-      Engine.userId = world.hostId
-
-      const action = NetworkWorldAction.spawnObject({
-        userId: '2' as UserId,
-        prefab: '',
-        parameters: {},
-        $tick: 0,
-        // make action come from another user
-        $from: '2' as UserId,
-        // being sent to this server
-        $to: 'server' as ActionRecipients,
-      })
-      
-      world.incomingActions.add(action)
-
-      /* run */
-      forwardIncomingActionsFromOthersIfHost(world)
-
-      /* assert */
-
-      // verify incomingActions are cleared if we ARE a host
-      strictEqual(world.incomingActions.size, 0)
-    })
-
-    it('should clear incomingActions if not hosting', () => {
-      /* mock */
-      const world = createWorld()
-
-      // this engine user is not the host
-      // world.isHosting === false
-      Engine.userId = '0' as UserId
-
-      const tick = 0
-
-      world.fixedTick = tick
-
-      const action = NetworkWorldAction.spawnObject({
-        userId: '2' as UserId,
-        prefab: '',
-        parameters: {},
-        $tick: tick,
-        // make action come from another user
-        $from: '2' as UserId,
-        // being sent to this server
-        $to: 'server' as ActionRecipients,
-      })
-      
-      world.incomingActions.add(action)
-
-      /* run */
-      forwardIncomingActionsFromOthersIfHost(world)
-
-      /* assert */
-
-      // verify incomingActions are cleared if we are NOT a host
-      strictEqual(world.incomingActions.size, 0)
-    })
-
-  })
-
-  describe('rerouteOutgoingActionsBoundForSelf', () => {
-
-    it('should reroute outgoing actions from this host back to itself (loopback)', () => {
-
-      /* mock */
-      const world = createWorld()
-
-      const action = NetworkWorldAction.spawnObject({
-        userId: '0' as UserId,
-        prefab: '',
-        parameters: {},
-        $tick: 0,
-        // make action come from this host
-        $from: Engine.userId,
-        // being sent to self
-        $to: 'local' as ActionRecipients,
-      })
-      
-      world.outgoingActions.add(action)
-
-      /* run */
-      rerouteOutgoingActionsBoundForSelf(world)
-
-      /* assert */
-      // verify incoming action was removed from outgoingActions
-      strictEqual(world.outgoingActions.has(action), false)
-      // and added to incomingActions
-      strictEqual(world.incomingActions.has(action), true)
-
-    })
-
-    it('should apply outgoing actions to self and others if hosting and action is from this host', () => {
-
-      /* mock */
-      const world = createWorld()
-
-      // make this engine user the host
-      // world.isHosting === true
-      Engine.userId = world.hostId
-
-      const action = NetworkWorldAction.spawnObject({
-        userId: '0' as UserId,
-        prefab: '',
-        parameters: {},
-        $tick: 0,
-        // make action come from this host
-        $from: Engine.userId,
-        // being sent to other
-        $to: '1' as ActionRecipients,
-      })
-      
-      world.outgoingActions.add(action)
-
-      /* run */
-      rerouteOutgoingActionsBoundForSelf(world)
-
-      /* assert */
-      // verify incoming action was NOT removed from outgoingActions (applies action to other clients)
-      strictEqual(world.outgoingActions.has(action), true)
-      // and added to incomingActions (applies action to self)
-      strictEqual(world.incomingActions.has(action), true)
-
-    })
-
-  })
-
   describe('queueUnchangedPosesServer', () => {
     it('should queue all state changes on server', () => {
       
@@ -207,7 +42,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         })
         const networkObject = addComponent(entity, NetworkObjectComponent, {
           // remote owner
-          userId: '1' as UserId,
+          ownerId: '1' as UserId,
           networkId: 0 as NetworkId,
           prefab: '',
           parameters: {},
@@ -254,7 +89,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         })
         const networkObject = addComponent(entity, NetworkObjectComponent, {
           // remote owner
-          userId: i as unknown as UserId,
+          ownerId: i as unknown as UserId,
           networkId: i as NetworkId,
           prefab: '',
           parameters: {},
@@ -300,7 +135,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         scale: new Vector3(),
       })
       const networkObject = addComponent(entity, NetworkObjectComponent, {
-        userId: '0' as UserId,
+        ownerId: '0' as UserId,
         networkId: 0 as NetworkId,
         prefab: '',
         parameters: {},
