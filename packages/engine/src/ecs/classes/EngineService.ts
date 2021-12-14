@@ -74,7 +74,6 @@ function callbackReceptor(action: EngineActionType) {
     case EngineEvents.EVENTS.CONNECT_TO_WORLD:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        connectedClients: action.connectedClients,
         instance: action.instance
       })
       break
