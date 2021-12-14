@@ -18,6 +18,7 @@ const nonFeathersStrategies = ['emailMagicLink', 'smsMagicLink']
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
 export const updateAppConfig = async (): Promise<void> => {
+  if (process.env.APP_ENV === 'development') return
   const sequelizeClient = new Sequelize({
     ...(db as any),
     define: {
@@ -396,7 +397,7 @@ export const updateAppConfig = async (): Promise<void> => {
         local: dbGameServer.local,
         domain: dbGameServer.domain,
         releaseName: dbGameServer.releaseName,
-        port: process.env.APP_ENV === 'development' ? appConfig.gameserver.port : dbGameServer.port, // Need to be able to run GSes on separate ports locally
+        port: dbGameServer.port,
         mode: dbGameServer.mode,
         locationName: dbGameServer.locationName
       }
