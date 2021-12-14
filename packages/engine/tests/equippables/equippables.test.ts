@@ -18,13 +18,14 @@ import { NetworkObjectComponent } from '../../src/networking/components/NetworkO
 import { NetworkObjectOwnedTag } from '../../src/networking/components/NetworkObjectOwnedTag'
 import  IncomingNetworkSystem  from '../../src/networking/systems/IncomingNetworkSystem'
 import  EquippabbleSystem  from '../../src/interaction/systems/EquippableSystem'
-import { equipEntity } from '../../src/interaction/functions/equippableFunctions'
+import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
 import { Action } from '../../src/networking/interfaces/Action'
+import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 
 describe('Equippables', () => {
 
-  it('Can equip', async () => {
+  it('Can equip and unequip', async () => {
       
     Network.instance = new TestNetwork()
     let world = createWorld()
@@ -92,8 +93,11 @@ describe('Equippables', () => {
     incomingNetworkSystem()
     equippabbleSystem()
     
-    // validations
-    assert(hasComponent(equipperEntity, NetworkObjectOwnedTag))
+    // validations for equip
+    assert(hasComponent(equipperEntity, EquipperComponent))
+    const equipperComponent = getComponent(equipperEntity, EquipperComponent)
+    assert.equal(equippableEntity, equipperComponent.equippedEntity)
+    assert(hasComponent(equippableEntity, NetworkObjectOwnedTag))
     assert(hasComponent(equippableEntity, EquippedComponent))
     const collider = getComponent(equippableEntity, ColliderComponent).body
     assert.deepEqual(collider._type, BodyType.KINEMATIC)
