@@ -1,4 +1,4 @@
-import { AmbientLight, Color, DirectionalLight, Euler, Fog, Group, HemisphereLight, Layers, MathUtils, Mesh, Object3D, PointLight, Quaternion, Scene, SpotLight, Vector3 } from 'three'
+import { AmbientLight, BoxBufferGeometry, Color, DirectionalLight, Euler, Fog, Group, HemisphereLight, Layers, MathUtils, Mesh, MeshNormalMaterial, Object3D, PointLight, Quaternion, Scene, SphereBufferGeometry, SpotLight, Vector3 } from 'three'
 import { addComponent, createMappedComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
@@ -6,7 +6,7 @@ import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { parseGLTFModel } from './loadGLTFModel'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { isTriggerShape, Physics } from "../../physics/classes/Physics"
+import { getGeometryScale, getGeometryType, isTriggerShape, Physics } from "../../physics/classes/Physics"
 import assert from 'assert'
 import { createWorld } from "../../ecs/classes/World"
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -23,6 +23,8 @@ import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { loadPhysX } from '../../physics/physx/loadPhysX'
+import { BodyType, PhysXConfig } from '../../physics/types/PhysicsTypes'
+import { BodyOptions, createBody, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
 
 const EPSILON = 10e-9
 
@@ -618,11 +620,114 @@ describe('SceneLoading.test', () => {
       assert(getComponent(entity, ShadowComponent).receiveShadow)
     })
 
-    // TODO: kinda complex, and covered by physics tests
-    it.skip('collider', async () => { })
+    it('collider', async () => { 
+      const world = createWorld()
+      Engine.currentWorld = world
+      await Engine.currentWorld.physics.createScene({ verbose: true })
+      
+      const entity = createEntity(world)
+      const type = 'trimesh'
+      let geom = new SphereBufferGeometry()
+
+      const scale = new Vector3(2, 2, 2)
+      const mesh = new Mesh(geom, new MeshNormalMaterial())
+      mesh.scale.x = scale.x
+      mesh.scale.y = scale.y
+      mesh.scale.z = scale.z
+      const bodyOptions = {
+        type,
+        bodyType: BodyType.DYNAMIC
+      } as BodyOptions
+      mesh.userData = bodyOptions
+
+      addComponent(entity, Object3DComponent, {
+        value: mesh
+      })
+
+      addComponent(entity, TransformComponent, {
+        position: new Vector3(0,2,0),
+        rotation: new Quaternion(),
+        scale: new Vector3(1,1,1)
+      })
+
+      const sceneComponentData = bodyOptions
+      const sceneComponent: SceneDataComponent = {
+        name: 'collider',
+        data: sceneComponentData,
+        props: sceneComponentData
+      }
+
+      loadComponent(entity, sceneComponent)
+
+      assert(hasComponent(entity, ColliderComponent))
+      const body = getComponent(entity, ColliderComponent).body
+      assert.deepEqual(body._type, bodyOptions.bodyType)
+      const shapes = Engine.currentWorld.physics.getRigidbodyShapes(body)
+      for (let shape of shapes) {
+        const shapeScale = getGeometryScale(shape)
+        assert.equal(shapeScale.x, scale.x)
+        assert.equal(shapeScale.y, scale.y)
+        assert.equal(shapeScale.z, scale.z)
+      }
+      assert(hasComponent(entity, CollisionComponent))
+
+      // clean up physx
+      delete (globalThis as any).PhysX
+    })
 
     // TODO: kinda complex, and covered by physics tests
-    it.skip('box-collider', async () => { })
+    it('box-collider', async () => { 
+      const world = createWorld()
+      Engine.currentWorld = world
+      await Engine.currentWorld.physics.createScene({ verbose: true })
+      
+      const entity = createEntity(world)
+      const type = 'box'
+
+      const scale = new Vector3(2, 2, 2)
+      let geom = new BoxBufferGeometry(scale.x, scale.y, scale.z)
+
+      const mesh = new Mesh(geom, new MeshNormalMaterial())
+      const bodyOptions = {
+        type,
+        bodyType: BodyType.STATIC
+      } as BodyOptions
+      mesh.userData = bodyOptions
+
+      addComponent(entity, Object3DComponent, {
+        value: mesh
+      })
+
+      addComponent(entity, TransformComponent, {
+        position: new Vector3(0,2,0),
+        rotation: new Quaternion(),
+        scale: scale
+      })
+
+      const sceneComponentData = bodyOptions
+      const sceneComponent: SceneDataComponent = {
+        name: 'box-collider',
+        data: sceneComponentData,
+        props: sceneComponentData
+      }
+
+      loadComponent(entity, sceneComponent)
+
+      assert(hasComponent(entity, ColliderComponent))
+      const body = getComponent(entity, ColliderComponent).body
+      assert.deepEqual(body._type, bodyOptions.bodyType)
+      const shapes = Engine.currentWorld.physics.getRigidbodyShapes(body)
+      for (let shape of shapes) {
+        const shapeScale = getGeometryScale(shape)
+        assert.equal(shapeScale.x, scale.x)
+        assert.equal(shapeScale.y, scale.y)
+        assert.equal(shapeScale.z, scale.z)
+      }
+      assert(hasComponent(entity, CollisionComponent))
+
+      // clean up physx
+      delete (globalThis as any).PhysX
+    })
 
     it('trigger-volume', async () => {
 
