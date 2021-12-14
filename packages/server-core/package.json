@@ -96,7 +96,7 @@
     "@types/dotenv-flow": "3.2.0",
     "@types/mime-types": "2.1.1",
     "@types/multer": "1.4.7",
-    "@types/node": "16.11.12",
+    "@types/node": "16.11.13",
     "@types/node-fetch": "2.5.12",
     "@types/nodemailer-smtp-transport": "2.7.5",
     "@types/pug": "2.0.5",
