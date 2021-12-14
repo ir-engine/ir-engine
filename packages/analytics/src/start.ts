@@ -11,7 +11,7 @@ process.on('unhandledRejection', (error, promise) => {
 export const start = async (): Promise<Application> => {
   const app = createApp()
 
-  collectAnalytics()
+  collectAnalytics(app)
   console.log('Analytics server running')
 
   const port = config.analytics.port || 5050

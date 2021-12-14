@@ -13,6 +13,7 @@ const db = {
   dialect: 'mysql',
   url: ''
 }
+const nonFeathersStrategies = ['emailMagicLink', 'smsMagicLink']
 
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
@@ -124,6 +125,13 @@ export const updateAppConfig = async (): Promise<void> => {
         }
       }
       if (dbAuthenticationConfig) {
+        const authStrategies = ['jwt', 'local']
+        for (let authStrategy of dbAuthenticationConfig.authStrategies) {
+          const keys = Object.keys(authStrategy)
+          for (let key of keys)
+            if (nonFeathersStrategies.indexOf(key) < 0 && authStrategies.indexOf(key) < 0) authStrategies.push(key)
+        }
+        dbAuthenticationConfig.authStrategies = authStrategies
         appConfig.authentication = {
           ...appConfig.authentication,
           ...dbAuthenticationConfig
@@ -388,7 +396,7 @@ export const updateAppConfig = async (): Promise<void> => {
         local: dbGameServer.local,
         domain: dbGameServer.domain,
         releaseName: dbGameServer.releaseName,
-        port: dbGameServer.port,
+        port: process.env.APP_ENV === 'development' ? appConfig.gameserver.port : dbGameServer.port, // Need to be able to run GSes on separate ports locally
         mode: dbGameServer.mode,
         locationName: dbGameServer.locationName
       }

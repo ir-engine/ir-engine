@@ -5,9 +5,7 @@ const DEFAULT_INTERVAL_SECONDS = 1800
 const configInterval = parseInt(config.analytics.processInterval)
 const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 
-export default (): void => {
-  const app = createApp()
-
+export default (app): void => {
   setInterval(async () => {
     console.log('Collecting analytics at ', new Date().toString())
     const activeLocations = []
