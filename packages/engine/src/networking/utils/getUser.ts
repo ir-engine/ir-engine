@@ -17,7 +17,7 @@ export function getUserEntityByName(name: string, localUserId) {
 }
 
 export function getPlayerName(eid): string {
-  const uid = getComponent(eid, NetworkObjectComponent)?.userId
+  const uid = getComponent(eid, NetworkObjectComponent)?.ownerId
   if (uid === undefined || uid === '') return ''
 
   for (let [_, client] of Engine.currentWorld.clients) {
@@ -37,6 +37,7 @@ export function getPlayerName(eid): string {
 }
 
 export function getEid(userId) {
+  if (!Engine.currentWorld) return undefined
   for (let [_, client] of Engine.currentWorld.clients) {
     if (client.userId == userId) {
       return useWorld().getUserAvatarEntity(client.userId)

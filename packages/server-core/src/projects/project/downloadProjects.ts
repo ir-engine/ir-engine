@@ -9,10 +9,6 @@ const storageProvider = useStorageProvider()
 
 export const download = async (projectName) => {
   try {
-    if (projectName === 'default-project') {
-      return true
-    }
-
     console.log('[ProjectLoader]: Installing project', projectName, '...')
     const files = await getFileKeysRecursive(`projects/${projectName}`)
     console.log('[ProjectLoader]: Found files', files)

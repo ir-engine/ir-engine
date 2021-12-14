@@ -7,8 +7,11 @@ import { useMediaQuery } from 'react-responsive'
 import SideMenu from './SideMenu'
 import IconButton from '@mui/material/IconButton'
 import { useStyles } from './style'
+import Index from '@xrengine/client-core/src/HarmonyRevamp/index'
+import ModeContext from '@xrengine/client-core/src/HarmonyRevamp/context/modeContext'
 
 export default function Harmony() {
+  const [darkMode, setDarkMode] = React.useState(false)
   const classes = useStyles()
   const [openSideMenu, setOpenSIdeMenu] = React.useState(false)
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 768px)' })
@@ -18,6 +21,15 @@ export default function Harmony() {
   }
 
   React.useEffect(() => {
+    const mode = JSON.parse(localStorage.getItem('mode'))
+    if (mode === null) {
+      localStorage.setItem('mode', JSON.stringify(darkMode))
+    } else {
+      setDarkMode(mode)
+    }
+  }, [])
+
+  React.useEffect(() => {
     if (!isTabletOrMobile) {
       setOpenSIdeMenu(isTabletOrMobile)
     }
@@ -25,7 +37,10 @@ export default function Harmony() {
 
   return (
     <div style={{ backgroundColor: '#15171B' }}>
-      <Grid container spacing={0}>
+      <ModeContext.Provider value={{ darkMode, setDarkMode }}>
+        <Index />
+      </ModeContext.Provider>
+      {/* <Grid container spacing={0}>
         <Grid item xs={1} md={3}>
           {isTabletOrMobile ? (
             <IconButton onClick={() => openMenuModel(true)}>
@@ -39,7 +54,7 @@ export default function Harmony() {
           <RightHarmony />
         </Grid>
       </Grid>
-      <SideMenu open={openSideMenu} handleClose={openMenuModel} />
+      <SideMenu open={openSideMenu} handleClose={openMenuModel} /> */}
     </div>
   )
 }
