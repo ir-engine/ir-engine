@@ -42,8 +42,8 @@ const ChargeBee = (props: Props) => {
         <Paper component="div" className={classes.createInput}>
           <label>ApiKey:</label>
           <InputBase
-            value={chargebee?.apikey || ''}
-            name="apikey"
+            value={chargebee?.apiKey || ''}
+            name="apiKey"
             className={classes.input}
             disabled
             style={{ color: '#fff' }}
