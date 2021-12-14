@@ -492,7 +492,7 @@ const Harmony = (props: Props): any => {
       TransportService.updateChannelTypeState()
       MediaStreamService.updateCamVideoState()
       MediaStreamService.updateCamAudioState()
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
+      dispatchLocal(EngineActions.sceneLoaded() as any)
     }
   }
 

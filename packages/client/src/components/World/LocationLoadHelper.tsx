@@ -109,7 +109,8 @@ export const loadLocation = async (sceneName: string): Promise<any> => {
   const packs = await getSystemsFromSceneData(project, sceneData, true)
 
   await Engine.currentWorld.initSystems(packs)
-
+  console.clear()
+  console.log('Load Loadinggggggggggggggggggggg')
   const dispatch = useDispatch()
 
   // 4. Start scene loading

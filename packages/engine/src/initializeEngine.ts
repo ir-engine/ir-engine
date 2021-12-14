@@ -162,9 +162,8 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
     simulationEnabled: options.physics.simulationEnabled
   })
 
-  console.log('ININININININININININININININ')
   // Network (Outgoing)
-  registerSystem(SystemUpdateType.FIXED_EARLY, import('./networking/systems/OutgoingNetworkSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./networking/systems/OutgoingNetworkSystem'))
 
   // FIXED_LATE injection point
 
@@ -304,25 +303,19 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.engineTimer = Timer(executeWorlds)
 
   // Engine type specific post configuration work
-  if (options.type === EngineSystemPresets.CLIENT) {
-    console.log('TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT')
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
-      Engine.engineTimer.start()
-    })
+  Engine.engineTimer.start()
 
+  if (options.type === EngineSystemPresets.CLIENT) {
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
       Network.instance.isInitialized = true
       Engine.userId = id
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.userId = 'server' as UserId
-    Engine.engineTimer.start()
   } else if (options.type === EngineSystemPresets.MEDIA) {
     Engine.userId = 'mediaserver' as UserId
-    Engine.engineTimer.start()
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
-    Engine.engineTimer.start()
   }
 
   // Mark engine initialized
