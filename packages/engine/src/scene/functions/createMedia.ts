@@ -13,19 +13,19 @@ import { PositionalAudioComponent } from '../../audio/components/PositionalAudio
 import { isClient } from '../../common/functions/isClient'
 
 let DracosisPlayer = null as any
-let DracosisPlayerWorker = null as any
-let DracosisSequence = null as any
 
 if (isClient) {
   Promise.all([
-    import('volumetric/web/decoder/Player'),
     //@ts-ignore
-    import('volumetric/web/decoder/workerFunction.js?worker')
-  ]).then(([module1, module2]) => {
+    import('volumetric/player')
+  ]).then(([module1]) => {
     DracosisPlayer = module1.default
-    DracosisPlayerWorker = module2.default
   })
 }
+
+// import DracosisPlayer from 'volumetric/player'
+
+let playerRef = null as any
 
 export interface AudioProps {
   src?: string
@@ -78,7 +78,8 @@ export function createVideo(entity, props: VideoProps): void {
 }
 
 interface VolumetricProps {
-  src: string
+  paths: any
+  playMode: any
   loop: number
   autoPlay: boolean
   interactable: boolean
@@ -86,20 +87,15 @@ interface VolumetricProps {
 
 export const createVolumetric = (entity, props: VolumetricProps) => {
   const container = new UpdateableObject3D()
-  const worker = new DracosisPlayerWorker()
-  const resourceUrl = props.src
   let isBuffering = false
   let timer: any
   let isPlayed = false
   let preProgress = 0
-  DracosisSequence = new DracosisPlayer({
+  playerRef = new DracosisPlayer({
     scene: container,
     renderer: Engine.renderer,
-    worker: worker,
-    manifestFilePath: resourceUrl.replace('.drcs', '.manifest'),
-    meshFilePath: resourceUrl,
-    videoFilePath: resourceUrl.replace('.drcs', '.mp4'),
-    loop: props.loop,
+    paths: props.paths,
+    playMode: props.playMode,
     autoplay: props.autoPlay,
     scale: 1,
     frameRate: 25,
@@ -108,33 +104,20 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
       if (progress == preProgress) return
       preProgress = progress
       if (!isBuffering) {
-        DracosisSequence.paused = true
-        if (timer) clearTimeout(timer)
-        timer = setTimeout(() => {
-          if (isPlayed) {
-            DracosisSequence.play()
-            preProgress = 0
-          }
-        }, 500)
       }
       isBuffering = true
     },
-    onFrameShow: () => {
-      if (isBuffering) {
-        DracosisSequence.paused = false
-      }
-      isBuffering = false
-    }
+    onFrameShow: () => {}
   })
 
   container.update = () => {
-    if (DracosisSequence.hasPlayed) {
-      DracosisSequence?.handleRender(() => {})
+    if (playerRef.hasPlayed) {
+      playerRef?.handleRender(() => {})
     }
   }
 
   addComponent(entity, VolumetricComponent, {
-    player: DracosisSequence
+    player: playerRef
   })
 
   addComponent(entity, RenderedComponent, {})
@@ -143,13 +126,10 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
     console.log('Volumetric Execute: ', key)
     if (key == 'play') {
       container.visible = true
-      DracosisSequence.play()
+      playerRef.play()
       isPlayed = true
-    } else if (key == 'paused') {
-      DracosisSequence.paused = true
-    } else if (key == 'stop') {
-      container.visible = false
-      DracosisSequence.paused = true
+    } else if (key == 'pause') {
+      playerRef.paused = true
     }
   }
 
