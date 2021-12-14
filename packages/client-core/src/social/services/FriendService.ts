@@ -107,7 +107,7 @@ export const FriendService = {
   //   }
   // }
 
-  getFriends: async (skip?: number, limit?: number) => {
+  getFriends: async (skip: number = 0, limit: number = 10) => {
     const dispatch = useDispatch()
     {
       dispatch(FriendAction.fetchingFriends())

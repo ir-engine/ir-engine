@@ -1,6 +1,6 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { makeStyles, createStyles } from '@mui/styles'
 
-export const useHarmonyStyles = makeStyles((theme: Theme) =>
+export const useHarmonyStyles = makeStyles((theme) =>
   createStyles({
     root: {
       width: '100%',

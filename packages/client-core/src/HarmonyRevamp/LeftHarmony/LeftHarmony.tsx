@@ -22,7 +22,7 @@ import { PartyService } from '@xrengine/client-core/src/social/services/PartySer
 import ModeContext from '../context/modeContext'
 import Party from '../party'
 import FriendList from './FriendList'
-import { DialogTitle } from '@material-ui/core'
+import DialogTitle from '@mui/material/DialogTitle'
 
 interface Props {
   setShowChat: any
@@ -86,7 +86,7 @@ const LeftHarmony = (props: Props) => {
 
   React.useEffect(() => {
     if (friendState.updateNeeded.value === true && friendState.getFriendsInProgress.value !== true) {
-      FriendService.getFriends('', 0)
+      FriendService.getFriends()
     }
   }, [friendState.updateNeeded.value, friendState.getFriendsInProgress.value])
 
@@ -151,7 +151,7 @@ const LeftHarmony = (props: Props) => {
 
   const nextFriendsPage = (): void => {
     if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
-      FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value)
+      FriendService.getFriends(0, friendSubState.skip.value + friendSubState.limit.value)
     }
   }
 
