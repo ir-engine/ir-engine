@@ -142,10 +142,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   // Maps
   registerSystem(SystemUpdateType.FIXED, import('./map/MapUpdateSystem'))
 
-  // Navigation
-  registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/FollowSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/AfkCheckSystem'))
-
   // Avatar Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
