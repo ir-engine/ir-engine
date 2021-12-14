@@ -519,6 +519,10 @@ export const updateAppConfig = async (): Promise<void> => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    gitPem: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     local: {
       type: DataTypes.BOOLEAN,
       allowNull: true
@@ -547,6 +551,7 @@ export const updateAppConfig = async (): Promise<void> => {
         url: dbServer.url,
         certPath: dbServer.certPath,
         keyPath: dbServer.keyPath,
+        gitPem: dbServer.gitPem,
         local: dbServer.local,
         releaseName: dbServer.releaseName,
         hub: JSON.parse(JSON.parse(dbServer.hub))

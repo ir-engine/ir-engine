@@ -9,7 +9,7 @@ import { replace } from 'lodash'
 //@octokit/app
 const app = new App({
   appId: config.authentication.oauth.github.appid,
-  privateKey: fs.readFileSync(config.server.gitPemPath, 'utf8'),
+  privateKey: config.server.gitPem,
   oauth: {
     clientId: config.authentication.oauth.github.key,
     clientSecret: config.authentication.oauth.github.secret
@@ -21,7 +21,7 @@ const appOctokit = new Octokit({
   authStrategy: createAppAuth,
   auth: {
     appId: config.authentication.oauth.github.appid,
-    privateKey: fs.readFileSync(config.server.gitPemPath, 'utf8')
+    privateKey: config.server.gitPem
   }
 })
 
