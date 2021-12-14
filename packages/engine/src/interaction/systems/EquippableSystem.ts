@@ -24,10 +24,10 @@ import { BodyType } from '../../physics/types/PhysicsTypes'
 function equippableActionReceptor(action) {
   const world = useWorld()
 
-  matches(action).when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
-    if (a.userId === Engine.userId) return
-    const equipper = world.getUserAvatarEntity(a.userId)
-    const equipped = world.getNetworkObject(a.networkId)
+  matches(action).when(NetworkWorldAction.setEquippedObject.matches, (a) => {
+    if (a.$from === Engine.userId) return
+    const equipper = world.getUserAvatarEntity(a.$from)
+    const equipped = world.getNetworkObject(a.object.ownerId, a.object.networkId)
     const attachmentPoint = a.attachmentPoint
     if (!equipped) {
       return console.warn(`Equipped entity with id ${equipped} does not exist! You should probably reconnect...`)

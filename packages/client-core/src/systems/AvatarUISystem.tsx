@@ -22,7 +22,7 @@ export default async function AvatarUISystem(world: World): Promise<System> {
         console.log('entity already exists: ' + userEntity)
         continue
       }
-      const userId = getComponent(userEntity, NetworkObjectComponent).userId
+      const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
       const ui = createAvatarDetailView(userId)
       AvatarUI.set(userEntity, ui)
     }
