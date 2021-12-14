@@ -7,7 +7,7 @@ import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { Network } from '../../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
 import { WorldStateInterface, WorldStateModel } from '../../../src/networking/schema/networkSchema'
-import IncomingNetworkSystem, { applyDelayedActions, applyIncomingActions } from '../../../src/networking/systems/IncomingNetworkSystem'
+import IncomingNetworkSystem, { applyIncomingActions } from '../../../src/networking/systems/IncomingNetworkSystem'
 import { NetworkWorldAction } from '../../../src/networking/functions/NetworkWorldAction'
 import { Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../../src/transform/components/TransformComponent'
@@ -19,46 +19,6 @@ import { TestNetwork } from '../TestNetwork'
 import { Engine } from '../../../src/ecs/classes/Engine'
 
 describe('IncomingNetworkSystem Unit Tests', async () => {
-
-	describe('applyDelayedActions', () => {
-		
-		it('should drain world.delayedActions into all receptors', () => {
-
-			/* mock */
-			const world = createWorld()
-	
-			const tick = 0
-	
-			world.fixedTick = tick
-	
-			const action = NetworkWorldAction.spawnObject({
-				prefab: '',
-				parameters: {},
-				$from: '0' as UserId,
-				$tick: tick,
-				$to: '0' as ActionRecipients,
-			})
-			
-			world.delayedActions.add(action)
-	
-			const recepted: typeof action[] = []
-			world.receptors.push(
-				(a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
-			)
-	
-			/* run */
-			applyDelayedActions(world)
-	
-			/* assert */
-			strictEqual(world.delayedActions.size, 0)
-			strictEqual(recepted.length, 1)
-	
-			const receptedAction = recepted[0]
-			strictEqual(receptedAction.$from, "0")
-
-		})
-	
-	})
 	
 	describe('applyIncomingActions', () => {
 
@@ -90,7 +50,6 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			applyIncomingActions(world)
 
 			/* assert */
-			strictEqual(world.delayedActions.size, 1)
 			strictEqual(recepted.length, 0)
 
 		})
@@ -123,9 +82,44 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 			applyIncomingActions(world)
 	
 			/* assert */
-			strictEqual(world.delayedActions.size, 0)
 			strictEqual(recepted.length, 1)
 	
+		})
+
+	})
+
+	describe('applyAndArchiveIncomingAction', () => {
+	
+		it('should cache actions where $cache = true', () => {
+			/* mock */
+			const world = createWorld()
+	
+			// fixed tick in future
+			world.fixedTick = 1
+	
+			const action = NetworkWorldAction.spawnObject({
+				$from: '0' as UserId,
+				prefab: '',
+				parameters: {},
+				// incoming action from past
+				$tick: 0,
+				$to: '0' as ActionRecipients,
+				$cache: true
+			})
+			
+			world.incomingActions.add(action)
+	
+			const recepted: typeof action[] = []
+			world.receptors.push(
+				(a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
+			)
+	
+			/* run */
+			applyIncomingActions(world)
+	
+			/* assert */
+			strictEqual(recepted.length, 1)
+			assert(world.cachedActions.has(action))
 		})
 
 	})
