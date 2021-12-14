@@ -7,13 +7,11 @@ import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { Network } from '../../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
 import IncomingNetworkSystem, { applyIncomingActions } from '../../../src/networking/systems/IncomingNetworkSystem'
-import { NetworkWorldAction } from '../../../src/networking/functions/NetworkWorldAction'
 import { Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../../src/transform/components/TransformComponent'
 import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
 import { TestNetwork } from '../TestNetwork'
 import { Engine } from '../../../src/ecs/classes/Engine'
-import { ActionRecipients, matches } from '../../../src/networking/interfaces/Action'
 import { WorldStateInterface, WorldStateModel } from '../../../src/networking/schema/networkSchema'
 
 describe('IncomingNetworkSystem Integration Tests', async () => {
