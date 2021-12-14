@@ -201,6 +201,7 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
     /* mock */
     // make this engine user the host (world.isHosting === true)
     Engine.userId = world.hostId
+    Engine.hasJoinedWorld = true
 
 		const entity = createEntity()
 		const transform = addComponent(entity, TransformComponent, {

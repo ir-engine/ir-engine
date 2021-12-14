@@ -142,6 +142,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 
 		// make this engine user the host (world.isHosting === true)
     Engine.userId = world.hostId
+    Engine.hasJoinedWorld = true
 		
 		// mock entity to apply incoming unreliable updates to
 		const entity = createEntity()
