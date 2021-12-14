@@ -20,14 +20,6 @@ const defaultEngineInitializeOptions = {
     {
       type: 'FIXED',
       systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
-    },
-    {
-      type: 'FIXED',
-      systemModulePromise: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
-    },
-    {
-      type: 'FIXED',
-      systemModulePromise: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
     }
   ]
 }

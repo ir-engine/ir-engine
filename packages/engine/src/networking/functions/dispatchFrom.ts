@@ -1,8 +1,7 @@
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '../../ecs/classes/Engine'
-import { Action, ActionRecipients } from '../interfaces/Action'
-
-type AllowedUser<A> = A extends { __ALLOW_DISPATCH_FROM_ANY: true } ? UserId : HostUserId
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { Action, ActionCacheOptions, ActionRecipients } from '../interfaces/Action'
 
 /**
  * Dispatch an action from a given user.
@@ -12,18 +11,33 @@ type AllowedUser<A> = A extends { __ALLOW_DISPATCH_FROM_ANY: true } ? UserId : H
  * on the next simulation tick. These defaults can be overriden
  * using the `to()` and `delay()` modifiers.
  */
-export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId: U, actionCb: () => A) => {
-  let action!: A
-  const world = Engine.currentWorld
+export const dispatchFrom = <A extends Action>(userId: UserId, actionCb: () => A) => {
+  let action!: Action
+  if (Engine.userId === userId) {
+    action = actionCb()
+    action.$from = action.$from ?? Engine.userId
+    action.$to = action.$to ?? 'all'
+    action.$tick = action.$tick ?? Engine.currentWorld.fixedTick + 2
+    Engine.currentWorld.outgoingActions.add(action)
+  }
 
-  const options = {
+  return _createModifier(action)
+}
+
+function _createModifier<A extends Action>(action: A) {
+  const modifier = {
     /**
      * Dispatch to select recipients
      */
     to(to: ActionRecipients) {
-      if (!action) return
-      action.$to = to
-      return options
+      if (action) {
+        action.$to = to
+        if (to === 'local') {
+          useWorld().incomingActions.add(action as any)
+          useWorld().outgoingActions.delete(action as any)
+        }
+      }
+      return modifier
     },
     /**
      * Dispatch on a future tick
@@ -31,23 +45,32 @@ export const dispatchFrom = <A extends Action, U extends AllowedUser<A>>(userId:
      * Default is 2 ticks in the future
      */
     delay(tickOffset: number) {
-      if (!action) return
-      action.$tick = world.fixedTick + tickOffset
-      return options
+      if (action) action.$tick = Engine.currentWorld.fixedTick + tickOffset
+      return modifier
+    },
+    /**
+     * Cache this action to replay for clients that join late
+     *
+     * @param cache The cache options
+     * - Default: true
+     */
+    cache(cache = true as ActionCacheOptions) {
+      if (action) action.$cache = cache
+      return modifier
     }
   }
+  return modifier
+}
 
-  if (Engine.userId !== userId) return options
-
-  action = actionCb()
+const dispatch = <A extends Action>(action: A) => {
+  const world = Engine.currentWorld
+  action.$from = action.$from ?? Engine.userId
   action.$to = action.$to ?? 'all'
   action.$tick = action.$tick ?? world.fixedTick + 2
   world.outgoingActions.add(action)
-
-  return options
+  return _createModifier(action)
 }
 
-export const dispatchLocal = (action: Action & { __ALLOW_DISPATCH_FROM_ANY: true }) => {
-  const options = dispatchFrom(Engine.userId, () => action).to('local')
-  return options as Omit<typeof options, 'to'>
+export const dispatchLocal = <A extends Action>(action: A) => {
+  return dispatch(action).to('local')
 }
