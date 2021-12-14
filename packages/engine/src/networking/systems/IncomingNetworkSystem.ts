@@ -53,36 +53,24 @@ export const updateCachedActions = (world: World, action: Required<Action>) => {
   }
 }
 
-export const applyDelayedActions = (world: World) => {
-  const { delayedActions } = world
-
-  for (const action of delayedActions) {
-    if (action.$tick <= world.fixedTick) {
-      console.log(`DELAYED ACTION ${action.type}`, action)
-      delayedActions.delete(action)
-
-      try {
-        for (const receptor of world.receptors) receptor(action)
-        updateCachedActions(world, action)
-        world.actionHistory.add(action)
-      } catch (e) {
-        world.actionHistory.add({ ...action, ERROR: e } as any)
-        console.error(e)
-      }
-    }
+export const applyAndArchiveIncomingAction = (world: World, action: Required<Action>) => {
+  try {
+    for (const receptor of world.receptors) receptor(action)
+    updateCachedActions(world, action)
+    world.actionHistory.add(action)
+  } catch (e) {
+    world.actionHistory.add({ $ERROR: e, ...action } as any)
+    console.error(e)
+  } finally {
+    world.incomingActions.delete(action)
   }
-
-  return world
 }
 
 export const applyIncomingActions = (world: World) => {
-  const { incomingActions, delayedActions } = world
-
-  if (incomingActions.size) console.log(`Dispatching actions for simulation tick: ${world.fixedTick}`)
+  const { incomingActions } = world
 
   for (const action of incomingActions) {
     if (action.$tick > world.fixedTick) {
-      delayedActions.add(action)
       continue
     }
     if (action.$tick < world.fixedTick) {
@@ -90,16 +78,7 @@ export const applyIncomingActions = (world: World) => {
     } else {
       console.log(`ACTION ${action.type}`, action)
     }
-
-    try {
-      for (const receptor of world.receptors) receptor(action)
-      updateCachedActions(world, action)
-      world.actionHistory.add(action)
-    } catch (e) {
-      world.actionHistory.add({ ...action, ERROR: e } as any)
-      console.error(e)
-      incomingActions.delete(action)
-    }
+    applyAndArchiveIncomingAction(world, action)
   }
 
   return world
@@ -266,7 +245,6 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   // prettier-ignore
   const applyIncomingNetworkState = pipe(
-    applyDelayedActions, 
     applyIncomingActions,
     applyUnreliableQueue(Network.instance),
   )

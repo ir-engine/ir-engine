@@ -1,5 +1,6 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '../../ecs/classes/Engine'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { Action, ActionCacheOptions, ActionRecipients } from '../interfaces/Action'
 
 /**
@@ -18,19 +19,24 @@ export const dispatchFrom = <A extends Action>(userId: UserId, actionCb: () => A
     action.$to = action.$to ?? 'all'
     action.$tick = action.$tick ?? Engine.currentWorld.fixedTick + 2
     Engine.currentWorld.outgoingActions.add(action)
-    action.$stack = new Error().stack
   }
 
   return _createModifier(action)
 }
 
-function _createModifier(action: Action) {
+function _createModifier<A extends Action>(action: A) {
   const modifier = {
     /**
      * Dispatch to select recipients
      */
     to(to: ActionRecipients) {
-      if (action) action.$to = to
+      if (action) {
+        action.$to = to
+        if (to === 'local') {
+          useWorld().incomingActions.add(action as any)
+          useWorld().outgoingActions.delete(action as any)
+        }
+      }
       return modifier
     },
     /**

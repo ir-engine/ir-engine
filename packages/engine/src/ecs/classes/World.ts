@@ -78,9 +78,6 @@ export class World {
   /** Incoming actions */
   incomingActions = new Set<Required<Action>>()
 
-  /** Delayed actions */
-  delayedActions = new Set<Required<Action>>()
-
   /** Cached actions */
   cachedActions = new Set<Required<Action>>()
 

@@ -12,8 +12,7 @@ import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
-import { Action } from '../interfaces/Action'
-import { IWorld, pipe } from 'bitecs'
+import { pipe } from 'bitecs'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { Mesh } from 'three'
@@ -81,59 +80,6 @@ function isControllerPoseTheSame(previousNetworkState, ownerId, netId, hp, hr, l
 
   return false
 }
-
-/************************
- * ACTION PREPROCESSING *
- ***********************/
-
-export const forwardIncomingActionsFromOthersIfHost = (world: World) => {
-  const { incomingActions, outgoingActions } = world
-
-  if (world.isHosting) {
-    for (const incoming of incomingActions) {
-      // if incoming action is not from this client
-      if (incoming.$from !== Engine.userId) {
-        // forward it out
-        outgoingActions.add(incoming)
-      }
-    }
-  }
-
-  incomingActions.clear()
-
-  return world
-}
-
-export const rerouteOutgoingActionsBoundForSelf = (world: World) => {
-  const { incomingActions, outgoingActions } = world
-
-  for (const out of outgoingActions) {
-    // if it's a forwarded action, use existing $from id
-    // if not, use this client's userId
-    out.$from = out.$from ?? Engine.userId
-    // if action is from this client and going to this client
-    if (out.$from === Engine.userId && out.$to === 'local') {
-      // add action to incoming action and remove from outgoing actions
-      // this prevents the action from leaving this client and applying itself to other connected clients' state
-      incomingActions.add(out as Required<Action>)
-      outgoingActions.delete(out)
-    }
-    // if client is hosting and action is from this client
-    if (world.isHosting && out.$from === Engine.userId) {
-      // add outgoing action to incoming action, but do not remove from outgoing actions
-      // this applies the action to both this host and other connected clients' state
-      incomingActions.add(out as Required<Action>)
-    }
-  }
-
-  return world
-}
-
-// prettier-ignore
-export const rerouteActions = pipe(
-  forwardIncomingActionsFromOthersIfHost,
-  rerouteOutgoingActionsBoundForSelf,
-)
 
 /***************
  * DATA QUEING *
@@ -355,8 +301,6 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
 
   return () => {
     if (!Engine.hasJoinedWorld) return
-
-    rerouteActions(world)
 
     // side effect - network IO
     try {

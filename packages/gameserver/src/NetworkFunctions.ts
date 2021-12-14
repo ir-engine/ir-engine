@@ -257,28 +257,32 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
   clearCachedActionsForDisconnectedUsers()
   clearCachedActionsForUser(joinedUserId)
 
-  // dispatch all client info
+  // send all client info
+  const clients = [] as any[]
   for (const [userId, client] of world.clients) {
-    dispatchFrom(world.hostId, () =>
-      NetworkWorldAction.createClient({
-        userId,
-        name: client.name
-      })
-    ).to(userId === joinedUserId ? 'all' : joinedUserId)
+    clients.push({ userId, name: client.name })
   }
 
-  // dispatch all cached actions to joining user
+  // send all cached actions to joining user
   const cachedActions = [] as Action[]
   for (const action of world.cachedActions) {
     if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
   }
 
   callback({
+    clients,
     cachedActions,
     avatarDetail: client.avatarDetail!,
     spawnPose: SpawnPoints.instance.getRandomSpawnPoint(),
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })
+
+  dispatchFrom(world.hostId, () =>
+    NetworkWorldAction.createClient({
+      userId: joinedUserId,
+      name: client.name
+    })
+  ).to('all')
 }
 
 export function handleIncomingActions(socket, message) {
@@ -292,6 +296,7 @@ export function handleIncomingActions(socket, message) {
   for (const a of actions) {
     a.$from = userIdMap[socket.id]
     world.incomingActions.add(a)
+    world.outgoingActions.add(a)
   }
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
 }

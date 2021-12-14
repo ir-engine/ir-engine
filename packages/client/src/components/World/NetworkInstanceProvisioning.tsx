@@ -19,7 +19,7 @@ import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/se
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { dispatchFrom, dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -112,12 +112,15 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
       ;(Network.instance.transport as SocketWebRTCClientTransport)
         .instanceRequest(MessageTypes.JoinWorld.toString())
-        .then(({ cachedActions, spawnPose, avatarDetail }) => {
+        .then(({ clients, cachedActions, spawnPose, avatarDetail }) => {
           console.log('RECEIVED JOIN WORLD RESPONSE', avatarDetail)
 
           dispatch(EngineAction.setJoinedWorld(true))
 
-          for (const a of cachedActions) Engine.currentWorld.incomingActions.add(a)
+          const hostId = useWorld().hostId
+          for (const client of clients)
+            Engine.currentWorld.incomingActions.add(NetworkWorldAction.createClient({ ...client, $from: hostId }))
+          for (const action of cachedActions) Engine.currentWorld.incomingActions.add(action)
 
           if (engineState.isTeleporting.value) {
             spawnPose = {
