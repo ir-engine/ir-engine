@@ -1,16 +1,15 @@
-import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { AuthService, useAuthState } from '../../services/AuthService'
+import { AuthService, useAuthState } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
-import InventoryContent from '../UserMenu/menus/InventoryContent'
-import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
-import { client } from '../../../feathers'
-import { bindActionCreators, Dispatch } from 'redux'
-import axios from 'axios'
+import InventoryContent from './InventoryContent'
+import { client } from '../../../../feathers'
+import styles from '../UserMenu.module.scss'
 
-export const InventoryPage = (): any => {
-  const { id } = useParams<{ id: string }>()
-  const { t } = useTranslation()
+interface Props {
+  changeActiveMenu?: any
+  id: String
+}
+
+export const Inventory = (props: Props): any => {
   const [state, setState] = useState<any>({
     coinData: [],
     data: [],
@@ -62,7 +61,7 @@ export const InventoryPage = (): any => {
       isLoading: true
     }))
     try {
-      const response = await client.service('user').get(id)
+      const response = await client.service('user').get(props.id)
       setState((prevState) => ({
         ...prevState,
         data: [...response.inventory_items.filter((val) => val.isCoin === false)],
@@ -82,7 +81,7 @@ export const InventoryPage = (): any => {
         }
       })
       if (response.data && response.data.length !== 0) {
-        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== id)
+        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== props.id)
         setState((prevState: any) => ({
           ...prevState,
           user: [...activeUser],
@@ -111,16 +110,7 @@ export const InventoryPage = (): any => {
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
   return (
-    <EmptyLayout pageTitle={t('Inventory.pageTitle')}>
-      <style>
-        {' '}
-        {`
-                [class*=menuPanel] {
-                    top: 75px;
-                    bottom: initial;
-                }
-            `}
-      </style>
+    <div className={styles.menuPanel}>
       {isLoading ? (
         'Loading...'
       ) : (
@@ -129,12 +119,13 @@ export const InventoryPage = (): any => {
           coinData={coinData}
           user={user}
           type={type}
+          changeActiveMenu={props.changeActiveMenu}
           handleTransfer={handleTransfer}
           isLoadingtransfer={isLoadingtransfer}
         />
       )}
-    </EmptyLayout>
+    </div>
   )
 }
 
-export default InventoryPage
+export default Inventory
