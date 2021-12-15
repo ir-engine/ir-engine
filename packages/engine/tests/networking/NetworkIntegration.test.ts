@@ -23,14 +23,8 @@ describe('Network Integration Tests', async () => {
       ],
     })
   })
-  
-  // force close until we can reset the engine properly
-  after(async () => {
-    await shutdownEngine()
-    setTimeout(() => process.exit(0), 1000)
-  })
 
-  it('should forward incoming actions', () => {
+  it('should', () => {
 
   })
 

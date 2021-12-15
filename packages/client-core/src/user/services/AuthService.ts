@@ -30,7 +30,7 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
-import { AssetUploadArguments } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { userPatched } from '../functions/userPatched'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
@@ -673,11 +673,12 @@ export const AuthService = {
     }
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    const uploadArguments: AssetUploadArguments = {
+    const uploadArguments: AssetUploadType = {
+      type: 'user-avatar-upload',
       files: [avatar, thumbnail],
       args: {
         avatarName,
-        isPublicAvatar
+        isPublicAvatar: !!isPublicAvatar
       }
     }
     const response = await client.service('upload-asset').create(uploadArguments)

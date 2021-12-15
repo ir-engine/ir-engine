@@ -23,7 +23,7 @@ import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
  * QUERIES *
  **********/
 
-const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
+export const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
 const ownedNetworkTransformsQuery = defineQuery([NetworkObjectOwnedTag, NetworkObjectComponent, TransformComponent])
 
 const ikTransformsQuery = isClient
@@ -251,8 +251,14 @@ export const queueXRHandPoses = (world: World) => {
   return world
 }
 
-export const resetNetworkState = (world: World) => {
-  world.previousNetworkState = world.outgoingNetworkState
+const initNetworkStates = (world: World) => {
+  world.previousNetworkState = {
+    tick: world.fixedTick,
+    time: Date.now(),
+    pose: [],
+    controllerPose: [],
+    handsPose: []
+  }
   world.outgoingNetworkState = {
     tick: world.fixedTick,
     time: Date.now(),
@@ -260,6 +266,22 @@ export const resetNetworkState = (world: World) => {
     controllerPose: [],
     handsPose: []
   }
+  return world
+}
+
+export const resetNetworkState = (world: World) => {
+  const { outgoingNetworkState, previousNetworkState } = world
+
+  // copy previous state
+  previousNetworkState.pose = outgoingNetworkState.pose
+  previousNetworkState.controllerPose = outgoingNetworkState.controllerPose
+  previousNetworkState.handsPose = outgoingNetworkState.handsPose
+
+  // reset current state
+  outgoingNetworkState.pose = []
+  outgoingNetworkState.controllerPose = []
+  outgoingNetworkState.handsPose = []
+
   return world
 }
 
@@ -284,7 +306,12 @@ const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) =
   const { outgoingActions } = world
 
   for (const o of outgoingActions) console.log('OUTGOING', o)
-  transport.sendActions(outgoingActions)
+
+  try {
+    transport.sendActions(outgoingActions)
+  } catch (e) {
+    console.error(e)
+  }
 
   outgoingActions.clear()
 
@@ -292,31 +319,29 @@ const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) =
 }
 
 const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
-  transport.sendData(data)
+  try {
+    transport.sendData(data)
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
   const sendActions = sendActionsOnTransport(Network.instance.transport)
   const sendData = sendDataOnTransport(Network.instance.transport)
 
+  initNetworkStates(world)
+
   return () => {
     if (!Engine.hasJoinedWorld) return
 
     // side effect - network IO
-    try {
-      sendActions(world)
-    } catch (e) {
-      console.error(e)
-    }
+    sendActions(world)
 
     queueAllOutgoingPoses(world)
 
     // side effect - network IO
-    try {
-      const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
-      sendData(data)
-    } catch (e) {
-      console.error(e)
-    }
+    const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
+    sendData(data)
   }
 }
