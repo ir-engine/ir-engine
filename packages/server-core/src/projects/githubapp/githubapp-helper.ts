@@ -3,6 +3,7 @@ import { Octokit } from '@octokit/rest'
 import { createAppAuth } from '@octokit/auth-app'
 import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 import config from '../../appconfig'
+import { refreshAppConfig } from '../../updateAppConfig'
 
 let app, appOctokit
 
@@ -39,6 +40,7 @@ export const createGitHubApp = () => {
 
 export const getGitHubAppRepos = async () => {
   try {
+    await refreshAppConfig()
     if (!config.server.gitPem || config.server.gitPem == '') return []
     //TODO: want to call this function after env is loaded from DB. this is not the best solution.
     if (!app) createGitHubApp()

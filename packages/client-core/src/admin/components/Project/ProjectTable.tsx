@@ -167,6 +167,11 @@ const Projects = () => {
     }
   }
 
+  const onOpenUploadModal = () => {
+    GithubAppService.fetchGithubAppRepos()
+    setUploadProjectsModalOpen(true)
+  }
+
   // useEffect(() => {
   //   fetchTick()
   // }, [])
@@ -176,12 +181,6 @@ const Projects = () => {
       ProjectService.fetchAdminProjects()
     }
   }, [adminProjectState.updateNeeded.value])
-
-  useEffect(() => {
-    if (githubAppState.updateNeeded.value === true) {
-      GithubAppService.fetchGithubAppRepos()
-    }
-  }, [githubAppState.updateNeeded.value])
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize)
@@ -208,7 +207,7 @@ const Projects = () => {
               type="button"
               variant="contained"
               color="primary"
-              onClick={() => setUploadProjectsModalOpen(true)}
+              onClick={onOpenUploadModal}
             >
               {'Add Project'}
             </Button>
