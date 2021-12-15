@@ -60,8 +60,23 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'INSTANCE_SERVER_DISCONNECTED':
         if (connectionSocket != null) (connectionSocket as any).close()
-        return
-      case 'SOCKET_CREATED':
+        return s.merge({
+          instance: {
+            id: '',
+            ipAddress: '',
+            port: ''
+          },
+          locationId: '',
+          sceneId: '',
+          channelId: '',
+          instanceProvisioned: false,
+          connected: false,
+          readyToConnect: false,
+          updateNeeded: false,
+          instanceServerConnecting: false,
+          instanceProvisioning: false
+        })
+      case 'INSTANCE_SOCKET_CREATED':
         if (connectionSocket != null) (connectionSocket as any).close()
         connectionSocket = action.socket
         return
@@ -222,7 +237,7 @@ export const InstanceConnectionAction = {
   },
   socketCreated: (socket: any) => {
     return {
-      type: 'SOCKET_CREATED' as const,
+      type: 'INSTANCE_SOCKET_CREATED' as const,
       socket: socket
     }
   }

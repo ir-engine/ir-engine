@@ -12,7 +12,6 @@ export const applyArgsToObject3d = <T extends Object3D>(entity: Entity, object3d
    * @param value
    */
   const applyDeepValue = (subj: object, path: string, value: unknown): void => {
-    console.log(path, value)
     if (!subj) {
       console.warn('subj is not an object', subj)
       return

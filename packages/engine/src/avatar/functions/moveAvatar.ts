@@ -151,19 +151,17 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
 
-  if (controller && controller !== undefined && controller.controller && controller.controller !== undefined) {
-    const collisionFlags = controller.controller.move(
-      displacement,
-      0.001,
-      timeStep,
-      filters,
-      world.physics.obstacleContext
-    )
+  const collisionFlags = controller.controller.move(
+    displacement,
+    0.001,
+    timeStep,
+    filters,
+    world.physics.obstacleContext
+  )
 
-    controller.collisions = [
-      collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN),
-      collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),
-      collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP)
-    ]
-  }
+  controller.collisions = [
+    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN),
+    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),
+    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP)
+  ]
 }

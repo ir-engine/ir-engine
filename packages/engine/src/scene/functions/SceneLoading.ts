@@ -109,7 +109,7 @@ export const loadComponents = (entity: Entity, sceneEntityId: string, sceneEntit
 
 export const loadComponent = (entity: Entity, component: SceneDataComponent): void => {
   // remove '-1', '-2' etc suffixes
-  console.log('===loadComponent', component)
+  // console.log('===loadComponent', component)
   const name = component.name.replace(/(-\d+)|(\s)/g, '')
   const world = useWorld()
   switch (name) {

@@ -143,6 +143,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   useEffect(() => {
     if (engineState.joinedWorld.value) {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
+      if (engineState.isTeleporting.value) dispatch(EngineAction.setTeleporting(null!))
       dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
       dispatch(AppAction.setAppLoaded(true))
     }

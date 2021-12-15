@@ -33,7 +33,6 @@ const state = createState({
 })
 
 let connectionSocket = null
-const instanceConnectionState = accessInstanceConnectionState()
 
 store.receptors.push((action: ChannelConnectionActionType): any => {
   state.batch((s) => {
@@ -64,8 +63,22 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'CHANNEL_SERVER_DISCONNECTED':
         if (connectionSocket != null) (connectionSocket as any).close()
-        return s.merge({ connected: false, instanceProvisioned: false })
-      case 'SOCKET_CREATED':
+        return s.merge({
+          instance: {
+            ipAddress: '',
+            port: ''
+          },
+          locationId: '',
+          sceneId: '',
+          channelId: '',
+          instanceProvisioned: false,
+          connected: false,
+          readyToConnect: false,
+          updateNeeded: false,
+          instanceServerConnecting: false,
+          instanceProvisioning: false
+        })
+      case 'CHANNEL_SOCKET_CREATED':
         if (connectionSocket != null) (connectionSocket as any).close()
         connectionSocket = action.socket
         return
@@ -107,7 +120,7 @@ export const ChannelConnectionService = {
       const channels = channelState.channels.value
       const channelEntries = Object.entries(channels)
       const instanceChannel = channelEntries.find(
-        (entry) => entry[1].instanceId === instanceConnectionState.instance.id.value
+        (entry) => entry[1].instanceId === accessInstanceConnectionState().instance.id.value
       )
       const channelConnectionState = accessChannelConnectionState().value
       const instance = channelConnectionState.instance
@@ -212,7 +225,7 @@ export const ChannelConnectionAction = {
   },
   socketCreated: (socket: any) => {
     return {
-      type: 'SOCKET_CREATED' as const,
+      type: 'CHANNEL_SOCKET_CREATED' as const,
       socket: socket
     }
   }

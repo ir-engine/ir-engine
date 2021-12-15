@@ -60,21 +60,14 @@ export const LoadEngineWithScene = (props: Props) => {
    */
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value && engineState.isInitialised.value) {
-      console.log('init', locationState.currentLocation.location.sceneId.value)
-      dispatch(EngineAction.setTeleporting(null!))
       loadLocation(locationState.currentLocation.location.sceneId.value)
     }
   }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     const slugifiedName = locationState.currentLocation.location.slugifiedName.value
-
-    console.log('teleporting to location: ' + portalComponent.location)
+    dispatch(EngineAction.setTeleporting(portalComponent))
     teleportToLocation(portalComponent, slugifiedName, async () => {
-      dispatch(EngineAction.setTeleporting(portalComponent))
-
-      console.log('changiung to location: ' + portalComponent.location)
-      // change our browser URL
       history.push('/location/' + portalComponent.location)
     })
   }
