@@ -23,7 +23,7 @@ import { EquippedComponent } from '../../src/interaction/components/EquippedComp
 import { Action } from '../../src/networking/interfaces/Action'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 
-describe('Equippables', () => {
+describe('Equippables Integration Tests', () => {
 
   it('Can equip and unequip', async () => {
       
