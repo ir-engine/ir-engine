@@ -112,9 +112,10 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
       ;(Network.instance.transport as SocketWebRTCClientTransport)
         .instanceRequest(MessageTypes.JoinWorld.toString())
-        .then(({ clients, cachedActions, spawnPose, avatarDetail }) => {
-          console.log('RECEIVED JOIN WORLD RESPONSE', avatarDetail)
+        .then(({ tick, clients, cachedActions, spawnPose, avatarDetail }) => {
+          console.log('RECEIVED JOIN WORLD RESPONSE')
 
+          useWorld().fixedTick = tick
           dispatch(EngineAction.setJoinedWorld(true))
 
           const hostId = useWorld().hostId

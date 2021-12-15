@@ -270,6 +270,7 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
   }
 
   callback({
+    tick: world.fixedTick,
     clients,
     cachedActions,
     avatarDetail: client.avatarDetail!,
@@ -294,6 +295,7 @@ export function handleIncomingActions(socket, message) {
 
   const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
+    a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
     world.incomingActions.add(a)
     world.outgoingActions.add(a)
