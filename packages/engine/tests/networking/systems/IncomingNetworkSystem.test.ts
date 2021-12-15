@@ -2,129 +2,17 @@ import assert, { strictEqual } from 'assert'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createWorld } from '../../../src/ecs/classes/World'
-import { addComponent, getComponent, hasComponent } from '../../../src/ecs/functions/ComponentFunctions'
+import { addComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { Network } from '../../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
-import { WorldStateInterface, WorldStateModel } from '../../../src/networking/schema/networkSchema'
 import IncomingNetworkSystem, { applyIncomingActions } from '../../../src/networking/systems/IncomingNetworkSystem'
-import { NetworkWorldAction } from '../../../src/networking/functions/NetworkWorldAction'
 import { Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../../src/transform/components/TransformComponent'
-import { Action, ActionRecipients } from '../../../src/networking/interfaces/Action'
-import matches from 'ts-matches'
 import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
-import { TestNetworkTransport } from '../TestNetworkTransport'
 import { TestNetwork } from '../TestNetwork'
 import { Engine } from '../../../src/ecs/classes/Engine'
-
-describe('IncomingNetworkSystem Unit Tests', async () => {
-	
-	describe('applyIncomingActions', () => {
-
-		it('should delay incoming action from the future', () => {
-
-			/* mock */
-			const world = createWorld()
-
-			// fixed tick in past
-			world.fixedTick = 0
-
-			const action = NetworkWorldAction.spawnObject({
-				$from: '0' as UserId,
-				prefab: '',
-				parameters: {},
-				// incoming action from future
-				$tick: 1,
-				$to: '0' as ActionRecipients,
-			})
-			
-			world.incomingActions.add(action)
-
-			const recepted: typeof action[] = []
-			world.receptors.push(
-				(a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
-			)
-
-			/* run */
-			applyIncomingActions(world)
-
-			/* assert */
-			strictEqual(recepted.length, 0)
-
-		})
-
-		it('should immediately apply incoming action from the past or present', () => {
-	
-			/* mock */
-			const world = createWorld()
-	
-			// fixed tick in future
-			world.fixedTick = 1
-	
-			const action = NetworkWorldAction.spawnObject({
-				$from: '0' as UserId,
-				prefab: '',
-				parameters: {},
-				// incoming action from past
-				$tick: 0,
-				$to: '0' as ActionRecipients,
-			})
-			
-			world.incomingActions.add(action)
-	
-			const recepted: typeof action[] = []
-			world.receptors.push(
-				(a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
-			)
-	
-			/* run */
-			applyIncomingActions(world)
-	
-			/* assert */
-			strictEqual(recepted.length, 1)
-	
-		})
-
-	})
-
-	describe('applyAndArchiveIncomingAction', () => {
-	
-		it('should cache actions where $cache = true', () => {
-			/* mock */
-			const world = createWorld()
-	
-			// fixed tick in future
-			world.fixedTick = 1
-	
-			const action = NetworkWorldAction.spawnObject({
-				$from: '0' as UserId,
-				prefab: '',
-				parameters: {},
-				// incoming action from past
-				$tick: 0,
-				$to: '0' as ActionRecipients,
-				$cache: true
-			})
-			
-			world.incomingActions.add(action)
-	
-			const recepted: typeof action[] = []
-			world.receptors.push(
-				(a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
-			)
-	
-			/* run */
-			applyIncomingActions(world)
-	
-			/* assert */
-			strictEqual(recepted.length, 1)
-			assert(world.cachedActions.has(action))
-		})
-
-	})
-
-})
+import { WorldStateInterface, WorldStateModel } from '../../../src/networking/schema/networkSchema'
 
 describe('IncomingNetworkSystem Integration Tests', async () => {
 	
