@@ -20,6 +20,7 @@ ENV MATCHMAKING_GAMETYPES="ctf,tournament"
 ENV MATCHMAKING_GAMETYPESSIZES="ctf:1,tournament:2"
 
 COPY . .
+RUN go mod tidy
 RUN go build -o director .
 
 CMD ["/app/director"]

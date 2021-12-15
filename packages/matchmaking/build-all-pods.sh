@@ -1,6 +1,9 @@
 #!/bin/bash
-source ./vars.sh
-
+if [[ -z $REGISTRY ]]
+then
+  source ./vars.sh
+fi
+echo "REGISTRY is $REGISTRY"
 ./build-pod.sh director "$1"
 ./build-pod.sh matchfunction "$1"
 

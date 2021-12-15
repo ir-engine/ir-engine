@@ -3,6 +3,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ include "xrengine.matchfunction.fullname" . }}
+  namespace: {{ include "xrengine.matchmaking-namespace" . }}
   labels:
     {{- include "xrengine.matchfunction.labels" . | nindent 4 }}
 rules:
@@ -11,20 +12,6 @@ rules:
     resources:
       - pods
       - endpoints
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - "agones.dev"
-    resources:
-      - fleets
-      - fleet
-      - fleets.agones.dev
-      - gameservers
-      - gameserver
-      - gameservers.agones.dev
-      - gameserversets
     verbs:
       - get
       - list

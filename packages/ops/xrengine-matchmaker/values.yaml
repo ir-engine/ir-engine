@@ -4,60 +4,16 @@
 
 domain: xrengine.dev
 
+release:
+  name: dev
+
 director:
   enabled: true
-  name: xrengine-matchmaker-director
+  name: xrengine-matchmaking-director
 
   replicaCount: 1
   image:
-    repository: lagunalabs/xrengine-matchmaker
-    tag: latest
-    pullPolicy: IfNotPresent
-
-  imagePullSecrets: []
-  nameOverride: ""
-  fullnameOverride: ""
-
-  service:
-    type: ClusterIP
-    port: 3030
-
-  ingress:
-    enabled: false
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
-    hosts:
-      - host: api.social.local
-        paths: ["/"]
-    # tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
-
-
-  serviceAccount:
-    create: true
-    annotations: {}
-    name:
-
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  podSecurityContext: {}
-  securityContext: {}
-
-  # Extra Environment variables to configure xrsocial
-  extraEnv:
-
-frontend:
-  enabled: true
-  name: xrengine-matchmaker-frontend
-
-  replicaCount: 1
-  image:
-    repository: lagunalabs/xrengine-matchmaker
+    repository: lagunalabs/xrengine-matchmaking-director
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -100,11 +56,11 @@ frontend:
 
 matchfunction:
   enabled: true
-  name: xrengine-matchmaker-matchfunction
+  name: xrengine-matchmaking-matchfunction
 
   replicaCount: 1
   image:
-    repository: lagunalabs/xrengine-matchmaker
+    repository: lagunalabs/xrengine-matchmaking-matchfunction
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -114,7 +70,7 @@ matchfunction:
 
   service:
     type: ClusterIP
-    port: 3030
+    port: 50502
 
   ingress:
     enabled: false
@@ -144,16 +100,3 @@ matchfunction:
 
   # Extra Environment variables to configure xrsocial
   extraEnv:
-
-mariadb:
-  enabled: false
-  nameOverride: xrengine-mariadb
-  db:
-    name: xrengine
-    user: server
-    password: password
-    existingSecret:
-  replication:
-    enabled: false
-  externalHost: ""  # use to override - must set mariadb.enabled to false
-  externalPort: 3306
