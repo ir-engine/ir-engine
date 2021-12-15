@@ -58,7 +58,7 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
         return s.instanceServerConnecting.set(true)
       case 'INSTANCE_SERVER_CONNECTED':
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
-      case 'INSTANCE_SERVER_DISCONNECTED':
+      case 'INSTANCE_SERVER_DISCONNECT':
         if (connectionSocket != null) (connectionSocket as any).close()
         return s.merge({
           instance: {
@@ -187,7 +187,7 @@ export const InstanceConnectionService = {
   },
   resetInstanceServer: async () => {
     const dispatch = useDispatch()
-    dispatch(InstanceConnectionAction.instanceServerDisconnected())
+    dispatch(InstanceConnectionAction.disconnect())
   }
 }
 
@@ -230,9 +230,9 @@ export const InstanceConnectionAction = {
       type: 'INSTANCE_SERVER_CONNECTED' as const
     }
   },
-  instanceServerDisconnected: () => {
+  disconnect: () => {
     return {
-      type: 'INSTANCE_SERVER_DISCONNECTED' as const
+      type: 'INSTANCE_SERVER_DISCONNECT' as const
     }
   },
   socketCreated: (socket: any) => {

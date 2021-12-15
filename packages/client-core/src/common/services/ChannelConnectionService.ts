@@ -61,7 +61,7 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
         return s.instanceServerConnecting.set(true)
       case 'CHANNEL_SERVER_CONNECTED':
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
-      case 'CHANNEL_SERVER_DISCONNECTED':
+      case 'CHANNEL_SERVER_DISCONNECT':
         if (connectionSocket != null) (connectionSocket as any).close()
         return s.merge({
           instance: {
@@ -181,7 +181,7 @@ export const ChannelConnectionService = {
   resetChannelServer: () => {
     const channelRequest = (Network.instance?.transport as any)?.channelRequest
     if (channelRequest != null) (Network.instance.transport as any).channelRequest = null
-    store.dispatch(ChannelConnectionAction.channelServerDisconnected())
+    store.dispatch(ChannelConnectionAction.disconnect())
   }
 }
 
@@ -218,9 +218,9 @@ export const ChannelConnectionAction = {
       type: 'CHANNEL_SERVER_CONNECTED' as const
     }
   },
-  channelServerDisconnected: () => {
+  disconnect: () => {
     return {
-      type: 'CHANNEL_SERVER_DISCONNECTED' as const
+      type: 'CHANNEL_SERVER_DISCONNECT' as const
     }
   },
   socketCreated: (socket: any) => {
