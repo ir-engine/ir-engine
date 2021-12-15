@@ -7,7 +7,6 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import React, { useState, useEffect } from 'react'
-import { useDispatch } from '../../../store'
 import { AlertService } from '../../../common/services/AlertService'
 import { useAuthState } from '../../services/AuthService'
 import { AuthService } from '../../services/AuthService'
@@ -23,6 +22,9 @@ import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
 import EmoteMenu from './menus//EmoteMenu'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import Inventory from './Inventory'
+import Trading from './Trading'
+import Wallet from './Wallet'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
@@ -39,8 +41,6 @@ type StateType = {
 const UserMenu = (props: UserMenuProps): any => {
   const { enableSharing, hideLogin } = props
 
-  const dispatch = useDispatch()
-
   let menus = [
     { id: Views.Profile, iconNode: PersonIcon },
     { id: Views.Settings, iconNode: SettingsIcon },
@@ -51,6 +51,7 @@ const UserMenu = (props: UserMenuProps): any => {
 
   if (enableSharing === false) {
     const share = menus.find((el) => el.id === Views.Share)
+    // @ts-ignore
     menus = menus.filter((el) => el.id !== share.id)
   }
 
@@ -63,7 +64,10 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.Location]: LocationMenu,
     [Views.NewLocation]: CreateLocationMenu,
     [Views.ReadyPlayer]: ReadyPlayerMenu,
-    [Views.Emote]: EmoteMenu
+    [Views.Emote]: EmoteMenu,
+    [Views.Inventory]: Inventory,
+    [Views.Trading]: Trading,
+    [Views.Wallet]: Wallet
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
@@ -93,6 +97,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(useWorld().localClientEntity, AvatarEffectComponent)) return
     if (selfUser?.value) {
+      // @ts-ignore
       AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL)
     }
   }
@@ -100,6 +105,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSetting, ...newSetting }
     setUserSetting(setting)
+    // @ts-ignore
     AuthService.updateUserSettings(selfUser.user_setting.id.value, setting)
   }
 
@@ -221,6 +227,24 @@ const UserMenu = (props: UserMenuProps): any => {
           changeActiveMenu: changeActiveMenu,
           uploadAvatarModel: handleUploadAvatarModel,
           isPublicAvatar: false
+        }
+        break
+      case Views.Inventory:
+        args = {
+          id: selfUser.id.value,
+          changeActiveMenu: changeActiveMenu
+        }
+        break
+      case Views.Trading:
+        args = {
+          id: selfUser.id.value,
+          changeActiveMenu: changeActiveMenu
+        }
+        break
+      case Views.Wallet:
+        args = {
+          id: selfUser.id.value,
+          changeActiveMenu: changeActiveMenu
         }
         break
       default:
