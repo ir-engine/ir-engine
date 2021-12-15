@@ -15,13 +15,11 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 export class NetworkWorldAction {
   static createClient = defineActionCreator({
     type: 'network.CREATE_CLIENT',
-    userId: matchesUserId,
     name: matches.string
   })
 
   static destroyClient = defineActionCreator({
-    type: 'network.DESTROY_CLIENT',
-    userId: matchesUserId
+    type: 'network.DESTROY_CLIENT'
   })
 
   static setXRMode = defineActionCreator({

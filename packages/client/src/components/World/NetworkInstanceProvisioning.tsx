@@ -120,7 +120,9 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
           const hostId = useWorld().hostId
           for (const client of clients)
-            Engine.currentWorld.incomingActions.add(NetworkWorldAction.createClient({ ...client, $from: hostId }))
+            Engine.currentWorld.incomingActions.add(
+              NetworkWorldAction.createClient({ $from: client.userId, name: client.name })
+            )
           for (const action of cachedActions) Engine.currentWorld.incomingActions.add({ $fromCache: true, ...action })
 
           if (engineState.isTeleporting.value) {
@@ -134,9 +136,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
             NetworkWorldAction.spawnAvatar({
               parameters: { ...spawnPose }
             })
-          )
-            .to('others')
-            .cache()
+          ).cache()
 
           dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarDetails({ avatarDetail })).cache({
             removePrevious: true
