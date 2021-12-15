@@ -300,7 +300,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
   const sendData = sendDataOnTransport(Network.instance.transport)
 
   return () => {
-    if (!Engine.hasJoinedWorld) return
+    if (!Engine.isInitialized) return
 
     // side effect - network IO
     try {

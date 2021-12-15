@@ -49,13 +49,13 @@ export default async function XRSystem(world: World): Promise<System> {
       Engine.xrSession = session
       Engine.xrManager.setSession(session)
       Engine.xrManager.setFoveation(1)
-      dispatchLocal(EngineActions.xrSession(null) as any)
+      dispatchLocal(EngineActions.xrSession() as any)
 
       Engine.xrManager.getCamera().layers.enableAll()
 
       Engine.xrManager.addEventListener('sessionend', async () => {
         endXR()
-        dispatchLocal(EngineActions.xrEnd(null) as any)
+        dispatchLocal(EngineActions.xrEnd() as any)
       })
 
       startWebXR()
