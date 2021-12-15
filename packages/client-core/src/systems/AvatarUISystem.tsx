@@ -48,8 +48,8 @@ export default async function AvatarUISystem(world: World): Promise<System> {
       if (!xrui) return
       contextMenuXRUI.layer.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
       contextMenuXRUI.layer.position.copy(userTransform.position)
-      contextMenuXRUI.layer.position.y += avatarHeight
-      contextMenuXRUI.layer.position.x += 0.7
+      contextMenuXRUI.layer.position.y += avatarHeight - 0.3
+      contextMenuXRUI.layer.position.x += 1
       contextMenuXRUI.layer.rotation.setFromRotationMatrix(Engine.camera.matrix)
     }
 
