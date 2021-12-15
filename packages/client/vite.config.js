@@ -88,7 +88,8 @@ export default defineConfig((command) => {
 
   const returned = {
     optimizeDeps: {
-      include: getDependenciesToOptimize()
+      include: getDependenciesToOptimize(),
+      exclude: ['volumetric']
     },
     plugins: [
       PkgConfig(),
