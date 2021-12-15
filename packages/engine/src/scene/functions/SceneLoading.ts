@@ -58,6 +58,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -300,7 +301,11 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
       const shape = world.physics.createShape(
         new PhysX.PxBoxGeometry(transform.scale.x, transform.scale.y, transform.scale.z),
         undefined,
-        boxColliderProps as any
+        {
+          ...(boxColliderProps as any),
+          collisionLayer: DefaultCollisionMask,
+          collisionMask: CollisionGroups.Default
+        }
       )
 
       const body = createBody(entity, { bodyType: 0 }, [shape])
