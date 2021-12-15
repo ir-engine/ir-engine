@@ -134,7 +134,9 @@ export const NetworkInstanceProvisioning = (props: Props) => {
             NetworkWorldAction.spawnAvatar({
               parameters: { ...spawnPose }
             })
-          ).cache()
+          )
+            .to('others')
+            .cache()
 
           dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarDetails({ avatarDetail })).cache({
             removePrevious: true

@@ -9,7 +9,7 @@ export type Action = {
   type: string
 } & ActionOptions
 
-export type ActionRecipients = UserId | UserId[] | 'all' | 'local'
+export type ActionRecipients = UserId | UserId[] | 'all' | 'local' | 'others'
 
 export type ActionCacheOptions =
   | boolean
