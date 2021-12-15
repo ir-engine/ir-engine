@@ -88,7 +88,7 @@ const UploadProjectModal = (props: Props): any => {
             {processing === false && createOrPatch === 'patch' && (
               <FormControl>
                 <div className={styles.inputConatiner}>
-                  {!isPublicUrl && repos.length != 0 ? (
+                  {!isPublicUrl && repos && repos.length != 0 ? (
                     <Select
                       labelId="demo-controlled-open-select-label"
                       id="demo-controlled-open-select"
@@ -101,11 +101,12 @@ const UploadProjectModal = (props: Props): any => {
                       <MenuItem value="" disabled>
                         <em>Select Project</em>
                       </MenuItem>
-                      {repos.map((el: any, i) => (
-                        <MenuItem value={`${el.repositoryPath.value}`} key={i}>
-                          {el.name.value} ({el.user.value})
-                        </MenuItem>
-                      ))}
+                      {repos &&
+                        repos.map((el: any, i) => (
+                          <MenuItem value={`${el.repositoryPath.value}`} key={i}>
+                            {el.name.value} ({el.user.value})
+                          </MenuItem>
+                        ))}
                     </Select>
                   ) : (
                     <div>
@@ -130,7 +131,7 @@ const UploadProjectModal = (props: Props): any => {
                   >
                     Upload Project
                   </Button>
-                  {repos.length != 0 ? (
+                  {repos && repos.length != 0 ? (
                     <Button
                       type="submit"
                       startIcon={<GroupIcon />}

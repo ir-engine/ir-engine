@@ -9,8 +9,6 @@ let app, appOctokit
 export const createGitHubApp = () => {
   try {
     let privateKey = config.server.gitPem
-    if (privateKey == '') return
-
     privateKey = privateKey.replace('-----BEGIN RSA PRIVATE KEY-----', '')
     privateKey = privateKey.replace('-----END RSA PRIVATE KEY-----', '')
     privateKey = privateKey.replace(' ', '\n')
@@ -41,6 +39,7 @@ export const createGitHubApp = () => {
 
 export const getGitHubAppRepos = async () => {
   try {
+    if (!config.server.gitPem || config.server.gitPem == '') return []
     //TODO: want to call this function after env is loaded from DB. this is not the best solution.
     if (!app) createGitHubApp()
     const repos = [] as Array<GithubAppInterface>
