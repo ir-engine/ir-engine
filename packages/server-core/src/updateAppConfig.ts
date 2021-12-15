@@ -62,7 +62,7 @@ export const refreshAppConfig = async (): Promise<void> => {
 }
 
 export const updateAppConfig = async (): Promise<void> => {
-  // if (process.env.APP_ENV === 'development') return
+  if (process.env.APP_ENV === 'development') return
   const sequelizeClient = new Sequelize({
     ...(db as any),
     define: {
