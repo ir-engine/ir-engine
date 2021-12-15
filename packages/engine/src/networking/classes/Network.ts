@@ -45,14 +45,6 @@ export class Network {
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
-  /** ID of last network created. */
-  private static availableNetworkId = 0 as NetworkId
-
-  /** Get next network id. */
-  static getNetworkId(): NetworkId {
-    return ++this.availableNetworkId as NetworkId
-  }
-
   /** Disposes the network. */
   dispose(): void {
     // TODO: needs tests

@@ -1,5 +1,3 @@
-import config from '../../appconfig'
-
 export const staticResourceTypeSeed = {
   path: 'static-resource-type',
   templates: [

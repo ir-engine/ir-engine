@@ -14,7 +14,7 @@ export default (app: Application) => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    apikey: {
+    apiKey: {
       type: DataTypes.STRING,
       allowNull: true
     }

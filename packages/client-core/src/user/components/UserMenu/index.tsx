@@ -25,6 +25,18 @@ import { useEngineState } from '../../../world/services/EngineService'
 import Inventory from './Inventory'
 import Trading from './Trading'
 import Wallet from './Wallet'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
+
+type StateType = {
+  currentActiveMenu: any
+  profileMenuOpen: boolean
+  username: any
+  userSetting: any
+  graphics: any
+  hideLogin: boolean
+}
 
 const UserMenu = (props: UserMenuProps): any => {
   const { enableSharing, hideLogin } = props
@@ -83,6 +95,7 @@ const UserMenu = (props: UserMenuProps): any => {
   }, [engineState.isInitialised.value])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
+    if (hasComponent(useWorld().localClientEntity, AvatarEffectComponent)) return
     if (selfUser?.value) {
       // @ts-ignore
       AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL)
