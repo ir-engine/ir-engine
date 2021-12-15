@@ -54,6 +54,8 @@ export const setAvatarLayer = (obj: Object3D) => {
 const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   const world = useWorld()
 
+  if (!entity) return
+
   const avatar = getComponent(entity, AvatarComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)

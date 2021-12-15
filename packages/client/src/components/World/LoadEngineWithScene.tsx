@@ -8,6 +8,9 @@ import { useHistory } from 'react-router'
 import { initEngine, loadLocation, teleportToLocation } from './LocationLoadHelper'
 import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -66,9 +69,11 @@ export const LoadEngineWithScene = (props: Props) => {
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     const slugifiedName = locationState.currentLocation.location.slugifiedName.value
 
-    teleportToLocation(portalComponent, slugifiedName, () => {
+    console.log('teleporting to location: ' + portalComponent.location)
+    teleportToLocation(portalComponent, slugifiedName, async () => {
       dispatch(EngineAction.setTeleporting(portalComponent))
 
+      console.log('changiung to location: ' + portalComponent.location)
       // change our browser URL
       history.push('/location/' + portalComponent.location)
     })

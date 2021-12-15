@@ -101,6 +101,7 @@ export const initEngine = async (initOptions: InitializeOptions) => {
 }
 
 export const loadLocation = async (sceneName: string): Promise<any> => {
+  console.log('loading location: ' + sceneName)
   const [project, scene] = sceneName.split('/')
 
   // 1. Get scene data
@@ -143,6 +144,7 @@ export const teleportToLocation = async (
   // }
 
   // shut down connection with existing GS
+  console.log('reseting connection for tp')
   Network.instance.transport.close(true, false)
   InstanceConnectionService.resetInstanceServer()
 
