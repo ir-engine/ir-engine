@@ -52,7 +52,7 @@
     "react-dom": "17.0.2",
     "react-redux": "7.2.6",
     "react-router-dom": "5.3.0",
-    "react-step-wizard": "5.3.10",
+    "react-step-wizard": "5.3.11",
     "react-video-recorder": "3.19.1",
     "redux": "4.1.2",
     "sass": "1.43.4",
