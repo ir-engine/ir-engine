@@ -25,6 +25,7 @@ import { PortalComponent } from '../components/PortalComponent'
 import { loadPhysX } from '../../physics/physx/loadPhysX'
 import { BodyType, PhysXConfig } from '../../physics/types/PhysicsTypes'
 import { BodyOptions, createBody, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 
 const EPSILON = 10e-9
 
@@ -684,8 +685,8 @@ describe('SceneLoading.test', () => {
       const entity = createEntity(world)
       const type = 'box'
 
-      const scale = new Vector3(2, 2, 2)
-      let geom = new BoxBufferGeometry(scale.x, scale.y, scale.z)
+      const scale = new Vector3(2, 3, 4)
+      const geom = new BoxBufferGeometry(scale.x, scale.y, scale.z)
 
       const mesh = new Mesh(geom, new MeshNormalMaterial())
       const bodyOptions = {
@@ -722,6 +723,8 @@ describe('SceneLoading.test', () => {
         assert.equal(shapeScale.x, scale.x)
         assert.equal(shapeScale.y, scale.y)
         assert.equal(shapeScale.z, scale.z)
+        assert.equal(shape._collisionLayer, DefaultCollisionMask)
+        assert.equal(shape._collisionMask, CollisionGroups.Default)
       }
       assert(hasComponent(entity, CollisionComponent))
 

@@ -26,11 +26,9 @@ const useStyles = makeStyles({
     width: '50%'
   },
   root: {
-    width: '50%',
-    // height: '100vh',
-    boxShadow: '16px 16px 16px 16px #11111159',
-    margin: 'auto',
-    borderadius: '10px'
+    width: '100%',
+    height: '100%',
+    color: 'white'
   },
   item: {
     border: 'solid 1px',
@@ -50,17 +48,28 @@ const useStyles = makeStyles({
     // maxHeight: '500px',
     overflow: 'scroll'
   },
+  backButton: {
+    opacity: 0.8,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    '&:hover': {
+      background: 'none',
+      opacity: 1
+    }
+  },
   title: {
-    color: '#777777'
+    color: 'white'
   },
   p10: {
     padding: '10px'
   },
   selecteditem: {
-    border: '2px solid #800000'
+    border: '2px solid white'
   },
   card: {
-    boxShadow: '16px 16px 16px 16px #11111159'
+    margin: '10px'
   },
   contents: {
     justifyContent: 'center'
@@ -72,7 +81,7 @@ const useStyles = makeStyles({
 
 const ITEM_HEIGHT = 48
 
-const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtransfer, type }: any) => {
+const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtransfer, type, changeActiveMenu }: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
@@ -171,8 +180,12 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
       <Stack direction="row" justifyContent="space-between" className={classes.title}>
-        <IconButton onClick={() => history.goBack()}>
-          <ArrowBackIos /> Back
+        <IconButton
+          sx={{ svg: { color: 'white' } }}
+          className={classes.backButton}
+          onClick={() => changeActiveMenu(null)}
+        >
+          <ArrowBackIos />
         </IconButton>
         <Typography className={`${classes.title} ${classes.titlesize}`}>Inventory</Typography>
         <Stack direction="row" justifyContent="center">
@@ -193,7 +206,7 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
                 ))}
               </Stack>
             ) : (
-              <Stack sx={{ color: 'black' }}>
+              <Stack>
                 <Typography>No Data Found</Typography>
               </Stack>
             )}

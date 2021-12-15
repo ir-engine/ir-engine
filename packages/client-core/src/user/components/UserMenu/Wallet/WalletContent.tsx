@@ -1,24 +1,9 @@
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import makeStyles from '@mui/styles/makeStyles'
-import { ArrowBackIos, FilterList } from '@mui/icons-material'
-import React, { useEffect, useState } from 'react'
-import {
-  Grid,
-  Divider,
-  Box,
-  Card,
-  CircularProgress,
-  FormControl,
-  IconButton,
-  InputLabel,
-  LinearProgress,
-  Menu,
-  MenuItem,
-  Select,
-  Stack,
-  TextField
-} from '@mui/material'
+import { ArrowBackIos } from '@mui/icons-material'
+import React, { useState } from 'react'
+import { Divider, Box, FormControl, IconButton, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material'
 import { useHistory } from 'react-router-dom'
 import { usePrevious } from '../../../../hooks/usePrevious'
 
@@ -27,11 +12,9 @@ const useStyles = makeStyles({
     width: '50%'
   },
   root: {
-    width: '50%',
-    // height: '100vh',
-    boxShadow: '16px 16px 16px 16px #11111159',
-    margin: 'auto',
-    borderadius: '10px'
+    width: '100%',
+    height: '100%',
+    color: 'white'
   },
   item: {
     border: 'solid 1px',
@@ -51,17 +34,28 @@ const useStyles = makeStyles({
     // maxHeight: '500px',
     overflow: 'scroll'
   },
+  backButton: {
+    opacity: 0.8,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    '&:hover': {
+      background: 'none',
+      opacity: 1
+    }
+  },
   title: {
-    color: '#777777'
+    color: 'white'
   },
   p10: {
     padding: '10px'
   },
   selecteditem: {
-    border: '2px solid #800000'
+    border: '2px solid white'
   },
   card: {
-    boxShadow: '16px 16px 16px 16px #11111159'
+    margin: '10px'
   },
   contents: {
     justifyContent: 'center'
@@ -83,7 +77,8 @@ const WalletContent = ({
   coinlimit,
   sendamtsender,
   sendamtreceiver,
-  sendamtwallet
+  sendamtwallet,
+  changeActiveMenu
 }: any) => {
   const history = useHistory()
   const classes = useStyles()
@@ -124,10 +119,15 @@ const WalletContent = ({
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
       <Stack direction="row" justifyContent="space-between" className={classes.title}>
-        <IconButton onClick={() => history.goBack()}>
-          <ArrowBackIos /> Back
+        <IconButton
+          sx={{ svg: { color: 'white' } }}
+          className={classes.backButton}
+          onClick={() => changeActiveMenu(null)}
+        >
+          <ArrowBackIos />
         </IconButton>
         <Typography className={`${classes.title} ${classes.titlesize}`}>My Wallet</Typography>
+        <Typography></Typography>
       </Stack>
       <Divider />
       {data.length !== 0 ? (

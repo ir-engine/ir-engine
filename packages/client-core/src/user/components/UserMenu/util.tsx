@@ -14,7 +14,10 @@ export const Views = {
   Location: 'Location',
   Emote: 'Emote',
   NewLocation: 'NewLocation',
-  ReadyPlayer: 'ReadyPlayer'
+  ReadyPlayer: 'ReadyPlayer',
+  Inventory: 'Inventory',
+  Wallet: 'Wallet',
+  Trading: 'Trading'
 }
 
 export interface UserMenuProps {
