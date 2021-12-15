@@ -2,25 +2,20 @@ import { App } from '@octokit/app'
 import { Octokit } from '@octokit/rest'
 import { createAppAuth } from '@octokit/auth-app'
 import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
-import fs from 'fs'
-import appRootPath from 'app-root-path'
 import config from '../../appconfig'
-import { replace } from 'lodash'
 
 let app, appOctokit
 
 export const createGitHubApp = () => {
-  let privateKey = config.server.gitPem
-  if (process.env.APP_ENV === 'development') {
-    privateKey = appRootPath.path.toString() + '/' + privateKey
-    privateKey = fs.readFileSync(privateKey, 'utf8')
-  } else {
+  try {
+    let privateKey = config.server.gitPem
+    if (privateKey == '') return
+
     privateKey = privateKey.replace('-----BEGIN RSA PRIVATE KEY-----', '')
     privateKey = privateKey.replace('-----END RSA PRIVATE KEY-----', '')
     privateKey = privateKey.replace(' ', '\n')
     privateKey = `-----BEGIN RSA PRIVATE KEY-----${privateKey}\n-----END RSA PRIVATE KEY-----`
-  }
-  try {
+
     //@octokit/app
     app = new App({
       appId: config.authentication.oauth.github.appid,
@@ -40,7 +35,7 @@ export const createGitHubApp = () => {
       }
     })
   } catch (error) {
-    console.log(error)
+    console.error(error)
   }
 }
 

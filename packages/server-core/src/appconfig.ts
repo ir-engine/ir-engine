@@ -82,7 +82,7 @@ const server = {
   url: '',
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
-  gitPem: process.env.GITHUB_PEM!,
+  gitPem: '',
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME!,
   matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true'
