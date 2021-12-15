@@ -393,7 +393,7 @@ declare namespace PhysX {
     addTorque(torque: PxVec3): void
     setRigidBodyFlags(flags: PxRigidBodyFlags): void
     setRigidBodyFlag(flag: PxRigidBodyFlag, value: boolean): void
-    getRigidBodyFlags(): number
+    getRigidBodyFlags(): PxRigidBodyFlags
     setMassandUpdateInertia(mass: PxVec3): void
     setMassSpaceInertiaTensor(mass: PxVec3): void
     updateMassAndInertia(shapeDensities: number[]): void

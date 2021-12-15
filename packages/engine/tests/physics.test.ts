@@ -7,7 +7,7 @@ import { BodyOptions, createCollider, createShape } from '../src/physics/functio
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { BodyType } from '../src/physics/types/PhysicsTypes'
 import { CollisionGroups } from '../src/physics/enums/CollisionGroups'
-import { Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
+import { BoxBufferGeometry, Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
 import { delay } from '../src/common/functions/delay'
 import { CollisionComponent } from '../src/physics/components/CollisionComponent'
 import { addComponent, getComponent, hasComponent } from '../src/ecs/functions/ComponentFunctions'
@@ -251,8 +251,86 @@ describe('Physics', () => {
     assert(hasComponent(entity, CollisionComponent))
   })
 
-  it.skip('Should create kinematic box', async () => {
+  it('Should create kinematic box', async () => {
+    const world = Engine.currentWorld
+    const entity = createEntity(world)
 
+    const type = 'box'
+    const scale = new Vector3(2, 3, 4)
+    const geom = new BoxBufferGeometry(scale.x, scale.y, scale.z)
+
+    const mesh = new Mesh(geom, new MeshNormalMaterial())
+    const bodyOptions = {
+      type,
+      bodyType: BodyType.KINEMATIC
+    } as BodyOptions
+    mesh.userData = bodyOptions
+
+    addComponent(entity, Object3DComponent, {
+      value: mesh
+    })
+
+    addComponent(entity, TransformComponent, {
+      position: new Vector3(),
+      rotation: new Quaternion(),
+      scale: scale
+    })
+
+    createCollider(entity, mesh)
+
+    assert(hasComponent(entity, ColliderComponent))
+    const body = getComponent(entity, ColliderComponent).body
+    assert.deepEqual(body._type, bodyOptions.bodyType)
+    const shapes = Engine.currentWorld.physics.getRigidbodyShapes(body)
+    assert.deepEqual(shapes.length, 1)
+    const geometryType = getGeometryType(shapes[0])
+    const actorType = body.getType()
+    assert.equal(actorType, PhysX.PxActorType.eRIGID_DYNAMIC)
+    const isKinematic = (body as PhysX.PxRigidDynamic).getRigidBodyFlags().isSet(PhysX.PxRigidBodyFlag.eKINEMATIC)
+    assert.equal(isKinematic, true)
+    assert.equal(geometryType, PhysX.PxGeometryType.eBOX.value)
+    assert(hasComponent(entity, CollisionComponent))
+  })
+
+  it('Should create dynamic box', async () => {
+    const world = Engine.currentWorld
+    const entity = createEntity(world)
+
+    const type = 'box'
+    const scale = new Vector3(2, 3, 4)
+    const geom = new BoxBufferGeometry(scale.x, scale.y, scale.z)
+
+    const mesh = new Mesh(geom, new MeshNormalMaterial())
+    const bodyOptions = {
+      type,
+      bodyType: BodyType.DYNAMIC
+    } as BodyOptions
+    mesh.userData = bodyOptions
+
+    addComponent(entity, Object3DComponent, {
+      value: mesh
+    })
+
+    addComponent(entity, TransformComponent, {
+      position: new Vector3(),
+      rotation: new Quaternion(),
+      scale: scale
+    })
+
+    createCollider(entity, mesh)
+
+    assert(hasComponent(entity, ColliderComponent))
+    const body = getComponent(entity, ColliderComponent).body
+    assert.deepEqual(body._type, bodyOptions.bodyType)
+    const shapes = Engine.currentWorld.physics.getRigidbodyShapes(body)
+    assert.deepEqual(shapes.length, 1)
+    const geometryType = getGeometryType(shapes[0])
+    const actorType = body.getType()
+    assert.equal(actorType, PhysX.PxActorType.eRIGID_DYNAMIC)
+    const isKinematic = (body as PhysX.PxRigidDynamic).getRigidBodyFlags().isSet(PhysX.PxRigidBodyFlag.eKINEMATIC)
+    assert.equal(isKinematic, false)
+    assert.equal(geometryType, PhysX.PxGeometryType.eBOX.value)
+    assert(hasComponent(entity, CollisionComponent))
   })
 
 })
