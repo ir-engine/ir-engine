@@ -280,10 +280,10 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
 
   dispatchFrom(world.hostId, () =>
     NetworkWorldAction.createClient({
-      userId: joinedUserId,
+      $from: joinedUserId,
       name: client.name
     })
-  ).to('all')
+  ).to('others')
 }
 
 export function handleIncomingActions(socket, message) {
