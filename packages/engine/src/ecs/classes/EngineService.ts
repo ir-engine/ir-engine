@@ -192,12 +192,25 @@ function callbackReceptor(action: EngineActionType) {
     case EngineEvents.EVENTS.AVATAR_DEBUG:
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.AVATAR_DEBUG, enabled: action.isAvatarDebug })
       break
+    case EngineEvents.EVENTS.USER_AVATAR_TAPPED:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.USER_AVATAR_TAPPED,
+        userId: action.userId
+      })
+      break
   }
 }
 
 export const useEngineState = () => useState(state) as any as typeof state
 
 export const EngineActions = {
+  userAvatarTapped: (userId) => {
+    return {
+      type: EngineEvents.EVENTS.USER_AVATAR_TAPPED,
+      userId
+    }
+  },
+
   loadingProgress: (count: number) => {
     return {
       type: EngineEvents.EVENTS.LOADING_PROGRESS,
