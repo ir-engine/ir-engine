@@ -12,7 +12,6 @@ import {
   FormControl,
   IconButton,
   InputLabel,
-  LinearProgress,
   Menu,
   MenuItem,
   Select,
@@ -26,11 +25,9 @@ const useStyles = makeStyles({
     width: '50%'
   },
   root: {
-    width: '50%',
-    // height: '100vh',
-    boxShadow: '16px 16px 16px 16px #11111159',
-    margin: 'auto',
-    borderadius: '10px'
+    width: '100%',
+    height: '100%',
+    color: 'white'
   },
   item: {
     border: 'solid 1px',
@@ -50,17 +47,31 @@ const useStyles = makeStyles({
     // maxHeight: '500px',
     overflow: 'scroll'
   },
+  backButton: {
+    opacity: 0.8,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    '&:hover': {
+      background: 'none',
+      opacity: 1
+    }
+  },
   title: {
-    color: '#777777'
+    color: 'white'
   },
   p10: {
     padding: '10px'
   },
   selecteditem: {
-    border: '1px solid #800000'
+    border: '1px solid white'
   },
   card: {
-    boxShadow: '16px 16px 16px 16px #11111159'
+    margin: '10px'
+  },
+  titlesize: {
+    fontSize: '30px'
   },
   contents: {
     justifyContent: 'center'
@@ -112,7 +123,8 @@ const TradingContent = ({
   data1,
   data0,
   removeofferinventory,
-  removereceiveinventory
+  removereceiveinventory,
+  changeActiveMenu
 }: any) => {
   const history = useHistory()
   const classes = useStyles()
@@ -340,13 +352,17 @@ const TradingContent = ({
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
       <Stack direction="row" justifyContent="space-between" className={classes.title}>
-        <IconButton onClick={() => history.goBack()}>
-          <ArrowBackIos /> Back
+        <IconButton
+          sx={{ svg: { color: 'white' } }}
+          className={classes.backButton}
+          onClick={() => changeActiveMenu(null)}
+        >
+          <ArrowBackIos />
         </IconButton>
-        <Typography className={classes.title}>Trade</Typography>
+        <Typography className={`${classes.title} ${classes.titlesize}`}>Trade</Typography>
+        <Typography></Typography>
       </Stack>
       <Divider />
-
       <Grid container spacing={2} className={`${classes.p10} ${classes.contents}`}>
         <Grid item md={2}>
           <Stack

@@ -1,16 +1,15 @@
-import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { AuthService, useAuthState } from '../../services/AuthService'
+import { AuthService, useAuthState } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
-import { client } from '../../../feathers'
-import { bindActionCreators, Dispatch } from 'redux'
-import axios from 'axios'
-import TradingContent from '../UserMenu/menus/TradingContent'
+import { client } from '../../../../feathers'
+import TradingContent from './TradingContent'
+import styles from '../UserMenu.module.scss'
 
-export const TradingPage = (): any => {
-  const { id } = useParams<{ id: string }>()
-  const { t } = useTranslation()
+interface Props {
+  changeActiveMenu?: any
+  id: String
+}
+
+export const Trading = (props: Props): any => {
   const [state, setState] = useState<any>({
     data: [],
     data1: [],
@@ -43,7 +42,7 @@ export const TradingPage = (): any => {
       isLoadingtransfer: true
     }))
     const data = {
-      fromUserId: id,
+      fromUserId: props.id,
       toUserId: ids,
       fromUserInventoryIds: [...items],
       fromUserStatus: 'REQUEST',
@@ -183,7 +182,7 @@ export const TradingPage = (): any => {
       isLoading: true
     }))
     try {
-      const response = await client.service('user-trade').find({ query: { fromUserId: id } })
+      const response = await client.service('user-trade').find({ query: { fromUserId: props.id } })
       setState((prevState) => ({
         ...prevState,
         data0: [...response.data],
@@ -200,7 +199,7 @@ export const TradingPage = (): any => {
       isLoading: true
     }))
     try {
-      const response = await client.service('user-trade').find({ query: { toUserId: id } })
+      const response = await client.service('user-trade').find({ query: { toUserId: props.id } })
       setState((prevState) => ({
         ...prevState,
         data1: [...response.data],
@@ -217,7 +216,7 @@ export const TradingPage = (): any => {
       isLoading: true
     }))
     try {
-      const response = await client.service('user').get(id)
+      const response = await client.service('user').get(props.id)
       setState((prevState) => ({
         ...prevState,
         inventory: [...response.inventory_items.filter((val) => val.isCoin === false)],
@@ -290,7 +289,7 @@ export const TradingPage = (): any => {
         }
       })
       if (response.data && response.data.length !== 0) {
-        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== id)
+        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== props.id)
         setState((prevState: any) => ({
           ...prevState,
           user: [...activeUser],
@@ -301,17 +300,9 @@ export const TradingPage = (): any => {
       console.error(err, 'error')
     }
   }
+
   return (
-    <EmptyLayout pageTitle={t('Inventory.pageTitle')}>
-      <style>
-        {' '}
-        {`
-                [class*=menuPanel] {
-                    top: 75px;
-                    bottom: initial;
-                }
-            `}
-      </style>
+    <div className={styles.menuPanel}>
       {isLoading ? (
         'Loading...'
       ) : (
@@ -322,6 +313,7 @@ export const TradingPage = (): any => {
           inventory={inventory}
           user={user}
           type={type}
+          changeActiveMenu={props.changeActiveMenu}
           removeiteminventory={removeiteminventory}
           removeofferinventory={removeofferinventory}
           removereceiveinventory={removereceiveinventory}
@@ -336,8 +328,8 @@ export const TradingPage = (): any => {
           rejectOfferReceived={rejectOfferReceived}
         />
       )}
-    </EmptyLayout>
+    </div>
   )
 }
 
-export default TradingPage
+export default Trading
