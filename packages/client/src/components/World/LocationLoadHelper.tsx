@@ -94,6 +94,7 @@ const createOfflineUser = (sceneData: SceneJson) => {
 }
 
 export const initEngine = async (initOptions: InitializeOptions) => {
+  Engine.isLoading = true
   Network.instance.transport = new SocketWebRTCClientTransport()
   await initializeEngine(initOptions)
   const dispatch = useDispatch()
@@ -125,6 +126,7 @@ export const loadLocation = async (sceneName: string): Promise<any> => {
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   dispatch(EngineAction.setSceneLoaded(true))
+  Engine.isLoading = false
 }
 
 export const teleportToLocation = async (
