@@ -55,7 +55,7 @@
     "cleanup-tests": "node tests/cleanup-tests.js",
     "pretest": "cross-env TEST=true npm run dev-reinit",
     "test": "cross-env TEST=true lerna run test",
-    "install-test-e2e": "npm i git://github.com/XRFoundation/XREngine-Bot",
+    "install-test-e2e": "npm i puppeteer@^13.0.0",
     "test-e2e": "mocha --config .mocharc.js",
     "test:projects": "cross-env TEST=true lerna run test:projects",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
@@ -120,6 +120,7 @@
   },
   "dependencies": {
     "git": "file:github.com/XRFoundation/XREngine-Bot",
+    "puppeteer": "^13.0.0",
     "xrengine-bot": "github:XRFoundation/XREngine-Bot"
   }
 }

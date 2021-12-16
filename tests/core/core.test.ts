@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { XREngineBot } from 'xrengine-bot/src/bot'
+import { XREngineBot } from '@xrengine/bot/src/bot'
 import { BotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 import assert from 'assert'
 
