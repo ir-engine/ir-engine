@@ -1,5 +1,6 @@
 import {
   isOpenAPIError,
+  isOpenMatchTicketAssignmentResponse,
   OpenMatchTicket,
   OpenMatchTicketAssignment,
   OpenMatchTicketAssignmentResponse
@@ -67,6 +68,11 @@ async function getTicketsAssignment(ticketId: string): Promise<OpenMatchTicketAs
 
   const data = await readStreamFirstData(response.body)
   checkForApiErrorResponse(data)
+  if (!isOpenMatchTicketAssignmentResponse(data)) {
+    console.error('Invalid result:')
+    console.log(data)
+    throw new Error('Invalid result from tickets/assignments service')
+  }
 
   return (data as OpenMatchTicketAssignmentResponse).result.assignment
 }
