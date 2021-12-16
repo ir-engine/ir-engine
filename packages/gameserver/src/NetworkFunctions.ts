@@ -138,7 +138,7 @@ export async function validateNetworkObjects(): Promise<void> {
 
       const disconnectedClient = Object.assign({}, client)
 
-      dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId }))
+      dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
 
       console.log('Disconnected Client:', disconnectedClient.userId)
       if (disconnectedClient?.instanceRecvTransport) {
@@ -325,7 +325,7 @@ export async function handleDisconnect(socket): Promise<any> {
   //The new connection will overwrite the socketID for the user's client.
   //This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId: userId }))
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
 
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
