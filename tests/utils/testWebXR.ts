@@ -1,4 +1,4 @@
-import type { XREngineBot } from '@xrengine/bot/src/bot'
+import type { XREngineBot } from 'xrengine-bot/src/bot'
 import { XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 import { compareArrays } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 import assert from 'assert'

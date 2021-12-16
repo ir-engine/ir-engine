@@ -1,5 +1,5 @@
 import { setupXR, testWebXR } from '../utils/testWebXR'
-import { XREngineBot } from '@xrengine/bot/src/bot'
+import { XREngineBot } from 'xrengine-bot/src/bot'
 import { BotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 
 const bot = new XREngineBot({ name: 'bot-1', verbose: true })

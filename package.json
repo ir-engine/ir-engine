@@ -55,7 +55,8 @@
     "cleanup-tests": "node tests/cleanup-tests.js",
     "pretest": "cross-env TEST=true npm run dev-reinit",
     "test": "cross-env TEST=true lerna run test",
-    "test:e2e": "mocha",
+    "install-test-e2e": "npm i git://github.com/XRFoundation/XREngine-Bot",
+    "test-e2e": "mocha --config .mocharc.js",
     "test:projects": "cross-env TEST=true lerna run test:projects",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
@@ -97,8 +98,8 @@
   },
   "devDependencies": {
     "@types/mocha": "9.0.0",
-    "cli": "1.0.1",
     "c8": "^7.10.0",
+    "cli": "1.0.1",
     "concurrently": "6.4.0",
     "depcheck": "1.4.2",
     "kill-port": "1.6.1",
@@ -116,5 +117,9 @@
     "trace-unhandled": "2.0.1",
     "ts-node": "10.4.0",
     "ts-node-dev": "1.1.8"
+  },
+  "dependencies": {
+    "git": "file:github.com/XRFoundation/XREngine-Bot",
+    "xrengine-bot": "github:XRFoundation/XREngine-Bot"
   }
 }

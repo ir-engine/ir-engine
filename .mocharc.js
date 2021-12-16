@@ -1,6 +1,6 @@
 module.exports = {
   'fail-zero': false,
-  parallel: true,
+  parallel: false,
   spec: ['tests/**/*.test.ts'],
   require: [
     'tests/mocha.env', // init env here
@@ -9,5 +9,9 @@ module.exports = {
   ],
   extension: [
     'ts'
-  ]
+  ],
+  exit: true,
+  recursive: true,
+  jobs: '1',
+  timeout: '60000'
 };
