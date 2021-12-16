@@ -5,6 +5,7 @@ import ProgressBar from './SimpleProgressBar'
 import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 import { useLocationState } from '../../social/services/LocationService'
 import { useSceneState } from '../../world/services/SceneService'
+import getImagePalette from 'image-palette-core'
 
 export function createLoaderDetailView(id: string) {
   return createXRUI(CharacterDetailView, createLoaderDetailState(id))
@@ -45,6 +46,17 @@ const CharacterDetailView = () => {
     if (locationState.currentLocation.value && sceneState.currentScene.value) {
       const thumbnail = sceneState.currentScene.thumbnailUrl.value
       SetBgImageSrc(thumbnail)
+      const img = new Image()
+      img.src = thumbnail
+      img.crossOrigin = 'Anonymous'
+      img.onload = function () {
+        const palette = getImagePalette(img)
+        if (palette) {
+          setBackgroundColor(palette.backgroundColor)
+          setColor(palette.color)
+          setAlternativeColor(palette.alternativeColor)
+        }
+      }
     }
   }, [sceneState.currentScene.value, locationState.currentLocation.value])
 
