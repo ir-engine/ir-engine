@@ -81,6 +81,11 @@ declare namespace PhysX {
     eDISABLE_SIMULATION = 1 << 3
   }
 
+  class PxActorType {
+    static eRIGID_STATIC: { value: number }
+    static eRIGID_DYNAMIC: { value: number }
+  }
+
   class PxMeshGeometryFlag {
     static eDOUBLE_SIDED: { value: number }
   }
@@ -350,6 +355,7 @@ declare namespace PhysX {
     setActorFlag(flag: PxActorFlag, value: boolean): void
     setActorFlags(flags: PxActorFlag): void
     getActorFlags(): number
+    getType(): PxActorType
   }
   class PxRigidActor extends PxActor {
     attachShape(shape: PxShape): void
@@ -387,7 +393,7 @@ declare namespace PhysX {
     addTorque(torque: PxVec3): void
     setRigidBodyFlags(flags: PxRigidBodyFlags): void
     setRigidBodyFlag(flag: PxRigidBodyFlag, value: boolean): void
-    getRigidBodyFlags(): number
+    getRigidBodyFlags(): PxRigidBodyFlags
     setMassandUpdateInertia(mass: PxVec3): void
     setMassSpaceInertiaTensor(mass: PxVec3): void
     updateMassAndInertia(shapeDensities: number[]): void
