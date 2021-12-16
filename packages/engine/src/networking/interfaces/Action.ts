@@ -108,7 +108,7 @@ type ResolvedActionType<S extends ActionShape<any>> = Required<ActionFromShape<S
  */
 export function defineActionCreator<A extends Action, Shape extends ActionShape<A>>(
   actionShape: ActionShape<A>,
-  initAction?: (action: Required<ActionFromShape<Shape> & Action>) => void
+  initAction?: (action: ResolvedActionType<ResolvedActionShape<Shape>> & Action) => void
 ) {
   type ResolvedAction = ResolvedActionType<ResolvedActionShape<Shape>>
 
