@@ -10,10 +10,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Vector3, Quaternion } from 'three'
 import { getSystemsFromSceneData } from '@xrengine/projects/loader'
@@ -21,7 +18,6 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { EngineAction } from '@xrengine/client-core/src/world/services/EngineService'
 
@@ -71,8 +67,7 @@ const getFirstSpawnPointFromSceneData = (scene: SceneJson) => {
 const createOfflineUser = (sceneData: SceneJson) => {
   const avatarDetail = {
     thumbnailURL: '',
-    avatarURL: '',
-    avatarId: ''
+    avatarURL: ''
   } as any
 
   const spawnPos = getFirstSpawnPointFromSceneData(sceneData)
@@ -89,11 +84,13 @@ const createOfflineUser = (sceneData: SceneJson) => {
   // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
-  dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }) as any)
-  dispatchLocal(NetworkWorldAction.spawnAvatar({ userId, parameters }) as any)
+  dispatchLocal(NetworkWorldAction.createClient({ name: 'user' }) as any)
+  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters }) as any)
+  dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }) as any)
 }
 
 export const initEngine = async (initOptions: InitializeOptions) => {
+  Engine.isLoading = true
   Network.instance.transport = new SocketWebRTCClientTransport()
   await initializeEngine(initOptions)
   const dispatch = useDispatch()
@@ -101,6 +98,7 @@ export const initEngine = async (initOptions: InitializeOptions) => {
 }
 
 export const loadLocation = async (sceneName: string): Promise<any> => {
+  console.log('loading location: ' + sceneName)
   const [project, scene] = sceneName.split('/')
 
   // 1. Get scene data
@@ -125,29 +123,5 @@ export const loadLocation = async (sceneName: string): Promise<any> => {
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   dispatch(EngineAction.setSceneLoaded(true))
-}
-
-export const teleportToLocation = async (
-  portalComponent: ReturnType<typeof PortalComponent.get>,
-  slugifiedNameOfCurrentLocation: string,
-  onTeleport: Function
-) => {
-  // TODO: this needs to be implemented on the server too
-  // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-  //   teleportPlayer(
-  //     useWorld().localClientEntity,
-  //     portalComponent.remoteSpawnPosition,
-  //     portalComponent.remoteSpawnRotation
-  //   )
-  //   return
-  // }
-
-  // shut down connection with existing GS
-  Network.instance.transport.close(true, false)
-  InstanceConnectionService.resetInstanceServer()
-
-  await teleportToScene(portalComponent, async () => {
-    onTeleport()
-    LocationService.getLocationByName(portalComponent.location)
-  })
+  Engine.isLoading = false
 }

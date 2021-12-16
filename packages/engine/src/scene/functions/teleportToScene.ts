@@ -4,7 +4,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, removeComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
@@ -21,7 +21,7 @@ import { setObjectLayers } from './setObjectLayers'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
-  handleNewScene: () => void
+  handleNewScene: () => Promise<void>
 ) => {
   Engine.currentWorld!.isInPortal = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
@@ -32,7 +32,8 @@ export const teleportToScene = async (
   switchCameraMode(world.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
   // remove controller since physics world will be destroyed and we don't want it moving
-  world.physics.removeController(getComponent(world.localClientEntity, AvatarControllerComponent).controller)
+  // world.physics.removeController(getComponent(world.localClientEntity, AvatarControllerComponent).controller)
+
   removeComponent(world.localClientEntity, AvatarControllerComponent)
   removeComponent(world.localClientEntity, InteractorComponent)
   removeComponent(world.localClientEntity, LocalInputTagComponent)

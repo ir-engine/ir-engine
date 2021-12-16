@@ -7,7 +7,8 @@ import dompurify from 'dompurify'
 import NumericInputGroup from './NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
 import ArrayInputGroup from './ArrayInputGroup'
-
+import { ItemTypes } from '../../constants/AssetTypes'
+import { VideoFileTypes, ImageFileTypes, ModelFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 /**
  * Array containing options for InteractableOption.
  *
@@ -145,6 +146,8 @@ const renderInteractableTypeOptions = (node, t) => {
             values={node.interactionImages}
             onChange={onChangeInteractionImages}
             label={t('editor:properties.interaction.images')}
+            acceptFileTypes={ImageFileTypes}
+            itemType={ItemTypes.Images}
           ></ArrayInputGroup>
           <ArrayInputGroup
             name="Interaction Videos"
@@ -152,6 +155,8 @@ const renderInteractableTypeOptions = (node, t) => {
             values={node.interactionVideos}
             onChange={onChangeInteractionVideos}
             label={t('editor:properties.interaction.videos')}
+            acceptFileTypes={VideoFileTypes}
+            itemType={ItemTypes.Videos}
           ></ArrayInputGroup>
           <ArrayInputGroup
             name="Interaction Urls"
@@ -166,6 +171,8 @@ const renderInteractableTypeOptions = (node, t) => {
             values={node.interactionModels}
             onChange={onChangeInteractionModels}
             label={t('editor:properties.interaction.models')}
+            acceptFileTypes={ModelFileTypes}
+            itemType={ItemTypes.Models}
           ></ArrayInputGroup>
         </>
       )

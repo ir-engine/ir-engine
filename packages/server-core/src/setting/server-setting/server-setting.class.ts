@@ -1,6 +1,9 @@
-import { Params } from '@feathersjs/feathers/lib'
+import { Params, NullableId } from '@feathersjs/feathers'
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
+import { refreshAppConfig } from '../../updateAppConfig'
+
+interface Data {}
 
 export class ServerSetting extends Service {
   app: Application
@@ -25,5 +28,11 @@ export class ServerSetting extends Service {
       skip: serverSetting.skip,
       data
     }
+  }
+  async patch(id: NullableId, data: Partial<Data>, params?: Params): Promise<Data> {
+    await super.patch(id, data, params)
+    //TODO refresh app config
+    await refreshAppConfig()
+    return data
   }
 }

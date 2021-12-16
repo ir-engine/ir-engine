@@ -340,18 +340,19 @@ const Harmony = (props: Props): any => {
   }, [channelConnectionState.connected.value])
 
   useEffect(() => {
-    if (messageScrollInit && messageEl != null && (messageEl as any).scrollTop != null) {
+    // chatStateRef.current = chatState
+    if (messageScrollInit.value === true && messageEl != null && (messageEl as any).scrollTop != null) {
       ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
       ChatService.updateMessageScrollInit(false)
       setMessageScrollUpdate(false)
     }
-    if (messageScrollUpdate) {
+    if (messageScrollUpdate === true) {
       setMessageScrollUpdate(false)
       if (messageEl != null && (messageEl as any).scrollTop != null) {
         ;(messageEl as any).scrollTop = (topMessage as any).offsetTop
       }
     }
-  }, [messageScrollInit])
+  }, [chatState])
 
   useEffect(() => {
     if (channelState.updateNeeded.value) {
@@ -375,9 +376,9 @@ const Harmony = (props: Props): any => {
           ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
         }
       }
-      if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
-        ChatService.getChannelMessages(channel.id)
-      }
+      // if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
+      //   ChatService.getChannelMessages(channel.id)
+      // }
     })
   }, [channels])
 
@@ -790,7 +791,7 @@ const Harmony = (props: Props): any => {
 
   const nextFriendsPage = (): void => {
     if (friendSubState.skip.value + friendSubState.limit.value < friendSubState.total.value) {
-      FriendService.getFriends('', friendSubState.skip.value + friendSubState.limit.value)
+      FriendService.getFriends(friendSubState.skip.value + friendSubState.limit.value)
     }
   }
 

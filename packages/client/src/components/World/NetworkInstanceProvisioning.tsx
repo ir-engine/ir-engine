@@ -19,6 +19,10 @@ import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/se
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { dispatchFrom, dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 interface Props {
   locationName: string
@@ -53,6 +57,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // 2. once we have the location, provision the instance server
   useEffect(() => {
     const currentLocation = locationState.currentLocation.location
+    console.log('locationState.currentLocation.location.value', locationState.currentLocation.location.value)
 
     if (currentLocation.id?.value) {
       if (
@@ -106,17 +111,37 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     )
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
       // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-      let spawnTransform
-      if (engineState.isTeleporting.value) {
-        spawnTransform = {
-          position: engineState.isTeleporting.value.remoteSpawnPosition,
-          rotation: engineState.isTeleporting.value.remoteSpawnRotation
-        }
-      }
       ;(Network.instance.transport as SocketWebRTCClientTransport)
-        .instanceRequest(MessageTypes.JoinWorld.toString(), { spawnTransform })
-        .then(() => {
+        .instanceRequest(MessageTypes.JoinWorld.toString())
+        .then(({ tick, clients, cachedActions, spawnPose, avatarDetail }) => {
+          console.log('RECEIVED JOIN WORLD RESPONSE')
+
+          useWorld().fixedTick = tick
           dispatch(EngineAction.setJoinedWorld(true))
+
+          const hostId = useWorld().hostId
+          for (const client of clients)
+            Engine.currentWorld.incomingActions.add(
+              NetworkWorldAction.createClient({ $from: client.userId, name: client.name })
+            )
+          for (const action of cachedActions) Engine.currentWorld.incomingActions.add({ $fromCache: true, ...action })
+
+          if (engineState.isTeleporting.value) {
+            spawnPose = {
+              position: engineState.isTeleporting.value.remoteSpawnPosition,
+              rotation: engineState.isTeleporting.value.remoteSpawnRotation
+            }
+          }
+
+          dispatchFrom(Engine.userId, () =>
+            NetworkWorldAction.spawnAvatar({
+              parameters: { ...spawnPose }
+            })
+          ).cache()
+
+          dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarDetails({ avatarDetail })).cache({
+            removePrevious: true
+          })
         })
     }
   }, [engineState.connectedWorld.value, engineState.sceneLoaded.value])
@@ -124,6 +149,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   useEffect(() => {
     if (engineState.joinedWorld.value) {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
+      if (engineState.isTeleporting.value) dispatch(EngineAction.setTeleporting(null!))
       dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
       dispatch(AppAction.setAppLoaded(true))
     }

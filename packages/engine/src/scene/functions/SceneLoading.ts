@@ -58,7 +58,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 
 export interface SceneDataComponent extends ComponentJson {
   data: any
@@ -109,7 +109,7 @@ export const loadComponents = (entity: Entity, sceneEntityId: string, sceneEntit
 
 export const loadComponent = (entity: Entity, component: SceneDataComponent): void => {
   // remove '-1', '-2' etc suffixes
-  // console.log(component)
+  // console.log('===loadComponent', component)
   const name = component.name.replace(/(-\d+)|(\s)/g, '')
   const world = useWorld()
   switch (name) {
@@ -301,7 +301,11 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
       const shape = world.physics.createShape(
         new PhysX.PxBoxGeometry(transform.scale.x, transform.scale.y, transform.scale.z),
         undefined,
-        boxColliderProps as any
+        {
+          ...(boxColliderProps as any),
+          collisionLayer: DefaultCollisionMask,
+          collisionMask: CollisionGroups.Default
+        }
       )
 
       const body = createBody(entity, { bodyType: 0 }, [shape])
@@ -360,7 +364,7 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
     case 'cameraproperties':
       if (isClient) {
         matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
-          if (spawnAction.userId === Engine.userId) {
+          if (spawnAction.$from === Engine.userId) {
             setCameraProperties(useWorld().localClientEntity, component.data)
             return true
           }

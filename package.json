@@ -74,6 +74,8 @@
     "precommit": "no-master-commits -b master",
     "make-user-admin": "ts-node scripts/make-user-admin.js",
     "install-projects": "ts-node scripts/install-projects.js",
+    "check-db-exists": "cross-env ts-node --transpile-only scripts/check-db-exists.ts",
+    "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true ts-node --transpile-only packages/server/src/index.ts",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "depcheck": "lerna exec --no-bail --stream -- depcheck"
   },
@@ -108,11 +110,11 @@
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",
     "prettier": "2.4.1",
-    "puppeteer": "11.0.0",
     "react-dnd": "14.0.4",
     "react-router-dom": "5.3.0",
     "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
-    "ts-node": "10.4.0"
+    "ts-node": "10.4.0",
+    "ts-node-dev": "1.1.8"
   }
 }

@@ -142,10 +142,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   // Maps
   registerSystem(SystemUpdateType.FIXED, import('./map/MapUpdateSystem'))
 
-  // Navigation
-  registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/FollowSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/AfkCheckSystem'))
-
   // Avatar Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
@@ -235,6 +231,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./interaction/systems/EquippableSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
 
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
@@ -314,6 +311,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.userId = 'server' as UserId
+    Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)
     Engine.engineTimer.start()
   } else if (options.type === EngineSystemPresets.MEDIA) {
     Engine.userId = 'mediaserver' as UserId

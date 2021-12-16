@@ -70,8 +70,6 @@ const server = {
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER!,
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
   corsServerPort: process.env.CORS_SERVER_PORT!,
-  // Used for CI/tests to force Sequelize init an empty database
-  performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER!,
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
   hub: {
@@ -84,6 +82,7 @@ const server = {
   url: '',
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
+  gitPem: '',
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME!,
   matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true'
@@ -194,6 +193,7 @@ const authentication = {
       secret: process.env.FACEBOOK_CLIENT_SECRET!
     },
     github: {
+      appid: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!
     },

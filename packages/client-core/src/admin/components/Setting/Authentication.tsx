@@ -51,6 +51,7 @@ const Account = (props: Props) => {
       secret: false
     },
     github: {
+      appid: false,
       key: false,
       secret: false
     },
@@ -148,6 +149,16 @@ const Account = (props: Props) => {
     )
     setKeySecret(tempKeySecret)
     setState(temp)
+  }
+
+  const handleOnChangeAppId = (event, type) => {
+    setKeySecret({
+      ...keySecret,
+      [type]: {
+        ...keySecret[type],
+        appid: event.target.value
+      }
+    })
   }
 
   const handleOnChangeKey = (event, type) => {
@@ -339,6 +350,23 @@ const Account = (props: Props) => {
             {holdAuth?.github && (
               <Paper className={classes.Paper} style={{ marginTop: '10px' }} elevation={0}>
                 <label style={{ color: '#fff' }}>Github</label>
+                <Paper component="div" className={classes.createInput}>
+                  <label>App ID:</label>
+                  <InputBase
+                    value={keySecret?.github?.appid || ''}
+                    name="key"
+                    style={{ color: '#fff' }}
+                    onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
+                    className={classes.input}
+                    type={showPassword.github.appid ? 'text' : 'password'}
+                  />
+                  <IconButton onClick={() => handleShowPassword('github-appid')} size="large">
+                    <Icon
+                      icon={showPassword.github.appid ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                      color="orange"
+                    />
+                  </IconButton>
+                </Paper>
                 <Paper component="div" className={classes.createInput}>
                   <label>Key:</label>
                   <InputBase

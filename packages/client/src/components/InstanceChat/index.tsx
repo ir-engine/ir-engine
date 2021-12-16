@@ -59,7 +59,7 @@ const InstanceChat = (props: Props): any => {
     if (
       user?.instanceId?.value === instanceConnectionState.instance.id?.value &&
       instanceConnectionState.connected.value === true &&
-      channelState.fetchingInstanceChannel.value !== true
+      channelState.instanceChannelFetching.value !== true
     ) {
       ChatService.getInstanceChannel()
     }
@@ -67,7 +67,7 @@ const InstanceChat = (props: Props): any => {
     user?.instanceId?.value,
     instanceConnectionState.instance.id?.value,
     instanceConnectionState.connected?.value,
-    channelState.fetchingInstanceChannel.value
+    channelState.instanceChannelFetching.value
   ])
 
   const handleComposingMessageChange = (event: any): void => {
