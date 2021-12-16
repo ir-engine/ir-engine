@@ -88,12 +88,13 @@ const createOfflineUser = (sceneData: SceneJson) => {
   // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
-  dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user' }) as any)
+  dispatchLocal(NetworkWorldAction.createClient({ name: 'user' }) as any)
   dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters }) as any)
   dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }) as any)
 }
 
 export const initEngine = async (initOptions: InitializeOptions) => {
+  Engine.isLoading = true
   Network.instance.transport = new SocketWebRTCClientTransport()
   await initializeEngine(initOptions)
   const dispatch = useDispatch()
@@ -125,6 +126,7 @@ export const loadLocation = async (sceneName: string): Promise<any> => {
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   dispatch(EngineAction.setSceneLoaded(true))
+  Engine.isLoading = false
 }
 
 export const teleportToLocation = async (

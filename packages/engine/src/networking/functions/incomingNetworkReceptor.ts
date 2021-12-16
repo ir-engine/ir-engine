@@ -17,25 +17,23 @@ export function incomingNetworkReceptor(action) {
   const world = useWorld()
 
   matches(action)
-    .when(NetworkWorldAction.createClient.matches, ({ $from, userId, name }) => {
+    .when(NetworkWorldAction.createClient.matches, ({ $from, name }) => {
       if (!isClient) return
-      if ($from !== world.hostId) return
-      world.clients.set(userId, {
-        userId,
+      world.clients.set($from, {
+        userId: $from,
         name,
         subscribedChatUpdates: []
       })
     })
 
-    .when(NetworkWorldAction.destroyClient.matches, ({ $from, userId }) => {
+    .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => {
       if (!isClient) return
-      if ($from !== world.hostId) return
-      for (const eid of world.getOwnedNetworkObjects(userId)) {
+      for (const eid of world.getOwnedNetworkObjects($from)) {
         const { networkId } = getComponent(eid, NetworkObjectComponent)
-        dispatchLocal(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+        dispatchLocal(NetworkWorldAction.destroyObject({ $from, networkId }))
       }
-      if (!isClient || userId === Engine.userId) return
-      world.clients.delete(userId)
+      if (!isClient || $from === Engine.userId) return
+      world.clients.delete($from)
     })
 
     .when(NetworkWorldAction.spawnObject.matches, (a) => {

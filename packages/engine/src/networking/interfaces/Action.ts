@@ -9,7 +9,7 @@ export type Action = {
   type: string
 } & ActionOptions
 
-export type ActionRecipients = UserId | UserId[] | 'all' | 'local'
+export type ActionRecipients = UserId | UserId[] | 'all' | 'local' | 'others'
 
 export type ActionCacheOptions =
   | boolean
@@ -98,11 +98,6 @@ type JustRequired<S extends ActionShape<any>> = Omit<Pick<ActionFromShape<S>, Ju
 
 type PartialAction<S extends ActionShape<any>> = Omit<JustRequired<S> & JustOptionals<S> & Action, 'type'>
 
-type ActionCreatorOptions<S extends ActionShape<any>, Extensions> = {
-  extensions?: (matches: Validator<unknown, unknown>) => Extensions
-  initAction?: (action: Required<ActionFromShape<S> & Action>) => void
-}
-
 type ResolvedActionType<S extends ActionShape<any>> = Required<ActionFromShape<S> & Action>
 /**
  *
@@ -111,9 +106,9 @@ type ResolvedActionType<S extends ActionShape<any>> = Required<ActionFromShape<S
  *
  * @author Gheric Speiginer <github.com/speigg>
  */
-export function defineActionCreator<A extends Action, Shape extends ActionShape<A>, Extensions>(
+export function defineActionCreator<A extends Action, Shape extends ActionShape<A>>(
   actionShape: ActionShape<A>,
-  options?: ActionCreatorOptions<Shape, Extensions>
+  initAction?: (action: ResolvedActionType<ResolvedActionShape<Shape>> & Action) => void
 ) {
   type ResolvedAction = ResolvedActionType<ResolvedActionShape<Shape>>
 
@@ -135,12 +130,14 @@ export function defineActionCreator<A extends Action, Shape extends ActionShape<
     const initializerValues = Object.fromEntries(
       initializerEntries.map(([k, v]) => [k, partialAction[k] ?? v.callback()]) as [string, any]
     )
-    return {
+    const action = {
       ...allValuesNull,
       ...partialAction,
       ...Object.fromEntries(literalEntries),
       ...initializerValues
     } as ResolvedAction
+    initAction?.(action)
+    return action
   }
 
   const matchesShape = matches.shape(resolvedActionShape) as Validator<unknown, ResolvedAction>
@@ -154,11 +151,9 @@ export function defineActionCreator<A extends Action, Shape extends ActionShape<
    */
   actionCreator.matchesFromAny = matchesShape
   actionCreator.matchesFromUser = (userId: UserId) => matches.every(matchesShape, matchesActionFromUser(userId))
-  const matchExtensions = options?.extensions?.(matchesShape)
-  Object.assign(actionCreator, matchExtensions)
 
   type ValidatorKeys = 'matches' | 'matchesFromUser' | 'matchesFromAny'
-  type FunctionProps = Pick<typeof actionCreator, 'type' | 'actionShape' | ValidatorKeys> & Extensions
+  type FunctionProps = Pick<typeof actionCreator, 'type' | 'actionShape' | ValidatorKeys>
   return actionCreator as unknown as ((partialAction: PartialAction<Shape>) => ResolvedAction) & FunctionProps
 }
 
@@ -206,7 +201,7 @@ export const matchesActionFromTrusted = matches.guard((v): v is { $from: UserId 
   return false
 })
 
-export const matchesWithInitializer = <V extends Validator<unknown, A>, A>(matches: V, callback: () => A) => {
+export const matchesWithDefault = <V extends Validator<unknown, A>, A>(matches: V, callback: () => A) => {
   return { matches, callback }
 }
 
