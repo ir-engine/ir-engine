@@ -63,13 +63,10 @@ export const WalletPage = (): any => {
 
   const fetchUserList = async () => {
     try {
-      const response = await client.service('user').find({
-        query: {
-          action: 'inventory'
-        }
-      })
+      const response = await client.service('inventory-item').find()
+      const prevData = [...response.data.filter((val: any) => val.isCoin === true)[0].users]
       if (response.data && response.data.length !== 0) {
-        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== id)
+        const activeUser = prevData.filter((val: any) => val.inviteCode !== null && val.id !== id)
         setState((prevState: any) => ({
           ...prevState,
           user: [...activeUser],
@@ -94,7 +91,7 @@ export const WalletPage = (): any => {
     }
   }
 
-  const sendamtsender = async (amt) => {
+  const sendamtsender = async (sendid, amt) => {
     setState((prevState) => ({
       ...prevState,
       isSendingLoader: true
@@ -103,7 +100,9 @@ export const WalletPage = (): any => {
       const response = await client.service('user-inventory').patch(data[0].user_inventory.userInventoryId, {
         quantity: Number(data[0].user_inventory.quantity) - Number(amt),
         walletAmt: Number(amt),
-        type: 'transfer'
+        type: 'transfer',
+        fromUserId: id,
+        toUserId: sendid
       })
     } catch (err) {
       console.error(err, 'error')

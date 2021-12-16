@@ -284,13 +284,10 @@ export const TradingPage = (): any => {
 
   const fetchUserList = async () => {
     try {
-      const response = await client.service('user').find({
-        query: {
-          action: 'inventory'
-        }
-      })
+      const response = await client.service('inventory-item').find()
+      const prevData = [...response.data.filter((val: any) => val.isCoin === true)[0].users]
       if (response.data && response.data.length !== 0) {
-        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== id)
+        const activeUser = prevData.filter((val: any) => val.inviteCode !== null && val.id !== id)
         setState((prevState: any) => ({
           ...prevState,
           user: [...activeUser],
@@ -301,6 +298,7 @@ export const TradingPage = (): any => {
       console.error(err, 'error')
     }
   }
+
   return (
     <EmptyLayout pageTitle={t('Inventory.pageTitle')}>
       <style>

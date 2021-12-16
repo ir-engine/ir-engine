@@ -115,11 +115,10 @@ const WalletContent = ({
   }
 
   const handleSubmit = (e) => {
-    sendamtsender(sendData.amount)
+    sendamtsender(sendData.userid, sendData.amount)
     sendamtreceiver(sendData.userid, sendData.amount)
     // sendamtwallet(sendData.amount)
   }
-
   return (
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}

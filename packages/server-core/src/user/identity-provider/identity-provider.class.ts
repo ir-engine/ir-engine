@@ -9,6 +9,8 @@ import config from '../../appconfig'
 import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import axios from 'axios'
+import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
+import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
 
 interface Data {}
 
@@ -157,21 +159,9 @@ export class IdentityProvider extends Service {
     // DRC
     try {
       if (result.user.userRole !== 'guest') {
-        const response = await axios.post(`${config.blockchain.blockchainUrl}/authorizeServer`, {
-          authSecretKey: config.blockchain.blockchainUrlSecret
-        })
-        const accessToken = response.data.accessToken
-        const walletData = await axios.post(
-          `${config.blockchain.blockchainUrl}/user-wallet-data`,
-          {
-            userId: result.id
-          },
-          {
-            headers: {
-              Authorization: 'Bearer ' + accessToken
-            }
-          }
-        )
+        let response: any = await blockchainTokenGenerator()
+        const accessToken = response?.data?.accessToken
+        let walleteResponse = await blockchainUserWalletGenerator(result.user.id, accessToken)
 
         let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
         let invenDataId = invenData.data[0].dataValues.inventoryItemId
@@ -182,7 +172,7 @@ export class IdentityProvider extends Service {
         })
       }
     } catch (err) {
-      console.log('ERROR', err)
+      console.error(err, 'error')
     }
     // DRC
 
