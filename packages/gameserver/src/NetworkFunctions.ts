@@ -263,11 +263,16 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
     clients.push({ userId, name: client.name })
   }
 
-  // send all cached actions to joining user
+  // send all cached and outgoing actions to joining user
   const cachedActions = [] as Action[]
   for (const action of world.cachedActions) {
     if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
   }
+  for (const action of world.outgoingActions) {
+    if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
+  }
+
+  console.log('Sending cached actions ', cachedActions)
 
   callback({
     tick: world.fixedTick,
@@ -297,7 +302,6 @@ export function handleIncomingActions(socket, message) {
   for (const a of actions) {
     a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    world.incomingActions.add(a)
     world.outgoingActions.add(a)
   }
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))

@@ -311,6 +311,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.userId = 'server' as UserId
+    Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)
     Engine.engineTimer.start()
   } else if (options.type === EngineSystemPresets.MEDIA) {
     Engine.userId = 'mediaserver' as UserId
