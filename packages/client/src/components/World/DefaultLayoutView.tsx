@@ -24,7 +24,6 @@ const DefaultLayoutView = (props: Props) => {
   const authState = useAuthState()
   const selfUser = authState.user
   const party = usePartyState().party.value
-  const engineState = useEngineState()
 
   return (
     <>
@@ -37,9 +36,8 @@ const DefaultLayoutView = (props: Props) => {
       ) : null}
 
       <GameServerWarnings
-        isTeleporting={!!engineState.isTeleporting.value}
         locationName={props.locationName}
-        instanceId={selfUser?.instanceId.value ?? party?.instanceId}
+        instanceId={selfUser?.instanceId.value ?? party?.instanceId!}
       />
       <InteractableModal />
       {/* <RecordingApp /> */}
