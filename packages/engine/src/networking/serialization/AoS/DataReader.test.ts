@@ -5,8 +5,8 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
 import { Vector3SoA } from '../Utils'
-import { createViewCursor, readProp, writeProp } from '../ViewCursor'
-import { checkBitflag, createDataReader, readComponent, readComponentProp, readEntity, readPosition, readRotation, readTransform, readVector3 } from "./DataReader"
+import { createViewCursor, writeProp } from '../ViewCursor'
+import { checkBitflag, readComponent, readComponentProp, readEntity, readPosition, readRotation, readTransform, readVector3 } from "./DataReader"
 import { createDataWriter, writeEntities, writeEntity, writePosition, writeRotation, writeTransform } from './DataWriter'
 
 describe('AoS DataReader', () => {

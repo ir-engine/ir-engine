@@ -1,5 +1,5 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import assert, { strictEqual } from 'assert'
+import { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
 import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'

@@ -3,11 +3,10 @@ import { Engine } from '../../src/ecs/classes/Engine'
 import { System } from '../../src/ecs/classes/System'
 import { createWorld, World } from '../../src/ecs/classes/World'
 import { addComponent, createMappedComponent, defineQuery, getComponent, removeComponent } from '../../src/ecs/functions/ComponentFunctions'
-import { registerSystem, SystemModulePromise } from '../../src/ecs/functions/SystemFunctions'
+import { registerSystem } from '../../src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../../src/ecs/functions/SystemUpdateType'
 import { createEntity,removeEntity } from '../../src/ecs/functions/EntityFunctions'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
-import { Entity } from '../../src/ecs/classes/Entity'
 import * as bitecs from 'bitecs'
 
 const mockDelta = 1/60

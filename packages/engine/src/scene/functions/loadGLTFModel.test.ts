@@ -1,12 +1,10 @@
 import { Group, Layers, Mesh, Quaternion, Scene, Vector3 } from 'three'
 import { addComponent, createMappedComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { parseGLTFModel } from './loadGLTFModel'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { isTriggerShape } from "../../physics/classes/Physics"
 import assert from 'assert'
 import { createWorld } from "../../ecs/classes/World"
 import { ObjectLayers } from '../constants/ObjectLayers'

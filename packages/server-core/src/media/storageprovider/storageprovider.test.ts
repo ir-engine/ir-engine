@@ -2,14 +2,14 @@ import assert from 'assert'
 import fetch from 'node-fetch'
 import path from 'path'
 const https = require('https')
-import S3Provider from '../../src/media/storageprovider/s3.storage'
-import LocalStorage from '../../src/media/storageprovider/local.storage'
-import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface'
 import { providerBeforeTest, providerAfterTest } from './storageproviderconfig'
-import { getContentType } from '../../src/util/fileUtils'
 import approot from 'app-root-path'
 import fs from 'fs-extra'
 import { v4 as uuid } from 'uuid'
+import S3Provider from './s3.storage'
+import { LocalStorage } from './local.storage'
+import { getContentType } from '../../util/fileUtils'
+import { StorageProviderInterface } from './storageprovider.interface'
 
 describe('storageprovider', () => {
   const testFileName = 'TestFile.txt'
