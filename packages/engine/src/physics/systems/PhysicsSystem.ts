@@ -25,19 +25,9 @@ function physicsActionReceptor(action: unknown) {
   matches(action).when(NetworkWorldAction.teleportObject.matches, (a) => {
     const [x, y, z, qX, qY, qZ, qW] = a.pose
     const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
-
     const colliderComponent = getComponent(entity, ColliderComponent)
     if (colliderComponent) {
       teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
-      return
-    }
-
-    const controllerComponent = getComponent(entity, AvatarControllerComponent)
-    if (controllerComponent) {
-      const avatar = getComponent(entity, AvatarComponent)
-      controllerComponent.controller.setPosition(new Vector3(x, y + avatar.avatarHalfHeight, z))
-      const velocity = getComponent(entity, VelocityComponent)
-      velocity.velocity.setScalar(0)
     }
   })
 }
