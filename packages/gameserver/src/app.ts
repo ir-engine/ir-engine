@@ -27,13 +27,15 @@ import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 register()
 
+export let app: Application
+
 export const createApp = (): Application => {
   const emitter = new EventEmitter()
 
   // Don't remove this comment. It's needed to format import lines nicely.
 
   // @ts-ignore
-  const app = express(feathers()) as Application
+  app = express(feathers()) as Application
   const agonesSDK = new AgonesSDK()
 
   app.set('nextReadyEmitter', emitter)
