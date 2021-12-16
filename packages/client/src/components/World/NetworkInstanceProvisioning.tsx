@@ -112,15 +112,16 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
       ;(Network.instance.transport as SocketWebRTCClientTransport)
         .instanceRequest(MessageTypes.JoinWorld.toString())
-        .then(({ clients, cachedActions, spawnPose, avatarDetail }) => {
-          console.log('RECEIVED JOIN WORLD RESPONSE', avatarDetail)
-
+        .then(({ tick, clients, cachedActions, spawnPose, avatarDetail }) => {
+          console.log('RECEIVED JOIN WORLD RESPONSE')
           dispatchLocal(EngineActions.joinedWorld(true) as any)
-
+          useWorld().fixedTick = tick
           const hostId = useWorld().hostId
           for (const client of clients)
-            Engine.currentWorld.incomingActions.add(NetworkWorldAction.createClient({ ...client, $from: hostId }))
-          for (const action of cachedActions) Engine.currentWorld.incomingActions.add(action)
+            Engine.currentWorld.incomingActions.add(
+              NetworkWorldAction.createClient({ $from: client.userId, name: client.name })
+            )
+          for (const action of cachedActions) Engine.currentWorld.incomingActions.add({ $fromCache: true, ...action })
 
           if (engineState.isTeleporting.value) {
             spawnPose = {
@@ -135,7 +136,9 @@ export const NetworkInstanceProvisioning = (props: Props) => {
             })
           ).cache()
 
-          dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarDetails({ avatarDetail })).cache()
+          dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarDetails({ avatarDetail })).cache({
+            removePrevious: true
+          })
         })
     }
   }, [engineState.connectedWorld.value, engineState.sceneLoaded.value])

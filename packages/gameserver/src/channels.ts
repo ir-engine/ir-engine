@@ -250,7 +250,9 @@ export default (app: Application): void => {
               }
 
               if (sceneId != null && !Engine.sceneLoaded && !Engine.isLoading) {
+                Engine.isLoading = true
                 await loadScene(app, sceneId)
+                Engine.isLoading = false
               }
             } else {
               try {

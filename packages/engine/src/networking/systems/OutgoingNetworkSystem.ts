@@ -65,7 +65,7 @@ function isControllerPoseTheSame(previousNetworkState, ownerId, netId, hp, hr, l
   for (let i = 0; i < previousNetworkState.controllerPose.length; i++) {
     if (
       previousNetworkState.controllerPose[i].networkId === netId &&
-      previousNetworkState.pose[i].ownerId === ownerId
+      previousNetworkState.controllerPose[i].ownerId === ownerId
     ) {
       return (
         arraysAreEqual(previousNetworkState.controllerPose[i].headPosePosition, hp) &&

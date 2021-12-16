@@ -136,7 +136,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchFrom(Engine.userId, () => NetworkWorldAction.xrHandsConnected({})).cache()
+        dispatchFrom(Engine.userId, () => NetworkWorldAction.xrHandsConnected({})).cache({ removePrevious: true })
         eventSent = true
       }
     })
