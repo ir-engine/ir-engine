@@ -1,16 +1,17 @@
-import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
-import { initEngine, loadLocation, teleportToLocation } from './LocationLoadHelper'
+import { initEngine, loadLocation } from './LocationLoadHelper'
 import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
+import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -65,10 +66,27 @@ export const LoadEngineWithScene = (props: Props) => {
   }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-    const slugifiedName = locationState.currentLocation.location.slugifiedName.value
     dispatch(EngineAction.setTeleporting(portalComponent))
-    teleportToLocation(portalComponent, slugifiedName, async () => {
+    dispatch(LocationAction.fetchingCurrentSocialLocation())
+
+    // TODO: this needs to be implemented on the server too
+    // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
+    //   teleportPlayer(
+    //     useWorld().localClientEntity,
+    //     portalComponent.remoteSpawnPosition,
+    //     portalComponent.remoteSpawnRotation
+    //   )
+    //   return
+    // }
+
+    // shut down connection with existing GS
+    console.log('reseting connection for tp')
+    Network.instance.transport.close(true, false)
+    InstanceConnectionService.resetInstanceServer()
+
+    await teleportToScene(portalComponent, async () => {
       history.push('/location/' + portalComponent.location)
+      LocationService.getLocationByName(portalComponent.location)
     })
   }
 

@@ -75,19 +75,12 @@ const Invites = (props: Props): any => {
   const [userToken, setUserToken] = useState('')
   const [deletePending, setDeletePending] = useState('')
   const [selectedAccordion, setSelectedAccordion] = useState('invite')
-  const dispatch = useDispatch()
-  const locationState = useLocationState()
+
   useEffect(() => {
     if (groupState.invitableUpdateNeeded.value === true && groupState.getInvitableGroupsInProgress.value !== true) {
       GroupService.getInvitableGroups(0)
     }
   }, [groupState.invitableUpdateNeeded.value, groupState.getInvitableGroupsInProgress.value])
-
-  useEffect(() => {
-    if (locationState.updateNeeded.value === true) {
-      LocationService.getLocations()
-    }
-  }, [locationState.updateNeeded.value])
 
   const handleChange = (event: any, newValue: number): void => {
     event.preventDefault()
