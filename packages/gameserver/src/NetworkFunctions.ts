@@ -360,7 +360,7 @@ export function clearCachedActionsForDisconnectedUsers() {
 
 export function clearCachedActionsForUser(user: UserId) {
   for (const action of Engine.currentWorld.cachedActions) {
-    if (Engine.currentWorld.clients.has(user) === false) {
+    if (action.$from === user) {
       Engine.currentWorld.cachedActions.delete(action)
     }
   }
