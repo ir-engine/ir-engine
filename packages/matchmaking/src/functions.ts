@@ -18,8 +18,15 @@ const axiosInstance = axios.create({
  * @param response
  */
 function checkForApiErrorResponse(response: unknown): unknown {
+  if (!response) {
+    return response
+  }
+
   if (isOpenAPIError(response)) {
     throw response
+  }
+  if (isOpenAPIError((response as any).error)) {
+    throw (response as any).error
   }
   return response
 }
