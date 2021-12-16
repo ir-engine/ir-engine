@@ -28,9 +28,9 @@ import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 
-const avatarRadius = 0.25
-const avatarHeight = 1.8
-const capsuleHeight = avatarHeight - avatarRadius * 2
+export const avatarRadius = 0.25
+export const avatarHeight = 1.8
+export const capsuleHeight = avatarHeight - avatarRadius * 2
 export const avatarHalfHeight = avatarHeight / 2
 
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
