@@ -56,6 +56,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
  */
 export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
   // remove exiting storage provider files
+  console.log('uploadLocalProjectToProvider for project', projectName, 'started at ', new Date())
   if (remove) {
     await deleteProjectFilesInStorageProvider(projectName)
   }
@@ -83,7 +84,7 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true) =
         })
       })
   )
-  // console.log('uploadLocalProjectToProvider', results)
+  console.log('uploadLocalProjectToProvider for project', projectName, 'ended at', new Date())
   return results.filter((success) => !!success) as string[]
 }
 
@@ -219,7 +220,7 @@ export class Project extends Service {
         name: projectName
       }
     })
-    if (existingProjectResult != null) await super.remove(existingProjectResult.id, params)
+    if (existingProjectResult != null) await super.remove(existingProjectResult.id, params || {})
 
     let repoPath = await getAuthenticatedRepo(data.url)
     if (!repoPath) repoPath = data.url //public repo
