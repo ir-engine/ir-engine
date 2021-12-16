@@ -268,9 +268,6 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
   for (const action of world.cachedActions) {
     if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
   }
-  for (const action of world.outgoingActions) {
-    if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
-  }
 
   console.log('Sending cached actions ', cachedActions)
 
