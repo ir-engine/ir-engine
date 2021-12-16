@@ -139,15 +139,12 @@ export const ProjectGridItem = (props: Props) => {
     })
   }
 
-  // since we have the same link and it gets cached so we add random get param to avoid it
-  const randomNumber = Math.floor(Math.random() * 100)
+  console.log('------ thumbnail url------', project.thumbnailUrl)
 
   const content = (
     <>
       <ThumbnailContainer>
-        {(project.thumbnailUrl || project.thumbnail) && (
-          <Thumbnail src={project.thumbnailUrl + `?${randomNumber}` ?? project.thumbnail} />
-        )}
+        {(project.thumbnailUrl || project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
       </ThumbnailContainer>
       <TitleContainer>
         <Col>
