@@ -139,8 +139,6 @@ export const ProjectGridItem = (props: Props) => {
     })
   }
 
-  console.log('------ thumbnail url------', project.thumbnailUrl)
-
   const content = (
     <>
       <ThumbnailContainer>
