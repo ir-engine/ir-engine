@@ -62,6 +62,7 @@ export default async function TriggerSystem(world: World): Promise<System> {
       const { triggerEntity } = getComponent(entity, TriggerDetectedComponent, true)
       const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
 
+      if (!triggerCollidedQuery) continue
       const args = triggerComponent.args
       if (!args) continue
       const onExit = args.onExit

@@ -378,9 +378,9 @@ const Harmony = (props: Props): any => {
           ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
         }
       }
-      if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
-        ChatService.getChannelMessages(channel.id)
-      }
+      // if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
+      //   ChatService.getChannelMessages(channel.id)
+      // }
     })
   }, [channels])
 

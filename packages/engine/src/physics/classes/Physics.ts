@@ -447,6 +447,7 @@ export class Physics {
 
   removeController(controller: PhysX.PxController) {
     const id = (controller as any)._id
+    console.log('controller id: ' + id)
     const actor = controller.getActor()
     const shapes = actor.getShapes() as PhysX.PxShape
     this.controllerIDByPointer.delete(controller.$$.ptr)

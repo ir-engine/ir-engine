@@ -202,7 +202,7 @@ function callbackReceptor(action: EngineActionType) {
 }
 
 export const useEngineState = () => useState(state) as any as typeof state
-
+export const accessEngineState = () => state
 export const EngineActions = {
   userAvatarTapped: (userId) => {
     return {

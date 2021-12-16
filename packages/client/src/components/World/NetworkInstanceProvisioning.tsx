@@ -57,6 +57,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // 2. once we have the location, provision the instance server
   useEffect(() => {
     const currentLocation = locationState.currentLocation.location
+    console.log('locationState.currentLocation.location.value', locationState.currentLocation.location.value)
 
     if (currentLocation.id?.value) {
       if (
@@ -145,6 +146,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
   useEffect(() => {
     if (engineState.joinedWorld.value) {
+      if (engineState.isTeleporting.value) dispatchLocal(EngineActions.setTeleporting(null!))
       dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
       dispatch(AppAction.setAppLoaded(true))
     }
