@@ -29,7 +29,7 @@ export const getSceneData = (projectName, sceneName, metadataOnly) => {
 
   const sceneData: SceneDetailInterface = {
     name: sceneName,
-    thumbnailUrl: sceneThumbnailPath,
+    thumbnailUrl: sceneThumbnailPath + `?${Date.now()}`,
     scene: metadataOnly
       ? undefined
       : parseSceneDataCacheURLs(
@@ -69,6 +69,10 @@ export class Scene implements ServiceMethods<any> {
           return d
         })
       )
+    }
+
+    for (let [index, _] of scenes.entries()) {
+      scenes[index].thumbnailUrl += `?${Date.now()}`
     }
 
     return {

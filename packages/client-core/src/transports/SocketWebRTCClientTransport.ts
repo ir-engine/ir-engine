@@ -20,7 +20,8 @@ import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MediaStreamService } from '../media/services/MediaStreamService'
-import { EngineAction } from '../world/services/EngineService'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useDispatch } from '../store'
 import { InstanceConnectionAction } from '../common/services/InstanceConnectionService'
 import { ChannelConnectionAction } from '../common/services/ChannelConnectionService'
@@ -138,7 +139,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
     console.log('******* GAMESERVER PORT IS', port)
     Network.instance.accessToken = query.token = token
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT, id: user.id })
+    dispatchLocal(EngineActions.connect(user.id) as any)
 
     this.mediasoupDevice = new mediasoupClient.Device()
     if (socket && socket.close) socket.close()
@@ -209,21 +210,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         ])
       } catch (err) {
         console.log(err)
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT,
-          instance: instance === true
-        })
+        dispatchLocal(EngineActions.connectToWorldTimeout(instance) as any)
         return
       }
       const { routerRtpCapabilities } = ConnectToWorldResponse as any
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        instance: instance === true
-      })
-      if ((socket as any).instance) {
-        dispatch(EngineAction.setConnectedWorld(true))
-      }
-
+      dispatchLocal(EngineActions.connectToWorld(instance, (socket as any).instance) as any)
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
         socket.emit(MessageTypes.Heartbeat.toString())
@@ -373,10 +364,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
         this.reconnecting = true
         console.log('reconnect')
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.RESET_ENGINE,
-          instance: (socket as any).instance
-        })
+        dispatchLocal(EngineActions.resetEngine((socket as any).instance) as any)
       })
 
       if (instance === true) {

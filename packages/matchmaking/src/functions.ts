@@ -1,5 +1,6 @@
 import {
   isOpenAPIError,
+  isOpenMatchTicketAssignmentResponse,
   OpenMatchTicket,
   OpenMatchTicketAssignment,
   OpenMatchTicketAssignmentResponse
@@ -17,8 +18,15 @@ const axiosInstance = axios.create({
  * @param response
  */
 function checkForApiErrorResponse(response: unknown): unknown {
+  if (!response) {
+    return response
+  }
+
   if (isOpenAPIError(response)) {
     throw response
+  }
+  if (isOpenAPIError((response as any).error)) {
+    throw (response as any).error
   }
   return response
 }
@@ -67,6 +75,11 @@ async function getTicketsAssignment(ticketId: string): Promise<OpenMatchTicketAs
 
   const data = await readStreamFirstData(response.body)
   checkForApiErrorResponse(data)
+  if (!isOpenMatchTicketAssignmentResponse(data)) {
+    console.error('Invalid result:')
+    console.log(data)
+    throw new Error('Invalid result from tickets/assignments service')
+  }
 
   return (data as OpenMatchTicketAssignmentResponse).result.assignment
 }

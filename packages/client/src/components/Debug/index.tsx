@@ -2,17 +2,18 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { getEntityComponents } from 'bitecs'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
-
   const showingStateRef = useRef(isShowing)
+  const engineState = useEngineState()
 
   function setupListener() {
     window.addEventListener('keydown', downHandler)
@@ -48,11 +49,11 @@ export const Debug = () => {
   const [remountCount, setRemountCount] = useState(0)
   const refresh = () => setRemountCount(remountCount + 1)
   const togglePhysicsDebug = () => {
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.PHYSICS_DEBUG })
+    dispatchLocal(EngineActions.setPhysicsDebug(!engineState.isPhysicsDebug.value) as any)
   }
 
   const toggleAvatarDebug = () => {
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.AVATAR_DEBUG })
+    dispatchLocal(EngineActions.setAvatarDebug(!engineState.isAvatarDebug.value) as any)
   }
 
   const reset = async () => {
@@ -61,10 +62,8 @@ export const Debug = () => {
       await transport.instanceSocket.disconnect()
     if (transport.channelSocket && typeof transport.channelSocket.disconnect === 'function')
       await transport.channelSocket.disconnect()
-
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.AVATAR_DEBUG, enabled: false })
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.PHYSICS_DEBUG, enabled: false })
-
+    dispatchLocal(EngineActions.setAvatarDebug(false) as any)
+    dispatchLocal(EngineActions.setPhysicsDebug(false) as any)
     shutdownEngine()
   }
 

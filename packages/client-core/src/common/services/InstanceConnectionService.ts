@@ -12,7 +12,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
-import { accessEngineState } from '../../world/services/EngineService'
+import { accessEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 //State
 const state = createState({

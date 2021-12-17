@@ -6,12 +6,13 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
 import { initEngine, loadLocation } from './LocationLoadHelper'
-import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -66,7 +67,7 @@ export const LoadEngineWithScene = (props: Props) => {
   }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-    dispatch(EngineAction.setTeleporting(portalComponent))
+    dispatchLocal(EngineActions.setTeleporting(portalComponent))
     dispatch(LocationAction.fetchingCurrentSocialLocation())
 
     // TODO: this needs to be implemented on the server too
