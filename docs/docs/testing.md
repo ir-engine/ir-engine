@@ -45,7 +45,7 @@ Differences between Unit and Integration Testing ([source](https://www.geeksforg
 | In unit testing the tester knows the internal design of the software.	| In integration testing the tester doesn’t know the internal design of the software. |
 | Unit testing is performed first of all testing processes. |	Integration testing is performed after unit testing, and before system/end-to-end tests. |
 | Unit testing is a white box testing. |	Integration testing is a black box testing. |
-| Unit testing is basically performed by the developer. |	Integration testing is performed by the tester. |
+| Unit testing is performed by the developer. |	Integration testing is performed by the tester. |
 | Detection of defects in unit testing is easy. |	Detection of defects in integration testing is difficult. |
 | It tests parts of the project without waiting for others to be completed. |	It tests only after the completion of all parts. |
 | Unit testing is less costly. |	Integration testing is more costly. |
