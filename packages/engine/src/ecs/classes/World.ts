@@ -81,11 +81,14 @@ export class World {
   /** Incoming actions */
   incomingActions = new Set<Required<Action>>()
 
-  /** Delayed actions */
-  delayedActions = new Set<Required<Action>>()
+  /** Cached actions */
+  cachedActions = new Set<Required<Action>>()
 
   /** Outgoing actions */
   outgoingActions = new Set<Action>()
+
+  /** All actions that have been dispatched */
+  actionHistory = new Set<Action>()
 
   outgoingNetworkState: WorldStateInterface
   previousNetworkState: WorldStateInterface
@@ -145,20 +148,21 @@ export class World {
 
   /**
    * Get the network objects owned by a given user
-   * @param userId
+   * @param ownerId
    */
-  getOwnedNetworkObjects(userId: UserId) {
-    return this.networkObjectQuery(this).filter((eid) => getComponent(eid, NetworkObjectComponent).userId === userId)
+  getOwnedNetworkObjects(ownerId: UserId) {
+    return this.networkObjectQuery(this).filter((eid) => getComponent(eid, NetworkObjectComponent).ownerId === ownerId)
   }
 
   /**
-   * Get a network object by NetworkId
+   * Get a network object by owner and NetworkId
    * @returns
    */
-  getNetworkObject(networkId: NetworkId) {
-    return this.networkObjectQuery(this).find(
-      (eid) => getComponent(eid, NetworkObjectComponent).networkId === networkId
-    )!
+  getNetworkObject(ownerId: UserId, networkId: NetworkId) {
+    return this.networkObjectQuery(this).find((eid) => {
+      const networkObject = getComponent(eid, NetworkObjectComponent)
+      return networkObject.networkId === networkId && networkObject.ownerId === ownerId
+    })!
   }
 
   /**
@@ -170,6 +174,14 @@ export class World {
     return this.getOwnedNetworkObjects(userId).find((eid) => {
       return hasComponent(eid, AvatarComponent, this)
     })!
+  }
+
+  /** ID of last network created. */
+  #availableNetworkId = 0 as NetworkId
+
+  /** Get next network id. */
+  createNetworkId(): NetworkId {
+    return ++this.#availableNetworkId as NetworkId
   }
 
   /**

@@ -447,6 +447,7 @@ export class Physics {
 
   removeController(controller: PhysX.PxController) {
     const id = (controller as any)._id
+    console.log('controller id: ' + id)
     const actor = controller.getActor()
     const shapes = actor.getShapes() as PhysX.PxShape
     this.controllerIDByPointer.delete(controller.$$.ptr)
@@ -486,8 +487,9 @@ export class Physics {
   }
 
   getRigidbodyShapes(body: PhysX.PxRigidActor) {
-    const shapes = body.getShapes()
-    return ((shapes as PhysX.PxShape[]).length ? shapes : [shapes]) as PhysX.PxShape[]
+    const shapesResult = body.getShapes()
+    const shapes = ((shapesResult as PhysX.PxShape[]).length ? shapesResult : [shapesResult]) as PhysX.PxShape[]
+    return shapes.map((shape) => this.shapes.get(this.shapeIDByPointer.get(shape.$$.ptr)!)!) // get original ref
   }
 
   doRaycast(raycastQuery: ComponentType<typeof RaycastComponent>) {
@@ -562,6 +564,24 @@ export const isTriggerShape = (shape: PhysX.PxShape) => {
 // TODO double check this
 export const getGeometryType = (shape: PhysX.PxShape) => {
   return (shape.getGeometry().getType() as any).value
+}
+
+export const getGeometryScale = (shape: PhysX.PxShape) => {
+  let geometryType = getGeometryType(shape)
+  if (geometryType === PhysX.PxGeometryType.eTRIANGLEMESH.value) {
+    let geometry = new PhysX.PxTriangleMeshGeometry()
+    shape.getTriangleMeshGeometry(geometry as PhysX.PxTriangleMeshGeometry)
+    const meshScale = (geometry as any).getScale() as any
+    return meshScale.getScale()
+  } else if (geometryType === PhysX.PxGeometryType.eBOX.value) {
+    let geometry = new PhysX.PxBoxGeometry(0, 0, 0)
+    shape.getBoxGeometry(geometry as PhysX.PxBoxGeometry)
+    let meshScale = geometry.halfExtents
+    return meshScale
+  } else {
+    console.warn('getGeometryScale does not work currently for the geometry type', geometryType)
+    return new PhysX.PxMeshScale(0, 0)
+  }
 }
 
 export const isKinematicBody = (body: PhysX.PxRigidActor) => {

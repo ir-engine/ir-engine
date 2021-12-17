@@ -14,7 +14,8 @@ const state = createState({
   layerUsersUpdateNeeded: true,
   channelLayerUsers: [] as Array<User>,
   channelLayerUsersUpdateNeeded: true,
-  toastMessages: [] as Array<{ user: User; userAdded?: boolean; userRemoved?: boolean }>
+  toastMessages: [] as Array<{ user: User; userAdded?: boolean; userRemoved?: boolean }>,
+  selectedLayerUser: ''
 })
 
 store.receptors.push((action: UserActionType): void => {
@@ -79,6 +80,8 @@ store.receptors.push((action: UserActionType): void => {
         } else return s
       case 'USER_TOAST':
         return s.toastMessages.merge([action.message])
+      case 'SELECTED_LAYER_USER':
+        return s.selectedLayerUser.set(action.userId)
     }
   }, action.type)
 })
@@ -284,6 +287,13 @@ export const UserAction = {
     return {
       type: 'USER_TOAST' as const,
       message: { user, args }
+    }
+  },
+
+  selectedLayerUser: (userId: string) => {
+    return {
+      type: 'SELECTED_LAYER_USER' as const,
+      userId: userId
     }
   }
 }

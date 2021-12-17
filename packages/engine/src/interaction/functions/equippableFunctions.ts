@@ -41,12 +41,14 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
   const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
   dispatchFrom(Engine.userId, () =>
     NetworkWorldAction.setEquippedObject({
-      userId: Engine.userId,
-      networkId: networkComponet.networkId,
+      object: {
+        ownerId: networkComponet.ownerId,
+        networkId: networkComponet.networkId
+      },
       attachmentPoint: attachmentPoint,
       equip: equip
     })
-  )
+  ).cache({ removePrevious: true })
 }
 
 export const getAttachmentPoint = (parityValue: ParityValue): EquippableAttachmentPoint => {

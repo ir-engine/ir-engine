@@ -20,5 +20,5 @@ export interface SceneDetailInterface {
   name: string
   thumbnailUrl: string
   scene?: SceneJson
-  project?: String
+  project?: string
 }

@@ -82,6 +82,8 @@ import { useMediaStreamState } from '@xrengine/client-core/src/media/services/Me
 import { TransportService } from '@xrengine/client-core/src/common/services/TransportService'
 import { useTransportStreamState } from '@xrengine/client-core/src/common/services/TransportService'
 import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -376,9 +378,9 @@ const Harmony = (props: Props): any => {
           ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
         }
       }
-      if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
-        ChatService.getChannelMessages(channel.id)
-      }
+      // if (channel?.updateNeeded != null && channel?.updateNeeded === true) {
+      //   ChatService.getChannelMessages(channel.id)
+      // }
     })
   }, [channels])
 
@@ -491,7 +493,7 @@ const Harmony = (props: Props): any => {
       TransportService.updateChannelTypeState()
       MediaStreamService.updateCamVideoState()
       MediaStreamService.updateCamAudioState()
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
+      dispatchLocal(EngineActions.sceneLoaded(true) as any)
     }
   }
 
@@ -853,7 +855,7 @@ const Harmony = (props: Props): any => {
         ChannelConnectionService.provisionChannelServer(instanceChannel.id)
       }
     }
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS })
+    dispatchLocal(EngineActions.startSuspendedContexts() as any)
   }
 
   const openProfileMenu = (): void => {

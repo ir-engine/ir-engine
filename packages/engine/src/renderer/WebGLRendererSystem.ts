@@ -23,6 +23,8 @@ import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { World } from '../ecs/classes/World'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { configureEffectComposer } from './functions/configureEffectComposer'
+import { dispatchLocal } from '../networking/functions/dispatchFrom'
+import { EngineActions } from '../ecs/classes/EngineService'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -136,10 +138,11 @@ export class EngineRenderer {
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
 
     if (!context) {
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
-        message: 'Your brower does not support webgl,or it disable webgl,Please enable webgl'
-      })
+      dispatchLocal(
+        EngineActions.browserNotSupported(
+          'Your brower does not support webgl,or it disable webgl,Please enable webgl'
+        ) as any
+      )
     }
 
     this.renderContext = context!

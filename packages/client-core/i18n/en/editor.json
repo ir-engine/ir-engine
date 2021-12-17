@@ -463,7 +463,10 @@
         },
         "volumetric": {
             "description": "Dynamically loads a volumetric video.",
-            "lbl-volumetric": "Volumetric"
+            "uvolPaths": "UVOL Paths",
+            "playmode": "Play Mode",
+            "playtitle": "Play",
+            "pausetitle": "Pause"
         },
         "spline": {
             "description": "Dynamically create and customize curves.",

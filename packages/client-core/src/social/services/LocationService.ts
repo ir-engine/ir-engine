@@ -9,12 +9,6 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 //State
 const state = createState({
-  locations: {
-    locations: [] as Location[],
-    total: 0,
-    limit: 10,
-    skip: 0
-  },
   currentLocation: {
     location: LocationSeed as Location,
     bannedUsers: [] as UserId[],
@@ -29,19 +23,16 @@ const state = createState({
 store.receptors.push((action: LocationActionType): any => {
   state.batch((s) => {
     switch (action.type) {
-      case 'LOCATIONS_RETRIEVED':
-        return s.merge({
-          locations: {
-            locations: action.locations.data,
-            limit: action.locations.limit,
-            skip: action.locations.skip,
-            total: action.locations.total
-          },
-          updateNeeded: false
-        })
       case 'FETCH_CURRENT_LOCATION':
         return s.merge({
-          fetchingCurrentLocation: true
+          fetchingCurrentLocation: true,
+          currentLocation: {
+            location: LocationSeed as Location,
+            bannedUsers: [] as UserId[],
+            selfUserBanned: false
+          },
+          updateNeeded: true,
+          currentLocationUpdateNeeded: true
         })
       case 'LOCATION_RETRIEVED':
         let bannedUsers = [] as UserId[]
@@ -91,25 +82,6 @@ export const useLocationState = () => useState(state) as any as typeof state
 
 //Service
 export const LocationService = {
-  getLocations: async (skip?: number, limit?: number) => {
-    const dispatch = useDispatch()
-    {
-      try {
-        const locationState = accessLocationState()
-        await waitForClientAuthenticated()
-        const locationResults = await client.service('location').find({
-          query: {
-            $limit: limit != null ? limit : locationState.locations.limit.value,
-            $skip: skip != null ? skip : locationState.locations.skip.value,
-            joinableLocations: true
-          }
-        })
-        dispatch(LocationAction.socialLocationsRetrieved(locationResults))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
-    }
-  },
   getLocation: async (locationId: string) => {
     const dispatch = useDispatch()
     {
@@ -178,33 +150,9 @@ export const LocationService = {
 
 //Action
 export const LocationAction = {
-  socialLocationsRetrieved: (locations: LocationResult) => {
-    return {
-      type: 'LOCATIONS_RETRIEVED' as const,
-      locations: locations
-    }
-  },
   socialLocationRetrieved: (location: Location) => {
     return {
       type: 'LOCATION_RETRIEVED' as const,
-      location: location
-    }
-  },
-  socialLocationCreated: (location: Location) => {
-    return {
-      type: 'LOCATION_CREATED' as const,
-      location: location
-    }
-  },
-  socialLocationPatched: (location: Location) => {
-    return {
-      type: 'LOCATION_PATCHED' as const,
-      location: location
-    }
-  },
-  socialLocationRemoved: (location: Location) => {
-    return {
-      type: 'LOCATION_REMOVED' as const,
       location: location
     }
   },

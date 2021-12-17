@@ -154,14 +154,8 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   return (
     <>
       <div style={headGrid}>
-        <ToolButton icon={ArrowBackIcon} onClick={onBackDirectory} id="backDir" iconHeight="100%" iconWidth="100%" />
-        <ToolButton
-          icon={AutorenewIcon}
-          onClick={onRefreshDirectory}
-          id="refreshDir"
-          iconHeight="100%"
-          iconWidth="100%"
-        />
+        <ToolButton icon={ArrowBackIcon} onClick={onBackDirectory} id="backDir" />
+        <ToolButton icon={AutorenewIcon} onClick={onRefreshDirectory} id="refreshDir" />
       </div>
 
       <ContextMenuTrigger id={'uniqueId_current'} holdToDisplay={-1}>

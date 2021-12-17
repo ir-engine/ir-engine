@@ -12,12 +12,17 @@ import { useTranslation } from 'react-i18next'
 import { OpenLink } from '../OpenLink'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { useEngineState } from '../../services/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { UserAction, useUserState } from '../../../user/services/UserService'
+import { useDispatch } from '../../../store'
 
 const ModelView = React.lazy(() => import('./modelView'))
 
 export const InteractableModal: FunctionComponent = () => {
   const { t } = useTranslation()
+  const dispatch = useDispatch()
+
+  const userState = useUserState()
 
   const [hoveredLabel, setHoveredLabel] = useState('')
   const [infoBoxData, setModalData] = useState(null)
@@ -52,9 +57,16 @@ export const InteractableModal: FunctionComponent = () => {
     setObjectActivated(true)
   }
 
+  const onUserAvatarTapped = (event): void => {
+    if (event.userId != userState.selectedLayerUser.value) {
+      dispatch(UserAction.selectedLayerUser(event.userId || ''))
+    }
+  }
+
   useEffect(() => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_HOVER, onObjectHover)
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_AVATAR_TAPPED, onUserAvatarTapped)
   }, [engineState.isInitialised.value])
 
   const handleLinkClick = (url) => {

@@ -9,7 +9,7 @@ import InstanceChat from '../InstanceChat'
 import MediaIconsBox from '../MediaIconsBox'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
-import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
@@ -24,7 +24,6 @@ const DefaultLayoutView = (props: Props) => {
   const authState = useAuthState()
   const selfUser = authState.user
   const party = usePartyState().party.value
-  const engineState = useEngineState()
 
   return (
     <>
@@ -37,9 +36,8 @@ const DefaultLayoutView = (props: Props) => {
       ) : null}
 
       <GameServerWarnings
-        isTeleporting={!!engineState.isTeleporting.value}
         locationName={props.locationName}
-        instanceId={selfUser?.instanceId.value ?? party?.instanceId}
+        instanceId={selfUser?.instanceId.value ?? party?.instanceId!}
       />
       <InteractableModal />
       {/* <RecordingApp /> */}

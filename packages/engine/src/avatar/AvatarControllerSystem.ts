@@ -21,10 +21,6 @@ export class AvatarSettings {
 }
 
 export default async function AvatarControllerSystem(world: World): Promise<System> {
-  const vector3 = new Vector3()
-  const quat = new Quaternion()
-  const quat2 = new Quaternion()
-
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
 

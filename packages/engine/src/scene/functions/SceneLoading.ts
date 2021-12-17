@@ -1,7 +1,6 @@
 import { MathUtils, Object3D, PointLight, SpotLight } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -41,6 +40,9 @@ import { ScenePrefabTypes } from './registerPrefabs'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '../components/SceneTagComponent'
 import { reparentObject3D } from './ReparentFunction'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
   const world = useWorld()
@@ -90,8 +92,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   // Configure CSM
   isClient && updateRenderSetting(world.entityTree.rootNode.entity)
-
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
+  dispatchLocal(EngineActions.sceneLoaded(true) as any)
 }
 
 /**
@@ -238,7 +239,11 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
       const shape = world.physics.createShape(
         new PhysX.PxBoxGeometry(transform.scale.x, transform.scale.y, transform.scale.z),
         undefined,
-        boxColliderProps as any
+        {
+          ...(boxColliderProps as any),
+          collisionLayer: DefaultCollisionMask,
+          collisionMask: CollisionGroups.Default
+        }
       )
 
       const body = createBody(entity, { bodyType: 0 }, [shape])
@@ -293,7 +298,7 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     case 'cameraproperties':
       if (isClient) {
         matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
-          if (spawnAction.userId === Engine.userId) {
+          if (spawnAction.$from === Engine.userId) {
             setCameraProperties(useWorld().localClientEntity, component.data)
             return true
           }
@@ -315,9 +320,6 @@ export const registerSceneLoadPromise = (promise: Promise<any>) => {
   Engine.sceneLoadPromises.push(promise)
   promise.then(() => {
     Engine.sceneLoadPromises.splice(Engine.sceneLoadPromises.indexOf(promise), 1)
-    EngineEvents.instance.dispatchEvent({
-      type: EngineEvents.EVENTS.SCENE_ENTITY_LOADED,
-      entitiesLeft: Engine.sceneLoadPromises.length
-    })
+    dispatchLocal(EngineActions.sceneEntityLoaded(Engine.sceneLoadPromises.length) as any)
   })
 }

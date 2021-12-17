@@ -103,7 +103,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene)
 }
 
 export const parseGLTFModel = (entity: Entity, component: ComponentJson, scene: Mesh | Scene) => {
-  console.log('parseGLTFModel', entity, component, scene)
+  // console.log('parseGLTFModel', entity, component, scene)
 
   const world = useWorld()
   setObjectLayers(scene, ObjectLayers.Render, ObjectLayers.Scene)
@@ -199,13 +199,12 @@ export const parseGLTFModel = (entity: Entity, component: ComponentJson, scene: 
     ;(scene as any).sceneEntityId = component.props.sceneEntityId
     dispatchFrom(world.hostId, () =>
       NetworkWorldAction.spawnObject({
-        userId: world.hostId,
         prefab: '',
         parameters: {
           sceneEntityId: component.props.sceneEntityId
         }
       })
-    )
+    ).cache()
   }
 
   parseObjectComponentsFromGLTF(entity, scene)
