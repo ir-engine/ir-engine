@@ -6,13 +6,14 @@ RUN apt update
 # Create app directory
 WORKDIR /app
 
-RUN npm install -g lerna cross-env rimraf ts-eager --loglevel notice
+RUN npm install -g lerna cross-env rimraf --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .
 COPY packages/common/package.json ./packages/common/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/projects/package.json ./packages/projects/
+COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
 
 RUN npm install --production=false --loglevel notice --legacy-peer-deps

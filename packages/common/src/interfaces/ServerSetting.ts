@@ -1,13 +1,13 @@
 export interface ServerSetting {
   id: string
-  hostName?: string
+  hostname?: string
   serverEnabled: boolean
   serverMode?: string
   port?: string
   clientHost?: string
-  rootDirectory?: string
-  publicDirectory?: string
-  nodeModulesDirectory?: string
+  rootDir?: string
+  publicDir?: string
+  nodeModulesDir?: string
   localStorageProvider?: string
   performDryRun?: boolean
   storageProvider?: string
@@ -17,6 +17,7 @@ export interface ServerSetting {
   url?: string
   certPath?: string
   keyPath?: string
+  gitPem?: string
   local?: boolean
   releaseName?: string
 }

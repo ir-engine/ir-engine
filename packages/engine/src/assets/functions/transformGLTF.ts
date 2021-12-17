@@ -6,6 +6,7 @@ import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 async function instanceGLTF(url) {
   let dracoLoader: any = new DRACOLoader()
   dracoLoader.setDecoderPath('/loader_decoders/')
+  // @ts-ignore
   const io = new WebIO().registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
 
   let dracoDecoderModule = null

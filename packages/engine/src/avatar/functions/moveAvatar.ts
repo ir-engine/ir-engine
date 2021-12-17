@@ -150,6 +150,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   }
 
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
+
   const collisionFlags = controller.controller.move(
     displacement,
     0.001,

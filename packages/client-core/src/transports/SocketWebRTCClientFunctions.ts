@@ -5,6 +5,8 @@ import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 let networkTransport: any
 
@@ -530,7 +532,7 @@ export async function leave(instance: boolean, kicked?: boolean): Promise<boolea
           })
         ])
         if (result?.error) console.error(result.error)
-        EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LEAVE_WORLD })
+        dispatchLocal(EngineActions.leaveWorld() as any)
       }
 
       networkTransport.leaving = false

@@ -29,7 +29,7 @@ export const getSceneData = (projectName, sceneName, metadataOnly) => {
 
   const sceneData: SceneDetailInterface = {
     name: sceneName,
-    thumbnailUrl: sceneThumbnailPath,
+    thumbnailUrl: sceneThumbnailPath + `?${Date.now()}`,
     scene: metadataOnly
       ? undefined
       : parseSceneDataCacheURLs(
@@ -71,6 +71,10 @@ export class Scene implements ServiceMethods<any> {
       )
     }
 
+    for (let [index, _] of scenes.entries()) {
+      scenes[index].thumbnailUrl += `?${Date.now()}`
+    }
+
     return {
       data: scenes
     }
@@ -91,9 +95,6 @@ export class Scene implements ServiceMethods<any> {
   async update(projectName: string, data: UpdateParams, params: Params): Promise<any> {
     const { sceneName, sceneData, thumbnailBuffer } = data
     console.log('[scene.update]:', projectName, data)
-
-    if (!isDev && projectName === 'default-project')
-      throw new Error('The default project is read only. Please make a new project if you wish to customise it.')
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)

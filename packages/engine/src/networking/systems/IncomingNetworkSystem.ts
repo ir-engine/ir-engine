@@ -1,4 +1,3 @@
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../classes/Network'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
@@ -10,40 +9,68 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
-import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { pipe } from 'bitecs'
+import { Changed, pipe } from 'bitecs'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { Group } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { avatarHalfHeight } from '../../avatar/functions/createAvatar'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import { Action } from '../interfaces/Action'
+import { deepEqual } from '../../common/functions/deepEqual'
+import { Engine } from '../../ecs/classes/Engine'
 
-export const applyDelayedActions = (world: World) => {
-  const { delayedActions } = world
+export const updateCachedActions = (world: World, action: Required<Action>) => {
+  if (action.$cache) {
+    // see if we must remove any previous actions
+    if (typeof action.$cache === 'boolean') {
+      if (action.$cache) world.cachedActions.add(action)
+    } else {
+      const remove = action.$cache.removePrevious
 
-  for (const action of delayedActions) {
-    if (action.$tick <= world.fixedTick) {
-      console.log(`DELAYED ACTION ${action.type}`, action)
-      delayedActions.delete(action)
-      for (const receptor of world.receptors) {
-        receptor(action)
+      if (remove) {
+        for (const a of world.cachedActions) {
+          if (a.$from === action.$from && a.type === action.type) {
+            if (remove === true) {
+              world.cachedActions.delete(a)
+            } else {
+              let matches = true
+              for (const key of remove) {
+                if (!deepEqual(a[key], action[key])) {
+                  matches = false
+                  break
+                }
+              }
+              if (matches) world.cachedActions.delete(a)
+            }
+          }
+        }
       }
+
+      if (!action.$cache.disable) world.cachedActions.add(action)
     }
   }
+}
 
-  return world
+export const applyAndArchiveIncomingAction = (world: World, action: Required<Action>) => {
+  try {
+    for (const receptor of world.receptors) receptor(action)
+    updateCachedActions(world, action)
+    world.actionHistory.add(action)
+  } catch (e) {
+    world.actionHistory.add({ $ERROR: e, ...action } as any)
+    console.error(e)
+  } finally {
+    world.incomingActions.delete(action)
+  }
 }
 
 export const applyIncomingActions = (world: World) => {
-  const { incomingActions, delayedActions } = world
-
-  if (incomingActions.size) console.log(`Dispatching actions for simulation tick: ${world.fixedTick}`)
+  const { incomingActions } = world
 
   for (const action of incomingActions) {
     if (action.$tick > world.fixedTick) {
-      delayedActions.add(action)
       continue
     }
     if (action.$tick < world.fixedTick) {
@@ -51,13 +78,7 @@ export const applyIncomingActions = (world: World) => {
     } else {
       console.log(`ACTION ${action.type}`, action)
     }
-    for (const receptor of world.receptors)
-      try {
-        receptor(action)
-      } catch (e) {
-        console.error(e)
-        incomingActions.delete(action)
-      }
+    applyAndArchiveIncomingAction(world, action)
   }
 
   return world
@@ -108,9 +129,9 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
       for (let i = 0; i < newWorldState.pose.length; i++) {
         const pose = newWorldState.pose[i]
 
-        const networkObjectEntity = world.getNetworkObject(pose.networkId)
+        const networkObjectEntity = world.getNetworkObject(pose.ownerId, pose.networkId)
         if (!networkObjectEntity) {
-          console.warn(`Rejecting update for non-existing network object: ${pose.networkId}`)
+          console.warn(`Rejecting update for non-existing network object: ${pose.ownerId} ${pose.networkId}`)
           continue
         }
 
@@ -159,7 +180,7 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
       for (let i = 0; i < newWorldState.controllerPose.length; i++) {
         const ikPose = newWorldState.controllerPose[i]
 
-        const entity = world.getNetworkObject(ikPose.networkId)
+        const entity = world.getNetworkObject(ikPose.ownerId, ikPose.networkId)
 
         if (isEntityLocalClient(entity) || !hasComponent(entity, XRInputSourceComponent)) continue
 
@@ -189,7 +210,7 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
       }
 
       for (const netHands of newWorldState.handsPose) {
-        const entity = world.getNetworkObject(netHands.networkId)
+        const entity = world.getNetworkObject(netHands.ownerId, netHands.networkId)
         if (isEntityLocalClient(entity) || !hasComponent(entity, XRHandsInputComponent)) continue
 
         const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
@@ -224,12 +245,14 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
 export default async function IncomingNetworkSystem(world: World): Promise<System> {
   // prettier-ignore
   const applyIncomingNetworkState = pipe(
-    applyDelayedActions, 
     applyIncomingActions,
     applyUnreliableQueue(Network.instance),
   )
 
   world.receptors.push(incomingNetworkReceptor)
 
-  return () => applyIncomingNetworkState(world)
+  return () => {
+    if (!Engine.isInitialized) return
+    applyIncomingNetworkState(world)
+  }
 }

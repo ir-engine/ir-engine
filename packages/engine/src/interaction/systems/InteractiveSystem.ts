@@ -35,6 +35,8 @@ import {
 } from '../functions/interactUI'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { Not } from 'bitecs'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
 export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])
@@ -48,10 +50,11 @@ export default async function InteractiveSystem(world: World): Promise<System> {
 
   return () => {
     for (const entity of interactiveQuery.enter(world)) {
+      const interactionData = getComponent(entity, InteractableComponent).data
       if (!hasComponent(entity, BoundingBoxComponent)) {
         createBoxComponent(entity)
       }
-      if (!getInteractUI(entity)) {
+      if (interactionData.interactionType !== 'equippable' && !getInteractUI(entity)) {
         createInteractUI(entity)
       }
     }
@@ -121,10 +124,7 @@ export default async function InteractiveSystem(world: World): Promise<System> {
         const mediaObject = getComponent(entity, Object3DComponent).value as AudioSource
         mediaObject?.toggle()
       } else {
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
-          ...interactiveComponent.data
-        })
+        dispatchLocal(EngineActions.objectActivation(interactiveComponent.data) as any)
       }
       removeComponent(entity, InteractedComponent)
     }

@@ -27,10 +27,12 @@ const Server = (props: serverProps) => {
   const [serverSetting] = serverSettingState?.server?.value || []
   const id = serverSetting?.id
   const [gaTrackingId, setGaTrackingId] = useState(serverSetting?.gaTrackingId)
+  const [gitPem, setGitPem] = useState(serverSetting?.gitPem)
 
   useEffect(() => {
     if (serverSetting) {
       setGaTrackingId(serverSetting?.gaTrackingId)
+      setGitPem(serverSetting?.gitPem)
     }
   }, [serverSettingState?.updateNeeded?.value])
 
@@ -70,11 +72,12 @@ const Server = (props: serverProps) => {
 
   const handleSave = (event) => {
     event.preventDefault()
-    ServerSettingService.patchServerSetting({ gaTrackingId: gaTrackingId }, id)
+    ServerSettingService.patchServerSetting({ gaTrackingId: gaTrackingId, gitPem: gitPem }, id)
   }
 
   const handleCancel = () => {
     setGaTrackingId(serverSetting?.gaTrackingId)
+    setGitPem(serverSetting?.gitPem)
   }
 
   useEffect(() => {
@@ -119,7 +122,7 @@ const Server = (props: serverProps) => {
               className={classes.input}
               disabled
               style={{ color: '#fff' }}
-              value={serverSetting?.hostName || 'test'}
+              value={serverSetting?.hostname || 'test'}
             />
           </Paper>
           <label>Port</label>
@@ -149,7 +152,7 @@ const Server = (props: serverProps) => {
               className={classes.input}
               disabled
               style={{ color: '#fff' }}
-              value={serverSetting?.rootDirectory || ''}
+              value={serverSetting?.rootDir || ''}
             />
           </Paper>
           <label>Public Directory</label>
@@ -159,7 +162,7 @@ const Server = (props: serverProps) => {
               className={classes.input}
               disabled
               style={{ color: '#fff' }}
-              value={serverSetting?.publicDirectory || ''}
+              value={serverSetting?.publicDir || ''}
             />
           </Paper>
           <label>Node Modules Directory</label>
@@ -169,7 +172,7 @@ const Server = (props: serverProps) => {
               className={classes.input}
               disabled
               style={{ color: '#fff' }}
-              value={serverSetting?.nodeModulesDirectory || ''}
+              value={serverSetting?.nodeModulesDir || ''}
             />
           </Paper>{' '}
           <label>Local StorageProvider </label>
@@ -277,6 +280,16 @@ const Server = (props: serverProps) => {
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.keyPath || ''}
+            />
+          </Paper>
+          <label> Github Private Key </label>
+          <Paper component="div" className={classes.createInput}>
+            <InputBase
+              name="GithubPrivateKey"
+              className={classes.input}
+              style={{ color: '#fff' }}
+              value={gitPem || ''}
+              onChange={(e) => setGitPem(e.target.value)}
             />
           </Paper>
           <label> Local </label>

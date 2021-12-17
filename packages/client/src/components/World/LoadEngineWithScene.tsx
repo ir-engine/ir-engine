@@ -1,15 +1,20 @@
-import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
-import { initEngine, loadLocation, teleportToLocation } from './LocationLoadHelper'
-import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
+import { initEngine, loadLocation } from './LocationLoadHelper'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import { Downgraded } from '@hookstate/core'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
+import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -26,14 +31,6 @@ const defaultEngineInitializeOptions = {
     {
       type: 'FIXED',
       systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
-    },
-    {
-      type: 'FIXED',
-      systemModulePromise: import('@xrengine/client-core/src/proximity/systems/ProximitySystem')
-    },
-    {
-      type: 'FIXED',
-      systemModulePromise: import('@xrengine/client-core/src/webcam/systems/WebCamInputSystem')
     }
   ]
 }
@@ -74,6 +71,7 @@ export const LoadEngineWithScene = (props: Props) => {
     if (locationState.currentLocation.location.sceneId.value && engineState.isInitialised.value) {
       const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
       SceneService.getSceneData(project, scene)
+      loadLocation(project, sceneState.currentScene.scene.attach(Downgraded).value!)
     }
   }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
 
@@ -82,20 +80,34 @@ export const LoadEngineWithScene = (props: Props) => {
    */
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value && sceneState.currentScene.value) {
-      dispatch(EngineAction.setTeleporting(null!))
+      dispatch(EngineActions.setTeleporting(null!))
       const [project] = locationState.currentLocation.location.sceneId.value.split('/')
       loadLocation(project, sceneState.currentScene.scene.attach(Downgraded).value!)
     }
   }, [locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.scene?.value])
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-    const slugifiedName = locationState.currentLocation.location.slugifiedName.value
+    dispatchLocal(EngineActions.setTeleporting(portalComponent))
+    dispatch(LocationAction.fetchingCurrentSocialLocation())
 
-    teleportToLocation(portalComponent, slugifiedName, () => {
-      dispatch(EngineAction.setTeleporting(portalComponent))
+    // TODO: this needs to be implemented on the server too
+    // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
+    //   teleportPlayer(
+    //     useWorld().localClientEntity,
+    //     portalComponent.remoteSpawnPosition,
+    //     portalComponent.remoteSpawnRotation
+    //   )
+    //   return
+    // }
 
-      // change our browser URL
+    // shut down connection with existing GS
+    console.log('reseting connection for tp')
+    Network.instance.transport.close(true, false)
+    InstanceConnectionService.resetInstanceServer()
+
+    await teleportToScene(portalComponent, async () => {
       history.push('/location/' + portalComponent.location)
+      LocationService.getLocationByName(portalComponent.location)
     })
   }
 

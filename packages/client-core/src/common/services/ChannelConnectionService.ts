@@ -13,6 +13,7 @@ import { MediaStreamService } from '../../media/services/MediaStreamService'
 
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+import { accessInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 //State
 const state = createState({
@@ -60,10 +61,24 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
         return s.instanceServerConnecting.set(true)
       case 'CHANNEL_SERVER_CONNECTED':
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
-      case 'CHANNEL_SERVER_DISCONNECTED':
+      case 'CHANNEL_SERVER_DISCONNECT':
         if (connectionSocket != null) (connectionSocket as any).close()
-        return s.merge({ connected: false, instanceProvisioned: false })
-      case 'SOCKET_CREATED':
+        return s.merge({
+          instance: {
+            ipAddress: '',
+            port: ''
+          },
+          locationId: '',
+          sceneId: '',
+          channelId: '',
+          instanceProvisioned: false,
+          connected: false,
+          readyToConnect: false,
+          updateNeeded: false,
+          instanceServerConnecting: false,
+          instanceProvisioning: false
+        })
+      case 'CHANNEL_SOCKET_CREATED':
         if (connectionSocket != null) (connectionSocket as any).close()
         connectionSocket = action.socket
         return
@@ -104,7 +119,9 @@ export const ChannelConnectionService = {
       const channelState = chatState.channels
       const channels = channelState.channels.value
       const channelEntries = Object.entries(channels)
-      const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
+      const instanceChannel = channelEntries.find(
+        (entry) => entry[1].instanceId === accessInstanceConnectionState().instance.id.value
+      )
       const channelConnectionState = accessChannelConnectionState().value
       const instance = channelConnectionState.instance
       const locationId = channelConnectionState.locationId
@@ -164,7 +181,7 @@ export const ChannelConnectionService = {
   resetChannelServer: () => {
     const channelRequest = (Network.instance?.transport as any)?.channelRequest
     if (channelRequest != null) (Network.instance.transport as any).channelRequest = null
-    store.dispatch(ChannelConnectionAction.channelServerDisconnected())
+    store.dispatch(ChannelConnectionAction.disconnect())
   }
 }
 
@@ -201,14 +218,14 @@ export const ChannelConnectionAction = {
       type: 'CHANNEL_SERVER_CONNECTED' as const
     }
   },
-  channelServerDisconnected: () => {
+  disconnect: () => {
     return {
-      type: 'CHANNEL_SERVER_DISCONNECTED' as const
+      type: 'CHANNEL_SERVER_DISCONNECT' as const
     }
   },
   socketCreated: (socket: any) => {
     return {
-      type: 'SOCKET_CREATED' as const,
+      type: 'CHANNEL_SOCKET_CREATED' as const,
       socket: socket
     }
   }

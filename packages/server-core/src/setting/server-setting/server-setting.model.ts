@@ -12,7 +12,7 @@ export default (app: Application) => {
         allowNull: false,
         primaryKey: true
       },
-      hostName: {
+      hostname: {
         type: DataTypes.STRING,
         allowNull: true
       },
@@ -32,15 +32,15 @@ export default (app: Application) => {
         type: DataTypes.STRING,
         allowNull: true
       },
-      rootDirectory: {
+      rootDir: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      publicDirectory: {
+      publicDir: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      nodeModulesDirectory: {
+      nodeModulesDir: {
         type: DataTypes.STRING,
         allowNull: true
       },
@@ -64,14 +64,6 @@ export default (app: Application) => {
         type: DataTypes.JSON,
         allowNull: true
       },
-      paginate: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        defaultValue: 10,
-        validate: {
-          max: 100
-        }
-      },
       url: {
         type: DataTypes.STRING,
         allowNull: true
@@ -82,6 +74,10 @@ export default (app: Application) => {
       },
       keyPath: {
         type: DataTypes.STRING,
+        allowNull: true
+      },
+      gitPem: {
+        type: DataTypes.STRING(2048),
         allowNull: true
       },
       local: {
