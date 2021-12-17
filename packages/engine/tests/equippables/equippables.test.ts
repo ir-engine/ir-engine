@@ -16,14 +16,14 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../../src/networking/components/NetworkObjectOwnedTag'
-import  IncomingNetworkSystem  from '../../src/networking/systems/IncomingNetworkSystem'
-import { incomingNetworkReceptor } from '../../src/networking/functions/incomingNetworkReceptor'
+import { incomingNetworkReceptor, setEquippedObjectReceptor } from '../../src/networking/functions/incomingNetworkReceptor'
 import  EquippabbleSystem  from '../../src/interaction/systems/EquippableSystem'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
-import { Action } from '../../src/networking/interfaces/Action'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 import { mockProgressWorldForNetworkActions } from '../networking/NetworkTestHelpers'
+import matches from 'ts-matches'
+import { NetworkWorldAction } from '../../src/networking/functions/NetworkWorldAction'
 
 describe('Equippables Integration Tests', () => {
 
@@ -86,7 +86,9 @@ describe('Equippables Integration Tests', () => {
     
     const equippabbleSystem = await EquippabbleSystem(world)
 
-    world.receptors.push(incomingNetworkReceptor)
+    world.receptors.push(
+        (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
+    )
     mockProgressWorldForNetworkActions()
 
     equippabbleSystem()
