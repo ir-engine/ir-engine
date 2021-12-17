@@ -12,7 +12,8 @@ import { XRUIComponent } from '../components/XRUIComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
 export default async function XRUISystem(world: World): Promise<System> {
   const hitColor = new Color(0x00e6e6)
@@ -48,16 +49,10 @@ export default async function XRUISystem(world: World): Promise<System> {
       const intersectObjects = screenRaycaster.intersectObjects([modelContainer])
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.USER_AVATAR_TAPPED,
-          userId
-        })
+        dispatchLocal(EngineActions.userAvatarTapped(userId))
         return
       } else {
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.USER_AVATAR_TAPPED,
-          userId: ''
-        })
+        dispatchLocal(EngineActions.userAvatarTapped(''))
       }
     }
   }

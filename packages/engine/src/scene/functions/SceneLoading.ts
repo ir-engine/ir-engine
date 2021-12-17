@@ -58,6 +58,8 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 
 export interface SceneDataComponent extends ComponentJson {
@@ -90,7 +92,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
 
   Engine.sceneLoaded = true
   createCSM()
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
+  dispatchLocal(EngineActions.sceneLoaded(true) as any)
 }
 
 /**
@@ -414,9 +416,6 @@ export const registerSceneLoadPromise = (promise: Promise<any>) => {
   Engine.sceneLoadPromises.push(promise)
   promise.then(() => {
     Engine.sceneLoadPromises.splice(Engine.sceneLoadPromises.indexOf(promise), 1)
-    EngineEvents.instance.dispatchEvent({
-      type: EngineEvents.EVENTS.SCENE_ENTITY_LOADED,
-      entitiesLeft: Engine.sceneLoadPromises.length
-    })
+    dispatchLocal(EngineActions.sceneEntityLoaded(Engine.sceneLoadPromises.length) as any)
   })
 }
