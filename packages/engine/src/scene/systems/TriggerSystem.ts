@@ -7,6 +7,8 @@ import { System } from '../../ecs/classes/System'
 import { hasComponent } from 'bitecs'
 import { PortalComponent } from '../components/PortalComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
 /**
  * @author Hamza Mushtaq <github.com/hamzzam>
@@ -23,10 +25,7 @@ export default async function TriggerSystem(world: World): Promise<System> {
       if (getComponent(triggerEntity, PortalComponent)) {
         const portalComponent = getComponent(triggerEntity, PortalComponent)
         if (Engine.currentWorld.isInPortal) continue
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
-          portalComponent
-        })
+        dispatchLocal(EngineActions.portalRedirectEvent(portalComponent) as any)
       }
 
       const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
