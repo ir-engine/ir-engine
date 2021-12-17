@@ -13,33 +13,38 @@ import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
 export const equipEntity = (
   equipperEntity: Entity,
   equippedEntity: Entity,
-  attachmentPoint: EquippableAttachmentPoint = EquippableAttachmentPoint.RIGHT_HAND
+  attachmentPoint: EquippableAttachmentPoint = EquippableAttachmentPoint.RIGHT_HAND,
+  islocalEvent: boolean = false
 ): void => {
   if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
     addComponent(equipperEntity, EquipperComponent, { equippedEntity, data: {} as any })
     addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint })
 
-    dispatchEquipEntity(equippedEntity, true)
+    dispatchEquipEntity(equippedEntity, true, islocalEvent)
   }
 }
 
-export const unequipEntity = (equipperEntity: Entity): void => {
+export const unequipEntity = (equipperEntity: Entity, islocalEvent: boolean = false): void => {
   console.log('unequip')
   const equipperComponent = getComponent(equipperEntity, EquipperComponent)
   if (!equipperComponent) return
 
   console.log(equipperComponent)
   removeComponent(equipperEntity, EquipperComponent)
-  dispatchEquipEntity(equipperComponent.equippedEntity, false)
+  dispatchEquipEntity(equipperComponent.equippedEntity, false, islocalEvent)
 }
 
-const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
+const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean, islocalEvent: boolean): void => {
   const world = useWorld()
   if (Engine.userId === world.hostId) return
 
   const equippedComponent = getComponent(equippedEntity, EquippedComponent)
   const attachmentPoint = equippedComponent.attachmentPoint
   const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
+
+  let dispatchTo = 'all'
+  if (islocalEvent) dispatchTo = 'local'
+
   dispatchFrom(Engine.userId, () =>
     NetworkWorldAction.setEquippedObject({
       object: {
@@ -49,7 +54,9 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
       attachmentPoint: attachmentPoint,
       equip: equip
     })
-  ).cache({ removePrevious: true })
+  )
+    .to(dispatchTo as any)
+    .cache({ removePrevious: true })
 }
 
 export const getAttachmentPoint = (parityValue: ParityValue): EquippableAttachmentPoint => {

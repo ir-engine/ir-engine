@@ -17,11 +17,13 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../../src/networking/components/NetworkObjectOwnedTag'
 import  IncomingNetworkSystem  from '../../src/networking/systems/IncomingNetworkSystem'
+import { incomingNetworkReceptor } from '../../src/networking/functions/incomingNetworkReceptor'
 import  EquippabbleSystem  from '../../src/interaction/systems/EquippableSystem'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
 import { Action } from '../../src/networking/interfaces/Action'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
+import { mockProgressWorldForNetworkActions } from '../networking/NetworkTestHelpers'
 
 describe('Equippables Integration Tests', () => {
 
@@ -80,18 +82,13 @@ describe('Equippables Integration Tests', () => {
         scale: new Vector3(),
     })
     
-    equipEntity(equipperEntity, equippableEntity)
+    equipEntity(equipperEntity, equippableEntity, undefined, true)
     
-    const incomingNetworkSystem = await IncomingNetworkSystem(world)
     const equippabbleSystem = await EquippabbleSystem(world)
 
-    // simulate client behavior now
-    world.fixedTick = 1
-    for (let action of world.outgoingActions) {
-        action.$from = Engine.userId
-        world.incomingActions.add(action as Required<Action>)
-    }
-    incomingNetworkSystem()
+    world.receptors.push(incomingNetworkReceptor)
+    mockProgressWorldForNetworkActions()
+
     equippabbleSystem()
     
     // validations for equip
@@ -104,15 +101,9 @@ describe('Equippables Integration Tests', () => {
     assert.deepEqual(collider._type, BodyType.KINEMATIC)
 
     // unequip stuff
-    unequipEntity(equipperEntity)
+    unequipEntity(equipperEntity, true)
 
-    // simulate client behavior for next valid tick
-    world.fixedTick = 4
-    for (let action of world.outgoingActions) {
-        action.$from = Engine.userId
-        world.incomingActions.add(action as Required<Action>)
-    }
-    incomingNetworkSystem()
+    mockProgressWorldForNetworkActions()
     equippabbleSystem()
 
     // validations for unequip
