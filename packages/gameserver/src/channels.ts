@@ -498,7 +498,7 @@ export default (app: Application): void => {
                   if (config.kubernetes.enabled) {
                     delete app.instance
                   }
-                  const gsName = app.gsName
+                  const gsName = app.gameServer.objectMeta.name
                   if (gsName !== undefined) {
                     logger.info("App's gameserver name:")
                     logger.info(gsName)

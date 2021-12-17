@@ -22,6 +22,7 @@ import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
 import { getUserIdFromSocketId } from './NetworkFunctions'
 import config from '@xrengine/server-core/src/appconfig'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 const toArrayBuffer = (buf): any => {
   var ab = new ArrayBuffer(buf.length)
@@ -32,7 +33,7 @@ const toArrayBuffer = (buf): any => {
   return ab
 }
 
-let networkTransport: any
+let networkTransport: SocketWebRTCServerTransport
 export async function startWebRTC(): Promise<void> {
   networkTransport = Network.instance.transport as any
   logger.info('Starting WebRTC Server')
@@ -248,7 +249,7 @@ export async function createWebRtcTransport({
   const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
   if (channelType !== 'instance') {
     if (networkTransport.routers[`${channelType}:${channelId}`] == null) {
-      networkTransport.routers[`${channelType}:${channelId}`] = []
+      networkTransport.routers[`${channelType}:${channelId}`] = [] as any
       await Promise.all(
         networkTransport.workers.map(async (worker) => {
           const newRouter = await worker.createRouter({ mediaCodecs })
@@ -355,9 +356,9 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
   const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
   if (config.kubernetes.enabled) {
-    const serverResult = await (networkTransport.app as any).k8AgonesClient.get('gameservers')
+    const serverResult = await networkTransport.app.k8AgonesClient.get('gameservers')
     const thisGs = serverResult.items.find(
-      (server) => server.metadata.name === networkTransport.gameServer.objectMeta.name
+      (server) => server.metadata.name === networkTransport.app.gameServer.objectMeta.name
     )
     iceCandidates.forEach((candidate) => {
       candidate.port = thisGs.spec?.ports?.find((portMapping) => portMapping.containerPort === candidate.port).hostPort

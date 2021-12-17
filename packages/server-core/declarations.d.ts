@@ -26,7 +26,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   instance: any
   gsSubdomainNumber: number
   isChannelInstance: boolean
-  gsName: any
+  gameServer: any
   isSetup: Promise<boolean>
   restart: Function
 
