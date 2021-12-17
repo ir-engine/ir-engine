@@ -17,6 +17,7 @@ export interface ServerSetting {
   url?: string
   certPath?: string
   keyPath?: string
+  gitPem?: string
   local?: boolean
   releaseName?: string
 }

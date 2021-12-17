@@ -65,7 +65,7 @@ function isControllerPoseTheSame(previousNetworkState, ownerId, netId, hp, hr, l
   for (let i = 0; i < previousNetworkState.controllerPose.length; i++) {
     if (
       previousNetworkState.controllerPose[i].networkId === netId &&
-      previousNetworkState.pose[i].ownerId === ownerId
+      previousNetworkState.controllerPose[i].ownerId === ownerId
     ) {
       return (
         arraysAreEqual(previousNetworkState.controllerPose[i].headPosePosition, hp) &&
@@ -333,7 +333,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
   initNetworkStates(world)
 
   return () => {
-    if (!Engine.hasJoinedWorld) return
+    if (!Engine.isInitialized) return
 
     // side effect - network IO
     sendActions(world)

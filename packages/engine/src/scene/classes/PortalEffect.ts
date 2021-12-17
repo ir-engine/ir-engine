@@ -111,6 +111,7 @@ export class PortalEffect extends Object3D {
   }
 
   fadeOut(delta: number): Promise<void> {
+    console.log('fading out')
     this.fadingOut = true
 
     return new Promise<void>((resolve) => {

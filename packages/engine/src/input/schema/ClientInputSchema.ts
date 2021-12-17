@@ -9,6 +9,8 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import normalizeWheel from '../functions/normalizeWheel'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
 let prevTouchPosition: [number, number] = [0, 0]
 let lastTap = Date.now()
@@ -551,10 +553,7 @@ export const handleVisibilityChange = (event: Event) => {
       }
     })
   }
-  EngineEvents.instance.dispatchEvent({
-    type: EngineEvents.EVENTS.WINDOW_FOCUS,
-    focused: document.visibilityState === 'visible'
-  })
+  dispatchLocal(EngineActions.windowFocus() as any)
 }
 
 /**

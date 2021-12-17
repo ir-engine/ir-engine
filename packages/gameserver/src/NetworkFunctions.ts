@@ -138,7 +138,7 @@ export async function validateNetworkObjects(): Promise<void> {
 
       const disconnectedClient = Object.assign({}, client)
 
-      dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId }))
+      dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
 
       console.log('Disconnected Client:', disconnectedClient.userId)
       if (disconnectedClient?.instanceRecvTransport) {
@@ -263,13 +263,16 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
     clients.push({ userId, name: client.name })
   }
 
-  // send all cached actions to joining user
+  // send all cached and outgoing actions to joining user
   const cachedActions = [] as Action[]
   for (const action of world.cachedActions) {
     if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
   }
 
+  console.log('Sending cached actions ', cachedActions)
+
   callback({
+    tick: world.fixedTick,
     clients,
     cachedActions,
     avatarDetail: client.avatarDetail!,
@@ -279,10 +282,10 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
 
   dispatchFrom(world.hostId, () =>
     NetworkWorldAction.createClient({
-      userId: joinedUserId,
+      $from: joinedUserId,
       name: client.name
     })
-  ).to('all')
+  ).to('others')
 }
 
 export function handleIncomingActions(socket, message) {
@@ -294,8 +297,8 @@ export function handleIncomingActions(socket, message) {
 
   const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
+    a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    world.incomingActions.add(a)
     world.outgoingActions.add(a)
   }
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
@@ -323,7 +326,7 @@ export async function handleDisconnect(socket): Promise<any> {
   //The new connection will overwrite the socketID for the user's client.
   //This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ userId: userId }))
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
 
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
@@ -358,7 +361,7 @@ export function clearCachedActionsForDisconnectedUsers() {
 
 export function clearCachedActionsForUser(user: UserId) {
   for (const action of Engine.currentWorld.cachedActions) {
-    if (Engine.currentWorld.clients.has(user) === false) {
+    if (action.$from === user) {
       Engine.currentWorld.cachedActions.delete(action)
     }
   }

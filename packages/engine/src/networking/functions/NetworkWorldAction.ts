@@ -5,7 +5,7 @@ import {
   matchesQuaternion,
   matchesUserId,
   matchesVector3,
-  matchesWithInitializer
+  matchesWithDefault
 } from '../interfaces/Action'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
@@ -15,13 +15,11 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 export class NetworkWorldAction {
   static createClient = defineActionCreator({
     type: 'network.CREATE_CLIENT',
-    userId: matchesUserId,
     name: matches.string
   })
 
   static destroyClient = defineActionCreator({
-    type: 'network.DESTROY_CLIENT',
-    userId: matchesUserId
+    type: 'network.DESTROY_CLIENT'
   })
 
   static setXRMode = defineActionCreator({
@@ -33,21 +31,31 @@ export class NetworkWorldAction {
     type: 'network.XR_HANDS_CONNECTED'
   })
 
-  static spawnObject = defineActionCreator({
-    type: 'network.SPAWN_OBJECT',
-    prefab: matches.string,
-    networkId: matchesWithInitializer(matchesNetworkId, () => useWorld().createNetworkId()),
-    parameters: matches.any.optional()
-  })
+  static spawnObject = defineActionCreator(
+    {
+      type: 'network.SPAWN_OBJECT',
+      prefab: matches.string,
+      networkId: matchesWithDefault(matchesNetworkId, () => useWorld().createNetworkId()),
+      parameters: matches.any.optional()
+    },
+    (action) => {
+      action.$cache = true
+    }
+  )
 
-  static spawnAvatar = defineActionCreator({
-    ...NetworkWorldAction.spawnObject.actionShape,
-    prefab: 'avatar',
-    parameters: matches.shape({
-      position: matchesVector3,
-      rotation: matchesQuaternion
-    })
-  })
+  static spawnAvatar = defineActionCreator(
+    {
+      ...NetworkWorldAction.spawnObject.actionShape,
+      prefab: 'avatar',
+      parameters: matches.shape({
+        position: matchesVector3,
+        rotation: matchesQuaternion
+      })
+    },
+    (action) => {
+      action.$cache = true
+    }
+  )
 
   static destroyObject = defineActionCreator({
     type: 'network.DESTROY_OBJECT',
@@ -70,10 +78,15 @@ export class NetworkWorldAction {
     params: matchesWeightsParameters
   })
 
-  static avatarDetails = defineActionCreator({
-    type: 'network.AVATAR_DETAILS',
-    avatarDetail: matchesAvatarProps
-  })
+  static avatarDetails = defineActionCreator(
+    {
+      type: 'network.AVATAR_DETAILS',
+      avatarDetail: matchesAvatarProps
+    },
+    (action) => {
+      action.$cache = { removePrevious: true }
+    }
+  )
 
   static teleportObject = defineActionCreator({
     type: 'network.TELEPORT_OBJECT',

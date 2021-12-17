@@ -64,6 +64,7 @@ interface Facebook {
 }
 
 interface Github {
+  appid: string
   key: string
   secret: string
 }
