@@ -71,7 +71,6 @@ export const LoadEngineWithScene = (props: Props) => {
     if (locationState.currentLocation.location.sceneId.value && engineState.isInitialised.value) {
       const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
       SceneService.getSceneData(project, scene)
-      loadLocation(project, sceneState.currentScene.scene.attach(Downgraded).value!)
     }
   }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
 

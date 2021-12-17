@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { createState } from '@hookstate/core'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import ProgressBar from './SimpleProgressBar'
-import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
 import { useLocationState } from '../../social/services/LocationService'
 import { useSceneState } from '../../world/services/SceneService'
 import getImagePalette from 'image-palette-core'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 export function createLoaderDetailView(id: string) {
   return createXRUI(CharacterDetailView, createLoaderDetailState(id))
@@ -30,7 +30,7 @@ const CharacterDetailView = () => {
   const sceneState = useSceneState()
 
   const locationState = useLocationState()
-  const objectsToLoad = useEngineState()
+  const engineState = useEngineState()
 
   useEffect(() => {
     const onResize = () => {
@@ -61,8 +61,8 @@ const CharacterDetailView = () => {
   }, [sceneState.currentScene.value, locationState.currentLocation.value])
 
   useEffect(() => {
-    console.log('objectsToLoad: ', objectsToLoad.loadingProgress.value)
-  }, [objectsToLoad.loadingProgress.value])
+    console.log('objectsToLoad: ', engineState.loadingProgress.value)
+  }, [engineState.loadingProgress.value])
 
   return (
     <>
@@ -95,6 +95,8 @@ const CharacterDetailView = () => {
           )}
 
           <div
+            xr-layer="true"
+            xr-pixel-ratio="2"
             style={{
               position: 'absolute',
               top: '50%',
