@@ -10,6 +10,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import EditorDirectionalLightHelper from '../../classes/EditorDirectionalLightHelper'
 import { DirectionalLightComponent, DirectionalLightComponentType } from '../../components/DirectionalLightComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_DIRECTIONAL_LIGHT = 'directional-light'
@@ -48,6 +49,8 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (entity
     color: new Color(json.props.color),
     shadowMapResolution: new Vector2().fromArray(json.props.shadowMapResolution)
   })
+
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
 
   updateDirectionalLight(entity)
 }

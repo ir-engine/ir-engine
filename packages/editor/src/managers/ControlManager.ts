@@ -34,13 +34,14 @@ export class ControlManager {
       CommandManager.instance.revert(checkpoint)
     } else if (editorControlComponent.transformMode === TransformMode.Placement) {
       setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
-      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
+      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
+        deselectObject: true
+      })
     }
   }
 
   onSelectionChanged = () => {
-    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
-    editorControlComponent.selectionChanged = true
+    getComponent(SceneManager.instance.editorEntity, EditorControlComponent).selectionChanged = true
   }
 
   onObjectsChanged = (_objects, property) => {

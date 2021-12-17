@@ -12,6 +12,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { RenderSettingComponent, RenderSettingComponentType } from '../../components/RenderSettingComponent'
 
 export const SCENE_COMPONENT_RENDERER_SETTINGS = 'renderer-settings'
@@ -23,6 +24,8 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (entity: E
     LODs: new Vector3(json.props.LODs.x, json.props.LODs.y, json.props.LODs.z),
     csm: json.props.csm
   })
+
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
 
   updateRenderSetting(entity)
 }

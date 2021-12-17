@@ -10,18 +10,8 @@ import BooleanInput from '../inputs/BooleanInput'
 import { CommandManager } from '../../managers/CommandManager'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { updateDirectionalLight } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
-
-/**
- * Defining properties for DirectionalLightNodeEditor.
- *
- * @author Robert Long
- * @type {Object}
- */
-type DirectionalLightNodeEditorProps = {
-  node: EntityTreeNode
-}
+import { EditorComponentType } from './Util'
 
 /**
  * DirectionalLightNodeEditor is used provides  properties to customize DirectionaLight element.
@@ -29,7 +19,7 @@ type DirectionalLightNodeEditorProps = {
  *  @author Robert Long
  *  @type {Component class}
  */
-export const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProps) => {
+export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   //function to handle changes in color property

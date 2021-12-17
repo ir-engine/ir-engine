@@ -1,4 +1,4 @@
-import { AmbientLight, MathUtils, Object3D, PointLight, SpotLight } from 'three'
+import { MathUtils, Object3D, PointLight, SpotLight } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -39,75 +39,53 @@ import { updateRenderSetting, resetEngineRenderer } from './loaders/RenderSettin
 import { registerDefaultSceneFunctions } from './registerSceneFunctions'
 import { ScenePrefabTypes } from './registerPrefabs'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
+import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '../components/SceneTagComponent'
+import { reparentObject3D } from './ReparentFunction'
 
-export interface SceneDataComponent extends ComponentJson {
-  data: any
-}
-
-export interface SceneData extends SceneJson {
-  data: any
-}
-
-export const createNewEditorNode = (prefabType: ScenePrefabTypes) => {
+export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
   const world = useWorld()
-  const entity = createEntity()
-  const key = MathUtils.generateUUID()
-
-  // todo: append a number to the name indicating the amount of prefabs that exist in the scene already
-  addComponent(entity, NameComponent, { name: prefabType })
 
   const components = world.scenePrefabRegistry.get(prefabType)
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
-  for (const component of components) {
-    const [type, defaultValues] = Object.entries(component)[0]
-    const deserializer = useWorld().sceneLoadingRegistry.get(type)?.deserialize
-    if (!deserializer) return console.warn(`[createNewEditorNode]: deserializer for ${type} does not exist`)
-    console.log(deserializer, type, defaultValues)
-    deserializer(entity, { name: type, props: defaultValues })
-  }
 
-  addComponent(entity, EntityNodeComponent, { uuid: key })
-  if (!hasComponent(entity, TransformComponent)) addComponent(entity, DisableTransformTagComponent, {})
-
-  return world.entityTree.addEntity(entity, world.entityTree.rootNode.entity)
+  loadSceneEntity(entity, MathUtils.generateUUID(), { name: prefabType, components })
 }
 
 /**
  * Loads a scene from scene json
  * @param sceneData
  */
-export const loadSceneFromJSON = async (sceneData: SceneJson) => {
+export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
+  const entityMap = {} as { [key: string]: Entity }
   Engine.sceneLoadPromises = []
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
 
-  const world = useWorld()
   world.sceneLoadingRegistry.clear()
   registerDefaultSceneFunctions(world)
 
-  const entityMap = {}
-
   Object.keys(sceneData.entities).forEach((key) => {
-    const sceneEntity = sceneData.entities[key] as EntityJson
-    const entity = createEntity()
-    entityMap[key] = entity
-    addComponent(entity, NameComponent, { name: sceneEntity.name })
-    loadComponents(entity, key, sceneEntity)
-    if (Engine.isEditor) addComponent(entity, EntityNodeComponent, { uuid: key })
+    entityMap[key] = createEntity()
+    loadSceneEntity(entityMap[key], key, sceneData.entities[key])
   })
 
   // Create Entity Tree
   if (!world.entityTree) world.entityTree = new EntityTree()
-
   const tree = world.entityTree
+
   Object.keys(sceneData.entities).forEach((key) => {
     const sceneEntity = sceneData.entities[key]
-    tree.addEntity(entityMap[key], sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
+    const node = tree.addEntity(entityMap[key], sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
+    reparentObject3D(node, node.parentNode)
   })
 
-  await Promise.all(Engine.sceneLoadPromises)
+  addComponent(world.entityTree.rootNode.entity, SceneTagComponent, {})
+  if (Engine.isEditor) {
+    getComponent(world.entityTree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
+  }
 
+  await Promise.all(Engine.sceneLoadPromises)
   Engine.sceneLoaded = true
 
   // Configure CSM
@@ -118,19 +96,26 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
 
 /**
  * Loads all the components from scene json for an entity
- * @param {Entity} entity
  * @param {string} sceneEntityId
  * @param {EntityJson} sceneEntity
  */
-export const loadComponents = (entity: Entity, sceneEntityId: string, sceneEntity: EntityJson): void => {
-  sceneEntity.components.forEach((component: any) => {
+export const loadSceneEntity = (entity: Entity, sceneEntityId: string, sceneEntity: EntityJson): Entity => {
+  addComponent(entity, NameComponent, { name: sceneEntity.name })
+
+  if (Engine.isEditor) addComponent(entity, EntityNodeComponent, { uuid: sceneEntityId, components: [] })
+
+  sceneEntity.components.forEach((component) => {
     component.data = component.props
     component.data.sceneEntityId = sceneEntityId
     loadComponent(entity, component)
   })
+
+  if (!hasComponent(entity, TransformComponent)) addComponent(entity, DisableTransformTagComponent, {})
+
+  return entity
 }
 
-export const loadComponent = (entity: Entity, component: SceneDataComponent): void => {
+export const loadComponent = (entity: Entity, component: ComponentJson): void => {
   // remove '-1', '-2' etc suffixes
   const name = component.name.replace(/(-\d+)|(\s)/g, '')
   const world = useWorld()
@@ -160,10 +145,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
 
     case 'userdata':
       addComponent(entity, UserdataComponent, { data: component.data })
-      break
-
-    case 'ambient-light':
-      addObject3DComponent(entity, new AmbientLight(), component.data)
       break
 
     case 'point-light':

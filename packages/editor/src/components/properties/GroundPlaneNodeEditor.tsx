@@ -7,24 +7,10 @@ import { useTranslation } from 'react-i18next'
 import SquareIcon from '@mui/icons-material/Square'
 import { CommandManager } from '../../managers/CommandManager'
 import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
 import { updateGroundPlane } from '@xrengine/engine/src/scene/functions/loaders/GroundPlaneFunctions'
-import EditorCommands from '../../constants/EditorCommands'
-import { TagComponentOperation } from '../../commands/TagComponentCommand'
-
-/**
- * Declaring GroundPlaneNodeEditor properties.
- *
- * @author Robert Long
- * @type {Object}
- */
-
-type GroundPlaneNodeEditorProps = {
-  node: EntityTreeNode
-  t: Function
-}
+import { EditorComponentType } from './Util'
 
 /**
  * IconComponent is used to render GroundPlaneNode
@@ -32,7 +18,7 @@ type GroundPlaneNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export const GroundPlaneNodeEditor = (props: GroundPlaneNodeEditorProps) => {
+export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   //function handles the changes in color property

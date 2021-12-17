@@ -26,7 +26,7 @@ export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
   } else {
     for (const project of routes.data) {
       const routeLazyLoad = await loadRoute(project.project, project.route)
-      if (!!routeLazyLoad)
+      if (routeLazyLoad)
         components.push({
           route: project.route,
           ...routeLazyLoad

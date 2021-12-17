@@ -4,6 +4,8 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/ComponentNames'
 import { TransformComponent, TransformComponentType } from '../../../transform/components/TransformComponent'
+import { Engine } from '../../../ecs/classes/Engine'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_TRANSFORM = 'transform'
 export const SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES = {
@@ -22,6 +24,8 @@ export const deserializeTransform: ComponentDeserializeFunction = (entity: Entit
     rotation: new Quaternion().setFromEuler(euler.setFromVector3(v3.set(rotation.x, rotation.y, rotation.z), 'XYZ')),
     scale: new Vector3(scale.x, scale.y, scale.z)
   })
+
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRANSFORM)
 }
 
 export const serializeTransform: ComponentSerializeFunction = (entity) => {

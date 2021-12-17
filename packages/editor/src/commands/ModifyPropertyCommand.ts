@@ -3,12 +3,9 @@ import { serializeProperties, serializeObject3DArray } from '../functions/debug'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
-import {
-  ComponentConstructor,
-  ComponentUpdateFunction,
-  getComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/ComponentNames'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 type PropertyType = {
   [key: string]: any
@@ -29,14 +26,10 @@ export default class ModifyPropertyCommand extends Command {
 
   oldProperties: PropertyType[]
 
-  constructor(objects?: any | any[], params?: ModifyPropertyCommandParams) {
+  constructor(objects: EntityTreeNode[], params?: ModifyPropertyCommandParams) {
     if (!params) return
 
     super(objects, params)
-
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
 
     this.affectedObjects = objects.slice(0)
     this.newProperties = {}
@@ -53,7 +46,7 @@ export default class ModifyPropertyCommand extends Command {
     }
 
     for (let i = 0; i < objects.length; i++) {
-      const comp = getComponent(objects[i], this.component)
+      const comp = getComponent(objects[i].entity, this.component)
       const objectOldProperties = {}
 
       for (const propertyName in params.properties) {
@@ -99,9 +92,9 @@ export default class ModifyPropertyCommand extends Command {
     )} properties: ${serializeProperties(this.newProperties)}`
   }
 
-  updateProperties(entities: Entity[], properties: PropertyType, component: ComponentConstructor<any, any>): void {
-    for (let i = 0; i < entities.length; i++) {
-      const comp = getComponent(entities[i], component)
+  updateProperties(node: EntityTreeNode[], properties: PropertyType, component: ComponentConstructor<any, any>): void {
+    for (let i = 0; i < node.length; i++) {
+      const comp = getComponent(node[i].entity, component)
 
       if (!comp) continue
 
@@ -119,7 +112,7 @@ export default class ModifyPropertyCommand extends Command {
         }
       }
 
-      this.updateFunction(entities[i])
+      this.updateFunction(node[i].entity)
     }
 
     for (const propertyName in properties) {

@@ -30,11 +30,8 @@ export default class Command {
   /** Whether the object is selected or not */
   isSelected?: boolean
 
-  /** State before this command executed. Useful while undo */
-  prevState: any
-
   /** Old selected objects prior to this command execution */
-  oldSelection: any
+  oldSelection: EntityTreeNode[]
 
   constructor(objects: EntityTreeNode | EntityTreeNode[], params: CommandParams = {}) {
     this.shouldEmitEvent = params.shouldEmitEvent ?? true

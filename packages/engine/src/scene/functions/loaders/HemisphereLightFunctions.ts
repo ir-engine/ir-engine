@@ -3,16 +3,24 @@ import { Color, HemisphereLight } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
+  ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/ComponentNames'
 import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { HemisphereLightComponent, HemisphereLightComponentType } from '../../components/HemisphereLightComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_HEMISPHERE_LIGHT = 'hemisphere-light'
+export const SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES = {
+  skyColor: '#ffffff',
+  groundColor: '#ffffff',
+  intensity: 1
+}
 
 export const deserializeHemisphereLight: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   if (!isClient || !json) return
@@ -26,6 +34,8 @@ export const deserializeHemisphereLight: ComponentDeserializeFunction = (entity:
     skyColor: new Color(json.props.skyColor),
     groundColor: new Color(json.props.groundColor)
   })
+
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_HEMISPHERE_LIGHT)
 
   updateHemisphereLight(entity)
 }
@@ -51,4 +61,8 @@ export const serializeHemisphereLight: ComponentSerializeFunction = (entity) => 
       intensity: component.intensity
     }
   }
+}
+
+export const shouldDeserializeHemisphereLight: ComponentShouldDeserializeFunction = () => {
+  return getComponentCountOfType(HemisphereLightComponent) <= 0
 }

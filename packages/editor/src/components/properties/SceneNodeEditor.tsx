@@ -2,7 +2,6 @@ import LanguageIcon from '@mui/icons-material/Language'
 import { DistanceModelOptions, DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
-import i18n from 'i18next'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -24,7 +23,7 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { useSetPropertyOnSelectedEntities } from './useSetPropertySelected'
+import { EditorComponentType, useSetPropertyOnSelectedEntities } from './Util'
 import ImageInput from '../inputs/ImageInput'
 import FolderInput from '../inputs/FolderInput'
 import Vector3Input from '../inputs/Vector3Input'
@@ -39,7 +38,6 @@ import { EnvmapComponent } from '@xrengine/engine/src/scene/components/EnvmapCom
 import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent'
 import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/scene/components/AudioSettingsComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { updateMetaData } from '@xrengine/engine/src/scene/functions/loaders/MetaDataFunctions'
 import { updateFog } from '@xrengine/engine/src/scene/functions/loaders/FogFunctions'
 import { updateEnvMap } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
@@ -156,10 +154,6 @@ const ShadowTypeOptions = [
   }
 ]
 
-type SceneNodeEditorProps = {
-  node: EntityTreeNode
-}
-
 /**
  * SceneNodeEditor provides the editor view for property customization.
  *
@@ -167,11 +161,10 @@ type SceneNodeEditorProps = {
  * @param       props
  * @constructor
  */
-export function SceneNodeEditor(props: SceneNodeEditorProps) {
+export const SceneNodeEditor: EditorComponentType = (props) => {
   const { node } = props
   const { t } = useTranslation()
 
-  SceneNodeEditor.description = t('editor:properties.scene.description')
   //creating functions to handle the changes in property of node
   // const onChangeBackground = useSetPropertySelected("background");
   const onChangeMetaData = useSetPropertyOnSelectedEntities(MetaDataComponent, updateMetaData, 'meta_data')
@@ -308,7 +301,7 @@ export function SceneNodeEditor(props: SceneNodeEditorProps) {
 
   // returning editor view for property editor for sceneNode
   return (
-    <NodeEditor {...props} description={SceneNodeEditor.description}>
+    <NodeEditor {...props} description={t('editor:properties.scene.description')}>
       {/* <InputGroup
         name="Background Color"
         label={t('editor:properties.scene.lbl-bgcolor')}
@@ -663,6 +656,4 @@ export function SceneNodeEditor(props: SceneNodeEditorProps) {
 // setting icon component with icon name
 SceneNodeEditor.iconComponent = LanguageIcon
 
-// setting description and will appear on editor view
-SceneNodeEditor.description = i18n.t('editor:properties.scene.description')
 export default SceneNodeEditor

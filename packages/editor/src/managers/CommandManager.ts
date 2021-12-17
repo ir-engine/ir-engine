@@ -23,7 +23,6 @@ import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/
 import LoadMaterialSlotCommand, { LoadMaterialSlotCommandParams } from '../commands/LoadMaterialSlotMultipleCommand'
 import isInputSelected from '../functions/isInputSelected'
 import ModelNode from '../nodes/ModelNode'
-import ShopifyNode from '../nodes/ShopifyNode'
 import VideoNode from '../nodes/VideoNode'
 import ImageNode from '../nodes/ImageNode'
 import VolumetricNode from '../nodes/VolumetricNode'
@@ -31,9 +30,7 @@ import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from '../nodes/SceneNode'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { ComponentConstructor, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Object3D } from 'three'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagComponentCommand'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -61,7 +58,7 @@ export class CommandManager extends EventEmitter {
     [key: string]: typeof Command
   }
 
-  selected: any[] = []
+  selected: EntityTreeNode[] = []
   selectedTransformRoots: EntityTreeNode[] = []
   history: History
 
@@ -94,16 +91,22 @@ export class CommandManager extends EventEmitter {
     window.addEventListener('paste', this.onPaste)
   }
 
-  executeCommand = (command: EditorCommandsType, affectedObject?: any, params?: CommandParamsType) => {
+  executeCommand = (
+    command: EditorCommandsType,
+    object: EntityTreeNode | EntityTreeNode[],
+    params?: CommandParamsType
+  ) => {
     if (!params) params = {}
-
-    new this.commands[command](affectedObject, params).execute()
+    new this.commands[command](!Array.isArray(object) ? [object] : object, params).execute()
   }
 
-  executeCommandWithHistory = (command: EditorCommandsType, affectedObject?: any, params?: CommandParamsType) => {
+  executeCommandWithHistory = (
+    command: EditorCommandsType,
+    object: EntityTreeNode | EntityTreeNode[],
+    params?: CommandParamsType
+  ) => {
     if (!params) params = {}
-
-    this.history.execute(new this.commands[command](affectedObject, params))
+    this.history.execute(new this.commands[command](!Array.isArray(object) ? [object] : object, params))
   }
 
   executeCommandOnSelection = (command: EditorCommandsType, params?: CommandParamsType) => {
@@ -114,11 +117,11 @@ export class CommandManager extends EventEmitter {
     this.history.execute(new this.commands[command](this.selected, params))
   }
 
-  setProperty(affectedEntities: Entity[], params: ModifyPropertyCommandParams, withHistory = true) {
+  setProperty(affectedEntityNodes: EntityTreeNode[], params: ModifyPropertyCommandParams, withHistory = true) {
     if (withHistory) {
-      this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, affectedEntities, params)
+      this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, affectedEntityNodes, params)
     } else {
-      this.executeCommand(EditorCommands.MODIFY_PROPERTY, affectedEntities, params)
+      this.executeCommand(EditorCommands.MODIFY_PROPERTY, affectedEntityNodes, params)
     }
   }
 
@@ -127,12 +130,11 @@ export class CommandManager extends EventEmitter {
   }
 
   setPropertyOnSelectionEntities(params: ModifyPropertyCommandParams, withHistory = true) {
-    const entities = this.selected.map((n: EntityTreeNode) => n.entity)
-    this.setProperty(entities, params, withHistory)
+    this.setProperty(this.selected, params, withHistory)
   }
 
-  setPropertyOnEntity(entity: Entity, params: ModifyPropertyCommandParams, withHistory = true) {
-    this.setProperty([entity], params, withHistory)
+  setPropertyOnEntityNode(node: EntityTreeNode, params: ModifyPropertyCommandParams, withHistory = true) {
+    this.setProperty([node], params, withHistory)
   }
 
   emitEvent = (event: EditorEvents, ...args: any[]): void => {
@@ -283,7 +285,7 @@ export class CommandManager extends EventEmitter {
       console.warn(`Couldn't fetch content type for url ${url}. Using LinkNode instead.`)
     }
 
-    let node
+    let node: EntityTreeNode
 
     if (contentType.startsWith('model/gltf')) {
       node = new ModelNode()

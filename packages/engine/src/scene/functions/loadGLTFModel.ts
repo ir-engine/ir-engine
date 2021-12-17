@@ -7,7 +7,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { SceneDataComponent, loadComponent } from '../functions/SceneLoading'
+import { loadComponent } from '../functions/SceneLoading'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import * as YUKA from 'yuka'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
@@ -55,9 +55,9 @@ export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
   for (const [key, value] of Object.entries(prefabs)) {
     const prefab = {
       name: key,
-      data: value,
+      props: value,
       sceneEntityId: mesh.uuid
-    } as any as SceneDataComponent
+    } as ComponentJson
     loadComponent(e, prefab)
   }
 }

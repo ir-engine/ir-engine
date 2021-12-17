@@ -145,6 +145,14 @@ export const getAllComponents = (entity: Entity, world = useWorld()): ComponentC
   return bitECS.getEntityComponents(world, entity) as ComponentConstructor<any, any>[]
 }
 
+export const getComponentCountOfType = <T, S extends bitECS.ISchema>(
+  component: MappedComponent<T, S>,
+  world = useWorld()
+): number => {
+  const query = defineQuery([component])
+  return query(world).length
+}
+
 export const getAllComponentsOfType = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
   world = useWorld()

@@ -4,8 +4,10 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/ComponentNames'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import { loadGLTFModel } from '../loadGLTFModel'
 import { registerSceneLoadPromise } from '../SceneLoading'
@@ -14,6 +16,7 @@ export const SCENE_COMPONENT_MODEL = 'gltf-model'
 
 export const deserializeModel: ComponentDeserializeFunction = (entity: Entity, component: ComponentJson) => {
   registerSceneLoadPromise(loadGLTFModel(entity, component))
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
 }
 
 export const updateModel: ComponentUpdateFunction = (entity: Entity) => {

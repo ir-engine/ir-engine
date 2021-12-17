@@ -14,19 +14,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import ModelInput from '../inputs/ModelInput'
 import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
-
-/**
- * Declaring properties for ModalNodeEditor component.
- *
- * @author Robert Long
- * @type {Object}
- */
-type ModelNodeEditorProps = {
-  node: EntityTreeNode
-  multiEdit?: boolean
-}
+import { EditorComponentType } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -34,7 +23,7 @@ type ModelNodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
+export const ModelNodeEditor: EditorComponentType = (props) => {
   let [options, setOptions] = useState([])
   const { t } = useTranslation()
 

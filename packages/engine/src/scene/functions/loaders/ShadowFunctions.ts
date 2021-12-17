@@ -5,8 +5,10 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/ComponentNames'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ShadowComponent, ShadowComponentType } from '../../components/ShadowComponent'
 
@@ -16,11 +18,13 @@ export const SCENE_COMPONENT_SHADOW_DEFAULT_VALUES = {
   receive: true
 }
 
-export const deserializeShadow: ComponentDeserializeFunction = (entity: Entity, component: ComponentJson) => {
+export const deserializeShadow: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   addComponent(entity, ShadowComponent, {
-    castShadow: component.props.cast,
-    receiveShadow: component.props.receive
+    castShadow: json.props.cast,
+    receiveShadow: json.props.receive
   })
+
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SHADOW)
 
   updateShadow(entity)
 }

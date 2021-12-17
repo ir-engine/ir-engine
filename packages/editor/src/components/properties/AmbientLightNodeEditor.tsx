@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
@@ -6,11 +6,10 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import { useTranslation } from 'react-i18next'
 import Brightness7Icon from '@mui/icons-material/Brightness7'
 import { CommandManager } from '../../managers/CommandManager'
-
-type AmbientLightNodeEditorProps = {
-  node?: any
-  description: string
-}
+import { updateAmbientLight } from '@xrengine/engine/src/scene/functions/loaders/AmbientLightFunctions'
+import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EditorComponentType } from './Util'
 
 /**
  *
@@ -20,25 +19,33 @@ type AmbientLightNodeEditorProps = {
  * @author Robert Long
  * @type {[component class]}
  */
-export const AmbientLightNodeEditor = (props: AmbientLightNodeEditorProps) => {
-  const node = props.node
-
+export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   // used to change the color property of selected scene, when we change color property of ambient light
   const onChangeColor = (color) => {
-    CommandManager.instance.setPropertyOnSelection('color', color)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateAmbientLight,
+      component: AmbientLightComponent,
+      properties: { color }
+    })
   }
 
   // used to change the intensity of selected scene
   const onChangeIntensity = (intensity) => {
-    CommandManager.instance.setPropertyOnSelection('intensity', intensity)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updateAmbientLight,
+      component: AmbientLightComponent,
+      properties: { intensity }
+    })
   }
+
+  const lightComponent = getComponent(props.node.entity, AmbientLightComponent)
 
   return (
     <NodeEditor {...props} description={t('editor:properties.ambientLight.description')}>
       <InputGroup name="Color" label={t('editor:properties.ambientLight.lbl-color')}>
-        <ColorInput value={node.color} onChange={onChangeColor} />
+        <ColorInput value={lightComponent.color} onChange={onChangeColor} />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -47,7 +54,7 @@ export const AmbientLightNodeEditor = (props: AmbientLightNodeEditorProps) => {
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={node.intensity}
+        value={lightComponent.intensity}
         onChange={onChangeIntensity}
         unit="cd"
       />

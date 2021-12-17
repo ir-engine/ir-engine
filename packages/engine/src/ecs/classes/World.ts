@@ -26,7 +26,7 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import EntityTree from './EntityTree'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { SceneLoaderType } from '../../common/constants/ComponentNames'
-import { ScenePrefabTypes } from '../../scene/functions/registerPrefabs'
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 type SystemInstanceType = {
   name: string
@@ -141,7 +141,7 @@ export class World {
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
 
   /** Registry map of prefabs  */
-  scenePrefabRegistry = new Map<string, any[]>()
+  scenePrefabRegistry = new Map<string, ComponentJson[]>()
 
   /**
    * Get the network objects owned by a given user

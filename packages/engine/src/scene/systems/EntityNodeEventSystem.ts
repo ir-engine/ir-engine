@@ -13,6 +13,7 @@ import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera
 import { SelectTagComponent } from '../components/SelectTagComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
 import { resetEngineRenderer } from '../functions/loaders/RenderSettingsFunction'
+import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCameraFunctions'
 
 /**
  * @author Nayankumar Patel <github.com/NPatel10>
@@ -43,12 +44,18 @@ export default async function EntityNodeEventSystem(_: World): Promise<System> {
     /* Deselect Events */
     for (const entity of directionalLightSelectQuery.exit()) {
       const light = getComponent(entity, Object3DComponent)?.value as DirectionalLight
-      light.userData.cameraHelper.visible = false
+      if (light) light.userData.cameraHelper.visible = false
     }
 
     for (let entity of scenePreviewCameraSelectQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent).value
-      Engine.scene.remove(obj3d.userData.helper)
+      let obj3d = getComponent(entity, Object3DComponent)?.value
+
+      if (obj3d) {
+        Engine.scene.remove(obj3d.userData.helper)
+      } else {
+        const obj3d = Engine.scene.getObjectByName(SCENE_PREVIEW_CAMERA_HELPER)
+        if (obj3d) Engine.scene.remove(obj3d)
+      }
     }
 
     /* Remove Events */

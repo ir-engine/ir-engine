@@ -115,7 +115,8 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
     }
 
     for (const entity of visibleQuery.exit()) {
-      getComponent(entity, Object3DComponent).value.visible = false
+      const obj3d = getComponent(entity, Object3DComponent)
+      if (obj3d) obj3d.value.visible = false // On removal of entity Object3DComponent becomes null
     }
 
     for (const entity of updatableQuery()) {

@@ -26,6 +26,7 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/ComponentNames'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
 
@@ -40,6 +41,8 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, 
     envMapSourceColor: new Color(json.props.envMapSourceColor),
     envMapTextureType: json.props.envMapTextureType ?? EnvMapTextureType.Cubemap
   })
+
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ENVMAP)
 
   updateEnvMap(entity)
 }

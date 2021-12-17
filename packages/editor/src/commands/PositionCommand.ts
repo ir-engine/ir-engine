@@ -27,15 +27,14 @@ export default class PositionCommand extends Command {
 
   oldPositions: any
 
-  constructor(objects?: any | any[], params?: PositionCommandParams) {
+  constructor(objects: EntityTreeNode[], params?: PositionCommandParams) {
     if (!params) return
 
     super(objects, params)
 
-    if (!Array.isArray(objects)) objects = [objects]
     if (!Array.isArray(params.positions)) params.positions = [params.positions]
 
-    this.affectedObjects = objects
+    this.affectedObjects = objects.slice(0)
     this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
     this.positions = params.positions
     this.space = params.space ?? TransformSpace.Local

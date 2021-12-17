@@ -8,6 +8,7 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import EditorEvents from '../../constants/EditorEvents'
+import { EditorComponentType } from './Util'
 
 /**
  * Creating styled component using InputGroup component.
@@ -22,17 +23,13 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
   }
 `
 
-type Types = {
-  node: EntityTreeNode
-}
-
 /**
  * NameInputGroup is used to render input group PropertiesPanelContainer.
  *
  * @author Robert Long
  * @type {class component}
  */
-export const NameInputGroup = (props: Types) => {
+export const NameInputGroup: EditorComponentType = (props) => {
   const nodeName = getComponent(props.node.entity, NameComponent).name
 
   let [name, setName] = useState(nodeName)
@@ -46,8 +43,8 @@ export const NameInputGroup = (props: Types) => {
     }
   }, [])
 
-  const onObjectChange = (data: any, propertyName: string) => {
-    if (propertyName === 'name') setName(data[0].name)
+  const onObjectChange = (_: any, propertyName: string) => {
+    if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent).name)
   }
 
   //function to handle change in name property
@@ -64,7 +61,11 @@ export const NameInputGroup = (props: Types) => {
     // Check that the focused node is current node before setting the property.
     // This can happen when clicking on another node in the HierarchyPanel
     if (nodeName !== name && props?.node === focusedNode) {
-      CommandManager.instance.setPropertyOnSelectionEntities(NameComponent, 'name', name)
+      CommandManager.instance.setPropertyOnSelectionEntities({
+        updateFunction: () => {},
+        component: NameComponent,
+        properties: { name }
+      })
     }
 
     setFocusedNode(undefined)
@@ -74,7 +75,11 @@ export const NameInputGroup = (props: Types) => {
   const onKeyUpName = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      CommandManager.instance.setPropertyOnSelectionEntities(NameComponent, 'name', name)
+      CommandManager.instance.setPropertyOnSelectionEntities({
+        updateFunction: () => {},
+        component: NameComponent,
+        properties: { name }
+      })
     }
   }
 

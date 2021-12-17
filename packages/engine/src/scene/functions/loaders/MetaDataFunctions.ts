@@ -7,6 +7,8 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/ComponentNames'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { Engine } from '../../../ecs/classes/Engine'
 
 export const SCENE_COMPONENT_METADATA = 'mtdata'
 
@@ -15,6 +17,8 @@ export const deserializeMetaData: ComponentDeserializeFunction = (entity: Entity
   addComponent(entity, MetaDataComponent, json.props)
   console.log('scene_metadata|' + json.props.meta_data)
   //}
+
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_METADATA)
 
   updateMetaData(entity)
 }

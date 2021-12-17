@@ -1,5 +1,4 @@
 import Checkbox from '@mui/material/Checkbox'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
 import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
@@ -14,14 +13,8 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-
-/**
- * [propTypes Defining properties for PostProcessing component]
- * @type {Object}
- */
-type PostProcessingNodeEditorPropTypes = {
-  node: EntityTreeNode
-}
+import { EditorComponentType } from './Util'
+import { useTranslation } from 'react-i18next'
 
 enum PropertyTypes {
   BlendFunction,
@@ -144,7 +137,9 @@ const KernelSizeSelect = [
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropTypes) => {
+export const PostProcessingNodeEditor: EditorComponentType = (props) => {
+  const { t } = useTranslation()
+
   const onChangeCheckBox = (e: ChangeEvent<HTMLInputElement>, effect: Effects) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
       component: PostprocessingComponent,
@@ -273,12 +268,12 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
   const postprocessingComponent = getComponent(props.node.entity, PostprocessingComponent)
 
   return (
-    <NodeEditor description={PostProcessingNodeEditor.description} {...props}>
+    <NodeEditor description={t('editor:properties.postprocessing.description')} {...props}>
       {renderEffects()}
     </NodeEditor>
   )
 }
+
 PostProcessingNodeEditor.iconComponent = LooksIcon
-PostProcessingNodeEditor.description = 'For applying Post Processing effects to you scene'
 
 export default PostProcessingNodeEditor

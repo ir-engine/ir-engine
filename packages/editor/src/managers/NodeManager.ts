@@ -72,10 +72,22 @@ import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/P
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@xrengine/engine/src/scene/components/SpawnPointComponent'
-import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
-import { ComponentMap, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
+import { ComponentMap, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import EditorNodeMixin from '../nodes/EditorNodeMixin'
+import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
+import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
+import { SCENE_COMPONENT_AMBIENT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/AmbientLightFunctions'
+import { SCENE_COMPONENT_GROUND_PLANE } from '@xrengine/engine/src/scene/functions/loaders/GroundPlaneFunctions'
+import { SCENE_COMPONENT_POSTPROCESSING } from '@xrengine/engine/src/scene/functions/loaders/PostprocessingFunctions'
+import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
+import { SCENE_COMPONENT_SKYBOX } from '@xrengine/engine/src/scene/functions/loaders/SkyboxFunctions'
+import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
+import { SCENE_COMPONENT_SPAWN_POINT } from '@xrengine/engine/src/scene/functions/loaders/SpawnPointFunctions'
+import { EditorComponentType } from '../components/properties/Util'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -159,7 +171,7 @@ export class NodeManager {
 }
 
 export const registerPredefinedNodes = () => {
-  NodeManager.instance.registerNode(AmbientLightNode, AmbientLightNodeEditor)
+  // NodeManager.instance.registerNode(AmbientLightNode, AmbientLightNodeEditor)
   NodeManager.instance.registerNode(AudioNode, AudioNodeEditor)
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
   NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
@@ -195,20 +207,28 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(WooCommerceNode, WooCommerceNodeEditor)
 }
 
-export const getNodeEditorsForEntity = (entity: Entity) => {
-  return Object.entries(EntityNodeEditor)
-    .map(([type, editor]) => hasComponent(entity, ComponentMap.get(type)) && editor)
-    .filter((editor) => !!editor) as typeof EntityNodeEditor[keyof typeof EntityNodeEditor][]
+export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType | null => {
+  const entityNode = getComponent(entity, EntityNodeComponent)
+  let editor = null
+
+  for (let i = 0; i < entityNode.components.length; i++) {
+    editor = EntityNodeEditor[entityNode.components[i]]
+    if (editor) break
+  }
+
+  return editor
 }
 
 export const EntityNodeEditor = {
-  [DirectionalLightComponent._name]: DirectionalLightNodeEditor,
-  [HemisphereLightComponent._name]: HemisphereLightNodeEditor,
-  [GroundPlaneComponent._name]: GroundPlaneNodeEditor,
-  // [ComponentName.GLTF_MODEL]: ModelNodeEditor,
-  [PostprocessingComponent._name]: PostProcessingNodeEditor,
-  [SceneTagComponent._name]: SceneNodeEditor,
-  [ScenePreviewCameraTagComponent._name]: ScenePreviewCameraNodeEditor,
-  [SkyboxComponent._name]: SkyboxNodeEditor,
-  [SpawnPointComponent._name]: SpawnPointNodeEditor
+  [SCENE_COMPONENT_DIRECTIONAL_LIGHT]: DirectionalLightNodeEditor,
+  [SCENE_COMPONENT_HEMISPHERE_LIGHT]: HemisphereLightNodeEditor,
+  [SCENE_COMPONENT_AMBIENT_LIGHT]: AmbientLightNodeEditor,
+  [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
+  // [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
+  [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
+  [SCENE_COMPONENT_POSTPROCESSING]: PostProcessingNodeEditor,
+  [SCENE_COMPONENT_SCENE_TAG]: SceneNodeEditor,
+  [SCENE_COMPONENT_SCENE_PREVIEW_CAMERA]: ScenePreviewCameraNodeEditor,
+  [SCENE_COMPONENT_SKYBOX]: SkyboxNodeEditor,
+  [SCENE_COMPONENT_SPAWN_POINT]: SpawnPointNodeEditor
 }

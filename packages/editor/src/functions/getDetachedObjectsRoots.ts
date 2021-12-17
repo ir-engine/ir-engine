@@ -1,5 +1,7 @@
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import traverseEarlyOut from './traverseEarlyOut'
-export default function getDetachedObjectRoots(objects, target: any[] = []) {
+
+export function getDetachedObjectsRoots(objects: EntityTreeNode[], target: EntityTreeNode[] = []): EntityTreeNode[] {
   // Initially all objects are candidates
   for (let i = 0; i < objects.length; i++) {
     target.push(objects[i])
@@ -14,7 +16,7 @@ export default function getDetachedObjectRoots(objects, target: any[] = []) {
       if (otherObject === object) {
         continue
       }
-      if (!traverseEarlyOut(otherObject, (o) => o !== object)) {
+      if (!traverseEarlyOut(otherObject, (o: EntityTreeNode) => o !== object)) {
         validCandidate = false
         break
       }

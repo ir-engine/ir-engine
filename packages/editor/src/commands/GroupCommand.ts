@@ -1,82 +1,73 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Command, { CommandParams } from './Command'
 import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
-import reverseDepthFirstTraverse from '../functions/reverseDepthFirstTraverse'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
-import GroupNode from '../nodes/GroupNode'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 export interface GroupCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
-  parents?: any
+  parents?: EntityTreeNode | EntityTreeNode[]
 
   /** Child object before which all objects will be added */
-  befores?: any
+  befores?: EntityTreeNode | EntityTreeNode[]
 }
 
 export default class GroupCommand extends Command {
-  undoObjects: any[]
+  groupParents?: EntityTreeNode[]
 
-  groupParent: any
+  groupBefores?: EntityTreeNode[]
 
-  groupBefore: any
+  oldParents: EntityTreeNode[]
 
-  oldParents: any[]
+  oldBefores: EntityTreeNode[]
 
-  oldBefores: any[]
+  groupNode: EntityTreeNode
 
-  groupNode: any
-
-  constructor(objects?: any | any[], params?: GroupCommandParams) {
+  constructor(objects: EntityTreeNode[], params?: GroupCommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
+    this.affectedObjects = objects.slice(0)
+
+    if (params) {
+      this.groupParents = params.parents
+        ? Array.isArray(params.parents)
+          ? params.parents
+          : [params.parents]
+        : undefined
+      this.groupBefores = params.befores
+        ? Array.isArray(params.befores)
+          ? params.befores
+          : [params.befores]
+        : undefined
     }
 
-    this.affectedObjects = []
-    this.undoObjects = []
-    this.groupParent = params.parents
-    this.groupBefore = params.befores
     this.oldParents = []
     this.oldBefores = []
     this.oldSelection = CommandManager.instance.selected.slice(0)
 
-    Engine.scene.traverse((object) => {
-      if (objects.indexOf(object) !== -1) {
-        this.affectedObjects.push(object)
-      }
-    })
+    for (let i = this.affectedObjects.length - 1; i >= 0; i--) {
+      const object = this.affectedObjects[i]
 
-    // Sort objects, parents, and befores with a reverse depth first search so that undo adds nodes in the correct order
-    reverseDepthFirstTraverse(Engine.scene, (object) => {
-      if (objects.indexOf(object) !== -1) {
-        this.undoObjects.push(object)
-        this.oldParents.push(object.parent)
-        if (object.parent) {
-          const siblings = object.parent.children
-          const index = siblings.indexOf(object)
-          if (index + 1 < siblings.length) {
-            this.oldBefores.push(siblings[index + 1])
-          } else {
-            this.oldBefores.push(undefined)
-          }
-        }
+      if (object.parentNode) {
+        this.oldParents.push(object.parentNode)
+        this.oldBefores.push(object.parentNode.children![object.parentNode.children!.indexOf(object) + 1])
       }
-    })
-    this.groupNode = null
+    }
   }
 
   execute() {
     this.emitBeforeExecuteEvent()
 
-    this.groupNode = new GroupNode(this)
+    this.groupNode = new EntityTreeNode(createEntity())
     CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.groupNode, {
-      parents: this.groupParent,
-      befores: this.groupBefore,
+      parents: this.groupParents,
+      befores: this.groupBefores,
       shouldEmitEvent: false,
-      isObjectSelected: false
+      isObjectSelected: false,
+      prefabTypes: ScenePrefabs.group
     })
 
     CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
@@ -98,7 +89,7 @@ export default class GroupCommand extends Command {
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.undoObjects, {
+    CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
       parents: this.oldParents,
       befores: this.oldBefores,
       shouldEmitEvent: false,
@@ -106,7 +97,8 @@ export default class GroupCommand extends Command {
     })
     CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.groupNode, {
       deselectObject: false,
-      shouldEmitEvent: false
+      shouldEmitEvent: false,
+      skipSerialization: true
     })
     CommandManager.instance.updateTransformRoots()
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection, {
@@ -118,7 +110,7 @@ export default class GroupCommand extends Command {
   toString() {
     return `GroupMultipleObjectsCommand id: ${this.id} objects: ${serializeObject3DArray(
       this.affectedObjects
-    )} groupParent: ${serializeObject3D(this.groupParent)} groupBefore: ${serializeObject3D(this.groupBefore)}`
+    )} groupParent: ${serializeObject3D(this.groupParents)} groupBefore: ${serializeObject3D(this.groupBefores)}`
   }
 
   emitBeforeExecuteEvent() {

@@ -13,38 +13,46 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
-import { EntityNodeEditor, NodeManager } from '../../managers/NodeManager'
+import { NodeManager } from '../../managers/NodeManager'
 import { ItemTypes } from '../../constants/AssetTypes'
-import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { shouldPrefabDeserialize } from '../../functions/shouldDeserialiez'
+import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 const getPrefabs = () => {
-  const arr = Array.from(NodeManager.instance.nodeTypes).reduce((acc, nodeType) => {
-    const nodeEditor = NodeManager.instance.getEditorFromClass(nodeType)
-    acc.push({
-      id: nodeType.nodeName,
-      iconComponent: nodeEditor.iconComponent,
-      label: nodeType.nodeName,
-      description: nodeEditor.description,
-      type: ItemTypes.Element,
-      nodeClass: nodeType,
-      initialProps: nodeType.initialElementProps
-    })
-    return acc
-  }, [] as any[])
+  const arr = [] as any
 
-  useWorld().scenePrefabRegistry.forEach((components, prefabType) => {
-    console.log(prefabType)
-    arr.push({
-      id: prefabType,
-      iconComponent: null,
-      label: prefabType, // todo
-      description: '', // todo
-      type: ItemTypes.Element,
-      nodeClass: prefabType,
-      initialProps: null
-    })
+  useWorld().scenePrefabRegistry.forEach((_, prefabType: ScenePrefabTypes) => {
+    if (shouldPrefabDeserialize(prefabType)) {
+      arr.push({
+        id: prefabType,
+        iconComponent: null,
+        label: prefabType, // todo
+        description: '', // todo
+        type: ItemTypes.Element,
+        nodeClass: prefabType,
+        initialProps: null
+      })
+    }
   })
+
+  arr.push(
+    ...Array.from(NodeManager.instance.nodeTypes).reduce((acc, nodeType) => {
+      const nodeEditor = NodeManager.instance.getEditorFromClass(nodeType)
+      acc.push({
+        id: nodeType.nodeName,
+        iconComponent: nodeEditor.iconComponent,
+        label: nodeType.nodeName,
+        description: nodeEditor.description,
+        type: ItemTypes.Element,
+        nodeClass: nodeType,
+        initialProps: nodeType.initialElementProps
+      })
+      return acc
+    }, [] as any[])
+  )
 
   return arr
 }
@@ -211,7 +219,11 @@ export function AssetGrid({ onSelect, tooltip }) {
 
     // if ECS
     if (typeof item.nodeClass === 'string') {
-      node = createNewEditorNode(item.nodeClass)
+      CommandManager.instance.executeCommandWithHistory(
+        EditorCommands.ADD_OBJECTS,
+        new EntityTreeNode(createEntity()),
+        { prefabTypes: item.nodeClass }
+      )
     } else {
       node = new item.nodeClass()
     }
@@ -221,8 +233,6 @@ export function AssetGrid({ onSelect, tooltip }) {
     }
 
     SceneManager.instance.getSpawnPosition(node.position)
-
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
   }, [])
 
   //creating callback function used when we choose placeObjectAtOrigin option from context menu of AssetGridItem
@@ -233,7 +243,11 @@ export function AssetGrid({ onSelect, tooltip }) {
 
     // if ECS
     if (typeof item.nodeClass === 'string') {
-      node = createNewEditorNode(item.nodeClass)
+      CommandManager.instance.executeCommandWithHistory(
+        EditorCommands.ADD_OBJECTS,
+        new EntityTreeNode(createEntity()),
+        { prefabTypes: item.nodeClass }
+      )
     } else {
       node = new item.nodeClass()
     }
@@ -241,8 +255,6 @@ export function AssetGrid({ onSelect, tooltip }) {
     if (item.initialProps) {
       Object.assign(node, item.initialProps)
     }
-
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
   }, [])
 
   //returning view of AssetGridItems

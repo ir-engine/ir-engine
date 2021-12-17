@@ -40,6 +40,7 @@ import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -278,8 +279,8 @@ export default async function EditorControlSystem(_: World): Promise<System> {
 
           if (isGrabbing && editorControlComponent.transformMode === TransformMode.Grab) {
             editorControlComponent.grabHistoryCheckpoint = CommandManager.instance.selected
-              ? CommandManager.instance.selected[0].id
-              : 0
+              ? CommandManager.instance.selected[0].entity
+              : (0 as Entity)
           }
         } else if (editorControlComponent.transformMode === TransformMode.Rotate) {
           if (selectStartAndNoGrabbing) {
@@ -415,7 +416,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
             if (result) {
               CommandManager.instance.executeCommandWithHistory(
                 shift ? EditorCommands.TOGGLE_SELECTION : EditorCommands.REPLACE_SELECTION,
-                result.node
+                result.node!
               )
             } else if (!shift) {
               CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
@@ -472,12 +473,10 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         CommandManager.instance.undo()
       } else if (getInput(EditorActionSet.redo)) {
         CommandManager.instance.redo()
-      } else if (getInput(EditorActionSet.duplicateSelected)) {
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.DUPLICATE_OBJECTS)
-      } else if (getInput(EditorActionSet.groupSelected)) {
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.GROUP)
       } else if (getInput(EditorActionSet.deleteSelected)) {
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
+        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
+          deselectObject: true
+        })
       }
 
       if (flyControlComponent.enable) return
@@ -627,7 +626,9 @@ const cancel = (editorControlComponent?: EditorControlComponentType) => {
     CommandManager.instance.revert(editorControlComponent.grabHistoryCheckpoint)
   } else if (editorControlComponent.transformMode === TransformMode.Placement) {
     setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
+      deselectObject: true
+    })
   }
 
   CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])

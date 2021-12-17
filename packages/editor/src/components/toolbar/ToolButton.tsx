@@ -27,15 +27,15 @@ const StyledToolButton = (styled as any).button`
  * @author Abhishek Pathak
  */
 const Icon = (styled as any).div`
-  width: ${(props) => props.iconWidth};
-  height: ${(props) => props.iconHeight};
+  width: ${(props) => props.width};
+  height: ${(props) => props.height};
   font-size: 14px;
   align-items: center;
 `
 
 Icon.defaultProps = {
-  iconWidth: '14px',
-  iconHeight: '14px'
+  width: '14px',
+  height: '14px'
 }
 
 interface ToolButtonProp {
@@ -62,7 +62,7 @@ export function ToolButton({ id, icon, onClick, isSelected, tooltip, iconWidth, 
   return (
     <InfoTooltip id={id} info={tooltip} position="bottom">
       <StyledToolButton isSelected={isSelected} onClick={onClick}>
-        <Icon as={icon} iconWidth={iconWidth} iconHeight={iconHeight} />
+        <Icon as={icon} width={iconWidth} height={iconHeight} />
       </StyledToolButton>
     </InfoTooltip>
   )

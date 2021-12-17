@@ -1,5 +1,3 @@
-import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
-import { addComponent } from '../functions/ComponentFunctions'
 import { Entity } from './Entity'
 
 // export enum WalkStrategy {
@@ -14,17 +12,14 @@ export default class EntityTree {
     this.rootNode = new EntityTreeNode(-1 as Entity)
   }
 
-  addEntity(entity: Entity, parentEid?: Entity, index?: number) {
+  addEntity(entity: Entity, parentEid?: Entity, index?: number): EntityTreeNode {
     if (parentEid == null) {
       this.rootNode.entity = entity
-      addComponent(entity, SceneTagComponent, {})
-      return
+      return this.rootNode
     }
 
     let node = this.findNodeFromEid(entity)
-    if (node) {
-      return
-    }
+    if (node) return node
 
     node = new EntityTreeNode(entity)
     let parent = this.findNodeFromEid(parentEid)
@@ -35,10 +30,43 @@ export default class EntityTree {
       parent.parentNode = this.rootNode
     }
 
-    parent.addChild(node)
+    parent.addChild(node, index)
     node.parentNode = parent
 
     return node
+  }
+
+  addEntityNode(
+    entityNode: EntityTreeNode,
+    parentNode?: EntityTreeNode,
+    index?: number,
+    skipRootUpdate = false
+  ): EntityTreeNode {
+    if (parentNode == null) {
+      if (!skipRootUpdate) {
+        this.rootNode = entityNode
+      }
+
+      return this.rootNode
+    }
+
+    let node = this.findNodeFromEid(entityNode.entity)
+    if (node) {
+      if (node.parentNode !== parentNode) node.reparent(parentNode)
+      return node
+    }
+
+    let parent = this.findNodeFromEid(parentNode.entity)
+
+    if (!parent) {
+      this.rootNode.addChild(parentNode)
+      parentNode.parentNode = this.rootNode
+    }
+
+    parentNode.addChild(entityNode, index)
+    entityNode.parentNode = parentNode
+
+    return entityNode
   }
 
   findNodeFromEid(entity: Entity, node: EntityTreeNode = this.rootNode): EntityTreeNode | undefined {
@@ -66,6 +94,7 @@ export default class EntityTree {
 
 export class EntityTreeNode {
   entity: Entity
+  uuid: string
   parentNode: EntityTreeNode
   children?: EntityTreeNode[]
 
@@ -87,11 +116,16 @@ export class EntityTreeNode {
   removeChild(child: EntityTreeNode): EntityTreeNode | undefined {
     if (!this.children) return
 
-    const index = this.children.indexOf(child)
+    let index = -1
 
-    if (index > -1) {
-      return this.children.splice(index, 1)[0]
+    for (let i = 0; i < this.children.length; i++) {
+      if (this.children[i].entity === child.entity) {
+        index = i
+        break
+      }
     }
+
+    if (index > -1) return this.children.splice(index, 1)[0]
   }
 
   removeFromParent() {
@@ -102,5 +136,15 @@ export class EntityTreeNode {
     this.removeFromParent()
     newParent.addChild(this, index)
     this.parentNode = newParent
+  }
+
+  clone() {
+    const node = new EntityTreeNode(this.entity)
+
+    node.parentNode = this.parentNode
+
+    if (this.children) node.children = this.children.map((child) => child.clone())
+
+    return node
   }
 }

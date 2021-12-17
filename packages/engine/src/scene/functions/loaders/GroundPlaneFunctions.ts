@@ -1,6 +1,11 @@
 import { Color, Group } from 'three'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  removeComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { createCollider } from '../../../physics/functions/createCollider'
 import { GroundPlaneComponent, GroundPlaneComponentType } from '../../components/GroundPlaneComponent'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -13,10 +18,16 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
+  ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/ComponentNames'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_GROUND_PLANE = 'ground-plane'
+export const SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES = {
+  color: '#ffffff',
+  generateNavmesh: false
+}
 
 export const deserializeGround: ComponentDeserializeFunction = async function (
   entity: Entity,
@@ -28,7 +39,8 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   json.props.color = new Color(json.props.color)
   addComponent(entity, GroundPlaneComponent, json.props)
 
-  if (!Engine.isEditor) createCollider(entity, groundPlane.mesh)
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
+  else createCollider(entity, groundPlane.mesh)
 
   updateGroundPlane(entity)
 }
@@ -67,4 +79,8 @@ export const serializeGroundPlane: ComponentSerializeFunction = (entity) => {
       generateNavmesh: component.generateNavmesh
     }
   }
+}
+
+export const shouldDeserializeGroundPlane: ComponentShouldDeserializeFunction = () => {
+  return getComponentCountOfType(GroundPlaneComponent) <= 0
 }

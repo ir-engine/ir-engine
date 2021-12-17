@@ -1,6 +1,17 @@
-import { ComponentConstructor, ComponentUpdateFunction } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/ComponentNames'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { ComponentConstructor } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useCallback } from 'react'
 import { CommandManager } from '../../managers/CommandManager'
+
+export type EditorPropType = {
+  node: EntityTreeNode
+  multiEdit?: boolean
+}
+
+export type EditorComponentType = React.FC<EditorPropType> & {
+  iconComponent?: any
+}
 
 //function used to setting changes in editor properties
 export default function useSetPropertySelected(propName) {

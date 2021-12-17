@@ -5,7 +5,7 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { FixedSizeList, areEqual } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { addAssetOnDrop } from '../dnd'
+import { addItem } from '../dnd'
 import useUpload from '../assets/useUpload'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
@@ -17,7 +17,7 @@ import traverseEarlyOut from '../../functions/traverseEarlyOut'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
-import { EntityNodeEditor, getNodeEditorsForEntity } from '../../managers/NodeManager'
+import { getNodeEditorsForEntity } from '../../managers/NodeManager'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Hotkeys from 'react-hot-keys'
@@ -26,7 +26,6 @@ import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { SceneManager } from '../../managers/SceneManager'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -426,7 +425,7 @@ function TreeNode({
    * @author Robert Long
    * @type {boolean}
    */
-  const renaming = renamingNode && renamingNode.id === node.id
+  const renaming = renamingNode && renamingNode.entity === node.object.entity
 
   //initializing _dragProps, drag, preview
   const [_dragProps, drag, preview] = useDrag({
@@ -440,7 +439,7 @@ function TreeNode({
       }
     },
     canDrag() {
-      return !CommandManager.instance.selected.some((selectedObj) => !selectedObj.parent)
+      return !CommandManager.instance.selected.some((selectedObj) => !selectedObj.parentNode)
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
@@ -476,7 +475,7 @@ function TreeNode({
       }
 
       //check if addAssetOnDrop returns true then return
-      if (addAssetOnDrop(item, object.parent, object)) {
+      if (addItem(item, object.parent, object)) {
         return
       } else {
         CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
@@ -544,7 +543,7 @@ function TreeNode({
         return
       }
 
-      if (addAssetOnDrop(item, object.parent, next)) {
+      if (addItem(item, object.parent, next)) {
         return
       } else {
         CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
@@ -610,7 +609,7 @@ function TreeNode({
         return
       }
 
-      if (addAssetOnDrop(item, object)) {
+      if (addItem(item, object)) {
         return
       } else {
         CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: object })
@@ -648,9 +647,8 @@ function TreeNode({
 
   const nameComponent = getComponent(object.entity, NameComponent)
 
-  const EntityNodeComponent = getNodeEditorsForEntity(object.entity)
-
-  const iconComponent = EntityNodeComponent[0].iconComponent
+  const editor = getNodeEditorsForEntity(object.entity)
+  const iconComponent = editor ? editor.iconComponent : null
 
   //returning tree view for hierarchy panel
   return (
@@ -742,6 +740,7 @@ type TreeNodeType = {
  */
 function* treeWalker(collapsedNodes, treeObject) {
   const stack = [] as TreeNodeType[]
+  const selected = CommandManager.instance.selected
 
   if (!treeObject) return
 
@@ -761,10 +760,8 @@ function* treeWalker(collapsedNodes, treeObject) {
       isCollapsed,
       depth,
       object,
-      selected: CommandManager.instance.selected.indexOf(object) !== -1,
-      active:
-        CommandManager.instance.selected.length > 0 &&
-        object === CommandManager.instance.selected[CommandManager.instance.selected.length - 1],
+      selected: selected.indexOf(object) !== -1,
+      active: selected.length > 0 && object === selected[selected.length - 1],
       childIndex,
       lastChild
     }
@@ -792,7 +789,7 @@ function* treeWalker(collapsedNodes, treeObject) {
  */
 export default function HierarchyPanel() {
   const onUpload = useUpload(uploadOptions)
-  const [renamingNode, setRenamingNode] = useState(null)
+  const [renamingNode, setRenamingNode] = useState<any>(null)
   const [collapsedNodes, setCollapsedNodes] = useState({})
   const [nodes, setNodes] = useState<any[]>([])
   const [selectedNode, setSelectedNode] = useState(null)
@@ -1068,7 +1065,7 @@ export default function HierarchyPanel() {
    */
   const onDeleteNode = useCallback((e, node) => {
     let objs = node.selected ? CommandManager.instance.selected : node.object
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.REMOVE_OBJECTS, objs)
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.REMOVE_OBJECTS, objs, { deselectObject: true })
   }, [])
 
   /**
@@ -1100,8 +1097,8 @@ export default function HierarchyPanel() {
    * @type {function}
    */
   const onRenameNode = useCallback(
-    (e, node) => {
-      setRenamingNode({ id: node.id, name: node.object.name })
+    (_, node) => {
+      setRenamingNode({ entity: node.object.entity, name: getComponent(node.object.entity, NameComponent).name })
     },
     [setRenamingNode]
   )
@@ -1113,9 +1110,7 @@ export default function HierarchyPanel() {
    * @type {function}
    */
   const onChangeName = useCallback(
-    (node, name) => {
-      setRenamingNode({ id: node.id, name })
-    },
+    (node, name) => setRenamingNode({ entity: node.object.entity, name }),
     [setRenamingNode]
   )
 
@@ -1127,7 +1122,11 @@ export default function HierarchyPanel() {
    */
   const onRenameSubmit = useCallback((node, name) => {
     if (name !== null) {
-      CommandManager.instance.executeCommand(EditorCommands.MODIFY_PROPERTY, node.object, { properties: { name } })
+      CommandManager.instance.setPropertyOnEntityNode(node, {
+        updateFunction: () => {},
+        component: NameComponent,
+        properties: { name }
+      })
     }
     setRenamingNode(null)
   }, [])
@@ -1162,11 +1161,13 @@ export default function HierarchyPanel() {
         return
       }
 
-      if (addAssetOnDrop(item)) {
+      if (addItem(item)) {
         return
       }
 
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, { parents: Engine.scene })
+      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
+        parents: useWorld().entityTree.rootNode
+      })
     },
     canDrop(item, monitor) {
       if (!monitor.isOver({ shallow: true })) {

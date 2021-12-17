@@ -2,19 +2,9 @@ import React from 'react'
 import NodeEditor from './NodeEditor'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { useTranslation } from 'react-i18next'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { updateScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
-
-/**
- * ScenePreviewCameraNodeEditorProps declaring props for ScenePreviewCameraNodeEditor.
- *
- * @author Robert Long
- * @type {Object}
- */
-type ScenePreviewCameraNodeEditorProps = {
-  node: EntityTreeNode
-}
+import { EditorComponentType } from './Util'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
@@ -22,7 +12,7 @@ type ScenePreviewCameraNodeEditorProps = {
  * @author Robert Long
  * @type {Class component}
  */
-export const ScenePreviewCameraNodeEditor = (props: ScenePreviewCameraNodeEditorProps) => {
+export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const onSetFromViewport = () => {

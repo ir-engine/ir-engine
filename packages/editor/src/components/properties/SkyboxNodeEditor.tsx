@@ -19,9 +19,9 @@ import {
   SkyboxComponentType,
   SkyBoxShaderProps
 } from '@xrengine/engine/src/scene/components/SkyboxComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { Color } from 'three'
 import { updateSkybox } from '@xrengine/engine/src/scene/functions/loaders/SkyboxFunctions'
+import { EditorComponentType } from './Util'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24
@@ -52,22 +52,12 @@ const SkyOption = [
 ]
 
 /**
- * SkyboxNodeEditorProps declaring props for SkyboxNodeEditor.
- *
- * @author Robert Long
- * @type {Object}
- */
-type SkyboxNodeEditorProps = {
-  node: EntityTreeNode
-}
-
-/**
  * SkyboxNodeEditor component class used to render editor view to customize component property.
  *
  * @author Robert Long
  * @type {class component}
  */
-export const SkyboxNodeEditor = (props: SkyboxNodeEditorProps) => {
+export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   //function to handle changes in turbidity Property

@@ -8,7 +8,6 @@ import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchFrom } from './dispatchFrom'
-import { loadComponents } from '../../scene/functions/SceneLoading'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>

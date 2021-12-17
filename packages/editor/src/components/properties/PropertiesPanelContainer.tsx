@@ -7,8 +7,8 @@ import BooleanInput from '../inputs/BooleanInput'
 import { useTranslation } from 'react-i18next'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
-import { EntityNodeEditor, getNodeEditorsForEntity } from '../../managers/NodeManager'
-import { ComponentMap, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getNodeEditorsForEntity } from '../../managers/NodeManager'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
@@ -120,21 +120,12 @@ const NoNodeSelectedMessage = (styled as any).div`
 export const PropertiesPanelContainer = () => {
   //setting the props and state
   const [selected, setSelected] = useState(CommandManager.instance.selected)
-  const [{ node }, setActiveNode] = useState<{ node: EntityTreeNode }>({ node: null! })
   const { t } = useTranslation()
 
-  const onSelectionChanged = () => {
-    setSelected(CommandManager.instance.selected)
-  }
-
-  useEffect(() => {
-    setActiveNode({ node: selected[selected.length - 1] })
-  }, [selected])
+  const onSelectionChanged = () => setSelected([...CommandManager.instance.selected])
 
   const onObjectsChanged = (objects, property) => {
     const selected = CommandManager.instance.selected
-
-    setActiveNode({ node: selected[selected.length - 1] })
 
     if (property === 'position' || property === 'rotation' || property === 'scale' || property === 'matrix') {
       return
@@ -188,14 +179,14 @@ export const PropertiesPanelContainer = () => {
   //rendering editor views for customization of element properties
   let content
   const multiEdit = selected.length > 1
+  const node = selected[selected.length - 1]
 
   if (!node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
   } else {
     // get all editors that this entity has a component for
-    const nodeEditors = getNodeEditorsForEntity(node.entity).map((NodeEditor: any, i) => (
-      <NodeEditor key={i} multiEdit={multiEdit} node={node} />
-    ))
+    const Editor = getNodeEditorsForEntity(node.entity)
+    const nodeEditors = Editor ? <Editor multiEdit={multiEdit} node={node} /> : null
 
     const transform =
       hasComponent(node.entity, TransformComponent) &&

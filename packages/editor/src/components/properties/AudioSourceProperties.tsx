@@ -10,7 +10,7 @@ import {
   DistanceModelOptions,
   DistanceModelType
 } from '@xrengine/engine/src/scene/classes/AudioSource'
-import useSetPropertySelected from './useSetPropertySelected'
+import useSetPropertySelected from './Util'
 import { useTranslation } from 'react-i18next'
 import NumericInput from '../inputs/NumericInput'
 

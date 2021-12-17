@@ -8,6 +8,7 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { FogComponent, FogComponentType } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'
 
@@ -18,6 +19,8 @@ export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, jso
     ...json.props,
     color: new Color(json.props.color)
   })
+
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_FOG)
 
   updateFog(entity)
 }

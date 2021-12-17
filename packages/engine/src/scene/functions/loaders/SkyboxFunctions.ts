@@ -3,12 +3,19 @@ import { Color, sRGBEncoding } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
+  ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/ComponentNames'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  hasComponent,
+  removeComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { Sky } from '../../classes/Sky'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -26,14 +33,31 @@ import {
   getPmremGenerator
 } from '../../constants/Util'
 import { Vector3 } from 'three'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_SKYBOX = 'skybox'
+export const SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES = {
+  backgroundColor: 0,
+  equirectangularPath: '/hdr/city.jpg',
+  cubemapPath: '/hdr/cubemap/Bridge2/',
+  backgroundType: 3,
+  skyboxProps: {
+    turbidity: 10,
+    rayleigh: 1,
+    luminance: 1,
+    mieCoefficient: 0.004999999999999893,
+    mieDirectionalG: 0.99,
+    inclination: 0.10471975511965978,
+    azimuth: 0.16666666666666666
+  }
+}
 
 export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   if (isClient) {
     json.props.backgroundColor = new Color(json.props.backgroundColor)
     addComponent(entity, SkyboxComponent, json.props)
     addComponent(entity, DisableTransformTagComponent, {})
+    if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SKYBOX)
     updateSkybox(entity)
   }
 }
@@ -113,4 +137,8 @@ export const serializeSkybox: ComponentSerializeFunction = (entity) => {
 
 export const setSkyDirection = (direction: Vector3) => {
   Engine.csm?.lightDirection.copy(direction).multiplyScalar(-1)
+}
+
+export const shouldDeserializeSkybox: ComponentShouldDeserializeFunction = () => {
+  return getComponentCountOfType(SkyboxComponent) <= 0
 }

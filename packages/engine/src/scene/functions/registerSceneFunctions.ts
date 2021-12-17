@@ -1,5 +1,12 @@
 import { World } from '../../ecs/classes/World'
 import {
+  deserializeAmbientLight,
+  SCENE_COMPONENT_AMBIENT_LIGHT,
+  serializeAmbientLight,
+  shouldDeserializeAmbientLight,
+  updateAmbientLight
+} from './loaders/AmbientLightFunctions'
+import {
   deserializeAudioSetting,
   SCENE_COMPONENT_AUDIO_SETTINGS,
   serializeAudioSetting
@@ -16,13 +23,16 @@ import {
   SCENE_COMPONENT_GROUND_PLANE,
   deserializeGround,
   serializeGroundPlane,
-  updateGroundPlane
+  updateGroundPlane,
+  shouldDeserializeGroundPlane
 } from './loaders/GroundPlaneFunctions'
+import { deserializeGroup, SCENE_COMPONENT_GROUP, serializeGroup } from './loaders/GroupFunctions'
 import {
   SCENE_COMPONENT_HEMISPHERE_LIGHT,
   deserializeHemisphereLight,
   serializeHemisphereLight,
-  updateHemisphereLight
+  updateHemisphereLight,
+  shouldDeserializeHemisphereLight
 } from './loaders/HemisphereLightFunctions'
 import {
   SCENE_COMPONENT_CUBEMAP_BAKE,
@@ -41,7 +51,8 @@ import {
   SCENE_COMPONENT_POSTPROCESSING,
   deserializePostprocessing,
   serializePostprocessing,
-  updatePostProcessing
+  updatePostProcessing,
+  shouldDeserializePostprocessing
 } from './loaders/PostprocessingFunctions'
 import {
   SCENE_COMPONENT_RENDERER_SETTINGS,
@@ -53,7 +64,8 @@ import {
   SCENE_COMPONENT_SCENE_PREVIEW_CAMERA,
   deserializeScenePreviewCamera,
   serializeScenePreviewCamera,
-  updateScenePreviewCamera
+  updateScenePreviewCamera,
+  shouldDeserializeScenePreviewCamera
 } from './loaders/ScenePreviewCameraFunctions'
 import { SCENE_COMPONENT_SHADOW, deserializeShadow, serializeShadow, updateShadow } from './loaders/ShadowFunctions'
 import {
@@ -61,7 +73,13 @@ import {
   deserializeSimpleMaterial,
   serializeSimpleMaterial
 } from './loaders/SimpleMaterialFunctions'
-import { SCENE_COMPONENT_SKYBOX, deserializeSkybox, serializeSkybox, updateSkybox } from './loaders/SkyboxFunctions'
+import {
+  SCENE_COMPONENT_SKYBOX,
+  deserializeSkybox,
+  serializeSkybox,
+  updateSkybox,
+  shouldDeserializeSkybox
+} from './loaders/SkyboxFunctions'
 import { SCENE_COMPONENT_SPAWN_POINT, deserializeSpawnPoint, serializeSpawnPoint } from './loaders/SpawnPointFunctions'
 import { SCENE_COMPONENT_TRANSFORM, deserializeTransform, serializeTransform } from './loaders/TransformFunctions'
 import { SCENE_COMPONENT_VISIBLE, deserializeVisible, serializeVisible } from './loaders/VisibleFunctions'
@@ -138,13 +156,22 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
     deserialize: deserializeGround,
     serialize: serializeGroundPlane,
-    update: updateGroundPlane
+    update: updateGroundPlane,
+    shouldDeserialize: shouldDeserializeGroundPlane
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
     deserialize: deserializeHemisphereLight,
     serialize: serializeHemisphereLight,
-    update: updateHemisphereLight
+    update: updateHemisphereLight,
+    shouldDeserialize: shouldDeserializeHemisphereLight
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
+    deserialize: deserializeAmbientLight,
+    serialize: serializeAmbientLight,
+    update: updateAmbientLight,
+    shouldDeserialize: shouldDeserializeAmbientLight
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_METADATA, {
@@ -156,19 +183,22 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSTPROCESSING, {
     deserialize: deserializePostprocessing,
     serialize: serializePostprocessing,
-    update: updatePostProcessing
+    update: updatePostProcessing,
+    shouldDeserialize: shouldDeserializePostprocessing
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
     deserialize: deserializeScenePreviewCamera,
     serialize: serializeScenePreviewCamera,
-    update: updateScenePreviewCamera
+    update: updateScenePreviewCamera,
+    shouldDeserialize: shouldDeserializeScenePreviewCamera
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {
     deserialize: deserializeSkybox,
     serialize: serializeSkybox,
-    update: updateSkybox
+    update: updateSkybox,
+    shouldDeserialize: shouldDeserializeSkybox
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {
@@ -180,5 +210,10 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeModel,
     serialize: serializeModel,
     update: updateModel
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
+    deserialize: deserializeGroup,
+    serialize: serializeGroup
   })
 }

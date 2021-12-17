@@ -490,6 +490,9 @@
             "lbl-triggerPosition": "Trigger Position",
             "lbl-triggerRotation": "Trigger Rotation",
             "lbl-triggerScale": "Trigger Scale"
+        },
+        "postprocessing": {
+            "description": "For applying Post Processing effects to you scene."
         }
     },
     "projects": {

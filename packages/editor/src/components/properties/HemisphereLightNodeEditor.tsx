@@ -7,13 +7,9 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { updateHemisphereLight } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
-
-type HemisphereLightNodeEditorProps = {
-  node: EntityTreeNode
-}
+import { EditorComponentType } from './Util'
 
 /**
  * HemisphereLightNodeEditor used to provide property customization view for HemisphereLightNode.
@@ -21,7 +17,7 @@ type HemisphereLightNodeEditorProps = {
  * @author Robert Long
  * @type {class Compoment}
  */
-export const HemisphereLightNodeEditor = (props: HemisphereLightNodeEditorProps) => {
+export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   //function handle change in skyColor property

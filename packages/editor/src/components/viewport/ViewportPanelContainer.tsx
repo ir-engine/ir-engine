@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Vector2 } from 'three'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import AssetDropZone from '../assets/AssetDropZone'
-import { addAssetAtCursorPositionOnDrop } from '../dnd'
+import { addItemAtCursorPosition } from '../dnd'
 import * as styles from './Viewport.module.scss'
 import editorTheme from '@xrengine/client-core/src/util/theme'
 import EditorEvents from '../../constants/EditorEvents'
@@ -61,8 +62,6 @@ export function ViewportPanelContainer() {
       CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
       CommandManager.instance.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
       CommandManager.instance.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
-
-      SceneManager.instance.dispose()
     }
   }, [])
 
@@ -80,7 +79,8 @@ export function ViewportPanelContainer() {
 
         return
       }
-      addAssetAtCursorPositionOnDrop(item, mousePos)
+
+      addItemAtCursorPosition(item, mousePos as Vector2)
     },
     collect: (monitor) => ({
       canDrop: monitor.canDrop(),

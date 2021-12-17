@@ -52,6 +52,7 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export type DefaultExportOptionsType = {
   combineMeshes: boolean
@@ -213,7 +214,6 @@ export class SceneManager {
         scenePreviewCamera.quaternion,
         scenePreviewCamera.scale
       )
-      // CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, [scenePreviewCamera])
     } else {
       scenePreviewCamera = getComponent(cameraEntity, Object3DComponent).value as PerspectiveCamera
     }
@@ -343,7 +343,7 @@ export class SceneManager {
     const newPosition = new Vector3()
     this.getCursorSpawnPosition(mousePos, newPosition)
     CommandManager.instance.executeCommand(EditorCommands.REPARENT, objects, {
-      parents: Engine.scene,
+      parents: useWorld().entityTree.rootNode,
       positions: newPosition
     })
   }
@@ -356,7 +356,7 @@ export class SceneManager {
    * @param target
    * @returns
    */
-  getCursorSpawnPosition(mousePos, target) {
+  getCursorSpawnPosition(mousePos: Vector2, target = new Vector3()): Vector3 {
     const rect = Engine.renderer.domElement.getBoundingClientRect()
     const position = new Vector2()
     position.x = ((mousePos.x - rect.left) / rect.width) * 2 - 1
@@ -371,7 +371,7 @@ export class SceneManager {
    * @param screenSpacePosition
    * @param target
    */
-  getScreenSpaceSpawnPosition(screenSpacePosition: Vector2, target: Vector3) {
+  getScreenSpaceSpawnPosition(screenSpacePosition: Vector2, target = new Vector3()): Vector3 {
     this.raycastTargets.length = 0
     const closestTarget = getIntersectingNodeOnScreen(this.raycaster, screenSpacePosition, this.raycastTargets)
 
@@ -391,6 +391,8 @@ export class SceneManager {
         Math.round(target.z / translationSnap) * translationSnap
       )
     }
+
+    return target
   }
 
   /**

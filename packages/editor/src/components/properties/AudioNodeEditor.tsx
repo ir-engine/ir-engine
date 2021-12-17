@@ -4,7 +4,7 @@ import InputGroup from '../inputs/InputGroup'
 import AudioInput from '../inputs/AudioInput'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import AudioSourceProperties from './AudioSourceProperties'
-import useSetPropertySelected from './useSetPropertySelected'
+import useSetPropertySelected from './Util'
 import i18n from 'i18next'
 import { useTranslation } from 'react-i18next'
 
