@@ -128,20 +128,22 @@ const someFunction = x => {
 }
 
 someFunction(3) // => 6
+someFunction(3) // => 7
+someFunction(3) // => 8
 ```
 
 Written as a stateless function with referential transparency:
+
 ```js
-const data = {
-  y: 3
-}
 const someFunction = (data, x) => {
   x += data.y
   data.y++
   return x
 }
 
-someFunction(data, 3) // => 6
+someFunction({ y: 3 }, 3) // => 6
+someFunction({ y: 3 }, 3) // => 6
+someFunction({ y: 3 }, 3) // => 6
 ```
 
 The newly written function now holds no inherent state of its own and does not operate on any data that was not passed into the function as explicit arguments.
