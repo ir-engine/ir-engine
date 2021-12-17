@@ -1,32 +1,21 @@
-import { WebIO } from '@gltf-transform/core'
+import { NodeIO, WebIO } from '@gltf-transform/core'
 import { instance } from '@gltf-transform/functions'
 import { DracoMeshCompression, KHRONOS_EXTENSIONS } from '@gltf-transform/extensions'
-import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
+import { getLoader } from './LoadGLTF'
+import { isClient } from '../../common/functions/isClient'
 
 async function instanceGLTF(url) {
-  let dracoLoader: any = new DRACOLoader()
-  dracoLoader.setDecoderPath('/loader_decoders/')
-  // @ts-ignore
-  const io = new WebIO().registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
+  const dracoLoader = getLoader().dracoLoader!
 
-  let dracoDecoderModule = null
-  await dracoLoader.getDecoderModule().then(function (module) {
-    dracoDecoderModule = module.decoder
-  })
-
-  let dracoEncoderModule = null
-  await dracoLoader.getEncoderModule().then(function (module) {
-    dracoEncoderModule = module.encoder
-  })
-
+  const io = new (isClient ? WebIO : NodeIO)().registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
   io.registerDependencies({
-    'draco3d.decoder': dracoDecoderModule,
-    'draco3d.encoder': dracoEncoderModule
+    'draco3d.decoder': (await dracoLoader.getDecoderModule()).decoder,
+    'draco3d.encoder': (await dracoLoader.getEncoderModule()).encoder
   })
 
-  const doc = await io.read(url)
+  // TODO: this currently doesnt work - we need to be able to pass URLs into io.read in order for the URL to be passed
 
-  // @ts-ignore
+  const doc = await io.read(isClient ? url : new URL(url))
   await doc.transform(instance())
 
   // Remove draco mesh compression after transformation, as the output file is not going to be writtren to file
@@ -38,8 +27,7 @@ async function instanceGLTF(url) {
     }
   }
 
-  let buffer = await io.writeBinary(doc)
-  return buffer
+  return io.writeBinary(doc)
 }
 
 export { instanceGLTF }

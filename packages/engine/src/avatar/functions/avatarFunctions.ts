@@ -136,7 +136,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   loadGrowingEffectObject(entity, materialList)
 }
 
-const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<MaterialMap>) => {
+const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
   const textureLight = AssetLoader.getFromCache('/itemLight.png')
   const texturePlate = AssetLoader.getFromCache('/itemPlate.png')
 

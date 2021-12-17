@@ -8,6 +8,7 @@ import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { Engine } from '../../ecs/classes/Engine'
 import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
 import { instanceGLTF } from '../functions/transformGLTF'
+import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 
 export const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
   const replacedMaterials = new Map()
@@ -136,15 +137,30 @@ type AssetLoaderParamType = {
   url: string
   castShadow?: boolean
   receiveShadow?: boolean
+  instanced?: boolean
   [key: string]: any
+}
+
+const assetLoadCallback = (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => (asset) => {
+  if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
+    loadExtentions(asset)
+  }
+
+  const assetClass = getAssetClass(url)
+  if (assetClass === AssetClass.Model) {
+    processModelAsset(asset.scene, params)
+  }
+
+  AssetLoader.Cache.set(url, asset)
+
+  onLoad(asset)
 }
 
 const load = async (
   params: AssetLoaderParamType,
-  onLoad = (response: any) => {},
-  onProgress = (request: ProgressEvent) => {},
-  onError = (event: ErrorEvent | Error) => {},
-  isInstanced = false
+  onLoad: (response: any) => void,
+  onProgress: (request: ProgressEvent) => void,
+  onError: (event: ErrorEvent | Error) => void
 ) => {
   if (!params.url) {
     onError(new Error('URL is empty'))
@@ -157,52 +173,13 @@ const load = async (
   }
 
   const assetType = getAssetType(url)
-  const assetClass = getAssetClass(url)
-
   const loader = getLoader(assetType)
+  const callback = assetLoadCallback(url, assetType, params, onLoad)
 
-  if (isInstanced) {
-    let buffer = await instanceGLTF(url)
-    console.log('instanced loading')
-
-    loader.parse(
-      buffer,
-      null,
-      (asset) => {
-        if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
-          loadExtentions(asset)
-        }
-
-        if (assetClass === AssetClass.Model) {
-          processModelAsset(asset.scene, params)
-        }
-
-        AssetLoader.Cache.set(url, asset)
-
-        onLoad(asset)
-      },
-      onError
-    )
+  if (params.instanced) {
+    ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
   } else {
-    console.log('non instanced loading')
-    loader.load(
-      url,
-      (asset) => {
-        if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
-          loadExtentions(asset)
-        }
-
-        if (assetClass === AssetClass.Model) {
-          processModelAsset(asset.scene, params)
-        }
-
-        AssetLoader.Cache.set(url, asset)
-
-        onLoad(asset)
-      },
-      onProgress,
-      onError
-    )
+    loader.load(url, callback, onProgress, onError)
   }
 }
 
@@ -219,10 +196,9 @@ export class AssetLoader {
     params: AssetLoaderParamType,
     onLoad = (response: any) => {},
     onProgress = (request: ProgressEvent) => {},
-    onError = (event: ErrorEvent | Error) => {},
-    isInstanced = false
+    onError = (event: ErrorEvent | Error) => {}
   ) {
-    load(params, onLoad, onProgress, onError, isInstanced)
+    load(params, onLoad, onProgress, onError)
   }
 
   static async loadAsync(params: AssetLoaderParamType) {

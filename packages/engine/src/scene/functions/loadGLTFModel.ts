@@ -214,7 +214,8 @@ export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => 
     AssetLoader.load(
       {
         url: component.data.src,
-        entity
+        entity,
+        instanced: component.data.isUsingGPUInstancing
       },
       (res) => {
         parseGLTFModel(entity, component, res.scene)
@@ -224,8 +225,7 @@ export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => 
       (err) => {
         console.log('[SCENE-LOADING]:', err)
         reject(err)
-      },
-      component.data.isUsingGPUInstancing
+      }
     )
   })
 }

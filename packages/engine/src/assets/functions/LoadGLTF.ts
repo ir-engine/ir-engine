@@ -1,5 +1,6 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
+import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { createGLTFLoader } from './createGLTFLoader'
 import { instanceGLTF } from './transformGLTF'
 
@@ -13,7 +14,7 @@ export interface LoadGLTFResultInterface {
   stats: any
 }
 const loader = createGLTFLoader()
-export function getLoader(): any {
+export function getLoader(): GLTFLoader {
   return loader
 }
 
@@ -40,7 +41,7 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
         loadExtentions(gltf)
         resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} })
       },
-      null,
+      null!,
       (e) => {
         console.log(e)
         reject(e)
@@ -60,7 +61,7 @@ export async function LoadInstancedGLTF(url: string): Promise<LoadGLTFResultInte
   return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
     getLoader().parse(
       buffer,
-      null,
+      null!,
       (gltf) => {
         // TODO: Remove me when we add retargeting
         gltf.scene.traverse((o) => {

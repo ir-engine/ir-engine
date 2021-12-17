@@ -128,7 +128,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
-    let loadPromise = null
+    let loadPromise = null! as any
     if (this.isUsingGPUInstancing) {
       console.log('instanced')
       // TODO: Look into how to support caching for this
