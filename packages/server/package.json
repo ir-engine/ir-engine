@@ -72,7 +72,7 @@
     "@types/node": "16.11.14",
     "@types/serve-favicon": "2.5.3",
     "cli": "1.0.1",
-    "concurrently": "6.4.0",
+    "concurrently": "6.5.0",
     "cross-env": "7.0.3",
     "http-server": "14.0.0",
     "nodemon": "2.0.15",
