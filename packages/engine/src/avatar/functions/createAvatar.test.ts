@@ -1,4 +1,4 @@
-import { strictEqual } from 'assert'
+import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { TestNetwork } from '../../../tests/networking/TestNetwork'
 import { Engine } from '../../ecs/classes/Engine'
@@ -61,14 +61,14 @@ describe('createAvatar', () => {
           $cache: true
         })
         
-        strictEqual(hasComponent(entity, TransformComponent), true)
-        strictEqual(hasComponent(entity, VelocityComponent), true)
-        strictEqual(hasComponent(entity, AvatarComponent), true)
-        strictEqual(hasComponent(entity, NameComponent), true)
-        strictEqual(hasComponent(entity, AvatarAnimationComponent), true)
-        strictEqual(hasComponent(entity, Object3DComponent), true)
-        strictEqual(hasComponent(entity, RaycastComponent), true)
-        strictEqual(hasComponent(entity, CollisionComponent), true)
-        strictEqual(hasComponent(entity, SpawnPoseComponent), true)
+        assert(hasComponent(entity, TransformComponent))
+        assert(hasComponent(entity, VelocityComponent))
+        assert(hasComponent(entity, AvatarComponent))
+        assert(hasComponent(entity, NameComponent))
+        assert(hasComponent(entity, AvatarAnimationComponent))
+        assert(hasComponent(entity, Object3DComponent))
+        assert(hasComponent(entity, RaycastComponent))
+        assert(hasComponent(entity, CollisionComponent))
+        assert(hasComponent(entity, SpawnPoseComponent))
     })
 })

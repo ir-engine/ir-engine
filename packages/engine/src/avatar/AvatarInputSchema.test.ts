@@ -3,11 +3,11 @@ import { Engine } from "../ecs/classes/Engine"
 import { createWorld } from "../ecs/classes/World"
 import { addComponent, getComponent } from "../ecs/functions/ComponentFunctions"
 import { createEntity } from "../ecs/functions/EntityFunctions"
-import { changeCameraDistanceByDelta, fixedCameraBehindAvatar, setTargetCameraRotation, setWalking, switchShoulderSide } from "./AvatarInputSchema"
+import { fixedCameraBehindAvatar, setTargetCameraRotation, setWalking, switchShoulderSide } from "./AvatarInputSchema"
 import { InputType } from '../input/enums/InputType'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { NumericalType } from '../common/types/NumericalTypes'
-import { strictEqual } from 'assert'
+import assert from 'assert'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { CollisionGroups } from '../physics/enums/CollisionGroups'
@@ -34,7 +34,7 @@ describe('avatarInputSchema', () => {
             lifecycleState: LifecycleValue.Started
             }, Engine.currentWorld.delta)
 
-        strictEqual(firstValue, !follower.locked)
+        assert(firstValue === !follower.locked)
     })
     
     it('check switchShoulderSide', () => {
@@ -48,7 +48,7 @@ describe('avatarInputSchema', () => {
             lifecycleState: LifecycleValue.Started
             }, Engine.currentWorld.delta)
 
-        strictEqual(firstValue, !follower.shoulderSide)
+        assert(firstValue === !follower.shoulderSide)
     })
     
     it('check setTargetCameraRotation', () => {
@@ -60,8 +60,8 @@ describe('avatarInputSchema', () => {
         setTargetCameraRotation(entity, phi, theta)
         const tcr = getComponent(entity, TargetCameraRotationComponent)
 
-        strictEqual(tcr.phi, phi)
-        strictEqual(tcr.theta, theta)
+        assert(tcr.phi === phi)
+        assert(tcr.theta === theta)
     })
     
     
@@ -81,8 +81,8 @@ describe('avatarInputSchema', () => {
 
         setTargetCameraRotation(entity, phi, theta)
 
-        strictEqual(tcr.phi, phi)
-        strictEqual(tcr.theta, theta)
+        assert(tcr.phi === phi)
+        assert(tcr.theta === theta)
     })
     
     it('check setWalking', async () => { 
@@ -132,6 +132,6 @@ describe('avatarInputSchema', () => {
             lifecycleState: LifecycleValue.Started
         }, Engine.currentWorld.delta)
 
-        strictEqual(firstValue, !c.isWalking)
+        assert(firstValue === !c.isWalking)
     })
 })
