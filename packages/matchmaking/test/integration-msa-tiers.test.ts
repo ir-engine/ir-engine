@@ -31,7 +31,10 @@ describe.skip('open-match + MSA frontend service', () => {
     // 2. get assignments promises
     const assignmentsPromises = tickets.map((ticket) => {
       assert(ticket.id)
-      return getTicketsAssignment(ticket.id)
+      return getTicketsAssignment(ticket.id).then(a => {
+        console.log('assignment for ', ticket.id, a?.connection)
+        return a
+      })
     })
 
     // wait for at least two assignments, and check that both are bronze

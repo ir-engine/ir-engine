@@ -291,7 +291,7 @@ const ProfileMenu = (props: Props): any => {
             </Grid>
 
             <h4>
-              {(selfUser.userRole.value === 'user' || selfUser.userRole.value === 'admin') && (
+              {selfUser.userRole.value !== 'guest' && (
                 <div className={styles.logout} onClick={handleLogout}>
                   {t('user:usermenu.profile.logout')}
                 </div>

@@ -102,7 +102,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene)
 }
 
 export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, scene: Mesh | Scene) => {
-  console.log('parseGLTFModel', entity, component, scene)
+  // console.log('parseGLTFModel', entity, component, scene)
 
   const world = useWorld()
   setObjectLayers(scene, ObjectLayers.Render, ObjectLayers.Scene)

@@ -252,7 +252,7 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
   world.receptors.push(incomingNetworkReceptor)
 
   return () => {
-    if (!Engine.hasJoinedWorld) return
+    if (!Engine.isInitialized) return
     applyIncomingNetworkState(world)
   }
 }
