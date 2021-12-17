@@ -16,8 +16,8 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../../src/networking/components/NetworkObjectOwnedTag'
-import { incomingNetworkReceptor, setEquippedObjectReceptor } from '../../src/networking/functions/incomingNetworkReceptor'
-import  EquippabbleSystem  from '../../src/interaction/systems/EquippableSystem'
+import { setEquippedObjectReceptor } from '../../src/networking/functions/incomingNetworkReceptor'
+import { equippableQueryEnter, equippableQueryExit }  from '../../src/interaction/systems/EquippableSystem'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
@@ -83,15 +83,13 @@ describe('Equippables Integration Tests', () => {
     })
     
     equipEntity(equipperEntity, equippableEntity, undefined, true)
-    
-    const equippabbleSystem = await EquippabbleSystem(world)
 
     world.receptors.push(
         (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
     )
-    mockProgressWorldForNetworkActions()
 
-    equippabbleSystem()
+    mockProgressWorldForNetworkActions()
+    equippableQueryEnter(equipperEntity)
     
     // validations for equip
     assert(hasComponent(equipperEntity, EquipperComponent))
@@ -106,7 +104,7 @@ describe('Equippables Integration Tests', () => {
     unequipEntity(equipperEntity, true)
 
     mockProgressWorldForNetworkActions()
-    equippabbleSystem()
+    equippableQueryExit(equipperEntity)
 
     // validations for unequip
     assert(!hasComponent(equipperEntity, EquipperComponent))
