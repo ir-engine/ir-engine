@@ -35,7 +35,7 @@ describe('createAvatar', () => {
       delete (globalThis as any).PhysX
     })
     
-    it('check fi avatar schema maps sizes are ok', () => {
+    it('check if avatar schema maps sizes are ok', () => {
         Engine.userId = world.hostId
         Engine.hasJoinedWorld = true
         
