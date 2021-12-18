@@ -159,21 +159,19 @@ export const ChannelConnectionService = {
             ),
           isHarmonyPage: isHarmonyPage
         })
+        ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
+        EngineEvents.instance.addEventListener(
+          MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
+          MediaStreamService.triggerUpdateConsumers
+        )
+
+        MediaStreams.instance.channelType =
+          instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
+        MediaStreams.instance.channelId = channelId
       } catch (error) {
         console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
         console.log(error)
       }
-
-      ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
-      EngineEvents.instance.addEventListener(
-        MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
-        MediaStreamService.triggerUpdateConsumers
-      )
-
-      MediaStreams.instance.channelType =
-        instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
-      MediaStreams.instance.channelId = channelId
-      store.dispatch(ChannelConnectionAction.channelServerConnected())
     } catch (err) {
       console.log(err)
     }

@@ -3,7 +3,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import * as mediasoupClient from 'mediasoup-client'
-import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { Config } from '@xrengine/common/src/config'
 import { io as ioclient, Socket } from 'socket.io-client'
 import {
@@ -27,6 +27,8 @@ import { InstanceConnectionAction } from '../common/services/InstanceConnectionS
 import { ChannelConnectionAction } from '../common/services/ChannelConnectionService'
 // import { encode, decode } from 'msgpackr'
 
+type ConnectionType = 'world' | 'media'
+
 export class SocketWebRTCClientTransport implements NetworkTransport {
   static EVENTS = {
     PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'WEBRTC_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
@@ -39,6 +41,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     CHANNEL_RECONNECTED: 'WEBRTC_CHANNEL_RECONNECTED'
   }
 
+  connectionType: ConnectionType
+
+  constructor(connectionType: ConnectionType) {
+    this.connectionType = connectionType
+  }
+
   mediasoupDevice: mediasoupClient.Device
   leaving = false
   left = false
@@ -46,22 +54,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   instanceSendTransport: MediaSoupTransport
   channelRecvTransport: MediaSoupTransport
   channelSendTransport: MediaSoupTransport
-  lastPollSyncData = {}
-  pollingTickRate = 1000
-  pollingTimeout = 4000
   instanceSocket: Socket = {} as Socket
   channelSocket: Socket = {} as Socket
   instanceRequest: any
   channelRequest: any
   localScreen: any
-  lastPoll: Date
-  pollPending = false
   videoEnabled = false
   channelType: string
   channelId: string
-  instanceDataProducer: any
-  channelDataProducer: any
-  reconnecting = false
+  instanceDataProducer: DataProducer
+  channelDataProducer: DataProducer
 
   sendActions(actions: Set<Action>) {
     if (actions.size === 0) return
@@ -71,24 +73,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
   }
 
-  /**
-   * Send a message over TCP with websockets
-   * @param message message to send
-   */
-  sendReliableData(message, instance = true): void {
-    if (instance === true && typeof this.instanceSocket.emit === 'function')
-      this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message)
-    else if (typeof this.channelSocket.emit === 'function')
-      this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message)
-  }
-
   sendNetworkStatUpdateMessage(message, instance = true): void {
     if (instance) this.instanceSocket.emit(MessageTypes.UpdateNetworkState.toString(), message)
     else this.channelSocket.emit(MessageTypes.UpdateNetworkState.toString(), message)
-  }
-
-  handleKick(socket) {
-    console.log('Handling kick: ', socket)
   }
 
   close(instance = true, channel = true) {
@@ -103,7 +90,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
-  sendData(data: any, instance = true): void {
+  sendData(data: ArrayBuffer, instance = true): void {
     if (instance === true) {
       if (
         this.instanceDataProducer &&
@@ -135,10 +122,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     opts?: any
   ): Promise<void> {
     const self = this
+    let reconnecting
     let socket = instance ? this.instanceSocket : this.channelSocket
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
     console.log('******* GAMESERVER PORT IS', port)
-    Network.instance.accessToken = query.token = token
+    query.token = token
     dispatchLocal(EngineActions.connect(user.id) as any)
 
     this.mediasoupDevice = new mediasoupClient.Device()
@@ -171,24 +159,27 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (instance === true) {
       ;(socket as any).instance = true
       this.instanceSocket = socket
-      Network.instance.instanceSocketId = socket.id
       this.instanceRequest = this.promisedRequest(socket)
       dispatch(InstanceConnectionAction.socketCreated(socket))
     } else {
       this.channelSocket = socket
-      Network.instance.channelSocketId = socket.id
       this.channelRequest = this.promisedRequest(socket)
       dispatch(ChannelConnectionAction.socketCreated(socket))
     }
 
     socket.on('connect', async () => {
       console.log(`CONNECT to port ${port}`)
-      if (this.reconnecting === true) {
-        this.reconnecting = false
+      if (reconnecting === true) {
+        reconnecting = false
         return
       }
+      if (instance) {
+        dispatch(InstanceConnectionAction.instanceServerConnected())
+      } else {
+        dispatch(ChannelConnectionAction.channelServerConnected())
+      }
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest
-      const payload = { userId: Engine.userId, accessToken: Network.instance.accessToken }
+      const payload = { userId: Engine.userId, accessToken: token }
 
       const { success } = await new Promise<any>((resolve) => {
         const interval = setInterval(async () => {
@@ -221,11 +212,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       }, 1000)
 
       if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities })
-
-      // If a reliable message is received, add it to the queue
-      socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
-        Network.instance.incomingMessageQueueReliable.add(message)
-      })
 
       socket.on(MessageTypes.ActionData.toString(), (message) => {
         if (!message) return
@@ -362,7 +348,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED })
         if ((socket as any).instance !== true)
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
-        this.reconnecting = true
+        reconnecting = true
         console.log('reconnect')
         dispatchLocal(EngineActions.resetEngine((socket as any).instance) as any)
       })
