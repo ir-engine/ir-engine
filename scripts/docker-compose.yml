@@ -5,7 +5,7 @@ services:
     image: mariadb:10.7
     container_name: xrengine_db
     environment:
-      MYSQL_ROOT_PASSWORD: xrengine-root
+      MYSQL_ROOT_PASSWORD: xrengine-root-pa$$w0rd
       MYSQL_DATABASE: xrengine
       MYSQL_USER: server
       MYSQL_PASSWORD: password
@@ -15,7 +15,7 @@ services:
     image: mariadb:10.7
     container_name: xrengine_test_db
     environment:
-      MYSQL_ROOT_PASSWORD: xrengine-root
+      MYSQL_ROOT_PASSWORD: xrengine-root-pa$$w0rd
       MYSQL_DATABASE: xrengine
       MYSQL_USER: server
       MYSQL_PASSWORD: password

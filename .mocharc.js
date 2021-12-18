@@ -13,5 +13,5 @@ module.exports = {
   exit: true,
   recursive: true,
   jobs: '1',
-  timeout: '60000'
+  timeout: '120000'
 };

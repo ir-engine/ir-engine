@@ -33,29 +33,6 @@ describe('My Bot Tests', () => {
 
 })
 
-
-describe.only('Hanzla Bot Tests', () => {
-  before(async () => {
-    await bot.launchBrowser()
-    await bot.enterLocation(`https://${domain}/location/sky-station`)
-    await bot.awaitHookPromise(BotHooks.LocationLoaded)
-    await bot.runHook(BotHooks.InitializeBot)
-    await bot.delay(10000)
-  })
-
-  after(async () => {
-    await bot.delay(15000)
-    await bot.quit()
-  })
-
-  it('Can spawn in the world', async () =>{
-    await bot.delay(30000)
-    const pos = await bot.runHook(BotHooks.GetPlayerPosition)
-    assert(vector3.copy(pos).length() < sqrt2 * 2) // sqrt2 * 2 is the default size of our spawn area
-  })
-
-})
-
 describe.skip('Multi-Bot Tests', () => { 
 
   const bots = [] as Array<XREngineBot>
