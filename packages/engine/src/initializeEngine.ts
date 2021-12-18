@@ -212,16 +212,6 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
 
-  if (options.systems) {
-    options.systems.forEach((system) => {
-      if (system.args) {
-        registerSystemWithArgs(system.type, system.systemModulePromise, system.args, system.sceneSystem)
-      } else {
-        registerSystem(system.type, system.systemModulePromise, system.sceneSystem)
-      }
-    })
-  }
-
   registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/PositionalAudioSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/EntityNodeEventSystem'))
 
@@ -332,7 +322,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
     Engine.isEditor = true
-    // Engine timer should not start here for eidtor since we load scene after selecting.
+    // Engine timer should not start for eidtor since we load scene after selecting.
+    Engine.engineTimer.stop()
   }
 
   // Mark engine initialized

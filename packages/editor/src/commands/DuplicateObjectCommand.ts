@@ -23,18 +23,17 @@ export default class DuplicateObjectCommand extends Command {
 
   duplicatedObjects: EntityTreeNode[]
 
-  constructor(objects: EntityTreeNode[], params?: DuplicateObjectCommandParams) {
+  constructor(objects: EntityTreeNode[], params: DuplicateObjectCommandParams) {
     super(objects, params)
 
     this.affectedObjects = objects.filter((o) => shouldNodeDeserialize(o))
-
-    if (params) {
-      this.parents = params.parents ? (Array.isArray(params.parents) ? params.parents : [params.parents]) : undefined
-      this.befores = params.befores ? (Array.isArray(params.befores) ? params.befores : [params.befores]) : undefined
-    }
-
-    this.oldSelection = CommandManager.instance.selected.slice(0)
+    this.parents = params.parents ? (Array.isArray(params.parents) ? params.parents : [params.parents]) : undefined
+    this.befores = params.befores ? (Array.isArray(params.befores) ? params.befores : [params.befores]) : undefined
     this.duplicatedObjects = []
+
+    if (this.keepHistory) {
+      this.oldSelection = CommandManager.instance.selected.slice(0)
+    }
   }
 
   execute(isRedoCommand?: boolean) {

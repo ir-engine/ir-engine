@@ -29,37 +29,35 @@ export default class TagComponentCommand extends Command {
   operations: TagComponentOperationType[]
   oldOperations: TagComponentOperationType[]
 
-  constructor(objects?: any | any[], params?: TagComponentCommandParams) {
-    if (!params) return
-
+  constructor(objects: EntityTreeNode[], params: TagComponentCommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) objects = [objects]
-    if (!Array.isArray(params.operation)) params.operation = [params.operation]
+    this.operations = Array.isArray(params.operation) ? params.operation : [params.operation]
 
-    this.affectedObjects = objects.slice(0)
-    this.operations = params.operation
-    this.oldOperations = []
+    if (this.keepHistory) {
+      this.oldOperations = []
 
-    for (let i = 0; i < this.affectedObjects.length; i++) {
-      const component = (this.operations[i] ?? this.operations[0]).component
-      const componentExists = hasComponent(
-        this.affectedObjects[i].entity,
-        (this.operations[i] ?? this.operations[0]).component
-      )
-      this.oldOperations.push({
-        component,
-        type: componentExists ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-      })
+      for (let i = 0; i < this.affectedObjects.length; i++) {
+        const component = (this.operations[i] ?? this.operations[0]).component
+        const componentExists = hasComponent(this.affectedObjects[i].entity, component)
+        this.oldOperations.push({
+          component,
+          type: componentExists ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+        })
+      }
     }
   }
 
   execute() {
     this.updateComponents(this.affectedObjects, this.operations)
+    this.emitAfterExecuteEvent()
   }
 
   undo() {
+    if (!this.oldOperations) return
+
     this.updateComponents(this.affectedObjects, this.oldOperations)
+    this.emitAfterExecuteEvent()
   }
 
   toString() {

@@ -25,8 +25,6 @@ export default class RemoveObjectsCommand extends Command {
 
   oldBefores: EntityTreeNode[]
 
-  oldNodes: EntityTreeNode
-
   deselectObject?: boolean
 
   oldComponents: SceneJson[]
@@ -35,28 +33,29 @@ export default class RemoveObjectsCommand extends Command {
 
   removedObjectCount: number
 
-  constructor(objects: EntityTreeNode[], params?: RemoveObjectCommandParams) {
+  constructor(objects: EntityTreeNode[], params: RemoveObjectCommandParams) {
     super(objects, params)
 
-    this.affectedObjects = objects.slice(0)
     this.removedObjectCount = objects.length
-    this.undoObjects = []
-    this.oldParents = []
-    this.oldBefores = []
-    this.oldComponents = []
-    this.skipSerialization = params?.skipSerialization
-    this.deselectObject = params?.deselectObject
+    this.skipSerialization = params.skipSerialization
+    this.deselectObject = params.deselectObject
 
-    for (let i = objects.length - 1; i >= 0; i--) {
-      const obj = objects[i]
-      this.undoObjects.push(obj)
+    if (this.keepHistory) {
+      this.undoObjects = []
+      this.oldParents = []
+      this.oldBefores = []
+      this.oldComponents = []
+      for (let i = objects.length - 1; i >= 0; i--) {
+        const obj = objects[i]
+        this.undoObjects.push(obj)
 
-      if (obj.parentNode) {
-        this.oldParents.push(obj.parentNode)
-        this.oldBefores.push(obj.parentNode.children![obj.parentNode.children!.indexOf(obj) + 1])
+        if (obj.parentNode) {
+          this.oldParents.push(obj.parentNode)
+          this.oldBefores.push(obj.parentNode.children![obj.parentNode.children!.indexOf(obj) + 1])
+        }
+
+        if (!this.skipSerialization) this.oldComponents.push(serializeWorld(obj))
       }
-
-      if (!this.skipSerialization) this.oldComponents.push(serializeWorld(obj))
     }
   }
 
@@ -88,6 +87,8 @@ export default class RemoveObjectsCommand extends Command {
   }
 
   undo() {
+    if (!this.undoObjects) return
+
     CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.undoObjects, {
       parents: this.oldParents,
       befores: this.oldBefores,

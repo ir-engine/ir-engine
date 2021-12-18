@@ -39,21 +39,26 @@ export default class AddObjectCommand extends Command {
 
   constructor(objects: EntityTreeNode[], params: AddObjectCommandParams) {
     super(objects, params)
-    this.affectedObjects = objects.slice(0)
+
     this.parents = params.parents ? (Array.isArray(params.parents) ? params.parents : [params.parents]) : undefined
     this.befores = params.befores ? (Array.isArray(params.befores) ? params.befores : [params.befores]) : undefined
+    this.useUniqueName = params.useUniqueName ?? true
+
     this.sceneData = params.sceneData
       ? Array.isArray(params.sceneData)
         ? params.sceneData
         : [params.sceneData]
       : undefined
-    this.useUniqueName = params.useUniqueName ?? true
-    this.oldSelection = CommandManager.instance.selected.slice(0)
+
     this.prefabTypes = params.prefabTypes
       ? Array.isArray(params.prefabTypes)
         ? params.prefabTypes
         : [params.prefabTypes]
       : undefined
+
+    if (this.keepHistory) {
+      this.oldSelection = CommandManager.instance.selected.slice(0)
+    }
   }
 
   execute(): void {
@@ -67,7 +72,10 @@ export default class AddObjectCommand extends Command {
       deselectObject: false,
       skipSerialization: true
     })
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
+
+    if (this.oldSelection) {
+      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
+    }
   }
 
   toString(): string {

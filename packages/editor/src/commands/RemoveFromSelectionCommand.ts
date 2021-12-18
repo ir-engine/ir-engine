@@ -5,17 +5,13 @@ import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 export default class RemoveFromSelectionCommand extends Command {
-  constructor(objects?: any | any[], params?: CommandParams) {
+  constructor(objects: EntityTreeNode[], params: CommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
-
-    this.affectedObjects = objects.slice(0)
-    this.oldSelection = CommandManager.instance.selected.slice(0)
+    if (this.keepHistory) this.oldSelection = CommandManager.instance.selected.slice(0)
   }
 
   execute() {
@@ -23,14 +19,14 @@ export default class RemoveFromSelectionCommand extends Command {
 
     this.removeFromSelection()
 
-    if (this.shouldGizmoUpdate) {
-      CommandManager.instance.updateTransformRoots()
-    }
+    if (this.shouldGizmoUpdate) CommandManager.instance.updateTransformRoots()
 
     this.emitAfterExecuteEvent()
   }
 
   undo() {
+    if (!this.oldSelection) return
+
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
   }
 
@@ -54,24 +50,7 @@ export default class RemoveFromSelectionCommand extends Command {
       if (index === -1) continue
 
       CommandManager.instance.selected.splice(index, 1)
-
-      if (object.isNode) {
-        object.onDeselect()
-      } else if (object.entity) {
-        removeComponent(object.entity, SelectTagComponent)
-      }
+      removeComponent(object.entity, SelectTagComponent)
     }
-  }
-
-  removeAllFromSelection(): void {
-    for (let i = 0; i < CommandManager.instance.selected.length; i++) {
-      const object = CommandManager.instance.selected[i]
-
-      if (object.isNode) {
-        object.onDeselect()
-      }
-    }
-
-    CommandManager.instance.selected = []
   }
 }

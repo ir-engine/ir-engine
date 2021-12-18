@@ -4,11 +4,15 @@
  */
 
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { Matrix4 } from 'three'
+
+export const IDENTITY_MAT_4 = new Matrix4().identity()
 
 export interface CommandParams {
   shouldEmitEvent?: boolean
   shouldGizmoUpdate?: boolean
   isObjectSelected?: boolean
+  keepHistory?: boolean
 }
 
 export default class Command {
@@ -33,22 +37,27 @@ export default class Command {
   /** Old selected objects prior to this command execution */
   oldSelection: EntityTreeNode[]
 
-  constructor(objects: EntityTreeNode | EntityTreeNode[], params: CommandParams = {}) {
+  /** Whether this command should keep old data of the objects. Which will be used in unod operations */
+  keepHistory?: boolean
+
+  constructor(objects: EntityTreeNode[], params: CommandParams = {}) {
+    this.affectedObjects = objects.slice(0)
     this.shouldEmitEvent = params.shouldEmitEvent ?? true
     this.shouldGizmoUpdate = params.shouldGizmoUpdate ?? true
     this.isSelected = params.isObjectSelected ?? true
+    this.keepHistory = params.keepHistory
   }
 
   /** Executes the command logic */
-  execute(isRedoCommand?: boolean): void {}
+  execute(_?: boolean): void {}
 
   /** Checks whether the command should update its state or not */
-  shouldUpdate(newCommand: Command): boolean {
+  shouldUpdate(_: Command): boolean {
     return false
   }
 
   /** Updates the commnad state */
-  update(command: Command): void {}
+  update(_: Command): void {}
 
   /** Undo the command effect */
   undo(): void {}

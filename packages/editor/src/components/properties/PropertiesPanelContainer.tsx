@@ -133,7 +133,7 @@ export const PropertiesPanelContainer = () => {
 
     for (let i = 0; i < objects.length; i++) {
       if (selected.indexOf(objects[i]) !== -1) {
-        setSelected(CommandManager.instance.selected)
+        setSelected([...CommandManager.instance.selected])
         return
       }
     }

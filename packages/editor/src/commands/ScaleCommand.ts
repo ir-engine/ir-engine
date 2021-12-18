@@ -1,4 +1,4 @@
-import Command, { CommandParams } from './Command'
+import Command, { CommandParams, IDENTITY_MAT_4 } from './Command'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
@@ -11,11 +11,11 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 export interface ScaleCommandParams extends CommandParams {
-  scales?: Vector3 | Vector3[]
+  scales: Vector3 | Vector3[]
 
   space?: TransformSpace
 
-  overrideScale: boolean
+  overrideScale?: boolean
 }
 
 export default class ScaleCommand extends Command {
@@ -23,24 +23,20 @@ export default class ScaleCommand extends Command {
 
   space: TransformSpace
 
-  oldScales: Vector3[]
+  oldScales?: Vector3[]
 
   overrideScale: boolean
 
-  constructor(objects?: any | any[], params?: ScaleCommandParams) {
-    if (!params) return
-
+  constructor(objects: EntityTreeNode[], params: ScaleCommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) objects = [objects]
-    if (!params.scales) params.scales = [new Vector3(1, 1, 1)]
-    if (!Array.isArray(params.scales)) params.scales = [params.scales]
-
-    this.affectedObjects = objects.slice(0)
     this.space = params.space ?? TransformSpace.Local
-    this.overrideScale = params.overrideScale
-    this.scales = params.scales.map((s) => s.clone())
-    this.oldScales = objects.map((o) => getComponent(o.entity, Object3DComponent).value.scale.clone())
+    this.overrideScale = params.overrideScale ?? false
+    this.scales = Array.isArray(params.scales) ? params.scales : [params.scales]
+
+    if (this.keepHistory) {
+      this.oldScales = objects.map((o) => getComponent(o.entity, Object3DComponent).value.scale.clone())
+    }
   }
 
   execute() {
@@ -48,13 +44,13 @@ export default class ScaleCommand extends Command {
     this.emitAfterExecuteEvent()
   }
 
-  shouldUpdate(newCommand: ScaleCommand) {
+  shouldUpdate(newCommand: ScaleCommand): boolean {
     return this.space === newCommand.space && arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects)
   }
 
   update(command) {
     if (this.overrideScale) {
-      this.scales = command.scales.map((s) => s.clone())
+      this.scales = command.scales
     } else {
       this.scales.forEach((s: Vector3, index: number) => s.multiply(command.scales[index]))
     }
@@ -64,6 +60,8 @@ export default class ScaleCommand extends Command {
   }
 
   undo() {
+    if (!this.oldScales) return
+
     this.updateScale(this.affectedObjects, this.oldScales, TransformSpace.Local, true)
     this.emitAfterExecuteEvent()
   }
@@ -80,7 +78,7 @@ export default class ScaleCommand extends Command {
     }
   }
 
-  updateScale(objects: EntityTreeNode[], scales: Vector3[], space: any, overrideScale?: boolean): void {
+  updateScale(objects: EntityTreeNode[], scales: Vector3[], space: TransformSpace, overrideScale?: boolean): void {
     if (!overrideScale) {
       for (let i = 0; i < objects.length; i++) {
         const object = objects[i]
@@ -90,11 +88,7 @@ export default class ScaleCommand extends Command {
           console.warn('Scaling an object in world space with a non-uniform scale is not supported')
         }
 
-        let transformComponent = getComponent(object.entity, TransformComponent)
-
-        transformComponent.scale.multiply(scale)
-
-        if ((object as any).onChange) (object as any).onChange('scale')
+        getComponent(object.entity, TransformComponent).scale.multiply(scale)
       }
 
       return
@@ -103,15 +97,14 @@ export default class ScaleCommand extends Command {
     const tempMatrix = new Matrix4()
     const tempVector = new Vector3()
 
-    let spaceMatrix
+    let spaceMatrix = IDENTITY_MAT_4
 
     if (space === TransformSpace.LocalSelection) {
       if (CommandManager.instance.selected.length > 0) {
         const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
-        lastSelectedObject.updateMatrixWorld()
-        spaceMatrix = lastSelectedObject.parent.matrixWorld
-      } else {
-        spaceMatrix = tempMatrix.identity()
+        const lastSelectedObj3d = getComponent(lastSelectedObject.entity, Object3DComponent).value
+        lastSelectedObj3d.updateMatrixWorld()
+        spaceMatrix = lastSelectedObj3d.parent!.matrixWorld
       }
     }
 
@@ -148,8 +141,6 @@ export default class ScaleCommand extends Command {
 
         transformComponent.scale.copy(tempVector)
       }
-
-      if ((object as any).onChange) (object as any).onChange('scale')
     }
   }
 }

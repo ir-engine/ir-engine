@@ -26,34 +26,24 @@ export default class GroupCommand extends Command {
 
   groupNode: EntityTreeNode
 
-  constructor(objects: EntityTreeNode[], params?: GroupCommandParams) {
+  constructor(objects: EntityTreeNode[], params: GroupCommandParams) {
     super(objects, params)
 
-    this.affectedObjects = objects.slice(0)
+    this.groupParents = params.parents ? (Array.isArray(params.parents) ? params.parents : [params.parents]) : undefined
+    this.groupBefores = params.befores ? (Array.isArray(params.befores) ? params.befores : [params.befores]) : undefined
 
-    if (params) {
-      this.groupParents = params.parents
-        ? Array.isArray(params.parents)
-          ? params.parents
-          : [params.parents]
-        : undefined
-      this.groupBefores = params.befores
-        ? Array.isArray(params.befores)
-          ? params.befores
-          : [params.befores]
-        : undefined
-    }
+    if (this.keepHistory) {
+      this.oldParents = []
+      this.oldBefores = []
+      this.oldSelection = CommandManager.instance.selected.slice(0)
 
-    this.oldParents = []
-    this.oldBefores = []
-    this.oldSelection = CommandManager.instance.selected.slice(0)
+      for (let i = this.affectedObjects.length - 1; i >= 0; i--) {
+        const object = this.affectedObjects[i]
 
-    for (let i = this.affectedObjects.length - 1; i >= 0; i--) {
-      const object = this.affectedObjects[i]
-
-      if (object.parentNode) {
-        this.oldParents.push(object.parentNode)
-        this.oldBefores.push(object.parentNode.children![object.parentNode.children!.indexOf(object) + 1])
+        if (object.parentNode) {
+          this.oldParents.push(object.parentNode)
+          this.oldBefores.push(object.parentNode.children![object.parentNode.children!.indexOf(object) + 1])
+        }
       }
     }
   }

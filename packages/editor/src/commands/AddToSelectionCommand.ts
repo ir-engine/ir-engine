@@ -5,17 +5,13 @@ import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 export default class AddToSelectionCommand extends Command {
-  constructor(objects?: any | any[], params?: CommandParams) {
+  constructor(objects: EntityTreeNode[], params: CommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
-
-    this.affectedObjects = objects.slice(0)
-    this.oldSelection = CommandManager.instance.selected.slice(0)
+    if (this.keepHistory) this.oldSelection = CommandManager.instance.selected.slice(0)
   }
 
   execute() {
@@ -23,26 +19,20 @@ export default class AddToSelectionCommand extends Command {
 
     for (let i = 0; i < this.affectedObjects.length; i++) {
       const object = this.affectedObjects[i]
-
       if (CommandManager.instance.selected.includes(object)) continue
 
-      if (object.isNode) {
-        object.onSelect()
-      } else if (object.entity) {
-        addComponent(object.entity, SelectTagComponent, {})
-      }
-
+      addComponent(object.entity, SelectTagComponent, {})
       CommandManager.instance.selected.push(object)
     }
 
-    if (this.shouldGizmoUpdate) {
-      CommandManager.instance.updateTransformRoots()
-    }
+    if (this.shouldGizmoUpdate) CommandManager.instance.updateTransformRoots()
 
     this.emitAfterExecuteEvent()
   }
 
   undo() {
+    if (!this.oldSelection) return
+
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
   }
 

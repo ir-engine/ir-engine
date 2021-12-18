@@ -25,25 +25,22 @@ export default class PositionCommand extends Command {
 
   space: TransformSpace
 
-  oldPositions: any
+  oldPositions?: Vector3[]
 
-  constructor(objects: EntityTreeNode[], params?: PositionCommandParams) {
-    if (!params) return
-
+  constructor(objects: EntityTreeNode[], params: PositionCommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(params.positions)) params.positions = [params.positions]
-
-    this.affectedObjects = objects.slice(0)
-    this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
-    this.positions = params.positions
+    this.positions = Array.isArray(params.positions) ? params.positions : [params.positions]
     this.space = params.space ?? TransformSpace.Local
     this.addToPosition = params.addToPosition
+
+    if (this.keepHistory) {
+      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
+    }
   }
 
   execute() {
     this.updatePosition(this.affectedObjects, this.positions, this.space)
-
     this.emitAfterExecuteEvent()
   }
 
@@ -53,11 +50,12 @@ export default class PositionCommand extends Command {
 
   update(command: PositionCommand) {
     this.positions = command.positions
-    this.updatePosition(this.affectedObjects, command.positions, this.space)
-    this.emitAfterExecuteEvent()
+    this.execute()
   }
 
   undo() {
+    if (!this.oldPositions) return
+
     this.updatePosition(this.affectedObjects, this.oldPositions, TransformSpace.Local, true)
     this.emitAfterExecuteEvent()
   }
@@ -116,8 +114,6 @@ export default class PositionCommand extends Command {
         tempVector.applyMatrix4(tempMatrix)
         transformComponent.position.copy(tempVector)
       }
-
-      if ((object as any).onChange) (object as any).onChange('position')
     }
   }
 }

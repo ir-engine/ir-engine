@@ -18,69 +18,63 @@ export interface ModifyPropertyCommandParams extends CommandParams {
 }
 
 export default class ModifyPropertyCommand extends Command {
-  newProperties: PropertyType
+  properties: PropertyType = {}
 
   component: ComponentConstructor<any, any>
 
   updateFunction: ComponentUpdateFunction
 
-  oldProperties: PropertyType[]
+  oldProperties?: PropertyType[]
 
-  constructor(objects: EntityTreeNode[], params?: ModifyPropertyCommandParams) {
-    if (!params) return
-
+  constructor(objects: EntityTreeNode[], params: ModifyPropertyCommandParams) {
     super(objects, params)
-
-    this.affectedObjects = objects.slice(0)
-    this.newProperties = {}
-    this.oldProperties = []
 
     this.component = params.component
     this.updateFunction = params.updateFunction
 
     for (const propertyName in params.properties) {
-      if (!Object.prototype.hasOwnProperty.call(params.properties, propertyName)) continue
-
       const value = params.properties[propertyName]
-      this.newProperties[propertyName] = value && value.clone ? value.clone() : value
+      this.properties[propertyName] = value && value.clone ? value.clone() : value
     }
 
-    for (let i = 0; i < objects.length; i++) {
-      const comp = getComponent(objects[i].entity, this.component)
-      const objectOldProperties = {}
+    if (this.keepHistory) {
+      this.oldProperties = []
+      for (let i = 0; i < objects.length; i++) {
+        const comp = getComponent(objects[i].entity, this.component)
+        const oldProps = {}
 
-      for (const propertyName in params.properties) {
-        if (!Object.prototype.hasOwnProperty.call(params.properties, propertyName)) continue
+        for (const propertyName in params.properties) {
+          const { result, finalProp } = this.getNestedObject(comp, propertyName)
+          const oldValue = result[finalProp]
+          oldProps[propertyName] = oldValue && oldValue.clone ? oldValue.clone() : oldValue
+        }
 
-        const { result, finalProp } = this.getNestedObject(comp, propertyName)
-
-        const oldValue = result[finalProp]
-
-        objectOldProperties[propertyName] = oldValue && oldValue.clone ? oldValue.clone() : oldValue
+        this.oldProperties.push(oldProps)
       }
-
-      this.oldProperties.push(objectOldProperties)
     }
   }
 
   execute() {
-    this.updateProperties(this.affectedObjects, this.newProperties, this.component)
+    this.updateProperties(this.affectedObjects, this.properties, this.component)
   }
 
   shouldUpdate(newCommand: ModifyPropertyCommand): boolean {
     return (
-      arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects) &&
-      arrayShallowEqual(Object.keys(this.newProperties), Object.keys(newCommand.newProperties)) &&
-      this.component === newCommand.component
+      this.component === newCommand.component &&
+      this.updateFunction === newCommand.updateFunction &&
+      arrayShallowEqual(Object.keys(this.properties), Object.keys(newCommand.properties)) &&
+      arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects)
     )
   }
 
   update(command: ModifyPropertyCommand) {
-    this.newProperties = command.newProperties
-    this.updateProperties(this.affectedObjects, command.newProperties, this.component)
+    this.properties = command.properties
+    this.updateProperties(this.affectedObjects, command.properties, this.component)
   }
 
   undo() {
+    if (!this.oldProperties) return
+
     for (let i = 0; i < this.oldProperties.length; i++) {
       this.updateProperties(this.affectedObjects, this.oldProperties[i], this.component)
     }
@@ -89,18 +83,16 @@ export default class ModifyPropertyCommand extends Command {
   toString() {
     return `SetPropertiesMultipleCommand id: ${this.id} objects: ${serializeObject3DArray(
       this.affectedObjects
-    )} properties: ${serializeProperties(this.newProperties)}`
+    )} properties: ${serializeProperties(this.properties)}`
   }
 
-  updateProperties(node: EntityTreeNode[], properties: PropertyType, component: ComponentConstructor<any, any>): void {
-    for (let i = 0; i < node.length; i++) {
-      const comp = getComponent(node[i].entity, component)
+  updateProperties(nodes: EntityTreeNode[], properties: PropertyType, component: ComponentConstructor<any, any>): void {
+    for (let i = 0; i < nodes.length; i++) {
+      const comp = getComponent(nodes[i].entity, component)
 
       if (!comp) continue
 
       for (const propertyName in properties) {
-        if (!Object.prototype.hasOwnProperty.call(properties, propertyName)) continue
-
         const value = properties[propertyName]
         const { result, finalProp } = this.getNestedObject(comp, propertyName)
 
@@ -112,11 +104,10 @@ export default class ModifyPropertyCommand extends Command {
         }
       }
 
-      this.updateFunction(node[i].entity)
+      this.updateFunction(nodes[i].entity)
     }
 
     for (const propertyName in properties) {
-      if (!Object.prototype.hasOwnProperty.call(properties, propertyName)) continue
       CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, propertyName)
     }
   }

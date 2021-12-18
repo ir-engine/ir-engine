@@ -16,11 +16,9 @@ import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
 import GroupCommand, { GroupCommandParams } from '../commands/GroupCommand'
 import PositionCommand, { PositionCommandParams } from '../commands/PositionCommand'
 import RotationCommand, { RotationCommandParams } from '../commands/RotationCommand'
-import RotateOnAxisCommand, { RotateOnAxisCommandParams } from '../commands/RotateOnAxisCommand'
 import RotateAroundCommand, { RotateAroundCommandParams } from '../commands/RotateAroundCommand'
 import ScaleCommand, { ScaleCommandParams } from '../commands/ScaleCommand'
 import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
-import LoadMaterialSlotCommand, { LoadMaterialSlotCommandParams } from '../commands/LoadMaterialSlotMultipleCommand'
 import isInputSelected from '../functions/isInputSelected'
 import ModelNode from '../nodes/ModelNode'
 import VideoNode from '../nodes/VideoNode'
@@ -46,9 +44,7 @@ export type CommandParamsType =
   | PositionCommandParams
   | RotationCommandParams
   | ScaleCommandParams
-  | RotateOnAxisCommandParams
   | RotateAroundCommandParams
-  | LoadMaterialSlotCommandParams
   | TagComponentCommandParams
 
 export class CommandManager extends EventEmitter {
@@ -79,12 +75,10 @@ export class CommandManager extends EventEmitter {
       [EditorCommands.GROUP]: GroupCommand,
       [EditorCommands.POSITION]: PositionCommand,
       [EditorCommands.ROTATION]: RotationCommand,
-      [EditorCommands.ROTATE_ON_AXIS]: RotateOnAxisCommand,
       [EditorCommands.ROTATE_AROUND]: RotateAroundCommand,
       [EditorCommands.SCALE]: ScaleCommand,
       [EditorCommands.MODIFY_PROPERTY]: ModifyPropertyCommand,
-      [EditorCommands.TAG_COMPONENT]: TagComponentCommand,
-      [EditorCommands.LOAD_MATERIAL_SLOT]: LoadMaterialSlotCommand
+      [EditorCommands.TAG_COMPONENT]: TagComponentCommand
     }
 
     window.addEventListener('copy', this.onCopy)
@@ -94,7 +88,7 @@ export class CommandManager extends EventEmitter {
   executeCommand = (
     command: EditorCommandsType,
     object: EntityTreeNode | EntityTreeNode[],
-    params?: CommandParamsType
+    params: CommandParamsType = {}
   ) => {
     if (!params) params = {}
     new this.commands[command](!Array.isArray(object) ? [object] : object, params).execute()
@@ -103,17 +97,18 @@ export class CommandManager extends EventEmitter {
   executeCommandWithHistory = (
     command: EditorCommandsType,
     object: EntityTreeNode | EntityTreeNode[],
-    params?: CommandParamsType
+    params: CommandParamsType = {}
   ) => {
-    if (!params) params = {}
+    params.keepHistory = true
     this.history.execute(new this.commands[command](!Array.isArray(object) ? [object] : object, params))
   }
 
-  executeCommandOnSelection = (command: EditorCommandsType, params?: CommandParamsType) => {
+  executeCommandOnSelection = (command: EditorCommandsType, params: CommandParamsType = {}) => {
     new this.commands[command](this.selected, params).execute()
   }
 
-  executeCommandWithHistoryOnSelection = (command: EditorCommandsType, params?: CommandParamsType) => {
+  executeCommandWithHistoryOnSelection = (command: EditorCommandsType, params: CommandParamsType = {}) => {
+    params.keepHistory = true
     this.history.execute(new this.commands[command](this.selected, params))
   }
 

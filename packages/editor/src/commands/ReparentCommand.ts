@@ -36,20 +36,22 @@ export default class ReparentCommand extends Command {
   constructor(objects: EntityTreeNode[], params: ReparentCommandParams) {
     super(objects, params)
 
-    this.affectedObjects = objects.slice(0)
     this.parents = Array.isArray(params.parents) ? params.parents : [params.parents]
     this.befores = params.befores ? (Array.isArray(params.befores) ? params.befores : [params.befores]) : undefined
     this.positions = params.positions
-    this.oldParents = []
-    this.oldBefores = []
-    this.oldSelection = CommandManager.instance.selected.slice(0)
-    this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
 
-    for (let i = objects.length - 1; i >= 0; i--) {
-      const obj = objects[i]
-      if (obj.parentNode) {
-        this.oldParents.push(obj.parentNode)
-        this.oldBefores.push(obj.parentNode.children![obj.parentNode.children!.indexOf(obj) + 1])
+    if (this.keepHistory) {
+      this.oldParents = []
+      this.oldBefores = []
+      this.oldSelection = CommandManager.instance.selected.slice(0)
+      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
+
+      for (let i = objects.length - 1; i >= 0; i--) {
+        const obj = objects[i]
+        if (obj.parentNode) {
+          this.oldParents.push(obj.parentNode)
+          this.oldBefores.push(obj.parentNode.children![obj.parentNode.children!.indexOf(obj) + 1])
+        }
       }
     }
   }
