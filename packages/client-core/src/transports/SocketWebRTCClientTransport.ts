@@ -27,6 +27,8 @@ import { InstanceConnectionAction } from '../common/services/InstanceConnectionS
 import { ChannelConnectionAction } from '../common/services/ChannelConnectionService'
 // import { encode, decode } from 'msgpackr'
 
+type ConnectionType = 'world' | 'media'
+
 export class SocketWebRTCClientTransport implements NetworkTransport {
   static EVENTS = {
     PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'WEBRTC_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
@@ -37,6 +39,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     INSTANCE_RECONNECTED: 'WEBRTC_INSTANCE_RECONNECTED',
     CHANNEL_DISCONNECTED: 'WEBRTC_CHANNEL_DISCONNECTED',
     CHANNEL_RECONNECTED: 'WEBRTC_CHANNEL_RECONNECTED'
+  }
+
+  connectionType: ConnectionType
+
+  constructor(connectionType: ConnectionType) {
+    this.connectionType = connectionType
   }
 
   mediasoupDevice: mediasoupClient.Device
@@ -56,7 +64,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   channelId: string
   instanceDataProducer: DataProducer
   channelDataProducer: DataProducer
-  reconnecting = false
 
   sendActions(actions: Set<Action>) {
     if (actions.size === 0) return
@@ -115,10 +122,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     opts?: any
   ): Promise<void> {
     const self = this
+    let reconnecting
     let socket = instance ? this.instanceSocket : this.channelSocket
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
     console.log('******* GAMESERVER PORT IS', port)
-    Network.instance.accessToken = query.token = token
+    query.token = token
     dispatchLocal(EngineActions.connect(user.id) as any)
 
     this.mediasoupDevice = new mediasoupClient.Device()
@@ -151,24 +159,22 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (instance === true) {
       ;(socket as any).instance = true
       this.instanceSocket = socket
-      Network.instance.instanceSocketId = socket.id
       this.instanceRequest = this.promisedRequest(socket)
       dispatch(InstanceConnectionAction.socketCreated(socket))
     } else {
       this.channelSocket = socket
-      Network.instance.channelSocketId = socket.id
       this.channelRequest = this.promisedRequest(socket)
       dispatch(ChannelConnectionAction.socketCreated(socket))
     }
 
     socket.on('connect', async () => {
       console.log(`CONNECT to port ${port}`)
-      if (this.reconnecting === true) {
-        this.reconnecting = false
+      if (reconnecting === true) {
+        reconnecting = false
         return
       }
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest
-      const payload = { userId: Engine.userId, accessToken: Network.instance.accessToken }
+      const payload = { userId: Engine.userId, accessToken: token }
 
       const { success } = await new Promise<any>((resolve) => {
         const interval = setInterval(async () => {
@@ -342,7 +348,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED })
         if ((socket as any).instance !== true)
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
-        this.reconnecting = true
+        reconnecting = true
         console.log('reconnect')
         dispatchLocal(EngineActions.resetEngine((socket as any).instance) as any)
       })

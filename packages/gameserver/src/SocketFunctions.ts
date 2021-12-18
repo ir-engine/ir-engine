@@ -30,22 +30,12 @@ import {
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
 import { Application } from '@xrengine/server-core/declarations'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
   return typeof obj === 'undefined' || obj === null
 }
 
 export const setupSocketFunctions = (app: Application) => async (socket: Socket) => {
-  let listenersSetUp = false
-
-  if (!Engine.sceneLoaded && !app.isChannelInstance) {
-    await new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
-    })
-  }
-
   // Authorize user and make sure everything is valid before allowing them to join the world
   socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
     console.log('AUTHORIZATION CALL HANDLER', data.userId)
@@ -106,94 +96,89 @@ export const setupSocketFunctions = (app: Application) => async (socket: Socket)
     // Return an authorization success message to client
     callback({ success: true })
 
-    if (!listenersSetUp) {
-      listenersSetUp = true
-      socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) => {
-        // console.log('Got ConnectToWorld:');
-        // console.log(data);
-        // console.log(userId);
-        // console.log("Avatar", avatar)
-        handleConnectToWorld(socket, data, callback, userId, user, avatar)
-      })
+    socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) => {
+      // console.log('Got ConnectToWorld:');
+      // console.log(data);
+      // console.log(userId);
+      // console.log("Avatar", avatar)
+      handleConnectToWorld(socket, data, callback, userId, user, avatar)
+    })
 
-      socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
-        handleJoinWorld(socket, data, callback, userId, user)
-      )
+    socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
+      handleJoinWorld(socket, data, callback, userId, user)
+    )
 
-      socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(socket, data))
+    socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(socket, data))
 
-      socket.on(MessageTypes.Heartbeat.toString(), () => handleHeartbeat(socket))
+    socket.on(MessageTypes.Heartbeat.toString(), () => handleHeartbeat(socket))
 
-      socket.on('disconnect', () => handleDisconnect(socket))
+    socket.on('disconnect', () => handleDisconnect(socket))
 
-      socket.on(MessageTypes.LeaveWorld.toString(), (data, callback) => handleLeaveWorld(socket, data, callback))
+    socket.on(MessageTypes.LeaveWorld.toString(), (data, callback) => handleLeaveWorld(socket, data, callback))
 
-      socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: WebRtcTransportParams, callback) =>
-        handleWebRtcTransportCreate(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: WebRtcTransportParams, callback) =>
+      handleWebRtcTransportCreate(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCProduceData.toString(), async (data, callback) =>
-        handleWebRtcProduceData(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCProduceData.toString(), async (data, callback) =>
+      handleWebRtcProduceData(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCTransportConnect.toString(), async (data, callback) =>
-        handleWebRtcTransportConnect(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCTransportConnect.toString(), async (data, callback) =>
+      handleWebRtcTransportConnect(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCTransportClose.toString(), async (data, callback) =>
-        handleWebRtcTransportClose(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCTransportClose.toString(), async (data, callback) =>
+      handleWebRtcTransportClose(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCCloseProducer.toString(), async (data, callback) =>
-        handleWebRtcCloseProducer(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCCloseProducer.toString(), async (data, callback) =>
+      handleWebRtcCloseProducer(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCSendTrack.toString(), async (data, callback) =>
-        handleWebRtcSendTrack(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCSendTrack.toString(), async (data, callback) =>
+      handleWebRtcSendTrack(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) =>
-        handleWebRtcReceiveTrack(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) =>
+      handleWebRtcReceiveTrack(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) =>
-        handleWebRtcPauseConsumer(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) =>
+      handleWebRtcPauseConsumer(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (data, callback) =>
-        handleWebRtcResumeConsumer(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (data, callback) =>
+      handleWebRtcResumeConsumer(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (data, callback) =>
-        handleWebRtcCloseConsumer(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (data, callback) =>
+      handleWebRtcCloseConsumer(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCConsumerSetLayers.toString(), async (data, callback) =>
-        handleWebRtcConsumerSetLayers(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCConsumerSetLayers.toString(), async (data, callback) =>
+      handleWebRtcConsumerSetLayers(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCResumeProducer.toString(), async (data, callback) =>
-        handleWebRtcResumeProducer(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCResumeProducer.toString(), async (data, callback) =>
+      handleWebRtcResumeProducer(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
-        handleWebRtcPauseProducer(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCPauseProducer.toString(), async (data, callback) =>
+      handleWebRtcPauseProducer(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.WebRTCRequestNearbyUsers.toString(), async (data, callback) =>
-        handleWebRtcRequestNearbyUsers(socket, data, callback)
-      )
-      socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
-        handleWebRtcRequestCurrentProducers(socket, data, callback)
-      )
+    socket.on(MessageTypes.WebRTCRequestNearbyUsers.toString(), async (data, callback) =>
+      handleWebRtcRequestNearbyUsers(socket, data, callback)
+    )
+    socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
+      handleWebRtcRequestCurrentProducers(socket, data, callback)
+    )
 
-      socket.on(MessageTypes.UpdateNetworkState.toString(), async (data) =>
-        handleNetworkStateUpdate(socket, data, true)
-      )
+    socket.on(MessageTypes.UpdateNetworkState.toString(), async (data) => handleNetworkStateUpdate(socket, data, true))
 
-      socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
-        handleWebRtcInitializeRouter(socket, data, callback)
-      )
-    }
+    socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
+      handleWebRtcInitializeRouter(socket, data, callback)
+    )
   })
 }

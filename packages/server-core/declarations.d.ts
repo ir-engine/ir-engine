@@ -1,8 +1,9 @@
 // src/declarations.d.ts
-import { Application as ExpressFeathers } from '@feathersjs/express'
-import * as x from '@feathersjs/feathers'
+import type { Application as ExpressFeathers } from '@feathersjs/express'
+import type * as x from '@feathersjs/feathers'
 import '@feathersjs/transport-commons'
-import { Request } from './src/k8s'
+import type { Request } from './src/k8s'
+import type SocketIO from 'socket.io'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ServiceTypes {
@@ -19,7 +20,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   k8AppsClient: Request
   agonesSDK: any
   sync: any
-  io: any
+  io: SocketIO.Server
   seed: () => Application // function
 
   // Gameserver

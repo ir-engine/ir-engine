@@ -89,7 +89,6 @@ const configureServer = async (options: Required<InitializeOptions>, isMediaServ
 
   // Had to add this to make mocha tests pass
   Network.instance ||= new Network()
-  Network.instance.isInitialized = true
 
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     console.log('joined world')
@@ -304,7 +303,6 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 
   if (options.type === EngineSystemPresets.CLIENT) {
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
-      Network.instance.isInitialized = true
       Engine.userId = id
     })
   } else if (options.type === EngineSystemPresets.SERVER) {

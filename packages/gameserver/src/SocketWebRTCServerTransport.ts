@@ -8,7 +8,6 @@ import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip
 import AWS from 'aws-sdk'
 import * as https from 'https'
 import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/types'
-import SocketIO from 'socket.io'
 import { startWebRTC } from './WebRTCFunctions'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -16,6 +15,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Application } from '@xrengine/server-core/declarations'
 import { setupSocketFunctions } from './SocketFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -79,7 +79,6 @@ export const setupSubdomain = async (app: Application) => {
 
 export class SocketWebRTCServerTransport implements NetworkTransport {
   server: https.Server
-  socketIO: SocketIO.Server
   workers: Worker[] = []
   routers: Record<string, Router>
   transport: Transport
@@ -93,13 +92,13 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   public sendActions = (actions: Set<Required<Action>>): any => {
-    if (actions.size === 0 || this.socketIO == null) return
+    if (actions.size === 0 || this.app.io == null) return
     const world = useWorld()
     const clients = world.clients
     const userIdMap = {} as { [socketId: string]: UserId }
     for (const [id, client] of clients) userIdMap[client.socketId!] = id
 
-    for (const [socketID, socket] of this.socketIO.of('/').sockets) {
+    for (const [socketID, socket] of this.app.io.of('/').sockets) {
       const arr: Action[] = []
       for (const action of actions) {
         if (!action.$to) continue
@@ -123,11 +122,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   }
 
   public sendReliableData = (message: any): any => {
-    if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.ReliableMessage.toString(), message)
+    if (this.app.io != null) this.app.io.of('/').emit(MessageTypes.ReliableMessage.toString(), message)
   }
 
   public sendNetworkStatUpdateMessage = (message: any): any => {
-    if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.UpdateNetworkState.toString(), message)
+    if (this.app.io != null) this.app.io.of('/').emit(MessageTypes.UpdateNetworkState.toString(), message)
   }
 
   public sendData = (data: Buffer): void => {
@@ -140,8 +139,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
   public async initialize(): Promise<void> {
     // Set up realtime channel on socket.io
-    this.socketIO = this.app.io
-    this.socketIO.of('/').on('connect', setupSocketFunctions(this.app))
+    this.app.io = this.app.io
 
     await setupSubdomain(this.app)
 
@@ -166,5 +164,12 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       })
     )
     console.log('Server transport initialized')
+
+    if (!Engine.sceneLoaded && !this.app.isChannelInstance) {
+      await new Promise<void>((resolve) => {
+        EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
+      })
+    }
+    this.app.io.of('/').on('connect', setupSocketFunctions(this.app))
   }
 }
