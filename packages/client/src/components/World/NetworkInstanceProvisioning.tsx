@@ -95,7 +95,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       !instanceConnectionState.instanceServerConnecting.value
     )
       InstanceConnectionService.connectToInstanceServer('instance')
-    console.log('connect to instance server')
   }, [
     engineState.isInitialised.value,
     instanceConnectionState.connected.value,
@@ -104,17 +103,12 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   ])
 
   useEffect(() => {
-    console.log(
-      'instanceConnectionState.connected.value && engineState.sceneLoaded.value',
-      engineState.connectedWorld.value,
-      engineState.sceneLoaded.value
-    )
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
       // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
       ;(Network.instance.transport as SocketWebRTCClientTransport)
         .instanceRequest(MessageTypes.JoinWorld.toString())
         .then(({ tick, clients, cachedActions, spawnPose, avatarDetail }) => {
-          console.log('RECEIVED JOIN WORLD RESPONSE')
+          console.log('RECEIVED JOIN WORLD RESPONSE', tick, clients, cachedActions, spawnPose, avatarDetail)
           dispatchLocal(EngineActions.joinedWorld(true) as any)
           useWorld().fixedTick = tick
           const hostId = useWorld().hostId

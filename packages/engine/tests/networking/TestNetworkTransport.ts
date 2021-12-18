@@ -2,9 +2,6 @@ import { Action } from '../../src/networking/interfaces/Action'
 import { NetworkTransport } from '../../src/networking/interfaces/NetworkTransport'
 
 export class TestNetworkTransport implements NetworkTransport {
-  handleKick(socket: any) {
-    throw new Error('Method not implemented.')
-  }
   initialize(address?: string, port?: number, instance?: boolean, opts?: Object): void | Promise<void> {
     throw new Error('Method not implemented.')
   }
@@ -15,10 +12,6 @@ export class TestNetworkTransport implements NetworkTransport {
   }
   public getSentData(): ArrayBuffer[] {
     return this.packets
-  }
-
-  sendReliableData(data: any): void {
-    throw new Error('Method not implemented.')
   }
 
   actions: Action[] = []

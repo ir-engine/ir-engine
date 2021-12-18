@@ -167,17 +167,14 @@ export const InstanceConnectionService = {
               ) == null
             )
         })
+        ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
+        EngineEvents.instance.addEventListener(
+          MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
+          MediaStreamService.triggerUpdateConsumers
+        )
       } catch (error) {
         console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
       }
-
-      ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
-      EngineEvents.instance.addEventListener(
-        MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
-        MediaStreamService.triggerUpdateConsumers
-      )
-
-      dispatch(InstanceConnectionAction.instanceServerConnected())
     } catch (err) {
       console.log(err)
     }
