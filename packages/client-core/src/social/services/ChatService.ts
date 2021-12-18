@@ -13,12 +13,11 @@ import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
 import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
 
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState, none } from '@hookstate/core'
 
 import _ from 'lodash'
 import { User } from '@xrengine/common/src/interfaces/User'
