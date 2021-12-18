@@ -3,7 +3,7 @@ import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/Net
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig } from '@xrengine/server-core/src/config'
 import logger from '@xrengine/server-core/src/logger'
-import { cleanupOldGameservers, getFreeSubdomain, validateNetworkObjects } from './NetworkFunctions'
+import { cleanupOldGameservers, getFreeSubdomain } from './NetworkFunctions'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 import AWS from 'aws-sdk'
 import * as https from 'https'
@@ -130,26 +130,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.UpdateNetworkState.toString(), message)
   }
 
-  // TODO: is this necessary?
-  toBuffer(ab): any {
-    var buf = Buffer.alloc(ab.byteLength)
-    var view = new Uint8Array(ab)
-    for (var i = 0; i < buf.length; ++i) {
-      buf[i] = view[i]
-    }
-    return buf
-  }
-
-  public sendData = (data: any): void => {
-    if (this.outgoingDataProducer != null) this.outgoingDataProducer.send(this.toBuffer(data))
-  }
-
-  // TODO: this is not used anywhere
-  public handleKick(socket: any): void {
-    logger.info('Kicking ', socket.id)
-    // TODO: Make sure this is right
-    // logger.info(this.socketIO.allSockets()[socket.id]);
-    if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.Kick.toString(), socket.id)
+  public sendData = (data: Buffer): void => {
+    if (this.outgoingDataProducer != null) this.outgoingDataProducer.send(Buffer.from(new Uint8Array(data)))
   }
 
   close() {
@@ -183,10 +165,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         else return Promise.resolve()
       })
     )
-
-    // TODO: move this to engine/ECS
-    setInterval(() => validateNetworkObjects(), 5000)
-
     console.log('Server transport initialized')
   }
 }

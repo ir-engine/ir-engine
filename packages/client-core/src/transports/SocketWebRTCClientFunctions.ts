@@ -8,14 +8,14 @@ import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
-let networkTransport: any
+let networkTransport: SocketWebRTCClientTransport
 
 export async function createDataProducer(
   channel = 'default',
   type = 'raw',
   customInitInfo: any = {}
 ): Promise<DataProducer | Error> {
-  networkTransport = Network.instance.transport as any
+  networkTransport = Network.instance.transport as SocketWebRTCClientTransport
   const sendTransport =
     channel === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport
   // else if (MediaStreams.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
@@ -44,7 +44,7 @@ export async function createDataProducer(
 // appropriate to the transport's direction
 
 export async function createTransport(direction: string, channelType?: string, channelId?: string) {
-  networkTransport = Network.instance.transport as any
+  networkTransport = Network.instance.transport as SocketWebRTCClientTransport
   const request =
     channelType === 'instance' && channelId == null ? networkTransport.instanceRequest : networkTransport.channelRequest
 
@@ -244,7 +244,7 @@ export async function configureMediaTransports(
 
 export async function createCamVideoProducer(channelType: string, channelId?: string): Promise<void> {
   if (MediaStreams.instance.videoStream !== null && networkTransport.videoEnabled === true) {
-    if (networkTransport.channelSendTansport == null) {
+    if (networkTransport.channelSendTransport == null) {
       await new Promise((resolve) => {
         const waitForTransportReadyInterval = setInterval(() => {
           if (networkTransport.channelSendTransport) {
@@ -287,7 +287,7 @@ export async function createCamAudioProducer(channelType: string, channelId?: st
     MediaStreams.instance.audioStream.addTrack(dst.stream.getAudioTracks()[0])
     // same thing for audio, but we can use our already-created
 
-    if (networkTransport.channelSendTansport == null) {
+    if (networkTransport.channelSendTransport == null) {
       await new Promise((resolve) => {
         const waitForTransportReadyInterval = setInterval(() => {
           if (networkTransport.channelSendTransport) {
@@ -541,9 +541,8 @@ export async function leave(instance: boolean, kicked?: boolean): Promise<boolea
       //Leaving the world should close all transports from the server side.
       //This will also destroy all the associated producers and consumers.
       //All we need to do on the client is null all references.
-      networkTransport.channelRecvTransport = null
-      networkTransport.channelSendTransport = null
-      networkTransport.lastPollSyncData = {}
+      networkTransport.channelRecvTransport = null!
+      networkTransport.channelSendTransport = null!
       if (MediaStreams) {
         if (MediaStreams.instance.audioStream) {
           const audioTracks = MediaStreams.instance.audioStream?.getTracks()

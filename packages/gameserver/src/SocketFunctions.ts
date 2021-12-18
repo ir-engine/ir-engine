@@ -122,9 +122,6 @@ export const setupSocketFunctions = (app: Application) => async (socket: Socket)
 
       socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(socket, data))
 
-      // If a reliable message is received, add it to the queue
-      socket.on(MessageTypes.ReliableMessage.toString(), (data) => handleIncomingMessage(socket, data))
-
       socket.on(MessageTypes.Heartbeat.toString(), () => handleHeartbeat(socket))
 
       socket.on('disconnect', () => handleDisconnect(socket))

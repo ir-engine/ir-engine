@@ -3,10 +3,8 @@ import { Network } from '../../src/networking/classes/Network'
 import '@xrengine/engine/src/patchEngineNode'
 
 class DummyTransport {
-  handleKick = () => {}
   initialize = () => {}
   sendData = () => {}
-  sendReliableData = () => {}
   sendActions = () => {}
   close = () => {}
 }

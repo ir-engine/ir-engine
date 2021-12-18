@@ -3,7 +3,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import * as mediasoupClient from 'mediasoup-client'
-import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { Config } from '@xrengine/common/src/config'
 import { io as ioclient, Socket } from 'socket.io-client'
 import {
@@ -46,21 +46,16 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   instanceSendTransport: MediaSoupTransport
   channelRecvTransport: MediaSoupTransport
   channelSendTransport: MediaSoupTransport
-  lastPollSyncData = {}
-  pollingTickRate = 1000
-  pollingTimeout = 4000
   instanceSocket: Socket = {} as Socket
   channelSocket: Socket = {} as Socket
   instanceRequest: any
   channelRequest: any
   localScreen: any
-  lastPoll: Date
-  pollPending = false
   videoEnabled = false
   channelType: string
   channelId: string
-  instanceDataProducer: any
-  channelDataProducer: any
+  instanceDataProducer: DataProducer
+  channelDataProducer: DataProducer
   reconnecting = false
 
   sendActions(actions: Set<Action>) {
@@ -71,24 +66,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
   }
 
-  /**
-   * Send a message over TCP with websockets
-   * @param message message to send
-   */
-  sendReliableData(message, instance = true): void {
-    if (instance === true && typeof this.instanceSocket.emit === 'function')
-      this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message)
-    else if (typeof this.channelSocket.emit === 'function')
-      this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message)
-  }
-
   sendNetworkStatUpdateMessage(message, instance = true): void {
     if (instance) this.instanceSocket.emit(MessageTypes.UpdateNetworkState.toString(), message)
     else this.channelSocket.emit(MessageTypes.UpdateNetworkState.toString(), message)
-  }
-
-  handleKick(socket) {
-    console.log('Handling kick: ', socket)
   }
 
   close(instance = true, channel = true) {
@@ -103,7 +83,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
-  sendData(data: any, instance = true): void {
+  sendData(data: ArrayBuffer, instance = true): void {
     if (instance === true) {
       if (
         this.instanceDataProducer &&
