@@ -1,9 +1,9 @@
-import assert from 'assert'
+import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 import { TestNetwork } from '../../../tests/networking/TestNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { createWorld } from '../../ecs/classes/World'
-import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -18,6 +18,8 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { createAvatar } from './createAvatar'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 
 describe('createAvatar', () => {
 	let world
@@ -35,7 +37,7 @@ describe('createAvatar', () => {
       delete (globalThis as any).PhysX
     })
     
-    it('check if avatar schema maps sizes are ok', () => {
+    it('check the create avatar function', () => {
         Engine.userId = world.hostId
         Engine.hasJoinedWorld = true
         
@@ -49,6 +51,9 @@ describe('createAvatar', () => {
           prefab: '',
           parameters: {},
         })
+
+        const prevPhysicsBodies = Engine.currentWorld.physics.bodies.size
+        const prevPhysicsColliders = Engine.currentWorld.physics.controllers.size
 
         createAvatar({
           prefab: 'avatar',
@@ -70,5 +75,10 @@ describe('createAvatar', () => {
         assert(hasComponent(entity, RaycastComponent))
         assert(hasComponent(entity, CollisionComponent))
         assert(hasComponent(entity, SpawnPoseComponent))
+        assert(hasComponent(entity, AvatarControllerComponent))
+        assert(hasComponent(entity, InteractorComponent))
+        strictEqual(Engine.currentWorld.physics.bodies.size, prevPhysicsBodies + 2)
+        strictEqual(Engine.currentWorld.physics.controllers.size, prevPhysicsColliders + 1)
+        strictEqual(getComponent(entity, NameComponent).name, Engine.userId)
     })
 })
