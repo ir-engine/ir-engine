@@ -17,11 +17,6 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
-import {
-  getChatMessageSystem,
-  hasSubscribedToChatSystem,
-  removeMessageSystem
-} from '@xrengine/engine/src/networking/utils/chatSystem'
 
 import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
 
@@ -30,6 +25,7 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { getChatMessageSystem, hasSubscribedToChatSystem, removeMessageSystem } from './utils/chatSystem'
 
 //State
 
