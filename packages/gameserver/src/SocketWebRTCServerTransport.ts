@@ -140,6 +140,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   public async initialize(): Promise<void> {
     // Set up realtime channel on socket.io
     this.app.io = this.app.io
+    this.app.io.of('/').on('connect', setupSocketFunctions(this.app))
 
     await setupSubdomain(this.app)
 
@@ -164,12 +165,5 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       })
     )
     console.log('Server transport initialized')
-
-    if (!Engine.sceneLoaded && !this.app.isChannelInstance) {
-      await new Promise<void>((resolve) => {
-        EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
-      })
-    }
-    this.app.io.of('/').on('connect', setupSocketFunctions(this.app))
   }
 }

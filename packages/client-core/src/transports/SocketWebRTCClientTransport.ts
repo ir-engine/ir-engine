@@ -208,11 +208,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       if (this.mediasoupDevice.loaded !== true) await this.mediasoupDevice.load({ routerRtpCapabilities })
 
-      // If a reliable message is received, add it to the queue
-      socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
-        Network.instance.incomingMessageQueueReliable.add(message)
-      })
-
       socket.on(MessageTypes.ActionData.toString(), (message) => {
         if (!message) return
         const actions = message as any as Required<Action>[]

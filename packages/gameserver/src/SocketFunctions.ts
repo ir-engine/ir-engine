@@ -5,7 +5,6 @@ import {
   handleDisconnect,
   handleHeartbeat,
   handleIncomingActions,
-  handleIncomingMessage,
   handleJoinWorld,
   handleLeaveWorld
 } from './NetworkFunctions'
@@ -30,12 +29,20 @@ import {
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
 import { Application } from '@xrengine/server-core/declarations'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
   return typeof obj === 'undefined' || obj === null
 }
 
 export const setupSocketFunctions = (app: Application) => async (socket: Socket) => {
+  if (!Engine.sceneLoaded && !app.isChannelInstance) {
+    await new Promise<void>((resolve) => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
+    })
+  }
+
   // Authorize user and make sure everything is valid before allowing them to join the world
   socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
     console.log('AUTHORIZATION CALL HANDLER', data.userId)

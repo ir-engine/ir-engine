@@ -754,9 +754,6 @@ const Harmony = (props: Props): any => {
 
   async function init(): Promise<any> {
     const initializationOptions: InitializeOptions = {
-      networking: {
-        transport: SocketWebRTCClientTransport
-      },
       scene: {
         disabled: true
       }

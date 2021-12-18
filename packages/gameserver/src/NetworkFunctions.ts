@@ -226,10 +226,6 @@ export function handleIncomingActions(socket, message) {
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
 }
 
-export async function handleIncomingMessage(socket, message): Promise<any> {
-  Network.instance.incomingMessageQueueReliable.add(message)
-}
-
 export async function handleHeartbeat(socket): Promise<any> {
   const userId = getUserIdFromSocketId(socket.id)!
   // console.log('Got heartbeat from user ' + userId + ' at ' + Date.now());

@@ -20,9 +20,6 @@ export class Network {
   /** Buffer holding all incoming Messages. */
   incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
 
-  /** Buffer holding all incoming Messages. */
-  incomingMessageQueueReliable: RingBuffer<any> = new RingBuffer<any>(100)
-
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
