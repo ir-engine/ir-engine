@@ -27,13 +27,12 @@ const loadScene = async (app: Application, scene: string) => {
 
   if (!Engine.isInitialized) {
     const options: InitializeOptions = {
-      type: app.isChannelInstance ? EngineSystemPresets.MEDIA : EngineSystemPresets.SERVER,
+      type: EngineSystemPresets.SERVER,
       publicPath: config.client.url,
       systems
     }
     await initializeEngine(options)
   }
-  console.log('Initialized new gameserver instance')
 
   let entitiesLeft = -1
   let lastEntitiesLeft = -1
@@ -218,6 +217,7 @@ export default (app: Application): void => {
               const existingInstanceResult = await app.service('instance').find({
                 query: existingInstanceQuery
               })
+              console.log('existingInstanceResult', existingInstanceResult.data)
               if (existingInstanceResult.total === 0) {
                 const newInstance = {
                   currentUsers: 1,
@@ -250,9 +250,19 @@ export default (app: Application): void => {
               }
 
               if (sceneId != null && !Engine.sceneLoaded && !Engine.isLoading) {
-                Engine.isLoading = true
-                await loadScene(app, sceneId)
-                Engine.isLoading = false
+                if (app.isChannelInstance) {
+                  await initializeEngine({
+                    type: EngineSystemPresets.MEDIA,
+                    publicPath: config.client.url
+                  })
+                  Engine.sceneLoaded = true
+                  dispatchLocal(EngineActions.sceneLoaded(true) as any)
+                  dispatchLocal(EngineActions.joinedWorld(true) as any)
+                } else {
+                  Engine.isLoading = true
+                  await loadScene(app, sceneId)
+                  Engine.isLoading = false
+                }
               }
             } else {
               try {
@@ -497,11 +507,11 @@ export default (app: Application): void => {
                   }
                   if (config.kubernetes.enabled) {
                     delete app.instance
-                  }
-                  const gsName = app.gameServer.objectMeta.name
-                  if (gsName !== undefined) {
-                    logger.info("App's gameserver name:")
-                    logger.info(gsName)
+                    const gsName = app.gameServer.objectMeta.name
+                    if (gsName !== undefined) {
+                      logger.info("App's gameserver name:")
+                      logger.info(gsName)
+                    }
                   }
                   await app.agonesSDK.shutdown()
                 }, config.gameserver.shutdownDelayMs)

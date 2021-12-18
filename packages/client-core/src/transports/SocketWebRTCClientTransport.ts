@@ -173,6 +173,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         reconnecting = false
         return
       }
+      if (instance) {
+        dispatch(InstanceConnectionAction.instanceServerConnected())
+      } else {
+        dispatch(ChannelConnectionAction.channelServerConnected())
+      }
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest
       const payload = { userId: Engine.userId, accessToken: token }
 
