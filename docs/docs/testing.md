@@ -60,7 +60,7 @@ End-to-end tests can be thought of much like integration tests, but also on a gr
 
 ## System vs End-to-end Tests
 
-Differences between System tests and End-to-end Testing ([source](https://www.geeksforgeeks.org/difference-between-system-testing-and-end-to-end-testing/))
+Differences between System testing and End-to-end testing ([source](https://www.geeksforgeeks.org/difference-between-system-testing-and-end-to-end-testing/))
 
 | System Testing | End-to-end Testing |
 |-|-|
