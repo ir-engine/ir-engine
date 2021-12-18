@@ -1,7 +1,5 @@
 import { AvatarInputSchema } from './avatar/AvatarInputSchema'
-import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
 import { InputSchema } from './input/interfaces/InputSchema'
-import { NetworkSchema } from './networking/interfaces/NetworkSchema'
 import { SystemModuleType } from './ecs/functions/SystemFunctions'
 import { PhysXConfig } from './physics/types/PhysicsTypes'
 
@@ -16,10 +14,6 @@ export type InitializeOptions = {
   type?: EngineSystemPresets
   input?: {
     schemas: InputSchema[]
-  }
-  networking?: {
-    schema: NetworkSchema
-    transport?: any
   }
   scene?: {
     disabled?: boolean
@@ -48,9 +42,6 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   publicPath: '',
   input: {
     schemas: [AvatarInputSchema]
-  },
-  networking: {
-    schema: DefaultNetworkSchema
   },
   scene: {
     disabled: false
