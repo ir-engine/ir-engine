@@ -12,7 +12,7 @@ import normalizeWheel from '../functions/normalizeWheel'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
 
-let prevTouchPosition: [number, number] = [0, 0]
+export let prevTouchPosition: [number, number] = [0, 0]
 let lastTap = Date.now()
 const tapLength = 200 // 100ms between doubletaps
 
@@ -32,7 +32,7 @@ export const usingThumbstick = () => {
 }
 
 export const handleTouchMove = (event: TouchEvent): void => {
-  if (!Engine.mouseInputEnabled) {
+  if (!Engine.mouseInputEnabled || event.touches.length <= 0) {
     return
   }
 
