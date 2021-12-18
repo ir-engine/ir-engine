@@ -10,11 +10,7 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 let networkTransport: SocketWebRTCClientTransport
 
-export async function createDataProducer(
-  channel = 'default',
-  type = 'raw',
-  customInitInfo: any = {}
-): Promise<DataProducer | Error> {
+export async function createDataProducer(channel = 'default', type = 'raw', customInitInfo: any = {}): Promise<void> {
   networkTransport = Network.instance.transport as SocketWebRTCClientTransport
   const sendTransport =
     channel === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport
@@ -31,14 +27,11 @@ export async function createDataProducer(
   //     networkTransport.dataProducer.send(JSON.stringify({ info: 'init' }));
   // });
   dataProducer.on('transportclose', () => {
-    Network.instance.dataProducers.delete(channel)
     if (channel === 'instance') networkTransport.instanceDataProducer?.close()
     else networkTransport.channelDataProducer?.close()
   })
   if (channel === 'instance') networkTransport.instanceDataProducer = dataProducer
   else networkTransport.channelDataProducer = dataProducer
-  Network.instance.dataProducers.set(channel, networkTransport.dataProducer)
-  return Promise.resolve(networkTransport.dataProducer)
 }
 // utility function to create a transport and hook up signaling logic
 // appropriate to the transport's direction

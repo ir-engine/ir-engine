@@ -9,6 +9,7 @@ class DummyTransport {
   close = () => {}
 }
 
+Network.instance = new Network()
 Network.instance.transport = new DummyTransport()
 Network.instance.transport.initialize()
 
