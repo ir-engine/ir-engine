@@ -80,7 +80,7 @@ export const setupSubdomain = async (app: Application) => {
 export class SocketWebRTCServerTransport implements NetworkTransport {
   server: https.Server
   workers: Worker[] = []
-  routers: Record<string, Router>
+  routers: Record<string, Router[]>
   transport: Transport
   app: Application
   dataProducers: DataProducer[] = []

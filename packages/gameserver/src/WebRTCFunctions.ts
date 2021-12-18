@@ -36,7 +36,7 @@ const toArrayBuffer = (buf): any => {
 let networkTransport: SocketWebRTCServerTransport
 export async function startWebRTC(): Promise<void> {
   networkTransport = Network.instance.transport as any
-  logger.info('Starting WebRTC Server')
+  console.info('Starting WebRTC Server')
   // Initialize roomstate
   const cores = os.cpus()
   networkTransport.routers = { instance: [] }
@@ -268,7 +268,7 @@ export async function createWebRtcTransport({
 
   const dumps: any = await Promise.all(routerList.map(async (item) => await item.dump()))
   const sortedDumps = dumps.sort((a, b) => a.transportIds.length - b.transportIds.length)
-  const selectedrouter = routerList.find((item) => item.id === sortedDumps[0].id)
+  const selectedrouter = routerList.find((item) => item.id === sortedDumps[0].id)!
 
   const newTransport = await selectedrouter.createWebRtcTransport({
     listenIps: listenIps,
@@ -417,7 +417,7 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
 
       const currentRouter = networkTransport.routers.instance.find(
         (router) => router.id === (transport as any).internal.routerId
-      )
+      )!
 
       await Promise.all(
         networkTransport.routers.instance.map(async (router) => {
@@ -497,7 +497,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
     })
 
     const routers = networkTransport.routers[`${appData.channelType}:${appData.channelId}`]
-    const currentRouter = routers.find((router) => router.id === (transport as any).internal.routerId)
+    const currentRouter = routers.find((router) => router.id === (transport as any).internal.routerId)!
 
     await Promise.all(
       routers.map(async (router: Router) => {
