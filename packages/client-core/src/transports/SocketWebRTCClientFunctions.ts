@@ -63,6 +63,7 @@ export async function createTransport(direction: string, channelType?: string, c
     // start flowing for the first time. send dtlsParameters to the
     // server, then call callback() on success or errback() on failure.
     transport.on('connect', async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
+      console.log('connect', dtlsParameters, transportOptions)
       const connectResult = await request(MessageTypes.WebRTCTransportConnect.toString(), {
         transportId: transportOptions.id,
         dtlsParameters

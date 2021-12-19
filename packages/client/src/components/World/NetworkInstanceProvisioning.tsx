@@ -5,9 +5,7 @@ import { AuthService } from '@xrengine/client-core/src/user/services/AuthService
 import { UserService } from '@xrengine/client-core/src/user/services/UserService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
-import querystring from 'querystring'
 import React, { useEffect } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { retriveLocationByName } from './LocationLoadHelper'
@@ -19,10 +17,8 @@ import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transport
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { dispatchFrom, dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 
 interface Props {
   locationName: string
@@ -104,37 +100,9 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
   useEffect(() => {
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
-      // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
       ;(Network.instance.transport as SocketWebRTCClientTransport)
         .instanceRequest(MessageTypes.JoinWorld.toString())
-        .then(({ tick, clients, cachedActions, spawnPose, avatarDetail }) => {
-          console.log('RECEIVED JOIN WORLD RESPONSE', tick, clients, cachedActions, spawnPose, avatarDetail)
-          dispatchLocal(EngineActions.joinedWorld(true) as any)
-          useWorld().fixedTick = tick
-          const hostId = useWorld().hostId
-          for (const client of clients)
-            Engine.currentWorld.incomingActions.add(
-              NetworkWorldAction.createClient({ $from: client.userId, name: client.name })
-            )
-          for (const action of cachedActions) Engine.currentWorld.incomingActions.add({ $fromCache: true, ...action })
-
-          if (engineState.isTeleporting.value) {
-            spawnPose = {
-              position: engineState.isTeleporting.value.remoteSpawnPosition,
-              rotation: engineState.isTeleporting.value.remoteSpawnRotation
-            }
-          }
-
-          dispatchFrom(Engine.userId, () =>
-            NetworkWorldAction.spawnAvatar({
-              parameters: { ...spawnPose }
-            })
-          ).cache()
-
-          dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarDetails({ avatarDetail })).cache({
-            removePrevious: true
-          })
-        })
+        .then(receiveJoinWorld)
     }
   }, [engineState.connectedWorld.value, engineState.sceneLoaded.value])
 

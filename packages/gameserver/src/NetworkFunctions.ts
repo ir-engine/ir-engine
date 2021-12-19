@@ -198,7 +198,6 @@ export async function handleJoinWorld(socket, data, callback, joinedUserId: User
     clients,
     cachedActions,
     avatarDetail: client.avatarDetail!,
-    spawnPose: SpawnPoints.instance.getRandomSpawnPoint(),
     routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
   })
 
