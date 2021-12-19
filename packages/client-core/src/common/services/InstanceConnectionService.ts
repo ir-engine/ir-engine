@@ -61,6 +61,7 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'INSTANCE_SERVER_DISCONNECT':
         if (connectionSocket != null) (connectionSocket as any).close()
+        connectionSocket = null
         return s.merge({
           instance: {
             id: '',
@@ -122,14 +123,13 @@ export const InstanceConnectionService = {
       })
     }
   },
-  connectToInstanceServer: async (channelType: string, channelId?: string) => {
+  connectToInstanceServer: async () => {
     const dispatch = useDispatch()
     try {
       dispatch(InstanceConnectionAction.instanceServerConnecting())
 
       const authState = accessAuthState()
       const user = authState.user
-      const token = authState.authUser.accessToken.value
       const instanceConnectionState = accessInstanceConnectionState().value
       const instance = instanceConnectionState.instance
       const locationId = instanceConnectionState.locationId
@@ -141,23 +141,22 @@ export const InstanceConnectionService = {
         MediaStreams !== null &&
         MediaStreams !== undefined &&
         (MediaStreams.instance?.camVideoProducer != null || MediaStreams.instance?.camAudioProducer != null)
-      // TODO: Disconnected
-      if (Network.instance && !isTeleporting) {
-        await endVideoChat({ endConsumers: true })
-        await leave(true)
-      }
       console.log('connectToInstanceServer', locationId, sceneId, currentLocation, isTeleporting)
+
+      const transport = Network.instance.transport as SocketWebRTCClientTransport
+      if (transport.socket) {
+        await leave(transport, true)
+      }
+
       try {
         const ipAddress = instance.ipAddress
         const port = Number(instance.port)
-        await Network.instance.transport.initialize(ipAddress, port, channelType === 'instance', {
+        await transport.initialize(ipAddress, port, true, {
           locationId: locationId,
-          token: token,
           user: user.value,
           sceneId: sceneId,
           startVideo: videoActive,
-          channelType: channelType,
-          channelId: channelId,
+          channelType: 'instance',
           videoEnabled:
             currentLocation?.locationSettings?.videoEnabled?.value === true ||
             !(
@@ -167,13 +166,13 @@ export const InstanceConnectionService = {
               ) == null
             )
         })
-        ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
+        transport.left = false
         EngineEvents.instance.addEventListener(
           MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
           MediaStreamService.triggerUpdateConsumers
         )
       } catch (error) {
-        console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
+        console.error('Network transport could not initialize, transport is: ', transport)
       }
     } catch (err) {
       console.log(err)

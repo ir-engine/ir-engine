@@ -89,7 +89,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       instanceConnectionState.instanceProvisioned.value &&
       !instanceConnectionState.instanceServerConnecting.value
     )
-      InstanceConnectionService.connectToInstanceServer('instance')
+      InstanceConnectionService.connectToInstanceServer()
   }, [
     engineState.isInitialised.value,
     instanceConnectionState.connected.value,
@@ -100,7 +100,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   useEffect(() => {
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
       ;(Network.instance.transport as SocketWebRTCClientTransport)
-        .instanceRequest(MessageTypes.JoinWorld.toString())
+        .request(MessageTypes.JoinWorld.toString())
         .then(receiveJoinWorld)
     }
   }, [engineState.connectedWorld.value, engineState.sceneLoaded.value])

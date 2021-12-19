@@ -1,10 +1,14 @@
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 
+export interface NetworkConnectionHandler {}
+
 /** Component Class for Network. */
 export class Network {
   /** Static instance to access everywhere. */
   static instance: Network
+  /** Object holding transport details over network. */
+  connectionHandler: NetworkConnectionHandler
   /** Object holding transport details over network. */
   transport: NetworkTransport
   /** Network transports. */
@@ -22,12 +26,4 @@ export class Network {
 
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
-
-  /** Disposes the network. */
-  dispose(): void {
-    // TODO: needs tests
-    if (this.transport && typeof this.transport.close === 'function') this.transport.close()
-    this.transport = null!
-    Network.instance = null!
-  }
 }

@@ -36,7 +36,7 @@ export const useMediaStreamState = () => useState(state)
 export const MediaStreamService = {
   updateCamVideoState: () => {
     const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused))
+    // store.dispatch(MediaStreamAction.setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused))
   },
   triggerUpdateConsumers: () => {
     const ms = MediaStreams.instance
@@ -48,7 +48,7 @@ export const MediaStreamService = {
   },
   updateCamAudioState: () => {
     const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setCamAudioState(ms != null && ms.camAudioProducer != null && !ms.audioPaused))
+    // store.dispatch(MediaStreamAction.setCamAudioState(ms != null && ms.camAudioProducer != null && !ms.audioPaused))
   },
   updateFaceTrackingState: () => {
     const ms = MediaStreams.instance
