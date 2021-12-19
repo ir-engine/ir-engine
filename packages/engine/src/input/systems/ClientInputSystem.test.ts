@@ -11,10 +11,15 @@ import ClientInputSystem, { enableInput } from './ClientInputSystem'
 
 describe('clientInputSystem', () => {
   let world
+  let clientInputSystem
+  const GAMEPAD_STICK = GamepadAxis.Left
+  const GAMEPAD_STICKR = GamepadAxis.Right
+  const stickPosition: NumericalType = [0, 0, 0]
 
-  beforeEach(() => {
+  before(async () => {
     world = createWorld()
     Engine.currentWorld = world
+    clientInputSystem = await ClientInputSystem(world)
   })
     
   it('check if enable input works', () => {
@@ -24,47 +29,48 @@ describe('clientInputSystem', () => {
       strictEqual(Engine.mouseInputEnabled, true)
   })
 
-  it('check the input life cycle', async () => {
-      const GAMEPAD_STICK = GamepadAxis.Left
-      const GAMEPAD_STICKR = GamepadAxis.Right
-      const stickPosition: NumericalType = [0, 0, 0]
-      
-      Engine.inputState.set(GAMEPAD_STICK, {
-          type: InputType.TWODIM,
-          value: stickPosition,
-          lifecycleState: LifecycleValue.Started
-        })
-
-      strictEqual(Engine.inputState.size, 1)
-        
-	    const clientInputSystem = await ClientInputSystem(world)
-      clientInputSystem()
-      strictEqual(Engine.inputState.size, 1)
-
-      Engine.inputState.set(GAMEPAD_STICKR, {
+  it('add new input - Started state', async() => {
+    Engine.inputState.set(GAMEPAD_STICK, {
         type: InputType.TWODIM,
         value: stickPosition,
-        lifecycleState: LifecycleValue.Ended
+        lifecycleState: LifecycleValue.Started
       })
 
-      strictEqual(Engine.inputState.size, 2)
-      strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Started)
-      strictEqual(Engine.inputState.get(GAMEPAD_STICKR)?.lifecycleState, LifecycleValue.Ended)
-      clientInputSystem()
-      strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Unchanged)
-      strictEqual(Engine.inputState.size, 2)
+      strictEqual(Engine.inputState.size, 1)
       clientInputSystem()
       strictEqual(Engine.inputState.size, 1)
+  })
 
-      Engine.inputState.set(GAMEPAD_STICK, {
-        type: InputType.TWODIM,
-        value: stickPosition,
-        lifecycleState: LifecycleValue.Ended
-      })
-      clientInputSystem()
-      strictEqual(Engine.inputState.size, 1)
-      strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Ended)
-      clientInputSystem()
-      strictEqual(Engine.inputState.size, 0)
+  it('add new input - Ended state', async() => {
+    Engine.inputState.set(GAMEPAD_STICKR, {
+      type: InputType.TWODIM,
+      value: stickPosition,
+      lifecycleState: LifecycleValue.Ended
+    })
+
+    strictEqual(Engine.inputState.size, 2)
+    strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Started)
+    strictEqual(Engine.inputState.get(GAMEPAD_STICKR)?.lifecycleState, LifecycleValue.Ended)
+  })
+
+  it('run the input cycle', async() => {
+    clientInputSystem()
+    strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Unchanged)
+    strictEqual(Engine.inputState.size, 2)
+    clientInputSystem()
+    strictEqual(Engine.inputState.size, 1)
+  })
+
+  it('set the first input into ended', async() => {
+    Engine.inputState.set(GAMEPAD_STICK, {
+      type: InputType.TWODIM,
+      value: stickPosition,
+      lifecycleState: LifecycleValue.Ended
+    })
+    clientInputSystem()
+    strictEqual(Engine.inputState.size, 1)
+    strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Ended)
+    clientInputSystem()
+    strictEqual(Engine.inputState.size, 0)
   })
 })
