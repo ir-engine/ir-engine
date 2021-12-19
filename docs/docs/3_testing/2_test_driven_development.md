@@ -22,7 +22,7 @@ The following sequence is based on the book Test-Driven Development by Example:
 
 1. Add a test
 
-    The adding of a new feature begins by writing a test that passes iff the feature's specifications are met. The developer can discover these specifications by asking about use cases and user stories. A key benefit of test-driven development is that it makes the developer focus on requirements before writing code. This is in contrast with the usual practice, where unit tests are only written after code.
+    The adding of a new feature begins by writing a test that passes if and _only_ if the feature's specifications are met. The developer can discover these specifications by asking about use cases and user stories. A key benefit of test-driven development is that it makes the developer focus on requirements before writing code. This is in contrast with the usual practice, where unit tests are only written after code.
 
 2. Run all tests. The new test should fail for expected reasons
 
