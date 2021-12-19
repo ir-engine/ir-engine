@@ -3,12 +3,6 @@ import { Action } from './Action'
 /** Interface for the Transport. */
 export interface NetworkTransport {
   /**
-   * Handle kick event.
-   * @param socket Socket on which this event occurred.
-   */
-  handleKick(socket: any)
-
-  /**
    * Initialize the transport.
    * @param address Address of this transport.
    * @param port Port of this transport.
@@ -22,12 +16,6 @@ export interface NetworkTransport {
    * @param data Data to be sent.
    */
   sendData(data: any): void
-
-  /**
-   * Send data through reliable channel over transport.
-   * @param data Data to be sent.
-   */
-  sendReliableData(data: any): void
 
   /**
    * Send actions through reliable channel

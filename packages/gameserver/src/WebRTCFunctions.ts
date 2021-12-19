@@ -22,6 +22,7 @@ import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
 import { getUserIdFromSocketId } from './NetworkFunctions'
 import config from '@xrengine/server-core/src/appconfig'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 const toArrayBuffer = (buf): any => {
   var ab = new ArrayBuffer(buf.length)
@@ -32,10 +33,10 @@ const toArrayBuffer = (buf): any => {
   return ab
 }
 
-let networkTransport: any
+let networkTransport: SocketWebRTCServerTransport
 export async function startWebRTC(): Promise<void> {
   networkTransport = Network.instance.transport as any
-  logger.info('Starting WebRTC Server')
+  console.info('Starting WebRTC Server')
   // Initialize roomstate
   const cores = os.cpus()
   networkTransport.routers = { instance: [] }
@@ -248,7 +249,7 @@ export async function createWebRtcTransport({
   const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
   if (channelType !== 'instance') {
     if (networkTransport.routers[`${channelType}:${channelId}`] == null) {
-      networkTransport.routers[`${channelType}:${channelId}`] = []
+      networkTransport.routers[`${channelType}:${channelId}`] = [] as any
       await Promise.all(
         networkTransport.workers.map(async (worker) => {
           const newRouter = await worker.createRouter({ mediaCodecs })
@@ -267,7 +268,7 @@ export async function createWebRtcTransport({
 
   const dumps: any = await Promise.all(routerList.map(async (item) => await item.dump()))
   const sortedDumps = dumps.sort((a, b) => a.transportIds.length - b.transportIds.length)
-  const selectedrouter = routerList.find((item) => item.id === sortedDumps[0].id)
+  const selectedrouter = routerList.find((item) => item.id === sortedDumps[0].id)!
 
   const newTransport = await selectedrouter.createWebRtcTransport({
     listenIps: listenIps,
@@ -355,9 +356,9 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
   const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
   if (config.kubernetes.enabled) {
-    const serverResult = await (networkTransport.app as any).k8AgonesClient.get('gameservers')
+    const serverResult = await networkTransport.app.k8AgonesClient.get('gameservers')
     const thisGs = serverResult.items.find(
-      (server) => server.metadata.name === networkTransport.gameServer.objectMeta.name
+      (server) => server.metadata.name === networkTransport.app.gameServer.objectMeta.name
     )
     iceCandidates.forEach((candidate) => {
       candidate.port = thisGs.spec?.ports?.find((portMapping) => portMapping.containerPort === candidate.port).hostPort
@@ -416,7 +417,7 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
 
       const currentRouter = networkTransport.routers.instance.find(
         (router) => router.id === (transport as any).internal.routerId
-      )
+      )!
 
       await Promise.all(
         networkTransport.routers.instance.map(async (router) => {
@@ -496,7 +497,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
     })
 
     const routers = networkTransport.routers[`${appData.channelType}:${appData.channelId}`]
-    const currentRouter = routers.find((router) => router.id === (transport as any).internal.routerId)
+    const currentRouter = routers.find((router) => router.id === (transport as any).internal.routerId)!
 
     await Promise.all(
       routers.map(async (router: Router) => {
