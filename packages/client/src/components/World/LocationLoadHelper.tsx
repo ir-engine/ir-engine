@@ -97,7 +97,7 @@ export const initEngine = async (initOptions: InitializeOptions) => {
 }
 
 export const loadLocation = async (sceneName: string): Promise<any> => {
-  console.log('loading location: ' + sceneName)
+  // console.log('loading location: ' + sceneName)
   const [project, scene] = sceneName.split('/')
 
   // 1. Get scene data
