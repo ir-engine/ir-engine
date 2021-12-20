@@ -27,7 +27,7 @@ https://app.theoverlay.io/location/apartment
 ## Getting Started
 A lot has changed during development, and our monorepo has gotten quite large. To avoid cloning the entire thing, use this command:
 ```
-git clone -–depth 1 https://github.com/xrfoundation/xrengine
+git clone --depth 1 https://github.com/xrfoundation/xrengine
 ```
 
 Installation instructions are [here](/tutorial/01-installation.md)
