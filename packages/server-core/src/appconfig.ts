@@ -105,6 +105,7 @@ const client = {
   releaseName: process.env.RELEASE_NAME!
 }
 
+// TODO: rename to 'instanceserver'
 const gameserver = {
   clientHost: process.env.APP_HOST!,
   enabled: process.env.GAMESERVER_ENABLED === 'true',
@@ -118,7 +119,8 @@ const gameserver = {
   port: process.env.GAMESERVER_PORT!,
   mode: process.env.SERVER_MODE!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,
-  shutdownDelayMs: parseInt(process.env.GAMESERVER_SHUTDOWN_DELAY_MS!) || 0
+  shutdownDelayMs: parseInt(process.env.GAMESERVER_SHUTDOWN_DELAY_MS!) || 0,
+  isMediaServer: process.env.INSTANCE_TYPE === 'media'
 }
 
 /**

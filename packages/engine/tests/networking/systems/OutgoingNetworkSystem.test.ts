@@ -12,6 +12,7 @@ import { NetworkObjectComponent } from '../../../src/networking/components/Netwo
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { TestNetwork } from '../TestNetwork'
 import { WorldStateModel } from '../../../src/networking/schema/networkSchema'
+import { TestNetworkTransport } from '../TestNetworkTransport'
 
 describe('OutgoingNetworkSystem Integration Tests', async () => {
 	
@@ -52,7 +53,7 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
     outgoingNetworkSystem()
 
     /* assert */
-    const datum = (Network.instance as TestNetwork).transport.getSentData()
+    const datum = (Network.instance.transportHandler.getWorldTransport() as TestNetworkTransport).getSentData()
     strictEqual(datum.length, 1)
 
     const data0 = WorldStateModel.fromBuffer(datum[0])

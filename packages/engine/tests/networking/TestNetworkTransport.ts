@@ -2,6 +2,9 @@ import { Action } from '../../src/networking/interfaces/Action'
 import { NetworkTransport } from '../../src/networking/interfaces/NetworkTransport'
 
 export class TestNetworkTransport implements NetworkTransport {
+  request(message: string, data?: any): Promise<any> {
+    throw new Error('Method not implemented.')
+  }
   initialize(address?: string, port?: number, instance?: boolean, opts?: Object): void | Promise<void> {
     throw new Error('Method not implemented.')
   }

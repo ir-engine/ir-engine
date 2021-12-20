@@ -75,9 +75,9 @@ export const applyIncomingActions = (world: World) => {
       continue
     }
     if (action.$tick < world.fixedTick) {
-      console.warn(`LATE ACTION ${action.type}`, action)
+      // console.warn(`LATE ACTION ${action.type}`, action)
     } else {
-      console.log(`ACTION ${action.type}`, action)
+      // console.log(`ACTION ${action.type}`, action)
     }
     applyAndArchiveIncomingAction(world, action)
   }

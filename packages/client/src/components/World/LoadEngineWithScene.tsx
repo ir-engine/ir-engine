@@ -13,6 +13,7 @@ import { InstanceConnectionService } from '@xrengine/client-core/src/common/serv
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -82,7 +83,7 @@ export const LoadEngineWithScene = (props: Props) => {
 
     // shut down connection with existing GS
     console.log('reseting connection for tp')
-    Network.instance.transport.close(true, false)
+    getWorldTransport().close()
     InstanceConnectionService.resetInstanceServer()
 
     await teleportToScene(portalComponent, async () => {

@@ -60,8 +60,6 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
       case 'INSTANCE_SERVER_CONNECTED':
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'INSTANCE_SERVER_DISCONNECT':
-        if (connectionSocket != null) (connectionSocket as any).close()
-        connectionSocket = null
         return s.merge({
           instance: {
             id: '',
@@ -79,8 +77,6 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
           instanceProvisioning: false
         })
       case 'INSTANCE_SOCKET_CREATED':
-        if (connectionSocket != null) (connectionSocket as any).close()
-        connectionSocket = action.socket
         return
     }
   }, action.type)
@@ -136,14 +132,8 @@ export const InstanceConnectionService = {
       const locationState = accessLocationState()
       const currentLocation = locationState.currentLocation.location
       const sceneId = currentLocation?.sceneId?.value
-      const isTeleporting = accessEngineState().isTeleporting.value
-      const videoActive =
-        MediaStreams !== null &&
-        MediaStreams !== undefined &&
-        (MediaStreams.instance?.camVideoProducer != null || MediaStreams.instance?.camAudioProducer != null)
-      console.log('connectToInstanceServer', locationId, sceneId, currentLocation, isTeleporting)
 
-      const transport = Network.instance.transport as SocketWebRTCClientTransport
+      const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
       if (transport.socket) {
         await leave(transport, true)
       }
@@ -155,7 +145,6 @@ export const InstanceConnectionService = {
           locationId: locationId,
           user: user.value,
           sceneId: sceneId,
-          startVideo: videoActive,
           channelType: 'instance',
           videoEnabled:
             currentLocation?.locationSettings?.videoEnabled?.value === true ||
@@ -184,12 +173,10 @@ export const InstanceConnectionService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
-  client.service('instance-provision').on('created', (params) => {
-    if (params.locationId != null)
-      store.dispatch(InstanceConnectionAction.instanceServerProvisioned(params, params.locationId, params.sceneId))
-  })
-}
+client.service('instance-provision').on('created', (params) => {
+  if (params.locationId != null)
+    store.dispatch(InstanceConnectionAction.instanceServerProvisioned(params, params.locationId, params.sceneId))
+})
 
 //Action
 

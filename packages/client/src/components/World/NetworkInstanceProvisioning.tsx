@@ -99,7 +99,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
   useEffect(() => {
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
-      ;(Network.instance.transport as SocketWebRTCClientTransport)
+      Network.instance.transportHandler
+        .getWorldTransport()
         .request(MessageTypes.JoinWorld.toString())
         .then(receiveJoinWorld)
     }

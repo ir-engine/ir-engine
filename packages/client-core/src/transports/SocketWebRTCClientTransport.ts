@@ -1,4 +1,4 @@
-import { NetworkConnectionHandler } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import * as mediasoupClient from 'mediasoup-client'
@@ -23,12 +23,27 @@ const promisedRequest = (socket: Socket) => {
   }
 }
 
-export class ClientConnectionHandler implements NetworkConnectionHandler {
-  worldConnections = new Map<UserId, SocketWebRTCClientTransport>()
-  mediaConnections = new Map<UserId, SocketWebRTCClientMediaTransport>()
+export class ClientTransportHandler
+  implements NetworkTransportHandler<SocketWebRTCClientTransport, SocketWebRTCClientMediaTransport>
+{
+  worldTransports = new Map<UserId, SocketWebRTCClientTransport>()
+  mediaTransports = new Map<UserId, SocketWebRTCClientMediaTransport>()
+  constructor() {
+    this.worldTransports.set('server' as UserId, new SocketWebRTCClientTransport())
+    this.mediaTransports.set('media' as UserId, new SocketWebRTCClientMediaTransport())
+  }
+  getWorldTransport() {
+    return this.worldTransports.get('server' as UserId)!
+  }
+  getMediaTransport() {
+    return this.mediaTransports.get('media' as UserId)!
+  }
 }
 
-export type TransportConnectionType = 'instance' | 'media'
+export const getMediaTransport = () =>
+  Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientMediaTransport
+export const getWorldTransport = () =>
+  Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
 
 // todo: rename to SocketWebRTCClientWorldTransport
 export class SocketWebRTCClientTransport implements NetworkTransport {
@@ -74,26 +89,18 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       this.dataProducer.send(data)
   }
 
-  public async initialize(
-    address = Config.publicRuntimeConfig.gameserverHost,
-    port = parseInt(Config.publicRuntimeConfig.gameserverPort),
-    instance: boolean,
-    opts?: any
-  ): Promise<void> {
+  public async initialize(address, port, instance: boolean, opts?: any): Promise<void> {
     if (instance && this.socket) return console.error('[SocketWebRTCClientWorldTransport]: already initialized')
     let reconnecting = false
     const authState = accessAuthState()
     const token = authState.authUser.accessToken.value
-    const { user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
+    const { user, ...query } = opts
     console.log('******* WORLD SERVER PORT IS', port)
     query.token = token
     dispatchLocal(EngineActions.connect(user.id) as any)
 
-    if (this.socket && this.socket.close) this.socket.close()
-
     if (query.locationId == null) delete query.locationId
     if (query.sceneId == null) delete query.sceneId
-    if (query.channelId == null) delete query.channelId
     if (process.env.VITE_LOCAL_BUILD === 'true') {
       this.socket = ioclient(`https://${address as string}:${port.toString()}`, {
         query: query
@@ -137,7 +144,7 @@ export class SocketWebRTCClientMediaTransport implements NetworkTransport {
     CHANNEL_RECONNECTED: 'WEBRTC_CHANNEL_RECONNECTED'
   }
 
-  mediasoupDevice: mediasoupClient.Device
+  mediasoupDevice = new mediasoupClient.Device()
   leaving = false
   left = false
   recvTransport: MediaSoupTransport
@@ -180,9 +187,6 @@ export class SocketWebRTCClientMediaTransport implements NetworkTransport {
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
     console.log('******* MEDIA SERVER PORT IS', port)
     query.token = token
-
-    this.mediasoupDevice = new mediasoupClient.Device()
-    if (this.socket && this.socket.close) this.socket.close()
 
     this.channelType = channelType
     this.channelId = opts.channelId

@@ -23,6 +23,12 @@ export interface NetworkTransport {
   sendActions(actions: Set<Action>): void
 
   /**
+   * Sends a message across the connection and resolves with the reponse
+   * @param message
+   */
+  request(message: string, data?: any): Promise<any>
+
+  /**
    * Closes all the media soup transports
    */
   close(instance?: boolean, channel?: boolean): void

@@ -1,16 +1,30 @@
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 
-export interface NetworkConnectionHandler {}
+// todo: replace 'instance' with 'world'
+export const TransportTypes = {
+  instance: 'instance' as const,
+  media: 'media' as const
+}
+
+export type TransportType = typeof TransportTypes[keyof typeof TransportTypes]
+
+export interface NetworkTransportHandler<W extends NetworkTransport, M extends NetworkTransport> {
+  worldTransports: Map<UserId, W>
+  getWorldTransport(transport?: UserId): W
+  mediaTransports: Map<UserId, M>
+  getMediaTransport(transport?: UserId): M
+}
 
 /** Component Class for Network. */
 export class Network {
   /** Static instance to access everywhere. */
   static instance: Network
   /** Object holding transport details over network. */
-  connectionHandler: NetworkConnectionHandler
+  transportHandler: NetworkTransportHandler<NetworkTransport, NetworkTransport>
   /** Object holding transport details over network. */
-  transport: NetworkTransport
+  // transport: NetworkTransport
   /** Network transports. */
   transports = [] as any[]
   /** List of data producer nodes. */

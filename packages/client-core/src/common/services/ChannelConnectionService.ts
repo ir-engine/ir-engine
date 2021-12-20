@@ -7,7 +7,10 @@ import { Config } from '@xrengine/common/src/config'
 import { client } from '../../feathers'
 import { store } from '../../store'
 import { accessChatState } from '../../social/services/ChatService'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import {
+  SocketWebRTCClientMediaTransport,
+  SocketWebRTCClientTransport
+} from '../../transports/SocketWebRTCClientTransport'
 import { accessLocationState } from '../../social/services/LocationService'
 import { MediaStreamService } from '../../media/services/MediaStreamService'
 
@@ -133,16 +136,18 @@ export const ChannelConnectionService = {
         MediaStreams !== null &&
         MediaStreams !== undefined &&
         (MediaStreams.instance?.camVideoProducer != null || MediaStreams.instance?.camAudioProducer != null)
+
+      const transport = Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientMediaTransport
       // TODO: Disconnected
       if (Network.instance !== undefined && Network.instance !== null) {
-        await endVideoChat({ endConsumers: true })
-        await leave(false)
+        await endVideoChat(transport, { endConsumers: true })
+        await leave(transport, false)
       }
 
       try {
         const ipAddress = instance.ipAddress
         const port = Number(instance.port)
-        await Network.instance.transport.initialize(ipAddress, port, false, {
+        await transport.initialize(ipAddress, port, false, {
           locationId: locationId,
           token: token,
           user: user,
@@ -159,7 +164,7 @@ export const ChannelConnectionService = {
             ),
           isHarmonyPage: isHarmonyPage
         })
-        ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
+        transport.left = false
         EngineEvents.instance.addEventListener(
           MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
           MediaStreamService.triggerUpdateConsumers
@@ -169,7 +174,7 @@ export const ChannelConnectionService = {
           instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
         MediaStreams.instance.channelId = channelId
       } catch (error) {
-        console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
+        console.error('Network transport could not initialize, transport is: ', transport)
         console.log(error)
       }
     } catch (err) {
@@ -177,8 +182,9 @@ export const ChannelConnectionService = {
     }
   },
   resetChannelServer: () => {
-    const channelRequest = (Network.instance?.transport as any)?.channelRequest
-    if (channelRequest != null) (Network.instance.transport as any).channelRequest = null
+    const transport = Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientMediaTransport
+    const channelRequest = transport?.request
+    if (channelRequest != null) transport.request = null!
     store.dispatch(ChannelConnectionAction.disconnect())
   }
 }
