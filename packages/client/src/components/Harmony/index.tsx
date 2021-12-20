@@ -57,7 +57,6 @@ import { Message } from '@xrengine/common/src/interfaces/Message'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import classNames from 'classnames'
 import moment from 'moment'
@@ -729,21 +728,14 @@ const Harmony = (props: Props): any => {
   }
 
   async function init(): Promise<any> {
-    if (Network.instance?.isInitialized !== true) {
-      const initializationOptions: InitializeOptions = {
-        networking: {
-          schema: {
-            transport: SocketWebRTCClientTransport
-          } as NetworkSchema
-        },
-        scene: {
-          disabled: true
-        }
+    const initializationOptions: InitializeOptions = {
+      scene: {
+        disabled: true
       }
-
-      await initializeEngine(initializationOptions)
-      if (engineInitialized === false) createEngineListeners()
     }
+
+    await initializeEngine(initializationOptions)
+    if (engineInitialized === false) createEngineListeners()
   }
 
   function getChannelName(): string {
