@@ -19,7 +19,7 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { EngineAction } from '@xrengine/client-core/src/world/services/EngineService'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -91,10 +91,9 @@ const createOfflineUser = (sceneData: SceneJson) => {
 
 export const initEngine = async (initOptions: InitializeOptions) => {
   Engine.isLoading = true
-  Network.instance.transport = new SocketWebRTCClientTransport()
+  Network.instance = new Network()
+  Network.instance.transport = new SocketWebRTCClientTransport('world')
   await initializeEngine(initOptions)
-  const dispatch = useDispatch()
-  dispatch(EngineAction.setInitialised(true))
 }
 
 export const loadLocation = async (sceneName: string): Promise<any> => {
@@ -107,14 +106,13 @@ export const loadLocation = async (sceneName: string): Promise<any> => {
   const packs = await getSystemsFromSceneData(project, sceneData, true)
 
   await Engine.currentWorld.initSystems(packs)
-
   const dispatch = useDispatch()
 
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
   const onEntityLoaded = ({ entitiesLeft }) => {
-    dispatch(EngineAction.loadingProgress(entitiesLeft))
+    dispatchLocal(EngineActions.loadingProgress(entitiesLeft) as any)
   }
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
   await loadSceneFromJSON(sceneData)
@@ -122,6 +120,5 @@ export const loadLocation = async (sceneName: string): Promise<any> => {
 
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
-  dispatch(EngineAction.setSceneLoaded(true))
   Engine.isLoading = false
 }
