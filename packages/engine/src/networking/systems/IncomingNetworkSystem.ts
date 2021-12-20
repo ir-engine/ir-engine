@@ -20,6 +20,7 @@ import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { Action } from '../interfaces/Action'
 import { deepEqual } from '../../common/functions/deepEqual'
 import { Engine } from '../../ecs/classes/Engine'
+import { validateNetworkObjects } from '../functions/validateNetworkObjects'
 
 export const updateCachedActions = (world: World, action: Required<Action>) => {
   if (action.$cache) {
@@ -251,8 +252,12 @@ export default async function IncomingNetworkSystem(world: World): Promise<Syste
 
   world.receptors.push(incomingNetworkReceptor)
 
+  const VALIDATE_NETWORK_INTERVAL = 300 // TODO: /** world.tickRate * 5 */
+
   return () => {
-    if (!Engine.hasJoinedWorld) return
+    if (!Engine.isInitialized) return
     applyIncomingNetworkState(world)
+    if (Engine.userId === world.hostId && world.fixedTick % VALIDATE_NETWORK_INTERVAL === 0)
+      validateNetworkObjects(world)
   }
 }

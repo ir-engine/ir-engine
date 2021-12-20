@@ -333,7 +333,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
   initNetworkStates(world)
 
   return () => {
-    if (!Engine.hasJoinedWorld) return
+    if (!Engine.isInitialized) return
 
     // side effect - network IO
     sendActions(world)
