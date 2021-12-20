@@ -16,7 +16,7 @@ describe('clientInputSystem', () => {
   const GAMEPAD_STICKR = GamepadAxis.Right
   const stickPosition: NumericalType = [0, 0, 0]
 
-  before(async () => {
+  beforeEach(async () => {
     world = createWorld()
     Engine.currentWorld = world
     clientInputSystem = await ClientInputSystem(world)
