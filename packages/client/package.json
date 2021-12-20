@@ -75,7 +75,7 @@
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "trace-unhandled": "2.0.1",
-    "vite": "2.7.3",
+    "vite": "2.7.4",
     "vite-plugin-html": "2.1.1",
     "vite-plugin-optimize-persist": "0.1.1",
     "vite-plugin-package-config": "0.0.3"
