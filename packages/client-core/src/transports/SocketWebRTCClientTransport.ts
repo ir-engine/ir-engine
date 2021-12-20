@@ -14,6 +14,7 @@ import { InstanceConnectionAction } from '../common/services/InstanceConnectionS
 import { ChannelConnectionAction } from '../common/services/ChannelConnectionService'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { accessAuthState } from '../user/services/AuthService'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 // import { encode, decode } from 'msgpackr'
 
 // Adds support for Promise to socket.io-client
@@ -58,6 +59,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     CHANNEL_RECONNECTED: 'WEBRTC_CHANNEL_RECONNECTED'
   }
 
+  heartbeat: any
   mediasoupDevice = new mediasoupClient.Device()
   leaving = false
   left = false
@@ -77,9 +79,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   close() {
-    this.recvTransport?.close()
-    this.sendTransport?.close()
-    this.socket?.close()
+    console.log('SocketWebRTCClientTransport close')
+    this.recvTransport.close()
+    this.sendTransport.close()
+    this.recvTransport = null!
+    this.sendTransport = null!
+    clearInterval(this.heartbeat)
+    this.socket.close()
     this.socket = null!
   }
 
@@ -128,6 +134,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       }
       dispatch(InstanceConnectionAction.instanceServerConnected())
       onConnectToInstance(this, true)
+
+      // Send heartbeat every second
+      this.heartbeat = setInterval(() => {
+        this.socket?.emit(MessageTypes.Heartbeat.toString())
+      }, 1000)
     })
   }
 }
@@ -156,6 +167,7 @@ export class SocketWebRTCClientMediaTransport implements NetworkTransport {
   channelType: string
   channelId: string
   dataProducer: DataProducer
+  heartbeat: any
 
   sendActions(actions: Set<Action>) {}
 
@@ -164,10 +176,32 @@ export class SocketWebRTCClientMediaTransport implements NetworkTransport {
   }
 
   close() {
-    this.recvTransport?.close()
-    this.sendTransport?.close()
-    this.socket?.close()
+    if (!this.socket) return console.log('[SocketWebRTCClientMediaTransport]: already initialized')
+    console.log('close')
+    this.recvTransport.close()
+    this.sendTransport.close()
+    clearInterval(this.heartbeat)
+    this.socket.close()
     this.socket = null!
+
+    if (MediaStreams) {
+      if (MediaStreams.instance.audioStream) {
+        const audioTracks = MediaStreams.instance.audioStream?.getTracks()
+        audioTracks.forEach((track) => track.stop())
+      }
+      if (MediaStreams.instance.videoStream) {
+        const videoTracks = MediaStreams.instance.videoStream?.getTracks()
+        videoTracks.forEach((track) => track.stop())
+      }
+      MediaStreams.instance.camVideoProducer = null
+      MediaStreams.instance.camAudioProducer = null
+      MediaStreams.instance.screenVideoProducer = null
+      MediaStreams.instance.screenAudioProducer = null
+      MediaStreams.instance.videoStream = null!
+      MediaStreams.instance.audioStream = null!
+      MediaStreams.instance.localScreen = null
+      MediaStreams.instance.consumers = []
+    }
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
@@ -222,6 +256,11 @@ export class SocketWebRTCClientMediaTransport implements NetworkTransport {
       }
       dispatch(ChannelConnectionAction.channelServerConnected())
       onConnectToInstance(this, false)
+
+      // Send heartbeat every second
+      this.heartbeat = setInterval(() => {
+        this.socket?.emit(MessageTypes.Heartbeat.toString())
+      }, 1000)
     })
   }
 }

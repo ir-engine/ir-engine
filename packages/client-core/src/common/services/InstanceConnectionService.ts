@@ -135,6 +135,7 @@ export const InstanceConnectionService = {
 
       const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
       if (transport.socket) {
+        console.log('leave instance')
         await leave(transport, true)
       }
 

@@ -47,7 +47,7 @@ export async function onConnectToInstance(
   dispatchLocal(EngineActions.connectToWorld() as any)
   // Send heartbeat every second
   const heartbeat = setInterval(() => {
-    networkTransport.socket.emit(MessageTypes.Heartbeat.toString())
+    networkTransport.socket?.emit(MessageTypes.Heartbeat.toString())
   }, 1000)
 
   if (networkTransport.mediasoupDevice.loaded !== true)
@@ -71,7 +71,6 @@ export async function onConnectToInstance(
 
   networkTransport.socket.on(MessageTypes.Kick.toString(), async (message) => {
     // console.log("TODO: SNACKBAR HERE");
-    clearInterval(heartbeat)
     await endVideoChat(networkTransport as SocketWebRTCClientMediaTransport, { endConsumers: true })
     await leave(networkTransport, true)
     EngineEvents.instance.dispatchEvent({
@@ -763,25 +762,6 @@ export async function leave(
       //All we need to do on the client is null all references.
       networkTransport.close()
       // TODO // networkTransport.close(instance, !instance)
-
-      if (MediaStreams) {
-        if (MediaStreams.instance.audioStream) {
-          const audioTracks = MediaStreams.instance.audioStream?.getTracks()
-          audioTracks.forEach((track) => track.stop())
-        }
-        if (MediaStreams.instance.videoStream) {
-          const videoTracks = MediaStreams.instance.videoStream?.getTracks()
-          videoTracks.forEach((track) => track.stop())
-        }
-        MediaStreams.instance.camVideoProducer = null
-        MediaStreams.instance.camAudioProducer = null
-        MediaStreams.instance.screenVideoProducer = null
-        MediaStreams.instance.screenAudioProducer = null
-        MediaStreams.instance.videoStream = null!
-        MediaStreams.instance.audioStream = null!
-        MediaStreams.instance.localScreen = null
-        MediaStreams.instance.consumers = []
-      }
 
       if (socket && socket.close) socket.close()
 
