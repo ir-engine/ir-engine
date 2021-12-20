@@ -1,11 +1,17 @@
 import assert, { strictEqual } from 'assert'
+import { delay } from 'lodash'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
-import { GamepadAxis, TouchInputs } from '../enums/InputEnums'
+import { GamepadAxis, GamepadButtons, MouseInput, TouchInputs } from '../enums/InputEnums'
+import { InputType } from '../enums/InputType'
 import { handleKey, handleMouseButton, handleMouseMovement, handleMouseWheel, handleTouch, handleTouchDirectionalPad, handleTouchGamepadButton, handleTouchMove, normalizeMouseCoordinates, prevTouchPosition, usingThumbstick } from './ClientInputSchema'
 
 describe('clientInputSchema', () => {
     
+    beforeEach(() => {
+        Engine.inputState.clear()
+    })
+
     it('check useThumpstick', () => {
         strictEqual(usingThumbstick(), false)
     })
@@ -58,24 +64,35 @@ describe('clientInputSchema', () => {
             strictEqual(Engine.inputState.get(TouchInputs.Touch1Position)?.lifecycleState, LifecycleValue.Changed)
 
             assert(Engine.inputState.size > 0)
-            Engine.inputState.clear()
         })
     })
 
-    it('check handleTouch', () => {
+    it('check handleTouch', async () => {
         const touchEvent = { type: 'touchstart', 
-                        targetTouches: [{
-                            length: 1
-                        }]}
+                        targetTouches: [
+                            '1'
+                        ]}
 
         handleTouch(touchEvent as unknown as TouchEvent)
+        assert(Engine.inputState.get(TouchInputs.Touch)?.lifecycleState === LifecycleValue.Started)
+        assert(Engine.inputState.get(TouchInputs.DoubleTouch) === undefined)
+        //double tap
+        handleTouch(touchEvent as unknown as TouchEvent)
+        assert(Engine.inputState.get(TouchInputs.DoubleTouch)?.lifecycleState === LifecycleValue.Started)
+        assert(Engine.inputState.get(TouchInputs.Touch)?.lifecycleState === LifecycleValue.Continued)
+        
+        const touchEvent2 = { type: 'touchend', 
+                        targetTouches: [
+                            '1'
+                        ]}
+        handleTouch(touchEvent2 as unknown as TouchEvent)
+        assert(Engine.inputState.get(TouchInputs.Touch)?.lifecycleState === LifecycleValue.Ended)
 
         assert(Engine.inputState.size > 0)
-        Engine.inputState.clear()
     })
 
     it('check handleTouchDirectionalPad', () => {
-        const touchEvent = { 
+        let touchEvent = { 
             detail: {
                 stick: GamepadAxis.Left,
                 value: {
@@ -86,29 +103,50 @@ describe('clientInputSchema', () => {
             }
         }
 
+        const input = GamepadAxis.Left
+
         handleTouchDirectionalPad(touchEvent as unknown as CustomEvent)
-
-        assert(Engine.inputState.size > 0)
-        Engine.inputState.clear()
-    })
-
-    it('check handleTouchGamepadButton', () => {
-        const touchEvent = { 
-            type: 'touchgamepadbuttondown',
+        assert(Engine.inputState.get(input)?.lifecycleState === LifecycleValue.Started)
+        handleTouchDirectionalPad(touchEvent as unknown as CustomEvent)
+        assert(Engine.inputState.get(input)?.lifecycleState === LifecycleValue.Started)
+        touchEvent = { 
             detail: {
                 stick: GamepadAxis.Left,
                 value: {
-                    x: 1,
-                    y: 1,
-                    angleRad: 2
+                    x: 4,
+                    y: 4,
+                    angleRad: 5
                 }
+            }
+        }
+        handleTouchDirectionalPad(touchEvent as unknown as CustomEvent)
+        assert(Engine.inputState.get(input)?.lifecycleState === LifecycleValue.Changed)
+
+        assert(Engine.inputState.size > 0)
+    })
+
+    it('check handleTouchGamepadButton', () => {
+        let touchEvent = { 
+            type: 'touchgamepadbuttondown',
+            detail: { 
+                button: GamepadButtons.A
             }
         }
 
         handleTouchGamepadButton(touchEvent as unknown as CustomEvent)
+        assert(Engine.inputState.get(GamepadButtons.A)?.lifecycleState === LifecycleValue.Started)
 
+        handleTouchGamepadButton(touchEvent as unknown as CustomEvent)
+        assert(Engine.inputState.get(GamepadButtons.A)?.lifecycleState === LifecycleValue.Continued)
+        touchEvent = { 
+            type: 'touchgamepadbuttonup',
+            detail: { 
+                button: GamepadButtons.A
+            }
+        }
+        handleTouchGamepadButton(touchEvent as unknown as CustomEvent)
+        assert(Engine.inputState.get(GamepadButtons.A)?.lifecycleState === LifecycleValue.Ended)
         assert(Engine.inputState.size > 0)
-        Engine.inputState.clear()
     })
 
     it('check handleMouseMovement', () => {
@@ -117,36 +155,69 @@ describe('clientInputSchema', () => {
             clientY: 0
         }
 
+        Engine.mouseInputEnabled = false
         handleMouseMovement(touchEvent as unknown as MouseEvent)
-
+        assert(Engine.inputState.size === 0)
+        Engine.mouseInputEnabled = true
+        handleMouseMovement(touchEvent as unknown as MouseEvent)
+        assert(Engine.inputState.get(MouseInput.MousePosition)?.lifecycleState === LifecycleValue.Started)
+        assert(Engine.inputState.get(MouseInput.MouseMovement)?.lifecycleState === LifecycleValue.Started)
+        handleMouseMovement(touchEvent as unknown as MouseEvent)
+        assert(Engine.inputState.get(MouseInput.MousePosition)?.lifecycleState === LifecycleValue.Changed)
+        assert(Engine.inputState.get(MouseInput.MouseMovement)?.lifecycleState === LifecycleValue.Changed)
+        
         assert(Engine.inputState.size > 0)
-        Engine.inputState.clear()
     })
 
     it('check handleMouseButton', () => {
-        const touchEvent = { 
+        let touchEvent = { 
             type: 'mousedown',
-            button: 'left',
+            button: MouseInput.LeftButton,
             clientX: 0,
             clientY: 0
         }
 
+        Engine.mouseInputEnabled = false
         handleMouseButton(touchEvent as unknown as MouseEvent)
-
+        assert(Engine.inputState.size === 0)
+        Engine.mouseInputEnabled = true
+        handleMouseButton(touchEvent as unknown as MouseEvent)
+        assert(Engine.inputState.get(MouseInput.MouseClickDownPosition)?.lifecycleState === LifecycleValue.Started)
+        assert(Engine.inputState.get(MouseInput.LeftButton)?.lifecycleState === LifecycleValue.Started)
+        
+        touchEvent = { 
+            type: 'mouseup',
+            button: MouseInput.LeftButton,
+            clientX: 0,
+            clientY: 0
+        }
+        handleMouseButton(touchEvent as unknown as MouseEvent)
+        assert(Engine.inputState.get(MouseInput.MouseClickDownPosition)?.lifecycleState === LifecycleValue.Ended)
+        assert(Engine.inputState.get(MouseInput.MouseClickDownPosition)?.lifecycleState === LifecycleValue.Ended)
+        assert(Engine.inputState.get(MouseInput.LeftButton)?.lifecycleState === LifecycleValue.Ended)
+        assert(Engine.inputState.get(MouseInput.MouseClickDownTransformRotation)?.lifecycleState === LifecycleValue.Ended)
+        assert(Engine.inputState.get(MouseInput.MouseClickDownMovement)?.lifecycleState === LifecycleValue.Ended)
         assert(Engine.inputState.size > 0)
-        Engine.inputState.clear()
     })
 
     it('check handleKey', () => {
-        const touchEvent = { 
+        let touchEvent = { 
             type: 'keydown',
-            code: 'w'
+            code: 'KeyA'
         }
 
         handleKey(touchEvent as unknown as KeyboardEvent)
-
+        assert(Engine.inputState.get('KeyA')?.lifecycleState === LifecycleValue.Started)
+        handleKey(touchEvent as unknown as KeyboardEvent)
+        assert(Engine.inputState.get('KeyA')?.lifecycleState === LifecycleValue.Continued)
+        touchEvent = { 
+            type: 'keyup',
+            code: 'KeyA'
+        }
+        handleKey(touchEvent as unknown as KeyboardEvent)
+        assert(Engine.inputState.get('KeyA')?.lifecycleState === LifecycleValue.Ended)
+        
         assert(Engine.inputState.size > 0)
-        Engine.inputState.clear()
     })
     
 })

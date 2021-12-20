@@ -257,7 +257,7 @@ export const handleTouchDirectionalPad = (event: CustomEvent): void => {
     })
   } else {
     // If position set, check it's value
-    const oldStickPosition = Engine.inputState.get(stick)
+    const oldStickPosition = Engine.inputState.get(stick)?.value
     // If it's not the same, set it and update the lifecycle value to changed
     if (JSON.stringify(oldStickPosition) !== JSON.stringify(stickPosition)) {
       // console.log('---changed');
