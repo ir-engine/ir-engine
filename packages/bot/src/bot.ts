@@ -2,6 +2,7 @@ import { URL } from 'url'
 import puppeteer from 'puppeteer'
 import fs from 'fs'
 import { getOS } from './utils/getOS'
+import { makeAdmin } from './utils/make-user-admin'
 
 class PageUtils {
   bot: XREngineBot
@@ -422,6 +423,35 @@ export class XREngineBot {
     //         resolve();
     //     }, 30000)
     // }, 2000) });
+  }
+
+  /** Enters the editor scene specified
+   * @param {string} sceneUrl The url of the scene to load
+   */
+  async enterEditor(sceneUrl, loginUrl) {
+    await this.navigate(loginUrl)
+    await this.page.waitForFunction("document.querySelector('#show-id-btn')", { timeout: 1000000 })
+    await this.clickElementById('h2', 'show-id-btn')
+    await this.page.waitForFunction("document.querySelector('#user-id')", { timeout: 1000000 })
+    const userId = await new Promise((resolve) => {
+      const interval = setInterval(async () => {
+        const id = await this.page.evaluate(() => document.querySelector('#user-id').getAttribute('value'))
+        if (id !== '') {
+          clearInterval(interval)
+          resolve(id)
+        }
+      }, 100)
+    })
+    console.log(userId)
+    //TODO: We should change this from making admin to registered user.
+    await makeAdmin(userId)
+    await this.navigate(sceneUrl)
+    await this.page.mouse.click(0, 0)
+    await this.page.waitForFunction("document.querySelector('canvas')", { timeout: 1000000 })
+    console.log('selected sucessfully')
+    await this.page.mouse.click(0, 0)
+    await this.setFocus('canvas')
+    await this.clickElementById('canvas', 'viewport-canvas')
   }
 
   async waitForTimeout(timeout) {

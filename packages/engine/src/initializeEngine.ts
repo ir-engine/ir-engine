@@ -81,6 +81,11 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
   Engine.camera.layers.enable(ObjectLayers.Scene)
   Engine.camera.name = 'Camera'
 
+  globalThis.botHooks = BotHookFunctions
+  globalThis.Engine = Engine
+  globalThis.EngineEvents = EngineEvents
+  globalThis.Network = Network
+
   await registerEditorSystems(options)
 }
 
@@ -203,6 +208,9 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), { tickRate: 60 })
+
+  // Bot
+  registerSystem(SystemUpdateType.FIXED, import('./bot/systems/BotHookSystem'))
 
   // Scene Systems
   // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))

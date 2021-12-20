@@ -283,7 +283,7 @@ const ProfileMenu = (props: Props): any => {
               </Grid>
               <Grid item container xs={6} alignItems="flex-start" direction="column">
                 <Tooltip title="Show User ID" placement="right">
-                  <h2 size="small" className={styles.showUserId} onClick={handleShowId}>
+                  <h2 id="show-id-btn" size="small" className={styles.showUserId} onClick={handleShowId}>
                     {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
                   </h2>
                 </Tooltip>
@@ -326,6 +326,7 @@ const ProfileMenu = (props: Props): any => {
 
             <form>
               <TextField
+                id="user-id"
                 className={styles.emailField}
                 size="small"
                 placeholder={'user id'}

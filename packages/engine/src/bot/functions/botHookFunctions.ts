@@ -20,7 +20,9 @@ import {
 export const BotHookFunctions = {
   [BotHooks.InitializeBot]: initializeBot,
   [BotHooks.LocationLoaded]: locationLoaded,
+  [BotHooks.SceneLoaded]: sceneLoaded,
   [BotHooks.GetPlayerPosition]: getPlayerPosition,
+  [BotHooks.GetSceneMetadata]: getSceneMetadata,
   [BotHooks.RotatePlayer]: rotatePlayer,
   [BotHooks.GetClients]: getClients,
   [XRBotHooks.OverrideXR]: overrideXR,
@@ -45,8 +47,16 @@ export function locationLoaded() {
   return Engine.hasJoinedWorld
 }
 
+export function sceneLoaded() {
+  return Engine.sceneLoaded
+}
+
 export function getPlayerPosition() {
   return getComponent(useWorld().localClientEntity, TransformComponent)?.position
+}
+
+export function getSceneMetadata() {
+  return useWorld().sceneMetadata
 }
 
 /**

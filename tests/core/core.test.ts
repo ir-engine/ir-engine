@@ -3,7 +3,7 @@ import { XREngineBot } from '@xrengine/bot/src/bot'
 import { BotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 import assert from 'assert'
 
-const bot = new XREngineBot({ name: 'bot-1', headless: false, verbose: true })
+const bot = new XREngineBot({ name: 'bot-1', verbose: true })
 const vector3 = new Vector3()
 
 const domain = process.env.APP_HOST
