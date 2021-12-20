@@ -17,7 +17,6 @@ describe('clientInputSchema', () => {
     })
 
     describe('handleTouchMove', () => {
-        it('touchstart', () => {
             const newClientX = 1
             const newClientY = 1
 
@@ -64,7 +63,6 @@ describe('clientInputSchema', () => {
             strictEqual(Engine.inputState.get(TouchInputs.Touch1Position)?.lifecycleState, LifecycleValue.Changed)
 
             assert(Engine.inputState.size > 0)
-        })
     })
 
     it('check handleTouch', async () => {
