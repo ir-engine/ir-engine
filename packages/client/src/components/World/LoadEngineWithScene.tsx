@@ -15,6 +15,11 @@ import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportTo
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import matches from 'ts-matches'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -55,7 +60,23 @@ export const LoadEngineWithScene = (props: Props) => {
 
   useEffect(() => {
     const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-    if (!Engine.isInitialized) initEngine(engineInitializeOptions)
+    if (!Engine.isInitialized)
+      initEngine(engineInitializeOptions).then(() => {
+        useWorld().receptors.push((action) => {
+          matches(action)
+            .when(NetworkWorldAction.createClient.matches, () => {
+              console.log('CLIENT RECEPTORS', action)
+              updateNearbyAvatars()
+              MediaStreamService.triggerUpdateNearbyLayerUsers()
+            })
+            .when(NetworkWorldAction.destroyClient.matches, () => {
+              console.log('CLIENT RECEPTORS', action)
+              updateNearbyAvatars()
+              MediaStreamService.triggerUpdateNearbyLayerUsers()
+            })
+        })
+      })
+
     addUIEvents()
   }, [])
 

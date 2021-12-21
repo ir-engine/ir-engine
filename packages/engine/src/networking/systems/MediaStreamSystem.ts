@@ -301,6 +301,17 @@ export class MediaStreams {
   }
 }
 
+export const updateNearbyAvatars = () => {
+  MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.userId)
+  const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
+  EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS })
+  MediaStreams.instance.consumers.forEach((consumer) => {
+    if (!nearbyUserIds.includes(consumer._appData.peerId)) {
+      EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.CLOSE_CONSUMER, consumer })
+    }
+  })
+}
+
 // every 5 seconds
 const NEARYBY_AVATAR_UPDATE_PERIOD = 60 * 5
 
@@ -332,16 +343,7 @@ export default async function MediaStreamSystem(world: World): Promise<System> {
       nearbyAvatarTick++
       if (nearbyAvatarTick > NEARYBY_AVATAR_UPDATE_PERIOD) {
         nearbyAvatarTick = 0
-        if (MediaStreams.instance.channelType === 'instance') {
-          MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.userId)
-          const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
-          EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS })
-          MediaStreams.instance.consumers.forEach((consumer) => {
-            if (!nearbyUserIds.includes(consumer._appData.peerId)) {
-              EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.CLOSE_CONSUMER, consumer })
-            }
-          })
-        }
+        if (MediaStreams.instance.channelType === 'instance') updateNearbyAvatars()
       }
     }
   }

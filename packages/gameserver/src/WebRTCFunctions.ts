@@ -17,7 +17,6 @@ import {
   WebRtcTransport
 } from 'mediasoup/node/lib/types'
 import SocketIO from 'socket.io'
-import logger from '@xrengine/server-core/src/logger'
 import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
 import { getUserIdFromSocketId } from './NetworkFunctions'
 import config from '@xrengine/server-core/src/appconfig'
@@ -236,7 +235,6 @@ export async function createWebRtcTransport(
   networkTransport: SocketWebRTCServerTransport,
   { peerId, direction, sctpCapabilities, channelType, channelId }: WebRtcTransportParams
 ): Promise<WebRtcTransport> {
-  console.log(peerId, direction, sctpCapabilities, channelType, channelId)
   const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
   const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
   if (channelType !== 'instance') {
@@ -273,8 +271,8 @@ export async function createWebRtcTransport(
     appData: { peerId, channelType, channelId, clientDirection: direction }
   })
 
-  console.info('New transport to return:')
-  console.info(newTransport)
+  // console.info('New transport to return:')
+  // console.info(newTransport)
   return newTransport
 }
 
@@ -309,7 +307,6 @@ export async function handleWebRtcTransportCreate(
   data: WebRtcTransportParams,
   callback
 ): Promise<any> {
-  console.log('handleWebRtcTransportCreate', data)
   const userId = getUserIdFromSocketId(socket.id)!
   const { direction, peerId, sctpCapabilities, channelType, channelId } = Object.assign(data, { peerId: userId })
 

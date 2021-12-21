@@ -622,6 +622,7 @@ export async function subscribeToTrack(
   if (existingConsumer == null) {
     MediaStreams.instance?.consumers.push(consumer)
     EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS })
+    MediaStreamService.triggerUpdateNearbyLayerUsers()
 
     // okay, we're ready. let's ask the peer to send us media
     await resumeConsumer(networkTransport, consumer)
@@ -631,6 +632,7 @@ export async function subscribeToTrack(
     // MediaStreams.instance?.consumers.splice(existingConsumerIndex, 0, consumer) // existingConsumerIndex is undefined...
     console.log('consumers after splice', MediaStreams.instance?.consumers)
     EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS })
+    MediaStreamService.triggerUpdateNearbyLayerUsers()
 
     // okay, we're ready. let's ask the peer to send us media
     await resumeConsumer(networkTransport, consumer)
